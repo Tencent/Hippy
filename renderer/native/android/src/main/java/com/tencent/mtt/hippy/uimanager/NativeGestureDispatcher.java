@@ -157,10 +157,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
 
     public static void handleClickEvent(@NonNull NativeRender nativeRenderer, int id,
             @NonNull String eventType) {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(KEY_EVENT_NAME, eventType);
-        params.put(KEY_TAG_ID, id);
-        nativeRenderer.dispatchNativeGestureEvent(params);
+        nativeRenderer.dispatchNativeGestureEvent(id, eventType, null);
     }
 
     public static void handleTouchEvent(@NonNull NativeRender nativeRenderer, @NonNull View view,
@@ -175,11 +172,9 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
                     "handleTouchEvent: getLocationInWindow exception " + ignored.getMessage());
         }
         HashMap<String, Object> params = new HashMap<>();
-        params.put(KEY_EVENT_NAME, eventType);
-        params.put(KEY_TAG_ID, id);
         params.put(KEY_PAGE_X, PixelUtil.px2dp(location[0] + x));
         params.put(KEY_PAGE_Y, PixelUtil.px2dp(location[1] + y));
-        nativeRenderer.dispatchNativeGestureEvent(params);
+        nativeRenderer.dispatchNativeGestureEvent(id, eventType, params);
     }
 
     public NativeGestureDispatcher(View view) {

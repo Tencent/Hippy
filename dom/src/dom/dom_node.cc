@@ -109,13 +109,27 @@ void DomNode::DoLayout() {
 
 void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto dom_manager = dom_manager_.lock();
+  TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->HandleEvent(event);
+    dom_manager->PostTask([WEAK_THIS, event]() {
+      DEFINE_AND_CHECK_SELF(DomNode)
+      auto dom_manager = self->dom_manager_.lock();
+      if (dom_manager) {
+        dom_manager->HandleEvent(event);
+      }
+    });
   }
 }
 
 void DomNode::HandleListener(const std::string& name, std::shared_ptr<DomArgument> param) {
-  DomManager::HandleListener(shared_from_this(), name, std::move(param));
+  auto dom_manager = dom_manager_.lock();
+  TDF_BASE_DCHECK(dom_manager);
+  if (dom_manager) {
+    dom_manager->PostTask([WEAK_THIS, name, param]() {
+      DEFINE_AND_CHECK_SELF(DomNode)
+      DomManager::HandleListener(self->shared_from_this(), name, std::move(param));
+    });
+  }
 }
 
 std::tuple<float, float> DomNode::GetLayoutSize() {
@@ -204,9 +218,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
         auto dom_manager = self->dom_manager_.lock();
         TDF_BASE_DCHECK(dom_manager);
         if (dom_manager) {
-          auto render_manager = dom_manager->GetRenderManager();
-          TDF_BASE_DCHECK(render_manager);
-          render_manager->RemoveEventListener(self, name);
+          dom_manager->RemoveEventListenerOperation(self, name);
         }
       }
     });
@@ -274,9 +286,7 @@ void DomNode::RemoveRenderListener(const std::string& name, uint32_t id) {
         auto dom_manager = self->dom_manager_.lock();
         TDF_BASE_DCHECK(dom_manager);
         if (dom_manager) {
-          auto render_manager = dom_manager->GetRenderManager();
-          TDF_BASE_DCHECK(render_manager);
-          render_manager->RemoveRenderListener(self, name);
+          dom_manager->RemoveRenderListenerOperation(self, name);
         }
       }
     });

@@ -146,7 +146,8 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
   // 更新布局信息前处理事件监听
-  HandleEventListenerOps();
+  HandleListenerOps(event_listener_ops_, "updateGestureEventListener");
+//  HandleListenerOps(render_listener_ops_, "updateRenderEventListener");
 
   serializer_->Release();
   serializer_->WriteHeader();
@@ -214,11 +215,21 @@ void HippyRenderManager::BeforeLayout(){};
 void HippyRenderManager::AfterLayout(){};
 
 void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-  event_listener_ops_.emplace_back(EventListenerOp(true, dom_node, name));
+  event_listener_ops_.emplace_back(ListenerOp(true, dom_node, name));
 }
 
 void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-  event_listener_ops_.emplace_back(EventListenerOp(false, dom_node, name));
+  event_listener_ops_.emplace_back(ListenerOp(false, dom_node, name));
+}
+
+void HippyRenderManager::AddRenderListener(std::weak_ptr<DomNode> dom_node,
+                                           const std::string &name) {
+  render_listener_ops_.emplace_back(ListenerOp(true, dom_node, name));
+}
+
+void HippyRenderManager::RemoveRenderListener(std::weak_ptr<DomNode> dom_node,
+                                              const std::string &name) {
+  render_listener_ops_.emplace_back(ListenerOp(false, dom_node, name));
 }
 
 void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
@@ -302,33 +313,34 @@ void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float w
   result = (int64_t)measure_result;
 }
 
-void HippyRenderManager::HandleEventListenerOps() {
-  if (event_listener_ops_.empty()) {
+void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops,
+                                           const std::string& method_name) {
+  if (ops.empty()) {
     return;
   }
 
-  uint32_t len = event_listener_ops_.size();
+  uint32_t len = ops.size();
   tdf::base::DomValue::DomValueArrayType event_listener_ops;
   int index = 0;
   while (index < len) {
-    std::shared_ptr<DomNode> dom_node = event_listener_ops_[index].dom_node.lock();
+    std::shared_ptr<DomNode> dom_node = ops[index].dom_node.lock();
     if (dom_node == nullptr) {
       continue;
     }
 
     int current_id = dom_node->GetId();
-    bool current_add = event_listener_ops_[index].add;
+    bool current_add = ops[index].add;
     tdf::base::DomValue::DomValueObjectType op;
     op[kId] = tdf::base::DomValue(current_id);
     tdf::base::DomValue::DomValueObjectType events;
-    events[event_listener_ops_[index].name] = tdf::base::DomValue(current_add);
+    events[ops[index].name] = tdf::base::DomValue(current_add);
     index++;
 
     while (index < len) {
-      if (event_listener_ops_[index].dom_node.lock()->GetId() == current_id &&
-          event_listener_ops_[index].add == current_add) {
+      if (ops[index].dom_node.lock()->GetId() == current_id
+          && ops[index].add == current_add) {
         // batch add or remove operations with the same nodes together.
-        events[event_listener_ops_[index].name] = tdf::base::DomValue(current_add);
+        events[ops[index].name] = tdf::base::DomValue(current_add);
         index++;
       } else {
         break;
@@ -339,7 +351,7 @@ void HippyRenderManager::HandleEventListenerOps() {
     event_listener_ops.emplace_back(op);
   }
 
-  event_listener_ops_.clear();
+  ops.clear();
   if (event_listener_ops.empty()) {
     return;
   }
@@ -348,7 +360,7 @@ void HippyRenderManager::HandleEventListenerOps() {
   serializer_->WriteHeader();
   serializer_->WriteDenseJSArray(event_listener_ops);
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
-  CallNativeMethod(buffer_pair, "updateGestureEventListener");
+  CallNativeMethod(buffer_pair, method_name);
 }
 
 }  // namespace dom

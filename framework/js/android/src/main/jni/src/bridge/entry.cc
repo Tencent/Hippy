@@ -39,8 +39,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "dom/dom_manager.h"
-#include "dom/render_manager.h"
-#include "render/hippy_render_manager.h"
+#include "jni/native_render_provider.h"
 #include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
 #include "jni/java_turbo_module.h"
@@ -73,16 +72,6 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "destroy",
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
-
-REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "onCreateNativeRenderProvider",
-             "(JF)V",
-             CreateNativeRenderDelegate)
-
-REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "onRootSizeChanged",
-             "(JFF)V",
-             UpdateRootSize)
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
@@ -601,40 +590,6 @@ void DestroyInstance(__unused JNIEnv* j_env,
   TDF_BASE_DLOG(INFO) << "destroy end";
 }
 
-void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object, jlong j_runtime_id, jfloat j_density) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
-  if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "CreateNativeRenderDelegate j_runtime_id invalid";
-    return;
-  }
-
-  std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
-  std::static_pointer_cast<HippyRenderManager>(render_manager)->SetDensity(j_density);
-  runtime->GetScope()->SetRenderManager(render_manager);
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
-  uint32_t root_id = dom_manager->GetRootId();
-  auto node = dom_manager->GetNode(root_id);
-  auto layout_node = node->GetLayoutNode();
-  layout_node->SetScaleFactor(j_density);
-  dom_manager->SetRenderManager(render_manager);
-}
-
-void UpdateRootSize(JNIEnv* j_env, jobject j_object, jlong j_runtime_id, jfloat j_width, jfloat j_height) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
-  if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_runtime_id invalid";
-    return;
-  }
-
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
-  if(dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "UpdateRootSize dom_manager is nullptr";
-    return;
-  }
-  dom_manager->SetRootSize(j_width, j_height);
-  dom_manager->DoLayout();
-}
-
 }  // namespace bridge
 }  // namespace hippy
 
@@ -660,6 +615,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Init();
   ConvertUtils::Init();
   TurboModuleManager::Init();
+  NativeRenderProvider::Init();
 
   return JNI_VERSION_1_4;
 }
@@ -671,6 +627,7 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Destroy();
   ConvertUtils::Destroy();
   TurboModuleManager::Destroy();
+  NativeRenderProvider::Destroy();
 
   JNIEnvironment::DestroyInstance();
 }

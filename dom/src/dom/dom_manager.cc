@@ -241,12 +241,33 @@ void DomManager::AddEventListenerOperation(const std::shared_ptr<DomNode>& node,
   });
 }
 
+void DomManager::RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
+  listener_operations_.emplace_back([this, node, name]() {
+    auto render_manager = render_manager_.lock();
+    TDF_BASE_DCHECK(render_manager);
+    if (render_manager) {
+      render_manager->RemoveEventListener(node, name);
+    }
+  });
+}
+
 void DomManager::AddRenderListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
   listener_operations_.emplace_back([this, node, name]() {
     auto render_manager = render_manager_.lock();
     TDF_BASE_DCHECK(render_manager);
     if (render_manager) {
       render_manager->AddRenderListener(node, name);
+    }
+  });
+}
+
+void DomManager::RemoveRenderListenerOperation(const std::shared_ptr<DomNode> &node,
+                                               const std::string &name) {
+  listener_operations_.emplace_back([this, node, name]() {
+    auto render_manager = render_manager_.lock();
+    TDF_BASE_DCHECK(render_manager);
+    if (render_manager) {
+      render_manager->RemoveRenderListener(node, name);
     }
   });
 }

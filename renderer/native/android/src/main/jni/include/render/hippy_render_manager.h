@@ -36,9 +36,9 @@ class HippyRenderManager : public RenderManager {
 
   void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 
-  void AddRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override {};
+  void AddRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 
-  void RemoveRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override {};
+  void RemoveRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 
   void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,
                     CallFunctionCallback cb) override;
@@ -61,21 +61,22 @@ class HippyRenderManager : public RenderManager {
   std::shared_ptr<tdf::base::Serializer> serializer_;
   float density_ = 1.0f;
 
-  struct EventListenerOp {
+  struct ListenerOp {
     bool add;
     std::weak_ptr<DomNode> dom_node;
     std::string name;
 
-    EventListenerOp(bool add, std::weak_ptr<DomNode> dom_node, const std::string& name) {
+    ListenerOp(bool add, std::weak_ptr<DomNode> dom_node, const std::string& name) {
       this->add = add;
       this->dom_node = dom_node;
       this->name = name;
     }
   };
 
-  void HandleEventListenerOps();
+  void HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name);
 
-  std::vector<EventListenerOp> event_listener_ops_;
+  std::vector<ListenerOp> event_listener_ops_;
+  std::vector<ListenerOp> render_listener_ops_;
 };
 }  // namespace dom
 }  // namespace hippy
