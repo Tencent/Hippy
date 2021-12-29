@@ -29,8 +29,9 @@ bool DomArgument::ToObject(tdf::base::DomValue& dom_value) const {
     dom_value = std::any_cast<tdf::base::DomValue>(data_);
     return true;
   } else if (argument_type_ == ArgumentType::BSON) {
-    auto bson = std::any_cast<std::vector<const uint8_t>>(data_);
-    return ConvertBsonToObject(bson, dom_value);
+    auto bson = std::any_cast<std::vector<uint8_t>>(data_);
+    std::vector<const uint8_t> bson_copy(bson.begin(), bson.end());
+    return ConvertBsonToObject(bson_copy, dom_value);
   }
   return false;
 }

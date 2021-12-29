@@ -89,9 +89,13 @@ void LayerOptimizedRenderManager::Batch() {
   render_manager_->Batch();
 }
 
-void LayerOptimizedRenderManager::BeforeLayout() {}
+void LayerOptimizedRenderManager::BeforeLayout() {
+  render_manager_->BeforeLayout();
+}
 
-void LayerOptimizedRenderManager::AfterLayout() {}
+void LayerOptimizedRenderManager::AfterLayout() {
+  render_manager_->AfterLayout();
+}
 
 void LayerOptimizedRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
                                                    const std::string &name) {
@@ -213,11 +217,7 @@ bool LayerOptimizedRenderManager::UpdateRenderInfo(const std::shared_ptr<DomNode
     render_info.pid = render_parent->GetId();
     render_info.index = index;
   }
-  if (!node->IsJustLayout() && !node->IsVirtual()) {
-    render_info.created = true;
-  } else {
-    render_info.created = false;
-  }
+  render_info.created = !node->IsJustLayout() && !node->IsVirtual();
   node->SetRenderInfo(render_info);
   return render_info.created;
 }
