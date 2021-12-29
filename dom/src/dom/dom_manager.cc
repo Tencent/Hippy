@@ -42,6 +42,14 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       node->ParseLayoutStyleInfo();
       parent_node->AddChildAt(node, node->GetIndex());
 
+      // 延迟构造layout tree
+      auto layout_node = node->GetLayoutNode();
+      auto parent_layout_node = parent_node->GetLayoutNode();
+      uint32_t index = node->GetIndex();
+      self->layout_operations_.emplace_back([layout_node, parent_layout_node, index]() {
+        parent_layout_node->InsertChild(layout_node, index);
+      });
+
       self->dom_node_registry_.AddNode(node);
       self->HandleListener(node, kOnDomCreated, nullptr);
     }
@@ -74,9 +82,16 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       node->SetStyleMap(it->get()->GetStyleMap());
       node->SetExtStyleMap(it->get()->GetExtStyle());
       node->SetDiffStyle(std::move(style_diff));
-      node->ParseLayoutStyleInfo();
+      // node->ParseLayoutStyleInfo();
       update_nodes.push_back(node);
       self->HandleListener(node, kOnDomUpdated, nullptr);
+
+      // 延迟更新 layout tree
+      int32_t id = node->GetId();
+      self->layout_operations_.emplace_back([self, id]() {
+        auto node = self->dom_node_registry_.GetNode(id);
+        node->ParseLayoutStyleInfo();
+      });
     }
 
     if (!update_nodes.empty()) {
@@ -107,6 +122,13 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       self->dom_node_registry_.RemoveNode(node->GetId());
       delete_nodes.push_back(node);
       self->HandleListener(node, kOnDomDeleted, nullptr);
+
+      // 延迟删除 layout tree
+      auto layout_node = node->GetLayoutNode();
+      auto parent_layout_node = parent_node->GetLayoutNode();
+      self->layout_operations_.emplace_back([layout_node, parent_layout_node]() {
+        parent_layout_node->RemoveChild(layout_node);
+      });
     }
 
     if (!delete_nodes.empty()) {
@@ -135,15 +157,24 @@ void DomManager::EndBatch() {
       listener_operation();
     }
     self->listener_operations_.clear();
-    // 触发布局计算
-    self->layout_changed_nodes_.clear();
-    // 触发布局计算
-    self->root_node_->DoLayout();
     auto render_manager = self->render_manager_.lock();
     TDF_BASE_DCHECK(render_manager);
     if (!render_manager) {
       return;
     }
+    // Before Layout
+    render_manager->BeforeLayout();
+    // build layout tree
+    for (auto& layout_operation : self->layout_operations_) {
+      layout_operation();
+    }
+    self->layout_operations_.clear();
+    // 清理布局计算
+    self->layout_changed_nodes_.clear();
+    // 触发布局计算
+    self->root_node_->DoLayout();
+    // After Layout
+    render_manager->AfterLayout();
     if (!self->layout_changed_nodes_.empty()) {
       render_manager->UpdateLayout(self->layout_changed_nodes_);
     }
@@ -254,13 +285,23 @@ void DomManager::DoLayout() {
   PostTask([WEAK_THIS]() {
     DEFINE_AND_CHECK_SELF(DomManager)
     self->layout_changed_nodes_.clear();
-    // 触发布局计算
-    self->root_node_->DoLayout();
     auto render_manager = self->render_manager_.lock();
     TDF_BASE_DCHECK(render_manager);
     if (!render_manager) {
       return;
     }
+    // Before Layout
+    render_manager->BeforeLayout();
+    // build layout tree
+    for (auto& layout_operation : self->layout_operations_) {
+      layout_operation();
+    }
+    self->layout_operations_.clear();
+
+    // 触发布局计算
+    self->root_node_->DoLayout();
+    // After Layout
+    render_manager->AfterLayout();
     if (!self->layout_changed_nodes_.empty()) {
       render_manager->UpdateLayout(self->layout_changed_nodes_);
     }

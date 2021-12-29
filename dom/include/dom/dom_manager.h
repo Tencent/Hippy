@@ -83,6 +83,7 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   using DomOperation = std::function<void(void)>;
   std::vector<DomOperation> batched_operations_;
   std::vector<DomOperation> listener_operations_;
+  std::vector<DomOperation> layout_operations_;
   std::vector<std::shared_ptr<DomNode>> layout_changed_nodes_;
   void HandleEvent(const std::shared_ptr<DomEvent>& event);
   void AddLayoutChangedNode(const std::shared_ptr<DomNode>& node);
