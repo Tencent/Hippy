@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const yargs = require('yargs');
-const { startWebpackDevServer } = require('./server/webpack');
+const { webpack, getWebpackConfig } = require('./server/webpack');
 
 const { argv } = yargs
   .alias('v', 'version')
@@ -31,4 +31,5 @@ if (argv.version) {
 }
 
 // Execute command
-startWebpackDevServer(argv);
+const webpackConfig = getWebpackConfig(argv.config);
+webpack(webpackConfig);
