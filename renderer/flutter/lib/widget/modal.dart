@@ -124,11 +124,7 @@ class _ModalDialogWidgetState extends State<ModalDialogWidget> {
       child: Selector<ModalRenderViewModel, DivContainerViewModel>(
         selector: (context, divViewModel) {
           return DivContainerViewModel(
-              divViewModel.sortedIdList,
-              divViewModel.childrenMap,
-              divViewModel.overflow,
-              divViewModel.name,
-              divViewModel.context);
+              divViewModel);
         },
         builder: (context, viewModel, _) {
           return DivContainerWidget(viewModel);

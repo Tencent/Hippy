@@ -35,15 +35,11 @@ class _DivWidgetState extends FRState<DivWidget> {
   }
 
   Widget divChild() {
-    return Selector<DivRenderViewModel, DivRenderViewModel>(
-        selector: (context, viewModel) {
-      return DivRenderViewModel.copy(viewModel.id, viewModel.rootId,
-          viewModel.name, viewModel.context, viewModel);
-    }, builder: (context, viewModel, child) {
+    return Consumer<DivRenderViewModel>(builder: (context, viewModel, child) {
       return PositionWidget(
         viewModel,
-        child: Selector0<DivContainerViewModel>(
-          selector: (context) => viewModel.divContainerViewModel,
+        child: Selector<DivRenderViewModel, DivContainerViewModel>(
+          selector: (context, viewModel) => DivContainerViewModel(viewModel),
           builder: (context, viewModel, _) => DivContainerWidget(viewModel),
         ),
       );
@@ -59,18 +55,19 @@ class DivContainerWidget extends FRBaseStatelessWidget {
   @override
   Widget build(BuildContext context) {
     var result;
+    _viewModel.stackFlag = false;
     if (_viewModel.sortedIdList.isEmpty) {
       result = Container();
     } else {
       if (_viewModel.needStack()) {
         var childrenWidget = <Widget>[];
+        _viewModel.stackFlag = true;
         for (var id in _viewModel.sortedIdList) {
           var childrenViewModel = _viewModel.childrenMap[id];
           if (childrenViewModel != null) {
             childrenWidget.add(generateByViewModel(context, childrenViewModel));
           }
         }
-
         result = Stack(
             children: childrenWidget,
             clipBehavior: toOverflow(_viewModel.overflow));
@@ -92,10 +89,8 @@ Widget generateByViewModel(
     BuildContext context, RenderViewModel renderViewModel) {
   ControllerManager? controllerManager =
       renderViewModel.context.renderManager.controllerManager;
-  var node =
-      controllerManager.findNode(renderViewModel.rootId, renderViewModel.id);
   var controller = controllerManager.findController(renderViewModel.name);
-  if (node != null && controller != null) {
+  if (controller != null) {
     var widget = controller.createWidget(context, renderViewModel);
     return widget;
   }
@@ -266,7 +261,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
 }
 
 class PositionWidget extends FRBaseStatelessWidget {
-  final dynamic _viewModel;
+  final RenderViewModel _viewModel;
   final Widget child;
 
   PositionWidget(this._viewModel, {required this.child})
@@ -283,26 +278,18 @@ class PositionWidget extends FRBaseStatelessWidget {
     Widget result;
     var node = child;
     var parent = _viewModel.parent;
-    var isOverflowVisible = false;
+    var parentUseStack = false;
     if (parent is GroupViewModel) {
-      isOverflowVisible = parent.isOverflowVisible();
+      parentUseStack = parent.isUsingStack;
     }
 
     if (parent != null && !parent.interceptChildPosition()) {
-      if (_viewModel.layoutX == null ||
-          _viewModel.layoutX.isNaN ||
-          _viewModel.layoutY == null ||
-          _viewModel.layoutY.isNaN) {
+      if (_viewModel.noSize || _viewModel.noPosition) {
         LogUtils.d("PositionWidget",
             "build box widget error, wrong size:(${_viewModel.layoutX}, ${_viewModel.layoutY})");
         result = Container();
-      } else if (_viewModel.parent.childCount <= 1 &&
-          _viewModel.layoutX >= 0 &&
-          _viewModel.layoutY >= 0 &&
-          !isOverflowVisible) {
-        result = AnimationWidget(node, _viewModel);
       } else {
-        result = AnimationWidget(node, _viewModel, true);
+        result = AnimationWidget(node, _viewModel, parentUseStack);
       }
     } else {
       result = AnimationWidget(node, _viewModel);

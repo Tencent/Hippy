@@ -24,16 +24,12 @@ class _RefreshWrapperItemWidgetState extends FRState<RefreshWrapperItemWidget> {
   }
 
   Widget _boxContent() {
-    return Selector<RefreshWrapperItemRenderViewModel,
-        RefreshWrapperItemRenderViewModel>(builder: (context, viewModel, _) {
+    return Consumer<RefreshWrapperItemRenderViewModel>(builder: (context, viewModel, _) {
       return BoxWidget(viewModel,
-          child: Selector0<DivContainerViewModel>(
-            selector: (context) => viewModel.divContainerViewModel,
+          child: Selector<RefreshWrapperItemRenderViewModel, DivContainerViewModel>(
+            selector: (context, viewModel) => DivContainerViewModel(viewModel),
             builder: (context, viewModel, _) => DivContainerWidget(viewModel),
           ));
-    }, selector: (context, viewModel) {
-      return RefreshWrapperItemRenderViewModel.copy(viewModel.id,
-          viewModel.rootId, viewModel.name, viewModel.context, viewModel);
     });
   }
 }

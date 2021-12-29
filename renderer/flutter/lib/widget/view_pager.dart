@@ -131,14 +131,10 @@ class _ViewPagerItemWidgetState extends FRState<ViewPagerItemWidget> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
         value: widget._itemViewModel,
-        child: Selector<ViewPagerItemRenderViewModel,
-            ViewPagerItemRenderViewModel>(selector: (context, viewModel) {
-          return ViewPagerItemRenderViewModel.copy(viewModel.id,
-              viewModel.rootId, viewModel.name, viewModel.context, viewModel);
-        }, builder: (context, viewModel, child) {
+        child: Consumer<ViewPagerItemRenderViewModel>(builder: (context, viewModel, child) {
           return BoxWidget(viewModel,
-              child: Selector0<DivContainerViewModel>(
-                selector: (context) => viewModel.divContainerViewModel,
+              child: Selector<ViewPagerItemRenderViewModel, DivContainerViewModel>(
+                selector: (context, viewModel) => DivContainerViewModel(viewModel),
                 builder: (context, viewModel, _) =>
                     DivContainerWidget(viewModel),
               ),

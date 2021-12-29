@@ -11,6 +11,8 @@ import '../style.dart';
 import '../util.dart';
 import '../widget.dart';
 
+int _kRenderModelInstanceId = 1;
+
 class RenderViewModel extends ChangeNotifier {
   ContextWrapper? _wrapper;
 
@@ -18,6 +20,9 @@ class RenderViewModel extends ChangeNotifier {
   double? _y;
   double? _width;
   double? _height;
+
+  // 调试时候查看是否是同一个viewModel实例
+  final int _modelId = _kRenderModelInstanceId++;
 
   final String _className;
   final int _id;
@@ -105,6 +110,17 @@ class RenderViewModel extends ChangeNotifier {
   double? get layoutY => _y;
   double? get width => _width;
   double? get height => _height;
+
+  bool get noPosition =>
+      _x == null || _y == null || _x == double.nan || _y == double.nan;
+
+  bool get noSize =>
+      _width == null ||
+      _height == null ||
+      _width == double.nan ||
+      _height == double.nan ||
+      (_width ?? 0.0) <= 0.0 ||
+      (_height ?? 0.0) <= 0.0;
 
   // transform
   Matrix4? transform;

@@ -38,20 +38,11 @@ class _ListItemWidgetState extends FRState<ListItemWidget> {
   }
 
   Widget _boxContent() {
-    return Selector<ListItemViewModel, ListItemViewModel>(
-      selector: (context, viewModel) {
-        return ListItemViewModel.copy(
-            viewModel.id,
-            viewModel.rootId,
-            viewModel.name,
-            viewModel.shouldSticky,
-            viewModel.context,
-            viewModel);
-      },
+    return Consumer<ListItemViewModel>(
       builder: (context, viewModel, child) {
         return BoxWidget(viewModel,
-            child: Selector0<DivContainerViewModel>(
-              selector: (context) => viewModel.divContainerViewModel,
+            child: Selector<ListItemViewModel, DivContainerViewModel>(
+              selector: (context, viewModel) => DivContainerViewModel(viewModel),
               builder: (context, viewModel, _) => DivContainerWidget(viewModel),
             ));
       },

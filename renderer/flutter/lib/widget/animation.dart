@@ -11,6 +11,7 @@ class AnimationWidget extends StatelessWidget {
   final Widget child;
   final RenderViewModel viewModel;
   final bool isStackLayout;
+
   AnimationWidget(this.child, this.viewModel, [this.isStackLayout = false]);
 
   @override
@@ -40,6 +41,7 @@ class AnimationChild extends StatefulWidget {
 
   AnimationChild(this.child, this.animation, this.transition, this.viewModel,
       [this.isStackLayout = false]);
+
   @override
   _AnimationChildState createState() => _AnimationChildState();
 }
@@ -249,6 +251,7 @@ class CommonChild extends StatelessWidget {
   final VoltronMap? animationProperty;
   final RenderViewModel viewModel;
   final Widget child;
+
   CommonChild(
       {this.animationProperty, required this.viewModel, required this.child});
 
@@ -258,13 +261,18 @@ class CommonChild extends StatelessWidget {
         top: viewModel.layoutY ?? 0.0, left: viewModel.layoutX ?? 0.0);
     final animationMargin =
         animationProperty?.get<EdgeInsets>(NodeProps.kMargin);
-
-    return Container(
-      alignment: Alignment.topLeft,
-      margin: animationMargin ?? viewModelMargin,
-      child: BoxWidget(viewModel,
-          child: child, animationProperty: animationProperty),
-    );
+    var margin = animationMargin ?? viewModelMargin;
+    if (margin.isNonNegative) {
+      return BoxWidget(viewModel,
+          child: child, animationProperty: animationProperty);
+    } else {
+      return Container(
+        alignment: Alignment.topLeft,
+        margin: margin,
+        child: BoxWidget(viewModel,
+            child: child, animationProperty: animationProperty),
+      );
+    }
   }
 }
 
@@ -273,6 +281,7 @@ class StackChild extends StatelessWidget {
   final VoltronMap? animationProperty;
   final RenderViewModel viewModel;
   final Widget child;
+
   StackChild(
       {this.animationProperty, required this.viewModel, required this.child});
 

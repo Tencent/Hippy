@@ -14,6 +14,8 @@ class GroupViewModel extends RenderViewModel {
   // pull intercept
   bool interceptPullUp = false;
 
+  bool isUsingStack = false;
+
   final List<RenderViewModel> _children = [];
 
   final HashMap<int, RenderViewModel> _childrenMap = HashMap();
@@ -32,8 +34,6 @@ class GroupViewModel extends RenderViewModel {
     return _childrenMap[id];
   }
 
-  late DivContainerViewModel divContainerViewModel;
-
   @override
   int get childCount => _children.length;
 
@@ -50,8 +50,7 @@ class GroupViewModel extends RenderViewModel {
     _children.addAll(viewModel.children);
     _childrenMap.addAll(viewModel._childrenMap);
     _sortedIdList.addAll(viewModel.sortedIdList);
-    divContainerViewModel = DivContainerViewModel(
-        sortedIdList, childrenMap, overflow, name, context);
+    isUsingStack = viewModel.isUsingStack;
   }
 
   @override
@@ -128,14 +127,26 @@ class GroupViewModel extends RenderViewModel {
 
 class DivContainerViewModel {
   final List<int> sortedIdList = [];
-  HashMap<int, RenderViewModel> childrenMap = HashMap();
+  final HashMap<int, RenderViewModel> childrenMap;
   final String overflow;
   final String name;
   final EngineContext context;
+  final GroupViewModel _viewModel;
 
-  DivContainerViewModel(List<int> sortedIdList, this.childrenMap, this.overflow,
-      this.name, this.context) {
-    this.sortedIdList.addAll(sortedIdList);
+  int get id => _viewModel.id;
+  GroupViewModel get viewModel => _viewModel;
+
+  DivContainerViewModel(GroupViewModel viewModel)
+      : _viewModel = viewModel,
+        context = viewModel.context,
+        overflow = viewModel.overflow,
+        name = viewModel.name,
+        childrenMap = viewModel.childrenMap {
+    sortedIdList.addAll(viewModel.sortedIdList);
+  }
+
+  set stackFlag(bool flag) {
+    _viewModel.isUsingStack = flag;
   }
 
   bool needStack() {
