@@ -192,8 +192,6 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 - (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
                 parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
 
-- (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
-
 /**
  * Process the updated properties and apply them to view. Shadow view classes
  * that add additional propagating properties should override this method.
