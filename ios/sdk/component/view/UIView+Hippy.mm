@@ -470,4 +470,15 @@ HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name) {
 - (void)removeComponentEvent:(const std::string &)eventName {
 }
 
+- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
+    if (callback) {
+        callback(@{});
+    }
+}
+
+- (void)removeRenderEvent:(const std::string &)name {
+    
+}
+
+
 @end

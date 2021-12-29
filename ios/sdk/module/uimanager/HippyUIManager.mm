@@ -1801,6 +1801,7 @@ static UIView *_jsResponder;
 }
 
 - (void) addClickEventListenerForView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
@@ -1813,6 +1814,7 @@ static UIView *_jsResponder;
 }
 
 - (void) addLongClickEventListenerForView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
@@ -1826,6 +1828,7 @@ static UIView *_jsResponder;
 
 - (void) addPressEventListenerForType:(std::string)type
                               forView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     HippyViewEventType eventType = hippy::kPressIn == type ? HippyViewEventType::HippyViewEventTypePressIn : HippyViewEventType::HippyViewEventTypePressOut;
     if (view) {
@@ -1840,6 +1843,7 @@ static UIView *_jsResponder;
 
 - (void) addTouchEventListenerForType:(std::string)type
                               forView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         // todo 默认值应该有个值代表未知
@@ -1870,19 +1874,22 @@ static UIView *_jsResponder;
 
 - (void)addShowEventListenerForType:(std::string)type
                             forView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
             auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<DomEvent>(type, node, std::any_cast<bool>(true)));
+                std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(true);
+                node->HandleEvent(std::make_shared<DomEvent>(type, node, domValue));
             }
         }];
     }
 }
 
 - (void)addComponentEvent:(const std::string &)name forView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     [view addComonentEvent:std::move(name)];
 }
@@ -1899,9 +1906,40 @@ static UIView *_jsResponder;
 }
 
 - (void)addRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
+    HippyAssertMainThread();
+    auto node = weak_node.lock();
+    if (node) {
+        int32_t hippyTag = node->GetId();
+        std::string name_ = std::move(name);
+        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
+            __weak __typeof(self) weakManager = uiManager;
+            [view addRenderEvent:name_ eventCallback:^(NSDictionary *body) {
+                __typeof(self) strongManager = weakManager;
+                if (strongManager) {
+                    auto domNode = [strongManager domNodeFromHippyTag:hippyTag];
+                    if (domNode) {
+                        DomValue value = [body toDomValue];
+                        std::shared_ptr<DomValue> v = std::make_shared<DomValue>(std::move(value));
+                        domNode->HandleEvent(std::make_shared<DomEvent>(name_, domNode, v));
+                    }
+                }
+            }];
+        }];
+    }
 }
 
 - (void)removeRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
+    HippyAssertMainThread();
+    auto node = weak_node.lock();
+    if (node) {
+        int32_t hippyTag = node->GetId();
+        std::string name_ = std::move(name);
+        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
+            [view removeRenderEvent:name_];
+        }];
+    }
 }
 
 @end
