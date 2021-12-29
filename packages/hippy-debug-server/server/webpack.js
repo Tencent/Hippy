@@ -9,23 +9,21 @@ const WebpackDevServer = require('../webpack-dev-server/lib/Server');
 
 module.exports = {
   webpack: (webpackConfig, cb) => {
-    const compiler = Webpack(webpackConfig, cb);
-    startWebpackDevServer(webpackConfig, compiler);
+    const compiler = Webpack(webpackConfig);
+    startWebpackDevServer(webpackConfig, compiler, cb);
     return compiler;
   },
   getWebpackConfig: (configPath) => {
-    let hmrPort;
     let webpackConfig;
     const webpackConfigPath = path.resolve(process.cwd(), configPath);
     if (configPath && fs.existsSync(webpackConfigPath)) {
       webpackConfig = require(webpackConfigPath);
-      hmrPort = (webpackConfig.devServer && webpackConfig.devServer.port) || 38988;
     }
-    return { webpackConfig, hmrPort };
+    return webpackConfig;
   },
 };
 
-async function startWebpackDevServer(webpackConfig, compiler) {
+async function startWebpackDevServer(webpackConfig, compiler, cb) {
   const hmrPort = (webpackConfig.devServer && webpackConfig.devServer.port) || 38988;
   try  {
     if (hmrPort) {
@@ -37,6 +35,6 @@ async function startWebpackDevServer(webpackConfig, compiler) {
     logger.warn('Otherwise please check adb devices command working correctly');
   }
 
-  const server = new WebpackDevServer(webpackConfig.devServer, compiler);
+  const server = new WebpackDevServer(webpackConfig.devServer, compiler, cb);
   await server.start();
 }

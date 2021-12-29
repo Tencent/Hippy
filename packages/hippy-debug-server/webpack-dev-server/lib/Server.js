@@ -16,7 +16,7 @@ if (!process.env.WEBPACK_SERVE) {
 }
 
 class Server {
-  constructor(options = {}, compiler) {
+  constructor(options = {}, compiler, cb) {
     // TODO: remove this after plugin support is published
     if (options.hooks) {
       util.deprecate(
@@ -38,6 +38,7 @@ class Server {
     this.sockets = [];
     this.compiler = compiler;
     this.currentHash = null;
+    this.cb = cb;
   }
 
   static get DEFAULT_STATS() {
@@ -1223,12 +1224,16 @@ class Server {
   }
 
   setupHooks() {
+    this.compiler.hooks.failed.tap('webpack-dev-server', (error) => {
+      this.cb(error);
+    });
     this.compiler.hooks.invalid.tap('webpack-dev-server', () => {
       if (this.webSocketServer) {
         this.sendMessage(this.webSocketServer.clients, 'invalid');
       }
     });
     this.compiler.hooks.done.tap('webpack-dev-server', (stats) => {
+      this.cb(null, stats);
       if (this.webSocketServer) {
         this.sendStats(this.webSocketServer.clients, this.getStats(stats));
       }
