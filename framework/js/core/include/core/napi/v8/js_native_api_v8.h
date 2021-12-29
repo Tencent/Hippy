@@ -143,7 +143,8 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const unicode_string_view& name) override;
-
+  virtual bool DeleteProperty(const std::shared_ptr<CtxValue>& object,
+                              const unicode_string_view& name) override;
   virtual void RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
                                     const ModuleClassMap& modules) override;
   virtual void RegisterNativeBinding(const unicode_string_view& name,

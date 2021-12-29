@@ -406,6 +406,25 @@ std::shared_ptr<CtxValue> JSCCtx::GetProperty(
   return std::make_shared<JSCCtxValue>(context_, prop_ref);
 }
 
+bool JSCCtx::DeleteProperty(const std::shared_ptr<CtxValue>& obj,
+                            const unicode_string_view& name) {
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(obj);
+  JSValueRef value_ref = ctx_value->value_;
+  if (!JSValueIsObject(context_, value_ref)) {
+    return nullptr;
+  }
+  JSValueRef js_error = nullptr;
+  JSObjectRef obj_ref = JSValueToObject(context_, value_ref, &js_error);
+  JSStringRef name_ref = CreateJSCString(name);
+  bool ret = JSObjectDeleteProperty(context_, obj_ref, name_ref, &js_error);
+  JSStringRelease(name_ref);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
+  }
+  return ret;
+}
+
 void JSCCtx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
                                   const ModuleClassMap& module_cls_map) {
   std::shared_ptr<JSCCtx> ctx =
