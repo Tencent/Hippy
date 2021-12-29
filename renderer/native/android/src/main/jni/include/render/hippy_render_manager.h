@@ -48,6 +48,8 @@ class HippyRenderManager : public RenderManager {
  private:
   inline float DpToPx(float dp);
 
+  inline float PxToDp(float px);
+
   void CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method);
 
   void CallNativeMethod(const std::string& method);
