@@ -50,6 +50,8 @@ public:
                         int32_t id) override;
 
     void Batch() override;
+    void BeforeLayout() override;
+    void AfterLayout() override;
     
     void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
     void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) override;

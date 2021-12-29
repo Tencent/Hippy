@@ -55,6 +55,14 @@ void NativeRenderManager::Batch() {
     [uiManager_ batch];
 }
 
+void NativeRenderManager::BeforeLayout() {
+    // [uiManager_ batch];
+}
+
+void NativeRenderManager::AfterLayout() {
+    // [uiManager_ batch];
+}
+
 void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
     [uiManager_ addEventName:name forDomNode:dom_node];
 };
