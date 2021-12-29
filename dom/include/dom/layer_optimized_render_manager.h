@@ -14,8 +14,11 @@ class LayerOptimizedRenderManager : public RenderManager {
   void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
   void MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) override;
-
   void Batch() override;
+
+  void BeforeLayout() override;
+  void AfterLayout() override;
+
   void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
   void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 

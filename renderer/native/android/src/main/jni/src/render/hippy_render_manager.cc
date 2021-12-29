@@ -160,6 +160,12 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
     dom_node[kHeight] = tdf::base::DomValue(DpToPx(result.height));
     dom_node[kLeft] = tdf::base::DomValue(DpToPx(result.left));
     dom_node[kTop] = tdf::base::DomValue(DpToPx(result.top));
+    if(nodes[i]->GetViewName() == kView) {
+      dom_node["paddingLeft"] = tdf::base::DomValue(DpToPx(result.padding[0]));
+      dom_node["paddingTop"] = tdf::base::DomValue(DpToPx(result.padding[1]));
+      dom_node["paddingRight"] = tdf::base::DomValue(DpToPx(result.padding[2]));
+      dom_node["paddingBottom"] = tdf::base::DomValue(DpToPx(result.padding[3]));
+    }
     dom_node_array[i] = dom_node;
   }
   serializer_->WriteDenseJSArray(dom_node_array);
@@ -200,6 +206,9 @@ void HippyRenderManager::Batch() {
   CallNativeMethod("endBatch");
   return;
 };
+
+void BeforeLayout() {};
+void AfterLayout() {};
 
 void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
   event_listener_ops_.emplace_back(EventListenerOp(true, dom_node, name));

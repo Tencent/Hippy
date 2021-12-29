@@ -90,14 +90,14 @@ void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index
     children_.insert(it, dom_node);
   }
   dom_node->SetParent(shared_from_this());
-  layout_node_->InsertChild(dom_node->layout_node_, insert_index);
+  // layout_node_->InsertChild(dom_node->layout_node_, insert_index);
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   auto child = children_[index];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
-  layout_node_->RemoveChild(child->layout_node_);
+  // layout_node_->RemoveChild(child->layout_node_);
   return child;
 }
 

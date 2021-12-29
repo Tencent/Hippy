@@ -89,6 +89,10 @@ void LayerOptimizedRenderManager::Batch() {
   render_manager_->Batch();
 }
 
+void LayerOptimizedRenderManager::BeforeLayout() {}
+
+void LayerOptimizedRenderManager::AfterLayout() {}
+
 void LayerOptimizedRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
                                                    const std::string &name) {
   render_manager_->AddEventListener(dom_node, name);
