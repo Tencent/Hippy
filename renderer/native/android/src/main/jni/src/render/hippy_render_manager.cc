@@ -18,6 +18,7 @@ constexpr char kHeight[] = "height";
 constexpr char kLeft[] = "left";
 constexpr char kTop[] = "top";
 constexpr char kProps[] = "props";
+constexpr char kMeasureNode[] = "Text";
 
 namespace hippy {
 inline namespace dom {
@@ -36,7 +37,7 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
     dom_node[kIndex] = tdf::base::DomValue(nodes[i]->GetIndex());
     dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
 
-    if (nodes[i]->GetViewName() == "Text") {
+    if (nodes[i]->GetViewName() == kMeasureNode) {
       int32_t id = nodes[i]->GetId();
       TaitankMeasureFunction measure_function = [this, id](HPNodeRef node, float width, MeasureMode widthMeasureMode,
                                                            float height, MeasureMode heightMeasureMode,
@@ -46,7 +47,8 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
         TaitankResult layout_result;
         layout_result.width = (int32_t)(0xFFFFFFFF & (result >> 32));
         layout_result.height = (int32_t)(0xFFFFFFFF & result);
-        TDF_BASE_LOG(INFO) << "measure width: " << layout_result.width << ", height: " << layout_result.height << ", result: " << result;
+        TDF_BASE_DLOG(INFO) << "measure width: " << layout_result.width << ", height: " << layout_result.height
+                           << ", result: " << result;
         return layout_result;
       };
       std::static_pointer_cast<TaitankLayoutNode>(nodes[i]->GetLayoutNode())->SetMeasureFunction(measure_function);
@@ -160,11 +162,11 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
     dom_node[kHeight] = tdf::base::DomValue(DpToPx(result.height));
     dom_node[kLeft] = tdf::base::DomValue(DpToPx(result.left));
     dom_node[kTop] = tdf::base::DomValue(DpToPx(result.top));
-    if(nodes[i]->GetViewName() == kView) {
-      dom_node["paddingLeft"] = tdf::base::DomValue(DpToPx(result.padding[0]));
-      dom_node["paddingTop"] = tdf::base::DomValue(DpToPx(result.padding[1]));
-      dom_node["paddingRight"] = tdf::base::DomValue(DpToPx(result.padding[2]));
-      dom_node["paddingBottom"] = tdf::base::DomValue(DpToPx(result.padding[3]));
+    if (nodes[i]->GetViewName() == kMeasureNode) {
+      dom_node["paddingLeft"] = tdf::base::DomValue(DpToPx(result.paddingLeft));
+      dom_node["paddingTop"] = tdf::base::DomValue(DpToPx(result.paddingTop));
+      dom_node["paddingRight"] = tdf::base::DomValue(DpToPx(result.paddingRight));
+      dom_node["paddingBottom"] = tdf::base::DomValue(DpToPx(result.paddingBottom));
     }
     dom_node_array[i] = dom_node;
   }
@@ -207,8 +209,9 @@ void HippyRenderManager::Batch() {
   return;
 };
 
-void BeforeLayout() {};
-void AfterLayout() {};
+void HippyRenderManager::BeforeLayout(){};
+
+void HippyRenderManager::AfterLayout(){};
 
 void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
   event_listener_ops_.emplace_back(EventListenerOp(true, dom_node, name));
@@ -274,8 +277,7 @@ void HippyRenderManager::CallNativeMethod(const std::string& method) {
 }
 
 void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode,
-                                                 const float height, const int32_t height_mode,
-                                                 int64_t& result) {
+                                                 const float height, const int32_t height_mode, int64_t& result) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -321,8 +323,8 @@ void HippyRenderManager::HandleEventListenerOps() {
     index++;
 
     while (index < len) {
-      if (event_listener_ops_[index].dom_node.lock()->GetId() == current_id
-          && event_listener_ops_[index].add == current_add) {
+      if (event_listener_ops_[index].dom_node.lock()->GetId() == current_id &&
+          event_listener_ops_[index].add == current_add) {
         // batch add or remove operations with the same nodes together.
         events[event_listener_ops_[index].name] = tdf::base::DomValue(current_add);
         index++;
