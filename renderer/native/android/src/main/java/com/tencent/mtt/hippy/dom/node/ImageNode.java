@@ -21,6 +21,7 @@ import android.text.style.ImageSpan;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 
 import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
+import com.tencent.renderer.component.text.TextImageSpan;
 import java.util.ArrayList;
 
 @SuppressWarnings({"unused"})
@@ -29,7 +30,7 @@ public class ImageNode extends StyleNode {
   public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
 
   private final boolean mIsVirtual;
-  private HippyImageSpan mImageSpan = null;
+  private TextImageSpan mImageSpan = null;
   private int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
   private final boolean[] shouldSendImageEvent;
 
@@ -40,7 +41,7 @@ public class ImageNode extends StyleNode {
     shouldSendImageEvent = new boolean[ImageEvent.values().length];
   }
 
-  public void setImageSpan(HippyImageSpan imageSpan) {
+  public void setImageSpan(TextImageSpan imageSpan) {
     mImageSpan = imageSpan;
   }
 

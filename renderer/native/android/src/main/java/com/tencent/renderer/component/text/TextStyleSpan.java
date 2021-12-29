@@ -13,42 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.dom.node;
+package com.tencent.renderer.component.text;
 
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 
 import com.tencent.hippy.support.FontAdapter;
 
-@SuppressWarnings({"unused"})
-public class HippyStyleSpan extends MetricAffectingSpan {
+public class TextStyleSpan extends MetricAffectingSpan {
 
-  private final int mStyle;
-  private final int mWeight;
-  private final String mFontFamily;
-  private final FontAdapter fontAdapter;
+    private final int mStyle;
+    private final int mWeight;
+    private final String mFontFamily;
+    private final FontAdapter mFontAdapter;
 
-  public HippyStyleSpan(int fontStyle, int fontWeight, String fontFamily,
-          FontAdapter adapter) {
-    mStyle = fontStyle;
-    mWeight = fontWeight;
-    mFontFamily = fontFamily;
-    fontAdapter = adapter;
-  }
+    public TextStyleSpan(int fontStyle, int fontWeight, String fontFamily,
+            FontAdapter adapter) {
+        mStyle = fontStyle;
+        mWeight = fontWeight;
+        mFontFamily = fontFamily;
+        mFontAdapter = adapter;
+    }
 
-  @Override
-  public void updateDrawState(TextPaint ds) {
-    TypeFaceUtil.apply(ds, mStyle, mWeight, mFontFamily, fontAdapter);
-  }
+    @Override
+    public void updateDrawState(TextPaint textPaint) {
+        TypeFaceUtil.apply(textPaint, mStyle, mWeight, mFontFamily, mFontAdapter);
+    }
 
-  @Override
-  public void updateMeasureState(TextPaint paint) {
-    TypeFaceUtil.apply(paint, mStyle, mWeight, mFontFamily, fontAdapter);
-  }
-
-  public int getStyle() {
-    return (mStyle == TextNode.UNSET ? 0 : mStyle);
-  }
-
-
+    @Override
+    public void updateMeasureState(TextPaint textPaint) {
+        TypeFaceUtil.apply(textPaint, mStyle, mWeight, mFontFamily, mFontAdapter);
+    }
 }
