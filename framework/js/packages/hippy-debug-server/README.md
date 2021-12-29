@@ -18,3 +18,17 @@ npm install -g @hippy/debug-server # Install
 cd hippy-react-demo               # Change to a hippy-react project folder.
 hippy-debug                       # Start the debug server
 ```
+
+If you use custom cli, you could customize like this:
+
+```javascript
+const { webpack, startDebugServer } = require('@hippy/debug-server');
+
+// start hippy dev with HMR supported
+webpack(webpackConfig, (err, stats) => {
+  // add you custom callback here...
+});
+
+// start hippy debug
+startDebugServer();
+```
