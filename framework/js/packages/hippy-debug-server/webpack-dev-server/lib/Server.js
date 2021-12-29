@@ -38,7 +38,7 @@ class Server {
     this.sockets = [];
     this.compiler = compiler;
     this.currentHash = null;
-    this.cb = cb;
+    this.cb = cb || (() => {});
   }
 
   static get DEFAULT_STATS() {
