@@ -22,6 +22,7 @@ import './global';
 import {
   Device,
 } from './native';
+import { BackAndroid, Focusable, callNative, callNativeWithPromise, HippyEventEmitter } from './modules/unsupport-module';
 import HippyReact from './hippy';
 import View from './components/view';
 import Text from './components/text';
@@ -34,10 +35,14 @@ import TextInput from './components/text-input';
 import ScrollView from './components/scroll-view';
 import Modal from './components/modal';
 import WebView from './components/web-view';
+import WaterfallView from './components/waterfall-view';
+import SafeAreaView  from './components/safe-area';
+import { UIManager as UIManagerModule } from './modules/ui-manager-module';
 import VideoPlayer from './components/video-player';
 import Animation from './modules/animation';
 import AnimationSet from './modules/animation-set';
 import StyleSheet from './modules/stylesheet';
+import Clipboard  from './modules/clipboard';
 import * as NetInfo from './modules/net-info';
 import * as NetworkModule from './modules/network-module';
 
@@ -75,7 +80,6 @@ const PixelRatio = {
 
 const AsyncStorage = typeof window === 'object' ? localStorage : null;
 const ImageBackground = Image;
-
 export default HippyReact;
 export {
   Hippy,
@@ -91,6 +95,7 @@ export {
   ScrollView,
   Modal,
   WebView,
+  SafeAreaView,
   VideoPlayer,
   Animation,
   AnimationSet,
@@ -102,4 +107,12 @@ export {
   PixelRatio,
   AsyncStorage,
   NetInfo,
+  BackAndroid,
+  Clipboard,
+  Focusable,
+  callNative,
+  callNativeWithPromise,
+  HippyEventEmitter,
+  WaterfallView,
+  UIManagerModule,
 };

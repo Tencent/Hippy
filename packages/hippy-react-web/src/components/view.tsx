@@ -18,9 +18,12 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import applyLayout from '../adapters/apply-layout';
+import useResponderEvents from '../modules/responder-events';
+import useElementLayout from '../modules/use-element-layout';
+import { Touch } from '../modules/responder-events/responder-event-types';
+import { LayoutEvent, StyleSheet } from '../types';
 
 const styles = {
   root: {
@@ -40,12 +43,21 @@ const styles = {
   },
 };
 
-interface Props {
-  style?: HippyTypes.Style;
-  withRef: React.Ref<any>;
-  accessibilityLabel: string;
-  onPressIn?: () => void;
-  onClick?: () => void;
+export interface ViewProps {
+  ref?: any;
+  accessible?: boolean;
+  accessibilityLabel?: string;
+  style?: StyleSheet;
+  opacity?: number;
+  overflow?: 'visible' | 'hidden';
+  className?: any;
+  onScroll?: (e: any) => void;
+  onLayout?: (e: LayoutEvent) => void;
+  onAttachedToWindow?: Function;
+  onTouchDown?: (e: Touch) => void;
+  onTouchMove?: (e: Touch) => void;
+  onTouchEnd?: (e: Touch) => void;
+  onTouchCancel?: (e: Touch) => void;
 }
 
 /**
@@ -57,32 +69,59 @@ interface Props {
  * View is designed to be nested inside other views and can have 0 to many children of any type.
  * @noInheritDoc
  */
-class View extends React.Component {
-  public constructor(props: Props) {
-    super(props);
-    this.state = {};
+const View: React.FC<ViewProps> = React.forwardRef((props, ref) => {
+  const { style = {}, opacity, overflow, onAttachedToWindow } = props;
+  if (Array.isArray(style)) {
+    if (opacity) {
+      style.push({ opacity });
+    }
+    if (overflow) {
+      style.push({ overflow });
+    }
+  } else {
+    if (opacity) {
+      style.opacity = opacity;
+    }
+    if (overflow) {
+      style.overflow = overflow;
+    }
   }
+  useEffect(() => {
+    if (typeof onAttachedToWindow === 'function') {
+      onAttachedToWindow();
+    }
+  }, []);
+  const hostRef: any = ref ? ref : useRef(null);
+  const newStyle = formatWebStyle(style);
+  const finalStyle = Object.assign({}, styles.root, newStyle);
+  const newProps: any = Object.assign({}, props, {
+    style: finalStyle,
+  });
+  const { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onScroll } = props;
+  useResponderEvents(hostRef, { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onScroll });
+  useElementLayout(hostRef, props.onLayout);
+  const accessibilityLabelValue = newProps.accessibilityLabel;
+  // delete unsupported props
+  delete newProps.onAttachedToWindow;
+  delete newProps.onTouchCancel;
+  delete newProps.onTouchEnd;
+  delete newProps.onTouchMove;
+  delete newProps.onTouchDown;
+  delete newProps.accessible;
+  delete newProps.accessibilityLabel;
+  delete newProps.onScroll;
+  delete newProps.opacity;
+  delete newProps.ref;
+  delete newProps.onLayout;
 
-  public render() {
-    const { style, withRef } = this.props as Props;
-    const newStyle = formatWebStyle(style);
-    const finalStyle = Object.assign({}, styles.root, newStyle);
-    const newProps = Object.assign({}, this.props, {
-      style: finalStyle,
-    }) as any;
-    const accessibilityLabelValue = newProps.accessibilityLabel;
-    delete newProps.onPressIn;
-    delete newProps.onPressOut;
-    delete newProps.onLayout;
-    delete newProps.accessibilityLabel;
+  return (
+    <div {...newProps} ref={hostRef} aria-label={accessibilityLabelValue} />
+  );
+});
 
-    return (
-      <div {...newProps} ref={withRef} aria-label={accessibilityLabelValue} />
-    );
-  }
-}
+View.displayName = 'View';
 
-export default applyLayout(View);
 export {
   View,
 };
+export default View;

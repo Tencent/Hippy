@@ -18,13 +18,12 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-return-assign */
-// @ts-nocheck
-import React from 'react';
-import { formatWebStyle } from '../adapters/transfer';
+import React, { useImperativeHandle } from 'react';
+import animateScrollTo from 'animated-scroll-to';
 import StyleSheet from '../modules/stylesheet';
-import applyLayout from '../adapters/apply-layout';
-import { View } from './view';
+import { isFunc } from '../utils/validation';
+import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
+import { View, ViewProps } from './view';
 
 const styles = StyleSheet.create({
   baseVertical: {
@@ -48,122 +47,193 @@ const styles = StyleSheet.create({
     collapse: false,
     flexDirection: 'row',
   },
+  scrollDisable: {
+    overflowX: 'hidden',
+    overflowY: 'hidden',
+    touchAction: 'none',
+  },
+  hideScrollbar: {
+    scrollbarWidth: 'none',
+  },
 });
 
-function HorizontalScrollView(props) {
-  const { scrollRef, ...otherProps } = props;
-  return (
-    <ul ref={scrollRef} {...otherProps} />
-  );
+export interface ScrollViewProps extends ViewProps {
+  bounces?: boolean; // unsupported yet
+  contentContainerStyle?: any;
+  horizontal?: boolean;
+  onMomentumScrollBegin?: Function; // unsupported yet
+  onMomentumScrollEnd?: Function; // unsupported yet
+  onScroll?: (e: any) => void;
+  onScrollBeginDrag?: Function; // unsupported yet
+  onScrollEndDrag?: Function; // unsupported yet
+  pagingEnabled?: boolean; // unsupported yet
+  scrollEventThrottle?: number;
+  scrollIndicatorInsets?: {
+    top: number;
+    left: number;
+    bottom: number;
+    right: number;
+  }; // unsupported yet
+  scrollEnabled?: boolean;
+  showScrollIndicator?: boolean; // unsupported yet
+  showsHorizontalScrollIndicator?: boolean; // unsupported yet
+  showsVerticalScrollIndicator?: boolean; // unsupported yet
 }
 
-function VerticalScrollView(props) {
-  const { scrollRef, ...otherProps } = props;
-  return (
-    <ul ref={scrollRef} {...otherProps} />
-  );
+export interface ScrollEvent {
+  contentOffset: {
+    x: number;
+    y: number;
+  };
+  contentSize: {
+    height: number;
+    width: number;
+  };
+  layoutMeasurement: {
+    height: number;
+    width: number;
+  };
+  timestamp: number;
 }
 
+const getScrollEvent = (e: any) => {
+  const scrollEvent: ScrollEvent = {
+    contentOffset: {
+      x: e.target.scrollLeft,
+      y: e.target.scrollTop,
+    },
+    contentSize: {
+      height: e.target.scrollHeight,
+      width: e.target.scrollWidth,
+    },
+    layoutMeasurement: {
+      height: e.target.offsetHeight,
+      width: e.target.offsetWidth,
+    },
+    timestamp: Date.now(),
+  };
+  return scrollEvent;
+};
 
-/**
- * Scrollable View without recycle feature.
- *
- * If you need to implement a long list, use `ListView`.
- * @noInheritDoc
- */
-export class ScrollView extends React.Component {
-  public scrollTo(x: number, y: number) {
-    this.instance.scrollTo(x, y);
-  }
+const shouldEmitScrollEvent = (lastTick: number, eventThrottle: number) => {
+  const timeSinceLastTick = Date.now() - lastTick;
+  return eventThrottle > 0 && timeSinceLastTick >= eventThrottle;
+};
 
-  public render() {
-    const { horizontal, children, style } = this.props;
-    let { contentContainerStyle } = this.props;
+const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
+  const copyProps = { ...props };
+  // delete unsupported prop
+  delete copyProps.bounces;
+  const {
+    style,
+    onScroll,
+    horizontal,
+    scrollEnabled = true,
+    scrollEventThrottle = 0,
+    showScrollIndicator = false,
+    onMomentumScrollBegin = () => {},
+    onMomentumScrollEnd = () => {},
+    showsHorizontalScrollIndicator,
+    showsVerticalScrollIndicator,
+    contentContainerStyle,
+    children,
+    ...rest
+  } = copyProps;
+  shouldHideScrollBar(!showsVerticalScrollIndicator);
+  const scrollState = React.useRef({ isScrolling: false, scrollLastTick: 0 });
+  const scrollTimeout = React.useRef<null | number>(null);
+  const scrollRef = React.useRef<any>(null);
 
-    contentContainerStyle = Object.assign({}, horizontal
-      ? styles.contentContainerHorizontal : styles.contentContainerVertical, contentContainerStyle);
+  const directionStyle = horizontal ? styles.baseHorizontal : styles.baseVertical;
 
-    const contentContainer = (
-      <View
-        style={contentContainerStyle}
-      >
-        {children}
-      </View>
-    );
+  const containerStyle = Object.assign(
+    {}, horizontal ? styles.contentContainerHorizontal : styles.contentContainerVertical,
+    contentContainerStyle,
+  );
 
-    const newProps = Object.assign({}, this.props);
-    const iOSTouchStyle = {
-      overflowScrolling: 'touch',
-      WebkitOverflowScrolling: 'touch',
-    };
-    const newStyle = horizontal
-      ? { ...formatWebStyle(style), ...iOSTouchStyle, ...styles.baseHorizontal }
-      : { ...formatWebStyle(style), ...iOSTouchStyle, ...styles.baseVertical };
-    newProps.style = formatWebStyle(newStyle);
-    if (typeof newProps.onScroll === 'function') {
-      const onScrollFunc = newProps.onScroll;
-      newProps.onScroll = undefined;
-      let waiting = false;
-      let endScrollHandle: any = null;
-      newProps.onScroll = (e) => {
-        const target = e.currentTarget;
-        const eventParam = {
-          contentOffset: {
-            x: target.scrollLeft,
-            y: target.scrollTop,
-          },
-          layoutMeasurement: {
-            height: target.clientHeight,
-            width: target.clientWidth,
-          },
-        };
 
-        if (waiting) {
-          return;
+  const handleScrollTick = (e: any) => {
+    scrollState.current.scrollLastTick = Date.now();
+    if (onScroll) {
+      onScroll(getScrollEvent(e));
+    }
+  };
+  const handleScrollEnd = (e: any) => {
+    if (isFunc(onMomentumScrollEnd)) {
+      onMomentumScrollEnd();
+    }
+    scrollState.current.isScrolling = false;
+    if (onScroll) {
+      onScroll(getScrollEvent(e));
+    }
+  };
+  const handleScrollStart = (e: any) => {
+    if (isFunc(onMomentumScrollBegin)) {
+      onMomentumScrollBegin();
+    }
+    scrollState.current.isScrolling = true;
+    handleScrollTick(e);
+  };
+  const handleScroll = (e: any) => {
+    e.stopPropagation();
+    if (e.target === scrollRef.current) {
+      if (scrollTimeout.current !== null) {
+        clearTimeout(scrollTimeout.current);
+      }
+      scrollTimeout.current = Number(setTimeout(() => {
+        handleScrollEnd(e);
+      }, scrollEventThrottle || 100));
+      if (scrollState.current.isScrolling) {
+        if (shouldEmitScrollEvent(scrollState.current.scrollLastTick, scrollEventThrottle)) {
+          handleScrollTick(e);
         }
-        waiting = true;
-
-        clearTimeout(endScrollHandle);
-
-        onScrollFunc(eventParam);
-
-        setTimeout(() => {
-          waiting = false;
-        }, 100);
-
-        endScrollHandle = setTimeout(() => {
-          onScrollFunc(eventParam);
-        }, 200);
-      };
+      } else {
+        handleScrollStart(e);
+      }
     }
-    if (newProps.scrollEnabled === false) {
-      newProps.style.overflow = 'hidden';
-    } else {
-      newProps.style.overflow = 'scroll';
-    }
-    newProps.scrollEnabled = undefined;
-    newProps.showsVerticalScrollIndicator = undefined;
-    newProps.showsHorizontalScrollIndicator = undefined;
-    newProps.horizontal = undefined;
-    if (horizontal) {
-      return (
-        <HorizontalScrollView
-          scrollRef={ref => this.instance = ref}
-          {...newProps}
-        >
-          {contentContainer}
-        </HorizontalScrollView>
-      );
-    }
-    return (
-      <VerticalScrollView
-        scrollRef={ref => this.instance = ref}
-        {...newProps}
-      >
-        {contentContainer}
-      </VerticalScrollView>
-    );
-  }
-}
+  };
 
-export default applyLayout(ScrollView);
+  // set methods
+  useImperativeHandle(ref, () => ({
+    scrollTo: (x: number, y: number, animated) => {
+      if (animated) {
+        animateScrollTo([x, y], {
+          elementToScroll: scrollRef.current,
+        });
+      } else {
+        scrollRef.current?.scrollTo(x, y);
+      }
+    },
+    scrollToWithDuration: (x: number, y: number, duration: number) => {
+      // minDuration 250, maxDuration 3000
+      animateScrollTo([x, y], {
+        elementToScroll: scrollRef.current,
+        minDuration: duration,
+        maxDuration: duration,
+      });
+    },
+  }));
+
+  return (
+    <View
+      {...rest}
+      onScroll={handleScroll}
+      className={!showScrollIndicator && HIDE_SCROLLBAR_CLASS}
+      ref={scrollRef}
+      style={[
+        style,
+        directionStyle,
+        !scrollEnabled && styles.scrollDisable,
+      ]}
+    >
+      <View style={containerStyle}>
+        { children }
+      </View>
+    </View>
+  );
+});
+ScrollView.displayName = 'ScrollView';
+
+ScrollView.displayName = 'ScrollView';
+
+export default ScrollView;

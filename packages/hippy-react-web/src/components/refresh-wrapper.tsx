@@ -34,15 +34,13 @@ interface Props {
  * Simply to implement the drag down to refresh feature.
  * @noInheritDoc
  */
-function RefreshWrapper(props: Props) {
-  const { style, displayInWeb = false } = props;
+function RefreshWrapper(props) {
+  const { style, children } = props;
   const newProps = { ...props, style: formatWebStyle(style) };
-  if (!displayInWeb) {
-    // @ts-ignore
-    return <div nativeName="RefreshWrapper" />;
-  }
   return (
-    <div {...newProps}/>
+    <div {...newProps} >
+      {children}
+    </div>
   );
 }
 

@@ -28,11 +28,13 @@ import { formatWebStyle } from '../adapters/transfer';
  * For iOS it uses WKWebView, for Android it uses Webkit built-in.
  */
 function WebView(props) {
-  const { source, style, ...otherProps } = props;
-  const src = source.uri;
+  const { source, style, onLoadEnd, ...otherProps } = props;
+  const src = source?.uri;
   const newStyle = formatWebStyle(style);
   return (
-    <iframe title="WebView" src={src} style={newStyle} {...otherProps} />
+    <iframe title="WebView" src={src} style={newStyle} {...otherProps} onLoad={() => {
+      onLoadEnd({ url: src });
+    }} />
   );
 }
 

@@ -56,6 +56,15 @@ export default function ImageExpo() {
         onLoadEnd={() => {
           console.log('image onLoadEnd');
         }}
+        onTouchDown={() => {
+          console.log('===image onTouch start');
+        }}
+        onTouchMove={() => {
+          console.log('===image onTouch move');
+        }}
+        onTouchEnd={() => {
+          console.log('===image onTouchEnd');
+        }}
       />
       <Text style={styles.info_style}>Cover:</Text>
       <Image
@@ -91,6 +100,17 @@ export default function ImageExpo() {
         source={{ uri: HippyLogoImg }}
         resizeMode={Image.resizeMode.center}
       />
+=======
+      <Text style={styles.info_style}>Children:</Text>
+      <Image
+        style={[styles.image_style]}
+        defaultSource={defaultSource}
+        source={{ uri: imageUrl }}
+        resizeMode={Image.resizeMode.center}
+      >
+        <Text style={styles.info_style}>Children:</Text>
+      </Image>
+>>>>>>> feat(hippy-react-web): supports hippy-react components
       <Text style={styles.info_style}>Cover GIF:</Text>
       <Image
         style={[styles.image_style]}

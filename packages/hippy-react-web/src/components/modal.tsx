@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-// @ts-nocheck
-import React from 'react';
+import React, { useEffect } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';
 import View from './view';
@@ -55,6 +54,27 @@ function Modal(props) {
   if (visible === false) {
     return <View />;
   }
+
+  useEffect(() => {
+    if (visible) {
+      if (typeof onShow === 'function') {
+        onShow();
+      }
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    const closeOnEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        if (onRequestClose) {
+          onRequestClose();
+        }
+      }
+    };
+    document.addEventListener('keyup', closeOnEscape, false);
+    return () => document.removeEventListener('keyup', closeOnEscape, false);
+  }, [onRequestClose]);
 
   const containerStyles = {
     backgroundColor: transparent ? 'transparent' : 'white',

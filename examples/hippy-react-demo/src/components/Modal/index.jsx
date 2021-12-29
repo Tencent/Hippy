@@ -56,6 +56,7 @@ export default class ModalExpo extends React.Component {
   }
 
   show() {
+    console.log('show modal');
     this.setState({
       visible: true,
     });
@@ -65,6 +66,15 @@ export default class ModalExpo extends React.Component {
     this.setState({
       visible: false,
     });
+  }
+
+  onModalShow() {
+    console.log('modal show');
+  }
+
+  onRequestClose() {
+    console.log('onRequestClose');
+    this.hide();
   }
 
   render() {
@@ -88,7 +98,8 @@ export default class ModalExpo extends React.Component {
           transparent={true}
           animationType="slide_fade"
           visible={visible}
-          onRequestClose={() => { /* Trigger when hardware back pressed */ }}
+          onShow={this.onModalShow}
+          onRequestClose={this.onRequestClose.bind(this)}
           supportedOrientations={['portrait']}
           immersionStatusBar={true}
         >

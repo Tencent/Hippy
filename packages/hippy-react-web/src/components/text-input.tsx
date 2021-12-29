@@ -19,10 +19,13 @@
  */
 
 /* eslint-disable no-unneeded-ternary */
-// @ts-nocheck
-import React from 'react';
+
+import React, { useImperativeHandle, useEffect, useRef } from 'react';
+
 import { formatWebStyle } from '../adapters/transfer';
-import applyLayout from '../adapters/apply-layout';
+import useElementLayout from '../modules/use-element-layout';
+import { StyleSheet } from '../types';
+import { isFunc } from '../utils/validation';
 
 /**
  * A foundational component for inputting text into the app via a keyboard. Props provide
@@ -30,80 +33,173 @@ import applyLayout from '../adapters/apply-layout';
  * placeholder text, and different keyboard types, such as a numeric keypad.
  * @noInheritDoc
  */
-export function TextInput(props_) {
+export interface TextInputProps {
+  style?: StyleSheet;
+  caretColor?: string;
+  defaultValue?: string;
+  editable?: boolean;
+  keyboardType?: 'default' | 'numeric' | 'password' | 'email' | 'phone-pad';
+  maxLength?: number;
+  multiline?: boolean;
+  numberOfLines?: number;
+  placeholder?: string;
+  placeholderTextColor?: string;
+  placeholderTextColors?: string;
+  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
+  underlineColorAndroid?: string;
+  value?: string;
+  autoFocus?: boolean;
+  onBlur?: any;
+  onChangeText?: any;
+  onKeyboardWillShow?: any;
+  onEndEditing?: any;
+  onLayout?: any;
+  onSelectionChange?: any;
+};
+const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps>((props, ref) => {
   const {
-    underlineColorAndroid,
-    placeholderTextColor,
-    placeholderTextColors,
-  } = props_;
-  let props = props_;
-  if (underlineColorAndroid || placeholderTextColor || placeholderTextColors) {
-    props = Object.assign({}, props);
-    if (underlineColorAndroid) {
-      if (props.style) {
-        props.style.underlineColorAndroid = underlineColorAndroid;
-      } else {
-        props.style = {
-          underlineColorAndroid,
-        };
-      }
-      delete props.underlineColorAndroid;
+    style = {}, underlineColorAndroid, placeholderTextColor, placeholderTextColors, caretColor,
+    editable = true, keyboardType, multiline, onLayout, onChangeText, defaultValue, onEndEditing, onBlur,
+    numberOfLines = 2, autoFocus,
+  } = props;
+  const hostRef: React.MutableRefObject<null | any> = useRef(null);
+  useElementLayout(hostRef, onLayout);
+  const copyProps = { ...props };
+  const setStyle = (property: string, value: any) => {
+    if (Array.isArray(style)) {
+      style.push({ property: value });
+    } else {
+      style[property] = value;
     }
-    if (placeholderTextColor) {
-      if (props.style) {
-        props.style.placeholderTextColor = placeholderTextColor;
-      } else {
-        props.style = {
-          placeholderTextColor,
-        };
-      }
-      delete props.placeholderTextColor;
-    }
-    if (placeholderTextColors) {
-      if (props.style) {
-        props.style.placeholderTextColors = placeholderTextColors;
-      } else {
-        props.style = {
-          placeholderTextColors,
-        };
-      }
-      delete props.placeholderTextColors;
-    }
+  };
+  // set style prop
+  if (underlineColorAndroid) {
+    setStyle('underlineColorAndroid', underlineColorAndroid);
+    delete copyProps.underlineColorAndroid;
+  }
+  if (placeholderTextColor || placeholderTextColors) {
+    setStyle('placeholderTextColor', placeholderTextColor ? placeholderTextColor : placeholderTextColors);
+    delete copyProps.placeholderTextColor;
+    delete copyProps.placeholderTextColors;
+  }
+  if (caretColor) {
+    setStyle('caret-color', caretColor);
+    delete copyProps.caretColor;
   }
 
-  const { style, keyboardType, editable = true } = props;
+  // set keyboard type
   let inputType = 'text';
   if (keyboardType) {
-    if (keyboardType === 'numeric' || keyboardType === 'phone-pad') {
-      inputType = 'tel';
-    } else if (keyboardType === 'password') {
-      inputType = 'password';
-    } else if (keyboardType === 'email') {
-      inputType = 'email';
+    if (keyboardType) {
+      if (keyboardType === 'numeric' || keyboardType === 'phone-pad') {
+        inputType = 'tel';
+      } else if (keyboardType === 'password') {
+        inputType = 'password';
+      } else if (keyboardType === 'email') {
+        inputType = 'email';
+      }
     }
   }
-  const newProps = Object.assign({}, props, {
-    style: formatWebStyle(style),
-    type: inputType,
-    readOnly: editable ? false : true,
-  });
 
-  if (typeof newProps.onChangeText === 'function') {
-    const tempFunc = newProps.onChangeText;
-    newProps.onChange = (e) => {
-      tempFunc(e.currentTarget.value);
-    };
+  // set component method
+  const focus = () => {
+    if (hostRef.current) {
+      hostRef.current.focus();
+    }
+  };
+  const blur = () => {
+    if (hostRef.current) {
+      hostRef.current.blur();
+    }
+  };
+  const clear = () => {
+    if (hostRef.current) {
+      hostRef.current.value = '';
+      if (isFunc(onChangeText)) {
+        onChangeText('');
+      }
+    }
+  };
+  const setValue = (value: string) => {
+    if (hostRef.current) {
+      hostRef.current.value = String(value);
+    }
+  };
+  const getValue = () => {
+    if (hostRef.current) {
+      return hostRef.current.value;
+    }
+    return '';
+  };
+  const hideInputMethod = () => {
+    blur();
+  };
+  const showInputMethod = () => {
+    focus();
+  };
 
-    delete newProps.onChangeText;
-  }
-  delete newProps.keyboardType;
-  delete newProps.onLayout;
-  delete newProps.editable;
+  useImperativeHandle(ref, () => ({
+    focus,
+    blur,
+    clear,
+    setValue,
+    getValue,
+    hideInputMethod,
+    showInputMethod,
+  }));
 
-  const { multiline, ..._newProps } = newProps;
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(defaultValue);
+    }
+    if (autoFocus) {
+      focus();
+    }
+  }, []);
+
+
+  const onInputBlur = () => {
+    if (typeof onEndEditing === 'function') {
+      if (hostRef.current) {
+        onEndEditing(hostRef.current.value);
+      }
+    }
+    if (typeof onBlur === 'function') {
+      onBlur();
+    }
+  };
+
+  const onInputChante = (e: any) => {
+    if (isFunc(onChangeText)) {
+      onChangeText(e.target.value);
+    }
+  };
+
+  const inputProps = {
+    ...copyProps, ...{
+      style: formatWebStyle(copyProps.style),
+      type: inputType,
+      readOnly: !editable,
+      onChange: onInputChante,
+      onBlur: onInputBlur,
+      value: props.value,
+    },
+  };
+  // delete input unspported prop
+  delete inputProps.editable;
+  delete inputProps.keyboardType;
+  delete inputProps.onChangeText;
+  delete inputProps.onEndEditing;
+  delete inputProps.onSelectionChange;
+  delete inputProps.onKeyboardWillShow;
+  delete inputProps.returnKeyType;
+
   return (
-    multiline ? <textarea cols={20} rows={2} {..._newProps} /> : <input {..._newProps} />
+    multiline
+      ? <textarea ref={hostRef} cols={20} rows={numberOfLines} {...inputProps} />
+      : <input ref={hostRef} {...inputProps} />
   );
-}
+});
 
-export default applyLayout(TextInput);
+TextInput.displayName = 'TextInput';
+export default TextInput;

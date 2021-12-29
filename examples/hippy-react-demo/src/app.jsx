@@ -52,7 +52,7 @@ export default class App extends Component {
         case 1:
           return <RemoteDebug instanceId={instanceId} />;
         default:
-          return <View style={styles.blankPage} />;
+          return <View className="test" style={styles.blankPage} />;
       }
     };
 
@@ -77,7 +77,7 @@ export default class App extends Component {
     };
 
     return (
-      <SafeAreaView statusBarColor="#4c9afa">
+      <SafeAreaView style={{ flex: 1 }} statusBarColor="#4c9afa">
         {renderPage()}
         <View style={styles.buttonContainer}>
           {renderButton()}

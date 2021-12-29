@@ -64,10 +64,11 @@ const builds = {
       return !![
         'react',
         'react-dom',
+        'animated-scroll-to',
         'bezier-easing',
-        'debounce',
         'swiper',
         'rmc-list-view',
+        'rmc-pull-to-refresh',
       ].find(ext => id.startsWith(ext));
     },
   },

@@ -18,11 +18,31 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import applyLayout from '../adapters/apply-layout';
-import ImageLoader from '../adapters/image-loader';
-import { View } from './view';
+import ImageLoader, { LoadError } from '../adapters/image-loader';
+import { LayoutEvent, StyleSheet } from '../types';
+import { View, ViewProps } from './view';
+
+
+interface ImageProp {
+  style: StyleSheet;
+  children?: any;
+  onError?: LoadError;
+  defaultSource?: string;
+  source?: { uri: string };
+  capInsets?: any;
+  resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center';
+  onLoad?: (e: { width: number; height: number; url: string }) => void;
+  onLayout?: (e: LayoutEvent) => void;
+  onLoadStart?: Function;
+  onLoadEnd?: Function;
+  onProgress?: Function;
+  onTouchDown?: Function;
+  onTouchMove?: Function;
+  onTouchEnd?: Function;
+  onTouchCancel?: Function;
+}
 
 const ImageResizeMode = {
   center: 'center',
@@ -126,70 +146,15 @@ interface State {
  * static resources, temporary local images, and images from local disk, such as the camera roll.
  * @noInheritDoc
  */
-export class Image extends React.Component {
-  public static get resizeMode() {
-    return {
-      contain: 'contain',
-      cover: 'cover',
-      stretch: 'stretch',
-      center: 'center',
-      repeat: 'repeat',
-    };
-  }
+const Image: React.FC<ImageProp> & { resizeMode: Record<string, string> } = (props: ImageProp) => {
+  const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd, resizeMode, children, style } = props;
+  const initImageUrl = source.uri ? source.uri : defaultSource;
+  const [imageUrl, setImageUrl] = useState(initImageUrl);
+  const copyProps = { ...props };
+  copyProps.style = formatWebStyle([styles.root, formatWebStyle(style)]);
 
-  public static getDerivedStateFromProps(nextProps: Props, prevState: State) {
-    if (nextProps.source
-      && typeof nextProps.source !== 'string'
-      && nextProps.source.uri !== prevState.imageUrl) {
-      return {
-        imageUrl: nextProps.source.uri,
-        prevImageUrl: prevState.imageUrl,
-      };
-    }
-    return null;
-  }
-
-  public constructor(props: Props) {
-    super(props);
-    const initImageUrl = props.source && typeof props.source !== 'string' ? props.source.uri : '';
-    this.state = {
-      isLoadSuccess: false,
-      imageUrl: initImageUrl,
-      prevImageUrl: initImageUrl,
-    } as State;
-    this.onLoad = this.onLoad.bind(this);
-    this.onError = this.onError.bind(this);
-  }
-
-  public componentDidMount() {
-    const {
-      source,
-      onLoadStart,
-    } = this.props as Props;
-    if (onLoadStart) {
-      onLoadStart();
-    }
-    if (typeof source !== 'string' && source) {
-      ImageLoader.load(source.uri, this.onLoad, this.onError);
-    }
-  }
-
-  public componentDidUpdate() {
-    const { imageUrl, prevImageUrl } = this.state as State;
-    if (imageUrl !== prevImageUrl) {
-      ImageLoader.load(imageUrl, this.onLoad, this.onError);
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({
-        prevImageUrl: imageUrl,
-      });
-    }
-  }
-
-  public onLoad(e: any) {
-    const { onLoad, onLoadEnd } = this.props as Props;
-    this.setState({
-      isLoadSuccess: true,
-    });
+  const onImageLoad = (e: any) => {
+    setImageUrl(source.uri);
     if (onLoad) {
       const path = e.path || (e.composedPath?.());
       const imageInfo = path[0];
@@ -202,70 +167,61 @@ export class Image extends React.Component {
     if (onLoadEnd) {
       onLoadEnd();
     }
-  }
+  };
 
-  public onError() {
-    const { onError, onLoadEnd, source } = this.props as Props;
+  const onImageLoadError = () => {
     if (onError) {
       onError({
         nativeEvent: {
-          error: `Failed to load resource ${resolveAssetUri(source)} (404)`,
+          error: `Failed to load resource ${resolveAssetUri(source)}`,
         },
       });
     }
     if (onLoadEnd) {
       onLoadEnd();
     }
-  }
-
-  public render() {
-    let { style } = this.props as Props;
-    const { isLoadSuccess } = this.state as State;
-    const {
-      source, sources, resizeMode, children, defaultSource = '',
-    } = this.props as Props;
-    if (style) {
-      style = formatWebStyle(style);
+    if (defaultSource) {
+      setImageUrl(defaultSource);
     }
-    const newProps = Object.assign({}, this.props, {
-      style: formatWebStyle([styles.root, style]),
-    });
+  };
 
-    if (source && typeof source !== 'string') {
-      (newProps as any).src = source.uri;
-    } else if (sources && Array.isArray(sources)) {
-      (newProps as any).src = sources[0].uri;
+  useEffect(() => {
+    if (onLoadStart) {
+      onLoadStart();
     }
-
-    if (!isLoadSuccess) {
-      (newProps as any).src = defaultSource;
+    if (source) {
+      ImageLoader.load(source.uri, onImageLoad, onImageLoadError);
     }
-
-    const finalResizeMode = resizeMode || (newProps as any).style.resizeMode || ImageResizeMode.cover;
-
-    delete (newProps as any).source;
-    delete (newProps as any).sources;
-    delete (newProps as any).onLoad;
-    delete (newProps as any).onLayout;
-    delete (newProps as any).onLoadEnd;
-    delete (newProps as any).defaultSource;
-
-    return (
-      <View {...newProps}>
-        <View
-          // @ts-ignore
-          style={[
-            styles.image,
-            // @ts-ignore
-            resizeModeStyles[finalResizeMode],
-            { backgroundImage: `url(${(newProps as any).src}` },
-          ]}
-        />
-        {children}
-      </View>
-    );
-  }
-}
+  }, [source]);
 
 
-export default applyLayout(Image);
+  const finalResizeMode = resizeMode || copyProps.style?.resizeMode || ImageResizeMode.cover;
+  // delete view unsupported prop
+  delete copyProps.source;
+  delete copyProps.onLoad;
+  delete copyProps.onLoadEnd;
+  delete copyProps.defaultSource;
+  delete copyProps.onError;
+  delete copyProps.resizeMode;
+  // unsuported prop in Image
+  delete copyProps.onProgress;
+  delete copyProps.capInsets;
+  const viewProps: ViewProps = { ...copyProps } as ViewProps;
+
+
+  return (
+    <View {...viewProps}>
+      <View
+        style={[
+          styles.image,
+          resizeModeStyles[finalResizeMode],
+          { backgroundImage: `url(${imageUrl}` },
+        ]}
+      />
+      {children}
+    </View>
+  );
+};
+Image.resizeMode = ImageResizeMode;
+
+export default Image;
