@@ -66,3 +66,6 @@ const UIManager = {
 };
 
 export default UIManager;
+export {
+  UIManager,
+};

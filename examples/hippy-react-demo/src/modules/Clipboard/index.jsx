@@ -49,7 +49,7 @@ export default class ClipboardDemo extends React.Component {
     this.state = {
       hasCopied: false,
       text: 'Winter is coming',
-      clipboardText: '快点上面的按钮啊魂淡',
+      clipboardText: '快点上面的按钮啊',
     };
   }
 
@@ -68,9 +68,10 @@ export default class ClipboardDemo extends React.Component {
         <View
           style={styles.button}
           onClick={() => {
-            Clipboard.setString(text);
-            this.setState({
-              hasCopied: true,
+            Clipboard.setString(text).then(() => {
+              this.setState({
+                hasCopied: true,
+              });
             });
           }}
         >
@@ -79,16 +80,14 @@ export default class ClipboardDemo extends React.Component {
         {renderTitle('获取剪贴板内容')}
         <View
           style={styles.button}
-          onClick={async () => {
-            try {
-              const str = await Clipboard.getString();
+          onClick={() => {
+            Clipboard.getString().then((text) => {
               this.setState({
-                clipboardText: str,
+                clipboardText: text,
               });
-            } catch (err) {
-              /* eslint-disable-next-line no-console */
-              console.error(err);
-            }
+            }, (err) => {
+              console.log('use cmd + c or control + c', err);
+            });
           }}
         >
           <Text style={styles.buttonText}>点击获取剪贴板内容</Text>

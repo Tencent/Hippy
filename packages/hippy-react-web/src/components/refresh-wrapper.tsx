@@ -28,13 +28,12 @@ import { formatWebStyle } from '../adapters/transfer';
  * @noInheritDoc
  */
 function RefreshWrapper(props) {
-  const { style, displayInWeb = false } = props;
+  const { style, children } = props;
   const newProps = { ...props, style: formatWebStyle(style) };
-  if (!displayInWeb) {
-    return <div nativeName="RefreshWrapper" />;
-  }
   return (
-    <div {...newProps} />
+    <div {...newProps} >
+      {children}
+    </div>
   );
 }
 

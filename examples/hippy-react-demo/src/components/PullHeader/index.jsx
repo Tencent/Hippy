@@ -55,6 +55,11 @@ const styles = StyleSheet.create({
 export default class PullHeaderExample extends React.Component {
   constructor(props) {
     super(props);
+    this.pullingText = {
+      pull: '继续下拉触发刷新',
+      release: '松手，即可触发刷新',
+      loading: '刷新数据中，请稍等，1秒后自动收起',
+    };
     this.state = {
       dataSource: [],
       pullingText: '继续下拉触发刷新',
@@ -69,6 +74,7 @@ export default class PullHeaderExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.onHeaderReleased = this.onHeaderReleased.bind(this);
     this.onHeaderPulling = this.onHeaderPulling.bind(this);
+    this.getPullHeaderHeight = this.getPullHeaderHeight.bind(this);
   }
 
   async componentDidMount() {
@@ -98,7 +104,7 @@ export default class PullHeaderExample extends React.Component {
     let newData = [];
     try {
       newData = await this.mockFetchData();
-    } catch (err) {}
+    } catch (err) { }
     const lastLineItem = dataSource[dataSource.length - 1];
     if (lastLineItem && lastLineItem.style === STYLE_LOADING) {
       dataSource.pop();
@@ -119,12 +125,12 @@ export default class PullHeaderExample extends React.Component {
     // eslint-disable-next-line no-console
     console.log('onHeaderReleased');
     this.setState({
-      pullingText: '刷新数据中，请稍等，2秒后自动收起',
+      pullingText: this.pullingText.loading,
     });
     let dataSource = [];
     try {
       dataSource = await this.mockFetchData();
-    } catch (err) {}
+    } catch (err) { }
     this.fetchingDataFlag = false;
     this.setState({ dataSource }, () => {
       // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致onHeaderReleased事件不能再次触发
@@ -142,19 +148,24 @@ export default class PullHeaderExample extends React.Component {
    * 这里简单处理，其实可以做到更复杂的动态效果。
    */
   onHeaderPulling(evt) {
+    const { pullingText } = this.state;
     if (this.fetchingDataFlag) {
       return;
     }
     // eslint-disable-next-line no-console
     console.log('onHeaderPulling', evt.contentOffset);
     if (evt.contentOffset > styles.pullContent.height) {
-      this.setState({
-        pullingText: '松手，即可触发刷新',
-      });
+      if (pullingText !== this.pullingText.pull) {
+        this.setState({
+          pullingText: this.pullingText.pull,
+        });
+      }
     } else {
-      this.setState({
-        pullingText: '继续下拉，触发刷新',
-      });
+      if (pullingText !== this.pullingText.release) {
+        this.setState({
+          pullingText: this.pullingText.release,
+        });
+      }
     }
   }
 
@@ -218,9 +229,13 @@ export default class PullHeaderExample extends React.Component {
     const { pullingText } = this.state;
     return (
       <View style={styles.pullContainer}>
-        <Text style={styles.pullContent}>{ pullingText }</Text>
+        <Text style={styles.pullContent}>{pullingText}</Text>
       </View>
     );
+  }
+
+  getPullHeaderHeight() {
+    return styles.pullContainer.height;
   }
 
   /**
@@ -247,7 +262,7 @@ export default class PullHeaderExample extends React.Component {
         styleUI = <Text style={styles.loading}>{loadingState}</Text>;
         break;
       default:
-        // pass
+      // pass
     }
     return (
       <View style={styles.container}>
@@ -263,6 +278,7 @@ export default class PullHeaderExample extends React.Component {
     );
   }
 
+
   /**
    * 渲染范例组件
    */
@@ -270,19 +286,20 @@ export default class PullHeaderExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
-         onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
-          ref={(ref) => {
-            this.listView = ref;
-          }}
+        onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
+        ref={(ref) => {
+          this.listView = ref;
+        }}
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
         renderRow={this.renderRow}
-        renderPullHeader={this.renderPullHeader}
         onEndReached={this.onEndReached}
         onHeaderReleased={this.onHeaderReleased}
         onHeaderPulling={this.onHeaderPulling}
+        renderPullHeader={this.renderPullHeader}
+        getPullHeaderHeight={this.getPullHeaderHeight}
       />
     );
   }

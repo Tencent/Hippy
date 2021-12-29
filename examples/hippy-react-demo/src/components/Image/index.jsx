@@ -40,6 +40,9 @@ export default function ImageExpo() {
         resizeMode={Image.resizeMode.contain}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
+        onLayout={() => {
+          console.log('layout image');
+        }}
         onLoadStart={() => {
           /* eslint-disable-next-line no-console */
           console.log('===image onloadStart===');
@@ -56,6 +59,15 @@ export default function ImageExpo() {
           /* eslint-disable-next-line no-console */
           console.log('===image onLoadEnd===');
         }}
+        onTouchDown={() => {
+          console.log('===image onTouch start');
+        }}
+        onTouchMove={() => {
+          console.log('===image onTouch move');
+        }}
+        onTouchEnd={() => {
+          console.log('===image onTouchEnd');
+        }}
       />
       <Text style={styles.info_style}>Cover:</Text>
       <Image
@@ -71,6 +83,15 @@ export default function ImageExpo() {
         source={{ uri: imageUrl }}
         resizeMode={Image.resizeMode.center}
       />
+      <Text style={styles.info_style}>Children:</Text>
+      <Image
+        style={[styles.image_style]}
+        defaultSource={defaultSource}
+        source={{ uri: imageUrl }}
+        resizeMode={Image.resizeMode.center}
+      >
+        <Text style={styles.info_style}>Children:</Text>
+      </Image>
       <Text style={styles.info_style}>Cover GIF:</Text>
       <Image
         style={[styles.image_style]}

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
+import React from 'react';
 
 /**
  * Warning information output
@@ -32,6 +32,16 @@ function warn(...context: any[]) {
   console.warn(...context);
 }
 
+const useStable = <T>(getInitialValue: () => T): T => {
+  const ref = React.useRef<T | null>(null);
+  if (ref.current === null) {
+    ref.current = getInitialValue();
+  }
+  return ref.current;
+};
+
+
 export {
   warn,
+  useStable,
 };

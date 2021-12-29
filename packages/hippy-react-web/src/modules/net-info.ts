@@ -26,11 +26,11 @@ function fetch() {
 }
 
 function addEventListener() {
-  console.log('TODO');
+  // TODO:
 }
 
 function removeEventListener() {
-  console.log('TODO');
+  // TODO:
 }
 
 export {

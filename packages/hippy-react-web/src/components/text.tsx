@@ -20,7 +20,7 @@
 
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import applyLayout from '../adapters/apply-layout';
+import View from './view';
 
 const styles = {
   initial: {
@@ -104,14 +104,13 @@ export class Text extends React.Component {
       ]),
     });
     delete newProps.numberOfLines;
-    delete newProps.onLayout;
     delete newProps.ellipsizeMode;
 
-    if (isInAParentText) return <span {...newProps} />;
+    if (isInAParentText) return <View {...newProps} />;
     return (
-      <div {...newProps} />
+      <View {...newProps} />
     );
   }
 }
 
-export default applyLayout(Text);
+export default Text;

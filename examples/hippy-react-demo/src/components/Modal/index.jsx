@@ -56,6 +56,7 @@ export default class ModalExpo extends React.Component {
   }
 
   show() {
+    console.log('show modal');
     this.setState({
       visible: true,
     });
@@ -67,14 +68,21 @@ export default class ModalExpo extends React.Component {
     });
   }
 
+  onModalShow() {
+    console.log('modal show');
+  }
+
+  onRequestClose() {
+    console.log('onRequestClose');
+    this.hide();
+  }
+
   render() {
     const { press, visible } = this.state;
     return (
       <ScrollView>
         <View style={styles.container}>
           <View
-            onPressIn={() => this.feedback('in')}
-            onPressOut={() => this.feedback.bind('out')}
             onClick={this.show}
             style={[styles.buttonView, {
               borderColor: SKIN_COLOR.mainLight,
@@ -87,9 +95,12 @@ export default class ModalExpo extends React.Component {
 
         <Modal
           transparent
+          animated
+          darkStatusBarText="false"
           animationType="slide_fade"
           visible={visible}
-          onRequestClose={() => { /* Trigger when hardware back pressed */ }}
+          onShow={this.onModalShow}
+          onRequestClose={this.onRequestClose.bind(this)}
           supportedOrientations={['portrait']}
         >
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>

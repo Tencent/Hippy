@@ -23,6 +23,7 @@ interface Requests {
 type SizeSucces = (width: number, height: number) => void;
 type SizeFailure = () => void;
 type LoadSuccess = (ev: Event) => void;
+export type LoadError = (event: { nativeEvent: { error: string } }) => void;
 
 let id = 0;
 const requests: Requests = {};
@@ -65,10 +66,12 @@ const ImageLoader = {
       clearInterval(interval);
     }
   },
-  load(uri: string, onLoad: LoadSuccess, onError: OnErrorEventHandler) {
+  load(uri: string, onLoad: LoadSuccess, onError: LoadError) {
     id += 1;
     const image = new window.Image();
-    image.onerror = onError;
+    image.onerror = () => {
+      onError;
+    };
     image.onload = (e) => {
       // avoid blocking the main thread
       const onDecode = () => onLoad(e);

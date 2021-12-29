@@ -131,6 +131,8 @@ interface WebStyle {
   borderRightColors?: any,
   backgroundColor?: any,
   backgroundColors?: any,
+  backgroundImage?: any,
+  backgourndSize?: any,
   [props: string]: any
 }
 
@@ -309,7 +311,7 @@ function hackWebStyle(webStyle_: any) {
 }
 
 function formatWebStyle(style: any) {
-  const webStyle = {};
+  const webStyle: Record<string, any> = {};
 
   if (Array.isArray(style)) {
     style.forEach((itemStyle) => {
