@@ -101,6 +101,8 @@ function HandleEventListener(node) {
           });
         }
       }
+      // eslint-disable-next-line no-param-reassign
+      delete node.props[originalKey];
     }
   }
 }
