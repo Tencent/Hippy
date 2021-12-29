@@ -6,8 +6,9 @@
   "homepage": "http://hippyjs.org",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
+  "main": "index.js",
   "bin": {
-    "hippy-debug": "index.js",
+    "hippy-debug": "hippy-debug.js",
     "hippy-dev": "hippy-dev.js"
   },
   "scripts": {
