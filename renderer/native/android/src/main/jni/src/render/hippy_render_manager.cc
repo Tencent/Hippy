@@ -45,10 +45,10 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
         int64_t result;
         this->CallNativeMeasureMethod(id, width, widthMeasureMode, height, heightMeasureMode, result);
         TaitankResult layout_result;
-        layout_result.width = (int32_t)(0xFFFFFFFF & (result >> 32));
-        layout_result.height = (int32_t)(0xFFFFFFFF & result);
-        TDF_BASE_DLOG(INFO) << "measure width: " << layout_result.width << ", height: " << layout_result.height
-                           << ", result: " << result;
+        layout_result.width = PxToDp((int32_t)(0xFFFFFFFF & (result >> 32)));
+        layout_result.height = PxToDp((int32_t)(0xFFFFFFFF & result));
+        TDF_BASE_DLOG(INFO) << id << "measure width: " << layout_result.width << ", height: " << layout_result.height
+                            << ", result: " << result;
         return layout_result;
       };
       std::static_pointer_cast<TaitankLayoutNode>(nodes[i]->GetLayoutNode())->SetMeasureFunction(measure_function);
@@ -227,6 +227,8 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
 };
 
 float HippyRenderManager::DpToPx(float dp) { return dp * density_; }
+
+float HippyRenderManager::PxToDp(float px) { return px / density_; }
 
 void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
