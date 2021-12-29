@@ -297,7 +297,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                 list.add(params);
             }
             ByteBuffer buffer = argumentToBytes(list);
-            mRenderProvider.dispatchUIEvent(buffer);
+            if (buffer == null || buffer.limit() == 0) {
+                return;
+            }
+            int offset = buffer.position();
+            int length = buffer.limit() - buffer.position();
+            offset += buffer.arrayOffset();
+            mRenderProvider.dispatchUIComponentEvent(buffer, offset, length);
         } catch (Exception exception) {
             handleRenderException(exception);
         }
@@ -310,7 +316,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
         try {
             ByteBuffer buffer = argumentToBytes(params);
-            mRenderProvider.dispatchUIEvent(buffer);
+            if (buffer == null || buffer.limit() == 0) {
+                return;
+            }
+            int offset = buffer.position();
+            int length = buffer.limit() - buffer.position();
+            offset += buffer.arrayOffset();
+            mRenderProvider.dispatchNativeGestureEvent(buffer, offset, length);
         } catch (Exception exception) {
             handleRenderException(exception);
         }
