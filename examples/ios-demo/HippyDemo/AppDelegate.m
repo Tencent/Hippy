@@ -45,6 +45,9 @@
     */
 
     // Override point for customization after application launch.
+    if (@available(iOS 13, *)) {
+        return YES;
+    }
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     ViewController *vc = [ViewController new];
     [self.window setRootViewController: vc];

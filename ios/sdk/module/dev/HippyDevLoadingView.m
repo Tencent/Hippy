@@ -79,19 +79,29 @@ HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backg
         if (!self->_window && !HippyRunningInTestEnvironment()) {
             CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
             CGFloat viewHeight = HippyDevMsgViewHeight;
+            CGFloat labelY = 0;
             if (@available(iOS 11.0, *)) {
                 UIEdgeInsets safeAreaInsets = HippyKeyWindow().safeAreaInsets;
                 if (safeAreaInsets.bottom > 0) {
                     //is iPhoneX
                     viewHeight += safeAreaInsets.top;
+                    labelY += safeAreaInsets.top;
                 }
             }
             self->_window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, screenWidth, viewHeight)];
             self->_window.windowLevel = UIWindowLevelStatusBar + 1;
             // set a root VC so rotation is supported
             self->_window.rootViewController = [UIViewController new];
+            if (@available(iOS 13.0, *)) {
+                for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+                    if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                        self->_window.windowScene = windowScene;
+                        break;
+                    }
+                }
+            }
             
-            self->_label = [[UILabel alloc] initWithFrame:self->_window.bounds];
+            self->_label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self->_window.frame), HippyDevMsgViewHeight)];
             self->_label.font = [UIFont systemFontOfSize:12.0];
             self->_label.textAlignment = NSTextAlignmentCenter;
             
