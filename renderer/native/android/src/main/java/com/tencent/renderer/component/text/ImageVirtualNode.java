@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.dom.node.HippyImageSpan;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
@@ -46,7 +45,7 @@ public class ImageVirtualNode extends VirtualNode {
     private float width = 0.0f;
     private float height = 0.0f;
     private @Nullable
-    HippyImageSpan imageSpan;
+    TextImageSpan imageSpan;
     private @Nullable
     String url;
     private @Nullable
@@ -88,7 +87,7 @@ public class ImageVirtualNode extends VirtualNode {
             drawable = new ColorDrawable(Color.parseColor("#00000000"));
         }
         drawable.setBounds(0, 0, Math.round(width), Math.round(height));
-//        imageSpan = new HippyImageSpan(drawable, url, this, imageAdapter,
+//        imageSpan = new TextImageSpan(drawable, url, this, imageAdapter,
 //                engineContext);
         int start = builder.length();
         builder.append(IMAGE_SPAN_TEXT);
@@ -96,7 +95,7 @@ public class ImageVirtualNode extends VirtualNode {
         ops.add(new SpanOperation(start, end, imageSpan));
     }
 
-    public void setImageSpan(HippyImageSpan imageSpan) {
+    public void setImageSpan(TextImageSpan imageSpan) {
         imageSpan = imageSpan;
     }
 

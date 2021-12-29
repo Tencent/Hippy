@@ -42,6 +42,10 @@ import com.tencent.mtt.hippy.views.text.HippyTextView;
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.component.text.TextLetterSpacingSpan;
+import com.tencent.renderer.component.text.TextLineHeightSpan;
+import com.tencent.renderer.component.text.TextShadowSpan;
+import com.tencent.renderer.component.text.TextStyleSpan;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -482,7 +486,7 @@ public class TextNode extends StyleNode {
 //    int height = Math.round(imageNode.getStyleHeight());
 //    drawable.setBounds(0, 0, width, height);
 //
-//    HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter,
+//    TextImageSpan imageSpan = new TextImageSpan(drawable, url, imageNode, mImageAdapter,
 //            nativeRenderer);
 //    imageNode.setImageSpan(imageSpan);
 //
@@ -512,7 +516,7 @@ public class TextNode extends StyleNode {
       if (textNode.mLetterSpacing != UNSET) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
           ops.add(
-              new SpanOperation(start, end, new HippyLetterSpacingSpan(textNode.mLetterSpacing)));
+              new SpanOperation(start, end, new TextLetterSpacingSpan(textNode.mLetterSpacing)));
         }
       }
       if (textNode.mFontSize != UNSET) {
@@ -527,7 +531,7 @@ public class TextNode extends StyleNode {
       if (textNode.mFontStyle != UNSET || textNode.mFontWeight != UNSET
           || textNode.mFontFamily != null) {
         ops.add(new SpanOperation(start, end,
-            new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, textNode.mFontFamily,
+            new TextStyleSpan(textNode.mFontStyle, textNode.mFontWeight, textNode.mFontFamily,
                 mFontScaleAdapter)));
       }
       if (textNode.mIsUnderlineTextDecorationSet) {
@@ -538,7 +542,7 @@ public class TextNode extends StyleNode {
       }
       if (textNode.mTextShadowOffsetDx != 0 || textNode.mTextShadowOffsetDy != 0) {
         ops.add(new SpanOperation(start, end,
-            new HippyShadowSpan(textNode.mTextShadowOffsetDx, textNode.mTextShadowOffsetDy,
+            new TextShadowSpan(textNode.mTextShadowOffsetDx, textNode.mTextShadowOffsetDy,
                 textNode.mTextShadowRadius, textNode.mTextShadowColor)));
       }
       if (textNode.mLineHeight != UNSET) {
@@ -547,7 +551,7 @@ public class TextNode extends StyleNode {
         if (textNode.mFontScaleAdapter != null && textNode.mEnableScale) {
           lineHeight = (lineHeight * textNode.mFontScaleAdapter.getFontScale());
         }
-        ops.add(new SpanOperation(start, end, new HippyLineHeightSpan(lineHeight)));
+        ops.add(new SpanOperation(start, end, new TextLineHeightSpan(lineHeight)));
       }
 
 //      if (textNode.mGestureTypes != null && textNode.mGestureTypes.size() > 0) {

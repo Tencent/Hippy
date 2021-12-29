@@ -39,10 +39,6 @@ import android.text.style.UnderlineSpan;
 import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
-import com.tencent.mtt.hippy.dom.node.HippyLetterSpacingSpan;
-import com.tencent.mtt.hippy.dom.node.HippyLineHeightSpan;
-import com.tencent.mtt.hippy.dom.node.HippyShadowSpan;
-import com.tencent.mtt.hippy.dom.node.HippyStyleSpan;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -297,7 +293,7 @@ public class TextVirtualNode extends VirtualNode {
         ops.add(new SpanOperation(start, end, new ForegroundColorSpan(mColor)));
         if (mLetterSpacing != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ops.add(new SpanOperation(start, end,
-                    new HippyLetterSpacingSpan(mLetterSpacing)));
+                    new TextLetterSpacingSpan(mLetterSpacing)));
         }
         int size = mFontSize;
         if (mFontAdapter != null && mEnableScale) {
@@ -305,7 +301,7 @@ public class TextVirtualNode extends VirtualNode {
         }
         ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(size)));
         ops.add(new SpanOperation(start, end,
-                new HippyStyleSpan(mFontStyle, mFontWeight, mFontFamily, mFontAdapter)));
+                new TextStyleSpan(mFontStyle, mFontWeight, mFontFamily, mFontAdapter)));
         if (mHasUnderlineTextDecoration) {
             ops.add(new SpanOperation(start, end, new UnderlineSpan()));
         }
@@ -314,7 +310,7 @@ public class TextVirtualNode extends VirtualNode {
         }
         if (mShadowOffsetDx != 0 || mShadowOffsetDy != 0) {
             ops.add(new SpanOperation(start, end,
-                    new HippyShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius,
+                    new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius,
                             mShadowColor)));
         }
         if (mLineHeight != 0) {
@@ -322,7 +318,7 @@ public class TextVirtualNode extends VirtualNode {
             if (mFontAdapter != null && mEnableScale) {
                 lh = (lh * mFontAdapter.getFontScale());
             }
-            ops.add(new SpanOperation(start, end, new HippyLineHeightSpan(lh)));
+            ops.add(new SpanOperation(start, end, new TextLineHeightSpan(lh)));
         }
         if (mGestureTypes != null && mGestureTypes.size() > 0) {
             TextGestureSpan span = new TextGestureSpan(mId);

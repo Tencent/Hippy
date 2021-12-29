@@ -13,35 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.dom.node;
+package com.tencent.renderer.component.text;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.text.TextPaint;
-import android.text.style.MetricAffectingSpan;
+import android.text.style.CharacterStyle;
 
-@SuppressWarnings({"unused"})
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class HippyLetterSpacingSpan extends MetricAffectingSpan {
+public class TextShadowSpan extends CharacterStyle {
 
-  final float mSpace;
+    private final float mDx;
+    private final float mDy;
+    private final float mRadius;
+    private final int mColor;
 
-  public HippyLetterSpacingSpan(float mSpace) {
-    this.mSpace = mSpace;
-  }
-
-  @Override
-  public void updateMeasureState(TextPaint p) {
-    if (!Float.isNaN(mSpace)) {
-      p.setLetterSpacing(mSpace / p.getTextSize());
+    public TextShadowSpan(float dx, float dy, float radius, int color) {
+        mDx = dx;
+        mDy = dy;
+        mRadius = radius;
+        mColor = color;
     }
-  }
 
-
-  @Override
-  public void updateDrawState(TextPaint tp) {
-    if (!Float.isNaN(mSpace)) {
-      tp.setLetterSpacing(mSpace / tp.getTextSize());
+    @Override
+    public void updateDrawState(TextPaint textPaint) {
+        textPaint.setShadowLayer(mRadius, mDx, mDy, mColor);
     }
-  }
 }

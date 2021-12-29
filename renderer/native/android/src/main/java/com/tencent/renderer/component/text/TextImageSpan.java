@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.dom.node;
+package com.tencent.renderer.component.text;
 
 import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONERROR;
 import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONLOAD;
@@ -32,6 +32,7 @@ import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
@@ -45,7 +46,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 @SuppressWarnings("deprecation")
-public class HippyImageSpan extends ImageSpan {
+public class TextImageSpan extends ImageSpan {
 
   public final static int STATE_UNLOAD = 0;
   public final static int STATE_LOADING = 1;
@@ -65,7 +66,7 @@ public class HippyImageSpan extends ImageSpan {
   private int mGifProgress = 0;
   private long mGifLastPlayTime = -1;
 
-  public HippyImageSpan(Drawable drawable, String source, ImageVirtualNode node,
+  public TextImageSpan(Drawable drawable, String source, ImageVirtualNode node,
           IImageLoaderAdapter imageAdapter, NativeRender nativeRenderer) {
     super(drawable, source, node.getVerticalAlignment());
     this.nativeRenderer = nativeRenderer;
@@ -219,12 +220,12 @@ public class HippyImageSpan extends ImageSpan {
           //noinspection JavaReflectionMemberAccess
           mDrawableField = ImageSpan.class.getDeclaredField("mDrawable");
           mDrawableField.setAccessible(true);
-          mDrawableField.set(HippyImageSpan.this, drawable);
+          mDrawableField.set(TextImageSpan.this, drawable);
 
           //noinspection JavaReflectionMemberAccess
           mDrawableRefField = DynamicDrawableSpan.class.getDeclaredField("mDrawableRef");
           mDrawableRefField.setAccessible(true);
-          mDrawableRefField.set(HippyImageSpan.this, null);
+          mDrawableRefField.set(TextImageSpan.this, null);
         } catch (IllegalAccessException | NoSuchFieldException e) {
           e.printStackTrace();
         }
