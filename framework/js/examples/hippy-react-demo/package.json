@@ -10,7 +10,7 @@
   "scripts": {
     "serve": "webpack serve --config ./scripts/hippy-webpack.web.dev.js",
     "build": "webpack --config ./scripts/hippy-webpack.web.js",
-    "hippy:local-debug": "node ../../packages/hippy-debug-server/index.js",
+    "hippy:local-debug": "node ../../packages/hippy-debug-server/hippy-debug.js",
     "hippy:local-dev": "node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
     "hippy:debug": "hippy-debug",
     "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
