@@ -482,6 +482,10 @@ class RenderManager
     }
 
     for (var renderNode in _uiUpdateNodes) {
+      renderNode.applyProps();
+    }
+
+    for (var renderNode in _uiUpdateNodes) {
       renderNode.batchComplete();
     }
 

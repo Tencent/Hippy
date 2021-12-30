@@ -71,6 +71,8 @@ class RenderNode extends StyleNode {
   final List<JSPromise> _measureInWindows = [];
   final List<UIFunction> _uiFunction = [];
 
+  bool _hasPropsNeedToApply = true;
+
   /// 外部依赖
 
   final ControllerManager _controllerManager;
@@ -226,6 +228,7 @@ class RenderNode extends StyleNode {
     return null;
   }
 
+
   bool _shouldUpdateView() {
     return _controllerManager.hasNode(this);
   }
@@ -330,6 +333,7 @@ class RenderNode extends StyleNode {
       if (_propToUpdate != null) {
         _controllerManager.updateWidget(this, _propToUpdate);
         _propToUpdate = null;
+        _hasPropsNeedToApply = true;
       }
 
       if (_moveHolders.isNotEmpty) {
@@ -394,6 +398,13 @@ class RenderNode extends StyleNode {
       }
     }
     LogUtils.dRenderNode("($hashCode)  Id:$id end updateStyle");
+  }
+
+  void applyProps() {
+    if (_hasPropsNeedToApply) {
+      _controllerManager.applyProps(this);
+      _hasPropsNeedToApply = false;
+    }
   }
 
   void updateRender() {

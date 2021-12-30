@@ -31,9 +31,8 @@ class TextController
     return TextWidget(renderViewModel);
   }
 
-
   @override
-  void onAfterUpdateProps(EngineContext context, TextRenderNode renderNode) {
+  void applyProps(EngineContext context, TextRenderNode renderNode) {
     renderNode.generateSpan(context);
   }
 

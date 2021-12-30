@@ -49,7 +49,7 @@ class TextRenderNode extends RenderNode with TextStyleNode {
   }
 
   void updateData(EngineContext context) {
-    if (!isVirtual) {
+    if (!isVirtual && span != null) {
       var textData = createData(
           layoutWidth -
               getPadding(FlexStyleEdge.left) -

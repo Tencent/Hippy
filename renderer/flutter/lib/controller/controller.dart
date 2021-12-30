@@ -393,6 +393,10 @@ abstract class VoltronViewController<T extends RenderViewModel,
 
   void updateExtra(T renderViewModel, Object updateExtra) {}
 
+  void applyProps(EngineContext context, R node) {
+    // empty
+  }
+
   void updateEvents(T renderViewModel, List<EventHolder> holders) {
     if (!NativeGestureHandle.kUseOldTouch && holders.isNotEmpty) {
       for (var holder in holders) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tencent_voltron_render/voltron_render.dart';
 
-const bool kUseVoltronDemo = false;
+const bool kUseVoltronDemo = true;
 const bool kIsAndroidPlatform = true;
 
 const String kHippyBundleDir = 'hippy-bundle';
