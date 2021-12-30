@@ -1535,9 +1535,9 @@ void HPNode::convertLayoutResult(float absLeft, float absTop, float scaleFactor)
   result.position[CSSTop] = HPRoundValueToPixelGrid(top, scaleFactor, false, isTextNode);
 
   const bool hasFractionalWidth =
-      !FloatIsEqual(fmodf(width, 1.0), 0) && !FloatIsEqual(fmodf(width, 1.0), 1.0);
+      !FloatIsEqual(fmodf(width * scaleFactor, 1.0), 0) && !FloatIsEqual(fmodf(width * scaleFactor, 1.0), 1.0);
   const bool hasFractionalHeight =
-      !FloatIsEqual(fmodf(height, 1.0), 0) && !FloatIsEqual(fmodf(height, 1.0), 1.0);
+      !FloatIsEqual(fmodf(height * scaleFactor, 1.0), 0) && !FloatIsEqual(fmodf(height * scaleFactor, 1.0), 1.0);
 
   const float absRight = absLeft + width;
   const float absBottom = absTop + height;
