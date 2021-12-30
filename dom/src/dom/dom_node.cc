@@ -295,7 +295,7 @@ void DomNode::RemoveRenderListener(const std::string& name, uint32_t id) {
 
 std::vector<std::shared_ptr<DomNode::EventListenerInfo>>
 DomNode::GetEventListener(const std::string &name, bool is_capture) {
-    if (!event_listener_map_) {
+  if (!event_listener_map_) {
     return {};
   }
   auto it = event_listener_map_->find(name);
