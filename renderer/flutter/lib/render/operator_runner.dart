@@ -240,9 +240,9 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
   void _run() {
     String funcName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
     if (funcName.isNotEmpty) {
-      Map funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? {};
+      List funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? [];
       var realParams = VoltronArray.fromList(
-          funcParams[_RenderOpParamsKey.kParamsKey] ?? []);
+          funcParams);
       String callbackId =
           _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
       var promise = Promise.native(_engineContext, callId: callbackId);
