@@ -51,17 +51,15 @@ void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
     [uiManager_ renderMoveViews:ids fromContainer:pid toContainer:id];
 }
 
+void NativeRenderManager::StartBatch() {}
+
 void NativeRenderManager::Batch() {
     [uiManager_ batch];
 }
 
-void NativeRenderManager::BeforeLayout() {
-    // [uiManager_ batch];
-}
+void NativeRenderManager::BeforeLayout() {}
 
-void NativeRenderManager::AfterLayout() {
-    // [uiManager_ batch];
-}
+void NativeRenderManager::AfterLayout() {}
 
 void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
     [uiManager_ addEventName:name forDomNode:dom_node];
