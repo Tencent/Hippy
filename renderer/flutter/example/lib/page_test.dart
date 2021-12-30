@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:tencent_voltron_render/voltron_render.dart';
 
+const bool kUseVoltronDemo = false;
+const bool kIsAndroidPlatform = true;
+
+const String kHippyBundleDir = 'hippy-bundle';
+const String kVoltronBundleDir = 'voltron-hippy-bundle';
+const String kAndroidDir = 'android';
+const String kIOSDir = 'ios';
+const String kBundleDir = kUseVoltronDemo ? kVoltronBundleDir : kHippyBundleDir;
+const String kPlatform = kIsAndroidPlatform ? kAndroidDir : kIOSDir;
+const String kVendorPath = "jsbundle/$kBundleDir/$kPlatform/vendor.$kPlatform.js";
+const String kIndexPath = "jsbundle/$kBundleDir/$kPlatform/index.$kPlatform.js";
+
 VoltronRenderManager generateManager(BuildContext context, {bool? debugMode}) {
   var initParams = EngineInitParams();
   initParams.iEngineType = EngineType.vue;
@@ -9,7 +21,7 @@ VoltronRenderManager generateManager(BuildContext context, {bool? debugMode}) {
   // 可选：是否打印引擎的完整的log。默认为false
   initParams.enableLog = true;
   // 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
-  initParams.coreJSAssetsPath = "jsbundle/voltron-hippy-bundle/android/vendor.android.js";
+  initParams.coreJSAssetsPath = kVendorPath;
 
   // 可选：Engine Monitor adapter
   initParams.engineMonitor = Monitor();
@@ -57,7 +69,7 @@ class _PageTestWidgetState extends State<PageTestWidget> {
 
   @override
   void initState() {
-    _bundle = widget.bundle ?? 'jsbundle/voltron-hippy-bundle/android/index.android.js';
+    _bundle = widget.bundle ?? kIndexPath;
     _debugMode = widget.debugMode;
     super.initState();
   }
