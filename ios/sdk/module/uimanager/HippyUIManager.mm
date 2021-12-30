@@ -1899,8 +1899,9 @@ static UIView *_jsResponder;
                     if (strongManager) {
                         auto domNode = [strongManager domNodeFromHippyTag:hippyTag];
                         if (domNode) {
-                            DomArgument arugment = [body toDomArgument];
-                            std::shared_ptr<DomArgument> argument = std::make_shared<DomArgument>(std::move(arugment));
+                            DomValue value = [body toDomValue];
+                            DomArgument arg = DomArgument(value);
+                            std::shared_ptr<DomArgument> argument = std::make_shared<DomArgument>(std::move(arg));
                             domNode->HandleListener(name_, argument);
                         }
                     }
