@@ -47,14 +47,9 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              UpdateRootSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "onReceivedUIComponentEvent",
-             "(JILjava/lang/String;[BI)V",
-             OnReceivedUIComponentEvent)
-
-REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "onReceivedNativeGestureEvent",
-             "(JILjava/lang/String;[BI)V",
-             OnReceivedNativeGestureEvent)
+             "onReceivedUIEvent",
+             "(JILjava/lang/String;[BIIZZ)V",
+             onReceivedUIEvent)
 
 void NativeRenderProvider::Init() {
 }
@@ -98,34 +93,37 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jlong j_runtime_id,
   dom_manager->DoLayout();
 }
 
-void OnReceivedUIComponentEvent(JNIEnv *j_env, jobject j_object,
+void onReceivedUIEvent(JNIEnv *j_env, jobject j_object,
                                 jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
-                                jbyteArray j_buffer, jint j_length) {
+                                jbyteArray j_buffer, jint j_offset, jint j_length,
+                                jboolean j_use_capture, jboolean j_use_bubble) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedUIComponentEvent j_runtime_id invalid";
+    TDF_BASE_DLOG(WARNING) << "onReceivedUIEvent j_runtime_id invalid";
     return;
   }
 
   std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
   if (dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedUIComponentEvent dom_manager is nullptr";
+    TDF_BASE_DLOG(WARNING) << "onReceivedUIEvent dom_manager is nullptr";
     return;
   }
   auto node = dom_manager->GetNode(j_dom_id);
   if (node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedUIComponentEvent DomNode not found for id: " << j_dom_id;
+    TDF_BASE_DLOG(WARNING) << "onReceivedUIEvent DomNode not found for id: " << j_dom_id;
     return;
   }
-
+/*
   jboolean is_copy = JNI_TRUE;
   jbyte* params_buffer = j_env->GetByteArrayElements(j_buffer, &is_copy);
   const char* event_name = j_env->GetStringUTFChars(j_event_name, &is_copy);
   node->HandleListener(event_name, std::make_shared<DomArgument>(
           std::pair<uint8_t *, size_t>((uint8_t *) params_buffer, j_length)));
   j_env->ReleaseByteArrayElements(j_buffer, params_buffer, 0);
+*/
 }
 
+/*
 void OnReceivedNativeGestureEvent(JNIEnv *j_env, jobject j_object,
                                   jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
                                   jbyteArray j_buffer, jint j_length) {
@@ -157,3 +155,4 @@ void OnReceivedNativeGestureEvent(JNIEnv *j_env, jobject j_object,
   node->HandleEvent(std::make_shared<DomEvent>(event_name, node, params));
   j_env->ReleaseByteArrayElements(j_buffer, params_buffer, 0);
 }
+*/

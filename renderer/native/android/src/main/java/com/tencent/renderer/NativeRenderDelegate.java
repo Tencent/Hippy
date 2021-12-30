@@ -30,7 +30,7 @@ public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
 
     void updateLayout(@NonNull ArrayList list) throws NativeRenderException;
 
-    void updateGestureEventListener(@NonNull ArrayList eventList);
+    void updateEventListener(@NonNull ArrayList eventList);
 
     long measure(int id, float width, int widthMode, float height, int heightMode);
 

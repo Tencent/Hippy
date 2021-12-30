@@ -20,23 +20,16 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_N
 
 import android.content.Context;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
-import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
-import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.component.text.TextRenderSupply;
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
-
-import com.tencent.renderer.serialization.Serializer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +38,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.hippy.support.FrameworkProxy;
 import com.tencent.hippy.support.JSFrameworkProxy;
@@ -86,8 +78,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private NativeRenderProvider mRenderProvider;
     private volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
     private BlockingQueue<UITaskExecutor> mUITaskQueue;
-    private SafeHeapWriter mSafeHeapWriter;
-    private Serializer mSerializer;
 
     @Override
     public void init(int instanceId, @Nullable List<Class> controllers,
@@ -108,7 +98,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
         // node operation cause OOM.
         mUITaskQueue = new LinkedBlockingQueue<>(MAX_UITASK_QUEUE_CAPACITY);
-        mSerializer = new Serializer();
         NativeRendererManager.addNativeRendererInstance(instanceId, this);
     }
 
@@ -270,49 +259,55 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
     }
 
-    private @NonNull ByteBuffer argumentToBytes(@NonNull Object params) {
-        if (mSafeHeapWriter == null) {
-            mSafeHeapWriter = new SafeHeapWriter();
-        } else {
-            mSafeHeapWriter.reset();
-        }
-        mSerializer.setWriter(mSafeHeapWriter);
-        mSerializer.reset();
-        mSerializer.writeHeader();
-        mSerializer.writeValue(params);
-        ByteBuffer buffer = mSafeHeapWriter.chunked();
-        return buffer;
-    }
-
+    /**
+     * Dispatch UI component event, such as onLayout, onScroll, onInitialListReady.
+     *
+     * @param id target node id
+     * @param eventName target event name
+     * @param params event extra params object
+     */
     @Override
-    public void dispatchUIComponentEvent(int id, String eventName, Object params) {
-        if (mRenderProvider == null) {
-            return;
-        }
-        try {
-            ByteBuffer buffer = argumentToBytes(params);
-            if (buffer == null || buffer.limit() == 0) {
-                return;
-            }
-            mRenderProvider.dispatchUIComponentEvent(id, eventName, buffer);
-        } catch (Exception exception) {
-            handleRenderException(exception);
+    public void dispatchUIComponentEvent(int id, String eventName, @Nullable Object params) {
+        if (mRenderProvider != null) {
+            // UI component event default disable capture and bubble phase,
+            // can not enable both in native and js.
+            mRenderProvider.dispatchUIEvent(id, eventName, params, false, false);
         }
     }
 
+    /**
+     * Dispatch gesture event, such as onClick, onLongClick, onPressIn, onPressOut, onTouchDown,
+     * onTouchMove, onTouchEnd, onTouchCancel.
+     *
+     * @param id target node id
+     * @param eventName target event name
+     * @param params event extra params object
+     */
     @Override
-    public void dispatchNativeGestureEvent(int domId, String eventName, Object params) {
-        if (mRenderProvider == null) {
-            return;
+    public void dispatchNativeGestureEvent(int id, String eventName, @Nullable Object params) {
+        if (mRenderProvider != null) {
+            // Gesture event default enable capture and bubble phase, can not disable in native,
+            // but can stop propagation in js.
+            mRenderProvider.dispatchUIEvent(id, eventName, params, true, true);
         }
-        try {
-            ByteBuffer buffer = argumentToBytes(params);
-            if (buffer == null || buffer.limit() == 0) {
-                return;
-            }
-            mRenderProvider.dispatchNativeGestureEvent(domId, eventName, buffer);
-        } catch (Exception exception) {
-            handleRenderException(exception);
+    }
+
+    /**
+     * Dispatch custom event which capture and bubble state can set by user
+     *
+     * @param id target node id
+     * @param eventName target event name
+     * @param params event extra params object
+     * @param useCapture enable event capture
+     * @param useBubble enable event bubble
+     */
+    @Override
+    @SuppressWarnings("unused")
+    public void dispatchCustomEvent(int id, String eventName, @Nullable Object params,
+            boolean useCapture,
+            boolean useBubble) {
+        if (mRenderProvider != null) {
+            mRenderProvider.dispatchUIEvent(id, eventName, params, useCapture, useBubble);
         }
     }
 
@@ -500,7 +495,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void updateGestureEventListener(@NonNull ArrayList eventList) {
+    public void updateEventListener(@NonNull ArrayList eventList) {
         for (int i = 0; i < eventList.size(); i++) {
             Object object = eventList.get(i);
             if (!(object instanceof HashMap)) {
@@ -510,7 +505,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             HashMap<String, Object> events = (HashMap) object;
             final int id = ((Number) events.get(NODE_ID)).intValue();
             final HashMap<String, Object> props = (HashMap) events.get(NODE_PROPS);
-            boolean hasUpate = mVirtualNodeManager.updateGestureEventListener(id, props);
+            boolean hasUpate = mVirtualNodeManager.updateEventListener(id, props);
             // Gesture event status of virtual node update by itself, no need to update render node.
             if (hasUpate) {
                 continue;
@@ -519,7 +514,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                 mUITaskQueue.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.updateGestureEventListener(id, props);
+                        mRenderManager.updateEventListener(id, props);
                     }
                 });
             } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {

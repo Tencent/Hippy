@@ -111,10 +111,10 @@ public class RenderManager {
         }
     }
 
-    public void updateGestureEventListener(int id, @NonNull HashMap<String, Object> props) {
+    public void updateEventListener(int id, @NonNull HashMap<String, Object> props) {
         RenderNode node = mNodes.get(id);
         if (node != null) {
-            node.updateGestureEventListener(props);
+            node.updateEventListener(props);
             addUpdateNodeIfNeeded(node);
         }
     }

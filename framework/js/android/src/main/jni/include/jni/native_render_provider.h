@@ -39,10 +39,7 @@ void CreateNativeRenderDelegate(JNIEnv* j_env,
 void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jlong j_runtime_id,
                     jfloat width, jfloat height);
 
-void OnReceivedUIComponentEvent(JNIEnv *j_env, jobject j_object,
-                                jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
-                                jbyteArray j_buffer, jint j_length);
-
-void OnReceivedNativeGestureEvent(JNIEnv *j_env, jobject j_object,
-                                  jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
-                                  jbyteArray j_buffer, jint j_length);
+void onReceivedUIEvent(JNIEnv *j_env, jobject j_object,
+                       jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
+                       jbyteArray j_buffer, jint j_offset, jint j_length,
+                       jboolean j_use_capture, jboolean j_use_bubble);

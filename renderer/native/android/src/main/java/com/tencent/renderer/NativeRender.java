@@ -58,7 +58,10 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     void dispatchUIComponentEvent(int id, String eventName, @Nullable Object param);
 
-    void dispatchNativeGestureEvent(int domId, String eventName, Object params);
+    void dispatchNativeGestureEvent(int id, String eventName, Object params);
+
+    void dispatchCustomEvent(int id, String eventName, Object params, boolean useCapture,
+            boolean useBubble);
 
     void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 

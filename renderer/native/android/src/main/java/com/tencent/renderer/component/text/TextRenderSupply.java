@@ -18,22 +18,22 @@ package com.tencent.renderer.component.text;
 import android.text.Layout;
 
 /**
- * Used for save layout info of text node, should send it to text view
- * after update layout complete.
+ * Used for save layout info of text node, should send it to text view after update layout
+ * complete.
  */
 public class TextRenderSupply {
 
-  public final Layout layout;
-  public final float leftPadding;
-  public final float rightPadding;
-  public final float bottomPadding;
-  public final float topPadding;
+    public final Layout layout;
+    public final float leftPadding;
+    public final float rightPadding;
+    public final float bottomPadding;
+    public final float topPadding;
 
-  public TextRenderSupply(Layout layout, float left, float top, float right, float bottom) {
-    this.layout = layout;
-    this.leftPadding = left;
-    this.rightPadding = right;
-    this.bottomPadding = bottom;
-    this.topPadding = top;
-  }
+    public TextRenderSupply(Layout layout, float left, float top, float right, float bottom) {
+        this.layout = layout;
+        this.leftPadding = left;
+        this.rightPadding = right;
+        this.bottomPadding = bottom;
+        this.topPadding = top;
+    }
 }
