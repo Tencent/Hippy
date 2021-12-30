@@ -271,7 +271,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         if (mRenderProvider != null) {
             // UI component event default disable capture and bubble phase,
             // can not enable both in native and js.
-            mRenderProvider.dispatchUIEvent(id, eventName, params, false, false);
+            mRenderProvider.dispatchEvent(id, eventName, params, false, false);
         }
     }
 
@@ -288,7 +288,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         if (mRenderProvider != null) {
             // Gesture event default enable capture and bubble phase, can not disable in native,
             // but can stop propagation in js.
-            mRenderProvider.dispatchUIEvent(id, eventName, params, true, true);
+            mRenderProvider.dispatchEvent(id, eventName, params, true, true);
         }
     }
 
@@ -307,7 +307,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             boolean useCapture,
             boolean useBubble) {
         if (mRenderProvider != null) {
-            mRenderProvider.dispatchUIEvent(id, eventName, params, useCapture, useBubble);
+            mRenderProvider.dispatchEvent(id, eventName, params, useCapture, useBubble);
         }
     }
 

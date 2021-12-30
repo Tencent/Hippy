@@ -47,9 +47,9 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              UpdateRootSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "onReceivedUIEvent",
+             "onReceivedEvent",
              "(JILjava/lang/String;[BIIZZ)V",
-             onReceivedUIEvent)
+             onReceivedEvent)
 
 void NativeRenderProvider::Init() {
 }
@@ -93,24 +93,24 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jlong j_runtime_id,
   dom_manager->DoLayout();
 }
 
-void onReceivedUIEvent(JNIEnv *j_env, jobject j_object,
+void onReceivedEvent(JNIEnv *j_env, jobject j_object,
                                 jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
                                 jbyteArray j_buffer, jint j_offset, jint j_length,
                                 jboolean j_use_capture, jboolean j_use_bubble) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedUIEvent j_runtime_id invalid";
+    TDF_BASE_DLOG(WARNING) << "onReceivedEvent j_runtime_id invalid";
     return;
   }
 
   std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
   if (dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedUIEvent dom_manager is nullptr";
+    TDF_BASE_DLOG(WARNING) << "onReceivedEvent dom_manager is nullptr";
     return;
   }
   auto node = dom_manager->GetNode(j_dom_id);
   if (node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedUIEvent DomNode not found for id: " << j_dom_id;
+    TDF_BASE_DLOG(WARNING) << "onReceivedEvent DomNode not found for id: " << j_dom_id;
     return;
   }
 /*
