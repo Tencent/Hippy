@@ -66,7 +66,7 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 
 具体流程：
 
-1. 下载安装 [Android Studio](//developer.android.com/studio) （可能需要翻墙，也可以通过其它途径下载）。
+1. 下载安装 [Android Studio](//developer.android.com/studio) 。
 2. 通过 Android Studio 打开[Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/framework/js/examples/android-demo)，当提示 ToolChain 需要更新时全部选择拒绝，安装好 SDK、NDK、和 cmake 3.6.4。
 3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。*编译如果出现问题请参考 [#39](//github.com/Tencent/Hippy/issues/39)*。
 4. 回到手机上，首先确保手机的 `USB 调试模式` 已经打开 -- 一般在关于手机页面里连续点击 `Build` 可以进入`开发者模式`，再进入`开发者模式`界面后打开 `USB 调试模式`。
@@ -84,11 +84,39 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 
 # Elements 可视化审查
 
-> Android 最低支持版本 2.9.0
-
 Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Inspector 上进行 Elements 的可视化检查。
 
 <img src="https://user-images.githubusercontent.com/12878546/132838547-40ab9e10-ba93-4bc4-86b0-6babba020d03.png" alt="Inspect Elements" width="70%"/>
+
+## Android Chrome 调试
+
+> Android SDK 最低支持版本 2.9.0
+
+Android 上我们直接使用 Chrome Inspector 调试即可看到 Elements。
+
+## iOS Chrome 调试
+
+> iOS SDK 最低支持版本 2.11.5
+
+为实现 iOS Element 调试能力，我们也使用 Chrome Inspector 替代 Safari 进行 Elements 的可视化检查，并使用新的 [hippy-debug-server](https://www.npmjs.com/package/@hippy/debug-server-next) 与 iOS 设备建立连接和协议适配。
+
+```shell
+npm i -D @hippy/debug-server-next@latest
+```
+
+!> `@hippy/debug-server-next` 包含 `@hippy/debug-server` 的所有能力，是面向 Hippy 3.0 的调试工具，目前暂时作为 Hippy 2.0 的 iOS 协议适配增强工具。若想使用 HMR 能力仍需跟随 Hippy 2.12.0 版本。
+
+<br />
+<br />
+
+# 框架日志输出
+
+无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
+
+如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+
+<img src="//static.res.qq.com/nav/hippydoc/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
+
 <br />
 <br />
 
@@ -161,14 +189,15 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Ins
    {
      "scripts": {
         "hippy:debug": "hippy-debug",
-        // -c or --config: Provide path to a webpack configuration file
-        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
+         // -c 或 --config 提供 webpack config 配置路径
+        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
   
 4. 启动开发：`npm run hippy:debug`，`npm run hippy:dev`
-5. **如果安卓设备断连，需要手动用adb转发端口**
+
+5. **如果安卓设备断连，需要手动用 adb 转发端口**
 
    ```bash
    # port for debug
@@ -280,13 +309,14 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Ins
    {
       "scripts": {
         "hippy:debug": "hippy-debug",
-        // -c or --config: Provide path to a webpack configuration file
-        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
+        // -c 或 --config 提供 webpack config 配置路径
+        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js"
       }
    }
    ```
 
-4. 启动开发：`npm run hippy:debug`，`npm run hippy:dev`
+4. 执行 `npm run hippy:debug` 和 `npm run hippy:dev` 命令。
+
 5. **如果安卓设备断连，需要手动用adb转发端口**
 
    ```bash
@@ -314,10 +344,18 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Ins
     }
     ```
 
-# 框架日志输出
+## 接口
 
-无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
+2.12.0 及以上的 `@hippy/debug-server` 除了提供 bin 命令 `hippy-debug` 和 `hippy-dev` 进行调试构建，还提供了接口供自定义的 CLI 工具封装时调用，使用方法如下：
 
-如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+```javascript
+const { webpack, startDebugServer } = require('@hippy/debug-server');
 
-<img src="//static.res.qq.com/nav/hippydoc/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
+// 进行 webpack 开发环境带 HMR 能力的打包构建
+webpack(webpackConfig, (err, stats) => {
+  // 处理 wepback 打包回调信息
+});
+
+// 启动调试 server
+startDebugServer();
+```
