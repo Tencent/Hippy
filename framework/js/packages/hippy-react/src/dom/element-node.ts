@@ -445,14 +445,12 @@ class ElementNode extends ViewNode {
           action: () => {
             if (typeof value === 'function') {
               const processedKey = getEventPropKey(key);
-              this.attributes[processedKey] = true;
               this.attributes[`__bind__${processedKey}`] = true;
             } else {
               this.attributes[key] = value;
               const processedKey = getEventPropKey(key);
               if (this.attributes[`__bind__${processedKey}`] === true
                   && typeof value !== 'function') {
-                this.attributes[processedKey] = false;
                 this.attributes[`__bind__${processedKey}`] = false;
               }
             }

@@ -360,18 +360,15 @@ function renderToNative(rootViewId, targetNode) {
       vueEventNames.forEach((vueEventName) => {
         const nativeEventName = eventNamesMap[vueEventName];
         if (nativeEventName) {
-          events[nativeEventName] = true;
           events[`__bind__${nativeEventName}`] = true;
         } else {
           const name = `on${capitalizeFirstLetter(vueEventName)}`;
-          events[name] = true;
           events[`__bind__${name}`] = true;
         }
       });
     } else {
       vueEventNames.forEach((vueEventName) => {
         const name = `on${capitalizeFirstLetter(vueEventName)}`;
-        events[name] = true;
         events[`__bind__${name}`] = true;
       });
     }
