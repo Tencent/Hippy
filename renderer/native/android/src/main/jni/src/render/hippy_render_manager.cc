@@ -43,12 +43,12 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
                                                            float height, MeasureMode heightMeasureMode,
                                                            void* layoutContext) -> TaitankResult {
         int64_t result;
-        this->CallNativeMeasureMethod(id, width, widthMeasureMode, height, heightMeasureMode, result);
+        this->CallNativeMeasureMethod(id, DpToPx(width), widthMeasureMode, DpToPx(height), heightMeasureMode, result);
         TaitankResult layout_result;
         layout_result.width = PxToDp((int32_t)(0xFFFFFFFF & (result >> 32)));
         layout_result.height = PxToDp((int32_t)(0xFFFFFFFF & result));
-        TDF_BASE_DLOG(INFO) << id << "measure width: " << layout_result.width << ", height: " << layout_result.height
-                            << ", result: " << result;
+        TDF_BASE_DLOG(INFO) << "measure width: " << (int32_t)(0xFFFFFFFF & (result >> 32))
+                            << ", height: " << (int32_t)(0xFFFFFFFF & result) << ", result: " << result;
         return layout_result;
       };
       std::static_pointer_cast<TaitankLayoutNode>(nodes[i]->GetLayoutNode())->SetMeasureFunction(measure_function);
