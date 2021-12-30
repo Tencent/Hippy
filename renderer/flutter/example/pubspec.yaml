@@ -45,6 +45,18 @@ flutter:
     - assets/voltron-logo.png
     - jsbundle/
     - jsbundle/assets/
+    - jsbundle/hippy-bundle/ios/
+    - jsbundle/hippy-bundle/ios/assets/
+    - jsbundle/hippy-bundle/android/
+    - jsbundle/hippy-bundle/android/assets/
+    - jsbundle/voltron-bundle/
+    - jsbundle/voltron-bundle/assets/
+    - jsbundle/voltron-hippy-bundle/android/
+    - jsbundle/voltron-hippy-bundle/android/assets/
+    - jsbundle/voltron-hippy-bundle/ios/
+    - jsbundle/voltron-hippy-bundle/ios/assets/
+    - jsbundle/voltron-bundle/
+    - jsbundle/voltron-bundle/assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
