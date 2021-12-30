@@ -25,7 +25,8 @@ class HippyRenderManager : public RenderManager {
   void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
   void MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) override;
-  void Batch() override;
+  void BeginBatch() override;
+  void EndBatch() override;
 
   void BeforeLayout() override;
   void AfterLayout() override;

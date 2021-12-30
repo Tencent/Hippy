@@ -78,7 +78,6 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "createNode");
-  return;
 };
 
 void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
@@ -110,7 +109,6 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "updateNode");
-  return;
 };
 
 void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
@@ -141,7 +139,6 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array);
   j_env->DeleteLocalRef(j_int_array);
-  return;
 };
 
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
@@ -175,7 +172,6 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "updateLayout");
-  return;
 };
 
 void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
@@ -201,13 +197,14 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array, from_pid, to_pid);
   j_env->DeleteLocalRef(j_int_array);
-
-  return;
 };
 
-void HippyRenderManager::Batch() {
+void HippyRenderManager::BeginBatch() {
+
+}
+
+void HippyRenderManager::EndBatch() {
   CallNativeMethod("endBatch");
-  return;
 };
 
 void HippyRenderManager::BeforeLayout(){};

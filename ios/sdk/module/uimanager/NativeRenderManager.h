@@ -48,8 +48,8 @@ public:
     void MoveRenderNode(std::vector<int32_t>&& ids,
                         int32_t pid,
                         int32_t id) override;
-    void StartBatch() override;
-    void Batch() override;
+    void BeginBatch() override;
+    void EndBatch() override;
     void BeforeLayout() override;
     void AfterLayout() override;
     

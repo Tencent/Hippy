@@ -151,7 +151,7 @@ void DomManager::BeginBatch() {
     if (!render_manager) {
       return;
     }
-    render_manager->StartBatch();
+    render_manager->BeginBatch();
   });
 }
 
@@ -188,7 +188,7 @@ void DomManager::EndBatch() {
     if (!self->layout_changed_nodes_.empty()) {
       render_manager->UpdateLayout(self->layout_changed_nodes_);
     }
-    render_manager->Batch();
+    render_manager->EndBatch();
   });
 }
 

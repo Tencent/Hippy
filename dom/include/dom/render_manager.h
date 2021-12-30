@@ -23,8 +23,8 @@ class RenderManager {
   virtual void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) = 0;
   virtual void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) = 0;
   virtual void MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) = 0;
-  virtual void Batch() = 0;
-  virtual void StartBatch() = 0;
+  virtual void BeginBatch() = 0;
+  virtual void EndBatch() = 0;
 
   virtual void BeforeLayout() = 0;
   virtual void AfterLayout() = 0;
