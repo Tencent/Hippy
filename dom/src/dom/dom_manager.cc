@@ -143,7 +143,9 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   });
 }
 
-void DomManager::BeginBatch() {}
+void DomManager::BeginBatch() {
+
+}
 
 void DomManager::EndBatch() {
   PostTask([WEAK_THIS] {

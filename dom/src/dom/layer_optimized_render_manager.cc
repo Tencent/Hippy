@@ -89,6 +89,10 @@ void LayerOptimizedRenderManager::Batch() {
   render_manager_->Batch();
 }
 
+void LayerOptimizedRenderManager::StartBatch() {
+  render_manager_->StartBatch();
+}
+
 void LayerOptimizedRenderManager::BeforeLayout() {
   render_manager_->BeforeLayout();
 }
