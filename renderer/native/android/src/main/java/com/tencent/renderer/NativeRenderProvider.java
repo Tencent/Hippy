@@ -152,6 +152,20 @@ public class NativeRenderProvider {
     }
 
     /**
+     * Call from native (C++) render manager to add or remove render event listener
+     *
+     * @param buffer The byte array serialize by native (C++)
+     */
+    @CalledByNative
+    private void updateRenderEventListener(byte[] buffer) {
+        try {
+            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+        } catch (NativeRenderException exception) {
+            mRenderDelegate.handleRenderException(exception);
+        }
+    }
+
+    /**
      * Call from native (C++) render manager to measure text width and height
      *
      * @param id node id
@@ -194,14 +208,6 @@ public class NativeRenderProvider {
     public void dispatchNativeGestureEvent(int domId, String eventName,
                                            @NonNull ByteBuffer paramsBuffer) {
         onReceivedNativeGestureEvent(mRuntimeId, domId, eventName, paramsBuffer.array(), paramsBuffer.limit());
-    }
-
-    public void updateRenderEventListener(byte[] buffer) {
-        try {
-            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-        } catch (NativeRenderException exception) {
-            mRenderDelegate.handleRenderException(exception);
-        }
     }
 
     /**
