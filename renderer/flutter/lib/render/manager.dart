@@ -119,7 +119,7 @@ mixin RenderExecutorDelegate {
     }
   }
 
-  void _renderBatchStart() {
+  void renderBatchStart() {
     _renderBatchStarted = true;
   }
 
@@ -505,10 +505,7 @@ class RenderManager
 
     _nullUiUpdateNodes.clear();
 
-    if (!_renderBatchStarted) {
-      _renderBatchStart();
-      updateRender();
-    }
+    updateRender();
   }
 
   @override

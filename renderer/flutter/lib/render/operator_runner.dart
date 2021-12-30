@@ -31,6 +31,8 @@ class RenderOperatorRunner implements Destroyable {
         _UpdateNodeOpTask(instanceId, nodeId, params),
     _RenderOpType.updateLayout.index: (instanceId, nodeId, params) =>
         _UpdateLayoutOpTask(instanceId, nodeId, params),
+    _RenderOpType.startBatch.index: (instanceId, nodeId, params) =>
+        _StartBatchOpTask(instanceId),
     _RenderOpType.batch.index: (instanceId, nodeId, params) =>
         _BatchOpTask(instanceId),
     _RenderOpType.dispatchUiFunc.index: (instanceId, nodeId, params) =>
@@ -203,6 +205,16 @@ class _MoveNodeOpTask extends _NodeOpTask {
   }
 }
 
+class _StartBatchOpTask extends RenderOpTask {
+  _StartBatchOpTask(int instanceId) : super(instanceId);
+
+  @override
+  void _run() {
+    renderManager.renderBatchStart();
+  }
+}
+
+
 class _BatchOpTask extends RenderOpTask {
   _BatchOpTask(int instanceId) : super(instanceId);
 
@@ -301,6 +313,7 @@ enum _RenderOpType {
   updateLayout,
   layoutBefore,
   layoutFinish,
+  startBatch,
   batch,
   dispatchUiFunc,
   addEvent,

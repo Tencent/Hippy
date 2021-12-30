@@ -868,7 +868,13 @@ class VoltronBridgeManager implements Destroyable {
   }
 
   Future<dynamic> execNativeCallback(String callbackId, Object params) async {
-    await callNativeFunction(callbackId, params);
+    var convertParams = params;
+    if (params is VoltronMap) {
+      convertParams = params.toMap();
+    } else if (params is VoltronArray) {
+      convertParams = params.toList();
+    }
+    await callNativeFunction(callbackId, convertParams);
   }
 
   Future<dynamic> execNativeEvent(int rootId, int id, String event, Object params) async {
