@@ -346,15 +346,15 @@ void HandleRenderListeners(const std::shared_ptr<Ctx> &context,
                       return;
                     }
                     DomValue value;
-                    bool flag = dom_argus->ToObject(value);
-                    if (!flag) {
-                      context->ThrowExceptionToJS(context->CreateJsError(
-                          unicode_string_view("argus ToObject failed")));
-                      return;
-                    }
-                    auto param = context->CreateCtxValue(
-                        std::make_shared<DomValue>(std::move(value)));
-                    if (param) {
+                    if (dom_argus) {
+                      bool flag = dom_argus->ToObject(value);
+                      if (!flag) {
+                        context->ThrowExceptionToJS(context->CreateJsError(
+                            unicode_string_view("argus ToObject failed")));
+                        return;
+                      }
+                      auto param = context->CreateCtxValue(
+                          std::make_shared<DomValue>(std::move(value)));
                       const std::shared_ptr<CtxValue> argus[] = {param};
                       context->CallFunction(cb, 1, argus);
                     } else {

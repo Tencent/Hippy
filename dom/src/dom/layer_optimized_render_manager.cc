@@ -85,12 +85,12 @@ void LayerOptimizedRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_id
   render_manager_->MoveRenderNode(std::move(moved_ids), from_pid, to_pid);
 }
 
-void LayerOptimizedRenderManager::Batch() {
-  render_manager_->Batch();
+void LayerOptimizedRenderManager::BeginBatch() {
+  render_manager_->BeginBatch();
 }
 
-void LayerOptimizedRenderManager::StartBatch() {
-  render_manager_->StartBatch();
+void LayerOptimizedRenderManager::EndBatch() {
+  render_manager_->EndBatch();
 }
 
 void LayerOptimizedRenderManager::BeforeLayout() {

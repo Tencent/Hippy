@@ -51,9 +51,9 @@ void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
     [uiManager_ renderMoveViews:ids fromContainer:pid toContainer:id];
 }
 
-void NativeRenderManager::StartBatch() {}
+void NativeRenderManager::BeginBatch() {}
 
-void NativeRenderManager::Batch() {
+void NativeRenderManager::EndBatch() {
     [uiManager_ batch];
 }
 
@@ -86,5 +86,5 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
         param.ToObject(dom_value);
         [uiManager_ dispatchFunction:name viewName:node->GetViewName() viewTag:node->GetId() params:dom_value callback:cb];
     }
-    Batch();
+    EndBatch();
 }
