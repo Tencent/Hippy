@@ -55,6 +55,7 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
     id<HippyComponent> _defaultView;  // Only needed for HIPPY_CUSTOM_VIEW_PROPERTY
     NSMutableDictionary<NSString *, HippyPropBlock> *_viewPropBlocks;
     NSMutableDictionary<NSString *, HippyPropBlock> *_shadowPropBlocks;
+    NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
     BOOL _implementsUIBlockToAmendWithShadowViewRegistry;
     __weak HippyBridge *_bridge;
 }
@@ -432,40 +433,34 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 }
 
-- (NSDictionary<NSString *, id> *)viewConfig {
-    NSMutableArray<NSString *> *directEvents = [NSMutableArray new];
-    unsigned int count = 0;
-    NSMutableDictionary *propTypes = [NSMutableDictionary new];
-    Method *methods = class_copyMethodList(object_getClass(_managerClass), &count);
-    for (unsigned int i = 0; i < count; i++) {
-        Method method = methods[i];
-        SEL selector = method_getName(method);
-        NSString *methodName = NSStringFromSelector(selector);
-        if ([methodName hasPrefix:@"propConfig"]) {
-            NSRange nameRange = [methodName rangeOfString:@"_"];
-            if (nameRange.length) {
-                NSString *name = [methodName substringFromIndex:nameRange.location + 1];
-                NSString *type = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector)[0];
-                if (HIPPY_DEBUG && propTypes[name] && ![propTypes[name] isEqualToString:type]) {
-                    HippyLogError(@"Property '%@' of component '%@' redefined from '%@' "
-                                   "to '%@'",
-                        name, _name, propTypes[name], type);
-                }
-
-                if ([type isEqualToString:@"HippyDirectEventBlock"]) {
-                    [directEvents addObject:HippyNormalizeInputEventName(name)];
-                    propTypes[name] = @"BOOL";
-                } else {
-                    propTypes[name] = type;
+- (NSDictionary<NSString *, NSString *> *)eventNameMap {
+    if (!_eventNameMap) {
+        uint32_t count = 0;
+        Method *methods = class_copyMethodList(object_getClass(_managerClass), &count);
+        _eventNameMap = [NSMutableDictionary dictionaryWithCapacity:count];
+        for (uint32_t i = 0; i < count; i++) {
+            Method method = methods[i];
+            SEL selector = method_getName(method);
+            NSString *methodName = NSStringFromSelector(selector);
+            if ([methodName hasPrefix:@"propConfig"]) {
+                NSRange nameRange = [methodName rangeOfString:@"_"];
+                if (nameRange.length) {
+                    NSString *name = [methodName substringFromIndex:nameRange.location + 1];
+                    NSString *type = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector)[0];
+                    if ([type isEqualToString:@"HippyDirectEventBlock"]) {
+                        //remove 'on' prefix if exists
+                        NSString *nameNoOn = name;
+                        if ([nameNoOn hasPrefix:@"on"]) {
+                            nameNoOn = [name substringFromIndex:2];
+                        }
+                        NSString *nameNoOnLowerCase = [nameNoOn lowercaseString];
+                        [_eventNameMap setObject:name forKey:nameNoOnLowerCase];
+                    }
                 }
             }
         }
     }
-    free(methods);
-    return @{
-        @"propTypes": propTypes,
-        @"directEvents": directEvents,
-    };
+    return [_eventNameMap copy];
 }
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {

@@ -1348,33 +1348,8 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 - (NSDictionary<NSString *, id> *)constantsToExport {
-    NSMutableDictionary<NSString *, NSDictionary *> *allJSConstants = [NSMutableDictionary new];
-    NSMutableDictionary<NSString *, NSDictionary *> *directEvents = [NSMutableDictionary new];
-
-    [_componentDataByName enumerateKeysAndObjectsUsingBlock:^(NSString *name, HippyComponentData *componentData, __unused BOOL *stop) {
-        NSMutableDictionary<NSString *, id> *constantsNamespace = [NSMutableDictionary dictionaryWithDictionary:allJSConstants[name]];
-
-        // Add manager class
-        constantsNamespace[@"Manager"] = HippyBridgeModuleNameForClass(componentData.managerClass);
-
-        // Add native props
-        NSDictionary<NSString *, id> *viewConfig = [componentData viewConfig];
-        constantsNamespace[@"NativeProps"] = viewConfig[@"propTypes"];
-
-        // Add direct events
-        for (NSString *eventName in viewConfig[@"directEvents"]) {
-            if (!directEvents[eventName]) {
-                directEvents[eventName] = @ {
-                    @"registrationName": [eventName stringByReplacingCharactersInRange:(NSRange) { 0, 3 } withString:@"on"],
-                };
-            }
-        }
-        allJSConstants[name] = constantsNamespace;
-    }];
-
-    NSDictionary *dim = hippyExportedDimensions();
-    [allJSConstants addEntriesFromDictionary:@{ @"customDirectEventTypes": directEvents, @"Dimensions": dim }];
-    return allJSConstants;
+    //TODO HippyUIManager not longer needs to be exported to frontend, so just return empty object
+    return @{};
 }
 
 - (void)rootViewForHippyTag:(NSNumber *)hippyTag withCompletion:(void (^)(UIView *view))completion {
@@ -1801,6 +1776,7 @@ static UIView *_jsResponder;
 }
 
 - (void) addClickEventListenerForView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
@@ -1813,6 +1789,7 @@ static UIView *_jsResponder;
 }
 
 - (void) addLongClickEventListenerForView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
@@ -1826,6 +1803,7 @@ static UIView *_jsResponder;
 
 - (void) addPressEventListenerForType:(std::string)type
                               forView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     HippyViewEventType eventType = hippy::kPressIn == type ? HippyViewEventType::HippyViewEventTypePressIn : HippyViewEventType::HippyViewEventTypePressOut;
     if (view) {
@@ -1840,6 +1818,7 @@ static UIView *_jsResponder;
 
 - (void) addTouchEventListenerForType:(std::string)type
                               forView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         // todo 默认值应该有个值代表未知
@@ -1870,19 +1849,22 @@ static UIView *_jsResponder;
 
 - (void)addShowEventListenerForType:(std::string)type
                             forView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
             auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<DomEvent>(type, node, std::any_cast<bool>(true)));
+                std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(true);
+                node->HandleEvent(std::make_shared<DomEvent>(type, node, domValue));
             }
         }];
     }
 }
 
 - (void)addComponentEvent:(const std::string &)name forView:(int32_t)hippyTag {
+    HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     [view addComonentEvent:std::move(name)];
 }
@@ -1899,9 +1881,45 @@ static UIView *_jsResponder;
 }
 
 - (void)addRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
+    auto node = weak_node.lock();
+    if (node) {
+        int32_t hippyTag = node->GetId();
+        NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
+        std::string name_ = std::move(name);
+        NSDictionary *componentDataByName = [_componentDataByName copy];
+        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
+            HippyComponentData *component = componentDataByName[viewName];
+            NSDictionary<NSString *, NSString *> *eventMap = [component eventNameMap];
+            NSString *mapToEventName = [eventMap objectForKey:[NSString stringWithUTF8String:name_.c_str()]];
+            if (mapToEventName) {
+                __weak __typeof(self) weakManager = uiManager;
+                [view addRenderEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
+                    __typeof(self) strongManager = weakManager;
+                    if (strongManager) {
+                        auto domNode = [strongManager domNodeFromHippyTag:hippyTag];
+                        if (domNode) {
+                            DomArgument arugment = [body toDomArgument];
+                            std::shared_ptr<DomArgument> argument = std::make_shared<DomArgument>(std::move(arugment));
+                            domNode->HandleListener(name_, argument);
+                        }
+                    }
+                }];
+            }
+        }];
+    }
 }
 
 - (void)removeRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
+    auto node = weak_node.lock();
+    if (node) {
+        int32_t hippyTag = node->GetId();
+        std::string name_ = std::move(name);
+        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
+            [view removeRenderEvent:name_];
+        }];
+    }
 }
 
 @end

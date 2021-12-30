@@ -457,8 +457,8 @@ using WaterfallViewEvent = std::function<void(const std::string &event_name,
 }
 
 - (void)loadMoreData {
-    if ([_eventsSet containsObject:@"endreached"]) {
-        _event("endreached", nullptr);
+    if (self.onEndReached) {
+        self.onEndReached(@{});
     }
 }
 

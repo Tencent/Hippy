@@ -168,5 +168,7 @@ HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
 //event must be std::function<void(std::shared_ptr<tdf::base::DomValue> value)> eventCallBack type
 - (void)addComonentEvent:(const std::string &)eventName;
 - (void)removeComponentEvent:(const std::string &)eventName;
+- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+- (void)removeRenderEvent:(const std::string &)name;
 
 @end
