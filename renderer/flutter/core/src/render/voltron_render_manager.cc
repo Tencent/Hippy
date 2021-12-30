@@ -50,6 +50,8 @@ void VoltronRenderManager::RemoveRenderListener(std::weak_ptr<DomNode> dom_node,
 
 void VoltronRenderManager::Batch() { RunBatch(); }
 
+void VoltronRenderManager::StartBatch() { RunStartBatch(); }
+
 void VoltronRenderManager::BeforeLayout() {
   RunLayoutBefore();
   TDF_BASE_DLOG(INFO) << "RunLayoutBefore";

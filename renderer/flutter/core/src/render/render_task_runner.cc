@@ -106,6 +106,12 @@ void VoltronRenderTaskRunner::RunBatch() {
   ConsumeQueue();
 }
 
+void VoltronRenderTaskRunner::RunStartBatch() {
+  auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::START_BATCH, 0);
+  queue_->ProduceRenderOp(batch_task);
+  ConsumeQueue();
+}
+
 void VoltronRenderTaskRunner::RunLayoutBefore() {
   auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::LAYOUT_BEFORE, 0);
   queue_->ProduceRenderOp(batch_task);
