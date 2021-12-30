@@ -85,12 +85,33 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 # Elements 可视化审查
 
 > Android 最低支持版本 2.9.0
+> iOS 最低支持版本 2.11.5
 
 Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Inspector 上进行 Elements 的可视化检查。
 
 <img src="https://user-images.githubusercontent.com/12878546/132838547-40ab9e10-ba93-4bc4-86b0-6babba020d03.png" alt="Inspect Elements" width="70%"/>
+
+## iOS Chrome 调试
+
+为实现 iOS Element 调试能力，我们使用 Chrome Inspector 替代 Safari 进行 Elements 的可视化检查，并使用新的 [hippy-debug-server](https://www.npmjs.com/package/@hippy/debug-server-next) 与 iOS 设备建立连接和协议适配。
+
+```shell
+npm i -D @hippy/debug-server-next
+```
+
+`@hippy/debug-server-next` 包含 `@hippy/debug-server` 的所有能力，未来将逐步替代。
+
 <br />
 <br />
+
+# 框架日志输出
+
+无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
+
+如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+
+<img src="//static.res.qq.com/nav/hippydoc/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
+
 
 # HMR & Live-Reload 能力
 
@@ -313,11 +334,3 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Ins
       ],
     }
     ```
-
-# 框架日志输出
-
-无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
-
-如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
-
-<img src="//static.res.qq.com/nav/hippydoc/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
