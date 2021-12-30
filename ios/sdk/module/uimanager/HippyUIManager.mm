@@ -1348,33 +1348,8 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 - (NSDictionary<NSString *, id> *)constantsToExport {
-    NSMutableDictionary<NSString *, NSDictionary *> *allJSConstants = [NSMutableDictionary new];
-    NSMutableDictionary<NSString *, NSDictionary *> *directEvents = [NSMutableDictionary new];
-
-    [_componentDataByName enumerateKeysAndObjectsUsingBlock:^(NSString *name, HippyComponentData *componentData, __unused BOOL *stop) {
-        NSMutableDictionary<NSString *, id> *constantsNamespace = [NSMutableDictionary dictionaryWithDictionary:allJSConstants[name]];
-
-        // Add manager class
-        constantsNamespace[@"Manager"] = HippyBridgeModuleNameForClass(componentData.managerClass);
-
-        // Add native props
-        NSDictionary<NSString *, id> *viewConfig = [componentData viewConfig];
-        constantsNamespace[@"NativeProps"] = viewConfig[@"propTypes"];
-
-        // Add direct events
-        for (NSString *eventName in viewConfig[@"directEvents"]) {
-            if (!directEvents[eventName]) {
-                directEvents[eventName] = @ {
-                    @"registrationName": [eventName stringByReplacingCharactersInRange:(NSRange) { 0, 3 } withString:@"on"],
-                };
-            }
-        }
-        allJSConstants[name] = constantsNamespace;
-    }];
-
-    NSDictionary *dim = hippyExportedDimensions();
-    [allJSConstants addEntriesFromDictionary:@{ @"customDirectEventTypes": directEvents, @"Dimensions": dim }];
-    return allJSConstants;
+    //TODO HippyUIManager not longer needs to be exported to frontend, so just return empty object
+    return @{};
 }
 
 - (void)rootViewForHippyTag:(NSNumber *)hippyTag withCompletion:(void (^)(UIView *view))completion {
@@ -1906,31 +1881,36 @@ static UIView *_jsResponder;
 }
 
 - (void)addRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
-    HippyAssertMainThread();
     auto node = weak_node.lock();
     if (node) {
         int32_t hippyTag = node->GetId();
+        NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
         std::string name_ = std::move(name);
+        NSDictionary *componentDataByName = [_componentDataByName copy];
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
-            __weak __typeof(self) weakManager = uiManager;
-            [view addRenderEvent:name_ eventCallback:^(NSDictionary *body) {
-                __typeof(self) strongManager = weakManager;
-                if (strongManager) {
-                    auto domNode = [strongManager domNodeFromHippyTag:hippyTag];
-                    if (domNode) {
-                        DomValue value = [body toDomValue];
-                        std::shared_ptr<DomValue> v = std::make_shared<DomValue>(std::move(value));
-                        domNode->HandleEvent(std::make_shared<DomEvent>(name_, domNode, v));
+            HippyComponentData *component = componentDataByName[viewName];
+            NSDictionary<NSString *, NSString *> *eventMap = [component eventNameMap];
+            NSString *mapToEventName = [eventMap objectForKey:[NSString stringWithUTF8String:name_.c_str()]];
+            if (mapToEventName) {
+                __weak __typeof(self) weakManager = uiManager;
+                [view addRenderEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
+                    __typeof(self) strongManager = weakManager;
+                    if (strongManager) {
+                        auto domNode = [strongManager domNodeFromHippyTag:hippyTag];
+                        if (domNode) {
+                            DomArgument arugment = [body toDomArgument];
+                            std::shared_ptr<DomArgument> argument = std::make_shared<DomArgument>(std::move(arugment));
+                            domNode->HandleListener(name_, argument);
+                        }
                     }
-                }
-            }];
+                }];
+            }
         }];
     }
 }
 
 - (void)removeRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node {
-    HippyAssertMainThread();
     auto node = weak_node.lock();
     if (node) {
         int32_t hippyTag = node->GetId();

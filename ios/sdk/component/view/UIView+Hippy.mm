@@ -471,8 +471,22 @@ HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name) {
 }
 
 - (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
-    if (callback) {
-        callback(@{});
+    //try to contrustor origin setter
+    char n = std::toupper(name.at(0));
+    NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
+    SEL selector = NSSelectorFromString(setterName);
+    @try {
+        if ([self respondsToSelector:selector]) {
+            void *cb = (__bridge void *)callback;
+            NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
+            [invocation setTarget:self];
+            [invocation setSelector:selector];
+            [invocation setArgument:&cb atIndex:2];
+            [invocation invoke];
+        }
+    } @catch (NSException *exception) {
+        
     }
 }
 

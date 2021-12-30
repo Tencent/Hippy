@@ -46,7 +46,7 @@
 - (void)setProps:(NSDictionary<NSString *, id> *)props forView:(id<HippyComponent>)view;
 - (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(HippyShadowView *)shadowView;
 
-- (NSDictionary<NSString *, id> *)viewConfig;
+- (NSDictionary<NSString *, NSString *> *)eventNameMap;
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
 
