@@ -365,7 +365,7 @@ public class RenderNode {
         LogUtils.d("UINode", "mId" + mId + " end updateStyle");
     }
 
-    public void updateGestureEventListener(@NonNull HashMap<String, Object> props) {
+    public void updateEventListener(@NonNull HashMap<String, Object> props) {
         if (mPropsToUpdate == null) {
             return;
         }

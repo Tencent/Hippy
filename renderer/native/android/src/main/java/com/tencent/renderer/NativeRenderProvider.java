@@ -16,25 +16,23 @@
 
 package com.tencent.renderer;
 
-import android.text.TextUtils;
 import androidx.annotation.NonNull;
-
-import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
+import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.annotation.CalledByNative;
 import com.tencent.renderer.serialization.Deserializer;
-
+import com.tencent.renderer.serialization.Serializer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 /**
- * Implementation of render provider, communicate with native (C++) render manager,
- * deserialize and virtual node operation will run in JS thread, the order of native call is
- * startBatch -> createNode(updateNode or deleteNode) -> measure -> updateGestureEventListener ->
- * updateLayout -> endBatch
+ * Implementation of render provider, communicate with native (C++) render manager, deserialize and
+ * virtual node operation will run in JS thread, the order of native call is startBatch ->
+ * createNode(updateNode or deleteNode) -> measure -> updateGestureEventListener -> updateLayout ->
+ * endBatch
  */
 public class NativeRenderProvider {
 
@@ -42,10 +40,13 @@ public class NativeRenderProvider {
     private final NativeRenderDelegate mRenderDelegate;
     private final Deserializer mDeserializer;
     private BinaryReader mSafeHeapReader;
+    private SafeHeapWriter mSafeHeapWriter;
+    private Serializer mSerializer;
 
     public NativeRenderProvider(@NonNull NativeRenderDelegate renderDelegate, long runtimeId) {
         mRenderDelegate = renderDelegate;
         mRuntimeId = runtimeId;
+        mSerializer = new Serializer();
         mDeserializer = new Deserializer(null, new InternalizedStringTable());
         onCreateNativeRenderProvider(runtimeId, PixelUtil.getDensity());
     }
@@ -55,11 +56,11 @@ public class NativeRenderProvider {
     }
 
     /**
-     * Deserialize dom node data wrap by ByteBuffer just support heap buffer reader, direct buffer
-     * reader not fit for dom data
+     * Deserialize dom node data wrapped by ByteBuffer, just support heap buffer reader, direct
+     * buffer reader not fit for dom data
      *
-     * @param buffer The byte array from native (C++) DOM wrapped by {@link ByteBuffer}
-     * @return The result {@link ArrayList} of deserialize
+     * @param buffer the byte array from native (C++) DOM wrapped by {@link ByteBuffer}
+     * @return the result {@link ArrayList} of deserialize
      */
     private @NonNull
     ArrayList bytesToArgument(ByteBuffer buffer) {
@@ -77,6 +78,28 @@ public class NativeRenderProvider {
     }
 
     /**
+     * Serialize UI event params object, and use {@link ByteBuffer} to wrap the result, just support
+     * heap buffer writer, direct buffer writer not fit for event data
+     *
+     * @param params the ui event params object
+     * @return the result of serialize wrapped by {@link ByteBuffer}
+     */
+    private @NonNull
+    ByteBuffer argumentToBytes(@NonNull Object params) {
+        if (mSafeHeapWriter == null) {
+            mSafeHeapWriter = new SafeHeapWriter();
+        } else {
+            mSafeHeapWriter.reset();
+        }
+        mSerializer.setWriter(mSafeHeapWriter);
+        mSerializer.reset();
+        mSerializer.writeHeader();
+        mSerializer.writeValue(params);
+        ByteBuffer buffer = mSafeHeapWriter.chunked();
+        return buffer;
+    }
+
+    /**
      * Call from native (C++) render manager to create render node
      *
      * @param buffer The byte array serialize by native (C++)
@@ -86,68 +109,68 @@ public class NativeRenderProvider {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.createNode(list);
-        } catch (NativeRenderException exception) {
-            mRenderDelegate.handleRenderException(exception);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
         }
     }
 
     /**
      * Call from native (C++) render manager to updateNode render node
      *
-     * @param buffer The byte array serialize by native (C++)
+     * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     private void updateNode(byte[] buffer) {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
 
-        } catch (NativeRenderException exception) {
-            mRenderDelegate.handleRenderException(exception);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
         }
     }
 
     /**
      * Call from native (C++) render manager to delete render node
      *
-     * @param buffer The byte array serialize by native (C++)
+     * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     private void deleteNode(byte[] buffer) {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
 
-        } catch (NativeRenderException exception) {
-            mRenderDelegate.handleRenderException(exception);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
         }
     }
 
     /**
      * Call from native (C++) render manager to update layout of render node
      *
-     * @param buffer The byte array serialize by native (C++)
+     * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     private void updateLayout(byte[] buffer) {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateLayout(list);
-        } catch (NativeRenderException exception) {
-            mRenderDelegate.handleRenderException(exception);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
         }
     }
 
     /**
-     * Call from native (C++) render manager to add or remove gesture event listener
+     * Call from native (C++) render manager to add or remove event listener
      *
-     * @param buffer The byte array serialize by native (C++)
+     * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
-    private void updateGestureEventListener(byte[] buffer) {
+    private void updateEventListener(byte[] buffer) {
         try {
             final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.updateGestureEventListener(list);
-        } catch (NativeRenderException exception) {
-            mRenderDelegate.handleRenderException(exception);
+            mRenderDelegate.updateEventListener(list);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
         }
     }
 
@@ -200,14 +223,28 @@ public class NativeRenderProvider {
         onRootSizeChanged(mRuntimeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
-    public void dispatchUIComponentEvent(int domId, String eventName,
-                                         @NonNull ByteBuffer paramsBuffer) {
-        onReceivedUIComponentEvent(mRuntimeId, domId, eventName, paramsBuffer.array(), paramsBuffer.limit());
-    }
-
-    public void dispatchNativeGestureEvent(int domId, String eventName,
-                                           @NonNull ByteBuffer paramsBuffer) {
-        onReceivedNativeGestureEvent(mRuntimeId, domId, eventName, paramsBuffer.array(), paramsBuffer.limit());
+    public void dispatchUIEvent(int nodeId, String eventName, Object params, boolean useCapture,
+            boolean useBubble) {
+        try {
+            byte[] bytes = null;
+            int offset = 0;
+            int length = 0;
+            if (params != null) {
+                ByteBuffer buffer = argumentToBytes(params);
+                if (buffer == null || buffer.limit() == 0) {
+                    return;
+                }
+                offset = buffer.position();
+                length = buffer.limit() - buffer.position();
+                offset += buffer.arrayOffset();
+                bytes = buffer.array();
+            }
+            onReceivedUIEvent(mRuntimeId, nodeId, eventName, bytes, offset, length,
+                    useCapture,
+                    useBubble);
+        } catch (Exception e) {
+            mRenderDelegate.handleRenderException(e);
+        }
     }
 
     /**
@@ -216,7 +253,7 @@ public class NativeRenderProvider {
      * @param runtimeId v8 instance id
      * @param density screen displayMetrics density
      */
-    public native void onCreateNativeRenderProvider(long runtimeId, float density);
+    private native void onCreateNativeRenderProvider(long runtimeId, float density);
 
     /**
      * Call back from Android system when size changed, just like horizontal and vertical screen
@@ -226,29 +263,20 @@ public class NativeRenderProvider {
      * @param width root view new width use dp unit
      * @param height root view new height use dp unit
      */
-    public native void onRootSizeChanged(long runtimeId, float width, float height);
+    private native void onRootSizeChanged(long runtimeId, float width, float height);
 
     /**
-     * Dispatch ui component event generated by native renderer to (C++) dom manager,
+     * Dispatch ui event generated by native renderer to (C++) dom manager,
      *
      * @param runtimeId v8 instance id
-     * @param domId target dom id
+     * @param nodeId target node id
      * @param eventName target event name
-     * @param params params encoded by serializer
-     * @param paramsLength available total length of params
+     * @param params params buffer encoded by serializer
+     * @param offset start position of params buffer
+     * @param length available total length of params buffer
+     * @param useCapture enable event capture
+     * @param useBubble enable event bubble
      */
-    public native void onReceivedUIComponentEvent(long runtimeId, int domId, String eventName,
-                                                  byte[] params, int paramsLength);
-
-    /**
-     * Dispatch ui gesture event generated by native renderer to (C++) dom manager,
-     *
-     * @param runtimeId v8 instance id
-     * @param domId target dom id
-     * @param eventName target event name
-     * @param params params encoded by serializer
-     * @param paramsLength available total length of params
-     */
-    public native void onReceivedNativeGestureEvent(long runtimeId, int domId, String eventName,
-                                                    byte[] params, int paramsLength);
+    private native void onReceivedUIEvent(long runtimeId, int nodeId, String eventName,
+            byte[] params, int offset, int length, boolean useCapture, boolean useBubble);
 }

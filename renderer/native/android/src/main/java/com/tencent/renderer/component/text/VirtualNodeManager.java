@@ -72,7 +72,7 @@ public class VirtualNodeManager {
         return false;
     }
 
-    public boolean updateGestureEventListener(int id, @NonNull HashMap<String, Object> props) {
+    public boolean updateEventListener(int id, @NonNull HashMap<String, Object> props) {
         VirtualNode node = mVirtualNodes.get(id);
         if (node == null) {
             return false;

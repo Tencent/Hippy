@@ -146,8 +146,8 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
   // 更新布局信息前处理事件监听
-  HandleListenerOps(event_listener_ops_, "updateGestureEventListener");
-  HandleListenerOps(render_listener_ops_, "updateRenderEventListener");
+  HandleListenerOps(event_listener_ops_, "updateEventListener");
+//  HandleListenerOps(render_listener_ops_, "updateRenderEventListener");
 
   serializer_->Release();
   serializer_->WriteHeader();
