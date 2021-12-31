@@ -202,7 +202,7 @@ class ListViewController extends BaseGroupController<ListViewModel> {
       renderViewModel.scrollToIndex(yIndex, duration, animated);
     } else if (functionName == kScrollToContentOffset) {
       // list滑动到某个距离
-      var yOffset = array.get(1) ?? -1.0;
+      var yOffset = array.get(1).toDouble() ?? -1.0;
       var animated = array.get(2) ?? false;
       var duration = array.get(3) ?? 0; //1.2.7 增加滚动时间 ms,animated==true时生效
 
