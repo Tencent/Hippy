@@ -459,10 +459,10 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             }
             HashMap<String, Object> layoutInfo = (HashMap) object;
             final int id = ((Number) layoutInfo.get(NODE_ID)).intValue();
-            final int left = ((Number) layoutInfo.get(LAYOUT_LEFT)).intValue();
-            final int top = ((Number) layoutInfo.get(LAYOUT_TOP)).intValue();
-            final int width = ((Number) layoutInfo.get(LAYOUT_WIDTH)).intValue();
-            final int height = ((Number) layoutInfo.get(LAYOUT_HEIGHT)).intValue();
+            final float left = ((Number) layoutInfo.get(LAYOUT_LEFT)).floatValue();
+            final float top = ((Number) layoutInfo.get(LAYOUT_TOP)).floatValue();
+            final float width = ((Number) layoutInfo.get(LAYOUT_WIDTH)).floatValue();
+            final float height = ((Number) layoutInfo.get(LAYOUT_HEIGHT)).floatValue();
             boolean invisible = mVirtualNodeManager.isInvisibleNode(id);
             // If the node is invisible, there is no corresponding render node,
             // also no need to update layout.
@@ -478,7 +478,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                         if (supply != null) {
                             mRenderManager.updateExtra(id, supply);
                         }
-                        mRenderManager.updateLayout(id, left, top, width, height);
+                        mRenderManager
+                                .updateLayout(id, (int) Math.round(left), (int) Math.round(top),
+                                        (int) Math.round(width), (int) Math.round(height));
                     }
                 });
             } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {
