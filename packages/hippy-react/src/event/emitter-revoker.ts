@@ -35,7 +35,6 @@ class EventEmitterRevoker implements EventEmitterRevoker {
     if (typeof this.callback !== 'number' || !this.bindListener) {
       return;
     }
-
     this.bindListener.removeCallback(this.callback);
     this.bindListener = undefined;
   }

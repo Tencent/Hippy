@@ -230,16 +230,12 @@ function getEventPropKey(key: string) {
 
 class ElementNode extends ViewNode {
   tagName: string;
-
   id: string = '';
-
   style: Hippy.Style = {};
-
   attributes: Attributes = {};
 
   constructor(tagName: string) {
     super();
-
     // Tag name
     this.tagName = tagName;
   }

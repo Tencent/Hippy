@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-underscore-dangle */
-
 interface HippyEventHub {
   eventName: string;
   nextIdForHandler: number;
@@ -39,11 +37,20 @@ class HippyEventHub implements HippyEventHub {
     this.eventName = eventName;
   }
 
+  public getEventListeners() {
+    return Object.keys(this.handlerContainer)
+      .filter(key => this.handlerContainer[key])
+      .map(key => this.handlerContainer[key]);
+  }
+
+  public getHandlerSize() {
+    return Object.keys(this.handlerContainer).length;
+  }
+
   public addEventHandler(handler: Function, callContext: any) {
     if (!handler) {
-      throw new TypeError('Invalid arguments');
+      throw new TypeError('Invalid arguments for addEventHandler');
     }
-
     const currId = this.nextIdForHandler;
     this.nextIdForHandler += 1;
     const eventHandlerWrapper = {
@@ -51,21 +58,9 @@ class HippyEventHub implements HippyEventHub {
       eventHandler: handler,
       context: callContext,
     };
-
     const idAttrName = `eventHandler_${currId}`;
     this.handlerContainer[idAttrName] = eventHandlerWrapper;
     return currId;
-  }
-
-  public removeEventHandler(handlerId: number | undefined) {
-    if (typeof handlerId !== 'number') {
-      throw new TypeError('Invalid arguments');
-    }
-
-    const idAttrName = `eventHandler_${handlerId}`;
-    if (this.handlerContainer[idAttrName]) {
-      delete this.handlerContainer[idAttrName];
-    }
   }
 
   public notifyEvent(eventParams: any) {
@@ -82,15 +77,14 @@ class HippyEventHub implements HippyEventHub {
     });
   }
 
-
-  public getEventListeners() {
-    return Object.keys(this.handlerContainer)
-      .filter(key => this.handlerContainer[key])
-      .map(key => this.handlerContainer[key]);
-  }
-
-  public getHandlerSize() {
-    return Object.keys(this.handlerContainer).length;
+  public removeEventHandler(handlerId: number | undefined) {
+    if (typeof handlerId !== 'number') {
+      throw new TypeError('Invalid arguments for removeEventHandler');
+    }
+    const idAttrName = `eventHandler_${handlerId}`;
+    if (this.handlerContainer[idAttrName]) {
+      delete this.handlerContainer[idAttrName];
+    }
   }
 }
 
