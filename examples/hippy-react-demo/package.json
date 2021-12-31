@@ -10,8 +10,6 @@
   "scripts": {
     "serve": "webpack serve --config ./scripts/hippy-webpack.web.dev.js",
     "build": "webpack --config ./scripts/hippy-webpack.web.js",
-    "hippy:local-debug": "node ../../packages/hippy-debug-server/hippy-debug.js",
-    "hippy:local-dev": "node ../../packages/hippy-debug-server/hippy-dev.js -c ./scripts/hippy-webpack.dev.js",
     "hippy:debug": "hippy-debug",
     "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
@@ -45,7 +43,7 @@
     "@babel/polyfill": "^7.12.0",
     "@babel/preset-env": "^7.12.0",
     "@babel/preset-react": "^7.9.4",
-    "@hippy/debug-server": "latest",
+    "@hippy/debug-server-next": "^0.2.21",
     "@hippy/hippy-dynamic-import-plugin": "^2.0.0",
     "@hippy/hippy-hmr-plugin": "^0.0.2",
     "@hippy/hippy-react-refresh-webpack-plugin": "^0.5.5",
