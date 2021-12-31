@@ -36,6 +36,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 
+import androidx.annotation.Nullable;
 import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
@@ -74,6 +75,7 @@ public class TextVirtualNode extends VirtualNode {
     private float mShadowRadius = 1.0f;
     private float mLineHeight;
     private float mLetterSpacing;
+    private float mLastLayoutWidth = 0.0f;
     private boolean mHasUnderlineTextDecoration = false;
     private boolean mHasLineThroughTextDecoration = false;
     private boolean mEnableScale = false;
@@ -83,7 +85,9 @@ public class TextVirtualNode extends VirtualNode {
     private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_NORMAL;
     private final TextUtils.TruncateAt mTruncateAt = TextUtils.TruncateAt.END;
     private TextPaint mTextPaint = null;
-    private FontAdapter mFontAdapter;
+    private @Nullable
+    FontAdapter mFontAdapter;
+    private @Nullable Layout mLayout = null;
 
     public TextVirtualNode(int id, int pid, int index, FontAdapter fontAdapter) {
         super(id, pid, index);
@@ -336,12 +340,17 @@ public class TextVirtualNode extends VirtualNode {
         }
     }
 
-    public Layout createLayout(float width, FlexMeasureMode widthMode) {
+    public Layout createLayout(final float width, final FlexMeasureMode widthMode) {
         if (mTextPaint == null) {
             mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         }
         if (mSpanned == null || mDirty) {
             mSpanned = createSpan(true);
+            mDirty = false;
+        } else if (mLayout != null && width > 0 && mLastLayoutWidth == width) {
+            // If the property of text node no change, and the measure width same as last time,
+            // no need to create layout again.
+            return mLayout;
         }
         Layout layout;
         BoringLayout.Metrics boring = null;
@@ -369,6 +378,8 @@ public class TextVirtualNode extends VirtualNode {
             }
         }
         layout.getPaint().setTextSize(mFontSize);
+        mLayout = layout;
+        mLastLayoutWidth = width;
         return layout;
     }
 

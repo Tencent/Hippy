@@ -77,6 +77,7 @@ public class VirtualNodeManager {
         if (node == null) {
             return false;
         }
+        boolean isChanged = false;
         for (Entry<String, Object> entry : props.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -88,12 +89,16 @@ public class VirtualNodeManager {
             } else {
                 node.removeGesture(key);
             }
+            isChanged = true;
+        }
+        if (isChanged) {
+            node.markDirty();
         }
         return true;
     }
 
     public @Nullable
-    TextRenderSupply updateLayout(int id, int width, HashMap<String, Object> layoutInfo) {
+    TextRenderSupply updateLayout(int id, float width, HashMap<String, Object> layoutInfo) {
         VirtualNode node = mVirtualNodes.get(id);
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
             return null;
