@@ -23,7 +23,7 @@
 import React from 'react';
 import Style from '@localTypes/style';
 import * as StyleSheet from '../modules/stylesheet';
-import { HippyEventListener } from '../events';
+import { HippyEventListener } from '../event';
 import { Device } from '../native';
 import View from './view';
 
