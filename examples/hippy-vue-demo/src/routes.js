@@ -1,6 +1,7 @@
-import Menu from './menu.vue';
+import Menu from './pages/menu.vue';
 import demos from './components/demos';
 import nativeDemos from './components/native-demos';
+import RemoteDebug from './pages/remote-debug.vue';
 
 export default {
   /**
@@ -17,6 +18,11 @@ export default {
     {
       path: '/',
       component: Menu,
+    },
+    {
+      path: '/remote-debug',
+      component: RemoteDebug,
+      name: '调试',
     },
     ...Object.keys(demos).map(demoId => ({
       path: `/demo/${demoId}`,
