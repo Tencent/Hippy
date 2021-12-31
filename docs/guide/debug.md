@@ -4,9 +4,9 @@
 
 Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSocket 通过 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 与电脑上的 Chrome 进行通讯调试，而 iOS 上使用内置 的 [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) 与 [Safari](//www.apple.com.cn/cn/safari/) 连接进行调试。
 
-Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程服务地址(server)。
+Hippy中运行的 JS 代码可以来源于本地文件(local file)，或者远程服务地址(server)。
 
-[hippy-debug-server](//www.npmjs.com/package/hippy-debug-server) 就是为了解决调试模式下终端模式获取调试用 JS 文件，以及将 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 传输回调试器而诞生。
+[@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 就是为了解决调试模式下终端模式获取调试用 JS 文件，以及将 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 传输回调试器而诞生。
 
 # 项目初始化
 
@@ -21,7 +21,53 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 
 # 终端环境准备
 
-我们推荐在终端代码中留一个后门，通过一定条件触发后进入调试模式，具体代码可以参考 [iOS](//github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/TestModule.m#L36) 和 [Android](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/TestModule.java#L31)，这里实现了一个 `TestModule`，当前端调用它的 `debug` 方法时就会进入调试模式，而终端可以通过其它方式进入。
+我们推荐在终端代码中留一个后门，通过一定条件触发后进入调试模式，具体代码可以参考 [iOS](//github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/TestModule.m#L36) 和 [Android](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/TestModule.java#L31)，这里实现了一个 `TestModule`，当前端调用它的 `debug` 或 `remoteDebug` 方法时就会进入调试模式，而终端可以通过其它方式进入。
+
+# 前端环境准备
+
+1. 安装新一代调试工具： `npm i -D @hippy/debug-server-next@latest`
+2. 修改 webpack 配置，添加调试服务地址，默认为 `http://localhost:38989`
+
+   ```javascript
+   module.exports = {
+     devServer: {
+       // 调试服务地址
+       remote: {
+         protocol: 'http',
+         // iOS 真机调试时配置为本地局域网 IP
+         // iOS 模拟器和安卓真机调试时配置为 localhost
+         // 远程调试时配置为远程服务器 IP 或域名
+         host: '192.168.1.100',
+         // 调试服务端口
+         port: 38989,
+       },
+       client: {
+         overlay: false,
+       },
+     },
+     // ... other config
+   }
+   ```
+
+3. 运行 `npm run hippy:debug` 开启调试服务
+4. 运行 `npm run hippy:dev` 启动编译，编译结束后打印出 bundleUrl 和调试首页地址
+
+   <img src="../assets/img/hippy-dev-output.png" alt="hippy dev 输出" width="50%" alt="编译输出">
+
+5. <span id="config-bundle">粘贴 bundleUrl 并点击开始按钮</span>
+
+    <img src="../assets/img/ios-remote-debug-config.png" alt="iOS 远程调试配置" width="40%">
+
+6. 使用调试器开始调试
+   - Safari DevTools：在 Mac 上打开 Safari 的开发菜单（`预置` -> `高级` -> `显示开发菜单`），然后按下图指引开始调试。Safari 调试器支持 iOS 设备，支持 HMR & Live-Reload, Log, Sources, Memory 等能力。
+   
+      <img src="../assets/img/safari-dev-process.png" alt="Safari 调试器" width="80%"/>
+   
+   - Chrome DevTools：访问第 4 步打印的调试首页地址开始调试。Chrome 调试器支持 Android & iOS 设备，支持 HMR & Live-Reload, Elements, Log, Sources, Memory 等能力。
+      
+      <img src="../assets/img/chrome-inspect.png" alt="Chrome 调试器" width="60%"/>
+
+> `@hippy/debug-server-next` 包含 `@hippy/debug-server` 的所有能力，是面向 Hippy 3.0 的调试工具，完全向下兼容。
 
 # 调试 Javascript
 
@@ -33,36 +79,34 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 
 ## iOS
 
-因为 Hippy 需要经过网络传输调试协议，我们建议使用 iOS 模拟器进行调试，真机上虽然也可以但会要求手机和开发机在同一个网络内，并且需要在手机中配置连接获取开发机上的调试服务。
+iOS 调试支持模拟器和真机两种方式，由于 JSBundle 和调试协议依赖网络传输，真机调试时需要确保手机与开发机在同一个局域网内，因此我们推荐使用模拟器调试。
 
-同时，本方法也可以用 Safari 进行内置包（不连接开发机上的调试 JS 包）的调试。
-
-具体流程：
+### 模拟器调试
 
 1. 点击 [Xcode on Mac AppStore](//apps.apple.com/cn/app/xcode/id497799835?l=en&mt=12) 下载安装 Xcode。
 2. 使用 Xcode 打开[Hippy iOS 范例工程](//github.com/Tencent/Hippy/tree/master/examples/ios-demo) 中的 `HippyDemo.xcodeproj` 工程文件，并点击运行，正常情况下应该可以启动模拟器，并运行之前内置的 Hippy 前端代码。
 3. 打开 `examples` 下的前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
-4. 回到模拟器，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
-
-    ![iOS 模拟器](../assets/img/ios-simulator.png)
-
-5. 打开 Safari，首先确保 `预置` -> `高级` -> `显示开发菜单` 正常勾上。
-6. 然后按图打开 Safari 调试器即可开始调试工作。
-   
-   <img src="assets/img/safari-dev-process.png" alt="Safari 调试器" width="80%"/>
-
-7. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，需要通过按 `Command + R`刷新 或者 `Command + D` 键调起 Reload 面板刷新
+4. 回到模拟器，[粘贴 bundleUrl](guide/debug.md#config-bundle) 并启动调试
+5. 当 JS 源码文件发生改动时，如已开启 HMR 或 Live-Reload，编译结束后会自动刷新；否则需要按 `Command + R` 或 `Command + D` 键调起 Reload 面板刷新
 
 > 如果 `Command + D` 无法调起面板，可以点击 `Device` -> `Shake` 强制调起 Reload 面板
 
-### 远程调试
+### 真机调试
 
-默认情况下，iOS使用本地服务地址进行代码调试。Hippy客户端从服务器地址获取JS代码并运行Hippy业务。但是用户可能遇到真机调试的问题，这就需要真机连接远程地址。
-在`TestModuel.m`文件中，打开`REMOTEDEBUG`宏，并填入Hippy服务地址与业务名称，即可实现远程调试。
+1. iOS 真机调试只支持 XCode 编译的 App，并且 iOS 设备上需要开启 JavaScript 调试和 Web 检查器选项
+
+   <img src="../assets/img/ios-safari-config.png" alt="safari 调试设置" width="60%" />
+  
+2. 确保 iOS 设备和调试服务处于同一局域网内
+3. 编译 App，[粘贴 bundleUrl](guide/debug.md#config-bundle) 并启动调试
+
+!> 注意：真机调试时必须保证开发机和手机处于同一局域网内，否则会加载 JSBundle 失败。以下两种情况都不满足：<br/>
+&nbsp;&nbsp;(a) 开发机和手机分别连接公司的不同网络环境（如办公网和体验网）；<br/>
+&nbsp;&nbsp;(b) 开发机连接网线，手机连接 WiFi。
 
 ## Android
 
-Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端口映射功能，解决了真机到开发机通讯问题，反而因为 ARM 模拟器运行效率问题，更加推荐使用真机进行调试。
+Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端口映射功能，解决了真机到开发机的通讯问题，反而因为 ARM 模拟器运行效率问题，更加推荐使用真机进行调试。
 
 具体流程：
 
@@ -72,39 +116,20 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 4. 回到手机上，首先确保手机的 `USB 调试模式` 已经打开 -- 一般在关于手机页面里连续点击 `Build` 可以进入`开发者模式`，再进入`开发者模式`界面后打开 `USB 调试模式`。
 5. 执行 `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` 确保 38389 端口不被占用。
 6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
-7. 回到手机上，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
-
-   <img src="assets/img/hippy-react-dev-process.png" style="box-shadow: 4px 4px 10px 1px rgba(0,0,0,0.4);" alt="Android 调试" width="40%"/>
-
-8. 然后打开 [Chrome](//www.google.com/chrome/)，输入 `chrome://inspect`，首先确保 `Discover USB devices` 的复选框呈未选中状态，然后确保 `Discover network targets` 选中，并在右侧 `Configure` 按钮的弹窗中包含了 `localhost:38989` 调试服务地址，下方的 `Remote Target` 中应该会出现 `Hippy debug tools for V8` 字样，点击下方的 `inspect` 链接即可打开 Chrome 调试器。
-
-    ![Chrome inspect](../assets/img/chrome-inspect-process.png)
-
-9. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，点击界面上的`小圆点`，选择弹出菜单中的 `Reload` 重新加载 JS 代码。
+7. 回到手机上，[粘贴 bundleUrl](guide/debug.md#config-bundle) 并启动调试
+8. 当 JS 源码文件发生改动时，如已开启 HMR 或 Live-Reload，编译结束后会自动刷新；否则需要按 `Command + R` 或 `Command + D` 键调起 Reload 面板刷新
 
 # Elements 可视化审查
 
-Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Inspector 上进行 Elements 的可视化检查。
-
-<img src="assets/img/element-inspect.png" alt="Inspect Elements" width="70%"/>
-
-## Android Chrome 调试
-
-> Android SDK 最低支持版本 2.9.0
-
-Android 上我们直接使用 Chrome Inspector 调试即可看到 Elements。
-
-## iOS Chrome 调试
-
+> Android SDK 最低支持版本 2.9.0<br/>
 > iOS SDK 最低支持版本 2.11.5
 
-为实现 iOS Element 调试能力，我们也使用 Chrome Inspector 替代 Safari 进行 Elements 的可视化检查，并使用新的 [hippy-debug-server](https://www.npmjs.com/package/@hippy/debug-server-next) 与 iOS 设备建立连接和协议适配。
+Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome DevTools 上进行 Elements 的可视化检查。
 
-```shell
-npm i -D @hippy/debug-server-next@latest
-```
-
-!> `@hippy/debug-server-next` 包含 `@hippy/debug-server` 的所有能力，是面向 Hippy 3.0 的调试工具，目前暂时作为 Hippy 2.0 的 iOS 协议适配增强工具。若想使用 HMR 能力仍需跟随 Hippy 2.12.0 版本。
+<video width="80%" controls>
+  <source src="../assets/img/elements-inspect.mov">
+  Elements 可视化审查示例
+</video>
 
 <br />
 <br />
@@ -115,7 +140,7 @@ npm i -D @hippy/debug-server-next@latest
 
 如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
 
-<img src="assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
+<img src="../assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
 
 <br />
 <br />
@@ -128,7 +153,7 @@ npm i -D @hippy/debug-server-next@latest
 
 [hippy-vue-demo 配置脚本](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.dev.js)
 
-<img src="assets/img/hmr.gif" alt="HMR preview" width="80%" />
+<img src="../assets/img/hmr.gif" alt="HMR preview" width="80%" />
 <br />
 <br />
 
@@ -140,20 +165,17 @@ npm i -D @hippy/debug-server-next@latest
 
    ```bash
    npm i @hippy/vue@^2.12.0
-   npm i -D @hippy/debug-server@^2.12.0 @hippy/hippy-hmr-plugin @hippy/vue-loader @hippy/vue-css-loader
+   npm i -D @hippy/debug-server-next@latest @hippy/vue-loader @hippy/vue-css-loader
    ```
 
 2. webpack 配置示例
 
    ```javascript
-   const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
    const VueLoaderPlugin = require('@hippy/vue-loader/lib/plugin');
    const vueLoader = '@hippy/vue-loader';
  
    module.exports = {
     devServer: {
-      // 默认 HMR 端口为38988
-      host: 38988,
       // 默认 hot, liveReload 都为 true，如果只想使用 live-reload 功能，请将 hot 设为 false，liveReload 设为 true
       hot: true,
       liveReload: true,
@@ -167,10 +189,6 @@ npm i -D @hippy/debug-server-next@latest
     },
     plugins: [
       new VueLoaderPlugin(),
-      new HippyHMRPlugin({
-        // HMR [hash].hot-update.json will fetch from this path
-        hotManifestPublicPath: 'http://localhost:38989/',
-      }),
       // add other plugin ...
     ],
     module: {
@@ -201,30 +219,15 @@ npm i -D @hippy/debug-server-next@latest
   
 4. 启动开发：`npm run hippy:debug`，`npm run hippy:dev`
 
-5. **如果安卓设备断连，需要手动用 adb 转发端口**
+5. **如果安卓设备断连，需要手动用 adb 转发端口：**`adb reverse tcp:38989 tcp:38989`。
 
-   ```bash
-   # port for debug
-   adb reverse tcp:38989 tcp:38989
-   # port for HMR
-   adb reverse tcp:38988 tcp:38988
-   ```
-
-6. iOS的热更新
-   - iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。对于模拟器，本就和开发机处于同一网段，ip 写 `localhost` 就能访问到。
-   - 修改 webpack 配置：
+6. iOS的热更新：iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。Webpack 配置修改如下所示，对于模拟器，本就和开发机处于同一网段，IP 写 `localhost` 就能访问到。
  
     ```javascript
     module.exports = {
       devServer: {
         host: '<your_ip_or_localhost_with_proxy>',
       },
-      plugins: [
-        new HippyHMRPlugin({
-          // HMR [hash].hot-update.json will fetch from this path
-          hotManifestPublicPath: 'http://<your_ip_or_localhost_with_proxy>:38989/',
-        }),
-      ],
     }
     ```
 
@@ -235,19 +238,16 @@ npm i -D @hippy/debug-server-next@latest
 
    ```bash
    npm i @hippy/react@^2.12.0
-   npm i -D @hippy/debug-server@^2.12.0 @hippy/hippy-hmr-plugin @hippy/hippy-react-refresh-webpack-plugin react-refresh
+   npm i -D @hippy/debug-server-next@latest @hippy/hippy-react-refresh-webpack-plugin react-refresh
    ```
 
 2. webpack 配置示例
 
    ```javascript
-   const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
    const ReactRefreshWebpackPlugin = require('@hippy/hippy-react-refresh-webpack-plugin');
  
    module.exports = {
      devServer: {
-       // 默认 HMR 端口为38988
-       host: 38988,
        // 默认 hot, liveReload 都为 true，如果只想使用 live-reload 功能，请将 hot 设为 false，liveReload 设为 true
        hot: true,
        liveReload: true,
@@ -260,10 +260,6 @@ npm i -D @hippy/debug-server-next@latest
        },
      },
      plugins: [
-       new HippyHMRPlugin({
-        // HMR [hash].hot-update.json will fetch from this path
-         hotManifestPublicPath: 'http://localhost:38989/',
-       }),
        new ReactRefreshWebpackPlugin({
          // 暂不支持错误提示蒙层
          overlay: false,
@@ -321,39 +317,24 @@ npm i -D @hippy/debug-server-next@latest
 
 4. 执行 `npm run hippy:debug` 和 `npm run hippy:dev` 命令。
 
-5. **如果安卓设备断连，需要手动用adb转发端口**
+5. **如果安卓设备断连，需要手动用adb转发端口：** `adb reverse tcp:38989 tcp:38989`。
 
-   ```bash
-   # port for debug
-   adb reverse tcp:38989 tcp:38989
-   # port for HMR
-   adb reverse tcp:38988 tcp:38988
-   ```
-
-6. iOS的热更新
-   - iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。对于模拟器，本就和开发机处于同一网段，ip 写 `localhost` 就能访问到。
-   - 修改 webpack 配置：
+6. iOS的热更新：iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。Webpack 配置修改如下所示，对于模拟器，本就和开发机处于同一网段，IP 写 `localhost` 就能访问到。
  
     ```javascript
     module.exports = {
       devServer: {
         host: '<your_ip_or_localhost_with_proxy>',
       },
-      plugins: [
-        new HippyHMRPlugin({
-          // HMR [hash].hot-update.json will fetch from this path
-          hotManifestPublicPath: 'http://<your_ip_or_localhost_with_proxy>:38989/',
-        }),
-      ],
     }
     ```
 
 ## 接口
 
-2.12.0 及以上的 `@hippy/debug-server` 除了提供 bin 命令 `hippy-debug` 和 `hippy-dev` 进行调试构建，还提供了接口供自定义的 CLI 工具封装时调用，使用方法如下：
+`@hippy/debug-server-next` 除了提供 bin 命令 `hippy-debug` 和 `hippy-dev` 进行调试构建，还提供了接口供自定义的 CLI 工具封装时调用，使用方法如下：
 
 ```javascript
-const { webpack, startDebugServer } = require('@hippy/debug-server');
+const { webpack, startDebugServer } = require('@hippy/debug-server-next');
 
 // 进行 webpack 开发环境带 HMR 能力的打包构建
 webpack(webpackConfig, (err, stats) => {
@@ -363,3 +344,100 @@ webpack(webpackConfig, (err, stats) => {
 // 启动调试 server
 startDebugServer();
 ```
+
+# 远程调试
+
+本地调试存在两个痛点：
+
+   1. 无法覆盖所有机型，测试反馈的问题难以定位；
+   2. 无法摆脱数据线的束缚。
+
+那么这些场景我们可以考虑使用远程调试，效果预览：
+
+<video width="80%" controls>
+  <source src="../assets/img/remote-debug-demo.mov">
+  远程调试实例
+</video>
+
+
+## 前端接入配置
+
+1. 安装新一代调试工具： `npm i -D @hippy/debug-server-next@latest`
+
+2. 修改 Webpack 配置，添加 `remote` 字段来配置编译产物上传地址和调试服务地址（默认为 http://127.0.0.1:38989 ）。考虑到安全因素，官方不提供公网的远程调试服务，你需要自己[私有化部署](https://github.com/hippy-contrib/debug-server-next/blob/main/doc/deploy.md)。
+
+   ```js
+   module.exports = {
+     devServer: {
+       // 远程调试地址，需要配置为你的私有化调试服务地址
+       remote: {
+         protocol: 'https',
+         host: 'devtools.qq.com',
+         port: 443,
+         // 配置宿主 App 扫码加载的 scheme，如无需扫码，可不配置
+         qrcode: (bundleUrl) => {
+           // 必须指定业务 bundleName
+           const bundleName = 'QQGroupGameRank';
+           return `mqqapi://hippy/remoteDebug?bundleName=${bundleName}&bundleUrl=${encodeURIComponent(bundleUrl)}`;
+         }
+       },
+       client: {
+         overlay: false,
+       },
+     },
+     // other config ...
+   }
+   ```
+
+   !> 配置远程调试时编译产物将上传远端，并在调试结束后删除。为以防万一，请确保代码中不含敏感信息（如密钥等）。
+
+   !> 远程调试时，`publicPath` 将被设为 `${protocol}://${host}:${port}/<hash>/`，以区分不同的业务。
+
+   !> [业务加载远程 js bundle 分包时](guide/dynamic-import.md#remote-bundle)，如未配置 `customChunkPath`，将默认使用 `publicPath` 的地址，请确保远程分包也同时上传到调试服务器。
+
+3. 启动编译：`npm run hippy:dev`，编译结束后将打印调试信息：
+
+   <img src="../assets/img/remote-debug-webpack-output.png" width="80%" />
+
+   其中打印三个字段表示：
+
+   - bundleUrl：远程调试的 JSBundle 地址，填入宿主 App 接入的 `remoteServerUrl` 字段中
+   - deubg page：PC 端调试首页
+   - bundleUrl scheme：宿主 App 扫码的 scheme
+
+
+## 宿主 App 接入配置
+
+1. **Android**：设置 debugMode 为 true，并把 webpack 生成远程无线调试的 bundleUrl 填入 remoteServerUrl
+
+   ```java
+    // 初始化 hippy 引擎
+    HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
+    initParams.debugMode = true;
+    initParams.remoteServerUrl = "";  // 远程调试 Url
+   ```
+
+2. **iOS**：实现 bridgeDelegate 关于调试的代理
+
+   ```objective-c
+    /**
+      * ask delegate should bridge start a web inspector
+      * 返回是否开启调试能力
+      */
+    - (BOOL)shouldStartInspector:(HippyBridge *)bridge;
+
+    /**
+      * ask delegate URL for web inspector
+      * 返回调试 bundleUrl
+      */
+    - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge;
+   ```
+
+## 远程调试支持能力列表
+
+> 最低支持版本 2.13.1
+
+|  平台   | HMR & Live-Reload | Elements | Log | Sources | Memory |
+|:-------:|:---:|:-------:|:---:|:------:|:------:|
+| Android |  ✅  |    ✅    |  ✅  |   ✅    |   ✅    |
+|   iOS   |  ✅  |    ✅    |  ❌  |   ❌    |   ❌    |
