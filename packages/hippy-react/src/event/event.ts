@@ -47,6 +47,10 @@ class Event implements Event {
   public stopPropagation() {
     this.bubbles = false;
   }
+
+  public preventDefault() {
+    // noop
+  }
 }
 
 export default Event;

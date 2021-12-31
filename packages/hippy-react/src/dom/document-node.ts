@@ -30,7 +30,6 @@ class DocumentNode extends ViewNode {
 
   constructor() {
     super();
-
     this.documentElement = new Element('document');
   }
 

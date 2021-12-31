@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { HippyEventEmitter, HippyEventRevoker } from '../events';
+import { HippyEventEmitter, HippyEventRevoker } from '../event';
 import { Bridge, Device } from '../native';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
