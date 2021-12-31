@@ -1002,56 +1002,7 @@ class Server {
   }
 
   getClientTransport() {
-    let ClientImplementation;
-    let clientImplementationFound = true;
-
-    const isKnownWebSocketServerImplementation =      this.options.webSocketServer
-      && typeof this.options.webSocketServer.type === 'string'
-      && (this.options.webSocketServer.type === 'ws' || this.options.webSocketServer.type === 'sockjs');
-
-    let clientTransport;
-
-    if (this.options.client) {
-      if (typeof this.options.client.webSocketTransport !== 'undefined') {
-        clientTransport = this.options.client.webSocketTransport;
-      } else if (isKnownWebSocketServerImplementation) {
-        clientTransport = this.options.webSocketServer.type;
-      } else {
-        clientTransport = 'ws';
-      }
-    } else {
-      clientTransport = 'ws';
-    }
-
-    switch (typeof clientTransport) {
-      case 'string':
-        // could be 'sockjs', 'ws', or a path that should be required
-        if (clientTransport === 'sockjs') {
-          ClientImplementation = require.resolve('../client/clients/SockJSClient');
-        } else if (clientTransport === 'ws') {
-          ClientImplementation = require.resolve('../client/clients/WebSocketClient');
-        } else {
-          try {
-            // eslint-disable-next-line import/no-dynamic-require
-            ClientImplementation = require.resolve(clientTransport);
-          } catch (e) {
-            clientImplementationFound = false;
-          }
-        }
-        break;
-      default:
-        clientImplementationFound = false;
-    }
-
-    if (!clientImplementationFound) {
-      throw new Error(`${
-        !isKnownWebSocketServerImplementation
-          ? 'When you use custom web socket implementation you must explicitly specify client.webSocketTransport. '
-          : ''
-      }client.webSocketTransport must be a string denoting a default implementation (e.g. 'sockjs', 'ws') or a full path to a JS file via require.resolve(...) which exports a class `);
-    }
-
-    return ClientImplementation;
+    return require.resolve('../client/clients/WebSocketClient');
   }
 
   getServerTransport() {

@@ -7,13 +7,12 @@ let client = null;
 
 const socket = function initSocket(url, handlers, reconnect) {
   client = new WebSocketClient(url);
+  maxRetries = reconnect;
 
-  client.onOpen(() => {
-    retries = 0;
-    maxRetries = reconnect;
-  });
+  client.onOpen(() => {});
 
-  client.onClose(() => {
+  client.onClose((reason) => {
+    log.warn(reason);
     if (retries === 0) {
       handlers.close();
     }
@@ -39,6 +38,7 @@ const socket = function initSocket(url, handlers, reconnect) {
   });
 
   client.onMessage((data) => {
+    retries = 0;
     const message = JSON.parse(data);
     log.info(message);
 
