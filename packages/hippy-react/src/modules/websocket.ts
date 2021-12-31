@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import HippyEventListener from '../events/listener';
+import HippyEventListener from '../event/listener';
 import { Bridge } from '../global';
 import { warn } from '../utils';
 

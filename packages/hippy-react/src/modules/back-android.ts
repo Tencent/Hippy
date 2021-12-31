@@ -21,7 +21,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import '@localTypes/global';
-import { HippyEventEmitter } from '../events';
+import { HippyEventEmitter } from '../event';
 import { Bridge, Device } from '../global';
 
 const hippyEventEmitter = new HippyEventEmitter();

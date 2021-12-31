@@ -28,7 +28,7 @@ interface EventListeners {
 
 function getNameForEvent(event: string | undefined) {
   if (typeof event !== 'string') {
-    throw new TypeError('Invalid arguments');
+    throw new TypeError('Invalid arguments for getNameForEvent');
   }
   return `eventEmitter_${event}`;
 }
@@ -50,36 +50,32 @@ class HippyEventEmitter {
 
   public addListener(event: string | undefined, callback: (data?: any) => void, context?: any) {
     if (typeof event !== 'string' || typeof callback !== 'function') {
-      throw new TypeError('Invalid arguments');
+      throw new TypeError('Invalid arguments for addListener');
     }
-
-    let registedListener = this.hippyEventListeners[getNameForEvent(event)];
-    if (!registedListener) {
-      registedListener = new HippyEventListener(event);
-      this.hippyEventListeners[getNameForEvent(event)] = registedListener;
+    let registeredListener = this.hippyEventListeners[getNameForEvent(event)];
+    if (!registeredListener) {
+      registeredListener = new HippyEventListener(event);
+      this.hippyEventListeners[getNameForEvent(event)] = registeredListener;
     }
-
-    const listenerId = registedListener.addCallback(callback, context);
+    const listenerId = registeredListener.addCallback(callback, context);
     if (typeof listenerId !== 'number') {
-      throw new Error('Fail to addCallback');
+      throw new Error('Fail to addCallback in addListener');
     }
 
-    return new EventEmitterRevoker(listenerId, registedListener);
+    return new EventEmitterRevoker(listenerId, registeredListener);
   }
 
   removeAllListeners(event: string | undefined) {
     if (typeof event !== 'string') {
-      throw new TypeError('Invalid arguments');
+      throw new TypeError('Invalid arguments for removeAllListeners');
     }
-
-    const registedListener = this.hippyEventListeners[getNameForEvent(event)];
-    if (registedListener) {
-      registedListener.unregister();
+    const registeredListener = this.hippyEventListeners[getNameForEvent(event)];
+    if (registeredListener) {
+      registeredListener.unregister();
       delete this.hippyEventListeners[getNameForEvent(event)];
     }
   }
 
-  /* eslint-disable-next-line class-methods-use-this */
   emit(event: string | undefined, param: any) {
     if (typeof event !== 'string') {
       return false;
@@ -94,12 +90,11 @@ class HippyEventEmitter {
 
   listenerSize(event: string | undefined) {
     if (typeof event !== 'string') {
-      throw new TypeError('Invalid arguments');
+      throw new TypeError('Invalid arguments for listenerSize');
     }
-
-    const registedListener = this.hippyEventListeners[getNameForEvent(event)];
-    if (registedListener) {
-      return registedListener.getSize();
+    const registeredListener = this.hippyEventListeners[getNameForEvent(event)];
+    if (registeredListener) {
+      return registeredListener.getSize();
     }
     return 0;
   }

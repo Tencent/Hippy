@@ -35,50 +35,22 @@ interface NativeEvent {
 const eventHubs = new Map();
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
 
-function registerNativeEventHub(eventName: any) {
-  trace(...componentName, 'registerNativeEventHub', eventName);
-  if (typeof eventName !== 'string') {
-    throw new TypeError(`Invalid eventName for registerNativeEventHub: ${eventName}`);
-  }
-  let targetEventHub = eventHubs.get(eventName);
-  if (!targetEventHub) {
-    targetEventHub = new HippyEventHub(eventName);
-    eventHubs.set(eventName, targetEventHub);
-  }
-
-  return targetEventHub;
-}
-
-function getHippyEventHub(eventName: any) {
-  if (typeof eventName !== 'string') {
-    throw new TypeError(`Invalid eventName for getHippyEventHub: ${eventName}`);
-  }
-  return eventHubs.get(eventName) || null;
-}
-
-function unregisterNativeEventHub(eventName: any) {
-  if (typeof eventName !== 'string') {
-    throw new TypeError(`Invalid eventName for unregisterNativeEventHub: ${eventName}`);
-  }
-  if (eventHubs.has(eventName)) {
-    eventHubs.delete(eventName);
-  }
-}
-
-function receiveNativeEvent(nativeEvent: EventParam) {
-  trace(...componentName, 'receiveNativeEvent', nativeEvent);
+function receiveUIComponentEvent(nativeEvent: any[]) {
+  trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
   if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
-    throw new TypeError(`Invalid params for receiveNativeEvent: ${JSON.stringify(nativeEvent)}`);
-  }
-  const [eventName, eventParams] = nativeEvent;
-  if (typeof eventName !== 'string') {
-    throw new TypeError('Invalid arguments');
-  }
-  const currEventHub = getHippyEventHub(eventName);
-  if (!currEventHub) {
     return;
   }
-  currEventHub.notifyEvent(eventParams);
+  const [targetNodeId, eventName, eventParam] = nativeEvent;
+  if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
+    return;
+  }
+  const targetNode = getFiberNodeFromId(targetNodeId);
+  if (!targetNode) {
+    return;
+  }
+  if (isNodePropFunction(eventName, targetNode)) {
+    targetNode.memoizedProps[eventName](eventParam);
+  }
 }
 
 interface ListenerObj {
@@ -257,22 +229,49 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
   }
 }
 
-function receiveUIComponentEvent(nativeEvent: any[]) {
-  trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
+function getHippyEventHub(eventName: any) {
+  if (typeof eventName !== 'string') {
+    throw new TypeError(`Invalid eventName for getHippyEventHub: ${eventName}`);
+  }
+  return eventHubs.get(eventName) || null;
+}
+
+function registerNativeEventHub(eventName: any) {
+  trace(...componentName, 'registerNativeEventHub', eventName);
+  if (typeof eventName !== 'string') {
+    throw new TypeError(`Invalid eventName for registerNativeEventHub: ${eventName}`);
+  }
+  let targetEventHub = eventHubs.get(eventName);
+  if (!targetEventHub) {
+    targetEventHub = new HippyEventHub(eventName);
+    eventHubs.set(eventName, targetEventHub);
+  }
+  return targetEventHub;
+}
+
+function unregisterNativeEventHub(eventName: any) {
+  if (typeof eventName !== 'string') {
+    throw new TypeError(`Invalid eventName for unregisterNativeEventHub: ${eventName}`);
+  }
+  if (eventHubs.has(eventName)) {
+    eventHubs.delete(eventName);
+  }
+}
+
+function receiveNativeEvent(nativeEvent: EventParam) {
+  trace(...componentName, 'receiveNativeEvent', nativeEvent);
   if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
+    throw new TypeError(`Invalid params for receiveNativeEvent: ${JSON.stringify(nativeEvent)}`);
+  }
+  const [eventName, eventParams] = nativeEvent;
+  if (typeof eventName !== 'string') {
+    throw new TypeError('Invalid arguments for nativeEvent eventName');
+  }
+  const currEventHub = getHippyEventHub(eventName);
+  if (!currEventHub) {
     return;
   }
-  const [targetNodeId, eventName, eventParam] = nativeEvent;
-  if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
-    return;
-  }
-  const targetNode = getFiberNodeFromId(targetNodeId);
-  if (!targetNode) {
-    return;
-  }
-  if (isNodePropFunction(eventName, targetNode)) {
-    targetNode.memoizedProps[eventName](eventParam);
-  }
+  currEventHub.notifyEvent(eventParams);
 }
 
 const EventDispatcher = {
