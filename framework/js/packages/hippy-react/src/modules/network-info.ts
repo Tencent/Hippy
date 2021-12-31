@@ -20,7 +20,7 @@
 
 /* eslint-disable no-use-before-define */
 
-import { HippyEventEmitter } from '../events';
+import { HippyEventEmitter } from '../event';
 import { Bridge } from '../global';
 
 type NetworkChangeEventData = any;

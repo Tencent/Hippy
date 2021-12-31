@@ -23,7 +23,7 @@ import './global';
 import {
   HippyEventEmitter,
   HippyEventListener,
-} from './events';
+} from './event';
 import { colorParse } from './color';
 import HippyReact from './hippy';
 import AppRegistry from './adapters/app-registry';
