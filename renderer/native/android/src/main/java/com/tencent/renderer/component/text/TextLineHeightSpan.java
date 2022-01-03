@@ -30,7 +30,7 @@ public class TextLineHeightSpan implements LineHeightSpan {
     public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int v,
             Paint.FontMetricsInt fm) {
         if (fm.descent > mHeight) {
-            fm.bottom = fm.descent = Math.min(mHeight, fm.descent);
+            fm.bottom = fm.descent = mHeight;
             fm.top = fm.ascent = 0;
         } else if (-fm.ascent + fm.descent > mHeight) {
             fm.bottom = fm.descent;

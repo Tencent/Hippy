@@ -96,10 +96,8 @@ public class Serializer extends PrimitiveValueSerializer {
     private void writeJSMap(Map map) {
         writeTag(SerializationTag.BEGIN_JS_MAP);
         int count = 0;
-        Iterator iterator = map.keySet().iterator();
-        while (iterator.hasNext()) {
+        for (Object key : map.keySet()) {
             count++;
-            Object key = iterator.next();
             writeValue(key);
             writeValue(map.get(key));
         }
@@ -109,15 +107,12 @@ public class Serializer extends PrimitiveValueSerializer {
 
     private void writeJSObject(Map map) {
         writeTag(SerializationTag.BEGIN_JS_OBJECT);
-        Iterator iterator = map.keySet().iterator();
-        while (iterator.hasNext()) {
-            Object key = iterator.next();
+        for (Object key : map.keySet()) {
             if (key == null) {
                 writeString("null");
             } else {
                 writeString(key.toString());
             }
-
             writeValue(map.get(key));
         }
         writeTag(SerializationTag.END_JS_OBJECT);
@@ -127,9 +122,7 @@ public class Serializer extends PrimitiveValueSerializer {
     private void writeCollection(Collection collection) {
         writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
         writer.putVarint(collection.size());
-        Iterator iterator = collection.iterator();
-        while (iterator.hasNext()) {
-            Object value = iterator.next();
+        for (Object value : collection) {
             writeValue(value);
         }
         writeTag(SerializationTag.END_DENSE_JS_ARRAY);

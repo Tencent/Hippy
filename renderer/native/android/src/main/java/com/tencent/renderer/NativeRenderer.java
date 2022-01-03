@@ -16,24 +16,25 @@
 
 package com.tencent.renderer;
 
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_OFFER_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_POLL_ERR;
 
 import android.content.Context;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.hippy.support.FontAdapter;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
-import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.component.text.TextRenderSupply;
-import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -53,7 +54,7 @@ import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
 
     public static final String TAG = "NativeRenderer";
-
+    private static final AtomicInteger sCounter = new AtomicInteger(0);
     private final String NODE_ID = "id";
     private final String NODE_PID = "pId";
     private final String NODE_INDEX = "index";
@@ -63,10 +64,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private final String LAYOUT_TOP = "top";
     private final String LAYOUT_WIDTH = "width";
     private final String LAYOUT_HEIGHT = "height";
-    private final int MAX_UITASK_QUEUE_CAPACITY = 10000;
-    private final int MAX_UITASK_QUEUE_EXEC_TIME = 400;
-    private static final int ROOT_VIEW_TAG_INCREMENT = 10;
-    private static final AtomicInteger sCounter = new AtomicInteger(0);
+    private final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
+    private final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
+    private final int ROOT_VIEW_TAG_INCREMENT = 10;
     private int mInstanceId;
     private int mRootId;
     private boolean mIsDebugMode;
@@ -97,7 +97,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         mIsDebugMode = isDebugMode;
         // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
         // node operation cause OOM.
-        mUITaskQueue = new LinkedBlockingQueue<>(MAX_UITASK_QUEUE_CAPACITY);
+        mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
         NativeRendererManager.addNativeRendererInstance(instanceId, this);
     }
 
@@ -376,14 +376,16 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                         // If there has large number node operation task in queue,
                         // it is possible cause ANR because of takes a lot of time to handle the task,
                         // so we should interrupt it and re-run in next event cycle again.
-                        if (System.currentTimeMillis() - start > MAX_UITASK_QUEUE_EXEC_TIME) {
+                        if (System.currentTimeMillis() - start > MAX_UI_TASK_QUEUE_EXEC_TIME) {
                             LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
                             break;
                         }
                         task = mUITaskQueue.poll();
                     }
-                } catch (Exception exception) {
-                    handleRenderException(exception);
+                } catch (Exception e) {
+                    mUITaskQueue.clear();
+                    handleRenderException(new NativeRenderException(UI_TASK_QUEUE_POLL_ERR, e));
+                    return;
                 }
                 if (!mUITaskQueue.isEmpty()) {
                     executeUIOperation();
@@ -393,140 +395,223 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void createNode(@NonNull ArrayList nodeList) throws NativeRenderException {
+    public void createNode(@NonNull ArrayList<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
             Object object = nodeList.get(i);
             if (!(object instanceof HashMap)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": createNode: invalid object");
+                        TAG + ": createNode: invalid node object");
             }
             HashMap<String, Object> node = (HashMap) object;
-            final int id = ((Number) node.get(NODE_ID)).intValue();
-            final int pid = ((Number) node.get(NODE_PID)).intValue();
-            final int index = ((Number) node.get(NODE_INDEX)).intValue();
-            if (id < 0 || pid < 0 || index < 0) {
+            int nodeId;
+            int nodePid;
+            int nodeIndex;
+            String className;
+            try {
+                nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
+                nodePid = ((Number) Objects.requireNonNull(node.get(NODE_PID))).intValue();
+                nodeIndex = ((Number) Objects.requireNonNull(node.get(NODE_INDEX))).intValue();
+                className = (String) Objects.requireNonNull(node.get(CLASS_NAME));
+            } catch (NullPointerException e) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
+            }
+            // The node id, pid and index should not be negative number.
+            if (nodeId < 0 || nodePid < 0 || nodeIndex < 0) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": createNode: " + "id=" + id + ", pId=" + pid + ", index="
-                                + index);
+                        TAG + ": createNode: id=" + nodeId + ", pId=" + nodePid + ", index="
+                                + nodeIndex);
             }
-            final String className = (String) node.get(CLASS_NAME);
             final HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
-            VirtualNode virtualParent = mVirtualNodeManager.getVirtualNode(pid);
-            if (className.equals(NodeProps.TEXT_CLASS_NAME) || virtualParent != null) {
-                mVirtualNodeManager.createVirtualNode(id, pid, index, className, props);
-            }
-            // If the node has virtual parent, not need to create render node.
-            if (virtualParent != null) {
+            mVirtualNodeManager.createNode(nodeId, nodePid, nodeIndex, className, props);
+            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+                // If the node has a virtual parent, no need to create corresponding render node,
+                // so don't add create task to the ui task queue.
                 continue;
             }
+            final int id = nodeId;
+            final int pid = nodePid;
+            final int index = nodeIndex;
+            final String name = className;
             try {
-                mUITaskQueue.add(new UITaskExecutor() {
+                mUITaskQueue.offer(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.createNode(mRootView, id, pid, index, className, props);
+                        mRenderManager.createNode(mRootView, id, pid, index, name, props);
                     }
                 });
-            } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {
-                // If the element can not being added to this queue, just try next.
-                handleRenderException(exception);
-            } catch (IllegalStateException illegalStateException) {
-                // If the element cannot be added at this time due to capacity restrictions,
-                // when this unexpected happened, should break right now.
-                handleRenderException(illegalStateException);
-                break;
+            } catch (Exception e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
             }
         }
         executeUIOperation();
     }
 
     @Override
-    public void updateNode(@NonNull ArrayList nodeList) {
-
-    }
-
-    @Override
-    public void deleteNode(ArrayList nodeList) {
-
-    }
-
-    @Override
-    public void updateLayout(@NonNull ArrayList nodeList) throws NativeRenderException {
+    public void updateNode(@NonNull ArrayList<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
             Object object = nodeList.get(i);
             if (!(object instanceof HashMap)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": updateLayout: " + "object=" + object);
+                        TAG + ": updateNode: invalid node object");
             }
-            HashMap<String, Object> layoutInfo = (HashMap) object;
-            final int id = ((Number) layoutInfo.get(NODE_ID)).intValue();
-            final float left = ((Number) layoutInfo.get(LAYOUT_LEFT)).floatValue();
-            final float top = ((Number) layoutInfo.get(LAYOUT_TOP)).floatValue();
-            final float width = ((Number) layoutInfo.get(LAYOUT_WIDTH)).floatValue();
-            final float height = ((Number) layoutInfo.get(LAYOUT_HEIGHT)).floatValue();
-            boolean invisible = mVirtualNodeManager.isInvisibleNode(id);
-            // If the node is invisible, there is no corresponding render node,
-            // also no need to update layout.
-            if (invisible) {
+            HashMap<String, Object> node = (HashMap) object;
+            int nodeId;
+            try {
+                nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
+            } catch (NullPointerException e) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
+            }
+            // The node id should not be negative number.
+            if (nodeId < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateNode: invalid negative id=" + nodeId);
+            }
+            final HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
+            mVirtualNodeManager.updateNode(nodeId, props);
+            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+                // If the node has a virtual parent, no corresponding render node exists,
+                // so don't add update task to the ui task queue.
                 continue;
             }
-            final TextRenderSupply supply = mVirtualNodeManager
-                    .updateLayout(id, width, layoutInfo);
+            final int id = nodeId;
             try {
-                mUITaskQueue.add(new UITaskExecutor() {
+                mUITaskQueue.offer(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.updateNode(id, props);
+                    }
+                });
+            } catch (Exception e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
+            }
+        }
+        executeUIOperation();
+    }
+
+    @Override
+    public void deleteNode(@NonNull int[] ids) throws NativeRenderException {
+        for (final int id : ids) {
+            if (id < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": deleteNode: invalid negative id=" + id);
+            }
+            if (mVirtualNodeManager.hasVirtualParent(id)) {
+                // If the node has a virtual parent, no corresponding render node exists,
+                // so just delete the virtual node, .
+                mVirtualNodeManager.deleteNode(id);
+                continue;
+            }
+            mVirtualNodeManager.deleteNode(id);
+            try {
+                mUITaskQueue.offer(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.deleteNode(id);
+                    }
+                });
+            } catch (Exception e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
+            }
+        }
+        executeUIOperation();
+    }
+
+    @Override
+    public void updateLayout(@NonNull ArrayList<Object> nodeList) throws NativeRenderException {
+        for (int i = 0; i < nodeList.size(); i++) {
+            Object object = nodeList.get(i);
+            if (!(object instanceof HashMap)) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateLayout: invalid node object");
+            }
+            HashMap<String, Object> layoutInfo = (HashMap) object;
+            int nodeId;
+            float layoutLeft;
+            float layoutTop;
+            float layoutWidth;
+            float layoutHeight;
+            try {
+                nodeId = ((Number) Objects.requireNonNull(layoutInfo.get(NODE_ID))).intValue();
+                layoutLeft = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_LEFT)))
+                        .floatValue();
+                layoutTop = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_TOP)))
+                        .floatValue();
+                layoutWidth = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_WIDTH)))
+                        .floatValue();
+                layoutHeight = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_HEIGHT)))
+                        .floatValue();
+            } catch (NullPointerException e) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
+            }
+            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+                // If the node has a virtual parent, no corresponding render node exists,
+                // so don't add update task to the ui task queue.
+                continue;
+            }
+            final int id = nodeId;
+            final int left = (int) Math.round(layoutLeft);
+            final int top = (int) Math.round(layoutTop);
+            final int width = (int) Math.round(layoutWidth);
+            final int height = (int) Math.round(layoutHeight);
+            final TextRenderSupply supply = mVirtualNodeManager
+                    .updateLayout(nodeId, layoutWidth, layoutInfo);
+            try {
+                mUITaskQueue.offer(new UITaskExecutor() {
                     @Override
                     public void exec() {
                         if (supply != null) {
                             mRenderManager.updateExtra(id, supply);
                         }
-                        mRenderManager
-                                .updateLayout(id, (int) Math.round(left), (int) Math.round(top),
-                                        (int) Math.round(width), (int) Math.round(height));
+                        mRenderManager.updateLayout(id, left, top, width, height);
                     }
                 });
-            } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {
-                // If the element can not being added to this queue, just try next.
-                handleRenderException(exception);
-            } catch (IllegalStateException illegalStateException) {
-                // If the element cannot be added at this time due to capacity restrictions,
-                // when this unexpected happened, should return right now.
-                handleRenderException(illegalStateException);
-                return;
+            } catch (Exception e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
             }
         }
         executeUIOperation();
     }
 
     @Override
-    public void updateEventListener(@NonNull ArrayList eventList) {
+    public void updateEventListener(@NonNull ArrayList<Object> eventList)
+            throws NativeRenderException {
         for (int i = 0; i < eventList.size(); i++) {
             Object object = eventList.get(i);
             if (!(object instanceof HashMap)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": updateLayout: " + "object=" + object);
+                        TAG + ": updateEventListener: invalid event object");
             }
             HashMap<String, Object> events = (HashMap) object;
-            final int id = ((Number) events.get(NODE_ID)).intValue();
-            final HashMap<String, Object> props = (HashMap) events.get(NODE_PROPS);
-            boolean hasUpate = mVirtualNodeManager.updateEventListener(id, props);
-            // Gesture event status of virtual node update by itself, no need to update render node.
-            if (hasUpate) {
+            HashMap<String, Object> eventProps;
+            int nodeId;
+            try {
+                nodeId = ((Number) Objects.requireNonNull(events.get(NODE_ID))).intValue();
+                eventProps = (HashMap) Objects.requireNonNull(events.get(NODE_PROPS));
+            } catch (NullPointerException e) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
+            }
+            // The node id should not be negative number.
+            if (nodeId < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateEventListener: invalid negative id=" + nodeId);
+            }
+            boolean hasUpdate = mVirtualNodeManager.updateEventListener(nodeId, eventProps);
+            if (hasUpdate) {
+                // Virtual node gesture event listener add by itself, no need to
+                // update render node.
                 continue;
             }
+            final int id = nodeId;
+            final HashMap<String, Object> props = eventProps;
             try {
-                mUITaskQueue.add(new UITaskExecutor() {
+                mUITaskQueue.offer(new UITaskExecutor() {
                     @Override
                     public void exec() {
                         mRenderManager.updateEventListener(id, props);
                     }
                 });
-            } catch (ClassCastException | NullPointerException | IllegalArgumentException exception) {
-                // If the element can not being added to this queue, just try next.
-                handleRenderException(exception);
-            } catch (IllegalStateException illegalStateException) {
-                // If the element cannot be added at this time due to capacity restrictions,
-                // when this unexpected happened, should return right now.
-                handleRenderException(illegalStateException);
-                return;
+            } catch (Exception e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
             }
         }
         executeUIOperation();
@@ -537,30 +622,29 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         try {
             FlexMeasureMode flexMeasureMode = FlexMeasureMode.fromInt(widthMode);
             return mVirtualNodeManager.measure(id, width, flexMeasureMode);
-        } catch (IllegalStateException | IllegalArgumentException exception) {
-            handleRenderException(exception);
+        } catch (NativeRenderException e) {
+            handleRenderException(e);
         }
         return FlexOutput.make(width, height);
     }
 
     @Override
     public void startBatch() {
-
+        // TODO: Just keep this method even if it don't do anything.
     }
 
     @Override
     public void endBatch() {
         try {
-            mUITaskQueue.add(new UITaskExecutor() {
+            mUITaskQueue.offer(new UITaskExecutor() {
                 @Override
                 public void exec() {
                     mRenderManager.batch();
                 }
             });
             executeUIOperation();
-        } catch (IllegalStateException | ClassCastException
-                | NullPointerException | IllegalArgumentException exception) {
-            handleRenderException(exception);
+        } catch (Exception e) {
+            throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
         }
     }
 
@@ -578,9 +662,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     private boolean checkJSFrameworkProxy() {
-        if (!(mFrameworkProxy instanceof JSFrameworkProxy)) {
-            return false;
-        }
-        return true;
+        return mFrameworkProxy instanceof JSFrameworkProxy;
     }
 }

@@ -22,17 +22,18 @@ import java.util.ArrayList;
 
 public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
 
-    void createNode(@NonNull ArrayList nodeList) throws NativeRenderException;
+    void createNode(@NonNull ArrayList<Object> nodeList) throws NativeRenderException;
 
-    void updateNode(@NonNull ArrayList nodeList) throws Exception;
+    void updateNode(@NonNull ArrayList<Object> nodeList) throws NativeRenderException;
 
-    void deleteNode(@NonNull ArrayList nodeList);
+    void deleteNode(@NonNull int[] ids) throws NativeRenderException;
 
-    void updateLayout(@NonNull ArrayList list) throws NativeRenderException;
+    void updateLayout(@NonNull ArrayList<Object> list) throws NativeRenderException;
 
-    void updateEventListener(@NonNull ArrayList eventList);
+    void updateEventListener(@NonNull ArrayList<Object> eventList) throws NativeRenderException;
 
-    long measure(int id, float width, int widthMode, float height, int heightMode);
+    long measure(int id, float width, int widthMode, float height, int heightMode)
+            throws NativeRenderException;
 
     void startBatch();
 

@@ -42,7 +42,6 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,10 +85,10 @@ public class TextVirtualNode extends VirtualNode {
     private final TextUtils.TruncateAt mTruncateAt = TextUtils.TruncateAt.END;
     private TextPaint mTextPaint = null;
     private @Nullable
-    FontAdapter mFontAdapter;
+    final FontAdapter mFontAdapter;
     private @Nullable Layout mLayout = null;
 
-    public TextVirtualNode(int id, int pid, int index, FontAdapter fontAdapter) {
+    public TextVirtualNode(int id, int pid, int index, @Nullable FontAdapter fontAdapter) {
         super(id, pid, index);
         mFontAdapter = fontAdapter;
         if (I18nUtil.isRTL()) {
@@ -334,9 +333,11 @@ public class TextVirtualNode extends VirtualNode {
         }
         for (int i = 0; i < getChildCount(); i++) {
             VirtualNode child = getChildAt(i);
-            // Only support nest one level, do not recurse check grandson node
-            // so we should set useChild to false here
-            child.createSpanOperation(ops, builder, false);
+            if (child != null) {
+                // Only support nest one level, do not recurse check grandson node
+                // so we should set useChild to false here
+                child.createSpanOperation(ops, builder, false);
+            }
         }
     }
 
@@ -353,12 +354,7 @@ public class TextVirtualNode extends VirtualNode {
             return mLayout;
         }
         Layout layout;
-        BoringLayout.Metrics boring = null;
-        try {
-            boring = BoringLayout.isBoring(mSpanned, mTextPaint);
-        } catch (Throwable ignored) {
-            LogUtils.e(TAG, "createLayout: " + ignored.getMessage());
-        }
+        BoringLayout.Metrics boring = BoringLayout.isBoring(mSpanned, mTextPaint);
         float desiredWidth = Layout.getDesiredWidth(mSpanned, mTextPaint);
         boolean unconstrainedWidth = (widthMode == FlexMeasureMode.UNDEFINED) || width < 0;
         if (boring != null && (unconstrainedWidth || boring.width <= width)) {
