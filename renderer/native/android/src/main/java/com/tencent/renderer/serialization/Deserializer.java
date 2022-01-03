@@ -52,7 +52,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
     @Override
     protected Number readJSNumber() {
         double value = reader.getDouble();
-        return assignId(new Double(value));
+        return assignId(Double.valueOf(value));
     }
 
     @Override

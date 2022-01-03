@@ -18,14 +18,12 @@ package com.tencent.renderer.component.text;
 
 import static com.tencent.mtt.hippy.dom.node.NodeProps.IMAGE_CLASS_NAME;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_CLASS_NAME;
-import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_VIRTUAL_NODE_TYPE_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_MEASURE_STATE_ERR;
 
 import android.text.Layout;
 import android.util.SparseArray;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
@@ -33,43 +31,36 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
-;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 public class VirtualNodeManager {
 
     private static final String TAG = "VirtualNodeManager";
+    private static final Map<Class, Map<String, PropertyMethod>> sClassPropertyMethod = new HashMap<>();
     private final String PADDING_LEFT = "paddingLeft";
     private final String PADDING_TOP = "paddingTop";
     private final String PADDING_RIGHT = "paddingRight";
     private final String PADDING_BOTTOM = "paddingBottom";
-    private static final Map<Class, Map<String, PropertyMethod>> sClassPropertyMethod = new HashMap<>();
     private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>();
-    private @NonNull final NativeRender mNativeRender;
+    private @NonNull
+    final NativeRender mNativeRender;
 
     public VirtualNodeManager(@NonNull NativeRender nativeRenderer) {
         mNativeRender = nativeRenderer;
     }
 
     /**
-     * Returns the visibility of node, if a virtual node has parent,
-     * it's invisible for render manager, therefore should not create and update render node.
-     *
-     * @param id node id
-     * @return {@code true} if this node is invisible
-     *         {@code false} otherwise.
+     * @return {@code true} if the node has a virtual parent
      */
-    public boolean isInvisibleNode(int id) {
+    public boolean hasVirtualParent(int id) {
         VirtualNode node = mVirtualNodes.get(id);
-        if (node != null && node.mParent != null) {
-            return true;
-        }
-        return false;
+        return (node != null && node.mParent != null);
     }
 
     public boolean updateEventListener(int id, @NonNull HashMap<String, Object> props) {
@@ -84,7 +75,7 @@ public class VirtualNodeManager {
             if (!(value instanceof Boolean)) {
                 continue;
             }
-            if (((Boolean) value).booleanValue()) {
+            if ((Boolean) value) {
                 node.addGesture(key);
             } else {
                 node.removeGesture(key);
@@ -107,17 +98,14 @@ public class VirtualNodeManager {
         float topPadding = 0;
         float rightPadding = 0;
         float bottomPadding = 0;
-        if (layoutInfo.containsKey(PADDING_LEFT)) {
-            leftPadding = ((Number) layoutInfo.get(PADDING_LEFT)).floatValue();
-        }
-        if (layoutInfo.containsKey(PADDING_TOP)) {
-            topPadding = ((Number) layoutInfo.get(PADDING_TOP)).floatValue();
-        }
-        if (layoutInfo.containsKey(PADDING_RIGHT)) {
-            rightPadding = ((Number) layoutInfo.get(PADDING_RIGHT)).floatValue();
-        }
-        if (layoutInfo.containsKey(PADDING_BOTTOM)) {
-            bottomPadding = ((Number) layoutInfo.get(PADDING_BOTTOM)).floatValue();
+        try {
+            leftPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_LEFT))).floatValue();
+            topPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_TOP))).floatValue();
+            rightPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_RIGHT))).floatValue();
+            bottomPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_BOTTOM))).floatValue();
+        } catch (NullPointerException ignored) {
+            // Padding is not necessary for layout, if get padding property failed,
+            // just ignore this exception
         }
         Layout layout = ((TextVirtualNode) node)
                 .createLayout((width - leftPadding - rightPadding), FlexMeasureMode.EXACTLY);
@@ -125,10 +113,11 @@ public class VirtualNodeManager {
                 rightPadding, bottomPadding);
     }
 
-    public long measure(int id, float width, FlexMeasureMode widthMode) throws IllegalStateException {
+    public long measure(int id, float width, FlexMeasureMode widthMode)
+            throws NativeRenderException {
         VirtualNode node = mVirtualNodes.get(id);
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
-            throw new IllegalStateException(
+            throw new NativeRenderException(INVALID_MEASURE_STATE_ERR,
                     TAG + ": measure: Encounter wrong state when check node, "
                             + "only text node and parent==null need do measure");
         }
@@ -165,8 +154,7 @@ public class VirtualNodeManager {
             @NonNull String key,
             @Nullable PropertyMethod methodHolder) {
         if (methodHolder == null) {
-            if ((propsMap.get(key) instanceof HashMap) && propsMap
-                    .equals(NodeProps.STYLE)) {
+            if (key.equals(NodeProps.STYLE) && (propsMap.get(key) instanceof HashMap)) {
                 updateProps(node, (HashMap) propsMap.get(key));
             }
             return;
@@ -218,18 +206,17 @@ public class VirtualNodeManager {
         }
     }
 
-    public void createVirtualNode(int id, int pid, int index, String className,
-            @Nullable HashMap<String, Object> props) throws NativeRenderException {
+    public void createNode(int id, int pid, int index, @NonNull String className,
+            @Nullable HashMap<String, Object> props) {
         VirtualNode node;
         VirtualNode parent = mVirtualNodes.get(pid);
         if (className.equals(TEXT_CLASS_NAME)) {
             node = new TextVirtualNode(id, pid, index, mNativeRender.getFontAdapter());
-        } else if (className.equals(IMAGE_CLASS_NAME)) {
+        } else if (className.equals(IMAGE_CLASS_NAME) && parent != null) {
             node = new ImageVirtualNode(id, pid, index, mNativeRender.getImageLoaderAdapter());
         } else {
-            throw new NativeRenderException(INVALID_VIRTUAL_NODE_TYPE_ERR,
-                    TAG + ": createVirtualNode: not recognized className=" + className
-                            + " for virtual node");
+            // Only text or text child should create virtual node.
+            return;
         }
         mVirtualNodes.put(id, node);
         if (parent != null) {
@@ -238,9 +225,30 @@ public class VirtualNodeManager {
         updateProps(node, props);
     }
 
-    public @Nullable
-    VirtualNode getVirtualNode(int id) {
-        return mVirtualNodes.get(id);
+    public void updateNode(int id, @Nullable HashMap<String, Object> props) {
+        VirtualNode node = mVirtualNodes.get(id);
+        if (node == null) {
+            return;
+        }
+        updateProps(node, props);
+    }
+
+    public void deleteNode(int id) {
+        VirtualNode node = mVirtualNodes.get(id);
+        if (node == null) {
+            return;
+        }
+        if (node.mParent != null) {
+            node.mParent.removeChild(node);
+            node.mParent = null;
+        }
+        if (node.mChildren != null) {
+            for (VirtualNode child : node.mChildren) {
+                deleteNode(child.mId);
+            }
+            node.mChildren.clear();
+        }
+        mVirtualNodes.delete(id);
     }
 
     private static class PropertyMethod {

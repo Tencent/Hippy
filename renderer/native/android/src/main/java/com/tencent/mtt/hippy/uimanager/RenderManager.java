@@ -119,11 +119,13 @@ public class RenderManager {
         }
     }
 
-    public void updateNode(int id, HippyMap map) {
-        LogUtils.d("RenderManager", "updateNode ID " + id);
-        RenderNode uiNode = mNodes.get(id);
-        uiNode.updateNode(map);
-        addUpdateNodeIfNeeded(uiNode);
+    public void updateNode(int id, HashMap<String, Object> props) {
+        RenderNode node = mNodes.get(id);
+        if (node != null) {
+            HippyMap localProps = new HippyMap(props);
+            node.updateNode(localProps);
+            addUpdateNodeIfNeeded(node);
+        }
     }
 
     public void moveNode(ArrayList<Integer> moveIds, int pId, int id) {

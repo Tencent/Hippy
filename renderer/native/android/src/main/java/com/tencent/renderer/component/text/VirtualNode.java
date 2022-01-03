@@ -29,10 +29,10 @@ public abstract class VirtualNode {
     protected final int mId;
     protected final int mPid;
     protected final int mIndex;
+    protected boolean mDirty = true;
     protected @Nullable List<VirtualNode> mChildren;
     protected @Nullable VirtualNode mParent;
-    protected boolean mDirty = true;
-    protected ArrayList<String> mGestureTypes = null;
+    protected @Nullable ArrayList<String> mGestureTypes = null;
 
     public VirtualNode(int id, int pid, int index) {
         mId = id;
@@ -61,6 +61,13 @@ public abstract class VirtualNode {
             mParent.markDirty();
         }
         mDirty = true;
+    }
+
+    public void removeChild(@NonNull VirtualNode child) {
+        if (mChildren == null) {
+            return;
+        }
+        mChildren.remove(child);
     }
 
     public void addChildAt(@NonNull VirtualNode child, int index) {
@@ -108,11 +115,7 @@ public abstract class VirtualNode {
             if (mStart == 0) {
                 spanFlags = Spannable.SPAN_INCLUSIVE_INCLUSIVE;
             }
-            try {
-                builder.setSpan(mWhat, mStart, mEnd, spanFlags);
-            } catch (Exception exception) {
-                throw exception;
-            }
+            builder.setSpan(mWhat, mStart, mEnd, spanFlags);
         }
     }
 }

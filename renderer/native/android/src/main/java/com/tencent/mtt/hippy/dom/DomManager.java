@@ -369,47 +369,7 @@ public class DomManager {
   }
 
   public void updateNode(final int id, HippyMap map, ViewGroup hippyRootView) {
-    DomNode node = mNodeRegistry.getNode(id);
 
-    // 这个日志暴多
-    // LogUtils.d(TAG, "dom  updateNode node id: " + id + "node is not null:" + (node != null) + " params:" + map.toString());
-
-    if (node != null) {
-      if (mActionInterceptors != null) {
-        for (DomActionInterceptor interceptor : mActionInterceptors) {
-          map = interceptor.onUpdateNode(id, hippyRootView, map);
-        }
-      }
-      HippyMap props = map;
-
-      HippyMap hippyMap = DiffUtils.diffProps(node.getTotalProps(), props, 0);
-
-      node.setProps(props);
-
-      //noinspection unchecked
-      mDomStyleUpdateManager.updateStyle(node, hippyMap);
-
-      boolean layoutOnlyHasChanged =
-          node.isJustLayout() && (!jsJustLayout((HippyMap) props.get(NodeProps.STYLE))
-              || isTouchEvent(props));
-
-      if (layoutOnlyHasChanged) {
-        changeJustLayout2View(node, props, hippyRootView);
-      } else if (!node.isJustLayout()) {
-        if (!node.isVirtual()) {
-          //				final HippyMap newProps = props.copy();
-          final HippyMap newProps = props;
-          addUITask(new IDomExecutor() {
-            @Override
-            public void exec() {
-              mRenderManager.updateNode(id, newProps);
-            }
-          });
-        }
-      }
-    } else {
-      LogUtils.d(TAG, "update error node is null id " + id);
-    }
   }
 
   private void changeJustLayout2View(final DomNode node, final HippyMap hippyMap,

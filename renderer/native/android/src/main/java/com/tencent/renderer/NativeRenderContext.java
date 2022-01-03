@@ -21,7 +21,7 @@ import android.content.ContextWrapper;
 
 public final class NativeRenderContext extends ContextWrapper {
 
-    private int mInstanceId;
+    private final int mInstanceId;
 
     public NativeRenderContext(Context context, int instanceId) {
         super(context);

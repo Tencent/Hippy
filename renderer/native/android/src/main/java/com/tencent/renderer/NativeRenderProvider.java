@@ -17,6 +17,8 @@
 package com.tencent.renderer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
@@ -25,6 +27,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.annotation.CalledByNative;
 import com.tencent.renderer.serialization.Deserializer;
 import com.tencent.renderer.serialization.Serializer;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -39,9 +42,9 @@ public class NativeRenderProvider {
     private final long mRuntimeId;
     private final NativeRenderDelegate mRenderDelegate;
     private final Deserializer mDeserializer;
+    private final Serializer mSerializer;
     private BinaryReader mSafeHeapReader;
     private SafeHeapWriter mSafeHeapWriter;
-    private Serializer mSerializer;
 
     public NativeRenderProvider(@NonNull NativeRenderDelegate renderDelegate, long runtimeId) {
         mRenderDelegate = renderDelegate;
@@ -63,7 +66,7 @@ public class NativeRenderProvider {
      * @return the result {@link ArrayList} of deserialize
      */
     private @NonNull
-    ArrayList bytesToArgument(ByteBuffer buffer) {
+    ArrayList<Object> bytesToArgument(ByteBuffer buffer) {
         final BinaryReader binaryReader;
         if (mSafeHeapReader == null) {
             mSafeHeapReader = new SafeHeapReader();
@@ -74,7 +77,7 @@ public class NativeRenderProvider {
         mDeserializer.reset();
         mDeserializer.readHeader();
         Object paramsObj = mDeserializer.readValue();
-        return (paramsObj instanceof ArrayList) ? (ArrayList) paramsObj : new ArrayList();
+        return (paramsObj instanceof ArrayList) ? (ArrayList) paramsObj : new ArrayList<>();
     }
 
     /**
@@ -82,7 +85,7 @@ public class NativeRenderProvider {
      * heap buffer writer, direct buffer writer not fit for event data
      *
      * @param params the ui event params object
-     * @return the result of serialize wrapped by {@link ByteBuffer}
+     * @return the result of serialization wrapped by {@link ByteBuffer}
      */
     private @NonNull
     ByteBuffer argumentToBytes(@NonNull Object params) {
@@ -95,8 +98,7 @@ public class NativeRenderProvider {
         mSerializer.reset();
         mSerializer.writeHeader();
         mSerializer.writeValue(params);
-        ByteBuffer buffer = mSafeHeapWriter.chunked();
-        return buffer;
+        return mSafeHeapWriter.chunked();
     }
 
     /**
@@ -105,9 +107,10 @@ public class NativeRenderProvider {
      * @param buffer The byte array serialize by native (C++)
      */
     @CalledByNative
+    @SuppressWarnings("unused")
     private void createNode(byte[] buffer) {
         try {
-            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.createNode(list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
@@ -120,10 +123,11 @@ public class NativeRenderProvider {
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
+    @SuppressWarnings("unused")
     private void updateNode(byte[] buffer) {
         try {
-            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-
+            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            mRenderDelegate.updateNode(list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -132,13 +136,13 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to delete render node
      *
-     * @param buffer the byte array serialize by native (C++)
+     * @param ids the node id array list
      */
     @CalledByNative
-    private void deleteNode(byte[] buffer) {
+    @SuppressWarnings("unused")
+    private void deleteNode(int[] ids) {
         try {
-            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-
+            mRenderDelegate.deleteNode(ids);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -150,9 +154,10 @@ public class NativeRenderProvider {
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
+    @SuppressWarnings("unused")
     private void updateLayout(byte[] buffer) {
         try {
-            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateLayout(list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
@@ -165,26 +170,13 @@ public class NativeRenderProvider {
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
+    @SuppressWarnings("unused")
     private void updateEventListener(byte[] buffer) {
         try {
-            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
+            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateEventListener(list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
-        }
-    }
-
-    /**
-     * Call from native (C++) render manager to add or remove render event listener
-     *
-     * @param buffer The byte array serialize by native (C++)
-     */
-    @CalledByNative
-    private void updateRenderEventListener(byte[] buffer) {
-        try {
-            final ArrayList list = bytesToArgument(ByteBuffer.wrap(buffer));
-        } catch (NativeRenderException exception) {
-            mRenderDelegate.handleRenderException(exception);
         }
     }
 
@@ -199,6 +191,7 @@ public class NativeRenderProvider {
      * @return the measure result, convert to long type by FlexOutput
      */
     @CalledByNative
+    @SuppressWarnings("unused")
     private long measure(int id, float width, int widthMode, float height, int heightMode) {
         return mRenderDelegate.measure(id, width, widthMode, height, heightMode);
     }
@@ -207,6 +200,7 @@ public class NativeRenderProvider {
      * Call from native (C++) render manager to mark batch start
      */
     @CalledByNative
+    @SuppressWarnings("unused")
     private void startBatch() {
         mRenderDelegate.startBatch();
     }
@@ -215,6 +209,7 @@ public class NativeRenderProvider {
      * Call from native (C++) render manager to mark batch end
      */
     @CalledByNative
+    @SuppressWarnings("unused")
     private void endBatch() {
         mRenderDelegate.endBatch();
     }
@@ -223,28 +218,26 @@ public class NativeRenderProvider {
         onRootSizeChanged(mRuntimeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
-    public void dispatchEvent(int nodeId, String eventName, Object params, boolean useCapture,
+    public void dispatchEvent(int nodeId, String eventName, @Nullable Object params,
+            boolean useCapture,
             boolean useBubble) {
-        try {
-            byte[] bytes = null;
-            int offset = 0;
-            int length = 0;
-            if (params != null) {
+        byte[] bytes = null;
+        int offset = 0;
+        int length = 0;
+        if (params != null) {
+            try {
                 ByteBuffer buffer = argumentToBytes(params);
-                if (buffer == null || buffer.limit() == 0) {
-                    return;
-                }
                 offset = buffer.position();
                 length = buffer.limit() - buffer.position();
                 offset += buffer.arrayOffset();
                 bytes = buffer.array();
+            } catch (Exception e) {
+                mRenderDelegate.handleRenderException(e);
             }
-            onReceivedEvent(mRuntimeId, nodeId, eventName, bytes, offset, length,
-                    useCapture,
-                    useBubble);
-        } catch (Exception e) {
-            mRenderDelegate.handleRenderException(e);
         }
+        onReceivedEvent(mRuntimeId, nodeId, eventName, bytes, offset, length,
+                useCapture,
+                useBubble);
     }
 
     /**

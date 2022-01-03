@@ -23,33 +23,32 @@ public class NativeRenderException extends RuntimeException {
          * If get an invalid or illegal node data from C dom manager, such as node id or parent id
          * is negative number
          */
-        INVALID_NODE_DATA_ERR(100),
+        INVALID_NODE_DATA_ERR,
 
         /**
          * If the data length read by deserializer not equal to expected length
          */
-        DESERIALIZE_READ_LENGTH_ERR(101),
+        DESERIALIZE_READ_LENGTH_ERR,
 
         /**
          * If the node data object type not support by native renderer
          */
-        DESERIALIZE_NOT_SUPPORTED_ERR(102),
+        DESERIALIZE_NOT_SUPPORTED_ERR,
 
         /**
-         * If the class name use to create virtual node is not recognized
+         * If the node to measure is not text node or node parent is virtual node
          */
-        INVALID_VIRTUAL_NODE_TYPE_ERR(103);
+        INVALID_MEASURE_STATE_ERR,
 
-        private final int mValue;
+        /**
+         * If fail to retrieves and removes the head of ui task queue
+         */
+        UI_TASK_QUEUE_POLL_ERR,
 
-        ExceptionCode(int value) {
-            mValue = value;
-        }
-
-        @SuppressWarnings("unused")
-        public int value() {
-            return mValue;
-        }
+        /**
+         * If fail to insert an element into the ui task queue
+         */
+        UI_TASK_QUEUE_OFFER_ERR
     }
 
     public ExceptionCode mCode;
@@ -59,4 +58,8 @@ public class NativeRenderException extends RuntimeException {
         mCode = code;
     }
 
+    public NativeRenderException(ExceptionCode code, Throwable cause) {
+        super(cause);
+        mCode = code;
+    }
 }
