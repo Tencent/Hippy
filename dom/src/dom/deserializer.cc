@@ -11,7 +11,7 @@
 namespace tdf {
 namespace base {
 
-Deserializer::Deserializer(std::vector<const uint8_t> data) : position_(&data[0]), end_(&data[0] + data.size()) {}
+Deserializer::Deserializer(const std::vector<const uint8_t>& data) : position_(&data[0]), end_(&data[0] + data.size()) {}
 
 Deserializer::Deserializer(const uint8_t* data, size_t size) : position_(data), end_(data + size) {}
 

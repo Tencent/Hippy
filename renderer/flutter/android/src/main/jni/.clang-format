@@ -1,0 +1,10 @@
+# Suggested by V8/.clang-format
+BasedOnStyle: Google
+MaxEmptyLinesToKeep: 1
+
+# Hippy override
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackParameters: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
