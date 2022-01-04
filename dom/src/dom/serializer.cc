@@ -106,7 +106,7 @@ void Serializer::WriteDenseJSArray(const DomValue::DomValueArrayType& dom_value)
   WriteVarint<uint32_t>(length);
 }
 
-void Serializer::WriteJSMap(const DomValue::DomValueObjectType& dom_value) {
+void Serializer::WriteJSObject(const DomValue::DomValueObjectType& dom_value) {
   uint32_t length = dom_value.size();
   WriteTag(SerializationTag::kBeginJSObject);
   for (const auto& it : dom_value) {
@@ -213,7 +213,7 @@ void Serializer::WriteObject(const DomValue& dom_value) {
       break;
     }
     case DomValue::Type::kObject: {
-      WriteJSMap(dom_value.ToObject());
+      WriteJSObject(dom_value.ToObject());
       break;
     }
     case DomValue::Type::kArray: {

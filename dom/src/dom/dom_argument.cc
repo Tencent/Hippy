@@ -79,7 +79,7 @@ bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std:
       break;
     }
     case tdf::base::DomValue::Type::kObject: {
-      serializer.WriteJSMap(dom_value.ToObject());
+      serializer.WriteJSObject(dom_value.ToObject());
       break;
     }
     default: {
