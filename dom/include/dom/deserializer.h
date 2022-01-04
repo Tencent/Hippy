@@ -9,7 +9,7 @@ namespace base {
 
 class Deserializer {
  public:
-  Deserializer(std::vector<const uint8_t> data);
+  Deserializer(const std::vector<const uint8_t>& data);
   Deserializer(const uint8_t* data, size_t size);
   ~Deserializer();
 
