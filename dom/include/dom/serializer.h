@@ -75,7 +75,7 @@ class Serializer {
 
   void WriteDenseJSArray(const DomValue::DomValueArrayType& dom_value);
 
-  void WriteJSMap(const DomValue::DomValueObjectType& dom_value);
+  void WriteJSObject(const DomValue::DomValueObjectType& dom_value);
 
  private:
   void WriteTag(SerializationTag tag);
