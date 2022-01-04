@@ -124,6 +124,10 @@ npm i -D @hippy/debug-server-next@latest
 
 > 最低支持版本 2.12.0
 
+[hippy-react-demo 配置脚本](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.dev.js)
+
+[hippy-vue-demo 配置脚本](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.dev.js)
+
 <img src="https://img.gamecenter.qq.com/xgame/gm/1640318737484_8116362472a24eb51a5e01b2fcd35687.gif" alt="HMR preview" width="80%" />
 <br />
 <br />
