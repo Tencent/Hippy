@@ -45,7 +45,7 @@
     "@babel/polyfill": "^7.12.0",
     "@babel/preset-env": "^7.12.0",
     "@babel/preset-react": "^7.9.4",
-    "@hippy/debug-server": "alpha",
+    "@hippy/debug-server": "latest",
     "@hippy/hippy-dynamic-import-plugin": "^2.0.0",
     "@hippy/hippy-hmr-plugin": "^0.0.2",
     "@hippy/hippy-react-refresh-webpack-plugin": "^0.5.5",
