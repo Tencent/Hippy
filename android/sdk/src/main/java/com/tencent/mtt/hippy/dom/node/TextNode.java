@@ -54,6 +54,8 @@ public class TextNode extends StyleNode {
   protected int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
   private float mLineHeight = UNSET;
   private float mLetterSpacing = UNSET;
+  protected float mLineSpacingMultiplier = UNSET;
+  protected float mLineSpacingExtra;
 
   private int mColor = Color.BLACK;
   private final boolean mIsBackgroundColorSet = false;
@@ -260,6 +262,20 @@ public class TextNode extends StyleNode {
   @HippyControllerProps(name = NodeProps.LINE_HEIGHT, defaultType = HippyControllerProps.NUMBER, defaultNumber = UNSET)
   public void lineHeight(int lineHeight) {
     mLineHeight = lineHeight == UNSET ? UNSET : PixelUtil.dp2px(lineHeight);
+    markUpdated();
+  }
+
+  @SuppressWarnings("unused")
+  @HippyControllerProps(name = NodeProps.LINE_SPACING_MULTIPLIER, defaultType = HippyControllerProps.NUMBER, defaultNumber = UNSET)
+  public void lineSpacingMultiplier(float lineSpacingMultiplier) {
+    mLineSpacingMultiplier = lineSpacingMultiplier;
+    markUpdated();
+  }
+
+  @SuppressWarnings("unused")
+  @HippyControllerProps(name = NodeProps.LINE_SPACING_EXTRA, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0.0f)
+  public void lineSpacingExtra(float lineSpacingExtra) {
+    mLineSpacingExtra = PixelUtil.dp2px(lineSpacingExtra);
     markUpdated();
   }
 
@@ -539,7 +555,9 @@ public class TextNode extends StyleNode {
             new HippyShadowSpan(textNode.mTextShadowOffsetDx, textNode.mTextShadowOffsetDy,
                 textNode.mTextShadowRadius, textNode.mTextShadowColor)));
       }
-      if (textNode.mLineHeight != UNSET) {
+      if (textNode.mLineHeight != UNSET
+        && mLineSpacingMultiplier == UNSET
+        && mLineSpacingExtra == 0) {
         float lineHeight = textNode.mLineHeight;
 
         if (textNode.mFontScaleAdapter != null && textNode.mEnableScale) {
@@ -625,6 +643,10 @@ public class TextNode extends StyleNode {
 
   }
 
+  protected float getLineSpacingMultiplier() {
+    return mLineSpacingMultiplier <= 0 ? 1.0f : mLineSpacingMultiplier;
+  }
+
   private StaticLayout buildStaticLayout(CharSequence source, TextPaint paint, int width) {
     Layout.Alignment textAlign = mTextAlign;
     if (I18nUtil.isRTL()) {
@@ -634,7 +656,7 @@ public class TextNode extends StyleNode {
       }
     }
 
-    return new StaticLayout(source, paint, width, textAlign, 1.f, 0.f,
+    return new StaticLayout(source, paint, width, textAlign, getLineSpacingMultiplier(), mLineSpacingExtra,
         true);
   }
 
@@ -653,10 +675,10 @@ public class TextNode extends StyleNode {
     boolean unconstrainedWidth = widthMode == FlexMeasureMode.UNDEFINED || width < 0;
     if (boring == null && (unconstrainedWidth || (!FlexConstants.isUndefined(desiredWidth)
         && desiredWidth <= width))) {
-      layout = new StaticLayout(text, textPaint, (int)Math.ceil(desiredWidth), mTextAlign, 1.f,
-          0.f, true);
+      layout = new StaticLayout(text, textPaint, (int)Math.ceil(desiredWidth), mTextAlign, getLineSpacingMultiplier(),
+        mLineSpacingExtra, true);
     } else if (boring != null && (unconstrainedWidth || boring.width <= width)) {
-      layout = BoringLayout.make(text, textPaint, boring.width, mTextAlign, 1.f, 0.f, boring, true);
+      layout = BoringLayout.make(text, textPaint, boring.width, mTextAlign, getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
     } else {
       layout = buildStaticLayout(text, textPaint, (int)Math.ceil(width));
     }
