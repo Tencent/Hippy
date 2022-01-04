@@ -73,6 +73,8 @@ public class TextVirtualNode extends VirtualNode {
     private float mShadowOffsetDy = 0.0f;
     private float mShadowRadius = 1.0f;
     private float mLineHeight;
+    protected float mLineSpacingMultiplier = 1.0f;
+    protected float mLineSpacingExtra;
     private float mLetterSpacing;
     private float mLastLayoutWidth = 0.0f;
     private boolean mHasUnderlineTextDecoration = false;
@@ -212,6 +214,20 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LINE_SPACING_MULTIPLIER, defaultType = HippyControllerProps.NUMBER)
+    public void lineSpacingMultiplier(float lineSpacingMultiplier) {
+      mLineSpacingMultiplier = lineSpacingMultiplier;
+      markDirty();
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LINE_SPACING_EXTRA, defaultType = HippyControllerProps.NUMBER)
+    public void lineSpacingExtra(float lineSpacingExtra) {
+      mLineSpacingExtra = PixelUtil.dp2px(lineSpacingExtra);
+      markDirty();
+    }
+
+    @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.NUMBER_OF_LINES, defaultType = HippyControllerProps.NUMBER)
     public void setNumberOfLines(int numberOfLines) {
         mNumberOfLines = numberOfLines;
@@ -316,7 +332,7 @@ public class TextVirtualNode extends VirtualNode {
                     new TextShadowSpan(mShadowOffsetDx, mShadowOffsetDy, mShadowRadius,
                             mShadowColor)));
         }
-        if (mLineHeight != 0) {
+        if (mLineHeight != 0 && mLineSpacingMultiplier == 1.0f && mLineSpacingExtra == 0) {
             float lh = mLineHeight;
             if (mFontAdapter != null && mEnableScale) {
                 lh = (lh * mFontAdapter.getFontScale());
@@ -341,6 +357,10 @@ public class TextVirtualNode extends VirtualNode {
         }
     }
 
+    protected float getLineSpacingMultiplier() {
+      return mLineSpacingMultiplier <= 0 ? 1.0f : mLineSpacingMultiplier;
+    }
+
     public Layout createLayout(final float width, final FlexMeasureMode widthMode) {
         if (mTextPaint == null) {
             mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
@@ -359,7 +379,7 @@ public class TextVirtualNode extends VirtualNode {
         boolean unconstrainedWidth = (widthMode == FlexMeasureMode.UNDEFINED) || width < 0;
         if (boring != null && (unconstrainedWidth || boring.width <= width)) {
             layout = BoringLayout
-                    .make(mSpanned, mTextPaint, boring.width, mAlignment, 1.f, 0.f, boring, true);
+                    .make(mSpanned, mTextPaint, boring.width, mAlignment, getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
         } else {
             if (!unconstrainedWidth && desiredWidth > width) {
                 desiredWidth = width;
@@ -388,7 +408,7 @@ public class TextVirtualNode extends VirtualNode {
                 alignment = Layout.Alignment.ALIGN_NORMAL;
             }
         }
-        return new StaticLayout(source, mTextPaint, width, alignment, 1.f, 0.f,
+        return new StaticLayout(source, mTextPaint, width, alignment, getLineSpacingMultiplier(), mLineSpacingExtra,
                 true);
     }
 
