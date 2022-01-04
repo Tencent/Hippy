@@ -52,7 +52,7 @@ class Deserializer {
 
   bool ReadDenseJSArray(DomValue& dom_value);
 
-  bool ReadJSMap(DomValue& dom_value);
+  bool ReadJSObject(DomValue& dom_value);
 
  private:
   template <typename T>
@@ -60,6 +60,8 @@ class Deserializer {
 
   template <typename T>
   T ReadZigZag();
+
+  uint32_t ReadObjectProperties(DomValue& value, SerializationTag end_tag);
 
   uint32_t ReadObjectProperties(SerializationTag end_tag);
 

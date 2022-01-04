@@ -11,7 +11,8 @@
 namespace tdf {
 namespace base {
 
-Deserializer::Deserializer(const std::vector<const uint8_t>& data) : position_(&data[0]), end_(&data[0] + data.size()) {}
+Deserializer::Deserializer(const std::vector<const uint8_t>& data)
+    : position_(&data[0]), end_(&data[0] + data.size()) {}
 
 Deserializer::Deserializer(const uint8_t* data, size_t size) : position_(data), end_(data + size) {}
 
@@ -194,37 +195,19 @@ bool Deserializer::ReadDenseJSArray(DomValue& dom_value) {
   return true;
 };
 
-bool Deserializer::ReadJSMap(DomValue& dom_value) {
-  uint32_t length = 0;
-  DomValue::DomValueObjectType object;
-
+bool Deserializer::ReadJSObject(DomValue& dom_value) {
   bool ret = true;
-  while (true) {
-    SerializationTag tag;
-    PeekTag(tag);
-    if (tag == SerializationTag::kEndJSMap) {
-      ConsumeTag(SerializationTag::kEndJSMap);
-      break;
-    }
+  uint32_t num_properties;
+  DomValue object;
+  num_properties = ReadObjectProperties(object, SerializationTag::kEndJSObject);
 
-    DomValue key;
-    ret = ReadObject(key);
-    if (!ret || !key.IsString()) return false;
-
-    DomValue value;
-    ret = ReadObject(value);
-    if (!ret) return false;
-    object[key.ToString()] = value;
-    length += 2;
-  }
-
-  uint32_t expected_length;
-  expected_length = ReadVarint<uint32_t>();
-  if (expected_length != length) return false;
+  uint32_t expected_num_properties;
+  expected_num_properties = ReadVarint<uint32_t>();
+  if (num_properties != expected_num_properties) return false;
 
   dom_value = object;
   return ret;
-};
+}
 
 template <typename T>
 T Deserializer::ReadVarint() {
@@ -318,8 +301,8 @@ bool Deserializer::ReadObject(DomValue& value) {
       ret = ReadDenseJSArray(value);
       return ret;
     }
-    case SerializationTag::kBeginJSMap: {
-      ret = ReadJSMap(value);
+    case SerializationTag::kBeginJSObject: {
+      ret = ReadJSObject(value);
       return ret;
     }
     default: {
@@ -328,6 +311,32 @@ bool Deserializer::ReadObject(DomValue& value) {
   }
 
   return ret;
+}
+
+uint32_t Deserializer::ReadObjectProperties(DomValue& property, SerializationTag end_tag) {
+  uint32_t num_properties = 0;
+
+  // Slow path.
+  for (;; num_properties++) {
+    SerializationTag tag;
+    PeekTag(tag);
+    if (tag == end_tag) {
+      ConsumeTag(end_tag);
+      return num_properties;
+    }
+
+    if (end_tag == SerializationTag::kEndJSObject) {
+      DomValue::DomValueObjectType object;
+      DomValue key;
+      ReadObject(key);
+      DomValue value;
+      ReadObject(value);
+      object.insert(std::pair<std::string, DomValue>(key.ToString(), value));
+      property = object;
+    }
+  }
+
+  return num_properties;
 }
 
 uint32_t Deserializer::ReadObjectProperties(SerializationTag end_tag) {
@@ -341,12 +350,6 @@ uint32_t Deserializer::ReadObjectProperties(SerializationTag end_tag) {
       ConsumeTag(end_tag);
       return num_properties;
     }
-
-    DomValue key;
-    ReadObject(key);
-
-    DomValue value;
-    ReadObject(value);
   }
 
   return num_properties;
