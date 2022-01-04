@@ -638,7 +638,7 @@ public class TextNode extends StyleNode {
         true);
   }
 
-  private Layout createLayout(float width, FlexMeasureMode widthMode) {
+  protected Layout createLayout(float width, FlexMeasureMode widthMode) {
     TextPaint textPaint = sTextPaintInstance;
     Layout layout;
     Spanned text = mSpanned == null ? new SpannedString("") : mSpanned;
