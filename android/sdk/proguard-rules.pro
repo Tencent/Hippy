@@ -218,3 +218,4 @@ protected <fields>;
 public <fields>;
 public <methods>;
 }
+-keep class com.tencent.mtt.hippy.dom.flex.FlexMeasureMode {*;}
