@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.12.0](https://github.com/Tencent/Hippy/compare/2.11.6...2.12.0) (2022-01-04)
+
+
+### Bug Fixes
+
+* **android:** add callback for save dom node exception ([8c0078e](https://github.com/Tencent/Hippy/commit/8c0078eab1b50d78a4da3517261d7ecabc828fff))
+* **android:** fix library symbol visibility settings ([a070cea](https://github.com/Tencent/Hippy/commit/a070ceac3dbf01dc63f6d39c0d77d03a32ff4ff2))
+* **build script:** fix debug-server build script ([bee4513](https://github.com/Tencent/Hippy/commit/bee45135acd59c6a4b462d80b3428e43985c6edd))
+* **core:** add static cast for nullptr in tuple ([aa0825e](https://github.com/Tencent/Hippy/commit/aa0825ee35560d702561b1e70ed176332f088367))
+* **core:** fix convert crash ([eb1d241](https://github.com/Tencent/Hippy/commit/eb1d241aba8f095a43e5bfc602107f26097f230d))
+* **debug-server:** fix webpack-dev-server compile callback ([900772d](https://github.com/Tencent/Hippy/commit/900772df46d90866e8e60fe57186ad09b318e917))
+* **debug-server:** webpack dev callback ([70f20a6](https://github.com/Tencent/Hippy/commit/70f20a678390f51d8c86f357bf9214d5cf8a9384))
+* **hippy-vue:** websocket $on event could not receive ([6ad478e](https://github.com/Tencent/Hippy/commit/6ad478e360388a749069c223262c15bdfe04cb2f))
+* **hippy-vue-demo:** update http module ([47ed8f5](https://github.com/Tencent/Hippy/commit/47ed8f5daced83ec5645a8dbd3dc769b3601e57c))
+* **react-demo,vue-demo:** local-debug script ([5ce21ad](https://github.com/Tencent/Hippy/commit/5ce21ad73312af943bfa537a3e95a0b624bd4226))
+
+
+### Features
+
+* **android:** add two properties for TextNode ([62a4cd9](https://github.com/Tencent/Hippy/commit/62a4cd9e0fd364ff6b4439e17fde07ce2e07efc1))
+* **android:** remove unused formatAccessorsAsProperties() ([6be967c](https://github.com/Tencent/Hippy/commit/6be967c3210160583b2f3103d60afef3569019e5))
+* **android:** support save and restore dom node ([d6e760b](https://github.com/Tencent/Hippy/commit/d6e760bc5105111311261eb75bb43f2ca67129df))
+* **debug-server:** add cli API ([b872c34](https://github.com/Tencent/Hippy/commit/b872c343cd5c4bcb731328c43b9abfeee0e0b5f0))
+* **hippy-react:** add bind_event boolean value ([bc32a94](https://github.com/Tencent/Hippy/commit/bc32a948acce814e6f34c8a34f811744a5080ad0))
+* **react:** add commitEffects hook to change batch update synchronously ([10da99c](https://github.com/Tencent/Hippy/commit/10da99c6963e6c26b4d1a1b241508e33ee983211))
+* **vue, react, debug-server, vue-loader, vue-css-loader:** support HMR ([ff9f763](https://github.com/Tencent/Hippy/commit/ff9f763a4578d41a4ff657a577ced7f3675ba8e3))
+
+
+
+
+
 ## [2.11.6](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/compare/2.11.5...2.11.6) (2021-12-23)
 
 

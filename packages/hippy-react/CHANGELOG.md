@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.12.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.11.6...2.12.0) (2022-01-04)
+
+
+### Features
+
+* **hippy-react:** add bind_event boolean value ([bc32a94](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/bc32a948acce814e6f34c8a34f811744a5080ad0))
+* **react:** add commitEffects hook to change batch update synchronously ([10da99c](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/10da99c6963e6c26b4d1a1b241508e33ee983211))
+* **vue, react, debug-server, vue-loader, vue-css-loader:** support HMR ([ff9f763](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/ff9f763a4578d41a4ff657a577ced7f3675ba8e3))
+
+
+
+
+
 ## [2.11.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.11.5...2.11.6) (2021-12-23)
 
 **Note:** Version bump only for package @hippy/react

@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.12.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.11.6...2.12.0) (2022-01-04)
+
+
+### Bug Fixes
+
+* **build script:** fix debug-server build script ([bee4513](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/bee45135acd59c6a4b462d80b3428e43985c6edd))
+* **hippy-vue:** websocket $on event could not receive ([6ad478e](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/6ad478e360388a749069c223262c15bdfe04cb2f))
+
+
+### Features
+
+* **hippy-react:** add bind_event boolean value ([bc32a94](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/bc32a948acce814e6f34c8a34f811744a5080ad0))
+* **vue, react, debug-server, vue-loader, vue-css-loader:** support HMR ([ff9f763](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/commit/ff9f763a4578d41a4ff657a577ced7f3675ba8e3))
+
+
+
+
+
 ## [2.11.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue/compare/2.11.5...2.11.6) (2021-12-23)
 
 **Note:** Version bump only for package @hippy/vue

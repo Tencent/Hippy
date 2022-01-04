@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.12.0](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.11.6...2.12.0) (2022-01-04)
+
+
+### Bug Fixes
+
+* **debug-server:** fix webpack-dev-server compile callback ([900772d](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/900772df46d90866e8e60fe57186ad09b318e917))
+* **debug-server:** webpack dev callback ([70f20a6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/70f20a678390f51d8c86f357bf9214d5cf8a9384))
+
+
+### Features
+
+* **debug-server:** add cli API ([b872c34](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/b872c343cd5c4bcb731328c43b9abfeee0e0b5f0))
+* **vue, react, debug-server, vue-loader, vue-css-loader:** support HMR ([ff9f763](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/commit/ff9f763a4578d41a4ff657a577ced7f3675ba8e3))
+
+
+
+
+
 ## [2.11.6](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.11.5...2.11.6) (2021-12-23)
 
 **Note:** Version bump only for package @hippy/debug-server

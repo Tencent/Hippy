@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue-loader",
-  "version": "2.2.1",
+  "version": "2.12.0",
   "description": "Vue single-file component loader for Webpack",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -13,10 +13,10 @@
   "homepage": "http://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-loader",
   "peerDependencies": {
+    "cache-loader": "*",
     "css-loader": "<=5.0.1",
-    "webpack": "^3.0.0 || ^4.1.0",
     "vue-template-compiler": "*",
-    "cache-loader": "*"
+    "webpack": "^3.0.0 || ^4.1.0"
   },
   "peerDependenciesMeta": {
     "cache-loader": {
