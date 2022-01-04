@@ -1,11 +1,20 @@
 import '../common.dart';
 import 'primitive_value_deserializer.dart';
-import 'reader/binary_reader.dart';
 import 'serialization_tag.dart';
+import 'string/internalized_string_table.dart';
 import 'string/string_location.dart';
 import 'string/string_table.dart';
 
 class Deserializer extends PrimitiveValueDeserializer {
+  static Deserializer? _deserializer;
+
+  static Deserializer defaultDeserializer() {
+    var curDeserializer =
+        _deserializer ?? Deserializer(InternalizedStringTable());
+    _deserializer = curDeserializer;
+    return curDeserializer;
+  }
+
   Deserializer(StringTable stringTable) : super(stringTable);
 
   @override

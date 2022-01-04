@@ -258,11 +258,14 @@ void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_
   if (node && bridge_manager) {
     auto args_map = EncodableMap();
     args_map[EncodableValue(kFuncNameKey)] = EncodableValue(name);
-    DomValue param_value;
-    param.ToObject(param_value);
-    if (!param_value.IsNull() || !param_value.IsUndefined()) {
-      args_map[EncodableValue(kFuncParamsKey)] = DecodeDomValue(param_value);
+    std::vector<uint8_t> bson_param;
+    auto success = param.ToBson(bson_param);
+    if (success && !bson_param.empty()) {
+      args_map[EncodableValue(kFuncParamsKey)] = EncodableValue(bson_param);
     }
+
+    DomValue value;
+    param.ToObject(value);
     auto callback_id =
         bridge_manager->AddNativeCallback(kCallUiFuncType, [dom_node, name](const EncodableValue& params) {
           auto inner_node = dom_node.lock();

@@ -1,7 +1,9 @@
+import 'dart:typed_data';
+
 import '../common.dart';
 import '../engine.dart';
 import '../module.dart';
-import '../style.dart';
+import '../util/extension_util.dart';
 import '../voltron_render.dart';
 import 'manager.dart';
 
@@ -252,9 +254,8 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
   void _run() {
     String funcName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
     if (funcName.isNotEmpty) {
-      List funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? [];
-      var realParams = VoltronArray.fromList(
-          funcParams);
+      Uint8List funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? [];
+      var realParams = funcParams.decodeType<VoltronArray>()??VoltronArray();
       String callbackId =
           _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
       var promise = Promise.native(_engineContext, callId: callbackId);

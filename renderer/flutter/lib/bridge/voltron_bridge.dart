@@ -18,9 +18,9 @@ import '../channel.dart';
 import '../common.dart';
 import '../engine.dart';
 import '../module.dart';
-import '../serialization.dart';
 import '../style.dart';
 import '../util.dart';
+import '../util/extension_util.dart';
 import '../widget.dart';
 import 'bridge_define.dart';
 import 'global_callback.dart';
@@ -355,7 +355,8 @@ class VoltronApi {
     free(callIdU16);
   }
 
-  static Future callNativeEvent(int engineId, int rootId, int nodeId, String eventName, Object params) async {
+  static Future callNativeEvent(int engineId, int rootId, int nodeId,
+      String eventName, Object params) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var eventU16 = eventName.toNativeUtf16();
@@ -366,14 +367,13 @@ class VoltronApi {
       final nativeParams = result.asTypedList(length);
       nativeParams.setRange(
           0, length, encodeParamsByteData.buffer.asUint8List());
-      _BridgeFFIManager.instance.callNativeEvent(
-          engineId, rootId, nodeId, eventU16, result, length);
+      _BridgeFFIManager.instance
+          .callNativeEvent(engineId, rootId, nodeId, eventU16, result, length);
       free(result);
       stopwatch.stop();
       LogUtils.profile("callNativeEvent", stopwatch.elapsedMilliseconds);
     } else {
-      LogUtils.e(
-          'Voltron::Bridge', 'call native event error, invalid params');
+      LogUtils.e('Voltron::Bridge', 'call native event error, invalid params');
     }
 
     free(eventU16);
@@ -655,8 +655,6 @@ class VoltronBridgeManager implements Destroyable {
 
   final VoltronBuffer _voltronBuffer = VoltronBuffer();
 
-  final Deserializer _deserializer = Deserializer(InternalizedStringTable());
-
   VoltronBundleLoader? get coreBundleLoader => _coreBundleLoader;
 
   VoltronBridgeManager(EngineContext context,
@@ -877,7 +875,8 @@ class VoltronBridgeManager implements Destroyable {
     await callNativeFunction(callbackId, convertParams);
   }
 
-  Future<dynamic> execNativeEvent(int rootId, int id, String event, Object params) async {
+  Future<dynamic> execNativeEvent(
+      int rootId, int id, String event, Object params) async {
     await VoltronApi.callNativeEvent(_engineId, rootId, id, event, params);
   }
 
@@ -1058,24 +1057,15 @@ class VoltronBridgeManager implements Destroyable {
     LogUtils.dBridge('call native ($moduleName.$moduleFunc)');
 
     if (_isBridgeInit) {
-      VoltronArray paramsArray;
-      Object? params;
+      var paramsArray = VoltronArray();
 
       if (bridgeParseJson) {
         var strParam = utf8.decode(paramsList);
         if (!isEmpty(strParam)) {
-          params = parseJsonString(strParam);
+          paramsArray = strParam.decodeType<VoltronArray>() ?? VoltronArray();
         }
       } else {
-        _deserializer.reader = BinaryReader(paramsList.buffer.asByteData());
-        _deserializer.reset();
-        _deserializer.readHeader();
-        params = _deserializer.readValue();
-      }
-      if (params is VoltronArray) {
-        paramsArray = params;
-      } else {
-        paramsArray = VoltronArray();
+        paramsArray = paramsList.decodeType<VoltronArray>() ?? VoltronArray();
       }
 
       LogUtils.dBridge(
