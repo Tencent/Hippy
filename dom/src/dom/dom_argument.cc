@@ -159,8 +159,8 @@ bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, td
       ret = deserializer.ReadDenseJSArray(dom_value);
       return ret;
     }
-    case tdf::base::SerializationTag::kBeginJSMap: {
-      ret = deserializer.ReadJSMap(dom_value);
+    case tdf::base::SerializationTag::kBeginJSObject: {
+      ret = deserializer.ReadJSObject(dom_value);
       return ret;
     }
     default:

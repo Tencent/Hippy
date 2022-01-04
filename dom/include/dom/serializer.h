@@ -41,15 +41,15 @@ enum class SerializationTag : uint8_t {
   kUtf8String = 'S',
   kOneByteString = '"',
   kTwoByteString = 'c',
+  // Beginning of a JS object.
+  kBeginJSObject = 'o',
+  // End of a JS object. numProperties:uint32_t
+  kEndJSObject = '{',
   // Beginning of a dense JS array. length:uint32_t
   // |length| elements, followed by properties as key/value pairs
   kBeginDenseJSArray = 'A',
   // End of a dense JS array. numProperties:uint32_t length:uint32_t
   kEndDenseJSArray = '$',
-  // Beginning of a JS map.
-  kBeginJSMap = ';',
-  // End of a JS map. length:uint32_t.
-  kEndJSMap = ':',
 };
 
 class Serializer {
@@ -66,8 +66,6 @@ class Serializer {
   void WriteOddball(Oddball oddball);
 
   void WriteUint32(uint32_t value);
-
-//  void WriteUint64(uint64_t value);
 
   void WriteInt32(int32_t value);
 
