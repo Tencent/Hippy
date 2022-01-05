@@ -118,7 +118,7 @@ public class VirtualNodeManager {
         VirtualNode node = mVirtualNodes.get(id);
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
             throw new NativeRenderException(INVALID_MEASURE_STATE_ERR,
-                    TAG + ": measure: Encounter wrong state when check node, "
+                    TAG + ": measure: encounter wrong state when check node, "
                             + "only text node and parent==null need do measure");
         }
         TextVirtualNode textNode = (TextVirtualNode) node;

@@ -197,6 +197,25 @@ public class NativeRenderProvider {
     }
 
     /**
+     * Call from native (C++) render manager to call ui component function
+     *
+     * @param id node id
+     * @param functionName ui component function name
+     * @param callBackId the js call back function id
+     * @param buffer the byte array serialize by native (C++)
+     */
+    @CalledByNative
+    @SuppressWarnings("unused")
+    private void callUIFunction(int id, String functionName, String callBackId, byte[] buffer) {
+        try {
+            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            mRenderDelegate.callUIFunction(id, functionName, callBackId, list);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
+        }
+    }
+
+    /**
      * Call from native (C++) render manager to mark batch start
      */
     @CalledByNative
@@ -218,9 +237,8 @@ public class NativeRenderProvider {
         onRootSizeChanged(mRuntimeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
-    public void dispatchEvent(int nodeId, String eventName, @Nullable Object params,
-            boolean useCapture,
-            boolean useBubble) {
+    public void doPromiseCallBack(int result, String functionName, String callBackId,
+            Object params) {
         byte[] bytes = null;
         int offset = 0;
         int length = 0;
@@ -235,8 +253,26 @@ public class NativeRenderProvider {
                 mRenderDelegate.handleRenderException(e);
             }
         }
-        onReceivedEvent(mRuntimeId, nodeId, eventName, bytes, offset, length,
-                useCapture,
+        doCallBack(mRuntimeId, result, functionName, callBackId, bytes, offset, length);
+    }
+
+    public void dispatchEvent(int nodeId, String eventName, @Nullable Object params,
+            boolean useCapture, boolean useBubble) {
+        byte[] bytes = null;
+        int offset = 0;
+        int length = 0;
+        if (params != null) {
+            try {
+                ByteBuffer buffer = argumentToBytes(params);
+                offset = buffer.position();
+                length = buffer.limit() - buffer.position();
+                offset += buffer.arrayOffset();
+                bytes = buffer.array();
+            } catch (Exception e) {
+                mRenderDelegate.handleRenderException(e);
+            }
+        }
+        onReceivedEvent(mRuntimeId, nodeId, eventName, bytes, offset, length, useCapture,
                 useBubble);
     }
 
@@ -272,4 +308,19 @@ public class NativeRenderProvider {
      */
     private native void onReceivedEvent(long runtimeId, int nodeId, String eventName,
             byte[] params, int offset, int length, boolean useCapture, boolean useBubble);
+
+    /**
+     * Do promise call back to js after handle call ui function by native renderer,
+     *
+     * @param runtimeId v8 instance id
+     * @param result {@code PROMISE_CODE_RESOLVE} {@link NativeRenderPromise}
+     *               {@code PROMISE_CODE_REJECT} {@link NativeRenderPromise}
+     * @param functionName ui function name
+     * @param callBackId the js call back function id
+     * @param params params buffer encoded by serializer
+     * @param offset start position of params buffer
+     * @param length available total length of params buffer
+     */
+    private native void doCallBack(long runtimeId, int result, String functionName,
+            String callBackId, byte[] params, int offset, int length);
 }

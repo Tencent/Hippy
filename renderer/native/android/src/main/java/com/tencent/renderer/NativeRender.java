@@ -63,6 +63,8 @@ public interface NativeRender extends NativeRenderExceptionHandler {
     void dispatchCustomEvent(int id, String eventName, Object params, boolean useCapture,
             boolean useBubble);
 
+    void doPromiseCallBack(int result, String functionName, String callBackId, Object params);
+
     void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
     void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);

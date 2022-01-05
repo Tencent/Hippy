@@ -51,6 +51,11 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "(JILjava/lang/String;[BIIZZ)V",
              onReceivedEvent)
 
+REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
+             "doCallBack",
+             "(JILjava/lang/String;Ljava/lang/String;[BII)V",
+             doCallBack)
+
 void NativeRenderProvider::Init() {
 }
 
@@ -91,6 +96,12 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jlong j_runtime_id,
   }
   dom_manager->SetRootSize(j_width, j_height);
   dom_manager->DoLayout();
+}
+
+void doCallBack(JNIEnv *j_env, jobject j_object,
+                jlong j_runtime_id, jint j_dom_id, jstring j_event_name, jstring j_callback_id,
+                jbyteArray j_buffer, jint j_offset, jint j_length) {
+
 }
 
 void onReceivedEvent(JNIEnv *j_env, jobject j_object,

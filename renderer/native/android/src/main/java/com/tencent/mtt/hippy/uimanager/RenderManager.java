@@ -166,15 +166,15 @@ public class RenderManager {
 
     }
 
-    public void dispatchUIFunction(int id, String functionName, HippyArray var, Promise promise) {
-        RenderNode renderNode = mNodes.get(id);
-        if (renderNode != null) {
-            renderNode.dispatchUIFunction(functionName, var, promise);
-            addNullUINodeIfNeeded(renderNode);
-        } else {
-            LogUtils.d("RenderManager", "dispatchUIFunction Node Null");
+    public void dispatchUIFunction(int id, @NonNull String functionName,
+            @NonNull ArrayList<Object> params,
+            @NonNull Promise promise) {
+        HippyArray localParams = new HippyArray(params);
+        RenderNode node = mNodes.get(id);
+        if (node != null) {
+            node.dispatchUIFunction(functionName, localParams, promise);
+            addNullUINodeIfNeeded(node);
         }
-
     }
 
     public void nonUIBatchEnd() {

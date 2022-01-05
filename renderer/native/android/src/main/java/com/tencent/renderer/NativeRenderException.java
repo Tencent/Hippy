@@ -41,14 +41,15 @@ public class NativeRenderException extends RuntimeException {
         INVALID_MEASURE_STATE_ERR,
 
         /**
-         * If fail to retrieves and removes the head of ui task queue
+         * If fail to insert an element into the ui task queue because of
+         * ClassCastException | NullPointerException | IllegalArgumentException
          */
-        UI_TASK_QUEUE_POLL_ERR,
+        UI_TASK_QUEUE_ADD_ERR,
 
         /**
-         * If fail to insert an element into the ui task queue
+         * If fail to insert an element into the ui task queue because of IllegalStateException
          */
-        UI_TASK_QUEUE_OFFER_ERR
+        UI_TASK_QUEUE_UNAVAILABLE_ERR,
     }
 
     public ExceptionCode mCode;
