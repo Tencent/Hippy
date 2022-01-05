@@ -70,6 +70,56 @@ id domValueToOCType(const DomValue *const pDomValue) {
     return value;
 }
 
+DomValue OCTypeToDomValue(id value) {
+    if ([value isKindOfClass:[NSString class]]) {
+        return DomValue([value UTF8String]);
+    }
+    else if ([value isKindOfClass:[NSNumber class]]) {
+        CFNumberRef numberRef = (__bridge CFNumberRef)value;
+        CFNumberType numberType = CFNumberGetType(numberRef);
+        if (kCFNumberSInt32Type == numberType ||
+            kCFNumberSInt64Type == numberType ||
+            kCFNumberShortType == numberType ||
+            kCFNumberIntType == numberType ||
+            kCFNumberLongType == numberType ||
+            kCFNumberLongLongType == numberType) {
+            return DomValue([value unsignedIntValue]);
+        }
+        else if (kCFNumberFloatType == numberType ||
+                 kCFNumberDoubleType == numberType) {
+            return DomValue([value doubleValue]);
+        }
+        else {
+            BOOL flag = [value boolValue];
+            return DomValue(flag);;
+        }
+    }
+    else if (value == [NSNull null]) {
+        return DomValue::Null();
+    }
+    else if ([value isKindOfClass:[NSDictionary class]]) {
+        DomValue::DomValueObjectType object;
+        for (NSString *key in value) {
+            std::string objKey = [key UTF8String];
+            id objValue = [value objectForKey:key];
+            auto dom_obj = OCTypeToDomValue(objValue);
+            object[objKey] = std::move(dom_obj);
+        }
+        return DomValue(std::move(object));
+    }
+    else if ([value isKindOfClass:[NSArray class]]) {
+        DomValue::DomValueArrayType array;
+        for (id obj in value) {
+            auto dom_obj = OCTypeToDomValue(obj);
+            array.push_back(std::move(dom_obj));
+        }
+        return DomValue(std::move(array));
+    }
+    else {
+        return DomValue::Undefined();
+    }
+}
+
 NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &domValuesObject) {
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:domValuesObject.size()];
     for (auto it = domValuesObject.begin(); it != domValuesObject.end(); it++) {
@@ -79,6 +129,17 @@ NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::str
         [dic setObject:value forKey:key];
     }
     return [dic copy];
+}
+
+std::unordered_map<std::string, std::shared_ptr<DomValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary) {
+    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style;
+    for (NSString *key in dictionary) {
+        id value = dictionary[key];
+        std::string style_key = [key UTF8String];
+        tdf::base::DomValue dom_value = OCTypeToDomValue(value);
+        style[style_key] = std::make_shared<tdf::base::DomValue>(std::move(dom_value));
+    }
+    return style;
 }
 
 CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result) {

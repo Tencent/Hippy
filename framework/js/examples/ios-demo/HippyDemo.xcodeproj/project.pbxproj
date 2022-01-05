@@ -189,6 +189,7 @@
 		F417B5532727B31200894090 /* HippyDevCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = F417B5522727B31200894090 /* HippyDevCommand.m */; };
 		F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F419C382274634E9003E242A /* taitank_layout_node.cc */; };
 		F419C38A27464047003E242A /* NativeRenderManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F419C38927464047003E242A /* NativeRenderManager.mm */; };
+		F41E3F6127859AB600BD3935 /* create_node.json in Resources */ = {isa = PBXBuildFile; fileRef = F41E3F6027859AB600BD3935 /* create_node.json */; };
 		F42EA79A277C354C007874A2 /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = F42EA796277C354C007874A2 /* TurboConfig.m */; };
 		F42EA79B277C354C007874A2 /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F42EA799277C354C007874A2 /* TurboBaseModule.mm */; };
 		F43640BC275DE608007E1301 /* HippyBaseListShadowView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F43640BB275DE608007E1301 /* HippyBaseListShadowView.mm */; };
@@ -621,6 +622,7 @@
 		F419C382274634E9003E242A /* taitank_layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_layout_node.cc; sourceTree = "<group>"; };
 		F419C38927464047003E242A /* NativeRenderManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderManager.mm; sourceTree = "<group>"; };
 		F419C38B27464061003E242A /* NativeRenderManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderManager.h; sourceTree = "<group>"; };
+		F41E3F6027859AB600BD3935 /* create_node.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = create_node.json; path = ../../../../../dom/test/create_node.json; sourceTree = "<group>"; };
 		F42EA796277C354C007874A2 /* TurboConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
 		F42EA797277C354C007874A2 /* TurboConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboConfig.h; sourceTree = "<group>"; };
 		F42EA798277C354C007874A2 /* TurboBaseModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboBaseModule.h; sourceTree = "<group>"; };
@@ -743,6 +745,7 @@
 		0612F02023A8BE320079E622 /* HippyDemo */ = {
 			isa = PBXGroup;
 			children = (
+				F41E3F6027859AB600BD3935 /* create_node.json */,
 				F42EA795277C354C007874A2 /* turbomodule */,
 				067AB97023B5F309009D5EE2 /* myview */,
 				067AB96E23B5EEF3009D5EE2 /* TestModule.h */,
@@ -1811,6 +1814,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F41E3F6127859AB600BD3935 /* create_node.json in Resources */,
 				AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */,
 				064C5AF023AB1A70001E80DD /* res in Resources */,
 			);

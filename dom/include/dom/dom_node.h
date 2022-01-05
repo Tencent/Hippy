@@ -112,9 +112,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) {
     style_map_ = style;
   }
-  void AddStyle(const std::string &name, std::shared_ptr<DomValue> value) {
-    style_map_[name] = value;
-  }
   void CallFunction(const std::string &name,
                     const DomArgument &param,
                     const CallFunctionCallback &cb);
@@ -122,9 +119,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
                            std::shared_ptr<DomValue>> &GetExtStyle() { return dom_ext_map_; }
   void SetExtStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) {
     dom_ext_map_ = style;
-  }
-  void AddExtStyle(const std::string &name, std::shared_ptr<DomValue> value) {
-    dom_ext_map_[name] = value;
   }
   const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetDiffStyle() { return diff_; }
   void SetDiffStyle(std::unordered_map<std::string, std::shared_ptr<DomValue>> diff) {

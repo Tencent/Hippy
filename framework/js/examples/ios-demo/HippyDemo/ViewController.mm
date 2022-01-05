@@ -112,35 +112,53 @@
 }
 
 - (std::vector<std::shared_ptr<hippy::DomNode>>) mockNodesData {
-    //mock nodes
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map1;
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> dom_ext_map1;
-    std::shared_ptr<hippy::DomNode> parentDomNode = std::make_shared<hippy::DomNode>(1, 10, 0, "View", "View", std::move(style_map1), std::move(dom_ext_map1), _domManager);
-    parentDomNode->AddStyle("left", std::make_shared<tdf::base::DomValue>(0));
-    parentDomNode->AddStyle("top", std::make_shared<tdf::base::DomValue>(0));
-    parentDomNode->AddStyle("width", std::make_shared<tdf::base::DomValue>(300));
-    parentDomNode->AddStyle("height", std::make_shared<tdf::base::DomValue>(300));
-    parentDomNode->AddExtStyle("backgroundColor", std::make_shared<tdf::base::DomValue>((uint32_t)4284874905));
-
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map2;
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> dom_ext_map2;
-    std::shared_ptr<hippy::DomNode> domNode1 = std::make_shared<hippy::DomNode>(2, 1, 0, "View", "View", std::move(style_map2), std::move(dom_ext_map2), _domManager);
-    domNode1->AddStyle("left", std::make_shared<tdf::base::DomValue>(0));
-    domNode1->AddStyle("top", std::make_shared<tdf::base::DomValue>(0));
-    domNode1->AddStyle("width", std::make_shared<tdf::base::DomValue>(200));
-    domNode1->AddStyle("height", std::make_shared<tdf::base::DomValue>(200));
-    domNode1->AddExtStyle("backgroundColor", std::make_shared<tdf::base::DomValue>((uint32_t)4294953984));
-
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map3;
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> dom_ext_map3;
-    std::shared_ptr<hippy::DomNode> domNode2 = std::make_shared<hippy::DomNode>(3, 1, 1, "View", "View", std::move(style_map3), std::move(dom_ext_map3), _domManager);
-    domNode2->AddStyle("left", std::make_shared<tdf::base::DomValue>(0));
-    domNode2->AddStyle("top", std::make_shared<tdf::base::DomValue>(0));
-    domNode2->AddStyle("width", std::make_shared<tdf::base::DomValue>(100));
-    domNode2->AddStyle("height", std::make_shared<tdf::base::DomValue>(100));
-    domNode2->AddExtStyle("backgroundColor", std::make_shared<tdf::base::DomValue>((uint32_t)4291624806));
-
-    return {parentDomNode, domNode1, domNode2};
+    std::vector<std::shared_ptr<hippy::DomNode>> dom_node_vector;
+    using StyleMap = std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>;
+    NSString *mockDataPath = [[NSBundle mainBundle] pathForResource:@"create_node" ofType:@"json"];
+    NSData *mockData = [NSData dataWithContentsOfFile:mockDataPath];
+    NSArray<NSDictionary<NSString *, id> *> *mockJson = [NSJSONSerialization JSONObjectWithData:mockData options:(NSJSONReadingOptions)0 error:nil];
+    for (NSDictionary<NSString *, id> *mockNode in mockJson) {
+        uint32_t tag = 0;
+        uint32_t pid = 0;
+        uint32_t index = 0;
+        StyleMap style_map;
+        StyleMap ext_map;
+        std::string name;
+        for (NSString *key in mockNode) {
+            if ([key isEqualToString:@"id"]) {
+                tag = [mockNode[@"id"] unsignedIntValue];
+            }
+            else if ([key isEqualToString:@"pId"]) {
+                pid = [mockNode[@"pId"] unsignedIntValue];
+            }
+            else if ([key isEqualToString:@"index"]) {
+                index = [mockNode[@"index"] unsignedIntValue];
+            }
+            else if ([key isEqualToString:@"props"]) {
+                id props = mockNode[key];
+                auto all_props = dictionaryToUnorderedMapDomValue(props);
+                auto style_props = all_props["style"];
+                if (style_props) {
+                    if (tdf::base::DomValue::Type::kObject == style_props->GetType()) {
+                        auto style_object = style_props->ToObject();
+                        for (auto iter = style_object.begin(); iter != style_object.end(); iter++) {
+                            const std::string &iter_key = iter->first;
+                            auto &iter_value = iter->second;
+                            style_map[iter_key] = std::make_shared<tdf::base::DomValue>(std::move(iter_value));
+                        }
+                    }
+                    all_props.erase("style");
+                }
+                ext_map.swap(all_props);
+            }
+            else if ([key isEqualToString:@"name"]) {
+                name = [mockNode[key] UTF8String];
+            }
+        }
+        std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, index, name, name, std::move(style_map), std::move(ext_map), _domManager);
+        dom_node_vector.push_back(dom_node);
+    }
+    return dom_node_vector;
 }
 
 - (NSDictionary *)objectsBeforeExecuteCode {
