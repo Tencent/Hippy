@@ -36,31 +36,7 @@ buildscript {
 
 
   repositories {
-    maven {
-      //代理的外部仓库
-      url "https://mirrors.tencent.com/nexus/repository/maven-public/"
-    }
-    maven {
-      url "https://mirrors.tencent.com/repository/maven/tencent_public"
-    }
-    maven {//release发布路径
-      url "https://mirrors.tencent.com/repository/maven/thirdparty"
-    }
-    maven {//debug发布路径
-      url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots"
-    }
-    maven {
-      url "https://mirrors.tencent.com/repository/maven/gamecommunity"
-      mavenContent {
-        releasesOnly()
-      }
-    }
-    maven {
-      url "https://mirrors.tencent.com/repository/maven/gamecommunity-snapshot"
-      mavenContent {
-        snapshotsOnly()
-      }
-    }
+    mavenCentral()
     google()
     jcenter()
   }
@@ -74,31 +50,7 @@ buildscript {
 
 rootProject.allprojects {
   repositories {
-    maven {
-      //代理的外部仓库
-      url "https://mirrors.tencent.com/nexus/repository/maven-public/"
-    }
-    maven {
-      url "https://mirrors.tencent.com/repository/maven/tencent_public"
-    }
-    maven {//release发布路径
-      url "https://mirrors.tencent.com/repository/maven/thirdparty"
-    }
-    maven {//debug发布路径
-      url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots"
-    }
-    maven {
-      url "https://mirrors.tencent.com/repository/maven/gamecommunity"
-      mavenContent {
-        releasesOnly()
-      }
-    }
-    maven {
-      url "https://mirrors.tencent.com/repository/maven/gamecommunity-snapshot"
-      mavenContent {
-        snapshotsOnly()
-      }
-    }
+    mavenCentral()
     google()
     jcenter()
   }

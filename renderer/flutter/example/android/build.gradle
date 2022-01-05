@@ -1,19 +1,7 @@
 buildscript {
     ext.kotlin_version = '1.3.50'
     repositories {
-        maven {
-            //代理的外部仓库
-            url "https://mirrors.tencent.com/nexus/repository/maven-public/"
-        }
-        maven {
-            url "https://mirrors.tencent.com/repository/maven/tencent_public"
-        }
-        maven {//release发布路径
-            url "https://mirrors.tencent.com/repository/maven/thirdparty"
-        }
-        maven {//debug发布路径
-            url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots"
-        }
+        mavenCentral()
         google()
         jcenter()
     }
@@ -27,19 +15,7 @@ buildscript {
 
 allprojects {
     repositories {
-        maven {
-            //代理的外部仓库
-            url "https://mirrors.tencent.com/nexus/repository/maven-public/"
-        }
-        maven {
-            url "https://mirrors.tencent.com/repository/maven/tencent_public"
-        }
-        maven {//release发布路径
-            url "https://mirrors.tencent.com/repository/maven/thirdparty"
-        }
-        maven {//debug发布路径
-            url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots"
-        }
+        mavenCentral()
         google()
         jcenter()
     }
