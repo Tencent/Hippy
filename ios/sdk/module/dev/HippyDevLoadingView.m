@@ -135,6 +135,9 @@ HIPPY_EXPORT_METHOD(hide) {
     UIColor *color;
     UIColor *backgroundColor;
     NSString *source;
+    if (!URL) {
+        return;
+    }
     if (URL.fileURL) {
         color = [UIColor grayColor];
         backgroundColor = [UIColor blackColor];

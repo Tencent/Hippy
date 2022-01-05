@@ -32,6 +32,8 @@ HIPPY_EXTERN id domValueToOCType(const tdf::base::DomValue *const pDomValue);
 
 HIPPY_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &domValuesObject);
 
+extern std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary);
+
 HIPPY_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
 
 HIPPY_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);

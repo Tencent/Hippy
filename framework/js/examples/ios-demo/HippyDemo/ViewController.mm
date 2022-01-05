@@ -25,7 +25,15 @@
 #import "HippyLog.h"
 #import "HippyBundleURLProvider.h"
 
-@interface ViewController ()<HippyBridgeDelegate>
+#include "dom/dom_manager.h"
+#include "NativeRenderManager.h"
+#include "dom/dom_node.h"
+#include "dom/dom_value.h"
+
+@interface ViewController ()<HippyBridgeDelegate> {
+    std::shared_ptr<hippy::DomManager> _domManager;
+    std::shared_ptr<NativeRenderManager> _nativeRenderManager;
+}
 
 @end
 
@@ -38,14 +46,15 @@
     HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
     });
+    [self runCommonDemo];
+//    [self runDemoWithoutRuntime];
+}
 
-    
+- (void)runCommonDemo {
     BOOL isSimulator = NO;
     #if TARGET_IPHONE_SIMULATOR
         isSimulator = YES;
     #endif
-
-    
 //release macro below if use debug mode
 //#define HIPPYDEBUG
     
@@ -71,17 +80,85 @@
                                                     executorKey:@"Demo"];
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath] moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:NO delegate:nil];
 #endif
-    
-    
-    
-//    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:[NSURL URLWithString:@"http://localhost:38989/index.bundle?platform=ios&dev=true&minify=false"] moduleProvider:nil launchOptions:nil executorKey:@"Demo"];
-//    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:nil shareOptions:nil delegate:nil];;
+    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    rootView.frame = self.view.bounds;
+    [self.view addSubview:rootView];
+}
 
-    
+- (void)runDemoWithoutRuntime {
+    //step1: create HippyBridge and HippyRootView
+    HippyBridge *bridge = [[HippyBridge alloc] initWithmoduleProviderWithoutRuntime:nil];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridgeButNoRuntime:bridge];
+    rootView.backgroundColor = [UIColor whiteColor];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     rootView.frame = self.view.bounds;
     [self.view addSubview:rootView];
     
+    //step2: get HippyUIManager, then set DomManager for it.
+    //and set RenderManager for DomNanager
+    HippyUIManager *uiManager = [bridge moduleForName:@"UIManager"];
+    int32_t rootTag = [rootView.hippyTag intValue];
+    _domManager = std::make_shared<hippy::DomManager>(rootTag);
+    [uiManager setDomManager:_domManager];
+    _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
+    _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
+    _domManager->SetRenderManager(_nativeRenderManager);
+
+    //step3:create your nodes data into dommanager
+    auto nodesData = [self mockNodesData];
+    _domManager->CreateDomNodes(std::move(nodesData));
+    _domManager->BeginBatch();
+    _domManager->EndBatch();
+}
+
+- (std::vector<std::shared_ptr<hippy::DomNode>>) mockNodesData {
+    std::vector<std::shared_ptr<hippy::DomNode>> dom_node_vector;
+    using StyleMap = std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>;
+    NSString *mockDataPath = [[NSBundle mainBundle] pathForResource:@"create_node" ofType:@"json"];
+    NSData *mockData = [NSData dataWithContentsOfFile:mockDataPath];
+    NSArray<NSDictionary<NSString *, id> *> *mockJson = [NSJSONSerialization JSONObjectWithData:mockData options:(NSJSONReadingOptions)0 error:nil];
+    for (NSDictionary<NSString *, id> *mockNode in mockJson) {
+        uint32_t tag = 0;
+        uint32_t pid = 0;
+        uint32_t index = 0;
+        StyleMap style_map;
+        StyleMap ext_map;
+        std::string name;
+        for (NSString *key in mockNode) {
+            if ([key isEqualToString:@"id"]) {
+                tag = [mockNode[@"id"] unsignedIntValue];
+            }
+            else if ([key isEqualToString:@"pId"]) {
+                pid = [mockNode[@"pId"] unsignedIntValue];
+            }
+            else if ([key isEqualToString:@"index"]) {
+                index = [mockNode[@"index"] unsignedIntValue];
+            }
+            else if ([key isEqualToString:@"props"]) {
+                id props = mockNode[key];
+                auto all_props = dictionaryToUnorderedMapDomValue(props);
+                auto style_props = all_props["style"];
+                if (style_props) {
+                    if (tdf::base::DomValue::Type::kObject == style_props->GetType()) {
+                        auto style_object = style_props->ToObject();
+                        for (auto iter = style_object.begin(); iter != style_object.end(); iter++) {
+                            const std::string &iter_key = iter->first;
+                            auto &iter_value = iter->second;
+                            style_map[iter_key] = std::make_shared<tdf::base::DomValue>(std::move(iter_value));
+                        }
+                    }
+                    all_props.erase("style");
+                }
+                ext_map.swap(all_props);
+            }
+            else if ([key isEqualToString:@"name"]) {
+                name = [mockNode[key] UTF8String];
+            }
+        }
+        std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, index, name, name, std::move(style_map), std::move(ext_map), _domManager);
+        dom_node_vector.push_back(dom_node);
+    }
+    return dom_node_vector;
 }
 
 - (NSDictionary *)objectsBeforeExecuteCode {

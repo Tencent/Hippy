@@ -207,6 +207,18 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
     return self;
 }
 
+- (instancetype)initWithmoduleProviderWithoutRuntime:(HippyBridgeModuleProviderBlock)block {
+    self = [super init];
+    if (self) {
+        _moduleProvider = block;
+        [self setUp];
+    }
+    HippyExecuteOnMainQueue(^{
+        [self bindKeys];
+    });
+    return self;
+}
+
 HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (void)dealloc {

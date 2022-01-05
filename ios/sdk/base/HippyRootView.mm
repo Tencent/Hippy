@@ -192,12 +192,26 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
     }
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
+- (instancetype)initWithBridgeButNoRuntime:(HippyBridge *)bridge {
+    self = [super init];
+    if (self) {
+        self.bridge = bridge;
+        bridge.batchedBridge.useCommonBridge = YES;
+        [self bundleFinishedLoading:bridge.batchedBridge];
+    }
+    return self;
+}
+
+//HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     super.backgroundColor = backgroundColor;
     _contentView.backgroundColor = backgroundColor;
+}
+
+- (void)setBridge:(HippyBridge *)bridge {
+    _bridge = bridge;
 }
 
 - (UIViewController *)hippyViewController {

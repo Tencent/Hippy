@@ -143,22 +143,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     dispatch_group_enter(initModulesAndLoadSource);
     __weak HippyBatchedBridge *weakSelf = self;
     __block NSData *sourceCode;
-    [self loadSource:^(NSError *error, NSData *source, __unused int64_t sourceLength) {
-        if (error) {
-            HippyLogWarn(@"Failed to load source: %@", error);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [weakSelf stopLoadingWithError:error];
-            });
-        }
+    if (self.bundleURL) {
+        [self loadSource:^(NSError *error, NSData *source, __unused int64_t sourceLength) {
+            if (error) {
+                HippyLogWarn(@"Failed to load source: %@", error);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [weakSelf stopLoadingWithError:error];
+                });
+            }
 
-        sourceCode = source;
-        dispatch_group_leave(initModulesAndLoadSource);
-    } onProgress:^(HippyLoadingProgress *progressData) {
-#ifdef HIPPY_DEV
-        HippyDevLoadingView *loadingView = [weakSelf moduleForClass:[HippyDevLoadingView class]];
-        [loadingView updateProgress:progressData];
-#endif
-    }];
+            sourceCode = source;
+            dispatch_group_leave(initModulesAndLoadSource);
+        } onProgress:^(HippyLoadingProgress *progressData) {
+    #ifdef HIPPY_DEV
+            HippyDevLoadingView *loadingView = [weakSelf moduleForClass:[HippyDevLoadingView class]];
+            [loadingView updateProgress:progressData];
+    #endif
+        }];
+    }
 
     // Synchronously initialize all native modules that cannot be loaded lazily
     [self initModulesWithDispatchGroup:initModulesAndLoadSource];
