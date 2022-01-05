@@ -69,14 +69,6 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, c
     [uiManager_ removeEventName:name forDomNode:dom_node];
 }
 
-void NativeRenderManager::AddRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-    [uiManager_ addRenderEvent:name forDomNode:dom_node];
-}
-
-void NativeRenderManager::RemoveRenderListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-    [uiManager_ removeRenderEvent:name forDomNode:dom_node];
-}
-
 void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
                                     const DomArgument& param,
                                     CallFunctionCallback cb) {
