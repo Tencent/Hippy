@@ -219,16 +219,6 @@ void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, co
   event_listener_ops_.emplace_back(ListenerOp(false, dom_node, name));
 }
 
-void HippyRenderManager::AddRenderListener(std::weak_ptr<DomNode> dom_node,
-                                           const std::string &name) {
-  render_listener_ops_.emplace_back(ListenerOp(true, dom_node, name));
-}
-
-void HippyRenderManager::RemoveRenderListener(std::weak_ptr<DomNode> dom_node,
-                                              const std::string &name) {
-  render_listener_ops_.emplace_back(ListenerOp(false, dom_node, name));
-}
-
 void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
                                       CallFunctionCallback cb) {
   TDF_BASE_NOTIMPLEMENTED();

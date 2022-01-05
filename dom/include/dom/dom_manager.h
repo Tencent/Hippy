@@ -24,6 +24,7 @@ class RenderManager;
 class DomManager: public std::enable_shared_from_this<DomManager> {
  public:
   using DomValue = tdf::base::DomValue;
+  using TaskRunner = hippy::base::TaskRunner;
 
   DomManager(uint32_t root_id);
   ~DomManager();
@@ -38,6 +39,9 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
     render_manager_ = render_manager;
   }
+  inline void SetDelegateTaskRunner(std::shared_ptr<TaskRunner> runner) {
+    delegate_task_runner_ = runner;
+  }
   inline uint32_t GetRootId() { return root_id_; }
   inline std::shared_ptr<DomNode> GetNode(uint32_t id) { return dom_node_registry_.GetNode(id); }
 
@@ -50,10 +54,6 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   void AddEventListener(uint32_t id, const std::string &name, bool use_capture,
                             const EventCallback &cb, const CallFunctionCallback& callback);
   void RemoveEventListener(uint32_t id, const std::string &name, uint32_t listener_id);
-  // RenderListener 没有捕获冒泡流程，EventListener 拥有捕获冒泡流程
-  void AddRenderListener(uint32_t id, const std::string &name,
-                             const RenderCallback &cb, const CallFunctionCallback& callback);
-  void RemoveRenderListener(uint32_t id, const std::string &name, uint32_t listener_id);
   void CallFunction(uint32_t id, const std::string &name,
                     const DomArgument &param, const CallFunctionCallback &cb);
   std::tuple<float, float> GetRootSize();
@@ -66,7 +66,8 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   uint32_t root_id_;
   std::shared_ptr<DomNode> root_node_;
   std::weak_ptr<RenderManager> render_manager_;
-  std::shared_ptr<hippy::base::TaskRunner> dom_task_runner_;
+  std::weak_ptr<TaskRunner> delegate_task_runner_;
+  std::shared_ptr<TaskRunner> dom_task_runner_;
 
   class DomNodeRegistry {
    public:
@@ -89,8 +90,6 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   void AddLayoutChangedNode(const std::shared_ptr<DomNode>& node);
   void AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
-  void AddRenderListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
-  void RemoveRenderListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   friend DomNode;
 };
 

@@ -17,15 +17,7 @@ const gestureKeyMap = {
   onTouchCancel: 'touchcancel',
 };
 
-// const uiEventKeyMap = {
-//   onLayout: 'layout',
-//   onShow: 'show',
-//   onDismiss: 'dismiss',
-// };
-
-
 const kEventsListsKey = '__events';
-const kRenderListsKey = '__renders';
 
 // compatible with hippy2.0
 function HandleEventListener(node) {
@@ -35,10 +27,6 @@ function HandleEventListener(node) {
   if (typeof node[kEventsListsKey] === 'undefined') {
     // eslint-disable-next-line no-param-reassign
     node[kEventsListsKey] = [];
-  }
-  if (typeof node[kRenderListsKey] === 'undefined') {
-    // eslint-disable-next-line no-param-reassign
-    node[kRenderListsKey] = [];
   }
   for (const originalKey of Object.keys(node.props)) {
     const value = node.props[originalKey];
@@ -90,7 +78,7 @@ function HandleEventListener(node) {
               receiveUIComponentEvent = null,
             },
           } = __GLOBAL__.jsModuleList;
-          node[kRenderListsKey].push({
+          node[kEventsListsKey].push({
             name: normalEventName,
             cb(param) {
               if (receiveUIComponentEvent) {

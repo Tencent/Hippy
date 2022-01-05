@@ -72,13 +72,15 @@ void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object,
 
   std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
   std::static_pointer_cast<HippyRenderManager>(render_manager)->SetDensity(j_density);
-  runtime->GetScope()->SetRenderManager(render_manager);
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
+  auto scope = runtime->GetScope();
+  scope->SetRenderManager(render_manager);
+  std::shared_ptr<DomManager> dom_manager = scope->GetDomManager();
   uint32_t root_id = dom_manager->GetRootId();
   auto node = dom_manager->GetNode(root_id);
   auto layout_node = node->GetLayoutNode();
   layout_node->SetScaleFactor(j_density);
   dom_manager->SetRenderManager(render_manager);
+  dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
 }
 
 void UpdateRootSize(JNIEnv *j_env, jobject j_object, jlong j_runtime_id,

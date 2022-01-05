@@ -62,10 +62,6 @@ constexpr char kEventListsKey[] = "__events";
 constexpr char kEventNameKey[] = "name";
 constexpr char kEventCBKey[] = "cb";
 
-constexpr char kRenderListsKey[] = "__renders";
-constexpr char kRenderNameKey[] = "name";
-constexpr char kRenderCBKey[] = "cb";
-
 const int32_t kInvalidValue = -1;
 const uint32_t kInvalidListenerId = 0;
 
@@ -263,118 +259,28 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
           }
         }
         if (context->IsFunction(cb)) {
-          std::weak_ptr<Scope> scope_wp = scope;
+          std::weak_ptr<Scope> weak_scope = scope;
           // dom_node 持有 cb
           dom_node->AddEventListener(
               name_str, true,
-              [weak_context, weak_runner, cb](const std::shared_ptr<DomEvent> &event) {
-                auto runner = weak_runner.lock();
-                if (runner) {
-                  std::shared_ptr<JavaScriptTask> task =
-                      std::make_shared<JavaScriptTask>();
-                  task->callback = [weak_context, cb, event]() {
-                    auto context = weak_context.lock();
-                    if (!context) {
-                      return;
-                    }
-                    auto param = context->CreateCtxValue(event->GetValue());
-                    if (param) {
-                      const std::shared_ptr<CtxValue> argus[] = {param};
-                      context->CallFunction(cb, 1, argus);
-                    } else {
-                      const std::shared_ptr<CtxValue> argus[] = {};
-                      context->CallFunction(cb, 0, argus);
-                    }
-                  };
-                  runner->PostTask(task);
-                }
-              },
-              [scope_wp, dom_id, name_str](std::shared_ptr<DomArgument> arg) {
-                DomValue dom_Value;
-                std::shared_ptr<Scope> scope = scope_wp.lock();
-                if (scope && arg->ToObject(dom_Value) && dom_Value.IsUInt32()) {
-                  scope->AddListener(dom_id, name_str, dom_Value.ToUint32());
-                }
-              });
-        }
-      }
-    }
-  }
-}
-
-void HandleRenderListeners(const std::shared_ptr<Ctx> &context,
-                           const std::shared_ptr<CtxValue> &node,
-                           const std::shared_ptr<DomNode> &dom_node,
-                           const std::shared_ptr<Scope> &scope) {
-  auto listeners = context->GetProperty(node, kRenderListsKey);
-  if (listeners && context->IsArray(listeners)) {
-    auto len = context->GetArrayLength(listeners);
-    for (auto i = 0; i < len; ++i) {
-      auto listener = context->CopyArrayElement(listeners, i);
-      auto name_prop = context->GetProperty(listener, kRenderNameKey);
-      auto cb = context->GetProperty(listener, kRenderCBKey);
-      unicode_string_view name;
-      auto flag = context->GetValueString(name_prop, &name);
-      TDF_BASE_DCHECK(flag) << "get name failed";
-      TDF_BASE_DCHECK(context->IsFunction(cb)) << "get render cb failed";
-      if (flag) {
-        std::string name_str = StringViewUtils::ToU8StdStr(name);
-        std::weak_ptr<Ctx> weak_context = context;
-        std::weak_ptr<JavaScriptTaskRunner> weak_runner = scope->GetTaskRunner();
-        auto dom_id = dom_node->GetId();
-        if (context->IsNullOrUndefined(cb) || context->IsFunction(cb)) {
-          // cb null 代表移除
-          auto listener_id = scope->GetListenerId(dom_id, name_str);
-          if (listener_id != kInvalidListenerId) {
-            // 目前hippy上层还不支持绑定多个回调，有更新时先移除老的监听，再绑定新的
-            scope->GetDomManager()->RemoveRenderListener(dom_id, name_str, listener_id);
-          }
-        }
-        if (context->IsFunction(cb)) {
-          // dom_node 持有 cb
-          std::weak_ptr<Scope> weak_scope = scope;
-          dom_node->AddRenderListener(
-              name_str,
-              [weak_context, weak_runner, cb](const std::shared_ptr<DomArgument> &dom_argus) {
-                auto runner = weak_runner.lock();
-                if (runner) {
-                  std::shared_ptr<JavaScriptTask> task =
-                      std::make_shared<JavaScriptTask>();
-                  task->callback = [weak_context, cb, dom_argus]() {
-                    auto context = weak_context.lock();
-                    if (!context) {
-                      return;
-                    }
-                    DomValue value;
-                    if (dom_argus) {
-                      bool flag = dom_argus->ToObject(value);
-                      if (!flag) {
-                        context->ThrowExceptionToJS(context->CreateJsError(
-                            unicode_string_view("argus ToObject failed")));
-                        return;
-                      }
-                      auto param = context->CreateCtxValue(
-                          std::make_shared<DomValue>(std::move(value)));
-                      const std::shared_ptr<CtxValue> argus[] = {param};
-                      context->CallFunction(cb, 1, argus);
-                    } else {
-                      const std::shared_ptr<CtxValue> argus[] = {};
-                      context->CallFunction(cb, 0, argus);
-                    }
-                  };
-                  runner->PostTask(task);
-                }
-              },
-              [weak_scope, dom_id,
-               name_str](const std::shared_ptr<DomArgument> &arg) {
-                auto scope = weak_scope.lock();
-                if (!scope) {
+              [weak_context, cb](const std::shared_ptr<DomEvent> &event) {
+                auto context = weak_context.lock();
+                if (!context) {
                   return;
                 }
+                auto param = context->CreateCtxValue(event->GetValue());
+                if (param) {
+                  const std::shared_ptr<CtxValue> argus[] = {param};
+                  context->CallFunction(cb, 1, argus);
+                } else {
+                  const std::shared_ptr<CtxValue> argus[] = {};
+                  context->CallFunction(cb, 0, argus);
+                }
+              },
+              [weak_scope, dom_id, name_str](const std::shared_ptr<DomArgument>& arg) {
                 DomValue dom_value;
-                TDF_BASE_DCHECK(arg->ToObject(dom_value) &&
-                                dom_value.IsUInt32());
-                if (arg->ToObject(dom_value) && dom_value.IsUInt32()) {
+                std::shared_ptr<Scope> scope = weak_scope.lock();
+                if (scope && arg->ToObject(dom_value) && dom_value.IsUInt32()) {
                   scope->AddListener(dom_id, name_str, dom_value.ToUint32());
                 }
               });
@@ -429,7 +335,6 @@ CreateNode(const std::shared_ptr<Ctx> &context,
                                        std::move(std::get<3>(props_tuple)),
                                        scope->GetDomManager());
   HandleEventListeners(context, node, dom_node, scope);
-  HandleRenderListeners(context, node, dom_node, scope);
   return std::make_tuple(true, "", dom_node);
 }
 
