@@ -85,6 +85,8 @@ extern NSString *const HippyContentDidAppearNotification;
                      debugMode:(BOOL)mode
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
+- (instancetype)initWithBridgeButNoRuntime:(HippyBridge *)bridge;
+
 /**
  * The name of the JavaScript module to execute within the
  * specified scriptURL (required). Setting this will not have
