@@ -753,7 +753,7 @@ public class DomManager {
     addNulUITask(new IDomExecutor() {
       @Override
       public void exec() {
-        mRenderManager.dispatchUIFunction(id, functionName, array, promise);
+        //mRenderManager.dispatchUIFunction(id, functionName, array, promise);
       }
     });
   }

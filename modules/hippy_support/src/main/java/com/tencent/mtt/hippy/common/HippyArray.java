@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.common;
 
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 
+import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -30,6 +31,10 @@ public class HippyArray {
 
   public HippyArray() {
     mDatas = new ArrayList();
+  }
+
+  public HippyArray(ArrayList arrList) {
+    mDatas = arrList;
   }
 
   public ArrayList getInternalArray() {

@@ -16,9 +16,9 @@
 
 package com.tencent.renderer;
 
-import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_OFFER_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_ADD_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
-import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_POLL_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_UNAVAILABLE_ERR;
 
 import android.content.Context;
 import android.view.ViewGroup;
@@ -143,7 +143,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
 
     @Override
     public void handleRenderException(Exception exception) {
-        LogUtils.e(TAG, "Received native render exception: " + exception.getMessage());
+        String msg;
+        if (exception instanceof NativeRenderException) {
+            msg = "code: " + ((NativeRenderException)exception).mCode + ", message: " + exception.getMessage();
+        } else {
+            msg = exception.getMessage();
+        }
+        LogUtils.e(TAG, msg);
         reportException(exception);
     }
 
@@ -368,24 +374,18 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             @Override
             public void run() {
                 LogUtils.d(TAG, "UI task queue size=" + mUITaskQueue.size());
-                try {
-                    long start = System.currentTimeMillis();
-                    UITaskExecutor task = mUITaskQueue.poll();
-                    while (task != null) {
-                        task.exec();
-                        // If there has large number node operation task in queue,
-                        // it is possible cause ANR because of takes a lot of time to handle the task,
-                        // so we should interrupt it and re-run in next event cycle again.
-                        if (System.currentTimeMillis() - start > MAX_UI_TASK_QUEUE_EXEC_TIME) {
-                            LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
-                            break;
-                        }
-                        task = mUITaskQueue.poll();
+                long start = System.currentTimeMillis();
+                UITaskExecutor task = mUITaskQueue.poll();
+                while (task != null) {
+                    task.exec();
+                    // If there has large number node operation task in queue,
+                    // it is possible cause ANR because of takes a lot of time to handle the task,
+                    // so we should interrupt it and re-run in next event cycle again.
+                    if (System.currentTimeMillis() - start > MAX_UI_TASK_QUEUE_EXEC_TIME) {
+                        LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
+                        break;
                     }
-                } catch (Exception e) {
-                    mUITaskQueue.clear();
-                    handleRenderException(new NativeRenderException(UI_TASK_QUEUE_POLL_ERR, e));
-                    return;
+                    task = mUITaskQueue.poll();
                 }
                 if (!mUITaskQueue.isEmpty()) {
                     executeUIOperation();
@@ -433,14 +433,21 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             final int index = nodeIndex;
             final String name = className;
             try {
-                mUITaskQueue.offer(new UITaskExecutor() {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
                         mRenderManager.createNode(mRootView, id, pid, index, name, props);
                     }
                 });
-            } catch (Exception e) {
-                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
             }
         }
         executeUIOperation();
@@ -475,14 +482,21 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             }
             final int id = nodeId;
             try {
-                mUITaskQueue.offer(new UITaskExecutor() {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
                         mRenderManager.updateNode(id, props);
                     }
                 });
-            } catch (Exception e) {
-                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
             }
         }
         executeUIOperation();
@@ -491,6 +505,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void deleteNode(@NonNull int[] ids) throws NativeRenderException {
         for (final int id : ids) {
+            // The node id should not be negative number.
             if (id < 0) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": deleteNode: invalid negative id=" + id);
@@ -503,14 +518,21 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             }
             mVirtualNodeManager.deleteNode(id);
             try {
-                mUITaskQueue.offer(new UITaskExecutor() {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
                         mRenderManager.deleteNode(id);
                     }
                 });
-            } catch (Exception e) {
-                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
             }
         }
         executeUIOperation();
@@ -543,6 +565,11 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             } catch (NullPointerException e) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
             }
+            // The node id should not be negative number.
+            if (nodeId < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateLayout: invalid negative id=" + nodeId);
+            }
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
                 // If the node has a virtual parent, no corresponding render node exists,
                 // so don't add update task to the ui task queue.
@@ -556,7 +583,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             final TextRenderSupply supply = mVirtualNodeManager
                     .updateLayout(nodeId, layoutWidth, layoutInfo);
             try {
-                mUITaskQueue.offer(new UITaskExecutor() {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
                         if (supply != null) {
@@ -565,8 +594,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                         mRenderManager.updateLayout(id, left, top, width, height);
                     }
                 });
-            } catch (Exception e) {
-                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
             }
         }
         executeUIOperation();
@@ -604,14 +638,21 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             final int id = nodeId;
             final HashMap<String, Object> props = eventProps;
             try {
-                mUITaskQueue.offer(new UITaskExecutor() {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
                         mRenderManager.updateEventListener(id, props);
                     }
                 });
-            } catch (Exception e) {
-                throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
             }
         }
         executeUIOperation();
@@ -629,6 +670,42 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
+    public void callUIFunction(final int id, final String functionName, final String callBackId,
+            @NonNull final ArrayList<Object> params) throws NativeRenderException {
+        // The node id should not be negative number.
+        if (id < 0) {
+            throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                    TAG + ": callUIFunction: invalid negative id=" + id);
+        }
+        final NativeRenderPromise promise = new NativeRenderPromise(functionName, callBackId,
+                mInstanceId);
+        try {
+            // It is generally preferable to use add here, just focus the exception
+            // when add failed, don't need to handle the return value.
+            mUITaskQueue.add(new UITaskExecutor() {
+                @Override
+                public void exec() {
+                    mRenderManager.dispatchUIFunction(id, functionName, params, promise);
+                }
+            });
+        } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+            throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+        } catch (IllegalStateException e) {
+            // If the element cannot be added at this time due to capacity restrictions,
+            // the main thread may blocked, serious error!!!
+            mUITaskQueue.clear();
+            throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
+        }
+    }
+
+    @Override
+    public void doPromiseCallBack(int result, String functionName, String callBackId, Object params) {
+        if (mRenderProvider != null) {
+            mRenderProvider.doPromiseCallBack(result, functionName, callBackId, params);
+        }
+    }
+
+    @Override
     public void startBatch() {
         // TODO: Just keep this method even if it don't do anything.
     }
@@ -636,15 +713,22 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void endBatch() {
         try {
-            mUITaskQueue.offer(new UITaskExecutor() {
+            // It is generally preferable to use add here, just focus the exception
+            // when add failed, don't need to handle the return value.
+            mUITaskQueue.add(new UITaskExecutor() {
                 @Override
                 public void exec() {
                     mRenderManager.batch();
                 }
             });
             executeUIOperation();
-        } catch (Exception e) {
-            throw new NativeRenderException(UI_TASK_QUEUE_OFFER_ERR, e);
+        } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+            throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+        } catch (IllegalStateException e) {
+            // If the element cannot be added at this time due to capacity restrictions,
+            // the main thread may blocked, serious error!!!
+            mUITaskQueue.clear();
+            throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
         }
     }
 

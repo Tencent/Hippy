@@ -32,8 +32,10 @@ public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
 
     void updateEventListener(@NonNull ArrayList<Object> eventList) throws NativeRenderException;
 
-    long measure(int id, float width, int widthMode, float height, int heightMode)
-            throws NativeRenderException;
+    void callUIFunction(int id, String functionName, String callBackId,
+            @NonNull ArrayList<Object> eventList) throws NativeRenderException;
+
+    long measure(int id, float width, int widthMode, float height, int heightMode);
 
     void startBatch();
 
