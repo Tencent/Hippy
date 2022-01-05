@@ -15,6 +15,8 @@ class LayoutNode {
 
   virtual ~LayoutNode();
 
+  virtual float GetLeft() = 0;
+  virtual float GetTop() = 0;
   virtual float GetWidth() = 0;
   virtual float GetHeight() = 0;
   virtual void SetWidth(float width) = 0;

@@ -1,0 +1,140 @@
+analyzer:
+  exclude: 
+    - test/**
+    - build/**
+    - protoGen/**
+    - images/**
+    - gradle/**
+    - lib/protos/**
+  
+  #提示信息
+  errors:
+    unused_import: ignore
+    camel_case_types: warning
+    missing_required_param: error
+    missing_return: warning
+    todo: ignore
+    non_constant_identifier_names: warning
+    constant_identifier_names: warning
+    library_names: warning
+    file_names: warning
+    #avoid_setters_without_getters: warning
+    avoid_return_types_on_setters: warning
+    avoid_returning_null: warning
+    #avoid_returning_this: warning
+    prefer_generic_function_type_aliases: warning
+    always_declare_return_types: warning
+    hash_and_equals: warning
+#    avoid_equals_and_hash_code_on_mutable_classes: warning
+    avoid_null_checks_in_equality_operators: warning
+    prefer_interpolation_to_compose_strings: warning
+    prefer_collection_literals: warning
+    prefer_is_empty: warning
+    unnecessary_lambdas: warning
+    prefer_equal_for_default_values: warning
+    avoid_init_to_null: warning
+
+# For lint rules and documentation, see http://dart-lang.github.io/linter/lints.
+# Uncomment to specify additional rules.
+linter:
+  rules:
+    # 1.11 使用大驼峰命名类型
+    - camel_case_types
+    # 1.11 使用大驼峰命名拓展
+    - camel_case_extensions
+    # 1.12 类成员，顶级定义，变量，参数，命名参数和命名构造函数
+    - non_constant_identifier_names
+    # 1.12 常量变量，包括枚举的名称规范
+    - constant_identifier_names
+    #倒入import library的名字规范
+    - library_names
+    #1.13 import dart文件的规范
+    - file_names
+    #1.21 【可选】顺序
+    - directives_ordering
+    #2.22 【推荐】 公开接口要有注释
+    - package_api_docs
+    #3.32【必须】组合字符串统一使用插值的形式${param}，并避免在字符串插值中使用不必要的大括号
+    - prefer_interpolation_to_compose_strings
+    #3.41 【必须】尽可能使用字面量初始化集合
+    - prefer_collection_literals
+    #3.42【必须】使用.isEmpty/.isNotEmpty判空
+    - prefer_is_empty
+    #3.51 【必须】不要使用lambda表达式来替代tear-off
+    - unnecessary_lambdas
+    #3.61 【必须】参数默认值用=号
+    - prefer_equal_for_default_values
+    #3.71 【必须】不要把变量初始化为null
+    - avoid_init_to_null
+    #3.82 【必须】去掉不必要的setter和getter
+#    - unnecessary_getters_setters
+    #4.35 mixin的使用规范
+    - prefer_mixin
+    #4.54【必须】避免单独使用setter或者getters
+#    - avoid_setters_without_getters
+    #4.55【必须】不给setter方法指定返回值
+    - avoid_return_types_on_setters
+    #4.56【必须】基础数据类型的返回值不要返回null
+    - avoid_returning_null
+    #4.57 【必须】不要返回this来实现链式调用
+    - avoid_returning_this
+    #4.61 【必须】添加必要的类型注解 TODO 讨论是否有替代方案
+    - type_annotate_public_apis
+    #4.66 【必须】不要使用旧的typedef语法
+    - prefer_generic_function_type_aliases
+    #4.67 【必须】正确使用Future返回值 TODO 这个lint是说所有方法都必须需要返回类型而不是仅仅Future
+    - always_declare_return_types
+    #4.81 【必须】必须重写 hashCode 方法
+    - hash_and_equals
+    #4.83 【必须】可变类不要重载==
+#    - avoid_equals_and_hash_code_on_mutable_classes
+    #4.84 【必须】重载==时不必判空
+    - avoid_null_checks_in_equality_operators
+
+    # effective_dart
+    # STYLE
+    - library_prefixes
+    #- lines_longer_than_80_chars # avoid
+    - curly_braces_in_flow_control_structures
+
+    # DOCUMENTATION
+    - slash_for_doc_comments
+    #- public_member_api_docs # prefer
+    #- comment_references # Unused because https://github.com/dart-lang/sdk/issues/36974
+
+    # USAGE
+    - implementation_imports
+    - avoid_relative_lib_imports
+    - prefer_relative_imports
+    - prefer_adjacent_string_concatenation
+    - unnecessary_brace_in_string_interps # avoid
+    - prefer_is_not_empty
+    - avoid_function_literals_in_foreach_calls # avoid
+    - prefer_iterable_whereType
+    - prefer_function_declarations_over_variables
+    #- unnecessary_getters # prefer # Disabled pending fix: https://github.com/dart-lang/linter/issues/23
+    #- prefer_expression_function_bodies # consider
+    - unnecessary_this
+    - prefer_initializing_formals
+    - type_init_formals
+    - empty_constructor_bodies
+    - unnecessary_new
+    - unnecessary_const
+    # - avoid_catches_without_on_clauses # avoid
+    - avoid_catching_errors
+    - use_rethrow_when_possible
+
+    # DESIGN
+    - use_to_and_as_if_applicable # prefer
+    - one_member_abstracts # avoid
+    #- avoid_classes_with_only_static_members # avoid
+    - prefer_final_fields # prefer
+    - use_setters_to_change_properties
+    #- prefer_typing_uninitialized_variables # consider
+    - omit_local_variable_types # avoid
+    - avoid_types_on_closure_parameters # avoid
+    - avoid_private_typedef_functions # prefer
+    #- use_function_type_syntax_for_parameters # consider
+    #- avoid_positional_boolean_parameters # avoid
+
+ 
