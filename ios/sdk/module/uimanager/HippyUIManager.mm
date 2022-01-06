@@ -356,7 +356,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     _nodeRegistry[hippyTag] = node;
 
     CGRect frame = rootView.frame;
-
+    
+    UIColor *backgroundColor = [rootView backgroundColor];
     // Register shadow view
     dispatch_async(HippyGetUIManagerQueue(), ^{
         if (!self->_viewRegistry) {
@@ -366,7 +367,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyRootShadowView *shadowView = [HippyRootShadowView new];
         shadowView.hippyTag = hippyTag;
         shadowView.frame = frame;
-        shadowView.backgroundColor = rootView.backgroundColor;
+        shadowView.backgroundColor = backgroundColor;
         shadowView.viewName = NSStringFromClass([rootView class]);
         shadowView.sizeFlexibility = sizeFlexibility;
         self->_shadowViewRegistry[shadowView.hippyTag] = shadowView;

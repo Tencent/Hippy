@@ -24,7 +24,7 @@
 #import "HippyRootView.h"
 #import "HippyLog.h"
 #import "HippyBundleURLProvider.h"
-
+#import "UIView+Hippy.h"
 #include "dom/dom_manager.h"
 #include "NativeRenderManager.h"
 #include "dom/dom_node.h"
@@ -33,6 +33,7 @@
 @interface ViewController ()<HippyBridgeDelegate> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
+    HippyBridge *_bridge;
 }
 
 @end
@@ -86,25 +87,38 @@
 }
 
 - (void)runDemoWithoutRuntime {
-    //step1: create HippyBridge and HippyRootView
-    HippyBridge *bridge = [[HippyBridge alloc] initWithmoduleProviderWithoutRuntime:nil];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridgeButNoRuntime:bridge];
-    rootView.backgroundColor = [UIColor whiteColor];
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    rootView.frame = self.view.bounds;
-    [self.view addSubview:rootView];
+    //step1: create bridge and rootview
+    //you need hold bridge
+    _bridge = [[HippyBridge alloc] initWithmoduleProviderWithoutRuntime:nil];
+    UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
+    view.backgroundColor = [UIColor whiteColor];
+    view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     
-    //step2: get HippyUIManager, then set DomManager for it.
-    //and set RenderManager for DomNanager
-    HippyUIManager *uiManager = [bridge moduleForName:@"UIManager"];
-    int32_t rootTag = [rootView.hippyTag intValue];
+    //step2:assign a root tag for rootview
+    int32_t rootTag = 10;
+    view.hippyTag = @(10);
+    [self.view addSubview:view];
+    
+    //step3: get uimanager, register root view.
+    HippyUIManager *uiManager = [_bridge moduleForName:@"UIManager"];
+    [uiManager registerRootView:view withSizeFlexibility:HippyRootViewSizeFlexibilityNone];
+    
+    //step4: create dom manager, assign to uimanager
+    //you need hold dom mananger
     _domManager = std::make_shared<hippy::DomManager>(rootTag);
     [uiManager setDomManager:_domManager];
-    _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
+    
+    //step5: set root view size for dom_manager
+    _domManager->SetRootSize(CGRectGetWidth(view.bounds), CGRectGetHeight(view.bounds));
+    
+    //step6: create render manager, assign uimanager for it
+    //you need hold render manager
     _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
+    
+    //setp7: set render manager for dom manager
     _domManager->SetRenderManager(_nativeRenderManager);
 
-    //step3:create your nodes data into dommanager
+    //step8:create your nodes data
     auto nodesData = [self mockNodesData];
     _domManager->CreateDomNodes(std::move(nodesData));
     _domManager->BeginBatch();
@@ -152,7 +166,7 @@
                 ext_map.swap(all_props);
             }
             else if ([key isEqualToString:@"name"]) {
-                name = [mockNode[key] UTF8String];
+                name.assign([mockNode[key] UTF8String]);
             }
         }
         std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, index, name, name, std::move(style_map), std::move(ext_map), _domManager);
@@ -201,6 +215,20 @@
 
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
     return bridge.bundleURL;
+}
+
+@end
+
+@interface UIView (demo)
+
+- (void)invalidate;
+
+@end
+
+@implementation UIView (demo)
+
+- (void)invalidate {
+    
 }
 
 @end
