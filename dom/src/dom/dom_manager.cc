@@ -51,7 +51,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       });
 
       self->dom_node_registry_.AddNode(node);
-      self->HandleListener(node, kOnDomCreated, nullptr);
+      self->HandleEvent(std::make_shared<DomEvent>(kOnDomCreated, node, nullptr));
     }
 
     if (!nodes.empty()) {
@@ -84,7 +84,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       node->SetDiffStyle(std::move(style_diff));
       // node->ParseLayoutStyleInfo();
       update_nodes.push_back(node);
-      self->HandleListener(node, kOnDomUpdated, nullptr);
+      self->HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, nullptr));
 
       // 延迟更新 layout tree
       int32_t id = node->GetId();
@@ -121,7 +121,7 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       }
       self->dom_node_registry_.RemoveNode(node->GetId());
       delete_nodes.push_back(node);
-      self->HandleListener(node, kOnDomDeleted, nullptr);
+      self->HandleEvent(std::make_shared<DomEvent>(kOnDomDeleted, node, nullptr));
 
       // 延迟删除 layout tree
       auto layout_node = node->GetLayoutNode();
@@ -375,16 +375,6 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
       }
     }
   });
-}
-
-void DomManager::HandleListener(const std::weak_ptr<DomNode>& weak_target,
-                                const std::string& name,
-                                const std::shared_ptr<DomArgument>& param) {
-  auto target = weak_target.lock();
-  auto target_listeners = target->GetRenderListener(name);
-  for (const auto &listener: target_listeners) {
-    listener->cb(param);
-  }
 }
 
 void DomManager::DomNodeRegistry::AddNode(const std::shared_ptr<DomNode> &node) {

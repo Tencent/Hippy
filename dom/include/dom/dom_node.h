@@ -88,8 +88,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
   void DoLayout();
   void HandleEvent(const std::shared_ptr<DomEvent> &event);
-  void HandleListener(const std::string& name,
-                      std::shared_ptr<DomArgument> param);
   void ParseLayoutStyleInfo();
   void TransferLayoutOutputsRecursive();
   std::tuple<float, float> GetLayoutSize();
@@ -106,7 +104,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void RemoveRenderListener(const std::string& name, uint32_t id);
   std::vector<std::shared_ptr<DomNode::EventListenerInfo>> GetEventListener(const std::string &name,
                                                                             bool is_capture);
-  std::vector<std::shared_ptr<DomNode::RenderListenerInfo>> GetRenderListener(const std::string &name);
   const std::unordered_map<std::string,
                            std::shared_ptr<DomValue>> &GetStyleMap() const { return style_map_; }
   void SetStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) {
@@ -158,8 +155,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
                                      std::array<std::vector<std::shared_ptr<EventListenerInfo>>,
                                                 2>>>
       event_listener_map_;
-  std::shared_ptr<std::unordered_map<std::string, std::vector<std::shared_ptr<RenderListenerInfo>>>>
-      render_listener_map_;
 };
 
 }  // namespace dom

@@ -73,7 +73,6 @@ class HippyRenderManager : public RenderManager {
   void HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name);
 
   std::vector<ListenerOp> event_listener_ops_;
-  std::vector<ListenerOp> render_listener_ops_;
 };
 }  // namespace dom
 }  // namespace hippy

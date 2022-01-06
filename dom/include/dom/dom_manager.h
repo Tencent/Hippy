@@ -29,12 +29,6 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   DomManager(uint32_t root_id);
   ~DomManager();
 
-
-
-  static void HandleListener(const std::weak_ptr<DomNode>& weak_target,
-                             const std::string& name,
-                             const std::shared_ptr<DomArgument>& param);
-
   inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
     render_manager_ = render_manager;

@@ -111,24 +111,7 @@ void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, event]() {
-      DEFINE_AND_CHECK_SELF(DomNode)
-      auto dom_manager = self->dom_manager_.lock();
-      if (dom_manager) {
-        dom_manager->HandleEvent(event);
-      }
-    });
-  }
-}
-
-void DomNode::HandleListener(const std::string& name, std::shared_ptr<DomArgument> param) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, name, param]() {
-      DEFINE_AND_CHECK_SELF(DomNode)
-      DomManager::HandleListener(self->shared_from_this(), name, std::move(param));
-    });
+    dom_manager->HandleEvent(event);
   }
 }
 
@@ -240,18 +223,6 @@ DomNode::GetEventListener(const std::string &name, bool is_capture) {
   return it->second[kBubble];
 }
 
-std::vector<std::shared_ptr<DomNode::RenderListenerInfo>>
-DomNode::GetRenderListener(const std::string &name) {
-  if (!render_listener_map_) {
-    return {};
-  }
-  auto it = render_listener_map_->find(name);
-  if (it == render_listener_map_->end()) {
-    return {};
-  }
-  return it->second;
-}
-
 void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(style_map_); }
 
 void DomNode::TransferLayoutOutputsRecursive() {
@@ -283,8 +254,8 @@ void DomNode::TransferLayoutOutputsRecursive() {
       layout_param[kLayoutHeightKey] = DomValue(layout_.height);
       DomValueObjectType layout_obj;
       layout_obj[kLayoutLayoutKey] = std::move(layout_param);
-      dom_manager->HandleListener(shared_from_this(), kLayoutEvent, std::make_shared<DomArgument>(
-          DomValue(std::move(layout_obj))));
+      HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(),
+                                             std::make_shared<DomValue>(std::move(layout_obj))));
     }
   }
   for (auto& it : children_) {
