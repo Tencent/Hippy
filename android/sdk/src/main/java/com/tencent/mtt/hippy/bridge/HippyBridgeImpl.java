@@ -113,10 +113,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       if (TextUtils.isEmpty(mDebugServerHost)) {
         mDebugServerHost = "localhost:38989";
       }
-      String clientId = mContext.getDevSupportManager().getDevInstanceUUID();  // 方便区分不同的 Hippy 调试页面
-      mDebugWebSocketClient.connect(
-          String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client&clientId=%s", mDebugServerHost, clientId),
-          new DebugWebSocketClient.JSDebuggerCallback() {
+      String debugUrl = mContext.getDevSupportManager().createDebugUrl(mDebugServerHost);
+      mDebugWebSocketClient.connect(debugUrl, new DebugWebSocketClient.JSDebuggerCallback() {
             @SuppressWarnings("unused")
             @Override
             public void onSuccess(String response) {
