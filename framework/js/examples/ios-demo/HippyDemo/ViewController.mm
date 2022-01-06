@@ -90,6 +90,7 @@
     //step1: create bridge and rootview
     //you need hold bridge
     _bridge = [[HippyBridge alloc] initWithmoduleProviderWithoutRuntime:nil];
+    //you view MUST conforms to protocol HippyInvalidating and implement method invalidate
     UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
     view.backgroundColor = [UIColor whiteColor];
     view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
