@@ -32,18 +32,35 @@ public class DevServerHelper {
   // --Commented out by Inspection (2021/5/4 20:10):private static final String	WEBSOCKET_PROXY_URL_FORMAT				= "ws://%s/debugger-proxy?role=client";
   private static final String WEBSOCKET_LIVERELOAD_URL_FORMAT = "ws://%s/debugger-live-reload";
   // --Commented out by Inspection (2021/5/4 20:10):private static final String	ONCHANGE_ENDPOINT_URL_FORMAT			= "http://%s/onchange";
+  private static final String DEBUG_URL_FORMAT = "ws://%s/debugger-proxy?role=android_client&clientId=%s&versionId=%s";
 
   private final HippyGlobalConfigs mGlobalConfigs;
   private final String mServerHost;
+  DevRemoteServerData mRemoteServerData;
 
-  public DevServerHelper(HippyGlobalConfigs configs, String serverHost) {
+  public DevServerHelper(HippyGlobalConfigs configs, String serverHost, String remoteServerUrl) {
     mGlobalConfigs = configs;
     mServerHost = serverHost;
+    mRemoteServerData = new DevRemoteServerData(remoteServerUrl);
   }
 
   public String createBundleURL(String host, String bundleName, boolean devMode, boolean hmr,
-      boolean jsMinify) {
+    boolean jsMinify) {
+    if (mRemoteServerData.isValid()) {
+      // remote debugging in non usb
+      return String.format(Locale.US, BUNDLE_URL_FORMAT, mRemoteServerData.getHost(), mRemoteServerData.getPath(),
+        devMode, hmr, jsMinify);
+    }
     return String.format(Locale.US, BUNDLE_URL_FORMAT, host, bundleName, devMode, hmr, jsMinify);
+  }
+
+  public String createDebugURL(String host, String clientId) {
+    if (mRemoteServerData.isValid()) {
+      // remote debugging in non usb
+      return String.format(Locale.US, DEBUG_URL_FORMAT, mRemoteServerData.getHost(), clientId,
+        mRemoteServerData.getVersionId());
+    }
+    return String.format(Locale.US, DEBUG_URL_FORMAT, host, clientId, "");
   }
 
   public String getLiveReloadURL() {
