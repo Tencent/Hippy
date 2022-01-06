@@ -60,17 +60,12 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 @end
 
-using WaterfallViewEvent = std::function<void(const std::string &event_name,
-                                              std::shared_ptr<tdf::base::DomValue> value)>;
-
 @interface HippyWaterfallView () <UICollectionViewDataSource, UICollectionViewDelegate, HippyCollectionViewDelegateWaterfallLayout, HippyInvalidating, HippyRefreshDelegate> {
     NSMutableArray *_scrollListeners;
     BOOL _isInitialListReady;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
     HippyReusableNodeCache *_reusableNodeCache;
-    WaterfallViewEvent _event;
-    NSMutableSet<NSString *> *_eventsSet;
 }
 
 @property (nonatomic, strong) HippyCollectionViewWaterfallLayout *layout;
@@ -103,7 +98,6 @@ using WaterfallViewEvent = std::function<void(const std::string &event_name,
         self.bridge = bridge;
         _scrollListeners = [NSMutableArray array];
         _scrollEventThrottle = 100.f;
-        _eventsSet = [NSMutableSet setWithCapacity:8];
         [self initCollectionView];
         _reusableNodeCache = [[HippyReusableNodeCache alloc] init];
         if (@available(iOS 11.0, *)) {
@@ -597,23 +591,6 @@ using WaterfallViewEvent = std::function<void(const std::string &event_name,
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
     std::function<void(int)> onClick= nullptr;
-}
-
-#pragma mark Event Call
-- (void)addComonentEvent:(const std::string &)eventName {
-    if (!_event) {
-        _event = [weak_node = self.domNode](const std::string &event_name, std::shared_ptr<tdf::base::DomValue> value){
-            std::shared_ptr<hippy::DomNode> node = weak_node.lock();
-            if (node) {
-                node->HandleEvent(std::make_shared<hippy::DomEvent>(event_name, weak_node, value));
-            }
-        };
-    }
-    [_eventsSet addObject:[NSString stringWithUTF8String:eventName.c_str()]];
-}
-
-- (void)removeComponentEvent:(const std::string &)eventName {
-    [_eventsSet removeObject:[NSString stringWithUTF8String:eventName.c_str()]];
 }
 
 - (void)refreshCompleted:(NSInteger)status text:(NSString *)text {

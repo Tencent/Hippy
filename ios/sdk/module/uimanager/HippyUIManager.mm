@@ -1769,7 +1769,7 @@ static UIView *_jsResponder;
         else {
             std::string name_ = name;
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-                [uiManager addComponentEvent:std::move(name_) forView:node->GetId()];
+                [uiManager addRenderEvent:name_ forDomNode:node];
             }];
         }
     }
@@ -1863,12 +1863,6 @@ static UIView *_jsResponder;
     }
 }
 
-- (void)addComponentEvent:(const std::string &)name forView:(int32_t)hippyTag {
-    HippyAssertMainThread();
-    UIView *view = [self viewForHippyTag:@(hippyTag)];
-    [view addComonentEvent:std::move(name)];
-}
-
 - (void)removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<DomNode>)weak_node {
     std::shared_ptr<DomNode> domNode = weak_node.lock();
     if (domNode) {
@@ -1887,27 +1881,25 @@ static UIView *_jsResponder;
         NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
         std::string name_ = std::move(name);
         NSDictionary *componentDataByName = [_componentDataByName copy];
-        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
-            HippyComponentData *component = componentDataByName[viewName];
-            NSDictionary<NSString *, NSString *> *eventMap = [component eventNameMap];
-            NSString *mapToEventName = [eventMap objectForKey:[NSString stringWithUTF8String:name_.c_str()]];
-            if (mapToEventName) {
-                __weak __typeof(self) weakManager = uiManager;
-                [view addRenderEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
-                    __typeof(self) strongManager = weakManager;
-                    if (strongManager) {
-                        auto domNode = [strongManager domNodeFromHippyTag:hippyTag];
-                        if (domNode) {
-                            DomValue value = [body toDomValue];
-                            DomArgument arg = DomArgument(value);
-                            std::shared_ptr<DomArgument> argument = std::make_shared<DomArgument>(std::move(arg));
-                            domNode->HandleListener(name_, argument);
-                        }
+        UIView *view = [self viewForHippyTag:@(hippyTag)];
+        HippyComponentData *component = componentDataByName[viewName];
+        NSDictionary<NSString *, NSString *> *eventMap = [component eventNameMap];
+        NSString *mapToEventName = [eventMap objectForKey:[NSString stringWithUTF8String:name_.c_str()]];
+        if (mapToEventName) {
+            __weak __typeof(self) weakManager = self;
+            [view addRenderEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
+                __typeof(self) strongManager = weakManager;
+                if (strongManager) {
+                    auto domNode = [strongManager domNodeFromHippyTag:hippyTag];
+                    if (domNode) {
+                        DomValue value = [body toDomValue];
+                        std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(std::move(value));
+                        node->HandleEvent(std::make_shared<DomEvent>(name_, node, domValue));
+
                     }
-                }];
-            }
-        }];
+                }
+            }];
+        }
     }
 }
 
