@@ -464,12 +464,6 @@ HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name) {
     [values removeObjectsAtIndexes:indexSet];
 }
 
-- (void)addComonentEvent:(const std::string &)eventName{
-}
-
-- (void)removeComponentEvent:(const std::string &)eventName {
-}
-
 - (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
     //try to contrustor origin setter
     char n = std::toupper(name.at(0));
