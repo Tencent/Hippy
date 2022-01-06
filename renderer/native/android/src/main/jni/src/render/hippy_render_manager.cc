@@ -95,10 +95,17 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
     dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
 
     tdf::base::DomValue::DomValueObjectType props;
-    // diff 属性
-    auto diff = nodes[i]->GetDiffStyle();
-    auto iter = diff.begin();
-    while (iter != diff.end()) {
+    // 样式属性
+    auto style = nodes[i]->GetStyleMap();
+    auto iter = style.begin();
+    while (iter != style.end()) {
+      props[iter->first] = *(iter->second);
+      iter++;
+    }
+    // 用户自定义属性
+    auto dom_ext = nodes[i]->GetExtStyle();
+    iter = dom_ext.begin();
+    while (iter != dom_ext.end()) {
       props[iter->first] = *(iter->second);
       iter++;
     }
@@ -144,7 +151,7 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
   // 更新布局信息前处理事件监听
   HandleListenerOps(event_listener_ops_, "updateEventListener");
-//  HandleListenerOps(render_listener_ops_, "updateRenderEventListener");
+  //  HandleListenerOps(render_listener_ops_, "updateRenderEventListener");
 
   serializer_->Release();
   serializer_->WriteHeader();
@@ -199,13 +206,9 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
   j_env->DeleteLocalRef(j_int_array);
 };
 
-void HippyRenderManager::BeginBatch() {
+void HippyRenderManager::BeginBatch() {}
 
-}
-
-void HippyRenderManager::EndBatch() {
-  CallNativeMethod("endBatch");
-};
+void HippyRenderManager::EndBatch() { CallNativeMethod("endBatch"); };
 
 void HippyRenderManager::BeforeLayout(){};
 
@@ -300,8 +303,7 @@ void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float w
   result = (int64_t)measure_result;
 }
 
-void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops,
-                                           const std::string& method_name) {
+void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name) {
   if (ops.empty()) {
     return;
   }
@@ -324,8 +326,7 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops,
     index++;
 
     while (index < len) {
-      if (ops[index].dom_node.lock()->GetId() == current_id
-          && ops[index].add == current_add) {
+      if (ops[index].dom_node.lock()->GetId() == current_id && ops[index].add == current_add) {
         // batch add or remove operations with the same nodes together.
         events[ops[index].name] = tdf::base::DomValue(current_add);
         index++;
