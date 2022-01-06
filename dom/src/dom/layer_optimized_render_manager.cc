@@ -70,13 +70,13 @@ void LayerOptimizedRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<D
 }
 
 void LayerOptimizedRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-    std::vector<std::shared_ptr<DomNode>> nodes_to_update;
-    for (const auto& node : nodes) {
-        if (!node->IsJustLayout() && !node->IsVirtual() && node->GetRenderInfo().created) {
-            nodes_to_update.push_back(node);
-        }
+  std::vector<std::shared_ptr<DomNode>> nodes_to_update;
+  for (const auto& node : nodes) {
+    if (!node->IsJustLayout() && !node->IsVirtual() && node->GetRenderInfo().created) {
+      nodes_to_update.push_back(node);
     }
-    render_manager_->UpdateLayout(std::move(nodes_to_update));
+  }
+  render_manager_->UpdateLayout(std::move(nodes_to_update));
 }
 
 void LayerOptimizedRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids,

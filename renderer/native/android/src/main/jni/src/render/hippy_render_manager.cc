@@ -144,7 +144,6 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
   // 更新布局信息前处理事件监听
   HandleListenerOps(event_listener_ops_, "updateEventListener");
-//  HandleListenerOps(render_listener_ops_, "updateRenderEventListener");
 
   serializer_->Release();
   serializer_->WriteHeader();
@@ -221,8 +220,52 @@ void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, co
 
 void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
                                       CallFunctionCallback cb) {
-  TDF_BASE_NOTIMPLEMENTED();
-};
+  std::shared_ptr<DomNode> node = domNode.lock();
+  if (node == nullptr) {
+    TDF_BASE_LOG(ERROR) << "CallFunction bad node";
+    return;
+  }
+
+  std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+  JNIEnv* j_env = instance->AttachCurrentThread();
+
+  jobject j_object = render_delegate_->GetObj();
+  jclass j_class = j_env->GetObjectClass(j_object);
+  if (!j_class) {
+    TDF_BASE_LOG(ERROR) << "CallFunction j_class error";
+    return;
+  }
+
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction",
+                                             "(ILjava/lang/String;[B)V");
+  if (!j_method_id) {
+    TDF_BASE_LOG(ERROR) << "CallFunction j_method_id error";
+    return;
+  }
+
+  tdf::base::DomValue::DomValueArrayType param_array;
+  DomValue param_value;
+  if (param.ToObject(param_value)) {
+    param_array.emplace_back(param_value);
+  }
+
+  serializer_->Release();
+  serializer_->WriteHeader();
+  serializer_->WriteDenseJSArray(param_array);
+
+  std::pair<uint8_t*, size_t> buffer = serializer_->Release();
+
+  jbyteArray j_buffer;
+  j_buffer = j_env->NewByteArray(buffer.second);
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, buffer.second,
+                            reinterpret_cast<const jbyte *>(buffer.first));
+
+  jstring j_name = j_env->NewStringUTF(name.c_str());
+
+  j_env->CallVoidMethod(j_object, j_method_id, node->GetId(), j_name, j_buffer);
+  j_env->DeleteLocalRef(j_buffer);
+  j_env->DeleteLocalRef(j_name);
+}
 
 float HippyRenderManager::DpToPx(float dp) { return dp * density_; }
 
@@ -324,8 +367,12 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops,
     index++;
 
     while (index < len) {
-      if (ops[index].dom_node.lock()->GetId() == current_id
-          && ops[index].add == current_add) {
+      std::shared_ptr<DomNode> node = ops[index].dom_node.lock();
+      if (node == nullptr) {
+        index++;
+        break;
+      }
+      if (node->GetId() == current_id && ops[index].add == current_add) {
         // batch add or remove operations with the same nodes together.
         events[ops[index].name] = tdf::base::DomValue(current_add);
         index++;

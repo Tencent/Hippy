@@ -49,12 +49,12 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onReceivedEvent",
              "(JILjava/lang/String;[BIIZZ)V",
-             onReceivedEvent)
+             OnReceivedEvent)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "doCallBack",
-             "(JILjava/lang/String;Ljava/lang/String;[BII)V",
-             doCallBack)
+             "(JILjava/lang/String;[BII)V",
+             DoCallBack)
 
 void NativeRenderProvider::Init() {
 }
@@ -100,72 +100,78 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jlong j_runtime_id,
   dom_manager->DoLayout();
 }
 
-void doCallBack(JNIEnv *j_env, jobject j_object,
-                jlong j_runtime_id, jint j_dom_id, jstring j_event_name, jstring j_callback_id,
+void DoCallBack(JNIEnv *j_env, jobject j_object,
+                jlong j_runtime_id, jint j_dom_id, jstring j_func_name,
                 jbyteArray j_buffer, jint j_offset, jint j_length) {
-
-}
-
-void onReceivedEvent(JNIEnv *j_env, jobject j_object,
-                                jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
-                                jbyteArray j_buffer, jint j_offset, jint j_length,
-                                jboolean j_use_capture, jboolean j_use_bubble) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedEvent j_runtime_id invalid";
+    TDF_BASE_DLOG(WARNING) << "DoCallBack j_runtime_id invalid";
     return;
   }
 
   std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
   if (dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedEvent dom_manager is nullptr";
+    TDF_BASE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
     return;
   }
   auto node = dom_manager->GetNode(j_dom_id);
   if (node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedEvent DomNode not found for id: " << j_dom_id;
+    TDF_BASE_DLOG(WARNING) << "DoCallBack DomNode not found for id: " << j_dom_id;
     return;
   }
-/*
+
   jboolean is_copy = JNI_TRUE;
-  jbyte* params_buffer = j_env->GetByteArrayElements(j_buffer, &is_copy);
-  const char* event_name = j_env->GetStringUTFChars(j_event_name, &is_copy);
-  node->HandleListener(event_name, std::make_shared<DomArgument>(
-          std::pair<uint8_t *, size_t>((uint8_t *) params_buffer, j_length)));
-  j_env->ReleaseByteArrayElements(j_buffer, params_buffer, 0);
-*/
-}
-
-/*
-void OnReceivedNativeGestureEvent(JNIEnv *j_env, jobject j_object,
-                                  jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
-                                  jbyteArray j_buffer, jint j_length) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
-  if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedNativeGestureEvent j_runtime_id invalid";
+  const char* func_name = j_env->GetStringUTFChars(j_func_name, &is_copy);
+  auto callback = node->GetCallback(func_name);
+  if (callback == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "DoCallBack Callback not found for func_name: " << func_name;
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
-  if (dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedNativeGestureEvent dom_manager is nullptr";
-    return;
-  }
-  auto node = dom_manager->GetNode(j_dom_id);
-  if (node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "onReceivedNativeGestureEvent DomNode not found for id: " << j_dom_id;
-    return;
-  }
-  jboolean is_copy = JNI_TRUE;
-  jbyte* params_buffer = j_env->GetByteArrayElements(j_buffer, &is_copy);
-  const char* event_name = j_env->GetStringUTFChars(j_event_name, &is_copy);
-
-  tdf::base::Deserializer deserializer((const uint8_t*) params_buffer, j_length);
-  deserializer.ReadHeader();
   std::shared_ptr<DomValue> params = std::make_shared<DomValue>();
-  deserializer.ReadObject(*params);
-
-  node->HandleEvent(std::make_shared<DomEvent>(event_name, node, params));
-  j_env->ReleaseByteArrayElements(j_buffer, params_buffer, 0);
+  if (j_buffer != nullptr && j_length > 0) {
+    jbyte params_buffer[j_length];
+    j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
+    tdf::base::Deserializer deserializer((const uint8_t*) params_buffer, j_length);
+    deserializer.ReadHeader();
+    deserializer.ReadObject(*params);
+  }
+  callback(std::make_shared<DomArgument>(*params));
 }
-*/
+
+void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
+                     jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
+                     jbyteArray j_buffer, jint j_offset, jint j_length,
+                     jboolean j_use_capture, jboolean j_use_bubble) {
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent j_runtime_id invalid";
+    return;
+  }
+
+  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
+  if (dom_manager == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
+    return;
+  }
+  auto node = dom_manager->GetNode(j_dom_id);
+  if (node == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent DomNode not found for id: " << j_dom_id;
+    return;
+  }
+
+  std::shared_ptr<DomValue> params = nullptr;
+  if (j_buffer != nullptr && j_length > 0) {
+    jbyte params_buffer[j_length];
+    j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
+    params = std::make_shared<DomValue>();
+    tdf::base::Deserializer deserializer((const uint8_t*) params_buffer, j_length);
+    deserializer.ReadHeader();
+    deserializer.ReadObject(*params);
+  }
+
+  jboolean is_copy = JNI_TRUE;
+  const char* event_name = j_env->GetStringUTFChars(j_event_name, &is_copy);
+  node->HandleEvent(std::make_shared<DomEvent>(event_name, node,
+                                               (bool) j_use_capture, (bool) j_use_bubble, params));
+}
