@@ -194,20 +194,26 @@ void DomManager::EndBatch() {
 
 void DomManager::AddEventListener(uint32_t id, const std::string& name, bool use_capture, const EventCallback& cb,
                                   const CallFunctionCallback& callback) {
-  auto node = dom_node_registry_.GetNode(id);
-  if (!node && callback) {
-    callback(std::make_shared<DomArgument>(DomValue(kInvalidListenerId)));
-    return;
-  }
-  node->AddEventListener(name, use_capture, cb, callback);
+  PostTask([WEAK_THIS, id, name, use_capture, cb, callback]() {
+    DEFINE_AND_CHECK_SELF(DomManager)
+    auto node = self->dom_node_registry_.GetNode(id);
+    if (!node && callback) {
+      callback(std::make_shared<DomArgument>(DomValue(kInvalidListenerId)));
+      return;
+    }
+    node->AddEventListener(name, use_capture, cb, callback);
+  });
 }
 
-void DomManager::RemoveEventListener(uint32_t id, const std::string &name, uint32_t listener_id) {
-  auto node = dom_node_registry_.GetNode(id);
-  if (!node) {
-    return;
-  }
-  node->RemoveEventListener(name, listener_id);
+void DomManager::RemoveEventListener(uint32_t id, const std::string& name, uint32_t listener_id) {
+  PostTask([WEAK_THIS, id, name, listener_id]() {
+    DEFINE_AND_CHECK_SELF(DomManager)
+    auto node = self->dom_node_registry_.GetNode(id);
+    if (!node) {
+      return;
+    }
+    node->RemoveEventListener(name, listener_id);
+  });
 }
 
 void DomManager::CallFunction(uint32_t id, const std::string& name, const DomArgument& param,
@@ -392,9 +398,13 @@ std::shared_ptr<DomNode> DomManager::DomNodeRegistry::GetNode(int32_t id) {
 void DomManager::DomNodeRegistry::RemoveNode(int32_t id) { nodes_.erase(id); }
 
 void DomManager::PostTask(std::function<void()> func) {
-  std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-  task->func_ = std::move(func);
-  dom_task_runner_->PostTask(std::move(task));
+  if (dom_task_runner_->Id() == hippy::base::ThreadId::GetCurrent()) {
+    func();
+  } else {
+    std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
+    task->func_ = std::move(func);
+    dom_task_runner_->PostTask(std::move(task));
+  }
 }
 
 }  // namespace dom
