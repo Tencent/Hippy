@@ -1780,10 +1780,14 @@ static UIView *_jsResponder;
     HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
+        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kClickEvent];
+        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:hippy::kClickEvent];
         [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
             auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node,
+                                                                    canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                    static_cast<std::shared_ptr<DomValue>>(nullptr)));
             }
         }];
     }
@@ -1793,10 +1797,14 @@ static UIView *_jsResponder;
     HippyAssertMainThread();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
+        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kLongClickEvent];
+        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:hippy::kLongClickEvent];
         [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
             auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node,
+                                                                    canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                    static_cast<std::shared_ptr<DomValue>>(nullptr)));
             }
         }];
     }
@@ -1808,10 +1816,14 @@ static UIView *_jsResponder;
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     HippyViewEventType eventType = hippy::kPressIn == type ? HippyViewEventType::HippyViewEventTypePressIn : HippyViewEventType::HippyViewEventTypePressOut;
     if (view) {
+        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
+        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
         [view addViewEvent:eventType eventListener:^(CGPoint) {
             auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
-                node->HandleEvent(std::make_shared<hippy::DomEvent>(type, node, nullptr));
+                node->HandleEvent(std::make_shared<hippy::DomEvent>(type, node,
+                                                                    canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                    static_cast<std::shared_ptr<DomValue>>(nullptr)));
             }
         }];
     }
@@ -1833,6 +1845,8 @@ static UIView *_jsResponder;
         } else if (type == hippy::kTouchCancelEvent) {
             event_type = HippyViewEventType::HippyViewEventTypeTouchCancel;
         }
+        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
+        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
             auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
@@ -1841,7 +1855,8 @@ static UIView *_jsResponder;
                 domValue["page_y"] = tdf::base::DomValue(point.y);
                 std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
                 if (node) {
-                   node->HandleEvent(std::make_shared<DomEvent>(type, node, value));
+                   node->HandleEvent(std::make_shared<DomEvent>(type, node, canBePreventedInCapturing,
+                                                                canBePreventedInBubbling,value));
                 }
             }
         }];
@@ -1854,11 +1869,14 @@ static UIView *_jsResponder;
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
+        BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
+        BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
             auto node = [self domNodeFromHippyTag:hippyTag];
             if (node) {
                 std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(true);
-                node->HandleEvent(std::make_shared<DomEvent>(type, node, domValue));
+                node->HandleEvent(std::make_shared<DomEvent>(type, node, canBePreventedInCapturing,
+                                                             canBePreventedInBubbling, domValue));
             }
         }];
     }
@@ -1868,10 +1886,23 @@ static UIView *_jsResponder;
     std::shared_ptr<DomNode> domNode = weak_node.lock();
     if (domNode) {
         int32_t hippyTag = domNode->GetId();
-        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
-            [view removeViewEvent:viewEventTypeFromName(eventName)];
-        }];
+        if (eventName == hippy::kClickEvent ||
+            eventName ==hippy::kLongClickEvent ||
+            eventName == hippy::kTouchStartEvent || eventName == hippy::kTouchMoveEvent ||
+            eventName == hippy::kTouchEndEvent || eventName == hippy::kTouchCancelEvent ||
+            eventName == hippy::kShowEvent || eventName == hippy::kDismissEvent ||
+            eventName == hippy::kPressIn || eventName == hippy::kPressOut) {
+            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
+                [view removeViewEvent:viewEventTypeFromName(eventName)];
+            }];
+        }
+        else {
+            std::string name_ = eventName;
+            [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+                [uiManager removeRenderEvent:name_ forDomNode:domNode];
+            }];
+        }
     }
 }
 
@@ -1887,6 +1918,8 @@ static UIView *_jsResponder;
         NSDictionary<NSString *, NSString *> *eventMap = [component eventNameMap];
         NSString *mapToEventName = [eventMap objectForKey:[NSString stringWithUTF8String:name_.c_str()]];
         if (mapToEventName) {
+            BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name_];
+            BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name_];
             __weak __typeof(self) weakManager = self;
             [view addRenderEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
                 __typeof(self) strongManager = weakManager;
@@ -1895,8 +1928,8 @@ static UIView *_jsResponder;
                     if (domNode) {
                         DomValue value = [body toDomValue];
                         std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(std::move(value));
-                        node->HandleEvent(std::make_shared<DomEvent>(name_, node, domValue));
-
+                        node->HandleEvent(std::make_shared<DomEvent>(name_, node, canBePreventedInCapturing,
+                                                                     canBePreventedInBubbling, domValue));
                     }
                 }
             }];
