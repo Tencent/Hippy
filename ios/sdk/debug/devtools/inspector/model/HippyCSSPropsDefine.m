@@ -23,8 +23,12 @@ NSString *const HippyDevtoolsCSSPropFontStyle = @"fontStyle";
 NSString *const HippyDevtoolsCSSPropBackgroundSize = @"backgroundSize";
 NSString *const HippyDevtoolsCSSPropBackgroundPositionX = @"backgroundPositionX";
 NSString *const HippyDevtoolsCSSPropBackgroundPositionY = @"backgroundPositionY";
+NSString *const HippyDevtoolsCSSPropBackgroundColor = @"backgroundColor";
 NSString *const HippyDevtoolsCSSPropTextAlign = @"textAlign";
 NSString *const HippyDevtoolsCSSPropResizeMode = @"resizeMode";
+NSString *const HippyDevtoolsCSSPropColor = @"color";
+NSString *const HippyDevtoolsCSSPropTextShadowColor = @"textShadowColor";
+NSString *const HippyDevtoolsCSSPropTextDecorationColor = @"textDecorationColor";
 
 #pragma mark - Rect
 NSString *const HippyDevtoolsCSSPropLeft = @"left";
@@ -93,7 +97,7 @@ NSString *const HippyDevtoolsCSSPropShadowOpacity = @"shadowOpacity";
 NSString *const HippyDevtoolsCSSPropShadowRadius = @"shadowRadius";
 NSString *const HippyDevtoolsCSSPropShadowSpread = @"shadowSpread";
 
-#pragma mark = Props Value General
+#pragma mark - Props Value General
 NSString *const HippyDevtoolsCSSPropValueFlexStart = @"flex-start";
 NSString *const HippyDevtoolsCSSPropValueFlexEnd = @"flex-end";
 NSString *const HippyDevtoolsCSSPropValueStretch = @"stretch";
@@ -106,39 +110,39 @@ NSString *const HippyDevtoolsCSSPropValueContain = @"contain";
 NSString *const HippyDevtoolsCSSPropValueCover = @"cover";
 NSString *const HippyDevtoolsCSSPropValueRepeat = @"repeat";
 
-#pragma mark = Props Value Display
+#pragma mark - Props Value Display
 NSString *const HippyDevtoolsCSSPropValueDisplayFlex  = @"flex";
 NSString *const HippyDevtoolsCSSPropValueDisplayNone = @"none";
 
-#pragma mark = Props Value Flex Direction
+#pragma mark - Props Value Flex Direction
 NSString *const HippyDevtoolsCSSPropValueColumn = @"column";
 NSString *const HippyDevtoolsCSSPropValueColumnReverse = @"column-reverse";
 NSString *const HippyDevtoolsCSSPropValueRow = @"row";
 NSString *const HippyDevtoolsCSSPropValueRowReverse = @"row-reverse";
 
-#pragma mark = Props Value Flex Wrap
+#pragma mark - Props Value Flex Wrap
 NSString *const HippyDevtoolsCSSPropValueNowrap = @"nowrap";
 NSString *const HippyDevtoolsCSSPropValueWrap = @"wrap";
 NSString *const HippyDevtoolsCSSPropValueWrapReverse = @"wrap-reverse";
 
-#pragma mark = Props Value Justify content
+#pragma mark - Props Value Justify content
 NSString *const HippyDevtoolsCSSPropValueSpaceBetween = @"space-between";
 NSString *const HippyDevtoolsCSSPropValueSpaceAround = @"space-around";
 NSString *const HippyDevtoolsCSSPropValueSpaceEvenly = @"space-evenly";
 
-#pragma mark = Props Value OverFlow
+#pragma mark - Props Value OverFlow
 NSString *const HippyDevtoolsCSSPropValueHidden = @"hidden";
 NSString *const HippyDevtoolsCSSPropValueVisible = @"visible";
 NSString *const HippyDevtoolsCSSPropValueScroll = @"scroll";
 
-#pragma mark = Props Value Position
+#pragma mark - Props Value Position
 NSString *const HippyDevtoolsCSSPropValueRelative = @"relative";
 NSString *const HippyDevtoolsCSSPropValueAbsolute = @"absolute";
 
-#pragma mark = Props Value Background Size
+#pragma mark - Props Value Background Size
 NSString *const HippyDevtoolsCSSPropValueBackgroundSizeFit = @"fit";
 
-#pragma mark = Props Value Font Weight
+#pragma mark - Props Value Font Weight
 NSString *const HippyDevtoolsCSSPropValueFontWeight100 = @"100";
 NSString *const HippyDevtoolsCSSPropValueFontWeight200 = @"200";
 NSString *const HippyDevtoolsCSSPropValueFontWeight300 = @"300";

@@ -41,8 +41,12 @@ HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropFontStyle;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropBackgroundSize;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropBackgroundPositionX;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropBackgroundPositionY;
+HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropBackgroundColor;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropTextAlign;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropResizeMode;
+HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropColor;
+HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropTextShadowColor;
+HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropTextDecorationColor;
 
 #pragma mark - Rect
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropLeft;
@@ -111,7 +115,7 @@ HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropShadowOpacity;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropShadowRadius;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropShadowSpread;
 
-#pragma mark = Props Value General
+#pragma mark - Props Value General
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueFlexStart;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueFlexEnd;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueStretch;
@@ -124,39 +128,39 @@ HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueContain;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueCover;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueRepeat;
 
-#pragma mark = Props Value Display
+#pragma mark - Props Value Display
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueDisplayFlex;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueDisplayNone;
 
-#pragma mark = Props Value Flex Direction
+#pragma mark - Props Value Flex Direction
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueColumn;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueColumnReverse;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueRow;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueRowReverse;
 
-#pragma mark = Props Value Flex Wrap
+#pragma mark - Props Value Flex Wrap
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueNowrap;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueWrap;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueWrapReverse;
 
-#pragma mark = Props Value Justify content
+#pragma mark - Props Value Justify content
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueSpaceBetween;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueSpaceAround;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueSpaceEvenly;
 
-#pragma mark = Props Value OverFlow
+#pragma mark - Props Value OverFlow
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueHidden;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueVisible;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueScroll;
 
-#pragma mark = Props Value Position
+#pragma mark - Props Value Position
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueRelative;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueAbsolute;
 
-#pragma mark = Props Value Background Size
+#pragma mark - Props Value Background Size
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueBackgroundSizeFit;
 
-#pragma mark = Props Value Font Weight
+#pragma mark - Props Value Font Weight
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueFontWeight100;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueFontWeight200;
 HIPPY_EXTERN NSString *const HippyDevtoolsCSSPropValueFontWeight300;
