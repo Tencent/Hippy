@@ -61,6 +61,9 @@ static FlexAlign GetFlexJustify(const std::string& justify_content) {
     return FlexAlign::FlexAlignSpaceBetween;
   }
   if (justify_content == "space-around") {
+    return FlexAlign::FlexAlignSpaceAround;
+  }
+  if (justify_content == "space-evenly") {
     return FlexAlign::FlexAlignSpaceEvenly;
   }
   return FlexAlign::FlexAlignStart;
