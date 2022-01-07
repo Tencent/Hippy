@@ -167,5 +167,6 @@ HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
 - (void)removeViewEventByID:(NSInteger)touchID;
 - (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
 - (void)removeRenderEvent:(const std::string &)name;
-
+- (BOOL)canBePreventedByInCapturing:(const std::string &)name;
+- (BOOL)canBePreventInBubbling:(const std::string &)name;
 @end
