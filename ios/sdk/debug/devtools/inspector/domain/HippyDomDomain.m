@@ -32,11 +32,13 @@ NSString *const HippyDomMethodGetNodeForLocation = @"getNodeForLocation";
 NSString *const HippyDomMethodRemoveNode = @"removeNode";
 NSString *const HippyDomMethodSetInspectedNode = @"setInspectedNode";
 NSString *const HippyDomMethodPushNodeByPathToFrontend = @"pushNodeByPathToFrontend";
+NSString *const HippyDomMethodPushNodesByBackendIdsToFrontend = @"pushNodesByBackendIdsToFrontend";
 NSString *const HippyDomMethodDocumentUpdated = @"documentUpdated";
-NSString *const HippyDOMParamsKeyNodeId = @"nodeId";
-NSString *const HippyDOMParamsKeyX = @"x";
-NSString *const HippyDOMParamsKeyY = @"y";
-NSString *const HippyDOMParamsKeyPath = @"path";
+NSString *const HippyDomParamsKeyNodeId = @"nodeId";
+NSString *const HippyDomParamsKeyX = @"x";
+NSString *const HippyDomParamsKeyY = @"y";
+NSString *const HippyDomParamsKeyPath = @"path";
+NSString *const HippyDomParamsKeyBackendNodeIds = @"backendNodeIds";
 
 @interface HippyDomDomain () {
     HippyDomModel *_domModel;
@@ -89,6 +91,9 @@ NSString *const HippyDOMParamsKeyPath = @"path";
         if ([command.method isEqualToString:HippyDomMethodPushNodeByPathToFrontend]) {
             return [self handlePushNodeByPathToFrontendWithCmd:command bridge:bridge completion:completion];
         }
+        if ([command.method isEqualToString:HippyDomMethodPushNodesByBackendIdsToFrontend]) {
+            return [self handlePushNodesByBackendIdsToFrontendWithCmd:command bridge:bridge completion:completion];
+        }
     }
     return NO;
 }
@@ -125,7 +130,7 @@ NSString *const HippyDOMParamsKeyPath = @"path";
         completion(@{});
         return NO;
     }
-    NSNumber *nodeId = command.params[HippyDOMParamsKeyNodeId];
+    NSNumber *nodeId = command.params[HippyDomParamsKeyNodeId];
     if (!nodeId) {
         HippyLogWarn(@"DomDomain, getBoxModel error, params isn't contains nodeId key");
         completion(@{});
@@ -152,8 +157,8 @@ NSString *const HippyDOMParamsKeyPath = @"path";
         completion(@{});
         return NO;
     }
-    NSNumber *x = command.params[HippyDOMParamsKeyX];
-    NSNumber *y = command.params[HippyDOMParamsKeyY];
+    NSNumber *x = command.params[HippyDomParamsKeyX];
+    NSNumber *y = command.params[HippyDomParamsKeyY];
     if (!x || !y) {
         HippyLogWarn(@"DomDomain, getNodeForLocation error, param isn't contains x or y key");
         return NO;
@@ -179,12 +184,30 @@ NSString *const HippyDOMParamsKeyPath = @"path";
         completion(@{});
         return NO;
     }
-    NSString *path = command.params[HippyDOMParamsKeyPath];
+    NSString *path = command.params[HippyDomParamsKeyPath];
     if (path.length <= 0) {
         HippyLogWarn(@"DomDomain, pushNodeByPathToFrontend error, path is empty");
         return NO;
     }
     [_domModel domGetNodeIdByPath:path manager:manager completion:^(NSDictionary * _Nonnull rspObject) {
+        [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
+    }];
+    
+    return YES;
+}
+
+- (BOOL)handlePushNodesByBackendIdsToFrontendWithCmd:(HippyDevCommand *)command
+                                              bridge:(HippyBridge *)bridge
+                                          completion:(void (^)(NSDictionary *rspObject))completion {
+    if (!completion) {
+        return NO;
+    }
+    NSArray<NSNumber *> *backendIds = command.params[HippyDomParamsKeyBackendNodeIds];
+    if (backendIds.count <= 0) {
+        HippyLogWarn(@"DomDomain, pushNodesByBackendIdsToFrontend error, backendIds is empty");
+        return NO;
+    }
+    [_domModel domGetNodeIdsByBackendIds:backendIds completion:^(NSDictionary * _Nonnull rspObject) {
         [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
     }];
     

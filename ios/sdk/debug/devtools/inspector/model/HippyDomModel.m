@@ -43,6 +43,7 @@ NSString *const HippyDOMKeyModel = @"model";
 NSString *const HippyDOMKeyBoxModelContent = @"content";
 NSString *const HippyDOMKeyBackendId = @"backendId";
 NSString *const HippyDOMKeyFrameId = @"frameId";
+NSString *const HippyDOMKeyNodeIds = @"nodeIds";
 
 // Default Value
 NSInteger const HippyDOMDefaultDocumentNodeId = -3;
@@ -66,7 +67,21 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     HippyDOMNodeTypeDocumentFragmentNode = 9
 };
 
+@interface HippyDomModel ()
+
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, NSNumber *> *backendIdMap; // key: nodeId  value: backendId
+
+@end
+
 @implementation HippyDomModel
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.backendIdMap = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
 
 #pragma mark - DOM Protocol
 - (BOOL)domGetDocumentJSONWithManager:(nullable HippyUIManager *)manager
@@ -87,6 +102,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self.backendIdMap removeAllObjects];
         NSMutableDictionary *rootDic = [NSMutableDictionary dictionary];
         rootDic[HippyDOMKeyNodeId] = @(HippyDOMDefaultDocumentNodeId);
         rootDic[HippyDOMKeyBackendNodeId] = @(HippyDOMDefaultDocumentNodeId);
@@ -204,6 +220,32 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     return YES;
 }
 
+- (BOOL)domGetNodeIdsByBackendIds:(NSArray<NSNumber *> *)backendIds
+                       completion:(void (^)(NSDictionary * _Nonnull))completion {
+    if (!completion) {
+        HippyLogWarn(@"DOM Model, pushNodesByBackendIdsToFrontend error, completion is nil");
+        return NO;
+    }
+    if (backendIds.count <= 0) {
+        HippyLogWarn(@"DOM Model, pushNodesByBackendIdsToFrontend error, backendIds is empty");
+        return NO;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableArray *nodeIds = [NSMutableArray array];
+        for (NSNumber *backendId in backendIds) {
+            NSNumber *nodeId = self.backendIdMap[backendId];
+            if (!nodeId) {
+                continue;
+            }
+            [nodeIds addObject:nodeId];
+        }
+        NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
+        resultDic[HippyDOMKeyNodeIds] = nodeIds;
+        completion(resultDic);
+    });
+    return YES;
+}
+
 #pragma mark - private method
 - (NSDictionary *)nodeJSONWithVirtualNode:(HippyVirtualNode *)node
                                  nodeType:(HippyDOMNodeType)nodeType {
@@ -242,8 +284,10 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     if (nodeType == HippyDOMNodeTypeTextNode) {
         nodeId = @(-nodeId.integerValue);
     }
+    NSNumber *backendId = nodeId;
     basicDictionary[HippyDOMKeyNodeId] = nodeId;
-    basicDictionary[HippyDOMKeyBackendNodeId] = @(0);
+    basicDictionary[HippyDOMKeyBackendNodeId] = backendId;
+    self.backendIdMap[nodeId] = backendId;
     basicDictionary[HippyDOMKeyNodeType] = @(nodeType);
     basicDictionary[HippyDOMKeyLocalName] = node.tagName;
     basicDictionary[HippyDOMKeyNodeName] = node.tagName;
