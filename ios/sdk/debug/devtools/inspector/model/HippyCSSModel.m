@@ -56,6 +56,7 @@ NSString *const HippyCSSDefaultPosition = @"relative";
 
 @property (nonatomic, strong) HippyStyleEnumMap *styleEnumMap;
 @property (nonatomic, strong) NSSet<NSString *> *styleNumberSet;
+@property (nonatomic, strong) NSSet<NSString *> *styleColorSet;
 @property (nonatomic, strong) NSDictionary<NSString *, NSString *> *boxModelRequireMap;
 
 @end
@@ -68,6 +69,7 @@ NSString *const HippyCSSDefaultPosition = @"relative";
     if (self) {
         [self initializeStyleEnumMap];
         [self initializeStyleNumberSet];
+        [self initializeColorSet];
         [self initializeBoxModelRequireMap];
     }
     return self;
@@ -146,6 +148,9 @@ NSString *const HippyCSSDefaultPosition = @"relative";
             NSString *propValue = [propTextArray.lastObject stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
             if ([self.styleNumberSet containsObject:propKey]) {
                 newProps[propKey] = @(propValue.doubleValue);
+            }
+            if ([self.styleColorSet containsObject:propKey]) {
+                newProps[propKey] = @(propValue.integerValue);
             }
             if ([self.styleEnumMap.allKeys containsObject:propKey]) {
                 NSArray *enumValues = self.styleEnumMap[propKey];
@@ -320,7 +325,9 @@ NSString *const HippyCSSDefaultPosition = @"relative";
 }
 
 - (BOOL)canHandleStyle:(NSString *)obj {
-    return [self.styleNumberSet containsObject:obj] || [self.styleEnumMap.allKeys containsObject:obj];
+    return [self.styleNumberSet containsObject:obj] ||
+           [self.styleEnumMap.allKeys containsObject:obj] ||
+           [self.styleColorSet containsObject:obj];
 }
 
 - (void)initializeStyleNumberSet {
@@ -426,6 +433,21 @@ NSString *const HippyCSSDefaultPosition = @"relative";
                                            HippyDevtoolsCSSPropValueStretch, HippyDevtoolsCSSPropValueRepeat,
                                            HippyDevtoolsCSSPropCenter]
     };
+}
+
+- (void)initializeColorSet {
+    self.styleColorSet = [NSSet setWithArray:@[
+        HippyDevtoolsCSSPropBackgroundColor,
+        HippyDevtoolsCSSPropBorderColor,
+        HippyDevtoolsCSSPropBorderLeftColor,
+        HippyDevtoolsCSSPropBorderTopColor,
+        HippyDevtoolsCSSPropBorderRightColor,
+        HippyDevtoolsCSSPropBorderBottomColor,
+        HippyDevtoolsCSSPropShadowColor,
+        HippyDevtoolsCSSPropColor,
+        HippyDevtoolsCSSPropTextShadowColor,
+        HippyDevtoolsCSSPropTextDecorationColor
+    ]];
 }
 
 - (void)initializeBoxModelRequireMap {
