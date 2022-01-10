@@ -7,7 +7,7 @@ hippy-vue 其实是基于官方 Vue 2.x 源代码，通过改写 [node-ops](//gi
 
 # 架构图
 
-<img src="assets/hippy-vue.png" alt="hippy-vue 架构图" width="80%"/>
+<img src="assets/img/hippy-vue.png" alt="hippy-vue 架构图" width="80%"/>
 <br />
 <br />
 
