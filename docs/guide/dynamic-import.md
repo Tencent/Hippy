@@ -11,7 +11,7 @@ Hippy 2.2 版本之前只支持加载单个 js bundle 文件。随着业务越�
 
 ## 原理架构
 
-![Communication Info](../assets/dynamic_import.png)
+![Communication Info](../assets/img/dynamic_import.png)
 
 ## 范例
 

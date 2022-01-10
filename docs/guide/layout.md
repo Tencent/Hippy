@@ -6,7 +6,7 @@ Hippy 为了方便前端开发便于理解，样式也采用了 CSS 的盒模型
 
 > PS: Hippy 的盒模型布局对应的是CSS的 `box-sizing` 属性的 `border-box` 类型，具体表现与宽高边距计算可参考[MDN文档 box-sizing](//developer.mozilla.org/zh-CN/docs/Web/CSS/box-sizing)。
 
-![盒模型](../assets/border-box.png)
+![盒模型](../assets/img/border-box.png)
 
 * [width](style/layout.md?id=width)
 * [height](style/layout.md?id=height)
@@ -25,7 +25,7 @@ flexDirection 属性指定了内部元素是如何在 flex 容器中布局的，
 
 > 注意：Hippy 的 flexDirection 与 Web的 flex-direction Web 默认为 `row`, Hippy 默认为 `column`。
 
-<img src="assets/flex-direction.png" alt="flexDirection" width="30%"/>
+<img src="assets/img/flex-direction.png" alt="flexDirection" width="30%"/>
 <br />
 <br />
 
