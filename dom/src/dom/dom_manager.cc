@@ -119,7 +119,7 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       if (parent_node != nullptr) {
         parent_node->RemoveChildAt(parent_node->IndexOf(node));
       }
-      self->dom_node_registry_.RemoveNode(node->GetId());
+      self->DeleteDomNode(node);
       delete_nodes.push_back(node);
       self->HandleEvent(std::make_shared<DomEvent>(kOnDomDeleted, node, nullptr));
 
@@ -141,6 +141,17 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       });
     }
   });
+}
+
+void DomManager::DeleteDomNode(std::shared_ptr<DomNode> node) {
+  if (node) {
+    for (auto child : node->GetChildren()) {
+      if (child) {
+        DeleteDomNode(child);
+      }
+    }
+    dom_node_registry_.RemoveNode(node->GetId());
+  }
 }
 
 void DomManager::BeginBatch() {
