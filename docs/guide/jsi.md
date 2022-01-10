@@ -7,7 +7,7 @@ JavaScript Interface(JSI) 模式提供了一种无需经历编解码（序列化
 ## 架构图
 
 <br />
-<img src="assets/jsi_structure.png" alt="jsi架构图" width="40%"/>
+<img src="assets/img/jsi_structure.png" alt="jsi架构图" width="40%"/>
 <br />
 <br />
 

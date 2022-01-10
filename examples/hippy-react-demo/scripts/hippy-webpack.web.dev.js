@@ -33,7 +33,7 @@ module.exports = {
       title: pkg.name,
       filename: `${pkg.name}.html`,
       template: path.resolve(__dirname, './template.html'),
-      favouriteIcon: pkg.favicon || 'https://res.imtt.qq.com/hippydoc/img/hippy-logo.ico',
+      favouriteIcon: pkg.favicon || 'https://hippyjs.org/assets/img/hippy-logo.ico',
     }),
     new CaseSensitivePathsPlugin(),
     new ReactRefreshWebpackPlugin(),

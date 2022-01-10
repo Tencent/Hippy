@@ -16,23 +16,23 @@
 
 打开 iOS 工程，新建一个 `fonts` 目录，并将字体文件拖动到该目录中。按照截图，建立字体引用即可，确保 Target 正确。
 
-![拷贝字体](../assets/copy-font.png)
+![拷贝字体](../assets/img/copy-font.png)
 
 然后点击项目中的字体文件，并再次确认 Target 正确。
 
-![确认字体](../assets/confirm-font.png)
+![确认字体](../assets/img/confirm-font.png)
 
 ## 检查项目配置
 
 确认项目的设置的 `Build Phases` 里字体文件正确整合。
 
-![项目设置](../assets/font-project-setup.png)
+![项目设置](../assets/img/font-project-setup.png)
 
 ## 将字体添加到 Info.plist
 
 将准确的字体文件名加入 `Info.plist` 的 `Fonts provided by application` 字段，如果没有这行的话，需要手工 `Add row` 添加一行。
 
-![Info.plist](../assets/info-plist.png)
+![Info.plist](../assets/img/info-plist.png)
 
 ## 验证字体正确性
 
@@ -53,7 +53,7 @@ for (NSString* family in [UIFont familyNames])
 }
 ```
 
-![检查字体](../assets/check-font.png)
+![检查字体](../assets/img/check-font.png)
 
 # Android
 

@@ -42,7 +42,7 @@ async function startDevServer(args) {
     description: 'hippy instance',
     devtoolsFrontendUrl: `chrome-devtools://devtools/bundled/js_app.html?experiments=true&ws=${host}:${port}/debugger-proxy?role=chrome`,
     devtoolsFrontendUrlCompat: `chrome-devtools://devtools/bundled/inspector.html?experiments=true&v8only=true&ws=${host}:${port}/debugger-proxy?role=chrome`,
-    faviconUrl: 'http://res.imtt.qq.com/hippydoc/img/hippy-logo.ico',
+    faviconUrl: 'https://hippyjs.org/assets/img/hippy-logo.ico',
     title: 'Hippy debug tools for V8',
     type: 'page',
     url: '',
