@@ -360,7 +360,7 @@ export default {
       }
     },
     async getSize() {
-      const result = await Vue.Native.ImageLoader.getSize('https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png');
+      const result = await Vue.Native.ImageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
       console.log('ImageLoader getSize', result);
       this.imageSize = `${result.width}x${result.height}`;
     },

@@ -39,7 +39,7 @@ const app = new Vue({
       backgroundColor: 4283416717,
 
       // 状态栏背景图，要注意这个会根据容器尺寸拉伸。
-      // backgroundImage: 'https://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+      // backgroundImage: 'https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png',
     },
   },
   // 路由

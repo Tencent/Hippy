@@ -22,7 +22,7 @@ hippy-react 的组件接近终端，语法上接近 React Native。
 ```jsx
 <Image
   style={{ width: 200, height: 200 }}
-  source={{ uri: 'http://res.imtt.qq.com/flower-h5/qb_icon_new.png' }}
+  source={{ uri: 'http://xxx/qb_icon_new.png' }}
   resizeMode={Image.resizeMode.cover}
 />;
 ```
