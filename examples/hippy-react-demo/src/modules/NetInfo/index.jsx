@@ -47,10 +47,10 @@ export default class NetInfoExample extends React.Component {
       NetInfo.removeEventListener('change', this.listener);
     }
 
-    fetch('https://m.baidu.com', {
+    fetch('https://hippyjs.org', {
       headers: {
-        Refer: 'https://now.qq.com',
-        Cookie: ['harry=guo5', 'xxx=5'],
+        Refer: 'https://hippyjs.org',
+        Cookie: ['hippy=cookieTest1', 'hippy=cookieTest2'],
       },
     }).then((responseJson) => {
       // eslint-disable-next-line no-console
@@ -71,11 +71,11 @@ export default class NetInfoExample extends React.Component {
     /**
      * hippy sdk 1.3.0+ setCookie 设置指定url下的Cookie
      * @param url 指定url，其实也就是指定作用域，如：https://hippyjs.org
-     * @param keyValue cookie key-value键值对集合，多个以分号";"隔开，如：name=harryguo。或者：name=harryguo;gender=male
+     * @param keyValue cookie key-value键值对集合，多个以分号";"隔开，如：name=someone。或者：name=someone;gender=male
      * @param expires 默认为空 过期时间，格式与http协议头response里的Set-Cookie相同，如：Thu, 08-Jan-2020 00:00:00 GMT
-     * 注意：指定expires的时候，只能设置一个cookie；如果不指定expires的时候，可以设置多个cookie：name=harryguo;gender=male
+     * 注意：指定expires的时候，只能设置一个cookie；如果不指定expires的时候，可以设置多个cookie：name=someone;gender=male
      */
-    NetworkModule.setCookie('https://hippyjs.org', 'name=harryguo;gender=male');
+    NetworkModule.setCookie('https://hippyjs.org', 'name=someone;gender=male');
 
     /**
      * hippy sdk 1.3.0+ getCookie 获取指定url下的所有cookie
