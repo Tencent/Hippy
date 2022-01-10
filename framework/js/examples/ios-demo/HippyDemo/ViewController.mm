@@ -29,6 +29,7 @@
 #include "NativeRenderManager.h"
 #include "dom/dom_node.h"
 #include "dom/dom_value.h"
+#import "DemoConfigs.h"
 
 @interface ViewController ()<HippyBridgeDelegate> {
     std::shared_ptr<hippy::DomManager> _domManager;
@@ -60,7 +61,7 @@
 //#define HIPPYDEBUG
     
 #ifdef HIPPYDEBUG
-    NSDictionary *launchOptions = @{@"EnableTurbo": @YES, @"DebugMode": @(YES)};
+    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
     NSString *localhost = [HippyBundleURLProvider sharedInstance].localhost ?: @"localhost:38989";
     NSString *bundleStr = [NSString stringWithFormat:@"http://%@%@", localhost, [HippyBundleURLProvider sharedInstance].debugPathUrl];
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
@@ -73,7 +74,7 @@
 #else
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
-    NSDictionary *launchOptions = @{@"EnableTurbo": @YES};
+    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
                                                       bundleURL:[NSURL fileURLWithPath:commonBundlePath]
                                                  moduleProvider:nil
