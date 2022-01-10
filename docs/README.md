@@ -58,11 +58,11 @@ Hippy 从底层增加了很多和浏览器相同的接口，方便了开发者�
 
 Hippy 的包体积在业内也是非常具有竞争力的。
 
-![包体积1](//res.imtt.qq.com/hippydoc/img/out/baodaxiao.png)
+![包体积1](assets/baodaxiao.png)
 
 上图是一个空的APK，在引入后终端包大小对比。
 
-![包体积2](//res.imtt.qq.com/hippydoc/img/out/jsbao.png)
+![包体积2](assets/jsbao.png)
 
 上图是在前端搭建了一个最简单的 ListView 后，前端打出的 JS 的包大小对比。
 
@@ -70,13 +70,13 @@ Hippy 的包体积在业内也是非常具有竞争力的。
 
 ListView 在滑动时的性能对比，Hippy 可以一直保持十分流畅的状态
 
-<img src="//static.res.qq.com/nav/hippydoc/img/listxingneng.png" alt="渲染性能" width="50%"/>
+<img src="assets/listxingneng.png" alt="渲染性能" width="50%"/>
 
 ## 内存占用
 
 而在内存占用上，初始化 List 时 Hippy 就略占优势，在滑动了几屏后内存开销的差距越来越大。
 
-![内存占用](//res.imtt.qq.com/hippydoc/img/out/listmeicun.png)
+![内存占用](assets/listmeicun.png)
 
 ## 跟 Web 接近的开发体验
 
@@ -106,7 +106,7 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//res.imtt.qq.com/hippydoc/img/tv.png" width="50" alt="云视听极光" />
+  <img src="assets/tv.png" width="50" alt="云视听极光" />
   <p style="font-size:16px">
   <a target="_blank" style="text-decoration:none;color:#34495e" href="https://tv.qq.com/" title="云视听极光">云视听极光</a>
   </p>
@@ -130,7 +130,7 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//res.imtt.qq.com/res_mtt/hippydoc/voov.png" width="50" alt="VOOV直播" />
+  <img src="assets/voov.png" width="50" alt="VOOV直播" />
   <p style="font-size:16px">
   <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.voovlive.com/" title="VOOV直播">VOOV直播</a>
   </p>
@@ -201,15 +201,15 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
   <p style="font-size:16px">CDG大丰满满/自选股团队</p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="//res.imtt.qq.com/res_mtt/hippydoc/qg-team.png" width="50" alt="QGraphics团队" />
+  <img src="assets/qg-team.png" width="50" alt="QGraphics团队" />
   <p style="font-size:16px">QGraphics团队</p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="//res.imtt.qq.com/res_mtt/hippydoc/IVW_23.png" width="50" alt="IVWEB团队" />
+  <img src="assets/IVW_23.png" width="50" alt="IVWEB团队" />
   <p style="font-size:16px">IVWEB团队</p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="//res.imtt.qq.com/hippydoc/img/wii-team.png" width="50" alt="游云南WII团队" />
+  <img src="assets/wii-team.png" width="50" alt="游云南WII团队" />
   <p style="font-size:16px">游云南WII团队</p>
  </span>
  </div>
@@ -277,7 +277,7 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
 * QQ 群：[784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a) - 点击链接启动 QQ 加入，或者复制群号码手工加入
 * QQ群二维码，使用手机QQ扫描加入
 
- ![QQ群二维码](https://puui.qpic.cn/vupload/0/1578363513271_py0yktxq7x.png/0)
+ ![QQ群二维码](assets/qq-group.png)
 
 ## 总结
 
