@@ -35,7 +35,7 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name,
       current_callback_id_(0),
       func_cb_map_(nullptr),
       event_listener_map_(nullptr) {
-  CreateLayoutNode();
+  layout_node_ = hippy::dom::CreateLayoutNode();
 }
 
 DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
@@ -47,18 +47,10 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
       current_callback_id_(0),
       func_cb_map_(nullptr),
       event_listener_map_(nullptr) {
-  CreateLayoutNode();
+  layout_node_ = hippy::dom::CreateLayoutNode();
 }
 
 DomNode::~DomNode() = default;
-
-void DomNode::CreateLayoutNode() {
-#ifdef USE_YOGA
-  layout_node_ = std::make_shared<YogaLayoutNode>();
-#elif USE_TAITANK
- layout_node_ = std::make_shared<TaitankLayoutNode>();
-#endif
-}
 
 int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
   for (int i = 0; i < children_.size(); i++) {

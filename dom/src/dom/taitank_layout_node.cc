@@ -714,5 +714,10 @@ void TaitankLayoutNode::Deallocate() {
   delete engine_node_;
 }
 
+
+std::shared_ptr<LayoutNode> CreateLayoutNode() {
+  return std::make_shared<TaitankLayoutNode>();
+}
+
 }  // namespace dom
 }  // namespace hippy
