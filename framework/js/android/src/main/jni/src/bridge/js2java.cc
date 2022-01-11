@@ -27,15 +27,14 @@
 #include "base/logging.h"
 #include "base/unicode_string_view.h"
 #include "bridge/runtime.h"
-#include "bridge/serializer.h"
 #include "core/base/string_view_utils.h"
+#include "core/napi/v8/serializer.h"
 #include "jni/jni_env.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
-namespace hippy {
-namespace bridge {
+namespace hippy::bridge {
 
 void CallJava(hippy::napi::CBDataTuple *data) {
   TDF_BASE_DLOG(INFO) << "CallJava";
@@ -174,5 +173,4 @@ void CallJava(hippy::napi::CBDataTuple *data) {
   j_env->DeleteLocalRef(j_buffer);
 }
 
-}  // namespace bridge
 }  // namespace hippy

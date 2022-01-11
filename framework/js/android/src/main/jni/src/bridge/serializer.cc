@@ -20,7 +20,7 @@
  *
  */
 
-#include "bridge/serializer.h"
+#include "core/napi/v8/serializer.h"
 
 #include "v8/v8.h"
 

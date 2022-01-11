@@ -35,9 +35,10 @@
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/native_source_code.h"
+#include "core/napi/v8/serializer.h"
 #include "core/scope.h"
-#include "hippy.h"
 #include "v8/libplatform/libplatform.h"
+
 
 namespace hippy::napi {
 
