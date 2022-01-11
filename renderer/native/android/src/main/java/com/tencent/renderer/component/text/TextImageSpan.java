@@ -22,12 +22,16 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Movie;
 import android.graphics.Paint;
+import android.graphics.Paint.FontMetricsInt;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.text.style.DynamicDrawableSpan;
 import android.text.style.ImageSpan;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -48,6 +52,11 @@ import java.lang.reflect.Field;
 @SuppressWarnings("deprecation")
 public class TextImageSpan extends ImageSpan {
 
+  public static final int ALIGN_BOTTOM = 0;
+  public static final int ALIGN_BASELINE = 1;
+  public static final int ALIGN_CENTER = 2;
+  public static final int ALIGN_TOP = 3;
+
   public final static int STATE_UNLOAD = 0;
   public final static int STATE_LOADING = 1;
   public final static int STATE_LOADED = 2;
@@ -65,6 +74,7 @@ public class TextImageSpan extends ImageSpan {
   private Movie mGifMovie = null;
   private int mGifProgress = 0;
   private long mGifLastPlayTime = -1;
+  private IAlignConfig alignConfig;
 
   public TextImageSpan(Drawable drawable, String source, ImageVirtualNode node,
           IImageLoaderAdapter imageAdapter, NativeRender nativeRenderer) {
@@ -73,6 +83,37 @@ public class TextImageSpan extends ImageSpan {
     mImageNodeWeakRefrence = new WeakReference<>(node);
     mImageAdapter = imageAdapter;
     setUrl(source);
+    initAlignConfig(node.getVerticalAlignment());
+  }
+
+  private void initAlignConfig(int verticalAlignment) {
+    switch (verticalAlignment) {
+      case ALIGN_BASELINE:
+        alignConfig = new AlignBaselineConfig();
+        break;
+      case ALIGN_CENTER:
+        alignConfig = new AlignCenterConfig();
+        break;
+      case ALIGN_TOP:
+        alignConfig = new AlignTopConfig();
+        break;
+      case ALIGN_BOTTOM:
+      default:
+        alignConfig = new AlignBottomConfig();
+        break;
+    }
+  }
+
+  public void setDesiredSize(int width, int height) {
+    alignConfig.setDesiredSize(width, height);
+  }
+
+  public void setActiveSizeWithRate(float heightRate) {
+    alignConfig.setActiveSizeWithRate(heightRate);
+  }
+
+  public void setMargin(int marginLeft, int marginRight) {
+    alignConfig.setMargin(marginLeft, marginRight);
   }
 
   private void updateBoundsAttribute() {
@@ -176,6 +217,19 @@ public class TextImageSpan extends ImageSpan {
   }
 
   @Override
+  public int getSize(@NonNull Paint paint, CharSequence text, int start, int end,
+    @Nullable FontMetricsInt fm) {
+    if (mGifMovie!=null) {
+      return super.getSize(paint, text, start, end, fm);
+    } else {
+      Drawable drawable = getDrawable();
+      return alignConfig.getSize(paint,
+        text, start, end,
+        fm, drawable);
+    }
+  }
+
+  @Override
   public void draw(Canvas canvas, CharSequence text,
       int start, int end, float x,
       int top, int y, int bottom, Paint paint) {
@@ -187,18 +241,13 @@ public class TextImageSpan extends ImageSpan {
 
       transY = (y + fm.descent + y + fm.ascent) / 2 - height / 2;
       drawGIF(canvas, x + mLeft, transY + mTop, width, height);
-    } else if (mVerticalAlignment == ImageSpan.ALIGN_BASELINE) {
-      Drawable b = getDrawable();
-
-      transY = (y + fm.descent + y + fm.ascent) / 2
-          - b.getBounds().bottom / 2;
-
-      canvas.save();
-      canvas.translate(x + mLeft, transY + mTop);
-      b.draw(canvas);
-      canvas.restore();
     } else {
-      super.draw(canvas, text, start, end, x, top, y, bottom, paint);
+      Drawable drawable = getDrawable();
+      alignConfig.draw(canvas,
+        text, start, end,
+        x, top, y, bottom,
+        paint,
+        drawable);
     }
   }
 
@@ -286,5 +335,275 @@ public class TextImageSpan extends ImageSpan {
         sendImageLoadEvent(ONERROR);
       }
     }, props);
+  }
+
+  private interface IAlignConfig {
+
+    void setDesiredSize(int desiredDrawableWidth, int desiredDrawableHeight);
+
+    void setActiveSizeWithRate(float heightRate);
+
+    void setMargin(int marginLeft, int marginRight);
+
+    int getSize(@NonNull Paint paint,
+      CharSequence text, int start, int end,
+      @Nullable FontMetricsInt fm,
+      Drawable drawable);
+
+    void draw(@NonNull Canvas canvas,
+      CharSequence text, int start, int end,
+      float baseLineX, int lineTop, int baselineY, int lintBottom,
+      @NonNull Paint paint,
+      Drawable drawable);
+  }
+
+  private abstract static class BaseAlignConfig implements IAlignConfig {
+
+    private int desiredDrawableWidth;
+    private int desiredDrawableHeight;
+
+    private float heightRate;
+
+    private final int[] size = new int[2];
+
+    private int marginLeft;
+    private int marginRight;
+
+    @Override
+    public void setDesiredSize(int desiredDrawableWidth, int desiredDrawableHeight) {
+      this.desiredDrawableWidth = desiredDrawableWidth;
+      this.desiredDrawableHeight = desiredDrawableHeight;
+
+      heightRate = 0;
+    }
+
+    @Override
+    public void setActiveSizeWithRate(float heightRate) {
+      this.heightRate = heightRate;
+
+      desiredDrawableWidth = 0;
+      desiredDrawableHeight = 0;
+    }
+
+    @Override
+    public void setMargin(int marginLeft, int marginRight) {
+      this.marginLeft = marginLeft;
+      this.marginRight = marginRight;
+    }
+
+    private void calDrawableSize(Rect drawableBounds, Paint paint) {
+      int dWidth;
+      int dHeight;
+      if (heightRate > 0) {
+        int textSize = (int) paint.getTextSize();
+        dHeight = (int) (textSize * heightRate);
+        dWidth = drawableBounds.right * dHeight / drawableBounds.bottom;
+      } else {
+        dHeight = desiredDrawableHeight;
+        dWidth = desiredDrawableWidth;
+      }
+
+      if (dWidth <= 0 || dHeight <= 0) {
+        dWidth = drawableBounds.right;
+        dHeight = drawableBounds.bottom;
+      }
+
+      size[0] = dWidth;
+      size[1] = dHeight;
+    }
+
+    @Override
+    public int getSize(@NonNull Paint paint,
+      CharSequence text, int start, int end,
+      @Nullable FontMetricsInt fm,
+      Drawable drawable) {
+
+      calDrawableSize(drawable.getBounds(), paint);
+      int dWidth = size[0];
+      int dHeight = size[1];
+
+      int deltaTop = 0;
+      int deltaBottom = 0;
+      if (fm != null) {
+        deltaTop = fm.top - fm.ascent;
+        deltaBottom = fm.bottom - fm.descent;
+      }
+
+      int size = getCustomSize(paint,
+        text, start, end,
+        fm, dWidth, dHeight);
+      if (fm != null) {
+        fm.top = fm.ascent + deltaTop;
+        fm.bottom = fm.descent + deltaBottom;
+      }
+      return marginLeft + size + marginRight;
+    }
+
+    @Override
+    public void draw(@NonNull Canvas canvas,
+      CharSequence text, int start, int end,
+      float baseLineX, int lineTop, int baselineY, int lineBottom,
+      @NonNull Paint paint,
+      Drawable drawable) {
+      Rect drawableBounds = drawable.getBounds();
+
+      int dWidth = size[0];
+      int dHeight = size[1];
+
+      FontMetricsInt fontMetricsInt = paint.getFontMetricsInt();
+
+      int transY = getTransY(canvas,
+        text, start, end,
+        baseLineX, lineTop, baselineY, lineBottom,
+        paint, fontMetricsInt,
+        dWidth, dHeight);
+      transY = adjustTransY(transY, lineTop, lineBottom, dHeight);
+
+      float scaleX = (float) dWidth / drawableBounds.right;
+      float scaleY = (float) dHeight / drawableBounds.bottom;
+
+      canvas.save();
+      canvas.translate(baseLineX + marginLeft, transY);
+      canvas.scale(scaleX, scaleY);
+      drawable.draw(canvas);
+      canvas.restore();
+    }
+
+    private static int adjustTransY(
+      int transY,
+      int lineTop,
+      int lineBottom,
+      int drawableHeight
+    ) {
+      if (drawableHeight + transY > lineBottom) {
+        transY = lineBottom - drawableHeight;
+      }
+      if (transY < lineTop) {
+        transY = lineTop;
+      }
+      return transY;
+    }
+
+    abstract int getCustomSize(@NonNull Paint paint,
+      CharSequence text, int start, int end,
+      @Nullable FontMetricsInt fm,
+      int drawableWidth, int drawableHeight);
+
+    abstract int getTransY(@NonNull Canvas canvas,
+      CharSequence text, int start, int end,
+      float baseLineX, int lineTop, int baselineY, int lineBottom,
+      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
+      int drawableWidth, int drawableHeight);
+  }
+
+  private static class AlignBaselineConfig extends BaseAlignConfig {
+
+    @Override
+    public int getCustomSize(@NonNull Paint paint,
+      CharSequence text, int start, int end,
+      @Nullable FontMetricsInt fm,
+      int drawableWidth, int drawableHeight) {
+      if (fm != null) {
+        fm.ascent = -drawableHeight;
+      }
+      return drawableWidth;
+    }
+
+    @Override
+    public int getTransY(@NonNull Canvas canvas,
+      CharSequence text, int start, int end,
+      float baseLineX, int lineTop, int baselineY, int lineBottom,
+      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
+      int drawableWidth, int drawableHeight) {
+      return baselineY - drawableHeight;
+    }
+  }
+
+  private static class AlignBottomConfig extends AlignBaselineConfig {
+
+    @Override
+    public int getCustomSize(@NonNull Paint paint,
+      CharSequence text, int start, int end,
+      @Nullable FontMetricsInt fm,
+      int drawableWidth, int drawableHeight) {
+      if (fm != null) {
+        fm.ascent = fm.descent - drawableHeight;
+      }
+      return drawableWidth;
+    }
+
+    @Override
+    public int getTransY(@NonNull Canvas canvas,
+      CharSequence text, int start, int end,
+      float baseLineX, int lineTop, int baselineY, int lineBottom,
+      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
+      int drawableWidth, int drawableHeight) {
+      return super.getTransY(canvas,
+        text, start, end,
+        baseLineX, lineTop, baselineY, lineBottom,
+        paint, fontMetricsInt,
+        drawableWidth, drawableHeight) + fontMetricsInt.descent;
+    }
+  }
+
+  private static class AlignCenterConfig extends AlignBottomConfig {
+
+    @Override
+    public int getCustomSize(@NonNull Paint paint,
+      CharSequence text, int start, int end,
+      @Nullable FontMetricsInt fm,
+      int drawableWidth, int drawableHeight) {
+      if (fm != null) {
+        int textAreaHeight = fm.descent - fm.ascent;
+        if (textAreaHeight < drawableHeight) {
+          int oldSumOfAscentAndDescent = fm.ascent + fm.descent;
+          fm.ascent = oldSumOfAscentAndDescent - drawableHeight >> 1;
+          fm.descent = oldSumOfAscentAndDescent + drawableHeight >> 1;
+        }
+
+      }
+      return drawableWidth;
+    }
+
+    @Override
+    public int getTransY(@NonNull Canvas canvas,
+      CharSequence text, int start, int end,
+      float baseLineX, int lineTop, int baselineY, int lineBottom,
+      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
+      int drawableWidth, int drawableHeight) {
+      int transY = super.getTransY(canvas,
+        text, start, end,
+        baseLineX, lineTop, baselineY, lineBottom,
+        paint, fontMetricsInt,
+        drawableWidth, drawableHeight);
+
+      int fontHeight = fontMetricsInt.descent - fontMetricsInt.ascent;
+      transY = transY - (fontHeight >> 1) + (drawableHeight >> 1);
+
+      return transY;
+    }
+  }
+
+  private static class AlignTopConfig extends BaseAlignConfig {
+
+    @Override
+    public int getCustomSize(@NonNull Paint paint,
+      CharSequence text, int start, int end,
+      @Nullable FontMetricsInt fm,
+      int drawableWidth, int drawableHeight) {
+      if (fm != null) {
+        fm.descent = drawableHeight + fm.ascent;
+      }
+      return drawableWidth;
+    }
+
+    @Override
+    public int getTransY(@NonNull Canvas canvas,
+      CharSequence text, int start, int end,
+      float baseLineX, int lineTop, int baselineY, int lintBottom,
+      @NonNull Paint paint, FontMetricsInt fontMetricsInt,
+      int drawableWidth, int drawableHeight) {
+      return baselineY + fontMetricsInt.ascent;
+    }
   }
 }
