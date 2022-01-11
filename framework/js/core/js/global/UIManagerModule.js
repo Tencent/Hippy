@@ -124,11 +124,6 @@ Hippy.document = {
     UIManagerModule.FlushBatch(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'flushBatch', rootViewId, queue);
   },
-  startBatch(renderId) {
-    global.ConsoleModule.debug(`global renderId = ${renderId}`);
-    UIManagerModule.StartBatch((`${renderId}`));
-    // Hippy.bridge.callNative('UIManagerModule', 'startBatch', (`${renderId}`));
-  },
   endBatch(renderId) {
     global.ConsoleModule.debug(`endBatch renderId = ${renderId}`);
     UIManagerModule.EndBatch((`${renderId}`));

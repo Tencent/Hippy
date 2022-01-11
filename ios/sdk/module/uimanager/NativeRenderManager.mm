@@ -51,8 +51,6 @@ void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
     [uiManager_ renderMoveViews:ids fromContainer:pid toContainer:id];
 }
 
-void NativeRenderManager::BeginBatch() {}
-
 void NativeRenderManager::EndBatch() {
     [uiManager_ batch];
 }

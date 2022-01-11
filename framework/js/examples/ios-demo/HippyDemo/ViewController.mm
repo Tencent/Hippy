@@ -123,7 +123,6 @@
     //step8:create your nodes data
     auto nodesData = [self mockNodesData];
     _domManager->CreateDomNodes(std::move(nodesData));
-    _domManager->BeginBatch();
     _domManager->EndBatch();
 }
 
