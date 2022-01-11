@@ -39,7 +39,7 @@ using RegisterMap = std::unordered_map<std::string, RegisterFunction>;
 
 #define TO_REGISTER_FUNCTION(fn, T)    \
   [](void* p) {                        \
-    T* data = reinterpret_cast<T*>(p); \
+    auto* data = reinterpret_cast<T*>(p); \
     fn(data);                          \
   };
 

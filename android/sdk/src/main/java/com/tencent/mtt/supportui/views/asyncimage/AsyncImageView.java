@@ -502,18 +502,10 @@ protected void setContent(int sourceType)
 			return;
 		}
 
-		Bitmap bitmap = null;
-		switch (sourceType) {
-			case SOURCE_TYPE_SRC:
-				if (mSourceDrawable != null){
-					bitmap = mSourceDrawable.getBitmap();
-				}
-				break;
-			case SOURCE_TYPE_DEFAULT_SRC:
-				if (mDefaultSourceDrawable != null && (mUrlFetchState != IMAGE_LOADED || mSourceDrawable == null)) {
-					bitmap = mDefaultSourceDrawable.getBitmap();
-				}
-				break;
+		Bitmap bitmap = getBitmap();
+		if (sourceType == SOURCE_TYPE_DEFAULT_SRC && mDefaultSourceDrawable != null
+				&& (mUrlFetchState != IMAGE_LOADED || mSourceDrawable == null)) {
+			bitmap = mDefaultSourceDrawable.getBitmap();
 		}
 
 		if (bitmap != null) {

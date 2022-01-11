@@ -38,10 +38,12 @@ class Engine {
  public:
   using RegisterMap = hippy::base::RegisterMap;
   using VM = hippy::napi::VM;
+  using VMInitParam = hippy::napi::VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
 
-  explicit Engine(
-      std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>());
+  Engine(
+      std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>(),
+      const std::shared_ptr<VMInitParam>& param = nullptr);
   virtual ~Engine();
 
   void Enter();
@@ -61,7 +63,7 @@ class Engine {
 
  private:
   void SetupThreads();
-  void CreateVM();
+  void CreateVM(const std::shared_ptr<VMInitParam>& param);
 
  private:
   static const uint32_t kDefaultWorkerPoolSize;

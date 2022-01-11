@@ -76,6 +76,10 @@ static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDe
     }
 }
 
+- (BOOL)canBeRetrievedFromViewCache {
+    return NO;
+}
+
 - (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
     // mttrn:
     //	UIColor *backgroundColor = [self rightBackgroundColorOfTheme];

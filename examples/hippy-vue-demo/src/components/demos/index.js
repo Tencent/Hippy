@@ -9,6 +9,7 @@ import demoList from './demo-list.vue';
 import demoIFrame from './demo-iframe.vue';
 import demoWebSocket from './demo-websocket.vue';
 import demoDynamicImport from './demo-dynamicimport.vue';
+import demoTurbo from './demo-turbo.vue';
 
 const demos = {
   demoDiv: {
@@ -54,6 +55,10 @@ const demos = {
   demoDynamicImport: {
     name: 'DynamicImport',
     component: demoDynamicImport,
+  },
+  demoTurbo: {
+    name: 'Turbo',
+    component: demoTurbo,
   },
 };
 

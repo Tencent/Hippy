@@ -24,15 +24,16 @@
   "devDependencies": {
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
     "@babel/plugin-proposal-optional-chaining": "^7.13.8",
-    "@commitlint/cli": "^13.1.0",
-    "@commitlint/config-conventional": "^13.1.0",
-    "@commitlint/lint": "^13.1.0",
-    "@commitlint/prompt-cli": "^13.1.0",
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
+    "@commitlint/lint": "^15.0.0",
+    "@commitlint/prompt-cli": "^15.0.0",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
     "@wessberg/rollup-plugin-ts": "^1.1.72",
     "ava": "^2.2.0",
     "codecov": "^3.6.1",
+    "commitlint-plugin-function-rules": "^1.4.0",
     "csstype": "^2.6.7",
     "docsify-cli": "^4.4.0",
     "eslint": "^7.28.0",
@@ -46,7 +47,6 @@
     "flow-remove-types": "^1.2.3",
     "husky": "^7.0.1",
     "is-ci": "^2.0.0",
-    "lerna": "^3.16.4",
     "lint-staged": "^11.0.1",
     "markdownlint-cli": "^0.28.1",
     "module-alias": "^2.2.1",
@@ -69,6 +69,9 @@
     "typescript": "^3.7.4",
     "vue": "^2.6.10",
     "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "lerna": "^3.16.4"
   },
   "_moduleAliases": {
     "vue": "node_modules/vue/src/core/index",

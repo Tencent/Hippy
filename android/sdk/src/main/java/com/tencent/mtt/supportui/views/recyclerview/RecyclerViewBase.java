@@ -2331,9 +2331,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 			}
 			handleOnLayoutChange();
 		}
-		eatRequestLayout();
-		dispatchLayout();
-		resumeRequestLayout(false);
+
 		if (changed)
 		{
 			if (mIsChangingMode)

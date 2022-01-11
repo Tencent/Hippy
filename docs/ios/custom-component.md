@@ -58,16 +58,6 @@ HIPPY_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag callback:(HippyResponseSe
     NSArray *result = xxx;
     callback(result);
 }
-HIPPY_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag resolver:(HIPPYPromiseResolveBlock)resolve rejecter:(HIPPYPromiseRejectBlock)reject) {
-    // do sth
-    if (success) {
-        resolve(result);
-    }
-    else {
-        reject(@"errorcode", @"errormessage", error);
-    }
-}
-@end
 ```
 
 ## 类型导出

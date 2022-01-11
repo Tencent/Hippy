@@ -86,51 +86,80 @@ path. Add it with -I<path> to the command line
 # define V8_OS_ANDROID 1
 # define V8_OS_LINUX 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "android"
+
 #elif defined(__APPLE__)
 # define V8_OS_BSD 1
 # define V8_OS_MACOSX 1
 # define V8_OS_POSIX 1
 # if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 #  define V8_OS_IOS 1
+#  define V8_OS_STRING "ios"
+# else
+#  define V8_OS_STRING "macos"
 # endif  // defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+
 #elif defined(__CYGWIN__)
 # define V8_OS_CYGWIN 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "cygwin"
+
 #elif defined(__linux__)
 # define V8_OS_LINUX 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "linux"
+
 #elif defined(__sun)
 # define V8_OS_POSIX 1
 # define V8_OS_SOLARIS 1
+# define V8_OS_STRING "sun"
+
 #elif defined(STARBOARD)
 # define V8_OS_STARBOARD 1
+# define V8_OS_STRING "starboard"
+
 #elif defined(_AIX)
-#define V8_OS_POSIX 1
-#define V8_OS_AIX 1
+# define V8_OS_POSIX 1
+# define V8_OS_AIX 1
+# define V8_OS_STRING "aix"
+
 #elif defined(__FreeBSD__)
 # define V8_OS_BSD 1
 # define V8_OS_FREEBSD 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "freebsd"
+
 #elif defined(__Fuchsia__)
 # define V8_OS_FUCHSIA 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "fuchsia"
+
 #elif defined(__DragonFly__)
 # define V8_OS_BSD 1
 # define V8_OS_DRAGONFLYBSD 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "dragonflybsd"
+
 #elif defined(__NetBSD__)
 # define V8_OS_BSD 1
 # define V8_OS_NETBSD 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "netbsd"
+
 #elif defined(__OpenBSD__)
 # define V8_OS_BSD 1
 # define V8_OS_OPENBSD 1
 # define V8_OS_POSIX 1
+# define V8_OS_STRING "openbsd"
+
 #elif defined(__QNXNTO__)
 # define V8_OS_POSIX 1
 # define V8_OS_QNX 1
+# define V8_OS_STRING "qnx"
+
 #elif defined(_WIN32)
 # define V8_OS_WIN 1
+# define V8_OS_STRING "windows"
 #endif
 
 // -----------------------------------------------------------------------------
@@ -194,6 +223,22 @@ path. Add it with -I<path> to the command line
 #endif
 
 #endif  // V8_HAVE_TARGET_OS
+
+#if defined(V8_TARGET_OS_ANDROID)
+# define V8_TARGET_OS_STRING "android"
+#elif defined(V8_TARGET_OS_FUCHSIA)
+# define V8_TARGET_OS_STRING "fuchsia"
+#elif defined(V8_TARGET_OS_IOS)
+# define V8_TARGET_OS_STRING "ios"
+#elif defined(V8_TARGET_OS_LINUX)
+# define V8_TARGET_OS_STRING "linux"
+#elif defined(V8_TARGET_OS_MACOSX)
+# define V8_TARGET_OS_STRING "macos"
+#elif defined(V8_TARGET_OS_WINDOWS)
+# define V8_TARGET_OS_STRING "windows"
+#else
+# define V8_TARGET_OS_STRING "unknown"
+#endif
 
 // -----------------------------------------------------------------------------
 // C library detection
@@ -310,10 +355,6 @@ path. Add it with -I<path> to the command line
 // GCC doc: https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html
 # define V8_HAS_COMPUTED_GOTO 1
 
-// Whether constexpr has full C++14 semantics, in particular that non-constexpr
-// code is allowed as long as it's not executed for any constexpr instantiation.
-# define V8_HAS_CXX14_CONSTEXPR 1
-
 #elif defined(__GNUC__)
 
 # define V8_CC_GNU 1
@@ -336,7 +377,10 @@ path. Add it with -I<path> to the command line
 # define V8_HAS_ATTRIBUTE_UNUSED 1
 # define V8_HAS_ATTRIBUTE_VISIBILITY 1
 # define V8_HAS_ATTRIBUTE_WARN_UNUSED_RESULT (!V8_CC_INTEL)
-# define V8_HAS_CPP_ATTRIBUTE_NODISCARD (V8_HAS_CPP_ATTRIBUTE(nodiscard))
+
+// [[nodiscard]] does not work together with with
+// __attribute__((visibility(""))) on GCC 7.4 which is why there is no define
+// for V8_HAS_CPP_ATTRIBUTE_NODISCARD. See https://crbug.com/v8/11707.
 
 # define V8_HAS_BUILTIN_ASSUME_ALIGNED 1
 # define V8_HAS_BUILTIN_CLZ 1
@@ -347,11 +391,6 @@ path. Add it with -I<path> to the command line
 
 // GCC doc: https://gcc.gnu.org/onlinedocs/gcc/Labels-as-Values.html
 #define V8_HAS_COMPUTED_GOTO 1
-
-// Whether constexpr has full C++14 semantics, in particular that non-constexpr
-// code is allowed as long as it's not executed for any constexpr instantiation.
-// GCC only supports this since version 6.
-# define V8_HAS_CXX14_CONSTEXPR (V8_GNUC_PREREQ(6, 0, 0))
 
 #endif
 
@@ -513,6 +552,19 @@ V8 shared library set USING_V8_SHARED.
 #endif
 
 #endif  // V8_OS_WIN
+
+// The virtual memory cage is available (i.e. defined) when pointer compression
+// is enabled, but it is only used when V8_VIRTUAL_MEMORY_CAGE is enabled as
+// well. This allows better test coverage of the cage.
+#if defined(V8_COMPRESS_POINTERS)
+#define V8_VIRTUAL_MEMORY_CAGE_IS_AVAILABLE
+#endif
+
+// CagedPointers are currently only used if the heap sandbox is enabled.
+// In the future, they will be enabled when the virtual memory cage is enabled.
+#if defined(V8_HEAP_SANDBOX)
+#define V8_CAGED_POINTERS
+#endif
 
 // clang-format on
 

@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React from 'react';
 import Style from '@localTypes/style';
 import { LayoutableProps, ClickableProps } from '../types';
@@ -42,7 +62,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * Fill color to the image
    */
   tintColor?: number | string;
-  tintColors?: number[] | string[];
+  tintColors?: (number | string)[];
 
   /**
    * Image style when `Image` have other children.
@@ -132,7 +152,7 @@ class Image extends React.Component<ImageProps, {}> {
     }
     const size = getSize(url);
     if (typeof success === 'function') {
-      size.then((result: Size) => success(result.width, result.height));
+      size.then((result: Size | any) => success(result.width, result.height));
     }
     if (typeof failure === 'function') {
       size.catch(failure);
@@ -186,7 +206,7 @@ class Image extends React.Component<ImageProps, {}> {
   }
 
   private handleTintColor(
-    nativeStyle: { tintColor: number, tintColors: number[] },
+    nativeStyle: { tintColor?: number, tintColors?: number[] },
     tintColor: Color, tintColors: Color[],
   ) {
     if (tintColor) {
@@ -250,9 +270,8 @@ class Image extends React.Component<ImageProps, {}> {
     /**
      * tintColor(s)
      */
-    const nativeStyle = { ...style };
-    // @ts-ignore
-    this.handleTintColor(nativeStyle, tintColor, tintColors);
+    const nativeStyle = { ...style } as { tintColor?: number, tintColors?: number[] };
+    this.handleTintColor(nativeStyle, tintColor as Color, tintColors as Color[]);
     (nativeProps as ImageProps).style = nativeStyle;
 
     if (children) {

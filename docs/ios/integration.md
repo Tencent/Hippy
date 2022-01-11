@@ -1,16 +1,14 @@
 # iOS 集成
 
->注：以下文档都是假设您已经具备一定的iOS开发经验。
+>注：以下文档都是假设您已经具备一定的 iOS 开发经验。
 
 这篇教程，讲述了如何将 Hippy 集成到 iOS 工程。
 
-# 集成到自定义工程中
-
-## 使用pod集成
+# 使用 pod 集成
 
 1. 安装 [CocoaPods](https://cocoapods.org/)，Hippy iOS SDK [版本查询](https://cocoapods.org/pods/hippy)
 
-2. 在用户自定义工程目录下创建podfile文件，文本如下
+2. 在用户自定义工程目录下创建 podfile 文件，文本如下
 
     ```text
     #保持pod文件目录结构
@@ -33,17 +31,17 @@
 
 4. 使用 cocoapods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
 
-## 使用源码直接集成
+# 使用源码直接集成
 
-1. 从GitHub中将ios源码下载，将ios/sdk文件夹以及core文件夹拖入工程中
+1. 从 GitHub 中将 Hippy iOS SDK 源码下载，将ios/sdk文件夹以及 core 文件夹拖入工程中
 
 2. 删除对 `core/js` 文件夹的引用。
 
-   > core/js文件夹中包含的是不参与编译的js文件
+   > core/js文件夹中包含的是不参与编译的 js 文件
 
 3. 删除对 `core/napi/v8` 文件夹的引用
 
-   > core 文件夹代码涉及 ios/adr JS引擎，ios使用的JSC
+   > core 文件夹代码涉及 iOS/Android 不同平台的 JS 引擎，iOS 使用的是 JSCore
 
 4. 在 `xcode build settings` 中设置 *User Header Search Paths* 项为core文件夹所在路径
 
@@ -52,8 +50,6 @@
 # 编写代码开始调试或者加载业务代码
 
 Hippy 提供分包加载接口以及不分包加载接口, 所有的业务包都是通过 HippyRootView 进行承载，创建业务也就是创建 RootView。
-
-目前HippyRootView提供分包加载接口以及不分包加载接口
 
 ## 使用分包加载接口
 

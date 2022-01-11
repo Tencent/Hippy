@@ -355,7 +355,9 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     if (!checkView) {
         NSNumber *viewRootTag = [view rootTag];
         NSNumber *rootViewTag = [_rootView hippyTag];
-        return [viewRootTag isEqualToNumber:rootViewTag];
+        if (rootViewTag) {
+            return [viewRootTag isEqualToNumber:rootViewTag];
+        }
     }
     return checkView == view;
 }

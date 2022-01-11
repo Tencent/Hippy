@@ -52,7 +52,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
   private boolean mPagingEnabled = false;
 
-  protected int mScrollEventThrottle = 400; // 400ms最多回调一次
+  protected int mScrollEventThrottle = 10;
   private long mLastScrollEventTimeStamp = -1;
 
   protected int mScrollMinOffset = 0;
@@ -117,7 +117,6 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     int action = event.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_DOWN && !mDragging) {
       mDragging = true;
-      startScrollY = getScrollY();
       if (mScrollBeginDragEventEnable) {
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
       }
@@ -129,7 +128,13 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
       }
 
       if(mPagingEnabled) {
-        post(() -> doPageScroll());
+        post(new Runnable() {
+               @Override
+               public void run() {
+                 doPageScroll();
+               }
+             }
+        );
       }
       // 当手指松开时，让父控件重新获取onTouch权限
       setParentScrollableIfNeed(true);
@@ -148,6 +153,12 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     if (!mScrollEnabled) {
       return false;
     }
+
+    int action = event.getAction() & MotionEvent.ACTION_MASK;
+    if (action == MotionEvent.ACTION_DOWN) {
+      startScrollY = getScrollY();
+    }
+
     if (super.onInterceptTouchEvent(event)) {
       if (mScrollBeginDragEventEnable) {
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
@@ -185,35 +196,39 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
         int offsetY = Math.abs(y - mLastY);
         if (mScrollMinOffset > 0 && offsetY >= mScrollMinOffset) {
           mLastY = y;
+          HippyScrollViewEventHelper.emitScrollEvent(this);
         } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp
             >= mScrollEventThrottle)) {
           mLastScrollEventTimeStamp = currTime;
-        } else {
-          return;
+          HippyScrollViewEventHelper.emitScrollEvent(this);
         }
-
-        HippyScrollViewEventHelper.emitScrollEvent(this);
       }
-
       mDoneFlinging = false;
     }
-
   }
 
   protected void doPageScroll() {
-    smoothScrollToPage();
-
     if (mMomentumScrollBeginEventEnable) {
       HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
     }
 
-    Runnable runnable = () -> {
-      if (mMomentumScrollEndEventEnable) {
-        HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+    smoothScrollToPage();
+
+    Runnable runnable = new Runnable() {
+      @Override
+      public void run() {
+        if (mDoneFlinging) {
+          if (mMomentumScrollEndEventEnable) {
+            HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+          }
+        } else {
+          mDoneFlinging = true;
+          postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+        }
       }
     };
 
-    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY * 2);
+    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
   }
 
   @Override
@@ -258,7 +273,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
     if ((page == maxPage - 1) && offset > 0) {
       page = page + 1;
-    } else if (Math.abs(offset) > height/4) {
+    } else if (Math.abs(offset) > height/5) {
       page = (offset > 0) ? page + 1 : page - 1;
     }
 

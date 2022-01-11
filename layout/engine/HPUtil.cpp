@@ -91,23 +91,27 @@ bool HPSizeIsEqualInScale(HPSize a, HPSize b, float scale) {
          FloatIsEqualInScale(a.height, b.height, scale);
 }
 
-float HPRoundValueToPixelGrid(float value, bool forceCeil, bool forceFloor) {
-  float fractial = fmodf(value, 1.0);
+float HPRoundValueToPixelGrid(float value, float scaleFactor, bool forceCeil, bool forceFloor) {
+  float scaleValue = value * scaleFactor;
+  float fractial = fmodf(scaleValue, 1.0);
+  if (fractial < 0) {
+    ++fractial;
+  }
+
   if (FloatIsEqual(fractial, 0)) {
     // First we check if the value is already rounded
-    value = value - fractial;
+    scaleValue = scaleValue - fractial;
   } else if (FloatIsEqual(fractial, 1.0)) {
-    value = value - fractial + 1.0;
+    scaleValue = scaleValue - fractial + 1.0;
   } else if (forceCeil) {
     // Next we check if we need to use forced rounding
-    value = value - fractial + 1.0f;
+    scaleValue = scaleValue - fractial + 1.0f;
   } else if (forceFloor) {
-    value = value - fractial;
+    scaleValue = scaleValue - fractial;
   } else {
     // Finally we just round the value
-    value = roundf(value);
-    // value = value - fractial +
-    //   (fractial > 0.5f || FloatIsEqual(fractial, 0.5f) ? 1.0f : 0.0f);
+    scaleValue = scaleValue - fractial +
+      (fractial > 0.5f || FloatIsEqual(fractial, 0.5f) ? 1.0f : 0.0f);
   }
-  return value;
+  return scaleValue / scaleFactor;
 }

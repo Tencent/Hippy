@@ -10,6 +10,8 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.list.HippyListView;
+import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 
 @SuppressWarnings({"deprecation", "unused", "rawtypes"})
 @HippyController(name = HippyScrollViewController.CLASS_NAME)
@@ -24,21 +26,26 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
 
   @Override
   protected View createViewImpl(Context context, HippyMap iniProps) {
-
-    if (iniProps != null && iniProps.containsKey("horizontal") && iniProps
-        .getBoolean("horizontal")) {
-      return new HippyHorizontalScrollView(context);
-    } else {
-      return new HippyVerticalScrollView(context);
+    boolean enableScrollEvent = false;
+    boolean isHorizontal = false;
+    if (iniProps != null) {
+      isHorizontal = iniProps.getBoolean("horizontal");
+      enableScrollEvent = iniProps.getBoolean("onScroll");
     }
 
-    //        return super.createViewImpl(context, iniProps);
+    View scrollView;
+    if (isHorizontal) {
+      scrollView = new HippyHorizontalScrollView(context);
+    } else {
+      scrollView = new HippyVerticalScrollView(context);
+    }
+    ((HippyScrollView)scrollView).setScrollEventEnable(enableScrollEvent);
+    return scrollView;
   }
 
   @Override
   protected View createViewImpl(Context context) {
     return null;
-    //        return new HippyScrollView(context);
   }
 
   @HippyControllerProps(name = "scrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
@@ -49,11 +56,6 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
   @HippyControllerProps(name = "showScrollIndicator", defaultType = HippyControllerProps.BOOLEAN)
   public void setShowScrollIndicator(HippyScrollView view, boolean flag) {
     view.showScrollIndicator(flag);
-  }
-
-  @HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN)
-  public void setScrollEventEnable(HippyScrollView view, boolean flag) {
-    view.setScrollEventEnable(flag);
   }
 
   @HippyControllerProps(name = "onScrollBeginDrag", defaultType = HippyControllerProps.BOOLEAN)

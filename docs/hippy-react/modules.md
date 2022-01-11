@@ -435,10 +435,29 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ## 方法
 
+### UIManagerModule.callUIFunction
+
+调用组件定义的终端方法
+
+`callUIFunction(instance: ref, method: string, options: Array)`
+
+> - instance: 组件的引用 Ref
+> - method：方法名称，如 ListView 的 `scrollToIndex`
+> - options: 需传递的数据，如 ListView 的 `[xIndex, yIndex, animated]`，空时显式写 `[]`
+
+### UIManagerModule.getElementFromFiberRef
+
+获取元素 Ref 对应的 Element(类似DOM)
+
+`getElementFromFiberRef(instance: ref): ElementNode`
+
+> - instance: 组件的引用 Ref
+> - ElementNode：类似DOM，可以调用 setNativeProps 等方法
+
 ### UIManagerModule.measureInAppWindow
 
-测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1，注意需要保证节点实例真正上屏后（onLayout事件后）才能调用该方法。
 
 `(ref, callback: Function) => Promise`
 
-> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串
+> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](hippy-react/components?id=样式内特殊属性)可能返回 -1 或者 `this view is null` 字符串

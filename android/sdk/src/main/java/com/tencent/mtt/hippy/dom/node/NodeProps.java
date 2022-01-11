@@ -110,6 +110,8 @@ public class NodeProps {
   public static final String FONT_STYLE = "fontStyle";
   public static final String FONT_FAMILY = "fontFamily";
   public static final String LINE_HEIGHT = "lineHeight";
+  public static final String LINE_SPACING_MULTIPLIER = "lineSpacingMultiplier";
+  public static final String LINE_SPACING_EXTRA = "lineSpacingExtra";
   public static final String NUMBER_OF_LINES = "numberOfLines";
   public static final String ELLIPSIZE_MODE = "ellipsizeMode";
   public static final String ON = "on";

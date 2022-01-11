@@ -1,12 +1,12 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# 终端能力
+# 模块
 
 hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端设备信息、以及调用终端模块。也可以用来监测是否在 Hippy 环境下运行。
 
 > 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
 
-# Vue.Native 获取终端信息
+# 获取终端信息
 
 它无需任何方法，直接取值即可。
 
@@ -182,6 +182,16 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 调用终端模块的方法，`callNative` 一般用于无返回的模块方法调用，`callNativeWithPromise` 一般用于有返回的模块方法调用，它会返回一个带着结果的 Promise。
 
+# callUIFunction
+
+调用组件定义的终端方法
+
+`callUIFunction(instance: ref, method: string, options: Array)`
+
+> * instance: 组件的引用 Ref
+> * method：方法名称，如 ListView 的 `scrollToIndex`
+> * options: 需传递的数据，如 ListView 的 `[xIndex, yIndex, animated]`
+
 ---
 
 # Clipboard
@@ -261,6 +271,23 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 ---
 
+# getElemCss
+
+获取具体节点的 CSS 样式。
+
+> 最低支持版本 2.10.1
+
+`(ref: ElementNode) => {}`
+
+* 示例：
+
+```js
+this.demon1Point = this.$refs['demo-1-point'];
+console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0, position: "absolute" }
+```
+
+---
+
 # ImageLoaderModule
 
 通过该模块可以对远程图片进行相应操作
@@ -283,20 +310,15 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 ---
 
-# measureInWindow
-
-> * Deprecated.
-> * iOS 仅可以获取 Hippy 容器的布局, 所以建议统一采用 measureInAppWindow 方法。
-
----
-
 # measureInAppWindow
 
-测量在 App 窗口范围内某个组件的尺寸和位置，如果出错 callback 参数可能为字符串或者 -1
+> 最低支持版本 2.11.0
 
-`(ref, callback: Function) => Promise`
+测量在 App 窗口范围内某个组件的尺寸和位置，注意需要保证节点实例真正上屏后（layout事件后）才能调用该方法。
 
-> * callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串
+`(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
+
+> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](hippy-vue/components?id=样式内特殊属性) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
 
 ---
 

@@ -76,7 +76,7 @@ test('renderToNative test with children --debug mode', (t) => {
   const childNodeText = DocumentNode.createTextNode('Hello');
   childNode3.appendChild(childNodeText);
   const childNode4 = DocumentNode.createElement('img');
-  childNode4.setAttribute('src', 'http://www.qq.com');
+  childNode4.setAttribute('src', 'https://hippyjs.org');
   const childNode5 = DocumentNode.createElement('input');
   childNode5.setAttribute('type', 'number');
   const childNode6 = DocumentNode.createElement('textarea');
@@ -174,9 +174,9 @@ test('renderToNative test with children --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
-          src: 'http://www.qq.com',
+          src: 'https://hippyjs.org',
         },
-        src: 'http://www.qq.com',
+        src: 'https://hippyjs.org',
         style: {
           backgroundColor: 0,
         },
@@ -245,6 +245,7 @@ test('renderToNative test with children --debug mode', (t) => {
         },
         multiline: true,
         onTyping: true,
+        __bind__onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
@@ -267,7 +268,7 @@ test('renderToNative test with children --production mode', (t) => {
   const childNodeText = DocumentNode.createTextNode('Hello');
   childNode3.appendChild(childNodeText);
   const childNode4 = DocumentNode.createElement('img');
-  childNode4.setAttribute('src', 'http://www.qq.com');
+  childNode4.setAttribute('src', 'https://hippyjs.org');
   const childNode5 = DocumentNode.createElement('input');
   childNode5.setAttribute('type', 'number');
   const childNode6 = DocumentNode.createElement('textarea');
@@ -331,7 +332,7 @@ test('renderToNative test with children --production mode', (t) => {
       index: 3,
       name: 'Image',
       props: {
-        src: 'http://www.qq.com',
+        src: 'https://hippyjs.org',
         style: {
           backgroundColor: 0,
         },
@@ -361,6 +362,7 @@ test('renderToNative test with children --production mode', (t) => {
       props: {
         multiline: true,
         onTyping: true,
+        __bind__onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
@@ -532,7 +534,7 @@ test('a href attribute with http prefix test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
-  node.setAttribute('href', 'http://www.qq.com');
+  node.setAttribute('href', 'https://hippyjs.org');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
     id: 31,
@@ -542,7 +544,7 @@ test('a href attribute with http prefix test --debug mode', (t) => {
     props: {
       attributes: {
         class: '',
-        href: 'http://www.qq.com',
+        href: 'https://hippyjs.org',
         id: '',
       },
       text: 'Test',
@@ -559,7 +561,7 @@ test('a href attribute with http prefix test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
-  node.setAttribute('href', 'http://www.qq.com');
+  node.setAttribute('href', 'https://hippyjs.org');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
     id: 32,
@@ -848,6 +850,8 @@ test('text element with number text test', (t) => {
   parentNode.setText(0);
   parentNode.setAttribute('test', '123');
   t.is(parentNode.getAttribute('text'), '0');
+  t.is(parentNode.getAttribute('test'), '123');
+  parentNode.setAttribute('test', 123);
   t.is(parentNode.getAttribute('test'), 123);
   // debug mode
   process.env.NODE_ENV = 'test';

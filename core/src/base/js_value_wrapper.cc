@@ -14,7 +14,7 @@ std::size_t std::hash<JSValueWrapper>::operator()(
       return std::hash<bool>{}(value.bool_value_);
     case JSValueWrapper::Type::Int32:
       return std::hash<int32_t>{}(value.int32_value_);
-    case JSValueWrapper::Type::Uint32:
+    case JSValueWrapper::Type::UInt32:
       return std::hash<uint32_t>{}(value.uint32_value_);
     case JSValueWrapper::Type::Double:
       return std::hash<double>{}(value.double_value_);
@@ -34,12 +34,12 @@ std::size_t std::hash<JSValueWrapper>::operator()(
 namespace hippy {
 namespace base {
 
-const JSValueWrapper JSValueWrapper::Undefined() {
+JSValueWrapper JSValueWrapper::Undefined() {
   JSValueWrapper Undefined;
   Undefined.type_ = Type::Undefined;
   return Undefined;
 }
-const JSValueWrapper JSValueWrapper::Null() {
+JSValueWrapper JSValueWrapper::Null() {
   JSValueWrapper Null;
   Null.type_ = Type::Null;
   return Null;
@@ -59,7 +59,7 @@ JSValueWrapper& JSValueWrapper::operator=(const JSValueWrapper& rhs) noexcept {
       deallocate();
       int32_value_ = rhs.int32_value_;
       break;
-    case Type::Uint32:
+    case Type::UInt32:
       deallocate();
       uint32_value_ = rhs.uint32_value_;
       break;
@@ -109,7 +109,7 @@ JSValueWrapper& JSValueWrapper::operator=(const int32_t rhs) noexcept {
 }
 JSValueWrapper& JSValueWrapper::operator=(const uint32_t rhs) noexcept {
   deallocate();
-  type_ = Type::Uint32;
+  type_ = Type::UInt32;
   uint32_value_ = rhs;
   return *this;
 }
@@ -181,7 +181,7 @@ bool JSValueWrapper::operator==(const JSValueWrapper& rhs) const noexcept {
       return bool_value_ == rhs.bool_value_;
     case JSValueWrapper::Type::Int32:
       return int32_value_ == rhs.int32_value_;
-    case JSValueWrapper::Type::Uint32:
+    case JSValueWrapper::Type::UInt32:
       return uint32_value_ == rhs.uint32_value_;
     case JSValueWrapper::Type::Double:
       return double_value_ == rhs.double_value_;
@@ -218,7 +218,7 @@ JSValueWrapper::JSValueWrapper(const JSValueWrapper& source)
     case Type::Int32:
       int32_value_ = source.int32_value_;
       break;
-    case Type::Uint32:
+    case Type::UInt32:
       uint32_value_ = source.uint32_value_;
       break;
     case Type::Double:
@@ -277,7 +277,7 @@ bool JSValueWrapper::IsInt32() const noexcept {
   return type_ == Type::Int32;
 }
 bool JSValueWrapper::IsUInt32() const noexcept {
-  return type_ == Type::Uint32;
+  return type_ == Type::UInt32;
 }
 bool JSValueWrapper::IsDouble() const noexcept {
   return type_ == Type::Double;
@@ -294,26 +294,14 @@ bool JSValueWrapper::IsArray() const noexcept {
 bool JSValueWrapper::IsObject() const noexcept {
   return type_ == Type::Object;
 }
-int32_t JSValueWrapper::Int32Value() {
-  return int32_value_;
-}
 int32_t JSValueWrapper::Int32Value() const {
   return int32_value_;
 }
-uint32_t JSValueWrapper::Uint32Value() {
+uint32_t JSValueWrapper::UInt32Value() const {
   return uint32_value_;
-}
-uint32_t JSValueWrapper::Uint32Value() const {
-  return uint32_value_;
-}
-double JSValueWrapper::DoubleValue() {
-  return double_value_;
 }
 double JSValueWrapper::DoubleValue() const {
   return double_value_;
-}
-bool JSValueWrapper::BooleanValue() {
-  return bool_value_;
 }
 bool JSValueWrapper::BooleanValue() const {
   return bool_value_;

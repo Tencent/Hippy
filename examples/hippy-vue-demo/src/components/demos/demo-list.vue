@@ -53,7 +53,6 @@
         :key="index"
         class="item-style"
         :type="ui.style"
-        @layout="onItemLayout"
         @appear="onAppear(index)"
         @disappear="onDisappear(index)"
         @willAppear="onWillAppear(index)"
@@ -90,8 +89,6 @@ import '../list-items';
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 50;
 
-const heightOfComponents = {};
-
 export default {
   data() {
     return {
@@ -107,21 +104,17 @@ export default {
     };
   },
   mounted() {
-    // *** isLoading 是加载锁，业务请照抄 ***
+    // *** isLoading 是加载锁 ***
     // 因为 onEndReach 位于屏幕底部时会多次触发，
     // 所以需要加一个锁，当未加载完成时不进行二次加载
     this.isLoading = false;
     this.dataSource = [...mockData];
-
     // 启动时保存一下屏幕高度，一会儿算曝光时会用到
     if (Vue.Native) {
       this.$windowHeight = Vue.Native.Dimensions.window.height;
     } else {
       this.$windowHeight = window.innerHeight;
     }
-
-    // 初始化时曝光，因为子元素加载需要时间，建议延迟 500 毫秒后执行
-    setTimeout(() => this.exposureReport(0), 500);
   },
   methods: {
     // item完全曝光
@@ -161,17 +154,14 @@ export default {
       if (this.isLoading) {
         return;
       }
-
       this.isLoading = true;
       this.loadingState = '正在加载...';
-
       const newData = await this.mockFetchData();
       if (!newData) {
         this.loadingState = '没有更多数据';
         this.isLoading = false;
         return;
       }
-
       this.loadingState = '';
       this.dataSource = [...dataSource, ...newData];
       this.isLoading = false;
@@ -183,26 +173,6 @@ export default {
         top: evt.offsetY,
         left: evt.offsetX,
       };
-      // 初始化时曝光上报
-      this.exposureReport(evt.offsetY);
-    },
-    onItemLayout(evt) {
-      // 保存一下 ListItemView 尺寸的高度
-      heightOfComponents[evt.target.index] = evt.top;
-    },
-    /**
-       * 曝光上报
-       * @param {number} screenTop 屏幕高度
-       */
-    exposureReport(screenTop) {
-      // 获取可视范围内的组件
-      const componentsInWindow = Object.keys(heightOfComponents).filter((index) => {
-        const height = heightOfComponents[index];
-        return screenTop <= height && screenTop + this.$windowHeight >= height;
-      });
-        // 其实没有上报，只是把界面上正在曝光的组件列出来了。
-        // 同时曝光锁还得业务自己做。
-      console.log('Exposuring components:', componentsInWindow);
     },
     /**
        * 翻到下一页
@@ -216,7 +186,7 @@ export default {
       }
       const { list } = this.$refs;
       const { scrollPos } = this;
-      const top = scrollPos.top + this.$windowHeight - 200; // 偷懒假定内容区域为屏幕高度 - 200
+      const top = scrollPos.top + this.$windowHeight - 200; // 假定内容区域为屏幕高度 - 200
       // CSSOM View standard - ScrollToOptions
       // https://www.w3.org/TR/cssom-view-1/#extensions-to-the-window-interface
       list.scrollTo({

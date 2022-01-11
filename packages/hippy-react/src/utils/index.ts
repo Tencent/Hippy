@@ -1,7 +1,26 @@
-/* eslint-disable import/prefer-default-export */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 const IS_NUMBER_REG = new RegExp(/^\d+$/);
 let silent = false;
+let defaultBubbles = false;
 
 /**
  * Trace running information
@@ -11,7 +30,6 @@ function trace(...context: any[]) {
   if (process.env.NODE_ENV === 'production' || silent) {
     return;
   }
-  /* eslint-disable-next-line no-console */
   console.log(...context);
 }
 
@@ -23,7 +41,6 @@ function warn(...context: any[]) {
   if (process.env.NODE_ENV === 'production') {
     return;
   }
-  /* eslint-disable-next-line no-console */
   console.warn(...context);
 }
 
@@ -33,6 +50,15 @@ function warn(...context: any[]) {
  */
 function unicodeToChar(text: string): string {
   return text.replace(/\\u[\dA-F]{4}|\\x[\dA-F]{2}/gi, match => String.fromCharCode(parseInt(match.replace(/\\u|\\x/g, ''), 16)));
+}
+
+const captureEventReg = new RegExp('^on.+Capture$');
+/**
+ * ensure capture event name
+ * @param {any} eventName
+ */
+function isCaptureEvent(eventName: any) {
+  return captureEventReg.test(eventName);
 }
 
 /**
@@ -86,12 +112,28 @@ function setSilent(silentArg: boolean): void {
 }
 
 /**
+ * set bubbles config, default is false
+ * @param bubbles
+ */
+function setBubbles(bubbles: boolean = false): void {
+  defaultBubbles = bubbles;
+}
+
+/**
+ * get bubbles config
+ * @returns boolean
+ */
+function isGlobalBubble(): boolean {
+  return defaultBubbles;
+}
+
+/**
  * Convert Image url to specific type
  * @param url - image path
  */
 function convertImgUrl(url: string): string {
   if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
       const addStr1 = 'http://';
       return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
     }
@@ -101,13 +143,25 @@ function convertImgUrl(url: string): string {
   return url;
 }
 
+/**
+ * isHostComponent - judge current tag is hostComponent type
+ * @param {number} tag
+ */
+function isHostComponent(tag: number) {
+  return tag === 5;
+}
+
 export {
   trace,
   warn,
   unicodeToChar,
   tryConvertNumber,
+  isCaptureEvent,
   isFunction,
   isNumber,
   setSilent,
+  setBubbles,
+  isGlobalBubble,
   convertImgUrl,
+  isHostComponent,
 };

@@ -29,7 +29,7 @@
 
 using StringViewUtils = hippy::base::StringViewUtils;
 
-void ExceptionHandler::ReportJsException(std::shared_ptr<Runtime> runtime,
+void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime,
                                          const unicode_string_view& desc,
                                          const unicode_string_view& stack) {
   TDF_BASE_DLOG(INFO) << "ReportJsException begin";

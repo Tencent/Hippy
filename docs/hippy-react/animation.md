@@ -8,15 +8,15 @@ Hippy 的动画则是完全由前端传入动画参数，由终端控制每一�
 
 * 关注动画
 
-<img src="//res.imtt.qq.com/rn_ad/follow_animation.gif" alt="关注动画" width="30%"/>
+<img src="assets/img/follow_animation.gif" alt="关注动画" width="30%"/>
 
 * 点赞微笑动画
 
-<img src="//res.imtt.qq.com/rn_ad/smile_animation.gif" alt="点赞微笑" width="30%"/>
+<img src="assets/img/smile_animation.gif" alt="点赞微笑" width="30%"/>
 
 * 进度条动画
 
-<img src="//res.imtt.qq.com/rn_ad/pk_animation.gif" alt="PK进度条动画" width="30%"/>
+<img src="assets/img/pk_animation.gif" alt="PK进度条动画" width="30%"/>
 
 ## 让我们开始吧
 

@@ -24,6 +24,7 @@
 #include "MTTNode.h"
 
 MTTNodeRef MTTNodeNew();
+MTTNodeRef MTTNodeNewWithScaleFactor(float scaleFactor);
 void MTTNodeFree(MTTNodeRef node);
 void MTTNodeFreeRecursive(MTTNodeRef node);
 

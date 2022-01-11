@@ -38,6 +38,10 @@ HIPPY_EXPORT_MODULE(TextInput)
 - (UIView *)view {
     // todo: 最佳实践？
     NSNumber *mutiline = self.props[@"multiline"];
+    NSString *keyboardType = self.props[@"keyboardType"];
+    if ([keyboardType isKindOfClass:[NSString class]] && [keyboardType isEqual:@"password"]) {
+        mutiline = @(NO);
+    }
     HippyBaseTextInput *theView;
     if (mutiline != nil && !mutiline.boolValue) {
         HippyTextField *textField = [[HippyTextField alloc] init];

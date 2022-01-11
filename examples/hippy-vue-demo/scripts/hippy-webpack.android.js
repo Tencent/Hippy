@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const pkg = require('../package.json');
@@ -19,6 +18,20 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn('* Using the @hippy/vue-css-loader defined in package.json');
 }
 
+let vueLoader = '@hippy/vue-loader';
+let VueLoaderPlugin;
+const hippyVueLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib');
+if (fs.existsSync(hippyVueLoaderPath)) {
+  /* eslint-disable-next-line no-console */
+  console.warn(`* Using the @hippy/vue-loader in ${hippyVueLoaderPath}`);
+  vueLoader = hippyVueLoaderPath;
+  VueLoaderPlugin = require(path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib/plugin'));
+} else {
+  /* eslint-disable-next-line no-console */
+  console.warn('* Using the @hippy/vue-loader defined in package.json');
+  VueLoaderPlugin = require('@hippy/vue-loader/lib/plugin');
+}
+
 module.exports = {
   mode: 'production',
   bail: true,
@@ -30,7 +43,7 @@ module.exports = {
     path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
     // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'https://static.res.qq.com/hippy/hippyVueDemo/',
+    // publicPath: 'https://xxx/hippy/hippyVueDemo/',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
@@ -50,13 +63,18 @@ module.exports = {
     // new webpack.optimize.LimitChunkCountPlugin({
     //   maxChunks: 1,
     // }),
+    // use SourceMapDevToolPlugin can generate sourcemap file
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
+    // }),
   ],
   module: {
     rules: [
       {
         test: /\.vue$/,
         use: [
-          'vue-loader',
+          vueLoader,
         ],
       },
       {

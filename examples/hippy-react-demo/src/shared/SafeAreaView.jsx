@@ -16,11 +16,11 @@ const styles = StyleSheet.create({
 export default class SafeAreaView extends Component {
   constructor(props) {
     super(props);
-    const { width } = Dimensions.get('window');
-    const { height } = Dimensions.get('window');
+    const { width, height } = Dimensions.get('screen');
     this.state = {
       isVertical: width < height,
     };
+    this.onLayout = this.onLayout.bind(this);
   }
 
   renderIPhoneStatusBar(statusBarColor) {
@@ -37,7 +37,10 @@ export default class SafeAreaView extends Component {
     }
     return null;
   }
-
+  onLayout(e) {
+    const { width, height } = e.layout;
+    this.setState({ isVertical: width < height });
+  }
   render() {
     const { children, statusBarColor } = this.props;
     const { isVertical } = this.state;
@@ -50,10 +53,7 @@ export default class SafeAreaView extends Component {
     return (
       <View
         style={[styles.container, verticalStyle]}
-        onLayout={(e) => {
-          const { width, height } = e.layout;
-          this.setState({ isVertical: width < height });
-        }}
+        onLayout={this.onLayout}
       >
         {this.renderIPhoneStatusBar(statusBarColor)}
         <View style={{ flex: 1 }}>

@@ -5,8 +5,8 @@ import * as elements from '../built-in';
 // See platform/hippy/renderer/__tests__/index.test.js
 
 test('img src for normal http', (t) => {
-  const url = elements.img.component.attributeMaps.src('http://wwww.qq.com');
-  t.is(url, 'http://wwww.qq.com');
+  const url = elements.img.component.attributeMaps.src('https://hippyjs.org');
+  t.is(url, 'https://hippyjs.org');
 });
 
 test('img src for static resource', (t) => {
@@ -22,9 +22,9 @@ test('img src for static resource for production', (t) => {
 });
 
 test('img placeholder for normal http', (t) => {
-  const url = elements.img.component.attributeMaps.placeholder.propsValue('http://wwww.qq.com');
+  const url = elements.img.component.attributeMaps.placeholder.propsValue('https://hippyjs.org');
   // Should be popup a warning.
-  t.is(url, 'http://wwww.qq.com');
+  t.is(url, 'https://hippyjs.org');
 });
 
 test('img placeholder for base64 image', (t) => {

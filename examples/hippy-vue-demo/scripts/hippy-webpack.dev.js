@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
 const pkg = require('../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
@@ -16,6 +16,21 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn('* Using the @hippy/vue-css-loader defined in package.json');
 }
 
+let vueLoader = '@hippy/vue-loader';
+let VueLoaderPlugin;
+const hippyVueLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib');
+if (fs.existsSync(hippyVueLoaderPath)) {
+  /* eslint-disable-next-line no-console */
+  console.warn(`* Using the @hippy/vue-loader in ${hippyVueLoaderPath}`);
+  vueLoader = hippyVueLoaderPath;
+  VueLoaderPlugin = require(path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib/plugin'));
+} else {
+  /* eslint-disable-next-line no-console */
+  console.warn('* Using the @hippy/vue-loader defined in package.json');
+  VueLoaderPlugin = require('@hippy/vue-loader/lib/plugin');
+}
+
+
 module.exports = {
   mode: 'development',
   devtool: 'eval-source-map',
@@ -23,8 +38,21 @@ module.exports = {
   watchOptions: {
     aggregateTimeout: 1500,
   },
+  devServer: {
+    port: 38988,
+    // by default hot and liveReload option are true, you could set only liveReload to true
+    // to use live reload
+    hot: true,
+    liveReload: true,
+    devMiddleware: {
+      writeToDisk: true,
+    },
+    client: {
+      overlay: false,
+    },
+  },
   entry: {
-    index: [path.resolve(pkg.nativeMain), '@hippy/hippy-live-reload-polyfill'],
+    index: [path.resolve(pkg.nativeMain)],
   },
   output: {
     filename: 'index.bundle',
@@ -33,7 +61,7 @@ module.exports = {
     path: path.resolve('./dist/dev/'),
     globalObject: '(0, eval)("this")',
     // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'https://static.res.qq.com/hippy/hippyVueDemo/',
+    // publicPath: 'https://xxx/hippy/hippyVueDemo/',
   },
   plugins: [
     new VueLoaderPlugin(),
@@ -51,13 +79,22 @@ module.exports = {
     // new webpack.optimize.LimitChunkCountPlugin({
     //   maxChunks: 1,
     // }),
+    // use SourceMapDevToolPlugin can generate sourcemap file while setting devtool to false
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
+    // }),
+    new HippyHMRPlugin({
+      // HMR [hash].hot-update.json will fetch from this path
+      hotManifestPublicPath: 'http://localhost:38989/',
+    }),
   ],
   module: {
     rules: [
       {
         test: /\.vue$/,
         use: [
-          'vue-loader',
+          vueLoader,
           'scope-loader',
         ],
       },

@@ -78,6 +78,9 @@ public class MyActivity extends Activity
 			// 可选：自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
 			initParams.providers = providers;
 
+			// 可选： 是否启用turbo能力
+			initParams.enableTurbo = true;
+
 			// 根据EngineInitParams创建引擎实例
 			mHippyEngine = HippyEngine.create(initParams);
 			// 异步初始化Hippy引擎

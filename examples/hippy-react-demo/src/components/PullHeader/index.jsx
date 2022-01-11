@@ -164,9 +164,10 @@ export default class PullHeaderExample extends React.Component {
    * @param {number} index - 被点击的索引号
    */
   // eslint-disable-next-line class-methods-use-this
-  onClickItem(index) {
+  onClickItem(index, event) {
+    // let target = event.target;
     // eslint-disable-next-line no-console
-    console.log(`item: ${index} is clicked..`);
+    console.log(`item: ${index} is clicked..`, event.target.nodeId, event.currentTarget.nodeId);
   }
 
   /**
@@ -206,7 +207,7 @@ export default class PullHeaderExample extends React.Component {
           data = mockData;
         }
         return resolve(data);
-      }, 2000);
+      }, 600);
     });
   }
 
@@ -234,13 +235,13 @@ export default class PullHeaderExample extends React.Component {
     const isLastItem = dataSource.length === index + 1;
     switch (rowData.style) {
       case 1:
-        styleUI = <Style1 itemBean={rowData.itemBean} onClick={() => this.onClickItem(index)} />;
+        styleUI = <Style1 itemBean={rowData.itemBean} onClick={event => this.onClickItem(index, event)} />;
         break;
       case 2:
-        styleUI = <Style2 itemBean={rowData.itemBean} onClick={() => this.onClickItem(index)} />;
+        styleUI = <Style2 itemBean={rowData.itemBean} onClick={event => this.onClickItem(index, event)} />;
         break;
       case 5:
-        styleUI = <Style5 itemBean={rowData.itemBean} onClick={() => this.onClickItem(index)} />;
+        styleUI = <Style5 itemBean={rowData.itemBean} onClick={event => this.onClickItem(index, event)} />;
         break;
       case STYLE_LOADING:
         styleUI = <Text style={styles.loading}>{loadingState}</Text>;
@@ -269,9 +270,10 @@ export default class PullHeaderExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
-        ref={(ref) => {
-          this.listView = ref;
-        }}
+         onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
+          ref={(ref) => {
+            this.listView = ref;
+          }}
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         getRowType={this.getRowType}

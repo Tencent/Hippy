@@ -40,6 +40,7 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 @property (nonatomic, copy) NSNumber *hippyTag;
 @property (nonatomic, copy) NSNumber *rootTag;
 @property (nonatomic, copy) NSString *viewName;
+@property (nonatomic, copy) NSString *tagName;
 @property (nonatomic, copy) NSDictionary *props;
 @property (nonatomic, assign) CGRect frame;
 @property (nonatomic, weak) id<HippyComponent> parent;

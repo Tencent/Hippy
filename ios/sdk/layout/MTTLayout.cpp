@@ -23,6 +23,10 @@ MTTNodeRef MTTNodeNew() {
   return new MTTNode();
 }
 
+MTTNodeRef MTTNodeNewWithScaleFactor(float scaleFactor) {
+  return new MTTNode(scaleFactor);
+}
+
 void MTTNodeFree(MTTNodeRef node) {
   if (node == nullptr)
     return;

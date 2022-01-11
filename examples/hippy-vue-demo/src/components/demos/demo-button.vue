@@ -21,7 +21,7 @@
     <img
       v-show="isClicked"
       alt="demo1-image"
-      src="http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png"
+      src="https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png"
       class="button-demo-1-image"
     >
   </div>

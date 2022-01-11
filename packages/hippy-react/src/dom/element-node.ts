@@ -1,4 +1,23 @@
-/* eslint-disable no-underscore-dangle */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-param-reassign */
 
 import Hippy from '@localTypes/hippy';
@@ -6,7 +25,7 @@ import { Transform } from '@localTypes/style';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
-import { updateChild, updateWithChildren } from '../renderer/render';
+import { updateChild, updateWithChildren, endBatch } from '../renderer/render';
 import { Device } from '../native';
 import {
   unicodeToChar,
@@ -14,12 +33,14 @@ import {
   isNumber,
   warn,
   convertImgUrl,
+  isCaptureEvent,
 } from '../utils';
+import { eventNamesMap, NATIVE_EVENT } from '../utils/node';
 import ViewNode from './view-node';
 import '@localTypes/global';
 
 interface Attributes {
-  [key: string]: string | number | true | undefined;
+  [key: string]: string | number | boolean | undefined;
 }
 
 interface NativePropsStyle {
@@ -177,9 +198,9 @@ function parseBackgroundImage(styleKey: string, styleValue: string, style: any) 
 
 /**
  * parse text shadow offset
- * @param styleKey
- * @param styleValue
- * @param style
+ * @param {string} styleKey
+ * @param {number} styleValue
+ * @param {any} style
  */
 function parseTextShadowOffset(styleKey: string, styleValue: number, style: any) {
   const offsetMap: PropertiesMap = {
@@ -193,18 +214,28 @@ function parseTextShadowOffset(styleKey: string, styleValue: number, style: any)
   return style;
 }
 
+/**
+ * get final key sent to native
+ * @param key
+ */
+function getEventPropKey(key: string) {
+  if (isCaptureEvent(key)) {
+    key = key.replace('Capture', '');
+  }
+  if (eventNamesMap[key]) {
+    return eventNamesMap[key][NATIVE_EVENT];
+  }
+  return key;
+}
+
 class ElementNode extends ViewNode {
   tagName: string;
-
   id: string = '';
-
   style: Hippy.Style = {};
-
   attributes: Attributes = {};
 
   constructor(tagName: string) {
     super();
-
     // Tag name
     this.tagName = tagName;
   }
@@ -322,6 +353,8 @@ class ElementNode extends ViewNode {
           animationId: styleValue.animationId,
         };
         // Translate color
+      } else if (['caretColor', 'caret-color'].indexOf(styleKey) >= 0) {
+        this.attributes['caret-color'] = colorParse((styleValue as Color));
       } else if (styleKey.toLowerCase().indexOf('colors') > -1) {
         (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
       } else if (styleKey.toLowerCase().indexOf('color') > -1) {
@@ -387,9 +420,9 @@ class ElementNode extends ViewNode {
           },
         },
         {
-          match: () => ['onPress'].indexOf(key) >= 0,
+          match: () => ['caretColor', 'caret-color'].indexOf(key) >= 0,
           action: () => {
-            this.attributes.onClick = true;
+            this.attributes['caret-color'] = colorParse(value);
             return false;
           },
         },
@@ -407,9 +440,17 @@ class ElementNode extends ViewNode {
           match: () => true,
           action: () => {
             if (typeof value === 'function') {
-              this.attributes[key] = true;
+              const processedKey = getEventPropKey(key);
+              this.attributes[processedKey] = true;
+              this.attributes[`__bind__${processedKey}`] = true;
             } else {
               this.attributes[key] = value;
+              const processedKey = getEventPropKey(key);
+              if (this.attributes[`__bind__${processedKey}`] === true
+                  && typeof value !== 'function') {
+                this.attributes[processedKey] = false;
+                this.attributes[`__bind__${processedKey}`] = false;
+              }
             }
             return false;
           },
@@ -461,7 +502,7 @@ class ElementNode extends ViewNode {
 
       updateChild(this);
     } catch (e) {
-      // ignore
+      // noop
     }
   }
 
@@ -512,6 +553,7 @@ class ElementNode extends ViewNode {
           this.setStyle(key, styleProps[key], true);
         });
         updateChild(this);
+        endBatch(true);
       }
     }
   }

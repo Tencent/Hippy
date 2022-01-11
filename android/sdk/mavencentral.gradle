@@ -16,7 +16,7 @@ println("ossrhPassword=" + ossrhPassword)
 publishing {
     publications {
         mavenAar(MavenPublication) {
-            artifact("$buildDir/outputs/aar/android-sdk-release.aar")
+            artifact("$buildDir/outputs/aar/android-sdk.aar")
             groupId PUBLISH_GROUP_ID
             artifactId PUBLISH_ARTIFACT_ID
             version VERSION_NAME

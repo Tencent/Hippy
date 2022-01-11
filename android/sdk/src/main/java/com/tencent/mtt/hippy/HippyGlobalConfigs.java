@@ -48,7 +48,7 @@ public class HippyGlobalConfigs {
    */
   private final HippySharedPreferencesAdapter mSharedPreferencesAdapter;
 
-  private final Context mContext;
+  private Context mContext;
 
   /**
    * Crash Handler
@@ -97,6 +97,8 @@ public class HippyGlobalConfigs {
 
   private final HippyLogAdapter mLogAdapter;
 
+  private boolean mEnableTurbo;
+
   public HippyGlobalConfigs(HippyEngine.EngineInitParams params) {
     this.mContext = params.context;
     this.mSharedPreferencesAdapter = params.sharedPreferencesAdapter;
@@ -110,6 +112,7 @@ public class HippyGlobalConfigs {
     this.mSoLoaderAdapter = params.soLoader;
     this.mDeviceAdapter = params.deviceAdapter;
     this.mLogAdapter = params.logAdapter;
+    this.mEnableTurbo = params.enableTurbo;
   }
 
   private HippyGlobalConfigs(Context context,
@@ -140,17 +143,16 @@ public class HippyGlobalConfigs {
       if (mHttpAdapter != null) {
         mHttpAdapter.destroyIfNeed();
       }
-
       if (mStorageAdapter != null) {
         mStorageAdapter.destroyIfNeed();
       }
-
       if (mExecutorSupplierAdapter != null) {
         mExecutorSupplierAdapter.destroyIfNeed();
       }
       if (mImageLoaderAdapter != null) {
         mImageLoaderAdapter.destroyIfNeed();
       }
+      mContext = null;
     } catch (Throwable e) {
       LogUtils.d("HippyGlobalConfigs", "destroyIfNeed: " + e.getMessage());
     }
@@ -205,7 +207,7 @@ public class HippyGlobalConfigs {
   }
 
   @Deprecated
-  public void to(HippyEngine.EngineInitParams params) {
+  public void toDebug(HippyEngine.EngineInitParams params) {
     params.context = mContext;
     params.sharedPreferencesAdapter = mSharedPreferencesAdapter;
     params.exceptionHandler = mExceptionHandler;
@@ -218,6 +220,7 @@ public class HippyGlobalConfigs {
     params.soLoader = mSoLoaderAdapter;
     params.deviceAdapter = mDeviceAdapter;
     params.logAdapter = mLogAdapter;
+    params.enableTurbo = true;
   }
 
   @SuppressWarnings({"unused"})
@@ -363,5 +366,9 @@ public class HippyGlobalConfigs {
           mSoLoaderAdapter, mDeviceAdapter, mLogAdapter);
       return configs;
     }
+  }
+
+  public boolean enableTurbo() {
+    return mEnableTurbo;
   }
 }

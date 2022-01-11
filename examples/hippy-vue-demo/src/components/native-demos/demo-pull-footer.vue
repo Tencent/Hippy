@@ -23,6 +23,7 @@
       id="list"
       ref="list"
       :numberOfRows="dataSource.length"
+      @scroll="onScroll"
     >
       <li
         v-for="(ui, index) in dataSource"
@@ -98,6 +99,11 @@ export default {
     // 所以需要加一个锁，当未加载完成时不进行二次加载
     this.isLoading = false;
     this.dataSource = [...mockData];
+    if (Vue.Native) {
+      this.$windowHeight = Vue.Native.Dimensions.window.height;
+    } else {
+      this.$windowHeight = window.innerHeight;
+    }
   },
   methods: {
     mockFetchData() {
@@ -135,6 +141,13 @@ export default {
       this.dataSource = [...dataSource, ...newData];
       this.isLoading = false;
       this.$refs.pullFooter.collapsePullFooter();
+    },
+    onScroll(evt) {
+      evt.stopPropagation(); // 这个事件触发比较频繁，最好阻止一下冒泡。
+      this.scrollPos = {
+        top: evt.offsetY,
+        left: evt.offsetX,
+      };
     },
     scrollToNextPage() {
       // 因为布局问题，浏览器内 flex: 1 后也会超出窗口尺寸高度，所以这么滚是不行的。

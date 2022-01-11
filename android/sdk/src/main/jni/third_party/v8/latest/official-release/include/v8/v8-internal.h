@@ -15,9 +15,12 @@
 
 namespace v8 {
 
+class Array;
 class Context;
 class Data;
 class Isolate;
+template <typename T>
+class Local;
 
 namespace internal {
 
@@ -33,12 +36,20 @@ const int kApiSystemPointerSize = sizeof(void*);
 const int kApiDoubleSize = sizeof(double);
 const int kApiInt32Size = sizeof(int32_t);
 const int kApiInt64Size = sizeof(int64_t);
+const int kApiSizetSize = sizeof(size_t);
 
 // Tag information for HeapObject.
 const int kHeapObjectTag = 1;
 const int kWeakHeapObjectTag = 3;
 const int kHeapObjectTagSize = 2;
 const intptr_t kHeapObjectTagMask = (1 << kHeapObjectTagSize) - 1;
+
+// Tag information for fowarding pointers stored in object headers.
+// 0b00 at the lowest 2 bits in the header indicates that the map word is a
+// forwarding pointer.
+const int kForwardingTag = 0;
+const int kForwardingTagSize = 2;
+const intptr_t kForwardingTagMask = (1 << kForwardingTagSize) - 1;
 
 // Tag information for Smi.
 const int kSmiTag = 0;
@@ -120,22 +131,25 @@ constexpr bool HeapSandboxIsEnabled() {
 
 using ExternalPointer_t = Address;
 
-// If the heap sandbox is enabled, these tag values will be XORed with the
+// If the heap sandbox is enabled, these tag values will be ORed with the
 // external pointers in the external pointer table to prevent use of pointers of
-// the wrong type.
-enum ExternalPointerTag : Address {
-  kExternalPointerNullTag = static_cast<Address>(0ULL),
-  kArrayBufferBackingStoreTag = static_cast<Address>(1ULL << 48),
-  kTypedArrayExternalPointerTag = static_cast<Address>(2ULL << 48),
-  kDataViewDataPointerTag = static_cast<Address>(3ULL << 48),
-  kExternalStringResourceTag = static_cast<Address>(4ULL << 48),
-  kExternalStringResourceDataTag = static_cast<Address>(5ULL << 48),
-  kForeignForeignAddressTag = static_cast<Address>(6ULL << 48),
-  kNativeContextMicrotaskQueueTag = static_cast<Address>(7ULL << 48),
-  // TODO(v8:10391, saelo): Currently has to be zero so that raw zero values are
-  // also nullptr
-  kEmbedderDataSlotPayloadTag = static_cast<Address>(0ULL << 48),
+// the wrong type. When a pointer is loaded, it is ANDed with the inverse of the
+// expected type's tag. The tags are constructed in a way that guarantees that a
+// failed type check will result in one or more of the top bits of the pointer
+// to be set, rendering the pointer inacessible. This construction allows
+// performing the type check and removing GC marking bits from the pointer at
+// the same time.
+enum ExternalPointerTag : uint64_t {
+  kExternalPointerNullTag = 0x0000000000000000,
+  kExternalStringResourceTag = 0x00ff000000000000,       // 0b000000011111111
+  kExternalStringResourceDataTag = 0x017f000000000000,   // 0b000000101111111
+  kForeignForeignAddressTag = 0x01bf000000000000,        // 0b000000110111111
+  kNativeContextMicrotaskQueueTag = 0x01df000000000000,  // 0b000000111011111
+  kEmbedderDataSlotPayloadTag = 0x01ef000000000000,      // 0b000000111101111
+  kCodeEntryPointTag = 0x01f7000000000000,               // 0b000000111110111
 };
+
+constexpr uint64_t kExternalPointerTagMask = 0xffff000000000000;
 
 #ifdef V8_31BIT_SMIS_ON_64BIT_ARCH
 using PlatformSmiTagging = SmiTagging<kApiInt32Size>;
@@ -171,12 +185,22 @@ V8_EXPORT internal::Isolate* IsolateFromNeverReadOnlySpaceObject(Address obj);
 // language mode is strict.
 V8_EXPORT bool ShouldThrowOnError(v8::internal::Isolate* isolate);
 
+V8_EXPORT bool CanHaveInternalField(int instance_type);
+
 /**
  * This class exports constants and functionality from within v8 that
  * is necessary to implement inline functions in the v8 api.  Don't
  * depend on functions and constants defined here.
  */
 class Internals {
+#ifdef V8_MAP_PACKING
+  V8_INLINE static constexpr internal::Address UnpackMapWord(
+      internal::Address mapword) {
+    // TODO(wenyuzhao): Clear header metadata.
+    return mapword ^ kMapWordXorMask;
+  }
+#endif
+
  public:
   // These values match non-compiler-dependent values defined within
   // the implementation of v8.
@@ -200,19 +224,30 @@ class Internals {
   static const int kExternalOneByteRepresentationTag = 0x0a;
 
   static const uint32_t kNumIsolateDataSlots = 4;
+  static const int kStackGuardSize = 7 * kApiSystemPointerSize;
+  static const int kBuiltinTier0EntryTableSize = 13 * kApiSystemPointerSize;
+  static const int kBuiltinTier0TableSize = 13 * kApiSystemPointerSize;
 
   // IsolateData layout guarantees.
-  static const int kIsolateEmbedderDataOffset = 0;
+  static const int kIsolateCageBaseOffset = 0;
+  static const int kIsolateStackGuardOffset =
+      kIsolateCageBaseOffset + kApiSystemPointerSize;
+  static const int kBuiltinTier0EntryTableOffset =
+      kIsolateStackGuardOffset + kStackGuardSize;
+  static const int kBuiltinTier0TableOffset =
+      kBuiltinTier0EntryTableOffset + kBuiltinTier0EntryTableSize;
+  static const int kIsolateEmbedderDataOffset =
+      kBuiltinTier0TableOffset + kBuiltinTier0TableSize;
   static const int kIsolateFastCCallCallerFpOffset =
-      kNumIsolateDataSlots * kApiSystemPointerSize;
+      kIsolateEmbedderDataOffset + kNumIsolateDataSlots * kApiSystemPointerSize;
   static const int kIsolateFastCCallCallerPcOffset =
       kIsolateFastCCallCallerFpOffset + kApiSystemPointerSize;
   static const int kIsolateFastApiCallTargetOffset =
       kIsolateFastCCallCallerPcOffset + kApiSystemPointerSize;
-  static const int kIsolateStackGuardOffset =
+  static const int kIsolateLongTaskStatsCounterOffset =
       kIsolateFastApiCallTargetOffset + kApiSystemPointerSize;
   static const int kIsolateRootsOffset =
-      kIsolateStackGuardOffset + 7 * kApiSystemPointerSize;
+      kIsolateLongTaskStatsCounterOffset + kApiSizetSize;
 
   static const int kExternalPointerTableBufferOffset = 0;
   static const int kExternalPointerTableLengthOffset =
@@ -237,8 +272,9 @@ class Internals {
   static const int kOddballType = 0x43;
   static const int kForeignType = 0x46;
   static const int kJSSpecialApiObjectType = 0x410;
-  static const int kJSApiObjectType = 0x420;
   static const int kJSObjectType = 0x421;
+  static const int kFirstJSApiObjectType = 0x422;
+  static const int kLastJSApiObjectType = 0x80A;
 
   static const int kUndefinedOddballKind = 5;
   static const int kNullOddballKind = 3;
@@ -252,6 +288,17 @@ class Internals {
   // Soft limit for AdjustAmountofExternalAllocatedMemory. Trigger an
   // incremental GC once the external memory reaches this limit.
   static constexpr int kExternalAllocationSoftLimit = 64 * 1024 * 1024;
+
+#ifdef V8_MAP_PACKING
+  static const uintptr_t kMapWordMetadataMask = 0xffffULL << 48;
+  // The lowest two bits of mapwords are always `0b10`
+  static const uintptr_t kMapWordSignature = 0b10;
+  // XORing a (non-compressed) map with this mask ensures that the two
+  // low-order bits are 0b10. The 0 at the end makes this look like a Smi,
+  // although real Smis have all lower 32 bits unset. We only rely on these
+  // values passing as Smis in very few places.
+  static const int kMapWordXorMask = 0b11;
+#endif
 
   V8_EXPORT static void CheckInitializedImpl(v8::Isolate* isolate);
   V8_INLINE static void CheckInitialized(v8::Isolate* isolate) {
@@ -279,6 +326,9 @@ class Internals {
   V8_INLINE static int GetInstanceType(const internal::Address obj) {
     typedef internal::Address A;
     A map = ReadTaggedPointerField(obj, kHeapObjectMapOffset);
+#ifdef V8_MAP_PACKING
+    map = UnpackMapWord(map);
+#endif
     return ReadRawField<uint16_t>(map, kMapInstanceTypeOffset);
   }
 
@@ -329,6 +379,12 @@ class Internals {
     return *reinterpret_cast<void* const*>(addr);
   }
 
+  V8_INLINE static void IncrementLongTasksStatsCounter(v8::Isolate* isolate) {
+    internal::Address addr = reinterpret_cast<internal::Address>(isolate) +
+                             kIsolateLongTaskStatsCounterOffset;
+    ++(*reinterpret_cast<size_t*>(addr));
+  }
+
   V8_INLINE static internal::Address* GetRoot(v8::Isolate* isolate, int index) {
     internal::Address addr = reinterpret_cast<internal::Address>(isolate) +
                              kIsolateRootsOffset +
@@ -358,8 +414,9 @@ class Internals {
       internal::Address heap_object_ptr, int offset) {
 #ifdef V8_COMPRESS_POINTERS
     uint32_t value = ReadRawField<uint32_t>(heap_object_ptr, offset);
-    internal::Address root = GetRootFromOnHeapAddress(heap_object_ptr);
-    return root + static_cast<internal::Address>(static_cast<uintptr_t>(value));
+    internal::Address base =
+        GetPtrComprCageBaseFromOnHeapAddress(heap_object_ptr);
+    return base + static_cast<internal::Address>(static_cast<uintptr_t>(value));
 #else
     return ReadRawField<internal::Address>(heap_object_ptr, offset);
 #endif
@@ -411,22 +468,118 @@ class Internals {
 
 #ifdef V8_COMPRESS_POINTERS
   // See v8:7703 or src/ptr-compr.* for details about pointer compression.
-  static constexpr size_t kPtrComprHeapReservationSize = size_t{1} << 32;
-  static constexpr size_t kPtrComprIsolateRootAlignment = size_t{1} << 32;
+  static constexpr size_t kPtrComprCageReservationSize = size_t{1} << 32;
+  static constexpr size_t kPtrComprCageBaseAlignment = size_t{1} << 32;
 
-  V8_INLINE static internal::Address GetRootFromOnHeapAddress(
+  V8_INLINE static internal::Address GetPtrComprCageBaseFromOnHeapAddress(
       internal::Address addr) {
-    return addr & -static_cast<intptr_t>(kPtrComprIsolateRootAlignment);
+    return addr & -static_cast<intptr_t>(kPtrComprCageBaseAlignment);
   }
 
   V8_INLINE static internal::Address DecompressTaggedAnyField(
       internal::Address heap_object_ptr, uint32_t value) {
-    internal::Address root = GetRootFromOnHeapAddress(heap_object_ptr);
-    return root + static_cast<internal::Address>(static_cast<uintptr_t>(value));
+    internal::Address base =
+        GetPtrComprCageBaseFromOnHeapAddress(heap_object_ptr);
+    return base + static_cast<internal::Address>(static_cast<uintptr_t>(value));
   }
 
 #endif  // V8_COMPRESS_POINTERS
 };
+
+constexpr bool VirtualMemoryCageIsEnabled() {
+#ifdef V8_VIRTUAL_MEMORY_CAGE
+  return true;
+#else
+  return false;
+#endif
+}
+
+#ifdef V8_VIRTUAL_MEMORY_CAGE_IS_AVAILABLE
+
+#define GB (1ULL << 30)
+#define TB (1ULL << 40)
+
+// Size of the virtual memory cage, excluding the guard regions surrounding it.
+constexpr size_t kVirtualMemoryCageSizeLog2 = 40;  // 1 TB
+constexpr size_t kVirtualMemoryCageSize = 1ULL << kVirtualMemoryCageSizeLog2;
+
+// Required alignment of the virtual memory cage. For simplicity, we require the
+// size of the guard regions to be a multiple of this, so that this specifies
+// the alignment of the cage including and excluding surrounding guard regions.
+// The alignment requirement is due to the pointer compression cage being
+// located at the start of the virtual memory cage.
+constexpr size_t kVirtualMemoryCageAlignment =
+    Internals::kPtrComprCageBaseAlignment;
+
+#ifdef V8_CAGED_POINTERS
+// CagedPointers are guaranteed to point into the virtual memory cage. This is
+// achieved by storing them as offset from the cage base rather than as raw
+// pointers.
+using CagedPointer_t = Address;
+
+// For efficiency, the offset is stored shifted to the left, so that
+// it is guaranteed that the offset is smaller than the cage size after
+// shifting it to the right again. This constant specifies the shift amount.
+constexpr uint64_t kCagedPointerShift = 64 - kVirtualMemoryCageSizeLog2;
+#endif
+
+// Size of the guard regions surrounding the virtual memory cage. This assumes a
+// worst-case scenario of a 32-bit unsigned index being used to access an array
+// of 64-bit values.
+constexpr size_t kVirtualMemoryCageGuardRegionSize = 32ULL * GB;
+
+static_assert((kVirtualMemoryCageGuardRegionSize %
+               kVirtualMemoryCageAlignment) == 0,
+              "The size of the virtual memory cage guard region must be a "
+              "multiple of its required alignment.");
+
+// Minimum size of the virtual memory cage, excluding the guard regions
+// surrounding it. If the cage reservation fails, its size is currently halved
+// until either the reservation succeeds or the minimum size is reached. A
+// minimum of 32GB allows the 4GB pointer compression region as well as the
+// ArrayBuffer partition and two 10GB WASM memory cages to fit into the cage.
+// 32GB should also be the minimum possible size of the userspace address space
+// as there are some machine configurations with only 36 virtual address bits.
+constexpr size_t kVirtualMemoryCageMinimumSize = 32ULL * GB;
+
+static_assert(kVirtualMemoryCageMinimumSize <= kVirtualMemoryCageSize,
+              "The minimal size of the virtual memory cage must be smaller or "
+              "equal to the regular size.");
+
+// On OSes where reservation virtual memory is too expensive to create a real
+// cage, notably Windows pre 8.1, we create a fake cage that doesn't actually
+// reserve most of the memory, and so doesn't have the desired security
+// properties, but still ensures that objects that should be located inside the
+// cage are allocated within kVirtualMemoryCageSize bytes from the start of the
+// cage, and so appear to be inside the cage. The minimum size of the virtual
+// memory range that is actually reserved for a fake cage is specified by this
+// constant and should be big enough to contain the pointer compression region
+// as well as the ArrayBuffer partition.
+constexpr size_t kFakeVirtualMemoryCageMinReservationSize = 8ULL * GB;
+
+static_assert(kVirtualMemoryCageMinimumSize >
+                  Internals::kPtrComprCageReservationSize,
+              "The virtual memory cage must be larger than the pointer "
+              "compression cage contained within it.");
+static_assert(kFakeVirtualMemoryCageMinReservationSize >
+                  Internals::kPtrComprCageReservationSize,
+              "The reservation for a fake virtual memory cage must be larger "
+              "than the pointer compression cage contained within it.");
+
+// For now, even if the virtual memory cage is enabled, we still allow backing
+// stores to be allocated outside of it as fallback. This will simplify the
+// initial rollout. However, if the heap sandbox is also enabled, we already use
+// the "enforcing mode" of the virtual memory cage. This is useful for testing.
+#ifdef V8_HEAP_SANDBOX
+constexpr bool kAllowBackingStoresOutsideCage = false;
+#else
+constexpr bool kAllowBackingStoresOutsideCage = true;
+#endif  // V8_HEAP_SANDBOX
+
+#undef GB
+#undef TB
+
+#endif  // V8_VIRTUAL_MEMORY_CAGE_IS_AVAILABLE
 
 // Only perform cast check for types derived from v8::Data since
 // other types do not implement the Cast method.
@@ -457,6 +610,7 @@ V8_INLINE void PerformCastCheck(T* data) {
 class BackingStoreBase {};
 
 }  // namespace internal
+
 }  // namespace v8
 
 #endif  // INCLUDE_V8_INTERNAL_H_

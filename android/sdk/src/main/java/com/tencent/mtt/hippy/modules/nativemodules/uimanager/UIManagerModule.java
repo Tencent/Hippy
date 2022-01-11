@@ -152,18 +152,18 @@ public class UIManagerModule extends HippyNativeModuleBase {
   }
 
   @HippyMethod(name = "startBatch")
-  public void startBatch(String renderID) {
+  public void startBatch() {
     DomManager domManager = this.mContext.getDomManager();
     if (domManager != null) {
-      domManager.renderBatchStart(renderID);
+      domManager.renderBatchStart();
     }
   }
 
   @HippyMethod(name = "endBatch")
-  public void endBatch(String renderID) {
+  public void endBatch() {
     DomManager domManager = this.mContext.getDomManager();
     if (domManager != null) {
-      domManager.renderBatchEnd(renderID);
+      domManager.renderBatchEnd();
     }
   }
 
