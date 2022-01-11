@@ -88,13 +88,6 @@ HIPPY_EXTERN NSString *const HippyFBJSValueClassKey;
 @property (readonly) JSGlobalContextRef JSGlobalContextRef;
 
 /**
- * Returns whether executor uses custom JSC library.
- * This value is used to initialize HippyJSCWrapper.
- * @default is NO.
- */
-@property (nonatomic, readonly, assign) BOOL useCustomJSCLibrary;
-
-/**
  * Specify a name for the JSContext used, which will be visible in debugging tools
  * @default is "HippyJSContext"
  */
