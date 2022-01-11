@@ -55,11 +55,16 @@
     }
 }
 
-- (void)closeWebSocket {
+- (void)closeWebSocket:(HippyDevCloseType)type {
     if (!_devWSClient) {
         return;
     }
-    [_devWSClient close];
+    NSInteger code = type;
+    NSString *reason = @"socket was closed because the page was closed";
+    if (type == HippyDevCloseTypeReload) {
+        reason = @"socket was closed because the page was reload";
+    }
+    [_devWSClient closeWithCode:code reason:reason];
 }
 
 #pragma mark WS Delegate

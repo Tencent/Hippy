@@ -123,11 +123,11 @@ static const char *stringFromReadyState(HippySRReadyState state) {
     [_devWebSocket send:data];
 }
 
-- (void)close {
+- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason {
     if (!_devWebSocket) {
         return;
     }
-    [_devWebSocket close];
+    [_devWebSocket closeWithCode:code reason:reason];
 }
 
 #pragma mark dev websocket delegate methods

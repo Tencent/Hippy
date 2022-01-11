@@ -784,7 +784,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         [HippyBridge setCurrentBridge:nil];
     }
     if (_devManager) {
-        [_devManager closeWebSocket];
+        HippyDevCloseType closeType = HippyDevCloseTypeClosePage;
+        if (self.invalidateReason == HippyInvalidateReasonReload) {
+            closeType = HippyDevCloseTypeReload;
+        }
+        [_devManager closeWebSocket:closeType];
     }
 
     // Invalidate modules
