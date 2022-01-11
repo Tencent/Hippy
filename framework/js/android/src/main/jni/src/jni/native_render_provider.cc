@@ -38,22 +38,22 @@ using RenderManager = hippy::dom::RenderManager;
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",
-             "(JF)V",
-             CreateNativeRenderDelegate)
+             "(F)I",
+             onCreateNativeRenderProvider)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onRootSizeChanged",
-             "(JFF)V",
+             "(IFF)V",
              UpdateRootSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onReceivedEvent",
-             "(JILjava/lang/String;[BIIZZ)V",
+             "(IILjava/lang/String;[BIIZZ)V",
              OnReceivedEvent)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "doCallBack",
-             "(JILjava/lang/String;[BII)V",
+             "(IILjava/lang/String;I[BII)V",
              DoCallBack)
 
 void NativeRenderProvider::Init() {
@@ -62,11 +62,12 @@ void NativeRenderProvider::Init() {
 void NativeRenderProvider::Destroy() {
 }
 
-void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object,
-                                jlong j_runtime_id, jfloat j_density) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+jint onCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_density) {
+    return 0;
+/*
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "CreateNativeRenderDelegate j_runtime_id invalid";
+    TDF_BASE_DLOG(WARNING) << "CreateNativeRenderDelegate j_instance_id invalid";
     return;
   }
 
@@ -81,13 +82,14 @@ void CreateNativeRenderDelegate(JNIEnv* j_env, jobject j_object,
   layout_node->SetScaleFactor(j_density);
   dom_manager->SetRenderManager(render_manager);
   dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
+*/
 }
 
-void UpdateRootSize(JNIEnv *j_env, jobject j_object, jlong j_runtime_id,
+void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
                     jfloat j_width, jfloat j_height) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_runtime_id invalid";
+    TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_instance_id invalid";
     return;
   }
 
@@ -101,11 +103,11 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jlong j_runtime_id,
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
-                jlong j_runtime_id, jint j_dom_id, jstring j_func_name,
+                jint j_instance_id, jint j_result, jstring j_func_name, jint j_dom_id,
                 jbyteArray j_buffer, jint j_offset, jint j_length) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "DoCallBack j_runtime_id invalid";
+    TDF_BASE_DLOG(WARNING) << "DoCallBack j_instance_id invalid";
     return;
   }
 
@@ -140,12 +142,12 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
 }
 
 void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
-                     jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
+                     jint j_instance_id, jint j_dom_id, jstring j_event_name,
                      jbyteArray j_buffer, jint j_offset, jint j_length,
                      jboolean j_use_capture, jboolean j_use_bubble) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent j_runtime_id invalid";
+    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent j_instance_id invalid";
     return;
   }
 

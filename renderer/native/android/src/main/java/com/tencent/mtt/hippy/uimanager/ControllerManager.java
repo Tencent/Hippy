@@ -70,7 +70,7 @@ public class ControllerManager {
   final ControllerUpdateManger<HippyViewController, View> mControllerUpdateManger;
   final SparseArray<View> mPreCacheView = new SparseArray<>();
 
-  public ControllerManager(NativeRender nativeRenderer, @Nullable List<Class> controllers) {
+  public ControllerManager(NativeRender nativeRenderer, @Nullable List<Class<?>> controllers) {
     mNativeRenderer = nativeRenderer;
     mControllerRegistry = new ControllerRegistry(nativeRenderer);
     mControllerUpdateManger = new ControllerUpdateManger();
@@ -83,8 +83,8 @@ public class ControllerManager {
     return mNativeRenderer.getRenderManager();
   }
 
-  private @NonNull List<Class> getDefaultControllers() {
-    List<Class> controllers = new ArrayList<>();
+  private @NonNull List<Class<?>> getDefaultControllers() {
+    List<Class<?>> controllers = new ArrayList<>();
     controllers.add(HippyTextViewController.class);
     controllers.add(HippyViewGroupController.class);
     controllers.add(HippyImageViewController.class);
@@ -107,8 +107,8 @@ public class ControllerManager {
     return controllers;
   }
 
-  private void processControllers(@Nullable List<Class> controllers) {
-    List<Class> defaultControllers = getDefaultControllers();
+  private void processControllers(@Nullable List<Class<?>> controllers) {
+    List<Class<?>> defaultControllers = getDefaultControllers();
     if (controllers != null) {
       controllers.addAll(0, defaultControllers);
     } else {

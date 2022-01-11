@@ -1,0 +1,100 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.tencent.link_supplier;
+
+import androidx.annotation.NonNull;
+import com.tencent.link_supplier.proxy.dom.DomProxy;
+import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
+import com.tencent.link_supplier.proxy.renderer.RenderProxy;
+
+public class Linker implements LinkHelper {
+
+    public enum RenderMode {
+        NATIVE_RENDER,
+        TDF_RENDER,
+        FLUTTER_RENDER
+    }
+
+    private RenderProxy mRenderProxy;
+    private DomProxy mDomProxy;
+
+    public Linker(RenderMode renderMode, @NonNull FrameworkProxy frameworkProxy)
+            throws RuntimeException {
+        mDomProxy = new DomHolder();
+        switch (renderMode) {
+            case TDF_RENDER:
+                // TODO: Create TDF renderer.
+                break;
+            case FLUTTER_RENDER:
+                // TODO: Create Flutter renderer.
+                break;
+            case NATIVE_RENDER:
+            default:
+                mRenderProxy = createNativeRenderer();
+        }
+        if (mRenderProxy == null) {
+            throw new RuntimeException(
+                    "Serious error: Failed to create renderer instance!");
+        }
+        mRenderProxy.setFrameworkProxy(frameworkProxy);
+    }
+
+    private RenderProxy createNativeRenderer() {
+        try {
+            Class nativeRendererClass = Class
+                    .forName("com.tencent.renderer.NativeRenderer");
+            return (RenderProxy) (nativeRendererClass.newInstance());
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
+    @Override
+    public RenderProxy getRenderProxy() {
+        return mRenderProxy;
+    }
+
+    @Override
+    public DomProxy getDomProxy() {
+        return mDomProxy;
+    }
+
+    @Override
+    public void bind(int frameworkId) {
+        doBind(mDomProxy.getInstanceId(), mRenderProxy.getInstanceId(), frameworkId);
+    }
+
+    @Override
+    public void destroy() {
+        if (mDomProxy != null) {
+            mDomProxy.destroy();
+            mDomProxy = null;
+        }
+        if (mRenderProxy != null) {
+            mRenderProxy.destroy();
+            mRenderProxy = null;
+        }
+    }
+
+    /**
+     * Bind dom manager, render manager and framework with instance id.
+     *
+     * @param domId dom manager instance id
+     * @param renderId render manager instance id
+     * @param frameworkId framework instance id
+     */
+    private native void doBind(int domId, int renderId, int frameworkId);
+}

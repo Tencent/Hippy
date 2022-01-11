@@ -18,6 +18,8 @@ package com.tencent.mtt.hippy.modules;
 @SuppressWarnings({"unused"})
 public interface Promise {
 
+    String CALL_ID_NO_CALLBACK = "-1";
+
     enum BridgeTransferType {
         BRIDGE_TRANSFER_TYPE_NORMAL(0),
         BRIDGE_TRANSFER_TYPE_NIO(1);

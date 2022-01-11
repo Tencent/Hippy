@@ -255,14 +255,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 }
 
                 long runtimeId = mHippyBridge.getV8RuntimeId();
+                if (mContext != null) {
+                  mContext.onJSBridgeInitialized(runtimeId);
+                }
 
                 if (enableTurbo()) {
                   mTurboModuleManager = new TurboModuleManager(mContext);
                   mTurboModuleManager.install(runtimeId);
-                }
-
-                if (mContext != null) {
-                  mContext.onRuntimeInitialized(runtimeId);
                 }
 
                 if (mThirdPartyAdapter != null) {

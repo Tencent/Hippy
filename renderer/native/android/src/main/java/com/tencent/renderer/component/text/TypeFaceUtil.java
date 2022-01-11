@@ -19,7 +19,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
-import com.tencent.hippy.support.FontAdapter;
+import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.HashMap;
@@ -56,7 +56,7 @@ public class TypeFaceUtil {
                 typeface = Typeface
                         .createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
             } catch (Exception ignored) {
-                LogUtils.e(TAG, "createTypeface: " + ignored.getMessage());
+                // If create type face from asset failed, other builder can also be used
             }
         }
         if (typeface == null && fontAdapter != null) {
@@ -65,7 +65,7 @@ public class TypeFaceUtil {
                 try {
                     typeface = Typeface.createFromFile(filePath);
                 } catch (Exception ignored) {
-                    LogUtils.e(TAG, "createTypeface: " + ignored.getMessage());
+                    // If create type face from asset file, other builder can also be used
                 }
             }
         }

@@ -16,11 +16,13 @@
 
 package com.tencent.renderer;
 
+import androidx.annotation.NonNull;
+
 public interface NativeRenderExceptionHandler {
     /**
      * Report render exception to host
      *
      * @param exception {@link Exception} the render exception
      */
-    void handleRenderException(Exception exception);
+    void handleRenderException(@NonNull Exception exception);
 }

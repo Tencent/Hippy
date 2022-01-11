@@ -13,10 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.adapter.font;
 
-import com.tencent.link_supplier.proxy.framework.FontAdapter;
+package com.tencent.link_supplier;
 
-public interface HippyFontScaleAdapter extends FontAdapter {
+import com.tencent.link_supplier.proxy.dom.DomProxy;
+import com.tencent.link_supplier.proxy.renderer.RenderProxy;
 
+public interface LinkHelper {
+
+    RenderProxy getRenderProxy();
+
+    DomProxy getDomProxy();
+
+    void bind(int frameworkId);
+
+    void destroy();
 }

@@ -31,19 +31,18 @@ class NativeRenderProvider {
   static void Destroy();
 };
 
-void CreateNativeRenderDelegate(JNIEnv* j_env,
+jint onCreateNativeRenderProvider(JNIEnv* j_env,
                                 jobject j_obj,
-                                jlong j_runtime_id,
                                 jfloat j_density);
 
-void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jlong j_runtime_id,
+void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id,
                     jfloat width, jfloat height);
 
 void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
-                     jlong j_runtime_id, jint j_dom_id, jstring j_event_name,
+                     jint j_instance_id, jint j_dom_id, jstring j_event_name,
                      jbyteArray j_buffer, jint j_offset, jint j_length,
                      jboolean j_use_capture, jboolean j_use_bubble);
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
-                jlong j_runtime_id, jint j_dom_id, jstring j_func_name,
+                jint j_instance_id, jint j_result, jstring j_func_name, jint j_dom_id,
                 jbyteArray j_buffer, jint j_offset, jint j_length);

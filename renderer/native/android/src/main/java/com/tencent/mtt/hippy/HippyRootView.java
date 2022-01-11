@@ -209,7 +209,7 @@ public class HippyRootView extends FrameLayout {
       boolean shouldRevise = (windowHeight < 0 || dimensionW == dimensionH) ? true : false;
       NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
-        nativeRenderer.updateDimension(shouldRevise, dimensionMap,
+        nativeRenderer.updateDimension(shouldRevise, dimensionMap.getInternalMap(),
             shouldUseScreenDisplay, systemUiVisibilityChanged);
       }
     }

@@ -6,7 +6,7 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import com.tencent.hippy.support.ControllerProvider;
+import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;

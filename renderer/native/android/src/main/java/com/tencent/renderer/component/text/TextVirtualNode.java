@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer.component.text;
 
 import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_SHADOW_COLOR;
@@ -37,12 +38,14 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 
 import androidx.annotation.Nullable;
-import com.tencent.hippy.support.FontAdapter;
+
+import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,9 +89,10 @@ public class TextVirtualNode extends VirtualNode {
     private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_NORMAL;
     private final TextUtils.TruncateAt mTruncateAt = TextUtils.TruncateAt.END;
     private TextPaint mTextPaint = null;
-    private @Nullable
-    final FontAdapter mFontAdapter;
-    private @Nullable Layout mLayout = null;
+    @Nullable
+    private final FontAdapter mFontAdapter;
+    @Nullable
+    private Layout mLayout = null;
 
     public TextVirtualNode(int id, int pid, int index, @Nullable FontAdapter fontAdapter) {
         super(id, pid, index);
@@ -216,15 +220,15 @@ public class TextVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LINE_SPACING_MULTIPLIER, defaultType = HippyControllerProps.NUMBER)
     public void lineSpacingMultiplier(float lineSpacingMultiplier) {
-      mLineSpacingMultiplier = lineSpacingMultiplier;
-      markDirty();
+        mLineSpacingMultiplier = lineSpacingMultiplier;
+        markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LINE_SPACING_EXTRA, defaultType = HippyControllerProps.NUMBER)
     public void lineSpacingExtra(float lineSpacingExtra) {
-      mLineSpacingExtra = PixelUtil.dp2px(lineSpacingExtra);
-      markDirty();
+        mLineSpacingExtra = PixelUtil.dp2px(lineSpacingExtra);
+        markDirty();
     }
 
     @SuppressWarnings("unused")
@@ -358,7 +362,7 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     protected float getLineSpacingMultiplier() {
-      return mLineSpacingMultiplier <= 0 ? 1.0f : mLineSpacingMultiplier;
+        return mLineSpacingMultiplier <= 0 ? 1.0f : mLineSpacingMultiplier;
     }
 
     public Layout createLayout(final float width, final FlexMeasureMode widthMode) {
@@ -379,7 +383,8 @@ public class TextVirtualNode extends VirtualNode {
         boolean unconstrainedWidth = (widthMode == FlexMeasureMode.UNDEFINED) || width < 0;
         if (boring != null && (unconstrainedWidth || boring.width <= width)) {
             layout = BoringLayout
-                    .make(mSpanned, mTextPaint, boring.width, mAlignment, getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
+                    .make(mSpanned, mTextPaint, boring.width, mAlignment,
+                            getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
         } else {
             if (!unconstrainedWidth && desiredWidth > width) {
                 desiredWidth = width;
@@ -408,7 +413,8 @@ public class TextVirtualNode extends VirtualNode {
                 alignment = Layout.Alignment.ALIGN_NORMAL;
             }
         }
-        return new StaticLayout(source, mTextPaint, width, alignment, getLineSpacingMultiplier(), mLineSpacingExtra,
+        return new StaticLayout(source, mTextPaint, width, alignment, getLineSpacingMultiplier(),
+                mLineSpacingExtra,
                 true);
     }
 

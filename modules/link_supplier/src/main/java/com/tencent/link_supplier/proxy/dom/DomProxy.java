@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.hippy.support;
 
-import java.util.List;
+package com.tencent.link_supplier.proxy.dom;
 
-public interface ControllerProvider {
+import com.tencent.link_supplier.proxy.LinkProxy;
 
-  List<Class> getControllers();
+public interface DomProxy extends LinkProxy  {
+
 }

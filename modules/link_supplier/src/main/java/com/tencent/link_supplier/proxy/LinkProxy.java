@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.hippy.support;
 
-public interface FrameworkProxy {
-  FontAdapter getFontAdapter();
+package com.tencent.link_supplier.proxy;
 
-  void onFirstViewAdded();
+public interface LinkProxy {
+    /**
+     * Get link proxy object identify.
+     *
+     * @return the instance id of link proxy object.
+     */
+    int getInstanceId();
 
-  void handleNativeException(Exception exception, boolean haveCaught);
+    void destroy();
 }

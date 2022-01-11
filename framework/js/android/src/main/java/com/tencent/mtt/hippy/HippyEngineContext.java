@@ -54,9 +54,9 @@ public interface HippyEngineContext {
 
   void handleException(Throwable throwable);
 
-  void onRuntimeInitialized(long runtimeId);
-
   int getEngineId();
 
   int getRootId();
+
+  void onJSBridgeInitialized(long runtimeId);
 }

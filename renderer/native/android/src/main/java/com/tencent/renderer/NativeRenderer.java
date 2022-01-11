@@ -25,7 +25,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.hippy.support.FontAdapter;
+import com.tencent.link_supplier.proxy.framework.FontAdapter;
+import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
+import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
+import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -40,34 +43,28 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.hippy.support.FrameworkProxy;
-import com.tencent.hippy.support.JSFrameworkProxy;
-import com.tencent.hippy.support.NativeRenderProxy;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
 public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
 
-    public static final String TAG = "NativeRenderer";
-    private static final AtomicInteger sCounter = new AtomicInteger(0);
-    private final String NODE_ID = "id";
-    private final String NODE_PID = "pId";
-    private final String NODE_INDEX = "index";
-    private final String NODE_PROPS = "props";
-    private final String CLASS_NAME = "name";
-    private final String LAYOUT_LEFT = "left";
-    private final String LAYOUT_TOP = "top";
-    private final String LAYOUT_WIDTH = "width";
-    private final String LAYOUT_HEIGHT = "height";
-    private final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
-    private final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
-    private final int ROOT_VIEW_TAG_INCREMENT = 10;
-    private int mInstanceId;
+    private static final String TAG = "NativeRenderer";
+    private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
+    private static final int ROOT_VIEW_ID_INCREMENT = 10;
+    private static final String NODE_ID = "id";
+    private static final String NODE_PID = "pId";
+    private static final String NODE_INDEX = "index";
+    private static final String NODE_PROPS = "props";
+    private static final String CLASS_NAME = "name";
+    private static final String LAYOUT_LEFT = "left";
+    private static final String LAYOUT_TOP = "top";
+    private static final String LAYOUT_WIDTH = "width";
+    private static final String LAYOUT_HEIGHT = "height";
+    private static final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
+    private static final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
     private int mRootId;
     private boolean mIsDebugMode;
     private RenderManager mRenderManager;
@@ -75,12 +72,17 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private DomManager domManager;
     private HippyRootView mRootView;
     private FrameworkProxy mFrameworkProxy;
-    private NativeRenderProvider mRenderProvider;
+    private final NativeRenderProvider mRenderProvider;
     private volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
     private BlockingQueue<UITaskExecutor> mUITaskQueue;
 
+    public NativeRenderer() {
+        mRenderProvider = new NativeRenderProvider(this);
+        NativeRendererManager.addNativeRendererInstance(mRenderProvider.getInstanceId(), this);
+    }
+
     @Override
-    public void init(int instanceId, @Nullable List<Class> controllers,
+    public void init(@Nullable List<Class<?>> controllers,
             boolean isDebugMode, @Nullable ViewGroup rootView) {
         mRenderManager = new RenderManager(this, controllers);
         mVirtualNodeManager = new VirtualNodeManager(this);
@@ -89,16 +91,19 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             mRootId = rootView.getId();
             mRenderManager.createRootNode(mRootId);
             mRenderManager.addRootView(rootView);
-            this.mRootView = (HippyRootView) rootView;
+            mRootView = (HippyRootView) rootView;
         } else {
-            mRootId = sCounter.addAndGet(ROOT_VIEW_TAG_INCREMENT);
+            mRootId = sRootIdCounter.addAndGet(ROOT_VIEW_ID_INCREMENT);
         }
-        mInstanceId = instanceId;
         mIsDebugMode = isDebugMode;
         // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
         // node operation cause OOM.
         mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
-        NativeRendererManager.addNativeRendererInstance(instanceId, this);
+    }
+
+    @Override
+    public int getInstanceId() {
+        return mRenderProvider.getInstanceId();
     }
 
     @Override
@@ -129,6 +134,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
+    @Nullable
     public FontAdapter getFontAdapter() {
         if (mFrameworkProxy != null) {
             return mFrameworkProxy.getFontAdapter();
@@ -142,10 +148,11 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void handleRenderException(Exception exception) {
+    public void handleRenderException(@NonNull Exception exception) {
         String msg;
         if (exception instanceof NativeRenderException) {
-            msg = "code: " + ((NativeRenderException)exception).mCode + ", message: " + exception.getMessage();
+            msg = "code: " + ((NativeRenderException) exception).mCode + ", message: " + exception
+                    .getMessage();
         } else {
             msg = exception.getMessage();
         }
@@ -154,43 +161,31 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void setFrameworkProxy(FrameworkProxy proxy) {
+    public void setFrameworkProxy(@NonNull FrameworkProxy proxy) {
         mFrameworkProxy = proxy;
     }
 
     @Override
     public void destroy() {
-        if (domManager != null) {
-            ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-            if (threadExecutor != null) {
-                threadExecutor.postOnDomThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        domManager.destroy();
-                    }
-                });
-            }
-        }
         if (mRenderManager != null) {
             mRenderManager.destroy();
         }
         if (mRenderProvider != null) {
             mRenderProvider.destroy();
-            mRenderProvider = null;
         }
         if (mInstanceLifecycleEventListeners != null) {
             mInstanceLifecycleEventListeners.clear();
         }
         mRootView = null;
         mFrameworkProxy = null;
-        NativeRendererManager.removeNativeRendererInstance(mInstanceId);
+        NativeRendererManager.removeNativeRendererInstance(mRenderProvider.getInstanceId());
     }
 
     @Override
-    public @NonNull
-    ViewGroup createRootView(@NonNull Context context) {
+    @NonNull
+    public ViewGroup createRootView(@NonNull Context context) {
         if (mRootView == null) {
-            mRootView = new HippyRootView(context, mInstanceId, mRootId);
+            mRootView = new HippyRootView(context, mRenderProvider.getInstanceId(), mRootId);
             mRenderManager.createRootNode(mRootId);
             mRenderManager.addRootView(mRootView);
         }
@@ -245,19 +240,11 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
 
     @Override
     public void updateModalHostNodeSize(final int id, final int width, final int height) {
-        ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-        if (threadExecutor != null) {
-            threadExecutor.postOnDomThread(new Runnable() {
-                @Override
-                public void run() {
-                    getDomManager().updateNodeSize(id, width, height);
-                }
-            });
-        }
+
     }
 
     @Override
-    public void updateDimension(boolean shouldRevise, HippyMap dimension,
+    public void updateDimension(boolean shouldRevise, HashMap<String, Object> dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
         if (checkJSFrameworkProxy()) {
             ((JSFrameworkProxy) mFrameworkProxy).updateDimension(shouldRevise, dimension,
@@ -318,12 +305,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void onInstanceLoad() {
-
-    }
-
-    @Override
-    public void onInstanceResume() {
+    public void onResume() {
         if (mInstanceLifecycleEventListeners != null) {
             for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstanceResume();
@@ -332,7 +314,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void onInstancePause() {
+    public void onPause() {
         if (mInstanceLifecycleEventListeners != null) {
             for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstancePause();
@@ -341,17 +323,12 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void onInstanceDestroy() {
+    public void onRootDestroy() {
         if (mInstanceLifecycleEventListeners != null) {
             for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
                 listener.onInstanceDestroy();
             }
         }
-    }
-
-    @Override
-    public void onRuntimeInitialized(long runtimeId) {
-        mRenderProvider = new NativeRenderProvider(this, runtimeId);
     }
 
     @Override
@@ -576,10 +553,10 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                 continue;
             }
             final int id = nodeId;
-            final int left = (int) Math.round(layoutLeft);
-            final int top = (int) Math.round(layoutTop);
-            final int width = (int) Math.round(layoutWidth);
-            final int height = (int) Math.round(layoutHeight);
+            final int left = Math.round(layoutLeft);
+            final int top = Math.round(layoutTop);
+            final int width = Math.round(layoutWidth);
+            final int height = Math.round(layoutHeight);
             final TextRenderSupply supply = mVirtualNodeManager
                     .updateLayout(nodeId, layoutWidth, layoutInfo);
             try {
@@ -677,8 +654,8 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                     TAG + ": callUIFunction: invalid negative id=" + id);
         }
-        final NativeRenderPromise promise = new NativeRenderPromise(functionName, callBackId,
-                mInstanceId);
+        final NativeRenderPromise promise = new NativeRenderPromise(functionName, id,
+                mRenderProvider.getInstanceId());
         try {
             // It is generally preferable to use add here, just focus the exception
             // when add failed, don't need to handle the return value.
@@ -699,9 +676,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void doPromiseCallBack(int result, String functionName, String callBackId, Object params) {
+    public void doPromiseCallBack(int result, String functionName, int nodeId, Object params) {
         if (mRenderProvider != null) {
-            mRenderProvider.doPromiseCallBack(result, functionName, callBackId, params);
+            mRenderProvider.doPromiseCallBack(result, functionName, nodeId, params);
         }
     }
 
@@ -736,13 +713,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         if (mFrameworkProxy != null) {
             mFrameworkProxy.handleNativeException(exception, true);
         }
-    }
-
-    public ThreadExecutor getJSEngineThreadExecutor() {
-        if (!checkJSFrameworkProxy()) {
-            return null;
-        }
-        return ((JSFrameworkProxy) mFrameworkProxy).getJSEngineThreadExecutor();
     }
 
     private boolean checkJSFrameworkProxy() {
