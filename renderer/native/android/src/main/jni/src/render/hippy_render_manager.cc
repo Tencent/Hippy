@@ -355,6 +355,7 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops,
   while (index < len) {
     std::shared_ptr<DomNode> dom_node = ops[index].dom_node.lock();
     if (dom_node == nullptr) {
+      index++;
       continue;
     }
 
