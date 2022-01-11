@@ -32,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)sendDataToFrontendWithData:(NSString *)dataString;
 
+- (void)closeWebSocket;
+
 @property(nonatomic, weak) HippyBridge *bridge;
 
 @end

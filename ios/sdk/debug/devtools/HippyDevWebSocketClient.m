@@ -123,6 +123,13 @@ static const char *stringFromReadyState(HippySRReadyState state) {
     [_devWebSocket send:data];
 }
 
+- (void)close {
+    if (!_devWebSocket) {
+        return;
+    }
+    [_devWebSocket close];
+}
+
 #pragma mark dev websocket delegate methods
 - (void)webSocket:(HippySRWebSocket *)webSocket didReceiveMessage:(id)message {
     HippyLog(@"[DevTools client]:did receive message %@", message);
