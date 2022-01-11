@@ -279,23 +279,6 @@ HIPPY_EXPORT_METHOD(show) {
 }
 // clang-format on
 
-- (void)setExecutorClass:(Class)executorClass {
-    if (_bridge.debugMode) {
-        if (_executorClass != executorClass) {
-            _executorClass = executorClass;
-        }
-
-        if (_bridge.executorClass != executorClass) {
-            // TODO (6929129): we can remove this special case test once we have better
-            // support for custom executors in the dev menu. But right now this is
-            // needed to prevent overriding a custom executor with the default if a
-            // custom executor has been set directly on the bridge
-            _bridge.executorClass = executorClass;
-            [_bridge reload];
-        }
-    }
-}
-
 @end
 
 #else  // Unavailable when not in dev mode

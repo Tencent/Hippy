@@ -125,7 +125,7 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     }
 }
 
-@implementation HippyJSCExecutor {
+@interface HippyJSCExecutor () {
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
     JSContext *_JSContext;
@@ -134,13 +134,13 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     JSValueRef _batchedBridgeRef;
     
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
+    
+    JSGlobalContextRef _JSGlobalContextRef;
 }
 
-@synthesize valid = _valid;
-@synthesize executorkey = _executorkey;
-@synthesize bridge = _bridge;
-@synthesize pScope = _pScope;
-@synthesize JSGlobalContextRef = _JSGlobalContextRef;
+@end
+
+@implementation HippyJSCExecutor
 
 HIPPY_EXPORT_MODULE()
 
@@ -172,18 +172,6 @@ HIPPY_EXPORT_MODULE()
 - (void)initURILoader {
     std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(loadFunc, (__bridge void *)_bridge);
     self.pScope->SetUriLoader(loader);
-}
-
-static std::u16string NSStringToU16(NSString* str) {
-  if (!str) {
-    return u"";
-  }
-  unsigned long len = str.length;
-  std::u16string ret;
-  ret.resize(len);
-  unichar *p = reinterpret_cast<unichar*>(const_cast<char16_t*>(&ret[0]));
-  [str getCharacters:p range:NSRange{0, len}];
-  return ret;
 }
 
 static unicode_string_view NSStringToU8(NSString* str) {
