@@ -109,7 +109,7 @@ static NSString *hippyReachabilityGetCellType(NSString *cellType) {
     else if ([cellType isEqualToString:CTRadioAccessTechnologyLTE]) {
         return HippyNetworkCellType4G;
     }
-    else if (@available(iOS 14.1, *)) {
+    else if (@available(iOS 14.3, *)) {
         if ([cellType isEqualToString:CTRadioAccessTechnologyNRNSA] ||
             [cellType isEqualToString:CTRadioAccessTechnologyNR]) {
             return HippyNetworkCellType5G;
