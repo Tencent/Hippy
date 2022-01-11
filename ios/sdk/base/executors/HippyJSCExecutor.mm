@@ -39,7 +39,6 @@
 #import "HippyPerformanceLogger.h"
 #import "HippyUtils.h"
 #import "HippyRedBox.h"
-#import "HippyJSCWrapper.h"
 #import "HippyJSCErrorHandling.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyBridge+LocalFileSource.h"

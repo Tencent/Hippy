@@ -36,7 +36,6 @@ typedef NS_ENUM(NSUInteger, HippyPLTag) {
     HippyPLNativeModulePrepareConfig,
     HippyPLNativeModuleInjectConfig,
     HippyPLNativeModuleMainThreadUsesCount,
-    HippyPLJSCWrapperOpenLibrary,
     HippyPLJSCExecutorSetup,
     HippyPLBridgeStartup,
     HippyPLTTI,

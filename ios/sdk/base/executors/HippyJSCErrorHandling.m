@@ -24,7 +24,6 @@
 
 #import "HippyAssert.h"
 #import "HippyJSStackFrame.h"
-#import "HippyJSCWrapper.h"
 
 NSError *HippyNSErrorFromJSError(JSValue *exception) {
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];

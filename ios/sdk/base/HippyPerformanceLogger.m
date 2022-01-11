@@ -52,7 +52,6 @@
             @"NativeModulePrepareConfig",
             @"NativeModuleInjectConfig",
             @"NativeModuleMainThreadUsesCount",
-            @"JSCWrapperOpenLibrary",
             @"JSCExecutorSetup",
             @"BridgeStartup",
             @"RootViewTTI",
