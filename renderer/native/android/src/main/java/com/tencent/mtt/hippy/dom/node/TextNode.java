@@ -28,7 +28,7 @@ import android.text.*;
 import android.text.Layout.Alignment;
 import android.text.style.*;
 
-import com.tencent.hippy.support.FontAdapter;
+import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;

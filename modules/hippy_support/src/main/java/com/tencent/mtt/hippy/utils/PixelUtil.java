@@ -22,50 +22,59 @@ import android.view.Display;
 import android.view.WindowManager;
 
 public class PixelUtil {
-  private static DisplayMetrics displayMetrics = null;
 
-  public static void initDisplayMetrics(Context appContext) {
-    if (appContext == null) {
-      return;
+    private static DisplayMetrics sDisplayMetrics = null;
+
+    public static void initDisplayMetrics(Context appContext) {
+        if (appContext == null) {
+            return;
+        }
+
+        if (sDisplayMetrics == null) {
+            sDisplayMetrics = new DisplayMetrics();
+            WindowManager windowManager = (WindowManager) appContext
+                    .getSystemService(Context.WINDOW_SERVICE);
+            Display defaultDisplay = windowManager.getDefaultDisplay();
+            defaultDisplay.getRealMetrics(sDisplayMetrics);
+        }
     }
 
-    if (displayMetrics == null) {
-      displayMetrics = new DisplayMetrics();
-      WindowManager windowManager = (WindowManager) appContext
-              .getSystemService(Context.WINDOW_SERVICE);
-      Display defaultDisplay = windowManager.getDefaultDisplay();
-      defaultDisplay.getRealMetrics(displayMetrics);
+    /**
+     * Set display metrics, call by host app
+     */
+    @SuppressWarnings("unused")
+    public static void setDisplayMetrics(DisplayMetrics metrics) {
+        sDisplayMetrics = metrics;
     }
-  }
 
-  /** Set display metrics, call by host app */
-  @SuppressWarnings("unused")
-  public static void setDisplayMetrics(DisplayMetrics metrics) {
-    displayMetrics = metrics;
-  }
-
-  /** Convert from dp to px impl */
-  public static float dp2px(float value) {
-    if (displayMetrics == null) {
-      return value;
+    /**
+     * Convert from dp to px impl
+     */
+    public static float dp2px(float value) {
+        if (sDisplayMetrics == null) {
+            return value;
+        }
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, sDisplayMetrics);
     }
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics);
-  }
 
-  /** Convert from dp to px */
-  public static float dp2px(double value) {
-    return dp2px((float) value);
-  }
-
-  /** Convert from px to dp */
-  public static float px2dp(float value) {
-    return value / getDensity();
-  }
-
-  public static float getDensity() {
-    if (displayMetrics == null) {
-      return 1.0f;
+    /**
+     * Convert from dp to px
+     */
+    public static float dp2px(double value) {
+        return dp2px((float) value);
     }
-    return displayMetrics.density;
-  }
+
+    /**
+     * Convert from px to dp
+     */
+    public static float px2dp(float value) {
+        return value / getDensity();
+    }
+
+    public static float getDensity() {
+        if (sDisplayMetrics == null) {
+            return 1.0f;
+        }
+        return sDisplayMetrics.density;
+    }
 }

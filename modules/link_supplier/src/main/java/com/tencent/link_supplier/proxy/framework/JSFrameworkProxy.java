@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.adapter.font;
+package com.tencent.link_supplier.proxy.framework;
 
-import com.tencent.link_supplier.proxy.framework.FontAdapter;
+import java.util.HashMap;
 
-public interface HippyFontScaleAdapter extends FontAdapter {
+public interface JSFrameworkProxy extends FrameworkProxy {
 
+    void updateDimension(boolean shouldRevise, HashMap<String, Object> dimension,
+            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
+
+    Object getImageLoaderAdapter();
+
+    Object getCustomViewCreator();
+
+    String getBundlePath();
 }

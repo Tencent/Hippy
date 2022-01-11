@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.hippy.support;
 
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.ThreadExecutor;
+package com.tencent.link_supplier.proxy.renderer;
 
-public interface JSFrameworkProxy extends FrameworkProxy {
-  ThreadExecutor getJSEngineThreadExecutor();
+import android.view.ViewGroup;
+import androidx.annotation.Nullable;
+import java.util.List;
 
-  void updateDimension(boolean shouldRevise, HippyMap dimension,
-      boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
+public interface NativeRenderProxy extends RenderProxy {
 
-  Object getImageLoaderAdapter();
+    void init(@Nullable List<Class<?>> controllers, boolean isDebugMode,
+            @Nullable ViewGroup rootView);
 
-  Object getCustomViewCreator();
+    int getRootId();
 
-  String getBundlePath();
+    void onResume();
+
+    void onPause();
+
+    void onRootDestroy();
+
+    Object getDomManagerObject();
+
+    Object getRenderManagerObject();
 }

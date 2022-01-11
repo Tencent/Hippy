@@ -13,36 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.tencent.link_supplier.proxy.framework;
 
-package com.tencent.hippy.support;
-
-import android.content.Context;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
+public interface FrameworkProxy {
 
-import java.util.List;
+    @Nullable
+    FontAdapter getFontAdapter();
 
-public interface NativeRenderProxy extends HippyInstanceLifecycleEventListener {
+    void onFirstViewAdded();
 
-    void init(int instanceId, @Nullable List<Class> controllers, boolean isDebugMode,
-            @Nullable ViewGroup rootView);
-
-    void setFrameworkProxy(FrameworkProxy proxy);
-
-    void onRuntimeInitialized(long runtimeId);
-
-    void destroy();
-
-    @NonNull
-    ViewGroup createRootView(Context context);
-
-    int getRootId();
-
-    Object getDomManagerObject();
-
-    Object getRenderManagerObject();
+    void handleNativeException(Exception exception, boolean haveCaught);
 }

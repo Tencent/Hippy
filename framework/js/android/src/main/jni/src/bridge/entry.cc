@@ -73,6 +73,21 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
 
+REGISTER_JNI("com/tencent/mtt/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "doBind",
+             "(III)V",
+             doBind)
+
+REGISTER_JNI("com/tencent/mtt/link_supplier/DomHolder", // NOLINT(cert-err58-cpp)
+             "createDomInstance",
+             "()I",
+             createDomInstance)
+
+REGISTER_JNI("com/tencent/mtt/link_supplier/DomHolder", // NOLINT(cert-err58-cpp)
+             "destroyDomInstance",
+             "(I)V",
+             destroyDomInstance)
+
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
@@ -99,6 +114,22 @@ enum INIT_CB_STATE {
   RUN_SCRIPT_ERROR = -1,
   SUCCESS = 0,
 };
+
+void doBind(JNIEnv* j_env,
+            __unused jobject j_obj,
+            jint j_dom_id,
+            jint j_render_id,
+            jint j_framework_id) {
+
+}
+
+jint createDomInstance(JNIEnv* j_env, __unused jobject j_obj) {
+  return 0;
+}
+
+void destroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
+
+}
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
   if (!j_logger) {

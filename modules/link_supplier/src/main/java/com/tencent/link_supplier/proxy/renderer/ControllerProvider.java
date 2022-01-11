@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.adapter.font;
+package com.tencent.link_supplier.proxy.renderer;
 
-import com.tencent.link_supplier.proxy.framework.FontAdapter;
+import java.util.List;
 
-public interface HippyFontScaleAdapter extends FontAdapter {
+public interface ControllerProvider {
 
+  List<Class<?>> getControllers();
 }

@@ -15,30 +15,28 @@
  */
 package com.tencent.renderer;
 
-import android.text.TextUtils;
 import com.tencent.mtt.hippy.modules.Promise;
 
 public class NativeRenderPromise implements Promise {
 
     private static final int PROMISE_CODE_RESOLVE = 0;
     private static final int PROMISE_CODE_REJECT = 2;
-    private static final String INVALID_CALL_BACK_ID = "-1";
-    private final String mFunctionName;
-    private final String mCallBackId;
+    private final int mNodeId;
     private final int mInstanceId;
+    private final String mFunctionName;
 
-    public NativeRenderPromise(String functionName, String callBackId, int instanceId) {
+    public NativeRenderPromise(String functionName, int nodeId, int instanceId) {
         mFunctionName = functionName;
-        mCallBackId = callBackId;
+        mNodeId = nodeId;
         mInstanceId = instanceId;
     }
 
     public String getCallId() {
-        return mCallBackId;
+        return CALL_ID_NO_CALLBACK;
     }
 
     public boolean isCallback() {
-        return !TextUtils.equals(mCallBackId, INVALID_CALL_BACK_ID);
+        return true;
     }
 
     @Override
@@ -59,9 +57,9 @@ public class NativeRenderPromise implements Promise {
 
     private void doCallback(int result, Object params) {
         NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(mInstanceId);
-        if (nativeRenderer == null || TextUtils.equals(INVALID_CALL_BACK_ID, mCallBackId)) {
+        if (nativeRenderer == null || mNodeId < 0) {
             return;
         }
-        nativeRenderer.doPromiseCallBack(result, mFunctionName, mCallBackId, params);
+        nativeRenderer.doPromiseCallBack(result, mFunctionName, mNodeId, params);
     }
 }

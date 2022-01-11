@@ -10,5 +10,8 @@ project(':hippy-framework').projectDir = new File('framework/js/android')
 include 'serialization'
 project(':serialization').projectDir = new File('modules/serialization')
 
+include 'link_supplier'
+project(':link_supplier').projectDir = new File('modules/link_supplier')
+
 include 'example'
 project(':example').projectDir = new File('framework/js/examples/android-demo')

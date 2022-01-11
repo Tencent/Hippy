@@ -51,7 +51,7 @@ public class RenderManager {
 
     final ControllerManager mControllerManager;
 
-    public RenderManager(NativeRender nativeRenderer, @Nullable List<Class> controllers) {
+    public RenderManager(NativeRender nativeRenderer, @Nullable List<Class<?>> controllers) {
         mControllerManager = new ControllerManager(nativeRenderer, controllers);
     }
 

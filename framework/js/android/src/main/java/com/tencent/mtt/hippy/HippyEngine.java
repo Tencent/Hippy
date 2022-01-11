@@ -20,7 +20,7 @@ import android.text.TextUtils;
 
 import android.view.ViewGroup;
 
-import com.tencent.hippy.support.ControllerProvider;
+import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;

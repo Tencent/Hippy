@@ -17,11 +17,8 @@
 package com.tencent.renderer;
 
 import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-
 import androidx.annotation.Nullable;
-import com.tencent.hippy.support.FontAdapter;
+import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.DomManager;
@@ -43,7 +40,7 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     IImageLoaderAdapter getImageLoaderAdapter();
 
-    FontAdapter getFontAdapter();
+    @Nullable FontAdapter getFontAdapter();
 
     boolean isDebugMode();
 
@@ -53,7 +50,7 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     void updateModalHostNodeSize(int id, int width, int height);
 
-    void updateDimension(boolean shouldRevise, HippyMap dimension,
+    void updateDimension(boolean shouldRevise, HashMap<String, Object> dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
 
     void dispatchUIComponentEvent(int id, String eventName, @Nullable Object param);
@@ -63,7 +60,7 @@ public interface NativeRender extends NativeRenderExceptionHandler {
     void dispatchCustomEvent(int id, String eventName, Object params, boolean useCapture,
             boolean useBubble);
 
-    void doPromiseCallBack(int result, String functionName, String callBackId, Object params);
+    void doPromiseCallBack(int result, String functionName, int nodeId, Object params);
 
     void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 

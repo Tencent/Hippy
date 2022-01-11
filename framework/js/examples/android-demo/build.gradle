@@ -109,6 +109,7 @@ dependencies {
     } else {
         api project(path: ':hippy-framework')
         api project(path: ':hippy-support')
+        api project(path: ':link_supplier')
         api project(path: ':renderer-native')
         api project(path: ':serialization')
     }
