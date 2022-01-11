@@ -111,9 +111,6 @@ class ConvertUtils {
       const std::shared_ptr<CtxValue> &value,
       std::vector<jobject> &global_refs);
 
-  static void ThrowException(const std::shared_ptr<Ctx> &ctx,
-                             const std::string &info);
-
   static std::unordered_map<std::string, MethodInfo> GetMethodMap(
       const std::string &method_map_str);
 

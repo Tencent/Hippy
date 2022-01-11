@@ -20,7 +20,7 @@
  *
  */
 
-#include <core/napi/jsc/js_native_turbo_jsc.h>
+#include "core/napi/jsc/js_native_turbo_jsc.h"
 #include "core/napi/jsc/js_native_jsc_helper.h"
 #include "core/napi/jsc/js_native_api_jsc.h"
 
@@ -28,7 +28,7 @@ namespace hippy {
 namespace napi {
 
 struct HostObjectProxy {
-    
+
     HostObjectProxy(
         ObjcTurboEnv& env,
         const std::shared_ptr<HostObject>& ho)
@@ -36,13 +36,13 @@ struct HostObjectProxy {
 
     ObjcTurboEnv &turboEnv;
     const std::shared_ptr<HostObject> hostObject;
-    
+
     static void finalize(JSObjectRef obj) {
       auto hostObject = static_cast<HostObjectProxy*>(JSObjectGetPrivate(obj));
       JSObjectSetPrivate(obj, nullptr);
       delete hostObject;
     }
-    
+
     static JSValueRef getProperty(
       JSContextRef ctx,
       JSObjectRef object,
@@ -52,7 +52,7 @@ struct HostObjectProxy {
         ObjcTurboEnv& turboEnv = proxy->turboEnv;
         std::shared_ptr<JSCCtx> context = std::static_pointer_cast<JSCCtx>(turboEnv.context_);
         auto props = context->CreateString(JsStrToUTF8(propName).c_str());
-          
+
         auto ret = proxy->hostObject->Get(turboEnv, props);
         std::shared_ptr<JSCCtxValue> jscValue = std::static_pointer_cast<JSCCtxValue>(ret);
         return jscValue->value_;
@@ -68,7 +68,7 @@ struct HostObjectProxy {
         auto turboEnv = proxy->turboEnv;
         std::shared_ptr<JSCCtx> context = std::static_pointer_cast<JSCCtx>(turboEnv.context_);
         auto props = context->CreateString(JsStrToUTF8(propName).c_str());
-          
+
         auto jscValue = std::make_shared<JSCCtxValue>(context->context_, value);
         proxy->hostObject->Set(turboEnv, props, jscValue);
         return true;
@@ -80,7 +80,7 @@ struct HostObjectProxy {
       JSPropertyNameAccumulatorRef propertyNames) noexcept {
         auto proxy = static_cast<HostObjectProxy*>(JSObjectGetPrivate(object));
         auto turboEnv = proxy->turboEnv;
-        
+
         auto names = proxy->hostObject->GetPropertyNames(turboEnv);
         for (auto& name : names) {
             std::shared_ptr<JSCCtxValue> jscValue = std::static_pointer_cast<JSCCtxValue>(name);
@@ -123,7 +123,7 @@ struct HostFunctionProxy {
     unsigned argCount;
     JSStringRef name;
     HostFunctionType hostFunction;
-    
+
     static void finalize(JSObjectRef object) {
         HostFunctionProxy* metadata = static_cast<HostFunctionProxy*>(JSObjectGetPrivate(object));
         JSObjectSetPrivate(object, nullptr);

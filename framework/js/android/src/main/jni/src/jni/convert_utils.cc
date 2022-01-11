@@ -473,19 +473,6 @@ std::vector<std::string> ConvertUtils::GetMethodArgTypesFromSignature(
   return method_args;
 }
 
-void ConvertUtils::ThrowException(const std::shared_ptr<Ctx> &ctx,
-                                  const std::string &info) {
-  std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
-  v8::HandleScope handle_scope(v8_ctx->isolate_);
-  v8::Local<v8::Context> context =
-      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
-  v8::Context::Scope context_scope(context);
-
-  TDF_BASE_LOG(ERROR) << info.c_str();
-  v8_ctx->isolate_->ThrowException(
-      v8::String::NewFromUtf8(v8_ctx->isolate_, info.c_str()).ToLocalChecked());
-}
-
 std::shared_ptr<CtxValue> ConvertUtils::ToHostObject(TurboEnv &turbo_env,
                                                      jobject &j_obj,
                                                      std::string name) {
