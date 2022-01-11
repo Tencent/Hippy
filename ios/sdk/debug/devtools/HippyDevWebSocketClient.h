@@ -53,7 +53,7 @@ typedef NS_ENUM(unsigned int, HippyDevWebSocketState) {
 
 - (void)sendData:(id)data;
 
-- (void)close;
+- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 
 @end
 
