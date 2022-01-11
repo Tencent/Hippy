@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <utility>
 #include "base/logging.h"
+#include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
-#include "dom/macro.h"
 
 namespace hippy {
 inline namespace dom {
@@ -18,14 +18,10 @@ constexpr char kLayoutHeightKey[] = "height";
 
 using DomValueObjectType = tdf::base::DomValue::DomValueObjectType;
 
-DomNode::DomNode(uint32_t id,
-                 uint32_t pid,
-                 int32_t index,
-                 std::string tag_name,
-                 std::string view_name,
-                 std::unordered_map<std::string, std::shared_ptr<DomValue>> &&style_map,
-                 std::unordered_map<std::string, std::shared_ptr<DomValue>> &&dom_ext_map,
-                 const std::shared_ptr<DomManager> &dom_manager)
+DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name, std::string view_name,
+                 std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
+                 std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
+                 const std::shared_ptr<DomManager>& dom_manager)
     : id_(id),
       pid_(pid),
       index_(index),
@@ -39,7 +35,7 @@ DomNode::DomNode(uint32_t id,
       current_callback_id_(0),
       func_cb_map_(nullptr),
       event_listener_map_(nullptr) {
-  layout_node_ = std::make_shared<TaitankLayoutNode>();
+  CreateLayoutNode();
 }
 
 DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
@@ -51,12 +47,20 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
       current_callback_id_(0),
       func_cb_map_(nullptr),
       event_listener_map_(nullptr) {
-  layout_node_ = std::make_shared<TaitankLayoutNode>();
+  CreateLayoutNode();
 }
 
 DomNode::~DomNode() = default;
 
-int32_t DomNode::IndexOf(const std::shared_ptr<DomNode> &child) {
+void DomNode::CreateLayoutNode() {
+#ifdef USE_YOGA
+  layout_node_ = std::make_shared<YogaLayoutNode>();
+#elif USE_TAITANK
+ layout_node_ = std::make_shared<TaitankLayoutNode>();
+#endif
+}
+
+int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
   for (int i = 0; i < children_.size(); i++) {
     if (children_[i] == child) {
       return i;
@@ -66,7 +70,7 @@ int32_t DomNode::IndexOf(const std::shared_ptr<DomNode> &child) {
 }
 
 std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
-  for (auto &i : children_) {
+  for (auto& i : children_) {
     if (i->index_ == index) {
       return i;
     }
@@ -90,20 +94,17 @@ void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index
     children_.insert(it, dom_node);
   }
   dom_node->SetParent(shared_from_this());
-  // layout_node_->InsertChild(dom_node->layout_node_, insert_index);
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   auto child = children_[index];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
-  // layout_node_->RemoveChild(child->layout_node_);
   return child;
 }
 
 void DomNode::DoLayout() {
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
-  node->CalculateLayout(0, 0);
+  layout_node_->CalculateLayout(0, 0);
   TransferLayoutOutputsRecursive();
 }
 
@@ -156,7 +157,7 @@ void DomNode::AddEventListener(const std::string& name, bool use_capture, const 
       }
       if (callback) {
         auto arg = std::make_shared<DomArgument>(DomValue(self->current_callback_id_));
-          callback(arg);
+        callback(arg);
       }
     });
   }
@@ -208,9 +209,9 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
   }
 }
 
-std::vector<std::shared_ptr<DomNode::EventListenerInfo>>
-DomNode::GetEventListener(const std::string &name, bool is_capture) {
-    if (!event_listener_map_) {
+std::vector<std::shared_ptr<DomNode::EventListenerInfo>> DomNode::GetEventListener(const std::string& name,
+                                                                                   bool is_capture) {
+  if (!event_listener_map_) {
     return {};
   }
   auto it = event_listener_map_->find(name);
@@ -226,23 +227,22 @@ DomNode::GetEventListener(const std::string &name, bool is_capture) {
 void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(style_map_); }
 
 void DomNode::TransferLayoutOutputsRecursive() {
-  std::shared_ptr<TaitankLayoutNode> node = std::static_pointer_cast<TaitankLayoutNode>(layout_node_);
-  bool changed = layout_.left != node->GetLeft() || layout_.top != node->GetTop() ||
-                 layout_.width != node->GetWidth() || layout_.height != node->GetHeight();
-  layout_.left = node->GetLeft();
-  layout_.top = node->GetTop();
-  layout_.width = node->GetWidth();
-  layout_.height = node->GetHeight();
-  layout_.marginLeft = node->GetMargin(TaitankCssDirection::CSSLeft);
-  layout_.marginTop = node->GetMargin(TaitankCssDirection::CSSTop);
-  layout_.marginRight = node->GetMargin(TaitankCssDirection::CSSRight);
-  layout_.marginBottom = node->GetMargin(TaitankCssDirection::CSSBottom);
-  layout_.paddingLeft = node->GetPadding(TaitankCssDirection::CSSLeft);
-  layout_.paddingTop = node->GetPadding(TaitankCssDirection::CSSTop);
-  layout_.paddingRight = node->GetPadding(TaitankCssDirection::CSSRight);
-  layout_.paddingBottom = node->GetPadding(TaitankCssDirection::CSSBottom);
+  bool changed = layout_.left != layout_node_->GetLeft() || layout_.top != layout_node_->GetTop() ||
+                 layout_.width != layout_node_->GetWidth() || layout_.height != layout_node_->GetHeight();
+  layout_.left = layout_node_->GetLeft();
+  layout_.top = layout_node_->GetTop();
+  layout_.width = layout_node_->GetWidth();
+  layout_.height = layout_node_->GetHeight();
+  layout_.marginLeft = layout_node_->GetMargin(Edge::EdgeLeft);
+  layout_.marginTop = layout_node_->GetMargin(Edge::EdgeTop);
+  layout_.marginRight = layout_node_->GetMargin(Edge::EdgeRight);
+  layout_.marginBottom = layout_node_->GetMargin(Edge::EdgeBottom);
+  layout_.paddingLeft = layout_node_->GetPadding(Edge::EdgeLeft);
+  layout_.paddingTop = layout_node_->GetPadding(Edge::EdgeTop);
+  layout_.paddingRight = layout_node_->GetPadding(Edge::EdgeRight);
+  layout_.paddingBottom = layout_node_->GetPadding(Edge::EdgeBottom);
 
-  node->SetHasNewLayout(false);
+  layout_node_->SetHasNewLayout(false);
   if (changed) {
     auto dom_manager = dom_manager_.lock();
     if (dom_manager) {
@@ -274,7 +274,7 @@ void DomNode::CallFunction(const std::string& name, const DomArgument& param, co
   }
 }
 
-CallFunctionCallback DomNode::GetCallback(const std::string &name) {
+CallFunctionCallback DomNode::GetCallback(const std::string& name) {
   if (!func_cb_map_) {
     return nullptr;
   }
@@ -289,10 +289,10 @@ bool DomNode::HasTouchEventListeners() {
   if (!event_listener_map_) {
     return false;
   }
-  if (event_listener_map_->find(kTouchStartEvent) != event_listener_map_->end()
-      || event_listener_map_->find(kTouchMoveEvent) != event_listener_map_->end()
-      || event_listener_map_->find(kTouchEndEvent) != event_listener_map_->end()
-      || event_listener_map_->find(kTouchCancelEvent) != event_listener_map_->end()) {
+  if (event_listener_map_->find(kTouchStartEvent) != event_listener_map_->end() ||
+      event_listener_map_->find(kTouchMoveEvent) != event_listener_map_->end() ||
+      event_listener_map_->find(kTouchEndEvent) != event_listener_map_->end() ||
+      event_listener_map_->find(kTouchCancelEvent) != event_listener_map_->end()) {
     return true;
   }
   return false;

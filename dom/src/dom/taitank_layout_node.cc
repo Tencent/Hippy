@@ -139,10 +139,34 @@ static DisplayType GetDisplayType(const std::string& display) {
   return DisplayType::DisplayTypeFlex;
 }
 
+static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
+  if (Edge::EdgeLeft == edge) {
+    return CSSDirection::CSSLeft;
+  } else if (Edge::EdgeTop == edge) {
+    return CSSDirection::CSSTop;
+  } else if (Edge::EdgeRight == edge) {
+    return CSSDirection::CSSRight;
+  } else if (Edge::EdgeBottom == edge) {
+    return CSSDirection::CSSBottom;
+  } else {
+    TDF_BASE_NOTREACHED();
+  }
+}
+
 void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
                                         void* layout_context) {
   assert(engine_node_ != nullptr);
-  engine_node_->layout(parent_width, parent_height, engine_node_->GetConfig(), direction, layout_context);
+  HPDirection taitank_direction;
+  if (direction == Direction::Inherit) {
+    taitank_direction = HPDirection::DirectionInherit;
+  } else if (direction == Direction::LTR) {
+    taitank_direction = HPDirection::DirectionLTR;
+  } else if (direction == Direction::RTL) {
+    taitank_direction = HPDirection::DirectionRTL;
+  } else {
+    TDF_BASE_NOTREACHED();
+  }
+  engine_node_->layout(parent_width, parent_height, engine_node_->GetConfig(), taitank_direction, layout_context);
 }
 
 void TaitankLayoutNode::SetLayoutStyles(
@@ -415,21 +439,21 @@ float TaitankLayoutNode::GetHeight() {
   return engine_node_->result.dim[DimHeight];
 }
 
-float TaitankLayoutNode::GetMargin(TaitankCssDirection css_direction) {
+float TaitankLayoutNode::GetMargin(Edge edge) {
   assert(engine_node_ != nullptr);
-  if (css_direction > CSSBottom) return 0;
+  CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
   return engine_node_->result.margin[css_direction];
 }
 
-float TaitankLayoutNode::GetPadding(TaitankCssDirection css_direction) {
+float TaitankLayoutNode::GetPadding(Edge edge) {
   assert(engine_node_ != nullptr);
-  if (css_direction > CSSBottom) return 0;
+  CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
   return engine_node_->result.padding[css_direction];
 }
 
-float TaitankLayoutNode::GetBorder(TaitankCssDirection css_direction) {
+float TaitankLayoutNode::GetBorder(Edge edge) {
   assert(engine_node_ != nullptr);
-  if (css_direction > CSSBottom) return 0;
+  CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
   return engine_node_->result.border[css_direction];
 }
 

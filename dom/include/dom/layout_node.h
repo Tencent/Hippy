@@ -7,7 +7,18 @@
 namespace hippy {
 inline namespace dom {
 
-typedef HPDirection Direction;
+typedef enum {
+  EdgeLeft,
+  EdgeTop,
+  EdgeRight,
+  EdgeBottom,
+} Edge;
+
+typedef enum {
+  Inherit,
+  LTR,
+  RTL,
+} Direction;
 
 class LayoutNode {
  public:
@@ -17,9 +28,19 @@ class LayoutNode {
 
   virtual float GetWidth() = 0;
   virtual float GetHeight() = 0;
+  virtual float GetLeft() = 0;
+  virtual float GetTop() = 0;
+  virtual float GetRight() = 0;
+  virtual float GetBottom() = 0;
+  virtual float GetMargin(Edge edge) = 0;
+  virtual float GetPadding(Edge edge) = 0;
+  virtual float GetBorder(Edge edge) = 0;
+
   virtual void SetWidth(float width) = 0;
   virtual void SetHeight(float height) = 0;
   virtual void SetScaleFactor(float scale_factor) = 0;
+  virtual bool HasNewLayout() = 0;
+  virtual void SetHasNewLayout(bool has_new_layout) = 0;
 
   /**
    * @brief 插入子节点
@@ -41,7 +62,7 @@ class LayoutNode {
    * @param direction 排版方向
    * @param layout_context layout context
    */
-  virtual void CalculateLayout(float parent_width, float parent_height, Direction direction = DirectionLTR,
+  virtual void CalculateLayout(float parent_width, float parent_height, Direction direction = LTR,
                                void* layout_context = nullptr) = 0;
 
   /**

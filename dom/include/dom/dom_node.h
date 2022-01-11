@@ -10,7 +10,12 @@
 #include "dom/dom_listener.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_value.h"
+
+#ifdef USE_YOGA
+#include "dom/yoga_layout_node.h"
+#elif USE_TAITANK
 #include "dom/taitank_layout_node.h"
+#endif
 
 namespace hippy {
 inline namespace dom {
@@ -124,6 +129,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   CallFunctionCallback GetCallback(const std::string &name);
   bool HasTouchEventListeners();
+
+ private:
+  void CreateLayoutNode();
 
  private:
   uint32_t id_;             // 节点唯一id
