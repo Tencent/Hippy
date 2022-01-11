@@ -154,18 +154,6 @@ void DomManager::DeleteDomNode(std::shared_ptr<DomNode> node) {
   }
 }
 
-void DomManager::BeginBatch() {
-  PostTask([WEAK_THIS] {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    auto render_manager = self->render_manager_.lock();
-    TDF_BASE_DCHECK(render_manager);
-    if (!render_manager) {
-      return;
-    }
-    render_manager->BeginBatch();
-  });
-}
-
 void DomManager::EndBatch() {
   PostTask([WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(DomManager)

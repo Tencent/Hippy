@@ -198,10 +198,6 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
   j_env->DeleteLocalRef(j_int_array);
 };
 
-void HippyRenderManager::BeginBatch() {
-
-}
-
 void HippyRenderManager::EndBatch() {
   CallNativeMethod("endBatch");
 };

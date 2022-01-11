@@ -72,7 +72,6 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
     } else if (method === 'unmountApplicationComponentAtRootTag') {
       global.Hippy.emit('destroyInstance', args[0]);
       const renderId = Date.now().toString();
-      Hippy.bridge.callNative('UIManagerModule', 'startBatch', renderId);
       Hippy.bridge.callNative('UIManagerModule', 'removeRootView', args[0]);
       Hippy.bridge.callNative('UIManagerModule', 'endBatch', renderId);
       delete __GLOBAL__.nodeIdCache[args[0]];

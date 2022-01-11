@@ -36,7 +36,6 @@
 REGISTER_MODULE(UIManagerModule, CreateNodes)
 REGISTER_MODULE(UIManagerModule, UpdateNodes)
 REGISTER_MODULE(UIManagerModule, DeleteNodes)
-REGISTER_MODULE(UIManagerModule, StartBatch)
 REGISTER_MODULE(UIManagerModule, EndBatch)
 REGISTER_MODULE(UIManagerModule, CallUIFunction)
 
@@ -417,14 +416,6 @@ void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
   }
   // 节点都删除了，其上的eventListener自然也销毁了，此处不用显式RemoveEventListener
   scope->GetDomManager()->DeleteDomNodes(std::move(dom_nodes));
-}
-
-void UIManagerModule::StartBatch(const hippy::napi::CallbackInfo &info) {
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
-  TDF_BASE_CHECK(context);
-
-  scope->GetDomManager()->BeginBatch();
 }
 
 void UIManagerModule::EndBatch(const hippy::napi::CallbackInfo &info) {

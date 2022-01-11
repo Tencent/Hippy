@@ -42,7 +42,6 @@ class DomManager: public std::enable_shared_from_this<DomManager> {
   void CreateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes);
   void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes);
   void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>> &&nodes);
-  void BeginBatch();
   void EndBatch();
   // 返回0代表失败，正常id从1开始
   void AddEventListener(uint32_t id, const std::string &name, bool use_capture,
