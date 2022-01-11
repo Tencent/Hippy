@@ -205,5 +205,5 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../framework/js/core/src/napi/jsc/'));
-generateCpp('android', getAbsolutePath('../framework/js/core/src/napi/v8/'));
+generateCpp('ios', getAbsolutePath('../ios/sdk/base/'));
+generateCpp('android', getAbsolutePath('../framework/js/android/src/main/jni/src/bridge/'));

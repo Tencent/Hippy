@@ -45,9 +45,9 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
 
   std::shared_ptr<Ctx> ctx = turbo_env.context_;
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
-  v8::HandleScope handle_scope(v8_ctx->isolate_);
-  v8::Local<v8::Context> context =
-      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
+  auto isolate = v8_ctx->isolate_;
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(context);
 
   // methodName & signature
@@ -59,11 +59,8 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
 
   MethodInfo method_info = method_map_[method];
   if (method_info.signature_.empty()) {
-    std::string exception_info = std::string("MethodUnsupportedException: ")
-        .append(name_)
-        .append(".")
-        .append(method);
-    ConvertUtils::ThrowException(ctx, exception_info);
+    std::string exception_info = "MethodUnsupportedException: " + name_ +  "." + method;
+    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view((std::move(exception_info)))));
     return ctx->CreateUndefined();
   }
   TDF_BASE_DLOG(INFO) << "invokeJavaMethod, method = " << method.c_str();
@@ -80,13 +77,10 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   int expected_count = method_arg_types.size();
   int actual_count = arg_values.size();
   if (expected_count != actual_count) {
-    std::string exception_info = std::string("ArgCountException: ")
-        .append(call_info)
-        .append(": ExpectedArgCount=")
-        .append(ToString(expected_count))
-        .append(", ActualArgCount = ")
-        .append(ToString(actual_count));
-    ConvertUtils::ThrowException(ctx, exception_info);
+    std::string exception_info = "ArgCountException: " +
+        call_info + ": ExpectedArgCount=" + std::to_string(expected_count) +
+        ", ActualArgCount = " + std::to_string(actual_count);
+    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view((std::move(exception_info)))));
     return ctx->CreateUndefined();
   }
 
@@ -98,12 +92,9 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
 
     if (!method_info.method_id_) {
       JNIEnvironment::ClearJEnvException(env);
-
-      std::string exception_info = std::string("NullMethodIdException: ")
-          .append(call_info)
-          .append(": Signature=")
-          .append(method_info.signature_);
-      ConvertUtils::ThrowException(ctx, exception_info);
+      std::string exception_info = "NullMethodIdException: " + call_info +
+          ": Signature=" + method_info.signature_;
+      ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view((std::move(exception_info)))));
       return ctx->CreateUndefined();
     }
 
@@ -120,7 +111,8 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
   if (!std::get<0>(jni_tuple)) {
     DeleteGlobalRef(jni_args);
-    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(std::get<1>(jni_tuple))));
+    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(
+        std::get<1>(jni_tuple))));
     return ctx->CreateUndefined();
   }
   jni_args = std::get<2>(jni_tuple);
@@ -132,7 +124,8 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
   if (!std::get<0>(js_tuple)) {
     DeleteGlobalRef(jni_args);
-    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(std::get<1>(js_tuple))));
+    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(
+        std::get<1>(js_tuple))));
     return ctx->CreateUndefined();
   }
 
@@ -194,8 +187,7 @@ JavaTurboModule::~JavaTurboModule() {
   }
 
   if (impl_j_clazz_) {
-    JNIEnvironment::GetInstance()->AttachCurrentThread()->DeleteGlobalRef(
-        impl_j_clazz_);
+    JNIEnvironment::GetInstance()->AttachCurrentThread()->DeleteGlobalRef(impl_j_clazz_);
   }
 
   if (!method_map_.empty()) {
