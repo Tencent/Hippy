@@ -31,7 +31,6 @@ const {
   updateNode,
   deleteNode,
   flushBatch,
-  startBatch,
   endBatch,
   sendRenderError,
 } = UIManager;
@@ -207,7 +206,6 @@ export {
   updateNode,
   deleteNode,
   flushBatch,
-  startBatch,
   endBatch,
   sendRenderError,
   getNodeById,

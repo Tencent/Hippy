@@ -84,12 +84,6 @@ function chunkNodes(batchNodes) {
  */
 let __cssMap;
 
-function startBatch() {
-  if (__batchIdle) {
-    UIManagerModule.startBatch();
-  }
-}
-
 function endBatch(app) {
   if (!__batchIdle) {
     return;
@@ -457,7 +451,6 @@ function insertChild(parentNode, childNode, atIndex = -1) {
       }
       preCacheNode(node, node.nodeId);
     });
-    startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
@@ -471,7 +464,6 @@ function insertChild(parentNode, childNode, atIndex = -1) {
       }
       preCacheNode(node, node.nodeId);
     });
-    startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
@@ -496,7 +488,6 @@ function removeChild(parentNode, childNode, index) {
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  startBatch();
   __batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
@@ -512,7 +503,6 @@ function updateChild(parentNode) {
   const { $options: { rootViewId } } = app;
   const translated = renderToNative(rootViewId, parentNode);
   if (translated) {
-    startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
       nodes: [translated],
@@ -528,7 +518,6 @@ function updateWithChildren(parentNode) {
   const app = getApp();
   const { $options: { rootViewId } } = app;
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  startBatch();
   __batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,
