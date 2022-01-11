@@ -723,6 +723,9 @@ protected void setContent(int sourceType)
     // background to be a layer drawable that contains a drawable that has been setup
     // as a background previously. This will not work correctly as the drawable callback logic is
     // messed up in AOSP
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+      return;
+    }
     updateBackgroundDrawable(null);
     if (mContentDrawable != null && background != null) {
       LayerDrawable layerDrawable = new LayerDrawable(new Drawable[] {mContentDrawable, background});
@@ -742,6 +745,8 @@ protected void setContent(int sourceType)
    */
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
   private void updateBackgroundDrawable(Drawable drawable) {
-    super.setBackground(drawable);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      super.setBackground(drawable);
+    }
   }
 }
