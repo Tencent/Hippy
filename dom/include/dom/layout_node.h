@@ -7,18 +7,21 @@
 namespace hippy {
 inline namespace dom {
 
-typedef enum {
+enum Edge {
   EdgeLeft,
   EdgeTop,
   EdgeRight,
   EdgeBottom,
-} Edge;
+};
 
-typedef enum {
+enum Direction {
   Inherit,
   LTR,
   RTL,
-} Direction;
+};
+
+using Edge = Edge;
+using Direction = Direction;
 
 class LayoutNode {
  public:
@@ -71,6 +74,8 @@ class LayoutNode {
    */
   virtual void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) = 0;
 };
+
+std::shared_ptr<LayoutNode> CreateLayoutNode();
 
 }  // namespace dom
 }  // namespace hippy

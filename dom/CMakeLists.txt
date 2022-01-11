@@ -8,7 +8,7 @@ get_filename_component(CORE_DIR "${PROJECT_ROOT_DIR}/framework/js/core/" REALPAT
 get_filename_component(THIRD_DIR "${PROJECT_ROOT_DIR}/third_party/" REALPATH)
 
 
-message(WARNING "LAYOUT_ENGINE:" ${LAYOUT_ENGINE})
+message("LAYOUT_ENGINE:" ${LAYOUT_ENGINE})
 if (${LAYOUT_ENGINE} STREQUAL "Yoga")
   add_definitions("-DUSE_YOGA")
   get_filename_component(LAYOUT_DIR "${THIRD_DIR}/yoga/include" REALPATH)
@@ -35,7 +35,7 @@ elseif(${LAYOUT_ENGINE} STREQUAL "Taitank")
 else()
   message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")
 endif()
-message(WARNING "SRC_FILES:${SRC_FILES}")
+message("SRC_FILES:${SRC_FILES}")
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/dom)
 add_library(${LIB_NAME} STATIC ${SRC_FILES})

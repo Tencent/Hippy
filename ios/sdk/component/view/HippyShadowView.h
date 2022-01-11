@@ -28,6 +28,7 @@
 #import "HippyRootView.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
+#include "dom/taitank_layout_node.h"
 #import "HippyVirtualNode.h"
 #import "HippyDomNodeUtils.h"
 
