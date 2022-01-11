@@ -64,7 +64,7 @@ test('native device info', (t) => {
 
 test('native ImageLoader', async (t) => {
   t.is(Native.ImageLoader.prefetch(), undefined);
-  t.is(await Native.ImageLoader.getSize('https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png'), undefined);
+  t.is(await Native.ImageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png'), undefined);
 });
 
 test('native backAndroid', async (t) => {
