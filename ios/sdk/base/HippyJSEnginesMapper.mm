@@ -21,7 +21,6 @@
  */
 
 #import "HippyJSEnginesMapper.h"
-#import "HippyJavaScriptExecutor.h"
 #import "HippyLog.h"
 
 using EngineRef = std::pair<std::shared_ptr<Engine>, NSUInteger>;

@@ -338,7 +338,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 
         // Set executor instance
         if (moduleClass == self.executorClass) {
-            _javaScriptExecutor = (id<HippyJavaScriptExecutor>)module;
+            _javaScriptExecutor = (HippyJSCExecutor *)module;
         }
     }
     // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
@@ -349,7 +349,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     // probably just replace this with [self moduleForClass:self.executorClass]
     // HIPPY_PROFILE_BEGIN_EVENT(0, @"JavaScriptExecutor", nil);
     if (!_javaScriptExecutor) {
-        id<HippyJavaScriptExecutor> executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey bridge:self];
+        HippyJSCExecutor *executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey bridge:self];
         HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:executorModule bridge:self];
         moduleDataByName[moduleData.name] = moduleData;
         [moduleClassesByID addObject:self.executorClass];
@@ -685,7 +685,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (Class)executorClass {
-    return _parentBridge.executorClass ?: [HippyJSCExecutor class];
+    return [HippyJSCExecutor class];
 }
 
 - (BOOL)debugMode {

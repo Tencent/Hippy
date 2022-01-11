@@ -21,10 +21,8 @@
  */
 
 #import "HippyBridge.h"
-#import "HippyJavaScriptExecutor.h"
-
+#import "HippyJSCExecutor.h"
 @class HippyModuleData;
-@protocol HippyJavaScriptExecutor;
 
 HIPPY_EXTERN NSArray<Class> *HippyGetModuleClasses(void);
 
@@ -84,7 +82,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  * when the executor has been invalidated, or when you want to schedule calls on the
  * JS VM outside of Hippy Native. Use with care!
  */
-@property (nonatomic, weak, readonly) id<HippyJavaScriptExecutor> javaScriptExecutor;
+@property (nonatomic, weak, readonly) HippyJSCExecutor *javaScriptExecutor;
 
 /**
  * Used by HippyModuleData
@@ -149,7 +147,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 @interface HippyBatchedBridge : HippyBridge <HippyInvalidating>
 
 @property (nonatomic, weak, readonly) HippyBridge *parentBridge;
-@property (nonatomic, weak, readonly) id<HippyJavaScriptExecutor> javaScriptExecutor;
+@property (nonatomic, weak, readonly) HippyJSCExecutor *javaScriptExecutor;
 @property (nonatomic, assign, readonly) BOOL moduleSetupComplete;
 
 @property (nonatomic, strong) dispatch_semaphore_t semaphore;
