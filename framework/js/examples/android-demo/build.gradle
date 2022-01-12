@@ -107,9 +107,9 @@ dependencies {
         // api 'com.tencent.hippy:hippy-debug:2.11.2'
         api (name: 'android-sdk', ext: 'aar')
     } else {
+        api project(path: ':link_supplier')
         api project(path: ':hippy-framework')
         api project(path: ':hippy-support')
-        api project(path: ':link_supplier')
         api project(path: ':renderer-native')
         api project(path: ':serialization')
     }

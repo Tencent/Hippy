@@ -16,6 +16,8 @@
 
 package com.tencent.link_supplier.proxy;
 
+import com.tencent.link_supplier.Linker;
+
 public interface LinkProxy {
     /**
      * Get link proxy object identify.
@@ -24,5 +26,8 @@ public interface LinkProxy {
      */
     int getInstanceId();
 
+    /**
+     * Will destroy link proxy object, call by {@link Linker#destroy()}.
+     */
     void destroy();
 }

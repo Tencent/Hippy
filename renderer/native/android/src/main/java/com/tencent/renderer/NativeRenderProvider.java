@@ -213,7 +213,7 @@ public class NativeRenderProvider {
     private void callUIFunction(int id, String functionName, byte[] buffer) {
         try {
             final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.callUIFunction(id, functionName, null, list);
+            mRenderDelegate.callUIFunction(id, functionName, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }

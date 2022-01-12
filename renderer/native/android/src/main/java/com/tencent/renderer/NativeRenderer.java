@@ -647,7 +647,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void callUIFunction(final int id, final String functionName, final String callBackId,
+    public void callUIFunction(final int id, final String functionName,
             @NonNull final ArrayList<Object> params) throws NativeRenderException {
         // The node id should not be negative number.
         if (id < 0) {

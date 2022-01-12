@@ -103,7 +103,7 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
-                jint j_instance_id, jint j_result, jstring j_func_name, jint j_dom_id,
+                jint j_instance_id, jint j_result, jstring j_func_name, jint j_node_id,
                 jbyteArray j_buffer, jint j_offset, jint j_length) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
   if (!runtime) {
@@ -116,9 +116,9 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
     TDF_BASE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
     return;
   }
-  auto node = dom_manager->GetNode(j_dom_id);
+  auto node = dom_manager->GetNode(j_node_id);
   if (node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "DoCallBack DomNode not found for id: " << j_dom_id;
+    TDF_BASE_DLOG(WARNING) << "DoCallBack DomNode not found for id: " << j_node_id;
     return;
   }
 
