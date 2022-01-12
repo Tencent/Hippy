@@ -131,6 +131,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       size_t len = StringViewUtils::GetLength(uri);
       file_name = StringViewUtils::SubStr(uri, pos + 1, len);
     } else {
+      cur_dir = "";
       file_name = uri;
     }
 
