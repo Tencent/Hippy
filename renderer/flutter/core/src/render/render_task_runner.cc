@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "bridge/bridge_manager.h"
+#include "dom/taitank_layout_node.h"
 #include "encodable_value.h"
 #include "ffi/bridge_define.h"
 #include "ffi/callback_manager.h"
@@ -102,12 +103,6 @@ void VoltronRenderTaskRunner::RunMoveDomNode(std::vector<int32_t>&& ids, int32_t
 
 void VoltronRenderTaskRunner::RunBatch() {
   auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::BATCH, 0);
-  queue_->ProduceRenderOp(batch_task);
-  ConsumeQueue();
-}
-
-void VoltronRenderTaskRunner::RunStartBatch() {
-  auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::START_BATCH, 0);
   queue_->ProduceRenderOp(batch_task);
   ConsumeQueue();
 }

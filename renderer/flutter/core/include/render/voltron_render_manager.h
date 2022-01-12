@@ -22,7 +22,6 @@ class VoltronRenderManager : public RenderManager, private VoltronRenderTaskRunn
   void MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) override;
 
   void EndBatch() override;
-  void BeginBatch() override;
   void BeforeLayout() override;
   void AfterLayout() override;
 

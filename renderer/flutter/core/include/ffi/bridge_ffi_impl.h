@@ -7,10 +7,10 @@
 #define ANDROID_CORE_BRIDGE_FFI_IMPL_H_
 
 #if defined(__ANDROID__) || defined(_WIN32)
-#  include "bridge/bridge_runtime.h"
+#include "bridge/bridge_runtime.h"
 #elif __APPLE__
-#  include "bridge/bridge_runtime.h"
-#  include "common_header.h"
+#include "bridge/bridge_runtime.h"
+#include "common_header.h"
 #endif
 
 #ifdef __cplusplus

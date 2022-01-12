@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../common.dart';
@@ -9,7 +8,6 @@ import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
 import 'node.dart';
-import 'operator_runner.dart';
 
 typedef IRenderExecutor = void Function();
 
@@ -45,7 +43,6 @@ mixin RenderExecutorDelegate {
   bool _hasAddFrameCallback = false;
   bool _isDestroyed = false;
   bool _isDispatchUiFrameEnqueued = false;
-  bool _renderBatchStarted = true;
 
   final List<IRenderExecutor> _uiTasks = [];
   final List<IRenderExecutor> _paddingNullUiTasks = [];
@@ -85,11 +82,7 @@ mixin RenderExecutorDelegate {
   }
 
   void addNulUITask(IRenderExecutor executor) {
-    if (_renderBatchStarted) {
-      _paddingNullUiTasks.add(executor);
-    } else {
-      addDispatchTask(executor);
-    }
+    addDispatchTask(executor);
   }
 
   void addDispatchTask(IRenderExecutor executor) {
@@ -119,16 +112,11 @@ mixin RenderExecutorDelegate {
     }
   }
 
-  void renderBatchStart() {
-    _renderBatchStarted = true;
-  }
-
   void layoutBefore() {
     _batch();
   }
 
   void renderBatchEnd() {
-    _renderBatchStarted = false;
     _batch();
   }
 
