@@ -105,7 +105,7 @@ TAITANK_GET_STYLE_DECL(DisplayType, DisplayType, DisplayType::DisplayTypeFlex)
 TAITANK_GET_STYLE_DECL(Direction, HPDirection, HPDirection::DirectionLTR)
 
 #define SET_STYLE_VALUE(NAME, DEFAULT)                                          \
-  q auto dom_value = style_map.find(k##NAME)->second;                           \
+  auto dom_value = style_map.find(k##NAME)->second;                             \
   CheckValueType(dom_value->GetType());                                         \
   float value = DEFAULT;                                                        \
   if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDouble()); \
