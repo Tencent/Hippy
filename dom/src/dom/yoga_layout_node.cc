@@ -62,25 +62,6 @@ const std::map<std::string, YGDisplay> kDisplayTypeMap = {{"flex", YGDisplayFlex
 const std::map<std::string, YGDirection> kDirectionMap = {
     {"inherit", YGDirectionInherit}, {"ltr", YGDirectionLTR}, {"rtl", YGDirectionRTL}};
 
-void YogaLayoutNode::SetYGWidth(std::shared_ptr<tdf::base::DomValue> dom_value) {
-  tdf::base::DomValue::Type type = dom_value->GetType();
-  if (type == tdf::base::DomValue::Type::kNumber) {
-    auto value = static_cast<float>(dom_value->ToDouble());
-    YGNodeStyleSetWidth(yoga_node_, value);
-  } else if (type == tdf::base::DomValue::Type::kString) {
-    std::string value = dom_value->ToString();
-    if (value == "auto") {
-      YGNodeStyleSetWidthAuto(yoga_node_);
-    } else if (value.at(value.length() - 1) == '%') {
-      YGNodeStyleSetWidthPercent(yoga_node_, std::stod(value.substr(0, value.length() - 1)));
-    } else {
-      TDF_BASE_DCHECK(false);
-    }
-  } else {
-    TDF_BASE_DCHECK(false);
-  }
-}
-
 #define YG_SET_NUMBER_PERCENT_AUTO_DECL(NAME)                                                      \
   void YogaLayoutNode::SetYG##NAME(std::shared_ptr<tdf::base::DomValue> dom_value) {               \
     tdf::base::DomValue::Type type = dom_value->GetType();                                         \
@@ -500,7 +481,7 @@ void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf:
   // }    
 }
 
-//YG_SET_NUMBER_PERCENT_AUTO_DECL(Width)
+YG_SET_NUMBER_PERCENT_AUTO_DECL(Width)
 
 YG_SET_NUMBER_PERCENT_AUTO_DECL(Height)
 

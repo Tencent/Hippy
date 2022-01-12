@@ -1,142 +1,125 @@
 #include "dom/taitank_layout_node.h"
+
+#include <map>
+
 #include "base/logging.h"
 #include "dom/node_props.h"
 
 namespace hippy {
 inline namespace dom {
 
-static OverflowType GetFlexOverflow(const std::string& overflow) {
-  if (overflow == "visible") {
-    return OverflowType::OverflowVisible;
-  }
-  if (overflow == "hidden") {
-    return OverflowType::OverflowHidden;
-  }
-  if (overflow == "scroll") {
-    return OverflowType::OverflowScroll;
-  }
-  return OverflowType::OverflowVisible;
-}
+const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OverflowVisible},
+                                                          {"hidden", OverflowType::OverflowHidden},
+                                                          {"scroll", OverflowType::OverflowScroll}};
 
-static FlexDirection GetFlexDirection(const std::string& flex_direction) {
-  if (flex_direction == "row") {
-    return FlexDirection::FLexDirectionRow;
-  }
-  if (flex_direction == "row-reverse") {
-    return FlexDirection::FLexDirectionRowReverse;
-  }
-  if (flex_direction == "column") {
-    return FlexDirection::FLexDirectionColumn;
-  }
-  if (flex_direction == "column-reverse") {
-    return FlexDirection::FLexDirectionColumnReverse;
-  }
-  return FlexDirection::FLexDirectionColumn;
-}
+const std::map<std::string, FlexDirection> kFlexDirectionMap = {
+    {"row", FlexDirection::FLexDirectionRow},
+    {"row-reverse", FlexDirection::FLexDirectionRowReverse},
+    {"column", FlexDirection::FLexDirectionColumn},
+    {"column-reverse", FlexDirection::FLexDirectionColumnReverse}};
 
-static FlexWrapMode GetFlexWrapMode(const std::string& wrap_mode) {
-  if (wrap_mode == "nowrap") {
-    return FlexWrapMode::FlexNoWrap;
-  } else if (wrap_mode == "wrap") {
-    return FlexWrapMode::FlexWrap;
-  } else if (wrap_mode == "wrap-reverse") {
-    return FlexWrapMode::FlexWrapReverse;
+const std::map<std::string, FlexWrapMode> kWrapModeMap = {{"nowrap", FlexWrapMode::FlexNoWrap},
+                                                          {"wrap", FlexWrapMode::FlexWrap},
+                                                          {"wrap-reverse", FlexWrapMode::FlexWrapReverse}};
+
+const std::map<std::string, FlexAlign> kJustifyMap = {{"flex-start", FlexAlign::FlexAlignStart},
+                                                      {"center", FlexAlign::FlexAlignCenter},
+                                                      {"flex-end", FlexAlign::FlexAlignEnd},
+                                                      {"space-between", FlexAlign::FlexAlignSpaceBetween},
+                                                      {"space-around", FlexAlign::FlexAlignSpaceAround},
+                                                      {"space-evenly", FlexAlign::FlexAlignSpaceEvenly}};
+
+const std::map<std::string, FlexAlign> kAlignMap = {{"auto", FlexAlign::FlexAlignAuto},
+                                                    {"flex-start", FlexAlign::FlexAlignStart},
+                                                    {"center", FlexAlign::FlexAlignCenter},
+                                                    {"flex-end", FlexAlign::FlexAlignEnd},
+                                                    {"stretch", FlexAlign::FlexAlignStretch},
+                                                    {"baseline", FlexAlign::FlexAlignBaseline},
+                                                    {"space-between", FlexAlign::FlexAlignSpaceBetween},
+                                                    {"space-around", FlexAlign::FlexAlignSpaceAround}};
+
+const std::map<std::string, CSSDirection> kMarginMap = {{kMargin, CSSDirection::CSSAll},
+                                                        {kMarginVertical, CSSDirection::CSSVertical},
+                                                        {kMarginHorizontal, CSSDirection::CSSHorizontal},
+                                                        {kMarginLeft, CSSDirection::CSSLeft},
+                                                        {kMarginRight, CSSDirection::CSSRight},
+                                                        {kMarginTop, CSSDirection::CSSTop},
+                                                        {kMarginBottom, CSSDirection::CSSBottom}};
+
+const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection::CSSAll},
+                                                         {kPaddingVertical, CSSDirection::CSSVertical},
+                                                         {kPaddingHorizontal, CSSDirection::CSSHorizontal},
+                                                         {kPaddingLeft, CSSDirection::CSSLeft},
+                                                         {kPaddingRight, CSSDirection::CSSRight},
+                                                         {kPaddingTop, CSSDirection::CSSTop},
+                                                         {kPaddingBottom, CSSDirection::CSSBottom}};
+
+const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSSLeft},
+                                                          {kRight, CSSDirection::CSSTop},
+                                                          {kTop, CSSDirection::CSSRight},
+                                                          {kBottom, CSSDirection::CSSBottom}};
+
+const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSSAll},
+                                                        {kBorderLeftWidth, CSSDirection::CSSLeft},
+                                                        {kBorderTopWidth, CSSDirection::CSSTop},
+                                                        {kBorderRightWidth, CSSDirection::CSSRight},
+                                                        {kBorderBottomWidth, CSSDirection::CSSBottom}};
+
+const std::map<std::string, PositionType> kPositionTypeMap = {{"relative", PositionType::PositionTypeRelative},
+                                                              {"absolute", PositionType::PositionTypeAbsolute}};
+
+const std::map<std::string, DisplayType> kDisplayTypeMap = {{"none", DisplayType::DisplayTypeNone}};
+
+const std::map<std::string, HPDirection> kDirectionMap = {
+    {"inherit", DirectionInherit}, {"ltr", DirectionLTR}, {"rtl", DirectionRTL}};
+
+#define TAITANK_GET_STYLE_DECL(NAME, TYPE, DEFAULT)      \
+  static TYPE GetStyle##NAME(const std::string& key) {   \
+    auto iter = k##NAME##Map.find(key);                  \
+    if (iter != k##NAME##Map.end()) return iter->second; \
+    return DEFAULT;                                      \
   }
 
-  // error wrap mode
-  return FlexWrapMode::FlexNoWrap;
-}
+TAITANK_GET_STYLE_DECL(Overflow, OverflowType, OverflowType::OverflowVisible)
 
-static FlexAlign GetFlexJustify(const std::string& justify_content) {
-  if (justify_content == "flex-start") {
-    return FlexAlign::FlexAlignStart;
-  }
-  if (justify_content == "center") {
-    return FlexAlign::FlexAlignCenter;
-  }
-  if (justify_content == "flex-end") {
-    return FlexAlign::FlexAlignEnd;
-  }
-  if (justify_content == "space-between") {
-    return FlexAlign::FlexAlignSpaceBetween;
-  }
-  if (justify_content == "space-around") {
-    return FlexAlign::FlexAlignSpaceAround;
-  }
-  if (justify_content == "space-evenly") {
-    return FlexAlign::FlexAlignSpaceEvenly;
-  }
-  return FlexAlign::FlexAlignStart;
-}
+TAITANK_GET_STYLE_DECL(FlexDirection, FlexDirection, FlexDirection::FLexDirectionColumn)
 
-static FlexAlign GetFlexAlign(const std::string& align) {
-  if (align == "auto") {
-    return FlexAlign::FlexAlignAuto;
-  }
-  if (align == "flex-start") {
-    return FlexAlign::FlexAlignStart;
-  }
-  if (align == "center") {
-    return FlexAlign::FlexAlignCenter;
-  }
-  if (align == "flex-end") {
-    return FlexAlign::FlexAlignEnd;
-  }
-  if (align == "stretch") {
-    return FlexAlign::FlexAlignStretch;
-  }
-  if (align == "baseline") {
-    return FlexAlign::FlexAlignBaseline;
-  }
-  if (align == "space-between") {
-    return FlexAlign::FlexAlignSpaceBetween;
-  }
-  if (align == "space-around") {
-    return FlexAlign::FlexAlignSpaceAround;
-  }
-  return FlexAlign::FlexAlignStretch;
-}
+TAITANK_GET_STYLE_DECL(WrapMode, FlexWrapMode, FlexWrapMode::FlexNoWrap)
 
-static CSSDirection GetCSSDirection(const std::string& direction) {
-  if (direction == kMargin || direction == kPadding) {
-    return CSSDirection::CSSAll;
-  }
-  if (direction == kMarginVertical || direction == kPaddingVertical) {
-    return CSSDirection::CSSVertical;
-  }
-  if (direction == kMarginHorizontal || direction == kPaddingHorizontal) {
-    return CSSDirection::CSSHorizontal;
-  }
-  if (direction == kMarginLeft || direction == kPaddingLeft || direction == kLeft) {
-    return CSSDirection::CSSLeft;
-  }
-  if (direction == kMarginTop || direction == kPaddingTop || direction == kTop) {
-    return CSSDirection::CSSTop;
-  }
-  if (direction == kMarginRight || direction == kPaddingRight || direction == kRight) {
-    return CSSDirection::CSSRight;
-  }
-  if (direction == kMarginBottom || direction == kPaddingBottom || direction == kBottom) {
-    return CSSDirection::CSSBottom;
-  }
-  return CSSDirection::CSSNONE;
-}
+TAITANK_GET_STYLE_DECL(Justify, FlexAlign, FlexAlign::FlexAlignStart)
 
-static PositionType GetPositionType(const std::string& position) {
-  if (position == "relative") {
-    return PositionType::PositionTypeRelative;
-  }
-  if (position == "absolute") {
-    return PositionType::PositionTypeAbsolute;
-  }
-  return PositionType::PositionTypeRelative;
-}
+TAITANK_GET_STYLE_DECL(Align, FlexAlign, FlexAlign::FlexAlignStretch)
 
-static DisplayType GetDisplayType(const std::string& display) {
-  if (display == "none") {
-    return DisplayType::DisplayTypeNone;
-  }
-  return DisplayType::DisplayTypeFlex;
+TAITANK_GET_STYLE_DECL(Margin, CSSDirection, CSSDirection::CSSNONE)
+
+TAITANK_GET_STYLE_DECL(Padding, CSSDirection, CSSDirection::CSSNONE)
+
+TAITANK_GET_STYLE_DECL(Border, CSSDirection, CSSDirection::CSSNONE)
+
+TAITANK_GET_STYLE_DECL(Position, CSSDirection, CSSDirection::CSSNONE)
+
+TAITANK_GET_STYLE_DECL(PositionType, PositionType, PositionType::PositionTypeRelative)
+
+TAITANK_GET_STYLE_DECL(DisplayType, DisplayType, DisplayType::DisplayTypeFlex)
+
+TAITANK_GET_STYLE_DECL(Direction, HPDirection, HPDirection::DirectionLTR)
+
+#define SET_STYLE_VALUE(NAME, DEFAULT)                                          \
+  q auto dom_value = style_map.find(k##NAME)->second;                           \
+  CheckValueType(dom_value->GetType());                                         \
+  float value = DEFAULT;                                                        \
+  if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDouble()); \
+  Set##NAME(value);
+
+#define SET_STYLE_VALUES(NAME, STYLENAME, DEFAULT)                              \
+  auto dom_value = style_map.find(k##STYLENAME)->second;                        \
+  CheckValueType(dom_value->GetType());                                         \
+  float value = DEFAULT;                                                        \
+  if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDouble()); \
+  Set##NAME(GetStyle##NAME(k##STYLENAME), value);
+
+static void CheckValueType(tdf::base::DomValue::Type type) {
+  TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
 }
 
 static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
@@ -175,23 +158,26 @@ void TaitankLayoutNode::SetLayoutStyles(
 }
 
 void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
-  if (style_map.find(kAlignItems) != style_map.end()) {
-    SetAlignItems(GetFlexAlign(style_map.find(kAlignItems)->second->ToString()));
+  if (style_map.find(kWidth) != style_map.end()) {
+    SET_STYLE_VALUE(Width, 0)
   }
-  if (style_map.find(kAilgnSelf) != style_map.end()) {
-    SetAlignSelf(GetFlexAlign(style_map.find(kAilgnSelf)->second->ToString()));
+  if (style_map.find(kMinWidth) != style_map.end()) {
+    SET_STYLE_VALUE(MinWidth, 0)
   }
-  if (style_map.find(kAlignContent) != style_map.end()) {
-    SetAlignContent(GetFlexAlign(style_map.find(kAlignContent)->second->ToString()));
+  if (style_map.find(kMaxWidth) != style_map.end()) {
+    SET_STYLE_VALUE(MaxWidth, 0)
+  }
+  if (style_map.find(kHeight) != style_map.end()) {
+    SET_STYLE_VALUE(Height, 0)
+  }
+  if (style_map.find(kMinHeight) != style_map.end()) {
+    SET_STYLE_VALUE(MinHeight, 0)
+  }
+  if (style_map.find(kMaxHeight) != style_map.end()) {
+    SET_STYLE_VALUE(MaxHeight, 0)
   }
   if (style_map.find(kFlex) != style_map.end()) {
     SetFlex(static_cast<float>(style_map.find(kFlex)->second->ToDouble()));
-  }
-  if (style_map.find(kFlexDirection) != style_map.end()) {
-    SetFlexDirection(GetFlexDirection(style_map.find(kFlexDirection)->second->ToString()));
-  }
-  if (style_map.find(kFlexWrap) != style_map.end()) {
-    SetFlexWrap(GetFlexWrapMode(style_map.find(kFlexWrap)->second->ToString()));
   }
   if (style_map.find(kFlexGrow) != style_map.end()) {
     SetFlexGrow(static_cast<float>(style_map.find(kFlexGrow)->second->ToDouble()));
@@ -202,205 +188,101 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
   if (style_map.find(kFlexBasis) != style_map.end()) {
     SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDouble()));
   }
-  if (style_map.find(kWidth) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kWidth)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float width =
-        style_map.find(kWidth)->second->IsNumber() ? static_cast<float>(style_map.find(kWidth)->second->ToDouble()) : 0;
-    SetWidth(width);
+  if (style_map.find(kDirection) != style_map.end()) {
+    SetDirection(GetStyleDirection(style_map.find(kFlexDirection)->second->ToString()));
   }
-  if (style_map.find(kHeight) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kHeight)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float height = style_map.find(kHeight)->second->IsNumber()
-                       ? static_cast<float>(style_map.find(kHeight)->second->ToDouble())
-                       : 0;
-    SetHeight(height);
+  if (style_map.find(kFlexDirection) != style_map.end()) {
+    SetFlexDirection(GetStyleFlexDirection(style_map.find(kFlexDirection)->second->ToString()));
   }
-  if (style_map.find(kMaxWidth) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMaxWidth)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float max_width = style_map.find(kMaxWidth)->second->IsNumber()
-                          ? static_cast<float>(style_map.find(kMaxWidth)->second->ToDouble())
-                          : 0;
-    SetMaxWidth(max_width);
+  if (style_map.find(kFlexWrap) != style_map.end()) {
+    SetFlexWrap(GetStyleWrapMode(style_map.find(kFlexWrap)->second->ToString()));
   }
-  if (style_map.find(kMaxHeight) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMaxHeight)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float max_height = style_map.find(kMaxHeight)->second->IsNumber()
-                           ? static_cast<float>(style_map.find(kMaxHeight)->second->ToDouble())
-                           : 0;
-    SetMaxHeight(max_height);
+  if (style_map.find(kAilgnSelf) != style_map.end()) {
+    SetAlignSelf(GetStyleAlign(style_map.find(kAilgnSelf)->second->ToString()));
   }
-  if (style_map.find(kMinWidth) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMinWidth)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float min_width = style_map.find(kMinWidth)->second->IsNumber()
-                          ? static_cast<float>(style_map.find(kMinWidth)->second->ToDouble())
-                          : 0;
-    SetMinWidth(min_width);
-  }
-  if (style_map.find(kMinHeight) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMinHeight)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float min_height = style_map.find(kMinHeight)->second->IsNumber()
-                           ? static_cast<float>(style_map.find(kMinHeight)->second->ToDouble())
-                           : 0;
-    SetMinHeight(min_height);
+  if (style_map.find(kAlignItems) != style_map.end()) {
+    SetAlignItems(GetStyleAlign(style_map.find(kAlignItems)->second->ToString()));
   }
   if (style_map.find(kJustifyContent) != style_map.end()) {
-    SetJustifyContent(GetFlexJustify(style_map.find(kJustifyContent)->second->ToString()));
-  }
-  if (style_map.find(kLeft) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kLeft)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float left =
-        style_map.find(kLeft)->second->IsNumber() ? static_cast<float>(style_map.find(kLeft)->second->ToDouble()) : 0;
-    SetPosition(GetCSSDirection(kLeft), left);
-  }
-  if (style_map.find(kRight) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kRight)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float right =
-        style_map.find(kRight)->second->IsNumber() ? static_cast<float>(style_map.find(kRight)->second->ToDouble()) : 0;
-    SetPosition(GetCSSDirection(kRight), right);
-  }
-  if (style_map.find(kTop) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kTop)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float top =
-        style_map.find(kTop)->second->IsNumber() ? static_cast<float>(style_map.find(kTop)->second->ToDouble()) : 0;
-    SetPosition(GetCSSDirection(kTop), top);
-  }
-  if (style_map.find(kBottom) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kBottom)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float bottom = style_map.find(kBottom)->second->IsNumber()
-                       ? static_cast<float>(style_map.find(kBottom)->second->ToDouble())
-                       : 0;
-    SetPosition(GetCSSDirection(kBottom), bottom);
-  }
-  if (style_map.find(kPosition) != style_map.end()) {
-    SetPositionType(GetPositionType(style_map.find(kPosition)->second->ToString()));
-  }
-  if (style_map.find(kDisplay) != style_map.end()) {
-    SetDisplay(GetDisplayType(style_map.find(kDisplay)->second->ToString()));
+    SetJustifyContent(GetStyleJustify(style_map.find(kJustifyContent)->second->ToString()));
   }
   if (style_map.find(kOverflow) != style_map.end()) {
-    SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToString()));
+    SetOverflow(GetStyleOverflow(style_map.find(kOverflow)->second->ToString()));
+  }
+  if (style_map.find(kDisplay) != style_map.end()) {
+    SetDisplay(GetStyleDisplayType(style_map.find(kDisplay)->second->ToString()));
   }
   if (style_map.find(kMargin) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMargin)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float margin = style_map.find(kMargin)->second->IsNumber()
-                       ? static_cast<float>(style_map.find(kMargin)->second->ToDouble())
-                       : 0;
-    SetMargin(GetCSSDirection(kMargin), margin);
+    SET_STYLE_VALUES(Margin, Margin, 0)
   }
   if (style_map.find(kMarginVertical) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMarginVertical)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float margin_vertical = style_map.find(kMarginVertical)->second->IsNumber()
-                                ? static_cast<float>(style_map.find(kMarginVertical)->second->ToDouble())
-                                : 0;
-    SetMargin(GetCSSDirection(kMarginVertical), margin_vertical);
+    SET_STYLE_VALUES(Margin, MarginVertical, 0)
   }
   if (style_map.find(kMarginHorizontal) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMarginHorizontal)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float margin_horizontal = style_map.find(kMarginHorizontal)->second->IsNumber()
-                                  ? static_cast<float>(style_map.find(kMarginHorizontal)->second->ToDouble())
-                                  : 0;
-    SetMargin(GetCSSDirection(kMarginHorizontal), margin_horizontal);
+    SET_STYLE_VALUES(Margin, MarginHorizontal, 0)
   }
   if (style_map.find(kMarginLeft) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMarginLeft)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float margin_left = style_map.find(kMarginLeft)->second->IsNumber()
-                            ? static_cast<float>(style_map.find(kMarginLeft)->second->ToDouble())
-                            : 0;
-    SetMargin(GetCSSDirection(kMarginLeft), margin_left);
-  }
-  if (style_map.find(kMarginTop) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMarginTop)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float margin_top = style_map.find(kMarginTop)->second->IsNumber()
-                           ? static_cast<float>(style_map.find(kMarginTop)->second->ToDouble())
-                           : 0;
-    SetMargin(GetCSSDirection(kMarginTop), margin_top);
+    SET_STYLE_VALUES(Margin, MarginLeft, 0)
   }
   if (style_map.find(kMarginRight) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMarginRight)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float margin_right = style_map.find(kMarginRight)->second->IsNumber()
-                             ? static_cast<float>(style_map.find(kMarginRight)->second->ToDouble())
-                             : 0;
-    SetMargin(GetCSSDirection(kMarginRight), margin_right);
+    SET_STYLE_VALUES(Margin, MarginRight, 0)
+  }
+  if (style_map.find(kMarginTop) != style_map.end()) {
+    SET_STYLE_VALUES(Margin, MarginTop, 0)
   }
   if (style_map.find(kMarginBottom) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kMarginBottom)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float margin_bottom = style_map.find(kMarginBottom)->second->IsNumber()
-                              ? static_cast<float>(style_map.find(kMarginBottom)->second->ToDouble())
-                              : 0;
-    SetMargin(GetCSSDirection(kMarginBottom), margin_bottom);
+    SET_STYLE_VALUES(Margin, MarginBottom, 0)
   }
   if (style_map.find(kPadding) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kPadding)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float padding = style_map.find(kPadding)->second->IsNumber()
-                        ? static_cast<float>(style_map.find(kPadding)->second->ToDouble())
-                        : 0;
-    SetPadding(GetCSSDirection(kPadding), padding);
+    SET_STYLE_VALUES(Padding, Padding, 0)
   }
   if (style_map.find(kPaddingVertical) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kPaddingVertical)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float padding_vertical = style_map.find(kPaddingVertical)->second->IsNumber()
-                                 ? static_cast<float>(style_map.find(kPaddingVertical)->second->ToDouble())
-                                 : 0;
-    SetPadding(GetCSSDirection(kPaddingVertical), padding_vertical);
+    SET_STYLE_VALUES(Padding, PaddingVertical, 0)
   }
   if (style_map.find(kPaddingHorizontal) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kPaddingHorizontal)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float padding_horizontal = style_map.find(kPaddingHorizontal)->second->IsNumber()
-                                   ? static_cast<float>(style_map.find(kPaddingHorizontal)->second->ToDouble())
-                                   : 0;
-    SetPadding(GetCSSDirection(kPaddingHorizontal), padding_horizontal);
+    SET_STYLE_VALUES(Padding, PaddingHorizontal, 0)
   }
   if (style_map.find(kPaddingLeft) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kPaddingLeft)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float padding_left = style_map.find(kPaddingLeft)->second->IsNumber()
-                             ? static_cast<float>(style_map.find(kPaddingLeft)->second->ToDouble())
-                             : 0;
-    SetPadding(GetCSSDirection(kPaddingLeft), padding_left);
-  }
-  if (style_map.find(kPaddingTop) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kPaddingTop)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float padding_top = style_map.find(kPaddingTop)->second->IsNumber()
-                            ? static_cast<float>(style_map.find(kPaddingTop)->second->ToDouble())
-                            : 0;
-    SetPadding(GetCSSDirection(kPaddingTop), padding_top);
+    SET_STYLE_VALUES(Padding, PaddingLeft, 0)
   }
   if (style_map.find(kPaddingRight) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kPaddingRight)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float padding_right = style_map.find(kPaddingRight)->second->IsNumber()
-                              ? static_cast<float>(style_map.find(kPaddingRight)->second->ToDouble())
-                              : 0;
-    SetPadding(GetCSSDirection(kPaddingRight), padding_right);
+    SET_STYLE_VALUES(Padding, PaddingRight, 0)
+  }
+  if (style_map.find(kPaddingTop) != style_map.end()) {
+    SET_STYLE_VALUES(Padding, PaddingTop, 0)
   }
   if (style_map.find(kPaddingBottom) != style_map.end()) {
-    tdf::base::DomValue::Type type = style_map.find(kPaddingBottom)->second->GetType();
-    TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
-    float padding_bottom = style_map.find(kPaddingBottom)->second->IsNumber()
-                               ? static_cast<float>(style_map.find(kPaddingBottom)->second->ToDouble())
-                               : 0;
-    SetPadding(GetCSSDirection(kPaddingBottom), padding_bottom);
+    SET_STYLE_VALUES(Padding, PaddingBottom, 0)
+  }
+  if (style_map.find(kBorderWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderWidth, 0)
+  }
+  if (style_map.find(kBorderLeftWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderLeftWidth, 0)
+  }
+  if (style_map.find(kBorderTopWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderTopWidth, 0)
+  }
+  if (style_map.find(kBorderRightWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderRightWidth, 0)
+  }
+  if (style_map.find(kBorderBottomWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderBottomWidth, 0)
+  }
+  if (style_map.find(kLeft) != style_map.end()) {
+    SET_STYLE_VALUES(Position, Left, 0)
+  }
+  if (style_map.find(kRight) != style_map.end()) {
+    SET_STYLE_VALUES(Position, Right, 0)
+  }
+  if (style_map.find(kTop) != style_map.end()) {
+    SET_STYLE_VALUES(Position, Top, 0)
+  }
+  if (style_map.find(kBottom) != style_map.end()) {
+    SET_STYLE_VALUES(Position, Bottom, 0)
+  }
+  if (style_map.find(kPosition) != style_map.end()) {
+    SetPositionType(GetStylePositionType(style_map.find(kPosition)->second->ToString()));
   }
 }
 
@@ -714,10 +596,7 @@ void TaitankLayoutNode::Deallocate() {
   delete engine_node_;
 }
 
-
-std::shared_ptr<LayoutNode> CreateLayoutNode() {
-  return std::make_shared<TaitankLayoutNode>();
-}
+std::shared_ptr<LayoutNode> CreateLayoutNode() { return std::make_shared<TaitankLayoutNode>(); }
 
 }  // namespace dom
 }  // namespace hippy
