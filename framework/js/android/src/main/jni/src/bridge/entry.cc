@@ -73,17 +73,17 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
 
-REGISTER_JNI("com/tencent/mtt/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "doBind",
              "(III)V",
              doBind)
 
-REGISTER_JNI("com/tencent/mtt/link_supplier/DomHolder", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "createDomInstance",
              "()I",
              createDomInstance)
 
-REGISTER_JNI("com/tencent/mtt/link_supplier/DomHolder", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "destroyDomInstance",
              "(I)V",
              destroyDomInstance)

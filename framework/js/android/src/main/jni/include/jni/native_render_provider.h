@@ -44,5 +44,5 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
                      jboolean j_use_capture, jboolean j_use_bubble);
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
-                jint j_instance_id, jint j_result, jstring j_func_name, jint j_dom_id,
+                jint j_instance_id, jint j_result, jstring j_func_name, jint j_node_id,
                 jbyteArray j_buffer, jint j_offset, jint j_length);

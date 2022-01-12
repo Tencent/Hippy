@@ -16,6 +16,7 @@
 
 package com.tencent.link_supplier.proxy.renderer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -24,8 +25,18 @@ import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
 
 public interface RenderProxy extends LinkProxy {
 
+    /**
+     * Set framework proxy to renderer
+     *
+     * @param proxy {@link FrameworkProxy} interface
+     */
     void setFrameworkProxy(@NonNull FrameworkProxy proxy);
 
+    /**
+     * Create root view by renderer
+     *
+     * @param context {@link Context} the root view container context, such as {@link Activity}
+     */
     @NonNull
-    ViewGroup createRootView(Context context);
+    ViewGroup createRootView(@NonNull Context context);
 }

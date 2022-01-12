@@ -22,19 +22,33 @@ import com.tencent.link_supplier.proxy.renderer.RenderProxy;
 
 public class Linker implements LinkHelper {
 
-    public enum RenderMode {
-        NATIVE_RENDER,
-        TDF_RENDER,
-        FLUTTER_RENDER
-    }
-
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
 
-    public Linker(RenderMode renderMode, @NonNull FrameworkProxy frameworkProxy)
-            throws RuntimeException {
-        mDomProxy = new DomHolder();
-        switch (renderMode) {
+    @Override
+    public void setFrameworkProxy(@NonNull FrameworkProxy frameworkProxy) {
+        if (mRenderProxy != null) {
+            mRenderProxy.setFrameworkProxy(frameworkProxy);
+        }
+    }
+
+    @Override
+    public void createDomHolder() {
+        if (mDomProxy == null) {
+            mDomProxy = new DomHolder();
+        }
+    }
+
+    @Override
+    public void createDomHolder(int instanceId) {
+        if (mDomProxy == null) {
+            mDomProxy = new DomHolder(instanceId);
+        }
+    }
+
+    @Override
+    public void createRenderer(RenderMode mode) throws RuntimeException {
+        switch (mode) {
             case TDF_RENDER:
                 // TODO: Create TDF renderer.
                 break;
@@ -49,26 +63,15 @@ public class Linker implements LinkHelper {
             throw new RuntimeException(
                     "Serious error: Failed to create renderer instance!");
         }
-        mRenderProxy.setFrameworkProxy(frameworkProxy);
-    }
-
-    private RenderProxy createNativeRenderer() {
-        try {
-            Class nativeRendererClass = Class
-                    .forName("com.tencent.renderer.NativeRenderer");
-            return (RenderProxy) (nativeRendererClass.newInstance());
-        } catch (Throwable e) {
-            return null;
-        }
     }
 
     @Override
-    public RenderProxy getRenderProxy() {
+    public RenderProxy getRenderer() {
         return mRenderProxy;
     }
 
     @Override
-    public DomProxy getDomProxy() {
+    public DomProxy getDomHolder() {
         return mDomProxy;
     }
 
@@ -89,8 +92,58 @@ public class Linker implements LinkHelper {
         }
     }
 
+    private class DomHolder implements DomProxy {
+        private final int mInstanceId;
+
+        public DomHolder() {
+            mInstanceId = createDomInstance();
+        }
+
+        /**
+         * Support init dom holder with existing instance id
+         */
+        @SuppressWarnings("unused")
+        public DomHolder(int instanceId) {
+            mInstanceId = instanceId;
+        }
+
+        @Override
+        public int getInstanceId() {
+            return mInstanceId;
+        }
+
+        @Override
+        public void destroy() {
+            destroyDomInstance(mInstanceId);
+        }
+    }
+
+    private RenderProxy createNativeRenderer() {
+        try {
+            Class nativeRendererClass = Class
+                    .forName("com.tencent.renderer.NativeRenderer");
+            return (RenderProxy) (nativeRendererClass.newInstance());
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
     /**
-     * Bind dom manager, render manager and framework with instance id.
+     * Create native (C++) dom manager instance.
+     *
+     * @return the unique id of native (C++) dom manager
+     */
+    private native int createDomInstance();
+
+    /**
+     * Release native (C++) dom manager instance.
+     *
+     * @param instanceId the unique id of native (C++) dom manager
+     */
+    private native void destroyDomInstance(int instanceId);
+
+    /**
+     * Bind native (C++) dom manager, render manager and framework with instance id.
      *
      * @param domId dom manager instance id
      * @param renderId render manager instance id
