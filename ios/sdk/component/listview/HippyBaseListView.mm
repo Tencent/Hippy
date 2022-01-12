@@ -183,13 +183,17 @@
 
 - (void)refreshItemNodes {
     auto domNode = self.domNode.lock();
-    const auto &children = domNode->GetChildren();
-    _itemDomNodes.clear();
-    NSArray<NSString *> *itemViewsNames = [self listItemViewNames];
-    std::copy_if(children.begin(), children.end(), std::back_inserter(_itemDomNodes), [itemNames_ = itemViewsNames](const std::shared_ptr<hippy::DomNode> &child){
-        NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
-        return [itemNames_ containsObject:childViewName];
-    });
+    if (domNode) {
+        _itemDomNodes.clear();
+        const auto &children = domNode->GetChildren();
+        if (children.size() > 0) {
+            NSArray<NSString *> *itemViewsNames = [self listItemViewNames];
+            std::copy_if(children.begin(), children.end(), std::back_inserter(_itemDomNodes), [itemNames_ = itemViewsNames](const std::shared_ptr<hippy::DomNode> &child){
+                NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
+                return [itemNames_ containsObject:childViewName];
+            });
+        }
+    }
 }
 
 #pragma mark -Scrollable
