@@ -37,15 +37,15 @@ interface HippyReact {
 
 class HippyReact implements HippyReact {
   // version
-  static version = process.env.HIPPY_REACT_WEB_VERSION;
+  public static version = process.env.HIPPY_REACT_WEB_VERSION;
 
   // Native methods
-  static get Native() {
+  public static get Native() {
     warn('HippyReact.Native interface is not stable yet. DO NOT USE IT');
     return Native;
   }
 
-  constructor(config: HippyReactConfig) {
+  public constructor(config: HippyReactConfig) {
     if (typeof config !== 'object' || !config.appName || !config.entryPage) {
       throw new TypeError('Invalid arguments');
     }
@@ -56,7 +56,7 @@ class HippyReact implements HippyReact {
     this.regist = this.start; // Forward compatible alias
   }
 
-  start(superProps = {}) {
+  public start(superProps = {}) {
     const { container, entryPage } = this.config;
     if (!entryPage || !container) {
       throw new Error('container and entryPage are both required for hippy-react');

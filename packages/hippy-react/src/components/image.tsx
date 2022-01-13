@@ -131,7 +131,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
  * @noInheritDoc
  */
 class Image extends React.Component<ImageProps, {}> {
-  static get resizeMode() {
+  public static get resizeMode() {
     return {
       contain: 'contain',
       cover: 'cover',
@@ -141,7 +141,7 @@ class Image extends React.Component<ImageProps, {}> {
     };
   }
 
-  static getSize(
+  public static getSize(
     url: any,
     success: (width: number, height: number) => void,
     failure: (err: typeof Error) => void,
@@ -161,7 +161,7 @@ class Image extends React.Component<ImageProps, {}> {
     return size;
   }
 
-  static prefetch = prefetch;
+  public static prefetch = prefetch;
 
   private getImageUrls({ src, srcs, source, sources }: {
     src: string | any,

@@ -40,9 +40,8 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
 
   public refreshComplected: () => void;
 
-  constructor(props: RefreshWrapperProps) {
+  public constructor(props: RefreshWrapperProps) {
     super(props);
-    // TODO: Upward compatible with the the old typo mistake.
     this.refreshComplected = this.refreshCompleted.bind(this);
   }
 

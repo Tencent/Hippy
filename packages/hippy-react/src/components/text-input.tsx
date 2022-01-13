@@ -193,7 +193,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
   /**
    * @ignore
    */
-  constructor(props: TextInputProps) {
+  public constructor(props: TextInputProps) {
     super(props);
     this.onChangeText = this.onChangeText.bind(this);
     this.onKeyboardWillShow = this.onKeyboardWillShow.bind(this);

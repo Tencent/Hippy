@@ -47,7 +47,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
   /**
    * @ignore
    */
-  constructor(props: FocusableProps) {
+  public constructor(props: FocusableProps) {
     super(props);
     const { requestFocus } = this.props;
     this.state = {

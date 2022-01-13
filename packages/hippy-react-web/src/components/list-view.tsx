@@ -47,15 +47,12 @@ function ListViewItem(props: any) {
  * @noInheritDoc
  */
 export class ListView extends React.Component {
-  scrollEndTimer: any;
+  public scrollEndTimer: any;
+  public scrollBeginTimer: any;
+  public scrolling: boolean;
+  public lv: any;
 
-  scrollBeginTimer: any;
-
-  scrolling: boolean;
-
-  lv: any;
-
-  constructor(props: any) {
+  public constructor(props: any) {
     super(props);
 
     this.renderRow = this.renderRow.bind(this);
@@ -72,7 +69,7 @@ export class ListView extends React.Component {
    * numberOfRows not work in web
    * create dataSource [1,2,3,4,5...]
    */
-  getDataSource() {
+  public getDataSource() {
     const { numberOfRows } = this.props as any;
     const dataSource = new DataSource({
       getRowData: (dataBlob: any, sectionID: number, rowID: number) => dataBlob[rowID],
@@ -96,7 +93,7 @@ export class ListView extends React.Component {
    * @param xOffset
    * @param yOffset
    */
-  scrollToContentOffset(xOffset: number, yOffset: number) {
+  public scrollToContentOffset(xOffset: number, yOffset: number) {
     if (this.lv as any) {
       this.lv.scrollTo(xOffset, yOffset);
     }
@@ -106,7 +103,7 @@ export class ListView extends React.Component {
    * @description handle list scroll event, deal with onMomentumScrollBegin and onMomentumScrollEnd
    * @param event
    */
-  handleOnScroll(event: Event) {
+  public handleOnScroll(event: Event) {
     const {
       onScroll,
       onMomentumScrollBegin,
@@ -146,7 +143,7 @@ export class ListView extends React.Component {
    * @param sectionId
    * @param rowId
    */
-  renderRow(rowData: object, sectionId: number, rowId: number) {
+  public renderRow(rowData: object, sectionId: number, rowId: number) {
     const convertRowId = Number(rowId);
     const {
       renderRow,
@@ -170,7 +167,7 @@ export class ListView extends React.Component {
     );
   }
 
-  render() {
+  public render() {
     const nativeProps = Object.assign({}, this.props);
 
     delete (nativeProps as any).renderRow;
