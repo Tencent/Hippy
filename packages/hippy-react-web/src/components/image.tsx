@@ -127,7 +127,7 @@ interface State {
  * @noInheritDoc
  */
 export class Image extends React.Component {
-  static get resizeMode() {
+  public static get resizeMode() {
     return {
       contain: 'contain',
       cover: 'cover',
@@ -137,7 +137,7 @@ export class Image extends React.Component {
     };
   }
 
-  constructor(props: Props) {
+  public constructor(props: Props) {
     super(props);
     const initImageUrl = props.source && typeof props.source !== 'string' ? props.source.uri : '';
     this.state = {
@@ -149,7 +149,7 @@ export class Image extends React.Component {
     this.onError = this.onError.bind(this);
   }
 
-  componentDidMount() {
+  public componentDidMount() {
     const {
       source,
       onLoadStart,
@@ -162,7 +162,7 @@ export class Image extends React.Component {
     }
   }
 
-  static getDerivedStateFromProps(nextProps: Props, prevState: State) {
+  public static getDerivedStateFromProps(nextProps: Props, prevState: State) {
     if (nextProps.source
         && typeof nextProps.source !== 'string'
         && nextProps.source.uri !== prevState.imageUrl) {
@@ -174,7 +174,7 @@ export class Image extends React.Component {
     return null;
   }
 
-  componentDidUpdate() {
+  public componentDidUpdate() {
     const { imageUrl, prevImageUrl } = this.state as State;
     if (imageUrl !== prevImageUrl) {
       ImageLoader.load(imageUrl, this.onLoad, this.onError);
@@ -185,7 +185,7 @@ export class Image extends React.Component {
     }
   }
 
-  onLoad(e: any) {
+  public onLoad(e: any) {
     const { onLoad, onLoadEnd } = this.props as Props;
     this.setState({
       isLoadSuccess: true,
@@ -204,7 +204,7 @@ export class Image extends React.Component {
     }
   }
 
-  onError() {
+  public onError() {
     const { onError, onLoadEnd, source } = this.props as Props;
     if (onError) {
       onError({
@@ -218,7 +218,7 @@ export class Image extends React.Component {
     }
   }
 
-  render() {
+  public render() {
     let { style } = this.props as Props;
     const { isLoadSuccess } = this.state as State;
     const {

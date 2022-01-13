@@ -58,12 +58,12 @@ interface Props {
  * @noInheritDoc
  */
 class View extends React.Component {
-  constructor(props: Props) {
+  public constructor(props: Props) {
     super(props);
     this.state = {};
   }
 
-  render() {
+  public render() {
     const { style, withRef } = this.props as Props;
     const newStyle = formatWebStyle(style);
     const finalStyle = Object.assign({}, styles.root, newStyle);

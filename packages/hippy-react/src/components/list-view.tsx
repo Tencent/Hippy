@@ -251,14 +251,14 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   /**
   * @ignore
   */
-  static defaultProps = {
+  private static defaultProps = {
     numberOfRows: 0,
   };
 
   /**
    * @ignore
    */
-  constructor(props: ListViewProps) {
+  public constructor(props: ListViewProps) {
     super(props);
     this.handleInitialListReady = this.handleInitialListReady.bind(this);
     this.state = {
@@ -324,7 +324,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   /**
    * Expand the PullHeaderView and display the content
    */
-  expandPullHeader() {
+  public expandPullHeader() {
     if (this.pullHeader) {
       this.pullHeader.expandPullHeader();
     }
@@ -333,7 +333,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   /**
    * Collapse the PullHeaderView and hide the content
    */
-  collapsePullHeader(options: object) {
+  public collapsePullHeader(options: object) {
     if (this.pullHeader) {
       this.pullHeader.collapsePullHeader(options);
     }
@@ -342,7 +342,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   /**
    * Expand the PullFooterView and display the content
    */
-  expandPullFooter() {
+  public expandPullFooter() {
     if (this.pullFooter) {
       this.pullFooter.expandPullFooter();
     }
@@ -351,7 +351,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   /**
    * Collapse the PullView and hide the content
    */
-  collapsePullFooter() {
+  public collapsePullFooter() {
     if (this.pullFooter) {
       this.pullFooter.collapsePullFooter();
     }

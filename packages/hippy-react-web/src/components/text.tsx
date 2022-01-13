@@ -64,22 +64,20 @@ const styles = {
  * @noInheritDoc
  */
 export class Text extends React.Component {
-  // suppress waring:
-  // - childContextTypes must be defined in order to use getChildContext()
-  static childContextTypes = {
+  private static childContextTypes = {
     isInAParentText: () => {},
   };
 
-  constructor(props) {
+  public constructor(props) {
     super(props);
     this.state = {};
   }
 
-  getChildContext() {
+  public getChildContext() {
     return { isInAParentText: true };
   }
 
-  render() {
+  public render() {
     let { style } = this.props;
     const { isInAParentText } = this.context;
     const { numberOfLines, ellipsizeMode } = this.props;
