@@ -15,9 +15,6 @@ export default {
   files: [
     'packages/**/__tests__/*.test.js',
   ],
-  sources: [
-    'packages/**/*.js',
-  ],
   require: [
     'esm', // Use ES modules in NodeJS.
     'module-alias/register', // Use _moduleDirectories defined package.json

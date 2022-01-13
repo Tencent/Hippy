@@ -19,7 +19,6 @@
  */
 
 import React from 'react';
-import { PullingEvent } from '@localTypes/event';
 import { Fiber } from '@hippy/react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
@@ -43,7 +42,7 @@ interface PullHeaderProps extends LayoutableProps {
    * @param {Object} evt - Event data
    * @param {number} evt.contentOffset - Dragging distance
    */
-  onHeaderPulling?(evt: PullingEvent): void;
+  onHeaderPulling?(evt: HippyTypes.PullingEvent): void;
 }
 
 class PullHeader extends React.Component<PullHeaderProps, {}> {

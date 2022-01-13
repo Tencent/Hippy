@@ -18,19 +18,18 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import Style from '@localTypes/style';
-import { LayoutEvent } from '@localTypes/event';
+import { CSSProperties, DetailedHTMLProps } from 'react';
+
+interface HTMLAttributesExtension {
+  nativeName?: string;
+  style?: HippyTypes.Style | CSSProperties | undefined;
+  // ListView
+  initialListReady?: () => void;
+  [props: string]: any
+}
 
 declare module 'react' {
-  interface HTMLAttributes<T> extends React.AriaAttributes, React.DOMAttributes<T> {
-    nativeName: string;
-    // @ts-ignore
-    style?: Style; // FIXME: Typescript compile error.
-
-    // Ul
-    initialListReady?(): void;
-  }
+  interface HTMLAttributes<T> extends Overwrite<DetailedHTMLProps<any, any>, HTMLAttributesExtension> {}
 }
 
 export type Type = string;
@@ -38,7 +37,6 @@ export type Props = any;
 export type Container = number;
 export type UpdatePayload = any;
 export type Context = {};
-export type TextInstance = number;
 
 export interface LayoutableProps {
   /**
@@ -56,19 +54,19 @@ export interface LayoutableProps {
    * @param {number} evt.nativeEvent.width - The width of component
    * @param {number} evt.nativeEvent.height - The height of component
    */
-  onLayout?(evt: LayoutEvent): void;
+  onLayout?: (evt: HippyTypes.LayoutEvent) => void;
 }
 
 export interface ClickableProps {
   /**
    * Called when the touch is released.
    */
-  onClick?(): void;
+  onClick?: () => void;
 
   /**
    * Called when the touch with longer than about 1s is released.
    */
-  onLongClick?(): void;
+  onLongClick?: () => void;
 }
 
 export interface TouchableProps {
@@ -80,7 +78,7 @@ export interface TouchableProps {
    * @param {number} evt.page_x - Touch coordinate X
    * @param {number} evt.page_y = Touch coordinate Y
    */
-  onTouchDown?(evt: TouchEvent): void;
+  onTouchDown?: (evt: HippyTypes.TouchEvent) => void;
 
   /**
    * The touchmove event occurs when the user moves the finger across the screen.
@@ -90,7 +88,7 @@ export interface TouchableProps {
    * @param {number} evt.page_x - Touch coordinate X
    * @param {number} evt.page_y = Touch coordinate Y
    */
-  onTouchMove?(evt: TouchEvent): void;
+  onTouchMove?: (evt: HippyTypes.TouchEvent) => void;
 
   /**
    * The touchend event occurs when the user removes the finger from an component.
@@ -99,7 +97,7 @@ export interface TouchableProps {
    * @param {number} evt.page_x - Touch coordinate X
    * @param {number} evt.page_y = Touch coordinate Y
    */
-  onTouchEnd?(evt: TouchEvent): void;
+  onTouchEnd?: (evt: HippyTypes.TouchEvent) => void;
 
   /**
    * The touchcancel event occurs when the touch event gets interrupted.
@@ -108,5 +106,5 @@ export interface TouchableProps {
    * @param {number} evt.page_x - Touch coordinate X
    * @param {number} evt.page_y - Touch coordinate Y
    */
-  onTouchCancel?(evt: TouchEvent): void;
+  onTouchCancel?: (evt: HippyTypes.TouchEvent) => void;
 }

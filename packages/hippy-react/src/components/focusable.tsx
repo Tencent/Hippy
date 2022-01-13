@@ -20,21 +20,19 @@
 
 import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
-import Style from '@localTypes/style';
-import { FocusEvent } from '@localTypes/event';
 import { getNodeIdByRef } from '../modules/ui-manager-module';
 import View from './view';
 
 interface FocusableProps {
   requestFocus?: boolean;
-  style?: Style;
-  noFocusStyle?: Style;
-  focusStyle?: Style;
+  style?: HippyTypes.Style;
+  noFocusStyle?: HippyTypes.Style;
+  focusStyle?: HippyTypes.Style;
   nextFocusDownId?: string;
   nextFocusUpId?: string;
   nextFocusLeftId?: string;
   nextFocusRightId?: string;
-  onFocus?(evt: FocusEvent): void;
+  onFocus?(evt: HippyTypes.FocusEvent): void;
   onClick?(): void;
 }
 
@@ -59,7 +57,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
     this.handleFocus = this.handleFocus.bind(this);
   }
 
-  private handleFocus(e: FocusEvent) {
+  private handleFocus(e: HippyTypes.FocusEvent) {
     const { onFocus: userOnFocus } = this.props;
     if (typeof userOnFocus === 'function') {
       userOnFocus(e);

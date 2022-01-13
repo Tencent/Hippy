@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+// @ts-nocheck
 function getCookies() {
   return Promise.resolve(document.cookie);
 }

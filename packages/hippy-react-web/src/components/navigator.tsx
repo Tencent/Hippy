@@ -37,7 +37,7 @@ class Navigator extends React.Component {
   }
 
   render() {
-    const { style } = this.props;
+    const { style } = this.props as any;
     const newProps = Object.assign({}, this.props, {
       style: formatWebStyle(style),
     });

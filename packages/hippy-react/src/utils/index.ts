@@ -115,7 +115,7 @@ function setSilent(silentArg: boolean): void {
  * set bubbles config, default is false
  * @param bubbles
  */
-function setBubbles(bubbles: boolean = false): void {
+function setBubbles(bubbles = false): void {
   defaultBubbles = bubbles;
 }
 

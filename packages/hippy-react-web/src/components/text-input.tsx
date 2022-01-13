@@ -19,7 +19,7 @@
  */
 
 /* eslint-disable no-unneeded-ternary */
-
+// @ts-nocheck
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import applyLayout from '../adapters/apply-layout';

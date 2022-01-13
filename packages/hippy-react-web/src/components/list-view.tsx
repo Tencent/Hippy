@@ -19,15 +19,17 @@
  */
 
 import React from 'react';
-import MListView from 'rmc-list-view';
+// @ts-ignore
+import MListView, { DataSource } from 'rmc-list-view';
 
 import { formatWebStyle } from '../adapters/transfer';
 import applyLayout from '../adapters/apply-layout';
+// @ts-ignore
 import { isFunc } from '../utils/validation';
 
 function ListViewItem(props: any) {
   const { style, height } = props;
-  const itemStyle = {};
+  const itemStyle = {} as any;
   if (height) {
     itemStyle.height = height;
   }
@@ -71,10 +73,10 @@ export class ListView extends React.Component {
    * create dataSource [1,2,3,4,5...]
    */
   getDataSource() {
-    const { numberOfRows } = this.props;
-    const dataSource = new MListView.DataSource({
-      getRowData: (dataBlob, sectionID, rowID) => dataBlob[rowID],
-      rowHasChanged: (row1, row2) => row1 !== row2,
+    const { numberOfRows } = this.props as any;
+    const dataSource = new DataSource({
+      getRowData: (dataBlob: any, sectionID: number, rowID: number) => dataBlob[rowID],
+      rowHasChanged: (row1: any, row2: any) => row1 !== row2,
     });
     const ds = Array.from(new Array(numberOfRows)).map((item, index) => index);
     return dataSource.cloneWithRows(ds);
@@ -110,18 +112,18 @@ export class ListView extends React.Component {
       onMomentumScrollBegin,
       onMomentumScrollEnd,
       scrollEventThrottle,
-    } = this.props;
+    } = this.props as any;
     const target = event.currentTarget || event.target;
     const eventParam = {
       contentOffset: {
-        x: target.scrollLeft,
-        y: target.scrollTop,
+        x: (target as any).scrollLeft,
+        y: (target as any).scrollTop,
       },
       layoutMeasurement: {
-        height: target.clientHeight,
-        width: target.clientWidth,
+        height: (target as any).clientHeight,
+        width: (target as any).clientWidth,
       },
-    };
+    } as any;
     if (!this.scrolling && isFunc(onMomentumScrollBegin)) {
       this.scrolling = true;
       onMomentumScrollBegin.call(this);
@@ -144,7 +146,7 @@ export class ListView extends React.Component {
    * @param sectionId
    * @param rowId
    */
-  renderRow(rowData, sectionId, rowId) {
+  renderRow(rowData: object, sectionId: number, rowId: number) {
     const convertRowId = Number(rowId);
     const {
       renderRow,
@@ -152,7 +154,7 @@ export class ListView extends React.Component {
       getRowKey,
       getRowType,
       getRowHeight,
-    } = this.props;
+    } = this.props as any;
     const itemStyle = isFunc(getRowStyle) ? getRowStyle(convertRowId) : {};
     const key = isFunc(getRowKey) ? getRowKey(convertRowId) : '';
     const height = isFunc(getRowHeight) ? getRowHeight(convertRowId) : '';
@@ -171,18 +173,19 @@ export class ListView extends React.Component {
   render() {
     const nativeProps = Object.assign({}, this.props);
 
-    delete nativeProps.renderRow;
-    delete nativeProps.getRowType;
-    delete nativeProps.getRowHeight;
-    delete nativeProps.numberOfRows;
-    delete nativeProps.getRowStyle;
-    delete nativeProps.getRowKey;
+    delete (nativeProps as any).renderRow;
+    delete (nativeProps as any).getRowType;
+    delete (nativeProps as any).getRowHeight;
+    delete (nativeProps as any).numberOfRows;
+    delete (nativeProps as any).getRowStyle;
+    delete (nativeProps as any).getRowKey;
 
     const newProps = Object.assign({}, nativeProps, {
-      style: formatWebStyle(nativeProps.style),
+      style: formatWebStyle((nativeProps as any).style),
     });
     return (
       <MListView
+        // @ts-ignore
         ref={(ref) => {
           this.lv = ref;
         }}
