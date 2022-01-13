@@ -122,8 +122,8 @@ void DoBind(JNIEnv* j_env,
             jint j_render_id,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<uint32_t>(j_dom_id));
-  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(static_cast<uint32_t>(j_render_id));
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_render_id));
 
   float density = render_manager->GetDensity();
   uint32_t root_id = dom_manager->GetRootId();
@@ -134,8 +134,6 @@ void DoBind(JNIEnv* j_env,
   auto scope = runtime->GetScope();
   scope->SetDomManager(dom_manager);
   scope->SetRenderManager(render_manager);
-  runtime->SetDomManager(dom_manager);
-  runtime->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);
   dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
 }

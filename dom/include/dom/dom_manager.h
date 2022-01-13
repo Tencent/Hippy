@@ -29,7 +29,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   DomManager(uint32_t root_id);
   ~DomManager();
 
-  uint32_t GetId() { return id_; }
+  int32_t GetId() { return id_; }
 
   inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) { render_manager_ = render_manager; }
@@ -53,12 +53,12 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void PostTask(std::function<void()> func);
 
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
-  static std::shared_ptr<DomManager> Find(uint32_t id);
-  static bool Erase(uint32_t id);
+  static std::shared_ptr<DomManager> Find(int32_t id);
+  static bool Erase(int32_t id);
   static bool Erase(const std::shared_ptr<DomManager>& dom_manager);
 
  private:
-  uint32_t id_;
+  int32_t id_;
   uint32_t root_id_;
   std::shared_ptr<DomNode> root_node_;
   std::weak_ptr<RenderManager> render_manager_;

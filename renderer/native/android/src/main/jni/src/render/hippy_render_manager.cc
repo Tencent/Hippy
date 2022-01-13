@@ -23,9 +23,9 @@ constexpr char kMeasureNode[] = "Text";
 namespace hippy {
 inline namespace dom {
 
-static std::unordered_map<uint32_t, std::shared_ptr<HippyRenderManager>> HippyRenderManagerMap;
+static std::unordered_map<int32_t, std::shared_ptr<HippyRenderManager>> hippy_render_manager_map;
 static std::mutex mutex;
-static std::atomic<uint32_t> global_hippy_render_manager_key{0};
+static std::atomic<int32_t> global_hippy_render_manager_key{0};
 
 HippyRenderManager::HippyRenderManager(std::shared_ptr<JavaRef> render_delegate)
     : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<tdf::base::Serializer>()) {
@@ -34,13 +34,13 @@ HippyRenderManager::HippyRenderManager(std::shared_ptr<JavaRef> render_delegate)
 
 void HippyRenderManager::Insert(const std::shared_ptr<HippyRenderManager>& render_manager) {
   std::lock_guard<std::mutex> lock(mutex);
-  HippyRenderManagerMap[render_manager->id_] = render_manager;
+  hippy_render_manager_map[render_manager->id_] = render_manager;
 }
 
 std::shared_ptr<HippyRenderManager> HippyRenderManager::Find(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
-  const auto it = HippyRenderManagerMap.find(id);
-  if (it == HippyRenderManagerMap.end()) {
+  const auto it = hippy_render_manager_map.find(id);
+  if (it == hippy_render_manager_map.end()) {
     return nullptr;
   }
   return it->second;
@@ -48,11 +48,11 @@ std::shared_ptr<HippyRenderManager> HippyRenderManager::Find(int32_t id) {
 
 bool HippyRenderManager::Erase(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
-  const auto it = HippyRenderManagerMap.find(id);
-  if (it == HippyRenderManagerMap.end()) {
+  const auto it = hippy_render_manager_map.find(id);
+  if (it == hippy_render_manager_map.end()) {
     return false;
   }
-  HippyRenderManagerMap.erase(it);
+  hippy_render_manager_map.erase(it);
   return true;
 }
 

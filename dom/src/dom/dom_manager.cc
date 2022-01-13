@@ -15,9 +15,9 @@ inline namespace dom {
 
 using DomNode = hippy::DomNode;
 
-static std::unordered_map<uint32_t, std::shared_ptr<DomManager>> DomManagerMap;
+static std::unordered_map<int32_t, std::shared_ptr<DomManager>> dom_manager_map;
 static std::mutex mutex;
-static std::atomic<uint32_t> global_dom_manager_key{0};
+static std::atomic<int32_t> global_dom_manager_key{0};
 
 constexpr uint32_t kInvalidListenerId = 0;
 constexpr char kOnDomCreated[] = "onDomCreated";
@@ -34,25 +34,25 @@ DomManager::DomManager(uint32_t root_id) : root_id_(root_id) {
 
 void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
   std::lock_guard<std::mutex> lock(mutex);
-  DomManagerMap[dom_manager->id_] = dom_manager;
+  dom_manager_map[dom_manager->id_] = dom_manager;
 };
 
-std::shared_ptr<DomManager> DomManager::Find(uint32_t id) {
+std::shared_ptr<DomManager> DomManager::Find(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
-  const auto it = DomManagerMap.find(id);
-  if (it == DomManagerMap.end()) {
+  const auto it = dom_manager_map.find(id);
+  if (it == dom_manager_map.end()) {
     return nullptr;
   }
   return it->second;
 };
 
-bool DomManager::Erase(uint32_t id) {
+bool DomManager::Erase(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
-  const auto it = DomManagerMap.find(id);
-  if (it == DomManagerMap.end()) {
+  const auto it = dom_manager_map.find(id);
+  if (it == dom_manager_map.end()) {
     return false;
   }
-  DomManagerMap.erase(it);
+  dom_manager_map.erase(it);
   return true;
 };
 
