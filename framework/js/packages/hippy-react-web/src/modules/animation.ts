@@ -36,7 +36,7 @@ function initLeftRepeatCount(repeatCount: number | 'loop') {
 const isDef = v => v !== undefined;
 
 export class Animation {
-  constructor(config) {
+  public constructor(config) {
     this.initNowAnimationState(config);
     this.onHippyAnimationStart = this.onAnimationStart.bind(this);
     this.onHippyAnimationEnd = this.onAnimationEnd.bind(this);
@@ -44,7 +44,7 @@ export class Animation {
     this.onHippyAnimationRepeat = this.onAnimationRepeat.bind(this);
   }
 
-  initNowAnimationState(config) {
+  public initNowAnimationState(config) {
     this.mode = config.mode || 'timing';
     this.delay = config.delay || 0;
     this.startValue = config.startValue || 0;
@@ -68,35 +68,35 @@ export class Animation {
     }
   }
 
-  setRef(ref) {
+  public setRef(ref) {
     if (ref) {
       this.refNode = findNodeHandle(ref);
     }
   }
 
-  setStyleAttribute(styleAttribute) {
+  public setStyleAttribute(styleAttribute) {
     if (styleAttribute) {
       this.styleAttribute = styleAttribute;
     }
   }
 
-  setTransformStyleAttribute(styleAttribute) {
+  public setTransformStyleAttribute(styleAttribute) {
     if (styleAttribute) {
       this.transformStyleAttribute = styleAttribute;
     }
   }
 
-  clearAnimationInterval() {
+  public clearAnimationInterval() {
     this.animationRunningFlag = false;
     if (this.animationInterval) window.clearInterval(this.animationInterval);
   }
 
-  resetState() {
+  public resetState() {
     this.nowValue = this.startValue;
     this.nowLeftDuration = this.duration;
   }
 
-  renderStyleAttribute(finalValue) {
+  public renderStyleAttribute(finalValue) {
     if (!this.refNode) return;
     if (this.styleAttribute) {
       this.refNode.style[this.styleAttribute.toString()] = normalizeValue(
@@ -113,7 +113,7 @@ export class Animation {
     }
   }
 
-  getNowValue() {
+  public getNowValue() {
     const { timingFunction, nowPercentage, valueDistance } = this;
     switch (timingFunction) {
       case 'linear':
@@ -138,18 +138,18 @@ export class Animation {
     }
   }
 
-  calculateNowValue() {
+  public calculateNowValue() {
     this.nowLeftDuration -= 16;
     this.nowPercentage = 1 - (this.nowLeftDuration / this.duration);
     return this.getNowValue();
   }
 
-  renderNowValue(finalValue) {
+  public renderNowValue(finalValue) {
     this.nowValue = finalValue;
     this.renderStyleAttribute(finalValue);
   }
 
-  endAnimation() {
+  public endAnimation() {
     if (this.onAnimationEndCallback) {
       this.onAnimationEndCallback();
     }
@@ -159,7 +159,7 @@ export class Animation {
     this.clearAnimationInterval();
   }
 
-  repeatAnimation() {
+  public repeatAnimation() {
     this.nowLeftDuration = this.duration;
     this.nowPercentage = 0;
     if (this.leftRepeatCount > 0) this.leftRepeatCount -= 1;
@@ -171,7 +171,7 @@ export class Animation {
   /**
    * Start animation execution
    */
-  start() {
+  public start() {
     this.clearAnimationInterval();
     if (this.refNode) {
       this.resetState();
@@ -212,7 +212,7 @@ export class Animation {
   /**
    * Destroy the animation
    */
-  destroy() {
+  public destroy() {
     this.clearAnimationInterval();
     if (!this.endAnimationFlag && this.onAnimationCancelCallback) {
       this.onAnimationCancelCallback();
@@ -224,7 +224,7 @@ export class Animation {
   /**
    * Pause the running animation
    */
-  pause() {
+  public pause() {
     this.clearAnimationInterval();
     // console.log('pause animation');
   }
@@ -232,7 +232,7 @@ export class Animation {
   /**
    * Resume execution of paused animation
    */
-  resume() {
+  public resume() {
     this.clearAnimationInterval();
     if (this.refNode) {
       let finalValue = this.nowValue;
@@ -266,9 +266,9 @@ export class Animation {
   /**
    * Update to new animation scheme
    *
-   * @param {Object} newConfig - new animation schema
+   * @param {Object} param - new animation schema
    */
-  updateAnimation(param) {
+  public updateAnimation(param) {
     if (param && this.refNode && !this.animationRunningFlag) {
       const {
         startValue, toValue, duration, timingFunction, repeatCount,

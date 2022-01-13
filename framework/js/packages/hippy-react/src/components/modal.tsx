@@ -131,12 +131,12 @@ const styles = StyleSheet.create({
  */
 class Modal extends React.Component<ModalProps, {}> {
   private eventSubscription: null | HippyEventListener;
-  static defaultProps: { visible: boolean };
+  public static defaultProps: { visible: boolean };
 
   /**
    * @ignore
    */
-  constructor(props: ModalProps) {
+  public constructor(props: ModalProps) {
     super(props);
     this.eventSubscription = null;
   }
