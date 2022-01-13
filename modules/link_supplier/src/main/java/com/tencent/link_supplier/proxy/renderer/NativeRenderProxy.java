@@ -27,17 +27,10 @@ public interface NativeRenderProxy extends RenderProxy {
      * Initialize the native renderer after call {@link LinkHelper} createRenderer interface.
      *
      * @param controllers framework instance id
-     * @param isDebugMode is in debug mode
      * @param rootView the already exists root view, for example after reload in debug mode, root
      * view will be reused.
      */
-    void init(@Nullable List<Class<?>> controllers, boolean isDebugMode,
-            @Nullable ViewGroup rootView);
-
-    /**
-     * Get root view id from renderer
-     */
-    int getRootId();
+    void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView);
 
     /**
      * Notify renderer the host life cycle {@link android.app.Activity} onResume call back

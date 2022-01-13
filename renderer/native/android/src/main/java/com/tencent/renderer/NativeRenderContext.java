@@ -18,10 +18,11 @@ package com.tencent.renderer;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import java.nio.ByteBuffer;
 
 public final class NativeRenderContext extends ContextWrapper {
 
-    private final int mInstanceId;
+    private int mInstanceId;
 
     public NativeRenderContext(Context context, int instanceId) {
         super(context);
@@ -30,5 +31,14 @@ public final class NativeRenderContext extends ContextWrapper {
 
     public int getInstanceId() {
         return mInstanceId;
+    }
+
+    /**
+     * Set renderer instance id, use default access permission.
+     *
+     * @param instanceId renderer instance id
+     */
+    void setInstanceId(int instanceId) {
+        mInstanceId = instanceId;
     }
 }

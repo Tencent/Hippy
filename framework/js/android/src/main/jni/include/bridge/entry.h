@@ -39,7 +39,6 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id,
-                   jlong j_root_view_id,
                    jobject j_vm_init_param);
 
 void DestroyInstance(JNIEnv* j_env,
@@ -64,7 +63,8 @@ void doBind(JNIEnv* j_env,
             jint j_framework_id);
 
 jint createDomInstance(JNIEnv* j_env,
-                       __unused jobject j_obj);
+                       __unused jobject j_obj,
+                       jint j_root_id);
 
 void destroyDomInstance(JNIEnv* j_env,
                         __unused jobject j_obj,

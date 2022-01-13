@@ -42,8 +42,6 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     @Nullable FontAdapter getFontAdapter();
 
-    boolean isDebugMode();
-
     void onFirstViewAdded();
 
     void onSizeChanged(int w, int h, int oldw, int oldh);

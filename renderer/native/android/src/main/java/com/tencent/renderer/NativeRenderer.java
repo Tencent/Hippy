@@ -52,8 +52,6 @@ import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
 
     private static final String TAG = "NativeRenderer";
-    private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
-    private static final int ROOT_VIEW_ID_INCREMENT = 10;
     private static final String NODE_ID = "id";
     private static final String NODE_PID = "pId";
     private static final String NODE_INDEX = "index";
@@ -66,7 +64,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
     private static final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
     private int mRootId;
-    private boolean mIsDebugMode;
     private RenderManager mRenderManager;
     private VirtualNodeManager mVirtualNodeManager;
     private DomManager domManager;
@@ -79,26 +76,32 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     public NativeRenderer() {
         mRenderProvider = new NativeRenderProvider(this);
         NativeRendererManager.addNativeRendererInstance(mRenderProvider.getInstanceId(), this);
+        // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
+        // node operation cause OOM.
+        mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
     }
 
     @Override
-    public void init(@Nullable List<Class<?>> controllers,
-            boolean isDebugMode, @Nullable ViewGroup rootView) {
+    public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
         mRenderManager = new RenderManager(this, controllers);
         mVirtualNodeManager = new VirtualNodeManager(this);
         domManager = new DomManager(this);
         if (rootView instanceof HippyRootView) {
-            mRootId = rootView.getId();
             mRenderManager.createRootNode(mRootId);
             mRenderManager.addRootView(rootView);
             mRootView = (HippyRootView) rootView;
-        } else {
-            mRootId = sRootIdCounter.addAndGet(ROOT_VIEW_ID_INCREMENT);
+            Context context = rootView.getContext();
+            if (context instanceof NativeRenderContext) {
+                // Render provider instance id has changed, should reset instance id
+                // store in root view context.
+                ((NativeRenderContext) context).setInstanceId(mRenderProvider.getInstanceId());
+            }
         }
-        mIsDebugMode = isDebugMode;
-        // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
-        // node operation cause OOM.
-        mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
+    }
+
+    @Override
+    public void setRootId(int rootId) {
+        mRootId = rootId;
     }
 
     @Override
@@ -140,11 +143,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             return mFrameworkProxy.getFontAdapter();
         }
         return null;
-    }
-
-    @Override
-    public boolean isDebugMode() {
-        return mIsDebugMode;
     }
 
     @Override
@@ -215,11 +213,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public ViewGroup getRootView() {
         return mRootView;
-    }
-
-    @Override
-    public int getRootId() {
-        return mRootId;
     }
 
     @Override

@@ -245,9 +245,9 @@ public class DomManager {
           .isControllerLazy(className));
       node.setProps(map);
 
-      if (nativeRendererWeakReference.get().isDebugMode()) {
-        node.setDomainData(new DomDomainData(id, rootId, pid, className, tagName, map));
-      }
+//      if (nativeRendererWeakReference.get().isDebugMode()) {
+//        node.setDomainData(new DomDomainData(id, rootId, pid, className, tagName, map));
+//      }
 
       boolean isLayoutOnly =
           (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout(

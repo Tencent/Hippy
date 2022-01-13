@@ -59,7 +59,7 @@ REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cp
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-             "JJLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;)J",
+             "JLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -80,7 +80,7 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "createDomInstance",
-             "()I",
+             "(I)I",
              createDomInstance)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
@@ -123,7 +123,7 @@ void doBind(JNIEnv* j_env,
 
 }
 
-jint createDomInstance(JNIEnv* j_env, __unused jobject j_obj) {
+jint createDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
   return 0;
 }
 
@@ -402,7 +402,6 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id,
-                   jlong j_root_view_id,
                    jobject j_vm_init_param) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
@@ -410,8 +409,7 @@ jlong InitInstance(JNIEnv* j_env,
                      << static_cast<uint32_t>(j_enable_v8_serialization)
                      << ", j_is_dev_module = "
                      << static_cast<uint32_t>(j_is_dev_module)
-                     << ", j_group_id = " << j_group_id
-                     << ", j_root_view_id = " << j_root_view_id;
+                     << ", j_group_id = " << j_group_id;
   std::shared_ptr<Runtime> runtime =
       std::make_shared<Runtime>(std::make_shared<JavaRef>(j_env, j_object),
                                 j_enable_v8_serialization, j_is_dev_module);
@@ -542,8 +540,8 @@ jlong InitInstance(JNIEnv* j_env,
     runtime->SetEngine(engine);
   }
   auto scope = runtime->GetEngine()->CreateScope("", std::move(scope_cb_map));
-  TDF_BASE_DCHECK(j_root_view_id <= std::numeric_limits<std::int32_t>::max());
-  scope->SetDomManager(std::make_shared<DomManager>(static_cast<int32_t>(j_root_view_id)));
+  //TDF_BASE_DCHECK(j_root_view_id <= std::numeric_limits<std::int32_t>::max());
+  //scope->SetDomManager(std::make_shared<DomManager>(static_cast<int32_t>(j_root_view_id)));
   runtime->SetScope(scope);
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
