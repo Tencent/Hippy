@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     openBundle() {
-      Vue.Native.callNative('TestModule', 'debug', this.$root.$options.rootViewId, this.text);
+      Vue.Native.callNative('TestModule', 'remoteDebug', this.$root.$options.rootViewId, this.text);
     },
     /**
        * 点击输入框时，点击事件会冒泡到顶部 View 导致 focus 时又被 blur 了，所以这里需要阻止一下冒泡
