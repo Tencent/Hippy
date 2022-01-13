@@ -90,7 +90,6 @@ const fakeBackAndroid = {
 };
 
 const BackAndroid = (() => {
-  // @ts-ignore
   if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
     realBackAndroid.initEventListener();
     return realBackAndroid;

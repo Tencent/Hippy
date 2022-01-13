@@ -389,6 +389,9 @@ declare namespace HippyTypes {
 declare type Diff<T extends keyof any, U extends keyof any> =
   ({ [P in T]: P } & { [P in U]: never } & { [x: string]: never })[T];
 declare type Overwrite<T, U> = Pick<T, Diff<keyof T, keyof U>> & U;
+
+declare const __PLATFORM__: HippyTypes.Platform;
+
 /* eslint-disable */
 // @ts-ignore
 declare var global: HippyTypes.HippyGlobal & typeof globalThis;
