@@ -254,8 +254,8 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
           auto listener_id = scope->GetListenerId(dom_id, name_str);
           if (listener_id != kInvalidListenerId) {
             // 目前hippy上层还不支持绑定多个回调，有更新时先移除老的监听，再绑定新的
-            auto dom_manager = scope->GetDomManager().lock();
-            if(dom_manager != nullptr) dom_manager->RemoveEventListener(dom_id, name_str, listener_id);
+            TDF_BASE_CHECK(!scope->GetDomManager().expired());
+            scope->GetDomManager().lock()->RemoveEventListener(dom_id, name_str, listener_id);
           }
         }
         if (context->IsFunction(cb)) {
@@ -326,6 +326,7 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   std::string u8_tag_name = StringViewUtils::ToU8StdStr(std::get<2>(tag_name_tuple));
   std::string u8_view_name = StringViewUtils::ToU8StdStr(std::get<2>(view_name_tuple));
 
+  TDF_BASE_CHECK(!scope->GetDomManager().expired());
   dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple),
                                        std::get<2>(pid_tuple),
                                        std::get<2>(index_tuple),
@@ -367,8 +368,9 @@ void UIManagerModule::CreateNodes(const hippy::napi::CallbackInfo &info) {
     info.GetExceptionValue()->Set(context, unicode_string_view(std::get<1>(ret)));
     return;
   }
-  auto dom_manager = scope->GetDomManager().lock();
-  if(dom_manager != nullptr) dom_manager->CreateDomNodes(std::move(std::get<2>(ret)));
+
+  TDF_BASE_CHECK(!scope->GetDomManager().expired());
+  scope->GetDomManager().lock()->CreateDomNodes(std::move(std::get<2>(ret)));
 }
 
 void UIManagerModule::UpdateNodes(const hippy::napi::CallbackInfo &info) {
@@ -382,8 +384,8 @@ void UIManagerModule::UpdateNodes(const hippy::napi::CallbackInfo &info) {
     info.GetExceptionValue()->Set(context, unicode_string_view(std::get<1>(ret)));
     return;
   }
-  auto dom_manager = scope->GetDomManager().lock();
-  if(dom_manager != nullptr) dom_manager->UpdateDomNodes(std::move(std::get<2>(ret)));
+  TDF_BASE_CHECK(!scope->GetDomManager().expired());
+  scope->GetDomManager().lock()->UpdateDomNodes(std::move(std::get<2>(ret)));
 }
 
 void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
@@ -418,8 +420,8 @@ void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
                                                   std::get<2>(index_tuple)));
   }
   // 节点都删除了，其上的eventListener自然也销毁了，此处不用显式RemoveEventListener
-  auto dom_manager = scope->GetDomManager().lock();
-  if(dom_manager != nullptr) dom_manager->DeleteDomNodes(std::move(dom_nodes));
+  TDF_BASE_CHECK(!scope->GetDomManager().expired());
+  scope->GetDomManager().lock()->DeleteDomNodes(std::move(dom_nodes));
 }
 
 void UIManagerModule::EndBatch(const hippy::napi::CallbackInfo &info) {
@@ -427,8 +429,8 @@ void UIManagerModule::EndBatch(const hippy::napi::CallbackInfo &info) {
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
 
-  auto dom_manager = scope->GetDomManager().lock();
-  if(dom_manager != nullptr) dom_manager->EndBatch();
+  TDF_BASE_CHECK(!scope->GetDomManager().expired());
+  scope->GetDomManager().lock()->EndBatch();
 }
 
 void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
@@ -494,6 +496,6 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
       }
     };
   }
-  auto dom_manager = scope->GetDomManager().lock();
-  if(dom_manager != nullptr) dom_manager->CallFunction(id, name, param_value, cb);
+  TDF_BASE_CHECK(!scope->GetDomManager().expired());
+  scope->GetDomManager().lock()->CallFunction(id, name, param_value, cb);
 }

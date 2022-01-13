@@ -17,7 +17,7 @@ class HippyRenderManager : public RenderManager {
 
   ~HippyRenderManager(){};
 
-  uint32_t GetId() { return id_; }
+  int32_t GetId() { return id_; }
 
   void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
@@ -73,7 +73,7 @@ class HippyRenderManager : public RenderManager {
   void HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name);
 
  private:
-  uint32_t id_;
+  int32_t id_;
   std::shared_ptr<JavaRef> render_delegate_;
   std::shared_ptr<tdf::base::Serializer> serializer_;
   float density_ = 1.0f;

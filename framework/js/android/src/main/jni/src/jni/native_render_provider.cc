@@ -39,7 +39,7 @@ using RenderManager = hippy::dom::RenderManager;
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",
              "(F)I",
-             onCreateNativeRenderProvider)
+             OnCreateNativeRenderProvider)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onRootSizeChanged",
@@ -62,7 +62,7 @@ void NativeRenderProvider::Init() {
 void NativeRenderProvider::Destroy() {
 }
 
-jint onCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_density) {
+jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_density) {
   std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
   auto hippy_render_manager = std::static_pointer_cast<HippyRenderManager>(render_manager);
   hippy_render_manager->SetDensity(j_density);
@@ -78,7 +78,8 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = runtime->GetDomManager();
+  TDF_BASE_CHECK(runtime->GetScope() != nullptr);
+  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager().lock();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "UpdateRootSize dom_manager is nullptr";
     return;
@@ -96,7 +97,8 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = runtime->GetDomManager();
+  TDF_BASE_CHECK(runtime->GetScope() != nullptr);
+  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager().lock();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
     return;
@@ -136,7 +138,8 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = runtime->GetDomManager();
+  TDF_BASE_CHECK(runtime->GetScope() != nullptr);
+  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager().lock();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
     return;

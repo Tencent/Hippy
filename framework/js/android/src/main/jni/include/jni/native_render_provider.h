@@ -31,9 +31,9 @@ class NativeRenderProvider {
   static void Destroy();
 };
 
-jint onCreateNativeRenderProvider(JNIEnv* j_env,
-                                jobject j_obj,
-                                jfloat j_density);
+jint OnCreateNativeRenderProvider(JNIEnv* j_env,
+                                  jobject j_obj,
+                                  jfloat j_density);
 
 void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id,
                     jfloat width, jfloat height);
