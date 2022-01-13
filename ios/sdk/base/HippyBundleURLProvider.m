@@ -22,11 +22,16 @@
 
 #import "HippyBundleURLProvider.h"
 
+NSString *const HippyBundleURLSchemeHttp = @"http";
+NSString *const HippyBundleURLSchemetHttps = @"https";
+
 @interface HippyBundleURLProvider ()
 
 @property (nonatomic, copy) NSString *localhostIP;
 @property (nonatomic, copy) NSString *localhostPort;
 @property (nonatomic, copy) NSString *debugPathUrl;
+@property (nonatomic, copy) NSString *versionId;
+@property (nonatomic, copy) NSString *scheme;
 
 @end
 
@@ -43,12 +48,27 @@
     return sharedInstance;
 }
 
++ (NSString *)parseVersionId:(NSString *)path {
+    if (path.length <= 0) {
+        return @"";
+    }
+    if ([path hasPrefix:@"/"]) {
+        path = [path substringFromIndex:1];
+    }
+    NSArray<NSString *> *pathArray = [path componentsSeparatedByString:@"/"];
+    if (pathArray.count <= 1) {
+        return @"";
+    }
+    return [pathArray firstObject];
+}
+
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _scheme = HippyBundleURLSchemetHttps;
         _localhostIP = @"localhost";
         _localhostPort = @"38989";
-        _debugPathUrl = @"/index.bundle?platform=ios&dev=true&minify=false";
+        self.debugPathUrl = @"/index.bundle?platform=ios&dev=true&minify=false";
     }
     return self;
 }
@@ -64,14 +84,26 @@
     }
 }
 
+- (void)setScheme:(NSString *)scheme {
+    if (scheme) {
+        _scheme = scheme;
+    }
+}
+
 - (void)setDebugPathUrl:(NSString *)debugPathUrl {
     if (debugPathUrl) {
         _debugPathUrl = debugPathUrl;
+        _versionId = [HippyBundleURLProvider parseVersionId:_debugPathUrl];
     }
 }
 
 - (NSString *)localhost {
     return [NSString stringWithFormat:@"%@:%@", _localhostIP, _localhostPort];
+}
+
+- (NSString *)bundleURLString {
+    NSString *scheme = _scheme.length > 0 ? _scheme : HippyBundleURLSchemeHttp;
+    return [NSString stringWithFormat:@"%@://%@%@", scheme, self.localhost, self.debugPathUrl];
 }
 
 @end

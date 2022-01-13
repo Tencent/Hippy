@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "HippyDevInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +34,7 @@ typedef NS_ENUM(NSInteger, HippyDevCloseType) {
 
 @interface HippyDevManager : NSObject
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge devIPAddress:(NSString *)devIPAddress devPort:(NSString *)devPort contextName:(NSString *)contextName;
+- (instancetype)initWithBridge:(HippyBridge *)bridge devInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName;
 
 - (void)sendDataToFrontendWithData:(NSString *)dataString;
 

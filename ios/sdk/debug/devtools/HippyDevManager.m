@@ -38,11 +38,11 @@
 @implementation HippyDevManager
 
 #pragma mark Life Cycles
-- (instancetype)initWithBridge:(HippyBridge *)bridge devIPAddress:(NSString *)devIPAddress devPort:(NSString *)devPort contextName:(NSString *)contextName {
+- (instancetype)initWithBridge:(HippyBridge *)bridge devInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName {
     self = [super init];
     if (self) {
         _bridge = bridge;
-        _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevIPAddress:devIPAddress port:devPort contextName:contextName];
+        _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevInfo:devInfo contextName:contextName];
         _devWSClient.delegate = self;
         [HippyInspector sharedInstance].devManager = self;
     }
