@@ -100,6 +100,27 @@ const resolveAssetUri = (source: string | { uri: string }) => {
   return finalUri;
 };
 
+interface Props {
+  style?: HippyTypes.Style;
+  withRef: React.Ref<any>
+  displayInWeb?: boolean;
+  source: string | { uri: string }
+  sources?: any[];
+  onLoadStart?(): void;
+  onLoad?(param: object): void;
+  onLoadEnd?(): void;
+  onError?(param: object): void;
+  resizeMode?: string;
+  children?: any[];
+  defaultSource?: string
+}
+
+interface State {
+  isLoadSuccess: boolean;
+  imageUrl: string;
+  prevImageUrl: string;
+}
+
 /**
  * A React component for displaying different types of images, including network images,
  * static resources, temporary local images, and images from local disk, such as the camera roll.
@@ -116,14 +137,14 @@ export class Image extends React.Component {
     };
   }
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
-    const initImageUrl = props.source ? props.source.uri : '';
+    const initImageUrl = props.source && typeof props.source !== 'string' ? props.source.uri : '';
     this.state = {
       isLoadSuccess: false,
       imageUrl: initImageUrl,
       prevImageUrl: initImageUrl,
-    };
+    } as State;
     this.onLoad = this.onLoad.bind(this);
     this.onError = this.onError.bind(this);
   }
@@ -132,17 +153,19 @@ export class Image extends React.Component {
     const {
       source,
       onLoadStart,
-    } = this.props;
+    } = this.props as Props;
     if (onLoadStart) {
       onLoadStart();
     }
-    if (source) {
+    if (typeof source !== 'string' && source) {
       ImageLoader.load(source.uri, this.onLoad, this.onError);
     }
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.source && nextProps.source.uri !== prevState.imageUrl) {
+  static getDerivedStateFromProps(nextProps: Props, prevState: State) {
+    if (nextProps.source
+        && typeof nextProps.source !== 'string'
+        && nextProps.source.uri !== prevState.imageUrl) {
       return {
         imageUrl: nextProps.source.uri,
         prevImageUrl: prevState.imageUrl,
@@ -152,7 +175,7 @@ export class Image extends React.Component {
   }
 
   componentDidUpdate() {
-    const { imageUrl, prevImageUrl } = this.state;
+    const { imageUrl, prevImageUrl } = this.state as State;
     if (imageUrl !== prevImageUrl) {
       ImageLoader.load(imageUrl, this.onLoad, this.onError);
       // eslint-disable-next-line react/no-did-update-set-state
@@ -162,8 +185,8 @@ export class Image extends React.Component {
     }
   }
 
-  onLoad(e) {
-    const { onLoad, onLoadEnd } = this.props;
+  onLoad(e: any) {
+    const { onLoad, onLoadEnd } = this.props as Props;
     this.setState({
       isLoadSuccess: true,
     });
@@ -182,7 +205,7 @@ export class Image extends React.Component {
   }
 
   onError() {
-    const { onError, onLoadEnd, source } = this.props;
+    const { onError, onLoadEnd, source } = this.props as Props;
     if (onError) {
       onError({
         nativeEvent: {
@@ -196,11 +219,11 @@ export class Image extends React.Component {
   }
 
   render() {
-    let { style } = this.props;
-    const { isLoadSuccess } = this.state;
+    let { style } = this.props as Props;
+    const { isLoadSuccess } = this.state as State;
     const {
       source, sources, resizeMode, children, defaultSource = '',
-    } = this.props;
+    } = this.props as Props;
     if (style) {
       style = formatWebStyle(style);
     }
@@ -208,32 +231,34 @@ export class Image extends React.Component {
       style: formatWebStyle([styles.root, style]),
     });
 
-    if (source) {
-      newProps.src = source.uri;
+    if (source && typeof source !== 'string') {
+      (newProps as any).src = source.uri;
     } else if (sources && Array.isArray(sources)) {
-      newProps.src = sources[0].uri;
+      (newProps as any).src = sources[0].uri;
     }
 
     if (!isLoadSuccess) {
-      newProps.src = defaultSource;
+      (newProps as any).src = defaultSource;
     }
 
-    const finalResizeMode = resizeMode || newProps.style.resizeMode || ImageResizeMode.cover;
+    const finalResizeMode = resizeMode || (newProps as any).style.resizeMode || ImageResizeMode.cover;
 
-    delete newProps.source;
-    delete newProps.sources;
-    delete newProps.onLoad;
-    delete newProps.onLayout;
-    delete newProps.onLoadEnd;
-    delete newProps.defaultSource;
+    delete (newProps as any).source;
+    delete (newProps as any).sources;
+    delete (newProps as any).onLoad;
+    delete (newProps as any).onLayout;
+    delete (newProps as any).onLoadEnd;
+    delete (newProps as any).defaultSource;
 
     return (
       <View {...newProps}>
         <View
+          // @ts-ignore
           style={[
             styles.image,
+            // @ts-ignore
             resizeModeStyles[finalResizeMode],
-            { backgroundImage: `url(${newProps.src}` },
+            { backgroundImage: `url(${(newProps as any).src}` },
           ]}
         />
         {children}

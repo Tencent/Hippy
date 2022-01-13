@@ -23,7 +23,6 @@ import { getFiberNodeFromId, getElementFromFiber, eventNamesMap, NATIVE_EVENT } 
 import { trace, isGlobalBubble, isHostComponent } from '../utils';
 import HippyEventHub from './hub';
 import Event from './event';
-import '@localTypes/global';
 
 type EventParam = string[] | number[];
 
@@ -213,7 +212,7 @@ function receiveNativeGesture(nativeEvent: NativeEvent) {
   if (!targetNode) {
     return;
   }
-  let hasCapturePhase: boolean = true;
+  let hasCapturePhase = true;
   let { name: eventName } = nativeEvent;
   eventName = convertEventName(eventName, targetNode);
   const captureName = `${eventName}Capture`;

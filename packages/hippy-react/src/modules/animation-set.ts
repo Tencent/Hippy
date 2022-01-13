@@ -64,7 +64,7 @@ const AnimationEventEmitter = new HippyEventEmitter();
  * It pushes the animation scheme to native at once.
  */
 class AnimationSet implements AnimationSet {
-  constructor(config: AnimationSetOption) {
+  public constructor(config: AnimationSetOption) {
     this.animationList = [];
     config.children.forEach((item) => {
       this.animationList.push({

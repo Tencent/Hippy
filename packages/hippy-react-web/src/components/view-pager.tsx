@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+// @ts-nocheck
 import React, { Component } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { SwiperOptions } from 'swiper/types';

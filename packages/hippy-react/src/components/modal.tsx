@@ -21,7 +21,6 @@
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import Style from '@localTypes/style';
 import * as StyleSheet from '../modules/stylesheet';
 import { HippyEventListener } from '../event';
 import { Device } from '../native';
@@ -91,7 +90,7 @@ interface ModalProps {
    */
   supportedOrientations?: ModalOrientation[];
 
-  style?: Style;
+  style?: HippyTypes.Style;
 
   /**
    * Trigger when hardware button pressed

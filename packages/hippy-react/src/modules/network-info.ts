@@ -37,12 +37,12 @@ const subScriptions = new Map();
 let NetInfoEventEmitter: HippyEventEmitter;
 
 class NetInfoRevoker implements NetInfoRevoker {
-  constructor(eventName: string, listener: (data: any) => void) {
+  public constructor(eventName: string, listener: (data: any) => void) {
     this.eventName = eventName;
     this.listener = listener;
   }
 
-  remove() {
+  public remove() {
     if (!this.eventName || !this.listener) {
       return;
     }

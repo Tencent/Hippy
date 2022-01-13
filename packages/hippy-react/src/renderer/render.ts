@@ -20,7 +20,6 @@
 
 /* eslint-disable no-param-reassign */
 
-import Hippy from '@localTypes/hippy';
 import ViewNode from '../dom/view-node';
 import Element from '../dom/element-node';
 import * as UIManagerModule from '../modules/ui-manager-module';
@@ -31,7 +30,7 @@ import { trace, warn } from '../utils';
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
 interface BatchType {
-  [key: string]: Symbol;
+  [key: string]: symbol;
 }
 
 const NODE_OPERATION_TYPES: BatchType = {
@@ -41,11 +40,11 @@ const NODE_OPERATION_TYPES: BatchType = {
 };
 
 interface BatchChunk {
-  type: Symbol,
-  nodes: Hippy.NativeNode[]
+  type: symbol,
+  nodes: HippyTypes.NativeNode[]
 }
 
-let batchIdle: boolean = true;
+let batchIdle = true;
 let batchNodes: BatchChunk[] = [];
 
 /**
@@ -181,7 +180,7 @@ function getTargetNodeAttributes(targetNode: Element) {
 /**
  * Render Element to native
  */
-function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNode | null {
+function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.NativeNode | null {
   if (!targetNode.nativeName) {
     warn('Component need to define the native name', targetNode);
     return null;
@@ -193,7 +192,7 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
   // Translate to native node
-  const nativeNode: Hippy.NativeNode = {
+  const nativeNode: HippyTypes.NativeNode = {
     id: targetNode.nodeId,
     pId: (targetNode.parentNode && targetNode.parentNode.nodeId) || rootViewId,
     index: targetNode.index,
@@ -219,15 +218,15 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
  * @param {ViewNode} node - current node
  * @param {number} [atIndex] - current node index
  * @param {Function} [callback] - function called on each traversing process
- * @returns {Hippy.NativeNode[]}
+ * @returns {HippyTypes.NativeNode[]}
  */
 function renderToNativeWithChildren(
   rootViewId: number,
   node: ViewNode,
   atIndex?: number,
   callback?: Function,
-): Hippy.NativeNode[] {
-  const nativeLanguages: Hippy.NativeNode[] = [];
+): HippyTypes.NativeNode[] {
+  const nativeLanguages: HippyTypes.NativeNode[] = [];
   let index = atIndex;
   if (typeof index === 'undefined' && node && node.parentNode) {
     index = node.parentNode.childNodes.indexOf(node);
@@ -308,7 +307,7 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
   childNode.isMounted = false;
   childNode.index = index;
   const rootViewId = getRootViewId();
-  const deleteNodeIds: Hippy.NativeNode[] = [{
+  const deleteNodeIds: HippyTypes.NativeNode[] = [{
     id: childNode.nodeId,
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
