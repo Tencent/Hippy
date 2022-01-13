@@ -18,16 +18,14 @@
  * limitations under the License.
  */
 
-import '@localTypes/global';
 if (!global.__GLOBAL__) {
-  global.__GLOBAL__ = {} as any;
+  global.__GLOBAL__ = {} as HippyTypes.__GLOBAL__;
 }
 
-const { __GLOBAL__ } = global;
+const { __GLOBAL__ } = global as (HippyTypes.HippyGlobal & typeof globalThis);
 
 __GLOBAL__.nodeId = 0;
 __GLOBAL__.animationId = 0;
-__GLOBAL__.renderCount = 0;
 
 const {
   asyncStorage: AsyncStorage,

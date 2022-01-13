@@ -19,7 +19,6 @@
  */
 
 import { Fiber } from '@hippy/react-reconciler';
-import '@localTypes/global';
 import ElementNode from '../dom/element-node';
 
 type RootContainer = any;
@@ -139,7 +138,10 @@ function recursivelyUnCacheFiberNode(node: ElementNode | number): void {
  * @param {Function} cb
  * @param {{timeout: number}} [options]
  */
-function requestIdleCallback(cb: Function, options?: { timeout: number }): ReturnType<typeof setTimeout> {
+function requestIdleCallback(
+  cb: IdleRequestCallback,
+  options?: { timeout: number },
+): ReturnType<typeof setTimeout> | number {
   if (!global.requestIdleCallback) {
     return setTimeout(() => {
       cb({
@@ -155,13 +157,13 @@ function requestIdleCallback(cb: Function, options?: { timeout: number }): Retur
 
 /**
  * cancelIdleCallback polyfill
- * @param {ReturnType<typeof setTimeout>} id
+ * @param {ReturnType<typeof requestIdleCallback>} id
  */
-function cancelIdleCallback(id: ReturnType<typeof setTimeout>): void {
+function cancelIdleCallback(id: ReturnType<typeof requestIdleCallback>): void {
   if (!global.cancelIdleCallback) {
-    clearTimeout(id);
+    clearTimeout(id as ReturnType<typeof setTimeout>);
   } else {
-    global.cancelIdleCallback(id);
+    global.cancelIdleCallback(id as number);
   }
 }
 

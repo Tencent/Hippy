@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+// @ts-nocheck
 type MeasureReturns = (
   x: number,
   y: number,

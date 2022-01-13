@@ -1,16 +1,12 @@
 const path = require('path');
-const replace = require('rollup-plugin-replace');
-const alias = require('rollup-plugin-alias');
-const node = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
-const typescript = require('@wessberg/rollup-plugin-ts');
+const typescript = require('rollup-plugin-typescript2');
+const replace = require('@rollup/plugin-replace');
+// const alias = require('@rollup/plugin-alias');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
 
 const hippyReactPackage = require('../packages/hippy-react/package.json');
 const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');
-
-const aliases = {
-  '@localTypes': path.resolve(__dirname, '../packages/types'),
-};
 
 function banner(name, version) {
   const startYear = 2017;
@@ -84,24 +80,31 @@ function genConfig(name) {
     external: opts.external,
     plugins: [
       replace({
-        'process.env.HIPPY_REACT_VERSION': `"${hippyReactPackage.version}"`,
-        'process.env.HIPPY_REACT_WEB_VERSION': `"${hippyReactWebPackage.version}"`,
+        preventAssignment: true,
+        values: {
+          'process.env.HIPPY_REACT_VERSION': `"${hippyReactPackage.version}"`,
+          'process.env.HIPPY_REACT_WEB_VERSION': `"${hippyReactWebPackage.version}"`,
+        },
       }),
-      typescript({
-        transpileOnly: true,
-      }),
-      node(),
+      nodeResolve(),
       commonjs(),
-      alias({
-        resolve: ['.ts', '.tsx'],
-        ...aliases,
+      typescript({
+        tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+        tsconfigOverride: {
+          compilerOptions: {
+            declaration: false,
+            declarationMap: false,
+          },
+          exclude: ['**/__tests__/*.test.*'],
+        },
       }),
     ].concat(opts.plugins || []),
     output: {
+      name,
       file: opts.dest,
       format: opts.format,
       banner: opts.banner,
-      name,
+      exports: 'auto',
     },
   };
 

@@ -21,9 +21,7 @@
 /* eslint-disable no-param-reassign */
 
 import React from 'react';
-import Style from '@localTypes/style';
 import { Fiber } from '@hippy/react-reconciler';
-import { LayoutEvent } from '@localTypes/event';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
 import { Device } from '../native';
@@ -107,7 +105,7 @@ interface ListViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getRowStyle?(index: number): Style;
+  getRowStyle?(index: number): HippyTypes.Style;
 
   /**
    * Specfic the key of row, for better data diff
@@ -124,7 +122,7 @@ interface ListViewProps {
    * @returns {boolean}
    */
   rowShouldSticky?(index: number): boolean;
-  style?: Style;
+  style?: HippyTypes.Style;
 
   /**
    *  Called when the `ListView` is scrolling to bottom.
@@ -146,7 +144,7 @@ interface ListViewProps {
    * @param {number} evt.nativeEvent.hegiht - The height of component
    * @param {number} index - Index of data.
    */
-  onRowLayout?(evt: LayoutEvent, index: number): void;
+  onRowLayout?(evt: HippyTypes.LayoutEvent, index: number): void;
 
   /**
    * Called when the momentum scroll starts (scroll which occurs as the ListView starts gliding).
@@ -368,7 +366,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     onHeaderPulling: undefined | (() => void),
     onHeaderReleased: undefined | (() => void),
   ) {
-    let pullHeader = null;
+    let pullHeader: JSX.Element | null = null;
     if (typeof renderPullHeader === 'function') {
       pullHeader = (
         <PullHeader
@@ -391,7 +389,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     onFooterPulling: undefined | (() => void),
     onFooterReleased: undefined | (() => void),
   ) {
-    let pullFooter = null;
+    let pullFooter: JSX.Element | null = null;
     if (typeof renderPullFooter === 'function') {
       pullFooter = (
         <PullFooter
@@ -414,9 +412,9 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     index: number,
     { getRowKey, getRowStyle, onRowLayout, getRowType, rowShouldSticky }:
     { getRowKey: ((index: number) => string) | undefined,
-      getRowStyle: ((index: number) => Style) | undefined,
+      getRowStyle: ((index: number) => HippyTypes.Style) | undefined,
       getRowType: ((index: number) => number) | undefined,
-      onRowLayout: ((evt: LayoutEvent, index: number) => void) | undefined,
+      onRowLayout: ((evt: HippyTypes.LayoutEvent, index: number) => void) | undefined,
       rowShouldSticky: ((index: number) => boolean) | undefined,
     },
   ) {
@@ -473,8 +471,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       onWillDisappear,
       ...nativeProps
     } = this.props;
-    const itemList = [];
-    // Deprecated: Fallback for up-forward compatible.
+    const itemList: JSX.Element[] = [];
     if (typeof renderRow === 'function') {
       const {
         initialListReady,

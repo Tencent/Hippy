@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+// @ts-nocheck
 import { Device } from '../native';
 
 const ratio = Device.screen.scale;

@@ -18,6 +18,7 @@
 /* eslint-disable no-shadow */
 /* eslint-disable no-console */
 
+// @ts-nocheck
 import debounce from 'debounce';
 import UIManager from '../modules/ui-manager-module';
 import findNodeHandle from './find-node';

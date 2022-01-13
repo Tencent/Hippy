@@ -18,10 +18,13 @@
  * limitations under the License.
  */
 
+// @ts-nocheck
 import bezierEasing from 'bezier-easing';
 import findNodeHandle from '../adapters/find-node';
 import normalizeValue from '../adapters/normalize-value';
 import { tryMakeCubicBezierEasing } from './cubic-bezier';
+
+type AnimationCallback = () => void;
 
 function initLeftRepeatCount(repeatCount: number | 'loop') {
   if (repeatCount === 'loop') {

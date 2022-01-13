@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-import '@localTypes/global';
 import './global';
 import {
   HippyEventEmitter,
@@ -51,7 +50,7 @@ import WaterfallView from './components/waterfall-view';
 import * as Native from './native';
 import * as StyleSheet from './modules/stylesheet';
 
-global.WebSocket = WebSocket;
+global.WebSocket = WebSocket as HippyTypes.WebSocket;
 
 const {
   AsyncStorage,

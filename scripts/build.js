@@ -33,6 +33,8 @@ async function buildEntry(config) {
   await bundle.generate(output);
   const { output: [{ code }] } = await bundle.write(output);
   console.log(`${blue(path.relative(process.cwd(), file))} ${getSize(code)}`);
+  // console.log('');
+  // console.log(`generate d.ts for ${name}`);
 }
 
 function build(buildSets) {
@@ -48,7 +50,6 @@ function build(buildSets) {
       })
       .catch(logError);
   };
-
   next();
 }
 
