@@ -23,6 +23,43 @@ constexpr char kMeasureNode[] = "Text";
 namespace hippy {
 inline namespace dom {
 
+static std::unordered_map<uint32_t, std::shared_ptr<HippyRenderManager>> HippyRenderManagerMap;
+static std::mutex mutex;
+static std::atomic<uint32_t> global_hippy_render_manager_key{0};
+
+HippyRenderManager::HippyRenderManager(std::shared_ptr<JavaRef> render_delegate)
+    : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<tdf::base::Serializer>()) {
+  id_ = global_hippy_render_manager_key.fetch_add(1);
+};
+
+void HippyRenderManager::Insert(const std::shared_ptr<HippyRenderManager>& render_manager) {
+  std::lock_guard<std::mutex> lock(mutex);
+  HippyRenderManagerMap[render_manager->id_] = render_manager;
+}
+
+std::shared_ptr<HippyRenderManager> HippyRenderManager::Find(int32_t id) {
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto it = HippyRenderManagerMap.find(id);
+  if (it == HippyRenderManagerMap.end()) {
+    return nullptr;
+  }
+  return it->second;
+}
+
+bool HippyRenderManager::Erase(int32_t id) {
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto it = HippyRenderManagerMap.find(id);
+  if (it == HippyRenderManagerMap.end()) {
+    return false;
+  }
+  HippyRenderManagerMap.erase(it);
+  return true;
+}
+
+bool HippyRenderManager::Erase(const std::shared_ptr<HippyRenderManager>& render_manager) {
+  return DomManager::Erase(render_manager->id_);
+}
+
 void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
   serializer_->Release();
   serializer_->WriteHeader();
@@ -198,9 +235,7 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
   j_env->DeleteLocalRef(j_int_array);
 };
 
-void HippyRenderManager::EndBatch() {
-  CallNativeMethod("endBatch");
-};
+void HippyRenderManager::EndBatch() { CallNativeMethod("endBatch"); };
 
 void HippyRenderManager::BeforeLayout(){};
 
@@ -232,8 +267,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction",
-                                             "(ILjava/lang/String;[B)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction", "(ILjava/lang/String;[B)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "CallFunction j_method_id error";
     return;
@@ -254,7 +288,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
   jbyteArray j_buffer;
   j_buffer = j_env->NewByteArray(buffer.second);
   j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, buffer.second,
-                            reinterpret_cast<const jbyte *>(buffer.first));
+                            reinterpret_cast<const jbyte*>(buffer.first));
 
   jstring j_name = j_env->NewStringUTF(name.c_str());
 
@@ -339,8 +373,7 @@ void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float w
   result = (int64_t)measure_result;
 }
 
-void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops,
-                                           const std::string& method_name) {
+void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name) {
   if (ops.empty()) {
     return;
   }

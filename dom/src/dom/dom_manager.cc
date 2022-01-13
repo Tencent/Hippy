@@ -1,18 +1,23 @@
 #include "dom/dom_manager.h"
 
+#include <mutex>
 #include <stack>
 #include <utility>
 
-#include "dom/render_manager.h"
 #include "dom/diff_utils.h"
-#include "dom/dom_node.h"
 #include "dom/dom_event.h"
+#include "dom/dom_node.h"
 #include "dom/macro.h"
+#include "dom/render_manager.h"
 
 namespace hippy {
 inline namespace dom {
 
 using DomNode = hippy::DomNode;
+
+static std::unordered_map<uint32_t, std::shared_ptr<DomManager>> DomManagerMap;
+static std::mutex mutex;
+static std::atomic<uint32_t> global_dom_manager_key{0};
 
 constexpr uint32_t kInvalidListenerId = 0;
 constexpr char kOnDomCreated[] = "onDomCreated";
@@ -24,7 +29,34 @@ DomManager::DomManager(uint32_t root_id) : root_id_(root_id) {
   dom_node_registry_.AddNode(root_node_);
   dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
   dom_task_runner_->Start();
+  id_ = global_dom_manager_key.fetch_add(1);
 }
+
+void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
+  std::lock_guard<std::mutex> lock(mutex);
+  DomManagerMap[dom_manager->id_] = dom_manager;
+};
+
+std::shared_ptr<DomManager> DomManager::Find(uint32_t id) {
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto it = DomManagerMap.find(id);
+  if (it == DomManagerMap.end()) {
+    return nullptr;
+  }
+  return it->second;
+};
+
+bool DomManager::Erase(uint32_t id) {
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto it = DomManagerMap.find(id);
+  if (it == DomManagerMap.end()) {
+    return false;
+  }
+  DomManagerMap.erase(it);
+  return true;
+};
+
+bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
 DomManager::~DomManager() = default;
 
@@ -46,9 +78,8 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       auto layout_node = node->GetLayoutNode();
       auto parent_layout_node = parent_node->GetLayoutNode();
       uint32_t index = node->GetIndex();
-      self->layout_operations_.emplace_back([layout_node, parent_layout_node, index]() {
-        parent_layout_node->InsertChild(layout_node, index);
-      });
+      self->layout_operations_.emplace_back(
+          [layout_node, parent_layout_node, index]() { parent_layout_node->InsertChild(layout_node, index); });
 
       self->dom_node_registry_.AddNode(node);
       self->HandleEvent(std::make_shared<DomEvent>(kOnDomCreated, node, nullptr));
@@ -70,7 +101,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes]() {
     DEFINE_AND_CHECK_SELF(DomManager)
     std::vector<std::shared_ptr<DomNode>> update_nodes;
-    for (const auto & it : nodes) {
+    for (const auto& it : nodes) {
       std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode(it->GetId());
       if (node == nullptr) {
         continue;
@@ -126,9 +157,8 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       // 延迟删除 layout tree
       auto layout_node = node->GetLayoutNode();
       auto parent_layout_node = parent_node->GetLayoutNode();
-      self->layout_operations_.emplace_back([layout_node, parent_layout_node]() {
-        parent_layout_node->RemoveChild(layout_node);
-      });
+      self->layout_operations_.emplace_back(
+          [layout_node, parent_layout_node]() { parent_layout_node->RemoveChild(layout_node); });
     }
 
     if (!delete_nodes.empty()) {
@@ -260,9 +290,7 @@ void DomManager::SetRootSize(float width, float height) {
   });
 }
 
-void DomManager::AddLayoutChangedNode(const std::shared_ptr<DomNode> &node) {
-  layout_changed_nodes_.push_back(node);
-}
+void DomManager::AddLayoutChangedNode(const std::shared_ptr<DomNode>& node) { layout_changed_nodes_.push_back(node); }
 
 void DomManager::SetRootNode(const std::shared_ptr<DomNode>& root_node) {
   PostTask([WEAK_THIS, root_node]() {
@@ -329,10 +357,8 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
       if (runner) {
         std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
         task->func_ = [capture_list = std::move(capture_list),
-            capture_target_listeners = std::move(capture_target_listeners),
-            bubble_target_listeners = std::move(bubble_target_listeners),
-            event,
-            event_name]() mutable {
+                       capture_target_listeners = std::move(capture_target_listeners),
+                       bubble_target_listeners = std::move(bubble_target_listeners), event, event_name]() mutable {
           // 执行捕获流程
           std::queue<std::shared_ptr<DomNode>> bubble_list = {};
           while (!capture_list.empty()) {
@@ -382,7 +408,7 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   });
 }
 
-void DomManager::DomNodeRegistry::AddNode(const std::shared_ptr<DomNode> &node) {
+void DomManager::DomNodeRegistry::AddNode(const std::shared_ptr<DomNode>& node) {
   nodes_.insert(std::make_pair(node->GetId(), node));
 }
 

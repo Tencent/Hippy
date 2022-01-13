@@ -124,7 +124,7 @@ class Scope {
     dom_manager_ = dom_manager;
   }
 
-  inline std::shared_ptr<DomManager> GetDomManager() {
+  inline std::weak_ptr<DomManager> GetDomManager() {
     return dom_manager_;
   }
 
@@ -132,7 +132,7 @@ class Scope {
     render_manager_ = render_manager;
   }
 
-  inline std::shared_ptr<RenderManager> GetRenderManager() {
+  inline std::weak_ptr<RenderManager> GetRenderManager() {
     return render_manager_;
   }
 
@@ -154,6 +154,6 @@ class Scope {
   std::unique_ptr<BindingData> binding_data_;
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::shared_ptr<UriLoader> loader_;
-  std::shared_ptr<DomManager> dom_manager_;
-  std::shared_ptr<RenderManager> render_manager_;
+  std::weak_ptr<DomManager> dom_manager_;
+  std::weak_ptr<RenderManager> render_manager_;
 };
