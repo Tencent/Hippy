@@ -39,6 +39,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "dom/dom_manager.h"
+#include "render/hippy_render_manager.h"
 #include "jni/native_render_provider.h"
 #include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
@@ -76,17 +77,17 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "doBind",
              "(III)V",
-             doBind)
+             DoBind)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "createDomInstance",
              "(I)I",
-             createDomInstance)
+             CreateDomInstance)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "destroyDomInstance",
              "(I)V",
-             destroyDomInstance)
+             DestroyDomInstance)
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
@@ -115,20 +116,39 @@ enum INIT_CB_STATE {
   SUCCESS = 0,
 };
 
-void doBind(JNIEnv* j_env,
+void DoBind(JNIEnv* j_env,
             __unused jobject j_obj,
             jint j_dom_id,
             jint j_render_id,
             jint j_framework_id) {
+  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<uint32_t>(j_dom_id));
+  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(static_cast<uint32_t>(j_render_id));
 
+  float density = render_manager->GetDensity();
+  uint32_t root_id = dom_manager->GetRootId();
+  auto node = dom_manager->GetNode(root_id);
+  auto layout_node = node->GetLayoutNode();
+  layout_node->SetScaleFactor(density);
+
+  auto scope = runtime->GetScope();
+  scope->SetDomManager(dom_manager);
+  scope->SetRenderManager(render_manager);
+  runtime->SetDomManager(dom_manager);
+  runtime->SetRenderManager(render_manager);
+  dom_manager->SetRenderManager(render_manager);
+  dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
 }
 
-jint createDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
-  return 0;
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
+  TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
+  std::shared_ptr<DomManager> dom_manager = std::make_shared<DomManager>(static_cast<uint32_t>(j_root_id));
+  DomManager::Insert(dom_manager);
+  return dom_manager->GetId();
 }
 
-void destroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
-
+void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
+  DomManager::Erase(static_cast<uint32_t>(j_dom_id));
 }
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {

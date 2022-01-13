@@ -56,19 +56,15 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jlong j_runtime_id,
                           jobject j_cb);
 
-void doBind(JNIEnv* j_env,
+void DoBind(JNIEnv* j_env,
             __unused jobject j_obj,
             jint j_dom_id,
             jint j_render_id,
             jint j_framework_id);
 
-jint createDomInstance(JNIEnv* j_env,
-                       __unused jobject j_obj,
-                       jint j_root_id);
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id);
 
-void destroyDomInstance(JNIEnv* j_env,
-                        __unused jobject j_obj,
-                        jint j_dom_id);
+void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
 
 }  // namespace bridge
 }  // namespace hippy

@@ -63,26 +63,11 @@ void NativeRenderProvider::Destroy() {
 }
 
 jint onCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_density) {
-    return 0;
-/*
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
-  if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "CreateNativeRenderDelegate j_instance_id invalid";
-    return;
-  }
-
   std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
-  std::static_pointer_cast<HippyRenderManager>(render_manager)->SetDensity(j_density);
-  auto scope = runtime->GetScope();
-  scope->SetRenderManager(render_manager);
-  std::shared_ptr<DomManager> dom_manager = scope->GetDomManager();
-  uint32_t root_id = dom_manager->GetRootId();
-  auto node = dom_manager->GetNode(root_id);
-  auto layout_node = node->GetLayoutNode();
-  layout_node->SetScaleFactor(j_density);
-  dom_manager->SetRenderManager(render_manager);
-  dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
-*/
+  auto hippy_render_manager = std::static_pointer_cast<HippyRenderManager>(render_manager);
+  hippy_render_manager->SetDensity(j_density);
+  HippyRenderManager::Insert(hippy_render_manager);
+  return hippy_render_manager->GetId();
 }
 
 void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
@@ -93,7 +78,7 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
+  std::shared_ptr<DomManager> dom_manager = runtime->GetDomManager();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "UpdateRootSize dom_manager is nullptr";
     return;
@@ -111,7 +96,7 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
+  std::shared_ptr<DomManager> dom_manager = runtime->GetDomManager();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
     return;
@@ -151,7 +136,7 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager();
+  std::shared_ptr<DomManager> dom_manager = runtime->GetDomManager();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
     return;

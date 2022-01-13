@@ -33,6 +33,11 @@
 #ifdef ENABLE_INSPECTOR
 #include "inspector/v8_inspector_client_impl.h"
 #endif
+#include "dom/dom_manager.h"
+#include "dom/render_manager.h"
+
+using DomManager = hippy::dom::DomManager;
+using RenderManager = hippy::dom::RenderManager;
 
 class Runtime {
  public:
@@ -65,6 +70,16 @@ class Runtime {
     turbo_module_runtime_ = turbo_module_runtime;
   }
 
+  inline void SetDomManager(std::shared_ptr<DomManager> dom_manager) {
+    dom_manager_ = dom_manager;
+  }
+  inline std::shared_ptr<DomManager> GetDomManager() { return dom_manager_; }
+
+  inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
+    render_manager_ = render_manager;
+  }
+  inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_; }
+
   static void Insert(const std::shared_ptr<Runtime>& runtime);
   static std::shared_ptr<Runtime> Find(int32_t id);
   static std::shared_ptr<Runtime> Find(v8::Isolate* isolate);
@@ -82,4 +97,6 @@ class Runtime {
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
   int32_t id_;
   std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
+  std::shared_ptr<DomManager> dom_manager_;
+  std::shared_ptr<RenderManager> render_manager_;
 };

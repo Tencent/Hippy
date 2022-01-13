@@ -8,17 +8,16 @@
 #include "dom/render_manager.h"
 #include "dom/serializer.h"
 
-// class JavaRef;
-
 namespace hippy {
 inline namespace dom {
 
 class HippyRenderManager : public RenderManager {
  public:
-  HippyRenderManager(std::shared_ptr<JavaRef> render_delegate)
-      : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<tdf::base::Serializer>()){};
+  HippyRenderManager(std::shared_ptr<JavaRef> render_delegate);
 
   ~HippyRenderManager(){};
+
+  uint32_t GetId() { return id_; }
 
   void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
@@ -40,6 +39,12 @@ class HippyRenderManager : public RenderManager {
                     CallFunctionCallback cb) override;
 
   void SetDensity(float density) { density_ = density; };
+  float GetDensity() { return density_; }
+
+  static void Insert(const std::shared_ptr<HippyRenderManager>& render_manager);
+  static std::shared_ptr<HippyRenderManager> Find(int32_t id);
+  static bool Erase(int32_t id);
+  static bool Erase(const std::shared_ptr<HippyRenderManager>& render_manager);
 
  private:
   inline float DpToPx(float dp);
@@ -52,10 +57,6 @@ class HippyRenderManager : public RenderManager {
 
   void CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode, const float height,
                                const int32_t height_mode, int64_t& result);
-
-  std::shared_ptr<JavaRef> render_delegate_;
-  std::shared_ptr<tdf::base::Serializer> serializer_;
-  float density_ = 1.0f;
 
   struct ListenerOp {
     bool add;
@@ -71,6 +72,11 @@ class HippyRenderManager : public RenderManager {
 
   void HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name);
 
+ private:
+  uint32_t id_;
+  std::shared_ptr<JavaRef> render_delegate_;
+  std::shared_ptr<tdf::base::Serializer> serializer_;
+  float density_ = 1.0f;
   std::vector<ListenerOp> event_listener_ops_;
 };
 }  // namespace dom
