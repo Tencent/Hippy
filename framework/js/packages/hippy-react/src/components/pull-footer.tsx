@@ -50,25 +50,25 @@ class PullFooter extends React.Component<PullFooterProps, {}> {
   /**
   * @ignore
   */
-  static defaultProps = {
+  private defaultProps = {
     sticky: true,
   };
 
   /**
    * Expand the PullView and display the content
    */
-  expandPullFooter() {
+  public expandPullFooter() {
     callUIFunction(this.instance as Element, 'expandPullFooter', []);
   }
 
   /**
    * Collapse the PullView and hide the content
    */
-  collapsePullFooter() {
+  public collapsePullFooter() {
     callUIFunction(this.instance as Element, 'collapsePullFooter', []);
   }
 
-  render() {
+  public render() {
     const { children, ...nativeProps } = this.props;
     return (
       <div
