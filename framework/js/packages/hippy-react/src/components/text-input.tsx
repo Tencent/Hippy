@@ -335,6 +335,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
     }
 
     return (
+      // @ts-ignore
       <div
         nativeName="TextInput"
         {...nativeProps}
