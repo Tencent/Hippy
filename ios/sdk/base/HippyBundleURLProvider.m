@@ -65,7 +65,7 @@ NSString *const HippyBundleURLSchemetHttps = @"https";
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _scheme = HippyBundleURLSchemetHttps;
+        _scheme = HippyBundleURLSchemeHttp;
         _localhostIP = @"localhost";
         _localhostPort = @"38989";
         self.debugPathUrl = @"/index.bundle?platform=ios&dev=true&minify=false";
