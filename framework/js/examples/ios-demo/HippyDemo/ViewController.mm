@@ -64,8 +64,7 @@
     
 #ifdef HIPPYDEBUG
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
-    NSString *localhost = [HippyBundleURLProvider sharedInstance].localhost ?: @"localhost:38989";
-    NSString *bundleStr = [NSString stringWithFormat:@"http://%@%@", localhost, [HippyBundleURLProvider sharedInstance].debugPathUrl];
+    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
                                                       bundleURL:bundleUrl
