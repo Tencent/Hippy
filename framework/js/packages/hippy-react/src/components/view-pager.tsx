@@ -109,7 +109,7 @@ function ViewPagerItem(props: any) {
 class ViewPager extends React.Component<ViewPagerProps, {}> {
   private instance: Element | HTMLDivElement | null = null;
 
-  constructor(props: ViewPagerProps) {
+  public constructor(props: ViewPagerProps) {
     super(props);
     this.setPage = this.setPage.bind(this);
     this.setPageWithoutAnimation = this.setPageWithoutAnimation.bind(this);

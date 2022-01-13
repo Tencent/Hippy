@@ -19,7 +19,7 @@
  */
 
 /* eslint-disable no-bitwise */
-
+// @ts-nocheck
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import normalizeValue from './normalize-value';

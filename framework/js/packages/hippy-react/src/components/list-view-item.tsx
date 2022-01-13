@@ -19,14 +19,13 @@
  */
 
 import React from 'react';
-import Style from '@localTypes/style';
 
 interface ListViewItemProps {
   type?: number | string | undefined;
   key?: string;
   itemViewType?: string;
   sticky?: boolean;
-  style?: Style;
+  style?: HippyTypes.Style;
   onLayout?: (evt: any) => void;
   [props: string]: any
 }

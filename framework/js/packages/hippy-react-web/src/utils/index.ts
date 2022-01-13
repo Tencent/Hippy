@@ -19,6 +19,7 @@
  */
 
 /* eslint-disable import/prefer-default-export */
+// @ts-nocheck
 
 /**
  * Warning information output

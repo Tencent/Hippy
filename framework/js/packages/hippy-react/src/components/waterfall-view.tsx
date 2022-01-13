@@ -21,9 +21,7 @@
 /* eslint-disable no-param-reassign */
 
 import React from 'react';
-import Style from '@localTypes/style';
 import { Fiber } from '@hippy/react-reconciler';
-import { LayoutEvent } from '@localTypes/event';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
 import PullHeader from './pull-header';
@@ -94,7 +92,7 @@ interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getItemStyle?(index: number): Style;
+  getItemStyle?(index: number): HippyTypes.Style;
 
   /**
    * Specific the key of row, for better data diff
@@ -105,7 +103,7 @@ interface WaterfallViewProps {
    */
   getItemKey?(index: number): string;
 
-  style?: Style;
+  style?: HippyTypes.Style;
 
   // Called when the WaterfallView is scrolling to bottom.
   onEndReached?(): void;
@@ -120,7 +118,7 @@ interface WaterfallViewProps {
    * @param {number} evt.nativeEvent.hegiht - The height of component
    * @param {number} index - Index of data.
    */
-  onItemLayout?(evt: LayoutEvent, index: number): void;
+  onItemLayout?(evt: HippyTypes.LayoutEvent, index: number): void;
 
   /**
    * Called when user scrolls WaterfallView
@@ -190,7 +188,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   /**
    * @constructor
    */
-  constructor(props: WaterfallViewProps) {
+  public constructor(props: WaterfallViewProps) {
     super(props);
     this.handleInitialListReady = this.handleInitialListReady.bind(this);
   }
@@ -237,8 +235,8 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     index: number,
     { getItemKey, getItemStyle, onItemLayout, getItemType }:
     { getItemKey: ((index: number) => string) | undefined,
-      getItemStyle: ((index: number) => Style) | undefined,
-      onItemLayout: ((evt: LayoutEvent, index: number) => void) | undefined,
+      getItemStyle: ((index: number) => HippyTypes.Style) | undefined,
+      onItemLayout: ((evt: HippyTypes.LayoutEvent, index: number) => void) | undefined,
       getItemType: ((index: number) => number) | undefined,
     },
   ) {
@@ -266,28 +264,28 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   }
 
   // Expand the PullHeaderView and display the content
-  expandPullHeader() {
+  public expandPullHeader() {
     if (this.pullHeader) {
       this.pullHeader.expandPullHeader();
     }
   }
 
   // Collapse the PullHeaderView and hide the content
-  collapsePullHeader(options: object) {
+  public collapsePullHeader(options: object) {
     if (this.pullHeader) {
       this.pullHeader.collapsePullHeader(options);
     }
   }
 
   // Expand the PullFooterView and display the content
-  expandPullFooter() {
+  public expandPullFooter() {
     if (this.pullFooter) {
       this.pullFooter.expandPullFooter();
     }
   }
 
   // Collapse the PullView and hide the content
-  collapsePullFooter() {
+  public collapsePullFooter() {
     if (this.pullFooter) {
       this.pullFooter.collapsePullFooter();
     }
@@ -305,7 +303,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     onHeaderPulling: undefined | (() => void),
     onHeaderReleased: undefined | (() => void),
   ) {
-    let pullHeader = null;
+    let pullHeader: JSX.Element | null = null;
     if (typeof renderPullHeader === 'function') {
       pullHeader = (
         <PullHeader
@@ -335,7 +333,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     onFooterPulling: undefined | (() => void),
     onFooterReleased: undefined | (() => void),
   ) {
-    let pullFooter = null;
+    let pullFooter: JSX.Element | null = null;
     if (typeof renderPullFooter === 'function') {
       pullFooter = (
         <PullFooter
@@ -354,7 +352,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   }
 
   // initialReady callback
-  handleInitialListReady() {
+  private handleInitialListReady() {
     const { onInitialListReady } = this.props;
     if (typeof onInitialListReady === 'function') {
       onInitialListReady();
@@ -400,7 +398,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
       containPullFooter,
       containBannerView,
     };
-    const itemList = [];
+    const itemList: JSX.Element[] = [];
 
     if (typeof renderBanner === 'function') {
       const banner = renderBanner();

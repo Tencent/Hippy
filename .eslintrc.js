@@ -28,15 +28,11 @@ module.exports = {
       rules: {
         // Allow interface export
         'no-undef': 'off',
-
-        // Disable props checking
-        'react/prop-types': 'off',
-
         // Force use 2 space for indent
         '@typescript-eslint/indent': ['error', 2],
-
         // Note you must disable the base rule as it can report incorrect errors
         'no-unused-vars': 'off',
+        // '@typescript-eslint/explicit-member-accessibility': ['error'],
       },
     },
   ],
@@ -47,11 +43,14 @@ module.exports = {
   },
   globals: {
     __PLATFORM__: 'readonly',
-    __GLOBAL__: 'readonly',
-    Hippy: 'readonly',
-    WebSocket: 'readonly',
+    __GLOBAL__: 'writable',
+    Hippy: 'writable',
+    WebSocket: 'writable',
+    requestIdleCallback: 'writable',
+    cancelIdleCallback: 'writable',
   },
   rules: {
+    'no-restricted-globals': 'off',
     semi: ['error', 'always'],
     // Allow more than one component per file
     'vue/one-component-per-file': 'off',
@@ -79,27 +78,10 @@ module.exports = {
     // Disable deprecated
     'react/no-deprecated': 'off',
 
-    // Turn of extensions checking temporary
-    'import/extensions': 'off',
-
-    // https://github.com/benmosher/eslint-plugin-import/tree/master/docs/rules/namespace.md#allowcomputed
     'import/namespace': [
       'error',
       {
         allowComputed: true,
-      },
-    ],
-    // Allow import from devDependencies
-    'import/no-extraneous-dependencies': [
-      'error',
-      {
-        devDependencies: [
-          'scripts/*.js',
-          // FIXME: seems not working
-          'framework/js/packages/**/types/*.d.ts',
-          'framework/js/packages/**/__tests__/*.test.js',
-          'framework/js/examples/**/scripts/*.js',
-        ],
       },
     ],
     // Allow tsx as the jsx file
@@ -116,6 +98,8 @@ module.exports = {
       'warn',
       {
         allow: [
+          '__PLATFORM__',
+          '__HIPPYCURDIR__',
           '__ISHIPPY__',
           '__GLOBAL__',
           '__HIPPYNATIVEGLOBAL__',

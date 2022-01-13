@@ -393,7 +393,7 @@ test('ul numberOfRows test', (t) => {
 test('img attributeMaps test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('img');
-  node.setAttribute('src', 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');
+  node.setAttribute('src', 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
   node.setAttribute('alt', 'Test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
@@ -406,10 +406,10 @@ test('img attributeMaps test --debug mode', (t) => {
         alt: 'Test',
         class: '',
         id: '',
-        src: 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+        src: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
       },
       alt: 'Test',
-      src: 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+      src: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
       style: {
         backgroundColor: 0,
       },
@@ -421,7 +421,7 @@ test('img attributeMaps test --debug mode', (t) => {
 test('img attributeMaps test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('img');
-  node.setAttribute('src', 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');
+  node.setAttribute('src', 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
   node.setAttribute('alt', 'Test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
@@ -431,7 +431,7 @@ test('img attributeMaps test --production mode', (t) => {
     pId: ROOT_VIEW_ID,
     props: {
       alt: 'Test',
-      src: 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+      src: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
       style: {
         backgroundColor: 0,
       },

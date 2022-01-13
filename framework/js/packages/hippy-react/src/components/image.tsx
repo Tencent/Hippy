@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import Style from '@localTypes/style';
+import React, { LegacyRef, ReactNode } from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
@@ -47,7 +46,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Image source object
    */
-  source?: ImageSource | ImageSource[];
+  source?: ImageSource | ImageSource[] | null;
 
   srcs?: string[];
   sources?: ImageSource[];
@@ -67,7 +66,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Image style when `Image` have other children.
    */
-  imageStyle?: Style;
+  imageStyle?: HippyTypes.Style;
 
   /**
    * Image ref when `Image` have other children.
@@ -91,7 +90,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
     left: number;
   };
 
-  style: Style;
+  style: HippyTypes.Style;
 
   /**
    * Invoked on `Image` is loaded.
@@ -170,7 +169,7 @@ class Image extends React.Component<ImageProps, {}> {
     source: string | any,
     sources: string[] | any,
   }) {
-    let imageUrls = [];
+    let imageUrls: string[] = [];
     if (typeof src === 'string') {
       imageUrls.push(src);
     }
@@ -299,12 +298,12 @@ class Image extends React.Component<ImageProps, {}> {
       );
     }
     return (
+      // @ts-ignore
       <img
         {...nativeProps}
         nativeName="Image"
         alt=""
-        // @ts-ignore
-        ref={imageRef}
+        ref={imageRef as LegacyRef<HTMLImageElement>}
       />
     );
   }

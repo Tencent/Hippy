@@ -20,7 +20,7 @@
 
 import Animation from '../modules/animation';
 import View from '../components/view';
-import Text from '../components/text';
+import * as TextComp from '../components/text';
 import Image from '../components/image';
 
 interface TimingConfig {
@@ -32,7 +32,7 @@ interface TimingConfig {
 class Animated {
   static View = View;
 
-  static Text = Text;
+  static Text = TextComp;
 
   static Image = Image;
 
