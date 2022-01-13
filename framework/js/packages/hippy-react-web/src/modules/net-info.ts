@@ -19,7 +19,7 @@
  */
 
 /* eslint-disable no-console */
-
+// @ts-nocheck
 function fetch() {
   // TODO: Return the real network status;
   return 'wifi';

@@ -15,7 +15,7 @@
  */
 
 /* eslint no-use-before-define: ["error", { "functions": false }] */
-
+// @ts-nocheck
 interface Requests {
   [key: string]: any;
 }

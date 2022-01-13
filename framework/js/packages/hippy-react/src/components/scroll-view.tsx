@@ -21,7 +21,6 @@
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import Style from '@localTypes/style';
 import * as StyleSheet from '../modules/stylesheet';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
@@ -68,7 +67,7 @@ interface ScrollViewProps {
    * These styles will be applied to the scroll view content container which wraps all
    * of the child views.
    */
-  contentContainerStyle?: Style;
+  contentContainerStyle?: HippyTypes.Style;
 
   /**
    * This controls how often the scroll event will be fired while scrolling
@@ -126,7 +125,7 @@ interface ScrollViewProps {
    * Called when the user stops dragging the scroll view and it either stops or begins to glide.
    */
   onScrollEndDrag?(): void;
-  style?: Style;
+  style?: HippyTypes.Style;
 }
 
 const styles = StyleSheet.create({
@@ -222,6 +221,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
     }
 
     return (
+      // @ts-ignore
       <div
         nativeName="ScrollView"
         ref={(ref) => {
@@ -232,7 +232,6 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
         style={newStyle}
       >
         <View
-          // @ts-ignore
           style={contentContainerStyle_}>
           {children}
         </View>

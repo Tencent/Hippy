@@ -20,8 +20,6 @@
 
 /* eslint-disable no-param-reassign */
 
-import Hippy from '@localTypes/hippy';
-import { Transform } from '@localTypes/style';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
@@ -37,14 +35,13 @@ import {
 } from '../utils';
 import { eventNamesMap, NATIVE_EVENT } from '../utils/node';
 import ViewNode from './view-node';
-import '@localTypes/global';
 
 interface Attributes {
   [key: string]: string | number | boolean | undefined;
 }
 
 interface NativePropsStyle {
-  [key: string]: string | object | number | Transform
+  [key: string]: string | object | number | HippyTypes.Transform
 }
 
 interface PropertiesMap {
@@ -124,7 +121,7 @@ function getLinearGradientAngle(value: string): string | undefined {
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return;
   // default direction is to bottom, i.e. 180degree
-  let angle: string = '180';
+  let angle = '180';
   const [direction, angleValue, angleUnit] = valueList;
   if (angleValue && angleUnit) { // angle value
     angle = convertToDegree(angleValue, angleUnit);
@@ -229,34 +226,34 @@ function getEventPropKey(key: string) {
 }
 
 class ElementNode extends ViewNode {
-  tagName: string;
-  id: string = '';
-  style: Hippy.Style = {};
-  attributes: Attributes = {};
+  public tagName: string;
+  public id = '';
+  public style: HippyTypes.Style = {};
+  public attributes: Attributes = {};
 
-  constructor(tagName: string) {
+  public constructor(tagName: string) {
     super();
     // Tag name
     this.tagName = tagName;
   }
 
-  get nativeName() {
+  public get nativeName() {
     return this.meta.component.name;
   }
 
-  toString() {
+  public toString() {
     return `${this.tagName}:(${this.nativeName})`;
   }
 
-  hasAttribute(key: string) {
+  public hasAttribute(key: string) {
     return !!this.attributes[key];
   }
 
-  getAttribute(key: string) {
+  public getAttribute(key: string) {
     return this.attributes[key];
   }
 
-  setStyleAttribute(value: any) {
+  public setStyleAttribute(value: any) {
     // Clean old styles
     this.style = {};
     let styleArray = value;
@@ -285,8 +282,8 @@ class ElementNode extends ViewNode {
     }
 
     // Merge the styles if style is array
-    let mergedStyles: Hippy.Style = {};
-    styleArray.forEach((style: Hippy.Style) => {
+    let mergedStyles: HippyTypes.Style = {};
+    styleArray.forEach((style: HippyTypes.Style) => {
       if (Array.isArray(style)) {
         style.forEach((subStyle) => {
           mergedStyles = {
@@ -373,7 +370,7 @@ class ElementNode extends ViewNode {
   }
 
   /* istanbul ignore next */
-  setAttribute(key: string, value: any) {
+  public setAttribute(key: string, value: any) {
     try {
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
@@ -504,12 +501,12 @@ class ElementNode extends ViewNode {
     }
   }
 
-  removeAttribute(key: string) {
+  public removeAttribute(key: string) {
     delete this.attributes[key];
   }
 
   /* istanbul ignore next */
-  setStyle(property: string, value: string | number | Transform, isBatchUpdate: boolean = false) {
+  public setStyle(property: string, value: string | number | HippyTypes.Transform, isBatchUpdate = false) {
     if (value === null) {
       delete (this.style as any)[property];
       return;
@@ -542,7 +539,7 @@ class ElementNode extends ViewNode {
   /**
    * set native style props
    */
-  setNativeProps(nativeProps: NativePropsStyle) {
+  public setNativeProps(nativeProps: NativePropsStyle) {
     if (nativeProps) {
       const { style } = nativeProps;
       if (style) {
@@ -556,7 +553,7 @@ class ElementNode extends ViewNode {
     }
   }
 
-  setText(text: string | undefined) {
+  public setText(text: string | undefined) {
     if (typeof text !== 'string') {
       try {
         text = (text as any).toString();

@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+// @ts-nocheck
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';

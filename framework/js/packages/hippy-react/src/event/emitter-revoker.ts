@@ -26,7 +26,7 @@ interface EventEmitterRevoker {
 }
 
 class EventEmitterRevoker implements EventEmitterRevoker {
-  constructor(id: number, listener: HippyEventListener) {
+  public constructor(id: number, listener: HippyEventListener) {
     this.callback = id;
     this.bindListener = listener;
   }

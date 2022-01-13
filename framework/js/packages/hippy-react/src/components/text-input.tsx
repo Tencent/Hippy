@@ -21,8 +21,6 @@
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import Style from '@localTypes/style';
-import { TextInputEvent } from '@localTypes/event';
 import { LayoutableProps, ClickableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
@@ -131,7 +129,7 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
    */
   placeholderTextColors?: string[];
 
-  style?: Style;
+  style?: HippyTypes.Style;
 
   /**
    * Callback that is called when the text input is blurred.
@@ -226,7 +224,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
    */
   public getValue(): Promise<string> {
     return new Promise((resolve) => {
-      callUIFunction(this.instance as Element, 'getValue', (res: TextInputEvent) => resolve(res.text));
+      callUIFunction(this.instance as Element, 'getValue', (res: HippyTypes.TextInputEvent) => resolve(res.text));
     });
   }
 
@@ -276,7 +274,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
     callUIFunction(this.instance as Element, 'clear', []);
   }
 
-  private onChangeText(e: TextInputEvent) {
+  private onChangeText(e: HippyTypes.TextInputEvent) {
     const { onChangeText } = this.props;
     if (typeof onChangeText === 'function') {
       onChangeText(e.text);

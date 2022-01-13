@@ -122,7 +122,7 @@ function parseValue(valueType: string | undefined, originalValue: number | strin
  * It pushes the animation scheme to native at once.
  */
 class Animation implements Animation {
-  constructor(config: AnimationOptions) {
+  public constructor(config: AnimationOptions) {
     let startValue: AnimationValue = 0;
     if (config.startValue && config.startValue.constructor && config.startValue.constructor.name === 'Animation') {
       startValue = { animationId: (config.startValue as Animation).animationId };
@@ -253,7 +253,7 @@ class Animation implements Animation {
   /**
    * Destroy the animation
    */
-  destroy() {
+  public destroy() {
     this.removeEventListener();
     Bridge.callNative('AnimationModule', 'destroyAnimation', this.animationId);
   }
@@ -261,14 +261,14 @@ class Animation implements Animation {
   /**
    * Pause the running animation
    */
-  pause() {
+  public pause() {
     Bridge.callNative('AnimationModule', 'pauseAnimation', this.animationId);
   }
 
   /**
    * Resume execution of paused animation
    */
-  resume() {
+  public resume() {
     Bridge.callNative('AnimationModule', 'resumeAnimation', this.animationId);
   }
 
@@ -277,7 +277,7 @@ class Animation implements Animation {
    *
    * @param {Object} newConfig - new animation schema
    */
-  updateAnimation(newConfig: AnimationOptions) {
+  public updateAnimation(newConfig: AnimationOptions) {
     if (typeof newConfig !== 'object') {
       throw new TypeError('Invalid arguments');
     }
@@ -323,7 +323,7 @@ class Animation implements Animation {
    * Call when animation started.
    * @param {Function} cb - callback when animation started.
    */
-  onAnimationStart(cb: AnimationCallback) {
+  public onAnimationStart(cb: AnimationCallback) {
     this.onAnimationStartCallback = cb;
   }
 
@@ -331,7 +331,7 @@ class Animation implements Animation {
    * Call when animation is ended.
    * @param {Function} cb - callback when animation started.
    */
-  onAnimationEnd(cb: AnimationCallback) {
+  public onAnimationEnd(cb: AnimationCallback) {
     this.onAnimationEndCallback = cb;
   }
 
@@ -339,7 +339,7 @@ class Animation implements Animation {
    * Call when animation is canceled.
    * @param {Function} cb - callback when animation started.
    */
-  onAnimationCancel(cb: AnimationCallback) {
+  public onAnimationCancel(cb: AnimationCallback) {
     this.onAnimationCancelCallback = cb;
   }
 
@@ -347,7 +347,7 @@ class Animation implements Animation {
    * Call when animation is repeated.
    * @param {Function} cb - callback when animation started.
    */
-  onAnimationRepeat(cb: AnimationCallback) {
+  public onAnimationRepeat(cb: AnimationCallback) {
     this.onAnimationRepeatCallback = cb;
   }
 }

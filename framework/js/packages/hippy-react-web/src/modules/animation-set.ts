@@ -19,7 +19,7 @@
  */
 
 /* eslint-disable no-console */
-
+// @ts-nocheck
 import bezierEasing from 'bezier-easing';
 import findNodeHandle from '../adapters/find-node';
 import normalizeValue from '../adapters/normalize-value';
@@ -31,6 +31,8 @@ function initLeftRepeatCount(repeatCount: number | 'loop') {
   }
   return repeatCount;
 }
+
+type AnimationCallback = () => void;
 
 export class AnimationSet {
   constructor(config) {

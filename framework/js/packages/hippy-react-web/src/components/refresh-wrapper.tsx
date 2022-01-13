@@ -22,19 +22,27 @@
 
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
+// @ts-nocheck
+interface Props {
+  // @ts-ignore
+  style?: HippyTypes.Style;
+  withRef: React.Ref<any>
+  displayInWeb: boolean
+}
 
 /**
  * Simply to implement the drag down to refresh feature.
  * @noInheritDoc
  */
-function RefreshWrapper(props) {
+function RefreshWrapper(props: Props) {
   const { style, displayInWeb = false } = props;
   const newProps = { ...props, style: formatWebStyle(style) };
   if (!displayInWeb) {
+    // @ts-ignore
     return <div nativeName="RefreshWrapper" />;
   }
   return (
-    <div {...newProps} />
+    <div {...newProps}/>
   );
 }
 

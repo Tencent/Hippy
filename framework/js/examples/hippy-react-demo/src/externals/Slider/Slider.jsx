@@ -133,7 +133,7 @@ export default class Slider extends React.Component {
   }
 
   doSwitchPage(index) {
-    this.scrollview.scrollTo(this.imgWidth * index, 0, true);
+    this.scrollview.scrollTo({ x: this.imgWidth * index, y: 0, animated: true });
   }
 
   doCreateTimer() {
