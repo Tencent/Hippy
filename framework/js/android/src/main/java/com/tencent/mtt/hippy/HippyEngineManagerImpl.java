@@ -710,18 +710,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
-            mLinkHelper = new Linker();
+            // If in debug mode, root view will be reused after reload,
+            // so not need to generate root id again.
+            mLinkHelper = (mDebugMode && mRootView != null) ? new Linker(mRootView.getId())
+                    : new Linker();
             mLinkHelper.createDomHolder();
             mLinkHelper.createRenderer(NATIVE_RENDER);
             mLinkHelper.setFrameworkProxy(HippyEngineManagerImpl.this);
-        }
-
-        @Override
-        public void onJSBridgeInitialized(long runtimeId) {
-            // Should call bind after js bridge initialized, use v8 runtime id represent
-            // framework id, native (C++) use int instead of point to generate the id,
-            // so we can direct convert long to int.
-            mLinkHelper.bind((int)runtimeId);
             if (mLinkHelper.getRenderer() instanceof NativeRenderProxy) {
                 List<Class<?>> controllers = null;
                 for (ControllerProvider provider : mControllerProviders) {
@@ -732,8 +727,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     }
                 }
                 ((NativeRenderProxy) mLinkHelper.getRenderer())
-                        .init(controllers, mDebugMode, mRootView);
+                        .init(controllers, mRootView);
             }
+        }
+
+        @Override
+        public void onJSBridgeInitialized(long runtimeId) {
+            // Call linker to bind framework until get v8 runtime id after js bridge initialized,
+            // and use v8 runtime id to represent framework id.
+            mLinkHelper.bind((int) runtimeId);
         }
 
         @Override
@@ -869,14 +871,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public int getEngineId() {
             return HippyEngineManagerImpl.this.getEngineId();
-        }
-
-        @Override
-        public int getRootId() {
-            if (mLinkHelper.getRenderer() instanceof NativeRenderProxy) {
-                return ((NativeRenderProxy) mLinkHelper.getRenderer()).getRootId();
-            }
-            return 0;
         }
 
         @Override

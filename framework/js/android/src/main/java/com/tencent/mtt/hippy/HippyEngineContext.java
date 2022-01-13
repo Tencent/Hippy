@@ -56,7 +56,5 @@ public interface HippyEngineContext {
 
   int getEngineId();
 
-  int getRootId();
-
   void onJSBridgeInitialized(long runtimeId);
 }

@@ -39,4 +39,11 @@ public interface RenderProxy extends LinkProxy {
      */
     @NonNull
     ViewGroup createRootView(@NonNull Context context);
+
+    /**
+     * Set root view id to renderer
+     *
+     * @param rootId root view id generate by {@link Linker}
+     */
+    void setRootId(int rootId);
 }

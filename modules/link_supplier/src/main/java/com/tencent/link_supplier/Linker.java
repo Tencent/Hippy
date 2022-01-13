@@ -19,11 +19,22 @@ import androidx.annotation.NonNull;
 import com.tencent.link_supplier.proxy.dom.DomProxy;
 import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.RenderProxy;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Linker implements LinkHelper {
-
+    private static final int ROOT_VIEW_ID_INCREMENT = 10;
+    private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
+    private final int mRootId;
+
+    public Linker() {
+        mRootId = sRootIdCounter.addAndGet(ROOT_VIEW_ID_INCREMENT);
+    }
+
+    public Linker(int rootId) {
+        mRootId = rootId;
+    }
 
     @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy frameworkProxy) {
@@ -63,6 +74,7 @@ public class Linker implements LinkHelper {
             throw new RuntimeException(
                     "Serious error: Failed to create renderer instance!");
         }
+        mRenderProxy.setRootId(mRootId);
     }
 
     @Override
@@ -93,10 +105,11 @@ public class Linker implements LinkHelper {
     }
 
     private class DomHolder implements DomProxy {
+
         private final int mInstanceId;
 
         public DomHolder() {
-            mInstanceId = createDomInstance();
+            mInstanceId = createDomInstance(mRootId);
         }
 
         /**
@@ -131,9 +144,10 @@ public class Linker implements LinkHelper {
     /**
      * Create native (C++) dom manager instance.
      *
+     * @param rootId root view id
      * @return the unique id of native (C++) dom manager
      */
-    private native int createDomInstance();
+    private native int createDomInstance(int rootId);
 
     /**
      * Release native (C++) dom manager instance.
