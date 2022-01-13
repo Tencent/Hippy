@@ -51,7 +51,7 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
   /**
    * Expand the PullView and display the content
    */
-  expandPullHeader() {
+  public expandPullHeader() {
     callUIFunction(this.instance as Fiber, 'expandPullHeader', []);
   }
 
@@ -59,7 +59,7 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
    * Collapse the PullView and hide the content
    * @param {CollapsePullHeaderOptions} [options] - additional config for pull header
    */
-  collapsePullHeader(options: CollapsePullHeaderOptions) {
+  public collapsePullHeader(options: CollapsePullHeaderOptions) {
     if (Device.platform.OS === 'android') {
       callUIFunction(this.instance as Fiber, 'collapsePullHeader', [options]);
     } else {
@@ -72,7 +72,7 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
     }
   }
 
-  render() {
+  public render() {
     const { children, ...nativeProps } = this.props;
     return (
       <div

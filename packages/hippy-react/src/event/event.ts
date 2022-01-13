@@ -34,7 +34,7 @@ class Event implements Event {
    * @param currentTarget - currentTarget is the node which the handler bind to
    * @param target - target is the node which triggered the real event
    */
-  constructor(eventName: string, currentTarget: Element | null, target: Element | null) {
+  public constructor(eventName: string, currentTarget: Element | null, target: Element | null) {
     this.type = eventName;
     this.bubbles = true;
     this.timeStamp = Date.now();

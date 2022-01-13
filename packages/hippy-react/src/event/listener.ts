@@ -21,10 +21,10 @@
 import EventDispatcher from './dispatcher';
 
 class HippyEventListener {
-  eventName: string;
-  listenerIdList: number[];
+  public eventName: string;
+  public listenerIdList: number[];
 
-  constructor(event: string) {
+  public constructor(event: string) {
     this.eventName = event;
     this.listenerIdList = [];
   }

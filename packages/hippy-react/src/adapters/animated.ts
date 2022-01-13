@@ -30,17 +30,14 @@ interface TimingConfig {
 }
 
 class Animated {
-  static View = View;
-
-  static Text = TextComp;
-
-  static Image = Image;
-
-  static Value(val: any) {
+  public static View = View;
+  public static Text = TextComp;
+  public static Image = Image;
+  public static Value(val: any) {
     return val;
   }
 
-  static timing(value: number, config: TimingConfig) {
+  public static timing(value: number, config: TimingConfig) {
     return new Animation({
       mode: 'timing',
       delay: 0,
@@ -51,7 +48,7 @@ class Animated {
     });
   }
 
-  Value = Animated.Value;
+  public Value = Animated.Value;
 }
 
 export default Animated;

@@ -35,7 +35,7 @@ function initLeftRepeatCount(repeatCount: number | 'loop') {
 type AnimationCallback = () => void;
 
 export class AnimationSet {
-  constructor(config) {
+  public constructor(config) {
     // define the animation array
     this.children = config.children || [];
     this.initSetRepeatCount = initLeftRepeatCount(config.repeatCount || 0);
@@ -49,7 +49,7 @@ export class AnimationSet {
     this.onHippyAnimationRepeat = this.onAnimationRepeat.bind(this);
   }
 
-  initNowAnimationState() {
+  public initNowAnimationState() {
     if (this.children && this.children.length > 0) {
       const nowAnimation = this.children[this.runningAnimationIndex].animation;
       this.mode = nowAnimation.mode || 'timing';
@@ -77,35 +77,35 @@ export class AnimationSet {
     }
   }
 
-  resetState() {
+  public resetState() {
     this.runningAnimationIndex = 0;
     this.initNowAnimationState();
   }
 
-  setRef(ref) {
+  public setRef(ref) {
     if (ref) {
       this.refNode = findNodeHandle(ref);
     }
   }
 
-  setStyleAttribute(styleAttribute) {
+  public setStyleAttribute(styleAttribute) {
     if (styleAttribute) {
       this.styleAttribute = styleAttribute;
     }
   }
 
-  setTransformStyleAttribute(styleAttribute) {
+  public setTransformStyleAttribute(styleAttribute) {
     if (styleAttribute) {
       this.transformStyleAttribute = styleAttribute;
     }
   }
 
-  clearAnimationInterval() {
+  public clearAnimationInterval() {
     this.animationRunningFlag = false;
     if (this.animationInterval) window.clearInterval(this.animationInterval);
   }
 
-  renderStyleAttribute(finalValue) {
+  public renderStyleAttribute(finalValue) {
     if (!this.refNode) return;
     if (this.styleAttribute) {
       this.refNode.style[this.styleAttribute.toString()] = normalizeValue(
@@ -118,7 +118,7 @@ export class AnimationSet {
     }
   }
 
-  getNowValue() {
+  public getNowValue() {
     const { timingFunction, nowPercentage, valueDistance } = this;
     switch (timingFunction) {
       case ('linear'):
@@ -143,18 +143,18 @@ export class AnimationSet {
     }
   }
 
-  calculateNowValue() {
+  private calculateNowValue() {
     this.nowLeftDuration -= 16;
     this.nowPercentage = 1 - (this.nowLeftDuration / this.duration);
     return this.getNowValue();
   }
 
-  renderNowValue(finalValue) {
+  private renderNowValue(finalValue) {
     this.nowValue = finalValue;
     this.renderStyleAttribute(finalValue);
   }
 
-  endAnimationSet() {
+  public endAnimationSet() {
     this.endAnimationFlag = true;
     this.animationRunningFlag = false;
     if (this.onAnimationEndCallback) {
@@ -163,7 +163,7 @@ export class AnimationSet {
     this.clearAnimationInterval();
   }
 
-  repeatAnimationSet() {
+  public repeatAnimationSet() {
     if (this.leftSetRepeatCount > 0) this.leftSetRepeatCount -= 1;
     if (this.onAnimationRepeatCallback) {
       this.onAnimationRepeatCallback();
@@ -172,12 +172,12 @@ export class AnimationSet {
     this.initNowAnimationState();
   }
 
-  continueToNextChildAnimation() {
+  public continueToNextChildAnimation() {
     this.runningAnimationIndex += 1;
     this.initNowAnimationState();
   }
 
-  repeatChildAnimation() {
+  public repeatChildAnimation() {
     if (this.leftRepeatCount > 0) this.leftRepeatCount -= 1;
     this.nowLeftDuration = this.duration;
     this.nowPercentage = 0;
@@ -186,7 +186,7 @@ export class AnimationSet {
   /**
    * Start animation execution
    */
-  start() {
+  public start() {
     this.clearAnimationInterval();
     if (this.refNode) {
       this.resetState();
@@ -240,7 +240,7 @@ export class AnimationSet {
   /**
    * Resume execution of paused animation
    */
-  resume() {
+  public resume() {
     this.clearAnimationInterval();
     if (this.refNode) {
       let finalValue = this.nowValue;
@@ -286,7 +286,7 @@ export class AnimationSet {
   /**
    * Destroy the animation
    */
-  destroy() {
+  public destroy() {
     this.clearAnimationInterval();
     if (!this.endAnimationFlag && this.onAnimationCancelCallback) {
       this.onAnimationCancelCallback();
@@ -298,7 +298,7 @@ export class AnimationSet {
   /**
    * Pause the running animation
    */
-  pause() {
+  public pause() {
     this.clearAnimationInterval();
     // console.log('pause animation');
   }
