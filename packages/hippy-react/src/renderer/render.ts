@@ -68,12 +68,6 @@ function chunkNodes(batchNodes: BatchChunk[]) {
   return result;
 }
 
-function startBatch(): void {
-  if (batchIdle) {
-    UIManagerModule.startBatch();
-  }
-}
-
 /**
  * batch Updates from js to native
  * @param {number} rootViewId
@@ -88,8 +82,6 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.updateNode:
         trace(...componentName, 'updateNode', chunk.nodes);
-        // FIXME: iOS should be able to update multiple nodes at once.
-        // @ts-ignore
         if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
           chunk.nodes.forEach(node => (
             UIManagerModule.updateNode(rootViewId, [node])
@@ -100,8 +92,6 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.deleteNode:
         trace(...componentName, 'deleteNode', chunk.nodes);
-        // FIXME: iOS should be able to delete mutiple nodes at once.
-        // @ts-ignore
         if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
           chunk.nodes.forEach(node => (
             UIManagerModule.deleteNode(rootViewId, [node])
@@ -128,6 +118,7 @@ function endBatch(isHookUsed = false): void {
     return;
   }
   const rootViewId = getRootViewId();
+  UIManagerModule.startBatch();
   // if commitEffectsHook used, call batchUpdate synchronously
   if (isHookUsed) {
     batchUpdate(rootViewId);
@@ -273,7 +264,6 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
         }
       },
     );
-    startBatch();
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
@@ -291,7 +281,6 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
         }
       },
     );
-    startBatch();
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
@@ -312,7 +301,6 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  startBatch();
   batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
@@ -326,7 +314,6 @@ function updateChild(parentNode: Element) {
   }
   const rootViewId = getRootViewId();
   const translated = renderToNative(rootViewId, parentNode);
-  startBatch();
   if (translated) {
     batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
@@ -342,7 +329,6 @@ function updateWithChildren(parentNode: ViewNode) {
   }
   const rootViewId = getRootViewId();
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  startBatch();
   batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,
