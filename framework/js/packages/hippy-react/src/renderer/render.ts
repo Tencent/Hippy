@@ -82,8 +82,6 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.updateNode:
         trace(...componentName, 'updateNode', chunk.nodes);
-        // FIXME: iOS should be able to update multiple nodes at once.
-        // @ts-ignore
         if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
           chunk.nodes.forEach(node => (
             UIManagerModule.updateNode(rootViewId, [node])
@@ -94,8 +92,6 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.deleteNode:
         trace(...componentName, 'deleteNode', chunk.nodes);
-        // FIXME: iOS should be able to delete mutiple nodes at once.
-        // @ts-ignore
         if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
           chunk.nodes.forEach(node => (
             UIManagerModule.deleteNode(rootViewId, [node])
