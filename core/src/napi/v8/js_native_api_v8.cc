@@ -250,8 +250,6 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
       TDF_BASE_DLOG(INFO) << "NewDefaultPlatform";
       platform_ = v8::platform::NewDefaultPlatform();
 
-      v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
-                                 strlen("--wasm-disable-structured-cloning"));
 #if defined(V8_X5_LITE)
       v8::V8::InitializePlatform(platform_.get(), true);
 #else
@@ -1133,7 +1131,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
   } else if (wrapper->IsArray()) {
     auto arr = wrapper->ArrayValue();
     std::shared_ptr<CtxValue> args[arr.size()];
-    for (auto i = 0; i < arr.size(); ++i) {
+    for (size_t i = 0; i < arr.size(); ++i) {
       args[i] = CreateCtxValue(std::make_shared<JSValueWrapper>(arr[i]));
     }
     return CreateArray(arr.size(), args);
