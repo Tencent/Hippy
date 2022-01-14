@@ -146,7 +146,7 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
 }
 
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
-  DomManager::Erase(static_cast<uint32_t>(j_dom_id));
+  DomManager::Erase(static_cast<int32_t>(j_dom_id));
 }
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {

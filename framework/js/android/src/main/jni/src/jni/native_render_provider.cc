@@ -76,6 +76,7 @@ jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_dens
 }
 
 void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_instance_id) {
+  HippyRenderManager::Erase(static_cast<int32_t>(j_instance_id));
 }
 
 void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
