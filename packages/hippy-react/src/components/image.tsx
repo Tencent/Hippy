@@ -95,17 +95,17 @@ interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Invoked on `Image` is loaded.
    */
-  onLoad?(): void;
+  onLoad?: () => void;
 
   /**
    * Invoke on `Image` is end of loading.
    */
-  onLoadEnd?(): void;
+  onLoadEnd?: () => void;
 
   /**
    * Invoke on `Image` is start to loading.
    */
-  onLoadStart?(): void;
+  onLoadStart?: () => void;
 
   /**
    * Invoke on loading of `Image` get error.
@@ -113,7 +113,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * @param {Object} evt - Loading error data.
    * @param {string} evt.nativeEvent.error - Loading error message.
    */
-  onError?(evt: { nativeEvent: { error: string }}): void;
+  onError?: (evt: { nativeEvent: { error: string }}) => void;
 
   /**
    * Invoke on Image is loading.
@@ -122,7 +122,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * @param {number} evt.nativeEvent.loaded - The image is loaded.
    * @param {number} evt.nativeEvent.total - The loadded progress.
    */
-  onProgress?(evt: { nativeEvent: { loaded: number; total: number }}): void;
+  onProgress?: (evt: { nativeEvent: { loaded: number; total: number }}) => void;
 }
 
 /**
@@ -140,6 +140,8 @@ class Image extends React.Component<ImageProps, {}> {
       repeat: 'repeat', // iOS Only
     };
   }
+
+  public static prefetch = prefetch;
 
   public static getSize(
     url: any,
@@ -161,66 +163,6 @@ class Image extends React.Component<ImageProps, {}> {
     return size;
   }
 
-  public static prefetch = prefetch;
-
-  private getImageUrls({ src, srcs, source, sources }: {
-    src: string | any,
-    srcs: string[] | any,
-    source: string | any,
-    sources: string[] | any,
-  }) {
-    let imageUrls: string[] = [];
-    if (typeof src === 'string') {
-      imageUrls.push(src);
-    }
-    if (Array.isArray(srcs)) {
-      imageUrls = [...imageUrls, ...srcs];
-    }
-    if (source) {
-      if (typeof source === 'string') {
-        imageUrls.push(source);
-      } else if (typeof source === 'object' && source !== null) {
-        const { uri } = source as ImageSource;
-        if (uri) {
-          imageUrls.push(uri);
-        }
-      }
-    }
-    if (sources) {
-      if (Array.isArray(sources)) {
-        sources.forEach((imageSrc) => {
-          if (typeof imageSrc === 'string') {
-            imageUrls.push(imageSrc);
-          } else if (typeof imageSrc === 'object' && imageSrc !== null && imageSrc.uri) {
-            imageUrls.push(imageSrc.uri);
-          }
-        });
-      }
-    }
-
-    if (imageUrls.length) {
-      imageUrls = imageUrls.map((url: string) => convertImgUrl(url));
-    }
-    return imageUrls;
-  }
-
-  private handleTintColor(
-    nativeStyle: { tintColor?: number, tintColors?: number[] },
-    tintColor: Color, tintColors: Color[],
-  ) {
-    if (tintColor) {
-      // eslint-disable-next-line no-param-reassign
-      nativeStyle.tintColor = colorParse(tintColor) as number;
-    }
-    if (Array.isArray(tintColors)) {
-      // eslint-disable-next-line no-param-reassign
-      nativeStyle.tintColors = colorArrayParse(tintColors) as number[];
-    }
-  }
-
-  /**
-   * @ignore
-   */
   public render() {
     const {
       children,
@@ -239,7 +181,6 @@ class Image extends React.Component<ImageProps, {}> {
     /**
      * Image source prop
      */
-
     // Define the image source url array.
     const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
 
@@ -306,6 +247,61 @@ class Image extends React.Component<ImageProps, {}> {
         ref={imageRef as LegacyRef<HTMLImageElement>}
       />
     );
+  }
+
+  private getImageUrls({ src, srcs, source, sources }: {
+    src: string | any,
+    srcs: string[] | any,
+    source: string | any,
+    sources: string[] | any,
+  }) {
+    let imageUrls: string[] = [];
+    if (typeof src === 'string') {
+      imageUrls.push(src);
+    }
+    if (Array.isArray(srcs)) {
+      imageUrls = [...imageUrls, ...srcs];
+    }
+    if (source) {
+      if (typeof source === 'string') {
+        imageUrls.push(source);
+      } else if (typeof source === 'object' && source !== null) {
+        const { uri } = source as ImageSource;
+        if (uri) {
+          imageUrls.push(uri);
+        }
+      }
+    }
+    if (sources) {
+      if (Array.isArray(sources)) {
+        sources.forEach((imageSrc) => {
+          if (typeof imageSrc === 'string') {
+            imageUrls.push(imageSrc);
+          } else if (typeof imageSrc === 'object' && imageSrc !== null && imageSrc.uri) {
+            imageUrls.push(imageSrc.uri);
+          }
+        });
+      }
+    }
+
+    if (imageUrls.length) {
+      imageUrls = imageUrls.map((url: string) => convertImgUrl(url));
+    }
+    return imageUrls;
+  }
+
+  private handleTintColor(
+    nativeStyle: { tintColor?: number, tintColors?: number[] },
+    tintColor: Color, tintColors: Color[],
+  ) {
+    if (tintColor) {
+      // eslint-disable-next-line no-param-reassign
+      nativeStyle.tintColor = colorParse(tintColor) as number;
+    }
+    if (Array.isArray(tintColors)) {
+      // eslint-disable-next-line no-param-reassign
+      nativeStyle.tintColors = colorArrayParse(tintColors) as number[];
+    }
   }
 }
 export default Image;

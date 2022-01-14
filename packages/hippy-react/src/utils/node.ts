@@ -129,7 +129,9 @@ function recursivelyUnCacheFiberNode(node: ElementNode | number): void {
     unCacheFiberNode(node);
   } else if (node) {
     unCacheFiberNode(node.nodeId);
-    node.childNodes && node.childNodes.forEach(node => recursivelyUnCacheFiberNode(node as ElementNode));
+    if (Array.isArray(node.childNodes)) {
+      node.childNodes.forEach(node => recursivelyUnCacheFiberNode(node as ElementNode));
+    }
   }
 }
 

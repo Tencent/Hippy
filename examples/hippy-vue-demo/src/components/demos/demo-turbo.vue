@@ -32,7 +32,7 @@ import {
   printTurboConfig,
   nativeWithPromise,
   getArray,
-} from '@/components/demos/demoTurbo';
+} from './demoTurbo';
 
 export default {
   data() {

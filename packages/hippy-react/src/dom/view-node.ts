@@ -50,9 +50,6 @@ class ViewNode {
     component: {},
   };
 
-  // Will change to be true after insert into Native dom.
-  private mounted = false;
-
   // Index number in children, will update at traverseChildren method.
   public index = 0;
 
@@ -60,6 +57,9 @@ class ViewNode {
   public childNodes: ViewNode[] = [];
 
   public parentNode: ViewNode | null = null;
+
+  // Will change to be true after insert into Native dom.
+  private mounted = false;
 
   public constructor() {
     // Virtual DOM node id, will used in native to identify.
