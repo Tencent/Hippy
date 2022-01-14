@@ -85,17 +85,18 @@ function chunkNodes(batchNodes) {
 let __cssMap;
 
 function endBatch(app) {
-  if (!__batchIdle) {
+  if (!__batchIdle) return;
+  __batchIdle = false;
+  if (__batchNodes.length === 0) {
+    __batchIdle = true;
     return;
   }
-  __batchIdle = false;
   const {
     $nextTick,
     $options: {
       rootViewId,
     },
   } = app;
-
   $nextTick(() => {
     const chunks = chunkNodes(__batchNodes);
     chunks.forEach((chunk) => {
@@ -106,7 +107,6 @@ function endBatch(app) {
           break;
         case NODE_OPERATION_TYPES.updateNode:
           trace(...componentName, 'updateNode', chunk.nodes);
-          // FIXME: iOS should be able to update multiple nodes at once.
           if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
             chunk.nodes.forEach(node => (
               UIManagerModule.updateNode(rootViewId, [node])
@@ -117,7 +117,6 @@ function endBatch(app) {
           break;
         case NODE_OPERATION_TYPES.deleteNode:
           trace(...componentName, 'deleteNode', chunk.nodes);
-          // FIXME: iOS should be able to delete mutiple nodes at once.
           if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
             chunk.nodes.forEach(node => (
               UIManagerModule.deleteNode(rootViewId, [node])
