@@ -71,7 +71,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   // arguments count
   std::vector<std::shared_ptr<CtxValue>> arg_values;
   arg_values.reserve(count);
-  for (int i = 0; i < count; i++) {
+  for (size_t i = 0; i < count; i++) {
     arg_values.push_back(args[i]);
   }
   std::string call_info = std::string(name_).append(".").append(method);

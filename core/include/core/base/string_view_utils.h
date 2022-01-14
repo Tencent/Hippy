@@ -226,7 +226,7 @@ class StringViewUtils {
   inline static unicode_string_view ConstCharPointerToStrView(const char *p,
                                                               size_t len = -1) {
     size_t length;
-    if (len == -1) {
+    if (len == static_cast<size_t>(-1)) {
       length = strlen(p);
     } else {
       length = len;
@@ -241,7 +241,9 @@ class StringViewUtils {
     return std::string(U8ToConstCharPointer(str.c_str()), str.length());
   }
 
-  inline static size_t FindLastOf(const unicode_string_view &str_view,
+    static const size_t npos = -1;
+
+    inline static size_t FindLastOf(const unicode_string_view &str_view,
                                   unicode_string_view::char8_t_ u8_ch,
                                   char ch,
                                   char16_t u16_ch,
