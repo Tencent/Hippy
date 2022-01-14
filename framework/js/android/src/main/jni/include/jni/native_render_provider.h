@@ -35,6 +35,10 @@ jint OnCreateNativeRenderProvider(JNIEnv* j_env,
                                   jobject j_obj,
                                   jfloat j_density);
 
+void OnDestroyNativeRenderProvider(JNIEnv* j_env,
+                                   jobject j_object,
+                                   jint j_instance_id);
+
 void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id,
                     jfloat width, jfloat height);
 

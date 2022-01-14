@@ -779,7 +779,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
   private OnInitialListReadyEvent getOnInitialListReadyEvent() {
     if (mOnInitialListReadyEvent == null) {
-      mOnInitialListReadyEvent = new OnInitialListReadyEvent("initialListReady");
+      mOnInitialListReadyEvent = new OnInitialListReadyEvent("initiallistready");
     }
     return mOnInitialListReadyEvent;
   }

@@ -647,7 +647,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                     TAG + ": callUIFunction: invalid negative id=" + id);
         }
-        final NativeRenderPromise promise = new NativeRenderPromise(functionName, id,
+        final UIPromise promise = new UIPromise(functionName, id,
                 mRenderProvider.getInstanceId());
         try {
             // It is generally preferable to use add here, just focus the exception
@@ -673,11 +673,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         if (mRenderProvider != null) {
             mRenderProvider.doPromiseCallBack(result, functionName, nodeId, params);
         }
-    }
-
-    @Override
-    public void startBatch() {
-        // TODO: Just keep this method even if it don't do anything.
     }
 
     @Override

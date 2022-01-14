@@ -110,16 +110,15 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
                 break;
             }
             case MotionEvent.ACTION_UP: {
-                if (mGestureTypes.contains(ON_LONG_CLICK) || mGestureTypes.contains(ON_CLICK)) {
-                    if (Math.abs(x - mLastX) < mTouchSlop && Math.abs(y - mLastY) < mTouchSlop) {
+                if (Math.abs(x - mLastX) < mTouchSlop && Math.abs(y - mLastY) < mTouchSlop) {
+                    if (mGestureTypes.contains(ON_LONG_CLICK) && mHandleLongPress) {
                         handle = true;
-                        if (mGestureTypes.contains(ON_LONG_CLICK) && mHandleLongPress) {
-                            NativeGestureDispatcher
-                                    .handleClickEvent(mNativeRenderer, mId, ON_LONG_CLICK);
-                        } else if (mGestureTypes.contains(ON_CLICK)) {
-                            NativeGestureDispatcher
-                                    .handleClickEvent(mNativeRenderer, mId, ON_CLICK);
-                        }
+                        NativeGestureDispatcher
+                                .handleClickEvent(mNativeRenderer, mId, ON_LONG_CLICK);
+                    } else if (mGestureTypes.contains(ON_CLICK)) {
+                        handle = true;
+                        NativeGestureDispatcher
+                                .handleClickEvent(mNativeRenderer, mId, ON_CLICK);
                     }
                 }
                 if (mHandler != null) {

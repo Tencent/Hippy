@@ -33,7 +33,6 @@ import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.dom.DomManager;
-import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
@@ -50,6 +49,7 @@ import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManagerImpl;
+import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
 import com.tencent.mtt.hippy.modules.javascriptmodules.Dimensions;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
@@ -891,14 +891,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         public void destroy() {
+            if (mLinkHelper != null) {
+                mLinkHelper.destroy();
+            }
             if (mBridgeManager != null) {
                 mBridgeManager.destroy();
             }
             if (mModuleManager != null) {
                 mModuleManager.destroy();
-            }
-            if (mLinkHelper != null) {
-                mLinkHelper.destroy();
             }
             if (mEngineLifecycleEventListeners != null) {
                 mEngineLifecycleEventListeners.clear();

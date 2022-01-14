@@ -33,12 +33,13 @@ public class NativeRendererManager {
         sNativeRendererMap.remove(instanceId);
     }
 
-    public @Nullable static NativeRender getNativeRenderer(Integer instanceId) {
+    @Nullable
+    public static NativeRender getNativeRenderer(Integer instanceId) {
         return sNativeRendererMap.get(instanceId);
     }
 
-    public @Nullable
-    static NativeRender getNativeRenderer(@Nullable Context context) {
+    @Nullable
+    public static NativeRender getNativeRenderer(@Nullable Context context) {
         if (context instanceof NativeRenderContext) {
             final int instanceId = ((NativeRenderContext) context).getInstanceId();
             return getNativeRenderer(instanceId);

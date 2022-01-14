@@ -15,8 +15,8 @@
  */
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
-import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
 
 @SuppressWarnings({"unused", "deprecation"})
 public interface EventDispatcher extends HippyJavaScriptModule {
