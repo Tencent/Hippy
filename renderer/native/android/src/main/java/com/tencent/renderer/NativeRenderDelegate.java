@@ -37,7 +37,5 @@ public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
 
     long measure(int id, float width, int widthMode, float height, int heightMode);
 
-    void startBatch();
-
     void endBatch();
 }

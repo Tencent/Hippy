@@ -18,16 +18,13 @@ package com.tencent.mtt.hippy.modules;
 
 import android.text.TextUtils;
 
-import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.runtime.builtins.JSMap;
 import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
-import java.util.HashMap;
 
 @SuppressWarnings({"deprecation", "unused"})
-public class PromiseImpl implements Promise {
+public class PromiseImpl implements HippyModulePromise {
 
   public static final int PROMISE_CODE_SUCCESS = 0;
   public static final int PROMISE_CODE_NORMAN_ERROR = 1;

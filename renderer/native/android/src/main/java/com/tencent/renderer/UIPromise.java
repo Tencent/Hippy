@@ -17,32 +17,16 @@ package com.tencent.renderer;
 
 import com.tencent.mtt.hippy.modules.Promise;
 
-public class NativeRenderPromise implements Promise {
+public class UIPromise implements Promise {
 
-    private static final int PROMISE_CODE_RESOLVE = 0;
-    private static final int PROMISE_CODE_REJECT = 2;
     private final int mNodeId;
     private final int mInstanceId;
     private final String mFunctionName;
 
-    public NativeRenderPromise(String functionName, int nodeId, int instanceId) {
+    public UIPromise(String functionName, int nodeId, int instanceId) {
         mFunctionName = functionName;
         mNodeId = nodeId;
         mInstanceId = instanceId;
-    }
-
-    public String getCallId() {
-        return CALL_ID_NO_CALLBACK;
-    }
-
-    public boolean isCallback() {
-        return true;
-    }
-
-    @Override
-    public void setTransferType(BridgeTransferType type) {
-        // Native Render only support normal transfer type, NIO is not applicable here,
-        // so just override this method, no need to do anything.
     }
 
     @Override

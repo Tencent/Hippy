@@ -15,15 +15,13 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
-import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngine;
-import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
-import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
 
 @SuppressWarnings({"deprecation", "unused"})
 public interface HippyBridgeManager {

@@ -15,11 +15,11 @@
  */
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
-import static com.tencent.mtt.hippy.modules.Promise.BridgeTransferType.BRIDGE_TRANSFER_TYPE_NORMAL;
+import static com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType.BRIDGE_TRANSFER_TYPE_NORMAL;
 
-import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 
 import java.lang.reflect.InvocationHandler;

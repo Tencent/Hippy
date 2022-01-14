@@ -42,6 +42,11 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              OnCreateNativeRenderProvider)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
+             "onDestroyNativeRenderProvider",
+             "(I)V",
+             OnDestroyNativeRenderProvider)
+
+REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onRootSizeChanged",
              "(IFF)V",
              UpdateRootSize)
@@ -68,6 +73,9 @@ jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_dens
   hippy_render_manager->SetDensity(j_density);
   HippyRenderManager::Insert(hippy_render_manager);
   return hippy_render_manager->GetId();
+}
+
+void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_instance_id) {
 }
 
 void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,

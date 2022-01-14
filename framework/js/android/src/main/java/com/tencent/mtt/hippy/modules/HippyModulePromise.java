@@ -13,33 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.tencent.mtt.hippy.modules;
 
-package com.tencent.renderer;
+@SuppressWarnings({"unused"})
+public interface HippyModulePromise extends Promise {
 
-import android.content.Context;
-import android.content.ContextWrapper;
-import java.nio.ByteBuffer;
+    String CALL_ID_NO_CALLBACK = "-1";
 
-public final class NativeRenderContext extends ContextWrapper {
+    enum BridgeTransferType {
+        BRIDGE_TRANSFER_TYPE_NORMAL(0),
+        BRIDGE_TRANSFER_TYPE_NIO(1);
 
-    private int mInstanceId;
+        private final int iValue;
 
-    public NativeRenderContext(Context context, int instanceId) {
-        super(context);
-        this.mInstanceId = instanceId;
+        BridgeTransferType(int value) {
+            iValue = value;
+        }
+
+        public int value() {
+            return iValue;
+        }
     }
 
-    public int getInstanceId() {
-        return mInstanceId;
-    }
+    boolean isCallback();
 
-    /**
-     * Set renderer instance id, use default access permission,
-     * the instance id should not change by user.
-     *
-     * @param instanceId renderer instance id
-     */
-    void setInstanceId(int instanceId) {
-        mInstanceId = instanceId;
-    }
+    String getCallId();
+
+    void setTransferType(BridgeTransferType type);
 }

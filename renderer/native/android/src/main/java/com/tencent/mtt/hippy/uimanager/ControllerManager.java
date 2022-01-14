@@ -288,11 +288,7 @@ public class ControllerManager {
       Promise promise) {
     HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
     View view = mControllerRegistry.getView(id);
-    if (!promise.isCallback()) {
-      hippyViewController.dispatchFunction(view, functionName, var);
-    } else {
-      hippyViewController.dispatchFunction(view, functionName, var, promise);
-    }
+    hippyViewController.dispatchFunction(view, functionName, var, promise);
 
   }
 
