@@ -7,8 +7,6 @@ VoltronMap getDimensions(int windowWidth, int windowHeight,
   var dimensionMap = VoltronMap();
   var windowDisplayMetricsMap = VoltronMap();
 
-  final densityApi = ScreenUtil.getInstance().densityApi;
-
   final screenDensity = ScreenUtil.getInstance().screenDensity;
   final screenFontScale = ScreenUtil.getInstance().fontScale;
   final screenWidthPixels =
@@ -27,7 +25,6 @@ VoltronMap getDimensions(int windowWidth, int windowHeight,
   screenDisplayMetricsMap.push("height", screenHeightPixels);
   screenDisplayMetricsMap.push("scale", screenDensity);
   screenDisplayMetricsMap.push("fontScale", screenFontScale);
-  screenDisplayMetricsMap.push("densityDpi", densityApi);
   screenDisplayMetricsMap.push("statusBarHeight", statusBarHeight);
   screenDisplayMetricsMap.push("bottomBarHeight", bottomBarHeight);
 
@@ -44,7 +41,6 @@ VoltronMap getDimensions(int windowWidth, int windowHeight,
         "height", windowHeight >= 0 ? windowHeight : heightPixels);
     windowDisplayMetricsMap.push("scale", density);
     windowDisplayMetricsMap.push("fontScale", ScreenUtil.getFontScale(context));
-    windowDisplayMetricsMap.push("densityDpi", densityApi);
     windowDisplayMetricsMap.push("statusBarHeight", statusBarHeight);
     windowDisplayMetricsMap.push("bottomBarHeight", bottomBarHeight);
   } else {
@@ -54,7 +50,6 @@ VoltronMap getDimensions(int windowWidth, int windowHeight,
         "height", windowHeight >= 0 ? windowHeight : screenHeightPixels);
     windowDisplayMetricsMap.push("scale", screenDensity);
     windowDisplayMetricsMap.push("fontScale", screenFontScale);
-    windowDisplayMetricsMap.push("densityDpi", densityApi);
     windowDisplayMetricsMap.push("statusBarHeight", statusBarHeight);
     windowDisplayMetricsMap.push("bottomBarHeight", bottomBarHeight);
   }

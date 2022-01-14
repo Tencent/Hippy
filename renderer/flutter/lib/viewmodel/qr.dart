@@ -1,6 +1,6 @@
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../engine.dart';
+import '../render.dart';
 import 'view_model.dart';
 
 class QrRenderViewModel extends RenderViewModel {
@@ -9,6 +9,6 @@ class QrRenderViewModel extends RenderViewModel {
   int version = QrVersions.auto;
 
   QrRenderViewModel(
-      int id, int instanceId, String className, EngineContext context)
+      int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context);
 }

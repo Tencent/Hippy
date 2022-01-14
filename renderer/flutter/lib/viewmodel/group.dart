@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 
-import '../engine.dart';
+import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import 'view_model.dart';
@@ -38,11 +38,11 @@ class GroupViewModel extends RenderViewModel {
   int get childCount => _children.length;
 
   GroupViewModel(
-      int id, int instanceId, String className, EngineContext context)
+      int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context);
 
   GroupViewModel.copy(int id, int instanceId, String className,
-      EngineContext context, GroupViewModel viewModel)
+      RenderContext context, GroupViewModel viewModel)
       : super.copy(id, instanceId, className, context, viewModel) {
     interceptTouch = viewModel.interceptTouch;
     interceptPullUp = viewModel.interceptPullUp;
@@ -59,7 +59,7 @@ class GroupViewModel extends RenderViewModel {
         interceptTouch == other.interceptTouch &&
         interceptPullUp == other.interceptPullUp &&
         interceptTouch == other.interceptTouch &&
-        DeepCollectionEquality().equals(_sortedIdList, other.sortedIdList) &&
+        const DeepCollectionEquality().equals(_sortedIdList, other.sortedIdList) &&
         super == (other);
   }
 
@@ -130,7 +130,7 @@ class DivContainerViewModel {
   final HashMap<int, RenderViewModel> childrenMap;
   final String overflow;
   final String name;
-  final EngineContext context;
+  final RenderContext context;
   final GroupViewModel _viewModel;
 
   int get id => _viewModel.id;
@@ -168,7 +168,7 @@ class DivContainerViewModel {
   @override
   bool operator ==(Object other) =>
       other is DivContainerViewModel &&
-      DeepCollectionEquality().equals(sortedIdList, other.sortedIdList) &&
+      const DeepCollectionEquality().equals(sortedIdList, other.sortedIdList) &&
       overflow == other.overflow;
 
   @override

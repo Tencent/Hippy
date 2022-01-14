@@ -2,8 +2,8 @@ import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 
-import '../engine.dart';
 import '../style.dart';
+import '../render.dart';
 import 'handle.dart';
 import 'processor.dart';
 
@@ -12,7 +12,7 @@ class NativeGestureDispatcher implements GestureHandleCallback {
 
   final int _id;
   final int _rootId;
-  final EngineContext _context;
+  final RenderContext _context;
   NativeGestureProcessor? _gestureProcessor;
 
   bool clickable = false;
@@ -29,7 +29,7 @@ class NativeGestureDispatcher implements GestureHandleCallback {
 
   final HashSet<String> _gestureTypes = HashSet();
 
-  NativeGestureDispatcher({required int rootId, required int id, required EngineContext context})
+  NativeGestureDispatcher({required int rootId, required int id, required RenderContext context})
       : _id = id, _rootId = rootId,
         _context = context;
 
@@ -97,14 +97,11 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   }
 
   void handleOnTouchEvent(PointerEvent event) {
-    if (_gestureProcessor == null) {
-      _gestureProcessor = NativeGestureProcessor(callback: this);
-    }
+    _gestureProcessor ??= NativeGestureProcessor(callback: this);
     _gestureProcessor!.onTouchEvent(event);
   }
 
   void addGestureType(String type) {
-    print('addGestureType:$type');
     _gestureTypes.add(type);
   }
 

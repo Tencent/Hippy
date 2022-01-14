@@ -1,11 +1,9 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:gradient_like_css/gradient_like_css.dart';
 
 import '../common.dart';
-import '../engine.dart';
+import '../render.dart';
 import '../gesture.dart';
 import '../style.dart';
 import '../util.dart';
@@ -130,9 +128,9 @@ class RenderViewModel extends ChangeNotifier {
 
   List<RenderViewModel>? get children => null;
 
-  final EngineContext _engineContext;
+  final RenderContext _renderContext;
 
-  EngineContext get context => _engineContext;
+  RenderContext get context => _renderContext;
 
   Key get renderKey => ValueKey('$_className[$_id]');
 
@@ -141,13 +139,13 @@ class RenderViewModel extends ChangeNotifier {
   RenderViewModel? childFromId(int id) => null;
 
   RenderViewModel(
-      this._id, this._instanceId, this._className, EngineContext context)
-      : _engineContext = context {
+      this._id, this._instanceId, this._className, RenderContext context)
+      : _renderContext = context {
     _dispatcher = createDispatcher();
   }
 
   RenderViewModel.copy(this._id, this._instanceId, this._className,
-      this._engineContext, RenderViewModel viewModel) {
+      this._renderContext, RenderViewModel viewModel) {
     _x = viewModel.layoutX;
     _y = viewModel.layoutY;
     _width = viewModel.width;
@@ -293,7 +291,7 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   NativeGestureDispatcher createDispatcher() {
-    return NativeGestureDispatcher(rootId: rootId, id: id, context: _engineContext);
+    return NativeGestureDispatcher(rootId: rootId, id: id, context: _renderContext);
   }
 
   void updateLayout(double x, double y, double width, double height) {
@@ -572,10 +570,7 @@ class RenderViewModel extends ChangeNotifier {
         return null;
       }
 
-      if (border == null) {
-        // 仅需要展示背景图的场景
-        border = Border.fromBorderSide(BorderSide.none);
-      }
+      border ??= const Border.fromBorderSide(BorderSide.none);
       return ShapeDecoration(
         shape: border,
         image: image,
@@ -857,7 +852,7 @@ class CssAnimation {
     final animationDelay = animation.get<int>(NodeProps.kAnimationDelay) ?? 0;
     final animationTotalDuration = animationDuration + animationDelay;
     final startInterval = animationDelay / animationTotalDuration;
-    final endInterval = 1.0;
+    const endInterval = 1.0;
     final originTimingFunction =
         animation.get<String>(NodeProps.kAnimationTimingFunction) ??
             TimingFunction.kEase;
@@ -1075,7 +1070,7 @@ class BoundingClientRect {
 
   BoundingClientRect(RenderBox renderBox) {
     final size = renderBox.size;
-    final position = renderBox.localToGlobal(Offset(0, 0));
+    final position = renderBox.localToGlobal(const Offset(0, 0));
     dx = position.dx.toInt();
     dy = position.dy.toInt();
     width = size.width.toInt();
@@ -1099,7 +1094,7 @@ class BoundingClientRect {
 }
 
 class TransformOrigin {
-  Offset offset = Offset(0, 0);
+  Offset offset = const Offset(0, 0);
   Alignment alignment = Alignment.center;
 
   TransformOrigin(VoltronMap? transformOriginMap) {

@@ -4,15 +4,12 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
 import '../gesture.dart';
-import '../module.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
-import 'group.dart';
 
 typedef RefreshWrapperDelegate = SmartRefresher Function(
     BuildContext context, Widget child);
@@ -35,7 +32,7 @@ class ListViewController extends BaseGroupController<ListViewModel> {
   }
 
   @override
-  ListViewModel createRenderViewModel(RenderNode node, EngineContext context) {
+  ListViewModel createRenderViewModel(RenderNode node, RenderContext context) {
     return ListViewModel(node.id, node.rootId, node.name, context);
   }
 
@@ -184,9 +181,9 @@ class ListViewController extends BaseGroupController<ListViewModel> {
 
   @override
   void dispatchFunction(
-      ListViewModel renderViewModel, String functionName, VoltronArray array,
+      ListViewModel viewModel, String functionName, VoltronArray array,
       {Promise? promise}) {
-    super.dispatchFunction(renderViewModel, functionName, array,
+    super.dispatchFunction(viewModel, functionName, array,
         promise: promise);
     if (functionName == kScrollToIndex) {
       // list滑动到某个item
@@ -199,7 +196,7 @@ class ListViewController extends BaseGroupController<ListViewModel> {
         duration = 100;
       }
       LogUtils.d("list_scroll", "scroll to index:$yIndex");
-      renderViewModel.scrollToIndex(yIndex, duration, animated);
+      viewModel.scrollToIndex(yIndex, duration, animated);
     } else if (functionName == kScrollToContentOffset) {
       // list滑动到某个距离
       var yOffset = array.get(1).toDouble() ?? -1.0;
@@ -213,7 +210,7 @@ class ListViewController extends BaseGroupController<ListViewModel> {
 
       LogUtils.d("list_scroll", "scroll to offset:$yOffset");
 
-      renderViewModel.scrollToOffset(yOffset, duration, animated);
+      viewModel.scrollToOffset(yOffset, duration, animated);
     }
   }
 }

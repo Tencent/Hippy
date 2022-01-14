@@ -1,12 +1,10 @@
 import 'package:flutter/widgets.dart';
+import 'package:voltron_renderer/render.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
 import '../style.dart';
 import '../util.dart';
-import 'node.dart';
-import 'tree.dart';
 
 class TextRenderNode extends RenderNode with TextStyleNode {
   static const String _kTag = 'TextRenderNode';
@@ -15,8 +13,10 @@ class TextRenderNode extends RenderNode with TextStyleNode {
       ControllerManager controllerManager, VoltronMap? props)
       : super(id, className, root, controllerManager, props);
 
+  @override
   bool get isVirtual => parent?.name == TextController.kClassName;
 
+  @override
   int calculateLayout(FlexLayoutParams layoutParams) {
     TextPainter? painter;
     var exception = false;
@@ -38,9 +38,9 @@ class TextRenderNode extends RenderNode with TextStyleNode {
     }
   }
 
-  void generateSpan(EngineContext context) {
-    if (fontScaleAdapter == null && enableScale) {
-      fontScaleAdapter = context.globalConfigs.fontScaleAdapter;
+  void generateSpan(RenderContext context) {
+    if (enableScale) {
+      customTextScale = context.fontScale;
     }
     if (isVirtual) {
       return;
@@ -48,7 +48,7 @@ class TextRenderNode extends RenderNode with TextStyleNode {
     span = createSpan();
   }
 
-  void updateData(EngineContext context) {
+  void updateData(RenderContext context) {
     if (!isVirtual && span != null) {
       var textData = createData(
           layoutWidth -

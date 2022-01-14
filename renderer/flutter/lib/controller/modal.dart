@@ -3,11 +3,9 @@ import 'package:flutter/widgets.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
 import '../render.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
-import 'group.dart';
 
 class ModalController
     extends GroupController<ModalRenderViewModel, ModalRenderNode> {
@@ -31,7 +29,7 @@ class ModalController
 
   @override
   ModalRenderViewModel createRenderViewModel(
-      ModalRenderNode node, EngineContext context) {
+      ModalRenderNode node, RenderContext context) {
     return ModalRenderViewModel(
         id: node.id,
         className: node.name,
@@ -41,8 +39,8 @@ class ModalController
 
   @override
   Widget createWidget(
-      BuildContext context, ModalRenderViewModel renderViewModel) {
-    return ModalContainerWidget(renderViewModel);
+      BuildContext context, ModalRenderViewModel viewModel) {
+    return ModalContainerWidget(viewModel);
   }
 
   @override

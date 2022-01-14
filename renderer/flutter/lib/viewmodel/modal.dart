@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 import '../engine.dart';
-import '../module.dart';
+import '../render.dart';
 import '../util.dart';
 import '../widget.dart';
 import 'group.dart';
@@ -31,7 +30,7 @@ class ModalRenderViewModel extends GroupViewModel
       {required int id,
       required int instanceId,
       required String className,
-      required EngineContext context})
+      required RenderContext context})
       : super(id, instanceId, className, context) {
     context.addInstanceLifecycleEventListener(this);
   }
@@ -40,7 +39,7 @@ class ModalRenderViewModel extends GroupViewModel
       {required int id,
       required int instanceId,
       required String className,
-      required EngineContext context,
+      required RenderContext context,
       required ModalRenderViewModel viewModel})
       : super.copy(id, instanceId, className, context, viewModel) {
     animationSwitch = viewModel.animationSwitch;
@@ -201,7 +200,7 @@ class ModalRenderViewModel extends GroupViewModel
     return Material(
         type: MaterialType.transparency,
         child: Scaffold(
-            backgroundColor: Color(0x01ffffff),
+            backgroundColor: const Color(0x01ffffff),
             resizeToAvoidBottomInset: resizeToAvoidBottomInset,
             body: AnnotatedRegion<SystemUiOverlayStyle>(
                 value: statusBarTextDarkColor
@@ -217,17 +216,11 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void onRequestClose() {
-    context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(id, "onRequestClose", null);
+    context.eventHandler.receiveUIComponentEvent(id, "onRequestClose", null);
   }
 
   void onShow() {
-    context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(id, "onShow", null);
+    context.eventHandler.receiveUIComponentEvent(id, "onShow", null);
   }
 
   Widget _animation(
@@ -251,7 +244,7 @@ class ModalRenderViewModel extends GroupViewModel
             child: child);
       } else if (aniType == 'slide_fade') {
         return SlideTransition(
-            position: Tween<Offset>(begin: Offset(0, 1), end: Offset.zero)
+            position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
                 .animate(CurvedAnimation(
                     parent: animation, curve: Curves.easeInCubic)),
             child: FadeTransition(

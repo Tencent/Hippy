@@ -1,42 +1,39 @@
 import '../common.dart';
 import '../engine.dart';
-import '../module.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
 import 'controller.dart';
 import 'div.dart';
+import 'generator.dart';
 import 'registry.dart';
 import 'update.dart';
 
 class ControllerManager implements InstanceLifecycleEventListener {
-  final EngineContext _context;
+  final RenderContext _context;
   final ControllerRegistry _controllerRegistry;
 
-  ControllerManager(this._context, List<APIProvider>? packages)
+  ControllerManager(this._context, List<ViewControllerGenerator>? generators)
       : _controllerRegistry = ControllerRegistry() {
     _context.addInstanceLifecycleEventListener(this);
-    processControllers(packages);
+    processControllers(generators);
   }
 
-  void processControllers(List<APIProvider>? packages) {
-    if (packages == null) {
+  void processControllers(List<ViewControllerGenerator>? generators) {
+    if (generators == null || generators.isEmpty) {
       return;
     }
 
-    for (var provider in packages) {
-      var controllerFactoryList = provider.controllerGeneratorList;
-      if (controllerFactoryList.isNotEmpty) {
-        for (var factory in controllerFactoryList) {
-          _controllerRegistry.addControllerHolder(factory.name,
-              ControllerHolder(factory.generateController, factory.isLazy));
-        }
-      }
+    for (var controllerFactory in generators) {
+      _controllerRegistry.addControllerHolder(
+          controllerFactory.name,
+          ControllerHolder(
+              controllerFactory.generateController, controllerFactory.isLazy));
     }
   }
 
-  EngineContext get context => _context;
+  RenderContext get context => _context;
 
   void destroy() {
     _context.removeInstanceLifecycleEventListener(this);
@@ -45,7 +42,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
 
   void deleteRoot(int id, [RenderTree? renderTree]) {
     final _renderTree =
-        renderTree == null ? _controllerRegistry.getRenderTree(id) : renderTree;
+        renderTree ?? _controllerRegistry.getRenderTree(id);
     if (_renderTree != null) {
       _renderTree.clear();
       _controllerRegistry.removeRenderTree(_renderTree);
@@ -144,8 +141,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
     } else {
       Error exception = StateError(
           "${"child null or parent not ViewGroup pid ${parentNode.id}"} parentClass ${parentNode.name} renderNodeClass ${childNode.name}${" id ${childNode.id}"}");
-      _context.globalConfigs.exceptionHandlerAdapter
-          ?.handleNativeException(exception, true);
+      _context.handleNativeException(exception, true);
     }
   }
 

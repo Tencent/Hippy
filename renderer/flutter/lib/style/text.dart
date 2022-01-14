@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../adapter.dart';
 import '../common.dart';
 import '../controller.dart';
 import '../render.dart';
@@ -34,6 +33,7 @@ mixin TextStyleNode on StyleNode {
   FontWeight? _fontWeight;
   String? _whiteSpace;
   TextOverflow _textOverflow = TextOverflow.visible;
+  double customTextScale = 1.0;
 
   // 文本阴影属性
   double _textShadowOffsetDx = 0;
@@ -48,7 +48,6 @@ mixin TextStyleNode on StyleNode {
 
   // 系统文本缩放尺寸
   bool _enableScale = false;
-  FontScaleAdapter? fontScaleAdapter;
 
   // 手势
   final List<String> _gestureTypes = [];
@@ -403,11 +402,11 @@ mixin TextStyleNode on StyleNode {
               decoration: textDecoration),
           children: childrenSpan);
     }
-    return TextSpan(text: "");
+    return const TextSpan(text: "");
   }
 
   TextData createData(double width, FlexMeasureMode widthMode) {
-    var text = span ?? TextSpan(text: "");
+    var text = span ?? const TextSpan(text: "");
     return TextData(_numberOfLines ?? kMaxLineCount, text, _textAlign,
         _generateTextScale(), _textOverflow);
   }
@@ -416,7 +415,7 @@ mixin TextStyleNode on StyleNode {
     var unconstrainedWidth =
         widthMode == FlexMeasureMode.undefined || width < 0;
     var maxWidth = unconstrainedWidth ? double.infinity : width;
-    var text = span ?? TextSpan(text: "");
+    var text = span ?? const TextSpan(text: "");
     var painter = TextPainter(
         maxLines: _numberOfLines ?? kMaxLineCount,
         text: text,
@@ -439,8 +438,8 @@ mixin TextStyleNode on StyleNode {
 
   double _generateTextScale() {
     var textScaleFactor = 1.0;
-    if (fontScaleAdapter != null && _enableScale) {
-      textScaleFactor = fontScaleAdapter?.getFontScale() ?? 1.0;
+    if (_enableScale) {
+      textScaleFactor = customTextScale;
     }
 
     return textScaleFactor;

@@ -4,14 +4,10 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
-import '../module.dart';
 import '../render.dart';
 import '../style.dart';
-import '../util.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
-import 'group.dart';
 
 enum RefreshState {
   init,
@@ -27,15 +23,15 @@ class RefreshWrapperController
 
   @override
   RefreshWrapperRenderViewModel createRenderViewModel(
-      RenderNode node, EngineContext context) {
+      RenderNode node, RenderContext context) {
     return RefreshWrapperRenderViewModel(
         node.id, node.rootId, node.name, context);
   }
 
   @override
   Widget createWidget(
-      BuildContext context, RefreshWrapperRenderViewModel renderViewModel) {
-    return RefreshWrapperWidget(renderViewModel);
+      BuildContext context, RefreshWrapperRenderViewModel viewModel) {
+    return RefreshWrapperWidget(viewModel);
   }
 
   @override
@@ -77,22 +73,22 @@ class RefreshWrapperController
   }
 
   @override
-  void dispatchFunction(RefreshWrapperRenderViewModel renderViewModel,
+  void dispatchFunction(RefreshWrapperRenderViewModel viewModel,
       String functionName, VoltronArray array,
       {Promise? promise}) {
-    super.dispatchFunction(renderViewModel, functionName, array,
+    super.dispatchFunction(viewModel, functionName, array,
         promise: promise);
     if (kRefreshComplected == functionName) {
-      renderViewModel.refreshEventDispatcher.refreshComplected();
+      viewModel.refreshEventDispatcher.refreshComplected();
     } else if (kStartRefresh == functionName) {
-      renderViewModel.refreshEventDispatcher.startRefresh();
+      viewModel.refreshEventDispatcher.startRefresh();
     }
   }
 }
 
 class RefreshEventDispatcher {
   final int _id;
-  final EngineContext _context;
+  final RenderContext _context;
 
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -102,10 +98,7 @@ class RefreshEventDispatcher {
   RefreshEventDispatcher(this._id, this._context);
 
   void _handleEvent(String type) {
-    _context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(_id, type, null);
+    _context.eventHandler.receiveUIComponentEvent(_id, type, null);
   }
 
   void refreshComplected() {

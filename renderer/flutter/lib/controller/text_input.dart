@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
-import '../module.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
@@ -47,14 +45,14 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
 
   @override
   TextInputRenderViewModel createRenderViewModel(
-      RenderNode node, EngineContext context) {
+      RenderNode node, RenderContext context) {
     return TextInputRenderViewModel(node.id, node.rootId, name, context);
   }
 
   @override
   Widget createWidget(
-      BuildContext context, TextInputRenderViewModel renderViewModel) {
-    return TextInputWidget(renderViewModel);
+      BuildContext context, TextInputRenderViewModel viewModel) {
+    return TextInputWidget(viewModel);
   }
 
   @override
@@ -335,7 +333,7 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
   }
 
   @override
-  void dispatchFunction(TextInputRenderViewModel renderViewModel,
+  void dispatchFunction(TextInputRenderViewModel viewModel,
       String functionName, VoltronArray array,
       {Promise? promise}) {
     switch (functionName) {
@@ -345,24 +343,24 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
           int pos = array.get(1);
           LogUtils.i("text_input", "js set value: $value, $pos");
           if (array.size() < 2) pos = array.getString(0)?.length ?? 0;
-          renderViewModel.dispatcher.jsSetValue(array.getString(0), pos);
+          viewModel.dispatcher.jsSetValue(array.getString(0), pos);
         }
         break;
       case kClearFunction:
-        renderViewModel.dispatcher.jsSetValue("", 0);
+        viewModel.dispatcher.jsSetValue("", 0);
         break;
       case kCommandFocus:
-        renderViewModel.focus();
+        viewModel.focus();
         break;
       case kCommandKeyboardDismiss:
-        renderViewModel.dismiss();
+        viewModel.dismiss();
         break;
       case kCommandBlur:
-        renderViewModel.blur();
+        viewModel.blur();
         break;
       case kCommandGetValue:
         if (promise != null) {
-          var resultMap = renderViewModel.dispatcher.jsGetValue();
+          var resultMap = viewModel.dispatcher.jsGetValue();
           promise.resolve(resultMap);
         }
         break;
@@ -447,7 +445,7 @@ class TextEditingControllerProxy {
       : TextEditingController.fromValue(TextEditingValue(
           text: "",
           selection: TextSelection.fromPosition(
-              TextPosition(offset: 0, affinity: TextAffinity.downstream))));
+              const TextPosition(offset: 0, affinity: TextAffinity.downstream))));
 
   TextEditingController get realController {
     return controller ??= _newController;
@@ -462,14 +460,14 @@ class TextEditingControllerProxy {
     return _cacheTextEditingValue ??= TextEditingValue(
         text: '',
         selection: TextSelection.fromPosition(
-            TextPosition(offset: 0, affinity: TextAffinity.downstream)));
+            const TextPosition(offset: 0, affinity: TextAffinity.downstream)));
   }
 
   TextSelection get selection =>
       controller?.selection ??
       (_cacheTextEditingValue?.selection ??
           TextSelection.fromPosition(
-              TextPosition(offset: 0, affinity: TextAffinity.downstream)));
+              const TextPosition(offset: 0, affinity: TextAffinity.downstream)));
 
   String get text {
     var v = controller?.value;
@@ -524,7 +522,7 @@ class TextInputDispatcher {
   bool listenFocus = false;
   bool listenContentSizeChange = false;
 
-  EngineContext context;
+  RenderContext context;
   int id;
 
   String _oldText = "";
@@ -544,10 +542,7 @@ class TextInputDispatcher {
       selection.push("end", selEnd);
       var paramsMap = VoltronMap();
       paramsMap.push("selection", selection);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-              enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveUIComponentEvent(id, "onSelectionChange", paramsMap);
+      context.eventHandler.receiveUIComponentEvent(id, "onSelectionChange", paramsMap);
     }
   }
 
@@ -558,15 +553,9 @@ class TextInputDispatcher {
         var paramsMap = VoltronMap();
         paramsMap.push("text", text);
         if (hasFocus) {
-          context.moduleManager
-              .getJavaScriptModule<EventDispatcher>(
-                  enumValueToString(JavaScriptModuleType.EventDispatcher))
-              ?.receiveUIComponentEvent(id, "onFocus", paramsMap);
+          context.eventHandler.receiveUIComponentEvent(id, "onFocus", paramsMap);
         } else {
-          context.moduleManager
-              .getJavaScriptModule<EventDispatcher>(
-                  enumValueToString(JavaScriptModuleType.EventDispatcher))
-              ?.receiveUIComponentEvent(id, "onBlur", paramsMap);
+          context.eventHandler.receiveUIComponentEvent(id, "onBlur", paramsMap);
         }
       }
     }
@@ -576,10 +565,7 @@ class TextInputDispatcher {
     if (listenEndEditing) {
       var paramsMap = VoltronMap();
       paramsMap.push("text", text);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-              enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveUIComponentEvent(id, "onEndEditing", paramsMap);
+      context.eventHandler.receiveUIComponentEvent(id, "onEndEditing", paramsMap);
     }
   }
 
@@ -598,10 +584,7 @@ class TextInputDispatcher {
         //如果是前端设置下来的值,不再需要回调给前端.
         var paramsMap = VoltronMap();
         paramsMap.push("text", changeText);
-        context.moduleManager
-            .getJavaScriptModule<EventDispatcher>(
-                enumValueToString(JavaScriptModuleType.EventDispatcher))
-            ?.receiveUIComponentEvent(id, "onChangeText", paramsMap);
+        context.eventHandler.receiveUIComponentEvent(id, "onChangeText", paramsMap);
         LogUtils.d(TextInputController.kTag,
             "afterTextChanged 1 通知前端文本变化=$changeText");
       }
@@ -636,10 +619,7 @@ class TextInputDispatcher {
             //如果本次输入的内容是上一次重复的蓉蓉
             var paramsMap = VoltronMap();
             paramsMap.push("text", changeText);
-            context.moduleManager
-                .getJavaScriptModule<EventDispatcher>(
-                    enumValueToString(JavaScriptModuleType.EventDispatcher))
-                ?.receiveUIComponentEvent(id, "onChangeText", paramsMap);
+            context.eventHandler.receiveUIComponentEvent(id, "onChangeText", paramsMap);
             LogUtils.d(TextInputController.kTag,
                 "afterTextChanged 2 通知前端文本变化= $changeText");
             _regexValidRepeat = "";
@@ -670,10 +650,7 @@ class TextInputDispatcher {
       // 这里设置时候也要通知到前端
       var paramsMap = VoltronMap();
       paramsMap.push("text", value);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-              enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveUIComponentEvent(id, "onChangeText", paramsMap);
+      context.eventHandler.receiveUIComponentEvent(id, "onChangeText", paramsMap);
     }
   }
 

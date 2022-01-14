@@ -1,16 +1,12 @@
-import 'dart:collection';
-
 import 'package:flutter/cupertino.dart';
+import 'package:voltron_renderer/render.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
-import '../module.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
-import 'tree.dart';
 
 class RootRenderNode extends RenderNode {
   RootRenderNode(int id, String className, RenderTree root,
@@ -18,7 +14,7 @@ class RootRenderNode extends RenderNode {
       : super(id, className, root, controllerManager, props);
 
   @override
-  RenderViewModel createRenderViewModel(EngineContext context) {
+  RenderViewModel createRenderViewModel(RenderContext context) {
     return RootRenderViewModel(
         id, rootId, name, context, context.getInstance(id));
   }
@@ -28,7 +24,7 @@ class RootRenderViewModel extends GroupViewModel {
   final RootWidgetViewModel? _rootWidgetViewModel;
 
   RootRenderViewModel(int id, int instanceId, String className,
-      EngineContext context, this._rootWidgetViewModel)
+      RenderContext context, this._rootWidgetViewModel)
       : super(id, instanceId, className, context);
 
   @override
@@ -49,7 +45,7 @@ class RenderNode extends StyleNode {
 
   /// 基础参数
   final String _className;
-  VoltronMap? _props;
+  final VoltronMap? _props;
   VoltronMap? _propToUpdate;
 
   /// 额外参数
@@ -68,7 +64,6 @@ class RenderNode extends StyleNode {
 
   /// 更新相关属性
 
-  final List<JSPromise> _measureInWindows = [];
   final List<UIFunction> _uiFunction = [];
 
   bool _hasPropsNeedToApply = true;
@@ -86,22 +81,28 @@ class RenderNode extends StyleNode {
 
   int get indexFromParent => _parent?._children.indexOf(this) ?? 0;
 
+  @override
   int get id => _id;
 
   int get rootId => _root.id;
 
+  @override
   String get name => _className;
 
   RenderNode? get parent => _parent;
 
   RenderTree get root => _root;
 
+  @override
   double get layoutX => _x;
 
+  @override
   double get layoutY => _y;
 
+  @override
   double get layoutWidth => _width;
 
+  @override
   double get layoutHeight => _height;
 
   bool get shouldCreateView => !_isLazyLoad && _viewModel == null;
@@ -171,9 +172,7 @@ class RenderNode extends StyleNode {
   }
 
   RenderViewModel get renderViewModel {
-    if (_viewModel == null) {
-      _viewModel = createRenderViewModel(_controllerManager.context);
-    }
+    _viewModel ??= createRenderViewModel(_controllerManager.context);
     return _viewModel!;
   }
 
@@ -225,7 +224,7 @@ class RenderNode extends StyleNode {
       return _controllerManager.createViewModel(this, props);
     }
 
-    return null;
+    return;
   }
 
 
@@ -253,7 +252,7 @@ class RenderNode extends StyleNode {
     }
   }
 
-  RenderViewModel createRenderViewModel(EngineContext context) {
+  RenderViewModel createRenderViewModel(RenderContext context) {
     return findController().createRenderViewModel(this, context);
   }
 
@@ -384,14 +383,6 @@ class RenderNode extends StyleNode {
         }
         _uiFunction.clear();
       }
-      if (_measureInWindows.isNotEmpty) {
-        for (var i = 0; i < _measureInWindows.length; i++) {
-          var promise = _measureInWindows[i];
-          _measureInWindow(promise);
-        }
-        _measureInWindows.clear();
-      }
-
       if (_notifyManageChildren) {
         manageChildrenComplete();
         _notifyManageChildren = false;
@@ -435,9 +426,7 @@ class RenderNode extends StyleNode {
             var styles = paramsMap.get(key);
             if (styles != null) {
               var stylesToUpdate = propToUpdate.get(key);
-              if (stylesToUpdate == null) {
-                stylesToUpdate = VoltronMap();
-              }
+              stylesToUpdate ??= VoltronMap();
               for (String styleKey in styles.keySet()) {
                 stylesToUpdate.push(styleKey, styles.get(styleKey));
               }
@@ -458,12 +447,6 @@ class RenderNode extends StyleNode {
 
   }
 
-  void measureInWindow(JSPromise promise) {
-    if (!_measureInWindows.contains(promise)) {
-      _measureInWindows.add(promise);
-    }
-  }
-
   void updateExtra(Object object) {
     _extra = object;
     _extraToUpdate = object;
@@ -472,41 +455,6 @@ class RenderNode extends StyleNode {
   void dispatchUIFunction(
       String funcName, VoltronArray array, Promise promise) {
     _uiFunction.add(UIFunction(funcName, array, promise));
-  }
-
-  void _measureInWindow(JSPromise promise) {
-    var renderObject =
-        _viewModel?.currentContext?.findRenderObject() as RenderBox?;
-    if (renderObject == null) {
-      promise.reject("this view is null");
-    } else {
-      var position = renderObject.localToGlobal(Offset(0, 0));
-      var size = renderObject.size;
-
-      var x = position.dx;
-      var y = position.dy;
-      var width = size.width;
-      var height = size.height;
-
-      var statusBarHeight = ScreenUtil.getInstance().statusBarHeight;
-      var bottomBarHeight = ScreenUtil.getInstance().bottomBarHeight;
-
-      // todo 暂时不确定localToGlobal拿到的y值是否包含statusBar，这里先不减掉
-      // // We need to remove the status bar from the height.  getLocationOnScreen will include the
-      // // status bar.
-      // if (statusBarHeight > 0) {
-      //   y -= statusBarHeight;
-      // }
-
-      var paramsMap = VoltronMap();
-      paramsMap.push("x", x);
-      paramsMap.push("y", y);
-      paramsMap.push("width", width);
-      paramsMap.push("height", height);
-      paramsMap.push("statusBarHeight", statusBarHeight);
-      paramsMap.push("bottomBarHeight", bottomBarHeight);
-      promise.resolve(paramsMap);
-    }
   }
 
   void manageChildrenComplete() {

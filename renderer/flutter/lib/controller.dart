@@ -2,6 +2,7 @@ library controller;
 
 export 'controller/controller.dart';
 export 'controller/div.dart';
+export 'controller/generator.dart';
 export 'controller/group.dart';
 export 'controller/image.dart';
 export 'controller/list.dart';

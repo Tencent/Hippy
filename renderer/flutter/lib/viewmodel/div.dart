@@ -1,13 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-import '../engine.dart';
+import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import 'group.dart';
 
 class DivRenderViewModel extends GroupViewModel {
-  @override
-  String overflow = enumValueToString(ContainOverflow.visible);
   Object? backgroundImg;
   String backgroundImgSize = enumValueToString(ImageResizeMode.auto);
 
@@ -27,11 +25,11 @@ class DivRenderViewModel extends GroupViewModel {
   }
 
   DivRenderViewModel(
-      int id, int instanceId, String className, EngineContext context)
+      int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context);
 
   DivRenderViewModel.copy(int id, int instanceId, String className,
-      EngineContext context, DivRenderViewModel viewModel)
+      RenderContext context, DivRenderViewModel viewModel)
       : super.copy(id, instanceId, className, context, viewModel) {
     backgroundImg = viewModel.backgroundImg;
     backgroundImgSize = viewModel.backgroundImgSize;

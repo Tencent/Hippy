@@ -3,6 +3,8 @@ library common;
 export 'common/destroy.dart';
 export 'common/error.dart';
 export 'common/lru_cache.dart';
+export 'common/monitor.dart';
+export 'common/promise.dart';
 export 'common/voltron_array.dart';
 export 'common/voltron_buffer.dart';
 export 'common/voltron_link.dart';

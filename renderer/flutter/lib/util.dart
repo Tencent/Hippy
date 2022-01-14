@@ -4,6 +4,7 @@ export 'util/animation_util.dart';
 export 'util/diff.dart';
 export 'util/dimension_util.dart';
 export 'util/enum_util.dart';
+export 'util/extension_util.dart';
 export 'util/ffi_util.dart';
 export 'util/file_util.dart';
 export 'util/image_util.dart';

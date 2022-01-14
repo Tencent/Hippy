@@ -3,11 +3,11 @@ import 'package:flutter/widgets.dart';
 import '../common.dart';
 import '../controller.dart';
 import '../engine.dart';
-import '../module.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
 import 'node.dart';
+import 'render_context.dart';
 
 typedef IRenderExecutor = void Function();
 
@@ -188,12 +188,12 @@ class RenderManager
   final Set<RenderNode> _updateRenderNodes = {};
 
   final ControllerManager _controllerManager;
-  final EngineContext context;
+  final RenderContext context;
 
   ControllerManager get controllerManager => _controllerManager;
 
-  RenderManager(this.context, List<APIProvider>? packages)
-      : _controllerManager = ControllerManager(context, packages) {
+  RenderManager(this.context, List<ViewControllerGenerator>? generators)
+      : _controllerManager = ControllerManager(context, generators) {
     context.addEngineLifecycleEventListener(this);
     context.addInstanceLifecycleEventListener(this);
   }
@@ -203,6 +203,7 @@ class RenderManager
     createRootNode(instanceId);
   }
 
+  @override
   void createRootNode(int instanceId) async {
     var viewModel = context.getInstance(instanceId);
     if (viewModel != null) {
@@ -240,7 +241,7 @@ class RenderManager
       addUpdateNodeIfNeeded(uiNode);
     } else {
       LogUtils.dRender(
-          "createNode error ID:$id pID:$pId index:$childIndex className:$name, tree: ${tree?.id ?? null}, parent: ${parentNode?.id ?? null}");
+          "createNode error ID:$id pID:$pId index:$childIndex className:$name, tree: ${tree?.id}, parent: ${parentNode?.id}");
     }
   }
 
@@ -434,18 +435,6 @@ class RenderManager
 
   RenderNode? getRenderNode(int instanceId, int id) {
     return _controllerManager.findNode(instanceId, id);
-  }
-
-  void measureInWindow(int instanceId, int id, JSPromise? promise) {
-    if (promise != null) {
-      var renderNode = getRenderNode(instanceId, id);
-      if (renderNode == null) {
-        promise.reject("this view is null");
-      } else {
-        renderNode.measureInWindow(promise);
-        addNullUINodeIfNeeded(renderNode);
-      }
-    }
   }
 
   @override

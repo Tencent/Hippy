@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
+import 'package:voltron_renderer/render.dart';
 
-import '../adapter.dart';
-import '../engine.dart';
+import '../common.dart';
 import '../viewmodel.dart';
 
 typedef ContextWrapper = BuildContext? Function();
@@ -60,9 +60,9 @@ abstract class FRState<T extends FRStatefulWidget> extends State<T> {
 
 abstract class FRBaseStatelessWidget extends StatelessWidget {
   final String _name;
-  final EngineContext _context;
+  final RenderContext _context;
 
-  const FRBaseStatelessWidget(this._name, this._context);
+  const FRBaseStatelessWidget(this._name, this._context, {Key? key}) : super(key: key);
 
   @override
   RFStatelessElement createElement() {

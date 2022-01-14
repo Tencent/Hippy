@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import '../util/extension_util.dart';
-import '../voltron_render.dart';
+import '../voltron_renderer.dart';
 
 typedef RenderOpTaskGenerator = RenderOpTask Function(
     int instanceId, int nodeId, Map params);
@@ -16,7 +16,7 @@ extension IdIntEx on int {
 }
 
 class RenderOperatorRunner implements Destroyable {
-  final EngineContext _engineContext;
+  final RenderContext _renderContext;
 
   final Map<int, RenderOpTaskGenerator> _taskGeneratorMap = {
     _RenderOpType.addNode.index: (instanceId, nodeId, params) =>
@@ -43,7 +43,7 @@ class RenderOperatorRunner implements Destroyable {
         _LayoutFinishOpTask(instanceId),
   };
 
-  RenderOperatorRunner(this._engineContext);
+  RenderOperatorRunner(this._renderContext);
 
   void consumeRenderOp(int instanceId, List renderOpList) {
     if (renderOpList.isNotEmpty) {
@@ -63,7 +63,7 @@ class RenderOperatorRunner implements Destroyable {
     var nodeId = opData[1] as int;
     var args = opData.length > 2 ? opData[2] as Map : {};
     return _taskGeneratorMap[type]?.call(instanceId, nodeId, args)
-      ?.._engineContext = _engineContext;
+      ?.._renderContext = _renderContext;
   }
 
   @override
@@ -75,9 +75,9 @@ abstract class RenderOpTask {
 
   RenderOpTask(this._instanceId);
 
-  late EngineContext _engineContext;
+  late RenderContext _renderContext;
 
-  RenderManager get renderManager => _engineContext.renderManager;
+  RenderManager get renderManager => _renderContext.renderManager;
 
   void _run();
 }
@@ -242,7 +242,7 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
       var realParams = funcParams.decodeType<VoltronArray>()??VoltronArray();
       String callbackId =
           _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
-      var promise = Promise.native(_engineContext, callId: callbackId, rootId: _instanceId);
+      var promise = NativePromise(_renderContext, callId: callbackId, rootId: _instanceId);
       renderManager.addNulUITask(() {
         renderManager.dispatchUIFunction(
             _instanceId, _nodeId, funcName, realParams, promise);

@@ -2,13 +2,10 @@ import 'package:flutter/widgets.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
-import '../module.dart';
 import '../render.dart';
 import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
-import 'group.dart';
 
 class ViewPagerController
     extends BaseGroupController<ViewPagerRenderViewModel> {
@@ -21,7 +18,7 @@ class ViewPagerController
 
   @override
   ViewPagerRenderViewModel createRenderViewModel(
-      RenderNode node, EngineContext context) {
+      RenderNode node, RenderContext context) {
     return ViewPagerRenderViewModel(
         id: node.id,
         instanceId: node.rootId,
@@ -31,8 +28,8 @@ class ViewPagerController
 
   @override
   Widget createWidget(
-      BuildContext context, ViewPagerRenderViewModel renderViewModel) {
-    return ViewPagerWidget(renderViewModel);
+      BuildContext context, ViewPagerRenderViewModel viewModel) {
+    return ViewPagerWidget(viewModel);
   }
 
   @override
@@ -70,10 +67,10 @@ class ViewPagerController
   }
 
   @override
-  void dispatchFunction(ViewPagerRenderViewModel? renderViewModel,
+  void dispatchFunction(ViewPagerRenderViewModel? viewModel,
       String functionName, VoltronArray array,
       {Promise? promise}) {
-    if (renderViewModel == null) {
+    if (viewModel == null) {
       return;
     }
 
@@ -81,18 +78,18 @@ class ViewPagerController
       Object selected = array.get(0);
       if (selected is int &&
           selected >= 0 &&
-          selected < renderViewModel.children.length) {
-        renderViewModel.pageController?.animateToPage(selected,
-            duration: Duration(milliseconds: 300),
+          selected < viewModel.children.length) {
+        viewModel.pageController?.animateToPage(selected,
+            duration: const Duration(milliseconds: 300),
             curve: Curves.linearToEaseOut);
       }
     } else if (functionName == kFuncSetPageWidthOutAnim) {
       Object selected = array.get(0);
       if (selected is int &&
           selected >= 0 &&
-          selected < renderViewModel.children.length) {
-        renderViewModel.pageController?.animateToPage(selected,
-            duration: Duration(milliseconds: 40),
+          selected < viewModel.children.length) {
+        viewModel.pageController?.animateToPage(selected,
+            duration: const Duration(milliseconds: 40),
             curve: Curves.linearToEaseOut);
       }
     }
@@ -105,7 +102,7 @@ class ViewPagerItemController
 
   @override
   ViewPagerItemRenderViewModel createRenderViewModel(
-      RenderNode node, EngineContext context) {
+      RenderNode node, RenderContext context) {
     return ViewPagerItemRenderViewModel(
         id: node.id,
         instanceId: node.rootId,
@@ -115,8 +112,8 @@ class ViewPagerItemController
 
   @override
   Widget createWidget(
-      BuildContext context, ViewPagerItemRenderViewModel renderViewModel) {
-    return ViewPagerItemWidget(renderViewModel);
+      BuildContext context, ViewPagerItemRenderViewModel viewModel) {
+    return ViewPagerItemWidget(viewModel);
   }
 
   @override

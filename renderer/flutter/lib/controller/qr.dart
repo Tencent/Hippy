@@ -19,7 +19,7 @@ class QrController extends BaseViewController<QrRenderViewModel> {
 
   @override
   QrRenderViewModel createRenderViewModel(
-      RenderNode node, EngineContext context) {
+      RenderNode node, RenderContext context) {
     return QrRenderViewModel(node.id, node.rootId, node.name, context);
   }
 

@@ -2,8 +2,6 @@ import 'dart:ui' as ui show window;
 
 import 'package:flutter/material.dart';
 
-import '../channel.dart';
-
 class ScreenUtil {
   double _screenWidth = 0.0;
   double _screenHeight = 0.0;
@@ -64,8 +62,6 @@ class ScreenUtil {
   MediaQueryData? get mediaQueryData => _mediaQueryData;
 
   double get fontScale => _fontScale;
-
-  int get densityApi => PlatformManager.getInstance().densityApi;
 
   Size? get physicalSize => _physicalSize;
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:voltron_renderer/render.dart';
 
 import '../controller.dart';
-import '../engine.dart';
 import '../style.dart';
 import '../util.dart';
 import 'view_model.dart';
@@ -59,8 +59,9 @@ class TextInputRenderViewModel extends RenderViewModel {
   String keyboardTypeStr = "";
   TextAlignVertical? oldAlign = TextAlignVertical.top;
 
-  EdgeInsets contentPadding = EdgeInsets.all(0);
+  EdgeInsets contentPadding = const EdgeInsets.all(0);
 
+  @override
   void onInit() {
     node.init();
     controller.init();
@@ -252,7 +253,7 @@ class TextInputRenderViewModel extends RenderViewModel {
   }
 
   TextInputRenderViewModel(
-      int id, int instanceId, String className, EngineContext context)
+      int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context) {
     dispatcher = TextInputDispatcher(context, id, controller);
 

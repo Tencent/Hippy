@@ -1,14 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
-import 'package:tencent_voltron_render/gesture.dart';
 
 import '../common.dart';
-import '../engine.dart';
-import '../module.dart';
-import '../util.dart';
+import '../render.dart';
 import '../viewmodel.dart';
 import 'dispatcher.dart';
+import 'handle.dart';
 
 class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   bool scrollBeginDragEventEnable = false;
@@ -22,7 +20,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   Stopwatch stopwatch = Stopwatch();
 
   NativeScrollGestureDispatcher(
-      {required int rootId, required int id, required EngineContext context})
+      {required int rootId, required int id, required RenderContext context})
       : super(rootId: rootId, id: id, context: context);
 
   @override
@@ -55,10 +53,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   }
 
   void handleScrollReachedEnd(RenderViewModel view) {
-    view.context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(view.id, "onEndReached", null);
+    view.context.eventHandler.receiveUIComponentEvent(view.id, "onEndReached", null);
   }
 
   void handleScrollMomentumEnd(
@@ -145,11 +140,7 @@ class _ScrollEventHelper {
       event.push("contentOffset", contentOffset);
       event.push("contentSize", contentSize);
       event.push("layoutMeasurement", layoutMeasurement);
-
-      view.context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-              enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveUIComponentEvent(view.id, scrollEventType, event);
+      view.context.eventHandler.receiveUIComponentEvent(view.id, scrollEventType, event);
     } else {
       var contentInset = {};
       contentInset["top"] = 0;

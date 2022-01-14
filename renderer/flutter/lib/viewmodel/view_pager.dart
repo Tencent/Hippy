@@ -1,15 +1,15 @@
 import 'package:flutter/widgets.dart';
 
 import '../common.dart';
-import '../engine.dart';
-import '../module.dart';
-import '../util.dart';
+import '../render.dart';
 import 'group.dart';
 
 class ViewPagerRenderViewModel extends GroupViewModel {
   bool scrollEnabled = true;
   int initialPage = 0;
   double pageMargin = 0;
+  @override
+  // ignore: overridden_fields
   String overflow = '';
 
   bool _scrollFlingStartHandle = false;
@@ -20,14 +20,14 @@ class ViewPagerRenderViewModel extends GroupViewModel {
       {required int id,
       required int instanceId,
       required String className,
-      required EngineContext context})
+      required RenderContext context})
       : super(id, instanceId, className, context);
 
   ViewPagerRenderViewModel.copy(
       {required int id,
       required int instanceId,
       required String className,
-      required EngineContext context,
+      required RenderContext context,
       required ViewPagerRenderViewModel viewModel})
       : super.copy(id, instanceId, className, context, viewModel) {
     scrollEnabled = viewModel.scrollEnabled;
@@ -117,29 +117,20 @@ class ViewPagerRenderViewModel extends GroupViewModel {
   void setScrollState(String pageScrollState) {
     var map = VoltronMap();
     map.push("pageScrollState", pageScrollState);
-    context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(id, "onPageScrollStateChanged", map);
+    context.eventHandler.receiveUIComponentEvent(id, "onPageScrollStateChanged", map);
   }
 
   void onPageSelect(int page) {
     var map = VoltronMap();
     map.push("position", page);
-    context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(id, "onPageSelected", map);
+    context.eventHandler.receiveUIComponentEvent(id, "onPageSelected", map);
   }
 
   void onPageScroll(int position, double offset) {
     var map = VoltronMap();
     map.push("position", position);
     map.push("offset", offset);
-    context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(id, "onPageScroll", map);
+    context.eventHandler.receiveUIComponentEvent(id, "onPageScroll", map);
   }
 }
 
@@ -148,18 +139,10 @@ class ViewPagerItemRenderViewModel extends GroupViewModel {
       {required int id,
       required int instanceId,
       required String className,
-      required EngineContext context})
+      required RenderContext context})
       : super(id, instanceId, className, context);
 
   ViewPagerItemRenderViewModel.copy(int id, int instanceId, String className,
-      EngineContext context, ViewPagerItemRenderViewModel viewModel)
+      RenderContext context, ViewPagerItemRenderViewModel viewModel)
       : super.copy(id, instanceId, className, context, viewModel);
-
-  @override
-  bool operator ==(Object other) {
-    return other is ViewPagerItemRenderViewModel && super == (other);
-  }
-
-  @override
-  int get hashCode => super.hashCode;
 }

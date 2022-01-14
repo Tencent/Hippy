@@ -2,10 +2,8 @@ import 'package:flutter/widgets.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
 import '../render.dart';
 import '../style.dart';
-import '../util.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
@@ -21,25 +19,25 @@ class TextController
 
   @override
   TextRenderViewModel createRenderViewModel(
-      TextRenderNode node, EngineContext context) {
+      TextRenderNode node, RenderContext context) {
     return TextRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
   @override
   Widget createWidget(
-      BuildContext context, TextRenderViewModel renderViewModel) {
-    return TextWidget(renderViewModel);
+      BuildContext context, TextRenderViewModel viewModel) {
+    return TextWidget(viewModel);
   }
 
   @override
-  void applyProps(EngineContext context, TextRenderNode renderNode) {
-    renderNode.generateSpan(context);
+  void applyProps(RenderContext context, TextRenderNode node) {
+    node.generateSpan(context);
   }
 
   @override
-  void updateLayout(EngineContext context, TextRenderNode renderNode) {
-    renderNode.updateData(context);
-    super.updateLayout(context, renderNode);
+  void updateLayout(RenderContext context, TextRenderNode node) {
+    node.updateData(context);
+    super.updateLayout(context, node);
   }
 
   @override

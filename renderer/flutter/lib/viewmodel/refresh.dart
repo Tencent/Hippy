@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:voltron_renderer/render.dart';
 
 import '../controller.dart';
-import '../engine.dart';
 import 'list.dart';
 import 'refresh_item.dart';
 import 'view_model.dart';
@@ -26,13 +26,13 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
       refreshWrapperRenderContentViewModel;
 
   RefreshWrapperRenderViewModel(
-      int id, int instanceId, String className, EngineContext context)
+      int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context) {
     refreshEventDispatcher = createRefreshDispatcher();
   }
 
   RefreshWrapperRenderViewModel.copy(int id, int instanceId, String className,
-      EngineContext context, RefreshWrapperRenderViewModel viewModel)
+      RenderContext context, RefreshWrapperRenderViewModel viewModel)
       : super.copy(id, instanceId, className, context, viewModel) {
     _refreshWrapperItemRenderViewModel = viewModel.header;
     refreshEventDispatcher = viewModel.dispatcher;
@@ -98,6 +98,7 @@ class RefreshWrapperRenderContentViewModel {
       required this.dispatcher});
 
   @override
+  // ignore: unnecessary_overrides
   int get hashCode => super.hashCode;
 
   @override

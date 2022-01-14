@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
+import 'package:voltron_renderer/render.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
 import '../gesture.dart';
 import 'list.dart';
 import 'view_model.dart';
@@ -56,12 +56,12 @@ class ScrollViewRenderViewModel extends ScrollableModel {
   }
 
   ScrollViewRenderViewModel(
-      int id, int instanceId, String className, EngineContext context,
+      int id, int instanceId, String className, RenderContext context,
       [this.isHorizontal = false])
       : super(id, instanceId, className, context);
 
   ScrollViewRenderViewModel.copy(int id, int instanceId, String className,
-      EngineContext context, ScrollViewRenderViewModel viewModel,
+      RenderContext context, ScrollViewRenderViewModel viewModel,
       [this.isHorizontal = false])
       : super.copy(id, instanceId, className, context, viewModel) {
     pagingEnable = viewModel.pagingEnable;
@@ -123,12 +123,13 @@ class ScrollViewDetailRenderViewModel {
   }
 
   @override
+  // ignore: unnecessary_overrides
   int get hashCode => super.hashCode;
 
   @override
   bool operator ==(Object other) =>
       other is ScrollViewDetailRenderViewModel &&
-      DeepCollectionEquality().equals(children, other.children) &&
+      const DeepCollectionEquality().equals(children, other.children) &&
       controller == other.controller &&
       scrollGestureDispatcher == other.scrollGestureDispatcher &&
       pagingEnable == other.pagingEnable &&

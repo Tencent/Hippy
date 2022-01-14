@@ -2,8 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 
 import '../controller.dart';
-import '../engine.dart';
 import '../gesture.dart';
+import '../render.dart';
 import 'group.dart';
 import 'list_item.dart';
 import 'view_model.dart';
@@ -26,11 +26,11 @@ class ListViewModel extends ScrollableModel {
   RefreshWrapperDelegate? get refreshWrapper =>
       getExtraInfo<RefreshWrapperDelegate>(kWrapperKey);
 
-  ListViewModel(int id, int instanceId, String className, EngineContext context)
+  ListViewModel(int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context);
 
   ListViewModel.copy(int id, int instanceId, String className,
-      EngineContext context, ListViewModel viewModel)
+      RenderContext context, ListViewModel viewModel)
       : super.copy(id, instanceId, className, context, viewModel) {
     showScrollIndicator = viewModel.showScrollIndicator;
     hasStickyItem = viewModel.hasStickyItem;
@@ -196,12 +196,12 @@ class ListViewDetailModel {
   @override
   bool operator ==(Object other) =>
       other is ListViewDetailModel &&
-      DeepCollectionEquality().equals(children, other.children) &&
+      const DeepCollectionEquality().equals(children, other.children) &&
       preloadSize == other.preloadSize &&
       controller == other.controller &&
       showScrollIndicator == other.showScrollIndicator &&
       hasStickyItem == other.hasStickyItem &&
-      DeepCollectionEquality().equals(stickyChildList, other.stickyChildList) &&
+      const DeepCollectionEquality().equals(stickyChildList, other.stickyChildList) &&
       paddingTop == other.paddingTop &&
       paddingRight == other.paddingRight &&
       paddingBottom == other.paddingBottom &&
@@ -237,25 +237,12 @@ abstract class ScrollableModel extends GroupViewModel {
   }
 
   ScrollableModel(
-      int id, int instanceId, String className, EngineContext context)
+      int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context);
 
   ScrollableModel.copy(int id, int instanceId, String className,
-      EngineContext context, GroupViewModel viewModel)
+      RenderContext context, GroupViewModel viewModel)
       : super.copy(id, instanceId, className, context, viewModel);
-
-  @override
-  bool operator ==(Object other) {
-    return super == other;
-  }
-
-  @override
-  int get hashCode => super.hashCode;
-
-  @override
-  void onViewModelDestroy() {
-    super.onViewModelDestroy();
-  }
 
   @override
   void onDispose() {

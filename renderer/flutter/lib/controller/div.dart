@@ -1,28 +1,23 @@
-import 'dart:io';
-
 import 'package:flutter/widgets.dart';
 
 import '../controller.dart';
-import '../engine.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
-import 'group.dart';
 
 class DivController extends BaseGroupController<DivRenderViewModel> {
   static const String kClassName = "View";
 
   @override
-  Widget createWidget(
-      BuildContext context, DivRenderViewModel renderViewModel) {
-    return DivWidget(renderViewModel);
+  Widget createWidget(BuildContext context, DivRenderViewModel viewModel) {
+    return DivWidget(viewModel);
   }
 
   @override
   DivRenderViewModel createRenderViewModel(
-      RenderNode node, EngineContext context) {
+      RenderNode node, RenderContext context) {
     return DivRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
@@ -50,25 +45,11 @@ class DivController extends BaseGroupController<DivRenderViewModel> {
   @ControllerProps(NodeProps.kBackgroundImage)
   void setBackgroundImage(DivRenderViewModel viewModel, Object data) {
     if (data is String) {
-      viewModel.backgroundImg = getInnerPath(
-          viewModel.context.getInstance(viewModel.rootId)?.instanceContext,
-          data);
+      viewModel.backgroundImg =
+          viewModel.context.convertRelativePath(viewModel.rootId, data);
     } else {
       viewModel.backgroundImg = data;
     }
-  }
-
-  String getInnerPath(InstanceContext? context, String path) {
-    if (context != null && path.startsWith("hpfile://")) {
-      var relativePath = path.replaceFirst("hpfile://./", "");
-      var bundleLoaderPath = context.bundleLoader?.path;
-      if (bundleLoaderPath != null) {
-        path = bundleLoaderPath.substring(
-                0, bundleLoaderPath.lastIndexOf(Platform.pathSeparator) + 1) +
-            relativePath;
-      }
-    }
-    return path;
   }
 
   @ControllerProps(NodeProps.kBackgroundSize)

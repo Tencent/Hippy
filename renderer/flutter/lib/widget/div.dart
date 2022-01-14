@@ -49,12 +49,13 @@ class _DivWidgetState extends FRState<DivWidget> {
 
 class DivContainerWidget extends FRBaseStatelessWidget {
   final DivContainerViewModel _viewModel;
-  DivContainerWidget(this._viewModel)
-      : super(_viewModel.name, _viewModel.context);
+
+  DivContainerWidget(this._viewModel, {Key? key})
+      : super(_viewModel.name, _viewModel.context, key: key);
 
   @override
   Widget build(BuildContext context) {
-    var result;
+    Widget result;
     _viewModel.stackFlag = false;
     if (_viewModel.sortedIdList.isEmpty) {
       result = Container();
@@ -125,7 +126,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
   Widget build(BuildContext context) {
     final animationProperty = widget.animationProperty;
     var engineMonitor = widget._viewModel.context.engineMonitor;
-    if (!engineMonitor.hasAddPostFrameCall) {
+    if (!(engineMonitor.hasAddPostFrameCall)) {
       engineMonitor.hasAddPostFrameCall = true;
       WidgetsBinding.instance?.addPostFrameCallback((duration) {
         LogUtils.dWidget(
@@ -144,12 +145,8 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     var width = animationProperty?.get<num>(NodeProps.kWidth)?.toDouble() ??
         widget._viewModel.width;
     if (widget.isInfinitySize) {
-      if (height == null) {
-        height = double.infinity;
-      }
-      if (width == null) {
-        width = double.infinity;
-      }
+      height ??= double.infinity;
+      width ??= double.infinity;
     }
 
     if ((width != null && width.isNaN) || (height != null && height.isNaN)) {
@@ -264,8 +261,8 @@ class PositionWidget extends FRBaseStatelessWidget {
   final RenderViewModel _viewModel;
   final Widget child;
 
-  PositionWidget(this._viewModel, {required this.child})
-      : super(_viewModel.name, _viewModel.context);
+  PositionWidget(this._viewModel, {Key? key, required this.child})
+      : super(_viewModel.name, _viewModel.context, key: key);
 
   @override
   Widget build(BuildContext context) {

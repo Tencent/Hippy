@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
@@ -18,14 +16,13 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
 
   @override
   ImageRenderViewModel createRenderViewModel(
-      RenderNode node, EngineContext context) {
+      RenderNode node, RenderContext context) {
     return ImageRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
   @override
-  Widget createWidget(
-      BuildContext context, ImageRenderViewModel renderViewModel) {
-    return ImageWidget(renderViewModel);
+  Widget createWidget(BuildContext context, ImageRenderViewModel viewModel) {
+    return ImageWidget(viewModel);
   }
 
   @override
@@ -49,17 +46,10 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   // for Android
   @ControllerProps(NodeProps.kSrc)
   void setUrl(ImageRenderViewModel renderViewModel, String src) {
-    src = getInnerPath(
-        renderViewModel.context
-            .getInstance(renderViewModel.rootId)
-            ?.instanceContext,
-        src);
+    src = renderViewModel.context
+        .convertRelativePath(renderViewModel.rootId, src);
     if (src != renderViewModel.src) {
-      renderViewModel.src = getInnerPath(
-          renderViewModel.context
-              .getInstance(renderViewModel.rootId)
-              ?.instanceContext,
-          src);
+      renderViewModel.src = src;
       loadImage(renderViewModel);
     }
   }
@@ -70,32 +60,12 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     if (source.size() == 0) return;
     VoltronMap firstObj = source.get(0);
     String src = firstObj.get('uri');
-    src = getInnerPath(
-        renderViewModel.context
-            .getInstance(renderViewModel.rootId)
-            ?.instanceContext,
-        src);
+    src = renderViewModel.context
+        .convertRelativePath(renderViewModel.rootId, src);
     if (src != renderViewModel.src) {
-      renderViewModel.src = getInnerPath(
-          renderViewModel.context
-              .getInstance(renderViewModel.rootId)
-              ?.instanceContext,
-          src);
+      renderViewModel.src = src;
       loadImage(renderViewModel);
     }
-  }
-
-  String getInnerPath(InstanceContext? context, String path) {
-    if (context != null && path.startsWith("hpfile://")) {
-      var relativePath = path.replaceFirst("hpfile://./", "");
-      var bundleLoaderPath = context.bundleLoader?.path;
-      if (bundleLoaderPath != null) {
-        path = bundleLoaderPath.substring(
-                0, bundleLoaderPath.lastIndexOf(Platform.pathSeparator) + 1) +
-            relativePath;
-      }
-    }
-    return path;
   }
 
   void loadImage(ImageRenderViewModel renderViewModel) {
@@ -109,7 +79,7 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
 
     var image = getImage(src);
     image
-        .resolve(ImageConfiguration())
+        .resolve(const ImageConfiguration())
         .addListener(ImageStreamListener((image, flag) {
           if (!viewModel.dispatchedEvent.contains(NodeProps.kOnLoad)) {
             viewModel.imageEventDispatcher.handleOnLoad();
@@ -157,7 +127,7 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   void setDefaultSource(
       ImageRenderViewModel renderViewModel, String defaultSource) {
     if (defaultSource.indexOf('data:image/png;base64,') == 0) {
-      var bytesImage = Base64Decoder()
+      var bytesImage = const Base64Decoder()
           .convert(defaultSource.replaceFirst('data:image/png;base64,', ''));
       renderViewModel.defaultImage = Image.memory(bytesImage);
     } else {

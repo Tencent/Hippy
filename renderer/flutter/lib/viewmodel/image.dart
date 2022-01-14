@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-import '../engine.dart';
+import '../render.dart';
 import '../widget.dart';
 import 'view_model.dart';
 
@@ -21,7 +20,7 @@ class ImageRenderViewModel extends RenderViewModel {
   Set<String> dispatchedEvent = {};
 
   ImageRenderViewModel(
-      int id, int instanceId, String className, EngineContext context)
+      int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context) {
     imageEventDispatcher = createImageEventDispatcher();
   }

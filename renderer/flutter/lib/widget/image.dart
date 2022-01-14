@@ -1,11 +1,9 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import '../engine.dart';
-import '../module.dart';
+import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
@@ -47,7 +45,7 @@ class _ImageWidgetState extends FRState<ImageWidget> {
     } else if (imageViewModel.capInsets != null &&
         imageViewModel.imageHeight == null) {
       //.9图，图片信息未加载完成时，先占位
-      return Placeholder(color: Colors.transparent);
+      return const Placeholder(color: Colors.transparent);
     } else if (image != null) {
       return Container(
         width: imageViewModel.width,
@@ -63,7 +61,7 @@ class _ImageWidgetState extends FRState<ImageWidget> {
                 centerSlice: createCenterSlice(imageViewModel))),
       );
     } else {
-      return Container(
+      return SizedBox(
         width: imageViewModel.width,
         height: imageViewModel.height,
       );
@@ -105,7 +103,7 @@ class CapInsets {
 
 class ImageEventDispatcher {
   final int _id;
-  final EngineContext _context;
+  final RenderContext _context;
   final HashSet<String> _gestureTypes = HashSet();
 
   ImageEventDispatcher(this._id, this._context);
@@ -147,9 +145,6 @@ class ImageEventDispatcher {
   }
 
   void _handleEvent(String type) {
-    _context.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveUIComponentEvent(_id, type, null);
+    _context.eventHandler.receiveUIComponentEvent(_id, type, null);
   }
 }

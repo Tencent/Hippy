@@ -1,15 +1,16 @@
-import '../engine.dart';
+import 'package:voltron_renderer/render.dart';
+
 import 'group.dart';
 
 class ListItemViewModel extends GroupViewModel {
   bool shouldSticky;
 
   ListItemViewModel(int id, int instanceId, String className, this.shouldSticky,
-      EngineContext context)
+      RenderContext context)
       : super(id, instanceId, className, context);
 
   ListItemViewModel.copy(int id, int instanceId, String className,
-      this.shouldSticky, EngineContext context, ListItemViewModel viewModel)
+      this.shouldSticky, RenderContext context, ListItemViewModel viewModel)
       : super.copy(id, instanceId, className, context, viewModel) {
     shouldSticky = viewModel.shouldSticky;
   }

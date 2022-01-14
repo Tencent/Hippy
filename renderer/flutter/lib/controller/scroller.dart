@@ -2,13 +2,10 @@ import 'package:flutter/widgets.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
-import '../module.dart';
 import '../render.dart';
 import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
-import 'group.dart';
 
 class ScrollViewController
     extends BaseGroupController<ScrollViewRenderViewModel> {
@@ -25,7 +22,7 @@ class ScrollViewController
 
   @override
   ScrollViewRenderViewModel createRenderViewModel(
-      RenderNode node, EngineContext context) {
+      RenderNode node, RenderContext context) {
     var originProps = node.props;
     if (originProps != null &&
         originProps.containsKey("horizontal") &&
@@ -38,8 +35,8 @@ class ScrollViewController
 
   @override
   Widget createWidget(
-      BuildContext context, ScrollViewRenderViewModel renderViewModel) {
-    return ScrollViewWidget(renderViewModel);
+      BuildContext context, ScrollViewRenderViewModel viewModel) {
+    return ScrollViewWidget(viewModel);
   }
 
   @override
@@ -143,16 +140,16 @@ class ScrollViewController
   }
 
   @override
-  void dispatchFunction(ScrollViewRenderViewModel renderViewModel,
+  void dispatchFunction(ScrollViewRenderViewModel viewModel,
       String functionName, VoltronArray array,
       {Promise? promise}) {
-    super.dispatchFunction(renderViewModel, functionName, array,
+    super.dispatchFunction(viewModel, functionName, array,
         promise: promise);
     // 滚动事件
     if (functionName == kScrollToWithOptions) {
       // 先确定滚动方向
       var orientation = 'vertical';
-      if (renderViewModel.isHorizontal) {
+      if (viewModel.isHorizontal) {
         orientation = 'horizontal';
       }
       // 再确定滚动值
@@ -170,7 +167,7 @@ class ScrollViewController
         if (duration is int && duration > 0) {
           d = duration;
         }
-        renderViewModel.scrollTo(offset.toDouble(), d);
+        viewModel.scrollTo(offset.toDouble(), d);
       }
     }
   }

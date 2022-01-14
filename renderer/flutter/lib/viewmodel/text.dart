@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
+import 'package:voltron_renderer/render.dart';
 
-import '../engine.dart';
 import '../style.dart';
 import 'view_model.dart';
 
@@ -26,8 +26,6 @@ class TextRenderViewModel extends RenderViewModel {
       x = _getAlignmentValue(justifyContent);
     }
 
-    print(
-        'Alignment ${x.toString()} ${y.toString()} ${alignItems.toString()} ${justifyContent.toString()} ${data?.text} ');
     return Alignment(x, y);
   }
 
@@ -41,11 +39,11 @@ class TextRenderViewModel extends RenderViewModel {
   }
 
   TextRenderViewModel(
-      int id, int instanceId, String className, EngineContext context)
+      int id, int instanceId, String className, RenderContext context)
       : super(id, instanceId, className, context);
 
   TextRenderViewModel.copy(int id, int instanceId, String className,
-      EngineContext context, TextRenderViewModel viewModel)
+      RenderContext context, TextRenderViewModel viewModel)
       : super.copy(id, instanceId, className, context, viewModel) {
     padding = viewModel.padding;
     var data = viewModel.data;

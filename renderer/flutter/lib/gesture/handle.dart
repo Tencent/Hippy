@@ -1,6 +1,6 @@
+import 'package:voltron_renderer/render.dart';
+
 import '../common.dart';
-import '../engine.dart';
-import '../module.dart';
 import '../style.dart';
 import '../util.dart';
 
@@ -27,15 +27,12 @@ class NativeGestureHandle {
   static const String kShow = 'show';
   static const String kDismiss = 'dismiss';
 
-  static void handleClick(EngineContext context, int nodeId, int rootId) {
+  static void handleClick(RenderContext context, int nodeId, int rootId) {
     if (kUseOldTouch) {
       var params = VoltronMap();
       params.push(kKeyEventName, NodeProps.kOnClick);
       params.push(kKeyTagId, nodeId);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveNativeGesture(params);
+      context.eventHandler.receiveNativeGesture(params);
     } else {
       context.bridgeManager
           .execNativeEvent(rootId, nodeId, kClick, {});
@@ -43,15 +40,12 @@ class NativeGestureHandle {
     LogUtils.d(kTag, "send msg: $kClick");
   }
 
-  static void handleLongClick(EngineContext context, int nodeId, int rootId) {
+  static void handleLongClick(RenderContext context, int nodeId, int rootId) {
     if (kUseOldTouch) {
       var params = VoltronMap();
       params.push(kKeyEventName, NodeProps.kOnLongClick);
       params.push(kKeyTagId, nodeId);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveNativeGesture(params);
+      context.eventHandler.receiveNativeGesture(params);
     } else {
       context.bridgeManager
           .execNativeEvent(rootId, nodeId, kLongClick, {});
@@ -59,12 +53,9 @@ class NativeGestureHandle {
   }
 
   static void handleAttachedToWindow(
-      EngineContext context, int nodeId, int rootId) {
+      RenderContext context, int nodeId, int rootId) {
     if (kUseOldTouch) {
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveUIComponentEvent(nodeId, NodeProps.kOnAttachedToWindow, null);
+      context.eventHandler.receiveUIComponentEvent(nodeId, NodeProps.kOnAttachedToWindow, null);
     } else {
       context.bridgeManager
           .execNativeEvent(rootId, nodeId, kShow, {});
@@ -72,27 +63,21 @@ class NativeGestureHandle {
   }
 
   static void handleDetachedFromWindow(
-      EngineContext context, int nodeId, int rootId) {
+      RenderContext context, int nodeId, int rootId) {
     if (kUseOldTouch) {
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveUIComponentEvent(nodeId, NodeProps.kOnDetachedFromWindow, null);
+      context.eventHandler.receiveUIComponentEvent(nodeId, NodeProps.kOnDetachedFromWindow, null);
     } else {
       context.bridgeManager
           .execNativeEvent(rootId, nodeId, kDismiss, {});
     }
   }
 
-  static void handlePressIn(EngineContext context, int nodeId, int rootId) {
+  static void handlePressIn(RenderContext context, int nodeId, int rootId) {
     if (kUseOldTouch) {
       var params = VoltronMap();
       params.push(kKeyEventName, NodeProps.kOnPressIn);
       params.push(kKeyTagId, nodeId);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveNativeGesture(params);
+      context.eventHandler.receiveNativeGesture(params);
     } else {
       context.bridgeManager
           .execNativeEvent(rootId, nodeId, kPressIn, {});
@@ -100,15 +85,12 @@ class NativeGestureHandle {
     LogUtils.d(kTag, "send msg: $kPressIn");
   }
 
-  static void handlePressOut(EngineContext context, int nodeId, int rootId) {
+  static void handlePressOut(RenderContext context, int nodeId, int rootId) {
     if (kUseOldTouch) {
       var params = VoltronMap();
       params.push(kKeyEventName, NodeProps.kOnPressOut);
       params.push(kKeyTagId, nodeId);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveNativeGesture(params);
+      context.eventHandler.receiveNativeGesture(params);
     } else {
       context.bridgeManager
           .execNativeEvent(rootId, nodeId, kPressOut, {});
@@ -117,17 +99,14 @@ class NativeGestureHandle {
   }
 
   static void handleTouchDown(
-      EngineContext context, int nodeId, int rootId, double x, double y) {
+      RenderContext context, int nodeId, int rootId, double x, double y) {
     if (kUseOldTouch) {
       var params = VoltronMap();
       params.push(kKeyEventName, NodeProps.kOnTouchDown);
       params.push(kKeyTagId, nodeId);
       params.push(kKeyPageX, x);
       params.push(kKeyPageY, y);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveNativeGesture(params);
+      context.eventHandler.receiveNativeGesture(params);
     } else {
       context.bridgeManager.execNativeEvent(
           rootId, nodeId, kTouchDown, {kKeyPageX: x, kKeyPageY: y});
@@ -135,17 +114,14 @@ class NativeGestureHandle {
   }
 
   static void handleTouchMove(
-      EngineContext context, int nodeId, int rootId, double x, double y) {
+      RenderContext context, int nodeId, int rootId, double x, double y) {
     if (kUseOldTouch) {
       var params = VoltronMap();
       params.push(kKeyEventName, NodeProps.kOnTouchMove);
       params.push(kKeyTagId, nodeId);
       params.push(kKeyPageX, x);
       params.push(kKeyPageY, y);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveNativeGesture(params);
+      context.eventHandler.receiveNativeGesture(params);
     } else {
       context.bridgeManager.execNativeEvent(
           rootId, nodeId, kTouchMove, {kKeyPageX: x, kKeyPageY: y});
@@ -153,24 +129,21 @@ class NativeGestureHandle {
   }
 
   static void handleTouchEnd(
-      EngineContext context, int nodeId, int rootId, double x, double y) {
+      RenderContext context, int nodeId, int rootId, double x, double y) {
     if (kUseOldTouch) {
       var params = VoltronMap();
       params.push(kKeyEventName, NodeProps.kOnTouchEnd);
       params.push(kKeyTagId, nodeId);
       params.push(kKeyPageX, x);
       params.push(kKeyPageY, y);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveNativeGesture(params);
+      context.eventHandler.receiveNativeGesture(params);
     } else {
       context.bridgeManager.execNativeEvent(
           rootId, nodeId, kTouchEnd, {kKeyPageX: x, kKeyPageY: y});
     }
   }
 
-  static void handleTouchCancel(EngineContext context, int nodeId, int rootId,
+  static void handleTouchCancel(RenderContext context, int nodeId, int rootId,
       double x, double y) {
     if (kUseOldTouch) {
       var params = VoltronMap();
@@ -178,10 +151,7 @@ class NativeGestureHandle {
       params.push(kKeyTagId, nodeId);
       params.push(kKeyPageX, x);
       params.push(kKeyPageY, y);
-      context.moduleManager
-          .getJavaScriptModule<EventDispatcher>(
-          enumValueToString(JavaScriptModuleType.EventDispatcher))
-          ?.receiveNativeGesture(params);
+      context.eventHandler.receiveNativeGesture(params);
     } else {
       context.bridgeManager.execNativeEvent(
           rootId, nodeId, kTouchCancel, {kKeyPageX: x, kKeyPageY: y});

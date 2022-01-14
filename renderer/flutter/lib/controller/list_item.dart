@@ -2,24 +2,22 @@ import 'package:flutter/widgets.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../engine.dart';
 import '../render.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
-import 'group.dart';
 
 class ListItemViewController
     extends GroupController<ListItemViewModel, ListItemRenderNode> {
   static const String kClassName = "ListViewItem";
 
   @override
-  Widget createWidget(BuildContext context, ListItemViewModel renderViewModel) {
-    return ListItemWidget(renderViewModel);
+  Widget createWidget(BuildContext context, ListItemViewModel viewModel) {
+    return ListItemWidget(viewModel);
   }
 
   @override
   ListItemViewModel createRenderViewModel(
-      ListItemRenderNode node, EngineContext context) {
+      ListItemRenderNode node, RenderContext context) {
     return ListItemViewModel(
         node.id, node.rootId, node.name, node.shouldSticky, context);
   }

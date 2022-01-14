@@ -1,15 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:voltron_renderer/engine/loader.dart';
 
-import '../adapter.dart';
 import '../common.dart';
-import '../engine.dart';
-import '../module.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
-import '../voltron/manager.dart';
 import 'base.dart';
 
 class RootWidgetViewModel extends ChangeNotifier {
@@ -23,23 +19,15 @@ class RootWidgetViewModel extends ChangeNotifier {
 
   final int _instanceId = kRootViewTagIncrement + sIdCounter++;
 
-  late ModuleLoadParams _loadParams;
-
-  EngineContext? _engineContext;
-
   OnResumeAndPauseListener? _onResumeAndPauseListener;
 
   OnLoadCompleteListener? _onLoadCompleteListener;
-
-  TimeMonitor? timeMonitor;
 
   bool _loadCompleted = false;
 
   bool _loadError = false;
 
   int get id => _instanceId;
-
-  InstanceContext? _instanceContext;
 
   ContextWrapper? _wrapper;
 
@@ -51,12 +39,11 @@ class RootWidgetViewModel extends ChangeNotifier {
 
   late IRenderExecutor viewExecutor;
 
-  RootWidgetViewModel(ModuleLoadParams loadParams) {
-    _instanceContext = loadParams.instanceContext;
-    if (_instanceContext == null) {
-      _instanceContext = InstanceContext(loadParams);
-    }
-    _loadParams = loadParams;
+  RenderContext? _context;
+
+  TimeMonitor? timeMonitor;
+
+  RootWidgetViewModel() {
     viewExecutor = () {
       if (viewExecutorList.isNotEmpty) {
         for (var element in viewExecutorList) {
@@ -66,14 +53,9 @@ class RootWidgetViewModel extends ChangeNotifier {
     };
   }
 
-  void attachToEngine(EngineContext context) {
-    _engineContext = context;
-    instanceContext?.setEngineContext(context);
+  void attachToEngine(RenderContext context) {
+    _context = context;
     checkUpdateDimension(-1, -1, false, false);
-  }
-
-  void attachEngineManager(VoltronEngine engineManager) {
-    instanceContext?.attachEngineManager(engineManager);
   }
 
   void onLoadError() {
@@ -82,12 +64,6 @@ class RootWidgetViewModel extends ChangeNotifier {
     notifyChange();
   }
 
-  VoltronMap? get launchParams => _loadParams.jsParams;
-
-  EngineContext? get engineContext => _engineContext;
-
-  InstanceContext? get instanceContext => _instanceContext;
-
   BuildContext? get currentContext => _wrapper?.call();
 
   bool get loadError => _loadError;
@@ -95,7 +71,7 @@ class RootWidgetViewModel extends ChangeNotifier {
   bool get loadFinish => _loadCompleted;
 
   RenderTree? get renderTree =>
-      engineContext?.renderManager.controllerManager.findTree(id);
+      _context?.renderManager.controllerManager.findTree(id);
 
   set onSizeChangedListener(OnSizeChangedListener? listener) {
     _sizeChangListener = listener;
@@ -116,8 +92,6 @@ class RootWidgetViewModel extends ChangeNotifier {
   void onPause() {
     _onResumeAndPauseListener?.onInstancePause(id);
   }
-
-  String get name => _loadParams.componentName;
 
   void destroy() {
     _wrapper = null;
@@ -140,7 +114,7 @@ class RootWidgetViewModel extends ChangeNotifier {
         if (onLoadCompleteListener != null) {
           onLoadCompleteListener(_timeMonitor.totalTime, _timeMonitor.events);
         }
-        _engineContext?.globalConfigs.monitorAdapter?.reportModuleLoadComplete(
+        _context?.engineMonitor.reportModuleLoadComplete(
             this, _timeMonitor.totalTime, _timeMonitor.events);
       }
     }
@@ -171,42 +145,23 @@ class RootWidgetViewModel extends ChangeNotifier {
   void checkUpdateDimension(int windowWidth, int windowHeight,
       bool shouldUseScreenDisplay, bool systemUiVisibilityChanged) {
     var uiContext = currentContext;
-    if (_engineContext == null && uiContext != null) {
+    if (_context == null && uiContext != null) {
       return;
     }
 
     var dimensionMap = getDimensions(
         windowWidth, windowHeight, shouldUseScreenDisplay, uiContext);
-    // 如果windowHeight是无效值，则允许客户端定制
-    if (windowHeight < 0 && _engineContext?.globalConfigs != null) {
-      var deviceAdapter = _engineContext?.globalConfigs.deviceAdapter;
-      if (deviceAdapter != null) {
-        deviceAdapter.reviseDimensionIfNeed(uiContext, dimensionMap,
-            shouldUseScreenDisplay, systemUiVisibilityChanged);
-      }
-    }
-    _engineContext?.moduleManager
-        .getJavaScriptModule<Dimensions>(
-            enumValueToString(JavaScriptModuleType.Dimensions))
-        ?.set(dimensionMap);
+    _context?.dimensionChecker.checkUpdateDimension(
+        uiContext!,
+        dimensionMap,
+        windowWidth,
+        windowHeight,
+        shouldUseScreenDisplay,
+        systemUiVisibilityChanged);
   }
 }
 
-typedef FlutterRenderGetter = VoltronRenderManager Function();
-
 class VoltronWidget extends StatefulWidget {
-  // load参数
-  final ModuleLoadParams loadParams;
-
-  // 获取flutter render
-  final FlutterRenderGetter renderGetter;
-
-  // load module回调
-  final ModuleListener? moduleListener;
-
-  // 加载完成回调
-  final OnLoadCompleteListener? onLoadCompleteListener;
-
   // 页面加载过程中的loading widget
   final Widget? loadingWidget;
 
@@ -223,16 +178,17 @@ class VoltronWidget extends StatefulWidget {
   // 固定高度模式，height > 0的情况下，会使用固定高度，即高度不跟随外面布局变化
   final double height;
 
-  VoltronWidget(
-      {required this.loadParams,
-      required this.renderGetter,
-      this.moduleListener,
-      this.onLoadCompleteListener,
+  final RendererLoader loader;
+
+  const VoltronWidget(
+      {Key? key,
+      required this.loader,
       this.loadingWidget,
       this.errorWidget,
       this.emptyWidget,
       this.resizedHeight = false,
-      this.height = -1});
+      this.height = -1})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -242,7 +198,7 @@ class VoltronWidget extends StatefulWidget {
 
 class _VoltronWidgetState extends State<VoltronWidget> {
   Size? oldSize;
-  RootWidgetViewModel? viewModel;
+  final RootWidgetViewModel viewModel = RootWidgetViewModel();
 
   Orientation? _orientation;
   double? _curHeight;
@@ -254,13 +210,21 @@ class _VoltronWidgetState extends State<VoltronWidget> {
   @override
   void initState() {
     super.initState();
-    viewModel = RootWidgetViewModel(widget.loadParams);
     WidgetsBinding.instance?.addPostFrameCallback(doFirstFrame);
     // viewModel!.executor = doFrame;
-    viewModel!._wrapper = () {
+    viewModel._wrapper = () {
       return context;
     };
     hasDispose = false;
+  }
+
+
+  @override
+  void didUpdateWidget(VoltronWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.loader != oldWidget.loader) {
+      WidgetsBinding.instance?.addPostFrameCallback(doFirstFrame);
+    }
   }
 
   @override
@@ -307,7 +271,7 @@ class _VoltronWidgetState extends State<VoltronWidget> {
   Widget _contentWithHeight(double height) {
     return WillPopScope(
         onWillPop: () async {
-          return !(widget.renderGetter().onBackPress(() {
+          return !(widget.loader.back(() {
             Navigator.of(context).pop();
           }));
         },
@@ -316,31 +280,20 @@ class _VoltronWidgetState extends State<VoltronWidget> {
   }
 
   Widget _contentWithHeightByRepaint(double height) {
-    // TODO: 暂时无法在engine初始化前获取isDevModule的值，因此暂时固定为true，后续进行修改
-    final isDevModule = true;
-    // final isDevModule = viewModel?.engineContext?.bridgeManager.isDevModule == true;
-    /// 开发环境，需要使用RepaintBoundary包裹，以便获取当前的页面快照
-    if (isDevModule) {
-      return RepaintBoundary(
-          key: viewModel?.rootKey,
-          child: Container(
-              width: double.infinity,
-              height: height,
-              child: _contentWithStatus()));
-    }
-
-    return Container(
-        key: viewModel?.rootKey,
-        width: double.infinity,
-        height: height,
-        child: _contentWithStatus());
+    // 需要使用RepaintBoundary包裹，以便获取当前的页面快照
+    return RepaintBoundary(
+        key: viewModel.rootKey,
+        child: SizedBox(
+            width: double.infinity,
+            height: height,
+            child: _contentWithStatus()));
   }
 
   Widget _contentWithStatus() {
-    return Consumer<RootWidgetViewModel?>(
+    return Consumer<RootWidgetViewModel>(
         builder: (context, viewModel, widget) {
       var model = LoadingModel(
-          !(viewModel?.loadFinish ?? false), viewModel?.loadError ?? false);
+          !(viewModel.loadFinish), viewModel.loadError);
       LogUtils.dWidget("root_widget", "build content start");
       if (model.isLoading) {
         LogUtils.dWidget("root_widget", "build content loading");
@@ -363,7 +316,7 @@ class _VoltronWidgetState extends State<VoltronWidget> {
     return Center(
         child: Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: const [
         CircularProgressIndicator(),
         Text("Loading"),
       ],
@@ -375,7 +328,7 @@ class _VoltronWidgetState extends State<VoltronWidget> {
     if (errorWidget != null) {
       return errorWidget;
     }
-    return Center(child: Text("Load error"));
+    return const Center(child: Text("Load error"));
   }
 
   Widget _empty() {
@@ -383,7 +336,7 @@ class _VoltronWidgetState extends State<VoltronWidget> {
     if (emptyWidget != null) {
       return emptyWidget;
     }
-    return Center(child: Text("Empty page"));
+    return const Center(child: Text("Empty page"));
   }
 
   Widget _content(RootWidgetViewModel? viewModel) {
@@ -420,11 +373,7 @@ class _VoltronWidgetState extends State<VoltronWidget> {
 
   void _loadModule() {
     LogUtils.i("root_widget", "start to load module");
-    if (viewModel != null) {
-      widget.renderGetter().loadModule(widget.loadParams, viewModel!,
-          moduleListener: widget.moduleListener,
-          onLoadCompleteListener: widget.onLoadCompleteListener);
-    }
+    widget.loader.load(viewModel);
   }
 
   void doFirstFrame(Duration timeStamp) {
@@ -432,11 +381,10 @@ class _VoltronWidgetState extends State<VoltronWidget> {
   }
 
   void doFrame() {
-    var originViewModel = viewModel;
-    if (originViewModel != null && !hasDispose) {
-      originViewModel.onGlobalLayout();
+    if (!hasDispose) {
+      viewModel.onGlobalLayout();
 
-      final RenderBox? renderBox = originViewModel.rootKey.currentContext
+      final RenderBox? renderBox = viewModel.rootKey.currentContext
           ?.findRenderObject() as RenderBox;
       var newSize = renderBox?.size;
 
@@ -445,8 +393,8 @@ class _VoltronWidgetState extends State<VoltronWidget> {
         if (originOldSize == null ||
             originOldSize.width != newSize.width ||
             originOldSize.height != newSize.height) {
-          originViewModel.onSizeChanged(
-              originViewModel.id,
+          viewModel.onSizeChanged(
+              viewModel.id,
               newSize.width,
               newSize.height,
               originOldSize?.width ?? 0,
@@ -461,12 +409,8 @@ class _VoltronWidgetState extends State<VoltronWidget> {
   void dispose() {
     super.dispose();
 
-    var originViewModel = viewModel;
-    if (originViewModel != null) {
-      widget.renderGetter().destroyInstance(originViewModel);
-      originViewModel.dispose();
-    }
-    widget.renderGetter().destroy();
+    widget.loader.destroy();
+    viewModel.dispose();
     hasDispose = true;
   }
 }
