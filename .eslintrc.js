@@ -1,3 +1,13 @@
+const path = require('path');
+
+function resolveVue(p) {
+  return path.resolve(__dirname, './node_modules/vue/src/', p);
+}
+
+function resolvePackage(src, extra = 'src') {
+  return path.resolve(__dirname, './framework/js/packages/', src, extra);
+}
+
 module.exports = {
   parser: 'vue-eslint-parser',
   parserOptions: {
@@ -33,6 +43,22 @@ module.exports = {
         // Note you must disable the base rule as it can report incorrect errors
         'no-unused-vars': 'off',
         '@typescript-eslint/explicit-member-accessibility': ['error'],
+        '@typescript-eslint/member-ordering': ['error'],
+        '@typescript-eslint/adjacent-overload-signatures': ['error'],
+        '@typescript-eslint/unified-signatures': ['error'],
+        '@typescript-eslint/consistent-type-assertions': ['error'],
+        '@typescript-eslint/no-inferrable-types': ['error'],
+        '@typescript-eslint/typedef': ['error'],
+        '@typescript-eslint/prefer-function-type': ['error'],
+        '@typescript-eslint/no-parameter-properties': ['error'],
+        '@typescript-eslint/no-namespace': ['error'],
+        '@typescript-eslint/prefer-namespace-keyword': ['error'],
+        '@typescript-eslint/no-non-null-asserted-optional-chain': ['error'],
+        '@typescript-eslint/no-unused-expressions': ['error'],
+        '@typescript-eslint/triple-slash-reference': ['error'],
+        '@typescript-eslint/type-annotation-spacing': ['error'],
+        '@typescript-eslint/method-signature-style': ['error'],
+        '@typescript-eslint/consistent-type-definitions': ['error'],
       },
     },
   ],
@@ -42,7 +68,7 @@ module.exports = {
     es6: true,
   },
   globals: {
-    __PLATFORM__: 'readonly',
+    __PLATFORM__: 'writable',
     __GLOBAL__: 'writable',
     Hippy: 'writable',
     WebSocket: 'writable',
@@ -113,6 +139,26 @@ module.exports = {
   settings: {
     react: {
       version: 'detect', // React version. "detect" automatically picks the version you have installed.
+    },
+    'import/ignore': [resolveVue('/')],
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx', 'd.ts'],
+      },
+      alias: {
+        map: [
+          ['@vue', resolvePackage('hippy-vue')],
+          ['@router', resolvePackage('hippy-vue-router')],
+          ['@css-loader', resolvePackage('hippy-vue-css-loader')],
+          ['@native-components', resolvePackage('hippy-vue-native-components')],
+          ['vue', resolveVue('core/index')],
+          ['web', resolveVue('platforms/web')],
+          ['core', resolveVue('core')],
+          ['shared', resolveVue('shared')],
+          ['sfc', resolveVue('sfc')],
+          ['he', path.resolve(__dirname, './framework/js/packages/hippy-vue/src/util/entity-decoder')],
+        ],
+      },
     },
   },
 };

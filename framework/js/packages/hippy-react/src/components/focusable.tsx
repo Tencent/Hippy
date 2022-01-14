@@ -32,8 +32,8 @@ interface FocusableProps {
   nextFocusUpId?: string;
   nextFocusLeftId?: string;
   nextFocusRightId?: string;
-  onFocus?(evt: HippyTypes.FocusEvent): void;
-  onClick?(): void;
+  onClick?: () => void;
+  onFocus?: (evt: HippyTypes.FocusEvent) => void;
 }
 
 interface FocusableState {
@@ -55,20 +55,6 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
     };
 
     this.handleFocus = this.handleFocus.bind(this);
-  }
-
-  private handleFocus(e: HippyTypes.FocusEvent) {
-    const { onFocus: userOnFocus } = this.props;
-    if (typeof userOnFocus === 'function') {
-      userOnFocus(e);
-    }
-
-    const { isFocus } = this.state;
-    if (isFocus !== e.focus) {
-      this.setState({
-        isFocus: e.focus,
-      });
-    }
   }
 
   /**
@@ -144,6 +130,20 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
       style: nativeStyle,
       onFocus: this.handleFocus,
     });
+  }
+
+  private handleFocus(e: HippyTypes.FocusEvent) {
+    const { onFocus: userOnFocus } = this.props;
+    if (typeof userOnFocus === 'function') {
+      userOnFocus(e);
+    }
+
+    const { isFocus } = this.state;
+    if (isFocus !== e.focus) {
+      this.setState({
+        isFocus: e.focus,
+      });
+    }
   }
 }
 
