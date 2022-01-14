@@ -49,9 +49,6 @@ mixin TextStyleNode on StyleNode {
   // 系统文本缩放尺寸
   bool _enableScale = false;
 
-  // 手势
-  final List<String> _gestureTypes = [];
-
   bool get enableScale => _enableScale;
 
   String get _text {
@@ -274,62 +271,6 @@ mixin TextStyleNode on StyleNode {
       LogUtils.e(_kTag, "Invalid textOverflow: $textOverflow");
     }
     return v;
-  }
-
-  @ControllerProps(NodeProps.kOnClick)
-  void clickEnable(bool flag) {
-    if (flag) {
-      _gestureTypes.add(NodeProps.kOnClick);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnLongClick)
-  void longClickEnable(bool flag) {
-    if (flag) {
-      _gestureTypes.add(NodeProps.kOnLongClick);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnPressIn)
-  void pressInEnable(bool flag) {
-    if (flag) {
-      _gestureTypes.add(NodeProps.kOnPressIn);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnPressOut)
-  void pressOutEnable(bool flag) {
-    if (flag) {
-      _gestureTypes.add(NodeProps.kOnPressOut);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnTouchDown)
-  void touchDownEnable(bool flag) {
-    if (flag) {
-      _gestureTypes.add(NodeProps.kOnTouchDown);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnTouchMove)
-  void touchUpEnable(bool flag) {
-    if (flag) {
-      _gestureTypes.add(NodeProps.kOnTouchMove);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnTouchEnd)
-  void touchEndEnable(bool flag) {
-    if (flag) {
-      _gestureTypes.add(NodeProps.kOnTouchEnd);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnTouchCancel)
-  void touchCancelable(bool flag) {
-    if (flag) {
-      _gestureTypes.add(NodeProps.kOnTouchCancel);
-    }
   }
 
   @ControllerProps(NodeProps.kPropEnableScale)
@@ -556,62 +497,6 @@ class TextMethodProvider extends StyleMethodPropProvider {
             consumer.setTextOverflow(value);
           }
         }, ""));
-    pushMethodProp(
-        NodeProps.kOnClick,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextStyleNode && value is bool) {
-            consumer.clickEnable(value);
-          }
-        }, false));
-    pushMethodProp(
-        NodeProps.kOnLongClick,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextStyleNode && value is bool) {
-            consumer.longClickEnable(value);
-          }
-        }, false));
-    pushMethodProp(
-        NodeProps.kOnPressIn,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextStyleNode && value is bool) {
-            consumer.pressInEnable(value);
-          }
-        }, false));
-    pushMethodProp(
-        NodeProps.kOnPressOut,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextStyleNode && value is bool) {
-            consumer.pressOutEnable(value);
-          }
-        }, false));
-    pushMethodProp(
-        NodeProps.kOnTouchDown,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextStyleNode && value is bool) {
-            consumer.touchDownEnable(value);
-          }
-        }, false));
-    pushMethodProp(
-        NodeProps.kOnTouchMove,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextStyleNode && value is bool) {
-            consumer.touchUpEnable(value);
-          }
-        }, false));
-    pushMethodProp(
-        NodeProps.kOnTouchEnd,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextStyleNode && value is bool) {
-            consumer.touchEndEnable(value);
-          }
-        }, false));
-    pushMethodProp(
-        NodeProps.kOnTouchCancel,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextStyleNode && value is bool) {
-            consumer.touchCancelable(value);
-          }
-        }, false));
     pushMethodProp(
         NodeProps.kPropEnableScale,
         StyleMethodProp((consumer, value) {

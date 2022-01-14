@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 
 import '../style.dart';
+import 'type.dart';
 
 class NativeGestureProcessor {
   static const int kPressIn = 1;
@@ -28,48 +29,48 @@ class NativeGestureProcessor {
     var handle = false;
     if (event is PointerDownEvent) {
       // down
-      if (_gestureCallback.needHandle(NodeProps.kOnPressIn)) {
+      if (_gestureCallback.needHandle(GestureType.pressIn)) {
         _noPressIn = false;
         _lastPressInX = event.position.dx;
         _lastPressInY = event.position.dy;
-        _handler.sendDelayMessage(NodeProps.kOnPressIn, () {
-          _gestureCallback.handle(NodeProps.kOnPressIn, -1, -1);
+        _handler.sendDelayMessage(GestureType.pressIn, () {
+          _gestureCallback.handle(GestureType.pressIn, -1, -1);
         });
         handle = true;
       } else {
         _noPressIn = true;
       }
 
-      if (_gestureCallback.needHandle(NodeProps.kOnTouchDown)) {
+      if (_gestureCallback.needHandle(GestureType.touchDown)) {
         _gestureCallback.handle(
-            NodeProps.kOnTouchDown, event.position.dx, event.position.dy);
+            GestureType.touchDown, event.position.dx, event.position.dy);
         handle = true;
       }
 
-      if (!handle && _gestureCallback.needHandle(NodeProps.kOnTouchMove)) {
+      if (!handle && _gestureCallback.needHandle(GestureType.touchMove)) {
         handle = true;
       }
 
-      if (!handle && _gestureCallback.needHandle(NodeProps.kOnTouchEnd)) {
+      if (!handle && _gestureCallback.needHandle(GestureType.touchEnd)) {
         handle = true;
       }
 
-      if (!handle && _gestureCallback.needHandle(NodeProps.kOnTouchCancel)) {
+      if (!handle && _gestureCallback.needHandle(GestureType.touchCancel)) {
         handle = true;
       }
     } else if (event is PointerMoveEvent) {
       // move
-      if (_gestureCallback.needHandle(NodeProps.kOnTouchMove)) {
+      if (_gestureCallback.needHandle(GestureType.touchMove)) {
         _gestureCallback.handle(
-            NodeProps.kOnTouchMove, event.position.dx, event.position.dy);
+            GestureType.touchMove, event.position.dx, event.position.dy);
         handle = true;
       }
 
-      if (!handle && _gestureCallback.needHandle(NodeProps.kOnTouchEnd)) {
+      if (!handle && _gestureCallback.needHandle(GestureType.touchEnd)) {
         handle = true;
       }
 
-      if (!handle && _gestureCallback.needHandle(NodeProps.kOnTouchCancel)) {
+      if (!handle && _gestureCallback.needHandle(GestureType.touchCancel)) {
         handle = true;
       }
 
@@ -77,46 +78,46 @@ class NativeGestureProcessor {
         var distX = (event.position.dx - _lastPressInX).abs();
         var distY = (event.position.dy - _lastPressInY).abs();
         if (distX > kTouchSlop || distY > kTouchSlop) {
-          _handler.removeMessage(NodeProps.kOnPressIn);
+          _handler.removeMessage(GestureType.pressIn);
           _noPressIn = true;
         }
       }
     } else if (event is PointerUpEvent) {
       // up
-      if (_gestureCallback.needHandle(NodeProps.kOnTouchEnd)) {
+      if (_gestureCallback.needHandle(GestureType.touchEnd)) {
         _gestureCallback.handle(
-            NodeProps.kOnTouchEnd, event.position.dx, event.position.dy);
+            GestureType.touchEnd, event.position.dx, event.position.dy);
         handle = true;
       }
 
-      if (_noPressIn && _gestureCallback.needHandle(NodeProps.kOnPressOut)) {
+      if (_noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
         _gestureCallback.handle(
-            NodeProps.kOnPressOut, event.position.dx, event.position.dy);
+            GestureType.pressOut, event.position.dx, event.position.dy);
         handle = true;
       } else if (!_noPressIn &&
-          _gestureCallback.needHandle(NodeProps.kOnPressOut)) {
-        _handler.sendDelayMessage(NodeProps.kOnPressOut, () {
-          _gestureCallback.handle(NodeProps.kOnPressOut, -1, -1);
+          _gestureCallback.needHandle(GestureType.pressOut)) {
+        _handler.sendDelayMessage(GestureType.pressOut, () {
+          _gestureCallback.handle(GestureType.pressOut, -1, -1);
         });
         handle = true;
       }
     } else if (event is PointerCancelEvent) {
       // cancel
-      if (_gestureCallback.needHandle(NodeProps.kOnTouchCancel)) {
+      if (_gestureCallback.needHandle(GestureType.touchCancel)) {
         _gestureCallback.handle(
-            NodeProps.kOnTouchCancel, event.position.dx, event.position.dy);
+            GestureType.touchCancel, event.position.dx, event.position.dy);
         handle = true;
       }
 
-      if (_noPressIn && _gestureCallback.needHandle(NodeProps.kOnPressOut)) {
+      if (_noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
         _gestureCallback.handle(
-            NodeProps.kOnPressOut, event.position.dx, event.position.dy);
+            GestureType.pressOut, event.position.dx, event.position.dy);
         handle = true;
       } else if (!_noPressIn &&
-          _gestureCallback.needHandle(NodeProps.kOnPressOut)) {
-        _handler.removeMessage(NodeProps.kOnPressIn);
-        _handler.sendDelayMessage(NodeProps.kOnPressOut, () {
-          _gestureCallback.handle(NodeProps.kOnPressOut, -1, -1);
+          _gestureCallback.needHandle(GestureType.pressOut)) {
+        _handler.removeMessage(GestureType.pressIn);
+        _handler.sendDelayMessage(GestureType.pressOut, () {
+          _gestureCallback.handle(GestureType.pressOut, -1, -1);
         });
         handle = true;
       }
@@ -126,18 +127,18 @@ class NativeGestureProcessor {
 }
 
 abstract class GestureHandleCallback {
-  bool needHandle(String type);
+  bool needHandle(GestureType type);
 
-  void handle(String type, double x, double y);
+  void handle(GestureType type, double x, double y);
 }
 
 class _GestureHandler {
   static const Duration kTapTimeout = kDoubleTapTimeout;
-  Map<String, Timer> messageMap = {};
+  Map<GestureType, Timer> messageMap = {};
 
   _GestureHandler();
 
-  void sendDelayMessage(String type, GestureExecutor executor) {
+  void sendDelayMessage(GestureType type, GestureExecutor executor) {
     removeMessage(type);
 
     messageMap[type] = Timer(kTapTimeout, () {
@@ -146,7 +147,7 @@ class _GestureHandler {
     });
   }
 
-  void removeMessage(String type) {
+  void removeMessage(GestureType type) {
     var oldMessage = messageMap[type];
     if (oldMessage != null) {
       oldMessage.cancel();

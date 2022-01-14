@@ -142,6 +142,10 @@ class _MyWidgetInspector with WidgetInspectorService {
     for (final dir in pubRootDirectories) {
       if (dir.contains('flutter/example')) {
         pubRootDirectories.add(dir.replaceFirst('flutter/example', 'flutter'));
+        pubRootDirectories.add(dir.replaceFirst('framework/js/flutter/example', 'renderer/flutter'));
+        break;
+      } if (dir.contains('framework/js/flutter')) {
+        pubRootDirectories.add(dir.replaceFirst('framework/js/flutter', 'renderer/flutter'));
         break;
       }
     }

@@ -143,5 +143,6 @@ void BridgeImpl::BindDomManager(int64_t runtime_id, const std::shared_ptr<DomMan
     auto scope = bridge.jscExecutor.pScope;
     if (scope) {
         scope->SetDomManager(dom_manager);
+        dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
     }
 }

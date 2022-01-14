@@ -1,7 +1,5 @@
 import 'package:voltron_renderer/render.dart';
 
-import '../common.dart';
-import '../style.dart';
 import '../util.dart';
 
 class NativeGestureHandle {
@@ -28,133 +26,56 @@ class NativeGestureHandle {
   static const String kDismiss = 'dismiss';
 
   static void handleClick(RenderContext context, int nodeId, int rootId) {
-    if (kUseOldTouch) {
-      var params = VoltronMap();
-      params.push(kKeyEventName, NodeProps.kOnClick);
-      params.push(kKeyTagId, nodeId);
-      context.eventHandler.receiveNativeGesture(params);
-    } else {
-      context.bridgeManager
-          .execNativeEvent(rootId, nodeId, kClick, {});
-    }
+    context.bridgeManager
+        .execNativeEvent(rootId, nodeId, kClick, {});
     LogUtils.d(kTag, "send msg: $kClick");
   }
 
   static void handleLongClick(RenderContext context, int nodeId, int rootId) {
-    if (kUseOldTouch) {
-      var params = VoltronMap();
-      params.push(kKeyEventName, NodeProps.kOnLongClick);
-      params.push(kKeyTagId, nodeId);
-      context.eventHandler.receiveNativeGesture(params);
-    } else {
-      context.bridgeManager
-          .execNativeEvent(rootId, nodeId, kLongClick, {});
-    }
+    context.bridgeManager
+        .execNativeEvent(rootId, nodeId, kLongClick, {});
   }
 
-  static void handleAttachedToWindow(
-      RenderContext context, int nodeId, int rootId) {
-    if (kUseOldTouch) {
-      context.eventHandler.receiveUIComponentEvent(nodeId, NodeProps.kOnAttachedToWindow, null);
-    } else {
-      context.bridgeManager
-          .execNativeEvent(rootId, nodeId, kShow, {});
-    }
+  static void handleAttachedToWindow(RenderContext context, int nodeId, int rootId) {
+    context.bridgeManager
+        .execNativeEvent(rootId, nodeId, kShow, {});
   }
 
-  static void handleDetachedFromWindow(
-      RenderContext context, int nodeId, int rootId) {
-    if (kUseOldTouch) {
-      context.eventHandler.receiveUIComponentEvent(nodeId, NodeProps.kOnDetachedFromWindow, null);
-    } else {
-      context.bridgeManager
-          .execNativeEvent(rootId, nodeId, kDismiss, {});
-    }
+  static void handleDetachedFromWindow(RenderContext context, int nodeId, int rootId) {
+    context.bridgeManager
+        .execNativeEvent(rootId, nodeId, kDismiss, {});
   }
 
   static void handlePressIn(RenderContext context, int nodeId, int rootId) {
-    if (kUseOldTouch) {
-      var params = VoltronMap();
-      params.push(kKeyEventName, NodeProps.kOnPressIn);
-      params.push(kKeyTagId, nodeId);
-      context.eventHandler.receiveNativeGesture(params);
-    } else {
-      context.bridgeManager
-          .execNativeEvent(rootId, nodeId, kPressIn, {});
-    }
+    context.bridgeManager
+        .execNativeEvent(rootId, nodeId, kPressIn, {});
     LogUtils.d(kTag, "send msg: $kPressIn");
   }
 
   static void handlePressOut(RenderContext context, int nodeId, int rootId) {
-    if (kUseOldTouch) {
-      var params = VoltronMap();
-      params.push(kKeyEventName, NodeProps.kOnPressOut);
-      params.push(kKeyTagId, nodeId);
-      context.eventHandler.receiveNativeGesture(params);
-    } else {
-      context.bridgeManager
-          .execNativeEvent(rootId, nodeId, kPressOut, {});
-    }
+    context.bridgeManager
+        .execNativeEvent(rootId, nodeId, kPressOut, {});
     LogUtils.d(kTag, "send msg: $kPressOut");
   }
 
-  static void handleTouchDown(
-      RenderContext context, int nodeId, int rootId, double x, double y) {
-    if (kUseOldTouch) {
-      var params = VoltronMap();
-      params.push(kKeyEventName, NodeProps.kOnTouchDown);
-      params.push(kKeyTagId, nodeId);
-      params.push(kKeyPageX, x);
-      params.push(kKeyPageY, y);
-      context.eventHandler.receiveNativeGesture(params);
-    } else {
-      context.bridgeManager.execNativeEvent(
-          rootId, nodeId, kTouchDown, {kKeyPageX: x, kKeyPageY: y});
-    }
+  static void handleTouchDown(RenderContext context, int nodeId, int rootId, double x, double y) {
+    context.bridgeManager.execNativeEvent(
+        rootId, nodeId, kTouchDown, {kKeyPageX: x, kKeyPageY: y});
   }
 
-  static void handleTouchMove(
-      RenderContext context, int nodeId, int rootId, double x, double y) {
-    if (kUseOldTouch) {
-      var params = VoltronMap();
-      params.push(kKeyEventName, NodeProps.kOnTouchMove);
-      params.push(kKeyTagId, nodeId);
-      params.push(kKeyPageX, x);
-      params.push(kKeyPageY, y);
-      context.eventHandler.receiveNativeGesture(params);
-    } else {
-      context.bridgeManager.execNativeEvent(
-          rootId, nodeId, kTouchMove, {kKeyPageX: x, kKeyPageY: y});
-    }
+  static void handleTouchMove(RenderContext context, int nodeId, int rootId, double x, double y) {
+    context.bridgeManager.execNativeEvent(
+        rootId, nodeId, kTouchMove, {kKeyPageX: x, kKeyPageY: y});
   }
 
-  static void handleTouchEnd(
-      RenderContext context, int nodeId, int rootId, double x, double y) {
-    if (kUseOldTouch) {
-      var params = VoltronMap();
-      params.push(kKeyEventName, NodeProps.kOnTouchEnd);
-      params.push(kKeyTagId, nodeId);
-      params.push(kKeyPageX, x);
-      params.push(kKeyPageY, y);
-      context.eventHandler.receiveNativeGesture(params);
-    } else {
-      context.bridgeManager.execNativeEvent(
-          rootId, nodeId, kTouchEnd, {kKeyPageX: x, kKeyPageY: y});
-    }
+  static void handleTouchEnd(RenderContext context, int nodeId, int rootId, double x, double y) {
+    context.bridgeManager.execNativeEvent(
+        rootId, nodeId, kTouchEnd, {kKeyPageX: x, kKeyPageY: y});
   }
 
   static void handleTouchCancel(RenderContext context, int nodeId, int rootId,
       double x, double y) {
-    if (kUseOldTouch) {
-      var params = VoltronMap();
-      params.push(kKeyEventName, NodeProps.kOnTouchCancel);
-      params.push(kKeyTagId, nodeId);
-      params.push(kKeyPageX, x);
-      params.push(kKeyPageY, y);
-      context.eventHandler.receiveNativeGesture(params);
-    } else {
-      context.bridgeManager.execNativeEvent(
-          rootId, nodeId, kTouchCancel, {kKeyPageX: x, kKeyPageY: y});
-    }
+    context.bridgeManager.execNativeEvent(
+        rootId, nodeId, kTouchCancel, {kKeyPageX: x, kKeyPageY: y});
   }
 }

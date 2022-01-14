@@ -133,18 +133,8 @@ class NodeProps {
   static const String kLevel = "level";
   static const String kVersion = "version";
 
-  static const String kOnClick = "onClick";
-  static const String kOnLongClick = "onLongClick";
-  static const String kOnPressIn = "onPressIn";
-  static const String kOnPressOut = "onPressOut";
-  static const String kOnTouchDown = "onTouchDown";
-  static const String kOnTouchMove = "onTouchMove";
-  static const String kOnTouchEnd = "onTouchEnd";
-  static const String kOnTouchCancel = "onTouchCancel";
   static const String kOnInterceptTouchEvent = "onInterceptTouchEvent";
   static const String kOnInterceptPullUpEvent = "onInterceptPullUpEvent";
-  static const String kOnAttachedToWindow = "onAttachedToWindow";
-  static const String kOnDetachedFromWindow = "onDetachedFromWindow";
 
   static const String kBorderRadius = "borderRadius";
   static const String kBorderTopLeftRadius = "borderTopLeftRadius";
@@ -288,26 +278,6 @@ class NodeProps {
     }
     return _justLayoutPropSet;
   }
-
-  static final HashSet<String> _touchEventPropSet = HashSet<String>();
-
-  static HashSet<String> get touchEventPropSet {
-    if (_touchEventPropSet.isEmpty) {
-      _touchEventPropSet.addAll({
-        kOnClick,
-        kOnLongClick,
-        kOnPressIn,
-        kOnPressOut,
-        kOnTouchCancel,
-        kOnTouchDown,
-        kOnTouchEnd,
-        kOnTouchMove
-      });
-    }
-    return _touchEventPropSet;
-  }
-
-  static bool isTouchEventProp(String prop) => touchEventPropSet.contains(prop);
 
   static bool isJustLayout(VoltronMap map, String prop) {
     if (justLayoutPropSet.contains(prop)) {

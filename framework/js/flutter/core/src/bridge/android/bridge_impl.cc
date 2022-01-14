@@ -448,4 +448,5 @@ void BridgeImpl::BindDomManager(int64_t runtime_id, const std::shared_ptr<DomMan
     return;
   }
   runtime->GetScope()->SetDomManager(dom_manager);
+  dom_manager->SetDelegateTaskRunner(runtime->GetScope()->GetTaskRunner());
 }

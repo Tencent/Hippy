@@ -10,12 +10,12 @@ import 'js_native_event_handler.dart';
 class JSRenderContext extends RenderContext<JSLoadInstanceContext> {
   final EngineContext _engineContext;
 
-  final JSNativeEventHandler _eventHandler;
+  final UIComponentEventHandler _eventHandler;
   final JSDimensionChecker _dimensionChecker;
 
   JSRenderContext(this._engineContext, int id,
       List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor)
-      : _eventHandler = JSNativeEventHandler(_engineContext),
+      : _eventHandler = JSUIComponentEventHandler(_engineContext),
         _dimensionChecker = JSDimensionChecker(_engineContext),
         super(id, generators, engineMonitor);
 
@@ -34,7 +34,7 @@ class JSRenderContext extends RenderContext<JSLoadInstanceContext> {
   DimensionChecker get dimensionChecker => _dimensionChecker;
 
   @override
-  NativeEventHandler get eventHandler => _eventHandler;
+  UIComponentEventHandler get eventHandler => _eventHandler;
 
   @override
   double get fontScale =>

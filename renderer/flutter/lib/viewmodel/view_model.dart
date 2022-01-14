@@ -352,37 +352,37 @@ class RenderViewModel extends ChangeNotifier {
 
   void setCanPressIn(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.kOnPressIn, flag);
+      setGestureType(GestureType.pressIn, flag);
     }
   }
 
   void setCanPressOut(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.kOnPressOut, flag);
+      setGestureType(GestureType.pressOut, flag);
     }
   }
 
   void setTouchDownHandle(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.kOnTouchDown, flag);
+      setGestureType(GestureType.touchDown, flag);
     }
   }
 
   void setTouchMoveHandle(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.kOnTouchMove, flag);
+      setGestureType(GestureType.touchMove, flag);
     }
   }
 
   void setTouchEndHandle(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.kOnTouchEnd, flag);
+      setGestureType(GestureType.touchEnd, flag);
     }
   }
 
   void setTouchCancelHandle(bool flag) {
     if (!handleGestureBySelf()) {
-      setGestureType(NodeProps.kOnTouchCancel, flag);
+      setGestureType(GestureType.touchCancel, flag);
     }
   }
 
@@ -402,7 +402,7 @@ class RenderViewModel extends ChangeNotifier {
     return false;
   }
 
-  void setGestureType(String type, bool flag) {
+  void setGestureType(GestureType type, bool flag) {
     if (flag) {
       _dispatcher.addGestureType(type);
     } else {

@@ -15,7 +15,7 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
   final HashMap<int, RootWidgetViewModel> _instanceMap = HashMap();
   final HashMap<int, T> _loadContextMap = HashMap();
 
-  NativeEventHandler get eventHandler;
+  UIComponentEventHandler get eventHandler;
   double get fontScale;
   DimensionChecker get dimensionChecker;
 

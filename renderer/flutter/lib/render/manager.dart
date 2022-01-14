@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:voltron_renderer/gesture/event_render_delegate.dart';
 
 import '../common.dart';
 import '../controller.dart';
@@ -178,7 +179,8 @@ class RenderManager
     with
         EngineLifecycleDelegate,
         InstanceLifeCycleDelegate,
-        RenderExecutorDelegate
+        RenderExecutorDelegate,
+        EventRenderDelegate
     implements
         Destroyable,
         InstanceLifecycleEventListener,
@@ -201,6 +203,7 @@ class RenderManager
   @override
   void onInstanceLoad(final int instanceId) {
     createRootNode(instanceId);
+    createInstance(instanceId);
   }
 
   @override
@@ -236,6 +239,7 @@ class RenderManager
           id, props, name, tree, isLazy || parentNode.isLazyLoad);
       LogUtils.dRender(
           "createNode ID:$id pID:$pId index:$childIndex className:$name finish:${uiNode.hashCode} prop:$props");
+      uiNode?.addEvent(nodeEvents(instanceId, id));
       parentNode.addChild(uiNode, childIndex);
       addUpdateNodeIfNeeded(parentNode);
       addUpdateNodeIfNeeded(uiNode);
@@ -257,7 +261,6 @@ class RenderManager
   }
 
   void layoutAfter() {
-    // updateRender();
   }
 
   void updateRender() {
@@ -376,20 +379,25 @@ class RenderManager
     }
   }
 
-  void setEventListener(
-      int instanceId, int id, String eventName) {
+  void setEventListener(int instanceId, int id, String eventName) {
     LogUtils.dRender("set event ID:$id, event:$eventName");
-    var uiNode = controllerManager.findNode(instanceId, id);
-    if (uiNode != null) {
-      uiNode.addEvent(eventName);
+    bool needAdd = addEvent(instanceId, id, eventName);
+    if (needAdd) {
+      var uiNode = controllerManager.findNode(instanceId, id);
+      if (uiNode != null) {
+        uiNode.addEvent({eventName});
+      }
     }
   }
 
   void removeEventListener(int instanceId, int id, String eventName) {
     LogUtils.dRender("remove event ID:$id, event:$eventName");
-    var uiNode = controllerManager.findNode(instanceId, id);
-    if (uiNode != null) {
-      uiNode.removeEvent(eventName);
+    bool needRemove = removeEvent(instanceId, id, eventName);
+    if (needRemove) {
+      var uiNode = controllerManager.findNode(instanceId, id);
+      if (uiNode != null) {
+        uiNode.removeEvent({eventName});
+      }
     }
   }
 
@@ -495,5 +503,6 @@ class RenderManager
 
       _pageUpdateTasks.remove(viewModel.viewExecutor);
     }
+    destroyInstance(instanceId);
   }
 }

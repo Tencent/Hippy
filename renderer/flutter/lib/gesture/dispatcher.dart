@@ -2,10 +2,10 @@ import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 
-import '../style.dart';
 import '../render.dart';
 import 'handle.dart';
 import 'processor.dart';
+import 'type.dart';
 
 class NativeGestureDispatcher implements GestureHandleCallback {
   static const String kTag = "NativeGestureDispatcher";
@@ -27,37 +27,48 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   bool get canClick => clickable;
   bool get canLongClick => longClickable;
 
-  final HashSet<String> _gestureTypes = HashSet();
+  final HashSet<GestureType> _gestureTypes = HashSet();
 
   NativeGestureDispatcher({required int rootId, required int id, required RenderContext context})
       : _id = id, _rootId = rootId,
         _context = context;
 
   @override
-  void handle(String type, double x, double y) {
-    if (type == NodeProps.kOnPressIn) {
-      NativeGestureHandle.handlePressIn(_context, _id, _rootId);
-    } else if (type == NodeProps.kOnPressOut) {
-      NativeGestureHandle.handlePressOut(_context, _id, _rootId);
-    } else if (type == NodeProps.kOnTouchDown) {
-      NativeGestureHandle.handleTouchDown(_context, _id, _rootId, x, y);
-    } else if (type == NodeProps.kOnTouchMove) {
-      NativeGestureHandle.handleTouchMove(_context, _id, _rootId, x, y);
-    } else if (type == NodeProps.kOnTouchEnd) {
-      NativeGestureHandle.handleTouchEnd(_context, _id, _rootId, x, y);
-    } else if (type == NodeProps.kOnTouchCancel) {
-      NativeGestureHandle.handleTouchCancel(_context, _id, _rootId, x, y);
+  void handle(GestureType type, double x, double y) {
+    switch(type) {
+      case GestureType.pressIn:
+        NativeGestureHandle.handlePressIn(_context, _id, _rootId);
+        break;
+      case GestureType.pressOut:
+        NativeGestureHandle.handlePressOut(_context, _id, _rootId);
+        break;
+      case GestureType.touchDown:
+        NativeGestureHandle.handleTouchDown(_context, _id, _rootId, x, y);
+        break;
+      case GestureType.touchMove:
+        NativeGestureHandle.handleTouchMove(_context, _id, _rootId, x, y);
+        break;
+      case GestureType.touchEnd:
+        NativeGestureHandle.handleTouchEnd(_context, _id, _rootId, x, y);
+        break;
+      case GestureType.touchCancel:
+        NativeGestureHandle.handleTouchCancel(_context, _id, _rootId, x, y);
+        break;
+      case GestureType.interceptTouchEvent:
+        break;
+      case GestureType.interceptPullUpEvent:
+        break;
     }
   }
 
   @override
-  bool needHandle(String type) {
+  bool needHandle(GestureType type) {
     var result = _gestureTypes.contains(type);
     if (!result &&
-        !(type == NodeProps.kOnInterceptTouchEvent) &&
-        !(type == NodeProps.kOnInterceptPullUpEvent)) {
-      if (needHandle(NodeProps.kOnInterceptTouchEvent) ||
-          needHandle(NodeProps.kOnInterceptPullUpEvent)) {
+        !(type == GestureType.interceptTouchEvent) &&
+        !(type == GestureType.interceptPullUpEvent)) {
+      if (needHandle(GestureType.interceptTouchEvent) ||
+          needHandle(GestureType.interceptPullUpEvent)) {
         return true;
       }
     }
@@ -101,11 +112,11 @@ class NativeGestureDispatcher implements GestureHandleCallback {
     _gestureProcessor!.onTouchEvent(event);
   }
 
-  void addGestureType(String type) {
+  void addGestureType(GestureType type) {
     _gestureTypes.add(type);
   }
 
-  void removeGestureType(String type) {
+  void removeGestureType(GestureType type) {
     _gestureTypes.remove(type);
   }
 }

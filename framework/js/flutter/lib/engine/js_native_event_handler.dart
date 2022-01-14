@@ -3,26 +3,10 @@ import 'package:voltron_renderer/voltron_renderer.dart';
 import '../engine.dart';
 import '../module.dart';
 
-class JSNativeEventHandler with NativeEventHandler {
+class JSUIComponentEventHandler with UIComponentEventHandler {
   final EngineContext _engineContext;
 
-  JSNativeEventHandler(this._engineContext);
-
-  @override
-  void receiveNativeEvent(String eventName, Object? param) {
-    _engineContext.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveNativeEvent(eventName, param);
-  }
-
-  @override
-  void receiveNativeGesture(VoltronMap param) {
-    _engineContext.moduleManager
-        .getJavaScriptModule<EventDispatcher>(
-            enumValueToString(JavaScriptModuleType.EventDispatcher))
-        ?.receiveNativeGesture(param);
-  }
+  JSUIComponentEventHandler(this._engineContext);
 
   @override
   void receiveUIComponentEvent(int tagId, String eventName, Object? param) {

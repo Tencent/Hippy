@@ -175,7 +175,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
     }
   }
 
-  void updateEvents(RenderNode node, List<EventHolder> holders) {
+  void updateEvents(RenderNode node, Set<EventHolder> holders) {
     final controller = findController(node.name);
     if (controller != null) {
       controller.updateEvents(node.renderViewModel, holders);

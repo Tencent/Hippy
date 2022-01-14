@@ -1,17 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
-import '../common.dart';
-import '../gesture.dart';
-import '../gesture/handle.dart';
-import '../render.dart';
-import '../style.dart';
-import '../util.dart';
-import '../viewmodel.dart';
 import '../voltron_renderer.dart';
-import 'manager.dart';
-import 'props.dart';
 
 abstract class BaseViewController<T extends RenderViewModel>
     extends VoltronViewController<T, RenderNode> {
@@ -24,8 +13,10 @@ abstract class BaseViewController<T extends RenderViewModel>
 
 abstract class VoltronViewController<T extends RenderViewModel,
     R extends RenderNode> implements ControllerMethodPropConsumer<T> {
+  @override
   String get name;
 
+  @override
   ControllerMethodPropProvider generateProvider() {
     final provider = ControllerMethodPropProvider();
     provider.pushAll(_baseRegisteredMethodProp);
@@ -85,19 +76,6 @@ abstract class VoltronViewController<T extends RenderViewModel,
             ControllerMethodProp(setAnimationPropertyOptionMap, null),
         NodeProps.kFocusable: ControllerMethodProp(setFocusable, false),
         NodeProps.kRequestFocus: ControllerMethodProp(requestFocus, false),
-        NodeProps.kOnClick: ControllerMethodProp(setClickable, false),
-        NodeProps.kOnLongClick: ControllerMethodProp(setLongClickable, false),
-        NodeProps.kOnPressIn: ControllerMethodProp(setCanPressIn, false),
-        NodeProps.kOnPressOut: ControllerMethodProp(setCanPressOut, false),
-        NodeProps.kOnTouchDown: ControllerMethodProp(setTouchDownHandle, false),
-        NodeProps.kOnTouchMove: ControllerMethodProp(setTouchMoveHandle, false),
-        NodeProps.kOnTouchEnd: ControllerMethodProp(setTouchEndHandle, false),
-        NodeProps.kOnTouchCancel:
-            ControllerMethodProp(setTouchCancelHandle, false),
-        NodeProps.kOnAttachedToWindow:
-            ControllerMethodProp(setAttachedToWindowHandle, false),
-        NodeProps.kOnDetachedFromWindow:
-            ControllerMethodProp(setDetachedFromWindowHandle, false),
         NodeProps.kZIndex: ControllerMethodProp(setZIndex, 0)
       };
 
@@ -127,7 +105,7 @@ abstract class VoltronViewController<T extends RenderViewModel,
   @ControllerProps(NodeProps.kPropAccessibilityLabel)
   void setAccessibilityLabel(T viewModel, String? accessibilityLabel) {
     viewModel.accessibilityLabel =
-        accessibilityLabel == null ? "" : accessibilityLabel;
+        accessibilityLabel ?? "";
   }
 
   @ControllerProps(NodeProps.kBackgroundColor)
@@ -292,76 +270,6 @@ abstract class VoltronViewController<T extends RenderViewModel,
     viewModel.requestFocus(request);
   }
 
-  @ControllerProps(NodeProps.kOnClick)
-  void setClickable(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setClickable(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnLongClick)
-  void setLongClickable(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setLongClickable(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnPressIn)
-  void setCanPressIn(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setCanPressIn(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnPressOut)
-  void setCanPressOut(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setCanPressOut(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnTouchDown)
-  void setTouchDownHandle(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setTouchDownHandle(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnTouchMove)
-  void setTouchMoveHandle(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setTouchMoveHandle(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnTouchEnd)
-  void setTouchEndHandle(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setTouchEndHandle(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnTouchCancel)
-  void setTouchCancelHandle(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setTouchCancelHandle(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnAttachedToWindow)
-  void setAttachedToWindowHandle(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setAttachedToWindowHandle(flag);
-    }
-  }
-
-  @ControllerProps(NodeProps.kOnDetachedFromWindow)
-  void setDetachedFromWindowHandle(T viewModel, bool flag) {
-    if (NativeGestureHandle.kUseOldTouch) {
-      viewModel.setDetachedFromWindowHandle(flag);
-    }
-  }
-
   @override
   @mustCallSuper
   void setCustomProp(RenderNode node, String propName, Object prop) {
@@ -395,8 +303,8 @@ abstract class VoltronViewController<T extends RenderViewModel,
     // empty
   }
 
-  void updateEvents(T renderViewModel, List<EventHolder> holders) {
-    if (!NativeGestureHandle.kUseOldTouch && holders.isNotEmpty) {
+  void updateEvents(T renderViewModel, Set<EventHolder> holders) {
+    if (holders.isNotEmpty) {
       for (var holder in holders) {
         switch (holder.eventName) {
           case NativeGestureHandle.kClick:

@@ -58,7 +58,7 @@ class RenderNode extends StyleNode {
   final List<RenderNode> _children = [];
   final List<RenderNode> _childrenPendingList = [];
   final List<MoveHolder> _moveHolders = [];
-  final List<EventHolder> _eventHolders = [];
+  final Set<EventHolder> _eventHolders = {};
   final Set<int> _deleteIds = {};
   RenderViewModel? _viewModel;
 
@@ -288,12 +288,12 @@ class RenderNode extends StyleNode {
     }
   }
 
-  void addEvent(String eventName) {
-    _eventHolders.add(EventHolder(eventName));
+  void addEvent(Set<String> eventNameList) {
+    _eventHolders.addAll(eventNameList.map((e) => EventHolder(e)));
   }
 
-  void removeEvent(String eventName) {
-    _eventHolders.add(EventHolder(eventName, isAdd: false));
+  void removeEvent(Set<String> eventNameList) {
+    _eventHolders.addAll(eventNameList.map((e) => EventHolder(e, isAdd: false)));
   }
 
   RenderNode? getChildAt(int index) {
@@ -485,9 +485,20 @@ class MoveHolder {
   MoveHolder(this._moveRenders, this._moveToNode);
 }
 
+@immutable
 class EventHolder {
   final String eventName;
   final bool isAdd;
 
-  EventHolder(this.eventName, {this.isAdd = true});
+  const EventHolder(this.eventName, {this.isAdd = true});
+
+  @override
+  bool operator ==(Object other) {
+    return other is EventHolder &&
+        eventName == other.eventName &&
+        isAdd == other.isAdd;
+  }
+
+  @override
+  int get hashCode => super.hashCode | eventName.hashCode | isAdd.hashCode;
 }
