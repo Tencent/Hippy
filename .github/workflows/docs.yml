@@ -21,6 +21,10 @@ on:
       - main
       # Pull request events to master branch
       - master
+      # Pull request events to v3.0-dev branch
+      - v3.0-dev
+      # Pull request events to v3.0 branch
+      - v3.0
     tags-ignore:
       - '**'
 
