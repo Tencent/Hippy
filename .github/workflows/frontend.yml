@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 10.x, 14.x ]
+        node: [ 14.x ]
     steps:
       - uses: actions/checkout@v2
       - name: setup-node
@@ -42,7 +42,7 @@ jobs:
           node-version: ${{ matrix.node }}
           registry-url: https://npm.pkg.github.com
       - name: install
-        run: npm install
+        run: npm install && lerna bootstrap
       - name: lint
         run: npm run lint
       - name: test
