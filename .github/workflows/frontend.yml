@@ -1,19 +1,6 @@
 name: '[FrontEnd] check js code'
 
 on:
-  push:
-    paths:
-      - 'packages/**'
-      - 'examples/hippy-*-demo/**'
-      - 'scripts/**/*.js'
-      - 'core/js/**/*.js'
-    branches:
-      # Push events on main branch
-      - main
-      # Push events on master branch
-      - master
-    tags-ignore:
-      - '**'
   pull_request:
     paths:
       - 'packages/**'
