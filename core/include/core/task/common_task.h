@@ -29,6 +29,6 @@
 class CommonTask : public hippy::base::Task {
  public:
   void Run() override;
-  virtual inline bool isPriorityTask() override { return false; };
+  virtual inline bool isPriorityTask() override { return false; }
   std::function<void()> func_;
 };
