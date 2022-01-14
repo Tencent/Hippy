@@ -134,7 +134,8 @@ void CallJava(hippy::napi::CBDataTuple *data) {
       std::shared_ptr<hippy::napi::V8CtxValue> obj =
           std::make_shared<hippy::napi::V8CtxValue>(isolate, info[3]);
       unicode_string_view json;
-      TDF_BASE_DCHECK(v8_ctx->GetValueJson(obj, &json));
+      auto flag = v8_ctx->GetValueJson(obj, &json);
+      TDF_BASE_DCHECK(flag);
       TDF_BASE_DLOG(INFO) << "CallJava json = " << json;
       buffer_data = StringViewUtils::ToU8StdStr(json);
     }
