@@ -57,7 +57,7 @@ bool HippyRenderManager::Erase(int32_t id) {
 }
 
 bool HippyRenderManager::Erase(const std::shared_ptr<HippyRenderManager>& render_manager) {
-  return DomManager::Erase(render_manager->id_);
+  return HippyRenderManager::Erase(render_manager->id_);
 }
 
 void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
