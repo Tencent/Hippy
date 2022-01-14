@@ -33,7 +33,7 @@ interface PullFooterProps extends LayoutableProps {
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
-  onFooterReleased?(): void;
+  onFooterReleased?: () => void;
 
   /**
    * Trigger when pulling
@@ -41,7 +41,7 @@ interface PullFooterProps extends LayoutableProps {
    * @param {Object} evt - Event data
    * @param {number} evt.contentOffset - Dragging distance
    */
-  onFooterPulling?(evt: HippyTypes.PullingEvent): void;
+  onFooterPulling?: (evt: HippyTypes.PullingEvent) => void;
 }
 
 class PullFooter extends React.Component<PullFooterProps, {}> {

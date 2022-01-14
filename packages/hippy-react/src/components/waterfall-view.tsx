@@ -26,7 +26,7 @@ import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
-import View from './View';
+import View from './view';
 
 type DataItem = any;
 
@@ -49,8 +49,7 @@ interface WaterfallViewProps {
   // Number of items to preload on reaching the listview end
   preloadItemNumber?: number;
 
-  // Return banner view element
-  renderBanner?(): React.ReactElement;
+  style?: HippyTypes.Style;
 
   // Declare whether PullHeader view exists
   containPullHeader?: boolean;
@@ -64,19 +63,22 @@ interface WaterfallViewProps {
   // Declare whether banner view exists
   containBannerView?: boolean
 
+  // Return banner view element
+  renderBanner?: () => React.ReactElement;
+
   /**
    * Passing the data and returns the row component.
    *
    * @param {Object} data - Data for row rendering
    * @returns {(React.Component | undefined)}
    */
-  renderItem?(
+  renderItem?: (
     data: DataItem,
-  ): React.ReactElement;
+  ) => React.ReactElement;
 
-  renderPullHeader?(): React.ReactElement;
+  renderPullHeader?: () => React.ReactElement;
 
-  renderPullFooter?(): React.ReactElement;
+  renderPullFooter?: () => React.ReactElement;
 
   /**
    * Each row have different type, it will be using at render recycle.
@@ -84,7 +86,7 @@ interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {string}
    */
-  getItemType?(index: number): number;
+  getItemType?: (index: number) => number;
 
   /**
    * Returns the style for specific index of row.
@@ -92,7 +94,7 @@ interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getItemStyle?(index: number): HippyTypes.Style;
+  getItemStyle?: (index: number) => HippyTypes.Style;
 
   /**
    * Specific the key of row, for better data diff
@@ -101,12 +103,10 @@ interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {string}
    */
-  getItemKey?(index: number): string;
-
-  style?: HippyTypes.Style;
+  getItemKey?: (index: number) => string;
 
   // Called when the WaterfallView is scrolling to bottom.
-  onEndReached?(): void;
+  onEndReached?: () => void;
 
   /**
    *  Called when the row first layout or layout changed.
@@ -118,7 +118,7 @@ interface WaterfallViewProps {
    * @param {number} evt.nativeEvent.hegiht - The height of component
    * @param {number} index - Index of data.
    */
-  onItemLayout?(evt: HippyTypes.LayoutEvent, index: number): void;
+  onItemLayout?: (evt: HippyTypes.LayoutEvent, index: number) => void;
 
   /**
    * Called when user scrolls WaterfallView
@@ -134,31 +134,31 @@ interface WaterfallViewProps {
    * @param {number} evt.visibleRowFrames[].width - Current item's width
    * @param {number} evt.visibleRowFrames[].height - Current item's height
    */
-  onScroll?(evt: {
+  onScroll?: (evt: {
     startEdgePos: number,
     endEdgePos: number,
     firstVisibleRowIndex: number,
     lastVisibleRowIndex: number,
     visibleRowFrames: Object
-  }): void;
+  }) => void;
 
   // Called when user pulls the ListView down
-  onHeaderPulling? (): void;
+  onHeaderPulling?: () => void;
 
   // Called when user release the pulling WaterfallView
-  onHeaderReleased? (): void;
+  onHeaderReleased?: () => void;
 
   // Called when user swipe up WaterfallView to get more data on reaching the footer
-  onFooterPulling? (): void;
+  onFooterPulling?: () => void;
 
   // Called when user release the getting-more-data WaterfallView
-  onFooterReleased? (): void;
+  onFooterReleased?: () => void;
 
   // Called on items exposed
-  onExposureReport? (): void;
+  onExposureReport?: () => void;
 
   // Called on waterfall ready
-  onInitialListReady? (): void;
+  onInitialListReady?: () => void;
 }
 
 interface WaterfallViewItemProps {
@@ -194,16 +194,6 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   }
 
   /**
-   * @ignore
-   */
-  public componentDidMount() {
-    const { getItemKey } = this.props;
-    if (!getItemKey) {
-      warn('ListView needs getRowKey to specific the key of item');
-    }
-  }
-
-  /**
    * Scrolls to a given index of item, either immediately, with a smooth animation.
    *
    * @param {Object} scrollToIndex params
@@ -228,39 +218,6 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     animated = true,
   }) {
     callUIFunction(this.instance as Fiber, 'scrollToContentOffset', [xOffset, yOffset, animated]);
-  }
-
-  private handleRowProps(
-    itemProps: WaterfallViewItemProps,
-    index: number,
-    { getItemKey, getItemStyle, onItemLayout, getItemType }:
-    { getItemKey: ((index: number) => string) | undefined,
-      getItemStyle: ((index: number) => HippyTypes.Style) | undefined,
-      onItemLayout: ((evt: HippyTypes.LayoutEvent, index: number) => void) | undefined,
-      getItemType: ((index: number) => number) | undefined,
-    },
-  ) {
-    if (typeof getItemKey === 'function') {
-      itemProps.key = getItemKey(index);
-    }
-
-    if (typeof getItemStyle === 'function') {
-      itemProps.style = getItemStyle(index);
-    }
-
-    if (typeof onItemLayout === 'function') {
-      itemProps.onLayout = (e: any) => {
-        onItemLayout.call(this, e, index);
-      };
-    }
-
-    if (typeof getItemType === 'function') {
-      const type = getItemType(index);
-      if (!Number.isInteger(type)) {
-        warn('getRowType must return a number');
-      }
-      itemProps.type = type;
-    }
   }
 
   // Expand the PullHeaderView and display the content
@@ -288,6 +245,158 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   public collapsePullFooter() {
     if (this.pullFooter) {
       this.pullFooter.collapsePullFooter();
+    }
+  }
+
+  public render() {
+    const {
+      style = {},
+      renderBanner,
+      numberOfColumns = 2,
+      columnSpacing = 0,
+      interItemSpacing = 0,
+      numberOfItems = 0,
+      preloadItemNumber = 0,
+      renderItem,
+      renderPullHeader,
+      renderPullFooter,
+      getItemType,
+      getItemKey,
+      getItemStyle,
+      contentInset = { top: 0, left: 0, bottom: 0, right: 0 },
+      onItemLayout,
+      onHeaderPulling,
+      onHeaderReleased,
+      onFooterPulling,
+      onFooterReleased,
+      containPullHeader = false,
+      containPullFooter = false,
+      containBannerView = false,
+      ...otherNativeProps
+    } = this.props as WaterfallViewProps;
+
+    const nativeProps = {
+      ...otherNativeProps,
+      style,
+      numberOfColumns,
+      columnSpacing,
+      interItemSpacing,
+      preloadItemNumber,
+      contentInset,
+      containPullHeader,
+      containPullFooter,
+      containBannerView,
+    };
+    const itemList: JSX.Element[] = [];
+
+    if (typeof renderBanner === 'function') {
+      const banner = renderBanner();
+      if (banner) {
+        itemList.push((
+          <View key="bannerView">
+            {React.cloneElement(banner)}
+          </View>
+        ));
+        nativeProps.containBannerView = true;
+      }
+    }
+
+    if (typeof renderItem === 'function') {
+      const pullHeader = this.getPullHeader(renderPullHeader, onHeaderPulling, onHeaderReleased);
+      const pullFooter = this.getPullFooter(renderPullFooter, onFooterPulling, onFooterReleased);
+      for (let index = 0; index < numberOfItems; index += 1) {
+        const itemProps: WaterfallViewItemProps = {} as WaterfallViewItemProps;
+        const rowChildren = renderItem(index) || null;
+        this.handleRowProps(
+          itemProps,
+          index,
+          {
+            getItemKey,
+            getItemStyle,
+            getItemType,
+            onItemLayout,
+          },
+        );
+        if (rowChildren) {
+          itemList.push((
+            // @ts-ignore
+            <WaterfallViewItem {...itemProps}>
+              { rowChildren }
+            </WaterfallViewItem>
+          ));
+        }
+      }
+
+      if (pullHeader) {
+        itemList.unshift(pullHeader);
+        nativeProps.containPullHeader = true;
+      }
+
+      if (pullFooter) {
+        itemList.push(pullFooter);
+        nativeProps.containPullFooter = true;
+      }
+      (nativeProps as WaterfallViewProps).style = {
+        ...style,
+      };
+    } else {
+      warn('Waterfall attribute [renderItem] is not Function');
+    }
+
+    return (
+      // @ts-ignore
+      <ul
+        nativeName={'WaterfallView'}
+        ref={ref => this.instance = ref}
+        initialListReady={this.handleInitialListReady.bind(this)}
+        {...nativeProps}
+      >
+        { itemList }
+      </ul>
+    );
+  }
+
+  /**
+   * @ignore
+   */
+  public componentDidMount() {
+    const { getItemKey } = this.props;
+    if (!getItemKey) {
+      warn('ListView needs getRowKey to specific the key of item');
+    }
+  }
+
+  private handleRowProps(
+    itemProps: WaterfallViewItemProps,
+    index: number,
+    { getItemKey, getItemStyle, onItemLayout, getItemType }:
+    {
+      getItemKey: ((index: number) => string) | undefined,
+      getItemStyle: ((index: number) => HippyTypes.Style) | undefined,
+      onItemLayout: ((evt: HippyTypes.LayoutEvent, index: number) => void) | undefined,
+      getItemType: ((index: number) => number) | undefined,
+    },
+  ) {
+    if (typeof getItemKey === 'function') {
+      itemProps.key = getItemKey(index);
+    }
+
+    if (typeof getItemStyle === 'function') {
+      itemProps.style = getItemStyle(index);
+    }
+
+    if (typeof onItemLayout === 'function') {
+      itemProps.onLayout = (e: any) => {
+        onItemLayout.call(this, e, index);
+      };
+    }
+
+    if (typeof getItemType === 'function') {
+      const type = getItemType(index);
+      if (!Number.isInteger(type)) {
+        warn('getRowType must return a number');
+      }
+      itemProps.type = type;
     }
   }
 
@@ -357,105 +466,6 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     if (typeof onInitialListReady === 'function') {
       onInitialListReady();
     }
-  }
-
-  public render() {
-    const {
-      style = {},
-      renderBanner,
-      numberOfColumns = 2,
-      columnSpacing = 0,
-      interItemSpacing = 0,
-      numberOfItems = 0,
-      preloadItemNumber = 0,
-      renderItem,
-      renderPullHeader,
-      renderPullFooter,
-      getItemType,
-      getItemKey,
-      getItemStyle,
-      contentInset = { top: 0, left: 0, bottom: 0, right: 0 },
-      onItemLayout,
-      onHeaderPulling,
-      onHeaderReleased,
-      onFooterPulling,
-      onFooterReleased,
-      containPullHeader = false,
-      containPullFooter = false,
-      containBannerView = false,
-      ...otherNativeProps
-    } = this.props as WaterfallViewProps;
-
-    const nativeProps = {
-      ...otherNativeProps,
-      style,
-      numberOfColumns,
-      columnSpacing,
-      interItemSpacing,
-      preloadItemNumber,
-      contentInset,
-      containPullHeader,
-      containPullFooter,
-      containBannerView,
-    };
-    const itemList: JSX.Element[] = [];
-
-    if (typeof renderBanner === 'function') {
-      const banner = renderBanner();
-      if (banner) {
-        itemList.push((
-          <View key="bannerView">
-            {React.cloneElement(banner)}
-          </View>
-        ));
-        nativeProps.containBannerView = true;
-      }
-    }
-
-    if (typeof renderItem === 'function') {
-      const pullHeader = this.getPullHeader(renderPullHeader, onHeaderPulling, onHeaderReleased);
-      const pullFooter = this.getPullFooter(renderPullFooter, onFooterPulling, onFooterReleased);
-      for (let index = 0; index < numberOfItems; index += 1) {
-        const itemProps: WaterfallViewItemProps = {} as WaterfallViewItemProps;
-        const rowChildren = renderItem(index) || null;
-        this.handleRowProps(itemProps, index, { getItemKey, getItemStyle, getItemType, onItemLayout });
-        if (rowChildren) {
-          itemList.push((
-            // @ts-ignore
-            <WaterfallViewItem {...itemProps}>
-              { rowChildren }
-            </WaterfallViewItem>
-          ));
-        }
-      }
-
-      if (pullHeader) {
-        itemList.unshift(pullHeader);
-        nativeProps.containPullHeader = true;
-      }
-
-      if (pullFooter) {
-        itemList.push(pullFooter);
-        nativeProps.containPullFooter = true;
-      }
-      (nativeProps as WaterfallViewProps).style = {
-        ...style,
-      };
-    } else {
-      warn('Waterfall attribute [renderItem] is not Function');
-    }
-
-    return (
-      // @ts-ignore
-      <ul
-        nativeName={'WaterfallView'}
-        ref={ref => this.instance = ref}
-        initialListReady={this.handleInitialListReady.bind(this)}
-        {...nativeProps}
-      >
-        { itemList }
-      </ul>
-    );
   }
 }
 

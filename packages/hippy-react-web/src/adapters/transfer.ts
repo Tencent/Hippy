@@ -104,34 +104,34 @@ function toPx(num: unknown) {
 }
 
 interface WebStyle {
-  borderStyle?: any,
-  marginHorizontal?: any
-  marginLeft?: any,
-  marginRight?: any,
-  marginTop?: any,
-  marginBottom?: any,
-  paddingLeft?: any,
-  paddingRight?: any,
-  paddingTop?: any,
-  paddingBottom?: any,
-  marginVertical?: any,
-  paddingHorizontal?: any,
-  paddingVertical?: any,
-  color?: any
-  colors?: any,
-  borderColor?: any,
-  borderColors?: any,
-  borderTopColor?: any,
-  borderTopColors?: any,
-  borderBottomColor?: any,
-  borderBottomColors?: any,
-  borderLeftColor?: any,
-  borderLeftColors?: any,
-  borderRightColor?: any,
-  borderRightColors?: any,
-  backgroundColor?: any,
-  backgroundColors?: any,
-  [props: string]: any
+  [props: string]: any;
+  borderStyle?: HippyTypes.Style;
+  marginHorizontal?: number | string;
+  marginLeft?: number | string;
+  marginRight?: number | string;
+  marginTop?: number | string;
+  marginBottom?: number | string;
+  paddingLeft?: number | string;
+  paddingRight?: number | string;
+  paddingTop?: number | string;
+  paddingBottom?: number | string;
+  marginVertical?: number | string;
+  paddingHorizontal?: number | string;
+  paddingVertical?: number | string;
+  color?: HippyTypes.color;
+  colors?: HippyTypes.colors;
+  borderColor?: HippyTypes.color;
+  borderColors?: HippyTypes.colors;
+  borderTopColor?: HippyTypes.color;
+  borderTopColors?: HippyTypes.colors;
+  borderBottomColor?: HippyTypes.color;
+  borderBottomColors?: HippyTypes.colors;
+  borderLeftColor?: HippyTypes.color;
+  borderLeftColors?: HippyTypes.colors;
+  borderRightColor?: HippyTypes.color;
+  borderRightColors?: HippyTypes.colors;
+  backgroundColor?: HippyTypes.color;
+  backgroundColors?: HippyTypes.colors;
 }
 
 function handleBoxStyle(webStyle: WebStyle) {

@@ -29,7 +29,7 @@ interface Registry {
 
 interface LayoutElement extends Element {
   layoutId: string;
-  handleLayout(): void;
+  handleLayout: () => void;
 }
 
 const emptyObject = {};

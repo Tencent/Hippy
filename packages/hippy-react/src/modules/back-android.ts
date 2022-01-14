@@ -29,7 +29,7 @@ const backPressSubscriptions = new Set();
 type EventListener = () => void;
 
 interface BackAndroidRevoker {
-  remove(): void;
+  remove: () => void;
 }
 
 /**
