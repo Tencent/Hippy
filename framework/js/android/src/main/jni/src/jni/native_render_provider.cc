@@ -81,14 +81,14 @@ void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_insta
 
 void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
                     jfloat j_width, jfloat j_height) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
-  if (!runtime) {
+  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
+          static_cast<int32_t>(j_instance_id));
+  if (!render_manager) {
     TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_instance_id invalid";
     return;
   }
 
-  TDF_BASE_CHECK(runtime->GetScope() != nullptr);
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager().lock();
+  std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "UpdateRootSize dom_manager is nullptr";
     return;
@@ -100,14 +100,14 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
 void DoCallBack(JNIEnv *j_env, jobject j_object,
                 jint j_instance_id, jint j_result, jstring j_func_name, jint j_node_id,
                 jbyteArray j_buffer, jint j_offset, jint j_length) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
-  if (!runtime) {
+  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
+          static_cast<int32_t>(j_instance_id));
+  if (!render_manager) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack j_instance_id invalid";
     return;
   }
 
-  TDF_BASE_CHECK(runtime->GetScope() != nullptr);
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager().lock();
+  std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
     return;
@@ -141,14 +141,14 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
                      jint j_instance_id, jint j_dom_id, jstring j_event_name,
                      jbyteArray j_buffer, jint j_offset, jint j_length,
                      jboolean j_use_capture, jboolean j_use_bubble) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_instance_id);
-  if (!runtime) {
+  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
+          static_cast<int32_t>(j_instance_id));
+  if (!render_manager) {
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent j_instance_id invalid";
     return;
   }
 
-  TDF_BASE_CHECK(runtime->GetScope() != nullptr);
-  std::shared_ptr<DomManager> dom_manager = runtime->GetScope()->GetDomManager().lock();
+  std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
   if (dom_manager == nullptr) {
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
     return;

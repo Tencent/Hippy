@@ -41,6 +41,9 @@ class HippyRenderManager : public RenderManager {
   void SetDensity(float density) { density_ = density; };
   float GetDensity() { return density_; }
 
+  void SetDomManager(std::weak_ptr<DomManager> dom_manager) { dom_manager_ = dom_manager; }
+  std::shared_ptr<DomManager> GetDomManager() const { return dom_manager_.lock(); }
+
   static void Insert(const std::shared_ptr<HippyRenderManager>& render_manager);
   static std::shared_ptr<HippyRenderManager> Find(int32_t id);
   static bool Erase(int32_t id);
@@ -78,6 +81,8 @@ class HippyRenderManager : public RenderManager {
   std::shared_ptr<tdf::base::Serializer> serializer_;
   float density_ = 1.0f;
   std::vector<ListenerOp> event_listener_ops_;
+
+  std::weak_ptr<DomManager> dom_manager_;
 };
 }  // namespace dom
 }  // namespace hippy

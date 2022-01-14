@@ -666,6 +666,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             mUITaskQueue.clear();
             throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
         }
+        executeUIOperation();
     }
 
     @Override
