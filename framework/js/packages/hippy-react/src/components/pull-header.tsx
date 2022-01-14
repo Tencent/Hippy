@@ -34,7 +34,7 @@ interface PullHeaderProps extends LayoutableProps {
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
-  onHeaderReleased?(): void;
+  onHeaderReleased?: () => void;
 
   /**
    * Trigger when pulling
@@ -42,7 +42,7 @@ interface PullHeaderProps extends LayoutableProps {
    * @param {Object} evt - Event data
    * @param {number} evt.contentOffset - Dragging distance
    */
-  onHeaderPulling?(evt: HippyTypes.PullingEvent): void;
+  onHeaderPulling?: (evt: HippyTypes.PullingEvent) => void;
 }
 
 class PullHeader extends React.Component<PullHeaderProps, {}> {

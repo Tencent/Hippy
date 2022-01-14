@@ -96,22 +96,22 @@ interface ModalProps {
    * Trigger when hardware button pressed
    * > Android Only
    */
-  onRequestClose?(): void;
+  onRequestClose?: () => void;
 
   /**
    * Trigger when the Modal will show
    */
-  onShow?(): void;
+  onShow?: () => void;
 
   /**
    * Trigger when the Modal will hide
    */
-  onDismiss?(): void;
+  onDismiss?: () => void;
 
   /**
    * Trigger when the device orientation changed.
    */
-  onOrientationChange?(): void;
+  onOrientationChange?: () => void;
 }
 
 const styles = StyleSheet.create({
@@ -130,9 +130,10 @@ const styles = StyleSheet.create({
  * @noInheritDoc
  */
 class Modal extends React.Component<ModalProps, {}> {
+  private static defaultProps = {
+    visible: true,
+  };
   private eventSubscription: null | HippyEventListener;
-  public static defaultProps: { visible: boolean };
-
   /**
    * @ignore
    */
@@ -210,12 +211,5 @@ class Modal extends React.Component<ModalProps, {}> {
     );
   }
 }
-
-/**
-* @ignore
-*/
-Modal.defaultProps = {
-  visible: true,
-};
 
 export default Modal;

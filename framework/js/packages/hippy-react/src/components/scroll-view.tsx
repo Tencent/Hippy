@@ -29,6 +29,7 @@ import { isRTL } from '../utils/i18n';
 import View from './view';
 
 interface ScrollViewProps {
+  style?: HippyTypes.Style;
   /**
    * When true, the scroll view's children are arranged horizontally in a row
    * instead of vertically in a column.
@@ -99,12 +100,12 @@ interface ScrollViewProps {
   /**
    * Called when the momentum scroll starts (scroll which occurs as the ScrollView starts gliding).
    */
-  onMomentumScrollBegin?(): void;
+  onMomentumScrollBegin?: () => void;
 
   /**
    * Called when the momentum scroll ends (scroll which occurs as the ScrollView glides to a stop).
    */
-  onMomentumScrollEnd?(): void;
+  onMomentumScrollEnd?: () => void;
 
   /**
    * Fires at most once per frame during scrolling.
@@ -114,18 +115,17 @@ interface ScrollViewProps {
    * @param {number} evt.contentOffset.x - Offset X of scrolling.
    * @param {number} evt.contentOffset.y - Offset Y of scrolling.
    */
-  onScroll?(evt: { contentOffset: { x: number, y: number }}): void;
+  onScroll?: (evt: { contentOffset: { x: number, y: number }}) => void;
 
   /**
    * Called when the user begins to drag the scroll view.
    */
-  onScrollBeginDrag?(): void;
+  onScrollBeginDrag?: () => void;
 
   /**
    * Called when the user stops dragging the scroll view and it either stops or begins to glide.
    */
-  onScrollEndDrag?(): void;
-  style?: HippyTypes.Style;
+  onScrollEndDrag?: () => void;
 }
 
 const styles = StyleSheet.create({

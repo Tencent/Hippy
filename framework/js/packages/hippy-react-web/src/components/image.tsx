@@ -101,18 +101,18 @@ const resolveAssetUri = (source: string | { uri: string }) => {
 };
 
 interface Props {
+  resizeMode?: string;
+  children?: any[];
+  defaultSource?: string;
   style?: HippyTypes.Style;
   withRef: React.Ref<any>
   displayInWeb?: boolean;
   source: string | { uri: string }
   sources?: any[];
-  onLoadStart?(): void;
-  onLoad?(param: object): void;
-  onLoadEnd?(): void;
-  onError?(param: object): void;
-  resizeMode?: string;
-  children?: any[];
-  defaultSource?: string
+  onLoadStart?: () => void;
+  onLoad?: (param: object) => void;
+  onLoadEnd?: () => void;
+  onError?: (param: object) => void;
 }
 
 interface State {
@@ -149,6 +149,18 @@ export class Image extends React.Component {
     this.onError = this.onError.bind(this);
   }
 
+  public static getDerivedStateFromProps(nextProps: Props, prevState: State) {
+    if (nextProps.source
+      && typeof nextProps.source !== 'string'
+      && nextProps.source.uri !== prevState.imageUrl) {
+      return {
+        imageUrl: nextProps.source.uri,
+        prevImageUrl: prevState.imageUrl,
+      };
+    }
+    return null;
+  }
+
   public componentDidMount() {
     const {
       source,
@@ -160,18 +172,6 @@ export class Image extends React.Component {
     if (typeof source !== 'string' && source) {
       ImageLoader.load(source.uri, this.onLoad, this.onError);
     }
-  }
-
-  public static getDerivedStateFromProps(nextProps: Props, prevState: State) {
-    if (nextProps.source
-        && typeof nextProps.source !== 'string'
-        && nextProps.source.uri !== prevState.imageUrl) {
-      return {
-        imageUrl: nextProps.source.uri,
-        prevImageUrl: prevState.imageUrl,
-      };
-    }
-    return null;
   }
 
   public componentDidUpdate() {

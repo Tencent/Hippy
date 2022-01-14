@@ -42,10 +42,10 @@ const styles = {
 
 interface Props {
   style?: HippyTypes.Style;
-  withRef: React.Ref<any>
-  onPressIn?(): void;
-  onClick?(): void;
+  withRef: React.Ref<any>;
   accessibilityLabel: string;
+  onPressIn?: () => void;
+  onClick?: () => void;
 }
 
 /**
