@@ -79,11 +79,55 @@ declare namespace HippyTypes {
     skewY?: string;
   }
 
+  export type color = string | number;
+  export type colors = string[] | number[];
+  export type backgroundColor = string | number;
+  export type tintColor = string | number;
+  export type tintColors = string[] | number[] | null;
+  export type position =
+    | 'relative'
+    | 'absolute';
+  export type flexDirection =
+    | 'row'
+    | 'column'
+    | 'row-reverse';
+  export type flexWrap =
+    | 'nowrap'
+    | 'wrap'
+    | 'wrap-reverse';
+  export type justifyContent =
+    | 'start'
+    | 'center'
+    | 'end'
+    | 'flex-start'
+    | 'flex-end'
+    | 'left'
+    | 'right'
+    | 'normal'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly'
+    | 'stretch';
+  export type alignItems =
+    | 'stretch'
+    | 'center'
+    | 'flex-start'
+    | 'flex-end'
+    | 'baseline';
+  export type alignSelf =
+    | 'stretch'
+    | 'center'
+    | 'flex-start'
+    | 'flex-end'
+    | 'baseline';
+  export type overflow =
+    | 'hidden'
+    | 'scroll';
   export interface BaseStyle {
-    color?: string | number;
-    colors?: string[] | number[];
+    color?: color;
+    colors?: colors;
     collapsable?: false;
-    backgroundColor?: string | number;
+    backgroundColor?: backgroundColor;
     backgroundImage?: string;
     backgroundSize?: string;
     backgroundPosition?: string;
@@ -116,13 +160,13 @@ declare namespace HippyTypes {
     borderRightWidth?: number;
     borderBottomWidth?: number;
     borderLeftWidth?: number;
-    position?: 'relative' | 'absolute';
-    flexDirection?: 'row' | 'column' | 'row-reverse';
-    flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
-    justifyContent?: 'start' | 'center' | 'end' | 'flex-start' | 'flex-end' | 'left' | 'right' | 'normal' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch';
-    alignItems?: 'stretch' | 'center' | 'flex-start' | 'flex-end' | 'baseline';
-    alignSelf?: 'stretch' | 'center' | 'flex-start' | 'flex-end' | 'baseline';
-    overflow?: 'hidden' | 'scroll';
+    position?: position;
+    flexDirection?: flexDirection;
+    flexWrap?: flexWrap;
+    justifyContent?: justifyContent;
+    alignItems?: alignItems;
+    alignSelf?: alignSelf;
+    overflow?: overflow;
     flex?: any;
     flexGrow?: number;
     flexShrink?: number;
@@ -132,8 +176,8 @@ declare namespace HippyTypes {
     shadowOffset?: string;
     shadowOpacity?: number;
     shadowRadius?: string;
-    tintColor?: string | number;
-    tintColors?: string[] | number[] | null;
+    tintColor?: tintColor;
+    tintColors?: tintColors;
     underlineColorAndroid?: string;
     transform?: Transform[];
     collapse?: boolean,
@@ -388,6 +432,7 @@ declare namespace HippyTypes {
 
 declare type Diff<T extends keyof any, U extends keyof any> =
   ({ [P in T]: P } & { [P in U]: never } & { [x: string]: never })[T];
+
 declare type Overwrite<T, U> = Pick<T, Diff<keyof T, keyof U>> & U;
 
 declare const __PLATFORM__: HippyTypes.Platform;

@@ -21,11 +21,11 @@
 import { CSSProperties, DetailedHTMLProps } from 'react';
 
 interface HTMLAttributesExtension {
+  [props: string]: any;
   nativeName?: string;
   style?: HippyTypes.Style | CSSProperties | undefined;
   // ListView
   initialListReady?: () => void;
-  [props: string]: any
 }
 
 declare module 'react' {
@@ -36,7 +36,7 @@ export type Type = string;
 export type Props = any;
 export type Container = number;
 export type UpdatePayload = any;
-export type Context = {};
+export interface Context {}
 
 export interface LayoutableProps {
   /**

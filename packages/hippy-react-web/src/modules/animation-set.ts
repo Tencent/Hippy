@@ -49,109 +49,10 @@ export class AnimationSet {
     this.onHippyAnimationRepeat = this.onAnimationRepeat.bind(this);
   }
 
-  public initNowAnimationState() {
-    if (this.children && this.children.length > 0) {
-      const nowAnimation = this.children[this.runningAnimationIndex].animation;
-      this.mode = nowAnimation.mode || 'timing';
-      this.delay = nowAnimation.delay || 0;
-      this.startValue = nowAnimation.startValue || 0;
-      this.toValue = nowAnimation.toValue || 0;
-      this.valueType = nowAnimation.valueType || undefined;
-      this.duration = nowAnimation.duration || 0;
-      this.direction = nowAnimation.direction || 'center';
-      this.timingFunction = nowAnimation.timingFunction || 'linear';
-      this.initRepeatCount = initLeftRepeatCount(nowAnimation.initRepeatCount || 0);
-      this.leftRepeatCount = this.initRepeatCount;
-      this.leftDelayCount = this.delay;
-      this.nowValue = this.startValue;
-      this.nowLeftDuration = this.duration;
-      this.nowPercentage = 0;
-      this.animationRunningFlag = false;
-      this.endAnimationFlag = false;
-      this.valueDistance = this.toValue - this.startValue;
-      if (this.startValue) {
-        this.renderStyleAttribute(this.startValue);
-      }
-    } else {
-      console.warn('AnimationSet children param error');
-    }
-  }
-
-  public resetState() {
-    this.runningAnimationIndex = 0;
-    this.initNowAnimationState();
-  }
-
-  public setRef(ref) {
-    if (ref) {
-      this.refNode = findNodeHandle(ref);
-    }
-  }
-
   public setStyleAttribute(styleAttribute) {
     if (styleAttribute) {
       this.styleAttribute = styleAttribute;
     }
-  }
-
-  public setTransformStyleAttribute(styleAttribute) {
-    if (styleAttribute) {
-      this.transformStyleAttribute = styleAttribute;
-    }
-  }
-
-  public clearAnimationInterval() {
-    this.animationRunningFlag = false;
-    if (this.animationInterval) window.clearInterval(this.animationInterval);
-  }
-
-  public renderStyleAttribute(finalValue) {
-    if (!this.refNode) return;
-    if (this.styleAttribute) {
-      this.refNode.style[this.styleAttribute.toString()] = normalizeValue(
-        this.styleAttribute.toString(),
-        finalValue,
-      );
-    } else if (this.transformStyleAttribute) {
-      const transformValue = normalizeValue(this.transformStyleAttribute, finalValue);
-      this.refNode.style.transform = `${this.transformStyleAttribute}(${transformValue})`;
-    }
-  }
-
-  public getNowValue() {
-    const { timingFunction, nowPercentage, valueDistance } = this;
-    switch (timingFunction) {
-      case ('linear'):
-        return this.startValue + valueDistance * nowPercentage;
-      case ('ease-in'):
-        return this.startValue + valueDistance * (nowPercentage ** 1.675);
-      case ('ease-out'):
-        return this.startValue + valueDistance * (1 - ((1 - nowPercentage) ** 1.675));
-      case ('ease-in-out'):
-        return this.startValue + valueDistance * 0.5
-          * (Math.sin((nowPercentage - 0.5) * Math.PI) + 1);
-      case ('easebezierEasing'):
-        // NOTE: custom bazier implemented in default, this options consider deprecated.
-        return this.startValue + valueDistance * bezierEasing(0.42, 0, 1, 1);
-      default: {
-        const cubicBezierEasing = tryMakeCubicBezierEasing(timingFunction);
-        if (cubicBezierEasing) {
-          return this.startValue + valueDistance * cubicBezierEasing(nowPercentage);
-        }
-        return this.startValue + valueDistance * nowPercentage;
-      }
-    }
-  }
-
-  private calculateNowValue() {
-    this.nowLeftDuration -= 16;
-    this.nowPercentage = 1 - (this.nowLeftDuration / this.duration);
-    return this.getNowValue();
-  }
-
-  private renderNowValue(finalValue) {
-    this.nowValue = finalValue;
-    this.renderStyleAttribute(finalValue);
   }
 
   public endAnimationSet() {
@@ -333,6 +234,105 @@ export class AnimationSet {
    */
   public onAnimationRepeat(cb: AnimationCallback) {
     this.onAnimationRepeatCallback = cb;
+  }
+
+  private initNowAnimationState() {
+    if (this.children && this.children.length > 0) {
+      const nowAnimation = this.children[this.runningAnimationIndex].animation;
+      this.mode = nowAnimation.mode || 'timing';
+      this.delay = nowAnimation.delay || 0;
+      this.startValue = nowAnimation.startValue || 0;
+      this.toValue = nowAnimation.toValue || 0;
+      this.valueType = nowAnimation.valueType || undefined;
+      this.duration = nowAnimation.duration || 0;
+      this.direction = nowAnimation.direction || 'center';
+      this.timingFunction = nowAnimation.timingFunction || 'linear';
+      this.initRepeatCount = initLeftRepeatCount(nowAnimation.initRepeatCount || 0);
+      this.leftRepeatCount = this.initRepeatCount;
+      this.leftDelayCount = this.delay;
+      this.nowValue = this.startValue;
+      this.nowLeftDuration = this.duration;
+      this.nowPercentage = 0;
+      this.animationRunningFlag = false;
+      this.endAnimationFlag = false;
+      this.valueDistance = this.toValue - this.startValue;
+      if (this.startValue) {
+        this.renderStyleAttribute(this.startValue);
+      }
+    } else {
+      console.warn('AnimationSet children param error');
+    }
+  }
+
+  private resetState() {
+    this.runningAnimationIndex = 0;
+    this.initNowAnimationState();
+  }
+
+  private setRef(ref) {
+    if (ref) {
+      this.refNode = findNodeHandle(ref);
+    }
+  }
+
+  private setTransformStyleAttribute(styleAttribute) {
+    if (styleAttribute) {
+      this.transformStyleAttribute = styleAttribute;
+    }
+  }
+
+  private clearAnimationInterval() {
+    this.animationRunningFlag = false;
+    if (this.animationInterval) window.clearInterval(this.animationInterval);
+  }
+
+  private renderStyleAttribute(finalValue) {
+    if (!this.refNode) return;
+    if (this.styleAttribute) {
+      this.refNode.style[this.styleAttribute.toString()] = normalizeValue(
+        this.styleAttribute.toString(),
+        finalValue,
+      );
+    } else if (this.transformStyleAttribute) {
+      const transformValue = normalizeValue(this.transformStyleAttribute, finalValue);
+      this.refNode.style.transform = `${this.transformStyleAttribute}(${transformValue})`;
+    }
+  }
+
+  private getNowValue() {
+    const { timingFunction, nowPercentage, valueDistance } = this;
+    switch (timingFunction) {
+      case ('linear'):
+        return this.startValue + valueDistance * nowPercentage;
+      case ('ease-in'):
+        return this.startValue + valueDistance * (nowPercentage ** 1.675);
+      case ('ease-out'):
+        return this.startValue + valueDistance * (1 - ((1 - nowPercentage) ** 1.675));
+      case ('ease-in-out'):
+        return this.startValue + valueDistance * 0.5
+          * (Math.sin((nowPercentage - 0.5) * Math.PI) + 1);
+      case ('easebezierEasing'):
+        // NOTE: custom bazier implemented in default, this options consider deprecated.
+        return this.startValue + valueDistance * bezierEasing(0.42, 0, 1, 1);
+      default: {
+        const cubicBezierEasing = tryMakeCubicBezierEasing(timingFunction);
+        if (cubicBezierEasing) {
+          return this.startValue + valueDistance * cubicBezierEasing(nowPercentage);
+        }
+        return this.startValue + valueDistance * nowPercentage;
+      }
+    }
+  }
+
+  private calculateNowValue() {
+    this.nowLeftDuration -= 16;
+    this.nowPercentage = 1 - (this.nowLeftDuration / this.duration);
+    return this.getNowValue();
+  }
+
+  private renderNowValue(finalValue) {
+    this.nowValue = finalValue;
+    this.renderStyleAttribute(finalValue);
   }
 }
 

@@ -21,13 +21,13 @@
 import React from 'react';
 
 interface ListViewItemProps {
+  [props: string]: any;
   type?: number | string | undefined;
   key?: string;
   itemViewType?: string;
   sticky?: boolean;
   style?: HippyTypes.Style;
   onLayout?: (evt: any) => void;
-  [props: string]: any
 }
 
 function ListViewItem(props: ListViewItemProps) {

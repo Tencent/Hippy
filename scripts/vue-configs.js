@@ -1,6 +1,6 @@
 const path = require('path');
 const alias = require('@rollup/plugin-alias');
-const buble = require('@rollup/plugin-buble');
+const { babel } = require('@rollup/plugin-babel');
 const cjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
@@ -123,14 +123,6 @@ function genConfig(name) {
         },
       }),
       flow(),
-      buble({
-        objectAssign: 'Object.assign',
-        transforms: {
-          arrow: true,
-          modules: false,
-          dangerousForOf: true,
-        },
-      }),
       alias({
         entries: aliases,
       }),
@@ -138,6 +130,27 @@ function genConfig(name) {
         preferBuiltins: true,
       }),
       cjs(),
+      babel({
+        presets: [
+          [
+            '@babel/env',
+            {
+              targets: {
+                chrome: '57',
+              },
+            },
+          ],
+        ],
+        plugins: [
+          [
+            '@babel/plugin-transform-runtime',
+            {
+              corejs: false,
+            },
+          ],
+        ],
+        babelHelpers: 'runtime',
+      }),
     ].concat(opts.plugins || []),
     output: {
       file: opts.dest,

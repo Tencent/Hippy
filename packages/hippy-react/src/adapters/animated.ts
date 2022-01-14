@@ -33,6 +33,7 @@ class Animated {
   public static View = View;
   public static Text = TextComp;
   public static Image = Image;
+  public Value = Animated.Value;
   public static Value(val: any) {
     return val;
   }
@@ -47,8 +48,6 @@ class Animated {
       timingFunction: config.easing || 'linear',
     });
   }
-
-  public Value = Animated.Value;
 }
 
 export default Animated;

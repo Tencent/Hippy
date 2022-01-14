@@ -64,7 +64,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
    * @param {Object} evt - Focus event data
    * @param {boolean} evt.focus - Focus status
    */
-  onFocus?(evt: HippyTypes.FocusEvent): void;
+  onFocus?: (evt: HippyTypes.FocusEvent) => void;
 }
 
 /**
