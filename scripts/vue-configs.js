@@ -159,6 +159,11 @@ function genConfig(name) {
       name: opts.moduleName || 'hippy-vue',
       exports: 'auto',
     },
+    onwarn: (msg, warn) => {
+      if (!/Circular/.test(msg)) {
+        warn(msg);
+      }
+    },
   };
 
   if (opts.env) {
