@@ -55,8 +55,8 @@ const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection
                                                          {kPaddingBottom, CSSDirection::CSSBottom}};
 
 const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSSLeft},
-                                                          {kRight, CSSDirection::CSSTop},
-                                                          {kTop, CSSDirection::CSSRight},
+                                                          {kRight, CSSDirection::CSSRight},
+                                                          {kTop, CSSDirection::CSSTop},
                                                           {kBottom, CSSDirection::CSSBottom}};
 
 const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSSAll},
@@ -189,7 +189,7 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
     SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDouble()));
   }
   if (style_map.find(kDirection) != style_map.end()) {
-    SetDirection(GetStyleDirection(style_map.find(kFlexDirection)->second->ToString()));
+    SetDirection(GetStyleDirection(style_map.find(kDirection)->second->ToString()));
   }
   if (style_map.find(kFlexDirection) != style_map.end()) {
     SetFlexDirection(GetStyleFlexDirection(style_map.find(kFlexDirection)->second->ToString()));
