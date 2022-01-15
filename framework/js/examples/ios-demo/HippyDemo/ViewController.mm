@@ -31,6 +31,7 @@
 #include "dom/dom_node.h"
 #include "dom/dom_value.h"
 #import "DemoConfigs.h"
+#import "UIView+RootViewRegister.h"
 
 @interface ViewController ()<HippyBridgeDelegate> {
     std::shared_ptr<hippy::DomManager> _domManager;
@@ -49,8 +50,8 @@
     HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
     });
-    [self runCommonDemo];
-//    [self runDemoWithoutRuntime];
+//    [self runCommonDemo];
+    [self runDemoWithoutRuntime];
 }
 
 - (void)runCommonDemo {
@@ -107,12 +108,12 @@
     view.hippyTag = @(10);
     [self.view addSubview:view];
     
-    //step3: get uimanager, register root view.
-    HippyUIManager *uiManager = [_bridge moduleForName:@"UIManager"];
-    [uiManager registerRootView:view withSizeFlexibility:HippyRootViewSizeFlexibilityNone];
+    //step3: register view as root view.
+    [view registerAsHippyRootView:_bridge];
     
     //step4: create dom manager, assign to uimanager
     //you need hold dom mananger
+    HippyUIManager *uiManager = [_bridge moduleForName:@"UIManager"];
     _domManager = std::make_shared<hippy::DomManager>(rootTag);
     [uiManager setDomManager:_domManager];
     
@@ -222,20 +223,6 @@
 
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
     return bridge.bundleURL;
-}
-
-@end
-
-@interface UIView (demo)
-
-- (void)invalidate;
-
-@end
-
-@implementation UIView (demo)
-
-- (void)invalidate {
-    
 }
 
 @end

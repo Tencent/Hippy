@@ -428,17 +428,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #define kBridgeKey @"bridgeKey"
 
 - (void)setBridge:(HippyBridge *)bridge {
+    NSHashTable *hashTable = nil;
     if (bridge) {
-        NSMapTable *mapTable = [NSMapTable strongToWeakObjectsMapTable];
-        [mapTable setObject:bridge forKey:kBridgeKey];
-        objc_setAssociatedObject(self, @selector(bridge), mapTable, OBJC_ASSOCIATION_RETAIN);
+        hashTable = [NSHashTable weakObjectsHashTable];
+        [hashTable addObject:bridge];
     }
+    objc_setAssociatedObject(self, @selector(bridge), hashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (HippyBridge *)bridge {
-    NSMapTable *mapTable = objc_getAssociatedObject(self, _cmd);
-    HippyBridge *bridge = [mapTable objectForKey:kBridgeKey];
-    return bridge;
+    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
+    return [hashTable anyObject];
 }
 
 @end

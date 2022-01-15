@@ -208,6 +208,7 @@
 		F48291AA274E5BB600D91128 /* HippyOCTurboModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F48291A7274E5BB500D91128 /* HippyOCTurboModule.mm */; };
 		F48291AB274E5BB600D91128 /* HippyTurboModuleManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F48291A8274E5BB500D91128 /* HippyTurboModuleManager.mm */; };
 		F48291AC274E5BB600D91128 /* NSObject+HippyTurbo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F48291A9274E5BB500D91128 /* NSObject+HippyTurbo.mm */; };
+		F4CB9D29279270D3008D6F2C /* UIView+RootViewRegister.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4CB9D28279270D3008D6F2C /* UIView+RootViewRegister.mm */; };
 		F4D0028F2675C7D5004A43B6 /* HippyGradientObject.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */; };
 		F4E2AD79271FC23500E36EFB /* HippyDevWebSocketClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E2AD78271FC23500E36EFB /* HippyDevWebSocketClient.m */; };
 		F4E7B43D276C61EB00F17139 /* dom_argument.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B439276C61EA00F17139 /* dom_argument.cc */; };
@@ -660,6 +661,8 @@
 		F48291A7274E5BB500D91128 /* HippyOCTurboModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyOCTurboModule.mm; sourceTree = "<group>"; };
 		F48291A8274E5BB500D91128 /* HippyTurboModuleManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyTurboModuleManager.mm; sourceTree = "<group>"; };
 		F48291A9274E5BB500D91128 /* NSObject+HippyTurbo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSObject+HippyTurbo.mm"; sourceTree = "<group>"; };
+		F4CB9D27279270D3008D6F2C /* UIView+RootViewRegister.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+RootViewRegister.h"; sourceTree = "<group>"; };
+		F4CB9D28279270D3008D6F2C /* UIView+RootViewRegister.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIView+RootViewRegister.mm"; sourceTree = "<group>"; };
 		F4D0028D2675C7D5004A43B6 /* HippyGradientObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyGradientObject.h; sourceTree = "<group>"; };
 		F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyGradientObject.m; sourceTree = "<group>"; };
 		F4E2AD77271FC23500E36EFB /* HippyDevWebSocketClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDevWebSocketClient.h; sourceTree = "<group>"; };
@@ -1244,6 +1247,8 @@
 				064C59E023AB1A51001E80DD /* HippyRootShadowView.mm */,
 				06868AF725CA4A6B0024A0BA /* HippyDeviceBaseInfo.h */,
 				06868AF825CA4A6B0024A0BA /* HippyDeviceBaseInfo.m */,
+				F4CB9D27279270D3008D6F2C /* UIView+RootViewRegister.h */,
+				F4CB9D28279270D3008D6F2C /* UIView+RootViewRegister.mm */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -1990,6 +1995,7 @@
 				F40736CC275F5B79009890F2 /* HippyDomNodeUtils.mm in Sources */,
 				D8D848F0278D2C820024E23C /* native_source_code_ios.cc in Sources */,
 				064C5A4623AB1A51001E80DD /* HippyComponentData.mm in Sources */,
+				F4CB9D29279270D3008D6F2C /* UIView+RootViewRegister.mm in Sources */,
 				064C5A5823AB1A51001E80DD /* HippyFrameUpdate.m in Sources */,
 				064C5A4F23AB1A51001E80DD /* HippyJSCExecutor.mm in Sources */,
 				0691853226281E05005D599D /* CALayer+HippyAnimation.m in Sources */,
