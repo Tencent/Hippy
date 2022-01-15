@@ -32,7 +32,7 @@ function exec(cmd, argv, options = {}) {
     command.on('error', err => reject(err));
     command.on('close', (code) => {
       if (code) {
-        return reject(new Error(`Execting ${cmd} returns: ${code}`));
+        return reject(new Error(`Executing ${cmd} with error code: ${code}`));
       }
       return resolve();
     });
