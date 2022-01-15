@@ -1,25 +1,13 @@
-name: '[FrontEnd] check js code'
+name: '[front-end] check js code'
 
 on:
-  push:
-    paths:
-      - 'framework/js/packages/**'
-      - 'framework/js/examples/hippy-*-demo/**'
-      - 'scripts/**/*.js'
-      - 'framework/js/core/js/**/*.js'
-    branches:
-      # Push events on main branch
-      - main
-      # Push events on master branch
-      - master
-    tags-ignore:
-      - '**'
   pull_request:
     paths:
       - 'framework/js/packages/**'
       - 'framework/js/examples/hippy-*-demo/**'
-      - 'scripts/**/*.js'
       - 'framework/js/core/js/**/*.js'
+      - 'package*.json'
+      - 'scripts/**/*.js'
     branches:
       # Pull request events to main branch
       - main
@@ -47,12 +35,10 @@ jobs:
           registry-url: https://npm.pkg.github.com
       - name: install
         run: npm install && lerna bootstrap
-      - name: lint
-        run: npm run lint
+      - name: lint & build
+        run: npm run lint & npm run build
       - name: test
         run: npm run coverage
       - name: coverage
         if: matrix.node == '14.x'
         uses: codecov/codecov-action@v2
-      - name: build
-        run: npm run build

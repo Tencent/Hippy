@@ -21,7 +21,8 @@ function getSize(code) {
 }
 
 function logError(e) {
-  console.error(e);
+  console.error('build js packages error', e);
+  process.exit(1);
 }
 
 async function buildEntry(config) {

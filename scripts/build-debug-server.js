@@ -16,7 +16,14 @@ function buildDebugServer() {
   const execOptions = { stdio: 'inherit' };
 
   console.log('1/1 Start to build project @hippy/debug-server');
-  exec('npm run build', execOptions);
+  exec('npm run build', execOptions, (code, stdout, stderr) => {
+    if (code) {
+      console.error('Executing buildDebugServer with error code', code);
+      console.error('Executing buildDebugServer stdout', stdout);
+      console.error('Executing buildDebugServer stderr', stderr);
+      process.exit(1);
+    }
+  });
 
   console.log('👌 All done, you can debug your hippy app now, enjoy.');
   popd();
