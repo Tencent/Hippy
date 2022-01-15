@@ -106,6 +106,11 @@ function genConfig(name) {
       banner: opts.banner,
       exports: 'auto',
     },
+    onwarn: (msg, warn) => {
+      if (!/Circular/.test(msg)) {
+        warn(msg);
+      }
+    },
   };
 
   if (opts.env) {
