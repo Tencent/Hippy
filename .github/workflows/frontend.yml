@@ -1,9 +1,10 @@
-name: '[FrontEnd] check js code'
+name: '[front-end] check js code'
 
 on:
   pull_request:
     paths:
       - 'packages/**'
+      - 'package*.json'
       - 'examples/hippy-*-demo/**'
       - 'scripts/**/*.js'
       - 'core/js/**/*.js'
@@ -30,12 +31,10 @@ jobs:
           registry-url: https://npm.pkg.github.com
       - name: install
         run: npm install && lerna bootstrap
-      - name: lint
-        run: npm run lint
+      - name: lint & build
+        run: npm run lint & npm run build
       - name: test
         run: npm run coverage
       - name: coverage
         if: matrix.node == '14.x'
         uses: codecov/codecov-action@v2
-      - name: build
-        run: npm run build
