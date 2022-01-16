@@ -42,12 +42,4 @@ Pod::Spec.new do |s|
     cores.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/ ${PODS_ROOT}/hippy/core/include/'}
     puts 'hippy subspec \'core\' read end'
   end 
-
-  if ENV['hippy_use_frameworks']
-    puts 'use frameworks mode, no force load'
-  else
-    puts 'use library mode, force load hippy library'
-    s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
-  end
-  puts 'hippy.podspec read ends'
 end
