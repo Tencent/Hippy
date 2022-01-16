@@ -29,12 +29,17 @@ extern NSInteger HippyLocalFileNOFilExist;
 
 @interface HippyBridge (LocalFileSource)
 
-@property (nonatomic, copy) NSString *workFolder;
-
-@property (nonatomic, readonly) NSString *workFolder2;
+/**
+ * property to path of sandbox directory
+ */
+@property (nonatomic, copy) NSString *sandboxDirectory;
 
 + (BOOL)isHippyLocalFileURLString:(NSString *)string;
 
+/**
+ * get absolute url string relative to param 'string'
+ * @param string a relative url path to secondary bundle path
+ */
 - (NSString *)absoluteStringFromHippyLocalFileURLString:(NSString *)string;
 @end
 

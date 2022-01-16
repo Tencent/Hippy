@@ -22,6 +22,7 @@
 
 #import "ViewController.h"
 #import "HippyRootView.h"
+#import "HippyBridge+LocalFileSource.h"
 #import "HippyLog.h"
 #import "HippyBundleURLProvider.h"
 #import "UIView+Hippy.h"
@@ -88,9 +89,14 @@
 }
 
 - (void)runDemoWithoutRuntime {
-    //step1: create bridge and rootview
+    //step1: create bridge and rootview, and set sandbox directory if needed
     //you need hold bridge
     _bridge = [[HippyBridge alloc] initWithmoduleProviderWithoutRuntime:nil];
+    //set sandbox directory if need
+    //need import HippyBridge+LocalFileSource.h for [HippyBridge setSandboxDirectory:] method
+    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
+    businessBundlePath = [businessBundlePath stringByDeletingLastPathComponent];
+    [_bridge setSandboxDirectory:businessBundlePath];
     //you view MUST conforms to protocol HippyInvalidating and implement method invalidate
     UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
     view.backgroundColor = [UIColor whiteColor];

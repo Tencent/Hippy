@@ -83,11 +83,11 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
         return;
     }
     __weak HippyBatchedBridge *batchedBridge = (HippyBatchedBridge *)[self batchedBridge];
-    NSString *key = secondaryBundleURL.absoluteString;
-    batchedBridge.workFolder = key;
+    NSString *secondaryBundleURLString = secondaryBundleURL.absoluteString;
+    batchedBridge.sandboxDirectory = [secondaryBundleURLString stringByDeletingLastPathComponent];
     BOOL loaded;
     @synchronized(self) {
-        loaded = [self.loadedBundleURLs objectForKey:key] != nil;
+        loaded = [self.loadedBundleURLs objectForKey:secondaryBundleURLString] != nil;
     }
     // 已经加载，直接返回
     if (loaded) {
@@ -124,7 +124,7 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
         batchedBridge.isSecondaryBundleLoading = YES;
 
         [[NSNotificationCenter defaultCenter] postNotificationName:HippySecondaryBundleDidStartLoadNotification object:self
-                                                          userInfo:@{ @"url": key }];
+                                                          userInfo:@{ @"url": secondaryBundleURLString }];
 
         dispatch_queue_t bridgeQueue = dispatch_queue_create("mtt.bussiness.HippyBridgeQueue", DISPATCH_QUEUE_CONCURRENT);
         dispatch_group_t initModulesAndLoadSource = dispatch_group_create();
@@ -140,7 +140,7 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
                                         }
 
                                         NSMutableDictionary *userInfo =
-                                            [[NSMutableDictionary alloc] initWithDictionary:@ { @"url": key, @"bridge": self }];
+                                            [[NSMutableDictionary alloc] initWithDictionary:@ { @"url": secondaryBundleURLString, @"bridge": self }];
                                         if (error) {
                                             [userInfo setObject:error forKey:@"error"];
                                         }
@@ -176,7 +176,7 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
                         enqueueScriptCompletion(error);
                     }
 
-                    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@ { @"url": key, @"bridge": self }];
+                    NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@ { @"url": secondaryBundleURLString, @"bridge": self }];
                     if (error) {
                         [userInfo setObject:error forKey:@"error"];
                     }
@@ -190,7 +190,7 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
 
                         // 加载成功，保存Url，下次无需加载
                         @synchronized(self) {
-                            [self.loadedBundleURLs setObject:@(YES) forKey:key];
+                            [self.loadedBundleURLs setObject:@(YES) forKey:secondaryBundleURLString];
                         }
                     }
 
