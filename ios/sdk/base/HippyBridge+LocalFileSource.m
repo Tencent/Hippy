@@ -22,30 +22,22 @@
 
 #import "HippyBridge+LocalFileSource.h"
 #import "objc/runtime.h"
-static const void *HippyWorkerFolderKey = &HippyWorkerFolderKey;
+
 NSErrorDomain const HippyLocalFileReadErrorDomain = @"HippyLocalFileReadErrorDomain";
 NSInteger HippyLocalFileNOFilExist = 100;
+
 @implementation HippyBridge (LocalFileSource)
-- (void)setWorkFolder:(NSString *)workFolder {
-    objc_setAssociatedObject(self, HippyWorkerFolderKey, workFolder, OBJC_ASSOCIATION_COPY_NONATOMIC);
+
+- (void)setSandboxDirectory:(NSString *)sandboxDirectory {
+    if (![sandboxDirectory hasSuffix:@"/"]) {
+        sandboxDirectory = [NSString stringWithFormat:@"%@/", sandboxDirectory];
+    }
+    objc_setAssociatedObject(self, @selector(sandboxDirectory), sandboxDirectory, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
-- (NSString *)workFolder {
-    NSString *string = objc_getAssociatedObject(self, HippyWorkerFolderKey);
-    if (!string) {
-        string = [[self bundleURL] absoluteString];
-    }
-    return string;
-}
-
-- (NSString *)workFolder2 {
-    NSString *workFolder = [self workFolder];
-    if (workFolder) {
-        NSRange range = [workFolder rangeOfString:@"/" options:NSBackwardsSearch];
-        NSString *noIndex = [workFolder substringToIndex:range.location + 1];
-        return noIndex;
-    }
-    return @"";
+- (NSString *)sandboxDirectory {
+    NSString *sandboxDirectory = objc_getAssociatedObject(self, _cmd);
+    return [sandboxDirectory copy];
 }
 
 + (NSString *)defaultHippyLocalFileScheme {
@@ -65,8 +57,7 @@ NSInteger HippyLocalFileNOFilExist = 100;
             NSRange range = NSMakeRange(0, [filePrefix length]);
             relativeString = [string stringByReplacingOccurrencesOfString:filePrefix withString:@"" options:0 range:range];
         }
-        NSURL *workURL = [NSURL URLWithString:self.workFolder];
-        NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:workURL];
+        NSURL *localFileURL = [NSURL URLWithString:relativeString relativeToURL:self.bundleURL];
         if ([localFileURL isFileURL]) {
             return [localFileURL path];
         }

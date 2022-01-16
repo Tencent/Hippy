@@ -373,6 +373,40 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
                 return;
             }
         }
+        
+        if ([uri hasPrefix:@"file://"]) {
+            NSURL *fileURL = [NSURL URLWithString:uri];
+            NSError *error = nil;
+            NSData *imageData = [NSData dataWithContentsOfURL:fileURL options:(NSDataReadingMappedIfSafe) error:&error];
+            if (error) {
+                NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable for uri %@", uri];
+                NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
+                [self loadImage:nil url:uri error:theError needBlur:YES needCache:NO];
+            }
+            else {
+                Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(imageData, self.bridge);
+                id<HippyImageProviderProtocol> instance = [self instanceImageProviderFromClass:ipClass imageData:imageData];
+                BOOL isAnimatedImage = [ipClass isAnimatedImage:imageData];
+                if (isAnimatedImage) {
+                    if (_animatedImageOperation) {
+                        [_animatedImageOperation cancel];
+                    }
+                    _animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance imageView:self
+                                                                                                        imageURL:source[@"uri"]];
+                    [animated_image_queue() addOperation:_animatedImageOperation];
+                } else {
+                    UIImage *image = [instance image];
+                    if (image) {
+                        [self loadImage:image url:uri error:nil needBlur:YES needCache:YES];
+                    } else {
+                        NSString *errorMessage = [NSString stringWithFormat:@"image data unavailable for uri %@", uri];
+                        NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
+                        [self loadImage:nil url:uri error:theError needBlur:YES needCache:NO];
+                    }
+                }
+            }
+            return;
+        }
 
         NSData *uriData = [uri dataUsingEncoding:NSUTF8StringEncoding];
         if (nil == uriData) {
