@@ -24,16 +24,11 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 @SuppressWarnings({"unused"})
 public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGroup {

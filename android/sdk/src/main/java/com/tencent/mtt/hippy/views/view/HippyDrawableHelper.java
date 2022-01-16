@@ -30,7 +30,7 @@ public class HippyDrawableHelper {
    * set radius of ripple
    * @param drawableDescriptionDict
    * @param drawable
-   * @return
+   * @return RippleDrawable
    */
   public static Drawable setRadius(HippyMap drawableDescriptionDict, Drawable drawable) {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M
@@ -43,6 +43,12 @@ public class HippyDrawableHelper {
     return drawable;
   }
 
+  /**
+   * get instance of RippleDrawable
+   * @param context
+   * @param drawableDescriptionDict
+   * @return RippleDrawable
+   */
   @RequiresApi(api = Build.VERSION_CODES.M)
   private static RippleDrawable getRippleDrawable(
     Context context, HippyMap drawableDescriptionDict) {
@@ -57,6 +63,11 @@ public class HippyDrawableHelper {
     return null;
   }
 
+  /**
+   * color parser
+   * @param drawableDescriptionDict
+   * @return Color
+   */
   private static int getColor(HippyMap drawableDescriptionDict) {
     if (drawableDescriptionDict.containsKey("color")
       && !drawableDescriptionDict.isNull("color")) {
@@ -68,7 +79,7 @@ public class HippyDrawableHelper {
   /**
    * set mask if borderless is null or false
    * @param drawableDescriptionDict
-   * @return
+   * @return ColorDrawable
    */
   private static @Nullable Drawable getMask(HippyMap drawableDescriptionDict) {
     if (!drawableDescriptionDict.containsKey("borderless")

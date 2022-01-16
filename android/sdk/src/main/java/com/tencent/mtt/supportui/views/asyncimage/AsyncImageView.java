@@ -470,30 +470,40 @@ protected void setContent(int sourceType)
     onSetContent(mUrl);
     updateContentDrawableProperty(sourceType);
 
-    if (mBGDrawable != null)
-    {
-      if (mContentDrawable instanceof ContentDrawable)
-      {
-        ((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
-        ((ContentDrawable) mContentDrawable).setShadowOffsetX(mBGDrawable.getShadowOffsetX());
-        ((ContentDrawable) mContentDrawable).setShadowOffsetY(mBGDrawable.getShadowOffsetY());
-        ((ContentDrawable) mContentDrawable).setShadowRadius(mBGDrawable.getShadowRadius());
-      }
-      if (mRippleDrawable != null) {
-        setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable, mRippleDrawable }));
-      } else {
-        setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable }));
-      }
-    }
-    else
-    {
-      if (mRippleDrawable != null) {
-        setBackgroundDrawable(new LayerDrawable(new Drawable[] { mContentDrawable, mRippleDrawable }));
-      } else {
-        setBackgroundDrawable(mContentDrawable);
-      }
-    }
+    setMultiLevelBackgroundDrawable(mBGDrawable, mContentDrawable, mRippleDrawable);
     afterSetContent(mUrl);
+  }
+}
+
+  /**
+   * set multiple level background to avoid covering by each other
+   * @param mBGDrawable
+   * @param mContentDrawable
+   * @param mRippleDrawable
+   */
+  protected void setMultiLevelBackgroundDrawable(BackgroundDrawable mBGDrawable, Drawable mContentDrawable, Drawable mRippleDrawable) {
+  if (mBGDrawable != null)
+  {
+    if (mContentDrawable instanceof ContentDrawable)
+    {
+      ((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
+      ((ContentDrawable) mContentDrawable).setShadowOffsetX(mBGDrawable.getShadowOffsetX());
+      ((ContentDrawable) mContentDrawable).setShadowOffsetY(mBGDrawable.getShadowOffsetY());
+      ((ContentDrawable) mContentDrawable).setShadowRadius(mBGDrawable.getShadowRadius());
+    }
+    if (mRippleDrawable != null) {
+      setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable, mRippleDrawable }));
+    } else {
+      setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable }));
+    }
+  }
+  else
+  {
+    if (mRippleDrawable != null) {
+      setBackgroundDrawable(new LayerDrawable(new Drawable[] { mContentDrawable, mRippleDrawable }));
+    } else {
+      setBackgroundDrawable(mContentDrawable);
+    }
   }
 }
 
@@ -728,12 +738,19 @@ protected void setContent(int sourceType)
     }
     updateBackgroundDrawable(null);
     if (mContentDrawable != null && background != null) {
-      LayerDrawable layerDrawable = new LayerDrawable(new Drawable[] {mContentDrawable, background});
-      updateBackgroundDrawable(layerDrawable);
+      setMultiLevelBackgroundDrawable(mBGDrawable, mContentDrawable, background);
     } else if (background != null) {
-      updateBackgroundDrawable(background); // set ripple drawable
-      setRippleDrawable(background); // is used to avoid covering the ripple layer by setBackgroundImage
+      if (mBGDrawable != null)
+      {
+        // while mContentDrawable is null but mBGDrawable is not null
+        updateBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, background }));
+      }
+      else
+      {
+        updateBackgroundDrawable(background); // set ripple drawable
+      }
     }
+    setRippleDrawable(background); // is used to avoid covering the ripple layer by setBackgroundImage
   }
 
   /**
