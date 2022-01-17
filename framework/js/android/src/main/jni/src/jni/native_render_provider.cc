@@ -120,7 +120,9 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
 
   jboolean is_copy = JNI_TRUE;
   const char* func_name = j_env->GetStringUTFChars(j_func_name, &is_copy);
-  auto callback = node->GetCallback(func_name);
+  //TODO
+  uint32_t cb_id = 1;
+  auto callback = node->GetCallback(func_name, cb_id);
   if (callback == nullptr) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack Callback not found for func_name: " << func_name;
     return;
