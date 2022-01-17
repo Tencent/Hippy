@@ -116,6 +116,11 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
     pager.setPageMargin((int) PixelUtil.dp2px(margin));
   }
 
+  @HippyControllerProps(name = "offscreenPageLimit", defaultNumber = 0, defaultType = HippyControllerProps.NUMBER)
+  public void setOffscreenPageLimit(HippyViewPager pager, int limit) {
+    pager.setOffscreenPageLimit(limit);
+  }
+
   @HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING, defaultString = "visible")
   public void setOverflow(HippyViewPager pager, String overflow) {
     pager.setOverflow(overflow);
