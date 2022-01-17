@@ -22,6 +22,7 @@
 
 #import "HippyBridge+LocalFileSource.h"
 #import "objc/runtime.h"
+#import "HippyBridge+Private.h"
 
 NSErrorDomain const HippyLocalFileReadErrorDomain = @"HippyLocalFileReadErrorDomain";
 NSInteger HippyLocalFileNOFilExist = 100;
@@ -32,11 +33,19 @@ NSInteger HippyLocalFileNOFilExist = 100;
     if (![sandboxDirectory hasSuffix:@"/"]) {
         sandboxDirectory = [NSString stringWithFormat:@"%@/", sandboxDirectory];
     }
-    objc_setAssociatedObject(self, @selector(sandboxDirectory), sandboxDirectory, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    id obj = self;
+    if ([self isMemberOfClass:[HippyBridge class]]) {
+        obj = self.batchedBridge;
+    }
+    objc_setAssociatedObject(obj, @selector(sandboxDirectory), sandboxDirectory, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 - (NSString *)sandboxDirectory {
-    NSString *sandboxDirectory = objc_getAssociatedObject(self, _cmd);
+    id obj = self;
+    if ([self isMemberOfClass:[HippyBridge class]]) {
+        obj = self.batchedBridge;
+    }
+    NSString *sandboxDirectory = objc_getAssociatedObject(obj, _cmd);
     return [sandboxDirectory copy];
 }
 
