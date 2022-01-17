@@ -33,6 +33,13 @@ framework/js/android/src/main/jni/cmake-build-debug/*
 framework/js/packages/hippy-vue-loader/remote-debug-profile/*
 framework/js/packages/hippy-debug-server/webpack-dev-server/client
 
+docs/assets/*.png
+docs/assets/*.jpg
+docs/assets/*.gif
+docs/assets/*.ico
+docs/assets/*.js
+docs/assets/*.css
+
 examples/*/res/vendor-manifest.json
 android/sdk/src/main/jni/.vs
 android/sdk/maven-auth.properties
