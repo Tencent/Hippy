@@ -77,9 +77,9 @@ static const char *stringFromReadyState(HippySRReadyState state) {
 
 #pragma mark initialization methods
 
-- (instancetype)initWithDevIPAddress:(NSString *)ipAddress port:(NSString *)port contextName:(NSString *)contextName {
+- (instancetype)initWithDevInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName {
     //ws://127.0.0.1:38989/debugger-proxy?clientId={clientId}&platform=1&role=ios_client&contextName={urlencode(contextName)}&deviceName={urlencode(deviceName)}
-    HippyAssertParam(ipAddress);
+    HippyAssertParam(devInfo.ipAddress);
     self = [super init];
     if (self) {
         NSString *uuid = UUIDForContextName(contextName);
@@ -87,7 +87,10 @@ static const char *stringFromReadyState(HippySRReadyState state) {
         NSString *encodeName = [contextName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
         NSString *deviceName = [[UIDevice currentDevice] name];
         NSString *encodedDeviceName = [deviceName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
-        NSString *devAddress = [NSString stringWithFormat:@"ws://%@:%@/debugger-proxy?clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", ipAddress, port?:@"38989", uuid, encodeName, encodedDeviceName];
+        NSString *devAddress = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy?clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", devInfo.scheme, devInfo.ipAddress, devInfo.port?:@"38989", uuid, encodeName, encodedDeviceName];
+        if (devInfo.versionId.length > 0) {
+            devAddress = [NSString stringWithFormat:@"%@&hash=%@", devAddress, devInfo.versionId];
+        }
         _devURL = [NSURL URLWithString:devAddress];
         HippyLog(@"[DevTools client]:try to connect to %@", devAddress);
         [self setup];
@@ -123,11 +126,11 @@ static const char *stringFromReadyState(HippySRReadyState state) {
     [_devWebSocket send:data];
 }
 
-- (void)close {
+- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason {
     if (!_devWebSocket) {
         return;
     }
-    [_devWebSocket close];
+    [_devWebSocket closeWithCode:code reason:reason];
 }
 
 #pragma mark dev websocket delegate methods
