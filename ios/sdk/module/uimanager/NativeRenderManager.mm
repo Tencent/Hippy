@@ -30,40 +30,15 @@ using LayoutResult = hippy::LayoutResult;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
-    for (auto it = nodes.begin(); it != nodes.end(); it++) {
-        if (0 == it->get()->GetViewName().compare("Text")) {
-            std::shared_ptr<hippy::TaitankLayoutNode> layoutNode = std::static_pointer_cast<hippy::TaitankLayoutNode>(it->get()->GetLayoutNode());
-            layoutNode->SetMeasureFunction(textMeasureFunc);
-            HPNodeSetContext(layoutNode->GetLayoutEngineNodeRef(), it->get());
-        }
-    }
     [uiManager_ createRenderNodes:std::move(nodes)];
 }
 
 void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    for (const std::shared_ptr<DomNode> &node : nodes) {
-        int32_t tag = node->GetId();
-        const std::string &viewName = node->GetViewName();
-        [uiManager_ renderUpdateView:tag viewName:viewName props:node->GetStyleMap()];
-    }
+    [uiManager_ updateRenderNodes:std::move(nodes)];
 }
 
 void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    std::vector<int32_t> indices;
-    int32_t rootTag = INT32_MIN;
-    for (const std::shared_ptr<DomNode> &node : nodes) {
-        DomNode::RenderInfo info = node->GetRenderInfo();
-        if (INT32_MIN == rootTag) {
-            rootTag = info.pid;
-        }
-        else {
-            HippyAssert(rootTag == info.pid, @"DeleteRenderNode ,nodes not on the same parent node");
-        }
-        indices.push_back(info.index);
-    }
-    if (INT32_MIN != rootTag) {
-        [uiManager_ renderDeleteViewFromContainer:rootTag forIndices:indices];
-    }
+    [uiManager_ renderDeleteNodes:nodes];
 }
 
 void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
@@ -76,45 +51,30 @@ void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
     [uiManager_ renderMoveViews:ids fromContainer:pid toContainer:id];
 }
 
-void NativeRenderManager::Batch() {
+void NativeRenderManager::EndBatch() {
     [uiManager_ batch];
 }
 
+void NativeRenderManager::BeforeLayout() {}
+
+void NativeRenderManager::AfterLayout() {}
+
 void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-    std::shared_ptr<DomNode> node = dom_node.lock();
-    if (node) {
-        if (name == hippy::kClickEvent) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addClickEventListenerforNode:dom_node forView:node->GetId()];
-            });
-        } else if (name == hippy::kLongClickEvent) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addLongClickEventListenerforNode:dom_node forView:node->GetId()];
-            });
-        } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
-                   || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
-            std::string name_ = name;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addTouchEventListenerforNode:dom_node forType:std::move(name_) forView:node->GetId()];
-            });
-        } else if (name == hippy::kShow || name == hippy::kDismiss) {
-            std::string name_ = name;
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [uiManager_ addShowEventListenerForNode:dom_node forType:std::move(name_) forView:node->GetId()];
-            });
-        }
-    }
+    [uiManager_ addEventName:name forDomNode:dom_node];
 };
 
 void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) {
-    return;
+    [uiManager_ removeEventName:name forDomNode:dom_node];
 }
 
 void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
-                                    const DomValue& param,
+                                    const DomArgument& param,
                                     CallFunctionCallback cb) {
     std::shared_ptr<DomNode> node = dom_node.lock();
     if (node) {
-        [uiManager_ dispatchFunction:name forView:node->GetId() params:param callback:cb];
+        DomValue dom_value;
+        param.ToObject(dom_value);
+        [uiManager_ dispatchFunction:name viewName:node->GetViewName() viewTag:node->GetId() params:dom_value callback:cb];
     }
+    EndBatch();
 }

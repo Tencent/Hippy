@@ -21,14 +21,12 @@
 /* eslint-disable no-param-reassign */
 
 import React from 'react';
-import Style from '@localTypes/style';
-import { Fiber } from 'react-reconciler';
-import { LayoutEvent } from '@localTypes/event';
+import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
-import View from './View';
+import View from './view';
 
 type DataItem = any;
 
@@ -51,8 +49,7 @@ interface WaterfallViewProps {
   // Number of items to preload on reaching the listview end
   preloadItemNumber?: number;
 
-  // Return banner view element
-  renderBanner?(): React.ReactElement;
+  style?: HippyTypes.Style;
 
   // Declare whether PullHeader view exists
   containPullHeader?: boolean;
@@ -66,19 +63,22 @@ interface WaterfallViewProps {
   // Declare whether banner view exists
   containBannerView?: boolean
 
+  // Return banner view element
+  renderBanner?: () => React.ReactElement;
+
   /**
    * Passing the data and returns the row component.
    *
    * @param {Object} data - Data for row rendering
    * @returns {(React.Component | undefined)}
    */
-  renderItem?(
+  renderItem?: (
     data: DataItem,
-  ): React.ReactElement;
+  ) => React.ReactElement;
 
-  renderPullHeader?(): React.ReactElement;
+  renderPullHeader?: () => React.ReactElement;
 
-  renderPullFooter?(): React.ReactElement;
+  renderPullFooter?: () => React.ReactElement;
 
   /**
    * Each row have different type, it will be using at render recycle.
@@ -86,7 +86,7 @@ interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {string}
    */
-  getItemType?(index: number): number;
+  getItemType?: (index: number) => number;
 
   /**
    * Returns the style for specific index of row.
@@ -94,7 +94,7 @@ interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {Object}
    */
-  getItemStyle?(index: number): Style;
+  getItemStyle?: (index: number) => HippyTypes.Style;
 
   /**
    * Specific the key of row, for better data diff
@@ -103,12 +103,10 @@ interface WaterfallViewProps {
    * @param {number} index - Index Of data.
    * @returns {string}
    */
-  getItemKey?(index: number): string;
-
-  style?: Style;
+  getItemKey?: (index: number) => string;
 
   // Called when the WaterfallView is scrolling to bottom.
-  onEndReached?(): void;
+  onEndReached?: () => void;
 
   /**
    *  Called when the row first layout or layout changed.
@@ -120,7 +118,7 @@ interface WaterfallViewProps {
    * @param {number} evt.nativeEvent.hegiht - The height of component
    * @param {number} index - Index of data.
    */
-  onItemLayout?(evt: LayoutEvent, index: number): void;
+  onItemLayout?: (evt: HippyTypes.LayoutEvent, index: number) => void;
 
   /**
    * Called when user scrolls WaterfallView
@@ -136,31 +134,31 @@ interface WaterfallViewProps {
    * @param {number} evt.visibleRowFrames[].width - Current item's width
    * @param {number} evt.visibleRowFrames[].height - Current item's height
    */
-  onScroll?(evt: {
+  onScroll?: (evt: {
     startEdgePos: number,
     endEdgePos: number,
     firstVisibleRowIndex: number,
     lastVisibleRowIndex: number,
     visibleRowFrames: Object
-  }): void;
+  }) => void;
 
   // Called when user pulls the ListView down
-  onHeaderPulling? (): void;
+  onHeaderPulling?: () => void;
 
   // Called when user release the pulling WaterfallView
-  onHeaderReleased? (): void;
+  onHeaderReleased?: () => void;
 
   // Called when user swipe up WaterfallView to get more data on reaching the footer
-  onFooterPulling? (): void;
+  onFooterPulling?: () => void;
 
   // Called when user release the getting-more-data WaterfallView
-  onFooterReleased? (): void;
+  onFooterReleased?: () => void;
 
   // Called on items exposed
-  onExposureReport? (): void;
+  onExposureReport?: () => void;
 
   // Called on waterfall ready
-  onInitialListReady? (): void;
+  onInitialListReady?: () => void;
 }
 
 interface WaterfallViewItemProps {
@@ -190,19 +188,9 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
   /**
    * @constructor
    */
-  constructor(props: WaterfallViewProps) {
+  public constructor(props: WaterfallViewProps) {
     super(props);
     this.handleInitialListReady = this.handleInitialListReady.bind(this);
-  }
-
-  /**
-   * @ignore
-   */
-  public componentDidMount() {
-    const { getItemKey } = this.props;
-    if (!getItemKey) {
-      warn('ListView needs getRowKey to specific the key of item');
-    }
   }
 
   /**
@@ -232,132 +220,31 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
     callUIFunction(this.instance as Fiber, 'scrollToContentOffset', [xOffset, yOffset, animated]);
   }
 
-  private handleRowProps(
-    itemProps: WaterfallViewItemProps,
-    index: number,
-    { getItemKey, getItemStyle, onItemLayout, getItemType }:
-    { getItemKey: ((index: number) => string) | undefined,
-      getItemStyle: ((index: number) => Style) | undefined,
-      onItemLayout: ((evt: LayoutEvent, index: number) => void) | undefined,
-      getItemType: ((index: number) => number) | undefined,
-    },
-  ) {
-    if (typeof getItemKey === 'function') {
-      itemProps.key = getItemKey(index);
-    }
-
-    if (typeof getItemStyle === 'function') {
-      itemProps.style = getItemStyle(index);
-    }
-
-    if (typeof onItemLayout === 'function') {
-      itemProps.onLayout = (e: any) => {
-        onItemLayout.call(this, e, index);
-      };
-    }
-
-    if (typeof getItemType === 'function') {
-      const type = getItemType(index);
-      if (!Number.isInteger(type)) {
-        warn('getRowType must return a number');
-      }
-      itemProps.type = type;
-    }
-  }
-
   // Expand the PullHeaderView and display the content
-  expandPullHeader() {
+  public expandPullHeader() {
     if (this.pullHeader) {
       this.pullHeader.expandPullHeader();
     }
   }
 
   // Collapse the PullHeaderView and hide the content
-  collapsePullHeader(options: object) {
+  public collapsePullHeader(options: object) {
     if (this.pullHeader) {
       this.pullHeader.collapsePullHeader(options);
     }
   }
 
   // Expand the PullFooterView and display the content
-  expandPullFooter() {
+  public expandPullFooter() {
     if (this.pullFooter) {
       this.pullFooter.expandPullFooter();
     }
   }
 
   // Collapse the PullView and hide the content
-  collapsePullFooter() {
+  public collapsePullFooter() {
     if (this.pullFooter) {
       this.pullFooter.collapsePullFooter();
-    }
-  }
-
-  /**
-   *
-   * @param renderPullHeader - PullHeader View
-   * @param onHeaderPulling - Called when header is pulled
-   * @param onHeaderReleased - Called when header is released
-   * @private
-   */
-  private getPullHeader(
-    renderPullHeader: undefined | (() => React.ReactElement),
-    onHeaderPulling: undefined | (() => void),
-    onHeaderReleased: undefined | (() => void),
-  ) {
-    let pullHeader = null;
-    if (typeof renderPullHeader === 'function') {
-      pullHeader = (
-        <PullHeader
-          key={'PullHeader'}
-          ref={(ref) => {
-            this.pullHeader = ref;
-          }}
-          onHeaderPulling={onHeaderPulling}
-          onHeaderReleased={onHeaderReleased}
-        >
-          { renderPullHeader() }
-        </PullHeader>
-      );
-    }
-    return pullHeader;
-  }
-
-  /**
-   *
-   * @param renderPullFooter - PullHeader View
-   * @param onFooterPulling - Called when footer is pulled
-   * @param onFooterReleased - Called when footer is released
-   * @private
-   */
-  private getPullFooter(
-    renderPullFooter: undefined | (() => React.ReactElement),
-    onFooterPulling: undefined | (() => void),
-    onFooterReleased: undefined | (() => void),
-  ) {
-    let pullFooter = null;
-    if (typeof renderPullFooter === 'function') {
-      pullFooter = (
-        <PullFooter
-          key={'PullFooter'}
-          ref={(ref) => {
-            this.pullFooter = ref;
-          }}
-          onFooterPulling={onFooterPulling}
-          onFooterReleased={onFooterReleased}
-        >
-          { renderPullFooter() }
-        </PullFooter>
-      );
-    }
-    return pullFooter;
-  }
-
-  // initialReady callback
-  handleInitialListReady() {
-    const { onInitialListReady } = this.props;
-    if (typeof onInitialListReady === 'function') {
-      onInitialListReady();
     }
   }
 
@@ -400,7 +287,7 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
       containPullFooter,
       containBannerView,
     };
-    const itemList = [];
+    const itemList: JSX.Element[] = [];
 
     if (typeof renderBanner === 'function') {
       const banner = renderBanner();
@@ -420,7 +307,16 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
       for (let index = 0; index < numberOfItems; index += 1) {
         const itemProps: WaterfallViewItemProps = {} as WaterfallViewItemProps;
         const rowChildren = renderItem(index) || null;
-        this.handleRowProps(itemProps, index, { getItemKey, getItemStyle, getItemType, onItemLayout });
+        this.handleRowProps(
+          itemProps,
+          index,
+          {
+            getItemKey,
+            getItemStyle,
+            getItemType,
+            onItemLayout,
+          },
+        );
         if (rowChildren) {
           itemList.push((
             // @ts-ignore
@@ -458,6 +354,118 @@ class WaterfallView extends React.Component<WaterfallViewProps> {
         { itemList }
       </ul>
     );
+  }
+
+  /**
+   * @ignore
+   */
+  public componentDidMount() {
+    const { getItemKey } = this.props;
+    if (!getItemKey) {
+      warn('ListView needs getRowKey to specific the key of item');
+    }
+  }
+
+  private handleRowProps(
+    itemProps: WaterfallViewItemProps,
+    index: number,
+    { getItemKey, getItemStyle, onItemLayout, getItemType }:
+    {
+      getItemKey: ((index: number) => string) | undefined,
+      getItemStyle: ((index: number) => HippyTypes.Style) | undefined,
+      onItemLayout: ((evt: HippyTypes.LayoutEvent, index: number) => void) | undefined,
+      getItemType: ((index: number) => number) | undefined,
+    },
+  ) {
+    if (typeof getItemKey === 'function') {
+      itemProps.key = getItemKey(index);
+    }
+
+    if (typeof getItemStyle === 'function') {
+      itemProps.style = getItemStyle(index);
+    }
+
+    if (typeof onItemLayout === 'function') {
+      itemProps.onLayout = (e: any) => {
+        onItemLayout.call(this, e, index);
+      };
+    }
+
+    if (typeof getItemType === 'function') {
+      const type = getItemType(index);
+      if (!Number.isInteger(type)) {
+        warn('getRowType must return a number');
+      }
+      itemProps.type = type;
+    }
+  }
+
+  /**
+   *
+   * @param renderPullHeader - PullHeader View
+   * @param onHeaderPulling - Called when header is pulled
+   * @param onHeaderReleased - Called when header is released
+   * @private
+   */
+  private getPullHeader(
+    renderPullHeader: undefined | (() => React.ReactElement),
+    onHeaderPulling: undefined | (() => void),
+    onHeaderReleased: undefined | (() => void),
+  ) {
+    let pullHeader: JSX.Element | null = null;
+    if (typeof renderPullHeader === 'function') {
+      pullHeader = (
+        <PullHeader
+          key={'PullHeader'}
+          ref={(ref) => {
+            this.pullHeader = ref;
+          }}
+          onHeaderPulling={onHeaderPulling}
+          onHeaderReleased={onHeaderReleased}
+        >
+          { renderPullHeader() }
+        </PullHeader>
+      );
+    }
+    return pullHeader;
+  }
+
+  /**
+   *
+   * @param renderPullFooter - PullHeader View
+   * @param onFooterPulling - Called when footer is pulled
+   * @param onFooterReleased - Called when footer is released
+   * @private
+   */
+  private getPullFooter(
+    renderPullFooter: undefined | (() => React.ReactElement),
+    onFooterPulling: undefined | (() => void),
+    onFooterReleased: undefined | (() => void),
+  ) {
+    let pullFooter: JSX.Element | null = null;
+    if (typeof renderPullFooter === 'function') {
+      pullFooter = (
+        <PullFooter
+          key={'PullFooter'}
+          ref={(ref) => {
+            this.pullFooter = ref;
+          }}
+          onFooterPulling={onFooterPulling}
+          onFooterReleased={onFooterReleased}
+        >
+          { renderPullFooter() }
+        </PullFooter>
+      );
+    }
+    return pullFooter;
+  }
+
+  // initialReady callback
+  private handleInitialListReady() {
+    const { onInitialListReady } = this.props;
+    if (typeof onInitialListReady === 'function') {
+      onInitialListReady();
+    }
   }
 }
 

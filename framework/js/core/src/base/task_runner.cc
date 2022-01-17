@@ -32,8 +32,7 @@
 #include "core/base/thread_id.h"
 #include "core/napi/js_native_api.h"
 
-namespace hippy {
-namespace base {
+namespace hippy::base {
 
 TaskRunner::TaskRunner() : Thread(Options("Task Runner")) {
   is_terminated_ = false;
@@ -66,7 +65,7 @@ void TaskRunner::Terminate() {
   {
     std::unique_lock<std::mutex> lock(mutex_);
     TDF_BASE_DLOG(INFO)
-        << "TaskRunner::Terminate task_queue_ size = " << task_queue_.size();
+    << "TaskRunner::Terminate task_queue_ size = " << task_queue_.size();
     if (is_terminated_) {
       TDF_BASE_DLOG(INFO) << "TaskRunner has been terminated";
       return;
@@ -107,7 +106,7 @@ void TaskRunner::PostDelayedTask(
   cv_.notify_one();
 }
 
-void TaskRunner::CancelTask(const std::shared_ptr<Task>& task) {
+void TaskRunner::CancelTask(const std::shared_ptr<Task> &task) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (!task) {
@@ -142,17 +141,16 @@ std::shared_ptr<Task> TaskRunner::GetNext() {
     }
 
     if (is_terminated_) {
-      hippy::napi::DetachThread();
       TDF_BASE_DLOG(INFO) << "TaskRunner terminate";
       return nullptr;
     }
 
     if (task_queue_.empty() && !delayed_task_queue_.empty()) {
-      const DelayedEntry& delayed_task = delayed_task_queue_.top();
+      const DelayedEntry &delayed_task = delayed_task_queue_.top();
       DelayedTimeInMs wait_in_msseconds = delayed_task.first - now;
       bool notified =
           cv_.wait_for(lock, std::chrono::milliseconds(wait_in_msseconds)) ==
-          std::cv_status::timeout;
+              std::cv_status::timeout;
       HIPPY_USE(notified);
     } else {
       cv_.wait(lock);
@@ -165,15 +163,14 @@ std::shared_ptr<Task> TaskRunner::popTaskFromDelayedQueueNoLock(
   if (delayed_task_queue_.empty())
     return {};
 
-  const DelayedEntry& deadline_and_task = delayed_task_queue_.top();
+  const DelayedEntry &deadline_and_task = delayed_task_queue_.top();
   if (deadline_and_task.first > now)
     return {};
 
   std::shared_ptr<Task> result =
-      std::move(const_cast<DelayedEntry&>(deadline_and_task).second);
+      std::move(const_cast<DelayedEntry &>(deadline_and_task).second);
   delayed_task_queue_.pop();
   return result;
 }
 
-}  // namespace base
 }  // namespace hippy

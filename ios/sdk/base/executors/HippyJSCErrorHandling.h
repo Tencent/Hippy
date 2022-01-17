@@ -24,8 +24,6 @@
 
 #import "HippyDefines.h"
 
-typedef struct HippyJSCWrapper HippyJSCWrapper;
-
 /**
  Translates a given exception into an NSError.
 

@@ -19,6 +19,8 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import android.view.ViewGroup;
+
+import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -45,11 +47,11 @@ import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
-import com.tencent.mtt.hippy.modules.Promise.BridgeTransferType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +93,7 @@ public abstract class HippyEngine {
     }
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
-    ContextHolder.initAppContext(params.context);
+    ContextHolder.setContext(params.context);
 
     HippyEngine hippyEngine;
     if (params.groupId == -1) {
@@ -236,7 +238,8 @@ public abstract class HippyEngine {
     // 可选参数 Hippy Server的Host。默认为"localhost:38989"。debugMode = true时有效
     public String debugServerHost = "localhost:38989";
     // 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
-    public List<HippyAPIProvider> providers;
+    public List<HippyAPIProvider> moduleProviders;
+    public List<ControllerProvider> controllerProviders;
     //Optional  is use V8 serialization or json
     public boolean enableV8Serialization = true;
     // 可选参数 是否打印引擎的完整的log。默认为false
@@ -313,10 +316,10 @@ public abstract class HippyEngine {
       if (logAdapter == null) {
         logAdapter = new DefaultLogAdapter();
       }
-      if (providers == null) {
-        providers = new ArrayList<>();
+      if (moduleProviders == null) {
+        moduleProviders = new ArrayList<>();
       }
-      providers.add(0, new HippyCoreAPI());
+      moduleProviders.add(0, new HippyCoreAPI());
       if (!debugMode) {
         if (TextUtils.isEmpty(coreJSAssetsPath) && TextUtils.isEmpty(coreJSFilePath)) {
           throw new RuntimeException(
@@ -346,8 +349,6 @@ public abstract class HippyEngine {
     public HippyMap jsParams;
     // 可选参数 目前只有一个用处：映射："CustomViewCreator" <==> 宿主自定义的一个HippyCustomViewCreator(这个creator还得通过ModuleParams.Builder.setCustomViewCreator来指定才行)
     public Map nativeParams;
-    // 可选参数 方便对将本View和hippyContext进行绑定。对于这种场景时有用：某些View组件的创建先于业务模块初始化的时机（也就是View组件的预先创建、预加载）。
-    public HippyInstanceContext hippyContext;
     // 可选参数 Bundle加载器，老式用法，不建议使用（若一定要使用，则会覆盖jsAssetsPath，jsFilePath的值）。参见jsAssetsPath，jsFilePath
     // 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""
     public String codeCacheTag = "";
@@ -365,7 +366,6 @@ public abstract class HippyEngine {
       componentName = params.componentName;
       jsParams = params.jsParams;
       nativeParams = params.nativeParams;
-      hippyContext = params.hippyContext;
       codeCacheTag = params.codeCacheTag;
       bundleLoader = params.bundleLoader;
     }

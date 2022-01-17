@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+// @ts-nocheck
 import bezierEasing from 'bezier-easing';
 
 const CUBIC_BEZIER_PATTERN = /^cubic-bezier\(([^,]*),([^,]*),([^,]*),([^,]*)\)$/;

@@ -3,15 +3,14 @@
 #include "base/log_settings.h"
 
 #include <fcntl.h>
-#include <string.h>
+#include <cstring>
 
 #include <algorithm>
 #include <iostream>
 
 #include "base/logging.h"
 
-namespace tdf {
-namespace base {
+namespace tdf::base {
 extern LogSettings global_log_settings;
 
 void SetLogSettings(const LogSettings& settings) {
@@ -23,5 +22,4 @@ LogSettings GetLogSettings() { return global_log_settings; }
 
 int GetMinLogLevel() { return std::min(global_log_settings.min_log_level, TDF_LOG_FATAL); }
 
-}  // namespace base
 }  // namespace tdf

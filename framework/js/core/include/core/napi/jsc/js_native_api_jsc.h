@@ -110,8 +110,10 @@ class JSCCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
       const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> GetProperty(
-      const std::shared_ptr<CtxValue>& object,
+      const std::shared_ptr<CtxValue>& obj,
       const unicode_string_view& name) override;
+  virtual bool DeleteProperty(const std::shared_ptr<CtxValue>& obj,
+                              const unicode_string_view& name) override;
 
   virtual void RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
                                     const ModuleClassMap& modules) override;
@@ -191,6 +193,8 @@ class JSCCtx : public Ctx {
       const std::shared_ptr<JSValueWrapper>& wrapper) override;
     
   virtual std::shared_ptr<DomValue> ToDomValue(
+      const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<DomArgument> ToDomArgument(
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<DomValue>& value) override;

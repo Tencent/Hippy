@@ -40,7 +40,7 @@
 #import "UIView+Hippy.h"
 #import "HippyBridge+Mtt.h"
 #import "HippyBundleURLProvider.h"
-#import "core/scope.h"
+#import "DemoConfigs.h"
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
@@ -141,6 +141,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
     NSMutableDictionary *extendsLaunchOptions = [NSMutableDictionary new];
     [extendsLaunchOptions addEntriesFromDictionary:launchOptions];
     [extendsLaunchOptions setObject:@(mode) forKey:@"DebugMode"];
+    [extendsLaunchOptions setObject:@(DEMO_ENABLE_TURBO) forKey:@"EnableTurbo"];
     HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL moduleProvider:nil launchOptions:extendsLaunchOptions
                                                      executorKey:moduleName];
     return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate:delegate];
@@ -192,12 +193,26 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
     }
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
+- (instancetype)initWithBridgeButNoRuntime:(HippyBridge *)bridge {
+    self = [super init];
+    if (self) {
+        self.bridge = bridge;
+        bridge.batchedBridge.useCommonBridge = YES;
+        [self bundleFinishedLoading:bridge.batchedBridge];
+    }
+    return self;
+}
+
+//HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     super.backgroundColor = backgroundColor;
     _contentView.backgroundColor = backgroundColor;
+}
+
+- (void)setBridge:(HippyBridge *)bridge {
+    _bridge = bridge;
 }
 
 - (UIViewController *)hippyViewController {

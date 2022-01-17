@@ -35,12 +35,12 @@
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/native_source_code.h"
+#include "core/napi/v8/serializer.h"
 #include "core/scope.h"
-#include "hippy.h"
 #include "v8/libplatform/libplatform.h"
 
-namespace hippy {
-namespace napi {
+
+namespace hippy::napi {
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using DomValue = tdf::base::DomValue;
@@ -232,10 +232,6 @@ std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
 std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
                                               std::shared_ptr<Ctx> ctx) {
   return std::make_shared<V8TryCatch>(enable, ctx);
-}
-
-void DetachThread() {
-  JNIEnvironment::GetInstance()->DetachCurrentThread();
 }
 
 V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
@@ -652,10 +648,31 @@ std::shared_ptr<CtxValue> V8Ctx::GetProperty(
   v8::Local<v8::Value> str = CreateV8String(name);
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, persistent_value);
-  v8::Local<v8::Value> value = v8::Local<v8::Object>::Cast(handle_value)
-                                   ->Get(context, str)
-                                   .ToLocalChecked();
-  return std::make_shared<V8CtxValue>(isolate_, value);
+  v8::MaybeLocal<v8::Value> value = v8::Local<v8::Object>::Cast(handle_value)
+      ->Get(context, str);
+  if (value.IsEmpty()) {
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, value.ToLocalChecked());
+}
+
+bool V8Ctx::DeleteProperty(const std::shared_ptr<CtxValue>& object,
+                           const unicode_string_view& name) {
+  TDF_BASE_DLOG(INFO) << "DeleteProperty name =" << name;
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(object);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> key = CreateV8String(name);
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, persistent_value);
+  if (key.IsEmpty()) {
+    return false;
+  }
+  v8::Maybe<bool> value = v8::Local<v8::Object>::Cast(handle_value)->Delete(context, key);
+  return value.FromMaybe(false);
 }
 
 void V8Ctx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
@@ -1193,9 +1210,26 @@ std::shared_ptr<DomValue> V8Ctx::ToDomValue(
   return nullptr;
 }
 
+std::shared_ptr<DomArgument> V8Ctx::ToDomArgument(
+    const std::shared_ptr<CtxValue>& value) {
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, global_value);
+  Serializer serializer(isolate_, context, v8_reused_buffer_);
+  serializer.WriteHeader();
+  serializer.WriteValue(handle_value);
+  std::pair<uint8_t*, size_t> pair = serializer.Release();
+  return std::make_shared<DomArgument>(std::move(pair));
+}
+
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     const std::shared_ptr<JSValueWrapper>& wrapper) {
-  TDF_BASE_DCHECK(wrapper);
+  if (!wrapper) {
+    return nullptr;
+  }
   if (wrapper->IsUndefined()) {
     return CreateUndefined();
   } else if (wrapper->IsNull()) {
@@ -1250,7 +1284,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
 
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     const std::shared_ptr<DomValue>& value) {
-  TDF_BASE_DCHECK(value);
+  if (!value) {
+    return nullptr;
+  }
   if (value->IsUndefined()) {
     return CreateUndefined();
   } else if (value->IsNull()) {
@@ -1814,5 +1850,4 @@ unicode_string_view V8Ctx::CopyFunctionName(
   return result;
 }
 
-}  // namespace napi
 }  // namespace hippy

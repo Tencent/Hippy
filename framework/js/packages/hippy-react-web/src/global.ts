@@ -21,5 +21,6 @@
 import { Device } from './native';
 
 global.Hippy = {
+  // @ts-ignore
   Device,
 };

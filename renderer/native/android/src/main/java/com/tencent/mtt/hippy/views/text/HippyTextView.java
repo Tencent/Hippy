@@ -27,7 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.tencent.mtt.hippy.dom.node.DomNode;
-import com.tencent.mtt.hippy.dom.node.HippyNativeGestureSpan;
 import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
@@ -35,9 +34,10 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.component.text.TextGestureSpan;
 
 @SuppressWarnings({"unused"})
 public class HippyTextView extends View implements CommonBorder, HippyViewBase, HippyRecycler {
@@ -46,7 +46,7 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
 
   private boolean mNativeGestureEnable = false;
 
-  private HippyNativeGestureSpan mNativeGestureSpan;
+  private TextGestureSpan mNativeGestureSpan;
 
   private NativeGestureDispatcher mGestureDispatcher;
 
@@ -83,9 +83,9 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
     super.setId(id);
 
     Context context = getContext();
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)context).getInstanceId();
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)context).getInstanceId();
+      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       if (nativeRenderer != null) {
         DomNode node = nativeRenderer.getDomManager().getNode(id);
         if (node instanceof TextNode) {
@@ -162,12 +162,12 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
       }
     } catch (Throwable e) {
       Context context = getContext();
-      if (context instanceof NativeRendererContext) {
-        int instanceId = ((NativeRendererContext)context).getInstanceId();
-        INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+      if (context instanceof NativeRenderContext) {
+        int instanceId = ((NativeRenderContext)context).getInstanceId();
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
         if (nativeRenderer != null) {
-          nativeRenderer.handleNativeException(new RuntimeException("hippyTextView onDraw" +
-                  e.getMessage()), true);
+          nativeRenderer.handleRenderException(new RuntimeException("hippyTextView onDraw" +
+                  e.getMessage()));
         }
       }
     }
@@ -270,8 +270,6 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
       if (flag) {
         super.dispatchTouchEvent(event);
         return true;
-      } else {
-        return super.dispatchTouchEvent(event);
       }
     }
     return super.dispatchTouchEvent(event);
@@ -291,8 +289,8 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
   }
 
 
-  private HippyNativeGestureSpan findNativeGestureSpanForTouch(MotionEvent event) {
-    HippyNativeGestureSpan span = null;
+  private TextGestureSpan findNativeGestureSpanForTouch(MotionEvent event) {
+    TextGestureSpan span = null;
     if (mLayout == null) {
       return null;
     }
@@ -325,12 +323,12 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
       Spanned spannedText = (Spanned) charSequence;
       int index = mLayout.getOffsetForHorizontal(line, x);
 
-      HippyNativeGestureSpan[] spans = spannedText
-          .getSpans(index, index, HippyNativeGestureSpan.class);
+      TextGestureSpan[] spans = spannedText
+          .getSpans(index, index, TextGestureSpan.class);
 
       if (spans != null && spans.length > 0) {
         int targetSpanTextLength = charSequence.length();
-        for (HippyNativeGestureSpan hippyNativeGestureSpan : spans) {
+        for (TextGestureSpan hippyNativeGestureSpan : spans) {
           int spanStart = spannedText.getSpanStart(hippyNativeGestureSpan);
           int spanEnd = spannedText.getSpanEnd(hippyNativeGestureSpan);
           if (spanEnd > index && (spanEnd - spanStart) <= targetSpanTextLength) {
@@ -343,13 +341,13 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
     //extend touch area ,if there is no touch event on the text ,use the first node ,it must be the real node
     if (span == null && charSequence instanceof Spanned) {
       Spanned spanned = (Spanned) charSequence;
-      HippyNativeGestureSpan[] spans = spanned
-          .getSpans(0, spanned.length(), HippyNativeGestureSpan.class);
+      TextGestureSpan[] spans = spanned
+          .getSpans(0, spanned.length(), TextGestureSpan.class);
       if (spans.length == 1) //only support one text node
       {
         AbsoluteSizeSpan[] absoluteSizeSpan = spanned
             .getSpans(0, spanned.length(), AbsoluteSizeSpan.class);
-        if (!spans[0].isVirtual() && absoluteSizeSpan.length == 1) {
+        if (absoluteSizeSpan.length == 1) {
           span = spans[0];
         }
       }

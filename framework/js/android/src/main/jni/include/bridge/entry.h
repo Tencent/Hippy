@@ -27,7 +27,9 @@
 namespace hippy {
 namespace bridge {
 
-void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
+void InitNativeLogHandler(JNIEnv* j_env,
+                          __unused jobject j_object,
+                          jobject j_logger);
 
 jlong InitInstance(JNIEnv* j_env,
                    jobject j_object,
@@ -37,7 +39,6 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id,
-                   jlong j_root_view_id,
                    jobject j_vm_init_param);
 
 void DestroyInstance(JNIEnv* j_env,
@@ -54,6 +55,16 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jstring j_code_cache_dir,
                           jlong j_runtime_id,
                           jobject j_cb);
+
+void DoBind(JNIEnv* j_env,
+            __unused jobject j_obj,
+            jint j_dom_id,
+            jint j_render_id,
+            jint j_framework_id);
+
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id);
+
+void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
 
 }  // namespace bridge
 }  // namespace hippy

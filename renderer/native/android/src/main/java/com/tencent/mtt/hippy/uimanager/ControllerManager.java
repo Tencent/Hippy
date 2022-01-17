@@ -16,12 +16,14 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.annotation.SuppressLint;
-import android.content.res.Resources.NotFoundException;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
-import com.tencent.hippy.support.HippyBaseController;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -29,30 +31,47 @@ import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
+import com.tencent.mtt.hippy.views.image.HippyImageViewController;
+import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
+import com.tencent.mtt.hippy.views.list.HippyListViewController;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
+import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
+import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderViewController;
+import com.tencent.mtt.hippy.views.refresh.RefreshWrapperController;
+import com.tencent.mtt.hippy.views.refresh.RefreshWrapperItemController;
 import com.tencent.mtt.hippy.views.scroll.HippyHorizontalScrollView;
+import com.tencent.mtt.hippy.views.scroll.HippyScrollViewController;
+import com.tencent.mtt.hippy.views.text.HippyTextViewController;
+import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
-import com.tencent.renderer.INativeRenderer;
-import java.lang.reflect.Field;
+import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
+import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
+import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
+import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
+import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
+import com.tencent.renderer.NativeRender;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings({"deprecation", "unchecked", "rawtypes", "unused"})
 public class ControllerManager {
 
-  final INativeRenderer nativeRenderer;
+  final NativeRender mNativeRenderer;
   final ControllerRegistry mControllerRegistry;
   final ControllerUpdateManger<HippyViewController, View> mControllerUpdateManger;
   final SparseArray<View> mPreCacheView = new SparseArray<>();
 
-  public ControllerManager(INativeRenderer nativeRenderer, List<Class<? extends HippyBaseController>> controllers) {
-    this.nativeRenderer = nativeRenderer;
+  public ControllerManager(NativeRender nativeRenderer, @Nullable List<Class<?>> controllers) {
+    mNativeRenderer = nativeRenderer;
     mControllerRegistry = new ControllerRegistry(nativeRenderer);
     mControllerUpdateManger = new ControllerUpdateManger();
     processControllers(controllers);
@@ -61,30 +80,61 @@ public class ControllerManager {
   }
 
   public RenderManager getRenderManager() {
-    return nativeRenderer.getRenderManager();
+    return mNativeRenderer.getRenderManager();
   }
 
-  private void processControllers(List<Class<? extends HippyBaseController>> controllers) {
+  private @NonNull List<Class<?>> getDefaultControllers() {
+    List<Class<?>> controllers = new ArrayList<>();
+    controllers.add(HippyTextViewController.class);
+    controllers.add(HippyViewGroupController.class);
+    controllers.add(HippyImageViewController.class);
+    controllers.add(HippyListViewController.class);
+    controllers.add(HippyRecyclerViewController.class);
+    controllers.add(HippyListItemViewController.class);
+    controllers.add(HippyTextInputController.class);
+    controllers.add(HippyScrollViewController.class);
+    controllers.add(HippyViewPagerController.class);
+    controllers.add(HippyViewPagerItemController.class);
+    controllers.add(HippyModalHostManager.class);
+    controllers.add(RefreshWrapperController.class);
+    controllers.add(RefreshWrapperItemController.class);
+    controllers.add(HippyPullHeaderViewController.class);
+    controllers.add(HippyPullFooterViewController.class);
+    controllers.add(HippyWebViewController.class);
+    controllers.add(HippyCustomPropsController.class);
+    controllers.add(HippyWaterfallViewController.class);
+    controllers.add(HippyWaterfallItemViewController.class);
+    return controllers;
+  }
+
+  private void processControllers(@Nullable List<Class<?>> controllers) {
+    List<Class<?>> defaultControllers = getDefaultControllers();
     if (controllers != null) {
-      for (Class hippyComponent : controllers) {
-        HippyController hippyNativeModule = (HippyController) hippyComponent
-            .getAnnotation(HippyController.class);
-        assert hippyNativeModule != null;
-        String name = hippyNativeModule.name();
-        String[] names = hippyNativeModule.names();
-        boolean lazy = hippyNativeModule.isLazyLoad();
-        try {
-          ControllerHolder holder = new ControllerHolder(
-              (HippyViewController) hippyComponent.newInstance(), lazy);
-          mControllerRegistry.addControllerHolder(name, holder);
-          if (names.length > 0) {
-            for (String s : names) {
-              mControllerRegistry.addControllerHolder(s, holder);
-            }
+      controllers.addAll(0, defaultControllers);
+    } else {
+      controllers = defaultControllers;
+    }
+    for (Class cls: controllers) {
+      if (!HippyViewController.class.isAssignableFrom(cls)) {
+        continue;
+      }
+      HippyController hippyNativeModule = (HippyController) cls
+              .getAnnotation(HippyController.class);
+      assert hippyNativeModule != null;
+      String name = hippyNativeModule.name();
+      String[] names = hippyNativeModule.names();
+      boolean lazy = hippyNativeModule.isLazyLoad();
+      try {
+        ControllerHolder holder = new ControllerHolder(
+                (HippyViewController) cls.newInstance(), lazy);
+        mControllerRegistry.addControllerHolder(name, holder);
+        if (names.length > 0) {
+          for (String s : names) {
+            mControllerRegistry.addControllerHolder(s, holder);
           }
-        } catch (Exception e) {
-          e.printStackTrace();
         }
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     }
     mControllerRegistry.addControllerHolder(NodeProps.ROOT_NODE,
@@ -118,7 +168,7 @@ public class ControllerManager {
     View view = mControllerRegistry.getView(id);
     if (view == null) {
       HippyViewController controller = mControllerRegistry.getViewController(className);
-      view = controller.createView(rootView, id, nativeRenderer, className, initialProps);
+      view = controller.createView(rootView, id, mNativeRenderer, className, initialProps);
 
       mPreCacheView.put(id, view);
     }
@@ -135,7 +185,7 @@ public class ControllerManager {
 
       HippyViewController controller = mControllerRegistry.getViewController(className);
       if (view == null) {
-        view = controller.createView(rootView, id, nativeRenderer, className, initialProps);
+        view = controller.createView(rootView, id, mNativeRenderer, className, initialProps);
       }
 
       if (view != null) {
@@ -238,11 +288,7 @@ public class ControllerManager {
       Promise promise) {
     HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
     View view = mControllerRegistry.getView(id);
-    if (!promise.isCallback()) {
-      hippyViewController.dispatchFunction(view, functionName, var);
-    } else {
-      hippyViewController.dispatchFunction(view, functionName, var, promise);
-    }
+    hippyViewController.dispatchFunction(view, functionName, var, promise);
 
   }
 
@@ -377,7 +423,7 @@ public class ControllerManager {
             .addView((ViewGroup) parentView, childView, index);
       }
     } else {
-      RenderNode parentNode = nativeRenderer.getRenderManager().getRenderNode(pid);
+      RenderNode parentNode = mNativeRenderer.getRenderManager().getRenderNode(pid);
       String renderNodeClass = "null";
       if (parentNode != null) {
         renderNodeClass = parentNode.getClassName();
@@ -406,7 +452,7 @@ public class ControllerManager {
           + " renderNodeClass " + renderNodeClass + " id " + id
           + " childTag " + childTag
           + " childClass " + childClass);
-      nativeRenderer.handleNativeException(exception, true);
+      mNativeRenderer.handleRenderException(exception);
     }
   }
 

@@ -62,13 +62,20 @@
     }
 }
 
+- (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
+    HippyAssert(shadowViewsHaveNewLayoutResult, @"we need shadowViewsNeedToApplyLayout to collect shadow views");
+    [shadowViewsHaveNewLayoutResult addObject:self];
+    for (HippyShadowView *shadowView in self.hippySubviews) {
+        [shadowView collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResult];
+    }
+}
+
 - (NSSet<HippyShadowView *> *)collectShadowViewsHaveNewLayoutResultsForRootShadowView {
     [self applySizeConstraints];
     
 //    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
 //    HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
 //    HPNodeDoLayout(self.nodeRef, NAN, NAN, nodeDirection);
-    self.hasNewLayout = YES;
     NSMutableSet<HippyShadowView *> *shadowViewsHaveNewLayoutResults = [NSMutableSet setWithCapacity:256];
 //    [self applyLayoutNode:self.nodeRef viewsWithNewFrame:viewsWithNewFrame absolutePosition:CGPointZero];
     //Get shadowviews that layout has changed

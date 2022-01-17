@@ -18,9 +18,7 @@
  * limitations under the License.
  */
 
-import { Fiber } from 'react-reconciler';
-// @ts-ignore
-import { LayoutContent } from '@localTypes/events';
+import { Fiber } from '@hippy/react-reconciler';
 import { Bridge, Device, UIManager } from '../global';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
 import { isFunction, warn } from '../utils';
@@ -31,7 +29,6 @@ const {
   updateNode,
   deleteNode,
   flushBatch,
-  startBatch,
   endBatch,
   sendRenderError,
 } = UIManager;
@@ -136,18 +133,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
     return;
   }
 
-  if (Device.platform.OS === 'ios') {
-    if (isFunction(callback) && Array.isArray(paramList)) {
-      paramList.push(callback);
-    }
-    Bridge.callNative('UIManagerModule', 'callUIFunction', [componentName, nodeId, funcName, paramList]);
-  } else if (Device.platform.OS === 'android') {
-    if (isFunction(callback)) {
-      Bridge.callNative('UIManagerModule', 'callUIFunction', [nodeId, funcName, paramList], callback);
-    } else {
-      Bridge.callNative('UIManagerModule', 'callUIFunction', [nodeId, funcName, paramList]);
-    }
-  }
+  UIManager.callUIFunction(nodeId, funcName, paramList, callback);
 }
 
 /**
@@ -161,7 +147,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
 function measureInWindowByMethod(
   method: string,
   ref: Fiber,
-  callback?: (layout: LayoutContent) => void,
+  callback?: (layout: HippyTypes.LayoutContent | string) => void,
 ) {
   const nodeId = getNodeIdByRef(ref);
   return new Promise((resolve, reject) => {
@@ -172,7 +158,7 @@ function measureInWindowByMethod(
       }
       return reject(new Error(`${method} cannot get nodeId`));
     }
-    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: LayoutContent | string) => {
+    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: HippyTypes.LayoutContent | string) => {
       if (callback && isFunction(callback)) {
         callback(layout);
       }
@@ -194,7 +180,7 @@ function measureInWindowByMethod(
  * @param {Fiber | Element} ref - ref that need to measure.
  * @param {Function} callback
  */
-function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
+function measureInWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutContent | string) => void) {
   return measureInWindowByMethod('measureInWindow', ref, callback);
 }
 
@@ -205,7 +191,7 @@ function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void)
  * @param {Fiber | Element} ref - ref that need to measure.
  * @param {Function} callback
  */
-function measureInAppWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
+function measureInAppWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutContent | string) => void) {
   if (Device.platform.OS === 'android') {
     return measureInWindowByMethod('measureInWindow', ref, callback);
   }
@@ -218,7 +204,6 @@ export {
   updateNode,
   deleteNode,
   flushBatch,
-  startBatch,
   endBatch,
   sendRenderError,
   getNodeById,

@@ -32,7 +32,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.NativeRender;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,12 +56,12 @@ public class DomManager {
   final RenderManager mRenderManager;
   volatile CopyOnWriteArrayList<DomActionInterceptor> mActionInterceptors;
   final LayoutHelper mLayoutHelper;
-  private final WeakReference<INativeRenderer> nativeRendererWeakReference;
+  private final WeakReference<NativeRender> nativeRendererWeakReference;
   private volatile boolean mIsDestroyed = false;
   private volatile boolean mEnginePaused = false;
   private BatchListener mBatchListener;
 
-  public DomManager(INativeRenderer context) {
+  public DomManager(NativeRender context) {
     nativeRendererWeakReference = new WeakReference<>(context);
     mNodeRegistry = new DomNodeRegistry();
 
@@ -245,9 +245,9 @@ public class DomManager {
           .isControllerLazy(className));
       node.setProps(map);
 
-      if (nativeRendererWeakReference.get().isDebugMode()) {
-        node.setDomainData(new DomDomainData(id, rootId, pid, className, tagName, map));
-      }
+//      if (nativeRendererWeakReference.get().isDebugMode()) {
+//        node.setDomainData(new DomDomainData(id, rootId, pid, className, tagName, map));
+//      }
 
       boolean isLayoutOnly =
           (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout(
@@ -294,14 +294,14 @@ public class DomManager {
           }
         }
 
-        addUITask(new IDomExecutor() {
-          @Override
-          public void exec() {
-            mRenderManager
-                .createNode(hippyRootView, id, nativeParentNode.getId(), childIndex.mIndex,
-                    className, newProps);
-          }
-        });
+//        addUITask(new IDomExecutor() {
+//          @Override
+//          public void exec() {
+//            mRenderManager
+//                .createNode(hippyRootView, id, nativeParentNode.getId(), childIndex.mIndex,
+//                    className, newProps);
+//          }
+//        });
       }
     } else {
       LogUtils.d("DomManager", "Create Node DomManager Parent IS Null");
@@ -369,47 +369,7 @@ public class DomManager {
   }
 
   public void updateNode(final int id, HippyMap map, ViewGroup hippyRootView) {
-    DomNode node = mNodeRegistry.getNode(id);
 
-    // 这个日志暴多
-    // LogUtils.d(TAG, "dom  updateNode node id: " + id + "node is not null:" + (node != null) + " params:" + map.toString());
-
-    if (node != null) {
-      if (mActionInterceptors != null) {
-        for (DomActionInterceptor interceptor : mActionInterceptors) {
-          map = interceptor.onUpdateNode(id, hippyRootView, map);
-        }
-      }
-      HippyMap props = map;
-
-      HippyMap hippyMap = DiffUtils.diffProps(node.getTotalProps(), props, 0);
-
-      node.setProps(props);
-
-      //noinspection unchecked
-      mDomStyleUpdateManager.updateStyle(node, hippyMap);
-
-      boolean layoutOnlyHasChanged =
-          node.isJustLayout() && (!jsJustLayout((HippyMap) props.get(NodeProps.STYLE))
-              || isTouchEvent(props));
-
-      if (layoutOnlyHasChanged) {
-        changeJustLayout2View(node, props, hippyRootView);
-      } else if (!node.isJustLayout()) {
-        if (!node.isVirtual()) {
-          //				final HippyMap newProps = props.copy();
-          final HippyMap newProps = props;
-          addUITask(new IDomExecutor() {
-            @Override
-            public void exec() {
-              mRenderManager.updateNode(id, newProps);
-            }
-          });
-        }
-      }
-    } else {
-      LogUtils.d(TAG, "update error node is null id " + id);
-    }
   }
 
   private void changeJustLayout2View(final DomNode node, final HippyMap hippyMap,
@@ -420,17 +380,17 @@ public class DomManager {
 
     final ViewIndex viewIndex = findNativeViewIndex(reallyParent, node, 0);
 
-    if (!node.isVirtual()) {
-      addUITask(new IDomExecutor() {
-        @Override
-        public void exec() {
-          mRenderManager
-              .createNode(hippyRootView, node.getId(), reallyParent.getId(), viewIndex.mIndex,
-                  node.getViewClass(),
-                  hippyMap);
-        }
-      });
-    }
+//    if (!node.isVirtual()) {
+//      addUITask(new IDomExecutor() {
+//        @Override
+//        public void exec() {
+//          mRenderManager
+//              .createNode(hippyRootView, node.getId(), reallyParent.getId(), viewIndex.mIndex,
+//                  node.getViewClass(),
+//                  hippyMap);
+//        }
+//      });
+//    }
     //step2: move child
     final ArrayList<Integer> moveIds = new ArrayList<>();
     node.markUpdated();
@@ -793,7 +753,7 @@ public class DomManager {
     addNulUITask(new IDomExecutor() {
       @Override
       public void exec() {
-        mRenderManager.dispatchUIFunction(id, functionName, array, promise);
+        //mRenderManager.dispatchUIFunction(id, functionName, array, promise);
       }
     });
   }

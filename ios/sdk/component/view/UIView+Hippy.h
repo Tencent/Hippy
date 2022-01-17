@@ -23,6 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
 #import "HippyViewEventProtocol.h"
+#import "HippyDefines.h"
 #include "dom/dom_node.h"
 
 @class HippyShadowView;
@@ -49,7 +50,7 @@
  */
 @property (nonatomic, assign) NSInteger hippyZIndex;
 
-@property (nonatomic, assign) std::shared_ptr<hippy::DomNode> domNode;
+@property (nonatomic, assign) std::weak_ptr<hippy::DomNode> domNode;
 
 /**
  * set true when hippy subviews changed, but subviews does not.
@@ -116,28 +117,6 @@
 - (void)sendAttachedToWindowEvent;
 - (void)sendDetachedFromWindowEvent;
 
-/**
- * gesture event
- */
-typedef void(^onTouchEventListener)(CGPoint);
-typedef NS_ENUM(NSUInteger, HippyViewEventType) {
-    //touche event
-    HippyViewEventTypeTouchStart,
-    HippyViewEventTypeTouchMove,
-    HippyViewEventTypeTouchEnd,
-    HippyViewEventTypeTouchCancel,
-    
-    //show event
-    HippyViewEventTypeShow,
-    HippyViewEventTypeDismiss,
-    
-    //click event
-    HippyViewEventTypeClick,
-    HippyViewEventTypeLongClick,
-};
-- (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener;
-- (void)removeViewEvent:(HippyViewEventType)touchEvent;
-- (void)removeViewEventByID:(NSInteger)touchID;
 
 #if HIPPY_DEV
 
@@ -149,4 +128,45 @@ typedef NS_ENUM(NSUInteger, HippyViewEventType) {
 
 #endif
 
+@end
+
+/**
+ * gesture event
+ */
+typedef void(^onTouchEventListener)(CGPoint);
+typedef NS_ENUM(NSInteger, HippyViewEventType) {
+    //touche event
+    HippyViewEventTypeTouchStart,
+    HippyViewEventTypeTouchMove,
+    HippyViewEventTypeTouchEnd,
+    HippyViewEventTypeTouchCancel,
+    
+    HippyViewEventTypePressIn,
+    HippyViewEventTypePressOut,
+    
+    HippyViewEventTypeLayout,
+    
+    //show event
+    HippyViewEventTypeShow,
+    HippyViewEventTypeDismiss,
+    
+    //click event
+    HippyViewEventTypeClick,
+    HippyViewEventTypeLongClick,
+    
+    HippyViewEventTypeUnknown = -1,
+};
+
+HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
+
+@interface UIView(HippyEvent)
+
+- (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener;
+- (onTouchEventListener)eventListenerForEventType:(HippyViewEventType)eventType;
+- (void)removeViewEvent:(HippyViewEventType)touchEvent;
+- (void)removeViewEventByID:(NSInteger)touchID;
+- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+- (void)removeRenderEvent:(const std::string &)name;
+- (BOOL)canBePreventedByInCapturing:(const std::string &)name;
+- (BOOL)canBePreventInBubbling:(const std::string &)name;
 @end

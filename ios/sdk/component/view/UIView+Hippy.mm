@@ -21,17 +21,16 @@
  */
 
 #import "UIView+Hippy.h"
-
 #import <objc/runtime.h>
-
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HippyShadowView.h"
 #import "HippyVirtualNode.h"
+#import "dom/dom_listener.h"
 
 @interface HippyViewPropertyWrapper : NSObject
 
-@property (nonatomic, assign)std::shared_ptr<hippy::DomNode> domNode;
+@property (nonatomic, assign)std::weak_ptr<hippy::DomNode> domNode;
 @property (nonatomic, weak) id<HippyComponent> parent;
 
 @end
@@ -106,12 +105,12 @@
     objc_setAssociatedObject(self, @selector(tagName), tagName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
-- (std::shared_ptr<hippy::DomNode>)domNode {
+- (std::weak_ptr<hippy::DomNode>)domNode {
     HippyViewPropertyWrapper *wrapper = objc_getAssociatedObject(self, _cmd);
     return wrapper.domNode;
 }
 
-- (void)setDomNode:(std::shared_ptr<hippy::DomNode>)domNode {
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
     HippyViewPropertyWrapper *wrapper = [[HippyViewPropertyWrapper alloc] init];
     wrapper.domNode = domNode;
     objc_setAssociatedObject(self, @selector(domNode), wrapper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -352,14 +351,55 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     return YES;
 }
 
-struct HippyViewEventInfo {
-    NSInteger index;
-    HippyViewEventType touchType;
-    onTouchEventListener listener;
-};
+@end
 
+@interface HippyViewEventInfo : NSObject
 
-- (NSMutableArray<NSData *> *)allTouchInfos {
+@property(nonatomic, assign) NSInteger index;
+@property(nonatomic, assign) HippyViewEventType touchType;
+@property(nonatomic, copy) onTouchEventListener listener;
+
+@end
+
+@implementation HippyViewEventInfo
+
+@end
+
+HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name) {
+    HippyViewEventType type = HippyViewEventTypeUnknown;
+    if (hippy::kClickEvent == name) {
+        type = HippyViewEventTypeClick;
+    }
+    else if (hippy::kLongClickEvent == name) {
+        type = HippyViewEventTypeLongClick;
+    }
+    else if (hippy::kTouchStartEvent == name) {
+        type = HippyViewEventTypeTouchStart;
+    }
+    else if (hippy::kTouchMoveEvent == name) {
+        type = HippyViewEventTypeTouchMove;
+    }
+    else if (hippy::kTouchEndEvent == name) {
+        type = HippyViewEventTypeTouchEnd;
+    }
+    else if (hippy::kTouchCancelEvent == name) {
+        type = HippyViewEventTypeTouchCancel;
+    }
+    else if (hippy::kLayoutEvent == name) {
+        type = HippyViewEventTypeLayout;
+    }
+    else if (hippy::kShowEvent == name) {
+        type = HippyViewEventTypeShow;
+    }
+    else if (hippy::kDismissEvent == name) {
+        type = HippyViewEventTypeDismiss;
+    }
+    return type;
+}
+
+@implementation UIView(HippyEvent)
+
+- (NSMutableArray<HippyViewEventInfo *> *)allTouchInfos {
     return objc_getAssociatedObject(self, _cmd);
 }
 
@@ -367,34 +407,45 @@ struct HippyViewEventInfo {
     if (!touchInfo) {
         return -1;
     }
-    NSMutableArray<NSData *> *values = [self allTouchInfos];
+    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
     if (!values) {
         values = [NSMutableArray arrayWithCapacity:8];
         objc_setAssociatedObject(self, @selector(allTouchInfos), values, OBJC_ASSOCIATION_RETAIN);
     }
-    NSData *touchInfoValue = [values lastObject];
+    HippyViewEventInfo *touchInfoValue = [values lastObject];
     NSInteger index = 0;
     if (touchInfoValue) {
-        const HippyViewEventInfo *lastTouchInfo = reinterpret_cast<const HippyViewEventInfo *>(touchInfoValue.bytes);
-        index = lastTouchInfo->index + 1;
+        index = touchInfoValue.index + 1;
     }
-    touchInfo->index = index;
-    NSData *touchInfoData = [NSData dataWithBytes:touchInfo length:sizeof(HippyViewEventInfo)];
-    [values addObject:touchInfoData];
+    touchInfo.index = index;
+    [values addObject:touchInfo];
     return index;
 }
 
 - (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener {
-    HippyViewEventInfo touchInfo = {0, touchEvent, listener};
-    return [self addTouchInfo:&touchInfo];
+    HippyViewEventInfo *touchInfo = [[HippyViewEventInfo alloc] init];
+    touchInfo.touchType = touchEvent;
+    touchInfo.listener = listener;
+    return [self addTouchInfo:touchInfo];
+}
+
+- (onTouchEventListener)eventListenerForEventType:(HippyViewEventType)eventType {
+    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
+    __block onTouchEventListener listener = NULL;
+    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (eventType == obj.touchType) {
+            listener = obj.listener;
+            *stop = YES;
+        }
+    }];
+    return listener;
 }
 
 - (void)removeViewEvent:(HippyViewEventType)touchEvent {
-    NSMutableArray<NSData *> *values = [self allTouchInfos];
+    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    [values enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        const HippyViewEventInfo *lastTouchInfo = reinterpret_cast<const HippyViewEventInfo *>(obj.bytes);
-        if (touchEvent == lastTouchInfo->touchType) {
+    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (touchEvent == obj.touchType) {
             [indexSet addIndex:idx];
         }
     }];
@@ -402,11 +453,10 @@ struct HippyViewEventInfo {
 }
 
 - (void)removeViewEventByID:(NSInteger)touchID {
-    NSMutableArray<NSData *> *values = [self allTouchInfos];
+    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    [values enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        const HippyViewEventInfo *lastTouchInfo = reinterpret_cast<const HippyViewEventInfo *>(obj.bytes);
-        if (touchID == lastTouchInfo->index) {
+    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (touchID == obj.index) {
             [indexSet addIndex:idx];
             *stop = YES;
         }
@@ -414,16 +464,51 @@ struct HippyViewEventInfo {
     [values removeObjectsAtIndexes:indexSet];
 }
 
-- (void)enumTouchInfoByTouchEvent:(HippyViewEventType)touchEvent usingBlock:(void (^)(const HippyViewEventInfo *touchInfo, BOOL *stop))block {
-    NSMutableArray<NSData *> *values = [self allTouchInfos];
-    __block BOOL stopFlag = NO;
-    [values enumerateObjectsUsingBlock:^(NSData * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        const HippyViewEventInfo *lastTouchInfo = reinterpret_cast<const HippyViewEventInfo *>(obj.bytes);
-        if (touchEvent == lastTouchInfo->touchType) {
-            block(lastTouchInfo, &stopFlag);
-            *stop = stopFlag;
+- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
+    //try to contrustor origin setter
+    char n = std::toupper(name.at(0));
+    NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
+    SEL selector = NSSelectorFromString(setterName);
+    @try {
+        if ([self respondsToSelector:selector]) {
+            void *cb = (__bridge void *)callback;
+            NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
+            [invocation setTarget:self];
+            [invocation setSelector:selector];
+            [invocation setArgument:&cb atIndex:2];
+            [invocation invoke];
         }
-    }];
+    } @catch (NSException *exception) {
+        
+    }
 }
 
+- (void)removeRenderEvent:(const std::string &)name {
+    //try to contrustor origin setter
+    char n = std::toupper(name.at(0));
+    NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
+    SEL selector = NSSelectorFromString(setterName);
+    @try {
+        if ([self respondsToSelector:selector]) {
+            HippyDirectEventBlock cb = NULL;
+            NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
+            [invocation setTarget:self];
+            [invocation setSelector:selector];
+            [invocation setArgument:&cb atIndex:2];
+            [invocation invoke];
+        }
+    } @catch (NSException *exception) {
+        
+    }
+}
+
+- (BOOL)canBePreventedByInCapturing:(const std::string &)name {
+    return NO;
+}
+
+- (BOOL)canBePreventInBubbling:(const std::string &)name {
+    return NO;
+}
 @end

@@ -54,23 +54,7 @@ public interface HippyEngineContext {
 
   void handleException(Throwable throwable);
 
-  void onRuntimeInitialized(long runtimeId);
-
-  void createNode(int rootId, HippyArray hippyArray);
-
-  void updateNode(int rootId, HippyArray updateArray);
-
-  void deleteNode(int rootId, HippyArray deleteArray);
-
-  void callUIFunction(HippyArray hippyArray, Promise promise);
-
-  void measureInWindow(int id, Promise promise);
-
-  void startBatch();
-
-  void endBatch();
-
   int getEngineId();
 
-  int getRootId();
+  void onJSBridgeInitialized(long runtimeId);
 }

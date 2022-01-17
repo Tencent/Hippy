@@ -13,435 +13,697 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer;
+
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_ADD_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_UNAVAILABLE_ERR;
 
 import android.content.Context;
 import android.view.ViewGroup;
-import com.tencent.hippy.support.HippyBaseController;
-import com.tencent.hippy.support.IFrameworkProxy;
-import com.tencent.hippy.support.IJSFrameworkProxy;
-import com.tencent.hippy.support.INativeRendererProxy;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.tencent.link_supplier.proxy.framework.FontAdapter;
+import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
+import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
+import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
+import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
+import com.tencent.mtt.hippy.dom.flex.FlexOutput;
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.renderer.component.text.TextRenderSupply;
+import com.tencent.renderer.component.text.VirtualNodeManager;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.dom.DomManager;
-import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
 
-public class NativeRenderer implements INativeRenderer, INativeRendererProxy {
-  final String ID = "id";
-  final String PID = "pId";
-  final String INDEX = "index";
-  final String NAME = "name";
-  final String PROPS = "props";
-  final String TAG_NAME = "tagName";
+    private static final String TAG = "NativeRenderer";
+    private static final String NODE_ID = "id";
+    private static final String NODE_PID = "pId";
+    private static final String NODE_INDEX = "index";
+    private static final String NODE_PROPS = "props";
+    private static final String CLASS_NAME = "name";
+    private static final String LAYOUT_LEFT = "left";
+    private static final String LAYOUT_TOP = "top";
+    private static final String LAYOUT_WIDTH = "width";
+    private static final String LAYOUT_HEIGHT = "height";
+    private static final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
+    private static final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
+    private int mRootId;
+    private RenderManager mRenderManager;
+    private VirtualNodeManager mVirtualNodeManager;
+    private DomManager domManager;
+    private HippyRootView mRootView;
+    private FrameworkProxy mFrameworkProxy;
+    private final NativeRenderProvider mRenderProvider;
+    private volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
+    private BlockingQueue<UITaskExecutor> mUITaskQueue;
 
-  private static final int ROOT_VIEW_TAG_INCREMENT = 10;
-  private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
-
-  private int instanceId;
-  private int rootId;
-  private boolean isDebugMode;
-  private RenderManager renderManager;
-  private DomManager domManager;
-  private HippyRootView rootView;
-  private IFrameworkProxy frameworkProxy;
-  private NativeRendererDelegate delegate;
-  volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> instanceLifecycleEventListeners;
-
-  @Override
-  public void init(int instanceId, List<Class<? extends HippyBaseController>> controllers,
-      boolean isDebugMode, ViewGroup rootView) {
-    renderManager = new RenderManager(this, controllers);
-    domManager = new DomManager(this);
-    if (rootView instanceof HippyRootView) {
-      rootId = rootView.getId();
-      this.rootView = (HippyRootView)rootView;
-    } else {
-      rootId = ID_COUNTER.addAndGet(ROOT_VIEW_TAG_INCREMENT);
+    public NativeRenderer() {
+        mRenderProvider = new NativeRenderProvider(this);
+        NativeRendererManager.addNativeRendererInstance(mRenderProvider.getInstanceId(), this);
+        // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
+        // node operation cause OOM.
+        mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
     }
-    this.instanceId = instanceId;
-    this.isDebugMode = isDebugMode;
-    NativeRendererManager.addNativeRendererInstance(instanceId, this);
-  }
 
-  @Override
-  public Object getCustomViewCreator() {
-    if (checkJSFrameworkProxy()) {
-      return ((IJSFrameworkProxy)frameworkProxy).getCustomViewCreator();
+    @Override
+    public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
+        mRenderManager = new RenderManager(this, controllers);
+        mVirtualNodeManager = new VirtualNodeManager(this);
+        domManager = new DomManager(this);
+        if (rootView instanceof HippyRootView) {
+            mRenderManager.createRootNode(mRootId);
+            mRenderManager.addRootView(rootView);
+            mRootView = (HippyRootView) rootView;
+            Context context = rootView.getContext();
+            if (context instanceof NativeRenderContext) {
+                // Render provider instance id has changed, should reset instance id
+                // store in root view context.
+                ((NativeRenderContext) context).setInstanceId(mRenderProvider.getInstanceId());
+            }
+        }
     }
-    return null;
-  }
 
-  @Override
-  public String getBundlePath() {
-    if (checkJSFrameworkProxy()) {
-      return ((IJSFrameworkProxy)frameworkProxy).getBundlePath();
+    @Override
+    public void setRootId(int rootId) {
+        mRootId = rootId;
     }
-    return null;
-  }
 
-  @Override
-  public IImageLoaderAdapter getImageLoaderAdapter() {
-    if (checkJSFrameworkProxy()) {
-      Object adapterObj = ((IJSFrameworkProxy)frameworkProxy).getImageLoaderAdapter();
-      if (adapterObj instanceof IImageLoaderAdapter) {
-        return (IImageLoaderAdapter)adapterObj;
-      }
+    @Override
+    public int getInstanceId() {
+        return mRenderProvider.getInstanceId();
     }
-    return null;
-  }
 
-  @Override
-  public HippyFontScaleAdapter getFontScaleAdapter() {
-    if (checkJSFrameworkProxy()) {
-      Object adapterObj = ((IJSFrameworkProxy)frameworkProxy).getFontScaleAdapter();
-      if (adapterObj instanceof HippyFontScaleAdapter) {
-        return (HippyFontScaleAdapter)adapterObj;
-      }
+    @Override
+    public Object getCustomViewCreator() {
+        if (checkJSFrameworkProxy()) {
+            return ((JSFrameworkProxy) mFrameworkProxy).getCustomViewCreator();
+        }
+        return null;
     }
-    return null;
-  }
 
-  @Override
-  public boolean isDebugMode() {
-    return isDebugMode;
-  }
-
-  @Override
-  public void handleNativeException(Exception exception, boolean haveCaught) {
-    if(frameworkProxy != null) {
-      frameworkProxy.handleNativeException(exception, haveCaught);
+    @Override
+    public String getBundlePath() {
+        if (checkJSFrameworkProxy()) {
+            return ((JSFrameworkProxy) mFrameworkProxy).getBundlePath();
+        }
+        return null;
     }
-  }
 
-  @Override
-  public void setFrameworkProxy(IFrameworkProxy proxy) {
-    assert proxy != null;
-    frameworkProxy = proxy;
-  }
+    @Override
+    public IImageLoaderAdapter getImageLoaderAdapter() {
+        if (checkJSFrameworkProxy()) {
+            Object adapterObj = ((JSFrameworkProxy) mFrameworkProxy).getImageLoaderAdapter();
+            if (adapterObj instanceof IImageLoaderAdapter) {
+                return (IImageLoaderAdapter) adapterObj;
+            }
+        }
+        return null;
+    }
 
-  @Override
-  public void destroy() {
-    if (domManager != null) {
-      ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-      if (threadExecutor != null) {
-        threadExecutor.postOnDomThread(new Runnable() {
-          @Override
-          public void run() {
-            domManager.destroy();
-          }
+    @Override
+    @Nullable
+    public FontAdapter getFontAdapter() {
+        if (mFrameworkProxy != null) {
+            return mFrameworkProxy.getFontAdapter();
+        }
+        return null;
+    }
+
+    @Override
+    public void handleRenderException(@NonNull Exception exception) {
+        String msg;
+        if (exception instanceof NativeRenderException) {
+            msg = "code: " + ((NativeRenderException) exception).mCode + ", message: " + exception
+                    .getMessage();
+        } else {
+            msg = exception.getMessage();
+        }
+        LogUtils.e(TAG, msg);
+        reportException(exception);
+    }
+
+    @Override
+    public void setFrameworkProxy(@NonNull FrameworkProxy proxy) {
+        mFrameworkProxy = proxy;
+    }
+
+    @Override
+    public void destroy() {
+        if (mRenderManager != null) {
+            mRenderManager.destroy();
+        }
+        if (mRenderProvider != null) {
+            mRenderProvider.destroy();
+        }
+        if (mInstanceLifecycleEventListeners != null) {
+            mInstanceLifecycleEventListeners.clear();
+        }
+        mRootView = null;
+        mFrameworkProxy = null;
+        NativeRendererManager.removeNativeRendererInstance(mRenderProvider.getInstanceId());
+    }
+
+    @Override
+    @NonNull
+    public ViewGroup createRootView(@NonNull Context context) {
+        if (mRootView == null) {
+            mRootView = new HippyRootView(context, mRenderProvider.getInstanceId(), mRootId);
+            mRenderManager.createRootNode(mRootId);
+            mRenderManager.addRootView(mRootView);
+        }
+        return mRootView;
+    }
+
+    @Override
+    public Object getDomManagerObject() {
+        return getDomManager();
+    }
+
+    @Override
+    public Object getRenderManagerObject() {
+        return getRenderManager();
+    }
+
+    @Override
+    public RenderManager getRenderManager() {
+        return mRenderManager;
+    }
+
+    @Override
+    public DomManager getDomManager() {
+        return domManager;
+    }
+
+    @Override
+    public ViewGroup getRootView() {
+        return mRootView;
+    }
+
+    @Override
+    public void onFirstViewAdded() {
+        if (mFrameworkProxy != null) {
+            mFrameworkProxy.onFirstViewAdded();
+        }
+    }
+
+    @Override
+    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+        if (mRenderProvider != null) {
+            LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
+                    + oldw + ", oldh=" + oldh);
+            mRenderProvider.onSizeChanged(w, h);
+        }
+    }
+
+    @Override
+    public void updateModalHostNodeSize(final int id, final int width, final int height) {
+
+    }
+
+    @Override
+    public void updateDimension(boolean shouldRevise, HashMap<String, Object> dimension,
+            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
+        if (checkJSFrameworkProxy()) {
+            ((JSFrameworkProxy) mFrameworkProxy).updateDimension(shouldRevise, dimension,
+                    shouldUseScreenDisplay, systemUiVisibilityChanged);
+        }
+    }
+
+    /**
+     * Dispatch UI component event, such as onLayout, onScroll, onInitialListReady.
+     *
+     * @param id target node id
+     * @param eventName target event name
+     * @param params event extra params object
+     */
+    @Override
+    public void dispatchUIComponentEvent(int id, String eventName, @Nullable Object params) {
+        if (mRenderProvider != null) {
+            // UI component event default disable capture and bubble phase,
+            // can not enable both in native and js.
+            mRenderProvider.dispatchEvent(id, eventName, params, false, false);
+        }
+    }
+
+    /**
+     * Dispatch gesture event, such as onClick, onLongClick, onPressIn, onPressOut, onTouchDown,
+     * onTouchMove, onTouchEnd, onTouchCancel.
+     *
+     * @param id target node id
+     * @param eventName target event name
+     * @param params event extra params object
+     */
+    @Override
+    public void dispatchNativeGestureEvent(int id, String eventName, @Nullable Object params) {
+        if (mRenderProvider != null) {
+            // Gesture event default enable capture and bubble phase, can not disable in native,
+            // but can stop propagation in js.
+            mRenderProvider.dispatchEvent(id, eventName, params, true, true);
+        }
+    }
+
+    /**
+     * Dispatch custom event which capture and bubble state can set by user
+     *
+     * @param id target node id
+     * @param eventName target event name
+     * @param params event extra params object
+     * @param useCapture enable event capture
+     * @param useBubble enable event bubble
+     */
+    @Override
+    @SuppressWarnings("unused")
+    public void dispatchCustomEvent(int id, String eventName, @Nullable Object params,
+            boolean useCapture,
+            boolean useBubble) {
+        if (mRenderProvider != null) {
+            mRenderProvider.dispatchEvent(id, eventName, params, useCapture, useBubble);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        if (mInstanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
+                listener.onInstanceResume();
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (mInstanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
+                listener.onInstancePause();
+            }
+        }
+    }
+
+    @Override
+    public void onRootDestroy() {
+        if (mInstanceLifecycleEventListeners != null) {
+            for (HippyInstanceLifecycleEventListener listener : mInstanceLifecycleEventListeners) {
+                listener.onInstanceDestroy();
+            }
+        }
+    }
+
+    @Override
+    public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
+        if (mInstanceLifecycleEventListeners == null) {
+            mInstanceLifecycleEventListeners = new CopyOnWriteArrayList<>();
+        }
+        mInstanceLifecycleEventListeners.add(listener);
+    }
+
+    @Override
+    public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
+        if (mInstanceLifecycleEventListeners != null) {
+            mInstanceLifecycleEventListeners.remove(listener);
+        }
+    }
+
+    private void executeUIOperation() {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.d(TAG, "UI task queue size=" + mUITaskQueue.size());
+                long start = System.currentTimeMillis();
+                UITaskExecutor task = mUITaskQueue.poll();
+                while (task != null) {
+                    task.exec();
+                    // If there has large number node operation task in queue,
+                    // it is possible cause ANR because of takes a lot of time to handle the task,
+                    // so we should interrupt it and re-run in next event cycle again.
+                    if (System.currentTimeMillis() - start > MAX_UI_TASK_QUEUE_EXEC_TIME) {
+                        LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
+                        break;
+                    }
+                    task = mUITaskQueue.poll();
+                }
+                if (!mUITaskQueue.isEmpty()) {
+                    executeUIOperation();
+                }
+            }
         });
-      }
-    }
-    if (renderManager != null) {
-      renderManager.destroy();
-    }
-    if (delegate != null) {
-      delegate.destroy();
-      delegate = null;
-    }
-    if (instanceLifecycleEventListeners != null) {
-      instanceLifecycleEventListeners.clear();
-    }
-    rootView = null;
-    frameworkProxy = null;
-    NativeRendererManager.removeNativeRendererInstance(instanceId);
-  }
-
-  @Override
-  public ViewGroup createRootView(Context context) {
-    assert context != null;
-    rootView = new HippyRootView(context, instanceId, rootId);
-    return rootView;
-  }
-
-  @Override
-  public Object getDomManagerObject() {
-    return getDomManager();
-  }
-
-  @Override
-  public Object getRenderManagerObject() {
-    return getRenderManager();
-  }
-
-  @Override
-  public RenderManager getRenderManager() {
-    return renderManager;
-  }
-
-  @Override
-  public DomManager getDomManager() {
-    return domManager;
-  }
-
-  @Override
-  public ViewGroup getRootView() {
-    return rootView;
-  }
-
-  @Override
-  public int getRootId() {
-    return rootId;
-  }
-
-  @Override
-  public void onFirstViewAdded(){
-    if(frameworkProxy != null) {
-      frameworkProxy.onFirstViewAdded();
-    }
-  }
-
-  @Override
-  public void onSizeChanged(int w, int h, int oldw, int oldh) {
-    HippyMap hippyMap = new HippyMap();
-    hippyMap.pushDouble("width", PixelUtil.px2dp(w));
-    hippyMap.pushDouble("height", PixelUtil.px2dp(h));
-    hippyMap.pushDouble("oldWidth", PixelUtil.px2dp(oldw));
-    hippyMap.pushDouble("oldHeight", PixelUtil.px2dp(oldh));
-    if(frameworkProxy != null) {
-      frameworkProxy.onSizeChanged(w, h, oldw, oldh);
     }
 
-    ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-    if (threadExecutor != null) {
-      final int width = w;
-      final int height = h;
-      final int rootId = rootView.getId();
-      threadExecutor.postOnDomThread(new Runnable() {
-        @Override
-        public void run() {
-          getDomManager().updateNodeSize(rootId, width, height);
+    @Override
+    public void createNode(@NonNull ArrayList<Object> nodeList) throws NativeRenderException {
+        for (int i = 0; i < nodeList.size(); i++) {
+            Object object = nodeList.get(i);
+            if (!(object instanceof HashMap)) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": createNode: invalid node object");
+            }
+            HashMap<String, Object> node = (HashMap) object;
+            int nodeId;
+            int nodePid;
+            int nodeIndex;
+            String className;
+            try {
+                nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
+                nodePid = ((Number) Objects.requireNonNull(node.get(NODE_PID))).intValue();
+                nodeIndex = ((Number) Objects.requireNonNull(node.get(NODE_INDEX))).intValue();
+                className = (String) Objects.requireNonNull(node.get(CLASS_NAME));
+            } catch (NullPointerException e) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
+            }
+            // The node id, pid and index should not be negative number.
+            if (nodeId < 0 || nodePid < 0 || nodeIndex < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": createNode: id=" + nodeId + ", pId=" + nodePid + ", index="
+                                + nodeIndex);
+            }
+            final HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
+            mVirtualNodeManager.createNode(nodeId, nodePid, nodeIndex, className, props);
+            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+                // If the node has a virtual parent, no need to create corresponding render node,
+                // so don't add create task to the ui task queue.
+                continue;
+            }
+            final int id = nodeId;
+            final int pid = nodePid;
+            final int index = nodeIndex;
+            final String name = className;
+            try {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.createNode(mRootView, id, pid, index, name, props);
+                    }
+                });
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
+            }
         }
-      });
+        executeUIOperation();
     }
-  }
 
-  @Override
-  public void updateModalHostNodeSize(final int id, final int width, final int height) {
-    ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-    if (threadExecutor != null) {
-      threadExecutor.postOnDomThread(new Runnable() {
-        @Override
-        public void run() {
-          getDomManager().updateNodeSize(id, width, height);
+    @Override
+    public void updateNode(@NonNull ArrayList<Object> nodeList) throws NativeRenderException {
+        for (int i = 0; i < nodeList.size(); i++) {
+            Object object = nodeList.get(i);
+            if (!(object instanceof HashMap)) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateNode: invalid node object");
+            }
+            HashMap<String, Object> node = (HashMap) object;
+            int nodeId;
+            try {
+                nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
+            } catch (NullPointerException e) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
+            }
+            // The node id should not be negative number.
+            if (nodeId < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateNode: invalid negative id=" + nodeId);
+            }
+            final HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
+            mVirtualNodeManager.updateNode(nodeId, props);
+            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+                // If the node has a virtual parent, no corresponding render node exists,
+                // so don't add update task to the ui task queue.
+                continue;
+            }
+            final int id = nodeId;
+            try {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.updateNode(id, props);
+                    }
+                });
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
+            }
         }
-      });
+        executeUIOperation();
     }
-  }
 
-  @Override
-  public void updateDimension(boolean shouldRevise, HippyMap dimension,
-      boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
-    if (checkJSFrameworkProxy()) {
-      ((IJSFrameworkProxy)frameworkProxy).updateDimension(shouldRevise, dimension,
-          shouldUseScreenDisplay, systemUiVisibilityChanged);
-    }
-  }
-
-  @Override
-  public void dispatchUIComponentEvent(int id, String eventName, Object params) {
-    if (checkJSFrameworkProxy()) {
-      ((IJSFrameworkProxy)frameworkProxy).dispatchUIComponentEvent(id, eventName, params);
-    }
-  }
-
-  @Override
-  public void dispatchNativeGestureEvent(HippyMap params) {
-    if (checkJSFrameworkProxy()) {
-      ((IJSFrameworkProxy)frameworkProxy).dispatchNativeGestureEvent(params);
-    }
-  }
-
-  @Override
-  public void onInstanceLoad() {
-    assert rootView != null;
-    ThreadExecutor threadExecutor = getJSEngineThreadExecutor();
-    if (threadExecutor != null && rootView != null) {
-      final int rootId = rootView.getId();
-      final int width = rootView.getWidth();
-      final int height = rootView.getHeight();
-      threadExecutor.postOnDomThread(new Runnable() {
-        @Override
-        public void run() {
-          getDomManager().createRootNode(rootId, width, height);
+    @Override
+    public void deleteNode(@NonNull int[] ids) throws NativeRenderException {
+        for (final int id : ids) {
+            // The node id should not be negative number.
+            if (id < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": deleteNode: invalid negative id=" + id);
+            }
+            if (mVirtualNodeManager.hasVirtualParent(id)) {
+                // If the node has a virtual parent, no corresponding render node exists,
+                // so just delete the virtual node, .
+                mVirtualNodeManager.deleteNode(id);
+                continue;
+            }
+            mVirtualNodeManager.deleteNode(id);
+            try {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.deleteNode(id);
+                    }
+                });
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
+            }
         }
-      });
+        executeUIOperation();
     }
 
-    renderManager.addRootView(rootView);
-  }
-
-  @Override
-  public void onInstanceResume() {
-    if (instanceLifecycleEventListeners != null) {
-      for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
-        listener.onInstanceResume();
-      }
-    }
-  }
-
-  @Override
-  public void onInstancePause() {
-    if (instanceLifecycleEventListeners != null) {
-      for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
-        listener.onInstancePause();
-      }
-    }
-  }
-
-  @Override
-  public void onInstanceDestroy() {
-    if (instanceLifecycleEventListeners != null) {
-      for (HippyInstanceLifecycleEventListener listener : instanceLifecycleEventListeners) {
-        listener.onInstanceDestroy();
-      }
-    }
-  }
-
-  @Override
-  public void onRuntimeInitialized(long runtimeId) {
-    delegate = new NativeRendererDelegate(this, runtimeId);
-  }
-
-  @Override
-  public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
-    if (instanceLifecycleEventListeners == null) {
-      instanceLifecycleEventListeners = new CopyOnWriteArrayList<>();
-    }
-    instanceLifecycleEventListeners.add(listener);
-  }
-
-  @Override
-  public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
-    if (instanceLifecycleEventListeners != null) {
-      instanceLifecycleEventListeners.remove(listener);
-    }
-  }
-
-  @Override
-  public void createNode(int rootID, HippyArray hippyArray) {
-    if (hippyArray != null && rootView != null && domManager != null) {
-      int len = hippyArray.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodeArray = hippyArray.getMap(i);
-        int tag = ((Number)nodeArray.get(ID)).intValue();
-        int pTag = ((Number)nodeArray.get(PID)).intValue();
-        int index = ((Number)nodeArray.get(INDEX)).intValue();
-        if (tag < 0 || pTag < 0 || index < 0) {
-          throw new IllegalArgumentException(
-                  "createNode invalid value: " + "id=" + tag + ", pId=" + pTag + ", index=" + index);
+    @Override
+    public void updateLayout(@NonNull ArrayList<Object> nodeList) throws NativeRenderException {
+        for (int i = 0; i < nodeList.size(); i++) {
+            Object object = nodeList.get(i);
+            if (!(object instanceof HashMap)) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateLayout: invalid node object");
+            }
+            HashMap<String, Object> layoutInfo = (HashMap) object;
+            int nodeId;
+            float layoutLeft;
+            float layoutTop;
+            float layoutWidth;
+            float layoutHeight;
+            try {
+                nodeId = ((Number) Objects.requireNonNull(layoutInfo.get(NODE_ID))).intValue();
+                layoutLeft = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_LEFT)))
+                        .floatValue();
+                layoutTop = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_TOP)))
+                        .floatValue();
+                layoutWidth = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_WIDTH)))
+                        .floatValue();
+                layoutHeight = ((Number) Objects.requireNonNull(layoutInfo.get(LAYOUT_HEIGHT)))
+                        .floatValue();
+            } catch (NullPointerException e) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
+            }
+            // The node id should not be negative number.
+            if (nodeId < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateLayout: invalid negative id=" + nodeId);
+            }
+            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+                // If the node has a virtual parent, no corresponding render node exists,
+                // so don't add update task to the ui task queue.
+                continue;
+            }
+            final int id = nodeId;
+            final int left = Math.round(layoutLeft);
+            final int top = Math.round(layoutTop);
+            final int width = Math.round(layoutWidth);
+            final int height = Math.round(layoutHeight);
+            final TextRenderSupply supply = mVirtualNodeManager
+                    .updateLayout(nodeId, layoutWidth, layoutInfo);
+            try {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        if (supply != null) {
+                            mRenderManager.updateExtra(id, supply);
+                        }
+                        mRenderManager.updateLayout(id, left, top, width, height);
+                    }
+                });
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
+            }
         }
-
-        String className = (String) nodeArray.get(NAME);
-        String tagName = (String) nodeArray.get(TAG_NAME);
-        HippyMap props = (HippyMap) nodeArray.get(PROPS);
-        domManager.createNode(rootView, rootID, tag, pTag, index, className, tagName, props);
-      }
+        executeUIOperation();
     }
-  }
 
-  @Override
-  public void updateNode(int rootID, HippyArray updateArray) {
-    if (updateArray != null && updateArray.size() > 0 && rootView != null
-            && domManager != null) {
-      int len = updateArray.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodemap = updateArray.getMap(i);
-        int id = ((Number)nodemap.get(ID)).intValue();
+    @Override
+    public void updateEventListener(@NonNull ArrayList<Object> eventList)
+            throws NativeRenderException {
+        for (int i = 0; i < eventList.size(); i++) {
+            Object object = eventList.get(i);
+            if (!(object instanceof HashMap)) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateEventListener: invalid event object");
+            }
+            HashMap<String, Object> events = (HashMap) object;
+            HashMap<String, Object> eventProps;
+            int nodeId;
+            try {
+                nodeId = ((Number) Objects.requireNonNull(events.get(NODE_ID))).intValue();
+                eventProps = (HashMap) Objects.requireNonNull(events.get(NODE_PROPS));
+            } catch (NullPointerException e) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR, e);
+            }
+            // The node id should not be negative number.
+            if (nodeId < 0) {
+                throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                        TAG + ": updateEventListener: invalid negative id=" + nodeId);
+            }
+            boolean hasUpdate = mVirtualNodeManager.updateEventListener(nodeId, eventProps);
+            if (hasUpdate) {
+                // Virtual node gesture event listener add by itself, no need to
+                // update render node.
+                continue;
+            }
+            final int id = nodeId;
+            final HashMap<String, Object> props = eventProps;
+            try {
+                // It is generally preferable to use add here, just focus the exception
+                // when add failed, don't need to handle the return value.
+                mUITaskQueue.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.updateEventListener(id, props);
+                    }
+                });
+            } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+                throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+            } catch (IllegalStateException e) {
+                // If the element cannot be added at this time due to capacity restrictions,
+                // the main thread may blocked, serious error!!!
+                mUITaskQueue.clear();
+                throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
+            }
+        }
+        executeUIOperation();
+    }
+
+    @Override
+    public long measure(int id, float width, int widthMode, float height, int heightMode) {
+        try {
+            FlexMeasureMode flexMeasureMode = FlexMeasureMode.fromInt(widthMode);
+            return mVirtualNodeManager.measure(id, width, flexMeasureMode);
+        } catch (NativeRenderException e) {
+            handleRenderException(e);
+        }
+        return FlexOutput.make(width, height);
+    }
+
+    @Override
+    public void callUIFunction(final int id, final String functionName,
+            @NonNull final ArrayList<Object> params) throws NativeRenderException {
+        // The node id should not be negative number.
         if (id < 0) {
-          throw new IllegalArgumentException("updateNode invalid value: " + "id=" + id);
+            throw new NativeRenderException(INVALID_NODE_DATA_ERR,
+                    TAG + ": callUIFunction: invalid negative id=" + id);
         }
-        HippyMap props = (HippyMap) nodemap.get(PROPS);
-        domManager.updateNode(id, props, rootView);
-      }
-    }
-  }
-
-  @Override
-  public void deleteNode(int rootId, HippyArray delete) {
-    if (delete != null && delete.size() > 0 && domManager != null) {
-      int len = delete.size();
-      for (int i = 0; i < len; i++) {
-        HippyMap nodemap = delete.getMap(i);
-        int id = ((Number)nodemap.get(ID)).intValue();
-        if (id < 0) {
-          throw new IllegalArgumentException("deleteNode invalid value: " + "id=" + id);
+        final UIPromise promise = new UIPromise(functionName, id,
+                mRenderProvider.getInstanceId());
+        try {
+            // It is generally preferable to use add here, just focus the exception
+            // when add failed, don't need to handle the return value.
+            mUITaskQueue.add(new UITaskExecutor() {
+                @Override
+                public void exec() {
+                    mRenderManager.dispatchUIFunction(id, functionName, params, promise);
+                }
+            });
+        } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+            throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+        } catch (IllegalStateException e) {
+            // If the element cannot be added at this time due to capacity restrictions,
+            // the main thread may blocked, serious error!!!
+            mUITaskQueue.clear();
+            throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
         }
-        domManager.deleteNode(id);
-      }
     }
-  }
 
-  @Override
-  public void callUIFunction(HippyArray hippyArray, Promise promise) {
-    if (hippyArray != null && hippyArray.size() > 0 && domManager != null) {
-      int id = hippyArray.getInt(0);
-      String functionName = hippyArray.getString(1);
-      HippyArray array = hippyArray.getArray(2);
-      domManager.dispatchUIFunction(id, functionName, array, promise);
+    @Override
+    public void doPromiseCallBack(int result, String functionName, int nodeId, Object params) {
+        if (mRenderProvider != null) {
+            mRenderProvider.doPromiseCallBack(result, functionName, nodeId, params);
+        }
     }
-  }
 
-  @Override
-  public void measureInWindow(int id, Promise promise) {
-    if (domManager != null) {
-      domManager.measureInWindow(id, promise);
+    @Override
+    public void endBatch() {
+        try {
+            // It is generally preferable to use add here, just focus the exception
+            // when add failed, don't need to handle the return value.
+            mUITaskQueue.add(new UITaskExecutor() {
+                @Override
+                public void exec() {
+                    mRenderManager.batch();
+                }
+            });
+            executeUIOperation();
+        } catch (ClassCastException | NullPointerException | IllegalArgumentException e) {
+            throw new NativeRenderException(UI_TASK_QUEUE_ADD_ERR, e);
+        } catch (IllegalStateException e) {
+            // If the element cannot be added at this time due to capacity restrictions,
+            // the main thread may blocked, serious error!!!
+            mUITaskQueue.clear();
+            throw new NativeRenderException(UI_TASK_QUEUE_UNAVAILABLE_ERR, e);
+        }
     }
-  }
 
-  @Override
-  public void startBatch() {
-    if (domManager != null) {
-      domManager.renderBatchStart();
+    public void reportException(Exception exception) {
+        if (mFrameworkProxy != null) {
+            mFrameworkProxy.handleNativeException(exception, true);
+        }
     }
-  }
 
-  @Override
-  public void endBatch() {
-    if (domManager != null) {
-      domManager.renderBatchEnd();
+    private boolean checkJSFrameworkProxy() {
+        return mFrameworkProxy instanceof JSFrameworkProxy;
     }
-  }
-
-  @Override
-  public void createNode(HippyArray hippyArray) {
-
-  }
-
-  @Override
-  public void updateNode(HippyArray updateArray) {
-
-  }
-
-  @Override
-  public void deleteNode(HippyArray deleteArray) {
-
-  }
-
-  public ThreadExecutor getJSEngineThreadExecutor() {
-    if (!checkJSFrameworkProxy()) {
-      return null;
-    }
-    return ((IJSFrameworkProxy)frameworkProxy).getJSEngineThreadExecutor();
-  }
-
-  private boolean checkJSFrameworkProxy() {
-    if (!(frameworkProxy instanceof IJSFrameworkProxy)) {
-      return false;
-    }
-    return true;
-  }
 }

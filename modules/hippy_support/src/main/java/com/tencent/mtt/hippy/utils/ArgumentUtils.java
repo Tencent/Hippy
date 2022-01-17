@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 
+import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -353,7 +354,7 @@ public class ArgumentUtils {
     }
 
     if (paramCls == boolean.class || paramCls == Boolean.class || paramCls == HippyArray.class
-        || paramCls == HippyMap.class) {
+        || paramCls == HippyMap.class || paramCls == HashMap.class || paramCls == ArrayList.class) {
       return value;
     }
 

@@ -15,11 +15,9 @@
  */
 package com.tencent.mtt.hippy;
 
-import com.tencent.hippy.support.HippyBaseController;
 import com.tencent.mtt.hippy.common.Provider;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
-import com.tencent.mtt.hippy.uimanager.HippyViewController;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +29,4 @@ public interface HippyAPIProvider {
       HippyEngineContext context);
 
   List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules();
-
-  List<Class<? extends HippyBaseController>> getControllers();
 }

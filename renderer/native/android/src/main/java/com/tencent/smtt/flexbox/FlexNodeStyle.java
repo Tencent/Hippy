@@ -23,6 +23,7 @@ import com.tencent.mtt.hippy.dom.flex.FlexJustify;
 import com.tencent.mtt.hippy.dom.flex.FlexOverflow;
 import com.tencent.mtt.hippy.dom.flex.FlexPositionType;
 import com.tencent.mtt.hippy.dom.flex.FlexWrap;
+import com.tencent.renderer.annotation.CalledByNative;
 
 @SuppressWarnings("all")
 public class FlexNodeStyle {

@@ -44,18 +44,24 @@ CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 @implementation HippyShadowText
 // MTTlayout
 HPSize textMeasureFunc(
-    HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext) {
-    hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
-    NSDictionary *props = unorderedMapDomValueToDictionary(pNode->GetExtStyle());
-    NSDictionary *styleProps = unorderedMapDomValueToDictionary(pNode->GetStyle());
-    NSNumber *fontSize = styleProps[@"fontSize"];
-    NSString *text = props[@"text"];
-    UIFont *font = [UIFont systemFontOfSize:[fontSize floatValue]];
-    CGSize size = [text sizeWithFont:font];
-    HPSize retSize;
-    retSize.width = HippyCeilPixelValue(size.width);
-    retSize.height = HippyCeilPixelValue(size.height);
-    return retSize;
+    HippyShadowText *shadowText, HPNodeRef node, float width,
+                       MeasureMode widthMeasureMode, float height,
+                       MeasureMode heightMeasureMode, void *layoutContext) {
+//    hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
+    std::shared_ptr<hippy::DomNode> domNode = [shadowText domNode].lock();
+    if (domNode) {
+        NSTextStorage *textStorage = [shadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
+        [shadowText calculateTextFrame:textStorage];
+        NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
+        NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
+        CGSize size = [layoutManager usedRectForTextContainer:textContainer].size;
+
+        HPSize retSize;
+        retSize.width = HippyCeilPixelValue(size.width);
+        retSize.height = HippyCeilPixelValue(size.height);
+        return retSize;
+    }
+    return HPSize{0, 0};
 }
 
 static void resetFontAttribute(NSTextStorage *textStorage) {
@@ -186,6 +192,50 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 //    [super applyLayoutNode:node viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
 //    [self dirtyPropagation];
 //}
+- (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
+    @try {
+        NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:MeasureModeExactly];
+        NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
+        NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
+        NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
+        NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
+        [layoutManager.textStorage enumerateAttribute:HippyShadowViewAttributeName inRange:characterRange options:0 usingBlock:^(
+            HippyShadowView *child, NSRange range, __unused BOOL *_) {
+            if (child) {
+                auto domNode = child.domNode.lock();
+                float width = 0, height = 0;
+                if (domNode) {
+                    std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+                        std::static_pointer_cast<hippy::TaitankLayoutNode>(domNode->GetLayoutNode());
+                    width = domNode->GetLayoutResult().width;
+                    height = domNode->GetLayoutResult().height;
+                }
+                if (isnan(width) || isnan(height)) {
+                    HippyLogError(@"Views nested within a <Text> must have a width and height");
+                }
+
+                /**
+                 * For RichText, a view, which is top aligment by default, should be center alignment to text,
+                 */
+
+                CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+                CGRect usedOriginRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location effectiveRange:nil];
+                CGFloat lineHeight = usedOriginRect.size.height;
+                CGFloat Roundedheight = HippyRoundPixelValue(height);
+                CGFloat originY = usedOriginRect.origin.y + (lineHeight - Roundedheight) / 2;
+                CGRect childFrame = {
+                    { HippyRoundPixelValue(glyphRect.origin.x), HippyRoundPixelValue(originY) },
+                    { HippyRoundPixelValue(width), Roundedheight }
+                };
+                child.frame = childFrame;
+            }
+        }];
+        [super collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResult];
+
+    } @catch (NSException *exception) {
+        
+    }
+}
 
 // MTTlayout
 //- (void)applyLayoutToChildren:(__unused HPNodeRef)node
@@ -278,6 +328,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 - (void)dirtyText {
     [super dirtyText];
     _cachedTextStorage = nil;
+    std::shared_ptr<hippy::DomNode> node = self.domNode.lock();
+    if (node) {
+        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
+        layoutNode->MarkDirty();
+    }
 }
 
 - (void)recomputeText {
@@ -350,11 +406,15 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
             HPDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
             nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
-//            HPNodeDoLayout(child.nodeRef, NAN, NAN, nodeDirection);
-            float width = child.domNode->GetLayoutResult().width;
-            //HPNodeLayoutGetWidth(child.nodeRef);
-            float height = child.domNode->GetLayoutResult().height;
-//            HPNodeLayoutGetHeight(child.nodeRef);
+            auto domNode = child.domNode.lock();
+            float width = 0, height = 0;
+            if (domNode) {
+                std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+                    std::static_pointer_cast<hippy::TaitankLayoutNode>(domNode->GetLayoutNode());
+                domNode->DoLayout();
+                width = domNode->GetLayoutResult().width;
+                height = domNode->GetLayoutResult().height;
+            }
             if (isnan(width) || isnan(height)) {
                 HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
@@ -679,6 +739,23 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         newProps = dic;
     }
     return newProps;
+}
+
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
+    [super setDomNode:domNode];
+    std::shared_ptr<hippy::DomNode> node = domNode.lock();
+    if (node) {
+        hippy::TaitankMeasureFunction measureFunc =
+            [shadow_view = self](HPNodeRef node, float width,
+                                 MeasureMode widthMeasureMode, float height,
+                                 MeasureMode heightMeasureMode, void *layoutContext){
+            return textMeasureFunc(shadow_view, node, width, widthMeasureMode,
+                                   height, heightMeasureMode, layoutContext);
+        };
+        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
+        layoutNode->SetMeasureFunction(measureFunc);
+    }
 }
 
 - (void)setText:(NSString *)text {

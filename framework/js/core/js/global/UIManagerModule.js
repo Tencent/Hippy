@@ -3,136 +3,126 @@
 
 const UIManagerModule = internalBinding('UIManagerModule');
 
-// 兼容 hippy2.0，hippy3.0 放量一段时间后可删除, __标识 hippy 保留方法
-global.__onClick = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onClick;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
+const gestureKeyMap = {
+  onClick: 'click',
+  onLongClick: 'longclick',
+  // onPressIn: 'touchstart', // normalization
+  // onPressOut: 'touchend', // normalization
+  onPressIn: 'pressin',
+  onPressOut: 'pressout',
+  onTouchDown: 'touchstart', // compatible with w3c standard name touchstart
+  onTouchStart: 'touchstart',
+  onTouchEnd: 'touchend',
+  onTouchMove: 'touchmove',
+  onTouchCancel: 'touchcancel',
 };
 
-global.__onLongClick = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onLongClick;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
+const kEventsListsKey = '__events';
 
-global.__onTouchStart = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onTouchStart;
-    if (targetMethod) {
-      targetMethod(param);
+// compatible with hippy2.0
+function HandleEventListener(node) {
+  if (!node.props) {
+    return;
+  }
+  if (typeof node[kEventsListsKey] === 'undefined') {
+    // eslint-disable-next-line no-param-reassign
+    node[kEventsListsKey] = [];
+  }
+  for (const originalKey of Object.keys(node.props)) {
+    const value = node.props[originalKey];
+    if (/^__bind__.+/g.test(originalKey)) {
+      const key = originalKey.replace(/^__bind__+/g, '');
+      const { id } = node;
+      const standardEventName = gestureKeyMap[key];
+      if (standardEventName) {
+        if (value === false) {
+          global.ConsoleModule.debug(`RemoveEventListener gestureKeyMap id = ${id}, key = ${key}`);
+          node[kEventsListsKey].push({
+            name: standardEventName,
+            cb: null,
+          });
+        } else if (value === true) {
+          global.ConsoleModule.debug(`AddEventListener gestureKeyMap id = ${id}, key = ${key}`);
+          const {
+            EventDispatcher: {
+              receiveNativeGesture = null,
+            },
+          } = __GLOBAL__.jsModuleList;
+          node[kEventsListsKey].push({
+            name: standardEventName,
+            cb(param) {
+              global.ConsoleModule.debug(`param = ${param}`);
+              global.ConsoleModule.debug(`id = ${id}`);
+              if (receiveNativeGesture) {
+                const event = {
+                  id, name: key,
+                };
+                Object.assign(event, param);
+                receiveNativeGesture(event);
+              }
+            },
+          });
+        }
+      } else {
+        const normalEventName = key.replace(/^(on)?/g, '').toLocaleLowerCase();
+        if (value === false) {
+          global.ConsoleModule.debug(`RemoveRenderListener id = ${id}, key = ${key}`);
+          node[kEventsListsKey].push({
+            name: normalEventName,
+            cb: null,
+          });
+        } else if (value === true) {
+          global.ConsoleModule.debug(`AddRenderListener id = ${id}, key = ${key}, name = ${normalEventName}`);
+          const {
+            EventDispatcher: {
+              receiveUIComponentEvent = null,
+            },
+          } = __GLOBAL__.jsModuleList;
+          node[kEventsListsKey].push({
+            name: normalEventName,
+            cb(param) {
+              if (receiveUIComponentEvent) {
+                const event = [id, key, param];
+                receiveUIComponentEvent(event);
+              }
+            },
+          });
+        }
+      }
+      // eslint-disable-next-line no-param-reassign
+      delete node.props[originalKey];
     }
   }
-};
-
-global.__onTouchMove = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onTouchMove;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onTouchEnd = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onTouchEnd;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onTouchCancel = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveNativeGesture;
-  if (targetModule) {
-    const targetMethod = targetModule.onTouchCancel;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onAttachedToWindow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveUIComponentEvent;
-  if (targetModule) {
-    const targetMethod = targetModule.onAttachedToWindow;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onDetachedFromWindow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveUIComponentEvent;
-  if (targetModule) {
-    const targetMethod = targetModule.onDetachedFromWindow;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onShow = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveUIComponentEvent;
-  if (targetModule) {
-    const targetMethod = targetModule.onShow;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
-
-global.__onDismiss = (param) => {
-  const targetModule = __GLOBAL__.jsModuleList.receiveUIComponentEvent;
-  if (targetModule) {
-    const targetMethod = targetModule.onDismiss;
-    if (targetMethod) {
-      targetMethod(param);
-    }
-  }
-};
+}
 
 Hippy.document = {
   createNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`createNode queue = ${JSON.stringify(queue)}`);
+    queue.forEach(each => HandleEventListener(each));
     UIManagerModule.CreateNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'createNode', rootViewId, queue);
   },
   updateNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`updateNode queue = ${JSON.stringify(queue)}`);
+    queue.forEach(each => HandleEventListener(each));
     UIManagerModule.UpdateNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'updateNode', rootViewId, queue);
   },
   deleteNode(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`deleteNode queue = ${JSON.stringify(queue)}`);
+    // queue.forEach(each => HandleEventListener(each));
     UIManagerModule.DeleteNodes(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, queue);
   },
   flushBatch(rootViewId, queue) {
     global.ConsoleModule.debug(`rootViewId = ${rootViewId}`);
     global.ConsoleModule.debug(`flushBatch queue = ${JSON.stringify(queue)}`);
+    queue.forEach(each => HandleEventListener(each));
     UIManagerModule.FlushBatch(rootViewId, queue);
     // Hippy.bridge.callNative('UIManagerModule', 'flushBatch', rootViewId, queue);
-  },
-  startBatch(renderId) {
-    global.ConsoleModule.debug(`global renderId = ${renderId}`);
-    UIManagerModule.StartBatch((`${renderId}`));
-    // Hippy.bridge.callNative('UIManagerModule', 'startBatch', (`${renderId}`));
   },
   endBatch(renderId) {
     global.ConsoleModule.debug(`endBatch renderId = ${renderId}`);
@@ -142,6 +132,10 @@ Hippy.document = {
     if (typeof flushQueueImmediate === 'function') {
       flushQueueImmediate();
     }
+  },
+  callUIFunction(id, name, param, cb) {
+    global.ConsoleModule.debug(`callUIFunction id = ${id}, name = ${name}, param = ${JSON.stringify(param)}`);
+    UIManagerModule.CallUIFunction(id, name, param, cb);
   },
   sendRenderError(error) {
     if (error) {

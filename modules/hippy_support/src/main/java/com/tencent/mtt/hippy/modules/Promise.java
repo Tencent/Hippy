@@ -15,30 +15,12 @@
  */
 package com.tencent.mtt.hippy.modules;
 
-@SuppressWarnings({"unused"})
 public interface Promise {
-  enum BridgeTransferType {
-    BRIDGE_TRANSFER_TYPE_NORMAL(0),
-    BRIDGE_TRANSFER_TYPE_NIO(1);
 
-    private final int iValue;
+    int PROMISE_CODE_RESOLVE = 0;
+    int PROMISE_CODE_REJECT = 2;
 
-    BridgeTransferType(int value) {
-      iValue = value;
-    }
+    void resolve(Object value);
 
-    public int value() {
-      return iValue;
-    }
-  }
-
-  void resolve(Object value);
-
-  void reject(Object error);
-
-  boolean isCallback();
-
-  String getCallId();
-
-  void setTransferType(BridgeTransferType type);
+    void reject(Object error);
 }

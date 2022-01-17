@@ -13,327 +13,232 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import com.tencent.mtt.hippy.common.HippyMap;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
-@SuppressWarnings({"deprecation", "unused"})
+import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_CLICK;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_LONG_CLICK;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_PRESS_IN;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_PRESS_OUT;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_TOUCH_CANCEL;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_TOUCH_DOWN;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_TOUCH_END;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_TOUCH_MOVE;
+
 public class NativeGestureDispatcher implements NativeGestureProcessor.Callback {
 
-  private static final String TAG = "NativeGestureDispatcher";
-  private static final String KEY_EVENT_NAME = "name";
-  private static final String KEY_TAG_ID = "id";
-  private static final String KEY_PAGE_X = "page_x";
-  private static final String KEY_PAGE_Y = "page_y";
-  private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
-
-  private static final View.OnClickListener mOnClickListener = new View.OnClickListener() {
-    @Override
-    public void onClick(final View view) {
-      if (view == null) {
-        return;
-      }
-
-      final Context context = view.getContext();
-      if (context instanceof NativeRendererContext) {
-        view.postDelayed(new Runnable() {
-          @Override
-          public void run() {
-            int tagId = view.getId();
-            int instanceId = ((NativeRendererContext) context).getInstanceId();
-            INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-            handleClick(view, nativeRenderer, tagId, false);
-          }
-        }, TAP_TIMEOUT);
-      }
-
-    }
-  };
-  private static final View.OnLongClickListener mOnLongClickListener = new View.OnLongClickListener() {
-    @Override
-    public boolean onLongClick(final View view) {
-      if (view == null) {
-        return false;
-      }
-
-      final Context context = view.getContext();
-      if (context instanceof NativeRendererContext) {
-        view.postDelayed(new Runnable() {
-          @Override
-          public void run() {
-            int tagId = view.getId();
-            int instanceId = ((NativeRendererContext)context).getInstanceId();
-            INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-            handleLongClick(nativeRenderer, tagId);
-          }
-        }, TAP_TIMEOUT);
-      }
-      return true;
-    }
-  };
-
-  private static final View.OnAttachStateChangeListener mOnAttachedToWindowListener = new View.OnAttachStateChangeListener() {
-
-    @Override
-    public void onViewAttachedToWindow(View view) {
-      if (view == null) {
-        return;
-      }
-
-      final Context context = view.getContext();
-      if (context instanceof NativeRendererContext) {
-        int tagId = view.getId();
-        int instanceId = ((NativeRendererContext)context).getInstanceId();
-        INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-        handleAttachedToWindow(nativeRenderer, tagId);
-      }
-    }
-
-    @Override
-    public void onViewDetachedFromWindow(View view) {
-
-    }
-  };
-
-  private static final View.OnAttachStateChangeListener mOnDetachedFromWindowListener = new View.OnAttachStateChangeListener() {
-
-    @Override
-    public void onViewAttachedToWindow(View view) {
-
-    }
-
-    @Override
-    public void onViewDetachedFromWindow(View view) {
-      if (view == null) {
-        return;
-      }
-
-      final Context context = view.getContext();
-      if (context instanceof NativeRendererContext) {
-        int tagId = view.getId();
-        int instanceId = ((NativeRendererContext)context).getInstanceId();
-        INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-        handleDetachedFromWindow(nativeRenderer, tagId);
-      }
-    }
-  };
-
-  private final View mTargetView;
-  private HashSet<String> mGestureTypes = null;
-  private NativeGestureProcessor mGestureProcessor;
-  private INativeRenderer nativeRenderer;
-
-  public NativeGestureDispatcher(View view) {
-    mTargetView = view;
-    if (view != null && view.getContext() instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)view.getContext()).getInstanceId();
-      nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-    }
-  }
-
-  public static View.OnClickListener getOnClickListener() {
-    return mOnClickListener;
-  }
-
-  public static View.OnLongClickListener getOnLongClickListener() {
-    return mOnLongClickListener;
-  }
-
-  public static View.OnAttachStateChangeListener getOnAttachedToWindowListener() {
-    return mOnAttachedToWindowListener;
-  }
-
-  public static View.OnAttachStateChangeListener getOnDetachedFromWindowListener() {
-    return mOnDetachedFromWindowListener;
-  }
-
-  public static void handleClick(View target, INativeRenderer nativeRenderer, int tagId,
-      boolean isCustomEvent) {
-    if (nativeRenderer != null) {
-      HippyMap params = new HippyMap();
-      params.pushString(KEY_EVENT_NAME, NodeProps.ON_CLICK);
-      params.pushInt(KEY_TAG_ID, tagId);
-      nativeRenderer.dispatchNativeGestureEvent(params);
-    }
-  }
-
-  public static void handleLongClick(INativeRenderer nativeRenderer, int tagId) {
-    if (nativeRenderer != null) {
-      HippyMap params = new HippyMap();
-      params.pushString(KEY_EVENT_NAME, NodeProps.ON_LONG_CLICK);
-      params.pushInt(KEY_TAG_ID, tagId);
-      nativeRenderer.dispatchNativeGestureEvent(params);
-    }
-  }
-
-  public static void handleAttachedToWindow(INativeRenderer nativeRenderer, int tagId) {
-    if (nativeRenderer != null) {
-      nativeRenderer.dispatchUIComponentEvent(tagId, NodeProps.ON_ATTACHED_TO_WINDOW, null);
-    }
-  }
-
-  public static void handleDetachedFromWindow(INativeRenderer nativeRenderer, int tagId) {
-    if (nativeRenderer != null) {
-      nativeRenderer.dispatchUIComponentEvent(tagId, NodeProps.ON_DETACHED_FROM_WINDOW, null);
-    }
-  }
-
-  public static void handlePressIn(INativeRenderer nativeRenderer, int tagId) {
-    if (nativeRenderer != null) {
-      HippyMap params = new HippyMap();
-      params.pushString(KEY_EVENT_NAME, NodeProps.ON_PRESS_IN);
-      params.pushInt(KEY_TAG_ID, tagId);
-      nativeRenderer.dispatchNativeGestureEvent(params);
-    }
-  }
-
-  public static void handlePressOut(INativeRenderer nativeRenderer, int tagId) {
-    if (nativeRenderer != null) {
-      HippyMap params = new HippyMap();
-      params.pushString(KEY_EVENT_NAME, NodeProps.ON_PRESS_OUT);
-      params.pushInt(KEY_TAG_ID, tagId);
-      nativeRenderer.dispatchNativeGestureEvent(params);
-    }
-  }
-
-  public static void handleTouchDown(INativeRenderer nativeRenderer, int mTagId, float x, float y,
-      int viewId) {
-    if (nativeRenderer != null) {
-      int[] viewCoords = new int[2];
-      getLocationInWindow(nativeRenderer, viewId, viewCoords);
-      HippyMap params = new HippyMap();
-      params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_DOWN);
-      params.pushInt(KEY_TAG_ID, mTagId);
-      params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + x));
-      params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + y));
-      nativeRenderer.dispatchNativeGestureEvent(params);
-    }
-  }
-
-  public static void handleTouchMove(INativeRenderer nativeRenderer, int mTagId, float x, float y,
-      int viewId) {
-    if (nativeRenderer != null) {
-      int[] viewCoords = new int[2];
-      getLocationInWindow(nativeRenderer, viewId, viewCoords);
-      HippyMap params = new HippyMap();
-      params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_MOVE);
-      params.pushInt(KEY_TAG_ID, mTagId);
-      params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + x));
-      params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + y));
-      nativeRenderer.dispatchNativeGestureEvent(params);
-    }
-  }
-
-  public static void handleTouchEnd(INativeRenderer nativeRenderer, int mTagId, float x, float y,
-      int viewId) {
-    if (nativeRenderer != null) {
-      int[] viewCoords = new int[2];
-      getLocationInWindow(nativeRenderer, viewId, viewCoords);
-      HippyMap params = new HippyMap();
-      params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_END);
-      params.pushInt(KEY_TAG_ID, mTagId);
-      params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + x));
-      params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + y));
-      nativeRenderer.dispatchNativeGestureEvent(params);
-    }
-  }
-
-  public static void handleTouchCancel(INativeRenderer nativeRenderer, int mTagId, float x, float y,
-      int viewId) {
-    if (nativeRenderer != null) {
-      int[] viewCoords = new int[2];
-      getLocationInWindow(nativeRenderer, viewId, viewCoords);
-      HippyMap params = new HippyMap();
-      params.pushString(KEY_EVENT_NAME, NodeProps.ON_TOUCH_CANCEL);
-      params.pushInt(KEY_TAG_ID, mTagId);
-      params.pushDouble(KEY_PAGE_X, PixelUtil.px2dp(viewCoords[0] + x));
-      params.pushDouble(KEY_PAGE_Y, PixelUtil.px2dp(viewCoords[1] + y));
-      nativeRenderer.dispatchNativeGestureEvent(params);
-    }
-  }
-
-  private static void getLocationInWindow(INativeRenderer nativeRenderer, int id, int[] viewCoords) {
-    if (id >= 0) {
-      View view = nativeRenderer.getRenderManager().getControllerManager().findView(id);
-      if (view != null) {
-        view.getLocationInWindow(viewCoords);
-      }
-    }
-  }
-
-  public boolean handleTouchEvent(MotionEvent event) {
-    if (mGestureProcessor == null) {
-      mGestureProcessor = new NativeGestureProcessor(this);
-    }
-    return mGestureProcessor.onTouchEvent(event);
-  }
-
-  public void addGestureType(String type) {
-    if (mGestureTypes == null) {
-      mGestureTypes = new HashSet<>();
-    }
-    mGestureTypes.add(type);
-  }
-
-  public void removeGestureType(String type) {
-    if (mGestureTypes != null) {
-      mGestureTypes.remove(type);
-    }
-  }
-
-  @Override
-  public boolean needHandle(String type) {
-    if (mGestureTypes != null) {
-
-      boolean result = mGestureTypes.contains(type);
-      if (!result && !TextUtils.equals(type, NodeProps.ON_INTERCEPT_TOUCH_EVENT) && !TextUtils
-          .equals(type, NodeProps.ON_INTERCEPT_PULL_UP_EVENT)) {
-        if (needHandle(NodeProps.ON_INTERCEPT_TOUCH_EVENT) || needHandle(
-            NodeProps.ON_INTERCEPT_PULL_UP_EVENT)) {
-          return true;
+    private static final String TAG = "NativeGestureDispatcher";
+    private static final String KEY_EVENT_NAME = "name";
+    private static final String KEY_TAG_ID = "id";
+    private static final String KEY_PAGE_X = "page_x";
+    private static final String KEY_PAGE_Y = "page_y";
+    private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
+    private final View mTargetView;
+    private HashSet<String> mGestureTypes = null;
+    private NativeGestureProcessor mGestureProcessor;
+    private @Nullable
+    final NativeRender mNativeRenderer;
+    private static final View.OnClickListener sOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(final View view) {
+            if (view == null) {
+                return;
+            }
+            final NativeRender nativeRenderer = NativeRendererManager
+                    .getNativeRenderer(view.getContext());
+            if (nativeRenderer == null) {
+                return;
+            }
+            view.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    handleClickEvent(nativeRenderer, view.getId(), ON_CLICK);
+                }
+            }, TAP_TIMEOUT);
         }
-      }
-      return result;
-    }
-    return false;
-  }
+    };
+    private static final View.OnLongClickListener sOnLongClickListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(final View view) {
+            if (view == null) {
+                return false;
+            }
+            final NativeRender nativeRenderer = NativeRendererManager
+                    .getNativeRenderer(view.getContext());
+            if (nativeRenderer == null) {
+                return false;
+            }
+            view.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    handleClickEvent(nativeRenderer, view.getId(), ON_LONG_CLICK);
+                }
+            }, TAP_TIMEOUT);
+            return true;
+        }
+    };
+    private static final View.OnAttachStateChangeListener sOnAttachedToWindowListener = new View.OnAttachStateChangeListener() {
+        @Override
+        public void onViewAttachedToWindow(View view) {
+            if (view == null) {
+                return;
+            }
+            final NativeRender nativeRenderer = NativeRendererManager
+                    .getNativeRenderer(view.getContext());
+            if (nativeRenderer == null) {
+                return;
+            }
+            handleAttachedToWindow(nativeRenderer, view.getId());
+        }
 
-  @Override
-  public void handle(String type, float x, float y) {
-    if (mTargetView == null) {
-      LogUtils.e("NativeGestureDispatcher", "handle!!! but view is null!!!!");
-      return;
+        @Override
+        public void onViewDetachedFromWindow(View view) {
+        }
+    };
+    private static final View.OnAttachStateChangeListener sOnDetachedFromWindowListener = new View.OnAttachStateChangeListener() {
+        @Override
+        public void onViewAttachedToWindow(View view) {
+        }
+
+        @Override
+        public void onViewDetachedFromWindow(View view) {
+            if (view == null) {
+                return;
+            }
+            final NativeRender nativeRenderer = NativeRendererManager
+                    .getNativeRenderer(view.getContext());
+            if (nativeRenderer == null) {
+                return;
+            }
+            handleDetachedFromWindow(nativeRenderer, view.getId());
+        }
+    };
+
+    public static View.OnClickListener getOnClickListener() {
+        return sOnClickListener;
     }
 
-    if (TextUtils.equals(type, NodeProps.ON_PRESS_IN)) {
-      handlePressIn(nativeRenderer, mTargetView.getId());
-    } else if (TextUtils.equals(type, NodeProps.ON_PRESS_OUT)) {
-      handlePressOut(nativeRenderer, mTargetView.getId());
-    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_DOWN)) {
-      NativeGestureDispatcher
-          .handleTouchDown(nativeRenderer, mTargetView.getId(), x, y, mTargetView.getId());
-    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_MOVE)) {
-      NativeGestureDispatcher
-          .handleTouchMove(nativeRenderer, mTargetView.getId(), x, y, mTargetView.getId());
-    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_END)) {
-      NativeGestureDispatcher
-          .handleTouchEnd(nativeRenderer, mTargetView.getId(), x, y, mTargetView.getId());
-    } else if (TextUtils.equals(type, NodeProps.ON_TOUCH_CANCEL)) {
-      NativeGestureDispatcher
-          .handleTouchCancel(nativeRenderer, mTargetView.getId(), x, y, mTargetView.getId());
+    public static View.OnLongClickListener getOnLongClickListener() {
+        return sOnLongClickListener;
     }
-  }
+
+    public static View.OnAttachStateChangeListener getOnAttachedToWindowListener() {
+        return sOnAttachedToWindowListener;
+    }
+
+    public static View.OnAttachStateChangeListener getOnDetachedFromWindowListener() {
+        return sOnDetachedFromWindowListener;
+    }
+
+    public static void handleAttachedToWindow(@NonNull NativeRender nativeRenderer, int id) {
+        nativeRenderer.dispatchUIComponentEvent(id, NodeProps.ON_ATTACHED_TO_WINDOW, null);
+    }
+
+    public static void handleDetachedFromWindow(@NonNull NativeRender nativeRenderer, int id) {
+        nativeRenderer.dispatchUIComponentEvent(id, NodeProps.ON_DETACHED_FROM_WINDOW, null);
+    }
+
+    public static void handleClickEvent(@NonNull NativeRender nativeRenderer, int id,
+            @NonNull String eventType) {
+        nativeRenderer.dispatchNativeGestureEvent(id, eventType, null);
+    }
+
+    public static void handleTouchEvent(@NonNull NativeRender nativeRenderer, @NonNull View view,
+            int id,
+            float x,
+            float y, @NonNull String eventType) {
+        int[] location = new int[2];
+        try {
+            view.getLocationInWindow(location);
+        } catch (IllegalArgumentException ignored) {
+            LogUtils.e(TAG,
+                    "handleTouchEvent: getLocationInWindow exception " + ignored.getMessage());
+        }
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(KEY_PAGE_X, PixelUtil.px2dp(location[0] + x));
+        params.put(KEY_PAGE_Y, PixelUtil.px2dp(location[1] + y));
+        nativeRenderer.dispatchNativeGestureEvent(id, eventType, params);
+    }
+
+    public NativeGestureDispatcher(View view) {
+        mTargetView = view;
+        mNativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
+    }
+
+    public boolean handleTouchEvent(MotionEvent event) {
+        if (mGestureProcessor == null) {
+            mGestureProcessor = new NativeGestureProcessor(this);
+        }
+        return mGestureProcessor.onTouchEvent(event);
+    }
+
+    public void addGestureType(String type) {
+        if (mGestureTypes == null) {
+            mGestureTypes = new HashSet<>();
+        }
+        mGestureTypes.add(type);
+    }
+
+    public void removeGestureType(String type) {
+        if (mGestureTypes != null) {
+            mGestureTypes.remove(type);
+        }
+    }
+
+    @Override
+    public boolean needHandle(String type) {
+        if (mGestureTypes == null) {
+            return false;
+        }
+        boolean result = mGestureTypes.contains(type);
+        if (!result && !TextUtils.equals(type, NodeProps.ON_INTERCEPT_TOUCH_EVENT) && !TextUtils
+                .equals(type, NodeProps.ON_INTERCEPT_PULL_UP_EVENT)) {
+            if (needHandle(NodeProps.ON_INTERCEPT_TOUCH_EVENT) || needHandle(
+                    NodeProps.ON_INTERCEPT_PULL_UP_EVENT)) {
+                return true;
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void handle(String type, float x, float y) {
+        if (mTargetView == null || mNativeRenderer == null) {
+            LogUtils.e(TAG,
+                    "handle: mTargetView=" + mTargetView + ", mNativeRenderer=" + mNativeRenderer);
+            return;
+        }
+        final int id = mTargetView.getId();
+        switch (type) {
+            case ON_PRESS_IN:
+            case ON_PRESS_OUT:
+                handleClickEvent(mNativeRenderer, id, type);
+                break;
+            case ON_TOUCH_DOWN:
+            case ON_TOUCH_MOVE:
+            case ON_TOUCH_END:
+            case ON_TOUCH_CANCEL:
+                handleTouchEvent(mNativeRenderer, mTargetView, id, x, y, type);
+                break;
+            default:
+                LogUtils.e(TAG, "handle: Unknown event type=" + type);
+        }
+    }
 }

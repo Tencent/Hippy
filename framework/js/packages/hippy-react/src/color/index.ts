@@ -20,18 +20,14 @@
 
 /* eslint-disable no-mixed-operators */
 
-import Hippy from '@localTypes/hippy';
 import { Device } from '../native';
 import { warn } from '../utils';
 import baseColor from './color-parser';
 
 type Color = string | number;
 
-// eslint-disable-next-line no-underscore-dangle
-declare const __PLATFORM__: Hippy.Platform;
-
 interface ColorParserOption {
-  platform?: Hippy.Platform
+  platform?: HippyTypes.Platform
 }
 
 /**

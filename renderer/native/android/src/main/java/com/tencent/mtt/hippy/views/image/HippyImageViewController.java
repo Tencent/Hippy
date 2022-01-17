@@ -27,7 +27,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.NativeRenderContext;
 
 @SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = HippyImageViewController.CLASS_NAME)
@@ -65,7 +65,7 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
   @SuppressWarnings("unused")
   @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING)
   public void setUrl(HippyImageView hippyImageView, String url) {
-    hippyImageView.setUrl(getInnerPath((NativeRendererContext)hippyImageView.getContext(), url));
+    hippyImageView.setUrl(getInnerPath((NativeRenderContext)hippyImageView.getContext(), url));
   }
 
   @SuppressWarnings("unused")
@@ -110,7 +110,7 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
   @HippyControllerProps(name = "defaultSource", defaultType = HippyControllerProps.STRING)
   public void setDefaultSource(HippyImageView hippyImageView, String defaultSource) {
     hippyImageView.setHippyViewDefaultSource(
-        getInnerPath((NativeRendererContext)hippyImageView.getContext(), defaultSource));
+        getInnerPath((NativeRenderContext)hippyImageView.getContext(), defaultSource));
   }
 
   @SuppressWarnings("unused")

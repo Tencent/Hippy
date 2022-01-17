@@ -18,10 +18,6 @@ std::size_t std::hash<DomValue>::operator()(const DomValue& value) const noexcep
           return std::hash<int32_t>{}(value.num_.i32_);
         case DomValue::NumberType::kUInt32:
           return std::hash<uint32_t>{}(value.num_.u32_);
-        case DomValue::NumberType::kInt64:
-          return std::hash<int64_t>{}(value.num_.i64_);
-        case DomValue::NumberType::kUInt64:
-          return std::hash<uint64_t>{}(value.num_.u64_);
         case DomValue::NumberType::kDouble:
           return std::hash<double>{}(value.num_.d_);
         case DomValue::NumberType::kNaN:
@@ -71,12 +67,6 @@ DomValue::DomValue(const DomValue& source) : type_(source.type_), number_type_(s
         case DomValue::NumberType::kUInt32:
           num_.u32_ = source.num_.u32_;
           break;
-        case DomValue::NumberType::kInt64:
-          num_.i64_ = source.num_.i64_;
-          break;
-        case DomValue::NumberType::kUInt64:
-          num_.u64_ = source.num_.u64_;
-          break;
         case DomValue::NumberType::kDouble:
           num_.d_ = source.num_.d_;
           break;
@@ -121,12 +111,6 @@ DomValue& DomValue::operator=(const DomValue& rhs) noexcept {
           break;
         case DomValue::NumberType::kUInt32:
           num_.u32_ = rhs.num_.u32_;
-          break;
-        case DomValue::NumberType::kInt64:
-          num_.i64_ = rhs.num_.i64_;
-          break;
-        case DomValue::NumberType::kUInt64:
-          num_.u64_ = rhs.num_.u64_;
           break;
         case DomValue::NumberType::kDouble:
           num_.d_ = rhs.num_.d_;
@@ -187,22 +171,6 @@ DomValue& DomValue::operator=(const uint32_t rhs) noexcept {
   type_ = DomValue::Type::kNumber;
   number_type_ = DomValue::NumberType::kUInt32;
   num_.u32_ = rhs;
-  return *this;
-}
-
-DomValue& DomValue::operator=(const int64_t rhs) noexcept {
-  Deallocate();
-  type_ = DomValue::Type::kNumber;
-  number_type_ = DomValue::NumberType::kInt64;
-  num_.i64_ = rhs;
-  return *this;
-}
-
-DomValue& DomValue::operator=(const uint64_t rhs) noexcept {
-  Deallocate();
-  type_ = DomValue::Type::kNumber;
-  number_type_ = DomValue::NumberType::kUInt64;
-  num_.u64_ = rhs;
   return *this;
 }
 
@@ -290,10 +258,6 @@ bool DomValue::operator==(const DomValue& rhs) const noexcept {
           return num_.i32_ == rhs.num_.i32_;
         case DomValue::NumberType::kUInt32:
           return num_.u32_ == rhs.num_.u32_;
-        case DomValue::NumberType::kInt64:
-          return num_.i64_ == rhs.num_.i64_;
-        case DomValue::NumberType::kUInt64:
-          return num_.u64_ == rhs.num_.u64_;
         case DomValue::NumberType::kDouble:
           return num_.d_ == rhs.num_.d_;
         default:
@@ -352,10 +316,6 @@ bool DomValue::IsInt32() const noexcept { return type_ == Type::kNumber && numbe
 
 bool DomValue::IsUInt32() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kUInt32; }
 
-bool DomValue::IsInt64() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kInt64; }
-
-bool DomValue::IsUInt64() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kUInt64; }
-
 bool DomValue::IsDouble() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kDouble; }
 
 int32_t DomValue::ToInt32() const {
@@ -368,23 +328,11 @@ uint32_t DomValue::ToUint32() const {
   return num_.u32_;
 }
 
-int64_t DomValue::ToInt64() const {
-  TDF_BASE_CHECK(IsInt64());
-  return num_.i64_;
-}
-
-uint64_t DomValue::ToUint64() const {
-  TDF_BASE_CHECK(IsUInt64());
-  return num_.u64_;
-}
-
 double DomValue::ToDouble() const {
   TDF_BASE_CHECK(IsNumber());
   if (number_type_ == DomValue::NumberType::kDouble) return num_.d_;
   if (number_type_ == DomValue::NumberType::kInt32) return num_.i32_;
   if (number_type_ == DomValue::NumberType::kUInt32) return num_.u32_;
-  if (number_type_ == DomValue::NumberType::kInt64) return static_cast<double>(num_.i64_);
-  if (number_type_ == DomValue::NumberType::kUInt64) return static_cast<double>(num_.u64_);
   TDF_BASE_NOTREACHED();
 }
 

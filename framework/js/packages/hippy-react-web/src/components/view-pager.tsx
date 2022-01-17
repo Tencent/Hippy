@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+// @ts-nocheck
 import React, { Component } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { SwiperOptions } from 'swiper/types';
@@ -41,24 +42,24 @@ interface Props extends SwiperOptions {
  */
 export class ViewPager extends Component {
   private viewPagerSwiper: any;
-  constructor(props: Props) {
+  public constructor(props: Props) {
     super(props);
     this.state = {};
   }
 
-  setPage(index: number) {
+  public setPage(index: number) {
     if (Number.isInteger(index)) {
       this.viewPagerSwiper.slideToLoop(index);
     }
   }
 
-  setPageWithoutAnimation(index: number) {
+  public setPageWithoutAnimation(index: number) {
     if (Number.isInteger(index)) {
       this.viewPagerSwiper.slideToLoop(index, 0);
     }
   }
 
-  render() {
+  public render() {
     const {
       style = {},
       children,

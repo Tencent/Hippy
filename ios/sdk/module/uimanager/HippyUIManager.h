@@ -175,11 +175,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 
-- (void)setDomManager:(std::shared_ptr<hippy::DomManager>)domManager;
-
-- (std::shared_ptr<hippy::DomManager>)domManager;
-
-- (const std::map<int32_t, std::shared_ptr<hippy::DomNode>> &)domNodes;
+- (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
 
 - (void)renderCreateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
@@ -191,9 +187,8 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)renderUpdateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                    props:(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &)styleMap;
-
-- (void)renderDeleteViewFromContainer:(int32_t)hippyTag
-                           forIndices:(const std::vector<int32_t> &)indices;
+- (void)updateRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>>&&)nodes;
+- (void)renderDeleteNodes:(const std::vector<std::shared_ptr<hippy::DomNode>> &)nodes;
 
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
 
@@ -202,19 +197,18 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)batch;
 
 - (void)dispatchFunction:(const std::string &)functionName
-                 forView:(int32_t)hippyTag
+                viewName:(const std::string &)viewName
+                 viewTag:(int32_t)hippyTag
                   params:(const tdf::base::DomValue &)params
                 callback:(hippy::CallFunctionCallback)cb;
 
-- (void) addClickEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node forView:(int32_t)hippyTag;
-- (void) addLongClickEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node forView:(int32_t)hippyTag;
-- (void) addTouchEventListenerforNode:(std::weak_ptr<hippy::DomNode>)weak_node
-                              forType:(std::string)type
-                              forView:(int32_t)hippyTag;
+- (void)addEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 
-- (void) addShowEventListenerForNode:(std::weak_ptr<hippy::DomNode>)weak_node
-                             forType:(std::string)type
-                             forView:(int32_t)hippyTag;
+- (void)removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+
+- (void)addRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+
+- (void)removeRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 
 @end
 

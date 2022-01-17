@@ -51,8 +51,6 @@
     @synchronized(self) {
         NSMutableDictionary *props = [[NSMutableDictionary alloc] initWithDictionary:self.originParams];
         [props removeObjectForKey:@"useAnimation"];
-        NSAssert1(0 == strcmp("com.tencent.hippy.ShadowQueue", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL)),
-            @"not in shadow queue, but in %s queue", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
         _styles = [props hippyMutableDeepCopy];
         [self traversalPropsForFindAniamtion:props];
     }
@@ -120,8 +118,6 @@
 
 - (NSDictionary *)updateParams {
     @synchronized(self) {
-        NSAssert1(0 == strcmp("com.tencent.hippy.ShadowQueue", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL)),
-            @"not in shadow queue, but in %s queue", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
         NSDictionary *updateParams = [_styles hippyMutableDeepCopy];
         return updateParams;
     }
@@ -137,9 +133,6 @@
             _valuesByKey[prop][prop] = value;
             return;
         }
-
-        NSAssert1(0 == strcmp("com.tencent.hippy.ShadowQueue", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL)),
-            @"not in shadow queue, but in %s queue", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
         [self traversalProps:_styles key:prop value:value];
     }
 }

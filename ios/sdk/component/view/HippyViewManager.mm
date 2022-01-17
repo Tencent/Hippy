@@ -363,3 +363,21 @@ static const char *init_props_identifier = "init_props_identifier";
     objc_setAssociatedObject(self, init_props_identifier, props, OBJC_ASSOCIATION_RETAIN);
 }
 @end
+
+@implementation UIView(ViewManager)
+
+- (void)setViewManager:(HippyViewManager *)viewManager {
+    NSHashTable<HippyViewManager *> *weakContainer = nil;
+    if (viewManager) {
+        weakContainer = [NSHashTable weakObjectsHashTable];
+        [weakContainer addObject:viewManager];
+    }
+    objc_setAssociatedObject(self, @selector(viewManager), weakContainer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (HippyViewManager *)viewManager {
+    NSHashTable<HippyViewManager *> *weakContainer = objc_getAssociatedObject(self, _cmd);
+    return [weakContainer anyObject];
+}
+
+@end

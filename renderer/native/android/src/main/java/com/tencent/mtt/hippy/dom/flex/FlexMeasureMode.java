@@ -29,7 +29,7 @@ public enum FlexMeasureMode {
       case 2:
         return AT_MOST;
       default:
-        throw new IllegalArgumentException("Unknown enum value: " + value);
+        throw new IllegalArgumentException("Unknown FlexMeasureMode value: " + value);
     }
   }
 }

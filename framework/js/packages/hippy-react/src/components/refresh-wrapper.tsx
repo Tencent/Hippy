@@ -19,14 +19,14 @@
  */
 
 import React, { CSSProperties, ReactElement } from 'react';
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
 
 interface RefreshWrapperProps {
   bounceTime?: number;
-  onRefresh?(): void;
-  getRefresh?(): ReactElement;
+  onRefresh?: () => void;
+  getRefresh?: () => ReactElement;
 }
 
 /**
@@ -37,21 +37,11 @@ interface RefreshWrapperProps {
  */
 class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
   private instance: Element | Fiber | HTMLDivElement | null = null;
+  private refreshComplected: () => void;
 
-  public refreshComplected: () => void;
-
-  constructor(props: RefreshWrapperProps) {
+  public constructor(props: RefreshWrapperProps) {
     super(props);
-    // TODO: Upward compatible with the the old typo mistake.
     this.refreshComplected = this.refreshCompleted.bind(this);
-  }
-
-  private getRefresh(): ReactElement | null {
-    const { getRefresh } = this.props;
-    if (typeof getRefresh === 'function') {
-      return getRefresh() || null;
-    }
-    return null;
   }
 
   /**
@@ -84,6 +74,14 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
         { children }
       </div>
     );
+  }
+
+  private getRefresh(): ReactElement | null {
+    const { getRefresh } = this.props;
+    if (typeof getRefresh === 'function') {
+      return getRefresh() || null;
+    }
+    return null;
   }
 }
 

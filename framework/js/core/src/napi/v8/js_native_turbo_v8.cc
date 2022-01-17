@@ -21,16 +21,11 @@
  */
 
 #include "core/napi/v8/js_native_turbo_v8.h"
-
-#include <core/base/string_view_utils.h>
-#include <jni/java_turbo_module.h>
-
-#include "hippy.h"
+#include "core/base/string_view_utils.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 
-namespace hippy {
-namespace napi {
+namespace hippy::napi {
 
 V8TurboEnv::V8TurboEnv(const std::shared_ptr<Ctx> &context)
     : TurboEnv(context) {
@@ -92,7 +87,8 @@ std::shared_ptr<CtxValue> V8TurboEnv::CreateObject(
   if (!host_object_constructor_.Get(isolate)
            ->NewInstance(context)
            .ToLocal(&new_object)) {
-    ConvertUtils::ThrowException(context_, "CreateObject Fail.");
+    context_->ThrowExceptionToJS(context_->CreateJsError(
+        unicode_string_view(("CreateObject Fail."))));
     return context_->CreateUndefined();
   }
 
@@ -126,7 +122,8 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
                isolate, v8::External::New(isolate, host_function_proxy)),
            param_count)
            .ToLocal(&new_function)) {
-    ConvertUtils::ThrowException(context_, "CreateFunction Fail.");
+    context_->ThrowExceptionToJS(context_->CreateJsError(
+        unicode_string_view(("CreateFunction Fail."))));
     return context_->CreateUndefined();
   }
 
@@ -172,5 +169,4 @@ std::shared_ptr<HostObject> V8TurboEnv::GetHostObject(
   }
   return nullptr;
 }
-}  // namespace napi
 }  // namespace hippy

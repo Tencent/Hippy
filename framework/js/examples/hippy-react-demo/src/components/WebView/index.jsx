@@ -19,21 +19,22 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   webViewStyle: {
-    width: 300,
-    height: 300,
+    padding: 10,
+    flex: 1,
+    flexGrow: 1,
     borderRadius: 10,
   },
 });
 
 export default function WebViewExample() {
   return (
-    <View style={{ padding: 10 }}>
+    <View style={{ padding: 10,  flex: 1 }}>
       <View style={styles.itemTitle}>
         <Text>WebView 示例</Text>
       </View>
       <WebView
         source={{
-          uri: 'https://www.qq.com',
+          uri: 'https://hippyjs.org',
         }}
         method={'get'}
         userAgent={'Mozilla/5.0 (Linux; U; Android 5.1.1; '

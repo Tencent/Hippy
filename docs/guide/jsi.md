@@ -7,7 +7,7 @@ JavaScript Interface(JSI) 模式提供了一种无需经历编解码（序列化
 ## 架构图
 
 <br />
-<img src="//m4.publicimg.browser.qq.com/publicimg/nav/hippydoc/jsi_structure.png" alt="jsi架构图" width="40%"/>
+<img src="assets/jsi_structure.png" alt="jsi架构图" width="40%"/>
 <br />
 <br />
 
@@ -21,6 +21,6 @@ JSI 并非适用于所有场景:
 
 ## 使用例子
 
-[HippyReact Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/Turbo/index.jsx)
+[HippyReact Demo](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-react-demo/src/externals/Turbo/index.jsx)
 
-[HippyVue Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-turbo.vue)
+[HippyVue Demo](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-turbo.vue)

@@ -25,7 +25,7 @@ import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
 
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.NativeRenderContext;
 import java.util.WeakHashMap;
 
 @SuppressWarnings({"unused"})
@@ -61,7 +61,7 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
 
   @HippyControllerProps(name = NodeProps.BACKGROUND_IMAGE, defaultType = HippyControllerProps.STRING)
   public void setBackgroundImage(HippyViewGroup hippyViewGroup, String url) {
-    hippyViewGroup.setUrl(getInnerPath((NativeRendererContext)hippyViewGroup.getContext(), url));
+    hippyViewGroup.setUrl(getInnerPath((NativeRenderContext)hippyViewGroup.getContext(), url));
   }
 
   @HippyControllerProps(name = NodeProps.BACKGROUND_SIZE, defaultType = HippyControllerProps.STRING, defaultString = "origin")

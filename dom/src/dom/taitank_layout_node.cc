@@ -1,159 +1,155 @@
 #include "dom/taitank_layout_node.h"
+
+#include <map>
+
+#include "base/logging.h"
 #include "dom/node_props.h"
 
 namespace hippy {
 inline namespace dom {
 
-static OverflowType GetFlexOverflow(int overflow) {
-  switch (overflow) {
-    case 0:
-      return OverflowType::OverflowVisible;
-    case 1:
-      return OverflowType::OverflowHidden;
-    case 2:
-      return OverflowType::OverflowScroll;
-    default:
-      return OverflowType::OverflowVisible;
+const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OverflowVisible},
+                                                          {"hidden", OverflowType::OverflowHidden},
+                                                          {"scroll", OverflowType::OverflowScroll}};
+
+const std::map<std::string, FlexDirection> kFlexDirectionMap = {
+    {"row", FlexDirection::FLexDirectionRow},
+    {"row-reverse", FlexDirection::FLexDirectionRowReverse},
+    {"column", FlexDirection::FLexDirectionColumn},
+    {"column-reverse", FlexDirection::FLexDirectionColumnReverse}};
+
+const std::map<std::string, FlexWrapMode> kWrapModeMap = {{"nowrap", FlexWrapMode::FlexNoWrap},
+                                                          {"wrap", FlexWrapMode::FlexWrap},
+                                                          {"wrap-reverse", FlexWrapMode::FlexWrapReverse}};
+
+const std::map<std::string, FlexAlign> kJustifyMap = {{"flex-start", FlexAlign::FlexAlignStart},
+                                                      {"center", FlexAlign::FlexAlignCenter},
+                                                      {"flex-end", FlexAlign::FlexAlignEnd},
+                                                      {"space-between", FlexAlign::FlexAlignSpaceBetween},
+                                                      {"space-around", FlexAlign::FlexAlignSpaceAround},
+                                                      {"space-evenly", FlexAlign::FlexAlignSpaceEvenly}};
+
+const std::map<std::string, FlexAlign> kAlignMap = {{"auto", FlexAlign::FlexAlignAuto},
+                                                    {"flex-start", FlexAlign::FlexAlignStart},
+                                                    {"center", FlexAlign::FlexAlignCenter},
+                                                    {"flex-end", FlexAlign::FlexAlignEnd},
+                                                    {"stretch", FlexAlign::FlexAlignStretch},
+                                                    {"baseline", FlexAlign::FlexAlignBaseline},
+                                                    {"space-between", FlexAlign::FlexAlignSpaceBetween},
+                                                    {"space-around", FlexAlign::FlexAlignSpaceAround}};
+
+const std::map<std::string, CSSDirection> kMarginMap = {{kMargin, CSSDirection::CSSAll},
+                                                        {kMarginVertical, CSSDirection::CSSVertical},
+                                                        {kMarginHorizontal, CSSDirection::CSSHorizontal},
+                                                        {kMarginLeft, CSSDirection::CSSLeft},
+                                                        {kMarginRight, CSSDirection::CSSRight},
+                                                        {kMarginTop, CSSDirection::CSSTop},
+                                                        {kMarginBottom, CSSDirection::CSSBottom}};
+
+const std::map<std::string, CSSDirection> kPaddingMap = {{kPadding, CSSDirection::CSSAll},
+                                                         {kPaddingVertical, CSSDirection::CSSVertical},
+                                                         {kPaddingHorizontal, CSSDirection::CSSHorizontal},
+                                                         {kPaddingLeft, CSSDirection::CSSLeft},
+                                                         {kPaddingRight, CSSDirection::CSSRight},
+                                                         {kPaddingTop, CSSDirection::CSSTop},
+                                                         {kPaddingBottom, CSSDirection::CSSBottom}};
+
+const std::map<std::string, CSSDirection> kPositionMap = {{kLeft, CSSDirection::CSSLeft},
+                                                          {kRight, CSSDirection::CSSRight},
+                                                          {kTop, CSSDirection::CSSTop},
+                                                          {kBottom, CSSDirection::CSSBottom}};
+
+const std::map<std::string, CSSDirection> kBorderMap = {{kBorderWidth, CSSDirection::CSSAll},
+                                                        {kBorderLeftWidth, CSSDirection::CSSLeft},
+                                                        {kBorderTopWidth, CSSDirection::CSSTop},
+                                                        {kBorderRightWidth, CSSDirection::CSSRight},
+                                                        {kBorderBottomWidth, CSSDirection::CSSBottom}};
+
+const std::map<std::string, PositionType> kPositionTypeMap = {{"relative", PositionType::PositionTypeRelative},
+                                                              {"absolute", PositionType::PositionTypeAbsolute}};
+
+const std::map<std::string, DisplayType> kDisplayTypeMap = {{"none", DisplayType::DisplayTypeNone}};
+
+const std::map<std::string, HPDirection> kDirectionMap = {
+    {"inherit", DirectionInherit}, {"ltr", DirectionLTR}, {"rtl", DirectionRTL}};
+
+#define TAITANK_GET_STYLE_DECL(NAME, TYPE, DEFAULT)      \
+  static TYPE GetStyle##NAME(const std::string& key) {   \
+    auto iter = k##NAME##Map.find(key);                  \
+    if (iter != k##NAME##Map.end()) return iter->second; \
+    return DEFAULT;                                      \
   }
+
+TAITANK_GET_STYLE_DECL(Overflow, OverflowType, OverflowType::OverflowVisible)
+
+TAITANK_GET_STYLE_DECL(FlexDirection, FlexDirection, FlexDirection::FLexDirectionColumn)
+
+TAITANK_GET_STYLE_DECL(WrapMode, FlexWrapMode, FlexWrapMode::FlexNoWrap)
+
+TAITANK_GET_STYLE_DECL(Justify, FlexAlign, FlexAlign::FlexAlignStart)
+
+TAITANK_GET_STYLE_DECL(Align, FlexAlign, FlexAlign::FlexAlignStretch)
+
+TAITANK_GET_STYLE_DECL(Margin, CSSDirection, CSSDirection::CSSNONE)
+
+TAITANK_GET_STYLE_DECL(Padding, CSSDirection, CSSDirection::CSSNONE)
+
+TAITANK_GET_STYLE_DECL(Border, CSSDirection, CSSDirection::CSSNONE)
+
+TAITANK_GET_STYLE_DECL(Position, CSSDirection, CSSDirection::CSSNONE)
+
+TAITANK_GET_STYLE_DECL(PositionType, PositionType, PositionType::PositionTypeRelative)
+
+TAITANK_GET_STYLE_DECL(DisplayType, DisplayType, DisplayType::DisplayTypeFlex)
+
+TAITANK_GET_STYLE_DECL(Direction, HPDirection, HPDirection::DirectionLTR)
+
+#define SET_STYLE_VALUE(NAME, DEFAULT)                                          \
+  auto dom_value = style_map.find(k##NAME)->second;                             \
+  CheckValueType(dom_value->GetType());                                         \
+  float value = DEFAULT;                                                        \
+  if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDouble()); \
+  Set##NAME(value);
+
+#define SET_STYLE_VALUES(NAME, STYLENAME, DEFAULT)                              \
+  auto dom_value = style_map.find(k##STYLENAME)->second;                        \
+  CheckValueType(dom_value->GetType());                                         \
+  float value = DEFAULT;                                                        \
+  if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDouble()); \
+  Set##NAME(GetStyle##NAME(k##STYLENAME), value);
+
+static void CheckValueType(tdf::base::DomValue::Type type) {
+  TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
 }
 
-static FlexDirection GetFlexDirection(const std::string& flex_direction) {
-  if (flex_direction.empty()) {
-    return FlexDirection::FLexDirectionColumn;
-  }
-  if (flex_direction.compare("row") == 0) {
-    return FlexDirection::FLexDirectionRow;
-  }
-  if (flex_direction.compare("row-reverse") == 0) {
-    return FlexDirection::FLexDirectionRowReverse;
-  }
-  if (flex_direction.compare("column") == 0) {
-    return FlexDirection::FLexDirectionColumn;
-  }
-  if (flex_direction.compare("column-reverse") == 0) {
-    return FlexDirection::FLexDirectionColumnReverse;
-  }
-  return FlexDirection::FLexDirectionColumn;
-}
-
-static FlexWrapMode GetFlexWrapMode(std::string wrap_mode) {
-  if (wrap_mode.empty() || wrap_mode == "nowrap") {
-    return FlexWrapMode::FlexNoWrap;
-  } else if (wrap_mode.compare("wrap") == 0) {
-    return FlexWrapMode::FlexWrap;
-  } else if (wrap_mode.compare("wrap-reverse") == 0) {
-    return FlexWrapMode::FlexWrapReverse;
-  } else {
-    // error wrap mode
-    return FlexWrapMode::FlexNoWrap;
-  }
-}
-
-static FlexAlign GetFlexJustify(const std::string& justify_content) {
-  if (justify_content.empty()) {
-    return FlexAlign::FlexAlignStart;
-  }
-  if (justify_content.compare("flex-start") == 0) {
-    return FlexAlign::FlexAlignStart;
-  }
-  if (justify_content.compare("center") == 0) {
-    return FlexAlign::FlexAlignCenter;
-  }
-  if (justify_content.compare("flex-end") == 0) {
-    return FlexAlign::FlexAlignEnd;
-  }
-  if (justify_content.compare("space-between") == 0) {
-    return FlexAlign::FlexAlignSpaceBetween;
-  }
-  if (justify_content.compare("space-around") == 0) {
-    return FlexAlign::FlexAlignSpaceEvenly;
-  }
-  return FlexAlign::FlexAlignStart;
-}
-
-static FlexAlign GetFlexAlign(std::string align) {
-  if (align.empty()) {
-    return FlexAlign::FlexAlignStretch;
-  }
-  if (align.compare("auto") == 0) {
-    return FlexAlign::FlexAlignAuto;
-  }
-  if (align == "flex-start") {
-    return FlexAlign::FlexAlignStart;
-  }
-  if (align.compare("center") == 0) {
-    return FlexAlign::FlexAlignCenter;
-  }
-  if (align.compare("flex-end") == 0) {
-    return FlexAlign::FlexAlignEnd;
-  }
-  if (align.compare("stretch") == 0) {
-    return FlexAlign::FlexAlignStretch;
-  }
-  if (align.compare("baseline") == 0) {
-    return FlexAlign::FlexAlignBaseline;
-  }
-  if (align.compare("space-between") == 0) {
-    return FlexAlign::FlexAlignSpaceBetween;
-  }
-  if (align.compare("space-around") == 0) {
-    return FlexAlign::FlexAlignSpaceAround;
-  }
-  return FlexAlign::FlexAlignStretch;
-}
-
-static CSSDirection GetCSSDirection(std::string direction) {
-  if (direction.empty()) {
-    return CSSDirection::CSSNONE;
-  }
-  if (direction.compare(kMargin) == 0) {
-    return CSSDirection::CSSAll;
-  }
-  if (direction.compare(kMarginVertical) == 0) {
-    return CSSDirection::CSSVertical;
-  }
-  if (direction.compare(kMarginHorizontal) == 0) {
-    return CSSDirection::CSSHorizontal;
-  }
-  if (direction.compare(kMarginLeft) == 0 || direction.compare(kLeft)) {
+static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
+  if (Edge::EdgeLeft == edge) {
     return CSSDirection::CSSLeft;
-  }
-  if (direction.compare(kMarginTop) == 0 || direction.compare(kTop)) {
+  } else if (Edge::EdgeTop == edge) {
     return CSSDirection::CSSTop;
-  }
-  if (direction.compare(kMarginRight) == 0 || direction.compare(kRight) == 0) {
+  } else if (Edge::EdgeRight == edge) {
     return CSSDirection::CSSRight;
-  }
-  if (direction.compare(kMarginBottom) == 0 || direction.compare(kBottom) == 0) {
+  } else if (Edge::EdgeBottom == edge) {
     return CSSDirection::CSSBottom;
+  } else {
+    TDF_BASE_NOTREACHED();
   }
-  return CSSDirection::CSSNONE;
-}
-
-static PositionType GetPositionType(std::string position) {
-  if (position.empty()) {
-    return PositionType::PositionTypeRelative;
-  }
-  if (position.compare("relative") == 0) {
-    return PositionType::PositionTypeRelative;
-  }
-  if (position.compare("absolute") == 0) {
-    return PositionType::PositionTypeAbsolute;
-  }
-  return PositionType::PositionTypeRelative;
-}
-
-static DisplayType GetDisplayType(std::string display) {
-  if (display.compare("none") == 0) {
-    return DisplayType::DisplayTypeNone;
-  }
-  return DisplayType::DisplayTypeFlex;
 }
 
 void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
                                         void* layout_context) {
   assert(engine_node_ != nullptr);
-  engine_node_->layout(parent_width, parent_height, engine_node_->GetConfig(), direction, layout_context);
+  HPDirection taitank_direction;
+  if (direction == Direction::Inherit) {
+    taitank_direction = HPDirection::DirectionInherit;
+  } else if (direction == Direction::LTR) {
+    taitank_direction = HPDirection::DirectionLTR;
+  } else if (direction == Direction::RTL) {
+    taitank_direction = HPDirection::DirectionRTL;
+  } else {
+    TDF_BASE_NOTREACHED();
+  }
+  engine_node_->layout(parent_width, parent_height, engine_node_->GetConfig(), taitank_direction, layout_context);
 }
 
 void TaitankLayoutNode::SetLayoutStyles(
@@ -162,104 +158,131 @@ void TaitankLayoutNode::SetLayoutStyles(
 }
 
 void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
-  if (style_map.find(kAlignItems) != style_map.end()) {
-    SetAlignItems(GetFlexAlign(style_map.find(kAlignItems)->second->ToString()));
-  }
-  if (style_map.find(kAilgnSelf) != style_map.end()) {
-    SetAlignSelf(GetFlexAlign(style_map.find(kAilgnSelf)->second->ToString()));
-  }
-  if (style_map.find(kAlignContent) != style_map.end()) {
-    SetAlignContent(GetFlexAlign(style_map.find(kAlignContent)->second->ToString()));
-  }
-  if (style_map.find(kFlex) != style_map.end()) {
-    SetFlex(style_map.find(kFlex)->second->ToDouble());
-  }
-  if (style_map.find(kFlexDirection) != style_map.end()) {
-    SetFlexDirection(GetFlexDirection(style_map.find(kFlexDirection)->second->ToString()));
-  }
-  if (style_map.find(kFlexWrap) != style_map.end()) {
-    SetFlexWrap(GetFlexWrapMode(style_map.find(kFlexWrap)->second->ToString()));
-  }
-  if (style_map.find(kFlexGrow) != style_map.end()) {
-    SetFlexGrow(style_map.find(kFlexGrow)->second->ToDouble());
-  }
-  if (style_map.find(kFlexShrink) != style_map.end()) {
-    SetFlexShrink(style_map.find(kFlexShrink)->second->ToDouble());
-  }
-  if (style_map.find(kFlexBasis) != style_map.end()) {
-    SetFlexBasis(style_map.find(kFlexBasis)->second->ToDouble());
-  }
   if (style_map.find(kWidth) != style_map.end()) {
-    SetWidth(style_map.find(kWidth)->second->ToDouble());
-  }
-  if (style_map.find(kHeight) != style_map.end()) {
-    SetHeight(style_map.find(kHeight)->second->ToDouble());
-  }
-  if (style_map.find(kMaxWidth) != style_map.end()) {
-    SetMaxWidth(style_map.find(kMaxWidth)->second->ToDouble());
-  }
-  if (style_map.find(kMaxHeight) != style_map.end()) {
-    SetMaxHeight(style_map.find(kMaxHeight)->second->ToDouble());
+    SET_STYLE_VALUE(Width, 0)
   }
   if (style_map.find(kMinWidth) != style_map.end()) {
-    SetMinWidth(style_map.find(kMinWidth)->second->ToDouble());
+    SET_STYLE_VALUE(MinWidth, 0)
+  }
+  if (style_map.find(kMaxWidth) != style_map.end()) {
+    SET_STYLE_VALUE(MaxWidth, 0)
+  }
+  if (style_map.find(kHeight) != style_map.end()) {
+    SET_STYLE_VALUE(Height, 0)
   }
   if (style_map.find(kMinHeight) != style_map.end()) {
-    SetMinHeight(style_map.find(kMinHeight)->second->ToDouble());
+    SET_STYLE_VALUE(MinHeight, 0)
+  }
+  if (style_map.find(kMaxHeight) != style_map.end()) {
+    SET_STYLE_VALUE(MaxHeight, 0)
+  }
+  if (style_map.find(kFlex) != style_map.end()) {
+    SetFlex(static_cast<float>(style_map.find(kFlex)->second->ToDouble()));
+  }
+  if (style_map.find(kFlexGrow) != style_map.end()) {
+    SetFlexGrow(static_cast<float>(style_map.find(kFlexGrow)->second->ToDouble()));
+  }
+  if (style_map.find(kFlexShrink) != style_map.end()) {
+    SetFlexShrink(static_cast<float>(style_map.find(kFlexShrink)->second->ToDouble()));
+  }
+  if (style_map.find(kFlexBasis) != style_map.end()) {
+    SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDouble()));
+  }
+  if (style_map.find(kDirection) != style_map.end()) {
+    SetDirection(GetStyleDirection(style_map.find(kDirection)->second->ToString()));
+  }
+  if (style_map.find(kFlexDirection) != style_map.end()) {
+    SetFlexDirection(GetStyleFlexDirection(style_map.find(kFlexDirection)->second->ToString()));
+  }
+  if (style_map.find(kFlexWrap) != style_map.end()) {
+    SetFlexWrap(GetStyleWrapMode(style_map.find(kFlexWrap)->second->ToString()));
+  }
+  if (style_map.find(kAilgnSelf) != style_map.end()) {
+    SetAlignSelf(GetStyleAlign(style_map.find(kAilgnSelf)->second->ToString()));
+  }
+  if (style_map.find(kAlignItems) != style_map.end()) {
+    SetAlignItems(GetStyleAlign(style_map.find(kAlignItems)->second->ToString()));
   }
   if (style_map.find(kJustifyContent) != style_map.end()) {
-    SetJustifyContent(GetFlexJustify(style_map.find(kJustifyContent)->second->ToString()));
-  }
-  if (style_map.find(kLeft) != style_map.end()) {
-    SetPosition(GetCSSDirection(kLeft), style_map.find(kLeft)->second->ToDouble());
-  }
-  if (style_map.find(kRight) != style_map.end()) {
-    SetPosition(GetCSSDirection(kRight), style_map.find(kRight)->second->ToDouble());
-  }
-  if (style_map.find(kTop) != style_map.end()) {
-    SetPosition(GetCSSDirection(kTop), style_map.find(kTop)->second->ToDouble());
-  }
-  if (style_map.find(kBottom) != style_map.end()) {
-    SetPosition(GetCSSDirection(kBottom), style_map.find(kBottom)->second->ToDouble());
-  }
-  if (style_map.find(kPosition) != style_map.end()) {
-    SetPositionType(GetPositionType(style_map.find(kPosition)->second->ToString()));
-  }
-  if (style_map.find(kDisplay) != style_map.end()) {
-    SetDisplay(GetDisplayType(style_map.find(kDisplay)->second->ToString()));
+    SetJustifyContent(GetStyleJustify(style_map.find(kJustifyContent)->second->ToString()));
   }
   if (style_map.find(kOverflow) != style_map.end()) {
-    SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToInt32()));
+    SetOverflow(GetStyleOverflow(style_map.find(kOverflow)->second->ToString()));
+  }
+  if (style_map.find(kDisplay) != style_map.end()) {
+    SetDisplay(GetStyleDisplayType(style_map.find(kDisplay)->second->ToString()));
   }
   if (style_map.find(kMargin) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMargin), style_map.find(kMargin)->second->ToDouble());
+    SET_STYLE_VALUES(Margin, Margin, 0)
+  }
+  if (style_map.find(kMarginVertical) != style_map.end()) {
+    SET_STYLE_VALUES(Margin, MarginVertical, 0)
+  }
+  if (style_map.find(kMarginHorizontal) != style_map.end()) {
+    SET_STYLE_VALUES(Margin, MarginHorizontal, 0)
   }
   if (style_map.find(kMarginLeft) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginLeft), style_map.find(kMarginLeft)->second->ToDouble());
-  }
-  if (style_map.find(kMarginTop) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginTop), style_map.find(kMarginTop)->second->ToDouble());
+    SET_STYLE_VALUES(Margin, MarginLeft, 0)
   }
   if (style_map.find(kMarginRight) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginRight), style_map.find(kMarginRight)->second->ToDouble());
+    SET_STYLE_VALUES(Margin, MarginRight, 0)
+  }
+  if (style_map.find(kMarginTop) != style_map.end()) {
+    SET_STYLE_VALUES(Margin, MarginTop, 0)
   }
   if (style_map.find(kMarginBottom) != style_map.end()) {
-    SetMargin(GetCSSDirection(kMarginBottom), style_map.find(kMarginBottom)->second->ToDouble());
+    SET_STYLE_VALUES(Margin, MarginBottom, 0)
   }
   if (style_map.find(kPadding) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPadding), style_map.find(kPadding)->second->ToDouble());
+    SET_STYLE_VALUES(Padding, Padding, 0)
+  }
+  if (style_map.find(kPaddingVertical) != style_map.end()) {
+    SET_STYLE_VALUES(Padding, PaddingVertical, 0)
+  }
+  if (style_map.find(kPaddingHorizontal) != style_map.end()) {
+    SET_STYLE_VALUES(Padding, PaddingHorizontal, 0)
   }
   if (style_map.find(kPaddingLeft) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingLeft), style_map.find(kPaddingLeft)->second->ToDouble());
-  }
-  if (style_map.find(kPaddingTop) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingTop), style_map.find(kPaddingTop)->second->ToDouble());
+    SET_STYLE_VALUES(Padding, PaddingLeft, 0)
   }
   if (style_map.find(kPaddingRight) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingRight), style_map.find(kPaddingRight)->second->ToDouble());
+    SET_STYLE_VALUES(Padding, PaddingRight, 0)
+  }
+  if (style_map.find(kPaddingTop) != style_map.end()) {
+    SET_STYLE_VALUES(Padding, PaddingTop, 0)
   }
   if (style_map.find(kPaddingBottom) != style_map.end()) {
-    SetPadding(GetCSSDirection(kPaddingBottom), style_map.find(kPaddingBottom)->second->ToDouble());
+    SET_STYLE_VALUES(Padding, PaddingBottom, 0)
+  }
+  if (style_map.find(kBorderWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderWidth, 0)
+  }
+  if (style_map.find(kBorderLeftWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderLeftWidth, 0)
+  }
+  if (style_map.find(kBorderTopWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderTopWidth, 0)
+  }
+  if (style_map.find(kBorderRightWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderRightWidth, 0)
+  }
+  if (style_map.find(kBorderBottomWidth) != style_map.end()) {
+    SET_STYLE_VALUES(Border, BorderBottomWidth, 0)
+  }
+  if (style_map.find(kLeft) != style_map.end()) {
+    SET_STYLE_VALUES(Position, Left, 0)
+  }
+  if (style_map.find(kRight) != style_map.end()) {
+    SET_STYLE_VALUES(Position, Right, 0)
+  }
+  if (style_map.find(kTop) != style_map.end()) {
+    SET_STYLE_VALUES(Position, Top, 0)
+  }
+  if (style_map.find(kBottom) != style_map.end()) {
+    SET_STYLE_VALUES(Position, Bottom, 0)
+  }
+  if (style_map.find(kPosition) != style_map.end()) {
+    SetPositionType(GetStylePositionType(style_map.find(kPosition)->second->ToString()));
   }
 }
 
@@ -298,21 +321,21 @@ float TaitankLayoutNode::GetHeight() {
   return engine_node_->result.dim[DimHeight];
 }
 
-float TaitankLayoutNode::GetMargin(TaitankCssDirection css_direction) {
+float TaitankLayoutNode::GetMargin(Edge edge) {
   assert(engine_node_ != nullptr);
-  if (css_direction > CSSBottom) return 0;
+  CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
   return engine_node_->result.margin[css_direction];
 }
 
-float TaitankLayoutNode::GetPadding(TaitankCssDirection css_direction) {
+float TaitankLayoutNode::GetPadding(Edge edge) {
   assert(engine_node_ != nullptr);
-  if (css_direction > CSSBottom) return 0;
+  CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
   return engine_node_->result.padding[css_direction];
 }
 
-float TaitankLayoutNode::GetBorder(TaitankCssDirection css_direction) {
+float TaitankLayoutNode::GetBorder(Edge edge) {
   assert(engine_node_ != nullptr);
-  if (css_direction > CSSBottom) return 0;
+  CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
   return engine_node_->result.border[css_direction];
 }
 
@@ -393,6 +416,12 @@ void TaitankLayoutNode::SetHeight(float height) {
   if (FloatIsEqual(engine_node_->style.dim[DimHeight], height)) return;
   engine_node_->style.dim[DimHeight] = height;
   engine_node_->markAsDirty();
+}
+
+void TaitankLayoutNode::SetScaleFactor(float sacle_factor) {
+  assert(engine_node_ != nullptr);
+  HPConfigRef config = engine_node_->GetConfig();
+  config->SetScaleFactor(sacle_factor);
 }
 
 void TaitankLayoutNode::SetMaxWidth(float max_width) {
@@ -566,6 +595,8 @@ void TaitankLayoutNode::Deallocate() {
   if (engine_node_ == nullptr) return;
   delete engine_node_;
 }
+
+std::shared_ptr<LayoutNode> CreateLayoutNode() { return std::make_shared<TaitankLayoutNode>(); }
 
 }  // namespace dom
 }  // namespace hippy

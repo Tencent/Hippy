@@ -29,10 +29,11 @@
 #import "UIView+Private.h"
 #import "HPNode.h"
 #import "HippyI18nUtils.h"
+#include "dom/taitank_layout_node.h"
 
 CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView) {
     if (shadowView) {
-        std::shared_ptr<hippy::DomNode> node = shadowView.domNode;
+        std::shared_ptr<hippy::DomNode> node = shadowView.domNode.lock();
         if (node) {
             const hippy::LayoutResult &layoutResult = node->GetLayoutResult();
             return CGRectMake(layoutResult.left, layoutResult.top, layoutResult.width, layoutResult.height);
@@ -40,6 +41,17 @@ CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView) {
     }
     return CGRectZero;
 }
+
+hippy::TaitankLayoutNode *layoutNodeFromShadowView(HippyShadowView *shadowView) {
+    auto domNode = shadowView.domNode.lock();
+    if (domNode) {
+        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+            std::static_pointer_cast<hippy::TaitankLayoutNode>(domNode->GetLayoutNode());
+        return layoutNode.get();
+    }
+    return nullptr;
+}
+
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
@@ -66,6 +78,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     float _paddingMetaProps[META_PROP_COUNT];
     float _marginMetaProps[META_PROP_COUNT];
     float _borderMetaProps[META_PROP_COUNT];
+    std::weak_ptr<hippy::DomNode> _domNode;
 }
 
 @end
@@ -76,6 +89,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 @synthesize props = _props;
 @synthesize rootTag = _rootTag;
 @synthesize parent = _parent;
+@synthesize tagName;
 
 // not used function
 // static void HippyPrint(void *context)
@@ -132,7 +146,10 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 
 - (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
     HippyAssert(shadowViewsHaveNewLayoutResult, @"we need shadowViewsNeedToApplyLayout to collect shadow views");
-    if (_hasNewLayout || _visibilityChanged) {
+    //FIXME 由于获取shadowview改变的方法是从root shadow view开始递归，因此深层次subviews的更新以及subviews的改变需要一直dirty到rootview
+    //这里先简单处理
+//    if (_hasNewLayout || _visibilityChanged) {
+    if (1) {
         _hasNewLayout = NO;
         _visibilityChanged = NO;
         [shadowViewsHaveNewLayoutResult addObject:self];
@@ -424,6 +441,14 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     return _textLifecycle != HippyUpdateLifecycleComputed;
 }
 
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
+    _domNode = domNode;
+}
+
+- (const std::weak_ptr<hippy::DomNode> &)domNode {
+    return _domNode;
+}
+
 - (void)setTextComputed {
     _textLifecycle = HippyUpdateLifecycleComputed;
 }
@@ -547,7 +572,12 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 //HIPPY_PADDING_PROPERTY(Right, RIGHT)
 //
 - (UIEdgeInsets)paddingAsInsets {
-    return UIEdgeInsetsFromLayoutResult(self.domNode->GetLayoutResult());
+    UIEdgeInsets insets = UIEdgeInsetsZero;
+    auto domNode = self.domNode.lock();
+    if (domNode) {
+        insets = UIEdgeInsetsFromLayoutResult(domNode->GetLayoutResult());
+    }
+    return insets;
 }
 //
 //// Border
@@ -600,6 +630,19 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     if (!CGRectEqualToRect(frame, _frame)) {
         _frame = frame;
         self.hasNewLayout = YES;
+    }
+}
+
+- (void)setLayoutFrame:(CGRect)frame {
+    auto layoutNode = layoutNodeFromShadowView(self);
+    if (layoutNode) {
+        HPNodeRef nodeRef = layoutNode->GetLayoutEngineNodeRef();
+        HPNodeStyleSetPosition(nodeRef, CSSLeft, frame.origin.x);
+        HPNodeStyleSetPosition(nodeRef, CSSTop, frame.origin.y);
+        HPNodeStyleSetWidth(nodeRef, frame.size.width);
+        HPNodeStyleSetHeight(nodeRef, frame.size.height);
+        HPNodeMarkDirty(nodeRef);
+        [self dirtyPropagation];
     }
 }
 
@@ -754,4 +797,5 @@ static inline void x5AssignSuggestedDimension(HPNodeRef cssNode, Dimension dimen
     }
     return ret;
 }
+
 @end

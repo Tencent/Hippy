@@ -6,10 +6,15 @@
   "homepage": "http://hippyjs.org",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
+  "main": "index.js",
   "bin": {
-    "hippy-debug": "index.js"
+    "hippy-debug": "hippy-debug.js",
+    "hippy-dev": "hippy-dev.js"
   },
-  "scripts": {},
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "build": "cd webpack-dev-server && rimraf ./client/* && babel client-src/ --out-dir client/ --ignore \"client-src/webpack.config.js\" --ignore \"client-src/modules\" && webpack --config client-src/webpack.config.js"
+  },
   "keywords": [
     "hippy",
     "debug",
@@ -19,13 +24,54 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "ansi-html-community": "^0.0.8",
+    "bonjour": "^3.5.0",
     "chokidar": "~3.5.2",
+    "colorette": "^2.0.10",
+    "compression": "^1.7.4",
+    "connect-history-api-fallback": "^1.6.0",
     "cross-spawn": "^7.0.3",
-    "find-up": "^4.1.0",
+    "default-gateway": "^6.0.3",
+    "del": "^6.0.0",
+    "express": "^4.17.1",
+    "graceful-fs": "^4.2.6",
+    "html-entities": "^2.3.2",
+    "http-proxy-middleware": "^2.0.0",
+    "ipaddr.js": "^2.0.1",
     "koa": "^2.3.0",
     "mime": "^2.5.2",
+    "open": "^8.0.9",
+    "p-retry": "^4.5.0",
+    "portfinder": "^1.0.28",
+    "schema-utils": "^4.0.0",
+    "selfsigned": "^1.10.14",
+    "serve-index": "^1.9.1",
     "signale": "^1.4.0",
-    "ws": "^7.4.6",
+    "sockjs": "^0.3.21",
+    "spdy": "^4.0.2",
+    "url": "^0.11.0",
+    "webpack-dev-middleware": "^5.2.1",
+    "ws": "^8.1.0",
     "yargs": "^17.2.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "@babel/eslint-parser": "^7.14.7",
+    "@babel/plugin-transform-object-assign": "^7.14.5",
+    "@babel/plugin-transform-runtime": "^7.14.5",
+    "@babel/preset-env": "^7.14.5",
+    "@babel/runtime": "^7.14.5",
+    "babel-loader": "^8.2.2",
+    "follow-redirects": "^1.14.7",
+    "node-forge": "^1.2.1",
+    "rimraf": "^3.0.2",
+    "webpack": "^4.46.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-merge": "^5.8.0"
+  },
+  "peerDependencies": {
+    "webpack": "^4.37.0 || ^5.0.0",
+    "webpack-cli": "^4.7.2"
   }
 }

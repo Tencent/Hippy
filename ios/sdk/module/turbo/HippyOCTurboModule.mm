@@ -198,7 +198,7 @@ static std::shared_ptr<napi::CtxValue> convertNSDictionaryToCtxValue(const std::
         return context->CreateNull();
     }
     
-    std::shared_ptr<napi::JSCCtx> jscCtx = std::dynamic_pointer_cast<napi::JSCCtx>(context);
+    std::shared_ptr<napi::JSCCtx> jscCtx = std::static_pointer_cast<napi::JSCCtx>(context);
     JSClassDefinition cls_def = kJSClassDefinitionEmpty;
     cls_def.className = [@"Object" UTF8String];
     JSClassRef cls_ref = JSClassCreate(&cls_def);
@@ -242,7 +242,7 @@ static std::shared_ptr<napi::CtxValue> convertNSArrayToCtxValue(const std::share
 static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shared_ptr<napi::Ctx> &context,
                                                                 id objcObject,
                                                                 HippyOCTurboModule *module) {
-    std::shared_ptr<napi::JSCCtx> jscCtx = std::dynamic_pointer_cast<napi::JSCCtx>(context);
+    std::shared_ptr<napi::JSCCtx> jscCtx = std::static_pointer_cast<napi::JSCCtx>(context);
     if ([objcObject isKindOfClass:[HippyOCTurboModule class]]) {
         NSString *name = [[objcObject class] turoboModuleName];
         HippyJSCExecutor *jsExecutor = (HippyJSCExecutor *)module.bridge.javaScriptExecutor;
@@ -274,8 +274,8 @@ static id convertCtxValueToObjcObject(const std::shared_ptr<napi::Ctx> &context,
                                       const std::shared_ptr<napi::CtxValue> &value,
                                       HippyOCTurboModule *module) {
 
-    std::shared_ptr<napi::JSCCtx> jscCtx = std::dynamic_pointer_cast<napi::JSCCtx>(context);
-    std::shared_ptr<napi::JSCCtxValue> jscValue = std::dynamic_pointer_cast<napi::JSCCtxValue>(value);
+    std::shared_ptr<napi::JSCCtx> jscCtx = std::static_pointer_cast<napi::JSCCtx>(context);
+    std::shared_ptr<napi::JSCCtxValue> jscValue = std::static_pointer_cast<napi::JSCCtxValue>(value);
 
     id objcObject;
     double numberResult;

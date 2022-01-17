@@ -20,7 +20,6 @@
 
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable no-console */
 
 import { once } from 'shared/util';
 import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL } from '../runtime/constants';

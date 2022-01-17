@@ -31,8 +31,8 @@ import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerAdapter;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import android.content.Context;
@@ -95,11 +95,11 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   private OnScrollFlingStartedEvent mOnScrollFlingStartedEvent;
   private OnScrollFlingEndedEvent mOnScrollFlingEndedEvent;
   private OnScrollEvent mOnScrollEvent;
-  private INativeRenderer nativeRenderer;
+  private NativeRender nativeRenderer;
 
   private void init(Context context, int orientation) {
-    if (context instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)context).getInstanceId();
+    if (context instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)context).getInstanceId();
       nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
     }
     this.setLayoutManager(new LinearLayoutManager(context, orientation, false));
@@ -122,7 +122,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   }
 
   protected RecyclerAdapter createAdapter(RecyclerView hippyRecyclerView,
-          INativeRenderer nativeRenderer) {
+          NativeRender nativeRenderer) {
     return new HippyListAdapter(hippyRecyclerView, nativeRenderer);
   }
 
@@ -779,7 +779,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
   private OnInitialListReadyEvent getOnInitialListReadyEvent() {
     if (mOnInitialListReadyEvent == null) {
-      mOnInitialListReadyEvent = new OnInitialListReadyEvent("initialListReady");
+      mOnInitialListReadyEvent = new OnInitialListReadyEvent("initiallistready");
     }
     return mOnInitialListReadyEvent;
   }

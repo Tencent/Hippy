@@ -110,6 +110,8 @@ public class NodeProps {
   public static final String FONT_STYLE = "fontStyle";
   public static final String FONT_FAMILY = "fontFamily";
   public static final String LINE_HEIGHT = "lineHeight";
+  public static final String LINE_SPACING_MULTIPLIER = "lineSpacingMultiplier";
+  public static final String LINE_SPACING_EXTRA = "lineSpacingExtra";
   public static final String NUMBER_OF_LINES = "numberOfLines";
   public static final String ELLIPSIZE_MODE = "ellipsizeMode";
   public static final String ON = "on";
@@ -119,18 +121,21 @@ public class NodeProps {
   public static final String TEXT_ALIGN = "textAlign";
   public static final String TEXT_ALIGN_VERTICAL = "textAlignVertical";
   public static final String TEXT_DECORATION_LINE = "textDecorationLine";
-  public static final String ON_CLICK = "onClick";
-  public static final String ON_LONG_CLICK = "onLongClick";
-  public static final String ON_PRESS_IN = "onPressIn";
-  public static final String ON_PRESS_OUT = "onPressOut";
-  public static final String ON_TOUCH_DOWN = "onTouchDown";
-  public static final String ON_TOUCH_MOVE = "onTouchMove";
-  public static final String ON_TOUCH_END = "onTouchEnd";
-  public static final String ON_TOUCH_CANCEL = "onTouchCancel";
-  public static final String ON_INTERCEPT_TOUCH_EVENT = "onInterceptTouchEvent";
-  public static final String ON_INTERCEPT_PULL_UP_EVENT = "onInterceptPullUpEvent";
-  public static final String ON_ATTACHED_TO_WINDOW = "onAttachedToWindow";
-  public static final String ON_DETACHED_FROM_WINDOW = "onDetachedFromWindow";
+  public static final String TEXT_SHADOW_OFFSET = "textShadowOffset";
+  public static final String TEXT_SHADOW_RADIUS = "textShadowRadius";
+  public static final String TEXT_SHADOW_COLOR = "textShadowColor";
+  public static final String ON_CLICK = "click";
+  public static final String ON_LONG_CLICK = "longclick";
+  public static final String ON_PRESS_IN = "pressin";
+  public static final String ON_PRESS_OUT = "pressout";
+  public static final String ON_TOUCH_DOWN = "touchdown";
+  public static final String ON_TOUCH_MOVE = "touchmove";
+  public static final String ON_TOUCH_END = "touchend";
+  public static final String ON_TOUCH_CANCEL = "touchcancel";
+  public static final String ON_INTERCEPT_TOUCH_EVENT = "intercepttouchevent";
+  public static final String ON_INTERCEPT_PULL_UP_EVENT = "interceptpullupevent";
+  public static final String ON_ATTACHED_TO_WINDOW = "attachedtowindow";
+  public static final String ON_DETACHED_FROM_WINDOW = "detachedfromwindow";
 
   public static final String BORDER_RADIUS = "borderRadius";
   public static final String BORDER_TOP_LEFT_RADIUS = "borderTopLeftRadius";
@@ -146,6 +151,7 @@ public class NodeProps {
   public static final String VIEW_CLASS_NAME = "View";
   public static final String TEXT_CLASS_NAME = "Text";
   public static final String IMAGE_CLASS_NAME = "Image";
+  public static final String IMAGE_SPAN_TEXT = "[img]";
 
   public static final String STYLE = "style";
   public static final String PROPS = "props";

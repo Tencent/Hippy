@@ -38,7 +38,6 @@ function prefetch(url: string) {
   Bridge.callNative('ImageLoaderModule', 'prefetch', url);
 }
 
-
 export {
   getSize,
   prefetch,

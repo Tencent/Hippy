@@ -72,16 +72,17 @@ void HippyRegisterModule(Class moduleClass) {
  * This function returns the module name for a given class.
  */
 NSString *HippyBridgeModuleNameForClass(Class cls) {
-    NSString *name = nil;
 #if HIPPY_DEBUG
+    HippyAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)] || [cls conformsToProtocol:@protocol(HippyTurboModule)],
+                @"Bridge module `%@` does not conform to HippyBridgeModule or HippyTurboModule", cls);
+#endif
+    NSString *name = nil;
+    // The two protocols(HippyBridgeModule and HippyTurboModule)  should be mutually exclusive.
     if ([cls conformsToProtocol:@protocol(HippyBridgeModule)]) {
         name = [cls moduleName];
     } else if ([cls conformsToProtocol:@protocol(HippyTurboModule)]) {
         name = [cls turoboModuleName];
-    } else {
-        HippyAssert(NO, @"Bridge module `%@` does not conform to HippyBridgeModule or HippyTurboModule", cls);
     }
-#endif
     if (name.length == 0) {
         name = NSStringFromClass(cls);
     }
@@ -203,6 +204,18 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         });
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
+    return self;
+}
+
+- (instancetype)initWithmoduleProviderWithoutRuntime:(HippyBridgeModuleProviderBlock)block {
+    self = [super init];
+    if (self) {
+        _moduleProvider = block;
+        [self setUp];
+    }
+    HippyExecuteOnMainQueue(^{
+        [self bindKeys];
+    });
     return self;
 }
 
@@ -415,17 +428,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #define kBridgeKey @"bridgeKey"
 
 - (void)setBridge:(HippyBridge *)bridge {
+    NSHashTable *hashTable = nil;
     if (bridge) {
-        NSMapTable *mapTable = [NSMapTable strongToWeakObjectsMapTable];
-        [mapTable setObject:bridge forKey:kBridgeKey];
-        objc_setAssociatedObject(self, @selector(bridge), mapTable, OBJC_ASSOCIATION_RETAIN);
+        hashTable = [NSHashTable weakObjectsHashTable];
+        [hashTable addObject:bridge];
     }
+    objc_setAssociatedObject(self, @selector(bridge), hashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (HippyBridge *)bridge {
-    NSMapTable *mapTable = objc_getAssociatedObject(self, _cmd);
-    HippyBridge *bridge = [mapTable objectForKey:kBridgeKey];
-    return bridge;
+    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
+    return [hashTable anyObject];
 }
 
 @end

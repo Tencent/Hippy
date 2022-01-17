@@ -155,17 +155,6 @@
     _tableView.frame = self.bounds;
 }
 
-- (void)setDomNode:(std::shared_ptr<hippy::DomNode>)domNode {
-    [super setDomNode:domNode];
-    const auto children = domNode->GetChildren();
-    _itemDomNodes.clear();
-    NSArray<NSString *> *itemViewsNames = [self listItemViewNames];
-    std::copy_if(children.begin(), children.end(), std::back_inserter(_itemDomNodes), [itemNames_ = itemViewsNames](const std::shared_ptr<hippy::DomNode> &child){
-        NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
-        return [itemNames_ containsObject:childViewName];
-    });
-}
-
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
@@ -188,6 +177,23 @@
 
 - (void)didUpdateHippySubviews {
     [super didUpdateHippySubviews];
+    [self refreshItemNodes];
+    [self reloadData];
+}
+
+- (void)refreshItemNodes {
+    auto domNode = self.domNode.lock();
+    if (domNode) {
+        _itemDomNodes.clear();
+        const auto &children = domNode->GetChildren();
+        if (children.size() > 0) {
+            NSArray<NSString *> *itemViewsNames = [self listItemViewNames];
+            std::copy_if(children.begin(), children.end(), std::back_inserter(_itemDomNodes), [itemNames_ = itemViewsNames](const std::shared_ptr<hippy::DomNode> &child){
+                NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
+                return [itemNames_ containsObject:childViewName];
+            });
+        }
+    }
 }
 
 #pragma mark -Scrollable
@@ -350,6 +356,7 @@
         cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.tableView = tableView;
     }
+    //FIXME use cache for cell view creation
     UIView *cellView = [_bridge.uiManager viewForHippyTag:@(domNode->GetId())];
     cellView.frame = CGRectMake(0, 0, CGRectGetWidth(cellView.frame), CGRectGetHeight(cellView.frame));
 //    if (cell.node.cell) {

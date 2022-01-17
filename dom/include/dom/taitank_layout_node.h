@@ -7,8 +7,9 @@
 namespace hippy {
 inline namespace dom {
 
-typedef CSSDirection TaitankCssDirection;
-typedef HPMeasureFunc TaitankMeasureFunction;
+// using TaitankCssDirection = CSSDirection;
+using TaitankMeasureFunction = LayoutMesureFunction;
+using TaitankResult = HPSize;
 
 class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this<TaitankLayoutNode> {
  public:
@@ -25,7 +26,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @param direction 布局方向
    * @param layout_context context
    */
-  void CalculateLayout(float parent_width, float parent_height, Direction direction = DirectionLTR,
+  void CalculateLayout(float parent_width, float parent_height, Direction direction = LTR,
                        void* layout_context = nullptr) override;
 
   /**
@@ -45,6 +46,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @param height 高度
    */
   void SetHeight(float height) override;
+
+  /**
+   * @brief 设置 sacle factor
+   * @param sacle_factor 缩放比例
+   */
+  void SetScaleFactor(float sacle_factor) override;
+
   /**
    * @brief 设置测量函数
    * @param measure_function 测量函数
@@ -56,25 +64,25 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 获取 left 属性
    * @return left 属性
    */
-  float GetLeft();
+  float GetLeft() override;
 
   /**
    * @brief 获取 top 属性
    * @return top 属性
    */
-  float GetTop();
+  float GetTop() override;
 
   /**
    * @brief 获取 right 属性
    * @return right 属性
    */
-  float GetRight();
+  float GetRight() override;
 
   /**
    * @brief 获取 bottom 属性
    * @return bottom 属性
    */
-  float GetBottom();
+  float GetBottom() override;
 
   /**
    * @brief 获取 width 属性
@@ -90,24 +98,24 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
 
   /**
    * @brief 获取 margin 属性
-   * @param css_direction
+   * @param edge
    * @return left 属性
    */
-  float GetMargin(TaitankCssDirection css_direction);
+  float GetMargin(Edge edge) override;
 
   /**
    * @brief 获取 padding 属性
-   * @param css_direction
+   * @param edge
    * @return padding 属性
    */
-  float GetPadding(TaitankCssDirection css_direction);
+  float GetPadding(Edge edge) override;
 
   /**
    * @brief 获取 border 属性
-   * @param css_direction
+   * @param edge
    * @return border 属性
    */
-  float GetBorder(TaitankCssDirection css_direction);
+  float GetBorder(Edge edge) override;
 
   /**
    * @brief 是否 overflow
@@ -139,13 +147,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 是否有新的布局
    * @return 是否有新的布局
    */
-  bool HasNewLayout();
+  bool HasNewLayout() override;
 
   /**
    * @brief 设置 has new layout 属性
    * @param has_new_layout
    */
-  void SetHasNewLayout(bool has_new_layout);
+  void SetHasNewLayout(bool has_new_layout) override;
 
   /**
    * @brief 节点标脏
@@ -179,7 +187,6 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @param direction 方向(DirectionInherit|DirectionLTR|DirectionRTL)
    */
   void SetDirection(HPDirection direction);
-
 
   /**
    * @brief 设置 max width 属性

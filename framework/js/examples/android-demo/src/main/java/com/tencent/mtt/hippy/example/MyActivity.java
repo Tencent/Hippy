@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
@@ -74,10 +75,12 @@ public class MyActivity extends Activity
 					LogUtils.e("hippy", details);
 				}
 			};
-			List<HippyAPIProvider> providers = new ArrayList<>();
-			providers.add(new MyAPIProvider());
-			// 可选：自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
-			initParams.providers = providers;
+			List<HippyAPIProvider> moduleProviders = new ArrayList<>();
+			moduleProviders.add(new MyAPIProvider());
+			initParams.moduleProviders = moduleProviders;
+			List<ControllerProvider> controllerProviders = new ArrayList<>();
+			controllerProviders.add(new MyControllerProvider());
+			initParams.controllerProviders = controllerProviders;
 
 			// 可选： 是否启用turbo能力
 			initParams.enableTurbo = true;

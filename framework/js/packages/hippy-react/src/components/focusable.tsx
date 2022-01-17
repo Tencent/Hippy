@@ -19,23 +19,21 @@
  */
 
 import React from 'react';
-import { Fiber } from 'react-reconciler';
-import Style from '@localTypes/style';
-import { FocusEvent } from '@localTypes/event';
+import { Fiber } from '@hippy/react-reconciler';
 import { getNodeIdByRef } from '../modules/ui-manager-module';
 import View from './view';
 
 interface FocusableProps {
   requestFocus?: boolean;
-  style?: Style;
-  noFocusStyle?: Style;
-  focusStyle?: Style;
+  style?: HippyTypes.Style;
+  noFocusStyle?: HippyTypes.Style;
+  focusStyle?: HippyTypes.Style;
   nextFocusDownId?: string;
   nextFocusUpId?: string;
   nextFocusLeftId?: string;
   nextFocusRightId?: string;
-  onFocus?(evt: FocusEvent): void;
-  onClick?(): void;
+  onClick?: () => void;
+  onFocus?: (evt: HippyTypes.FocusEvent) => void;
 }
 
 interface FocusableState {
@@ -49,7 +47,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
   /**
    * @ignore
    */
-  constructor(props: FocusableProps) {
+  public constructor(props: FocusableProps) {
     super(props);
     const { requestFocus } = this.props;
     this.state = {
@@ -57,20 +55,6 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
     };
 
     this.handleFocus = this.handleFocus.bind(this);
-  }
-
-  private handleFocus(e: FocusEvent) {
-    const { onFocus: userOnFocus } = this.props;
-    if (typeof userOnFocus === 'function') {
-      userOnFocus(e);
-    }
-
-    const { isFocus } = this.state;
-    if (isFocus !== e.focus) {
-      this.setState({
-        isFocus: e.focus,
-      });
-    }
   }
 
   /**
@@ -146,6 +130,20 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
       style: nativeStyle,
       onFocus: this.handleFocus,
     });
+  }
+
+  private handleFocus(e: HippyTypes.FocusEvent) {
+    const { onFocus: userOnFocus } = this.props;
+    if (typeof userOnFocus === 'function') {
+      userOnFocus(e);
+    }
+
+    const { isFocus } = this.state;
+    if (isFocus !== e.focus) {
+      this.setState({
+        isFocus: e.focus,
+      });
+    }
   }
 }
 

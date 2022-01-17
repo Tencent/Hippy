@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.dom.node;
 
+import static com.tencent.mtt.hippy.dom.node.NodeProps.IMAGE_SPAN_TEXT;
+
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -26,7 +28,7 @@ import android.text.*;
 import android.text.Layout.Alignment;
 import android.text.style.*;
 
-import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
+import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
@@ -39,7 +41,11 @@ import com.tencent.mtt.hippy.views.text.HippyTextView;
 
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
-import com.tencent.renderer.INativeRenderer;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.component.text.TextLetterSpacingSpan;
+import com.tencent.renderer.component.text.TextLineHeightSpan;
+import com.tencent.renderer.component.text.TextShadowSpan;
+import com.tencent.renderer.component.text.TextStyleSpan;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +92,6 @@ public class TextNode extends StyleNode {
   public static final String PROP_SHADOW_OFFSET_HEIGHT = "height";
   public static final String PROP_SHADOW_RADIUS = "textShadowRadius";
   public static final String PROP_SHADOW_COLOR = "textShadowColor";
-
-  public static final String IMAGE_SPAN_TEXT = "[img]";
 
   final TextPaint sTextPaintInstance = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
 
@@ -399,17 +403,17 @@ public class TextNode extends StyleNode {
     markUpdated();
   }
 
-  protected HippyFontScaleAdapter mFontScaleAdapter;
-  protected INativeRenderer nativeRenderer;
+  protected FontAdapter mFontScaleAdapter;
+  protected NativeRender nativeRenderer;
   protected IImageLoaderAdapter mImageAdapter;
 
   @Override
-  public void layoutBefore(INativeRenderer nativeRenderer) {
+  public void layoutBefore(NativeRender nativeRenderer) {
     super.layoutBefore(nativeRenderer);
 
     this.nativeRenderer = nativeRenderer;
     if (mFontScaleAdapter == null) {
-      mFontScaleAdapter = nativeRenderer.getFontScaleAdapter();
+      mFontScaleAdapter = nativeRenderer.getFontAdapter();
     }
 
     if (mImageAdapter == null) {
@@ -456,46 +460,46 @@ public class TextNode extends StyleNode {
 
   private void createImageSpanOperation(List<SpanOperation> ops, SpannableStringBuilder sb,
       ImageNode imageNode) {
-    String url = null;
-    String defaultSource = null;
-    HippyMap props = imageNode.getTotalProps();
-    if (props != null) {
-      url = props.getString("src");
-      defaultSource = props.getString("defaultSource");
-    }
-
-    Drawable drawable = null;
-    if (!TextUtils.isEmpty(defaultSource) && mImageAdapter != null) {
-      assert defaultSource != null;
-      IDrawableTarget hippyDrawable = mImageAdapter.getImage(defaultSource, null);
-      Bitmap bitmap = hippyDrawable.getBitmap();
-      if (bitmap != null) {
-        drawable = new BitmapDrawable(bitmap);
-      }
-    }
-
-    if (drawable == null) {
-      drawable = new ColorDrawable(Color.parseColor("#00000000"));
-    }
-
-    int width = Math.round(imageNode.getStyleWidth());
-    int height = Math.round(imageNode.getStyleHeight());
-    drawable.setBounds(0, 0, width, height);
-
-    HippyImageSpan imageSpan = new HippyImageSpan(drawable, url, imageNode, mImageAdapter,
-            nativeRenderer);
-    imageNode.setImageSpan(imageSpan);
-
-    int start = sb.length();
-    sb.append(IMAGE_SPAN_TEXT);
-    int end = start + IMAGE_SPAN_TEXT.length();
-    ops.add(new SpanOperation(start, end, imageSpan));
-
-    if (imageNode.getGestureTypes() != null && imageNode.getGestureTypes().size() > 0) {
-      HippyNativeGestureSpan span = new HippyNativeGestureSpan(imageNode.getId(), true);
-      span.addGestureTypes(imageNode.getGestureTypes());
-      ops.add(new SpanOperation(start, end, span));
-    }
+//    String url = null;
+//    String defaultSource = null;
+//    HippyMap props = imageNode.getTotalProps();
+//    if (props != null) {
+//      url = props.getString("src");
+//      defaultSource = props.getString("defaultSource");
+//    }
+//
+//    Drawable drawable = null;
+//    if (!TextUtils.isEmpty(defaultSource) && mImageAdapter != null) {
+//      assert defaultSource != null;
+//      IDrawableTarget hippyDrawable = mImageAdapter.getImage(defaultSource, null);
+//      Bitmap bitmap = hippyDrawable.getBitmap();
+//      if (bitmap != null) {
+//        drawable = new BitmapDrawable(bitmap);
+//      }
+//    }
+//
+//    if (drawable == null) {
+//      drawable = new ColorDrawable(Color.parseColor("#00000000"));
+//    }
+//
+//    int width = Math.round(imageNode.getStyleWidth());
+//    int height = Math.round(imageNode.getStyleHeight());
+//    drawable.setBounds(0, 0, width, height);
+//
+//    TextImageSpan imageSpan = new TextImageSpan(drawable, url, imageNode, mImageAdapter,
+//            nativeRenderer);
+//    imageNode.setImageSpan(imageSpan);
+//
+//    int start = sb.length();
+//    sb.append(IMAGE_SPAN_TEXT);
+//    int end = start + IMAGE_SPAN_TEXT.length();
+//    ops.add(new SpanOperation(start, end, imageSpan));
+//
+//    if (imageNode.getGestureTypes() != null && imageNode.getGestureTypes().size() > 0) {
+//      TextGestureSpan span = new TextGestureSpan(imageNode.getId(), true);
+//      span.addGestureTypes(imageNode.getGestureTypes());
+//      ops.add(new SpanOperation(start, end, span));
+//    }
   }
 
   private void createSpanOperations(List<SpanOperation> ops, SpannableStringBuilder sb,
@@ -512,7 +516,7 @@ public class TextNode extends StyleNode {
       if (textNode.mLetterSpacing != UNSET) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
           ops.add(
-              new SpanOperation(start, end, new HippyLetterSpacingSpan(textNode.mLetterSpacing)));
+              new SpanOperation(start, end, new TextLetterSpacingSpan(textNode.mLetterSpacing)));
         }
       }
       if (textNode.mFontSize != UNSET) {
@@ -527,7 +531,7 @@ public class TextNode extends StyleNode {
       if (textNode.mFontStyle != UNSET || textNode.mFontWeight != UNSET
           || textNode.mFontFamily != null) {
         ops.add(new SpanOperation(start, end,
-            new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, textNode.mFontFamily,
+            new TextStyleSpan(textNode.mFontStyle, textNode.mFontWeight, textNode.mFontFamily,
                 mFontScaleAdapter)));
       }
       if (textNode.mIsUnderlineTextDecorationSet) {
@@ -538,7 +542,7 @@ public class TextNode extends StyleNode {
       }
       if (textNode.mTextShadowOffsetDx != 0 || textNode.mTextShadowOffsetDy != 0) {
         ops.add(new SpanOperation(start, end,
-            new HippyShadowSpan(textNode.mTextShadowOffsetDx, textNode.mTextShadowOffsetDy,
+            new TextShadowSpan(textNode.mTextShadowOffsetDx, textNode.mTextShadowOffsetDy,
                 textNode.mTextShadowRadius, textNode.mTextShadowColor)));
       }
       if (textNode.mLineHeight != UNSET) {
@@ -547,14 +551,14 @@ public class TextNode extends StyleNode {
         if (textNode.mFontScaleAdapter != null && textNode.mEnableScale) {
           lineHeight = (lineHeight * textNode.mFontScaleAdapter.getFontScale());
         }
-        ops.add(new SpanOperation(start, end, new HippyLineHeightSpan(lineHeight)));
+        ops.add(new SpanOperation(start, end, new TextLineHeightSpan(lineHeight)));
       }
 
-      if (textNode.mGestureTypes != null && textNode.mGestureTypes.size() > 0) {
-        HippyNativeGestureSpan span = new HippyNativeGestureSpan(textNode.getId(), isVirtual());
-        span.addGestureTypes(textNode.mGestureTypes);
-        ops.add(new SpanOperation(start, end, span));
-      }
+//      if (textNode.mGestureTypes != null && textNode.mGestureTypes.size() > 0) {
+//        TextGestureSpan span = new TextGestureSpan(textNode.getId(), isVirtual());
+//        span.addGestureTypes(textNode.mGestureTypes);
+//        ops.add(new SpanOperation(start, end, span));
+//      }
     }
 
     if (useChild) {
@@ -614,7 +618,7 @@ public class TextNode extends StyleNode {
     }
   };
 
-  public void layoutAfter(INativeRenderer nativeRenderer) {
+  public void layoutAfter(NativeRender nativeRenderer) {
     if (!isVirtual() && nativeRenderer != null) {
       LogUtils.d("TextNode",
           "measure:layoutAfter" + " w: " + getLayoutWidth() + " h: " + getLayoutHeight());

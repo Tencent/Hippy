@@ -76,9 +76,10 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
   std::shared_ptr<Ctx> ctx =
       std::static_pointer_cast<Ctx>(runtime->GetScope()->GetContext());
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
-  v8::HandleScope handle_scope(v8_ctx->isolate_);
+  auto isolate = v8_ctx->isolate_;
+  v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Context> context =
-      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
+      v8_ctx->context_persistent_.Get(isolate);
   v8::Context::Scope context_scope(context);
 
   if (info.Length() == 1 && !info[0].IsEmpty() && info[0]->IsString()) {
@@ -101,10 +102,9 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
       std::shared_ptr<JavaRef> module_impl =
           QueryTurboModuleImpl(runtime, name);
       if (!module_impl->GetObj()) {
-        std::string exception_info =
-            std::string("Cannot find TurboModule: ").append(name);
-        TDF_BASE_LOG(ERROR) << "cannot find TurboModule = %s", name.c_str();
-        ConvertUtils::ThrowException(ctx, exception_info);
+        std::string exception_info = "Cannot find TurboModule: " + name;
+        TDF_BASE_LOG(ERROR) << "cannot find TurboModule = " << name;
+        ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(exception_info)));
         return info.GetReturnValue().SetUndefined();
       }
 

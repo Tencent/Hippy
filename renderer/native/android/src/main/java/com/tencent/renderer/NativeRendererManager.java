@@ -13,22 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer;
 
+import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NativeRendererManager {
-  private static final ConcurrentHashMap<Integer, INativeRenderer> nativeRendererMap = new ConcurrentHashMap<>();
 
-  public static void addNativeRendererInstance(Integer instanceId, INativeRenderer nativeRenderer) {
-    nativeRendererMap.put(instanceId, nativeRenderer);
-  }
+    private static final ConcurrentHashMap<Integer, NativeRender> sNativeRendererMap = new ConcurrentHashMap<>();
 
-  public static void removeNativeRendererInstance(Integer instanceId) {
-    nativeRendererMap.remove(instanceId);
-  }
+    public static void addNativeRendererInstance(Integer instanceId, @NonNull NativeRender nativeRenderer) {
+        sNativeRendererMap.put(instanceId, nativeRenderer);
+    }
 
-  public static INativeRenderer getNativeRenderer(Integer instanceId) {
-    return nativeRendererMap.get(instanceId);
-  }
+    public static void removeNativeRendererInstance(Integer instanceId) {
+        sNativeRendererMap.remove(instanceId);
+    }
+
+    @Nullable
+    public static NativeRender getNativeRenderer(Integer instanceId) {
+        return sNativeRendererMap.get(instanceId);
+    }
+
+    @Nullable
+    public static NativeRender getNativeRenderer(@Nullable Context context) {
+        if (context instanceof NativeRenderContext) {
+            final int instanceId = ((NativeRenderContext) context).getInstanceId();
+            return getNativeRenderer(instanceId);
+        }
+        return null;
+    }
 }

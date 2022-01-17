@@ -17,27 +17,29 @@ package com.tencent.mtt.hippy.uimanager;
 
 import android.view.View;
 
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 public class HippyViewEvent {
 
   private final String mEventName;
 
-  public HippyViewEvent(String eventName) {
-    this.mEventName = eventName;
+  public HippyViewEvent(@NonNull String eventName) {
+    mEventName = eventName;
   }
 
-  public void send(View view, Object param) {
-    if (view != null && view.getContext() instanceof NativeRendererContext) {
-      int instanceId = ((NativeRendererContext)view.getContext()).getInstanceId();
-      INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+  public void send(@NonNull View view, @Nullable Object param) {
+    if (view != null && view.getContext() instanceof NativeRenderContext) {
+      int instanceId = ((NativeRenderContext)view.getContext()).getInstanceId();
+      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       send(view.getId(), nativeRenderer, param);
     }
   }
 
-  public void send(int id, INativeRenderer nativeRenderer, Object param) {
+  public void send(int id, @Nullable NativeRender nativeRenderer, @Nullable Object param) {
     if (nativeRenderer != null) {
       nativeRenderer.dispatchUIComponentEvent(id, mEventName, param);
     }

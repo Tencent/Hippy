@@ -154,10 +154,10 @@ void HPNode::setStyle(const HPStyle& st) {
   // TODO(ianwang): layout if needed???
 }
 
-bool HPNode::setMeasureFunc(HPMeasureFunc _measure) {
-  if (measure == _measure) {
-    return true;
-  }
+bool HPNode::setMeasureFunc(LayoutMesureFunction _measure) {
+//  if (*measure == _measure) {
+//    return true;
+//  }
 
   // not leaf node , not set measure
   if (childCount() > 0) {
@@ -283,13 +283,13 @@ void HPNode::setDirtiedFunc(HPDirtiedFunc _dirtiedFunc) {
   dirtiedFunc = _dirtiedFunc;
 }
 
-void HPNode::setContext(void* _context) {
-  context = _context;
-}
+// void HPNode::setContext(void* _context) {
+//   context = _context;
+// }
 
-void* HPNode::getContext() {
-  return context;
-}
+// void* HPNode::getContext() {
+//   return context;
+// }
 
 bool HPNode::isLayoutDimDefined(FlexDirection axis) {
   return isDefined(result.dim[axisDim[axis]]);
@@ -606,10 +606,7 @@ void HPNode::layout(float parentWidth,
 
   // node 's layout is complete
   // convert its and its descendants position and size to a integer value.
-#ifndef ANDROID
-  convertLayoutResult(0.0f, 0.0f, config->GetScaleFactor());  // layout result convert has been taken in
-                                    // java . 3.8.2018. ianwang..
-#endif
+  convertLayoutResult(0.0f, 0.0f, config->GetScaleFactor());
 
 #ifdef LAYOUT_TIME_ANALYZE
   HPLog(LogLevelDebug, "HippyLayoutTime layout: count %d cache %d, measure: count %d cache %d",
@@ -1538,9 +1535,9 @@ void HPNode::convertLayoutResult(float absLeft, float absTop, float scaleFactor)
   result.position[CSSTop] = HPRoundValueToPixelGrid(top, scaleFactor, false, isTextNode);
 
   const bool hasFractionalWidth =
-      !FloatIsEqual(fmodf(width, 1.0), 0) && !FloatIsEqual(fmodf(width, 1.0), 1.0);
+      !FloatIsEqual(fmodf(width * scaleFactor, 1.0), 0) && !FloatIsEqual(fmodf(width * scaleFactor, 1.0), 1.0);
   const bool hasFractionalHeight =
-      !FloatIsEqual(fmodf(height, 1.0), 0) && !FloatIsEqual(fmodf(height, 1.0), 1.0);
+      !FloatIsEqual(fmodf(height * scaleFactor, 1.0), 0) && !FloatIsEqual(fmodf(height * scaleFactor, 1.0), 1.0);
 
   const float absRight = absLeft + width;
   const float absBottom = absTop + height;

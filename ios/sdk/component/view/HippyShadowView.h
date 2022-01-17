@@ -28,6 +28,7 @@
 #import "HippyRootView.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
+#include "dom/taitank_layout_node.h"
 #import "HippyVirtualNode.h"
 #import "HippyDomNodeUtils.h"
 
@@ -38,6 +39,8 @@ typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
 };
 
 HIPPY_EXTERN CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView);
+
+HIPPY_EXTERN hippy::TaitankLayoutNode *layoutNodeFromShadowView(HippyShadowView *shadowView);
 
 typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
 
@@ -75,7 +78,6 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 @property (nonatomic, copy) NSString *visibility;
 @property (nonatomic, assign) BOOL visibilityChanged;
 @property (nonatomic, assign) BOOL hasNewLayout;
-@property (nonatomic, assign) std::shared_ptr<hippy::DomNode> domNode;
 
 /**
  * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is
@@ -178,6 +180,10 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  */
 @property (nonatomic, assign) OverflowType overflow;
 
+- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode;
+- (const std::weak_ptr<hippy::DomNode> &)domNode;
+
+- (void)setLayoutFrame:(CGRect)frame;
 /**
  * Calculate property changes that need to be propagated to the view.
  * The applierBlocks set contains HippyApplierBlock functions that must be applied
@@ -186,8 +192,6 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 
 - (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
                 parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
-
-- (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
 
 /**
  * Process the updated properties and apply them to view. Shadow view classes

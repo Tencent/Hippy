@@ -39,6 +39,8 @@
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "dom/dom_manager.h"
+#include "render/hippy_render_manager.h"
+#include "jni/native_render_provider.h"
 #include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
 #include "jni/java_turbo_module.h"
@@ -58,7 +60,7 @@ REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cp
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-             "JJLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;)J",
+             "JLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -71,6 +73,21 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "destroy",
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "doBind",
+             "(III)V",
+             DoBind)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "createDomInstance",
+             "(I)I",
+             CreateDomInstance)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "destroyDomInstance",
+             "(I)V",
+             DestroyDomInstance)
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
@@ -98,6 +115,39 @@ enum INIT_CB_STATE {
   RUN_SCRIPT_ERROR = -1,
   SUCCESS = 0,
 };
+
+void DoBind(JNIEnv* j_env,
+            __unused jobject j_obj,
+            jint j_dom_id,
+            jint j_render_id,
+            jint j_framework_id) {
+  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_render_id));
+
+  float density = render_manager->GetDensity();
+  uint32_t root_id = dom_manager->GetRootId();
+  auto node = dom_manager->GetNode(root_id);
+  auto layout_node = node->GetLayoutNode();
+  layout_node->SetScaleFactor(density);
+
+  auto scope = runtime->GetScope();
+  scope->SetDomManager(dom_manager);
+  scope->SetRenderManager(render_manager);
+  dom_manager->SetRenderManager(render_manager);
+  dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
+}
+
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
+  TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
+  std::shared_ptr<DomManager> dom_manager = std::make_shared<DomManager>(static_cast<uint32_t>(j_root_id));
+  DomManager::Insert(dom_manager);
+  return dom_manager->GetId();
+}
+
+void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
+  DomManager::Erase(static_cast<int32_t>(j_dom_id));
+}
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
   if (!j_logger) {
@@ -370,7 +420,6 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id,
-                   jlong j_root_view_id,
                    jobject j_vm_init_param) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
@@ -378,8 +427,7 @@ jlong InitInstance(JNIEnv* j_env,
                      << static_cast<uint32_t>(j_enable_v8_serialization)
                      << ", j_is_dev_module = "
                      << static_cast<uint32_t>(j_is_dev_module)
-                     << ", j_group_id = " << j_group_id
-                     << ", j_root_view_id = " << j_root_view_id;
+                     << ", j_group_id = " << j_group_id;
   std::shared_ptr<Runtime> runtime =
       std::make_shared<Runtime>(std::make_shared<JavaRef>(j_env, j_object),
                                 j_enable_v8_serialization, j_is_dev_module);
@@ -510,8 +558,8 @@ jlong InitInstance(JNIEnv* j_env,
     runtime->SetEngine(engine);
   }
   auto scope = runtime->GetEngine()->CreateScope("", std::move(scope_cb_map));
-  TDF_BASE_DCHECK(j_root_view_id <= std::numeric_limits<std::int32_t>::max());
-  scope->SetDomManager(std::make_shared<DomManager>(static_cast<int32_t>(j_root_view_id)));
+  //TDF_BASE_DCHECK(j_root_view_id <= std::numeric_limits<std::int32_t>::max());
+  //scope->SetDomManager(std::make_shared<DomManager>(static_cast<int32_t>(j_root_view_id)));
   runtime->SetScope(scope);
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
@@ -557,7 +605,8 @@ void DestroyInstance(__unused JNIEnv* j_env,
   if (group == kDebuggerEngineId) {
     runtime->GetScope()->WillExit();
   }
-  runtime->GetEngine()->GetJSRunner()->PostTask(task);
+  auto runner = runtime->GetEngine()->GetJSRunner();
+  runner->PostTask(task);
   TDF_BASE_DLOG(INFO) << "destroy, group = " << group;
   if (group == kDebuggerEngineId) {
   } else if (group == kDefaultEngineId) {
@@ -571,6 +620,11 @@ void DestroyInstance(__unused JNIEnv* j_env,
       TDF_BASE_DLOG(INFO) << "reuse_engine_map cnt = " << cnt;
       if (cnt == 1) {
         reuse_engine_map.erase(it);
+        auto detach_task = std::make_shared<JavaScriptTask>();
+        detach_task->callback = [] {
+          JNIEnvironment::GetInstance()->DetachCurrentThread();
+        };
+        runner->PostTask(detach_task);
         engine->TerminateRunner();
       } else {
         std::get<uint32_t>(it->second) = cnt - 1;
@@ -608,6 +662,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Init();
   ConvertUtils::Init();
   TurboModuleManager::Init();
+  NativeRenderProvider::Init();
 
   return JNI_VERSION_1_4;
 }
@@ -619,6 +674,7 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Destroy();
   ConvertUtils::Destroy();
   TurboModuleManager::Destroy();
+  NativeRenderProvider::Destroy();
 
   JNIEnvironment::DestroyInstance();
 }

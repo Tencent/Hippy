@@ -13,7 +13,7 @@ DomValueMap DiffUtils::DiffProps(const DomValueMap& from, const DomValueMap& to)
   for (const auto& kv : from) {
     auto from_value = from.find(kv.first);  // old
     auto to_value = to.find(kv.first);      // new
-    if (to_value == to.end() || to_value->second == nullptr) {
+    if (to_value == to.end()) {
       continue;
     }
     if (from_value->second == nullptr) {
@@ -23,15 +23,15 @@ DomValueMap DiffUtils::DiffProps(const DomValueMap& from, const DomValueMap& to)
       continue;
     }
     if (from_value->second->IsBoolean()) {
-      if (to_value->second && to_value->second->ToBoolean() != from_value->second->ToBoolean()) {
+      if (!to_value->second || (to_value->second->ToBoolean() != from_value->second->ToBoolean())) {
         diff_props[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsNumber()) {
-      if (to_value->second && to_value->second->ToDouble() != from_value->second->ToDouble()) {
+      if (!to_value->second || (to_value->second->ToDouble() != from_value->second->ToDouble())) {
         diff_props[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsString()) {
-      if (to_value->second && to_value->second->ToString() != from_value->second->ToString()) {
+      if (!to_value->second || (to_value->second->ToString() != from_value->second->ToString())) {
         diff_props[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsArray()) {
@@ -54,6 +54,10 @@ DomValueMap DiffUtils::DiffProps(const DomValueMap& from, const DomValueMap& to)
       }
     } else if (from_value->second->IsNull()) {
       if (to_value->second && !to_value->second->IsNull()) {
+        diff_props[kv.first] = to_value->second;
+      }
+    } else if (from_value->second->IsUndefined()) {
+      if (to_value->second && !to_value->second->IsUndefined()) {
         diff_props[kv.first] = to_value->second;
       }
     } else {
@@ -102,6 +106,10 @@ DomValueArray DiffUtils::DiffArray(const DomValueArray& from, const DomValueArra
       if (!to_value.IsNull()) {
         return to;
       }
+    } else if (from_value.IsUndefined()) {
+      if (!to_value.IsUndefined()) {
+        return to;
+      }
     } else {
       TDF_BASE_NOTREACHED();
     }
@@ -146,6 +154,10 @@ DomValueObject DiffUtils::DiffObject(const DomValueObject& from, const DomValueO
       }
     } else if (from_value->second.IsNull()) {
       if (to_value != to.end() && !to_value->second.IsNull()) {
+        diff_props[kv.first] = to_value->second;
+      }
+    } else if (from_value->second.IsUndefined()) {
+      if (to_value != to.end() && !to_value->second.IsUndefined()) {
         diff_props[kv.first] = to_value->second;
       }
     } else {

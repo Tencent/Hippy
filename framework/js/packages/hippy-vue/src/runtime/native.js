@@ -24,7 +24,6 @@ import {
   HIPPY_VUE_VERSION,
   warn,
   trace,
-  isFunction,
 } from '../util';
 import {
   getCssMap,
@@ -350,25 +349,7 @@ const Native = {
       params = [];
     }
     trace('callUIFunction', { nodeId, funcName, params });
-    if (Native.Platform === 'android') {
-      if (isFunction(callback)) {
-        callNative('UIManagerModule', 'callUIFunction', [nodeId, funcName, params], callback);
-      } else {
-        callNative('UIManagerModule', 'callUIFunction', [nodeId, funcName, params]);
-      }
-    } else if (Native.Platform === 'ios' && el.meta.component.name) {
-      let { name: componentName } = el.meta.component;
-      // FIXME: iOS callNative method need the real component name,
-      //        but there's no a module named View in __GLOBAL__.NativeModules.
-      //        Because only ScrollView use the method so far, so just a workaround here.
-      if (componentName === 'View') {
-        componentName = 'ScrollView';
-      }
-      if (isFunction(callback) && Array.isArray(params)) {
-        params.push(callback);
-      }
-      callNative('UIManagerModule', 'callUIFunction', [componentName, nodeId, funcName, params]);
-    }
+    UIManagerModule.callUIFunction(nodeId, funcName, params, callback);
   },
 
   /**

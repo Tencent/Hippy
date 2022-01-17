@@ -51,6 +51,8 @@
  */
 @property (nonatomic, copy, readonly) NSArray<id<HippyBridgeMethod>> *methods;
 
+@property (nonatomic, copy, readonly) NSDictionary<NSString *, id<HippyBridgeMethod>> *methodsByName;
+
 /**
  * Returns YES if module instance has already been initialized; NO otherwise.
  */

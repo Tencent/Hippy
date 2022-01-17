@@ -19,8 +19,7 @@
  */
 
 import React from 'react';
-import { PullingEvent } from '@localTypes/event';
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
@@ -34,7 +33,7 @@ interface PullFooterProps extends LayoutableProps {
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
-  onFooterReleased?(): void;
+  onFooterReleased?: () => void;
 
   /**
    * Trigger when pulling
@@ -42,7 +41,7 @@ interface PullFooterProps extends LayoutableProps {
    * @param {Object} evt - Event data
    * @param {number} evt.contentOffset - Dragging distance
    */
-  onFooterPulling?(evt: PullingEvent): void;
+  onFooterPulling?: (evt: HippyTypes.PullingEvent) => void;
 }
 
 class PullFooter extends React.Component<PullFooterProps, {}> {
@@ -51,25 +50,25 @@ class PullFooter extends React.Component<PullFooterProps, {}> {
   /**
   * @ignore
   */
-  static defaultProps = {
+  private defaultProps = {
     sticky: true,
   };
 
   /**
    * Expand the PullView and display the content
    */
-  expandPullFooter() {
+  public expandPullFooter() {
     callUIFunction(this.instance as Element, 'expandPullFooter', []);
   }
 
   /**
    * Collapse the PullView and hide the content
    */
-  collapsePullFooter() {
+  public collapsePullFooter() {
     callUIFunction(this.instance as Element, 'collapsePullFooter', []);
   }
 
-  render() {
+  public render() {
     const { children, ...nativeProps } = this.props;
     return (
       <div

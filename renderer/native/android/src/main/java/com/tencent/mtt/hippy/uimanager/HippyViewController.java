@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import com.tencent.hippy.support.HippyBaseController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -38,16 +37,15 @@ import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
 
-import com.tencent.renderer.INativeRenderer;
-import com.tencent.renderer.NativeRendererContext;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
-public abstract class HippyViewController<T extends View & HippyViewBase> extends
-    HippyBaseController implements
+public abstract class HippyViewController<T extends View & HippyViewBase> implements
     View.OnFocusChangeListener {
 
   private static final String TAG = "HippyViewController";
@@ -57,7 +55,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> extend
   private boolean bUserChageFocus = false;
 
   @SuppressWarnings("deprecation")
-  public View createView(ViewGroup rootView, int id, INativeRenderer nativeRenderer,
+  public View createView(ViewGroup rootView, int id, NativeRender nativeRenderer,
       String className,
       HippyMap initialProps) {
     View view = null;
@@ -698,9 +696,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> extend
     return null;
   }
 
-  protected String getInnerPath(NativeRendererContext context, String path) {
-    int instanceId = ((NativeRendererContext)context).getInstanceId();
-    INativeRenderer nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+  protected String getInnerPath(NativeRenderContext context, String path) {
+    int instanceId = ((NativeRenderContext)context).getInstanceId();
+    NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
 
     //hpfile://./assets/file_banner02.jpg
     if (path != null && path.startsWith("hpfile://")) {

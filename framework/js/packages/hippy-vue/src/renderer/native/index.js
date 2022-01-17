@@ -26,7 +26,7 @@
  */
 
 import Native, { UIManagerModule } from '../../runtime/native';
-import { GLOBAL_STYLE_NAME } from '../../runtime/constants';
+import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '../../runtime/constants';
 import {
   getApp,
   trace,
@@ -84,24 +84,19 @@ function chunkNodes(batchNodes) {
  */
 let __cssMap;
 
-function startBatch() {
-  if (__batchIdle) {
-    UIManagerModule.startBatch();
-  }
-}
-
 function endBatch(app) {
-  if (!__batchIdle) {
+  if (!__batchIdle) return;
+  __batchIdle = false;
+  if (__batchNodes.length === 0) {
+    __batchIdle = true;
     return;
   }
-  __batchIdle = false;
   const {
     $nextTick,
     $options: {
       rootViewId,
     },
   } = app;
-
   $nextTick(() => {
     const chunks = chunkNodes(__batchNodes);
     chunks.forEach((chunk) => {
@@ -112,7 +107,6 @@ function endBatch(app) {
           break;
         case NODE_OPERATION_TYPES.updateNode:
           trace(...componentName, 'updateNode', chunk.nodes);
-          // FIXME: iOS should be able to update multiple nodes at once.
           if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
             chunk.nodes.forEach(node => (
               UIManagerModule.updateNode(rootViewId, [node])
@@ -123,7 +117,6 @@ function endBatch(app) {
           break;
         case NODE_OPERATION_TYPES.deleteNode:
           trace(...componentName, 'deleteNode', chunk.nodes);
-          // FIXME: iOS should be able to delete mutiple nodes at once.
           if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
             chunk.nodes.forEach(node => (
               UIManagerModule.deleteNode(rootViewId, [node])
@@ -147,20 +140,27 @@ function getCssMap() {
    * To support dynamic import, __cssMap can be loaded from different js file.
    * __cssMap should be create/append if global[GLOBAL_STYLE_NAME] exists;
    */
-  if (__cssMap && !global[GLOBAL_STYLE_NAME]) {
-    return __cssMap;
+  if (!__cssMap || global[GLOBAL_STYLE_NAME]) {
+    /**
+     *  Here is a secret startup option: beforeStyleLoadHook.
+     *  Usage for process the styles while styles loading.
+     */
+    const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
+    if (__cssMap) {
+      __cssMap.append(cssRules);
+    } else {
+      __cssMap = new SelectorsMap(cssRules);
+    }
+    global[GLOBAL_STYLE_NAME] = undefined;
   }
-  /**
-   *  Here is a secret startup option: beforeStyleLoadHook.
-   *  Usage for process the styles while styles loading.
-   */
-  const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
-  if (__cssMap) {
-    __cssMap.append(cssRules);
-  } else {
-    __cssMap = new SelectorsMap(cssRules);
+
+  if (global[GLOBAL_DISPOSE_STYLE_NAME]) {
+    global[GLOBAL_DISPOSE_STYLE_NAME].forEach((id) => {
+      __cssMap.delete(id);
+    });
+    global[GLOBAL_DISPOSE_STYLE_NAME] = undefined;
   }
-  global[GLOBAL_STYLE_NAME] = undefined;
+
   return __cssMap;
 }
 
@@ -304,9 +304,14 @@ function getTargetNodeAttributes(targetNode) {
       class: classInfo,
       ...targetNodeAttributes,
     };
+    // delete special __bind__event attribute, which is used in C DOM
+    Object.keys(attributes).forEach((key) => {
+      if (key.indexOf('__bind__') === 0 && typeof attributes[key] === 'boolean') {
+        delete attributes[key];
+      }
+    });
     delete attributes.text;
     delete attributes.value;
-
     return attributes;
   } catch (e) {
     warn('getTargetNodeAttributes error:', e);
@@ -348,14 +353,16 @@ function renderToNative(rootViewId, targetNode) {
       vueEventNames.forEach((vueEventName) => {
         const nativeEventName = eventNamesMap[vueEventName];
         if (nativeEventName) {
-          events[nativeEventName] = true;
+          events[`__bind__${nativeEventName}`] = true;
         } else {
-          events[`on${capitalizeFirstLetter(vueEventName)}`] = true;
+          const name = `on${capitalizeFirstLetter(vueEventName)}`;
+          events[`__bind__${name}`] = true;
         }
       });
     } else {
       vueEventNames.forEach((vueEventName) => {
-        events[`on${capitalizeFirstLetter(vueEventName)}`] = true;
+        const name = `on${capitalizeFirstLetter(vueEventName)}`;
+        events[`__bind__${name}`] = true;
       });
     }
   }
@@ -443,7 +450,6 @@ function insertChild(parentNode, childNode, atIndex = -1) {
       }
       preCacheNode(node, node.nodeId);
     });
-    startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
@@ -457,7 +463,6 @@ function insertChild(parentNode, childNode, atIndex = -1) {
       }
       preCacheNode(node, node.nodeId);
     });
-    startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
@@ -482,7 +487,6 @@ function removeChild(parentNode, childNode, index) {
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  startBatch();
   __batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
@@ -498,7 +502,6 @@ function updateChild(parentNode) {
   const { $options: { rootViewId } } = app;
   const translated = renderToNative(rootViewId, parentNode);
   if (translated) {
-    startBatch();
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
       nodes: [translated],
@@ -514,7 +517,6 @@ function updateWithChildren(parentNode) {
   const app = getApp();
   const { $options: { rootViewId } } = app;
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  startBatch();
   __batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,
