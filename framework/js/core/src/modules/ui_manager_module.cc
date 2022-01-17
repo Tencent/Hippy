@@ -452,7 +452,7 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
 
   std::unordered_map<std::string, std::shared_ptr<DomValue>> param;
   DomArgument param_value = *(context->ToDomArgument(info[2]));
-  hippy::CallFunctionCallback cb;
+  hippy::CallFunctionCallback cb = nullptr;
   bool flag = context->IsFunction(info[3]);
   if (flag) {
     auto func = info[3];
