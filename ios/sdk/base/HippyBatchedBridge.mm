@@ -110,7 +110,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
         _loading = YES;
         _pendingCalls = [NSMutableArray new];
         _displayLink = [HippyDisplayLink new];
-        
+
         [HippyBridge setCurrentBridge:self];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCreationOfRootView:) name:HippyUIManagerDidRegisterRootViewNotification object:nil];
 
@@ -766,6 +766,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
         int32_t rootTag = [[rootView hippyTag] intValue];
         _domManager = std::make_shared<hippy::DomManager>(rootTag);
+        _domManager->StartTaskRunner();
         [uiManager setDomManager:_domManager];
         _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
         _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
@@ -781,7 +782,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     if (!_valid) {
         return;
     }
-
+    _domManager->TerminateTaskRunner();
     HippyAssertMainQueue();
     HippyAssert(_javaScriptExecutor != nil, @"Can't complete invalidation without a JS executor");
 
@@ -933,15 +934,15 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     if (!self.enableTurbo) {
         return nil;
     }
-    
+
     if (name.length <= 0) {
         return nil;
     }
-    
+
     if(!self.turboModuleManager) {
         self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self delegate:nil];
     }
-    
+
     // getTurboModule
     HippyOCTurboModule *turboModule = [self.turboModuleManager turboModuleWithName:name];
     return turboModule;

@@ -49,7 +49,7 @@ else()
 endif()
 message("SRC_FILES:${SRC_FILES}")
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/dom)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${ANDROID_ABI})
 add_library(${LIB_NAME} STATIC ${SRC_FILES})
 target_link_libraries(${LIB_NAME} ${DEPS})
 set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 17)
