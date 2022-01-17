@@ -27,11 +27,15 @@
 @property (nonatomic, copy, readonly) NSString *localhostIP;
 @property (nonatomic, copy, readonly) NSString *localhostPort;
 @property (nonatomic, copy, readonly) NSString *debugPathUrl;
+@property (nonatomic, copy, readonly) NSString *versionId;
+@property (nonatomic, copy, readonly) NSString *scheme;
 
 /**
  * @return instancetype
  */
 + (instancetype)sharedInstance;
+
++ (NSString *)parseVersionId:(NSString *)path;
 
 /**
  * set local debug ip & port
@@ -41,10 +45,16 @@
 */
 - (void)setLocalhostIP:(NSString *)localhostIP localhostPort:(NSString *)localhostPort;
 
+- (void)setScheme:(NSString *)scheme;
+
 - (void)setDebugPathUrl:(NSString *)debugPathUrl;
 
 - (NSString *)localhost;
 
 - (NSString *)debugPathUrl;
+
+- (NSString *)versionId;
+
+- (NSString *)bundleURLString;
 
 @end
