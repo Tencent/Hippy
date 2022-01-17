@@ -455,14 +455,12 @@ jlong InitInstance(JNIEnv* j_env,
     param = std::make_shared<V8VMInitParam>();
     jclass cls = j_env->GetObjectClass(j_vm_init_param);
     jfieldID init_field = j_env->GetFieldID(cls,"initialHeapSize","J");
-    jlong initial_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, init_field);
-    TDF_BASE_CHECK(initial_heap_size_in_bytes <= std::numeric_limits<size_t>::max());
-    param->initial_heap_size_in_bytes = static_cast<size_t>(initial_heap_size_in_bytes);
+    param->initial_heap_size_in_bytes =
+            JniUtils::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, init_field));
     jfieldID max_field = j_env->GetFieldID(cls,"maximumHeapSize","J");
-    jlong maximum_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, max_field);
-    TDF_BASE_CHECK(maximum_heap_size_in_bytes <= std::numeric_limits<size_t>::max());
-    param->maximum_heap_size_in_bytes = static_cast<size_t>(maximum_heap_size_in_bytes);
-    TDF_BASE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
+    param->maximum_heap_size_in_bytes =
+            JniUtils::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, max_field));
+    TDF_BASE_CHECK(param->initial_heap_size_in_bytes <= param->maximum_heap_size_in_bytes);
   }
   std::shared_ptr<Engine> engine;
   if (j_is_dev_module) {
