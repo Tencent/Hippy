@@ -25,7 +25,7 @@
 
 #include <future>
 
-#include "bridge/runtime.h"
+#include "core/runtime/v8/runtime.h"
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "jni/jni_env.h"

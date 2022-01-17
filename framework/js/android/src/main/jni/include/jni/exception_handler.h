@@ -25,7 +25,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "bridge/runtime.h"
+#include "core/runtime/v8/runtime.h"
 
 class JNIEnvironment;
 

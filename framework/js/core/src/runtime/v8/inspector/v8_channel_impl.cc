@@ -20,16 +20,26 @@
  *
  */
 
-#pragma once
+#include "core/runtime/v8/inspector/v8_channel_impl.h"
 
-#include <jni.h>
+#include <string>
 
-#include "core/core.h"
+#include "jni/jni_env.h"
 
-namespace hippy {
-namespace bridge {
+namespace hippy::inspector {
 
-void CallNative(hippy::napi::CBDataTuple* data);
+V8ChannelImpl::V8ChannelImpl(std::shared_ptr<Bridge> bridge)
+    : bridge_(std::move(bridge)) {}
 
-}  // namespace bridge
+void V8ChannelImpl::sendResponse(
+    int callId,
+    std::unique_ptr<v8_inspector::StringBuffer> message) {
+  return bridge_->SendResponse(std::move(message));
+}
+
+void V8ChannelImpl::sendNotification(
+    std::unique_ptr<v8_inspector::StringBuffer> message) {
+  return bridge_->SendNotification(std::move(message));
+}
+
 }  // namespace hippy

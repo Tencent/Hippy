@@ -913,7 +913,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     const std::shared_ptr<CtxValue>& function,
     size_t argument_count,
     const std::shared_ptr<CtxValue> arguments[]) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx CallFunction begin";
+  TDF_BASE_DLOG(INFO) << "V8Ctx CallJs begin";
 
   if (!function) {
     TDF_BASE_LOG(ERROR) << "function is nullptr";
@@ -924,7 +924,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope contextScope(context);
   if (context.IsEmpty() || context->Global().IsEmpty()) {
-    TDF_BASE_LOG(ERROR) << "CallFunction context error";
+    TDF_BASE_LOG(ERROR) << "CallJs context error";
     return nullptr;
   }
 
@@ -933,7 +933,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
   if (!handle_value->IsFunction()) {
-    TDF_BASE_LOG(WARNING) << "CallFunction handle_value is not a function";
+    TDF_BASE_LOG(WARNING) << "CallJs handle_value is not a function";
     return nullptr;
   }
 
@@ -945,15 +945,15 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     if (argument) {
       args[i] = v8::Local<v8::Value>::New(isolate_, argument->global_value_);
     } else {
-      TDF_BASE_LOG(WARNING) << "CallFunction argument error, i = " << i;
+      TDF_BASE_LOG(WARNING) << "CallJs argument error, i = " << i;
       return nullptr;
     }
   }
 
-  TDF_BASE_DLOG(INFO) << "v8 CallFunction call begin";
+  TDF_BASE_DLOG(INFO) << "v8 CallJs call begin";
   v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(
       context, context->Global(), static_cast<int>(argument_count), args);
-  TDF_BASE_DLOG(INFO) << "v8 CallFunction call end";
+  TDF_BASE_DLOG(INFO) << "v8 CallJs call end";
 
   if (maybe_result.IsEmpty()) {
     TDF_BASE_DLOG(INFO) << "maybe_result is empty";

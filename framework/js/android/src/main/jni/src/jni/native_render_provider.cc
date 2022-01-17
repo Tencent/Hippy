@@ -22,7 +22,7 @@
 
 #include "jni/native_render_provider.h"
 
-#include "bridge/runtime.h"
+#include "core/runtime/v8/runtime.h"
 #include "dom/deserializer.h"
 #include "dom/dom_value.h"
 #include "dom/render_manager.h"

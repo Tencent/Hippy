@@ -32,8 +32,7 @@
 
 #include "base/logging.h"
 
-namespace hippy {
-namespace base {
+namespace hippy::base {
 
 bool HippyFile::SaveFile(const unicode_string_view& file_path,
                          const std::string& content,
@@ -128,5 +127,4 @@ uint64_t HippyFile::GetFileModifytime(const unicode_string_view& file_path) {
   fclose(fp);
   return modify_time;
 }
-}  // namespace base
 }  // namespace hippy

@@ -25,7 +25,7 @@
 #include "bridge/entry.h"
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
-#include "bridge/runtime.h"
+#include "core/runtime/v8/runtime.h"
 #include "core/napi/v8/serializer.h"
 #include "jni/exception_handler.h"
 #include "jni/jni_env.h"
@@ -34,7 +34,7 @@
 #include "jni/scoped_java_ref.h"
 #include "loader/adr_loader.h"
 #ifdef ENABLE_INSPECTOR
-#include "inspector/v8_channel_impl.h"
-#include "inspector/v8_inspector_client_impl.h"
+#include "core/runtime/v8/inspector/v8_channel_impl.h"
+#include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
 #include "v8/v8.h"

@@ -49,6 +49,8 @@ using TryCatch = hippy::napi::TryCatch;
 using UriLoader = hippy::base::UriLoader;
 using StringViewUtils = hippy::base::StringViewUtils;
 
+constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
+
 void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) { // NOLINT(readability-convert-member-functions-to-static)
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
@@ -155,20 +157,16 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       std::shared_ptr<Ctx> ctx = scope->GetContext();
       std::shared_ptr<CtxValue> error = nullptr;
       if (!move_code.empty()) {
-        auto last_dir_str_obj = ctx->GetGlobalStrVar("__HIPPYCURDIR__");
-        TDF_BASE_DLOG(INFO) << "__HIPPYCURDIR__ cur_dir = " << cur_dir;
-        ctx->SetGlobalStrVar("__HIPPYCURDIR__", cur_dir);
+        auto last_dir_str_obj = ctx->GetGlobalStrVar(kHippyCurDirKey);
+        TDF_BASE_DLOG(INFO) << "cur_dir = " << cur_dir;
+        ctx->SetGlobalStrVar(kHippyCurDirKey, cur_dir);
         std::shared_ptr<TryCatch> try_catch =
             CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
         unicode_string_view view_code(move_code);
         scope->RunJS(view_code, file_name);
-        ctx->SetGlobalObjVar("__HIPPYCURDIR__", last_dir_str_obj,
+        ctx->SetGlobalObjVar(kHippyCurDirKey, last_dir_str_obj,
                              hippy::napi::PropertyAttribute::None);
-        unicode_string_view view_last_dir_str;
-        ctx->GetValueString(last_dir_str_obj, &view_last_dir_str);
-        TDF_BASE_DLOG(INFO)
-            << "restore __HIPPYCURDIR__ = " << view_last_dir_str;
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
           TDF_BASE_DLOG(ERROR) << "RequestUntrustedContent error = "
