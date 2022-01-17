@@ -40,7 +40,7 @@ using DomArgument = hippy::DomArgument;
 @implementation NSArray (DomArgument)
 
 - (DomValue)toDomValue {
-    DomValue::DomValueArrayType array([self count]);
+    DomValue::DomValueArrayType array;
     for (NSObject *obj in self) {
         array.push_back([obj toDomValue]);
     }
