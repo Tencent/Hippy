@@ -197,6 +197,7 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _shareOptions = [NSMutableDictionary new];
         _appVerson = @"";
         _executorKey = executorKey;
+        _invalidateReason = HippyInvalidateReasonDealloc;
         [self setUp];
 
         HippyExecuteOnMainQueue(^{
@@ -216,6 +217,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
      */
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    self.invalidateReason = HippyInvalidateReasonDealloc;
+    self.batchedBridge.invalidateReason = HippyInvalidateReasonDealloc;
     [self invalidate];
 }
 
@@ -310,6 +313,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
      * Any thread
      */
     dispatch_async(dispatch_get_main_queue(), ^{
+        self.invalidateReason = HippyInvalidateReasonReload;
+        self.batchedBridge.invalidateReason = HippyInvalidateReasonReload;
         [self invalidate];
         [self setUp];
     });
