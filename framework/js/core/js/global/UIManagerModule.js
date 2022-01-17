@@ -135,7 +135,10 @@ Hippy.document = {
   },
   callUIFunction(id, name, param, cb) {
     global.ConsoleModule.debug(`callUIFunction id = ${id}, name = ${name}, param = ${JSON.stringify(param)}`);
-    UIManagerModule.CallUIFunction(id, name, param, cb);
+    const newcb = function (arr) {
+      cb.apply(null, arr);
+    };
+    UIManagerModule.CallUIFunction(id, name, param, newcb);
   },
   sendRenderError(error) {
     if (error) {
