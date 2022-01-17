@@ -36,7 +36,7 @@ class HippyRenderManager : public RenderManager {
   void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 
   void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,
-                    CallFunctionCallback cb) override;
+                    uint32_t cb_id) override;
 
   void SetDensity(float density) { density_ = density; };
   float GetDensity() { return density_; }

@@ -57,7 +57,7 @@ public:
 
     void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
                       const DomArgument& param,
-                      CallFunctionCallback cb) override;
+                      uint32_t cb) override;
 
 private:
     HippyUIManager *uiManager_;
