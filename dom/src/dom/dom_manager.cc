@@ -28,7 +28,6 @@ DomManager::DomManager(uint32_t root_id) : root_id_(root_id) {
   root_node_ = std::make_shared<DomNode>(root_id, -1, 0);
   dom_node_registry_.AddNode(root_node_);
   dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
-  dom_task_runner_->Start();
   id_ = global_dom_manager_key.fetch_add(1);
 }
 
@@ -58,7 +57,9 @@ bool DomManager::Erase(int32_t id) {
 
 bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
-DomManager::~DomManager() = default;
+DomManager::~DomManager() {
+  dom_task_runner_->Terminate();
+}
 
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes = std::move(nodes)]() {
