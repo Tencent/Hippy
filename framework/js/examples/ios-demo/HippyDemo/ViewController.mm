@@ -50,8 +50,8 @@
     HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
     });
-//    [self runCommonDemo];
-    [self runDemoWithoutRuntime];
+    [self runCommonDemo];
+//    [self runDemoWithoutRuntime];
 }
 
 - (void)runCommonDemo {
