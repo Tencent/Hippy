@@ -206,14 +206,16 @@ public class NativeRenderProvider {
      * Call from native (C++) render manager to call ui component function
      *
      * @param id node id
+     * @param callbackId the callback id identifies the caller
      * @param functionName ui component function name
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void callUIFunction(int id, String functionName, byte[] buffer) {
+    private void callUIFunction(int id, long callbackId, String functionName, byte[] buffer) {
         try {
             final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            // TODO: 带上callbackId
             mRenderDelegate.callUIFunction(id, functionName, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
@@ -250,7 +252,8 @@ public class NativeRenderProvider {
                 return;
             }
         }
-        doCallBack(mInstanceId, result, functionName, nodeId, bytes, offset, length);
+        // TODO: 替换-1为实际的callbackId
+        doCallBack(mInstanceId, result, functionName, nodeId, -1, bytes, offset, length);
     }
 
     public void dispatchEvent(int nodeId, @NonNull String eventName, @Nullable Object params,
@@ -322,10 +325,11 @@ public class NativeRenderProvider {
      *               {@code PROMISE_CODE_REJECT} {@link UIPromise}
      * @param functionName ui function name
      * @param nodeId the dom node id
+     * @param callbackId the callback id identifies the caller
      * @param params params buffer encoded by serializer
      * @param offset start position of params buffer
      * @param length available total length of params buffer
      */
     private native void doCallBack(int instanceId, int result, String functionName, int nodeId,
-                                   byte[] params, int offset, int length);
+                                   long callbackId, byte[] params, int offset, int length);
 }

@@ -267,7 +267,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
     return;
   }
 
-  jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction", "(ILjava/lang/String;[B)V");
+  jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction", "(IJLjava/lang/String;[B)V");
   if (!j_method_id) {
     TDF_BASE_LOG(ERROR) << "CallJs j_method_id error";
     return;
@@ -292,7 +292,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
 
   jstring j_name = j_env->NewStringUTF(name.c_str());
 
-  j_env->CallVoidMethod(j_object, j_method_id, node->GetId(), j_name, j_buffer);
+  j_env->CallVoidMethod(j_object, j_method_id, node->GetId(), (jlong) cb_id, j_name, j_buffer);
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_name);
 }

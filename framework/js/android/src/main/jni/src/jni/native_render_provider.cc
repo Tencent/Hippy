@@ -58,7 +58,7 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "doCallBack",
-             "(IILjava/lang/String;I[BII)V",
+             "(IILjava/lang/String;IJ[BII)V",
              DoCallBack)
 
 void NativeRenderProvider::Init() {
@@ -99,7 +99,7 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
                 jint j_instance_id, jint j_result, jstring j_func_name, jint j_node_id,
-                jbyteArray j_buffer, jint j_offset, jint j_length) {
+                jlong j_cb_id, jbyteArray j_buffer, jint j_offset, jint j_length) {
   std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
           static_cast<int32_t>(j_instance_id));
   if (!render_manager) {
@@ -120,9 +120,7 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
 
   jboolean is_copy = JNI_TRUE;
   const char* func_name = j_env->GetStringUTFChars(j_func_name, &is_copy);
-  //TODO
-  uint32_t cb_id = 1;
-  auto callback = node->GetCallback(func_name, cb_id);
+  auto callback = node->GetCallback(func_name, j_cb_id);
   if (callback == nullptr) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack Callback not found for func_name: " << func_name;
     return;
