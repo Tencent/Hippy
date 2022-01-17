@@ -98,11 +98,11 @@ add_definitions("-DANDROID_NATIVE_RENDER")
 
 # region source
 file(GLOB_RECURSE CORE_SRC ${CORE_SRC_DIR}/src/*.cc)
-file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 if (${ENABLE_INSPECTOR} STREQUAL "false")
-  file(GLOB_RECURSE INSPECTOR_SRC ${PROJECT_SOURCE_DIR}/src/inspector/*)
-  list(REMOVE_ITEM JNI_SRC ${INSPECTOR_SRC})
+  file(GLOB_RECURSE INSPECTOR_SRC ${CORE_SRC_DIR}/src/runtime/v8/inspector/*)
+  list(REMOVE_ITEM CORE_SRC ${INSPECTOR_SRC})
 endif()
+file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
 message("CORE_SRC: ${CORE_SRC}")

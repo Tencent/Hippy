@@ -4,6 +4,7 @@
 
 namespace hippy {
 
+#ifdef ENABLE_INSPECTOR
 void ADRBridge::SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
   if (message->string().is8Bit()) {
     return;
@@ -49,5 +50,6 @@ void ADRBridge::SendNotification(std::unique_ptr<v8_inspector::StringBuffer> mes
 
   j_env->DeleteLocalRef(msg);
 }
+#endif
 
 }
