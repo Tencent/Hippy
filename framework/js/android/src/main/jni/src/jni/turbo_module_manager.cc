@@ -26,7 +26,7 @@
 
 #include <cstdint>
 
-#include "bridge/runtime.h"
+#include "core/runtime/v8/runtime.h"
 #include "core/core.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "jni/java_turbo_module.h"

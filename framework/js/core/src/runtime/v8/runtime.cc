@@ -20,32 +20,32 @@
  *
  */
 
-#include "bridge/runtime.h"
+#include "core/runtime/v8/runtime.h"
 
 #include <mutex>
 #include <unordered_map>
 
 using V8Ctx = hippy::napi::V8Ctx;
 
-static std::unordered_map<int32_t, std::shared_ptr<Runtime>> RuntimeMap;
+static std::unordered_map<int32_t, std::shared_ptr<Runtime>> runtime_map;
 static std::mutex mutex;
 
 static std::atomic<int32_t> global_runtime_key{0};
 
-Runtime::Runtime(std::shared_ptr<JavaRef> bridge, bool enable_v8_serialization, bool is_dev)
-    : enable_v8_serialization_(enable_v8_serialization), is_debug_(is_dev), group_id_(0), bridge_(std::move(bridge)) {
+Runtime::Runtime(bool enable_v8_serialization, bool is_dev)
+    : enable_v8_serialization_(enable_v8_serialization), is_debug_(is_dev), group_id_(0) {
   id_ = global_runtime_key.fetch_add(1);
 }
 
 void Runtime::Insert(const std::shared_ptr<Runtime>& runtime) {
   std::lock_guard<std::mutex> lock(mutex);
-  RuntimeMap[runtime->id_] = runtime;
+  runtime_map[runtime->id_] = runtime;
 }
 
 std::shared_ptr<Runtime> Runtime::Find(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
-  const auto it = RuntimeMap.find(id);
-  if (it == RuntimeMap.end()) {
+  const auto it = runtime_map.find(id);
+  if (it == runtime_map.end()) {
     return nullptr;
   }
 
@@ -62,7 +62,7 @@ std::shared_ptr<Runtime> Runtime::Find(v8::Isolate *isolate) {
   if (runtime_id == -1) {// -1 means single isolate multi context mode
     v8::Local<v8::Context> context = isolate->GetCurrentContext();
     std::lock_guard<std::mutex> lock(mutex);
-    for (const auto& p: RuntimeMap) {
+    for (const auto& p: runtime_map) {
       std::shared_ptr<Scope> scope = p.second->GetScope();
       std::shared_ptr<V8Ctx> ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
       if (ctx->context_persistent_ == context) {
@@ -77,12 +77,12 @@ std::shared_ptr<Runtime> Runtime::Find(v8::Isolate *isolate) {
 
 bool Runtime::Erase(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
-  const auto it = RuntimeMap.find(id);
-  if (it == RuntimeMap.end()) {
+  const auto it = runtime_map.find(id);
+  if (it == runtime_map.end()) {
     return false;
   }
 
-  RuntimeMap.erase(it);
+  runtime_map.erase(it);
   return true;
 }
 

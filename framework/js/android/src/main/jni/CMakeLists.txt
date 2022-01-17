@@ -93,6 +93,7 @@ if (${ENABLE_INSPECTOR} STREQUAL "true")
 endif()
 add_definitions("-DOS_ANDROID")
 add_definitions("-DANDROID")
+add_definitions("-DANDROID_NATIVE_RENDER")
 # endregion
 
 # region source

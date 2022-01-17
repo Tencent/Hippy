@@ -253,7 +253,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
                                       CallFunctionCallback cb) {
   std::shared_ptr<DomNode> node = domNode.lock();
   if (node == nullptr) {
-    TDF_BASE_LOG(ERROR) << "CallFunction bad node";
+    TDF_BASE_LOG(ERROR) << "CallJs bad node";
     return;
   }
 
@@ -263,13 +263,13 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CallFunction j_class error";
+    TDF_BASE_LOG(ERROR) << "CallJs j_class error";
     return;
   }
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction", "(ILjava/lang/String;[B)V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "CallFunction j_method_id error";
+    TDF_BASE_LOG(ERROR) << "CallJs j_method_id error";
     return;
   }
 
