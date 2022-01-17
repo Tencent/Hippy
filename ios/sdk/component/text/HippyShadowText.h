@@ -22,6 +22,7 @@
 
 #import "HippyShadowView.h"
 #import "HippyTextDecorationLineType.h"
+#import "dom/layout_node.h"
 
 typedef NS_ENUM(NSInteger, HippySizeComparison) {
     HippySizeTooLarge,
@@ -33,7 +34,7 @@ extern NSString *const HippyIsHighlightedAttributeName;
 extern NSString *const HippyHippyTagAttributeName;
 extern NSString *const HippyShadowViewAttributeName;
 
-HIPPY_EXTERN HPSize textMeasureFunc(HPNodeRef node, float width, MeasureMode widthMeasureMode, __unused float height, __unused MeasureMode heightMeasureMode, void *layoutContext);
+HIPPY_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);
 
 @interface HippyShadowText : HippyShadowView {
 @protected

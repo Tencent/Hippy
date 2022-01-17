@@ -31,6 +31,7 @@
 #import "HippyUtils.h"
 #import "HippyVirtualTextNode.h"
 #import "HippyI18nUtils.h"
+#import "dom/layout_node.h"
 
 NSString *const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
 NSString *const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
@@ -43,10 +44,9 @@ CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 
 @implementation HippyShadowText
 // MTTlayout
-HPSize textMeasureFunc(
-    HippyShadowText *shadowText, HPNodeRef node, float width,
-                       MeasureMode widthMeasureMode, float height,
-                       MeasureMode heightMeasureMode, void *layoutContext) {
+hippy::LayoutSize textMeasureFunc(
+    HippyShadowText *shadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
+                                 float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
 //    hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
     std::shared_ptr<hippy::DomNode> domNode = [shadowText domNode].lock();
     if (domNode) {
@@ -56,12 +56,12 @@ HPSize textMeasureFunc(
         NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
         CGSize size = [layoutManager usedRectForTextContainer:textContainer].size;
 
-        HPSize retSize;
+        hippy::LayoutSize retSize;
         retSize.width = HippyCeilPixelValue(size.width);
         retSize.height = HippyCeilPixelValue(size.height);
         return retSize;
     }
-    return HPSize{0, 0};
+    return hippy::LayoutSize{0, 0};
 }
 
 static void resetFontAttribute(NSTextStorage *textStorage) {
@@ -160,7 +160,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     NSNumber *parentTag = [[self hippySuperview] hippyTag];
     // MTTlayout
-    NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:MeasureModeExactly];
+    NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::Exactly];
     CGRect textFrame = [self calculateTextFrame:textStorage];
     UIColor *color = self.color ?: [UIColor blackColor];
     [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
@@ -194,7 +194,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 //}
 - (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
     @try {
-        NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:MeasureModeExactly];
+        NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:hippy::Exactly];
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
         NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
         NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
@@ -283,7 +283,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 //}
 
 // MTTlayout
-- (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(MeasureMode)widthMode {
+- (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode {
     // MttRN: https://github.com/Tencent/hippy-native/issues/11412
     if (isnan(width)) {
         width = 0;
@@ -308,7 +308,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     textContainer.maximumNumberOfLines = _numberOfLines;
-    textContainer.size = (CGSize) { widthMode == MeasureModeUndefined ? CGFLOAT_MAX : width, CGFLOAT_MAX };
+    textContainer.size = (CGSize) { widthMode == hippy::Undefined ? CGFLOAT_MAX : width, CGFLOAT_MAX };
 
     [layoutManager addTextContainer:textContainer];
     [layoutManager ensureLayoutForTextContainer:textContainer];
@@ -745,16 +745,13 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     [super setDomNode:domNode];
     std::shared_ptr<hippy::DomNode> node = domNode.lock();
     if (node) {
-        hippy::TaitankMeasureFunction measureFunc =
-            [shadow_view = self](HPNodeRef node, float width,
-                                 MeasureMode widthMeasureMode, float height,
-                                 MeasureMode heightMeasureMode, void *layoutContext){
-            return textMeasureFunc(shadow_view, node, width, widthMeasureMode,
+        hippy::MeasureFunction measureFunc =
+            [shadow_view = self](float width, hippy::LayoutMeasureMode widthMeasureMode,
+                                 float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
+            return textMeasureFunc(shadow_view, width, widthMeasureMode,
                                    height, heightMeasureMode, layoutContext);
         };
-        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
-            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
-        layoutNode->SetMeasureFunction(measureFunc);
+        node->GetLayoutNode()->SetMeasureFunction(measureFunc);
     }
 }
 

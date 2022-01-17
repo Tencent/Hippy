@@ -20,8 +20,24 @@ enum Direction {
   RTL,
 };
 
+enum LayoutMeasureMode {
+  Undefined,
+  Exactly,
+  AtMost,
+};
+
+struct LayoutSize {
+  float width;
+  float height;
+};
+
 using Edge = Edge;
 using Direction = Direction;
+using LayoutSize = LayoutSize;
+using LayoutMeasureMode = LayoutMeasureMode;
+
+using MeasureFunction = std::function<LayoutSize(float width, LayoutMeasureMode widthMeasureMode, float height,
+                                                 LayoutMeasureMode heightMeasureMode, void* layoutContext)>;
 
 class LayoutNode {
  public:
@@ -44,6 +60,7 @@ class LayoutNode {
   virtual void SetScaleFactor(float scale_factor) = 0;
   virtual bool HasNewLayout() = 0;
   virtual void SetHasNewLayout(bool has_new_layout) = 0;
+  virtual bool SetMeasureFunction(MeasureFunction measure_function) = 0;
 
   /**
    * @brief 插入子节点

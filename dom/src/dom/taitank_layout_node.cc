@@ -1,12 +1,17 @@
 #include "dom/taitank_layout_node.h"
 
 #include <map>
+#include <mutex>
 
 #include "base/logging.h"
 #include "dom/node_props.h"
 
 namespace hippy {
 inline namespace dom {
+
+static std::atomic<int64_t> global_measure_function_key{0};
+static std::map<int64_t, MeasureFunction> measure_function_map;
+static std::mutex mutex;
 
 const std::map<std::string, OverflowType> kOverflowMap = {{"visible", OverflowType::OverflowVisible},
                                                           {"hidden", OverflowType::OverflowHidden},
@@ -122,6 +127,19 @@ static void CheckValueType(tdf::base::DomValue::Type type) {
   TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
 }
 
+LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
+  if (measure_mode == MeasureMode::MeasureModeUndefined) {
+    return LayoutMeasureMode::Undefined;
+  }
+  if (measure_mode == MeasureMode::MeasureModeExactly) {
+    return LayoutMeasureMode::Exactly;
+  }
+  if (measure_mode == MeasureMode::MeasureModeAtMost) {
+    return LayoutMeasureMode::AtMost;
+  }
+  TDF_BASE_NOTREACHED();
+}
+
 static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
   if (Edge::EdgeLeft == edge) {
     return CSSDirection::CSSLeft;
@@ -134,6 +152,18 @@ static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
   } else {
     TDF_BASE_NOTREACHED();
   }
+}
+
+TaitankLayoutNode::TaitankLayoutNode() : key_(global_measure_function_key.fetch_add(1)) { Allocate(); }
+
+TaitankLayoutNode::TaitankLayoutNode(HPNodeRef engine_node_)
+    : engine_node_(engine_node_), key_(global_measure_function_key.fetch_add(1)) {}
+
+TaitankLayoutNode::~TaitankLayoutNode() {
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto it = measure_function_map.find(key_);
+  if (it != measure_function_map.end()) measure_function_map.erase(it);
+  Deallocate();
 }
 
 void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
@@ -286,9 +316,27 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<t
   }
 }
 
-bool TaitankLayoutNode::SetMeasureFunction(TaitankMeasureFunction measure_function) {
+static HPSize TaitankMeasureFunction(HPNodeRef node, float width, MeasureMode width_measrue_mode, float height,
+                                     MeasureMode height_measure_mode, void* context) {
+  auto taitank_node = reinterpret_cast<TaitankLayoutNode*>(node->getContext());
+  int64_t key = taitank_node->GetKey();
+  auto iter = measure_function_map.find(key);
+  if (iter != measure_function_map.end()) {
+    auto size = iter->second(width, ToLayoutMeasureMode(width_measrue_mode), height,
+                             ToLayoutMeasureMode(height_measure_mode), context);
+    HPSize result;
+    result.width = size.width;
+    result.height = size.height;
+    return result;
+  }
+  return HPSize{0, 0};
+}
+
+bool TaitankLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
   assert(engine_node_ != nullptr);
-  return engine_node_->setMeasureFunc(measure_function);
+  measure_function_map[key_] = measure_function;
+  engine_node_->setContext(reinterpret_cast<void*>(this));
+  return engine_node_->setMeasureFunc(TaitankMeasureFunction);
 }
 
 float TaitankLayoutNode::GetLeft() {

@@ -76,19 +76,20 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
 
     if (nodes[i]->GetViewName() == kMeasureNode) {
       int32_t id = nodes[i]->GetId();
-      TaitankMeasureFunction measure_function = [this, id](HPNodeRef node, float width, MeasureMode widthMeasureMode,
-                                                           float height, MeasureMode heightMeasureMode,
-                                                           void* layoutContext) -> TaitankResult {
+      MeasureFunction measure_function = [this, id](float width, LayoutMeasureMode width_measure_mode, float height,
+                                                    LayoutMeasureMode height_measure_mode,
+                                                    void* layoutContext) -> LayoutSize {
         int64_t result;
-        this->CallNativeMeasureMethod(id, DpToPx(width), widthMeasureMode, DpToPx(height), heightMeasureMode, result);
-        TaitankResult layout_result;
+        this->CallNativeMeasureMethod(id, DpToPx(width), width_measure_mode, DpToPx(height), height_measure_mode,
+                                      result);
+        LayoutSize layout_result;
         layout_result.width = PxToDp((int32_t)(0xFFFFFFFF & (result >> 32)));
         layout_result.height = PxToDp((int32_t)(0xFFFFFFFF & result));
         TDF_BASE_DLOG(INFO) << "measure width: " << (int32_t)(0xFFFFFFFF & (result >> 32))
                             << ", height: " << (int32_t)(0xFFFFFFFF & result) << ", result: " << result;
         return layout_result;
       };
-      std::static_pointer_cast<TaitankLayoutNode>(nodes[i]->GetLayoutNode())->SetMeasureFunction(measure_function);
+      nodes[i]->GetLayoutNode()->SetMeasureFunction(measure_function);
     }
 
     tdf::base::DomValue::DomValueObjectType props;

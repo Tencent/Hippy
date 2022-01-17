@@ -23,16 +23,17 @@
 #import "HippyShadowTextView.h"
 #import "Hippy.h"
 #import "HippyUtils.h"
+#import "dom/layout_node.h"
 
 
 @interface HippyShadowTextView ()
 @property (nonatomic, strong) NSDictionary *dicAttributes;
 @end
 
-static HPSize x5MeasureFunc(
-                            HippyShadowTextView *shadowText, HPNodeRef node,
-                            float width, MeasureMode widthMeasureMode, float height,
-                            MeasureMode heightMeasureMode, void *layoutContext) {
+static hippy::LayoutSize x5MeasureFunc(
+                            HippyShadowTextView *shadowText,
+                            float width, hippy::LayoutMeasureMode widthMeasureMode, float height,
+                            hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
     NSString *text = shadowText.text ?: shadowText.placeholder;
     if (nil == shadowText.dicAttributes) {
         if (shadowText.font == nil) {
@@ -41,7 +42,7 @@ static HPSize x5MeasureFunc(
         shadowText.dicAttributes = @ { NSFontAttributeName: shadowText.font };
     }
     CGSize computedSize = [text sizeWithAttributes:shadowText.dicAttributes];
-    HPSize result;
+    hippy::LayoutSize result;
     result.width = HippyCeilPixelValue(computedSize.width);
     result.height = HippyCeilPixelValue(computedSize.height);
     return result;
@@ -60,16 +61,19 @@ static HPSize x5MeasureFunc(
     [super setDomNode:domNode];
     std::shared_ptr<hippy::DomNode> node = domNode.lock();
     if (node) {
-        hippy::TaitankMeasureFunction measureFunc =
-            [shadow_view = self](HPNodeRef node, float width,
-                                 MeasureMode widthMeasureMode, float height,
-                                 MeasureMode heightMeasureMode, void *layoutContext){
-            return x5MeasureFunc(shadow_view, node, width, widthMeasureMode,
+        
+//        using MeasureFunction = std::function<LayoutSize(float width, LayoutMeasureMode widthMeasureMode, float height,
+//                                                         LayoutMeasureMode heightMeasureMode, void* layoutContext)>;
+        
+        hippy::dom::MeasureFunction measureFunc =
+            [shadow_view = self](float width, hippy::LayoutMeasureMode widthMeasureMode, float height,
+                                 hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
+            return x5MeasureFunc(shadow_view, width, widthMeasureMode,
                                    height, heightMeasureMode, layoutContext);
         };
-        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
-            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
-        layoutNode->SetMeasureFunction(measureFunc);
+//        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
+//            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
+        node->GetLayoutNode()->SetMeasureFunction(measureFunc);
     }
 }
 
