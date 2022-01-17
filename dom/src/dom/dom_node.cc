@@ -260,13 +260,16 @@ void DomNode::CallFunction(const std::string& name, const DomArgument& param, co
     func_cb_map_ = std::make_shared<std::unordered_map<std::string,
       std::unordered_map<uint32_t, CallFunctionCallback>>>();
   }
-  // taskRunner内置执行确保current_callback_id_无多线程问题
-  current_callback_id_ += 1;
-  (*func_cb_map_)[name][current_callback_id_] = cb;
+  auto cb_id = kInvalidId;
+  if (cb) {
+    // taskRunner内置执行确保current_callback_id_无多线程问题
+    current_callback_id_ += 1;
+    cb_id = current_callback_id_;
+    (*func_cb_map_)[name][current_callback_id_] = cb;
+  }
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, param,
-                                                  current_callback_id_);
+    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, param, cb_id);
   }
 }
 
