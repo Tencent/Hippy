@@ -250,7 +250,7 @@ void HippyRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, co
 }
 
 void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
-                                      CallFunctionCallback cb) {
+                                      uint32_t cb_id) {
   std::shared_ptr<DomNode> node = domNode.lock();
   if (node == nullptr) {
     TDF_BASE_LOG(ERROR) << "CallJs bad node";
