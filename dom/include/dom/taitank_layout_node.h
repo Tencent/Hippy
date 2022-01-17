@@ -7,17 +7,13 @@
 namespace hippy {
 inline namespace dom {
 
-// using TaitankCssDirection = CSSDirection;
-using TaitankMeasureFunction = LayoutMesureFunction;
-using TaitankResult = HPSize;
-
 class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this<TaitankLayoutNode> {
  public:
-  TaitankLayoutNode() { Allocate(); }
+  TaitankLayoutNode();
 
-  TaitankLayoutNode(HPNodeRef engine_node_) : engine_node_(engine_node_){};
+  TaitankLayoutNode(HPNodeRef engine_node_);
 
-  ~TaitankLayoutNode() { Deallocate(); };
+  virtual ~TaitankLayoutNode();
 
   /**
    * @brief 执行排版
@@ -58,7 +54,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @param measure_function 测量函数
    * @return 是否成功
    */
-  bool SetMeasureFunction(TaitankMeasureFunction measure_function);
+  bool SetMeasureFunction(MeasureFunction measure_function) override;
 
   /**
    * @brief 获取 left 属性
@@ -175,6 +171,8 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 重置节点
    */
   bool Reset();
+
+  int64_t GetKey() { return key_; }
 
  private:
   /**
@@ -346,6 +344,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   std::vector<std::shared_ptr<TaitankLayoutNode>> children_;
 
   HPNodeRef engine_node_;
+  int64_t key_;
 };
 
 }  // namespace dom
