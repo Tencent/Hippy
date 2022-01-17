@@ -32,7 +32,7 @@ class RenderManager {
   virtual void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) = 0;
   virtual void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) = 0;
   virtual void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,
-                            CallFunctionCallback cb) = 0;
+                            uint32_t cb_id) = 0;
 };
 
 }  // namespace dom

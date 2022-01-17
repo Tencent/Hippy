@@ -110,8 +110,8 @@ void LayerOptimizedRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom
 void LayerOptimizedRenderManager::CallFunction(
         std::weak_ptr<DomNode> dom_node, const std::string &name,
         const DomArgument &param,
-        CallFunctionCallback cb) {
-  render_manager_->CallFunction(dom_node, name, param, cb);
+        uint32_t cb_id) {
+  render_manager_->CallFunction(dom_node, name, param, cb_id);
 }
 
 bool LayerOptimizedRenderManager::ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const {

@@ -257,22 +257,32 @@ void DomNode::TransferLayoutOutputsRecursive() {
 
 void DomNode::CallFunction(const std::string& name, const DomArgument& param, const CallFunctionCallback& cb) {
   if (!func_cb_map_) {
-    func_cb_map_ = std::make_shared<std::unordered_map<std::string, CallFunctionCallback>>();
+    func_cb_map_ = std::make_shared<std::unordered_map<std::string,
+      std::unordered_map<uint32_t, CallFunctionCallback>>>();
   }
-  (*func_cb_map_)[name] = cb;
+  // taskRunner内置执行确保current_callback_id_无多线程问题
+  current_callback_id_ += 1;
+  (*func_cb_map_)[name][current_callback_id_] = cb;
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, param, cb);
+    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, param,
+                                                  current_callback_id_);
   }
 }
 
-CallFunctionCallback DomNode::GetCallback(const std::string& name) {
+CallFunctionCallback DomNode::GetCallback(const std::string& name, uint32_t id) {
   if (!func_cb_map_) {
     return nullptr;
   }
   auto it = func_cb_map_->find(name);
   if (it != func_cb_map_->end()) {
-    return it->second;
+    auto cb_map = it->second;
+    auto cb_it = cb_map.find(id);
+    if (cb_it != cb_map.end()) {
+      auto ret = std::move(cb_it->second);
+      cb_map.erase(cb_it);
+      return ret;
+    }
   }
   return nullptr;
 }

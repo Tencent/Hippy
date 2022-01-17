@@ -122,7 +122,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
     diff_ = std::move(diff);
   }
 
-  CallFunctionCallback GetCallback(const std::string &name);
+  CallFunctionCallback GetCallback(const std::string &name, uint32_t id);
   bool HasTouchEventListeners();
 
  private:
@@ -150,7 +150,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::weak_ptr<DomManager> dom_manager_;
   uint32_t current_callback_id_;
   // 大部分DomNode没有监听，使用shared_ptr可以有效节约内存
-  std::shared_ptr<std::unordered_map<std::string, CallFunctionCallback>> func_cb_map_;
+  std::shared_ptr<std::unordered_map<std::string,
+    std::unordered_map<uint32_t, CallFunctionCallback>>> func_cb_map_;
   std::shared_ptr<std::unordered_map<std::string,
                                      std::array<std::vector<std::shared_ptr<EventListenerInfo>>,
                                                 2>>>

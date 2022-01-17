@@ -24,7 +24,7 @@ class LayerOptimizedRenderManager : public RenderManager {
 
   void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name,
                         const DomArgument& param,
-                        CallFunctionCallback cb) override;
+                        uint32_t cb_Id) override;
 
  protected:
   bool ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const;
