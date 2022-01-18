@@ -63,7 +63,7 @@ mixin RenderExecutorDelegate {
     _isDispatchUiFrameEnqueued = false;
   }
 
-  void doFrame() {
+  void doFrame(Duration timeStamp) {
     if (!_isDestroyed) {
       updatePage();
       flushPendingBatches();
@@ -103,9 +103,7 @@ mixin RenderExecutorDelegate {
   void postFrameCallback() {
     if (!_hasAddFrameCallback) {
       WidgetsFlutterBinding.ensureInitialized();
-      WidgetsBinding.instance?.addPersistentFrameCallback((timeStamp) {
-        doFrame();
-      });
+      WidgetsBinding.instance?.addPersistentFrameCallback(doFrame);
       _hasAddFrameCallback = true;
     }
     if (_dispatchRunnable.isNotEmpty) {
@@ -210,9 +208,6 @@ class RenderManager
   void createRootNode(int instanceId) async {
     var viewModel = context.getInstance(instanceId);
     if (viewModel != null) {
-      var renderSize = getSizeFromKey(viewModel.rootKey);
-      await context.bridgeManager.updateNodeSize(instanceId,
-          width: renderSize.width, height: renderSize.height);
       controllerManager.createRootNode(instanceId);
       var executor = viewModel.executor;
       if (executor != null) {
@@ -257,13 +252,16 @@ class RenderManager
 
   @override
   void notifyDom() {
-    context.bridgeManager.notifyDom();
+    if (!_isDestroyed) {
+      context.bridgeManager.notifyDom();
+    }
   }
 
   void layoutAfter() {
   }
 
   void updateRender() {
+    LogUtils.d(_kTag, "update render size: ${_updateRenderNodes.length}");
     if (_updateRenderNodes.isNotEmpty) {
       for (var node in _updateRenderNodes) {
         node.updateRender();
@@ -447,6 +445,7 @@ class RenderManager
 
   @override
   void destroy() {
+    super.destroy();
     controllerManager.destroy();
     context.removeInstanceLifecycleEventListener(this);
     context.removeEngineLifecycleEventListener(this);

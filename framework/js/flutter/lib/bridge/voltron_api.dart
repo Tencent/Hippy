@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:ffi';
 import 'dart:isolate';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -35,11 +36,13 @@ class _BridgeFFIManager {
   // 调用js方法
   late CallFunctionFfiDartType callFunction;
 
-
   late GetCrashMessageFfiType getCrashMessage;
 
   // 初始化native dom
-  late InitDomFfiDartType initDom;
+  late CreateInstanceFfiDartType createInstance;
+
+  // 销毁native dom
+  late DestroyInstanceFfiDartType destroyInstance;
 
   // 销毁
   late DestroyFfiDartType destroy;
@@ -81,8 +84,12 @@ class _BridgeFFIManager {
     runScriptFromFile = _library.lookupFunction<RunScriptFromFileFfiNativeType,
         RunScriptFromFileFfiDartType>("RunScriptFromFileFFI");
 
-    initDom = _library
-        .lookupFunction<InitDomFfiNativeType, InitDomFfiDartType>('InitDomFFI');
+    createInstance = _library
+        .lookupFunction<CreateInstanceFfiNativeType, CreateInstanceFfiDartType>('CreateInstanceFFI');
+
+    destroyInstance =
+        _library.lookupFunction<DestroyInstanceFfiNativeType, DestroyInstanceFfiDartType>(
+            'DestroyInstanceFFI');
 
     runScriptFromAsset = _library.lookupFunction<
         RunScriptFromAssetsFfiNativeType,
@@ -90,7 +97,6 @@ class _BridgeFFIManager {
 
     callFunction = _library.lookupFunction<CallFunctionFfiNativeType,
         CallFunctionFfiDartType>("CallFunctionFFI");
-
 
     getCrashMessage =
         _library.lookupFunction<GetCrashMessageFfiType, GetCrashMessageFfiType>(
@@ -232,8 +238,42 @@ class VoltronApi {
     return result.toNativeUtf16();
   }
 
-  static Future initDom(int engineId, int rootId) async {
-    _BridgeFFIManager.instance.initDom(engineId, rootId);
+  static Future createInstance(int engineId, int rootId, Size rootSize,
+      String params, CommonCallback callback) async {
+    var action = "loadInstance";
+    var stopwatch = Stopwatch();
+    stopwatch.start();
+    var actionPtr = action.toNativeUtf16();
+    var paramsPtr = params.toNativeUtf16();
+    stopwatch.stop();
+    LogUtils.profile("createInstance", stopwatch.elapsedMilliseconds);
+    _BridgeFFIManager.instance.createInstance(
+        engineId, rootId, rootSize.width, rootSize.height, actionPtr, paramsPtr,
+        generateCallback((value) {
+      stopwatch.stop();
+      LogUtils.profile("createInstance", stopwatch.elapsedMilliseconds);
+      callback(value);
+    }));
+    free(actionPtr);
+    free(paramsPtr);
+  }
+
+  static Future destroyInstance(int engineId, int rootId, String params, CommonCallback callback) async {
+    var action = "destroyInstance";
+    var stopwatch = Stopwatch();
+    stopwatch.start();
+    var actionPtr = action.toNativeUtf16();
+    var paramsPtr = params.toNativeUtf16();
+    stopwatch.stop();
+    LogUtils.profile("destroyInstance", stopwatch.elapsedMilliseconds);
+    _BridgeFFIManager.instance.destroyInstance(engineId, rootId, actionPtr, paramsPtr,
+        generateCallback((value) {
+          stopwatch.stop();
+          LogUtils.profile("destroyInstance", stopwatch.elapsedMilliseconds);
+          callback(value);
+        }));
+    free(actionPtr);
+    free(paramsPtr);
   }
 
   static Future<dynamic> callFunction(int engineId, String action,
@@ -246,10 +286,10 @@ class VoltronApi {
     LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
     _BridgeFFIManager.instance.callFunction(engineId, actionPtr, paramsPtr,
         generateCallback((value) {
-          stopwatch.stop();
-          LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
-          callback(value);
-        }));
+      stopwatch.stop();
+      LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
+      callback(value);
+    }));
     free(actionPtr);
     free(paramsPtr);
   }
@@ -263,8 +303,8 @@ class VoltronApi {
       int engineId, bool singleThreadMode, CommonCallback callback) async {
     _BridgeFFIManager.instance.destroy(engineId, singleThreadMode ? 1 : 0,
         generateCallback((value) {
-          callback(value);
-        }));
+      callback(value);
+    }));
   }
 
 // ------------------ dart call native方法 end ---------------------
@@ -279,38 +319,38 @@ class VoltronApi {
 
     // 注册callNative回调
     var callNativeFunc =
-    Pointer.fromFunction<CallNativeFfiNativeType>(callNative);
+        Pointer.fromFunction<CallNativeFfiNativeType>(callNative);
     _BridgeFFIManager.instance
         .registerCallNative(FuncType.callNative.index, callNativeFunc);
 
     // 注册reportJsonException回调
     var reportJsonExceptionFunc =
-    Pointer.fromFunction<ReportJsonExceptionNativeType>(
-        reportJsonException);
+        Pointer.fromFunction<ReportJsonExceptionNativeType>(
+            reportJsonException);
     _BridgeFFIManager.instance.registerReportJson(
         FuncType.reportJsonException.index, reportJsonExceptionFunc);
 
     // 注册reportJSException回调
     var reportJSExceptionFunc =
-    Pointer.fromFunction<ReportJsExceptionNativeType>(reportJSException);
+        Pointer.fromFunction<ReportJsExceptionNativeType>(reportJSException);
     _BridgeFFIManager.instance.registerReportJs(
         FuncType.reportJsException.index, reportJSExceptionFunc);
 
     // 注册sendResponse回调
     var sendResponseFunc =
-    Pointer.fromFunction<SendResponseNativeType>(sendResponse);
+        Pointer.fromFunction<SendResponseNativeType>(sendResponse);
     _BridgeFFIManager.instance
         .registerSendResponse(FuncType.sendResponse.index, sendResponseFunc);
 
     // 注册sendNotification回调
     var sendNotificationFunc =
-    Pointer.fromFunction<SendNotificationNativeType>(sendNotification);
+        Pointer.fromFunction<SendNotificationNativeType>(sendNotification);
     _BridgeFFIManager.instance.registerSendNotification(
         FuncType.sendNotification.index, sendNotificationFunc);
 
     // 注册onDestroy回调
     var onDestroyFunc =
-    Pointer.fromFunction<DestroyFunctionNativeType>(onDestroy);
+        Pointer.fromFunction<DestroyFunctionNativeType>(onDestroy);
     _BridgeFFIManager.instance
         .registerDestroy(FuncType.destroy.index, onDestroyFunc);
   }

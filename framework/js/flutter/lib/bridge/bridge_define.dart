@@ -24,8 +24,31 @@ typedef InitJsFrameworkFfiDartType = int Function(
     int engineId,
     int callbackId);
 
-typedef InitDomFfiNativeType = Int64 Function(Int32 engineId, Int32 rootId);
-typedef InitDomFfiDartType = int Function(int engineId, int rootId);
+typedef CreateInstanceFfiNativeType = Int64 Function(
+    Int32 engineId,
+    Int32 rootId,
+    Double width,
+    Double height,
+    Pointer<Utf16> action,
+    Pointer<Utf16> params,
+    Int32 callbackId);
+typedef CreateInstanceFfiDartType = int Function(
+    int engineId,
+    int rootId,
+    double width,
+    double height,
+    Pointer<Utf16> action,
+    Pointer<Utf16> params,
+    int callbackId);
+
+typedef DestroyInstanceFfiNativeType = Int64 Function(
+    Int32 engineId,
+    Int32 rootId,
+    Pointer<Utf16> action,
+    Pointer<Utf16> params,
+    Int32 callbackId);
+typedef DestroyInstanceFfiDartType = int Function(int engineId, int rootId,
+    Pointer<Utf16> action, Pointer<Utf16> params, int callbackId);
 
 typedef RunScriptFromFileFfiNativeType = Int32 Function(
     Int32 engineId,
@@ -77,14 +100,6 @@ typedef CallNativeEventFfiNativeType = Void Function(
 typedef CallNativeEventFfiDartType = void Function(int engineId, int rootId,
     int nodeId, Pointer<Utf16> event, Pointer<Uint8> params, int paramsLen);
 
-typedef UpdateNodeSizeFfiNativeType = Void Function(
-    Int32 engineId, Int32 rootId, Int32 nodeId, Double width, Double height);
-typedef UpdateNodeSizeFfiDartType = void Function(
-    int engineId, int rootId, int nodeId, double width, double height);
-
-typedef NotifyDomNativeType = Void Function(Int32 engineId);
-typedef NotifyDomDartType = void Function(int engineId);
-
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
 typedef DestroyFfiNativeType = Void Function(
@@ -126,16 +141,6 @@ typedef RegisterDestroyFfiNativeType = Int32 Function(
     Int32 type, Pointer<NativeFunction<DestroyFunctionNativeType>> func);
 typedef RegisterDestroyFfiDartType = int Function(
     int type, Pointer<NativeFunction<DestroyFunctionNativeType>> func);
-
-typedef RegisterPostRenderOpFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<PostRenderOpNativeType>> func);
-typedef RegisterPostRenderOpFfiDartType = int Function(
-    int type, Pointer<NativeFunction<PostRenderOpNativeType>> func);
-
-typedef RegisterCalculateNodeLayoutFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func);
-typedef RegisterCalculateNodeLayoutFfiDartType = int Function(
-    int type, Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func);
 
 typedef RegisterDartPostCObjectNativeType = Void Function(
     Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>

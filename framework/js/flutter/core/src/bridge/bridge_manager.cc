@@ -34,7 +34,9 @@ Sp<BridgeManager> BridgeManager::Find(int32_t engine_id) {
 
 void BridgeManager::Destroy(int32_t root_id) {
   std::unique_lock<std::mutex> lock(bridge_mutex_);
-  bridge_map_[root_id] = nullptr;
+  if (bridge_map_.find(root_id) != bridge_map_.end()) {
+    bridge_map_.erase(root_id);
+  }
 }
 
 void BridgeManager::Notify(int32_t engine_id) {
@@ -59,6 +61,15 @@ void BridgeManager::InitInstance(int32_t engine_id, int32_t root_id) {
   dom_manager->SetRenderManager(render_manager);
   BindDomManager(root_id, dom_manager);
   BindRenderManager(root_id, render_manager);
+}
+
+void BridgeManager::DestroyInstance(int32_t engine_id, int32_t root_id) {
+  if (render_manager_map_.find(root_id) != render_manager_map_.end()) {
+    render_manager_map_.erase(root_id);
+  }
+  if (dom_manager_map_.find(root_id) != dom_manager_map_.end()) {
+    dom_manager_map_.erase(root_id);
+  }
 }
 
 BridgeManager::~BridgeManager() {

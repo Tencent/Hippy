@@ -20,6 +20,7 @@ class BridgeManager {
   static void Notify(int32_t engine_id);
 
   void InitInstance(int32_t engine_id, int32_t root_id);
+  void DestroyInstance(int32_t engine_id, int32_t root_id);
   std::weak_ptr<PlatformRuntime> GetRuntime();
   std::shared_ptr<VoltronRenderManager> GetRenderManager(int32_t root_id);
   Sp<DomManager> GetDomManager(int32_t root_id);

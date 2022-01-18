@@ -38,7 +38,10 @@ void VoltronRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNod
   RunUpdateLayout(nodes);
 }
 
-void VoltronRenderManager::EndBatch() { RunBatch(); }
+void VoltronRenderManager::EndBatch() {
+  TDF_BASE_DLOG(INFO) << "RunEndBatch";
+  RunBatch();
+}
 
 void VoltronRenderManager::BeforeLayout() {
   RunLayoutBefore();

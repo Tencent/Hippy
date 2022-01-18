@@ -301,7 +301,6 @@ void VoltronRenderTaskRunner::RunAddEventListener(const int32_t& node_id, const 
 
     auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_EVENT, node_id, args_map);
     queue_->ProduceRenderOp(update_task);
-    ConsumeQueue();
   }
 }
 
@@ -312,7 +311,6 @@ void VoltronRenderTaskRunner::RunRemoveEventListener(const int32_t& node_id, con
     args_map[EncodableValue(kFuncNameKey)] = event_name;
     auto update_task = std::make_shared<RenderTask>(VoltronRenderOpType::REMOVE_EVENT, node_id, args_map);
     queue_->ProduceRenderOp(update_task);
-    ConsumeQueue();
   }
 }
 

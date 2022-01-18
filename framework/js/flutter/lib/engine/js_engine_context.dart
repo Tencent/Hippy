@@ -71,7 +71,7 @@ class EngineContext implements Destroyable {
         _isDevMode = isDevModule,
         _startTimeMonitor = monitor {
     _renderContext = JSRenderContext(
-        this, id, processControllers(apiProviders), engineMonitor);
+        this, _id, processControllers(apiProviders), engineMonitor);
     _moduleManager = ModuleManager(this, apiProviders);
     _bridgeManager = VoltronBridgeManager(this, coreLoader, groupId, _id,
         enableVoltronBuffer: enableVoltronBuffer,

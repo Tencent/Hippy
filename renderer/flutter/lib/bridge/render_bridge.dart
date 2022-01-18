@@ -27,22 +27,34 @@ class VoltronRenderBridgeManager implements Destroyable {
 
   Future updateNodeSize(int instanceId,
       {int nodeId = 0, double width = 0, double height = 0}) async {
+    if (!_isBridgeInit) {
+      return false;
+    }
     await VoltronRenderApi.updateNodeSize(
         _engineId, instanceId, nodeId, width, height);
   }
 
   Future notifyDom() async {
+    if (!_isBridgeInit) {
+      return;
+    }
     await VoltronRenderApi.notifyDom(_engineId);
   }
 
   Future<dynamic> callNativeFunction(
       int rootId, String callbackId, Object params) async {
+    if (!_isBridgeInit) {
+      return false;
+    }
     VoltronRenderApi.callNativeFunction(
         _engineId, rootId, callbackId, params, true);
   }
 
   Future<dynamic> execNativeCallback(
       int rootId, String callbackId, Object params) async {
+    if (!_isBridgeInit) {
+      return false;
+    }
     var convertParams = params;
     if (params is VoltronMap) {
       convertParams = params.toMap();
@@ -54,6 +66,9 @@ class VoltronRenderBridgeManager implements Destroyable {
 
   Future<dynamic> execNativeEvent(
       int rootId, int id, String event, Object params) async {
+    if (!_isBridgeInit) {
+      return false;
+    }
     await VoltronRenderApi.callNativeEvent(
         _engineId, rootId, id, event, params);
   }

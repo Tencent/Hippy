@@ -33,7 +33,13 @@ using voltron::VoltronRenderManager;
 using voltron::StandardMessageCodec;
 using voltron::EncodableValue;
 
-EXTERN_C void InitDomFFI(int32_t engine_id, int32_t root_id) {
+EXTERN_C void CreateInstanceFFI(int32_t engine_id,
+                                int32_t root_id,
+                                double width,
+                                double height,
+                                const char16_t *action,
+                                const char16_t *params,
+                                int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     bridge_manager->InitInstance(engine_id, root_id);
@@ -43,6 +49,22 @@ EXTERN_C void InitDomFFI(int32_t engine_id, int32_t root_id) {
       auto runtime_id = runtime->GetRuntimeId();
       BridgeImpl::BindDomManager(runtime_id, dom_manager);
     }
+    dom_manager->SetRootSize((float)width,
+                             (float)height);
+    CallFunctionFFI(engine_id, action, params, callback_id);
+  }
+}
+
+EXTERN_C void DestroyInstanceFFI(int32_t engine_id,
+                                 int32_t root_id,
+                                 const char16_t *action,
+                                 const char16_t *params,
+                                 int32_t callback_id) {
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (bridge_manager) {
+    bridge_manager->DestroyInstance(engine_id, root_id);
+
+    CallFunctionFFI(engine_id, action, params, callback_id);
   }
 }
 
@@ -158,12 +180,27 @@ EXTERN_C void CallNativeEventFFI(int32_t engine_id, int32_t root_id, int node_id
   }
 }
 
-EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id, int32_t node_id, double width, double height) {
+EXTERN_C void UpdateNodeSize(int32_t engine_id,
+                             int32_t root_id,
+                             int32_t node_id,
+                             double width,
+                             double height) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     auto dom_manager = bridge_manager->GetDomManager(root_id);
     if (dom_manager) {
-      dom_manager->PostTask([dom_manager, width, height]() { dom_manager->SetRootSize(width, height); });
+      dom_manager->PostTask([dom_manager, width, height, node_id]() {
+        if (node_id == 0) {
+          dom_manager->SetRootSize((float) width,
+                                   (float) height);
+        } else {
+          auto node = dom_manager->GetNode(node_id);
+          if (node) {
+            node->SetLayoutSize((float) width,
+                                (float) height);
+          }
+        }
+      });
     }
   }
 }
@@ -175,14 +212,18 @@ EXTERN_C void NotifyRenderManager(int32_t engine_id) {
 EXTERN_C const char* GetCrashMessageFFI() { return "lucas_crash_report_test"; }
 
 EXTERN_C void DestroyFFI(int32_t engine_id, bool single_thread_mode, int32_t callback_id) {
-  auto runtime = BridgeManager::Find(engine_id)->GetRuntime().lock();
-  if (runtime) {
-    auto runtime_id = runtime->GetRuntimeId();
-    BridgeImpl::Destroy(runtime_id,
-                        single_thread_mode,
-                        [callback_id](int64_t value) {
-                          CallGlobalCallback(callback_id, value);
-                        });
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (bridge_manager) {
+    auto runtime = bridge_manager->GetRuntime().lock();
+    BridgeManager::Destroy(engine_id);
+    if (runtime) {
+      auto runtime_id = runtime->GetRuntimeId();
+      BridgeImpl::Destroy(runtime_id,
+                          single_thread_mode,
+                          [callback_id, engine_id](int64_t value) {
+                            CallGlobalCallback(callback_id, value);
+                          });
+    }
   }
 }
 

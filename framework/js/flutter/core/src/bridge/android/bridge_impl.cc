@@ -388,7 +388,7 @@ void BridgeImpl::Destroy(int64_t runtimeId, bool singleThreadMode,
     TDF_BASE_DLOG(WARNING) << "BridgeImpl Destroy, runtime_id invalid";
     return;
   }
-
+  runtime->GetScope()->SetDomManager(nullptr);
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtimeId, callback_ = std::move(callback)] {
     TDF_BASE_LOG(INFO) << "js Destroy begin, runtime_id " << runtimeId;

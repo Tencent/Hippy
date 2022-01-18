@@ -275,8 +275,6 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
   }
 
   Future<dynamic> _internalLoadInstance(RootWidgetViewModel instance) async {
-    // 在通知创建dart侧的 renderManager之前，需要先初始化native的domManager
-    await _engineContext.bridgeManager.initDom(instance.id);
     LogUtils.d(_kTag, "in internalLoadInstance");
     for (var listener in _engineContext.instanceLifecycleEventListener) {
       listener.onInstanceLoad(instance.id);

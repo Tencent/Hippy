@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
@@ -178,10 +179,6 @@ class VoltronBridgeManager implements Destroyable {
     });
   }
 
-  Future initDom(int instanceId) async {
-    await VoltronApi.initDom(_engineId, instanceId);
-  }
-
   Future<dynamic> loadInstance(String name, int id, VoltronMap? params) async {
     if (!_isFrameWorkInit) {
       return;
@@ -194,7 +191,6 @@ class VoltronBridgeManager implements Destroyable {
     map.push("id", id);
     map.push("params", params);
 
-    var action = "loadInstance";
     var paramsJsonStr = objectToJson(map);
 
     if (isEmpty(paramsJsonStr)) {
@@ -202,12 +198,16 @@ class VoltronBridgeManager implements Destroyable {
     }
 
     var rootView = _context.getInstance(id);
-    if (rootView != null && rootView.timeMonitor != null) {
-      rootView.timeMonitor
-          ?.startEvent(EngineMonitorEventKey.moduleLoadEventRunBundle);
+    var rootSize = Size.zero;
+    if (rootView != null) {
+      rootSize = getSizeFromKey(rootView.rootKey);
+      if (rootView.timeMonitor != null) {
+        rootView.timeMonitor
+            ?.startEvent(EngineMonitorEventKey.moduleLoadEventRunBundle);
+      }
     }
 
-    await VoltronApi.callFunction(_engineId, action, paramsJsonStr, (value) {
+    await VoltronApi.createInstance(_engineId, id, rootSize, paramsJsonStr, (value) {
       var curRootView = _context.getInstance(id);
       if (curRootView != null && curRootView.timeMonitor != null) {
         curRootView.timeMonitor
@@ -227,8 +227,14 @@ class VoltronBridgeManager implements Destroyable {
   }
 
   Future<dynamic> destroyInstance(int id) async {
-    var action = "destroyInstance";
-    await callJsFunction(id, action);
+    if (!_isFrameWorkInit) {
+      return;
+    }
+    var paramsJsonStr = objectToJson(id);
+    if (isEmpty(paramsJsonStr)) {
+      return;
+    }
+    await VoltronApi.destroyInstance(_engineId, id, paramsJsonStr, (value) {});
   }
 
   Future<dynamic> callJsFunction(Object params, String action) async {
@@ -274,7 +280,7 @@ class VoltronBridgeManager implements Destroyable {
     _voltronBuffer.release();
     bridgeMap.remove(_engineId);
     await VoltronApi.destroy(_engineId, _isSingleThread, (value) {});
-    _context.renderContext.bridgeManager.destroy();
+    _context.renderContext.destroy();
   }
 
   Future<dynamic> callJavaScriptModule(
