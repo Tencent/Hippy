@@ -11,6 +11,8 @@
 namespace voltron {
 
 using hippy::DomEvent;
+using hippy::LayoutMeasureMode;
+using hippy::LayoutSize;
 
 VoltronRenderTaskRunner::~VoltronRenderTaskRunner() { queue_ = nullptr; }
 
@@ -247,7 +249,8 @@ void VoltronRenderTaskRunner::ConsumeQueue() {
 }
 
 void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_node, const std::string& name,
-                                              const DomArgument& param, const hippy::CallFunctionCallback& cb) {
+                                              const DomArgument& param,
+                                              uint32_t cb_id) {
   auto node = dom_node.lock();
   auto bridge_manager = BridgeManager::Find(engine_id_);
   if (node && bridge_manager) {
@@ -260,10 +263,11 @@ void VoltronRenderTaskRunner::RunCallFunction(const std::weak_ptr<DomNode>& dom_
     }
 
     auto callback_id =
-        bridge_manager->AddNativeCallback(kCallUiFuncType, [dom_node, name](const EncodableValue& params) {
+        bridge_manager->AddNativeCallback(kCallUiFuncType, [dom_node, name, cb_id]
+                                          (const EncodableValue& params) {
           auto inner_node = dom_node.lock();
           if (inner_node) {
-            auto callback = inner_node->GetCallback(name);
+            auto callback = inner_node->GetCallback(name, cb_id);
             auto encode_params = EncodeDomValue(params);
             if (callback) {
               callback(std::make_shared<DomArgument>(encode_params));
@@ -318,30 +322,26 @@ void VoltronRenderTaskRunner::SetNodeCustomMeasure(const Sp<DomNode> &dom_node) 
   if (dom_node) {
     auto layout_node = dom_node->GetLayoutNode();
     if (layout_node) {
-      auto taitank_layout_node = std::static_pointer_cast<hippy::TaitankLayoutNode>(layout_node);
       auto root_id = root_id_;
       auto engine_id = engine_id_;
       auto node_id = dom_node->GetId();
-      taitank_layout_node->SetMeasureFunction(
-          [engine_id, root_id, node_id](HPNodeRef node,
-                                        float width,
-                                        MeasureMode widthMeasureMode,
-                                        float height,
-                                        MeasureMode heightMeasureMode,
-                                        void *layoutContext) {
+      layout_node->SetMeasureFunction(
+          [engine_id, root_id, node_id](
+              float width, LayoutMeasureMode widthMeasureMode, float height,
+              LayoutMeasureMode heightMeasureMode, void *layoutContext) {
             auto bridge_manager = BridgeManager::Find(engine_id);
             if (bridge_manager) {
               auto runtime = bridge_manager->GetRuntime().lock();
               if (runtime) {
-                auto measure_result =
-                    runtime->CalculateNodeLayout(root_id, node_id, width, widthMeasureMode,
-                                                 height, heightMeasureMode);
+                auto measure_result = runtime->CalculateNodeLayout(
+                    root_id, node_id, width, widthMeasureMode, height,
+                    heightMeasureMode);
                 int32_t w_bits = 0xFFFFFFFF & (measure_result >> 32);
                 int32_t h_bits = 0xFFFFFFFF & measure_result;
-                return HPSize{(float) w_bits, (float) h_bits};
+                return LayoutSize{(float)w_bits, (float)h_bits};
               }
             }
-            return HPSize{0, 0};
+            return LayoutSize{0, 0};
           });
     }
   }

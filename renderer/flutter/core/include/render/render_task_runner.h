@@ -25,7 +25,7 @@ class VoltronRenderTaskRunner {
   void RunLayoutBefore();
   void RunLayoutFinish();
   void RunCallFunction(const std::weak_ptr<DomNode>& dom_node, const std::string& name, const DomArgument& param,
-                       const CallFunctionCallback& cb);
+                       uint32_t cb_id);
   void RunCallEvent(const std::weak_ptr<DomNode>& dom_node, const std::string& name,
                     const std::unique_ptr<EncodableValue>& params);
   void RunAddEventListener(const int32_t& node_id, const String& event_name);

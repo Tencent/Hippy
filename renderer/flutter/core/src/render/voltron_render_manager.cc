@@ -64,8 +64,8 @@ void VoltronRenderManager::AfterLayout() {
 void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node,
                                         const std::string &name,
                                         const DomArgument &param,
-                                        CallFunctionCallback cb) {
-  RunCallFunction(dom_node, name, param, cb);
+                                        uint32_t cb_id) {
+  RunCallFunction(dom_node, name, param, cb_id);
 }
 
 void VoltronRenderManager::CallEvent(std::weak_ptr<DomNode> dom_node,
