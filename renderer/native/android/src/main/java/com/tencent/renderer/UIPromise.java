@@ -21,9 +21,11 @@ public class UIPromise implements Promise {
 
     private final int mNodeId;
     private final int mInstanceId;
+    private final long mCallbackId;
     private final String mFunctionName;
 
-    public UIPromise(String functionName, int nodeId, int instanceId) {
+    public UIPromise(long callbackId, String functionName, int nodeId, int instanceId) {
+        mCallbackId = callbackId;
         mFunctionName = functionName;
         mNodeId = nodeId;
         mInstanceId = instanceId;
@@ -44,6 +46,6 @@ public class UIPromise implements Promise {
         if (nativeRenderer == null || mNodeId < 0) {
             return;
         }
-        nativeRenderer.doPromiseCallBack(result, mFunctionName, mNodeId, params);
+        nativeRenderer.doPromiseCallBack(result, mCallbackId, mFunctionName, mNodeId, params);
     }
 }

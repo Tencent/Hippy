@@ -640,15 +640,18 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void callUIFunction(final int id, final String functionName,
+    public void callUIFunction(final int id, final long callbackId,
+            @NonNull final String functionName,
             @NonNull final ArrayList<Object> params) throws NativeRenderException {
         // The node id should not be negative number.
         if (id < 0) {
             throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                     TAG + ": callUIFunction: invalid negative id=" + id);
         }
-        final UIPromise promise = new UIPromise(functionName, id,
-                mRenderProvider.getInstanceId());
+        // If callbackId equal to 0 mean this call does not need to callback.
+        final UIPromise promise =
+                (callbackId == 0) ? null : new UIPromise(callbackId, functionName, id,
+                        mRenderProvider.getInstanceId());
         try {
             // It is generally preferable to use add here, just focus the exception
             // when add failed, don't need to handle the return value.
@@ -670,9 +673,10 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void doPromiseCallBack(int result, String functionName, int nodeId, Object params) {
+    public void doPromiseCallBack(int result, long callbackId, String functionName, int nodeId,
+            Object params) {
         if (mRenderProvider != null) {
-            mRenderProvider.doPromiseCallBack(result, functionName, nodeId, params);
+            mRenderProvider.doPromiseCallBack(result, callbackId, functionName, nodeId, params);
         }
     }
 

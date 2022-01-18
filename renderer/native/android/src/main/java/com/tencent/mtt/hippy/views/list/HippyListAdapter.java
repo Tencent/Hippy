@@ -567,14 +567,14 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 
   protected HippyViewEvent getOnEndReachedEvent() {
     if (onEndReachedEvent == null) {
-      onEndReachedEvent = new HippyViewEvent("onEndReached");
+      onEndReachedEvent = new HippyViewEvent("endreached");
     }
     return onEndReachedEvent;
   }
 
   protected HippyViewEvent getOnLoadMoreEvent() {
     if (onLoadMoreEvent == null) {
-      onLoadMoreEvent = new HippyViewEvent("onLoadMore");
+      onLoadMoreEvent = new HippyViewEvent("loadmore");
     }
     return onLoadMoreEvent;
   }

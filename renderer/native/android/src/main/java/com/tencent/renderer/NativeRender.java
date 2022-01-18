@@ -40,7 +40,8 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     IImageLoaderAdapter getImageLoaderAdapter();
 
-    @Nullable FontAdapter getFontAdapter();
+    @Nullable
+    FontAdapter getFontAdapter();
 
     void onFirstViewAdded();
 
@@ -58,7 +59,8 @@ public interface NativeRender extends NativeRenderExceptionHandler {
     void dispatchCustomEvent(int id, String eventName, Object params, boolean useCapture,
             boolean useBubble);
 
-    void doPromiseCallBack(int result, String functionName, int nodeId, Object params);
+    void doPromiseCallBack(int result, long callbackId, String functionName, int nodeId,
+            Object params);
 
     void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 

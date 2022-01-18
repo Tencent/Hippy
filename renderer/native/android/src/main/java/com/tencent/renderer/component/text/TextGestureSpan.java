@@ -134,6 +134,8 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
                 handle = true;
                 break;
             }
+            default:
+                LogUtils.e(TAG, "handleDispatchTouchEvent: Unknown motion event =" + action);
         }
         mLastX = x;
         mLastY = y;
@@ -152,12 +154,16 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
     public void handle(String type, float x, float y) {
         switch (type) {
             case ON_PRESS_IN:
+                // fall through
             case ON_PRESS_OUT:
                 NativeGestureDispatcher.handleClickEvent(mNativeRenderer, mId, type);
                 break;
             case ON_TOUCH_DOWN:
+                // fall through
             case ON_TOUCH_MOVE:
+                // fall through
             case ON_TOUCH_END:
+                // fall through
             case ON_TOUCH_CANCEL:
                 NativeGestureDispatcher
                         .handleTouchEvent(mNativeRenderer, mTargetView, mId, x, y, type);

@@ -215,8 +215,7 @@ public class NativeRenderProvider {
     private void callUIFunction(int id, long callbackId, String functionName, byte[] buffer) {
         try {
             final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            // TODO: 带上callbackId
-            mRenderDelegate.callUIFunction(id, functionName, list);
+            mRenderDelegate.callUIFunction(id, callbackId, functionName, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -235,8 +234,8 @@ public class NativeRenderProvider {
         onRootSizeChanged(mInstanceId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
-    public void doPromiseCallBack(int result, @NonNull String functionName, int nodeId,
-            @Nullable Object params) {
+    public void doPromiseCallBack(int result, long callbackId, @NonNull String functionName,
+            int nodeId, @Nullable Object params) {
         byte[] bytes = null;
         int offset = 0;
         int length = 0;
@@ -252,8 +251,7 @@ public class NativeRenderProvider {
                 return;
             }
         }
-        // TODO: 替换-1为实际的callbackId
-        doCallBack(mInstanceId, result, functionName, nodeId, -1, bytes, offset, length);
+        doCallBack(mInstanceId, result, functionName, nodeId, callbackId, bytes, offset, length);
     }
 
     public void dispatchEvent(int nodeId, @NonNull String eventName, @Nullable Object params,
@@ -321,8 +319,8 @@ public class NativeRenderProvider {
      * Do promise call back to js after handle call ui function by native renderer,
      *
      * @param instanceId the unique id of native (C++) render manager
-     * @param result {@code PROMISE_CODE_RESOLVE} {@link UIPromise}
-     *               {@code PROMISE_CODE_REJECT} {@link UIPromise}
+     * @param result {@code PROMISE_CODE_RESOLVE} {@link UIPromise} {@code PROMISE_CODE_REJECT}
+     * {@link UIPromise}
      * @param functionName ui function name
      * @param nodeId the dom node id
      * @param callbackId the callback id identifies the caller
@@ -331,5 +329,5 @@ public class NativeRenderProvider {
      * @param length available total length of params buffer
      */
     private native void doCallBack(int instanceId, int result, String functionName, int nodeId,
-                                   long callbackId, byte[] params, int offset, int length);
+            long callbackId, byte[] params, int offset, int length);
 }

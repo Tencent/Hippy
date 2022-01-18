@@ -69,8 +69,6 @@ public class RenderNode {
 
     public boolean mHasSetDteblId = false;
 
-    List<UIFunction> mUIFunction = null;
-
     public RenderNode getParent() {
         return mParent;
     }
@@ -335,18 +333,6 @@ public class RenderNode {
                 mComponentManager.updateExtra(mId, mClassName, mTextExtraUpdate);
                 mTextExtraUpdate = null;
             }
-
-            if (mUIFunction != null && mUIFunction.size() > 0) {
-                for (int i = 0; i < mUIFunction.size(); i++) {
-                    UIFunction uiFunction = mUIFunction.get(i);
-                    mComponentManager
-                            .dispatchUIFunction(mId, mClassName, uiFunction.mFunctionName,
-                                    uiFunction.mParameter,
-                                    uiFunction.mPromise);
-                }
-                mUIFunction.clear();
-                mUIFunction = null;
-            }
             if (mMeasureInWindows != null && mMeasureInWindows.size() > 0) {
                 for (int i = 0; i < mMeasureInWindows.size(); i++) {
                     Promise promise = mMeasureInWindows.get(i);
@@ -439,27 +425,6 @@ public class RenderNode {
         if (!mIsLazyLoad && !mIsDelete) {
             mComponentManager.onManageChildComplete(mClassName, mId);
         }
-    }
-
-    static class UIFunction {
-
-        public UIFunction(String functionName, HippyArray parameter, Promise promise) {
-            this.mFunctionName = functionName;
-            this.mParameter = parameter;
-            this.mPromise = promise;
-        }
-
-        final String mFunctionName;
-        final HippyArray mParameter;
-        final Promise mPromise;
-    }
-
-
-    public void dispatchUIFunction(String functionName, HippyArray parameter, Promise promise) {
-        if (mUIFunction == null) {
-            mUIFunction = new ArrayList<>();
-        }
-        mUIFunction.add(new UIFunction(functionName, parameter, promise));
     }
 
     public boolean isIsLazyLoad() {
