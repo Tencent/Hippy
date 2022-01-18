@@ -84,7 +84,7 @@ void Serializer::WriteString(const std::string& value) {
     std::u16string u16 = converter.from_bytes(value);
 
     WriteTag(SerializationTag::kTwoByteString);
-    WriteTwoByteString(u16.c_str(), value.length());
+    WriteTwoByteString(u16.c_str(), u16.length());
   }
 }
 
