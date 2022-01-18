@@ -10,7 +10,7 @@ import {
 import { useCallback, useRef } from 'react/cjs/react.development';
 import imageUrl from './defaultSource.jpg';
 import RippleViewAndroid from './RippleViewAndroid';
-const httpImageUrl = 'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png';
+const httpImageUrl = 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png';
 
 const styles = StyleSheet.create({
   itemTitle: {
@@ -46,6 +46,8 @@ const styles = StyleSheet.create({
     height: 150,
     backgroundColor: 'blue',
     marginTop: 30,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   squareRippleWrapper: {
     alignItems: 'flex-start',

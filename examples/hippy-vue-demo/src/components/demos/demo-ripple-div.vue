@@ -52,13 +52,7 @@ export default {
       default: '',
     },
     contentStyle: {
-      default: () => ({
-        // alignItems: 'center',
-        // justifyContent: 'center',
-        // width: 150,
-        // height: 150,
-        // position: 'absolute',
-      }),
+      default: () => ({}),
     },
     rippleClass: {
       default: '',
@@ -82,7 +76,6 @@ export default {
   },
   methods: {
     onTouchStart(e) {
-      console.log('onTouchStart====>', e);
       if (this.Platform === 'ios') {
         return;
       }
@@ -90,8 +83,7 @@ export default {
       const t = e.touches[0];
       this.demon2.setHotspot(t.clientX, t.clientY);
     },
-    onTouchEnd(e) {
-      console.log('onTouchEnd====>', e);
+    onTouchEnd() {
       if (this.Platform === 'ios') {
         return;
       }

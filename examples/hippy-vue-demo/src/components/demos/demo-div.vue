@@ -104,7 +104,7 @@
       />
       <div :style="{width: 150, height: 150, marginLeft: 20}">
         <img
-          src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png"
+          src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
           :style="{width: 150, height: 150}"
         >
         <demo-ripple-div
@@ -156,7 +156,7 @@ export default {
         alignItems: 'center',
         marginTop: '10px',
         marginBottom: '10px',
-        backgroundImage: 'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png',
+        backgroundImage: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
         backgroundRepeat: 'no-repeat',
       },
       nobCircieRipple: {

@@ -21,8 +21,8 @@
 import React from 'react';
 import Style from '@localTypes/style';
 import { FocusEvent } from '@localTypes/event';
-import { callUIFunction } from '../modules/ui-manager-module';
 import { Fiber } from '@hippy/react-reconciler';
+import { callUIFunction } from '../modules/ui-manager-module';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
 
 interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
@@ -86,7 +86,7 @@ class View extends React.Component<ViewProps, {}> {
     callUIFunction(this.instance as Fiber, 'setPressed', [pressed]);
   }
 
-  setHotspot(x: number, y: number) {
+  public setHotspot(x: number, y: number) {
     callUIFunction(this.instance as Fiber, 'setHotspot', [x, y]);
   }
 

@@ -140,14 +140,6 @@ export default [
     },
   },
   {
-    path: '/MyView',
-    name: 'MyView 组件',
-    component: PAGE_LIST.MyView,
-    meta: {
-      style: 1,
-    },
-  },
-  {
     path: '/RippleViewAndroid',
     name: 'RippleViewAndroid 组件',
     component: PAGE_LIST.RippleViewAndroid,
