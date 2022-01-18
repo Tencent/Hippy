@@ -68,6 +68,15 @@ extern NSString *const HippyContentDidAppearNotification;
                         debugMode:(BOOL)mode
                          delegate:(id<HippyRootViewDelegate>)delegate;
 
+- (instancetype)initWithBundleURL:(NSURL *)bundleURL
+                       moduleName:(NSString *)moduleName
+                initialProperties:(NSDictionary *)initialProperties
+                    launchOptions:(NSDictionary *)launchOptions
+                     shareOptions:(NSDictionary *)shareOptions
+                        debugMode:(BOOL)mode
+                      enableTurbo:(BOOL)enableTurbo
+                         delegate:(id<HippyRootViewDelegate>)delegate;
+
 /**
  * - Convenience initializer -
  * A bridge will be created internally.
@@ -85,6 +94,15 @@ extern NSString *const HippyContentDidAppearNotification;
                      debugMode:(BOOL)mode
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                   businessURL:(NSURL *)businessURL
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                 launchOptions:(NSDictionary *)launchOptions
+                  shareOptions:(NSDictionary *)shareOptions
+                     debugMode:(BOOL)mode
+                   enableTurbo:(BOOL)enableTurbo
+                      delegate:(id<HippyRootViewDelegate>)delegate;
 /**
  * The name of the JavaScript module to execute within the
  * specified scriptURL (required). Setting this will not have

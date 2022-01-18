@@ -57,7 +57,15 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
     HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:url moduleProvider:nil launchOptions:nil];
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"your module name" initialProperties:@{@"isSimulator": @(isSimulator) shareOptions:nil delegate:nil];
 #else
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil businessURL:nil moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:YES delegate:nil];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil
+                                                        businessURL:nil
+                                                         moduleName:@"Demo"
+                                                  initialProperties:@{@"isSimulator": @(isSimulator)}
+                                                      launchOptions:nil
+                                                       shareOptions:nil
+                                                          debugMode:YES
+                                                        enableTurbo:YES
+                                                           delegate:nil];
 #endif
 	rootView.backgroundColor = [UIColor whiteColor];
 	rootView.frame = vc.view.bounds;

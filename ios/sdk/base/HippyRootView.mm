@@ -40,7 +40,6 @@
 #import "UIView+Hippy.h"
 #import "HippyBridge+Mtt.h"
 #import "HippyBundleURLProvider.h"
-#import "DemoConfigs.h"
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
@@ -135,13 +134,29 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
                     launchOptions:(NSDictionary *)launchOptions
                      shareOptions:(NSDictionary *)shareOptions
                         debugMode:(BOOL)mode
-                         delegate:(id<HippyRootViewDelegate>)delegate
+                         delegate:(id<HippyRootViewDelegate>)delegate {
+    return [self initWithBundleURL:bundleURL
+                        moduleName:moduleName
+                 initialProperties:initialProperties
+                     launchOptions:launchOptions
+                      shareOptions:shareOptions
+                         debugMode:mode
+                       enableTurbo:NO
+                          delegate:delegate];
+}
 
-{
+- (instancetype)initWithBundleURL:(NSURL *)bundleURL
+                       moduleName:(NSString *)moduleName
+                initialProperties:(NSDictionary *)initialProperties
+                    launchOptions:(NSDictionary *)launchOptions
+                     shareOptions:(NSDictionary *)shareOptions
+                        debugMode:(BOOL)mode
+                      enableTurbo:(BOOL)enableTurbo
+                         delegate:(id<HippyRootViewDelegate>)delegate {
     NSMutableDictionary *extendsLaunchOptions = [NSMutableDictionary new];
     [extendsLaunchOptions addEntriesFromDictionary:launchOptions];
     [extendsLaunchOptions setObject:@(mode) forKey:@"DebugMode"];
-    [extendsLaunchOptions setObject:@(DEMO_ENABLE_TURBO) forKey:@"EnableTurbo"];
+    [extendsLaunchOptions setObject:@(enableTurbo) forKey:@"EnableTurbo"];
     HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL moduleProvider:nil launchOptions:extendsLaunchOptions
                                                      executorKey:moduleName];
     return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate:delegate];
@@ -155,6 +170,26 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
                   shareOptions:(NSDictionary *)shareOptions
                      debugMode:(BOOL)mode
                       delegate:(id<HippyRootViewDelegate>)delegate {
+    return [self initWithBridge:bridge
+                    businessURL:businessURL
+                     moduleName:moduleName
+              initialProperties:initialProperties
+                  launchOptions:launchOptions
+                   shareOptions:shareOptions
+                      debugMode:mode
+                    enableTurbo:NO
+                       delegate:delegate];
+}
+
+- (instancetype)initWithBridge:(HippyBridge *)bridge
+                   businessURL:(NSURL *)businessURL
+                    moduleName:(NSString *)moduleName
+             initialProperties:(NSDictionary *)initialProperties
+                 launchOptions:(NSDictionary *)launchOptions
+                  shareOptions:(NSDictionary *)shareOptions
+                     debugMode:(BOOL)mode
+                   enableTurbo:(BOOL)enableTurbo
+                      delegate:(id<HippyRootViewDelegate>)delegate {
     if (mode) {
         NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
         NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
@@ -162,6 +197,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
         if (self = [self initWithBundleURL:bundleUrl moduleName:moduleName initialProperties:initialProperties launchOptions:launchOptions
                               shareOptions:shareOptions
                                  debugMode:mode
+                               enableTurbo:enableTurbo
                                   delegate:delegate]) {
         }
         return self;
