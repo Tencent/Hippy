@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.1](https://github.com/Tencent/Hippy/compare/2.12.0...2.12.1) (2022-01-18)
+
+
+### Bug Fixes
+
+* **android:** add setMetrics to PixelUtil ([40af198](https://github.com/Tencent/Hippy/commit/40af198c7ec0d67ff920b1b6d1585f33f29b048b))
+* **android:** fix HippyImageSpan align problems ([31739fb](https://github.com/Tencent/Hippy/commit/31739fbc616eacd0e2499cc1cdb1e2d9dd4d2137))
+* **android:** fix memory leak ([6677220](https://github.com/Tencent/Hippy/commit/6677220539d1339ca2ebdc7759605a059783de6a))
+* **core:** fix LoadUntrustedContent crash ([88fa2cd](https://github.com/Tencent/Hippy/commit/88fa2cdb0ad922bf6aa2a0b18a3ea3e1f3fb985d))
+* **core:** fix TDF_BASE_DCHECK crash ([b489fbf](https://github.com/Tencent/Hippy/commit/b489fbfcb0f3daa33e306988890df4420f876124))
+
+
+### Features
+
+* **ios:** jsi switch ([1998302](https://github.com/Tencent/Hippy/commit/199830221048cc36df65adb6f1bf3d301f91ebe9))
+
+
+
+
+
 # [2.12.0](https://github.com/Tencent/Hippy/compare/2.11.6...2.12.0) (2022-01-04)
 
 
