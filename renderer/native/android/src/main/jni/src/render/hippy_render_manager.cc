@@ -133,13 +133,22 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
     dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
 
     tdf::base::DomValue::DomValueObjectType props;
-    // diff 属性
-    auto diff = nodes[i]->GetDiffStyle();
-    auto iter = diff.begin();
-    while (iter != diff.end()) {
+    // 样式属性
+    auto style = nodes[i]->GetStyleMap();
+    auto iter = style.begin();
+    while (iter != style.end()) {
       props[iter->first] = *(iter->second);
       iter++;
     }
+
+    // 用户自定义属性
+    auto dom_ext = nodes[i]->GetExtStyle();
+    iter = dom_ext.begin();
+    while (iter != dom_ext.end()) {
+      props[iter->first] = *(iter->second);
+      iter++;
+    }
+
     dom_node[kProps] = props;
     dom_node_array[i] = dom_node;
   }
@@ -293,7 +302,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
 
   jstring j_name = j_env->NewStringUTF(name.c_str());
 
-  j_env->CallVoidMethod(j_object, j_method_id, node->GetId(), (jlong) cb_id, j_name, j_buffer);
+  j_env->CallVoidMethod(j_object, j_method_id, node->GetId(), (jlong)cb_id, j_name, j_buffer);
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_name);
 }
