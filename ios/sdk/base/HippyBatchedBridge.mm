@@ -496,6 +496,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                 devInfo.ipAddress = bundleURLProvider.localhostIP;
                 devInfo.port = bundleURLProvider.localhostPort;
                 devInfo.versionId = bundleURLProvider.versionId;
+                devInfo.wsURL = bundleURLProvider.wsURL;
             }
             _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devInfo:devInfo contextName:name];
         }
