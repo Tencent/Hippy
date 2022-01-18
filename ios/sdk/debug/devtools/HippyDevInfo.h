@@ -14,7 +14,10 @@
 @property (nonatomic, copy) NSString *ipAddress;
 @property (nonatomic, copy) NSString *port;
 @property (nonatomic, copy) NSString *versionId;
+@property (nonatomic, copy) NSString *wsURL;
 
 - (void)setScheme:(NSString *)scheme;
+
+- (void)parseWsURLWithURLQuery:(NSString *)query;
 
 @end

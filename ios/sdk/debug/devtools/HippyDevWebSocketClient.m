@@ -91,6 +91,10 @@ static const char *stringFromReadyState(HippySRReadyState state) {
         if (devInfo.versionId.length > 0) {
             devAddress = [NSString stringWithFormat:@"%@&hash=%@", devAddress, devInfo.versionId];
         }
+        if (devInfo.wsURL.length > 0) {
+            // wsURL has a high priority
+            devAddress = devInfo.wsURL;
+        }
         _devURL = [NSURL URLWithString:devAddress];
         HippyLog(@"[DevTools client]:try to connect to %@", devAddress);
         [self setup];

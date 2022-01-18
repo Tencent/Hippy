@@ -488,6 +488,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                 devInfo.ipAddress = [url host];
                 devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
                 devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
+                [devInfo parseWsURLWithURLQuery:[url query]];
             }
             else {
                 HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
