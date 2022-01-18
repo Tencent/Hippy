@@ -48,8 +48,8 @@ public class VirtualNodeManager {
     private final String PADDING_RIGHT = "paddingRight";
     private final String PADDING_BOTTOM = "paddingBottom";
     private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>();
-    private @NonNull
-    final NativeRender mNativeRender;
+    @NonNull
+    private final NativeRender mNativeRender;
 
     public VirtualNodeManager(@NonNull NativeRender nativeRenderer) {
         mNativeRender = nativeRenderer;
@@ -88,8 +88,8 @@ public class VirtualNodeManager {
         return true;
     }
 
-    public @Nullable
-    TextRenderSupply updateLayout(int id, float width, HashMap<String, Object> layoutInfo) {
+    @Nullable
+    public TextRenderSupply updateLayout(int id, float width, HashMap<String, Object> layoutInfo) {
         VirtualNode node = mVirtualNodes.get(id);
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
             return null;
@@ -99,10 +99,14 @@ public class VirtualNodeManager {
         float rightPadding = 0;
         float bottomPadding = 0;
         try {
-            leftPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_LEFT))).floatValue();
-            topPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_TOP))).floatValue();
-            rightPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_RIGHT))).floatValue();
-            bottomPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_BOTTOM))).floatValue();
+            leftPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_LEFT)))
+                    .floatValue();
+            topPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_TOP)))
+                    .floatValue();
+            rightPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_RIGHT)))
+                    .floatValue();
+            bottomPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_BOTTOM)))
+                    .floatValue();
         } catch (NullPointerException ignored) {
             // Padding is not necessary for layout, if get padding property failed,
             // just ignore this exception
@@ -151,8 +155,7 @@ public class VirtualNodeManager {
     }
 
     private void invokePropertyMethod(@NonNull VirtualNode node, @NonNull HashMap propsMap,
-            @NonNull String key,
-            @Nullable PropertyMethod methodHolder) {
+            @NonNull String key, @Nullable PropertyMethod methodHolder) {
         if (methodHolder == null) {
             if (key.equals(NodeProps.STYLE) && (propsMap.get(key) instanceof HashMap)) {
                 updateProps(node, (HashMap) propsMap.get(key));
@@ -215,7 +218,7 @@ public class VirtualNodeManager {
         } else if (className.equals(IMAGE_CLASS_NAME) && parent != null) {
             node = new ImageVirtualNode(id, pid, index, mNativeRender.getImageLoaderAdapter());
         } else {
-            // Only text or text child should create virtual node.
+            // Only text or text child need to create virtual node.
             return;
         }
         mVirtualNodes.put(id, node);
@@ -227,10 +230,9 @@ public class VirtualNodeManager {
 
     public void updateNode(int id, @Nullable HashMap<String, Object> props) {
         VirtualNode node = mVirtualNodes.get(id);
-        if (node == null) {
-            return;
+        if (node != null) {
+            updateProps(node, props);
         }
-        updateProps(node, props);
     }
 
     public void deleteNode(int id) {

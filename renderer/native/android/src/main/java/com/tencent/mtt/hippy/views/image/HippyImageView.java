@@ -612,28 +612,28 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   static class OnLoadEvent extends HippyViewEvent {
 
     OnLoadEvent() {
-      super("onLoad");
+      super("load");
     }
   }
 
   static class OnLoadEndEvent extends HippyViewEvent {
 
     OnLoadEndEvent() {
-      super("onLoadEnd");
+      super("loadend");
     }
   }
 
   static class OnLoadStartEvent extends HippyViewEvent {
 
     OnLoadStartEvent() {
-      super("onLoadStart");
+      super("loadstart");
     }
   }
 
   static class OnErrorEvent extends HippyViewEvent {
 
     OnErrorEvent() {
-      super("onError");
+      super("error");
     }
   }
 }

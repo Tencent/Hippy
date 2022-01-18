@@ -172,22 +172,9 @@ public class RenderManager {
         HippyArray localParams = new HippyArray(params);
         RenderNode node = mNodes.get(id);
         if (node != null) {
-            node.dispatchUIFunction(functionName, localParams, promise);
-            addNullUINodeIfNeeded(node);
+            mControllerManager
+                    .dispatchUIFunction(id, node.mClassName, functionName, localParams, promise);
         }
-    }
-
-    public void nonUIBatchEnd() {
-        LogUtils.d("RenderManager", "do nonUIBatchEnd size " + mUIUpdateNodes.size());
-        for (int i = 0; i < mUIUpdateNodes.size(); i++) {
-            mUIUpdateNodes.get(i).createView();
-        }
-        for (int i = 0; i < mUIUpdateNodes.size(); i++) {
-            RenderNode uiNode = mUIUpdateNodes.get(i);
-            uiNode.update();
-        }
-
-        mUIUpdateNodes.clear();
     }
 
     public void batch() {

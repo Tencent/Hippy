@@ -27,12 +27,12 @@ import com.tencent.renderer.NativeRendererManager;
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyScrollViewEventHelper {
   public static final long MOMENTUM_DELAY = 20;
-  public static final String EVENT_TYPE_BEGIN_DRAG = "onScrollBeginDrag";
-  public static final String EVENT_TYPE_END_DRAG = "onScrollEndDrag";
-  public static final String EVENT_TYPE_SCROLL = "onScroll";
-  public static final String EVENT_TYPE_MOMENTUM_BEGIN = "onMomentumScrollBegin";
-  public static final String EVENT_TYPE_MOMENTUM_END = "onMomentumScrollEnd";
-  public static final String EVENT_TYPE_ANIMATION_END = "onScrollAnimationEnd";
+  public static final String EVENT_TYPE_BEGIN_DRAG = "scrollbegindrag";
+  public static final String EVENT_TYPE_END_DRAG = "scrollenddrag";
+  public static final String EVENT_TYPE_SCROLL = "scroll";
+  public static final String EVENT_TYPE_MOMENTUM_BEGIN = "momentumscrollbegin";
+  public static final String EVENT_TYPE_MOMENTUM_END = "momentumscrollend";
+  public static final String EVENT_TYPE_ANIMATION_END = "scrollanimationend";
 
   public static void emitScrollEvent(ViewGroup view) {
     emitScrollEvent(view, EVENT_TYPE_SCROLL);
