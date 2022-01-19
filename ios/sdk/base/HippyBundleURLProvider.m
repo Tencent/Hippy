@@ -32,6 +32,7 @@ NSString *const HippyBundleURLSchemetHttps = @"https";
 @property (nonatomic, copy) NSString *debugPathUrl;
 @property (nonatomic, copy) NSString *versionId;
 @property (nonatomic, copy) NSString *scheme;
+@property (nonatomic, copy) NSString *wsURL;
 
 @end
 
@@ -69,6 +70,8 @@ NSString *const HippyBundleURLSchemetHttps = @"https";
         _localhostIP = @"localhost";
         _localhostPort = @"38989";
         self.debugPathUrl = @"/index.bundle?platform=ios&dev=true&minify=false";
+        // websocket url after url encode
+        //_wsURL = @"debugURL=wss%3A%2F%2Fdevtools.hippy.myqcloud.com%3A443%2Fdebugger-proxy";
     }
     return self;
 }
@@ -103,7 +106,11 @@ NSString *const HippyBundleURLSchemetHttps = @"https";
 
 - (NSString *)bundleURLString {
     NSString *scheme = _scheme.length > 0 ? _scheme : HippyBundleURLSchemeHttp;
-    return [NSString stringWithFormat:@"%@://%@%@", scheme, self.localhost, self.debugPathUrl];
+    NSString *debugPath = _debugPathUrl;
+    if (_wsURL.length > 0) {
+        debugPath = [NSString stringWithFormat:@"%@&%@", debugPath, _wsURL];
+    }
+    return [NSString stringWithFormat:@"%@://%@%@", scheme, self.localhost, debugPath];
 }
 
 @end
