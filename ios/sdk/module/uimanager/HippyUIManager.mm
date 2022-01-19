@@ -36,7 +36,6 @@
 #import "HippyModuleData.h"
 #import "HippyModuleMethod.h"
 #import "HippyRootShadowView.h"
-#import "HippyRootViewInternal.h"
 #import "HippyScrollableProtocol.h"
 #import "HippyShadowView.h"
 #import "HippyUtils.h"

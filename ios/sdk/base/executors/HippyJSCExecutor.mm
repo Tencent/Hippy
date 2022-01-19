@@ -219,7 +219,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
             context->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", NSStringToU8(string));
             context->SetGlobalJsonVar("__fbBatchedBridgeConfig", NSStringToU8([strongSelf.bridge moduleConfig]));
             NSString *workFolder = [strongSelf.bridge sandboxDirectory];
-            HippyAssert(workFolder, @"work folder path should not be null");
             if (workFolder) {
                 context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8(workFolder));
             }

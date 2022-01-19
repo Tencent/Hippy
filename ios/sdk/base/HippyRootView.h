@@ -57,14 +57,12 @@ extern NSString *const HippyContentDidAppearNotification;
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
-                  shareOptions:(NSDictionary *)shareOptions
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL
                        moduleName:(NSString *)moduleName
                 initialProperties:(NSDictionary *)initialProperties
                     launchOptions:(NSDictionary *)launchOptions
-                     shareOptions:(NSDictionary *)shareOptions
                         debugMode:(BOOL)mode
                          delegate:(id<HippyRootViewDelegate>)delegate;
 
@@ -81,8 +79,6 @@ extern NSString *const HippyContentDidAppearNotification;
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
                  launchOptions:(NSDictionary *)launchOptions
-                  shareOptions:(NSDictionary *)shareOptions
-                     debugMode:(BOOL)mode
                       delegate:(id<HippyRootViewDelegate>)delegate;
 
 - (instancetype)initWithBridgeButNoRuntime:(HippyBridge *)bridge;
@@ -120,8 +116,6 @@ extern NSString *const HippyContentDidAppearNotification;
  * rootViewDidChangeIntrinsicSize method of HippyRootViewDelegate is called.
  */
 @property (readonly, nonatomic, assign) CGSize intrinsicSize;
-
-@property (readonly, nonatomic) NSNumber *hippyTag;
 
 /**
  * The delegate that handles intrinsic size updates.

@@ -62,7 +62,8 @@
     if ([tempBridge isKindOfClass:[HippyBatchedBridge class]]) {
         tempBridge = [(HippyBatchedBridge *)tempBridge parentBridge];
     }
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:tempBridge moduleName:moduleName initialProperties:props shareOptions:@{}
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:tempBridge moduleName:moduleName
+                                                  initialProperties:props
                                                            delegate:nil];
     rootView.backgroundColor = [UIColor whiteColor];
     [rootView bundleFinishedLoading:tempBridge];

@@ -22,7 +22,6 @@
 
 #import "HippyRootView.h"
 #import "HippyRootViewDelegate.h"
-#import "HippyRootViewInternal.h"
 
 #import <objc/runtime.h>
 
@@ -38,7 +37,6 @@
 #import "HippyUtils.h"
 #import "HippyView.h"
 #import "UIView+Hippy.h"
-#import "HippyBridge+Mtt.h"
 #import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
 
@@ -63,22 +61,21 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 
 @end
 
-@interface HippyRootView ()
-// MttRN: 增加一个属性用于属性传递
-@property (nonatomic, strong) NSDictionary *shareOptions;
-
-@end
-
-@implementation HippyRootView {
+@interface HippyRootView () {
     HippyBridge *_bridge;
     NSString *_moduleName;
     HippyRootContentView *_contentView;
 }
 
+@property (readwrite, nonatomic, assign) CGSize intrinsicSize;
+
+@end
+
+@implementation HippyRootView
+
 - (instancetype)initWithBridge:(HippyBridge *)bridge
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
-                  shareOptions:(NSDictionary *)shareOptions
                       delegate:(id<HippyRootViewDelegate>)delegate {
     HippyAssertMainQueue();
     HippyAssert(bridge, @"A bridge instance is required to create an HippyRootView");
@@ -96,7 +93,6 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
         _loadingViewFadeDelay = 0.25;
         _loadingViewFadeDuration = 0.25;
         _sizeFlexibility = HippyRootViewSizeFlexibilityNone;
-        _shareOptions = shareOptions;
         _delegate = delegate;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
@@ -133,7 +129,6 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
                        moduleName:(NSString *)moduleName
                 initialProperties:(NSDictionary *)initialProperties
                     launchOptions:(NSDictionary *)launchOptions
-                     shareOptions:(NSDictionary *)shareOptions
                         debugMode:(BOOL)mode
                          delegate:(id<HippyRootViewDelegate>)delegate
 
@@ -144,7 +139,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
     [extendsLaunchOptions setObject:@(DEMO_ENABLE_TURBO) forKey:@"EnableTurbo"];
     HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL moduleProvider:nil launchOptions:extendsLaunchOptions
                                                      executorKey:moduleName];
-    return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate:delegate];
+    return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties delegate:delegate];
 }
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge
@@ -152,44 +147,29 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
                  launchOptions:(NSDictionary *)launchOptions
-                  shareOptions:(NSDictionary *)shareOptions
-                     debugMode:(BOOL)mode
                       delegate:(id<HippyRootViewDelegate>)delegate {
-    if (mode) {
-        NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
-        NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-
-        if (self = [self initWithBundleURL:bundleUrl moduleName:moduleName initialProperties:initialProperties launchOptions:launchOptions
-                              shareOptions:shareOptions
-                                 debugMode:mode
-                                  delegate:delegate]) {
-        }
-        return self;
-    } else {
-        bridge.batchedBridge.useCommonBridge = YES;
-        if (self = [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions
-                               delegate:delegate]) {
-            if (!bridge.isLoading && !bridge.isValid) {
-                if (delegate && [delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
-                    [delegate rootView:self didLoadFinish:NO];
-                }
-            } else {
-                __weak __typeof__(self) weakSelf = self;
-                [bridge loadSecondary:businessURL loadBundleCompletion:nil enqueueScriptCompletion:nil completion:^(BOOL success) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (success) {
-                            [weakSelf bundleFinishedLoading:bridge.batchedBridge];
-                        }
-                        
-                        if ([delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
-                            [delegate rootView:weakSelf didLoadFinish:success];
-                        }
-                    });
-                }];
+    bridge.batchedBridge.useCommonBridge = YES;
+    if (self = [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties delegate:delegate]) {
+        if (!bridge.isLoading && !bridge.isValid) {
+            if (delegate && [delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
+                [delegate rootView:self didLoadFinish:NO];
             }
+        } else {
+            __weak __typeof__(self) weakSelf = self;
+            [bridge loadSecondary:businessURL loadBundleCompletion:nil enqueueScriptCompletion:nil completion:^(BOOL success) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (success) {
+                        [weakSelf bundleFinishedLoading:bridge.batchedBridge];
+                    }
+                    
+                    if ([delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
+                        [delegate rootView:weakSelf didLoadFinish:success];
+                    }
+                });
+            }];
         }
-        return self;
     }
+    return self;
 }
 
 - (instancetype)initWithBridgeButNoRuntime:(HippyBridge *)bridge {
@@ -340,10 +320,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
     [_contentView removeFromSuperview];
     _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge hippyTag:self.hippyTag sizeFlexiblity:_sizeFlexibility];
-
-    if (self.shareOptions) {
-        [bridge.shareOptions setObject:self.shareOptions ?: @{} forKey:self.hippyTag];
-    }
     
     [self runApplication:bridge];
 
@@ -362,7 +338,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
     NSString *moduleName = _moduleName ?: @"";
     NSDictionary *appParameters =
-        @{ @"rootTag": _contentView.hippyTag, @"initialProps": _appProperties ?: @ {}, @"commonSDKVersion": _HippySDKVersion };
+        @{ @"rootTag": _contentView.hippyTag, @"initialProps": _appProperties ?: @ {}, @"commonSDKVersion": HippySDKVersion };
 
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, appParameters);
     [bridge enqueueJSCall:@"AppRegistry" method:@"runApplication" args:@[moduleName, appParameters] completion:NULL];
