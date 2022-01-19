@@ -1,3 +1,25 @@
+/*
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 #include <iterator>
 
 #include "bridge/bridge_manager.h"
@@ -78,8 +100,7 @@ BridgeManager::~BridgeManager() {
   native_callback_map_.clear();
 }
 
-BridgeManager::BridgeManager(int32_t engine_id) : engine_id_(engine_id) {
-}
+BridgeManager::BridgeManager(int32_t engine_id) : engine_id_(engine_id) {}
 
 std::weak_ptr<PlatformRuntime> BridgeManager::GetRuntime() { return runtime_; }
 
@@ -118,9 +139,7 @@ String BridgeManager::AddNativeCallback(const String& tag, const NativeCallback&
   return callback_id;
 }
 
-void BridgeManager::RemoveNativeCallback(const String& callback_id) {
-  native_callback_map_.erase(callback_id);
-}
+void BridgeManager::RemoveNativeCallback(const String& callback_id) { native_callback_map_.erase(callback_id); }
 
 void BridgeManager::CallNativeCallback(const String& callback_id, std::unique_ptr<EncodableValue> params, bool keep) {
   auto native_callback_iter = native_callback_map_.find(callback_id);

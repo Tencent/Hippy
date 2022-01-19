@@ -8,8 +8,6 @@ set(RENDER_CORE_SRC_FILES
         ${VOLTRON_CORE_SRC_DIR}/ffi/bridge_ffi_impl.cc
         ${VOLTRON_CORE_SRC_DIR}/ffi/callback_manager.cc
         ${VOLTRON_CORE_SRC_DIR}/ffi/ffi_platform_runtime.cc
-        ${VOLTRON_CORE_SRC_DIR}/ffi/logging.cc
-        ${VOLTRON_CORE_SRC_DIR}/ffi/logging-impl.cc
         ${RENDER_CORE_SRC_DIR}/render/render_queue.cc
         ${RENDER_CORE_SRC_DIR}/render/render_task.cc
         ${RENDER_CORE_SRC_DIR}/render/render_task_runner.cc

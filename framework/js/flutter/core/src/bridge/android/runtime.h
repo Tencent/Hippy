@@ -1,13 +1,26 @@
-/*****************************************************************************
- * @copyright Copyright (C), 1998-2020, Tencent Tech. Co., Ltd.
- * @file     Runtime.h
- * @brief    
- * @author   skindhu
- * @version  1.0.0
- * @date     2021/8/11
- *****************************************************************************/
-#ifndef ANDROID_CORE_INCLUDE_BRIDGE_ANDROID_RUNTIME_H_
-#define ANDROID_CORE_INCLUDE_BRIDGE_ANDROID_RUNTIME_H_
+/*
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+#pragma once
 
 #include <memory>
 #include "bridge/bridge_runtime.h"
@@ -25,15 +38,11 @@ class Runtime {
   inline std::shared_ptr<PlatformRuntime> GetPlatformRuntime() { return platform_runtime_; }
   inline std::shared_ptr<Engine> GetEngine() { return engine_; }
   inline std::shared_ptr<Scope> GetScope() { return scope_; }
-  inline std::shared_ptr<hippy::napi::CtxValue> GetBridgeFunc() {
-    return bridge_func_;
-  }
+  inline std::shared_ptr<hippy::napi::CtxValue> GetBridgeFunc() { return bridge_func_; }
   inline std::string& GetBuffer() { return serializer_reused_buffer_; }
 
   inline void SetGroupId(int64_t id) { group_id_ = id; }
-  inline void SetBridgeFunc(std::shared_ptr<hippy::napi::CtxValue> func) {
-    bridge_func_ = func;
-  }
+  inline void SetBridgeFunc(std::shared_ptr<hippy::napi::CtxValue> func) { bridge_func_ = func; }
   inline void SetEngine(std::shared_ptr<Engine> engine) { engine_ = engine; }
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
 
@@ -55,5 +64,3 @@ class Runtime {
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
   int64_t id_;
 };
-
-#endif  // ANDROID_CORE_INCLUDE_BRIDGE_ANDROID_RUNTIME_H_
