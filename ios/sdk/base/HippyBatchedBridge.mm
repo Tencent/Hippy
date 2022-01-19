@@ -685,7 +685,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (BOOL)enableTurbo {
-    return _parentBridge.enableTurbo ?: NO;
+    return _parentBridge.enableTurbo;
 }
 
 - (void)setExecutorClass:(Class)executorClass {

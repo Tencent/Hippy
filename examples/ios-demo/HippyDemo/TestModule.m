@@ -52,6 +52,7 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"your module name" initialProperties:@{@"isSimulator": @(isSimulator) shareOptions:nil delegate:nil];
 #else
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil businessURL:nil moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:YES delegate:nil];
+    rootView.bridge.enableTurbo = YES;  // keep the same logic with Android
 #endif
 	rootView.backgroundColor = [UIColor whiteColor];
 	rootView.frame = vc.view.bounds;
