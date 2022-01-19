@@ -54,11 +54,12 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
     
 #ifdef REMOTEDEBUG
     NSURL *url = [NSURL URLWithString:@"your server ip address"];
-    HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:url moduleProvider:nil launchOptions:nil];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"your module name" initialProperties:@{@"isSimulator": @(isSimulator) shareOptions:nil delegate:nil];
 #else
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil businessURL:nil moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:YES delegate:nil];
+    NSURL *url = [NSURL URLWithString:[HippyBundleURLProvider sharedInstance].bundleURLString];
 #endif
+    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
+    HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:url moduleProvider:nil launchOptions:launchOptions executorKey:@"testmodule"];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} delegate:nil];
 	rootView.backgroundColor = [UIColor whiteColor];
 	rootView.frame = vc.view.bounds;
 	[vc.view addSubview:rootView];
@@ -83,7 +84,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSURL *url = [NSURL URLWithString:urlString];
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:url moduleProvider:nil launchOptions:launchOptions executorKey:@"Demo"];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} shareOptions:nil delegate:nil];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} delegate:nil];
     rootView.backgroundColor = [UIColor whiteColor];
     rootView.frame = vc.view.bounds;
     [vc.view addSubview:rootView];

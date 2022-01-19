@@ -618,7 +618,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     [deviceInfo setValue:@"ios" forKey:@"OS"];
     [deviceInfo setValue:iosVersion forKey:@"OSVersion"];
     [deviceInfo setValue:deviceModel forKey:@"Device"];
-    [deviceInfo setValue:_HippySDKVersion forKey:@"SDKVersion"];
+    [deviceInfo setValue:HippySDKVersion forKey:@"SDKVersion"];
     [deviceInfo setValue:_parentBridge.appVerson forKey:@"AppVersion"];
     if (_dimDic) {
         [deviceInfo setValue:_dimDic forKey:@"Dimensions"];
@@ -759,16 +759,18 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)didReceiveCreationOfRootView:(NSNotification *)notification {
-    HippyUIManager *uiManager = [self moduleForName:@"UIManager"];
-    UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
-    int32_t rootTag = [[rootView hippyTag] intValue];
-    _domManager = std::make_shared<hippy::DomManager>(rootTag);
-    [uiManager setDomManager:_domManager];
-    _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
-    _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
-    _domManager->SetRenderManager(_nativeRenderManager);
-    _domManager->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
-    self.javaScriptExecutor.pScope->SetDomManager(_domManager);
+    if (self.isValid) {
+        HippyUIManager *uiManager = [self moduleForName:@"UIManager"];
+        UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
+        int32_t rootTag = [[rootView hippyTag] intValue];
+        _domManager = std::make_shared<hippy::DomManager>(rootTag);
+        [uiManager setDomManager:_domManager];
+        _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
+        _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
+        _domManager->SetRenderManager(_nativeRenderManager);
+        _domManager->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
+        self.javaScriptExecutor.pScope->SetDomManager(_domManager);
+    }
 }
 
 #pragma mark - HippyInvalidating

@@ -71,7 +71,7 @@
                                                  moduleProvider:nil
                                                   launchOptions:launchOptions
                                                     executorKey:@"Demo"];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} shareOptions:@{@"DebugMode": @(YES)} delegate:nil];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} delegate:nil];
 #else
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
@@ -81,7 +81,9 @@
                                                  moduleProvider:nil
                                                   launchOptions:launchOptions
                                                     executorKey:@"Demo"];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath] moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:NO delegate:nil];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath]
+                                                         moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)}
+                                                      launchOptions:nil delegate:nil];
 #endif
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     rootView.frame = self.view.bounds;

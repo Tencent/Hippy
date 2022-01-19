@@ -37,7 +37,11 @@
 @class HippyPerformanceLogger;
 @class HippyUIManager;
 @class HippyExtAnimationModule;
-extern NSString *const _HippySDKVersion;
+
+/**
+ * Indicate hippy sdk version
+ */
+HIPPY_EXTERN NSString *const HippySDKVersion;
 /**
  * This notification triggers a reload of all bridges currently running.
  * Deprecated, use HippyBridge::requestReload instead.
@@ -246,8 +250,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, assign) BOOL enableTurbo;
 
-@property (nonatomic, strong) NSMutableDictionary *shareOptions;
-
 @property (nonatomic, strong) NSString *moduleName;
 
 @property (nonatomic, strong) NSString *appVerson;  //
@@ -263,6 +265,22 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * Get  the turbo module for a given name.
  */
 - (id)turboModuleWithName:(NSString *)name;
+
+@end
+
+extern NSString *const HippySecondaryBundleDidStartLoadNotification;
+extern NSString *const HippySecondaryBundleDidLoadSourceCodeNotification;
+extern NSString *const HippySecondaryBundleDidLoadNotification;
+
+typedef void (^SecondaryBundleLoadingCompletion)(NSError *);
+typedef void (^SecondaryBundleCompletion)(BOOL);
+
+@interface HippyBridge (SecondaryBundleLoader)
+
+- (void)loadSecondary:(NSURL *)secondaryBundleURL
+       loadBundleCompletion:(SecondaryBundleLoadingCompletion)loadBundleCompletion
+    enqueueScriptCompletion:(SecondaryBundleLoadingCompletion)enqueueScriptCompletion
+                 completion:(SecondaryBundleCompletion)completion;
 
 @end
 
