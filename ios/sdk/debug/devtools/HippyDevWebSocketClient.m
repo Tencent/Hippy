@@ -87,7 +87,12 @@ static const char *stringFromReadyState(HippySRReadyState state) {
         NSString *encodeName = [contextName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
         NSString *deviceName = [[UIDevice currentDevice] name];
         NSString *encodedDeviceName = [deviceName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
-        NSString *devAddress = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy?clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", devInfo.scheme, devInfo.ipAddress, devInfo.port?:@"38989", uuid, encodeName, encodedDeviceName];
+        NSString *addressPrefix = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy", devInfo.scheme, devInfo.ipAddress, devInfo.port?:@"38989"];
+        if (devInfo.wsURL.length > 0) {
+            // wsURL has a high priority
+            addressPrefix = devInfo.wsURL;
+        }
+        NSString *devAddress = [NSString stringWithFormat:@"%@?clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", addressPrefix, uuid, encodeName, encodedDeviceName];
         if (devInfo.versionId.length > 0) {
             devAddress = [NSString stringWithFormat:@"%@&hash=%@", devAddress, devInfo.versionId];
         }
