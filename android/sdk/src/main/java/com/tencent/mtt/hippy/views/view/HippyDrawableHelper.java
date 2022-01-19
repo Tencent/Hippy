@@ -71,7 +71,7 @@ public class HippyDrawableHelper {
   private static int getColor(HippyMap drawableDescriptionDict) {
     if (drawableDescriptionDict.containsKey("color")
       && !drawableDescriptionDict.isNull("color")) {
-      return Color.parseColor(drawableDescriptionDict.getString("color"));
+      return drawableDescriptionDict.getInt("color");
     }
     return Color.BLUE;
   }

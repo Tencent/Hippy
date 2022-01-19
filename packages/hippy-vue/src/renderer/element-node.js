@@ -300,6 +300,12 @@ class ElementNode extends ViewNode {
         case 'caret-color':
           this.attributes['caret-color'] = Native.parseColor(value);
           break;
+        case 'nativeBackgroundAndroid': {
+          const nativeBackgroundAndroid = value;
+          nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
+          this.attributes.nativeBackgroundAndroid = nativeBackgroundAndroid;
+          break;
+        }
         default:
           this.attributes[key] = value;
       }

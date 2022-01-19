@@ -24,6 +24,7 @@ import { FocusEvent } from '@localTypes/event';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
+import { Color, colorParse } from '../color';
 
 interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   /**
@@ -60,6 +61,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   nextFocusLeftId?: string | Fiber;
   nextFocusRightId?: string | Fiber;
   style?: Style;
+  nativeBackgroundAndroid?: { color: Color, borderless: boolean, rippleRadius: number}
 
   /**
    * The focus event occurs when the component is focused.
@@ -96,8 +98,12 @@ class View extends React.Component<ViewProps, {}> {
   render() {
     const { collapsable, style = {}, ...nativeProps } = this.props;
     const nativeStyle: Style = style;
+    const { nativeBackgroundAndroid } = nativeProps;
     if (typeof collapsable === 'boolean') {
       nativeStyle.collapsable = collapsable;
+    }
+    if (nativeBackgroundAndroid?.color) {
+      nativeBackgroundAndroid.color = colorParse(nativeBackgroundAndroid.color);
     }
     return (
       <div
@@ -108,6 +114,7 @@ class View extends React.Component<ViewProps, {}> {
         // @ts-ignore
         style={nativeStyle}
         {...nativeProps}
+        nativeBackgroundAndroid={nativeBackgroundAndroid}
       />
     );
   }
