@@ -29,6 +29,7 @@
 @property (nonatomic, copy, readonly) NSString *debugPathUrl;
 @property (nonatomic, copy, readonly) NSString *versionId;
 @property (nonatomic, copy, readonly) NSString *scheme;
+@property (nonatomic, copy, readonly) NSString *wsURL;
 
 /**
  * @return instancetype

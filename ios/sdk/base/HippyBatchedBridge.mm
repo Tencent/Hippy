@@ -496,6 +496,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                 devInfo.ipAddress = [url host];
                 devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
                 devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
+                [devInfo parseWsURLWithURLQuery:[url query]];
             }
             else {
                 HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
@@ -503,6 +504,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                 devInfo.ipAddress = bundleURLProvider.localhostIP;
                 devInfo.port = bundleURLProvider.localhostPort;
                 devInfo.versionId = bundleURLProvider.versionId;
+                devInfo.wsURL = bundleURLProvider.wsURL;
             }
             _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devInfo:devInfo contextName:name];
         }
