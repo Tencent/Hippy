@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 #include "dom/dom_value.h"
-#include "engine/HPNode.h"
 
 namespace hippy {
 inline namespace dom {
@@ -60,7 +59,7 @@ class LayoutNode {
   virtual void SetScaleFactor(float scale_factor) = 0;
   virtual bool HasNewLayout() = 0;
   virtual void SetHasNewLayout(bool has_new_layout) = 0;
-  virtual bool SetMeasureFunction(MeasureFunction measure_function) = 0;
+  virtual void SetMeasureFunction(MeasureFunction measure_function) = 0;
 
   /**
    * @brief 插入子节点

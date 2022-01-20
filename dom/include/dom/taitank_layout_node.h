@@ -52,9 +52,8 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   /**
    * @brief 设置测量函数
    * @param measure_function 测量函数
-   * @return 是否成功
    */
-  bool SetMeasureFunction(MeasureFunction measure_function) override;
+  void SetMeasureFunction(MeasureFunction measure_function) override;
 
   /**
    * @brief 获取 left 属性
