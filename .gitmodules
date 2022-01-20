@@ -1,0 +1,3 @@
+[submodule "third_party/devtools-backend"]
+	path = third_party/devtools-backend
+	url = https://git.woa.com/TencentDynamicFramework/DevTools/devtools-backend.git
