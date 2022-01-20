@@ -100,7 +100,7 @@ class View extends React.Component<ViewProps, {}> {
     if (typeof collapsable === 'boolean') {
       nativeStyle.collapsable = collapsable;
     }
-    if (nativeBackgroundAndroid?.color) {
+    if (typeof nativeBackgroundAndroid?.color !== 'undefined') {
       nativeBackgroundAndroid.color = colorParse(nativeBackgroundAndroid.color);
     }
     return (

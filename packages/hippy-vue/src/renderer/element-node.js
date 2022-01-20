@@ -302,7 +302,9 @@ class ElementNode extends ViewNode {
           break;
         case 'nativeBackgroundAndroid': {
           const nativeBackgroundAndroid = value;
-          nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
+          if (typeof nativeBackgroundAndroid.color !== 'undefined') {
+            nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
+          }
           this.attributes.nativeBackgroundAndroid = nativeBackgroundAndroid;
           break;
         }

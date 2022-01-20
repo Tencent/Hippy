@@ -93,7 +93,7 @@
       <label>水波纹效果:(iOS暂不支持水波纹效果)</label>
       <demo-ripple-div
         :wrapper-style="nobRippleWithBg"
-        :native-background-android="{ borderless: true, color: '#00000011', rippleRadius: 100 }"
+        :native-background-android="{ borderless: true, color: 'rgba(0,0,0,0.07)', rippleRadius: 100 }"
         title="外层背景图，内层无边框水波纹，受外层影响始终有边框"
       />
       <demo-ripple-div
