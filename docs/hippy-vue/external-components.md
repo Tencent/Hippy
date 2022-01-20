@@ -157,7 +157,7 @@
 
 ### collapsePullHeader
 
-`() => void` 收起顶部刷新条 `<pull-header>`。
+`() => void` 收起顶部刷新条 `<pull-header>`。当使用了`pull-header`后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
 
 ---
 
