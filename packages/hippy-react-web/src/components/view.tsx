@@ -40,6 +40,14 @@ const styles = {
   },
 };
 
+interface Props {
+  style?: HippyTypes.Style;
+  withRef: React.Ref<any>;
+  accessibilityLabel: string;
+  onPressIn?: () => void;
+  onClick?: () => void;
+}
+
 /**
  * The most fundamental component for building a UI, `View` is a container that supports layout
  * with flexbox, style, some touch handling, and accessibility controls. `View` maps directly to
@@ -50,18 +58,18 @@ const styles = {
  * @noInheritDoc
  */
 class View extends React.Component {
-  constructor(props) {
+  public constructor(props: Props) {
     super(props);
     this.state = {};
   }
 
-  render() {
-    const { style, withRef } = this.props;
+  public render() {
+    const { style, withRef } = this.props as Props;
     const newStyle = formatWebStyle(style);
     const finalStyle = Object.assign({}, styles.root, newStyle);
     const newProps = Object.assign({}, this.props, {
       style: finalStyle,
-    });
+    }) as any;
     const accessibilityLabelValue = newProps.accessibilityLabel;
     delete newProps.onPressIn;
     delete newProps.onPressOut;

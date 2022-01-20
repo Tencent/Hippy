@@ -34,9 +34,8 @@ function getNameForEvent(event: string | undefined) {
 }
 
 class HippyEventEmitter {
-  hippyEventListeners: EventListeners;
-
-  constructor(sharedListeners?: EventListeners) {
+  public hippyEventListeners: EventListeners;
+  public constructor(sharedListeners?: EventListeners) {
     if (sharedListeners && typeof sharedListeners === 'object') {
       this.hippyEventListeners = sharedListeners;
     } else {
@@ -65,7 +64,7 @@ class HippyEventEmitter {
     return new EventEmitterRevoker(listenerId, registeredListener);
   }
 
-  removeAllListeners(event: string | undefined) {
+  public removeAllListeners(event: string | undefined) {
     if (typeof event !== 'string') {
       throw new TypeError('Invalid arguments for removeAllListeners');
     }
@@ -76,7 +75,7 @@ class HippyEventEmitter {
     }
   }
 
-  emit(event: string | undefined, param: any) {
+  public emit(event: string | undefined, param: any) {
     if (typeof event !== 'string') {
       return false;
     }
@@ -88,7 +87,7 @@ class HippyEventEmitter {
     return true;
   }
 
-  listenerSize(event: string | undefined) {
+  public listenerSize(event: string | undefined) {
     if (typeof event !== 'string') {
       throw new TypeError('Invalid arguments for listenerSize');
     }

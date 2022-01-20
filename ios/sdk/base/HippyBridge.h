@@ -250,6 +250,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, strong) NSString *appVerson;  //
 
+@property (nonatomic, assign) HippyInvalidateReason invalidateReason;
+
 /**
  * just for debugger
  */

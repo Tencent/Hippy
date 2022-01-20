@@ -22,13 +22,10 @@ import Element from './element-node';
 import ViewNode from './view-node';
 
 class DocumentNode extends ViewNode {
-  documentElement: Element;
-
-  static createElement: Function;
-
-  static createElementNS: Function;
-
-  constructor() {
+  public static createElement: Function;
+  public static createElementNS: Function;
+  public documentElement: Element;
+  public constructor() {
     super();
     this.documentElement = new Element('document');
   }

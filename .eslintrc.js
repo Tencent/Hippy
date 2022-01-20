@@ -1,3 +1,13 @@
+const path = require('path');
+
+function resolveVue(p) {
+  return path.resolve(__dirname, './node_modules/vue/src/', p);
+}
+
+function resolvePackage(src, extra = 'src') {
+  return path.resolve(__dirname, './packages/', src, extra);
+}
+
 module.exports = {
   parser: 'vue-eslint-parser',
   parserOptions: {
@@ -28,15 +38,27 @@ module.exports = {
       rules: {
         // Allow interface export
         'no-undef': 'off',
-
-        // Disable props checking
-        'react/prop-types': 'off',
-
         // Force use 2 space for indent
         '@typescript-eslint/indent': ['error', 2],
-
         // Note you must disable the base rule as it can report incorrect errors
         'no-unused-vars': 'off',
+        '@typescript-eslint/explicit-member-accessibility': ['error'],
+        '@typescript-eslint/member-ordering': ['error'],
+        '@typescript-eslint/adjacent-overload-signatures': ['error'],
+        '@typescript-eslint/unified-signatures': ['error'],
+        '@typescript-eslint/consistent-type-assertions': ['error'],
+        '@typescript-eslint/no-inferrable-types': ['error'],
+        '@typescript-eslint/typedef': ['error'],
+        '@typescript-eslint/prefer-function-type': ['error'],
+        '@typescript-eslint/no-parameter-properties': ['error'],
+        '@typescript-eslint/no-namespace': ['error'],
+        '@typescript-eslint/prefer-namespace-keyword': ['error'],
+        '@typescript-eslint/no-non-null-asserted-optional-chain': ['error'],
+        '@typescript-eslint/no-unused-expressions': ['error'],
+        '@typescript-eslint/triple-slash-reference': ['error'],
+        '@typescript-eslint/type-annotation-spacing': ['error'],
+        '@typescript-eslint/method-signature-style': ['error'],
+        '@typescript-eslint/consistent-type-definitions': ['error'],
       },
     },
   ],
@@ -46,12 +68,15 @@ module.exports = {
     es6: true,
   },
   globals: {
-    __PLATFORM__: 'readonly',
-    __GLOBAL__: 'readonly',
-    Hippy: 'readonly',
-    WebSocket: 'readonly',
+    __PLATFORM__: 'writable',
+    __GLOBAL__: 'writable',
+    Hippy: 'writable',
+    WebSocket: 'writable',
+    requestIdleCallback: 'writable',
+    cancelIdleCallback: 'writable',
   },
   rules: {
+    'no-restricted-globals': 'off',
     semi: ['error', 'always'],
     // Allow more than one component per file
     'vue/one-component-per-file': 'off',
@@ -79,27 +104,10 @@ module.exports = {
     // Disable deprecated
     'react/no-deprecated': 'off',
 
-    // Turn of extensions checking temporary
-    'import/extensions': 'off',
-
-    // https://github.com/benmosher/eslint-plugin-import/tree/master/docs/rules/namespace.md#allowcomputed
     'import/namespace': [
       'error',
       {
         allowComputed: true,
-      },
-    ],
-    // Allow import from devDependencies
-    'import/no-extraneous-dependencies': [
-      'error',
-      {
-        devDependencies: [
-          'scripts/*.js',
-          // FIXME: seems not working
-          'packages/**/types/*.d.ts',
-          'packages/**/__tests__/*.test.js',
-          'examples/**/scripts/*.js',
-        ],
       },
     ],
     // Allow tsx as the jsx file
@@ -116,6 +124,8 @@ module.exports = {
       'warn',
       {
         allow: [
+          '__PLATFORM__',
+          '__HIPPYCURDIR__',
           '__ISHIPPY__',
           '__GLOBAL__',
           '__HIPPYNATIVEGLOBAL__',
@@ -129,6 +139,26 @@ module.exports = {
   settings: {
     react: {
       version: 'detect', // React version. "detect" automatically picks the version you have installed.
+    },
+    'import/ignore': [resolveVue('/')],
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx', 'd.ts'],
+      },
+      alias: {
+        map: [
+          ['@vue', resolvePackage('hippy-vue')],
+          ['@router', resolvePackage('hippy-vue-router')],
+          ['@css-loader', resolvePackage('hippy-vue-css-loader')],
+          ['@native-components', resolvePackage('hippy-vue-native-components')],
+          ['vue', resolveVue('core/index')],
+          ['web', resolveVue('platforms/web')],
+          ['core', resolveVue('core')],
+          ['shared', resolveVue('shared')],
+          ['sfc', resolveVue('sfc')],
+          ['he', path.resolve(__dirname, './packages/hippy-vue/src/util/entity-decoder')],
+        ],
+      },
     },
   },
 };

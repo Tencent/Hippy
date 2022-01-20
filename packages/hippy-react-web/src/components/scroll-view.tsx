@@ -19,7 +19,7 @@
  */
 
 /* eslint-disable no-return-assign */
-
+// @ts-nocheck
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';
@@ -72,11 +72,11 @@ function VerticalScrollView(props) {
  * @noInheritDoc
  */
 export class ScrollView extends React.Component {
-  scrollTo(x: number, y: number) {
+  public scrollTo(x: number, y: number) {
     this.instance.scrollTo(x, y);
   }
 
-  render() {
+  public render() {
     const { horizontal, children, style } = this.props;
     let { contentContainerStyle } = this.props;
 

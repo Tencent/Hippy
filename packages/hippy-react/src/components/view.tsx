@@ -19,8 +19,6 @@
  */
 
 import React from 'react';
-import Style from '@localTypes/style';
-import { FocusEvent } from '@localTypes/event';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
@@ -60,7 +58,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   nextFocusUpId?: string | Fiber;
   nextFocusLeftId?: string | Fiber;
   nextFocusRightId?: string | Fiber;
-  style?: Style;
+  style?: HippyTypes.Style;
   nativeBackgroundAndroid?: { color: Color, borderless: boolean, rippleRadius: number}
 
   /**
@@ -69,7 +67,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
    * @param {Object} evt - Focus event data
    * @param {boolean} evt.focus - Focus status
    */
-  onFocus?(evt: FocusEvent): void;
+  onFocus?: (evt: HippyTypes.FocusEvent) => void;
 }
 
 /**
@@ -95,9 +93,9 @@ class View extends React.Component<ViewProps, {}> {
   /**
    * @ignore
    */
-  render() {
+  public render() {
     const { collapsable, style = {}, ...nativeProps } = this.props;
-    const nativeStyle: Style = style;
+    const nativeStyle: HippyTypes.Style = style;
     const { nativeBackgroundAndroid } = nativeProps;
     if (typeof collapsable === 'boolean') {
       nativeStyle.collapsable = collapsable;

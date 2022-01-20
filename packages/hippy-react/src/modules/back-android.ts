@@ -20,7 +20,6 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import '@localTypes/global';
 import { HippyEventEmitter } from '../event';
 import { Bridge, Device } from '../global';
 
@@ -30,7 +29,7 @@ const backPressSubscriptions = new Set();
 type EventListener = () => void;
 
 interface BackAndroidRevoker {
-  remove(): void;
+  remove: () => void;
 }
 
 /**
@@ -91,7 +90,6 @@ const fakeBackAndroid = {
 };
 
 const BackAndroid = (() => {
-  // @ts-ignore
   if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
     realBackAndroid.initEventListener();
     return realBackAndroid;

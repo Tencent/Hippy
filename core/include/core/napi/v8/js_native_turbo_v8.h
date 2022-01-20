@@ -133,7 +133,7 @@ class V8TurboEnv : public TurboEnv {
   class HostFunctionProxy : public IHostProxy {
    public:
     HostFunctionProxy(V8TurboEnv &v8_turbo_env, HostFunctionType func)
-        : func_(std::move(func)), v8_turbo_env_(v8_turbo_env){};
+        : func_(std::move(func)), v8_turbo_env_(v8_turbo_env){}
 
     static void Call(HostFunctionProxy &host_function_proxy,
                      const v8::FunctionCallbackInfo<v8::Value> &callback_info) {

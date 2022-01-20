@@ -21,7 +21,6 @@
 /* eslint-disable no-param-reassign */
 
 import React from 'react';
-import Style from '@localTypes/style';
 import { LayoutableProps, ClickableProps } from '../types';
 import { unicodeToChar } from '../utils';
 
@@ -60,7 +59,7 @@ interface TextProps extends LayoutableProps, ClickableProps {
   ellipsizeMode: 'head' | 'middle' | 'tail' | 'clip';
   children: number | string | string[];
   text?: string;
-  style?: Style | Style[];
+  style?: HippyTypes.Style | HippyTypes.Style[];
 }
 
 /**
@@ -74,18 +73,18 @@ function forwardRef(
   // eslint-disable-next-line max-len
   ref: string | ((instance: HTMLParagraphElement | null) => void) | React.RefObject<HTMLParagraphElement> | null | undefined,
 ) {
-  const nativeStyle: undefined | Style | Style[] = style;
+  const nativeStyle: undefined | HippyTypes.Style | HippyTypes.Style[] = style;
 
   // Fill default color
   // Workaround for Android meet empty front color not render issue.
   if (style) {
     if (Array.isArray(style)) {
       if (style.filter(x => typeof x === 'object' && x).findIndex(s => s.color || s.colors) === -1) {
-        (nativeStyle as Style[])[0].color = '#000';
+        (nativeStyle as HippyTypes.Style[])[0].color = '#000';
       }
     } else if (typeof style === 'object') {
       if (style.color === undefined && style.colors === undefined) {
-        (nativeStyle as Style).color = '#000';
+        (nativeStyle as HippyTypes.Style).color = '#000';
       }
     }
   }

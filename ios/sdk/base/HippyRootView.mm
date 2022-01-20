@@ -40,7 +40,6 @@
 #import "UIView+Hippy.h"
 #import "HippyBridge+Mtt.h"
 #import "HippyBundleURLProvider.h"
-#import "DemoConfigs.h"
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
@@ -141,7 +140,6 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
     NSMutableDictionary *extendsLaunchOptions = [NSMutableDictionary new];
     [extendsLaunchOptions addEntriesFromDictionary:launchOptions];
     [extendsLaunchOptions setObject:@(mode) forKey:@"DebugMode"];
-    [extendsLaunchOptions setObject:@(DEMO_ENABLE_TURBO) forKey:@"EnableTurbo"];
     HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:bundleURL moduleProvider:nil launchOptions:extendsLaunchOptions
                                                      executorKey:moduleName];
     return [self initWithBridge:bridge moduleName:moduleName initialProperties:initialProperties shareOptions:shareOptions delegate:delegate];
@@ -156,8 +154,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
                      debugMode:(BOOL)mode
                       delegate:(id<HippyRootViewDelegate>)delegate {
     if (mode) {
-        NSString *localhost = [HippyBundleURLProvider sharedInstance].localhost ?: @"localhost:38989";
-        NSString *bundleStr = [NSString stringWithFormat:@"http://%@%@", localhost, [HippyBundleURLProvider sharedInstance].debugPathUrl];
+        NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
         NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
 
         if (self = [self initWithBundleURL:bundleUrl moduleName:moduleName initialProperties:initialProperties launchOptions:launchOptions
