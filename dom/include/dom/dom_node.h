@@ -11,6 +11,7 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_value.h"
 #include "dom/layout_node.h"
+#include "nlohmann/json.hpp"
 
 namespace hippy {
 inline namespace dom {
@@ -124,6 +125,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   CallFunctionCallback GetCallback(const std::string &name, uint32_t id);
   bool HasTouchEventListeners();
+
+  nlohmann::json ToJSONString();
 
  private:
   uint32_t id_;             // 节点唯一id

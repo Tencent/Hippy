@@ -246,3 +246,10 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
   std::shared_ptr<CtxValue> ret = future.get();
   return ret;
 }
+
+void Scope::InitDevtool(int32_t dom_id, int32_t runtime_id) {
+  std::shared_ptr<DomManager> dom_manager = dom_manager_.lock();
+  if (dom_manager) {
+    devtool_data_source_ = std::make_shared<DevtoolDataSource>(dom_id, runtime_id);
+  }
+}

@@ -303,5 +303,41 @@ bool DomNode::HasTouchEventListeners() {
   return false;
 }
 
+nlohmann::json DomNode::ToJSONString() {
+  nlohmann::json node_json;
+//  node_json[K_NODE_TYPE] = GetNodeTag();
+//  node_json[K_NODE_ID] = id_;
+//  node_json[K_WIDTH] = width_;
+//  node_json[K_HEIGHT] = height_;
+//  node_json[K_BORDER_COLOR] = border_color_;
+//  if (!node_info_.GetProps().IsNull() && !node_info_.GetProps().IsUndefined()) {
+//    node_json[K_TOTAL_PROPS] = ParseNodeProps(node_info_.GetProps());
+//  }
+//  node_json[K_FLEX_NODE_STYLE] = flex_node_style_->ParseNodeStyle();
+//
+//  // node personal props
+//  nlohmann::json personal_json = ParseNodePersonalProps();
+//  if (!personal_json.empty()) {
+//    node_json.merge_patch(personal_json);
+//  }
+//
+//  // bounds
+//  nlohmann::json bounds_json = GetNodeBounds();
+//  node_json[K_BOUNDS] = bounds_json;
+//
+//  // child
+//  if (!children_.empty()) {
+//    nlohmann::json child_json_array = nlohmann::json::array();
+//    for (int i = 0; i < children_.size(); i++) {
+//      if (children_[i]->IsObjectAttach()) {
+//        child_json_array.push_back(std::move(children_[i]->ToJSONString()));
+//      }
+//    }
+//
+//    node_json[K_CHILD] = child_json_array;
+//  }
+  return node_json;
+}
+
 }  // namespace dom
 }  // namespace hippy

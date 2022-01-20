@@ -1,0 +1,73 @@
+//
+//  Copyright (c) 2021 Tencent Corporation. All rights reserved.
+//  Created by thomasyqguo on 2022/1/18.
+//
+
+#if TDF_SERVICE_ENABLED
+
+#ifdef OS_ANDROID
+#include "core/runtime/v8/runtime.h"
+#endif
+#include "devtools/adapter/hippy_dom_tree_adapter.h"
+#include "devtools/adapter/hippy_elements_request_adapter.h"
+#include "devtools/adapter/hippy_runtime_adapter.h"
+#include "devtools/adapter/hippy_tracing_adapter.h"
+#include "devtools/adapter/hippy_v8_request_adapter.h"
+#include "devtools/devtool_data_source.h"
+#include "devtools/trace_control.h"
+#include "devtools_backend/devtools_backend_service.h"
+#include "dom/dom_manager.h"
+
+namespace hippy {
+namespace devtools {
+
+using tdf::devtools::DevtoolsBackendService;
+// void DevtoolDataSource::SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler) {
+//  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
+//  data_channel->GetProvider()->SetV8RequestAdapter(std::make_shared<HippyV8RequestAdapter>(request_handler));
+//}
+
+// void DevtoolDataSource::SendV8Response(std::string data) {
+//  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
+//  data_channel->GetResponse()->GetV8ResponseAdapter()->SendResponseFromV8(data);
+//}
+
+void DevtoolDataSource::SetNeedNotifyBatchEvent(bool need_notify_batch_event) {
+  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
+  data_channel->GetResponse()->GetElementsResponseAdapter()->SetNeedNotifyBatchEvent(need_notify_batch_event);
+}
+
+void DevtoolDataSource::NotifyDocumentUpdate() {
+  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
+  data_channel->GetResponse()->GetElementsResponseAdapter()->NotifyDocumentUpdate();
+}
+
+#ifdef OS_ANDROID
+void DevtoolDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController *tracingControl) {
+  TraceControl::GetInstance().SetGlobalTracingController(tracingControl);
+}
+#endif
+
+// void DevtoolDataSource::SetDomainRequestHandler(HippyElementsRequestAdapter::DomainHandler domain_handler) {
+//  elements_request_adapter_->SetDomainHandler(domain_handler);
+//}
+//
+// void DevtoolDataSource::SetNodeRequestHandler(HippyElementsRequestAdapter::NodeHandler node_handler) {
+//  elements_request_adapter_->SetNodeHandler(node_handler);
+//}
+
+DevtoolDataSource::DevtoolDataSource(int32_t dom_id, int32_t runtime_id) : dom_id_(dom_id), runtime_id_(runtime_id) {
+  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
+  std::shared_ptr<HippyDomTreeAdapter> domTreeAdapter = std::make_shared<HippyDomTreeAdapter>(dom_id_);
+  data_channel->GetProvider()->SetDomTreeAdapter(domTreeAdapter);
+  data_channel->GetProvider()->SetElementsRequestAdapter(std::make_shared<HippyElementsRequestAdapter>(dom_id_));
+  data_channel->GetProvider()->SetTracingAdapter(std::make_shared<HippyTracingAdapter>());
+  data_channel->GetProvider()->SetRuntimeAdapter(std::make_shared<HippyRuntimeAdapter>(runtime_id_));
+
+  TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_channel:%p" << &data_channel;
+}
+
+}  // namespace devtools
+}  // namespace hippy
+
+#endif

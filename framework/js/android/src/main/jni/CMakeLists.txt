@@ -33,7 +33,8 @@ set(ABI_COMPILE_OPTIONS
         -g
         -fdata-sections
         -ffunction-sections
-        -fomit-frame-pointer)
+        -fomit-frame-pointer
+        -fexceptions)
 
 message("ANDROID_ABI: ${ANDROID_ABI}")
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
@@ -73,6 +74,7 @@ add_compile_options(${ABI_COMPILE_OPTIONS})
 
 get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../core" REALPATH)
 get_filename_component(DOM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../dom" REALPATH)
+get_filename_component(DEVTOOLS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../third_party/devtools-backend" REALPATH)
 get_filename_component(LAYOUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../layout" REALPATH)
 get_filename_component(RENDER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../renderer" REALPATH)
 
@@ -153,9 +155,26 @@ include_directories(${DOM_SRC_DIR}/include)
 include_directories(${LAYOUT_DIR})
 include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
 
+if (DEFINED TDF_SERVICE_ENABLED)
+  add_definitions(-DTDF_SERVICE_ENABLED=1)
+  include_directories(${DEVTOOLS_DIR}/include)
+  include_directories(${DEVTOOLS_DIR}/third_party/footstone/include)
+  include_directories(${DEVTOOLS_DIR}/third_party/footstone/third_party/json/include)
+else ()
+  file(GLOB_RECURSE DEVTOOLS_BACKEND_SRC ${CORE_SRC_DIR}/src/devtools/*)
+  message("DEVTOOLS_BACKEND_SRC: ${DEVTOOLS_BACKEND_SRC}")
+  list(REMOVE_ITEM CORE_SRC ${DEVTOOLS_BACKEND_SRC})
+endif ()
+
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
 set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+
+if (DEFINED TDF_SERVICE_ENABLED)
+  add_library(DEVTOOLS_SO SHARED IMPORTED)
+  set_target_properties(DEVTOOLS_SO PROPERTIES IMPORTED_LOCATION ${DEVTOOLS_DIR}/libs/android/${ANDROID_ABI}/libdevtools_backend.so)
+  target_link_libraries(${CMAKE_PROJECT_NAME} DEVTOOLS_SO)
+endif ()
 
 if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
   foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
@@ -164,3 +183,4 @@ if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
             COMMAND ${CMAKE_COMMAND} -E copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
   endforeach()
 endif()
+

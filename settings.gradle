@@ -15,3 +15,6 @@ project(':link_supplier').projectDir = new File('modules/link_supplier')
 
 include 'example'
 project(':example').projectDir = new File('framework/js/examples/android-demo')
+
+include 'devtools-backend'
+project(':devtools-backend').projectDir = new File('third_party/devtools-backend/android/devtools-backend')

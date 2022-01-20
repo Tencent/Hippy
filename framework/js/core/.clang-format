@@ -1,6 +1,7 @@
 # Suggested by V8/.clang-format
 BasedOnStyle: Google
 MaxEmptyLinesToKeep: 1
+ColumnLimit: 120
 
 # Hippy override
 AllowAllParametersOfDeclarationOnNextLine: false
