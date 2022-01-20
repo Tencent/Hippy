@@ -9,9 +9,9 @@ inline namespace dom {
 
 class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<YogaLayoutNode> {
  public:
-  YogaLayoutNode() { Allocate(); }
+  YogaLayoutNode();
 
-  ~YogaLayoutNode() { Deallocate(); }
+  virtual ~YogaLayoutNode();
 
   void CalculateLayout(float parent_width, float parent_height, Direction direction = Direction::RTL,
                        void* layout_context = nullptr) override;
@@ -24,8 +24,7 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   void SetScaleFactor(float sacle_factor) override;
 
-  // TODO measure function
-  // bool SetMeasureFunction(TaitankMeasureFunction measure_function);
+  void SetMeasureFunction(MeasureFunction measure_function) override;
 
   float GetLeft() override;
 
@@ -61,9 +60,9 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   bool IsDirty();
 
-  void Print();
-
   void Reset();
+
+  int64_t GetKey() { return key_; }
 
  private:
   void Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map);
@@ -126,6 +125,7 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   YGNodeRef yoga_node_;
   YGConfigRef yoga_config_;
+  int64_t key_;
 };
 
 }  // namespace dom

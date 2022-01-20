@@ -9,6 +9,10 @@
 namespace hippy {
 inline namespace dom {
 
+static std::atomic<int64_t> global_measure_function_key{0};
+static std::map<int64_t, MeasureFunction> measure_function_map;
+static std::mutex mutex;
+
 const std::map<std::string, YGOverflow> kOverflowMap = {
     {"visible", YGOverflowVisible}, {"hidden", YGOverflowHidden}, {"scroll", YGOverflowScroll}};
 
@@ -119,7 +123,6 @@ const std::map<std::string, YGDirection> kDirectionMap = {
     }                                                                                                    \
   }
 
-// TODO 合成一个宏
 #define YG_SET_EDGE_NUMBER_PERCENT_AUTO_DECL(NAME)                                                       \
   void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) {        \
     tdf::base::DomValue::Type type = dom_value->GetType();                                               \
@@ -140,7 +143,6 @@ const std::map<std::string, YGDirection> kDirectionMap = {
     }                                                                                                    \
   }
 
-// TODO 合成一个宏
 #define YG_SET_EDGE_NUMBER_DECL(NAME)                                                             \
   void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) { \
     tdf::base::DomValue::Type type = dom_value->GetType();                                        \
@@ -229,6 +231,15 @@ static YGEdge GetYGEdgeFromEdge(hippy::dom::Edge edge) {
   }
 }
 
+YogaLayoutNode::YogaLayoutNode() : key_(global_measure_function_key.fetch_add(1)) { Allocate(); }
+
+YogaLayoutNode::~YogaLayoutNode() {
+  std::lock_guard<std::mutex> lock(mutex);
+  const auto it = measure_function_map.find(key_);
+  if (it != measure_function_map.end()) measure_function_map.erase(it);
+  Deallocate();
+}
+
 void YogaLayoutNode::CalculateLayout(float parent_width, float parent_height, Direction direction,
                                      void* layout_context) {
   assert(yoga_node_ != nullptr);
@@ -255,11 +266,42 @@ void YogaLayoutNode::SetWidth(float width) { YGNodeStyleSetWidth(yoga_node_, wid
 void YogaLayoutNode::SetHeight(float height) { YGNodeStyleSetHeight(yoga_node_, height); }
 
 void YogaLayoutNode::SetScaleFactor(float scale_factor) {
-  //  const YGConfigRef config = yoga_node_->getConfig();
-  //  config->pointScaleFactor = scale_factor;
+  YGConfigSetPointScaleFactor(yoga_config_, scale_factor);
 }
 
-// void YogaLayoutNode::SetMeasureFunction(TaitankMeasureFunction measure_function) {}
+static LayoutMeasureMode ToLayoutMeasureMode(YGMeasureMode measure_mode) {
+  if (measure_mode == YGMeasureMode::YGMeasureModeUndefined) {
+    return LayoutMeasureMode::Undefined;
+  }
+  if (measure_mode == YGMeasureMode::YGMeasureModeExactly) {
+    return LayoutMeasureMode::Exactly;
+  }
+  if (measure_mode == YGMeasureMode::YGMeasureModeAtMost) {
+    return LayoutMeasureMode::AtMost;
+  }
+  TDF_BASE_NOTREACHED();
+}
+
+static YGSize YGMeasureFunction(YGNodeRef node, float width, YGMeasureMode width_mode, float height,
+                                YGMeasureMode height_mode) {
+  auto yoga_node = reinterpret_cast<YogaLayoutNode*>(YGNodeGetContext(node));
+  int64_t key = yoga_node->GetKey();
+  auto iter = measure_function_map.find(key);
+  if (iter != measure_function_map.end()) {
+    auto size = iter->second(width, ToLayoutMeasureMode(width_mode), height, ToLayoutMeasureMode(height_mode), nullptr);
+    YGSize result;
+    result.width = size.width;
+    result.height = size.height;
+    return result;
+  }
+  return YGSize{0, 0};
+}
+
+void YogaLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
+  measure_function_map[key_] = measure_function;
+  YGNodeSetContext(yoga_node_, reinterpret_cast<void*>(this));
+  return YGNodeSetMeasureFunc(yoga_node_, YGMeasureFunction);
+}
 
 float YogaLayoutNode::GetLeft() { return YGNodeLayoutGetLeft(yoga_node_); }
 
@@ -290,9 +332,8 @@ float YogaLayoutNode::GetBorder(Edge edge) {
 
 bool YogaLayoutNode::LayoutHadOverflow() { return YGNodeLayoutGetHadOverflow(yoga_node_); }
 
-// YGNodeRef YogaLayoutNode::GetLayoutEngineNodeRef() {}
-
 void YogaLayoutNode::InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) {
+  if(YGNodeHasMeasureFunc(yoga_node_)) return;
   auto node = std::static_pointer_cast<YogaLayoutNode>(child);
   YGNodeInsertChild(yoga_node_, node->GetLayoutEngineNodeRef(), index);
   children_.insert(children_.begin() + index, node);
@@ -315,8 +356,6 @@ void YogaLayoutNode::SetHasNewLayout(bool has_new_layout) { YGNodeSetHasNewLayou
 void YogaLayoutNode::MarkDirty() { YGNodeMarkDirty(yoga_node_); }
 
 bool YogaLayoutNode::IsDirty() { return YGNodeIsDirty(yoga_node_); }
-
-void YogaLayoutNode::Print() { YGNodePrint(yoga_node_, YGPrintOptionsLayout); }
 
 void YogaLayoutNode::Reset() { YGNodeReset(yoga_node_); }
 
@@ -478,7 +517,7 @@ void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf:
   }
   // if (style_map.find(kAlignContent) != style_map.end()) {
   //   SetAlignContent(GetFlexAlign(style_map.find(kAlignContent)->second->ToString()));
-  // }    
+  // }
 }
 
 YG_SET_NUMBER_PERCENT_AUTO_DECL(Width)
@@ -546,9 +585,7 @@ void YogaLayoutNode::Deallocate() {
   YGConfigFree(yoga_config_);
 }
 
-std::shared_ptr<LayoutNode> CreateLayoutNode() {
-  return std::make_shared<YogaLayoutNode>();
-}
+std::shared_ptr<LayoutNode> CreateLayoutNode() { return std::make_shared<YogaLayoutNode>(); }
 
 }  // namespace dom
 }  // namespace hippy
