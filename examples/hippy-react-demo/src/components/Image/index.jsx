@@ -71,6 +71,13 @@ export default function ImageExpo() {
         source={{ uri: imageUrl }}
         resizeMode={Image.resizeMode.center}
       />
+      <Text style={styles.info_style}>TintColor(iOS染色暂不支持透明度)</Text>
+      <Image
+        style={[styles.image_style, { tintColor: '#99999955' }]}
+        defaultSource={defaultSource}
+        source={{ uri: imageUrl }}
+        resizeMode={Image.resizeMode.center}
+      />
       <Text style={styles.info_style}>Cover GIF:</Text>
       <Image
         style={[styles.image_style]}

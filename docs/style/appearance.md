@@ -270,6 +270,18 @@
 | ------ | -------- | --------|
 | number | 否 | 双平台支持 |
 
+# tintColor
+
+[Hippy-React 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Image/index.jsx)
+
+[Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
+
+对图片进行染色（iOS暂不支持透明度）
+
+| 类型               | 必需 | 支持平台
+| ------------------ | -------- | --- |
+| [color](style/color.md) | 否  |  All
+
 # visibility
 
 | 类型   | 必需 | 支持平台
