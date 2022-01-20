@@ -39,7 +39,7 @@ class DialogModule extends VoltronNativeModule {
   }
 
   ToastGravity _getToastGravity(gravity) {
-    var toastGravity;
+    ToastGravity toastGravity;
     switch (gravity) {
       case 'top':
         toastGravity = ToastGravity.TOP;
@@ -93,7 +93,7 @@ class DialogModule extends VoltronNativeModule {
         },
       ),
     );
-    return ret == null ? false : ret;
+    return ret ?? false;
   }
 
   @VoltronMethod(kFuncToast)

@@ -193,9 +193,7 @@ class CallNativeParams {
     if (!sInstancePool.isEmpty) {
       instance = sInstancePool.removeFirst();
     }
-    if (instance == null) {
-      instance = CallNativeParams();
-    }
+    instance ??= CallNativeParams();
     instance._init(moduleName, moduleFunc, callId, params);
     return instance;
   }

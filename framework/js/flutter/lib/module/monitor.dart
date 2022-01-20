@@ -22,7 +22,6 @@ import 'dart:collection';
 
 import 'package:voltron_renderer/voltron_renderer.dart';
 
-import '../adapter.dart';
 import '../engine.dart';
 
 class ModuleAnrMonitor {
@@ -100,9 +99,7 @@ class MonitorMessage {
 
   static MonitorMessage obtain(String param1, String param2, int startTime) {
     var instance = sInstancePool.isEmpty ? null : sInstancePool.removeFirst();
-    if (instance == null) {
-      instance = MonitorMessage._internal();
-    }
+    instance ??= MonitorMessage._internal();
 
     instance.init(param1, param2, startTime);
     return instance;

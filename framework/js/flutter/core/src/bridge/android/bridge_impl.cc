@@ -322,9 +322,6 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id, bool can_use_code_cache
   return true;
 }
 
-void BridgeImpl::RunNativeRunnable(int64_t runtime_id, const char16_t* code_cache_path, int64_t runnable_id,
-                                   std::function<void(int64_t)> callback) {}
-
 void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, const char16_t* params,
                               std::function<void(int64_t)> callback) {
   voltron::bridge::CallJSFunction(runtime_id, CU16StringToStrView(action), CU16StringToStrView(params),

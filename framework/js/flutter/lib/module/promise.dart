@@ -27,12 +27,14 @@ class _JSPromiseImpl extends JSPromise {
   final String _moduleFunc;
   final EngineContext _context;
 
+  @override
   bool get hasCall => _hasCall;
 
   _JSPromiseImpl(
       this._context, this._moduleName, this._moduleFunc, String callId)
       : super(callId);
 
+  @override
   void call(int code, Object? obj) {
     var map = VoltronMap();
     map.push("result", code);
@@ -59,6 +61,7 @@ abstract class JSPromise extends Promise {
           required String callId}) =>
       _JSPromiseImpl(context, module, method, callId);
 
+  @override
   void resolve(Object? value) {
     _doCallback(kPromiseCodeSuccess, value);
   }

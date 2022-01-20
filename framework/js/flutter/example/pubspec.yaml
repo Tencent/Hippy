@@ -1,10 +1,6 @@
 name: voltron_render_example
 description: Demonstrates how to use the flutter_render plugin.
 
-# The following line prevents the package from being accidentally published to
-# pub.dev using `pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
 environment:
   sdk: ">=2.12.0 <3.0.0"
   flutter: ">=2.0.0"

@@ -82,6 +82,7 @@ class DeviceEventModule extends VoltronNativeModule {
     }
   }
 
+  @override
   void destroy() {
     super.destroy();
     _backPressHandler = null;

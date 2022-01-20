@@ -28,9 +28,10 @@ class EventDispatcher extends JavaScriptModule {
 
   EventDispatcher(EngineContext context) : super(context);
 
-  void receiveNativeGesture(VoltronMap param) {
+  @override
+  void receiveNativeGesture(VoltronMap params) {
     context.bridgeManager
-        .callJavaScriptModule(kModuleName, "receiveNativeGesture", param);
+        .callJavaScriptModule(kModuleName, "receiveNativeGesture", params);
   }
 
   void receiveUIComponentEvent(int tagId, String eventName, Object? param) {
