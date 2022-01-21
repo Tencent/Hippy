@@ -46,13 +46,12 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
     @Override
     protected Object readJSBoolean(boolean value) {
-        return assignId(Boolean.valueOf(value));
+        return assignId(value);
     }
 
     @Override
     protected Number readJSNumber() {
-        double value = reader.getDouble();
-        return assignId(Double.valueOf(value));
+        return assignId(reader.getDouble());
     }
 
     @Override

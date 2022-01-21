@@ -93,6 +93,11 @@ public class Linker implements LinkHelper {
     }
 
     @Override
+    public void updateAnimationNode(byte[] params, int offset, int length) {
+        updateAnimationNode(mDomProxy.getInstanceId(), params, offset, length);
+    }
+
+    @Override
     public void destroy() {
         if (mDomProxy != null) {
             mDomProxy.destroy();
@@ -137,6 +142,7 @@ public class Linker implements LinkHelper {
                     .forName("com.tencent.renderer.NativeRenderer");
             return (RenderProxy) (nativeRendererClass.newInstance());
         } catch (Throwable e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -164,4 +170,22 @@ public class Linker implements LinkHelper {
      * @param frameworkId framework instance id
      */
     private native void doBind(int domId, int renderId, int frameworkId);
+
+    /**
+     * Update node property on animation update, params buffer format:
+     * [
+     *   {
+     *     animationId:
+     *     nodeId:
+     *     animationKey:
+     *     animationValue:
+     *   }
+     * ]
+     *
+     * @param domId dom manager instance id
+     * @param params params buffer encoded by serializer
+     * @param offset start position of params buffer
+     * @param length available total length of params buffer
+     */
+    private native void updateAnimationNode(int domId, byte[] params, int offset, int length);
 }
