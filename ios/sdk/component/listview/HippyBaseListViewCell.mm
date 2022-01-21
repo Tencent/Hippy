@@ -21,7 +21,6 @@
  */
 
 #import "HippyBaseListViewCell.h"
-#import "HippyVirtualNode.h"
 
 #define CELL_TAG 10101
 
@@ -35,7 +34,6 @@
 @implementation HippyBaseListViewCell
 
 @synthesize tableView = _tableView;
-@synthesize node = _node;
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {

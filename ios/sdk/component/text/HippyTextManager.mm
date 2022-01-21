@@ -29,7 +29,6 @@
 #import "HippyText.h"
 #import "HippyTextView.h"
 #import "UIView+Hippy.h"
-#import "HippyVirtualTextNode.h"
 
 //遍历该shadowView（shadowText）的dirty且非shadowText的子view，将之加入到queue
 //子view如果是dirty，说明其子节点可能有dirtyView
@@ -59,10 +58,6 @@ HIPPY_EXPORT_MODULE(Text)
 
 - (HippyShadowView *)shadowView {
     return [HippyShadowText new];
-}
-
-- (HippyVirtualNode *)node:(NSNumber *)tag name:(NSString *)name props:(NSDictionary *)props {
-    return [HippyVirtualTextNode createNode:tag viewName:name props:props];
 }
 
 #pragma mark - Shadow properties

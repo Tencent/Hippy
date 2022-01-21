@@ -21,6 +21,7 @@
  */
 
 #import "HippyDomNodeUtils.h"
+#import "HippyAssert.h"
 
 using DomValue = tdf::base::DomValue;
 using DomManager = hippy::DomManager;

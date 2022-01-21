@@ -22,10 +22,9 @@
 
 #import "HippyBaseListItemViewManager.h"
 #import "HippyBaseListItemView.h"
-#import "HippyVirtualNode.h"
-#import "HippyVirtualList.h"
 
 @implementation HippyBaseListItemViewManager
+
 HIPPY_EXPORT_MODULE(ListViewItem)
 
 HIPPY_EXPORT_VIEW_PROPERTY(type, id)
@@ -37,10 +36,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [HippyBaseListItemView new];
-}
-
-- (HippyVirtualNode *)node:(NSNumber *)tag name:(NSString *)name props:(NSDictionary *)props {
-    return [HippyVirtualCell createNode:tag viewName:name props:props];
 }
 
 @end

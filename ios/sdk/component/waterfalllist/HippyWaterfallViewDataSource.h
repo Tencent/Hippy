@@ -20,19 +20,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "HippyBaseListViewDataSource.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class UIView;
-@class HippyVirtualNode;
+@interface HippyWaterfallViewDataSource : HippyBaseListViewDataSource
 
-@interface HippyReusableNodeCache : NSObject
+@property(nonatomic, readonly) BOOL containBannerView;
+@property(nonatomic, readonly) HippyShadowView *bannerView;
 
-- (void)enqueueItemNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
-- (HippyVirtualNode *)dequeueItemNodeForIdentifier:(NSString *)identifier;
-- (BOOL)queueContainsNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
-- (BOOL)removeNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier;
+- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView;
 
 @end
 

@@ -34,6 +34,16 @@
     self.bridge = bridge;
 }
 
+- (void)cancelTouches {
+    NSArray<UIGestureRecognizer *> *grs = [self gestureRecognizers];
+    for (HippyTouchHandler *handler in grs) {
+        if ([handler isKindOfClass:[HippyTouchHandler class]]) {
+            [handler cancelTouch];
+            break;
+        }
+    }
+}
+
 - (void)invalidate {}
 
 @end

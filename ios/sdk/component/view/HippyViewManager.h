@@ -32,7 +32,6 @@
 @class HippyBridge;
 @class HippyShadowView;
 @class HippyUIManager;
-@class HippyVirtualNode;
 
 typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
 
@@ -63,8 +62,6 @@ typedef UIView * (^CreateHippyViewWithPropsBlock)(HippyBridge *bridge, NSString 
  * a fresh instance each time it is called.
  */
 - (HippyShadowView *)shadowView;
-
-- (HippyVirtualNode *)node:(NSNumber *)tag name:(NSString *)name props:(NSDictionary *)props;
 
 /**
  * Called to notify manager that layout has finished, in case any calculated

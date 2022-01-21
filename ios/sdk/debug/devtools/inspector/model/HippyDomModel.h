@@ -21,11 +21,13 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "HippyVirtualNode.h"
+#import <CoreGraphics/CoreGraphics.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class HippyBridge;
+@class HippyUIManager;
+@class HippyShadowView;
 
 @interface HippyDomModel : NSObject
 
@@ -45,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param completion completion block
  * @return sucess or failure
  */
-- (BOOL)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node
+- (BOOL)domGetBoxModelJSONWithNode:(nullable HippyShadowView *)node
                            manager:(nullable HippyUIManager *)manager
                         completion:(void (^)(NSDictionary *rspObject))completion;
 

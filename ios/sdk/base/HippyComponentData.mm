@@ -119,10 +119,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return view;
 }
 
-- (HippyVirtualNode *)createVirtualNode:(NSNumber *)tag props:(NSDictionary *)props {
-    return [self.manager node:tag name:_name props:props];
-}
-
 - (UIView *)createViewWithTag:(NSNumber *)tag initProps:(NSDictionary *)props {
     self.manager.props = props;
     UIView *view = [self.manager view];

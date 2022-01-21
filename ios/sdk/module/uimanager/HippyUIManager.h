@@ -36,8 +36,7 @@
 #include "dom/dom_node.h"
 #import "HippyDomNodeUtils.h"
 
-@class HippyVirtualNode;
-@class HippyExtAnimationViewParams;
+@class HippyExtAnimationViewParams, HippyShadowView;
 
 typedef void (^HippyViewUpdateCompletedBlock)(HippyUIManager *uiManager);
 
@@ -99,21 +98,15 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag;
 
 /**
- * Gets the node associated with a hippyTag.
+ * Get the shadow view associated with a hippyTag
  */
-- (HippyVirtualNode *)nodeForHippyTag:(NSNumber *)hippyTag;
+- (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag;
 
 /**
  * Update the frame of a view. This might be in response to a screen rotation
  * or some other layout event outside of the Hippy-managed view hierarchy.
  */
 - (void)setFrame:(CGRect)frame forView:(UIView *)view;
-
-/**
- * Set the natural size of a view, which is used when no explicit size is set.
- * Use UIViewNoIntrinsicMetric to ignore a dimension.
- */
-- (void)setIntrinsicContentSize:(CGSize)size forView:(UIView *)view;
 
 /**
  * Update the background color of a view. The source of truth for
@@ -167,11 +160,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  */
 - (void)setNeedsLayout;
 
-- (UIView *)createViewFromNode:(HippyVirtualNode *)node;
-- (UIView *)updateNode:(HippyVirtualNode *)oldNode withNode:(HippyVirtualNode *)node;
-
-- (void)removeNativeNode:(HippyVirtualNode *)node;
-- (void)removeNativeNodeView:(UIView *)nodeView;
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 

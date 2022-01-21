@@ -24,12 +24,13 @@
 #import "HippyCollectionViewWaterfallLayout.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
-#import "HippyReusableNodeCache.h"
 #import "HippyWaterfallItemView.h"
-#import "HippyVirtualList.h"
 #import "UIView+Hippy.h"
-#include "dom/dom_value.h"
-#import "objc/runtime.h"
+#import "HippyRefresh.h"
+#import "HippyWaterfallViewDataSource.h"
+#import "HippyShadowView.h"
+#import "HippyUIManager.h"
+#import "UIView+RootViewRegister.h"
 
 #define CELL_TAG 10089
 
@@ -38,7 +39,6 @@ static NSString *kCellIdentifier = @"cellIdentifier";
 typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDraging, ScrollStateScrolling };
 
 @interface HippyCollectionViewCell : UICollectionViewCell
-@property (nonatomic, weak) HippyVirtualNode *node;
 @property (nonatomic, weak) UIView *cellView;
 @end
 
@@ -65,31 +65,28 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     BOOL _isInitialListReady;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
-    HippyReusableNodeCache *_reusableNodeCache;
+    HippyWaterfallViewDataSource *_dataSource;
+    UIColor *_backgroundColor;
+    double _lastOnScrollEventTimeInterval;
 }
 
 @property (nonatomic, strong) HippyCollectionViewWaterfallLayout *layout;
 @property (nonatomic, strong) UICollectionView *collectionView;
 
 @property (nonatomic, assign) NSInteger initialListSize;
-//TODO 修复一下所有事件
 @property (nonatomic, copy) HippyDirectEventBlock onInitialListReady;
 @property (nonatomic, copy) HippyDirectEventBlock onEndReached;
 @property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
 
-@property (nonatomic, weak) HippyRootView *rootView;
+@property (nonatomic, weak) UIView *rootView;
 @property (nonatomic, strong) UIView *loadingView;
 
 @end
 
-@implementation HippyWaterfallView {
-    UIColor *_backgroundColor;
-    double _lastOnScrollEventTimeInterval;
-}
+@implementation HippyWaterfallView
 
-@synthesize node = _node;
 @synthesize contentSize;
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge {
@@ -98,8 +95,9 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         self.bridge = bridge;
         _scrollListeners = [NSMutableArray array];
         _scrollEventThrottle = 100.f;
+        _dataSource = [[HippyWaterfallViewDataSource alloc] init];
+        [_dataSource setItemViewName:@"WaterfallItem"];
         [self initCollectionView];
-        _reusableNodeCache = [[HippyReusableNodeCache alloc] init];
         if (@available(iOS 11.0, *)) {
             self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
@@ -136,35 +134,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     _collectionView.frame = self.bounds;
 }
 
-- (NSArray<HippyVirtualNode *> *)nodesWithOnlyCell {
-    NSMutableArray<HippyVirtualNode *> *subNodes = self.node.subNodes;
-    NSUInteger location = 0;
-    NSUInteger length = [subNodes count];
-    if ([subNodes count] <= 0) {
-        return subNodes;
-    }
-    if (_containBannerView) {
-        location += 1;
-        length -= 1;
-    }
-    if (_containPullHeader) {
-        location += 1;
-        length -= 1;
-    }
-    if (_containPullFooter) {
-        length -= 1;
-    }
-    return [subNodes subarrayWithRange:NSMakeRange(location, length)];
-}
-
-- (__kindof HippyVirtualNode *)nodesWithBannerView {
-    NSMutableArray<HippyVirtualNode *> *subNodes = self.node.subNodes;
-    if ([subNodes count] > 0 && _containBannerView) {
-        return subNodes[0];
-    }
-    return nil;
-}
-
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     _backgroundColor = backgroundColor;
     _collectionView.backgroundColor = backgroundColor;
@@ -197,33 +166,17 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated {
 }
 
-- (NSArray<NSString *> *)listItemViewNames {
-    return @[@"WaterfallItem"];
-}
-
 - (void)didUpdateHippySubviews {
     [self refreshItemNodes];
     [self flush];
 }
 
+- (void)setContainBannerView:(BOOL)containBannerView {
+    _containBannerView = containBannerView;
+}
+
 - (void)refreshItemNodes {
-    auto domNode = self.domNode.lock();
-    if (domNode) {
-        const auto children = domNode->GetChildren();
-        _itemDomNodes.clear();
-        NSArray<NSString *> *itemViewsNames = [self listItemViewNames];
-        for (const auto &child : children) {
-            if (child) {
-                NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
-                if ([itemViewsNames containsObject:childViewName]) {
-                    _itemDomNodes.push_back(child);
-                }
-                else if ([childViewName isEqualToString:@"View"]) {
-                    _bannerViewNode = child;
-                }
-            }
-        }
-    }
+    [_dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:_containBannerView];
 }
 
 #pragma mark Setter
@@ -269,7 +222,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-        _headerRefreshView.frame = [self.node.subNodes[atIndex] frame];
+        _headerRefreshView.frame = subview.hippyShadowView.frame;
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
@@ -277,85 +230,23 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
-        _footerRefreshView.frame = [self.node.subNodes[atIndex] frame];
+        _footerRefreshView.frame = subview.hippyShadowView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
     }
 }
 
-- (const std::shared_ptr<hippy::DomNode> &)domNodeAtIndexPath:(NSIndexPath *)indexPath {
-    NSInteger section = [indexPath section];
-    NSInteger row = [indexPath item];
-    if (_containBannerView) {
-        if (0 == section) {
-            return _bannerViewNode;
-        } else {
-            return _itemDomNodes[row];
-        }
-    } else {
-        return _itemDomNodes[[indexPath row]];
-    }
-}
-
-- (__kindof HippyVirtualNode *)nodeAtIndexPath:(NSIndexPath *)indexPath {
-    NSInteger section = [indexPath section];
-    NSInteger row = [indexPath item];
-    HippyVirtualNode *cellNode = nil;
-    if (_containBannerView) {
-        if (0 == section) {
-            cellNode = [self nodesWithBannerView];
-        } else {
-            NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
-            if ([subNodes count] > row) {
-                cellNode = subNodes[row];
-            }
-        }
-    } else {
-        NSArray<HippyVirtualNode *> *subNodes = [self nodesWithOnlyCell];
-        if ([subNodes count] > row) {
-            cellNode = subNodes[row];
-        }
-    }
-    return cellNode;
-}
-
-- (NSString *)reuseIdentifierForIndexPath:(NSIndexPath *)indexPath {
-    HippyVirtualNode *node = [self nodeAtIndexPath:indexPath];
-    if ([node isKindOfClass:[HippyVirtualCell class]]) {
-        return [(HippyVirtualCell *)node itemViewType];
-    }
-    else {
-        return kCellIdentifier;
-    }
-}
-
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    if (_containBannerView) {
-        return 2;
-    }
-    return 1;
+    return [_dataSource numberOfSection];
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    if (_containBannerView) {
-        if (0 == section) {
-            return 1;
-        }
-    }
-    return _itemDomNodes.size();
+    return [_dataSource numberOfCellForSection:section];
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (_containBannerView && 0 == [indexPath section]) {
-        return [self collectionView:collectionView bannerViewForItemAtIndexPath:indexPath];
-    }
     return [self collectionView:collectionView itemViewForItemAtIndexPath:indexPath];
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView bannerViewForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    return cell;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -370,12 +261,12 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     if (0 == [indexPath section] && _containBannerView) {
         return;
     }
-    NSInteger count = _itemDomNodes.size();
+    NSInteger section = _containBannerView ? 1 : 0;
+    NSInteger count = [_dataSource numberOfCellForSection:section];
     NSInteger leftCnt = count - indexPath.item - 1;
     if (leftCnt == _preloadItemNumber) {
         [self startLoadMoreData];
     }
-
     if (indexPath.item == count - 1) {
         [self startLoadMoreData];
         if (self.onFooterAppeared) {
@@ -387,41 +278,22 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
-//    HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
-//    [hpCell.cellView removeFromSuperview];
-//    HippyVirtualNode *cellNode = hpCell.node;
-//    NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
-//    [_reusableNodeCache enqueueItemNode:cellNode forIdentifier:reuseIdentifier];
-//    hpCell.node = nil;
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-//    NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
-//    HippyVirtualNode *cellNode = [self nodeAtIndexPath:indexPath];
-//    [_reusableNodeCache removeNode:cellNode forIdentifier:reuseIdentifier];
-//    HippyVirtualNode *reusedNode = [_reusableNodeCache dequeueItemNodeForIdentifier:reuseIdentifier];
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
-//    HippyWaterfallItemView *cellView = nil;
-//    if (reusedNode) {
-//        cellView = (HippyWaterfallItemView *)[self.bridge.uiManager updateNode:reusedNode withNode:cellNode];
-//    }
-//    if (!cellView) {
-//        cellView = (HippyWaterfallItemView *)[self.bridge.uiManager createViewFromNode:cellNode];
-//    }
-//    hpCell.cellView = cellView;
-//    hpCell.node = cellNode;
-    //FIXME use cache for cell view creation
-    const auto &domNode = [self domNodeAtIndexPath:indexPath];
-    HippyWaterfallItemView *cellView = (HippyWaterfallItemView *)[self.bridge.uiManager viewForHippyTag:@(domNode->GetId())];
-    hpCell.cellView = cellView;
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
+    //TODO use reusable view here
+    UIView *view = [self.bridge.uiManager viewForHippyTag:shadowView.hippyTag];
+    hpCell.cellView = view;
 }
 
 #pragma mark - HippyCollectionViewDelegateWaterfallLayout
 - (CGSize)collectionView:(UICollectionView *)collectionView
-                    layout:(UICollectionViewLayout *)collectionViewLayout
+                  layout:(UICollectionViewLayout *)collectionViewLayout
     sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    const auto &node = [self domNodeAtIndexPath:indexPath];
-    return CGSizeMakeFromLayoutResult(node->GetLayoutResult());
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
+    return shadowView.frame.size;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView
@@ -590,7 +462,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
-    std::function<void(int)> onClick= nullptr;
 }
 
 - (void)refreshCompleted:(NSInteger)status text:(NSString *)text {
@@ -628,26 +499,25 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 #pragma mark touch conflict
-- (HippyRootView *)rootView {
+- (UIView *)rootView {
     if (_rootView) {
         return _rootView;
     }
-
     UIView *view = [self superview];
-
-    while (view && ![view isKindOfClass:[HippyRootView class]]) {
-        view = [view superview];
+    while (view) {
+        if (0 == [[view hippyTag] intValue] % 10) {
+            _rootView = view;
+            return view;
+        }
+        else {
+            view = [view superview];
+        }
     }
-
-    if ([view isKindOfClass:[HippyRootView class]]) {
-        _rootView = (HippyRootView *)view;
-        return _rootView;
-    } else
-        return nil;
+    return view;
 }
 
 - (void)cancelTouch {
-    HippyRootView *view = [self rootView];
+    UIView *view = [self rootView];
     if (view) {
         [view cancelTouches];
     }

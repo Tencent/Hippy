@@ -40,13 +40,10 @@ typedef NS_ENUM(NSUInteger, CellShowState) { CellNotShowState, CellHalfShowState
 
 @end
 
-@class HippyVirtualCell;
-
 @interface HippyBaseListViewCell : UITableViewCell
 
 @property (nonatomic, weak) UITableView *tableView;
 @property (nonatomic, assign) UIView<ViewAppearStateProtocol> *cellView;
-@property (nonatomic, weak) HippyVirtualCell *node;
 
 - (void)setCellShowState:(CellShowState)cellShowState NS_REQUIRES_SUPER;
 - (CellShowState)cellShowState;

@@ -24,6 +24,8 @@
 #import "HippyCSSPropsDefine.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
+#import "HippyShadowView.h"
+#import "HippyUIManager.h"
 
 typedef NSDictionary<NSString *, NSArray<NSString *> *> HippyStyleEnumMap;
 
@@ -76,7 +78,7 @@ NSString *const HippyCSSDefaultPosition = @"relative";
 }
 
 #pragma mark - CSS Protocol
-- (BOOL)matchedStyleJSONWithNode:(HippyVirtualNode *)node
+- (BOOL)matchedStyleJSONWithNode:(HippyShadowView *)node
                       completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
         return NO;
@@ -91,7 +93,7 @@ NSString *const HippyCSSDefaultPosition = @"relative";
     return YES;
 }
 
-- (BOOL)computedStyleJSONWithNode:(HippyVirtualNode *)node
+- (BOOL)computedStyleJSONWithNode:(HippyShadowView *)node
                        completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
         return NO;
@@ -107,7 +109,7 @@ NSString *const HippyCSSDefaultPosition = @"relative";
     return NO;
 }
 
-- (BOOL)inlineStyleJSONWithNode:(HippyVirtualNode *)node
+- (BOOL)inlineStyleJSONWithNode:(HippyShadowView *)node
                      completion:(void (^)(NSDictionary *respObject))completion{
     if (completion) {
         completion(@{});
@@ -127,7 +129,7 @@ NSString *const HippyCSSDefaultPosition = @"relative";
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         NSNumber *nodeId = editDic[HippyCSSKeyStyleSheetId];
-        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
         if (!node) {
             HippyLogWarn(@"CSS Model, style text json, node is nil");
             completion(@{});

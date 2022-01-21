@@ -23,13 +23,9 @@
 #ifndef HippyBaseListViewProtocol_h
 #define HippyBaseListViewProtocol_h
 
-#import "HippyVirtualNode.h"
-
 @protocol HippyBaseListViewProtocol <NSObject>
 
 - (BOOL)flush;
-
-@property (nonatomic, strong) HippyVirtualList *node;
 
 @end
 
