@@ -176,7 +176,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
    * transform
    **/
   @HippyControllerProps(name = NodeProps.TRANSFORM, defaultType = HippyControllerProps.ARRAY)
-  public void setTransform(T view, HippyArray transformArray) {
+  public void setTransform(T view, ArrayList<Object> transformArray) {
     if (transformArray == null) {
       resetTransform(view);
     } else {
@@ -621,7 +621,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     return new RenderNode(id, props, className, hippyRootView, controllerManager, lazy);
   }
 
-  private void applyTransform(T view, HippyArray transformArray) {
+  private void applyTransform(T view, ArrayList<Object> transformArray) {
     TransformUtil.processTransform(transformArray, sTransformDecompositionArray);
     sMatrixDecompositionContext.reset();
     MatrixUtil.decomposeMatrix(sTransformDecompositionArray, sMatrixDecompositionContext);

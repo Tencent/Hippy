@@ -17,17 +17,15 @@ package com.tencent.mtt.hippy;
 
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
-import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
-import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.modules.RenderProcessInterceptor;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.hippy.utils.TimeMonitor;
 
-@SuppressWarnings("unused")
 public interface HippyEngineContext {
 
   String getComponentName();
@@ -47,6 +45,18 @@ public interface HippyEngineContext {
   RenderManager getRenderManager();
 
   ViewGroup getRootView();
+
+  /**
+   * Add render process interceptor such as AnimationModule.
+   */
+  void addRenderProcessInterceptor(@NonNull RenderProcessInterceptor interceptor);
+
+  /**
+   * Remove render process interceptor from js engine context.
+   */
+  void removeRenderProcessInterceptor(@NonNull RenderProcessInterceptor interceptor);
+
+  void updateAnimationNode(byte[] buffer, int offset, int length);
 
   void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 

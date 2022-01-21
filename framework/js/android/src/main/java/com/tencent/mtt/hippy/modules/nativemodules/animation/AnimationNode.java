@@ -15,49 +15,30 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.animation;
 
-import android.view.ViewGroup;
-import com.tencent.mtt.hippy.common.HippyMap;
+import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import java.util.ArrayList;
-
-@SuppressWarnings("deprecation")
 public class AnimationNode {
 
-  private final int mTagId;
-  private final ViewGroup mRootView;
-  private final ArrayList<Animation> mAnimations;
-  private HippyMap mProps;
+    private final int mNodeId;
+    private final CopyOnWriteArrayList<Animation> mAnimations;
 
-  public AnimationNode(int tagId, ViewGroup rootView) {
-    mTagId = tagId;
-    mRootView = rootView;
-    mAnimations = new ArrayList<>();
-  }
-
-  public int getId() {
-    return mTagId;
-  }
-
-  public ViewGroup getRootView() {
-    return mRootView;
-  }
-
-  public HippyMap getProps() {
-    return mProps;
-  }
-
-  public void setProps(HippyMap props) {
-    this.mProps = props;
-  }
-
-  public void addAnimation(Animation animation) {
-    if (!mAnimations.contains(animation)) {
-      mAnimations.add(animation);
+    public AnimationNode(int nodeId) {
+        mNodeId = nodeId;
+        mAnimations = new CopyOnWriteArrayList<>();
     }
-  }
 
-  public ArrayList<Animation> getAnimations() {
-    return mAnimations;
-  }
+    public int getId() {
+        return mNodeId;
+    }
 
+    public void addAnimation(Animation animation) {
+        if (!mAnimations.contains(animation)) {
+            mAnimations.add(animation);
+        }
+    }
+
+    public CopyOnWriteArrayList<Animation> getAnimations() {
+        return mAnimations;
+    }
 }

@@ -39,9 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -70,7 +68,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private HippyRootView mRootView;
     private FrameworkProxy mFrameworkProxy;
     private final NativeRenderProvider mRenderProvider;
-    private volatile CopyOnWriteArrayList<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
+    private ArrayList<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
     private BlockingQueue<UITaskExecutor> mUITaskQueue;
 
     public NativeRenderer() {
@@ -155,7 +153,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             msg = exception.getMessage();
         }
         LogUtils.e(TAG, msg);
-        reportException(exception);
+        if (mFrameworkProxy != null) {
+            mFrameworkProxy.handleNativeException(exception, true);
+        }
     }
 
     @Override
@@ -165,11 +165,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
 
     @Override
     public void destroy() {
+        mRenderProvider.destroy();
         if (mRenderManager != null) {
             mRenderManager.destroy();
-        }
-        if (mRenderProvider != null) {
-            mRenderProvider.destroy();
         }
         if (mInstanceLifecycleEventListeners != null) {
             mInstanceLifecycleEventListeners.clear();
@@ -327,7 +325,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener) {
         if (mInstanceLifecycleEventListeners == null) {
-            mInstanceLifecycleEventListeners = new CopyOnWriteArrayList<>();
+            mInstanceLifecycleEventListeners = new ArrayList<>();
         }
         mInstanceLifecycleEventListeners.add(listener);
     }
@@ -337,31 +335,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         if (mInstanceLifecycleEventListeners != null) {
             mInstanceLifecycleEventListeners.remove(listener);
         }
-    }
-
-    private void executeUIOperation() {
-        UIThreadUtils.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.d(TAG, "UI task queue size=" + mUITaskQueue.size());
-                long start = System.currentTimeMillis();
-                UITaskExecutor task = mUITaskQueue.poll();
-                while (task != null) {
-                    task.exec();
-                    // If there has large number node operation task in queue,
-                    // it is possible cause ANR because of takes a lot of time to handle the task,
-                    // so we should interrupt it and re-run in next event cycle again.
-                    if (System.currentTimeMillis() - start > MAX_UI_TASK_QUEUE_EXEC_TIME) {
-                        LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
-                        break;
-                    }
-                    task = mUITaskQueue.poll();
-                }
-                if (!mUITaskQueue.isEmpty()) {
-                    executeUIOperation();
-                }
-            }
-        });
     }
 
     @Override
@@ -392,6 +365,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                                 + nodeIndex);
             }
             final HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
+            // Props may reset by framework modules, such as js AnimationModule,
+            // key={animationId=xxx} => key=value
+            onCreateNode(nodeId, props);
             mVirtualNodeManager.createNode(nodeId, nodePid, nodeIndex, className, props);
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
                 // If the node has a virtual parent, no need to create corresponding render node,
@@ -444,6 +420,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                         TAG + ": updateNode: invalid negative id=" + nodeId);
             }
             final HashMap<String, Object> props = (HashMap) node.get(NODE_PROPS);
+            // Props may reset by framework modules, such as js AnimationModule,
+            // key={animationId=xxx} => key=value
+            onUpdateNode(nodeId, props);
             mVirtualNodeManager.updateNode(nodeId, props);
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
                 // If the node has a virtual parent, no corresponding render node exists,
@@ -482,10 +461,11 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             }
             if (mVirtualNodeManager.hasVirtualParent(id)) {
                 // If the node has a virtual parent, no corresponding render node exists,
-                // so just delete the virtual node, .
+                // just delete the virtual node, not need to add UI delete task.
                 mVirtualNodeManager.deleteNode(id);
                 continue;
             }
+            onDeleteNode(id);
             mVirtualNodeManager.deleteNode(id);
             try {
                 // It is generally preferable to use add here, just focus the exception
@@ -673,7 +653,8 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void doPromiseCallBack(int result, long callbackId, String functionName, int nodeId,
+    public void doPromiseCallBack(int result, long callbackId, @NonNull String functionName,
+            int nodeId,
             Object params) {
         if (mRenderProvider != null) {
             mRenderProvider.doPromiseCallBack(result, callbackId, functionName, nodeId, params);
@@ -682,6 +663,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
 
     @Override
     public void endBatch() {
+        onEndBatch();
         try {
             // It is generally preferable to use add here, just focus the exception
             // when add failed, don't need to handle the return value.
@@ -702,10 +684,53 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
     }
 
-    public void reportException(Exception exception) {
-        if (mFrameworkProxy != null) {
-            mFrameworkProxy.handleNativeException(exception, true);
+    private void onCreateNode(int nodeId, @NonNull final HashMap<String, Object> props) {
+        if (checkJSFrameworkProxy()) {
+            ((JSFrameworkProxy) mFrameworkProxy).onCreateNode(nodeId, props);
         }
+    }
+
+    private void onUpdateNode(int nodeId, @NonNull final HashMap<String, Object> props) {
+        if (checkJSFrameworkProxy()) {
+            ((JSFrameworkProxy) mFrameworkProxy).onUpdateNode(nodeId, props);
+        }
+    }
+
+    private void onDeleteNode(int nodeId) {
+        if (checkJSFrameworkProxy()) {
+            ((JSFrameworkProxy) mFrameworkProxy).onDeleteNode(nodeId);
+        }
+    }
+
+    private void onEndBatch() {
+        if (checkJSFrameworkProxy()) {
+            ((JSFrameworkProxy) mFrameworkProxy).onEndBatch();
+        }
+    }
+
+    private void executeUIOperation() {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtils.d(TAG, "UI task queue size=" + mUITaskQueue.size());
+                long start = System.currentTimeMillis();
+                UITaskExecutor task = mUITaskQueue.poll();
+                while (task != null) {
+                    task.exec();
+                    // If there has large number node operation task in queue,
+                    // it is possible cause ANR because of takes a lot of time to handle the task,
+                    // so we should interrupt it and re-run in next event cycle again.
+                    if (System.currentTimeMillis() - start > MAX_UI_TASK_QUEUE_EXEC_TIME) {
+                        LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
+                        break;
+                    }
+                    task = mUITaskQueue.poll();
+                }
+                if (!mUITaskQueue.isEmpty()) {
+                    executeUIOperation();
+                }
+            }
+        });
     }
 
     private boolean checkJSFrameworkProxy() {
