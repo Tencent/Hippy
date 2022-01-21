@@ -28,7 +28,7 @@
 #import "HippyRootView.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
-#include "dom/taitank_layout_node.h"
+#include "dom/layout_node.h"
 #import "HippyDomNodeUtils.h"
 
 typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
@@ -40,8 +40,6 @@ typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
 @class HippyShadowView;
 
 HIPPY_EXTERN CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView);
-
-HIPPY_EXTERN hippy::TaitankLayoutNode *layoutNodeFromShadowView(HippyShadowView *shadowView);
 
 typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
 

@@ -191,8 +191,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 auto domNode = child.domNode.lock();
                 float width = 0, height = 0;
                 if (domNode) {
-                    std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
-                        std::static_pointer_cast<hippy::TaitankLayoutNode>(domNode->GetLayoutNode());
                     width = domNode->GetLayoutResult().width;
                     height = domNode->GetLayoutResult().height;
                 }
@@ -270,9 +268,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     _cachedTextStorage = nil;
     std::shared_ptr<hippy::DomNode> node = self.domNode.lock();
     if (node) {
-        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
-            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
-        layoutNode->MarkDirty();
+        node->GetLayoutNode()->MarkDirty();
     }
 }
 
@@ -349,8 +345,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             auto domNode = child.domNode.lock();
             float width = 0, height = 0;
             if (domNode) {
-                std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
-                    std::static_pointer_cast<hippy::TaitankLayoutNode>(domNode->GetLayoutNode());
                 domNode->DoLayout();
                 width = domNode->GetLayoutResult().width;
                 height = domNode->GetLayoutResult().height;
