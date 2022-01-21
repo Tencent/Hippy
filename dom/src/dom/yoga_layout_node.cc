@@ -330,6 +330,12 @@ float YogaLayoutNode::GetBorder(Edge edge) {
   return YGNodeLayoutGetBorder(yoga_node_, ygedge);
 }
 
+void YogaLayoutNode::SetPosition(Edge edge, float position) {
+  YGEdge ygedge = GetYGEdgeFromEdge(edge);
+  YGNodeStyleSetPosition(yoga_node_, ygedge, position);
+}; 
+
+
 bool YogaLayoutNode::LayoutHadOverflow() { return YGNodeLayoutGetHadOverflow(yoga_node_); }
 
 void YogaLayoutNode::InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) {

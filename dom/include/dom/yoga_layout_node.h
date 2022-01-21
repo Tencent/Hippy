@@ -44,6 +44,8 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   float GetBorder(Edge edge) override;
 
+  void SetPosition(Edge edge, float position) override; 
+
   bool LayoutHadOverflow();
 
   YGNodeRef GetLayoutEngineNodeRef() { return yoga_node_; }
@@ -56,7 +58,7 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   void SetHasNewLayout(bool has_new_layout) override;
 
-  void MarkDirty();
+  void MarkDirty() override;
 
   bool IsDirty();
 
