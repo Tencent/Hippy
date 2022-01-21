@@ -1,0 +1,16 @@
+{
+  "name": "@hippy/web-render",
+  "version": "0.0.1",
+  "description": "hippy web render",
+  "main": "dist/index.js",
+  "homepage": "http://hippyjs.org",
+  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-web-render",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "keywords": [
+    "Hippy",
+    "Web"
+  ]
+}
