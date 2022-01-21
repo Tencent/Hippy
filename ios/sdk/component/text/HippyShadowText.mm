@@ -29,7 +29,6 @@
 #import "HippyTextView.h"
 #import "HippyUIManager.h"
 #import "HippyUtils.h"
-#import "HippyVirtualTextNode.h"
 #import "HippyI18nUtils.h"
 #import "dom/layout_node.h"
 
@@ -43,11 +42,10 @@ CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 
 @implementation HippyShadowText
-// MTTlayout
+
 hippy::LayoutSize textMeasureFunc(
     HippyShadowText *shadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
                                  float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
-//    hippy::DomNode *pNode = static_cast<hippy::DomNode *>(HPNodeGetContext(node));
     std::shared_ptr<hippy::DomNode> domNode = [shadowText domNode].lock();
     if (domNode) {
         NSTextStorage *textStorage = [shadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
@@ -118,9 +116,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;
         }
-        // MTTlayout
-//        HPNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
-//        HPNodeSetContext(self.nodeRef, (__bridge void *)self);
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contentSizeMultiplierDidChange:)
                                                      name:HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
                                                    object:nil];
@@ -142,8 +137,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 }
 
 - (void)contentSizeMultiplierDidChange:(__unused NSNotification *)note {
-    // MTTlayout
-//    HPNodeMarkDirty(self.nodeRef);
     [self dirtyText];
 }
 
@@ -185,13 +178,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return parentProperties;
 }
 
-// MTTlayout
-//- (void)applyLayoutNode:(HPNodeRef)node
-//      viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-//       absolutePosition:(CGPoint)absolutePosition {
-//    [super applyLayoutNode:node viewsWithNewFrame:viewsWithNewFrame absolutePosition:absolutePosition];
-//    [self dirtyPropagation];
-//}
 - (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
     @try {
         NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:hippy::Exactly];
@@ -237,52 +223,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 }
 
-// MTTlayout
-//- (void)applyLayoutToChildren:(__unused HPNodeRef)node
-//            viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
-//             absolutePosition:(CGPoint)absolutePosition {
-//    @try {
-//        // Run layout on subviews.
-//        // MTTlayout
-//        NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:MeasureModeExactly];
-//        NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
-//        NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
-//        NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
-//        NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-//        [layoutManager.textStorage enumerateAttribute:HippyShadowViewAttributeName inRange:characterRange options:0 usingBlock:^(
-//            HippyShadowView *child, NSRange range, __unused BOOL *_) {
-//            if (child) {
-//                HPNodeRef childNode = child.nodeRef;
-//                float width = HPNodeLayoutGetWidth(childNode);
-//                float height = HPNodeLayoutGetHeight(childNode);
-//                if (isnan(width) || isnan(height)) {
-//                    HippyLogError(@"Views nested within a <Text> must have a width and height");
-//                }
-//
-//                /**
-//                 * For RichText, a view, which is top aligment by default, should be center alignment to text,
-//                 */
-//
-//                CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-//                CGRect usedOriginRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location effectiveRange:nil];
-//                CGFloat lineHeight = usedOriginRect.size.height;
-//                CGFloat Roundedheight = HippyRoundPixelValue(height);
-//                CGFloat originY = usedOriginRect.origin.y + (lineHeight - Roundedheight) / 2;
-//                CGRect childFrame = {
-//                    { HippyRoundPixelValue(glyphRect.origin.x), HippyRoundPixelValue(originY) },
-//                    { HippyRoundPixelValue(width), Roundedheight }
-//                };
-//                NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
-//                BOOL childIsTruncated = NSIntersectionRange(range, truncatedGlyphRange).length != 0;
-//
-//                [child collectUpdatedFrames:viewsWithNewFrame withFrame:childFrame hidden:childIsTruncated absolutePosition:absolutePosition];
-//            }
-//        }];
-//    } @catch (NSException *exception) {
-//    }
-//}
-
-// MTTlayout
 - (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode {
     // MttRN: https://github.com/Tencent/hippy-native/issues/11412
     if (isnan(width)) {
@@ -458,9 +398,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     // create a non-mutable attributedString for use by the Text system which avoids copies down the line
     _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:attributedString];
-    // MTTlayout
-//    HPNodeMarkDirty(self.nodeRef);
-
     return _cachedAttributedString;
 }
 

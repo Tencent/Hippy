@@ -31,7 +31,6 @@
 #import "HippyUtils.h"
 #import "HippyView.h"
 #import "UIView+Hippy.h"
-#import "HippyVirtualNode.h"
 #import "HippyConvert+Transform.h"
 #import "HippyGradientObject.h"
 
@@ -51,10 +50,6 @@ HIPPY_EXPORT_MODULE(View)
 
 - (HippyShadowView *)shadowView {
     return [HippyShadowView new];
-}
-
-- (HippyVirtualNode *)node:(NSNumber *)tag name:(NSString *)name props:(NSDictionary *)props {
-    return [HippyVirtualNode createNode:tag viewName:name props:props];
 }
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(__unused HippyShadowView *)shadowView {

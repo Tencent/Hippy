@@ -24,6 +24,8 @@
 #import "HippyBridge.h"
 #import "HippyDevCommand.h"
 #import "HippyDomModel.h"
+#import "HippyShadowView.h"
+#import "HippyUIManager.h"
 
 NSString *const HippyDomDomainName = @"DOM";
 NSString *const HippyDomMethodGetDocument = @"getDocument";
@@ -137,7 +139,7 @@ NSString *const HippyDomParamsKeyBackendNodeIds = @"backendNodeIds";
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
         [self->_domModel domGetBoxModelJSONWithNode:node manager:manager completion:^(NSDictionary * rspObject) {
             [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
         }];

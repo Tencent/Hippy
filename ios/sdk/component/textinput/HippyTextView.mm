@@ -28,6 +28,7 @@
 #import "HippyUtils.h"
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
+#import "HippyEventDispatcher.h"
 
 @implementation HippyUITextView {
     BOOL _jsRequestingFirstResponder;

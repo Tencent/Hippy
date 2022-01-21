@@ -21,7 +21,7 @@
  */
 
 #import "HippyText.h"
-
+#import "HippyLog.h"
 #import "HippyShadowText.h"
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"

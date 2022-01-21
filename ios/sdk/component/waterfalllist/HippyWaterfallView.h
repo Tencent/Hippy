@@ -21,7 +21,6 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyVirtualNode.h"
 #import "HippyView.h"
 #import "HippyBaseListViewProtocol.h"
 #import "HippyScrollableProtocol.h"
@@ -38,12 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL initialized;
 @property (nonatomic, strong) UIColor *backgroundColor;
 @property (nonatomic, assign) BOOL containBannerView;
-@property (nonatomic, assign) BOOL containPullHeader;
-@property (nonatomic, assign) BOOL containPullFooter;
 @property (nonatomic, assign) CFTimeInterval scrollEventThrottle; //单位毫秒
 @property (nonatomic, copy) HippyDirectEventBlock onScroll;
-@property (nonatomic, assign, readonly) std::vector<std::shared_ptr<hippy::DomNode>> itemDomNodes;
-@property (nonatomic, assign, readonly) std::shared_ptr<hippy::DomNode> bannerViewNode;
 
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge;

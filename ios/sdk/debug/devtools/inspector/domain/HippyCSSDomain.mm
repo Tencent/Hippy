@@ -23,6 +23,8 @@
 #import "HippyCSSDomain.h"
 #import "HippyCSSModel.h"
 #import "HippyDevCommand.h"
+#import "HippyUIManager.h"
+#import "HippyShadowView.h"
 
 NSString *const HippyCSSDomainName = @"CSS";
 NSString *const HippyCSSMethodGetMatchedStylesForNode = @"getMatchedStylesForNode";
@@ -102,7 +104,7 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
         [self->_cssModel matchedStyleJSONWithNode:node completion:^(NSDictionary * rspObject) {
             [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
         }];
@@ -129,7 +131,7 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
         [self->_cssModel computedStyleJSONWithNode:node completion:^(NSDictionary *rspObject) {
             [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
         }];
@@ -156,7 +158,7 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        HippyVirtualNode *node = [manager nodeForHippyTag:nodeId];
+        HippyShadowView *node = [manager shadowViewForHippyTag:nodeId];
         [self->_cssModel inlineStyleJSONWithNode:node completion:^(NSDictionary *rspObject) {
             [self handleRspDataWithCmd:command dataJSON:rspObject completion:completion];
         }];

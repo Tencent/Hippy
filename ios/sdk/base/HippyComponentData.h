@@ -25,7 +25,7 @@
 #import "HippyComponent.h"
 #import "HippyDefines.h"
 #import "HippyViewManager.h"
-#import "HippyVirtualNode.h"
+
 @class HippyBridge;
 @class HippyShadowView;
 @class UIView;
@@ -49,7 +49,5 @@
 - (NSDictionary<NSString *, NSString *> *)eventNameMap;
 
 - (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
-
-- (HippyVirtualNode *)createVirtualNode:(NSNumber *)tag props:(NSDictionary *)props;
 
 @end

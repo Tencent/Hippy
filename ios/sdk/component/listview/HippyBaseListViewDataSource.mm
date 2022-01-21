@@ -20,137 +20,130 @@
  * limitations under the License.
  */
 
+#import <UIKit/UIKit.h>
 #import "HippyBaseListViewDataSource.h"
-#import "HippyVirtualList.h"
+#import "HippyShadowView.h"
 
-@implementation HippyBaseListViewDataSource {
-    NSMutableArray *_sections;
+@interface HippyBaseListViewDataSource () {
+    NSMutableArray<HippyShadowView *> *_headerShadowViews;
+    NSMutableArray<NSMutableArray<HippyShadowView *> *> *_cellShadowViews;
+    NSString *_itemViewName;
 }
 
-- (instancetype)init {
-    if (self = [super init]) {
-        _sections = [NSMutableArray new];
-    }
-    return self;
+@end
+
+@implementation HippyBaseListViewDataSource
+
+- (void)setItemViewsName:(NSString *)viewName {
+    _itemViewName = [viewName copy];
 }
 
-- (void)setDataSource:(NSArray<HippyVirtualCell *> *)dataSource {
-    NSMutableArray *sections = [NSMutableArray new];
-    NSMutableArray *lastSection = [NSMutableArray new];
-    HippyVirtualCell *lastStickyCell = nil;
-    NSInteger index = 0;
-    for (HippyVirtualCell *cell in dataSource) {
-        if (cell.sticky) {
-            if (lastSection.count == 0) {
-                lastStickyCell = cell;
-            } else {
-                if (lastStickyCell)
-                    [sections addObject:@{ @"cell": lastSection, @"header": lastStickyCell }];
-                else {
-                    [sections addObject:@{ @"cell": lastSection }];
+- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource {
+    NSMutableArray<HippyShadowView *> *headerShadowViews = [NSMutableArray array];
+    NSMutableArray<NSMutableArray<HippyShadowView *> *> *cellShadowViews = [NSMutableArray array];
+    NSMutableArray<HippyShadowView *> *sectionCellShadowViews = nil;
+    for (HippyShadowView *shadowView in dataSource) {
+        NSString *viewName = [shadowView viewName];
+        if ([_itemViewName isEqualToString:viewName]) {
+            NSNumber *sticky = shadowView.props[@"sticky"];
+            if ([sticky boolValue]) {
+                [_headerShadowViews addObject:shadowView];
+                if (sectionCellShadowViews) {
+                    [cellShadowViews addObject:sectionCellShadowViews];
+                    sectionCellShadowViews = nil;
                 }
-                lastSection = [NSMutableArray array];
-                lastStickyCell = cell;
             }
-        } else {
-            [lastSection addObject:cell];
+            else {
+                if (nil == sectionCellShadowViews) {
+                    sectionCellShadowViews = [NSMutableArray array];
+                }
+                [sectionCellShadowViews addObject:shadowView];
+            }
         }
-
-        if (index == dataSource.count - 1 && lastStickyCell != nil) {
-            [sections addObject:@{ @"cell": lastSection, @"header": lastStickyCell }];
-        }
-
-        index++;
     }
-
-    if (sections.count == 0 && lastSection.count != 0) {
-        [sections addObject:@{ @"cell": lastSection }];
+    if (sectionCellShadowViews) {
+        [cellShadowViews addObject:sectionCellShadowViews];
     }
-
-    _sections = sections;
+    _headerShadowViews = headerShadowViews;
+    _cellShadowViews = cellShadowViews;
 }
 
-- (HippyVirtualCell *)cellForIndexPath:(NSIndexPath *)indexPath {
-    if (_sections.count > indexPath.section) {
-        NSArray *cells = _sections[indexPath.section][@"cell"];
-        if (cells.count > indexPath.row) {
-            return (HippyVirtualCell *)cells[indexPath.row];
+- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath {
+    if (_cellShadowViews.count > indexPath.section) {
+        NSArray<HippyShadowView *> *sectionCellShadowViews = [_cellShadowViews objectAtIndex:indexPath.section];
+        if (sectionCellShadowViews.count > indexPath.row) {
+            return [sectionCellShadowViews objectAtIndex:indexPath.row];
         }
     }
     return nil;
 }
 
-- (NSIndexPath *)indexPathOfCell:(HippyVirtualCell *)cell {
+- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell {
     NSInteger section = 0;
     NSInteger row = 0;
-    for (NSDictionary *sec in _sections) {
-        NSArray *cells = sec[@"cell"];
-        for (HippyVirtualCell *node in cells) {
-            if ([node isEqual:cell]) {
-                break;
+    for (NSInteger sec = 0; sec < [_cellShadowViews count]; sec++) {
+        NSArray<HippyShadowView *> *sectionCellShadowViews = [_cellShadowViews objectAtIndex:sec];
+        for (NSUInteger r = 0; r < [sectionCellShadowViews count]; r++) {
+            HippyShadowView *cellShadowView = [sectionCellShadowViews objectAtIndex:r];
+            if (cellShadowView == cell) {
+                section = sec;
+                row = r;
             }
-            row++;
         }
-        if (row != cells.count) {
-            break;
-        }
-        section++;
-    }
-
-    if (section == _sections.count) {
-        return nil;
     }
     return [NSIndexPath indexPathForRow:row inSection:section];
 }
 
-- (HippyVirtualCell *)headerForSection:(NSInteger)section {
-    if (_sections.count > section) {
-        HippyVirtualCell *header = _sections[section][@"header"];
-        return header;
+- (HippyShadowView *)headerForSection:(NSInteger)section {
+    if (_headerShadowViews.count > section) {
+        return [_headerShadowViews objectAtIndex:section];
     }
     return nil;
 }
 
 - (NSInteger)numberOfSection {
-    return _sections.count;
+    return _cellShadowViews.count;
 }
 
 - (NSInteger)numberOfCellForSection:(NSInteger)section {
-    if (_sections.count > section) {
-        NSArray *cells = _sections[section][@"cell"];
-        return cells.count;
+    if (_cellShadowViews.count > section) {
+        return [[_cellShadowViews objectAtIndex:section] count];
     }
     return 0;
 }
 
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index {
-    NSInteger totalIndex = 0;
     NSInteger sectionIndex = 0;
     NSInteger rowIndex = 0;
-    NSIndexPath *indexPath = nil;
-
-    for (NSDictionary *section in _sections) {
-        rowIndex = 0;
-        if (index == totalIndex) {
-            indexPath = [NSIndexPath indexPathForRow:0 inSection:sectionIndex];
-            break;
-        }
-        totalIndex += section[@"header"] == nil ? 0 : 1;
-
-        NSArray *cells = section[@"cell"];
-        for (__unused HippyVirtualCell *node in cells) {
-            if (totalIndex == index) {
-                indexPath = [NSIndexPath indexPathForRow:rowIndex inSection:sectionIndex];
+    NSInteger selfIncreaseIndex = 0;
+    for (NSInteger sec = 0; sec < [_cellShadowViews count]; sec++) {
+        NSArray<HippyShadowView *> *sectionCellShadowViews = [_cellShadowViews objectAtIndex:sec];
+        for (NSUInteger r = 0; r < [sectionCellShadowViews count]; r++) {
+            if (index == selfIncreaseIndex) {
+                sectionIndex = sec;
+                rowIndex = r;
                 break;
             }
-            rowIndex++;
-            totalIndex++;
+            selfIncreaseIndex++;
         }
-
-        sectionIndex++;
     }
+    return [NSIndexPath indexPathForRow:rowIndex inSection:sectionIndex];
+}
 
-    return indexPath;
+- (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath {
+    NSInteger section = [indexPath section];
+    NSInteger row = [indexPath row];
+    NSInteger flatIndex = 0;
+    for (NSInteger sec = 0; sec <= section; sec++) {
+        if (sec == section) {
+            flatIndex += row;
+        }
+        else {
+            NSArray<HippyShadowView *> *sectionCellShadowViews = [_cellShadowViews objectAtIndex:sec];
+            flatIndex += [sectionCellShadowViews count];
+        }
+    }
+    return flatIndex;
 }
 
 @end

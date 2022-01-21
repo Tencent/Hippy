@@ -21,11 +21,13 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "HippyVirtualNode.h"
+#import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 HIPPY_EXTERN NSString *const HippyCSSKeyStyleSheetId;
+
+@class HippyShadowView, HippyUIManager;
 
 @interface HippyCSSModel : NSObject
 
@@ -35,7 +37,7 @@ HIPPY_EXTERN NSString *const HippyCSSKeyStyleSheetId;
  * @param completion complection block
  * @return success or failure
  */
-- (BOOL)matchedStyleJSONWithNode:(nullable HippyVirtualNode *)node
+- (BOOL)matchedStyleJSONWithNode:(nullable HippyShadowView *)node
                       completion:(void (^)(NSDictionary *rspObject))completion;
 
 
@@ -45,7 +47,7 @@ HIPPY_EXTERN NSString *const HippyCSSKeyStyleSheetId;
  * @param completion complection block
  * @return success or failure
  */
-- (BOOL)computedStyleJSONWithNode:(nullable HippyVirtualNode *)node
+- (BOOL)computedStyleJSONWithNode:(nullable HippyShadowView *)node
                        completion:(void (^)(NSDictionary *rspObject))completion;
 
 /**
@@ -54,7 +56,7 @@ HIPPY_EXTERN NSString *const HippyCSSKeyStyleSheetId;
  * @param completion complection block
  * @return success or failure
  */
-- (BOOL)inlineStyleJSONWithNode:(nullable HippyVirtualNode *)node
+- (BOOL)inlineStyleJSONWithNode:(nullable HippyShadowView *)node
                      completion:(void (^)(NSDictionary *rspObject))completion;
 
 /**

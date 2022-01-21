@@ -61,28 +61,16 @@ static hippy::LayoutSize x5MeasureFunc(
     [super setDomNode:domNode];
     std::shared_ptr<hippy::DomNode> node = domNode.lock();
     if (node) {
-        
-//        using MeasureFunction = std::function<LayoutSize(float width, LayoutMeasureMode widthMeasureMode, float height,
-//                                                         LayoutMeasureMode heightMeasureMode, void* layoutContext)>;
-        
         hippy::dom::MeasureFunction measureFunc =
             [shadow_view = self](float width, hippy::LayoutMeasureMode widthMeasureMode, float height,
                                  hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
             return x5MeasureFunc(shadow_view, width, widthMeasureMode,
                                    height, heightMeasureMode, layoutContext);
         };
-//        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
-//            std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
         node->GetLayoutNode()->SetMeasureFunction(measureFunc);
     }
 }
 
-/*
- * text类型控件会响应用户输入交互，但是并不会更新shadowText中的props属性，
- * 导致前端下发新的props属性与当前属性实际值不一致
- * 因此需要对特定属性进行判断.
- * 这个案例中是text属性
- */
 - (NSDictionary *)mergeProps:(NSDictionary *)props {
     NSDictionary *newProps = [super mergeProps:props];
     BOOL oldPropsContainsText = [[props allKeys] containsObject:@"text"];

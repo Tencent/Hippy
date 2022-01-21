@@ -22,7 +22,7 @@
 
 #import "HippyWaterfallViewManager.h"
 #import "HippyWaterfallView.h"
-#import "HippyVirtualList.h"
+#import "HippyUIManager.h"
 
 @implementation HippyWaterfallViewManager
 
@@ -46,10 +46,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [[HippyWaterfallView alloc] initWithBridge:self.bridge];
-}
-
-- (HippyVirtualNode *)node:(NSNumber *)tag name:(NSString *)name props:(NSDictionary *)props {
-    return [HippyVirtualList createNode:tag viewName:name props:props];
 }
 
 HIPPY_EXPORT_METHOD(refreshCompleted

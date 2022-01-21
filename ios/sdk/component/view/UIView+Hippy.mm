@@ -25,7 +25,6 @@
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HippyShadowView.h"
-#import "HippyVirtualNode.h"
 #import "dom/dom_listener.h"
 
 @interface HippyViewPropertyWrapper : NSObject
@@ -139,18 +138,19 @@ HippyEventMethod(OnTouchEnd, onTouchEnd, HippyDirectEventBlock)
 HippyEventMethod(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
 HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
 // clang-format on
-#if HIPPY_DEV
 
-- (HippyShadowView *)_DEBUG_hippyShadowView {
-    return objc_getAssociatedObject(self, _cmd);
+- (__kindof HippyShadowView *)hippyShadowView {
+    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
+    return [hashTable anyObject];
 }
 
-- (void)_DEBUG_setHippyShadowView:(HippyShadowView *)shadowView {
-    // Use assign to avoid keeping the shadowView alive it if no longer exists
-    objc_setAssociatedObject(self, @selector(_DEBUG_hippyShadowView), shadowView, OBJC_ASSOCIATION_ASSIGN);
+- (void)setHippyShadowView:(__kindof HippyShadowView *)shadowView {
+    NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
+    if (shadowView) {
+        [hashTable addObject:shadowView];
+    }
+    objc_setAssociatedObject(self, @selector(hippyShadowView), hashTable, OBJC_ASSOCIATION_RETAIN);
 }
-
-#endif
 
 - (void)sendAttachedToWindowEvent {
     if (self.onAttachedToWindow) {
@@ -296,9 +296,6 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     //  self.bounds = bounds;
 
     self.frame = frame;
-}
-
-- (void)didUpdateWithNode:(__unused HippyVirtualNode *)node {
 }
 
 - (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
