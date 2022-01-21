@@ -340,6 +340,41 @@ nlohmann::json DomNode::ToJSONString() {
   return node_json;
 }
 
+nlohmann::json DomNode::GetDomDomainData(uint32_t depth) {
+  auto dom_manager = dom_manager_.lock();
+  auto domain_json = nlohmann::json::object();
+  domain_json[kDomainNodeId] = GetId();
+  domain_json[kDomainParentId] = GetPid();
+  domain_json[kDomainRootId] = dom_manager->GetRootId();
+  domain_json[kDomainClassName] = GetViewName();
+  domain_json[kDomainNodeName] = GetTagName();
+  domain_json[kDomainLocalName] = GetTagName();
+  domain_json[kDomainNodeValue] = "";
+  domain_json[kDomainChildNodeCount] = children_.size();
+
+  if (!GetStyleMap().empty()) {
+    auto style_props = GetStyleMap();
+//    domain_json[kDomainStyle] = ParseNodeProps(style_props->second);  // TODO:thomasyqguo
+  }
+  if (!GetExtStyle().empty()) {
+    auto attribute_props = GetExtStyle();
+//    domain_json[kDomainAttributes] = ParseNodeProps(attribute_props->second); // TODO:thomasyqguo
+  }
+  // 每获取一层数据 深度减一
+  depth--;
+  if (depth <= 0) {
+    // 不需要孩子节点数据 则直接返回
+    return domain_json;
+  }
+  auto children_data_json = nlohmann::json::array();
+  domain_json[kDomainChildren] = children_data_json;
+  domain_json[kDomainLayoutX] = layout_node_->GetLeft();
+  domain_json[kDomainLayoutY] = layout_node_->GetTop();
+  domain_json[kDomainLayoutWidth] = layout_node_->GetWidth();
+  domain_json[kDomainLayoutHeight] = layout_node_->GetHeight();
+  return domain_json;
+}
+
 nlohmann::json DomNode::GetNodeIdByDomLocation(double x, double y) {
   auto result_json = nlohmann::json::object();
   auto hit_node = GetMaxDepthAndMinAreaHitNode(x, y, shared_from_this());
