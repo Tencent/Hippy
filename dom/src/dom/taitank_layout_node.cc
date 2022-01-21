@@ -394,7 +394,7 @@ bool TaitankLayoutNode::LayoutHadOverflow() {
 
 void TaitankLayoutNode::InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) {
   assert(engine_node_ != nullptr);
-  if(engine_node_->measure != nullptr) return;
+  if (engine_node_->measure != nullptr) return;
   auto node = std::static_pointer_cast<TaitankLayoutNode>(child);
   assert(node->GetLayoutEngineNodeRef() != nullptr);
   engine_node_->insertChild(node->GetLayoutEngineNodeRef(), index);
@@ -465,6 +465,15 @@ void TaitankLayoutNode::SetHeight(float height) {
   if (FloatIsEqual(engine_node_->style.dim[DimHeight], height)) return;
   engine_node_->style.dim[DimHeight] = height;
   engine_node_->markAsDirty();
+}
+
+void TaitankLayoutNode::SetPosition(Edge edge, float position) {
+  assert(engine_node_ != nullptr);
+  CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
+  if (FloatIsEqual(engine_node_->style.position[css_direction], position)) return;
+  if (engine_node_->style.setPosition(css_direction, position)) {
+    engine_node_->markAsDirty();
+  }
 }
 
 void TaitankLayoutNode::SetScaleFactor(float sacle_factor) {
