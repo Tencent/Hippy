@@ -5,7 +5,7 @@ const replace = require('@rollup/plugin-replace');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 
-const hippyWebRenderPackage = require('../packages/hippy-web-render/package.json');
+const hippyWebRendererPackage = require('../packages/hippy-web-renderer/package.json');
 function banner(name, version) {
   const startYear = 2017;
   const thisYear = new Date().getFullYear();
@@ -41,10 +41,10 @@ function banner(name, version) {
 
 const builds = {
   '@hippy/web-render': {
-    entry: './packages/hippy-web-render/src/index.ts',
-    dest: './packages/hippy-web-render/dist/index.js',
+    entry: './packages/hippy-web-renderer/src/index.ts',
+    dest: './packages/hippy-web-renderer/dist/index.js',
     format: 'es',
-    banner: banner('@hippy/web-render', hippyWebRenderPackage.version),
+    banner: banner('@hippy/web-renderer', hippyWebRendererPackage.version),
   },
 };
 
@@ -57,7 +57,7 @@ function genConfig(name) {
       replace({
         preventAssignment: true,
         values: {
-          'process.env.HIPPY_WEB_RENDER_VERSION': `"${hippyWebRenderPackage.version}"`,
+          'process.env.HIPPY_WEB_RENDERER_VERSION': `"${hippyWebRendererPackage.version}"`,
         },
       }),
       nodeResolve(),
