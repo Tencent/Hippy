@@ -29,7 +29,7 @@
 #import "UIView+Private.h"
 #import "HPNode.h"
 #import "HippyI18nUtils.h"
-#include "dom/taitank_layout_node.h"
+#include "dom/layout_node.h"
 
 CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView) {
     if (shadowView) {
@@ -41,17 +41,6 @@ CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView) {
     }
     return CGRectZero;
 }
-
-hippy::TaitankLayoutNode *layoutNodeFromShadowView(HippyShadowView *shadowView) {
-    auto domNode = shadowView.domNode.lock();
-    if (domNode) {
-        std::shared_ptr<hippy::TaitankLayoutNode>layoutNode =
-            std::static_pointer_cast<hippy::TaitankLayoutNode>(domNode->GetLayoutNode());
-        return layoutNode.get();
-    }
-    return nullptr;
-}
-
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
@@ -334,14 +323,14 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 }
 
 - (void)setLayoutFrame:(CGRect)frame {
-    auto layoutNode = layoutNodeFromShadowView(self);
-    if (layoutNode) {
-        HPNodeRef nodeRef = layoutNode->GetLayoutEngineNodeRef();
-        HPNodeStyleSetPosition(nodeRef, CSSLeft, frame.origin.x);
-        HPNodeStyleSetPosition(nodeRef, CSSTop, frame.origin.y);
-        HPNodeStyleSetWidth(nodeRef, frame.size.width);
-        HPNodeStyleSetHeight(nodeRef, frame.size.height);
-        HPNodeMarkDirty(nodeRef);
+    auto domNode = self.domNode.lock();
+    if (domNode) {
+        auto layoutNode = domNode->GetLayoutNode();
+        layoutNode->SetPosition(hippy::dom::EdgeLeft, frame.origin.x);
+        layoutNode->SetPosition(hippy::dom::EdgeTop, frame.origin.y);
+        layoutNode->SetWidth(frame.size.width);
+        layoutNode->SetHeight(frame.size.height);
+        layoutNode->MarkDirty();
         [self dirtyPropagation];
     }
 }
