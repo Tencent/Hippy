@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <utility>
 #include "base/logging.h"
+#include "dom/dom_domain_data_props.h"
 #include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
@@ -257,8 +258,8 @@ void DomNode::TransferLayoutOutputsRecursive() {
 
 void DomNode::CallFunction(const std::string& name, const DomArgument& param, const CallFunctionCallback& cb) {
   if (!func_cb_map_) {
-    func_cb_map_ = std::make_shared<std::unordered_map<std::string,
-      std::unordered_map<uint32_t, CallFunctionCallback>>>();
+    func_cb_map_ =
+        std::make_shared<std::unordered_map<std::string, std::unordered_map<uint32_t, CallFunctionCallback>>>();
   }
   auto cb_id = kInvalidId;
   if (cb) {
@@ -337,6 +338,76 @@ nlohmann::json DomNode::ToJSONString() {
 //    node_json[K_CHILD] = child_json_array;
 //  }
   return node_json;
+}
+
+nlohmann::json DomNode::GetNodeIdByDomLocation(double x, double y) {
+  auto result_json = nlohmann::json::object();
+  auto hit_node = GetMaxDepthAndMinAreaHitNode(x, y, shared_from_this());
+  if (hit_node == nullptr) {
+    hit_node = shared_from_this();
+  }
+  auto hit_node_relation_tree_json = nlohmann::json::array();
+  int32_t node_id = hit_node->GetId();
+  hit_node_relation_tree_json.push_back(node_id);
+  auto temp_hit_node = hit_node->GetParent();
+  while (temp_hit_node != nullptr && temp_hit_node != shared_from_this()) {
+    hit_node_relation_tree_json.push_back(temp_hit_node->GetId());
+    temp_hit_node = temp_hit_node->GetParent();
+  }
+  result_json[kDomainNodeId] = node_id;
+  result_json[kDomainHitNodeRelationTree] = hit_node_relation_tree_json;
+  return result_json;
+}
+
+std::shared_ptr<DomNode> DomNode::GetMaxDepthAndMinAreaHitNode(double x, double y, std::shared_ptr<DomNode> node) {
+  if (node == nullptr || !node->IsLocationHitNode(x, y)) {
+    return nullptr;
+  }
+  std::shared_ptr<DomNode> hit_node = node;
+  for (auto& child : node->children_) {
+    if (!child->IsLocationHitNode(x, y)) {
+      continue;
+    }
+    auto new_node = GetMaxDepthAndMinAreaHitNode(x, y, child);
+    hit_node = GetSmallerAreaNode(hit_node, new_node);
+  }
+  return hit_node;
+}
+
+bool DomNode::IsLocationHitNode(double x, double y) {
+  double self_x = layout_node_->GetLeft();
+  double self_y = layout_node_->GetTop();
+  auto bounds_json = GetNodeBounds();
+  if (bounds_json.is_object()) {
+    self_x = bounds_json[kDomainLeft];
+    self_y = bounds_json[kDomainTop];
+  }
+  bool in_top_offset = (x >= self_x) && (y >= self_y);
+  bool in_bottom_offset = (x <= self_x + layout_node_->GetWidth()) && (y <= self_y + layout_node_->GetHeight());
+  return in_top_offset && in_bottom_offset;
+}
+
+nlohmann::json DomNode::GetNodeBounds() {
+  nlohmann::json bounds_json;
+  bounds_json[kDomainTop] = layout_node_->GetTop();
+  bounds_json[kDomainLeft] = layout_node_->GetLeft();
+  bounds_json[kDomainBottom] = layout_node_->GetBottom();
+  bounds_json[kDomainRight] = layout_node_->GetRight();
+
+  return bounds_json;
+}
+
+std::shared_ptr<DomNode> DomNode::GetSmallerAreaNode(std::shared_ptr<DomNode> old_node,
+                                                     std::shared_ptr<DomNode> new_node) {
+  if (old_node == nullptr) {
+    return new_node;
+  }
+  if (new_node == nullptr) {
+    return old_node;
+  }
+  auto old_node_area = old_node->layout_node_->GetWidth() * old_node->layout_node_->GetHeight();
+  auto new_node_area = new_node->layout_node_->GetWidth() * new_node->layout_node_->GetHeight();
+  return old_node_area > new_node_area ? new_node : old_node;
 }
 
 }  // namespace dom

@@ -127,6 +127,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   bool HasTouchEventListeners();
 
   nlohmann::json ToJSONString();
+  nlohmann::json GetNodeIdByDomLocation(double x, double y);
 
  private:
   uint32_t id_;             // 节点唯一id
@@ -159,6 +160,13 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
                                      std::array<std::vector<std::shared_ptr<EventListenerInfo>>,
                                                 2>>>
       event_listener_map_;
+
+  std::shared_ptr<DomNode> GetMaxDepthAndMinAreaHitNode(double x, double y,
+                                                        std::shared_ptr<DomNode> node);
+  nlohmann::json GetNodeBounds();
+  bool IsLocationHitNode(double x, double y);
+  static std::shared_ptr<DomNode> GetSmallerAreaNode(std::shared_ptr<DomNode> old_node,
+                                                     std::shared_ptr<DomNode> new_node);
 };
 
 }  // namespace dom
