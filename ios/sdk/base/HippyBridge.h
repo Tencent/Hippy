@@ -120,6 +120,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)enqueueJSCall:(NSString *)module method:(NSString *)method args:(NSArray *)args completion:(dispatch_block_t)completion;
 
 /**
+ * set up chrome dev tools connection
+ */
+- (void)setUpDevClientWithName:(NSString *)name;
+/**
  * This method is used to call functions in the JavaScript application context
  * synchronously.  This is intended for use by applications which do their own
  * thread management and are careful to manage multi-threaded access to the JSVM.
@@ -238,16 +242,25 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, assign) BOOL debugMode;
 
+@property (nonatomic, assign) BOOL enableTurbo;
+
 @property (nonatomic, strong) NSMutableDictionary *shareOptions;
 
 @property (nonatomic, strong) NSString *moduleName;
 
 @property (nonatomic, strong) NSString *appVerson;  //
 
+@property (nonatomic, assign) HippyInvalidateReason invalidateReason;
+
 /**
  * just for debugger
  */
 - (void)bindKeys;
+
+/**
+ * Get  the turbo module for a given name.
+ */
+- (id)turboModuleWithName:(NSString *)name;
 
 @end
 

@@ -140,14 +140,6 @@ export default [
     },
   },
   {
-    path: '/MyView',
-    name: 'MyView 组件',
-    component: PAGE_LIST.MyView,
-    meta: {
-      style: 1,
-    },
-  },
-  {
     path: '/WebSocket',
     name: 'WebSocket 模块',
     component: PAGE_LIST.WebSocket,
@@ -199,6 +191,14 @@ export default [
     path: '/Localization',
     name: 'Localization 信息',
     component: PAGE_LIST.Localization,
+    meta: {
+      style: 2,
+    },
+  },
+  {
+    path: '/Turbo',
+    name: 'Turbo',
+    component: PAGE_LIST.Turbo,
     meta: {
       style: 2,
     },

@@ -14,8 +14,9 @@
 #include "cppgc/heap-statistics.h"
 #include "cppgc/internal/write-barrier.h"
 #include "cppgc/visitor.h"
-#include "v8-internal.h"  // NOLINT(build/include_directory)
-#include "v8.h"           // NOLINT(build/include_directory)
+#include "v8-internal.h"       // NOLINT(build/include_directory)
+#include "v8-platform.h"       // NOLINT(build/include_directory)
+#include "v8-traced-handle.h"  // NOLINT(build/include_directory)
 
 namespace cppgc {
 class AllocationHandle;
@@ -24,9 +25,13 @@ class HeapHandle;
 
 namespace v8 {
 
+class Object;
+
 namespace internal {
 class CppHeap;
 }  // namespace internal
+
+class CustomSpaceStatisticsReceiver;
 
 /**
  * Describes how V8 wrapper objects maintain references to garbage-collected C++
@@ -120,6 +125,16 @@ class V8_EXPORT CppHeap {
       cppgc::HeapStatistics::DetailLevel detail_level);
 
   /**
+   * Collects statistics for the given spaces and reports them to the receiver.
+   *
+   * \param custom_spaces a collection of custom space indicies.
+   * \param receiver an object that gets the results.
+   */
+  void CollectCustomSpaceStatisticsAtLastGC(
+      std::vector<cppgc::CustomSpaceIndex> custom_spaces,
+      std::unique_ptr<CustomSpaceStatisticsReceiver> receiver);
+
+  /**
    * Enables a detached mode that allows testing garbage collection using
    * `cppgc::testing` APIs. Once used, the heap cannot be attached to an
    * `Isolate` anymore.
@@ -180,9 +195,11 @@ class V8_EXPORT JSHeapConsistency final {
    * \returns whether a write barrier is needed and which barrier to invoke.
    */
   template <typename HeapHandleCallback>
+  V8_DEPRECATE_SOON("Write barriers automatically emitted by TracedReference.")
   static V8_INLINE WriteBarrierType
-  GetWriteBarrierType(const TracedReferenceBase& ref,
-                      WriteBarrierParams& params, HeapHandleCallback callback) {
+      GetWriteBarrierType(const TracedReferenceBase& ref,
+                          WriteBarrierParams& params,
+                          HeapHandleCallback callback) {
     if (ref.IsEmpty()) return WriteBarrierType::kNone;
 
     if (V8_LIKELY(!cppgc::internal::WriteBarrier::
@@ -236,6 +253,7 @@ class V8_EXPORT JSHeapConsistency final {
    * \param params The parameters retrieved from `GetWriteBarrierType()`.
    * \param ref The reference being written to.
    */
+  V8_DEPRECATE_SOON("Write barriers automatically emitted by TracedReference.")
   static V8_INLINE void DijkstraMarkingBarrier(const WriteBarrierParams& params,
                                                cppgc::HeapHandle& heap_handle,
                                                const TracedReferenceBase& ref) {
@@ -265,6 +283,7 @@ class V8_EXPORT JSHeapConsistency final {
    * \param params The parameters retrieved from `GetWriteBarrierType()`.
    * \param ref The reference being written to.
    */
+  V8_DEPRECATE_SOON("Write barriers automatically emitted by TracedReference.")
   static V8_INLINE void GenerationalBarrier(const WriteBarrierParams& params,
                                             const TracedReferenceBase& ref) {}
 
@@ -277,14 +296,39 @@ class V8_EXPORT JSHeapConsistency final {
                                          const TracedReferenceBase& ref);
 };
 
+/**
+ * Provided as input to `CppHeap::CollectCustomSpaceStatisticsAtLastGC()`.
+ *
+ * Its method is invoked with the results of the statistic collection.
+ */
+class CustomSpaceStatisticsReceiver {
+ public:
+  virtual ~CustomSpaceStatisticsReceiver() = default;
+  /**
+   * Reports the size of a space at the last GC. It is called for each space
+   * that was requested in `CollectCustomSpaceStatisticsAtLastGC()`.
+   *
+   * \param space_index The index of the space.
+   * \param bytes The total size of live objects in the space at the last GC.
+   *    It is zero if there was no GC yet.
+   */
+  virtual void AllocatedBytes(cppgc::CustomSpaceIndex space_index,
+                              size_t bytes) = 0;
+};
+
 }  // namespace v8
 
 namespace cppgc {
 
 template <typename T>
 struct TraceTrait<v8::TracedReference<T>> {
-  static void Trace(Visitor* visitor, const v8::TracedReference<T>* self) {
-    static_cast<v8::JSVisitor*>(visitor)->Trace(*self);
+  static cppgc::TraceDescriptor GetTraceDescriptor(const void* self) {
+    return {nullptr, Trace};
+  }
+
+  static void Trace(Visitor* visitor, const void* self) {
+    static_cast<v8::JSVisitor*>(visitor)->Trace(
+        *static_cast<const v8::TracedReference<T>*>(self));
   }
 };
 

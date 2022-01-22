@@ -86,18 +86,12 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
       LogUtils.e(TAG, "Hippy context is an Application, so can not show a dialog!");
     } else {
       new AlertDialog.Builder(v.getContext()).setItems(
-          new String[]{"Reload", isLiveReloadEnable ? "Disable Live Reload" : "Enable Live Reload"},
+          new String[]{"Reload"},
           new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-              switch (which) {
-                case 0:
-                  reload();
-                  break;
-                case 1:
-                  mServerConfig.setEnableLiveDebug(!isLiveReloadEnable);
-                  startLiveDebug();
-                  break;
+              if (which == 0) {
+                reload();
               }
             }
           }).show();

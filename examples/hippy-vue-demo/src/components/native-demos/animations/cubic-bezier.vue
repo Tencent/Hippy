@@ -53,7 +53,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
   .loop-green {
     margin-top: 10px;
     justify-content: center;

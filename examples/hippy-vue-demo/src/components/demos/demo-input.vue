@@ -8,6 +8,7 @@
     <input
       ref="input"
       v-model="text"
+      caret-color="yellow"
       placeholder="Text"
       class="input"
       @click="stopPropagation"
@@ -53,7 +54,7 @@
     >
     <label>文本（限制5个字符）:</label>
     <input
-      maxlength="5"
+      :maxlength="5"
       placeholder="5 个字符"
       class="input"
       @change="textChange"
@@ -122,7 +123,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .demo-input {
   display: flex;
   flex: 1;

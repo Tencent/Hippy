@@ -77,7 +77,7 @@ export default {
       STYLE_LOADING,
       loadingState: '正在加载...',
       isLoading: false,
-      isIos: Vue.Native.Platform.OS === 'ios',
+      isIos: Vue.Native.Platform === 'ios',
     };
   },
   computed: {

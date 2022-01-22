@@ -98,6 +98,10 @@ public final class HippyNativeModuleInfo {
     return mThread;
   }
 
+  public Map<String, HippyNativeMethod> getMethods() {
+    return mMethods;
+  }
+
   public void initialize() {
     if (mInit) {
       return;
@@ -115,7 +119,7 @@ public final class HippyNativeModuleInfo {
           throw new RuntimeException(
               "Java Module " + mName + " method name already registered: " + methodName);
         }
-        mMethods.put(methodName, new HippyNativeMethod(targetMethod));
+        mMethods.put(methodName, new HippyNativeMethod(targetMethod, hippyMethod.isSync()));
       }
     }
 
@@ -144,8 +148,11 @@ public final class HippyNativeModuleInfo {
 
     private final Type[] mParamTypes;
 
-    public HippyNativeMethod(Method method) {
+    private boolean mIsSync;
+
+    public HippyNativeMethod(Method method, boolean isSync) {
       this.mMethod = method;
+      this.mIsSync = isSync;
       this.mParamTypes = method.getGenericParameterTypes();
     }
 
@@ -187,6 +194,9 @@ public final class HippyNativeModuleInfo {
       return params;
     }
 
+    public boolean isSync() {
+      return mIsSync;
+    }
 
   }
 

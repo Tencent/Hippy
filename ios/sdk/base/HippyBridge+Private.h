@@ -32,6 +32,8 @@ HIPPY_EXTERN NSArray<Class> *HippyGetModuleClasses(void);
 HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 #endif
 
+@class HippyOCTurboModule;
+
 @interface HippyBridge ()
 
 // Used for the profiler flow events between JS and native
@@ -134,6 +136,11 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  * Allow super fast, one time, timers to skip the queue and be directly executed
  */
 - (void)_immediatelyCallTimer:(NSNumber *)timer;
+
+/**
+ * Get  the turbo module for a given name.
+ */
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
 
 @end
 

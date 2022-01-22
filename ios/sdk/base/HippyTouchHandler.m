@@ -352,6 +352,13 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
 - (BOOL)checkViewBelongToTouchHandler:(UIView *)view {
     NSNumber *reactTag = [view hippyTag];
     UIView *checkView = [_bridge.uiManager viewForHippyTag:reactTag];
+    if (!checkView) {
+        NSNumber *viewRootTag = [view rootTag];
+        NSNumber *rootViewTag = [_rootView hippyTag];
+        if (rootViewTag) {
+            return [viewRootTag isEqualToNumber:rootViewTag];
+        }
+    }
     return checkView == view;
 }
 

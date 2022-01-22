@@ -143,8 +143,9 @@ Hippy.bridge.callNative = (...callArguments) => {
         param[1].forEach((uiItem) => {
           const nativeProps = Object.assign(uiItem.props, uiItem.props.style);
           delete nativeProps.style;
+          const tagName = uiItem.tagName === undefined ? '' : uiItem.tagName;
 
-          const uiParam = [uiItem.id, getComponentName(uiItem.name), param[0], nativeProps];
+          const uiParam = [uiItem.id, getComponentName(uiItem.name), param[0], tagName, nativeProps];
 
           callModuleMethod.apply(callModuleMethod, uiParam);
 

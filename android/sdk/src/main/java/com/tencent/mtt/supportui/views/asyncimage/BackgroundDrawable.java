@@ -359,7 +359,7 @@ public class BackgroundDrawable extends BaseDrawable
 		int oppositeDegree = getOppositeAngle();
 		calculategradientAngle(oppositeDegree);
 
-		if (gradientAngle == Integer.MAX_VALUE || gradientColors == null || gradientColors.length == 0) {
+		if (gradientAngle == Integer.MAX_VALUE || gradientColors == null || gradientColors.length < 2) {
 			return false;
 		}
 
@@ -378,10 +378,15 @@ public class BackgroundDrawable extends BaseDrawable
 
 		calculateStartEndPoint(start, end, oppositeDegree);
 
-		LinearGradient linearGradient = new LinearGradient(start.x, start.y, end.x, end.y,
-				gradientColors, gradientPositions, Shader.TileMode.CLAMP);
+		try {
+			LinearGradient linearGradient = new LinearGradient(start.x, start.y, end.x, end.y,
+					gradientColors, gradientPositions, Shader.TileMode.CLAMP);
+			gradientPaint.setShader(linearGradient);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return false;
+		}
 
-		gradientPaint.setShader(linearGradient);
 		return true;
 	}
 

@@ -1,17 +1,6 @@
 name: '[markdown-lint] check documents format'
 
 on:
-  push:
-    paths:
-      - '*.md'
-      - 'docs/**/*.md'
-    branches:
-      # Push events on main branch
-      - main
-      # Push events on master branch
-      - master
-    tags-ignore:
-      - '**'
   pull_request:
     paths:
       - '*.md'

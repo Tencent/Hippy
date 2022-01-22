@@ -9,7 +9,7 @@ import {
 // Import the image to base64 for defaultSource props.
 import defaultSource from './defaultSource.jpg';
 
-const imageUrl = 'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png';
+const imageUrl = 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png';
 
 const styles = StyleSheet.create({
   container_style: {
@@ -71,12 +71,19 @@ export default function ImageExpo() {
         source={{ uri: imageUrl }}
         resizeMode={Image.resizeMode.center}
       />
+      <Text style={styles.info_style}>TintColor(iOS染色暂不支持透明度)</Text>
+      <Image
+        style={[styles.image_style, { tintColor: '#99999955' }]}
+        defaultSource={defaultSource}
+        source={{ uri: imageUrl }}
+        resizeMode={Image.resizeMode.center}
+      />
       <Text style={styles.info_style}>Cover GIF:</Text>
       <Image
         style={[styles.image_style]}
         resizeMode={Image.resizeMode.cover}
         defaultSource={defaultSource}
-        source={{ uri: 'http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif' }}
+        source={{ uri: 'https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif' }}
         onLoadEnd={() => {
           /* eslint-disable-next-line no-console */
           console.log('gif onLoadEnd');

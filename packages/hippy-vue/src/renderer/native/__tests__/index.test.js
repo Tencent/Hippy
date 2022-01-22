@@ -76,12 +76,23 @@ test('renderToNative test with children --debug mode', (t) => {
   const childNodeText = DocumentNode.createTextNode('Hello');
   childNode3.appendChild(childNodeText);
   const childNode4 = DocumentNode.createElement('img');
-  childNode4.setAttribute('src', 'http://www.qq.com');
+  childNode4.setAttribute('src', 'https://hippyjs.org');
   const childNode5 = DocumentNode.createElement('input');
   childNode5.setAttribute('type', 'number');
   const childNode6 = DocumentNode.createElement('textarea');
   childNode6.setAttribute('rows', 10);
   childNode6.setAttribute('type', 'url');
+  childNode6.setAttribute('role', 'back button');
+  childNode6.setAttribute('aria-label', 'back to home');
+  childNode6.setAttribute('aria-disabled', false);
+  childNode6.setAttribute('aria-selected', true);
+  childNode6.setAttribute('aria-checked', false);
+  childNode6.setAttribute('aria-busy', true);
+  childNode6.setAttribute('aria-expanded', false);
+  childNode6.setAttribute('aria-valuemin', 2);
+  childNode6.setAttribute('aria-valuemax', 10);
+  childNode6.setAttribute('aria-valuenow', 7);
+  childNode6.setAttribute('aria-valuetext', 'high');
   childNode6.addEventListener('typing', () => {});
   parentNode.appendChild(childNode1);
   parentNode.appendChild(childNode2);
@@ -163,9 +174,9 @@ test('renderToNative test with children --debug mode', (t) => {
         attributes: {
           class: '',
           id: '',
-          src: 'http://www.qq.com',
+          src: 'https://hippyjs.org',
         },
-        src: 'http://www.qq.com',
+        src: 'https://hippyjs.org',
         style: {
           backgroundColor: 0,
         },
@@ -205,9 +216,36 @@ test('renderToNative test with children --debug mode', (t) => {
           id: '',
           rows: 10,
           type: 'url',
+          'aria-busy': true,
+          'aria-checked': false,
+          'aria-disabled': false,
+          'aria-expanded': false,
+          'aria-label': 'back to home',
+          'aria-selected': true,
+          'aria-valuemax': 10,
+          'aria-valuemin': 2,
+          'aria-valuenow': 7,
+          'aria-valuetext': 'high',
+          role: 'back button',
+        },
+        accessibilityRole: 'back button',
+        accessibilityLabel: 'back to home',
+        accessibilityState: {
+          disabled: false,
+          selected: true,
+          checked: false,
+          busy: true,
+          expanded: false,
+        },
+        accessibilityValue: {
+          now: 7,
+          min: 2,
+          max: 10,
+          text: 'high',
         },
         multiline: true,
         onTyping: true,
+        __bind__onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
@@ -230,7 +268,7 @@ test('renderToNative test with children --production mode', (t) => {
   const childNodeText = DocumentNode.createTextNode('Hello');
   childNode3.appendChild(childNodeText);
   const childNode4 = DocumentNode.createElement('img');
-  childNode4.setAttribute('src', 'http://www.qq.com');
+  childNode4.setAttribute('src', 'https://hippyjs.org');
   const childNode5 = DocumentNode.createElement('input');
   childNode5.setAttribute('type', 'number');
   const childNode6 = DocumentNode.createElement('textarea');
@@ -294,7 +332,7 @@ test('renderToNative test with children --production mode', (t) => {
       index: 3,
       name: 'Image',
       props: {
-        src: 'http://www.qq.com',
+        src: 'https://hippyjs.org',
         style: {
           backgroundColor: 0,
         },
@@ -324,6 +362,7 @@ test('renderToNative test with children --production mode', (t) => {
       props: {
         multiline: true,
         onTyping: true,
+        __bind__onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
@@ -354,7 +393,7 @@ test('ul numberOfRows test', (t) => {
 test('img attributeMaps test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('img');
-  node.setAttribute('src', 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');
+  node.setAttribute('src', 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
   node.setAttribute('alt', 'Test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
@@ -367,10 +406,10 @@ test('img attributeMaps test --debug mode', (t) => {
         alt: 'Test',
         class: '',
         id: '',
-        src: 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+        src: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
       },
       alt: 'Test',
-      src: 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+      src: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
       style: {
         backgroundColor: 0,
       },
@@ -382,7 +421,7 @@ test('img attributeMaps test --debug mode', (t) => {
 test('img attributeMaps test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('img');
-  node.setAttribute('src', 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');
+  node.setAttribute('src', 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
   node.setAttribute('alt', 'Test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
@@ -392,7 +431,7 @@ test('img attributeMaps test --production mode', (t) => {
     pId: ROOT_VIEW_ID,
     props: {
       alt: 'Test',
-      src: 'http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+      src: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
       style: {
         backgroundColor: 0,
       },
@@ -495,7 +534,7 @@ test('a href attribute with http prefix test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
-  node.setAttribute('href', 'http://www.qq.com');
+  node.setAttribute('href', 'https://hippyjs.org');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
     id: 31,
@@ -505,7 +544,7 @@ test('a href attribute with http prefix test --debug mode', (t) => {
     props: {
       attributes: {
         class: '',
-        href: 'http://www.qq.com',
+        href: 'https://hippyjs.org',
         id: '',
       },
       text: 'Test',
@@ -522,7 +561,7 @@ test('a href attribute with http prefix test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
-  node.setAttribute('href', 'http://www.qq.com');
+  node.setAttribute('href', 'https://hippyjs.org');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
     id: 32,
@@ -811,6 +850,8 @@ test('text element with number text test', (t) => {
   parentNode.setText(0);
   parentNode.setAttribute('test', '123');
   t.is(parentNode.getAttribute('text'), '0');
+  t.is(parentNode.getAttribute('test'), '123');
+  parentNode.setAttribute('test', 123);
   t.is(parentNode.getAttribute('test'), 123);
   // debug mode
   process.env.NODE_ENV = 'test';
@@ -891,6 +932,108 @@ test('Image.setStyle(background-color) test --production mode', (t) => {
   });
 });
 
+test('img with accessibility test --debug mode', (t) => {
+  process.env.NODE_ENV = 'test';
+  const node = DocumentNode.createElement('img');
+  node.setAttribute('role', 'back button');
+  node.setAttribute('aria-label', 'back to home');
+  node.setAttribute('aria-disabled', false);
+  node.setAttribute('aria-selected', true);
+  node.setAttribute('aria-checked', false);
+  node.setAttribute('aria-busy', true);
+  node.setAttribute('aria-expanded', false);
+  node.setAttribute('aria-valuemin', 2);
+  node.setAttribute('aria-valuemax', 10);
+  node.setAttribute('aria-valuenow', 7);
+  node.setAttribute('aria-valuetext', 'high');
+  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguage, {
+    id: 56,
+    index: 0,
+    name: 'Image',
+    pId: 10,
+    props: {
+      attributes: {
+        class: '',
+        id: '',
+        'aria-busy': true,
+        'aria-checked': false,
+        'aria-disabled': false,
+        'aria-expanded': false,
+        'aria-label': 'back to home',
+        'aria-selected': true,
+        'aria-valuemax': 10,
+        'aria-valuemin': 2,
+        'aria-valuenow': 7,
+        'aria-valuetext': 'high',
+        role: 'back button',
+      },
+      accessibilityRole: 'back button',
+      accessibilityLabel: 'back to home',
+      accessibilityState: {
+        disabled: false,
+        selected: true,
+        checked: false,
+        busy: true,
+        expanded: false,
+      },
+      accessibilityValue: {
+        now: 7,
+        min: 2,
+        max: 10,
+        text: 'high',
+      },
+      style: {
+        backgroundColor: 0,
+      },
+    },
+    tagName: 'img',
+  });
+});
+
+test('img with accessibility test --production mode', (t) => {
+  process.env.NODE_ENV = 'production';
+  const node = DocumentNode.createElement('img');
+  node.setAttribute('role', 'back button');
+  node.setAttribute('aria-label', 'back to home');
+  node.setAttribute('aria-disabled', false);
+  node.setAttribute('aria-selected', true);
+  node.setAttribute('aria-checked', false);
+  node.setAttribute('aria-busy', true);
+  node.setAttribute('aria-expanded', false);
+  node.setAttribute('aria-valuemin', 2);
+  node.setAttribute('aria-valuemax', 10);
+  node.setAttribute('aria-valuenow', 7);
+  node.setAttribute('aria-valuetext', 'high');
+  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguage, {
+    id: 57,
+    index: 0,
+    name: 'Image',
+    pId: 10,
+    props: {
+      accessibilityRole: 'back button',
+      accessibilityLabel: 'back to home',
+      accessibilityState: {
+        disabled: false,
+        selected: true,
+        checked: false,
+        busy: true,
+        expanded: false,
+      },
+      accessibilityValue: {
+        now: 7,
+        min: 2,
+        max: 10,
+        text: 'high',
+      },
+      style: {
+        backgroundColor: 0,
+      },
+    },
+  });
+});
+
 test('div with backgroundImage local path test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('div');
@@ -898,7 +1041,7 @@ test('div with backgroundImage local path test --debug mode', (t) => {
   node.setStyle('backgroundImage', originalPath);
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 56,
+    id: 58,
     index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
@@ -922,7 +1065,7 @@ test('div with backgroundImage local path test --production mode', (t) => {
   node.setStyle('backgroundImage', originalPath);
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 57,
+    id: 59,
     index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
@@ -930,6 +1073,104 @@ test('div with backgroundImage local path test --production mode', (t) => {
       style: {
         backgroundImage: `hpfile://./${originalPath}`,
       },
+    },
+  });
+});
+
+test('div with accessibility test --debug mode', (t) => {
+  process.env.NODE_ENV = 'test';
+  const node = DocumentNode.createElement('div');
+  node.setAttribute('role', 'back button');
+  node.setAttribute('aria-label', 'back to home');
+  node.setAttribute('aria-disabled', false);
+  node.setAttribute('aria-selected', true);
+  node.setAttribute('aria-checked', false);
+  node.setAttribute('aria-busy', true);
+  node.setAttribute('aria-expanded', false);
+  node.setAttribute('aria-valuemin', 2);
+  node.setAttribute('aria-valuemax', 10);
+  node.setAttribute('aria-valuenow', 7);
+  node.setAttribute('aria-valuetext', 'high');
+  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguage, {
+    id: 61,
+    index: 0,
+    name: 'View',
+    pId: ROOT_VIEW_ID,
+    props: {
+      attributes: {
+        class: '',
+        id: '',
+        'aria-busy': true,
+        'aria-checked': false,
+        'aria-disabled': false,
+        'aria-expanded': false,
+        'aria-selected': true,
+        'aria-label': 'back to home',
+        'aria-valuemax': 10,
+        'aria-valuemin': 2,
+        'aria-valuenow': 7,
+        'aria-valuetext': 'high',
+        role: 'back button',
+      },
+      accessibilityRole: 'back button',
+      accessibilityLabel: 'back to home',
+      accessibilityState: {
+        disabled: false,
+        selected: true,
+        checked: false,
+        busy: true,
+        expanded: false,
+      },
+      accessibilityValue: {
+        now: 7,
+        min: 2,
+        max: 10,
+        text: 'high',
+      },
+      style: {},
+    },
+    tagName: 'div',
+  });
+});
+
+test('div with accessibility test --production mode', (t) => {
+  process.env.NODE_ENV = 'production';
+  const node = DocumentNode.createElement('div');
+  node.setAttribute('role', 'back button');
+  node.setAttribute('aria-label', 'back to home');
+  node.setAttribute('aria-disabled', false);
+  node.setAttribute('aria-selected', true);
+  node.setAttribute('aria-checked', false);
+  node.setAttribute('aria-busy', true);
+  node.setAttribute('aria-expanded', false);
+  node.setAttribute('aria-valuemin', 2);
+  node.setAttribute('aria-valuemax', 10);
+  node.setAttribute('aria-valuenow', 7);
+  node.setAttribute('aria-valuetext', 'high');
+  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguage, {
+    id: 62,
+    index: 0,
+    name: 'View',
+    pId: ROOT_VIEW_ID,
+    props: {
+      accessibilityRole: 'back button',
+      accessibilityLabel: 'back to home',
+      accessibilityState: {
+        disabled: false,
+        selected: true,
+        checked: false,
+        busy: true,
+        expanded: false,
+      },
+      accessibilityValue: {
+        now: 7,
+        min: 2,
+        max: 10,
+        text: 'high',
+      },
+      style: {},
     },
   });
 });

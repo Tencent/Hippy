@@ -39,7 +39,7 @@ TaskRunner::TaskRunner() : Thread(Options("Task Runner")) {
   is_terminated_ = false;
 }
 
-TaskRunner::~TaskRunner() {}
+TaskRunner::~TaskRunner() = default;
 
 // when update this code, please update
 // JavaScriptTaskRunner::PauseThreadForInspector at the same time
@@ -51,12 +51,12 @@ void TaskRunner::Run() {
     }
     // TDF_BASE_DLOG(INFO) <<  "run task, id = %d", task->id_);
 
-    bool is_cancel = false;
+    bool is_cancel;
     {
       std::lock_guard<std::mutex> lock(mutex_);
       is_cancel = task->canceled_;
     }
-    if (is_cancel == false) {
+    if (!is_cancel) {
       task->Run();
     }
   }
@@ -94,20 +94,20 @@ void TaskRunner::PostTask(std::shared_ptr<Task> task) {
 
 void TaskRunner::PostDelayedTask(
     std::shared_ptr<Task> task,
-    TaskRunner::DelayedTimeInMs delay_in_mseconds) {
+    TaskRunner::DelayedTimeInMs delay_in_milliseconds) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (is_terminated_) {
     return;
   }
 
-  DelayedTimeInMs deadline = MonotonicallyIncreasingTime() + delay_in_mseconds;
+  DelayedTimeInMs deadline = MonotonicallyIncreasingTime() + delay_in_milliseconds;
   delayed_task_queue_.push(std::make_pair(deadline, std::move(task)));
 
   cv_.notify_one();
 }
 
-void TaskRunner::CancelTask(std::shared_ptr<Task> task) {
+void TaskRunner::CancelTask(const std::shared_ptr<Task>& task) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (!task) {

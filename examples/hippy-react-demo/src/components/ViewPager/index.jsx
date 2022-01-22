@@ -69,7 +69,7 @@ export default class PagerExample extends React.Component {
     // eslint-disable-next-line class-methods-use-this
     onPageSelected(pageData) {
       // eslint-disable-next-line no-console
-      console.log('=====onPageSelected', pageData.position);
+      console.log('onPageSelected', pageData.position);
       this.setState({
         selectedIndex: pageData.position,
       });
@@ -78,7 +78,7 @@ export default class PagerExample extends React.Component {
     // eslint-disable-next-line class-methods-use-this
     onPageScrollStateChanged(pageScrollState) {
       // eslint-disable-next-line no-console
-      console.log('=====onPageScrollStateChanged===', pageScrollState);
+      console.log('onPageScrollStateChanged===', pageScrollState);
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -86,7 +86,6 @@ export default class PagerExample extends React.Component {
       // eslint-disable-next-line no-console
       console.log('onPageScroll', offset, position);
     }
-
     render() {
       const { selectedIndex } = this.state;
       return (
@@ -117,9 +116,9 @@ export default class PagerExample extends React.Component {
           >
             {
               [
-                SquarePagerView(),
-                TrianglePagerView(),
-                CirclePagerView(),
+                SquarePagerView('squarePager'),
+                TrianglePagerView('TrianglePager'),
+                CirclePagerView('CirclePager'),
               ]
             }
           </ViewPager>
@@ -130,7 +129,7 @@ export default class PagerExample extends React.Component {
                   const isSelect = i === selectedIndex;
                   return (
                   // eslint-disable-next-line react/jsx-key
-                  <View style={[styles.dot, isSelect ? styles.selectDot : null]} />
+                  <View style={[styles.dot, isSelect ? styles.selectDot : null]} key={`dot_${i}`}/>
                   );
                 })
             }

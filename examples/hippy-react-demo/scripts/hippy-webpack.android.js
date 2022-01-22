@@ -19,7 +19,7 @@ module.exports = {
     path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
     // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'https://static.res.qq.com/hippy/hippyReactDemo/',
+    // publicPath: 'https://xxx/hippy/hippyReactDemo/',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
@@ -37,6 +37,11 @@ module.exports = {
     // Using 1 will prevent any additional chunks from being added
     // new webpack.optimize.LimitChunkCountPlugin({
     //   maxChunks: 1,
+    // }),
+    // use SourceMapDevToolPlugin can generate sourcemap file
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
     // }),
   ],
   module: {
@@ -66,7 +71,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
       {

@@ -38,7 +38,11 @@
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyI18nUtils.h"
+#import "HippyDevManager.h"
+#import "HippyBundleURLProvider.h"
 #include "core/scope.h"
+#import "HippyTurboModuleManager.h"
+#import <core/napi/jsc/js_native_api_jsc.h>
 
 #define HippyAssertJSThread()
 //
@@ -72,6 +76,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
+    HippyDevManager *_devManager;
 }
 
 @synthesize flowID = _flowID;
@@ -473,6 +478,31 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     [_javaScriptExecutor setUp];
 }
 
+- (void)setUpDevClientWithName:(NSString *)name {
+    if ([self.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
+        if ([self.delegate shouldStartInspector:self.parentBridge]) {
+            HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
+            if ([self.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
+                NSURL *url = [self.delegate inspectorSourceURLForBridge:self.parentBridge];
+                devInfo.scheme = [url scheme];
+                devInfo.ipAddress = [url host];
+                devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
+                devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
+                [devInfo parseWsURLWithURLQuery:[url query]];
+            }
+            else {
+                HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
+                devInfo.scheme = bundleURLProvider.scheme;
+                devInfo.ipAddress = bundleURLProvider.localhostIP;
+                devInfo.port = bundleURLProvider.localhostPort;
+                devInfo.versionId = bundleURLProvider.versionId;
+                devInfo.wsURL = bundleURLProvider.wsURL;
+            }
+            _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devInfo:devInfo contextName:name];
+        }
+    }
+}
+
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {
     [_displayLink registerModuleForFrameUpdates:module withModuleData:moduleData];
 }
@@ -659,6 +689,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     return _parentBridge.debugMode ?: NO;
 }
 
+- (BOOL)enableTurbo {
+    return _parentBridge.enableTurbo;
+}
+
 - (void)setExecutorClass:(Class)executorClass {
     HippyAssertMainQueue();
     _parentBridge.executorClass = executorClass;
@@ -732,6 +766,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     _valid = NO;
     if ([HippyBridge currentBridge] == self) {
         [HippyBridge setCurrentBridge:nil];
+    }
+    if (_devManager) {
+        HippyDevCloseType closeType = HippyDevCloseTypeClosePage;
+        if (self.invalidateReason == HippyInvalidateReasonReload) {
+            closeType = HippyDevCloseTypeReload;
+        }
+        [_devManager closeWebSocket:closeType];
     }
 
     // Invalidate modules
@@ -863,6 +904,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     [_javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{
         [self _actuallyInvokeAndProcessModule:@"JSTimersExecution" method:@"callTimers" arguments:@[@[timer]]];
     }];
+}
+
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
+    if (!self.enableTurbo) {
+        return nil;
+    }
+    
+    if (name.length <= 0) {
+        return nil;
+    }
+    
+    if(!self.turboModuleManager) {
+        self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self delegate:nil];
+    }
+    
+    // getTurboModule
+    HippyOCTurboModule *turboModule = [self.turboModuleManager turboModuleWithName:name];
+    return turboModule;
 }
 
 - (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete {
@@ -1019,7 +1078,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)partialBatchDidFlush {
-    for (HippyModuleData *moduleData in _moduleDataByID) {
+    NSArray<HippyModuleData *> *moduleDataByID = _valid ? _moduleDataByID : [_moduleDataByID copy];
+    for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsPartialBatchDidFlush) {
             [self dispatchBlock:^{
                 [moduleData.instance partialBatchDidFlush];
@@ -1029,8 +1089,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)batchDidComplete {
-    // TODO: batchDidComplete is only used by HippyUIManager - can we eliminate this special case?
-    for (HippyModuleData *moduleData in _moduleDataByID) {
+    NSArray<HippyModuleData *> *moduleDataByID = _valid ? _moduleDataByID : [_moduleDataByID copy];
+    for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsBatchDidComplete) {
             [self dispatchBlock:^{
                 [moduleData.instance batchDidComplete];
@@ -1046,12 +1106,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     //    if (!_valid) {
     //        return nil;
     //    }
-    
-    if (moduleID >= [_moduleDataByID count]) {
-        HippyLogError(@"moduleID %lu exceed range of _moduleDataByID %lu, bridge is valid %ld", moduleID, [_moduleDataByID count], (long)_valid);
+    NSArray<HippyModuleData *> *moduleDataByID = [_moduleDataByID copy];
+    if (moduleID >= [moduleDataByID count]) {
+        HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
         return nil;
     }
-    HippyModuleData *moduleData = _moduleDataByID[moduleID];
+    HippyModuleData *moduleData = moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {
         HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
         return nil;

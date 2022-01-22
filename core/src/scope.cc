@@ -40,7 +40,6 @@ using unicode_string_view = tdf::base::unicode_string_view;
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using ModuleClassMap = hippy::napi::ModuleClassMap;
-using BindingData = hippy::napi::BindingData;
 using CtxValue = hippy::napi::CtxValue;
 using TryCatch = hippy::napi::TryCatch;
 
@@ -48,9 +47,9 @@ const char kdeallocFuncName[] = "HippyDealloc";
 const char kHippyBootstrapJSName[] = "bootstrap.js";
 
 Scope::Scope(Engine* engine,
-             const std::string& name,
+             std::string name,
              std::unique_ptr<RegisterMap> map)
-    : engine_(engine), context_(nullptr), name_(name), map_(std::move(map)) {}
+    : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {}
 
 Scope::~Scope() {
   TDF_BASE_DLOG(INFO) << "~Scope";
@@ -87,10 +86,6 @@ void Scope::WillExit() {
 
   future.get();
   TDF_BASE_DLOG(INFO) << "ExitCtx end";
-}
-
-bool Scope::LoadModules() {
-  return true;
 }
 
 void Scope::Initialized() {
@@ -171,7 +166,7 @@ std::shared_ptr<hippy::napi::CtxValue> Scope::GetModuleValue(
 }
 
 void Scope::AddModuleValue(const unicode_string_view& name,
-                           std::shared_ptr<CtxValue> value) {
+                           const std::shared_ptr<CtxValue>& value) {
   module_value_map_.insert({name, value});
 }
 

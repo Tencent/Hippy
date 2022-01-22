@@ -27,25 +27,25 @@
 namespace hippy {
 namespace napi {
 
-CallbackInfo::CallbackInfo(std::shared_ptr<Scope> scope) : scope_(scope) {
+CallbackInfo::CallbackInfo(std::shared_ptr<Scope> scope) : scope_(std::move(scope)) {
   ret_value_ = std::make_unique<ReturnValue>();
   exception_value_ = std::make_unique<ExceptionValue>();
 }
 
-void CallbackInfo::AddValue(std::shared_ptr<CtxValue> value) {
+void CallbackInfo::AddValue(const std::shared_ptr<CtxValue>& value) {
   if (!value)
     return;
   values_.push_back(value);
 }
 
 std::shared_ptr<CtxValue> CallbackInfo::operator[](int index) const {
-  if (index < 0 || index >= Length()) {
+  if (index < 0 || static_cast<size_t>(index) >= Length()) {
     return nullptr;
   }
   return values_[index];
 }
 
-void ExceptionValue::Set(std::shared_ptr<Ctx> context,
+void ExceptionValue::Set(const std::shared_ptr<Ctx>& context,
                          const unicode_string_view& str) {
   value_ = context->CreateString(str);
 }

@@ -24,6 +24,7 @@
       ref="list"
       :numberOfRows="dataSource.length"
       @endReached="onEndReached"
+      @scroll="onScroll"
     >
       /**
       * 下拉组件
@@ -101,6 +102,12 @@ export default {
     // 所以需要加一个锁，当未加载完成时不进行二次加载
     this.isLoading = false;
     this.dataSource = [...mockData];
+    if (Vue.Native) {
+      this.$windowHeight = Vue.Native.Dimensions.window.height;
+      console.log('Vue.Native.Dimensions.window', Vue.Native.Dimensions);
+    } else {
+      this.$windowHeight = window.innerHeight;
+    }
   },
   methods: {
     mockFetchData() {
@@ -119,6 +126,13 @@ export default {
     },
     onPulling() {
       this.refreshText = '松手即可进行刷新';
+    },
+    onScroll(evt) {
+      evt.stopPropagation();
+      this.scrollPos = {
+        top: evt.offsetY,
+        left: evt.offsetX,
+      };
     },
     async onRefresh() {
       // 重新获取数据

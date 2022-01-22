@@ -580,7 +580,7 @@ static void HippyGetRGBAColorComponents(CGColorRef color, CGFloat rgba[4]) {
         case kCGColorSpaceModelLab:
         case kCGColorSpaceModelPattern:
         case kCGColorSpaceModelUnknown: {
-#ifdef HIPPY_DEBUG
+#if HIPPY_DEBUG
             // unsupported format
             HippyLogError(@"Unsupported color model: %i", model);
 #endif

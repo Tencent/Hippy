@@ -107,7 +107,7 @@ HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didReceiveMessage:(id)message {
     dispatch_async(_queue, ^{
-        [self sendEventType:@"onMessage" socket:webSocket data:@ { @"type": @"text", @"data": message }];
+        [self sendEventType:@"onMessage" socket:webSocket data:@ { @"type": @"text", @"data": message?:@"" }];
     });
 }
 
@@ -119,12 +119,12 @@ HIPPY_EXPORT_METHOD(send:(NSDictionary *)params) {
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didFailWithError:(NSError *)error {
     NSString *errString = [error localizedFailureReason];
-    [self sendEventType:@"onError" socket:webSocket data:@{ @"error": errString }];
+    [self sendEventType:@"onError" socket:webSocket data:@{ @"error": errString?:@"unknown reason" }];
     [_sockets removeObjectForKey:@(webSocket.socketID)];
 }
 
 - (void)webSocket:(HippySRWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
-    NSDictionary *data = @{ @"code": @(code), @"reason": reason };
+    NSDictionary *data = @{ @"code": @(code), @"reason": reason?:@"unknown reason" };
     [self sendEventType:@"onClose" socket:webSocket data:data];
     [_sockets removeObjectForKey:@(webSocket.socketID)];
 }

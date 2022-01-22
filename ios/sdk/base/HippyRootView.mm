@@ -154,8 +154,7 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
                      debugMode:(BOOL)mode
                       delegate:(id<HippyRootViewDelegate>)delegate {
     if (mode) {
-        NSString *localhost = [HippyBundleURLProvider sharedInstance].localhost ?: @"localhost:38989";
-        NSString *bundleStr = [NSString stringWithFormat:@"http://%@%@", localhost, [HippyBundleURLProvider sharedInstance].debugPathUrl];
+        NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
         NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
 
         if (self = [self initWithBundleURL:bundleUrl moduleName:moduleName initialProperties:initialProperties launchOptions:launchOptions

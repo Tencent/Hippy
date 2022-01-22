@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import test, { before } from 'ava';
+import * as nodeOps from '../node-ops';
 import { setVue, setApp } from '../../util';
 import Native from '../native';
 
@@ -63,7 +64,7 @@ test('native device info', (t) => {
 
 test('native ImageLoader', async (t) => {
   t.is(Native.ImageLoader.prefetch(), undefined);
-  t.is(await Native.ImageLoader.getSize('https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png'), undefined);
+  t.is(await Native.ImageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png'), undefined);
 });
 
 test('native backAndroid', async (t) => {
@@ -76,4 +77,9 @@ test('native NetInfo', (t) => {
   const listener = Native.NetInfo.addEventListener('change', handler);
   Native.NetInfo.removeEventListener('change', listener);
   t.pass();
+});
+
+test('native getElemCss', async (t) => {
+  const element = nodeOps.createElement('div');
+  t.deepEqual(Native.getElemCss(element), {});
 });

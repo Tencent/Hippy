@@ -45,7 +45,12 @@ export default function ScrollExpo() {
         <Text>Horizontal ScrollView</Text>
       </View>
       <View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView
+            horizontal={true}
+            bounces={true}
+            showsHorizontalScrollIndicator={false} // only iOS support
+            showScrollIndicator={false} // only Android support
+        >
           <Text style={styles.itemStyle}>A</Text>
           <Text style={styles.itemStyle}>B</Text>
           <Text style={styles.itemStyle}>C</Text>
@@ -59,9 +64,11 @@ export default function ScrollExpo() {
         <Text>Vertical ScrollView</Text>
       </View>
       <ScrollView
+        bounces={true}
         horizontal={false}
         style={styles.verticalScrollView}
-        showsVerticalScrollIndicator={false}
+        showScrollIndicator={false} // only Android support
+        showsVerticalScrollIndicator={false} // only iOS support
       >
         <Text style={styles.itemStyle}>A</Text>
         <Text style={styles.itemStyle}>B</Text>

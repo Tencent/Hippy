@@ -55,17 +55,13 @@ Hippy 在 Java 中提供了两套类型系统：
 
 由于 ECMAScript 标准未定义 [number](https://262.ecma-international.org/#sec-ecmascript-language-types-number-type) 类型在 VM 内的存储（表达）方式，不同 VM 引擎实现对于相同值的存储实现有可能不同，从而引发类型偏差。
 
->
 > 例如:
 > 在 ECMAScript 的实现 v8 内，如整型值超过 Smi 可表达的最大大小，会使用 Heap Number 进行存储，导致其表达为 `double` 类型。
->
 
 类型系统会自动完成类型纠正，还原用户原始类型。
 
->
 > 例如:
 > 当 `double` 类型可以表达为 `int` 类型时，系统会自动转换为 `int` 类型
->
 
 ## 新旧类型互转
 
@@ -74,8 +70,8 @@ Hippy 在 Java 中提供了两套类型系统：
 * Recommennd(New) ---> Compatible(Old): `com.tencent.mtt.hippy.runtime.utils.ValueConverter#toHippyValue`
 * Compatible(Old) ---> Recommennd(New): `com.tencent.mtt.hippy.runtime.utils.ValueConverter#toJSValue`
 
-> 由于新类型系统所能表达的 ECMAScript 类型更加精细
-> __故从新类型系统（Recommennd）转换到旧类型系统（Compatible）时，可能会造成类型丢失__
+> 由于新类型系统所能表达的 ECMAScript 类型更加精细,
+> 故从新类型系统（Recommennd）转换到旧类型系统（Compatible）时，可能会造成类型丢失
 
 一般情况下，用户无需进行新旧类型系统间的互转。模块在注册到 Bridge 时，可以指定所需使用的类型系统。
 
@@ -104,3 +100,16 @@ Hippy 在 Java 中提供了两套类型系统：
 ### JSRegExp
 
 由于 `java.util.regex.Pattern` 与 ECMAScript `RegExp` 对象的差异，故不支持全局（`g`）标志位与粘性匹配（`y`）标志位，而 Unicode 字符（`u`）标志位则始终启用。
+
+## 使用 Demo
+
+以传输给前端 `ArrayBuffer` 为例：
+
+```java
+  JSObject jsObject = new JSObject();
+  JSArrayBuffer jsArrayBuffer = new JSArrayBuffer(ByteBuffer.wrap(data));
+  jsObject.set("body", jsArrayBuffer);
+  Promise.resolve(jsObject);
+```
+
+

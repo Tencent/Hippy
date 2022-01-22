@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     lineHeight: 48,
     height: 48,
     fontSize: 16,
-    color: '#f44837',
+    color: 'white',
     alignSelf: 'center',
   },
   shapeBase: {
@@ -56,8 +56,8 @@ const VIEW_NAME_MAP = {
 function generateShapePagerView(shapeStyle, name) {
   const ShapePagerView = title => (
       <View style={styles.pageContainer} key={title}>
-        <View style={[styles.shapeBase, shapeStyle]} />
-        <View style={styles.mainRec}>
+        <View style={[styles.shapeBase, shapeStyle]} key={'shape'} />
+        <View style={styles.mainRec} key={'title'}>
           {title ? <Text style={styles.title}>{title}</Text> : null}
         </View>
       </View>

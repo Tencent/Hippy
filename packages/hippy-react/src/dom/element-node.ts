@@ -1,12 +1,29 @@
-/* eslint-disable no-underscore-dangle */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-param-reassign */
 
-import Hippy from '@localTypes/hippy';
-import { Transform } from '@localTypes/style';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
-import { updateChild, updateWithChildren } from '../renderer/render';
+import { updateChild, updateWithChildren, endBatch } from '../renderer/render';
 import { Device } from '../native';
 import {
   unicodeToChar,
@@ -14,16 +31,17 @@ import {
   isNumber,
   warn,
   convertImgUrl,
+  isCaptureEvent,
 } from '../utils';
+import { eventNamesMap, NATIVE_EVENT } from '../utils/node';
 import ViewNode from './view-node';
-import '@localTypes/global';
 
 interface Attributes {
-  [key: string]: string | number | true | undefined;
+  [key: string]: string | number | boolean | undefined;
 }
 
 interface NativePropsStyle {
-  [key: string]: string | object | number | Transform
+  [key: string]: string | object | number | HippyTypes.Transform
 }
 
 interface PropertiesMap {
@@ -103,7 +121,7 @@ function getLinearGradientAngle(value: string): string | undefined {
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return;
   // default direction is to bottom, i.e. 180degree
-  let angle: string = '180';
+  let angle = '180';
   const [direction, angleValue, angleUnit] = valueList;
   if (angleValue && angleUnit) { // angle value
     angle = convertToDegree(angleValue, angleUnit);
@@ -175,39 +193,67 @@ function parseBackgroundImage(styleKey: string, styleValue: string, style: any) 
   return style;
 }
 
+/**
+ * parse text shadow offset
+ * @param {string} styleKey
+ * @param {number} styleValue
+ * @param {any} style
+ */
+function parseTextShadowOffset(styleKey: string, styleValue: number, style: any) {
+  const offsetMap: PropertiesMap = {
+    textShadowOffsetX: 'width',
+    textShadowOffsetY: 'height',
+  };
+  style.textShadowOffset = style.textShadowOffset || {};
+  Object.assign(style.textShadowOffset, {
+    [offsetMap[styleKey]]: styleValue || 0,
+  });
+  return style;
+}
+
+/**
+ * get final key sent to native
+ * @param key
+ */
+function getEventPropKey(key: string) {
+  if (isCaptureEvent(key)) {
+    key = key.replace('Capture', '');
+  }
+  if (eventNamesMap[key]) {
+    return eventNamesMap[key][NATIVE_EVENT];
+  }
+  return key;
+}
+
 class ElementNode extends ViewNode {
-  tagName: string;
+  public tagName: string;
+  public id = '';
+  public style: HippyTypes.Style = {};
+  public attributes: Attributes = {};
 
-  id: string = '';
-
-  style: Hippy.Style = {};
-
-  attributes: Attributes = {};
-
-  constructor(tagName: string) {
+  public constructor(tagName: string) {
     super();
-
     // Tag name
     this.tagName = tagName;
   }
 
-  get nativeName() {
+  public get nativeName() {
     return this.meta.component.name;
   }
 
-  toString() {
+  public toString() {
     return `${this.tagName}:(${this.nativeName})`;
   }
 
-  hasAttribute(key: string) {
+  public hasAttribute(key: string) {
     return !!this.attributes[key];
   }
 
-  getAttribute(key: string) {
+  public getAttribute(key: string) {
     return this.attributes[key];
   }
 
-  setStyleAttribute(value: any) {
+  public setStyleAttribute(value: any) {
     // Clean old styles
     this.style = {};
     let styleArray = value;
@@ -236,8 +282,8 @@ class ElementNode extends ViewNode {
     }
 
     // Merge the styles if style is array
-    let mergedStyles: Hippy.Style = {};
-    styleArray.forEach((style: Hippy.Style) => {
+    let mergedStyles: HippyTypes.Style = {};
+    styleArray.forEach((style: HippyTypes.Style) => {
       if (Array.isArray(style)) {
         style.forEach((subStyle) => {
           mergedStyles = {
@@ -304,12 +350,19 @@ class ElementNode extends ViewNode {
           animationId: styleValue.animationId,
         };
         // Translate color
+      } else if (['caretColor', 'caret-color'].indexOf(styleKey) >= 0) {
+        this.attributes['caret-color'] = colorParse((styleValue as Color));
       } else if (styleKey.toLowerCase().indexOf('colors') > -1) {
         (this.style as any)[styleKey] = colorArrayParse((styleValue as Color[]));
       } else if (styleKey.toLowerCase().indexOf('color') > -1) {
         (this.style as any)[styleKey] = colorParse((styleValue as Color));
       } else if (styleKey === 'backgroundImage' && styleValue) {
         this.style = parseBackgroundImage(styleKey, styleValue, this.style);
+      } else if (styleKey === 'textShadowOffset') {
+        const { x = 0, width = 0, y = 0, height = 0 } = styleValue || {};
+        (this.style as any)[styleKey] = { width: x || width, height: y || height };
+      } else if (['textShadowOffsetX', 'textShadowOffsetY'].indexOf(styleKey) >= 0) {
+        this.style = parseTextShadowOffset(styleKey as string, styleValue as number, this.style);
       } else {
         (this.style as any)[styleKey] = styleValue;
       }
@@ -317,7 +370,7 @@ class ElementNode extends ViewNode {
   }
 
   /* istanbul ignore next */
-  setAttribute(key: string, value: any) {
+  public setAttribute(key: string, value: any) {
     try {
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
@@ -364,9 +417,9 @@ class ElementNode extends ViewNode {
           },
         },
         {
-          match: () => ['onPress'].indexOf(key) >= 0,
+          match: () => ['caretColor', 'caret-color'].indexOf(key) >= 0,
           action: () => {
-            this.attributes.onClick = true;
+            this.attributes['caret-color'] = colorParse(value);
             return false;
           },
         },
@@ -384,9 +437,17 @@ class ElementNode extends ViewNode {
           match: () => true,
           action: () => {
             if (typeof value === 'function') {
-              this.attributes[key] = true;
+              const processedKey = getEventPropKey(key);
+              this.attributes[processedKey] = true;
+              this.attributes[`__bind__${processedKey}`] = true;
             } else {
               this.attributes[key] = value;
+              const processedKey = getEventPropKey(key);
+              if (this.attributes[`__bind__${processedKey}`] === true
+                  && typeof value !== 'function') {
+                this.attributes[processedKey] = false;
+                this.attributes[`__bind__${processedKey}`] = false;
+              }
             }
             return false;
           },
@@ -438,16 +499,16 @@ class ElementNode extends ViewNode {
 
       updateChild(this);
     } catch (e) {
-      // ignore
+      // noop
     }
   }
 
-  removeAttribute(key: string) {
+  public removeAttribute(key: string) {
     delete this.attributes[key];
   }
 
   /* istanbul ignore next */
-  setStyle(property: string, value: string | number | Transform, isBatchUpdate: boolean = false) {
+  public setStyle(property: string, value: string | number | HippyTypes.Transform, isBatchUpdate = false) {
     if (value === null) {
       delete (this.style as any)[property];
       return;
@@ -480,7 +541,7 @@ class ElementNode extends ViewNode {
   /**
    * set native style props
    */
-  setNativeProps(nativeProps: NativePropsStyle) {
+  public setNativeProps(nativeProps: NativePropsStyle) {
     if (nativeProps) {
       const { style } = nativeProps;
       if (style) {
@@ -489,11 +550,12 @@ class ElementNode extends ViewNode {
           this.setStyle(key, styleProps[key], true);
         });
         updateChild(this);
+        endBatch(true);
       }
     }
   }
 
-  setText(text: string | undefined) {
+  public setText(text: string | undefined) {
     if (typeof text !== 'string') {
       try {
         text = (text as any).toString();

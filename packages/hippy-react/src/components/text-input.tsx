@@ -1,9 +1,26 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable react/destructuring-assignment */
 
 import React from 'react';
-import Style from '@localTypes/style';
-import { TextInputEvent } from '@localTypes/event';
 import { LayoutableProps, ClickableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
@@ -112,17 +129,17 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
    */
   placeholderTextColors?: string[];
 
-  style: Style;
+  style?: HippyTypes.Style;
 
   /**
    * Callback that is called when the text input is blurred.
    */
-  onBlur?(): void;
+  onBlur?: () => void;
 
   /**
    * Callback that is called when text input ends.
    */
-  onEndEditing?(): void;
+  onEndEditing?: () => void;
 
   /**
    * Callback that is called when the text input's text changes.
@@ -130,7 +147,7 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
    *
    * @param {string} text - Text content.
    */
-  onChangeText?(text: string): void;
+  onChangeText?: (text: string) => void;
 
   /**
    * Callback that is called when the text input's content size changes.
@@ -139,9 +156,9 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
    * @param {number} evt.nativeEvent.contentSize.width - Width of content.
    * @param {number} evt.nativeEvent.contentSize.height - Height of content.
    */
-  onContentSizeChange?(evt: { nativeEvent: {
+  onContentSizeChange?: (evt: { nativeEvent: {
     contentSize: { width: number, height: number }
-  } }): void;
+  } }) => void;
 
   /**
    * Callback that is called when keyboard popup
@@ -149,7 +166,7 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
    * @param {Object} evt - Keyboard will show event data.
    * @param {number} evt.keyboardHeight - Keyboard height.
    */
-  onKeyboardWillShow?(evt: KeyboardWillShowEvent): void;
+  onKeyboardWillShow?: (evt: KeyboardWillShowEvent) => void;
 
   /**
    * Callback that is called when the text input selection is changed.
@@ -158,7 +175,7 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
    * @param {number} evt.nativeEvent.selection.start - Start index of selection
    * @param {number} evt.nativeEvent.selection.end - End index of selection.
    */
-  onSelectionChange?(evt: { nativeEvent: { selection: { start: number, end: number }} }): void;
+  onSelectionChange?: (evt: { nativeEvent: { selection: { start: number, end: number }} }) => void;
 
 }
 
@@ -170,21 +187,14 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
  */
 class TextInput extends React.Component<TextInputProps, {}> {
   private instance: HTMLDivElement | Element | null = null;
-
   private _lastNativeText?: string = '';
 
-  /**
-   * @ignore
-   */
-  constructor(props: TextInputProps) {
+  public constructor(props: TextInputProps) {
     super(props);
-    this._onChangeText = this._onChangeText.bind(this);
-    this._onKeyboardWillShow = this._onKeyboardWillShow.bind(this);
+    this.onChangeText = this.onChangeText.bind(this);
+    this.onKeyboardWillShow = this.onKeyboardWillShow.bind(this);
   }
 
-  /**
-   * @ignore
-   */
   public componentDidMount() {
     const { value: _lastNativeText, autoFocus } = this.props;
     this._lastNativeText = _lastNativeText;
@@ -207,7 +217,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
    */
   public getValue(): Promise<string> {
     return new Promise((resolve) => {
-      callUIFunction(this.instance as Element, 'getValue', (res: TextInputEvent) => resolve(res.text));
+      callUIFunction(this.instance as Element, 'getValue', (res: HippyTypes.TextInputEvent) => resolve(res.text));
     });
   }
 
@@ -257,53 +267,28 @@ class TextInput extends React.Component<TextInputProps, {}> {
     callUIFunction(this.instance as Element, 'clear', []);
   }
 
-  private _onChangeText(e: TextInputEvent) {
-    const { onChangeText } = this.props;
-    if (typeof onChangeText === 'function') {
-      onChangeText(e.text);
-    }
-
-    if (!this.instance) {
-      // calling `this.props.onChange` or `this.props.onChangeText`
-      // may clean up the input itself. Exits here.
-      return;
-    }
-
-    this._lastNativeText = e.text;
-  }
-
-  private _onKeyboardWillShow(originEvt: KeyboardWillShowEvent) {
-    const { onKeyboardWillShow } = this.props;
-    const evt = originEvt;
-    if (Device.platform.OS === 'android') {
-      evt.keyboardHeight /= Device.screen.scale;
-    }
-    if (typeof onKeyboardWillShow === 'function') {
-      onKeyboardWillShow(evt);
-    }
-  }
-
   /**
    * @ignore
    */
   public render() {
     const nativeProps = { ...this.props };
-    ['underlineColorAndroid', 'placeholderTextColor', 'placeholderTextColors'].forEach((prop) => {
-      if (typeof (this.props as any)[prop] === 'string') {
-        if (Array.isArray(nativeProps.style)) {
-          nativeProps.style.push({
-            [prop]: (this.props as any)[prop],
-          });
-        } else if (nativeProps.style && typeof nativeProps.style === 'object') {
-          (nativeProps.style as any)[prop] = (this.props as any)[prop];
-        } else {
-          nativeProps.style = {
-            [prop]: (this.props as any)[prop],
-          };
+    ['underlineColorAndroid', 'placeholderTextColor', 'placeholderTextColors']
+      .forEach((prop) => {
+        if (typeof this.props[prop] === 'string') {
+          if (Array.isArray(nativeProps.style)) {
+            nativeProps.style.push({
+              [prop]: this.props[prop],
+            });
+          } else if (nativeProps.style && typeof nativeProps.style === 'object') {
+            nativeProps.style[prop] = this.props[prop];
+          } else {
+            nativeProps.style = {
+              [prop]: this.props[prop],
+            };
+          }
+          nativeProps[prop] = undefined;
         }
-        (nativeProps as any)[prop] = undefined;
-      }
-    });
+      });
 
     if (isRTL()) {
       if (!nativeProps.style) {
@@ -318,6 +303,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
     }
 
     return (
+      // @ts-ignore
       <div
         nativeName="TextInput"
         {...nativeProps}
@@ -325,10 +311,35 @@ class TextInput extends React.Component<TextInputProps, {}> {
           this.instance = ref;
         }}
         // @ts-ignore
-        onChangeText={this._onChangeText}
-        onKeyboardWillShow={this._onKeyboardWillShow}
+        onChangeText={this.onChangeText}
+        onKeyboardWillShow={this.onKeyboardWillShow}
       />
     );
+  }
+
+  private onChangeText(e: HippyTypes.TextInputEvent) {
+    const { onChangeText } = this.props;
+    if (typeof onChangeText === 'function') {
+      onChangeText(e.text);
+    }
+
+    /**
+     *  calling `this.props.onChange` or `this.props.onChangeText`
+     *  may clean up the input itself. Exits here.
+     */
+    if (!this.instance) return;
+    this._lastNativeText = e.text;
+  }
+
+  private onKeyboardWillShow(originEvt: KeyboardWillShowEvent) {
+    const { onKeyboardWillShow } = this.props;
+    const evt = originEvt;
+    if (Device.platform.OS === 'android') {
+      evt.keyboardHeight /= Device.screen.scale;
+    }
+    if (typeof onKeyboardWillShow === 'function') {
+      onKeyboardWillShow(evt);
+    }
   }
 }
 

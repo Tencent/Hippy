@@ -56,7 +56,24 @@ export default function ViewExpo() {
         justifyContent: 'center',
         marginTop: 20,
         backgroundImage: imageUrl,
-      }]} ><Text style={{ color: 'white' }}>背景图</Text></View>
+      }]}
+      accessible={true}
+      accessibilityLabel={'背景图'}
+      accessibilityRole={'image'}
+      accessibilityState={{
+        disabled: false,
+        selected: true,
+        checked: false,
+        expanded: false,
+        busy: true,
+      }}
+      accessibilityValue={{
+        min: 1,
+        max: 10,
+        now: 5,
+        text: 'middle',
+      }}
+    ><Text style={{ color: 'white' }}>背景图</Text></View>
       {renderTitle('backgroundImage linear-gradient')}
       <View style={[styles.rectangle, {
         alignItems: 'center',

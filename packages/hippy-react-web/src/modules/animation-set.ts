@@ -1,5 +1,25 @@
-/* eslint-disable no-console */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+/* eslint-disable no-console */
+// @ts-nocheck
 import bezierEasing from 'bezier-easing';
 import findNodeHandle from '../adapters/find-node';
 import normalizeValue from '../adapters/normalize-value';
@@ -12,8 +32,10 @@ function initLeftRepeatCount(repeatCount: number | 'loop') {
   return repeatCount;
 }
 
+type AnimationCallback = () => void;
+
 export class AnimationSet {
-  constructor(config) {
+  public constructor(config) {
     // define the animation array
     this.children = config.children || [];
     this.initSetRepeatCount = initLeftRepeatCount(config.repeatCount || 0);
@@ -27,112 +49,13 @@ export class AnimationSet {
     this.onHippyAnimationRepeat = this.onAnimationRepeat.bind(this);
   }
 
-  initNowAnimationState() {
-    if (this.children && this.children.length > 0) {
-      const nowAnimation = this.children[this.runningAnimationIndex].animation;
-      this.mode = nowAnimation.mode || 'timing';
-      this.delay = nowAnimation.delay || 0;
-      this.startValue = nowAnimation.startValue || 0;
-      this.toValue = nowAnimation.toValue || 0;
-      this.valueType = nowAnimation.valueType || undefined;
-      this.duration = nowAnimation.duration || 0;
-      this.direction = nowAnimation.direction || 'center';
-      this.timingFunction = nowAnimation.timingFunction || 'linear';
-      this.initRepeatCount = initLeftRepeatCount(nowAnimation.initRepeatCount || 0);
-      this.leftRepeatCount = this.initRepeatCount;
-      this.leftDelayCount = this.delay;
-      this.nowValue = this.startValue;
-      this.nowLeftDuration = this.duration;
-      this.nowPercentage = 0;
-      this.animationRunningFlag = false;
-      this.endAnimationFlag = false;
-      this.valueDistance = this.toValue - this.startValue;
-      if (this.startValue) {
-        this.renderStyleAttribute(this.startValue);
-      }
-    } else {
-      console.warn('AnimationSet children param error');
-    }
-  }
-
-  resetState() {
-    this.runningAnimationIndex = 0;
-    this.initNowAnimationState();
-  }
-
-  setRef(ref) {
-    if (ref) {
-      this.refNode = findNodeHandle(ref);
-    }
-  }
-
-  setStyleAttribute(styleAttribute) {
+  public setStyleAttribute(styleAttribute) {
     if (styleAttribute) {
       this.styleAttribute = styleAttribute;
     }
   }
 
-  setTransformStyleAttribute(styleAttribute) {
-    if (styleAttribute) {
-      this.transformStyleAttribute = styleAttribute;
-    }
-  }
-
-  clearAnimationInterval() {
-    this.animationRunningFlag = false;
-    if (this.animationInterval) window.clearInterval(this.animationInterval);
-  }
-
-  renderStyleAttribute(finalValue) {
-    if (!this.refNode) return;
-    if (this.styleAttribute) {
-      this.refNode.style[this.styleAttribute.toString()] = normalizeValue(
-        this.styleAttribute.toString(),
-        finalValue,
-      );
-    } else if (this.transformStyleAttribute) {
-      const transformValue = normalizeValue(this.transformStyleAttribute, finalValue);
-      this.refNode.style.transform = `${this.transformStyleAttribute}(${transformValue})`;
-    }
-  }
-
-  getNowValue() {
-    const { timingFunction, nowPercentage, valueDistance } = this;
-    switch (timingFunction) {
-      case ('linear'):
-        return this.startValue + valueDistance * nowPercentage;
-      case ('ease-in'):
-        return this.startValue + valueDistance * (nowPercentage ** 1.675);
-      case ('ease-out'):
-        return this.startValue + valueDistance * (1 - ((1 - nowPercentage) ** 1.675));
-      case ('ease-in-out'):
-        return this.startValue + valueDistance * 0.5
-          * (Math.sin((nowPercentage - 0.5) * Math.PI) + 1);
-      case ('easebezierEasing'):
-        // NOTE: custom bazier implemented in default, this options consider deprecated.
-        return this.startValue + valueDistance * bezierEasing(0.42, 0, 1, 1);
-      default: {
-        const cubicBezierEasing = tryMakeCubicBezierEasing(timingFunction);
-        if (cubicBezierEasing) {
-          return this.startValue + valueDistance * cubicBezierEasing(nowPercentage);
-        }
-        return this.startValue + valueDistance * nowPercentage;
-      }
-    }
-  }
-
-  calculateNowValue() {
-    this.nowLeftDuration -= 16;
-    this.nowPercentage = 1 - (this.nowLeftDuration / this.duration);
-    return this.getNowValue();
-  }
-
-  renderNowValue(finalValue) {
-    this.nowValue = finalValue;
-    this.renderStyleAttribute(finalValue);
-  }
-
-  endAnimationSet() {
+  public endAnimationSet() {
     this.endAnimationFlag = true;
     this.animationRunningFlag = false;
     if (this.onAnimationEndCallback) {
@@ -141,7 +64,7 @@ export class AnimationSet {
     this.clearAnimationInterval();
   }
 
-  repeatAnimationSet() {
+  public repeatAnimationSet() {
     if (this.leftSetRepeatCount > 0) this.leftSetRepeatCount -= 1;
     if (this.onAnimationRepeatCallback) {
       this.onAnimationRepeatCallback();
@@ -150,12 +73,12 @@ export class AnimationSet {
     this.initNowAnimationState();
   }
 
-  continueToNextChildAnimation() {
+  public continueToNextChildAnimation() {
     this.runningAnimationIndex += 1;
     this.initNowAnimationState();
   }
 
-  repeatChildAnimation() {
+  public repeatChildAnimation() {
     if (this.leftRepeatCount > 0) this.leftRepeatCount -= 1;
     this.nowLeftDuration = this.duration;
     this.nowPercentage = 0;
@@ -164,7 +87,7 @@ export class AnimationSet {
   /**
    * Start animation execution
    */
-  start() {
+  public start() {
     this.clearAnimationInterval();
     if (this.refNode) {
       this.resetState();
@@ -218,7 +141,7 @@ export class AnimationSet {
   /**
    * Resume execution of paused animation
    */
-  resume() {
+  public resume() {
     this.clearAnimationInterval();
     if (this.refNode) {
       let finalValue = this.nowValue;
@@ -264,7 +187,7 @@ export class AnimationSet {
   /**
    * Destroy the animation
    */
-  destroy() {
+  public destroy() {
     this.clearAnimationInterval();
     if (!this.endAnimationFlag && this.onAnimationCancelCallback) {
       this.onAnimationCancelCallback();
@@ -276,7 +199,7 @@ export class AnimationSet {
   /**
    * Pause the running animation
    */
-  pause() {
+  public pause() {
     this.clearAnimationInterval();
     // console.log('pause animation');
   }
@@ -311,6 +234,105 @@ export class AnimationSet {
    */
   public onAnimationRepeat(cb: AnimationCallback) {
     this.onAnimationRepeatCallback = cb;
+  }
+
+  private initNowAnimationState() {
+    if (this.children && this.children.length > 0) {
+      const nowAnimation = this.children[this.runningAnimationIndex].animation;
+      this.mode = nowAnimation.mode || 'timing';
+      this.delay = nowAnimation.delay || 0;
+      this.startValue = nowAnimation.startValue || 0;
+      this.toValue = nowAnimation.toValue || 0;
+      this.valueType = nowAnimation.valueType || undefined;
+      this.duration = nowAnimation.duration || 0;
+      this.direction = nowAnimation.direction || 'center';
+      this.timingFunction = nowAnimation.timingFunction || 'linear';
+      this.initRepeatCount = initLeftRepeatCount(nowAnimation.initRepeatCount || 0);
+      this.leftRepeatCount = this.initRepeatCount;
+      this.leftDelayCount = this.delay;
+      this.nowValue = this.startValue;
+      this.nowLeftDuration = this.duration;
+      this.nowPercentage = 0;
+      this.animationRunningFlag = false;
+      this.endAnimationFlag = false;
+      this.valueDistance = this.toValue - this.startValue;
+      if (this.startValue) {
+        this.renderStyleAttribute(this.startValue);
+      }
+    } else {
+      console.warn('AnimationSet children param error');
+    }
+  }
+
+  private resetState() {
+    this.runningAnimationIndex = 0;
+    this.initNowAnimationState();
+  }
+
+  private setRef(ref) {
+    if (ref) {
+      this.refNode = findNodeHandle(ref);
+    }
+  }
+
+  private setTransformStyleAttribute(styleAttribute) {
+    if (styleAttribute) {
+      this.transformStyleAttribute = styleAttribute;
+    }
+  }
+
+  private clearAnimationInterval() {
+    this.animationRunningFlag = false;
+    if (this.animationInterval) window.clearInterval(this.animationInterval);
+  }
+
+  private renderStyleAttribute(finalValue) {
+    if (!this.refNode) return;
+    if (this.styleAttribute) {
+      this.refNode.style[this.styleAttribute.toString()] = normalizeValue(
+        this.styleAttribute.toString(),
+        finalValue,
+      );
+    } else if (this.transformStyleAttribute) {
+      const transformValue = normalizeValue(this.transformStyleAttribute, finalValue);
+      this.refNode.style.transform = `${this.transformStyleAttribute}(${transformValue})`;
+    }
+  }
+
+  private getNowValue() {
+    const { timingFunction, nowPercentage, valueDistance } = this;
+    switch (timingFunction) {
+      case ('linear'):
+        return this.startValue + valueDistance * nowPercentage;
+      case ('ease-in'):
+        return this.startValue + valueDistance * (nowPercentage ** 1.675);
+      case ('ease-out'):
+        return this.startValue + valueDistance * (1 - ((1 - nowPercentage) ** 1.675));
+      case ('ease-in-out'):
+        return this.startValue + valueDistance * 0.5
+          * (Math.sin((nowPercentage - 0.5) * Math.PI) + 1);
+      case ('easebezierEasing'):
+        // NOTE: custom bazier implemented in default, this options consider deprecated.
+        return this.startValue + valueDistance * bezierEasing(0.42, 0, 1, 1);
+      default: {
+        const cubicBezierEasing = tryMakeCubicBezierEasing(timingFunction);
+        if (cubicBezierEasing) {
+          return this.startValue + valueDistance * cubicBezierEasing(nowPercentage);
+        }
+        return this.startValue + valueDistance * nowPercentage;
+      }
+    }
+  }
+
+  private calculateNowValue() {
+    this.nowLeftDuration -= 16;
+    this.nowPercentage = 1 - (this.nowLeftDuration / this.duration);
+    return this.getNowValue();
+  }
+
+  private renderNowValue(finalValue) {
+    this.nowValue = finalValue;
+    this.renderStyleAttribute(finalValue);
   }
 }
 

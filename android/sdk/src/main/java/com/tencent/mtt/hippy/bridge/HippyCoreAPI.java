@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.modules.nativemodules.animation.AnimationFrameModul
 import com.tencent.mtt.hippy.modules.nativemodules.animation.AnimationModule;
 import com.tencent.mtt.hippy.modules.nativemodules.audio.AudioPlayerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.clipboard.ClipboardModule;
+import com.tencent.mtt.hippy.modules.nativemodules.debug.DevMenu;
 import com.tencent.mtt.hippy.modules.nativemodules.console.ConsoleModule;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
 import com.tencent.mtt.hippy.modules.nativemodules.exception.ExceptionModule;
@@ -154,6 +155,12 @@ public class HippyCoreAPI implements HippyAPIProvider {
       @Override
       public HippyNativeModuleBase get() {
         return new ClipboardModule(context);
+      }
+    });
+    modules.put(DevMenu.class, new Provider<HippyNativeModuleBase>() {
+      @Override
+      public HippyNativeModuleBase get() {
+        return new DevMenu(context);
       }
     });
     modules.put(AudioPlayerModule.class, new Provider<HippyNativeModuleBase>() {

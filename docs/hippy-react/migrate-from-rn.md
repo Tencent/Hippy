@@ -31,10 +31,10 @@ function TouchableWithoutFeedback(props) {
 
 Hippy 的动画机制和 React Native 机制有所不同，React Native 的动画模块其实是由前端通过定时器驱动，存在大量前终端通讯，而 Hippy 通过将动画方案一次性下发给终端实现了更好的动画性能。
 
-请参考 [动画方案的最佳实践](hippy-react/best-practices.md?id=动画方案)。
+请参考 [动画方案的最佳实践](hippy-react/animation.md)。
 
 # 手势系统
 
 和 React Native 的 PanResponder 不同，Hippy 的手势事件可以应用于任何一个组件上，更加接近浏览器的实现。
 
-请参考 [手势系统的最佳实践](hippy-react/best-practices.md?id=手势系统)。
+请参考 [手势系统的最佳实践](hippy-react/gesture.md)。

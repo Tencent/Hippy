@@ -2331,9 +2331,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 			}
 			handleOnLayoutChange();
 		}
-		eatRequestLayout();
-		dispatchLayout();
-		resumeRequestLayout(false);
+
 		if (changed)
 		{
 			if (mIsChangingMode)
@@ -3323,7 +3321,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 		protected SparseIntArray				mMaxScrap			= new SparseIntArray();
 		/* private */int						mAttachCount		= 0;
 
-		/* private */public int					DEFAULT_MAX_SCRAP	= 7;
+		/* private */public int					DEFAULT_MAX_SCRAP	= 10;
 
 		public void clear()
 		{

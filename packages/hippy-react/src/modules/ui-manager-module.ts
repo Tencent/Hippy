@@ -1,6 +1,24 @@
-import { Fiber } from 'react-reconciler';
-// @ts-ignore
-import { LayoutContent } from '@localTypes/events';
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { Fiber } from '@hippy/react-reconciler';
 import { Bridge, Device, UIManager } from '../global';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
 import { isFunction, warn } from '../utils';
@@ -28,7 +46,7 @@ function getElementFromFiberRef(ref: Fiber | Element) {
     return ref;
   }
   // FIXME: should not use the private _reactInternalFiber
-  const internalFiber = (ref as any)._reactInternalFiber;
+  const internalFiber = (ref as any)._reactInternalFiber || (ref as any)._reactInternals;
   if (internalFiber && internalFiber.child) {
     let targetNode = internalFiber.child;
     while (targetNode && !(targetNode.stateNode instanceof Element)) {
@@ -141,7 +159,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
 function measureInWindowByMethod(
   method: string,
   ref: Fiber,
-  callback?: (layout: LayoutContent) => void,
+  callback?: (layout: HippyTypes.LayoutContent | string) => void,
 ) {
   const nodeId = getNodeIdByRef(ref);
   return new Promise((resolve, reject) => {
@@ -152,7 +170,7 @@ function measureInWindowByMethod(
       }
       return reject(new Error(`${method} cannot get nodeId`));
     }
-    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: LayoutContent | string) => {
+    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: HippyTypes.LayoutContent | string) => {
       if (callback && isFunction(callback)) {
         callback(layout);
       }
@@ -174,7 +192,7 @@ function measureInWindowByMethod(
  * @param {Fiber | Element} ref - ref that need to measure.
  * @param {Function} callback
  */
-function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
+function measureInWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutContent | string) => void) {
   return measureInWindowByMethod('measureInWindow', ref, callback);
 }
 
@@ -185,7 +203,7 @@ function measureInWindow(ref: Fiber, callback?: (layout: LayoutContent) => void)
  * @param {Fiber | Element} ref - ref that need to measure.
  * @param {Function} callback
  */
-function measureInAppWindow(ref: Fiber, callback?: (layout: LayoutContent) => void) {
+function measureInAppWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutContent | string) => void) {
   if (Device.platform.OS === 'android') {
     return measureInWindowByMethod('measureInWindow', ref, callback);
   }

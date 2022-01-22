@@ -40,6 +40,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
@@ -208,56 +209,6 @@ public class HippyModalHostView extends HippyViewGroup implements
 
   public Dialog getDialog() {
     return mDialog;
-  }
-
-  static int mStatusBarHeight = -1;
-  static boolean hasCheckStatusBarHeight = false;
-
-  public int getStatusBarHeightFixed() {
-    if (mStatusBarHeight == -1) {
-      mStatusBarHeight = getStatusBarHeightFromSystem();
-
-      hasCheckStatusBarHeight = true;
-    }
-    return mStatusBarHeight;
-  }
-
-  private static int statusBarHeight = -1;
-
-  @SuppressWarnings("ConstantConditions")
-  public static int getStatusBarHeightFromSystem() {
-    if (statusBarHeight > 0) {
-      return statusBarHeight;
-    }
-
-    Class<?> c;
-    Object obj;
-    Field field;
-    int x;
-    try {
-      c = Class.forName("com.android.internal.R$dimen");
-      obj = c.newInstance();
-      field = c.getField("status_bar_height");
-      x = Integer.parseInt(field.get(obj).toString());
-      statusBarHeight = ContextHolder.getAppContext().getResources().getDimensionPixelSize(x);
-    } catch (Exception e1) {
-      statusBarHeight = -1;
-      e1.printStackTrace();
-    }
-
-    if (statusBarHeight < 1) {
-      try {
-        int statebarH_id = ContextHolder.getAppContext().getResources()
-            .getIdentifier("statebar_height", "dimen",
-                ContextHolder.getAppContext().getPackageName());
-        statusBarHeight = Math
-            .round(ContextHolder.getAppContext().getResources().getDimension(statebarH_id));
-      } catch (NotFoundException e) {
-        LogUtils.d("HippyModalHostView", "getStatusBarHeightFromSystem: " + e.getMessage());
-        statusBarHeight = 0;
-      }
-    }
-    return statusBarHeight;
   }
 
   public void setDialogBar(boolean isDarkIcon) {
@@ -454,11 +405,12 @@ public class HippyModalHostView extends HippyViewGroup implements
       @Override
       protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        if (mEnterImmersionStatusBar && mStatusBarHeight != -1
+        int statusBarHeight = DimensionsUtil.getStatusBarHeight();
+        if (mEnterImmersionStatusBar && statusBarHeight != -1
             && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
             && Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
           canvas.save();
-          canvas.clipRect(0, 0, getMeasuredWidth(), mStatusBarHeight);
+          canvas.clipRect(0, 0, getMeasuredWidth(), statusBarHeight);
           canvas.drawColor(0x40000000);
           canvas.restore();
         }
@@ -467,7 +419,7 @@ public class HippyModalHostView extends HippyViewGroup implements
     if (mEnterImmersionStatusBar && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
       FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
           ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-      params.topMargin = -1 * getStatusBarHeightFixed();
+      params.topMargin = -1 * DimensionsUtil.getStatusBarHeight();
       frameLayout.addView(hostView, params);
     } else {
       frameLayout.addView(hostView);

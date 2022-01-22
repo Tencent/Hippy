@@ -3,7 +3,7 @@
     <div id="demo-img-container">
       <label>Contain:</label>
       <img
-        src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
         :placeholder="defaultImage"
         class="image contain"
         @touchstart="onTouchStart"
@@ -13,19 +13,25 @@
       <label>Cover:</label>
       <img
         :placeholder="defaultImage"
-        src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
         class="image cover"
       >
       <label>Center:</label>
       <img
         :placeholder="defaultImage"
-        src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
         class="image center"
+      >
+      <label>TintColor(iOS染色暂不支持透明度):</label>
+      <img
+        :placeholder="defaultImage"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
+        class="image center tint-color"
       >
       <label>Gif:</label>
       <img
         :placeholder="defaultImage"
-        src="http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif"
+        src="https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif"
         class="image cover"
       >
     </div>
@@ -61,7 +67,7 @@ export default {
   },
 };
 </script>
-<style scope>
+<style scoped>
 #demo-img {
   overflow-y: scroll;
   flex: 1;
@@ -90,5 +96,9 @@ export default {
 
 #demo-img .center {
   resize-mode: center;
+}
+
+#demo-img .tint-color {
+  tint-color: #99999955
 }
 </style>

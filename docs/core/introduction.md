@@ -8,4 +8,4 @@ Hippy 开发的时候，前端 JS 经常需要访问一些双端（Android 和 i
 
 目前 Hippy 里的[定时器](../guide/timer.md)和[日志](../guide/console.md)模块都是使用 Core 实现。
 
-![Core 架构对比](//puui.qpic.cn/vupload/0/1579662891889_qwnzemj0cto.png/0)
+![Core 架构对比](../assets/img/hippy-core.png)

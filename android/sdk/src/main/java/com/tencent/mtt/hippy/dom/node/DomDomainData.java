@@ -3,19 +3,20 @@ package com.tencent.mtt.hippy.dom.node;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
-public class DomDomainData {
+public class DomDomainData extends DomNodeRecord {
 
-  public DomDomainData(int id, int rootId, int pid, String className, String tagName,
-    HippyMap map) {
-    this.id = id;
+  public DomDomainData(int rootId, int id, int pid, int index,
+      final String className, final String tagName, final HippyMap props) {
     this.rootId = rootId;
+    this.id = id;
     this.pid = pid;
-    this.name = className;
+    this.index = index;
+    this.className = className;
     this.tagName = tagName;
-    if (map != null) {
-      this.style = map.getMap(NodeProps.STYLE);
-      this.text = map.getString("text");
-      this.attributes = map.getMap(NodeProps.ATTRIBUTES);
+    if (props != null) {
+      this.style = props.getMap(NodeProps.STYLE);
+      this.text = props.getString("text");
+      this.attributes = props.getMap(NodeProps.ATTRIBUTES);
     }
   }
 
@@ -26,11 +27,6 @@ public class DomDomainData {
     this.height = height;
   }
 
-  public int id;
-  public int rootId;
-  public int pid;
-  public String name;
-  public String tagName;
   public double layoutX;
   public double layoutY;
   public double width;

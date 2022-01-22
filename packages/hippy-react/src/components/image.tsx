@@ -1,5 +1,24 @@
-import React from 'react';
-import Style from '@localTypes/style';
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { LegacyRef, ReactNode } from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
@@ -27,7 +46,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Image source object
    */
-  source?: ImageSource | ImageSource[];
+  source?: ImageSource | ImageSource[] | null;
 
   srcs?: string[];
   sources?: ImageSource[];
@@ -42,12 +61,12 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * Fill color to the image
    */
   tintColor?: number | string;
-  tintColors?: number[] | string[];
+  tintColors?: (number | string)[];
 
   /**
    * Image style when `Image` have other children.
    */
-  imageStyle?: Style;
+  imageStyle?: HippyTypes.Style;
 
   /**
    * Image ref when `Image` have other children.
@@ -71,22 +90,22 @@ interface ImageProps extends LayoutableProps, ClickableProps {
     left: number;
   };
 
-  style: Style;
+  style: HippyTypes.Style;
 
   /**
    * Invoked on `Image` is loaded.
    */
-  onLoad?(): void;
+  onLoad?: () => void;
 
   /**
    * Invoke on `Image` is end of loading.
    */
-  onLoadEnd?(): void;
+  onLoadEnd?: () => void;
 
   /**
    * Invoke on `Image` is start to loading.
    */
-  onLoadStart?(): void;
+  onLoadStart?: () => void;
 
   /**
    * Invoke on loading of `Image` get error.
@@ -94,7 +113,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * @param {Object} evt - Loading error data.
    * @param {string} evt.nativeEvent.error - Loading error message.
    */
-  onError?(evt: { nativeEvent: { error: string }}): void;
+  onError?: (evt: { nativeEvent: { error: string }}) => void;
 
   /**
    * Invoke on Image is loading.
@@ -103,7 +122,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * @param {number} evt.nativeEvent.loaded - The image is loaded.
    * @param {number} evt.nativeEvent.total - The loadded progress.
    */
-  onProgress?(evt: { nativeEvent: { loaded: number; total: number }}): void;
+  onProgress?: (evt: { nativeEvent: { loaded: number; total: number }}) => void;
 }
 
 /**
@@ -112,7 +131,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
  * @noInheritDoc
  */
 class Image extends React.Component<ImageProps, {}> {
-  static get resizeMode() {
+  public static get resizeMode() {
     return {
       contain: 'contain',
       cover: 'cover',
@@ -122,7 +141,9 @@ class Image extends React.Component<ImageProps, {}> {
     };
   }
 
-  static getSize(
+  public static prefetch = prefetch;
+
+  public static getSize(
     url: any,
     success: (width: number, height: number) => void,
     failure: (err: typeof Error) => void,
@@ -132,7 +153,7 @@ class Image extends React.Component<ImageProps, {}> {
     }
     const size = getSize(url);
     if (typeof success === 'function') {
-      size.then((result: Size) => success(result.width, result.height));
+      size.then((result: Size | any) => success(result.width, result.height));
     }
     if (typeof failure === 'function') {
       size.catch(failure);
@@ -142,7 +163,91 @@ class Image extends React.Component<ImageProps, {}> {
     return size;
   }
 
-  static prefetch = prefetch;
+  public render() {
+    const {
+      children,
+      style,
+      imageStyle,
+      imageRef,
+      source,
+      sources,
+      src,
+      srcs,
+      tintColor,
+      tintColors,
+      ...nativeProps
+    } = this.props;
+
+    /**
+     * Image source prop
+     */
+    // Define the image source url array.
+    const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
+
+    // Set sources props by platform specification
+    if (Device.platform.OS === 'ios') {
+      if (imageUrls.length) {
+        (nativeProps as ImageProps).source = imageUrls.map(uri => ({ uri }));
+      }
+    } else if (Device.platform.OS === 'android') {
+      if (imageUrls.length === 1) {
+        [(nativeProps as ImageProps).src] = imageUrls;
+      } else if (imageUrls.length > 1) {
+        (nativeProps as ImageProps).srcs = imageUrls;
+      }
+    }
+
+    /**
+     * defaultSource prop
+     */
+    if (typeof nativeProps.defaultSource === 'string') {
+      if (nativeProps.defaultSource.indexOf('data:image/') !== 0) {
+        warn('[Image] defaultSource prop must be a local base64 image');
+      }
+      nativeProps.defaultSource = convertImgUrl(nativeProps.defaultSource);
+    }
+
+    /**
+     * tintColor(s)
+     */
+    const nativeStyle = { ...style } as { tintColor?: number, tintColors?: number[] };
+    this.handleTintColor(nativeStyle, tintColor as Color, tintColors as Color[]);
+    (nativeProps as ImageProps).style = nativeStyle;
+
+    if (children) {
+      return (
+        <View style={style}>
+          <img
+            {...nativeProps}
+            nativeName="Image"
+            alt=""
+            // @ts-ignore
+            ref={imageRef}
+            // @ts-ignore
+            style={[{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: style.width,
+              height: style.height,
+            }, imageStyle]}
+          />
+          {children}
+        </View>
+      );
+    }
+    return (
+      // @ts-ignore
+      <img
+        {...nativeProps}
+        nativeName="Image"
+        alt=""
+        ref={imageRef as LegacyRef<HTMLImageElement>}
+      />
+    );
+  }
 
   private getImageUrls({ src, srcs, source, sources }: {
     src: string | any,
@@ -150,7 +255,7 @@ class Image extends React.Component<ImageProps, {}> {
     source: string | any,
     sources: string[] | any,
   }) {
-    let imageUrls = [];
+    let imageUrls: string[] = [];
     if (typeof src === 'string') {
       imageUrls.push(src);
     }
@@ -186,7 +291,7 @@ class Image extends React.Component<ImageProps, {}> {
   }
 
   private handleTintColor(
-    nativeStyle: { tintColor: number, tintColors: number[] },
+    nativeStyle: { tintColor?: number, tintColors?: number[] },
     tintColor: Color, tintColors: Color[],
   ) {
     if (tintColor) {
@@ -197,97 +302,6 @@ class Image extends React.Component<ImageProps, {}> {
       // eslint-disable-next-line no-param-reassign
       nativeStyle.tintColors = colorArrayParse(tintColors) as number[];
     }
-  }
-
-  /**
-   * @ignore
-   */
-  public render() {
-    const {
-      children,
-      style,
-      imageStyle,
-      imageRef,
-      source,
-      sources,
-      src,
-      srcs,
-      tintColor,
-      tintColors,
-      ...nativeProps
-    } = this.props;
-
-    /**
-     * Image source prop
-     */
-
-    // Define the image source url array.
-    const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
-
-    // Set sources props by platform specification
-    if (Device.platform.OS === 'ios') {
-      if (imageUrls.length) {
-        (nativeProps as ImageProps).source = imageUrls.map(uri => ({ uri }));
-      }
-    } else if (Device.platform.OS === 'android') {
-      if (imageUrls.length === 1) {
-        [(nativeProps as ImageProps).src] = imageUrls;
-      } else if (imageUrls.length > 1) {
-        (nativeProps as ImageProps).srcs = imageUrls;
-      }
-    }
-
-    /**
-     * defaultSource prop
-     */
-    if (typeof nativeProps.defaultSource === 'string') {
-      if (nativeProps.defaultSource.indexOf('data:image/') !== 0) {
-        warn('[Image] defaultSource prop must be a local base64 image');
-      }
-      nativeProps.defaultSource = convertImgUrl(nativeProps.defaultSource);
-    }
-
-    /**
-     * tintColor(s)
-     */
-    const nativeStyle = { ...style };
-    // @ts-ignore
-    this.handleTintColor(nativeStyle, tintColor, tintColors);
-    (nativeProps as ImageProps).style = nativeStyle;
-
-    if (children) {
-      return (
-        <View style={style}>
-          <img
-            {...nativeProps}
-            nativeName="Image"
-            alt=""
-            // @ts-ignore
-            ref={imageRef}
-            // @ts-ignore
-            style={[{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: style.width,
-              height: style.height,
-            }, imageStyle]}
-          />
-          {children}
-        </View>
-      );
-    }
-    return (
-      <img
-        {...nativeProps}
-        nativeName="Image"
-        alt=""
-        // @ts-ignore
-        ref={imageRef}
-      />
-    );
   }
 }
 export default Image;

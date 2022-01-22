@@ -51,9 +51,6 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyVirtualList.h"
-#import "HippyExtAnimation.h"
-#import "HippyConvert+Transform.h"
-#import "HippyView+HippyViewAnimation.h"
 
 @protocol HippyBaseListViewProtocol;
 
@@ -73,6 +70,7 @@ NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNot
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerDidRemoveRootViewNotification = @"HippyUIManagerDidRemoveRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
+NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
 
 @implementation HippyUIManager {
     // Root views are only mutated on the shadow queue
@@ -761,14 +759,16 @@ static void HippySetChildren(NSNumber *containerTag, NSArray<NSNumber *> *hippyT
 }
 
 // clang-format off
-HIPPY_EXPORT_METHOD(startBatch:(__unused NSString *)batchID) {
+HIPPY_EXPORT_METHOD(startBatch) {
 }
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(endBatch:(__unused NSString *)batchID) {
+HIPPY_EXPORT_METHOD(endBatch) {
     if (_pendingUIBlocks.count) {
         [self batchDidComplete];
+        [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidEndBatchNotification
+                                                            object:self];
     }
 }
 // clang-format on
@@ -876,7 +876,8 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
 // clang-format off
 HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
                   viewName:(NSString *)viewName
-                  rootTag:(__unused NSNumber *)rootTag
+                  rootTag:(nonnull NSNumber *)rootTag
+                  tagName:(NSString *)tagName
                   props:(NSDictionary *)props) {
     HippyComponentData *componentData = _componentDataByName[viewName];
     HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
@@ -932,6 +933,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         HippyVirtualNode *node = [componentData createVirtualNode: hippyTag props: newProps];
         if(node) {
             node.rootTag = rootTag;
+            node.tagName = tagName;
             node.bridge = [uiManager bridge];
             uiManager->_nodeRegistry[hippyTag] = node;
         }
@@ -963,6 +965,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     }
     if (view) {
         view.viewName = viewName;
+        view.rootTag = node.rootTag;
         [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
 
         if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
@@ -990,8 +993,7 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
         } else {
             HippyAssert(NO, @"param.rootTag不应该为nil，保留现场，找mengyanluo");
         }
-        NSDictionary *updateParams = [param updateParams];
-        [self updateView:param.hippyTag viewName:nil props:updateParams];
+        [self updateView:param.hippyTag viewName:nil props:param.updateParams];
         if (block) {
             [[self completeBlocks] addObject:block];
         }
@@ -1002,53 +1004,9 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
     }
 }
 
-- (void)updateViewsAfterAnimation:(CAAnimation *)animation completion:(HippyViewUpdateCompletedBlock)block {
-    @try {
-        NSArray<CABasicAnimation *> *basicAnimations = nil;
-        if ([animation isKindOfClass:[CABasicAnimation class]]) {
-            basicAnimations = @[(CABasicAnimation *)animation];
-        }
-        else if ([animation isKindOfClass:[CAAnimationGroup class]]) {
-            basicAnimations = (NSArray<CABasicAnimation *> *)[(CAAnimationGroup *)animation animations];
-        }
-        
-        NSMutableArray<NSDictionary *> *props = [NSMutableArray arrayWithCapacity:[basicAnimations count]];
-        NSNumber *viewId = [animation valueForKey:@"viewID"];
-        HippyShadowView *shadowView = [[self shadowViewRegistry] objectForKey:viewId];
-        NSDictionary *shadowViewOriginProps = [shadowView props];
-        NSMutableDictionary *propsAfterAnimation = [shadowViewOriginProps mutableCopy];
-        for (CABasicAnimation *basicAni in basicAnimations) {
-            NSString *keyPath = [basicAni keyPath];
-            NSString *property = [HippyExtAnimation convertAnimationKeyPathToViewProperty:keyPath]?:keyPath;
-            if (property) {
-                if ([HippyConvert canConvertPropertyWithTransform3D:property]) {
-                    NSDictionary *updateParams = [NSDictionary dictionaryWithObject:[basicAni toValue] forKey:property];
-                    [props addObject:updateParams];
-                }
-                else {
-                    [propsAfterAnimation setObject:[basicAni originToValue] forKey:property];
-                }
-            }
-        }
-        if ([props count] > 0) {
-            [propsAfterAnimation setObject:props forKey:@"transform"];
-        }
-        [self updateView:viewId viewName:nil props:propsAfterAnimation];
-        if (block) {
-            [[self completeBlocks] addObject:block];
-        }
-        [self _layoutAndMount];
-    }
-    @catch (NSException *exception) {
-#if HIPPY_DEBUG
-        NSError *error = HippyErrorWithMessageAndModuleName([exception reason], self.bridge.moduleName);
-        HippyFatal(error);
-#endif //HIPPY_DEBUG
-    }
-}
-
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros {
     [self updateView:hippyTag viewName:nil props:pros];
+    [self batchDidComplete];
 }
 
 // clang-format off
@@ -1423,6 +1381,10 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
     });
 }
 
+- (NSNumber *)rootHippyTag {
+    return _rootViewTags.count > 0 ? _rootViewTags.allObjects.firstObject : @(0);
+}
+
 - (NSNumber *)_rootTagForHippyTag:(NSNumber *)hippyTag {
     HippyAssert(!HippyIsMainQueue(), @"Should be called on shadow queue");
 
@@ -1560,9 +1522,7 @@ static UIView *_jsResponder;
 - (UIView *)createViewFromNode:(HippyVirtualNode *)node {
     UIView *result = nil;
     NSMutableArray *tranctions = [NSMutableArray new];
-#ifndef HIPPY_DEBUG
     @try {
-#endif
         result = [node createView:^UIView *(HippyVirtualNode *subNode) {
             NSString *viewName = subNode.viewName;
             NSNumber *tag = subNode.hippyTag;
@@ -1590,11 +1550,9 @@ static UIView *_jsResponder;
         for (UIView *view in tranctions) {
             [view hippyBridgeDidFinishTransaction];
         }
-#ifndef HIPPY_DEBUG
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
-#endif
     return result;
 }
 

@@ -343,6 +343,9 @@
 }
 
 - (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated {
+    if (CGPointEqualToPoint(contentOffset, self.contentOffset)) {
+        return;
+    }
     _targetOffset = contentOffset;
     [super setContentOffset:contentOffset animated:animated];
 }

@@ -154,7 +154,7 @@ export default class RefreshWrapperExample extends React.Component {
           return resolve([]);
         }
         return resolve(mockData);
-      }, 1000);
+      }, 600);
     });
   }
 

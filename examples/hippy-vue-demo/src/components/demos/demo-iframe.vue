@@ -17,7 +17,10 @@
       id="iframe"
       ref="iframe"
       :src="url"
+      method="get"
       @load="onLoad"
+      @loadStart="onLoadStart"
+      @loadEnd="onLoadEnd"
     />
   </div>
 </template>
@@ -28,8 +31,8 @@ import Vue from 'vue';
 export default {
   data() {
     return {
-      url: 'https://v.qq.com',
-      displayUrl: 'https://v.qq.com',
+      url: 'https://hippyjs.org',
+      displayUrl: 'https://hippyjs.org',
       iframeStyle: {
         'min-height': Vue.Native ? 100 : '100vh',
       },
@@ -44,6 +47,14 @@ export default {
       if (url !== this.url) {
         this.displayUrl = url;
       }
+    },
+    onLoadStart(evt) {
+      const { url } = evt;
+      console.log('onLoadStart', url);
+    },
+    onLoadEnd(evt) {
+      const { url } = evt;
+      console.log('onLoadEnd', url);
     },
     // Web compatible
     onKeyUp(evt) {

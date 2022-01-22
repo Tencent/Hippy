@@ -2,7 +2,21 @@
   <div id="div-demo">
     <div>
       <label>背景图效果:</label>
-      <div :style="demo1Style">
+      <div
+        :style="demo1Style"
+        :accessible="true"
+        aria-label="背景图"
+        :aria-disabled="false"
+        :aria-selected="true"
+        :aria-checked="false"
+        :aria-expanded="false"
+        :aria-busy="true"
+        role="image"
+        :aria-valuemax="10"
+        :aria-valuemin="1"
+        :aria-valuenow="5"
+        aria-valuetext="middle"
+      >
         <p class="div-demo-1-text">
           Hippy 背景图展示
         </p>
@@ -23,6 +37,7 @@
       <div
         ref="demo-2"
         class="div-demo-2"
+        :bounces="true"
         :scrollEnabled="true"
         :pagingEnabled="false"
         :showsHorizontalScrollIndicator="false"
@@ -170,7 +185,7 @@ export default {
   /*.div-demo-1 {*/
   /*  display: flex;*/
   /*  height: 40px;*/
-  /*  background-image: url('http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');*/
+  /*  background-image: url('https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png');*/
   /*  background-repeat: no-repeat;*/
   /*}*/
 

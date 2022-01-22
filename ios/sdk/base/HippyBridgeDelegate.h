@@ -125,4 +125,16 @@
 
 - (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion;
 
+//chrome dev tools inspector delegate
+
+/**
+ * ask delegate should bridge start a web inspector
+ */
+- (BOOL)shouldStartInspector:(HippyBridge *)bridge;
+
+/**
+ * ask delegate URL for web inspector
+ */
+- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge;
+
 @end

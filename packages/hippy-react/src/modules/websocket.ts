@@ -1,39 +1,32 @@
-import HippyEventListener from '../events/listener';
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import HippyEventListener from '../event/listener';
 import { Bridge } from '../global';
 import { warn } from '../utils';
 
-const enum READY_STATE {
+const enum ReadyState {
   CONNECTING,
   OPEN,
   CLOSING,
   CLOSED,
-}
-
-interface WebSocket {
-  /**
-   * Read-only property returns the absolute URL of the WebSocket as resolved by the constructor.
-   */
-  url: string;
-
-  /**
-   * read-only property returns the name of the sub-protocol the server selected; this will be
-   * one of the strings specified in the protocols parameter when creating the WebSocket object,
-   * or the empty string if no connection is established.
-   */
-  protocol: string;
-
-  /**
-   * Read-only property returns the current state of the WebSocket connection.
-   */
-  readyState: READY_STATE;
-  webSocketCallbacks: {
-    onOpen?: Function;
-    onClose?: Function;
-    onError?: Function;
-    onMessage?: Function;
-  }
-  webSocketCallbackId: number;
-  webSocketId?: number;
 }
 
 const WEB_SOCKET_MODULE_NAME = 'websocket';
@@ -45,8 +38,18 @@ let websocketEventHub: HippyEventListener;
  * you can send messages to a server and receive event-driven responses without having to
  * poll the server for a reply.
  */
-class WebSocket implements WebSocket {
-  protocol = '';
+class WebSocket implements HippyTypes.WebSocket {
+  public protocol = '';
+  public url: string;
+  public readyState: number;
+  public webSocketCallbackId: number;
+  public webSocketId: number | undefined;
+  public readonly webSocketCallbacks: {
+    onOpen?: (...args: any[]) => void;
+    onClose?: (...args: any[]) => void;
+    onError?: (...args: any[]) => void;
+    onMessage?: (...args: any[]) => void;
+  };
 
   /**
    * Returns a newly created WebSocket object.
@@ -64,13 +67,13 @@ class WebSocket implements WebSocket {
    *                                          string is assumed.
    * @param {Object} extrasHeaders - Http headers will append to connection.
    */
-  constructor(url: string, protocols: string[] | string, extrasHeaders: {[key: string]: string}) {
+  public constructor(url: any, protocols: string[] | string, extrasHeaders: {[key: string]: string}) {
     this.onWebSocketEvent = this.onWebSocketEvent.bind(this);
 
     if (!websocketEventHub) {
       websocketEventHub = new HippyEventListener('hippyWebsocketEvents');
     }
-    this.readyState = READY_STATE.CONNECTING;
+    this.readyState = ReadyState.CONNECTING;
     this.webSocketCallbacks = {};
 
     if (!url || typeof url !== 'string') {
@@ -102,7 +105,7 @@ class WebSocket implements WebSocket {
     this.webSocketCallbackId = websocketEventHub.addCallback(this.onWebSocketEvent);
 
     Bridge.callNativeWithPromise(WEB_SOCKET_MODULE_NAME, 'connect', params)
-      .then((resp: { code: number, id: number }) => {
+      .then((resp: { code: number, id: number | undefined } | any) => {
         if (!resp || resp.code !== 0 || typeof resp.id !== 'number') {
           warn('Fail to create websocket connection', resp);
           return;
@@ -124,12 +127,12 @@ class WebSocket implements WebSocket {
    *                            of UTF-8 text (not characters).
    */
   public close(code: number, reason: string) {
-    if (this.readyState !== READY_STATE.OPEN) {
+    if (this.readyState !== ReadyState.OPEN) {
       warn('WebSocket is not connected');
       return;
     }
 
-    this.readyState = READY_STATE.CLOSING;
+    this.readyState = ReadyState.CLOSING;
     Bridge.callNative(WEB_SOCKET_MODULE_NAME, 'close', {
       id: this.webSocketId,
       code,
@@ -142,8 +145,8 @@ class WebSocket implements WebSocket {
    *
    * @param {string} data - The data to send to the server. Hippy supports string type only.
    */
-  public send(data: string) {
-    if (this.readyState !== READY_STATE.OPEN) {
+  public send(data: string | undefined) {
+    if (this.readyState !== ReadyState.OPEN) {
       warn('WebSocket is not connected');
       return;
     }
@@ -176,7 +179,7 @@ class WebSocket implements WebSocket {
   /**
    * Set an EventHandler that is called when a message is received from the server.
    */
-  public set onerror(callback: Function) {
+  public set onerror(callback: () => void) {
     this.webSocketCallbacks.onError = callback;
   }
 
@@ -204,9 +207,9 @@ class WebSocket implements WebSocket {
 
     const { type: eventType } = param;
     if (eventType === 'onOpen') {
-      this.readyState = READY_STATE.OPEN;
+      this.readyState = ReadyState.OPEN;
     } else if (eventType === 'onClose') {
-      this.readyState = READY_STATE.CLOSED;
+      this.readyState = ReadyState.CLOSED;
       websocketEventHub.removeCallback(this.webSocketCallbackId);
     }
 

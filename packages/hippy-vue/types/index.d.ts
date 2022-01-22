@@ -1,4 +1,4 @@
-/* !
+/*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
@@ -21,6 +21,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
 import Vue from 'vue';
+// eslint-disable-next-line import/no-unresolved
 import Native from './native';
 
 export default Vue;

@@ -116,7 +116,6 @@ export default {
   line-height: 36px;
   font-size: 14px;
   border-bottom-color: #40b883;
-  border-bottom-style: solid;
   border-bottom-width: 1px;
   padding: 0;
 }

@@ -70,6 +70,7 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 @property (nonatomic, weak) HippyBridge *bridge;
 @property (nonatomic, assign) MTTDirection layoutDirection;
 @property (nonatomic, copy) NSString *visibility;
+@property (nonatomic, assign) BOOL visibilityChanged;
 
 /**
  * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is

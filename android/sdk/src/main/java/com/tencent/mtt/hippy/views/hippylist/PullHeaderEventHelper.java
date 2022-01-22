@@ -120,6 +120,10 @@ public class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRef
     headerRefreshHelper.triggerRefresh();
   }
 
+  public int getVisibleHeight() {
+    return headerRefreshHelper.getVisibleHeight();
+  }
+
   @Override
   public void requestLayout() {
     recyclerView.dispatchLayout();

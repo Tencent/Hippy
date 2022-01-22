@@ -111,10 +111,6 @@ test('setsAreEqual test', (t) => {
   t.false(util.setsAreEqual(new Set([1, 2]), new Set([1, 2, 3])));
   t.false(util.setsAreEqual(new Set([1, 2, 3]), new Set([1, 2])));
   t.false(util.setsAreEqual(new Set([1, 2, 3]), new Set([1, 2, 4])));
-  const err = t.throws(() => {
-    util.setsAreEqual(new Set([1, 2, 3]));
-  });
-  t.is(err.message, 'Cannot read property \'size\' of undefined');
   const err2 = t.throws(() => {
     util.setsAreEqual('a', 'b');
   });

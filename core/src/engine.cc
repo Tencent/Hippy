@@ -29,14 +29,14 @@
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
 
-const uint32_t Engine::kDefaultWorkerPoolSize = 1;
+constexpr uint32_t Engine::kDefaultWorkerPoolSize = 1;
 
-Engine::Engine(std::unique_ptr<RegisterMap> map)
+Engine::Engine(std::unique_ptr<RegisterMap> map, const std::shared_ptr<VMInitParam>& init_param)
     : vm_(nullptr), map_(std::move(map)), scope_cnt_(0) {
   SetupThreads();
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [=] { CreateVM(); };
+  task->callback = [=] { CreateVM(init_param); };
   js_runner_->PostTask(task);
 }
 
@@ -83,17 +83,13 @@ void Engine::SetupThreads() {
   js_runner_ = std::make_shared<JavaScriptTaskRunner>();
   js_runner_->Start();
 
-  if (kDefaultWorkerPoolSize > 0) {
-    worker_task_runner_ =
-        std::make_shared<WorkerTaskRunner>(kDefaultWorkerPoolSize);
-  } else {
-    worker_task_runner_ = nullptr;
-  }
+  worker_task_runner_ =
+          std::make_shared<WorkerTaskRunner>(kDefaultWorkerPoolSize);
 }
 
-void Engine::CreateVM() {
+void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   TDF_BASE_DLOG(INFO) << "Engine CreateVM";
-  vm_ = hippy::napi::CreateVM();
+  vm_ = hippy::napi::CreateVM(param);
 
   RegisterMap::const_iterator it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {

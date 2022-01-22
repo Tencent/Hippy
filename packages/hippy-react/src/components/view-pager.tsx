@@ -1,4 +1,22 @@
-/* eslint-disable no-underscore-dangle */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import React, { ReactElement, ReactNode } from 'react';
 import { callUIFunction } from '../modules/ui-manager-module';
@@ -41,7 +59,7 @@ interface ViewPagerProps {
    * @param {Object} evt - Page selected event data.
    * @param {number} evt.position - Page index of selected.
    */
-  onPageSelected?(evt: PageSelectedEvent): void;
+  onPageSelected?: (evt: PageSelectedEvent) => void;
 
   /**
    * Called when the page scroll starts.
@@ -50,7 +68,7 @@ interface ViewPagerProps {
    * @param {number} evt.position - Page index that will be selected.
    * @param {number} evt.offset - Scroll offset while scrolling.
    */
-  onPageScroll?(evt: PageScrollEvent): void;
+  onPageScroll?: (evt: PageScrollEvent) => void;
 
   /**
    * Called when the page scroll state changed.
@@ -62,7 +80,7 @@ interface ViewPagerProps {
    * * dragging
    * * settling
    */
-  onPageScrollStateChanged?(evt: PageScrollState): void;
+  onPageScrollStateChanged?: (evt: PageScrollState) => void;
 }
 
 function ViewPagerItem(props: any) {
@@ -91,17 +109,14 @@ function ViewPagerItem(props: any) {
 class ViewPager extends React.Component<ViewPagerProps, {}> {
   private instance: Element | HTMLDivElement | null = null;
 
-  /**
-   * @ignore
-   */
-  constructor(props: ViewPagerProps) {
+  public constructor(props: ViewPagerProps) {
     super(props);
     this.setPage = this.setPage.bind(this);
     this.setPageWithoutAnimation = this.setPageWithoutAnimation.bind(this);
     this.onPageScrollStateChanged = this.onPageScrollStateChanged.bind(this);
   }
 
-  private onPageScrollStateChanged(params: PageScrollStateEvent) {
+  public onPageScrollStateChanged(params: PageScrollStateEvent) {
     const { onPageScrollStateChanged } = this.props;
     if (onPageScrollStateChanged) {
       onPageScrollStateChanged(params.pageScrollState);
@@ -122,9 +137,6 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
     callUIFunction(this.instance as Element, 'setPageWithoutAnimation', [selectedPage]);
   }
 
-  /**
-   * @ignore
-   */
   public render() {
     const { children, onPageScrollStateChanged, ...nativeProps } = this.props;
     let mappedChildren: ReactElement[] = [];
@@ -144,11 +156,9 @@ class ViewPager extends React.Component<ViewPagerProps, {}> {
         </ViewPagerItem>
       ));
     }
-
     if (typeof onPageScrollStateChanged === 'function') {
       (nativeProps as any).onPageScrollStateChanged = this.onPageScrollStateChanged;
     }
-
     return (
       <div
         nativeName="ViewPager"

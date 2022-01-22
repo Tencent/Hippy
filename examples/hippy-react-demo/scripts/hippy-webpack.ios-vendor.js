@@ -53,7 +53,6 @@ module.exports = {
               ],
             },
           },
-          'unicode-loader',
         ],
       },
     ],

@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.viewpager;
 
+import android.util.Log;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -115,6 +116,11 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
     pager.setPageMargin((int) PixelUtil.dp2px(margin));
   }
 
+  @HippyControllerProps(name = "offscreenPageLimit", defaultNumber = 0, defaultType = HippyControllerProps.NUMBER)
+  public void setOffscreenPageLimit(HippyViewPager pager, int limit) {
+    pager.setOffscreenPageLimit(limit);
+  }
+
   @HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING, defaultString = "visible")
   public void setOverflow(HippyViewPager pager, String overflow) {
     pager.setOverflow(overflow);
@@ -132,16 +138,16 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
       case FUNC_SET_PAGE:
         if (var != null) {
           Object selected = var.get(0);
-          if (selected instanceof Integer) {
-            view.switchToPage((int) selected, true);
+          if (selected instanceof Number) {
+            view.switchToPage(((Number)selected).intValue(), true);
           }
         }
         break;
       case FUNC_SET_PAGE_WITHOUT_ANIM:
         if (var != null) {
           Object selected = var.get(0);
-          if (selected instanceof Integer) {
-            view.switchToPage((int) selected, false);
+          if (selected instanceof Number) {
+            view.switchToPage(((Number)selected).intValue(), false);
           }
         }
         break;

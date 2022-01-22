@@ -1,16 +1,15 @@
-/* eslint-disable no-console */
-
 const path = require('path');
 const { rollup } = require('rollup');
 const reactBuilds = require('./react-configs').getAllBuilds();
 const vueBuilds = require('./vue-configs').getAllBuilds();
+const buildDebugServer = require('./build-debug-server');
 
 let builds = [...reactBuilds, ...vueBuilds];
 
 // filter builds via command line arg
 if (process.argv[2]) {
   const filters = process.argv[2].split(',');
-  builds = builds.filter(b => filters.some(f => b.output.file.indexOf(f) > -1 || b.name.indexOf(f) > -1));
+  builds = builds.filter(b => filters.some(f => b.output.file.indexOf(f) > -1 || b.output.name.indexOf(f) > -1));
 }
 
 function blue(str) {
@@ -22,7 +21,8 @@ function getSize(code) {
 }
 
 function logError(e) {
-  console.error(e);
+  console.error('build js packages error', e);
+  process.exit(1);
 }
 
 async function buildEntry(config) {
@@ -47,8 +47,9 @@ function build(buildSets) {
       })
       .catch(logError);
   };
-
   next();
 }
 
 build(builds);
+
+buildDebugServer();

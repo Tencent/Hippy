@@ -4,7 +4,9 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.CSSDomain;
+import com.tencent.mtt.hippy.dom.node.DomDomainData;
 import com.tencent.mtt.hippy.dom.node.DomNode;
+import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -35,9 +37,12 @@ public class CSSModel {
   public JSONObject getMatchedStyles(HippyEngineContext context, int nodeId) {
     JSONObject matchedObject = new JSONObject();
     try {
-      HippyMap style = context.getDomManager().getNode(nodeId).getDomainData().style;
-      if (style != null) {
-        matchedObject.put("inlineStyle", getCSSStyle(style, nodeId));
+      DomNodeRecord domNodeRecord = context.getDomManager().getNode(nodeId).getDomNodeRecord();
+      if (domNodeRecord instanceof DomDomainData) {
+        HippyMap style = ((DomDomainData)domNodeRecord).style;
+        if (style != null) {
+          matchedObject.put("inlineStyle", getCSSStyle(style, nodeId));
+        }
       }
     } catch (Exception e) {
       LogUtils.e(TAG, "getMatchedStyles, Exception: ", e);
@@ -63,8 +68,13 @@ public class CSSModel {
   public JSONObject getComputedStyle(HippyEngineContext context, int nodeId) {
     JSONObject computedStyle = new JSONObject();
     try {
-      HippyMap style = context.getDomManager().getNode(nodeId).getDomainData().style;
-      computedStyle.put("computedStyle", getComputedStyle(context, nodeId, style));
+      DomNodeRecord domNodeRecord = context.getDomManager().getNode(nodeId).getDomNodeRecord();
+      if (domNodeRecord instanceof DomDomainData) {
+        HippyMap style = ((DomDomainData)domNodeRecord).style;
+        if (style != null) {
+          computedStyle.put("computedStyle", getComputedStyle(context, nodeId, style));
+        }
+      }
     } catch (Exception e) {
       LogUtils.e(TAG, "getComputedStyle, Exception: ", e);
     }
@@ -141,11 +151,11 @@ public class CSSModel {
     // set style
     int nodeId = editObj.optInt("styleSheetId");
     DomNode node = context.getDomManager().getNode(nodeId);
-    if (node == null || node.getDomainData() == null) {
+    if (node == null || node.getDomNodeRecord() == null) {
       LogUtils.e(TAG, "setStyleText node is null");
       return null;
     }
-    HippyRootView hippyRootView = context.getInstance(node.getDomainData().rootId);
+    HippyRootView hippyRootView = context.getInstance(node.getDomNodeRecord().rootId);
     if (hippyRootView == null) {
       LogUtils.e(TAG, "setStyleText hippyRootView is null");
       return null;

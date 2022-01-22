@@ -15,25 +15,15 @@
  */
 package com.tencent.mtt.hippy.views.scroll;
 
-import android.os.SystemClock;
-
 public class HippyOnScrollHelper {
-
-  private static final int MIN_EVENT_SEPARATION_MS = 10;
 
   private int mPrevX = Integer.MIN_VALUE;
   private int mPrevY = Integer.MIN_VALUE;
-  private long mLastScrollEventTimeMs = -(MIN_EVENT_SEPARATION_MS + 1);
 
   public boolean onScrollChanged(int x, int y) {
-    long eventTime = SystemClock.uptimeMillis();
-    boolean shouldDispatch =
-        eventTime - mLastScrollEventTimeMs > MIN_EVENT_SEPARATION_MS || mPrevX != x || mPrevY != y;
-
-    mLastScrollEventTimeMs = eventTime;
+    boolean shouldDispatch = mPrevX != x || mPrevY != y;
     mPrevX = x;
     mPrevY = y;
-
     return shouldDispatch;
   }
 }

@@ -114,6 +114,15 @@ if (typeof console !== 'undefined') {
   vmConsole = console;
 }
 
+const supportApiList = ['log', 'info', 'warn', 'error', 'debug'];
+global.ConsoleModule = {};
+supportApiList.forEach((api) => {
+  global.ConsoleModule[api] = (...args) => {
+    const log = args.map(arg => inspect(arg)).join(' ');
+    consoleModule.Log(log, api);
+  };
+});
+
 global.console = {
   reportUncaughtException(error) {
     if (error && error instanceof Error) {
@@ -122,22 +131,8 @@ global.console = {
   },
 };
 
-const supportApiList = ['log', 'info', 'warn', 'error', 'debug'];
-
-supportApiList.forEach((api) => {
-  global.console[api] = (...args) => {
-    if (vmConsole) {
-      vmConsole[api](...args);
-    }
-    const log = args.map(arg => inspect(arg)).join(' ');
-    consoleModule.Log(log);
-  };
-});
-
 if (vmConsole) {
   Object.keys(vmConsole).forEach((api) => {
-    if (supportApiList.indexOf(api) < 0) {
-      global.console[api] = vmConsole[api];
-    }
+    global.console[api] = vmConsole[api];
   });
 }

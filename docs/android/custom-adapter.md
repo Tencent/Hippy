@@ -1,24 +1,24 @@
 # 自定义适配器
 
-Android App开发中存在很多第三方基础库。
+Android App 开发中存在很多第三方基础库。
 
-比如图片缓存系统常用的有：Picasso、Glide、Fresco等。
+比如图片缓存系统常用的有：Picasso、Glide、Fresco 等。
 
-Hippy SDK如果在代码中直接集成这些第三方基础库，很有可能与你的项目实际情况冲突。为了解决这个矛盾点，Hippy SDK将所有基础能力接口化，抽象为Adapter，方便业务注入实现，同时大多数基础能力我们也默认实现了一个最简单的方案。
+Hippy SDK 如果在代码中直接集成这些第三方基础库，很有可能与你的项目实际情况冲突。为了解决这个矛盾点，Hippy SDK 将所有基础能力接口化，抽象为 Adapter，方便业务注入实现，同时大多数基础能力我们也默认实现了一个最简单的方案。
 
-Hippy SDK现在所提供的Adapter包括：
+Hippy SDK 现在所提供的 Adapter 包括：
 
-- `HippyImageLoaderAdapter`：图片加载Adapter。
-- `HippyHttpAdapter：Http`请求Adapter。
-- `HippyExceptionHandlerAdapter`：引擎和JS异常处理Adapter。
+- `HippyImageLoaderAdapter`：图片加载 Adapter。
+- `HippyHttpAdapter`：Http 请求 Adapter。
+- `HippyExceptionHandlerAdapter`：引擎和 JS 异常处理 Adapter。
 - `HippySharedPreferencesAdapter`：SharedPreferences Adapter。
 - `HippyStorageAdapter`：数据库（KEY-VALUE）Adapter。
-- `HippyExecutorSupplierAdapter`：线程池Adapter。
-- `HippyEngineMonitorAdapter`：Hippy  引擎状态监控Adapter。
+- `HippyExecutorSupplierAdapter`：线程池 Adapter。
+- `HippyEngineMonitorAdapter`：Hippy 引擎状态监控 Adapter。
 
 # HippyImageLoaderAdapter
 
- 由于图片加载复杂度较高，实现需要增加SDK包大小，而且每个App都有自己的图片加载机制，所以`SDK不提供默认实现`。
+由于图片加载复杂度较高，实现需要增加 SDK 包大小，而且每个 App 都有自己的图片加载机制，所以 `SDK不提供默认实现`。
 
 ## HippyImageRequestListener
 
@@ -32,19 +32,19 @@ Hippy SDK现在所提供的Adapter包括：
 
 图片包装接口。提供的接口主要包括：
 
-- `getBitmap：SDK`会通过此方法回去图片拉取后的Bitmap。
-- `onDrawableAttached`：图片渲染上屏后SDK会回调。
-- `onDrawableDetached`：图片离屏后SDK会回调。
+- `getBitmap`：SDK 会通过此方法获取图片拉取后的 Bitmap。
+- `onDrawableAttached`：图片渲染上屏后 SDK 会回调该方法。
+- `onDrawableDetached`：图片离屏后 SDK 会回调该方法。
 
 ## fetchImage
 
-异步拉图接口。Url 以 `Http`、`Https`、`File`开头会调用此接口。
+异步拉图接口。Url 如果以 `Http`、`Https`、`File` 开头会调用此接口。
 
 参数：
 
 - `url` String : 图片地址。
 - `requestListener` HippyImageRequestListener：图片异步拉取回调。
-- `param`Object：一些特殊场景定制参数，正常情况下无需关注。
+- `param` Object：一些特殊场景定制参数，正常情况下无需关注。
 
 示例如下：
 
@@ -124,10 +124,13 @@ public class DrawableTarget extends SimpleTarget<Bitmap> implements HippyDrawabl
 
 ## getImage
 
-同步拉图接口。主要针对 `assets`、`base64`等图片拉取场景会调用此接口。
+同步拉图接口。主要针对 `assets`、`base64` 等图片拉取场景会调用此接口。
+
 参数：
-`url`String : 图片地址或者base64信息。
-`param`Object：一些特殊场景定制参数，正常情况下无需关注。
+
+- `url` string : 图片地址或者base64信息。
+- `param` Object：一些特殊场景定制参数，正常情况下无需关注。
+
 示例如下：
 
 ``` java
@@ -228,28 +231,28 @@ public class LocalHippyDrawable implements HippyDrawableTarget
 
 # HippyHttpAdapter
 
-Hippy SDK`提供默认的实现`，`DefaultHttpAdapter`。如果`DefaultHttpAdapter`无法满足你的需求，请参考`DefaultHttpAdapter`代码接入HippyHttpAdapter实现。
+Hippy SDK 提供默认的实现 `DefaultHttpAdapter`。如果 `DefaultHttpAdapter`无法满足你的需求，请参考 `DefaultHttpAdapter`代码接入 `HippyHttpAdapter` 实现。
 
 # HippyExceptionHandlerAdapter
 
-Hippy SDK`提供默认空实现`，`DefaultExceptionHandler`。当你的业务基于Hippy上线后，必然会出现一些JS异常，监控这些异常对于线上质量具有很重要的意义。Hippy SDK会抓取这些JS异常，然后通过HippyExceptionHandlerAdapter抛给使用者。
+Hippy SDK 提供默认空实现 `DefaultExceptionHandler`。当你的业务基于 Hippy 上线后，必然会出现一些JS异常，监控这些异常对于线上质量具有很重要的意义。Hippy SDK 会抓取这些 JS 异常，然后通过 `HippyExceptionHandlerAdapter` 抛给使用者。
 
 ## handleJsException
 
-处理抓取到的JS异常。JS异常不会导致引擎不可运行，但可能导致用户感知或者业务逻辑出现问题，是线上质量的最重要衡量标准。
+处理抓取到的JS异常。JS 异常不会导致引擎不可运行，但可能导致用户感知或者业务逻辑出现问题，是线上质量的最重要衡量标准。
 
 # HippySharedPreferencesAdapter
 
-Hippy SDK`提供默认的实现`，`DefaultSharedPreferencesAdapter`。大多数场景也不需要进行扩展。
+Hippy SDK 提供默认的实现 `DefaultSharedPreferencesAdapter`。大多数场景也不需要进行扩展。
 
 # HippyStorageAdapter
 
-Hippy SDK`提供默认的实现`，`DefaultStorageAdapter`。
+Hippy SDK 提供默认的实现 `DefaultStorageAdapter`。
 
 # HippyExecutorSupplierAdapter
 
-Hippy SDK`提供默认的实现`，`DefaultExecutorSupplierAdapter`。
+Hippy SDK 提供默认的实现 `DefaultExecutorSupplierAdapter`。
 
 # HippyEngineMonitorAdapter
 
-Hippy SDK`提供默认空实现`，`DefaultEngineMonitorAdapter`。当你需要查看引擎加载速度和模块加载速度时，可以通过此Adapter获取到相关信息。
+Hippy SDK 提供默认空实现 `DefaultEngineMonitorAdapter`。当你需要查看引擎加载速度和模块加载速度时，可以通过此Adapter获取到相关信息。

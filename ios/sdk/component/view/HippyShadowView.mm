@@ -147,7 +147,7 @@ DEFINE_PROCESS_META_PROPS(Border);
 - (void)applyLayoutNode:(MTTNodeRef)node
       viewsWithNewFrame:(NSMutableSet<HippyShadowView *> *)viewsWithNewFrame
        absolutePosition:(CGPoint)absolutePosition {
-    if (!MTTNodeHasNewLayout(node)) {
+    if (!MTTNodeHasNewLayout(node) && !_visibilityChanged) {
         return;
     }
     MTTNodesetHasNewLayout(node, false);
@@ -156,6 +156,12 @@ DEFINE_PROCESS_META_PROPS(Border);
     if (!MTTNodeGetParent(_nodeRef)) {
         left = MTTNodeLayoutGetPosition(_nodeRef, CSSLeft);
         top = MTTNodeLayoutGetPosition(_nodeRef, CSSTop);
+        if (isnan(left)) {
+            left = 0;
+        }
+        if (isnan(top)) {
+            top = 0;
+        }
     }
     float width = MTTNodeLayoutGetWidth(node);
     float height = MTTNodeLayoutGetHeight(node);
@@ -170,9 +176,11 @@ DEFINE_PROCESS_META_PROPS(Border);
                      },
         { HippyRoundPixelValue(absoluteBottomRight.x - absoluteTopLeft.x), HippyRoundPixelValue(absoluteBottomRight.y - absoluteTopLeft.y) } };
 
-    if (!CGRectEqualToRect(frame, _frame)) {
+    if (!CGRectEqualToRect(frame, _frame) ||
+        _visibilityChanged) {
         _frame = frame;
         [viewsWithNewFrame addObject:self];
+        _visibilityChanged = NO;
     }
 
     absolutePosition.x += MTTNodeLayoutGetLeft(node);
@@ -367,7 +375,7 @@ DEFINE_PROCESS_META_PROPS(Border);
 
         _hippySubviews = [NSMutableArray array];
 
-        _nodeRef = MTTNodeNew();
+        _nodeRef = MTTNodeNewWithScaleFactor([UIScreen mainScreen].scale);
     }
     return self;
 }
@@ -412,6 +420,14 @@ DEFINE_PROCESS_META_PROPS(Border);
 
 - (BOOL)isHidden {
     return _hidden || [_visibility isEqualToString:@"hidden"];
+}
+
+- (void)setVisibility:(NSString *)visibility {
+    if (![_visibility isEqualToString:visibility]) {
+        _visibility = visibility;
+        _visibilityChanged = YES;
+        MTTNodeMarkDirty(self.nodeRef);
+    }
 }
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {

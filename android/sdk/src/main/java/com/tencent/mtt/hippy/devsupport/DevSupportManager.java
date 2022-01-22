@@ -32,6 +32,10 @@ public class DevSupportManager {
     mSupportDev = enableDev;
   }
 
+  public DevServerInterface getDevImp() {
+    return this.mDevImp;
+  }
+
   public void setDevCallback(DevServerCallBack devCallback) {
     mDevImp.setDevServerCallback(devCallback);
   }
