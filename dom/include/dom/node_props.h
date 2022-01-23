@@ -178,7 +178,7 @@ constexpr const char* kModal_ImmersionStatusBar = "immersionStatusBar";
 constexpr const char* kModal_OnRequestClose = "onRequestClose";
 
 constexpr const char* kNodeType = "nodeType";
-constexpr const char* kNodeId = "id";
+constexpr const char* kId = "id";
 constexpr const char* kBorderLeft = "borderLeft";
 constexpr const char* kBorderTop = "borderTop";
 constexpr const char* kBorderRight = "borderRight";
@@ -193,6 +193,20 @@ constexpr const char* kBorder = "border";
 constexpr const char* kBgColor = "bgColor";
 
 constexpr const char* kTagNameView = "View";
+
+constexpr const char* kRootId = "rootId";
+constexpr const char* kNodeId = "nodeId";
+constexpr const char* kChildren = "children";
+constexpr const char* kChildNodeCount = "childNodeCount";
+constexpr const char* kNodeName = "nodeName";
+constexpr const char* kLocalName = "localName";
+constexpr const char* kClassName = "className";
+constexpr const char* kNodeValue = "nodeValue";
+constexpr const char* kParentId = "parentId";
+constexpr const char* kAttributes = "attributes";
+constexpr const char* kLayoutX = "x";
+constexpr const char* kLayoutY = "y";
+constexpr const char* kHitNodeRelationTree = "hitNodeRelationTree";
 
 }  // namespace dom
 }  // namespace hippy

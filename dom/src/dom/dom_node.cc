@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <utility>
 #include "base/logging.h"
-#include "dom/dom_domain_data_props.h"
 #include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
@@ -314,7 +313,7 @@ nlohmann::json DomNode::ToJSONString() {
   } else {
     node_json[kNodeType] = "";
   }
-  node_json[kNodeId] = id_;
+  node_json[kId] = id_;
   if (layout_node_) {
 //    if (layout_node_->GetWidth() != (layout_node_->GetRight() - layout_node_->GetLeft())) {
       TDF_BASE_DLOG(INFO) << "invalid bounds width:" << layout_node_->GetWidth() << " left:" << layout_node_->GetLeft() << " right:" << layout_node_->GetRight()
@@ -349,22 +348,22 @@ nlohmann::json DomNode::ToJSONString() {
 nlohmann::json DomNode::GetDomDomainData(uint32_t depth) {
   auto dom_manager = dom_manager_.lock();
   auto domain_json = nlohmann::json::object();
-  domain_json[kDomainNodeId] = GetId();
-  domain_json[kDomainParentId] = GetPid();
-  domain_json[kDomainRootId] = dom_manager->GetRootId();
-  domain_json[kDomainClassName] = GetViewName();
-  domain_json[kDomainNodeName] = GetTagName();
-  domain_json[kDomainLocalName] = GetTagName();
-  domain_json[kDomainNodeValue] = "";
-  domain_json[kDomainChildNodeCount] = children_.size();
+  domain_json[kNodeId] = GetId();
+  domain_json[kParentId] = GetPid();
+  domain_json[kRootId] = dom_manager->GetRootId();
+  domain_json[kClassName] = GetViewName();
+  domain_json[kNodeName] = GetTagName();
+  domain_json[kLocalName] = GetTagName();
+  domain_json[kNodeValue] = "";
+  domain_json[kChildNodeCount] = children_.size();
 
   if (!GetStyleMap().empty()) {
     auto style_props = GetStyleMap();
-    domain_json[kDomainStyle] = ParseNodeProps(style_props);
+    domain_json[kStyle] = ParseNodeProps(style_props);
   }
   if (!GetExtStyle().empty()) {
     auto attribute_props = GetExtStyle();
-    domain_json[kDomainAttributes] = ParseNodeProps(attribute_props);
+    domain_json[kAttributes] = ParseNodeProps(attribute_props);
   }
   // 每获取一层数据 深度减一
   depth--;
@@ -373,11 +372,11 @@ nlohmann::json DomNode::GetDomDomainData(uint32_t depth) {
     return domain_json;
   }
   auto children_data_json = nlohmann::json::array();
-  domain_json[kDomainChildren] = children_data_json;
-  domain_json[kDomainLayoutX] = layout_node_->GetLeft();
-  domain_json[kDomainLayoutY] = layout_node_->GetTop();
-  domain_json[kDomainLayoutWidth] = layout_node_->GetWidth();
-  domain_json[kDomainLayoutHeight] = layout_node_->GetHeight();
+  domain_json[kChildren] = children_data_json;
+  domain_json[kLayoutX] = layout_node_->GetLeft();
+  domain_json[kLayoutY] = layout_node_->GetTop();
+  domain_json[kWidth] = layout_node_->GetWidth();
+  domain_json[kHeight] = layout_node_->GetHeight();
   return domain_json;
 }
 
@@ -395,8 +394,8 @@ nlohmann::json DomNode::GetNodeIdByDomLocation(double x, double y) {
     hit_node_relation_tree_json.push_back(temp_hit_node->GetId());
     temp_hit_node = temp_hit_node->GetParent();
   }
-  result_json[kDomainNodeId] = node_id;
-  result_json[kDomainHitNodeRelationTree] = hit_node_relation_tree_json;
+  result_json[kNodeId] = node_id;
+  result_json[kHitNodeRelationTree] = hit_node_relation_tree_json;
   return result_json;
 }
 
@@ -420,8 +419,8 @@ bool DomNode::IsLocationHitNode(double x, double y) {
   double self_y = layout_node_->GetTop();
   auto bounds_json = GetNodeBounds();
   if (bounds_json.is_object()) {
-    self_x = bounds_json[kDomainLeft];
-    self_y = bounds_json[kDomainTop];
+    self_x = bounds_json[kLeft];
+    self_y = bounds_json[kTop];
   }
   bool in_top_offset = (x >= self_x) && (y >= self_y);
   bool in_bottom_offset = (x <= self_x + layout_node_->GetWidth()) && (y <= self_y + layout_node_->GetHeight());
@@ -430,10 +429,10 @@ bool DomNode::IsLocationHitNode(double x, double y) {
 
 nlohmann::json DomNode::GetNodeBounds() {
   nlohmann::json bounds_json;
-  bounds_json[kDomainTop] = layout_node_->GetTop();
-  bounds_json[kDomainLeft] = layout_node_->GetLeft();
-  bounds_json[kDomainBottom] = layout_node_->GetBottom();
-  bounds_json[kDomainRight] = layout_node_->GetRight();
+  bounds_json[kTop] = layout_node_->GetTop();
+  bounds_json[kLeft] = layout_node_->GetLeft();
+  bounds_json[kBottom] = layout_node_->GetBottom();
+  bounds_json[kRight] = layout_node_->GetRight();
 
   return bounds_json;
 }

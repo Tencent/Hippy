@@ -85,7 +85,7 @@ UIManagerModule::~UIManagerModule() = default;
 std::tuple<bool, std::string, int32_t> GetNodeId(const std::shared_ptr<Ctx> &context,
                                                  const std::shared_ptr<CtxValue> &node) {
   // parse id
-  std::shared_ptr<CtxValue> id_value = context->GetProperty(node, hippy::kNodeId);
+  std::shared_ptr<CtxValue> id_value = context->GetProperty(node, hippy::kId);
   if (!id_value) {
     return std::make_tuple(false, "Get property id failed", kInvalidValue);
   }
