@@ -218,6 +218,17 @@ std::vector<std::shared_ptr<DomNode::EventListenerInfo>> DomNode::GetEventListen
 
 void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(*style_map_); }
 
+LayoutResult DomNode::GetLayoutInfoFromRoot() {
+  LayoutResult result = layout_;
+  auto parent = parent_.lock();
+  while (parent != nullptr) {
+    result.top += parent->GetLayoutResult().top;
+    result.left += parent->GetLayoutResult().left;
+    parent = parent->GetParent();
+  }
+  return result;
+}
+
 void DomNode::TransferLayoutOutputsRecursive() {
   bool changed = layout_.left != layout_node_->GetLeft() || layout_.top != layout_node_->GetTop() ||
                  layout_.width != layout_node_->GetWidth() || layout_.height != layout_node_->GetHeight();

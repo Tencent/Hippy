@@ -89,6 +89,10 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void DoLayout();
   void HandleEvent(const std::shared_ptr<DomEvent> &event);
   void ParseLayoutStyleInfo();
+  /**
+   * this method should run in dom taskrunner
+   * */
+  LayoutResult GetLayoutInfoFromRoot();
   void TransferLayoutOutputsRecursive();
   std::tuple<float, float> GetLayoutSize();
   void SetLayoutSize(float width, float height);
