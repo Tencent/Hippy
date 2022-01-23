@@ -360,11 +360,11 @@ nlohmann::json DomNode::GetDomDomainData(uint32_t depth) {
 
   if (!GetStyleMap().empty()) {
     auto style_props = GetStyleMap();
-//    domain_json[kDomainStyle] = ParseNodeProps(style_props->second);  // TODO:thomasyqguo
+    domain_json[kDomainStyle] = ParseNodeProps(style_props);
   }
   if (!GetExtStyle().empty()) {
     auto attribute_props = GetExtStyle();
-//    domain_json[kDomainAttributes] = ParseNodeProps(attribute_props->second); // TODO:thomasyqguo
+    domain_json[kDomainAttributes] = ParseNodeProps(attribute_props);
   }
   // 每获取一层数据 深度减一
   depth--;
