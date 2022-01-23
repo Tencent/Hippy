@@ -122,7 +122,7 @@ bool LayerOptimizedRenderManager::ComputeIsLayoutOnly(const std::shared_ptr<DomN
 
 bool LayerOptimizedRenderManager::CheckStyleJustLayout(std::shared_ptr<DomNode> node) const {
   const auto &style_map = node->GetStyleMap();
-  for (const auto &entry : style_map) {
+  for (const auto &entry : *style_map) {
     const auto &key = entry.first;
     const auto &value = entry.second;
 
@@ -135,14 +135,14 @@ bool LayerOptimizedRenderManager::CheckStyleJustLayout(std::shared_ptr<DomNode> 
         continue;
       }
     } else if (key == kBorderRadius) {
-      const auto &background_color = style_map.find(kBackgroundColor);
-      if (background_color != style_map.end() &&
+      const auto &background_color = style_map->find(kBackgroundColor);
+      if (background_color != style_map->end() &&
           (*background_color).second->IsNumber() &&
           (*background_color).second->ToInt32() != 0) {
         return false;
       }
-      const auto &border_width = style_map.find(kBorderWidth);
-      if (border_width != style_map.end() &&
+      const auto &border_width = style_map->find(kBorderWidth);
+      if (border_width != style_map->end() &&
           (*border_width).second->IsNumber() &&
           (*border_width).second->ToDouble() != 0) {
         return false;

@@ -27,7 +27,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   using TaskRunner = hippy::base::TaskRunner;
 
   DomManager(uint32_t root_id);
-  ~DomManager();
+  ~DomManager() = default;
 
   int32_t GetId() { return id_; }
 

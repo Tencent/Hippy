@@ -57,10 +57,6 @@ bool DomManager::Erase(int32_t id) {
 
 bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
-DomManager::~DomManager() {
-  dom_task_runner_->Terminate();
-}
-
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes = std::move(nodes)]() {
     DEFINE_AND_CHECK_SELF(DomManager)
@@ -107,13 +103,14 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
         continue;
       }
       // diff props
-      DomValueMap style_diff = DiffUtils::DiffProps(node->GetStyleMap(), it.get()->GetStyleMap());
-      DomValueMap ext_diff = DiffUtils::DiffProps(node->GetExtStyle(), it.get()->GetExtStyle());
+      DomValueMap style_diff = DiffUtils::DiffProps(*node->GetStyleMap(), *it->GetStyleMap());
+      DomValueMap ext_diff = DiffUtils::DiffProps(*node->GetExtStyle(), *it->GetExtStyle());
       style_diff.insert(ext_diff.begin(), ext_diff.end());
-      node->SetStyleMap(it.get()->GetStyleMap());
-      node->SetExtStyleMap(it.get()->GetExtStyle());
-      node->SetDiffStyle(style_diff);
-      it->SetDiffStyle(std::move(style_diff));
+      node->SetStyleMap(it->GetStyleMap());
+      node->SetExtStyleMap(it->GetExtStyle());
+      auto diff_ptr = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(style_diff));
+      node->SetDiffStyle(diff_ptr);
+      it->SetDiffStyle(diff_ptr);
       it->SetRenderInfo(node->GetRenderInfo());
       // node->ParseLayoutStyleInfo();
       self->HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, nullptr));
