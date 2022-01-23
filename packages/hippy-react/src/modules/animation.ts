@@ -124,7 +124,7 @@ function parseValue(valueType: string | undefined, originalValue: number | strin
 class Animation implements Animation {
   public constructor(config: AnimationOptions) {
     let startValue: AnimationValue = 0;
-    if (config.startValue && config.startValue.constructor && config.startValue.constructor.name === 'Animation') {
+    if (config.startValue?.constructor && config.startValue.constructor.name === 'Animation') {
       startValue = { animationId: (config.startValue as Animation).animationId };
     } else {
       const { startValue: tempStartValue } = config;

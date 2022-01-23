@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import React, { LegacyRef, ReactNode } from 'react';
+import React, { LegacyRef } from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';

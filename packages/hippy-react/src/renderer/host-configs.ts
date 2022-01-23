@@ -27,7 +27,6 @@ import {
   Type,
   Props,
   UpdatePayload,
-  Context,
 } from '../types';
 import { endBatch } from './render';
 
@@ -218,11 +217,11 @@ function resetAfterCommit() {}
 function resetTextContent() {
 }
 
-function getRootHostContext(): Context {
+function getRootHostContext() {
   return {};
 }
 
-function getChildHostContext(): Context {
+function getChildHostContext() {
   return {};
 }
 
