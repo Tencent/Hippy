@@ -340,7 +340,7 @@ declare namespace HippyTypes {
     webSocketId?: number;
   }
 
-  export type WebSocket = HippyWebSocket | any
+  export type WebSocket = HippyWebSocket | any;
 
   export interface HippyConstance {
     asyncStorage: AsyncStorage;
