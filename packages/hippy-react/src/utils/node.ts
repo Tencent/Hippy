@@ -95,7 +95,7 @@ function unCacheFiberNode(nodeId: number): void {
  * @param {number} fiberNode
  */
 function getElementFromFiber(fiberNode: Fiber) {
-  return (fiberNode && fiberNode.stateNode) || null;
+  return fiberNode?.stateNode || null;
 }
 
 /**
