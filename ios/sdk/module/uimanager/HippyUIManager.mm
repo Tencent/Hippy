@@ -336,7 +336,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     _viewRegistry[hippyTag] = rootView;
 
     CGRect frame = rootView.frame;
-    
+
     UIColor *backgroundColor = [rootView backgroundColor];
     // Register shadow view
     dispatch_async(HippyGetUIManagerQueue(), ^{
@@ -509,13 +509,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)containerID) {
     id<HippyComponent> container = _shadowViewRegistry[containerID];
     HippyAssert(container != nil, @"container view (for ID %@) not found", containerID);
-    
+
     NSUInteger subviewsCount = [container hippySubviews].count;
     NSMutableArray<NSNumber *> *indices = [[NSMutableArray alloc] initWithCapacity:subviewsCount];
     for (NSUInteger childIndex = 0; childIndex < subviewsCount; childIndex++) {
         [indices addObject:@(childIndex)];
     }
-    
+
     [self manageChildren:containerID
          moveFromIndices:nil
            moveToIndices:nil
@@ -564,7 +564,7 @@ HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootHippyTag) {
             fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)_shadowViewRegistry];
     [_shadowViewRegistry removeObjectForKey:rootHippyTag];
     [_rootViewTags removeObject:rootHippyTag];
-        
+
     [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         HippyAssertMainQueue();
         UIView *rootView = viewRegistry[rootHippyTag];
@@ -585,10 +585,10 @@ HIPPY_EXPORT_METHOD(replaceExistingNonRootView:(nonnull NSNumber *)hippyTag
                   withView:(nonnull NSNumber *)newHippyTag) {
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
     HippyAssert(shadowView != nil, @"shadowView (for ID %@) not found", hippyTag);
-    
+
     HippyShadowView *superShadowView = shadowView.superview;
     HippyAssert(superShadowView != nil, @"shadowView super (of ID %@) not found", hippyTag);
-    
+
     NSUInteger indexOfView = [superShadowView.hippySubviews indexOfObject:shadowView];
     HippyAssert(indexOfView != NSNotFound, @"View's superview doesn't claim it as subview (id %@)", hippyTag);
     NSArray<NSNumber *> *removeAtIndices = @[@(indexOfView)];
@@ -745,7 +745,7 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
     HippyComponentData *componentData = _componentDataByName[viewName];
     HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
     if (shadowView) {
-        NSDictionary *props = unorderedMapDomValueToDictionary(domNode->GetExtStyle());
+        NSDictionary *props = unorderedMapDomValueToDictionary(*domNode->GetExtStyle());
         id isAnimated = props[@"useAnimation"];
         if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
             HippyExtAnimationModule *animationModule = self.bridge.animationModule;
@@ -754,7 +754,7 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
         } else {
             shadowView.animated = NO;
         }
-        
+
         NSMutableDictionary *newProps = [NSMutableDictionary dictionaryWithDictionary: props];
         [newProps setValue: rootTag forKey: @"rootTag"];
         shadowView.rootTag = rootTag;
@@ -787,10 +787,10 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
     } else {
         shadowView.animated = NO;
     }
-    
+
     NSMutableDictionary *newProps = [NSMutableDictionary dictionaryWithDictionary: props];
     [newProps setValue: rootTag forKey: @"rootTag"];
-    
+
     // Register shadow view
     if (shadowView) {
         shadowView.hippyTag = hippyTag;
@@ -817,7 +817,7 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
                            properties:(NSDictionary *)props
                              viewName:(NSString *)viewName {
     UIView *view = [self viewForHippyTag:hippyTag];
-    
+
     BOOL canBeRetrievedFromCache = YES;
     if (view && [view respondsToSelector:@selector(canBeRetrievedFromViewCache)]) {
         canBeRetrievedFromCache = [view canBeRetrievedFromViewCache];
@@ -877,7 +877,7 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
                   props:(NSDictionary *)props) {
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
     HippyComponentData *componentData = _componentDataByName[shadowView.viewName ?: viewName];
-    
+
     id isAnimated = props[@"useAnimation"];
     if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
         HippyExtAnimationModule *animationModule = self.bridge.animationModule;
@@ -886,7 +886,7 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
     } else {
         shadowView.animated = NO;
     }
-        
+
     NSDictionary *newProps = props;
     NSDictionary *virtualProps = props;
     if (shadowView) {
@@ -911,7 +911,7 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
     Class managerClass = componentData.managerClass;
     HippyModuleData *moduleData = [_bridge moduleDataForName:HippyBridgeModuleNameForClass(managerClass)];
     id<HippyBridgeMethod> method = moduleData.methods[commandID];
-    
+
     NSArray *args = [@[hippyTag] arrayByAddingObjectsFromArray:commandArgs];
     [method invokeWithBridge:_bridge module:componentData.manager arguments:args];
 }
@@ -1011,7 +1011,7 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
                 @try {
                     for (HippyViewManagerUIBlock block in previousPendingUIBlocks) {
                         block(uiManager, uiManager->_viewRegistry);
-                    }                    
+                    }
                 } @catch (NSException *exception) {
                     HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                 }
@@ -1047,7 +1047,7 @@ HIPPY_EXPORT_METHOD(measure:(nonnull NSNumber *)hippyTag
             callback(@[]);
             return;
         }
-        
+
         // If in a <Modal>, rootView will be the root of the modal container.
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
@@ -1055,12 +1055,12 @@ HIPPY_EXPORT_METHOD(measure:(nonnull NSNumber *)hippyTag
             callback(@[]);
             return;
         }
-        
+
         // By convention, all coordinates, whether they be touch coordinates, or
         // measurement coordinates are with respect to the root view.
         CGRect frame = view.frame;
         CGPoint pagePoint = [view.superview convertPoint:frame.origin toView:rootView];
-        
+
         callback(@[
                    @(frame.origin.x),
                    @(frame.origin.y),
@@ -1090,7 +1090,7 @@ HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
             callback(@[]);
             return;
         }
-        
+
         CGRect windowFrame = [rootView convertRect:view.frame fromView:view.superview];
         callback(@[@{@"width":@(CGRectGetWidth(windowFrame)),
                      @"height": @(CGRectGetHeight(windowFrame)),
@@ -1111,7 +1111,7 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
             callback(@[]);
             return;
         }
-                
+
         CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
         callback(@[@{@"width":@(CGRectGetWidth(windowFrame)),
                      @"height": @(CGRectGetHeight(windowFrame)),
@@ -1216,8 +1216,8 @@ static UIView *_jsResponder;
         NSNumber *hippyTag = @(node->GetId());
         NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
         NSString *tagName = [NSString stringWithUTF8String:node->GetTagName().c_str()];
-        NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
-        NSDictionary *extProps = unorderedMapDomValueToDictionary(node->GetExtStyle());
+        NSDictionary *styleProps = unorderedMapDomValueToDictionary(*node->GetStyleMap());
+        NSDictionary *extProps = unorderedMapDomValueToDictionary(*node->GetExtStyle());
         NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:styleProps];
         [props addEntriesFromDictionary:extProps];
         NSNumber *rootTag = [_rootViewTags anyObject];
@@ -1233,8 +1233,8 @@ static UIView *_jsResponder;
     for (const auto &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
         NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
-        NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
-        NSDictionary *extProps = unorderedMapDomValueToDictionary(node->GetExtStyle());
+        NSDictionary *styleProps = unorderedMapDomValueToDictionary(*node->GetStyleMap());
+        NSDictionary *extProps = unorderedMapDomValueToDictionary(*node->GetExtStyle());
         NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:styleProps];
         [props addEntriesFromDictionary:extProps];
         [self updateView:hippyTag viewName:viewName props:props];
@@ -1244,7 +1244,7 @@ static UIView *_jsResponder;
 - (void)renderUpdateView:(int32_t)hippyTag
                 viewName:(const std::string &)name
                    props:(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &)styleMap {
-    
+
 }
 
 - (void)renderDeleteNodes:(const std::vector<std::shared_ptr<DomNode>> &)nodes {
@@ -1278,8 +1278,8 @@ static UIView *_jsResponder;
     for (const auto &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
         NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
-        NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
-        NSDictionary *extProps = unorderedMapDomValueToDictionary(node->GetExtStyle());
+        NSDictionary *styleProps = unorderedMapDomValueToDictionary(*node->GetStyleMap());
+        NSDictionary *extProps = unorderedMapDomValueToDictionary(*node->GetExtStyle());
         NSMutableDictionary *combinedProps = [NSMutableDictionary dictionaryWithDictionary:styleProps];
         [combinedProps addEntriesFromDictionary:extProps];
         NSDictionary *props = [combinedProps copy];
@@ -1300,11 +1300,11 @@ static UIView *_jsResponder;
             if ([props objectForKey:@"width"]) {
                 frame.size.width = [props[@"width"] floatValue];
             }
-            
+
         } else {
             shadowView.animated = NO;
         }
-            
+
         NSDictionary *newProps = props;
         NSDictionary *virtualProps = props;
         if (shadowView) {

@@ -104,21 +104,21 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void RemoveRenderListener(const std::string& name, uint32_t id);
   std::vector<std::shared_ptr<DomNode::EventListenerInfo>> GetEventListener(const std::string &name,
                                                                             bool is_capture);
-  const std::unordered_map<std::string,
-                           std::shared_ptr<DomValue>> &GetStyleMap() const { return style_map_; }
-  void SetStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) {
+  const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> GetStyleMap() const {
+    return style_map_;
+  }
+  void SetStyleMap(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style) {
     style_map_ = style;
   }
-  void CallFunction(const std::string &name,
-                    const DomArgument &param,
-                    const CallFunctionCallback &cb);
-  const std::unordered_map<std::string,
-                           std::shared_ptr<DomValue>> &GetExtStyle() { return dom_ext_map_; }
-  void SetExtStyleMap(std::unordered_map<std::string, std::shared_ptr<DomValue>> style) {
+  void CallFunction(const std::string& name, const DomArgument& param, const CallFunctionCallback& cb);
+  const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> GetExtStyle() {
+    return dom_ext_map_;
+  }
+  void SetExtStyleMap(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style) {
     dom_ext_map_ = style;
   }
-  const std::unordered_map<std::string, std::shared_ptr<DomValue>> GetDiffStyle() { return diff_; }
-  void SetDiffStyle(std::unordered_map<std::string, std::shared_ptr<DomValue>> diff) {
+  const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> GetDiffStyle() { return diff_; }
+  void SetDiffStyle(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff) {
     diff_ = std::move(diff);
   }
 
@@ -131,11 +131,11 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   int32_t index_;          // 当前节点在父节点孩子数组中的索引位置
   std::string tag_name_;   // DSL 中定义的组件名称
   std::string view_name_;  // 底层映射的组件
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> style_map_;
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map_;
   // 样式预处理后结果
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> dom_ext_map_;
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> dom_ext_map_;
   //  用户自定义数据
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> diff_;
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff_;
   // Update 时用户自定义数据差异，UpdateRenderNode 完成后会清空 map，以节省内存
 
   std::shared_ptr<LayoutNode> layout_node_;

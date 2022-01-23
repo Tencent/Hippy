@@ -95,14 +95,14 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
     tdf::base::DomValue::DomValueObjectType props;
     // 样式属性
     auto style = nodes[i]->GetStyleMap();
-    auto iter = style.begin();
-    while (iter != style.end()) {
+    auto iter = style->begin();
+    while (iter != style->end()) {
       props[iter->first] = *(iter->second);
       iter++;
     }
 
     // 用户自定义属性
-    auto dom_ext = nodes[i]->GetExtStyle();
+    auto dom_ext = *nodes[i]->GetExtStyle();
     iter = dom_ext.begin();
     while (iter != dom_ext.end()) {
       props[iter->first] = *(iter->second);
@@ -135,14 +135,14 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
     tdf::base::DomValue::DomValueObjectType props;
     // 样式属性
     auto style = nodes[i]->GetStyleMap();
-    auto iter = style.begin();
-    while (iter != style.end()) {
+    auto iter = style->begin();
+    while (iter != style->end()) {
       props[iter->first] = *(iter->second);
       iter++;
     }
 
     // 用户自定义属性
-    auto dom_ext = nodes[i]->GetExtStyle();
+    auto dom_ext = *nodes[i]->GetExtStyle();
     iter = dom_ext.begin();
     while (iter != dom_ext.end()) {
       props[iter->first] = *(iter->second);
