@@ -29,6 +29,9 @@
 #include "dom/dom_event.h"
 #import "HippyUIManager.h"
 
+/**
+ * NativeRenderManager is used to manager view creation, update and delete for Native UI
+ */
 class NativeRenderManager : public hippy::RenderManager {
     using DomValue = tdf::base::DomValue;
     using DomManager = hippy::DomManager;
@@ -41,20 +44,80 @@ class NativeRenderManager : public hippy::RenderManager {
 public:
     NativeRenderManager(HippyUIManager *uiManager):uiManager_(uiManager){}
 
+    /**
+     *  create views from dom nodes
+     *  @param nodes A set of nodes for creating views
+     */
     void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+    
+    /**
+     *  update views' properties from dom nodes
+     *  @param nodes A set of nodes for updating views' properties
+     */
     void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+    
+    /**
+     *  delete views from dom nodes
+     *  @param nodes A set of nodes for deleting views
+     */
     void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+    
+    /**
+     * update layout for view
+     *
+     * @param nodes A set of nodes ids for views to update
+     */
     void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
-    void MoveRenderNode(std::vector<int32_t>&& ids,
-                        int32_t pid,
-                        int32_t id) override;
+    
+    /**
+     * move views from container to another container
+     *
+     * @param ids A set of nodes ids id to move
+     * @param pid Source view container from which views move
+     * @param id Target view container to which views move
+     */
+    void MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) override;
+    
+    /**
+     * Invoked after batched operations completed
+     */
     void EndBatch() override;
+    
+    /**
+     * Invoked before nodes do layout
+     */
     void BeforeLayout() override;
+
+    /**
+     * Invoked after nodes do layout
+     */
     void AfterLayout() override;
 
+    /**
+     * register event for specific view
+     *
+     * @param dom_node node for the event
+     * @param name event name
+     */
     void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+    
+    /**
+     * unregister event for specific view
+     *
+     * @param dom_node node for the event
+     * @param name event name
+     */
     void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) override;
 
+    /**
+     * call function of view
+     *
+     * @param dom_node A dom node whose function to be invoked
+     * @param name function name
+     * @param param parameters of function to be invoked
+     * @param cb Callback id
+     * @discussion Caller can get callback block from id by DomNode::GetCallback function
+     */
     void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
                       const DomArgument& param,
                       uint32_t cb) override;
