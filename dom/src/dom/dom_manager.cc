@@ -101,7 +101,6 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes]() {
     DEFINE_AND_CHECK_SELF(DomManager)
-    std::vector<std::shared_ptr<DomNode>> update_nodes;
     for (const auto& it : nodes) {
       std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode(it->GetId());
       if (node == nullptr) {
@@ -113,9 +112,10 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       style_diff.insert(ext_diff.begin(), ext_diff.end());
       node->SetStyleMap(it.get()->GetStyleMap());
       node->SetExtStyleMap(it.get()->GetExtStyle());
-      node->SetDiffStyle(std::move(style_diff));
+      node->SetDiffStyle(style_diff);
+      it->SetDiffStyle(std::move(style_diff));
+      it->SetRenderInfo(node->GetRenderInfo());
       // node->ParseLayoutStyleInfo();
-      update_nodes.push_back(node);
       self->HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, nullptr));
 
       // 延迟更新 layout tree
@@ -126,8 +126,8 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       });
     }
 
-    if (!update_nodes.empty()) {
-      self->batched_operations_.emplace_back([self, moved_nodes = std::move(update_nodes)]() mutable {
+    if (!nodes.empty()) {
+      self->batched_operations_.emplace_back([self, moved_nodes = std::move(nodes)]() mutable {
         auto render_manager = self->render_manager_.lock();
         TDF_BASE_DCHECK(render_manager);
         if (render_manager) {
@@ -141,7 +141,6 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes] {
     DEFINE_AND_CHECK_SELF(DomManager)
-    std::vector<std::shared_ptr<DomNode>> delete_nodes;
     for (auto it = nodes.begin(); it != nodes.end(); it++) {
       std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode((*it)->GetId());
       if (node == nullptr) {
@@ -152,7 +151,6 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
         parent_node->RemoveChildAt(parent_node->IndexOf(node));
       }
       self->DeleteDomNode(node);
-      delete_nodes.push_back(node);
       self->HandleEvent(std::make_shared<DomEvent>(kOnDomDeleted, node, nullptr));
 
       // 延迟删除 layout tree
@@ -162,8 +160,8 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
           [layout_node, parent_layout_node]() { parent_layout_node->RemoveChild(layout_node); });
     }
 
-    if (!delete_nodes.empty()) {
-      self->batched_operations_.emplace_back([self, moved_nodes = std::move(delete_nodes)]() mutable {
+    if (!nodes.empty()) {
+      self->batched_operations_.emplace_back([self, moved_nodes = std::move(nodes)]() mutable {
         auto render_manager = self->render_manager_.lock();
         TDF_BASE_DCHECK(render_manager);
         if (render_manager) {
