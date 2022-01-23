@@ -184,7 +184,7 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
   // Translate to native node
   const nativeNode: HippyTypes.NativeNode = {
     id: targetNode.nodeId,
-    pId: (targetNode.parentNode && targetNode.parentNode.nodeId) || rootViewId,
+    pId: (targetNode.parentNode?.nodeId) || rootViewId,
     index: targetNode.index,
     name: targetNode.nativeName,
     props: {

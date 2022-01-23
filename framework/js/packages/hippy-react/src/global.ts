@@ -22,10 +22,8 @@ if (!global.__GLOBAL__) {
   global.__GLOBAL__ = {} as HippyTypes.__GLOBAL__;
 }
 
-const { __GLOBAL__ } = global as (HippyTypes.HippyGlobal & typeof globalThis);
-
-__GLOBAL__.nodeId = 0;
-__GLOBAL__.animationId = 0;
+global.__GLOBAL__.nodeId = 0;
+global.__GLOBAL__.animationId = 0;
 
 const {
   asyncStorage: AsyncStorage,

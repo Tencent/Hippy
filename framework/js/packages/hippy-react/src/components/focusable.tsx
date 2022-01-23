@@ -80,9 +80,9 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
     const child = React.Children.only(children) as Fiber;
     let type;
 
-    if (child && child.child && child.child.memoizedProps && child.child.memoizedProps.nativeName) {
+    if (child?.child?.memoizedProps?.nativeName) {
       type = child.child.memoizedProps.nativeName;
-    } else if (child && child.type && child.type.displayName) {
+    } else if (child?.type?.displayName) {
       type = child.type.displayName;
     }
 
