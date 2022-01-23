@@ -305,38 +305,44 @@ bool DomNode::HasTouchEventListeners() {
 }
 
 nlohmann::json DomNode::ToJSONString() {
-  nlohmann::json node_json;
-//  node_json[K_NODE_TYPE] = GetNodeTag();
-//  node_json[K_NODE_ID] = id_;
-//  node_json[K_WIDTH] = width_;
-//  node_json[K_HEIGHT] = height_;
-//  node_json[K_BORDER_COLOR] = border_color_;
-//  if (!node_info_.GetProps().IsNull() && !node_info_.GetProps().IsUndefined()) {
-//    node_json[K_TOTAL_PROPS] = ParseNodeProps(node_info_.GetProps());
-//  }
-//  node_json[K_FLEX_NODE_STYLE] = flex_node_style_->ParseNodeStyle();
-//
-//  // node personal props
-//  nlohmann::json personal_json = ParseNodePersonalProps();
-//  if (!personal_json.empty()) {
-//    node_json.merge_patch(personal_json);
-//  }
-//
-//  // bounds
-//  nlohmann::json bounds_json = GetNodeBounds();
-//  node_json[K_BOUNDS] = bounds_json;
-//
-//  // child
-//  if (!children_.empty()) {
-//    nlohmann::json child_json_array = nlohmann::json::array();
-//    for (int i = 0; i < children_.size(); i++) {
-//      if (children_[i]->IsObjectAttach()) {
-//        child_json_array.push_back(std::move(children_[i]->ToJSONString()));
-//      }
+  TDF_BASE_DLOG(INFO) << "node_json1";
+  nlohmann::json node_json{};
+  if (!tag_name_.empty()) {
+    node_json[kNodeType] = tag_name_;
+  } else if(!view_name_.empty()){
+    node_json[kNodeType] = view_name_;
+  } else {
+    node_json[kNodeType] = "";
+  }
+  node_json[kNodeId] = id_;
+  if (layout_node_) {
+//    if (layout_node_->GetWidth() != (layout_node_->GetRight() - layout_node_->GetLeft())) {
+      TDF_BASE_DLOG(INFO) << "invalid bounds width:" << layout_node_->GetWidth() << " left:" << layout_node_->GetLeft() << " right:" << layout_node_->GetRight()
+      << "margin left:" << layout_node_->GetMargin(EdgeLeft)
+      << "margin right:" << layout_node_->GetMargin(EdgeRight)
+      << "margin top:" << layout_node_->GetMargin(EdgeTop)
+      << "margin bottom:" << layout_node_->GetMargin(EdgeBottom);
 //    }
-//
-//    node_json[K_CHILD] = child_json_array;
-//  }
+    node_json[kWidth] = layout_node_->GetWidth();
+    node_json[kHeight] = layout_node_->GetHeight();
+    nlohmann::json bounds_json;
+    bounds_json[kTop] = layout_node_->GetTop();
+    bounds_json[kLeft] = layout_node_->GetLeft();
+    bounds_json[kBottom] = layout_node_->GetBottom();
+    bounds_json[kRight] = layout_node_->GetRight();
+    node_json[kBounds] = bounds_json;
+  }
+//  node_json[kBorderColor] = border_color_;
+  node_json[kTotalProps] = ParseNodeProps(dom_ext_map_);
+  node_json[kFlexNodeStyle] = ParseNodeProps(style_map_);
+  // child
+  if (!children_.empty()) {
+    nlohmann::json child_json_array = nlohmann::json::array();
+    for (int i = 0; i < children_.size(); i++) {
+        child_json_array.push_back(children_[i]->ToJSONString());
+    }
+    node_json[kChild] = child_json_array;
+  }
   return node_json;
 }
 
@@ -443,6 +449,86 @@ std::shared_ptr<DomNode> DomNode::GetSmallerAreaNode(std::shared_ptr<DomNode> ol
   auto old_node_area = old_node->layout_node_->GetWidth() * old_node->layout_node_->GetHeight();
   auto new_node_area = new_node->layout_node_->GetWidth() * new_node->layout_node_->GetHeight();
   return old_node_area > new_node_area ? new_node : old_node;
+}
+
+nlohmann::json DomNode::ParseDomValue(const DomValue& dom_value) {
+  nlohmann::json props_json = nlohmann::json::object();
+  if (!dom_value.IsObject()) {
+    TDF_BASE_DLOG(INFO) << "ParseTotalProps, node props is not object";
+    return props_json;
+  }
+  for (auto iterator : dom_value.ToObject()) {
+    if (iterator.first == "uri" || iterator.first == "src") {
+      // 这个value是个base64，数据量太大，改成空字符串
+      iterator.second = "";
+    }
+    std::string key = iterator.first;
+    if (iterator.second.IsBoolean()) {
+      props_json[key] = iterator.second.ToBoolean();
+    } else if (iterator.second.IsInt32()) {
+      props_json[key] = iterator.second.ToInt32();
+    } else if (iterator.second.IsUInt32()) {
+      props_json[key] = iterator.second.ToUint32();
+    } else if (iterator.second.IsDouble()) {
+      props_json[key] = iterator.second.ToDouble();
+    } else if (iterator.second.IsString()) {
+      props_json[key] = iterator.second.ToString();
+    } else if (iterator.second.IsArray()) {
+      nlohmann::json props_json_array = nlohmann::json::array();
+      auto props_array = iterator.second.ToArray();
+      for (auto &child : props_array) {
+        if (child.IsNull() || child.IsUndefined()) {
+          continue;
+        }
+        props_json_array.push_back(ParseDomValue(child));
+      }
+      props_json[key] = props_json_array;
+    } else if (iterator.second.IsObject()) {
+      props_json[key] = ParseDomValue(iterator.second);
+    }
+  }
+  return props_json;
+}
+
+nlohmann::json DomNode::ParseNodeProps(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &node_props) {
+  nlohmann::json props_json = nlohmann::json::object();
+  if (node_props.empty()) {
+    TDF_BASE_DLOG(INFO) << "ParseTotalProps, node props is not object";
+    return props_json;
+  }
+
+  for(auto iterator = node_props.begin(); iterator != node_props.end(); iterator++){
+    if (iterator->first == "uri" || iterator->first == "src") {
+      // 这个value是个base64，数据量太大，改成空字符串
+//      iterator.second = "";
+    }
+    std::string key = iterator->first;
+    if (iterator->second->IsBoolean()) {
+      props_json[key] = iterator->second->ToBoolean();
+    } else if (iterator->second->IsInt32()) {
+      props_json[key] = iterator->second->ToInt32();
+    } else if (iterator->second->IsUInt32()) {
+      props_json[key] = iterator->second->IsUInt32();
+    } else if (iterator->second->IsDouble()) {
+      props_json[key] = iterator->second->ToDouble();
+    } else if (iterator->second->IsString()) {
+      props_json[key] = iterator->second->ToString();
+    } else if (iterator->second->IsArray()) {
+      nlohmann::json props_json_array = nlohmann::json::array();
+      auto props_array = iterator->second->ToArray();
+      for (auto &child : props_array) {
+        if (child.IsNull() || child.IsUndefined()) {
+          continue;
+        }
+        props_json_array.push_back(ParseDomValue(child));
+      }
+      props_json[key] = props_json_array;
+    } else if (iterator->second->IsObject()) {
+      DomValue dom_value = *(iterator->second);
+      props_json[key] = ParseDomValue(dom_value);
+    }
+  }
+  return props_json;
 }
 
 }  // namespace dom

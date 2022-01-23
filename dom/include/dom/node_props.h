@@ -184,7 +184,7 @@ constexpr const char* kBorderTop = "borderTop";
 constexpr const char* kBorderRight = "borderRight";
 constexpr const char* kBorderBottom = "borderBottom";
 constexpr const char* kTotalProps = "total_props";
-constexpr const char* kFlexNodeStyle = "flex_node_style_";
+constexpr const char* kFlexNodeStyle = "flexNodeStyle";
 constexpr const char* kBounds = "bounds";
 constexpr const char* kChild = "child";
 

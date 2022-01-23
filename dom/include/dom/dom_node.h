@@ -129,6 +129,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   nlohmann::json ToJSONString();
   nlohmann::json GetDomDomainData(uint32_t depth);
   nlohmann::json GetNodeIdByDomLocation(double x, double y);
+  nlohmann::json ParseNodeProps(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &node_props);
+  nlohmann::json ParseDomValue(const DomValue& value);
 
  private:
   uint32_t id_;             // 节点唯一id

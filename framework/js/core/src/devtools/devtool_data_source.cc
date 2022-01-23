@@ -64,6 +64,7 @@ DevtoolDataSource::DevtoolDataSource(int32_t dom_id, int32_t runtime_id) : dom_i
   data_channel->GetProvider()->SetTracingAdapter(std::make_shared<HippyTracingAdapter>());
   data_channel->GetProvider()->SetRuntimeAdapter(std::make_shared<HippyRuntimeAdapter>(runtime_id_));
 
+  DevtoolsBackendService::GetInstance().EnableService();
   TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_channel:%p" << &data_channel;
 }
 
