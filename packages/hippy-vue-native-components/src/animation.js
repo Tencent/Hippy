@@ -66,6 +66,7 @@ function registerAnimation(Vue) {
     }
     fullOption.startValue = parseValue(fullOption.valueType, startValue);
     fullOption.toValue = parseValue(fullOption.valueType, toValue);
+    fullOption.repeatCount = repeatCountDict(fullOption.repeatCount);
     const animationId = Vue.Native.callNativeWithCallbackId(MODULE_NAME, 'createAnimation', true, mode, fullOption);
     return {
       animationId,
@@ -80,6 +81,13 @@ function registerAnimation(Vue) {
       children,
       repeatCount,
     });
+  }
+
+  function repeatCountDict(repeatCount) {
+    if (repeatCount === 'loop') {
+      return -1;
+    }
+    return repeatCount;
   }
 
   /**
@@ -98,7 +106,7 @@ function registerAnimation(Vue) {
           action.follow = true;
           return action;
         });
-        const animationSetId = createAnimationSet(animationSetActions, repeatCount);
+        const animationSetId = createAnimationSet(animationSetActions, repeatCountDict(repeatCount));
         style[key] = {
           animationId: animationSetId,
         };
