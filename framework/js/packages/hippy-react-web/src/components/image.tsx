@@ -137,18 +137,6 @@ export class Image extends React.Component {
     };
   }
 
-  public constructor(props: Props) {
-    super(props);
-    const initImageUrl = props.source && typeof props.source !== 'string' ? props.source.uri : '';
-    this.state = {
-      isLoadSuccess: false,
-      imageUrl: initImageUrl,
-      prevImageUrl: initImageUrl,
-    } as State;
-    this.onLoad = this.onLoad.bind(this);
-    this.onError = this.onError.bind(this);
-  }
-
   public static getDerivedStateFromProps(nextProps: Props, prevState: State) {
     if (nextProps.source
       && typeof nextProps.source !== 'string'
@@ -159,6 +147,18 @@ export class Image extends React.Component {
       };
     }
     return null;
+  }
+
+  public constructor(props: Props) {
+    super(props);
+    const initImageUrl = props.source && typeof props.source !== 'string' ? props.source.uri : '';
+    this.state = {
+      isLoadSuccess: false,
+      imageUrl: initImageUrl,
+      prevImageUrl: initImageUrl,
+    } as State;
+    this.onLoad = this.onLoad.bind(this);
+    this.onError = this.onError.bind(this);
   }
 
   public componentDidMount() {
@@ -191,7 +191,7 @@ export class Image extends React.Component {
       isLoadSuccess: true,
     });
     if (onLoad) {
-      const path = e.path || (e.composedPath && e.composedPath());
+      const path = e.path || (e.composedPath?.());
       const imageInfo = path[0];
       onLoad({
         width: imageInfo.naturalWidth,

@@ -245,18 +245,6 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   private static defaultProps = {
     numberOfRows: 0,
   };
-  private instance: HTMLUListElement | Fiber | null = null;
-  private pullHeader: PullHeader | null = null;
-  private pullFooter: PullFooter | null = null;
-
-  public constructor(props: ListViewProps) {
-    super(props);
-    this.handleInitialListReady = this.handleInitialListReady.bind(this);
-    this.state = {
-      initialListReady: false,
-    };
-  }
-
   /**
    * change key
    */
@@ -267,6 +255,17 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       return iosAttrMap[functionName];
     }
     return functionName;
+  }
+  private instance: HTMLUListElement | Fiber | null = null;
+  private pullHeader: PullHeader | null = null;
+  private pullFooter: PullFooter | null = null;
+
+  public constructor(props: ListViewProps) {
+    super(props);
+    this.handleInitialListReady = this.handleInitialListReady.bind(this);
+    this.state = {
+      initialListReady: false,
+    };
   }
 
   public componentDidMount() {

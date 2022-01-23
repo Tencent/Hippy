@@ -29,6 +29,7 @@ interface HTMLAttributesExtension {
 }
 
 declare module 'react' {
+  // eslint-disable-next-line
   interface HTMLAttributes<T> extends Overwrite<DetailedHTMLProps<any, any>, HTMLAttributesExtension> {}
 }
 
@@ -36,7 +37,6 @@ export type Type = string;
 export type Props = any;
 export type Container = number;
 export type UpdatePayload = any;
-export interface Context {}
 
 export interface LayoutableProps {
   /**
