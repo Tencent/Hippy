@@ -67,16 +67,16 @@ void Serializer::WriteDouble(double value) {
 }
 
 void Serializer::WriteString(const std::string& value) {
-  bool oneByteString = true;
+  bool one_byte_string = true;
   const char* c = value.c_str();
   for (size_t i = 0; i < value.length(); i++) {
-    if (*(c + i) >= 0x80) {
-      oneByteString = false;
+    if (static_cast<unsigned char>(*(c + i)) >= 0x80) {
+      one_byte_string = false;
       break;
     }
   }
 
-  if (oneByteString) {
+  if (one_byte_string) {
     WriteTag(SerializationTag::kOneByteString);
     WriteOneByteString(c, value.length());
   } else {
