@@ -22,6 +22,12 @@
         src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
         class="image center"
       >
+      <label>TintColor(iOS染色暂不支持透明度):</label>
+      <img
+        :placeholder="defaultImage"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
+        class="image center tint-color"
+      >
       <label>Gif:</label>
       <img
         :placeholder="defaultImage"
@@ -90,5 +96,9 @@ export default {
 
 #demo-img .center {
   resize-mode: center;
+}
+
+#demo-img .tint-color {
+  tint-color: #99999955
 }
 </style>
