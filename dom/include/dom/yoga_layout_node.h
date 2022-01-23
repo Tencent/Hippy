@@ -117,6 +117,8 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   void SetOverflow(YGOverflow overflow);
 
+  void SetAspectRatio(float aspectRatio);
+
   void Allocate();
 
   void Deallocate();

@@ -47,10 +47,8 @@ const std::map<std::string, YGEdge> kPaddingMap = {
     {"paddingLeft", YGEdgeLeft},    {"paddingTop", YGEdgeTop},           {"paddingRight", YGEdgeRight},
     {"paddingBottom", YGEdgeBottom}};
 
-const std::map<std::string, YGEdge> kPositionMap = {{"paddingLeft", YGEdgeLeft},
-                                                    {"paddingTop", YGEdgeTop},
-                                                    {"paddingRight", YGEdgeRight},
-                                                    {"paddingBottom", YGEdgeBottom}};
+const std::map<std::string, YGEdge> kPositionMap = {
+    {"left", YGEdgeLeft}, {"top", YGEdgeTop}, {"right", YGEdgeRight}, {"bottom", YGEdgeBottom}};
 
 const std::map<std::string, YGEdge> kBorderMap = {{"borderWidth", YGEdgeAll},
                                                   {"borderLeftWidth", YGEdgeLeft},
@@ -104,7 +102,6 @@ const std::map<std::string, YGDirection> kDirectionMap = {
     }                                                                                              \
   }
 
-// TODO 合成一个宏
 #define YG_SET_EDGE_NUMBER_PRECENT_DECL(NAME)                                                            \
   void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) {        \
     tdf::base::DomValue::Type type = dom_value->GetType();                                               \
@@ -265,9 +262,7 @@ void YogaLayoutNode::SetWidth(float width) { YGNodeStyleSetWidth(yoga_node_, wid
 
 void YogaLayoutNode::SetHeight(float height) { YGNodeStyleSetHeight(yoga_node_, height); }
 
-void YogaLayoutNode::SetScaleFactor(float scale_factor) {
-  YGConfigSetPointScaleFactor(yoga_config_, scale_factor);
-}
+void YogaLayoutNode::SetScaleFactor(float scale_factor) { YGConfigSetPointScaleFactor(yoga_config_, scale_factor); }
 
 static LayoutMeasureMode ToLayoutMeasureMode(YGMeasureMode measure_mode) {
   if (measure_mode == YGMeasureMode::YGMeasureModeUndefined) {
@@ -333,13 +328,12 @@ float YogaLayoutNode::GetBorder(Edge edge) {
 void YogaLayoutNode::SetPosition(Edge edge, float position) {
   YGEdge ygedge = GetYGEdgeFromEdge(edge);
   YGNodeStyleSetPosition(yoga_node_, ygedge, position);
-}; 
-
+};
 
 bool YogaLayoutNode::LayoutHadOverflow() { return YGNodeLayoutGetHadOverflow(yoga_node_); }
 
 void YogaLayoutNode::InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) {
-  if(YGNodeHasMeasureFunc(yoga_node_)) return;
+  if (YGNodeHasMeasureFunc(yoga_node_)) return;
   auto node = std::static_pointer_cast<YogaLayoutNode>(child);
   YGNodeInsertChild(yoga_node_, node->GetLayoutEngineNodeRef(), index);
   children_.insert(children_.begin() + index, node);
@@ -521,6 +515,10 @@ void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf:
   if (style_map.find(kPosition) != style_map.end()) {
     SetPositionType(GetPositionType(style_map.find(kPosition)->second->ToString()));
   }
+  if (style_map.find(kAspectRatio) != style_map.end()) {
+    SetAspectRatio(style_map.find(kAspectRatio)->second->ToDouble());
+  }
+
   // if (style_map.find(kAlignContent) != style_map.end()) {
   //   SetAlignContent(GetFlexAlign(style_map.find(kAlignContent)->second->ToString()));
   // }
@@ -580,6 +578,8 @@ void YogaLayoutNode::SetDisplay(YGDisplay display) { YGNodeStyleSetDisplay(yoga_
 // void SetNodeType(NodeType node_type);
 
 void YogaLayoutNode::SetOverflow(YGOverflow overflow) { YGNodeStyleSetOverflow(yoga_node_, overflow); }
+
+void YogaLayoutNode::SetAspectRatio(float aspectRatio) { YGNodeStyleSetAspectRatio(yoga_node_, aspectRatio); }
 
 void YogaLayoutNode::Allocate() {
   yoga_config_ = YGConfigNew();

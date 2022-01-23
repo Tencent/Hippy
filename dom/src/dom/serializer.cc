@@ -164,7 +164,7 @@ void Serializer::WriteTwoByteString(const char16_t* chars, size_t length) {
 }
 
 void Serializer::WriteRawBytes(const void* source, size_t length) {
-  TDF_BASE_CHECK(length > 0);
+  TDF_BASE_CHECK(length >= 0);
   uint8_t* dest;
   dest = ReserveRawBytes(length);
   memcpy(dest, source, length);
