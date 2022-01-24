@@ -36,8 +36,7 @@
 #include "dom/dom_node.h"
 #import "HippyDomNodeUtils.h"
 
-@class HippyVirtualNode;
-@class HippyExtAnimationViewParams;
+@class HippyExtAnimationViewParams, HippyShadowView;
 
 typedef void (^HippyViewUpdateCompletedBlock)(HippyUIManager *uiManager);
 
@@ -64,12 +63,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultip
 HIPPY_EXTERN NSString *const HippyUIManagerDidRegisterRootViewNotification;
 
 /**
- * Posted whenever a root view is removed from the HippyUIManager. The userInfo property
- * will contain a HippyUIManagerRootViewKey with the removed root view.
- */
-HIPPY_EXTERN NSString *const HippyUIManagerDidRemoveRootViewNotification;
-
-/**
  * Key for the root view property in the above notifications
  */
 HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
@@ -79,12 +72,9 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
  */
 HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
-@protocol HippyScrollableProtocol;
-
 /**
  * The HippyUIManager is the module responsible for updating the view hierarchy.
  */
-
 @interface HippyUIManager : NSObject <HippyBridgeModule, HippyInvalidating>
 
 
@@ -99,21 +89,15 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag;
 
 /**
- * Gets the node associated with a hippyTag.
+ * Get the shadow view associated with a hippyTag
  */
-- (HippyVirtualNode *)nodeForHippyTag:(NSNumber *)hippyTag;
+- (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag;
 
 /**
  * Update the frame of a view. This might be in response to a screen rotation
  * or some other layout event outside of the Hippy-managed view hierarchy.
  */
 - (void)setFrame:(CGRect)frame forView:(UIView *)view;
-
-/**
- * Set the natural size of a view, which is used when no explicit size is set.
- * Use UIViewNoIntrinsicMetric to ignore a dimension.
- */
-- (void)setIntrinsicContentSize:(CGSize)size forView:(UIView *)view;
 
 /**
  * Update the background color of a view. The source of truth for
@@ -128,17 +112,10 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  */
 - (void)addUIBlock:(HippyViewManagerUIBlock)block;
 
-- (void)executeBlockOnUIManagerQueue:(dispatch_block_t)block;
-
 /**
- * Given a hippyTag from a component, find its root view, if possible.
- * Otherwise, this will give back nil.
- *
- * @param hippyTag the component tag
- * @param completion the completion block that will hand over the rootView, if any.
- *
+ * Schedule a block to be executed on the UIManager queue.
  */
-- (void)rootViewForHippyTag:(NSNumber *)hippyTag withCompletion:(void (^)(UIView *view))completion;
+- (void)executeBlockOnUIManagerQueue:(dispatch_block_t)block;
 
 /**
  * Get root view hippyTag
@@ -146,68 +123,114 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (NSNumber *)rootHippyTag;
 
 /**
- * The view that is currently first responder, according to the JS context.
- */
-+ (UIView *)JSResponder;
-
-/**
- * Normally, UI changes are not applied until the complete batch of method
- * invocations from JavaScript to native has completed.
- *
- * Setting this to YES will flush UI changes sooner, which could potentially
- * result in inconsistent UI updates.
- *
- * The default is NO (recommended).
- */
-@property (atomic, assign) BOOL unsafeFlushUIChangesBeforeBatchEnds;
-
-/**
  * In some cases we might want to trigger layout from native side.
  * Hippy won't be aware of this, so we need to make sure it happens.
  */
 - (void)setNeedsLayout;
 
-- (UIView *)createViewFromNode:(HippyVirtualNode *)node;
-- (UIView *)updateNode:(HippyVirtualNode *)oldNode withNode:(HippyVirtualNode *)node;
-
-- (void)removeNativeNode:(HippyVirtualNode *)node;
-- (void)removeNativeNodeView:(UIView *)nodeView;
+/**
+ * After core animation did finish, we need to apply view's final status.
+ *
+ * @param params Animation params
+ * @param block Completion block
+ */
 - (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
-- (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 
+/**
+ *  Manually update view props ,then flush block
+ *
+ *  @param hippyTag hippyTag for view
+ *  @param props New properties for view
+ */
+- (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)props;
+
+/**
+ * set dom manager for HippyUIManager which holds a weak reference to domManager
+ */
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
 
-- (void)renderCreateView:(int32_t)hippyTag
-                viewName:(const std::string &)name
-                 rootTag:(int32_t)rootTag
-                 tagName:(const std::string &)tagName
-                   frame:(CGRect)frame
-                   props:(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &)styleMap;
+/**
+ *  create views from dom nodes
+ *  @param nodes A set of nodes for creating views
+ */
 - (void)createRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes;
-- (void)renderUpdateView:(int32_t)hippyTag
-                viewName:(const std::string &)name
-                   props:(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &)styleMap;
+
+/**
+ *  update views' properties from dom nodes
+ *  @param nodes A set of nodes for updating views' properties
+ */
 - (void)updateRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>>&&)nodes;
+
+/**
+ *  delete views from dom nodes
+ *  @param nodes A set of nodes for deleting views
+ */
 - (void)renderDeleteNodes:(const std::vector<std::shared_ptr<hippy::DomNode>> &)nodes;
 
+/**
+ * move views from container to another container
+ *
+ * @param ids A set of nodes id to move
+ * @param fromContainer Source view container from which views move
+ * @param toContainer Target view container to which views move
+ */
 - (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
 
+/**
+ * update layout for view
+ *
+ * @param nodes A set of nodes ids for views to update
+ */
 - (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<hippy::DomNode>> &)nodes;
 
+/**
+ * Invoked after batched operations completed
+ */
 - (void)batch;
 
-- (void)dispatchFunction:(const std::string &)functionName
-                viewName:(const std::string &)viewName
-                 viewTag:(int32_t)hippyTag
-                  params:(const tdf::base::DomValue &)params
-                callback:(hippy::CallFunctionCallback)cb;
+/**
+ * call function of view
+ *
+ * @param functionName Function Name to be invoked
+ * @param viewName Name of target view whose function invokes
+ * @param hippyTag id of target view whose function invokes
+ * @param params parameters of function to be invoked
+ * @param cb A callback for the return value of function
+ */
+- (void)dispatchFunction:(const std::string &)functionName viewName:(const std::string &)viewName viewTag:(int32_t)hippyTag
+                  params:(const tdf::base::DomValue &)params callback:(hippy::CallFunctionCallback)cb;
 
+/**
+ * register event for specific view
+ *
+ * @param name event name
+ * @param weak_node node for the event
+ */
 - (void)addEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 
-- (void)removeEventName:(const std::string &)eventName forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+/**
+ * unregister event for specific view
+ *
+ * @param name event name
+ * @param weak_node node for the event
+ */
+- (void)removeEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 
+/**
+ * unregister event for specific view.
+ *
+ * @param name event name
+ * @param weak_node node for the event
+ * @discussion this function will handle any event but gesture event, like touch, press, click, longclick, etc...
+ */
 - (void)addRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 
+/**
+ * unregister event for specific view
+ *
+ * @param name event name
+ * @param weak_node node for the event
+ */
 - (void)removeRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
 
 @end

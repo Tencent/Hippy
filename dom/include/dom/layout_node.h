@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 #include "dom/dom_value.h"
-#include "engine/HPNode.h"
 
 namespace hippy {
 inline namespace dom {
@@ -12,6 +11,8 @@ enum Edge {
   EdgeTop,
   EdgeRight,
   EdgeBottom,
+  EdgeStart,
+  EdgeEnd,
 };
 
 enum Direction {
@@ -57,10 +58,12 @@ class LayoutNode {
 
   virtual void SetWidth(float width) = 0;
   virtual void SetHeight(float height) = 0;
+  virtual void SetPosition(Edge edge, float position) = 0;
   virtual void SetScaleFactor(float scale_factor) = 0;
   virtual bool HasNewLayout() = 0;
   virtual void SetHasNewLayout(bool has_new_layout) = 0;
-  virtual bool SetMeasureFunction(MeasureFunction measure_function) = 0;
+  virtual void SetMeasureFunction(MeasureFunction measure_function) = 0;
+  virtual void MarkDirty() = 0;
 
   /**
    * @brief 插入子节点

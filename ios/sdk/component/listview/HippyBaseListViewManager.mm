@@ -22,9 +22,6 @@
 
 #import "HippyBaseListViewManager.h"
 #import "HippyBaseListView.h"
-#import "HippyVirtualNode.h"
-#import "HippyVirtualList.h"
-#import "HippyBaseListShadowView.h"
 
 @implementation HippyBaseListViewManager
 
@@ -51,12 +48,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
     return [[HippyBaseListView alloc] initWithBridge:self.bridge];
 }
 
-- (HippyVirtualNode *)node:(NSNumber *)tag name:(NSString *)name props:(NSDictionary *)props {
-    return [HippyVirtualList createNode:tag viewName:name props:props];
-}
-
 - (HippyShadowView *)shadowView {
-    return [[HippyBaseListShadowView alloc] init];
+    return [[HippyShadowView alloc] init];
 }
 
 // clang-format off

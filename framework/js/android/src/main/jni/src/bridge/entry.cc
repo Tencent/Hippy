@@ -135,14 +135,19 @@ void DoBind(JNIEnv* j_env,
 
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
   TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
-  std::shared_ptr<DomManager>
-      dom_manager = std::make_shared<DomManager>(static_cast<uint32_t>(j_root_id));
+  std::shared_ptr<DomManager> dom_manager =
+      std::make_shared<DomManager>(static_cast<uint32_t>(j_root_id));
+  dom_manager->StartTaskRunner();
   DomManager::Insert(dom_manager);
   return dom_manager->GetId();
 }
 
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
-  DomManager::Erase(static_cast<int32_t>(j_dom_id));
+  auto dom_manager = DomManager::Find(j_dom_id);
+  if (dom_manager) {
+    dom_manager->TerminateTaskRunner();
+    DomManager::Erase(static_cast<int32_t>(j_dom_id));
+  }
 }
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {

@@ -27,8 +27,8 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name,
       index_(index),
       tag_name_(std::move(tag_name)),
       view_name_(std::move(view_name)),
-      style_map_(std::move(style_map)),
-      dom_ext_map_(std::move(dom_ext_map)),
+      style_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(style_map))),
+      dom_ext_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(dom_ext_map))),
       is_just_layout_(false),
       is_virtual_(false),
       dom_manager_(dom_manager),
@@ -216,7 +216,18 @@ std::vector<std::shared_ptr<DomNode::EventListenerInfo>> DomNode::GetEventListen
   return it->second[kBubble];
 }
 
-void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(style_map_); }
+void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(*style_map_); }
+
+LayoutResult DomNode::GetLayoutInfoFromRoot() {
+  LayoutResult result = layout_;
+  auto parent = parent_.lock();
+  while (parent != nullptr) {
+    result.top += parent->GetLayoutResult().top;
+    result.left += parent->GetLayoutResult().left;
+    parent = parent->GetParent();
+  }
+  return result;
+}
 
 void DomNode::TransferLayoutOutputsRecursive() {
   bool changed = layout_.left != layout_node_->GetLeft() || layout_.top != layout_node_->GetTop() ||

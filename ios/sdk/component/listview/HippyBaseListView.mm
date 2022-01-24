@@ -22,44 +22,43 @@
 
 #import "HippyBaseListView.h"
 #import "HippyBridge.h"
-#import "HippyRootView.h"
 #import "UIView+Hippy.h"
 #import "HippyScrollProtocol.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
 #import "UIView+AppearEvent.h"
 #import "HippyBaseListViewCell.h"
-#import "HippyVirtualList.h"
+#import "HippyBaseListViewDataSource.h"
+#import "UIView+RootViewRegister.h"
 
 #define kCellZIndexConst 10000.f
 
-@interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate>
-
-@end
-
-@implementation HippyBaseListView {
+@interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate> {
     __weak HippyBridge *_bridge;
-    __weak HippyRootView *_rootView;
+    __weak UIView *_rootView;
     NSHashTable *_scrollListeners;
     BOOL _isInitialListReady;
     NSUInteger _preNumberOfRows;
     NSTimeInterval _lastScrollDispatchTime;
-    NSArray<HippyVirtualNode *> *_subNodes;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
     NSArray<HippyBaseListViewCell *> *_previousVisibleCells;
+    HippyBaseListViewDataSource *_dataSource;
 }
 
-@synthesize node = _node;
+@end
+
+@implementation HippyBaseListView
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge {
     if (self = [super initWithFrame:CGRectZero]) {
         _bridge = bridge;
         _scrollListeners = [NSHashTable weakObjectsHashTable];
-        _dataSource = [HippyBaseListViewDataSource new];
         _isInitialListReady = NO;
         _preNumberOfRows = 0;
         _preloadItemNumber = 1;
+        _dataSource = [[HippyBaseListViewDataSource alloc] init];
+        [_dataSource setItemViewsName:[self listViewCellName]];
         [self initTableView];
     }
 
@@ -70,12 +69,12 @@
     [_scrollListeners removeAllObjects];
 }
 
-- (Class)listViewCellClass {
-    return [HippyBaseListViewCell class];
+- (NSString *)listViewCellName {
+    return @"ListViewItem";
 }
 
-- (NSArray<NSString *> *)listItemViewNames {
-    return @[@"ListViewItem"];
+- (Class)listViewCellClass {
+    return [HippyBaseListViewCell class];
 }
 
 - (void)initTableView {
@@ -108,36 +107,16 @@
 }
 
 - (BOOL)flush {
-    static dispatch_once_t onceToken;
-    static NSPredicate *predicate = nil;
-    dispatch_once(&onceToken, ^{
-        predicate = [NSPredicate predicateWithBlock:^BOOL(id _Nullable evaluatedObject, NSDictionary<NSString *, id> *_Nullable bindings) {
-            if ([evaluatedObject isKindOfClass:[HippyVirtualCell class]]) {
-                return YES;
-            }
-            return NO;
-        }];
-    });
-
-    _subNodes = [self.node.subNodes filteredArrayUsingPredicate:predicate];
-    NSUInteger numberOfRows = [_subNodes count];
-    if (numberOfRows == 0 && _preNumberOfRows == numberOfRows) {
-        return NO;
-    }
-    [self reloadData];
-    _preNumberOfRows = numberOfRows;
+    [self refreshItemNodes];
     return YES;
 }
 
 - (void)reloadData {
-    [_dataSource setDataSource:(NSArray<HippyVirtualCell *> *)_subNodes];
     [_tableView reloadData];
-
     if (self.initialContentOffset) {
         [_tableView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
         self.initialContentOffset = 0;
     }
-
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
         if (self.initialListReady) {
@@ -163,7 +142,6 @@
         _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.tableView];
         _headerRefreshView.delegate = self;
-        _headerRefreshView.frame = [self.node.subNodes[atIndex] frame];
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
@@ -171,7 +149,6 @@
         _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.tableView];
         _footerRefreshView.delegate = self;
-        _footerRefreshView.frame = [self.node.subNodes[atIndex] frame];
     }
 }
 
@@ -182,18 +159,7 @@
 }
 
 - (void)refreshItemNodes {
-    auto domNode = self.domNode.lock();
-    if (domNode) {
-        _itemDomNodes.clear();
-        const auto &children = domNode->GetChildren();
-        if (children.size() > 0) {
-            NSArray<NSString *> *itemViewsNames = [self listItemViewNames];
-            std::copy_if(children.begin(), children.end(), std::back_inserter(_itemDomNodes), [itemNames_ = itemViewsNames](const std::shared_ptr<hippy::DomNode> &child){
-                NSString *childViewName = [NSString stringWithUTF8String:child->GetViewName().c_str()];
-                return [itemNames_ containsObject:childViewName];
-            });
-        }
-    }
+    [_dataSource setDataSource:self.hippyShadowView.hippySubviews];
 }
 
 #pragma mark -Scrollable
@@ -236,7 +202,7 @@
 }
 
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
-    NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
+    NSIndexPath *indexPath = [_dataSource indexPathForFlatIndex:index];
     if (indexPath != nil) {
         [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
     }
@@ -249,7 +215,7 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
-	NSString *delText = self.node.props[@"delText"];
+    NSString *delText = self.hippyShadowView.props[@"delText"];
     return delText;
 }
 
@@ -258,20 +224,20 @@
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-	HippyVirtualCell *node = [_dataSource cellForIndexPath: indexPath];
-	NSInteger index = [self.node.subNodes indexOfObject: node];
-	if (self.onDelete) {
-		self.onDelete(@{@"index": @(index)});
-	}  
+    if (UITableViewCellEditingStyleDelete == editingStyle) {
+        if (self.onDelete) {
+            NSInteger index = [_dataSource flatIndexForIndexPath:indexPath];
+            self.onDelete(@{@"index": @(index)});
+        }
+    }
 }
 
 - (NSInteger)numberOfSectionsInTableView:(__unused UITableView *)tableView {
-//    return [_dataSource numberOfSection];
-    return 1;
+    return [_dataSource numberOfSection];
 }
 
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    HippyVirtualCell *header = [_dataSource headerForSection:section];
+    HippyShadowView *header = [_dataSource headerForSection:section];
     if (header) {
         return CGRectGetHeight(header.frame);
     } else
@@ -279,43 +245,31 @@
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    HippyVirtualCell *header = [_dataSource headerForSection:section];
-    if (header) {
-        NSString *type = header.itemViewType;
-        UIView *headerView = [tableView dequeueReusableHeaderFooterViewWithIdentifier:type];
-        headerView = [_bridge.uiManager createViewFromNode:header];
-        //make sure section view's zPosition is higher than last cell's in section {section}
-        headerView.layer.zPosition = [self zPositionOfSectionView:headerView forSection:section];
-        return headerView;
-    } else {
-        return nil;
-    }
+    //TODO create view with reusable view
+    HippyShadowView *header = [_dataSource headerForSection:section];
+    return [_bridge.uiManager viewForHippyTag:header.hippyTag];
 }
 
-- (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
-{
-    std::shared_ptr<hippy::DomNode> domNode = _itemDomNodes[[indexPath row]];
-    return domNode->GetLayoutResult().height;
-//    HippyVirtualCell *cell = [_dataSource cellForIndexPath:indexPath];
-//    return ceil(CGRectGetHeight(cell.frame));
+- (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    HippyShadowView *itemView = [_dataSource cellForIndexPath:indexPath];
+    return itemView.frame.size.height;
 }
 
 - (NSInteger)tableView:(__unused UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-//    return [_dataSource numberOfCellForSection:section];
-    return _itemDomNodes.size();
+    return [_dataSource numberOfCellForSection:section];
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    HippyVirtualCell *node = [_dataSource cellForIndexPath:indexPath];
-    NSInteger index = [_subNodes indexOfObject:node];
+    HippyShadowView *cellShadowView = [_dataSource cellForIndexPath:indexPath];
+    NSInteger index = [_dataSource flatIndexForIndexPath:indexPath];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
             @"index": @(index),
             @"frame": @ {
-                @"x": @(CGRectGetMinX(cell.frame)),
-                @"y": @(CGRectGetMinY(cell.frame)),
-                @"width": @(CGRectGetWidth(cell.frame)),
-                @"height": @(CGRectGetHeight(cell.frame))
+                @"x": @(CGRectGetMinX(cellShadowView.frame)),
+                @"y": @(CGRectGetMinY(cellShadowView.frame)),
+                @"width": @(CGRectGetWidth(cellShadowView.frame)),
+                @"height": @(CGRectGetHeight(cellShadowView.frame))
             }
         });
     }
@@ -336,28 +290,20 @@
 }
 
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSAssert([cell isKindOfClass:[HippyBaseListViewCell class]], @"cell must be subclass of HippyBaseListViewCell");
-    if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
-        HippyBaseListViewCell *hippyCell = (HippyBaseListViewCell *)cell;
-        hippyCell.node.cell = nil;
-    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    std::shared_ptr<hippy::DomNode> domNode = _itemDomNodes[[indexPath row]];
-    
-    HippyVirtualCell *indexNode = [_dataSource cellForIndexPath:indexPath];
-    NSString *identifier = indexNode.itemViewType;
-    //FIXME
+    HippyShadowView *cellShadowView = [_dataSource cellForIndexPath:indexPath];
+    //FIXME use identifier
     HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier:@"identifier"];
     if (nil == cell) {
         Class cls = [self listViewCellClass];
-        NSAssert([cls isSubclassOfClass:[HippyBaseListViewCell class]], @"listViewCellClass must return a subclass of HippyBaseListViewCell");
-        cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        NSAssert([cls isSubclassOfClass:[HippyBaseListViewCell class]], @"listViewCellClass must return a subclass of HippyShadowView");
+        cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"identifier"];
         cell.tableView = tableView;
     }
     //FIXME use cache for cell view creation
-    UIView *cellView = [_bridge.uiManager viewForHippyTag:@(domNode->GetId())];
+    UIView *cellView = [_bridge.uiManager viewForHippyTag:cellShadowView.hippyTag];
     cellView.frame = CGRectMake(0, 0, CGRectGetWidth(cellView.frame), CGRectGetHeight(cellView.frame));
 //    if (cell.node.cell) {
 //        cellView = [_bridge.uiManager createViewFromNode:indexNode];
@@ -538,26 +484,25 @@
 }
 
 #pragma mark touch conflict
-- (HippyRootView *)rootView {
+- (UIView *)rootView {
     if (_rootView) {
         return _rootView;
     }
-
     UIView *view = [self superview];
-
-    while (view && ![view isKindOfClass:[HippyRootView class]]) {
-        view = [view superview];
+    while (view) {
+        if (0 == [[view hippyTag] intValue] % 10) {
+            _rootView = view;
+            return view;
+        }
+        else {
+            view = [view superview];
+        }
     }
-
-    if ([view isKindOfClass:[HippyRootView class]]) {
-        _rootView = (HippyRootView *)view;
-        return _rootView;
-    } else
-        return nil;
+    return view;
 }
 
 - (void)cancelTouch {
-    HippyRootView *view = [self rootView];
+    UIView *view = [self rootView];
     if (view) {
         [view cancelTouches];
     }

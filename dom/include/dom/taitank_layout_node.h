@@ -44,6 +44,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   void SetHeight(float height) override;
 
   /**
+   * @brief 设置 position 属性
+   * @param css_direction（EdgeLeft|EdgeTop|EdgeRight|EdgeBottom|EdgeStart|EdgeEnd)
+   * @param position 位置
+   */
+  void SetPosition(Edge edge, float position) override;
+
+  /**
    * @brief 设置 sacle factor
    * @param sacle_factor 缩放比例
    */
@@ -52,9 +59,8 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   /**
    * @brief 设置测量函数
    * @param measure_function 测量函数
-   * @return 是否成功
    */
-  bool SetMeasureFunction(MeasureFunction measure_function) override;
+  void SetMeasureFunction(MeasureFunction measure_function) override;
 
   /**
    * @brief 获取 left 属性
@@ -154,7 +160,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   /**
    * @brief 节点标脏
    */
-  void MarkDirty();
+  void MarkDirty() override;
 
   /**
    * @brief 是否脏节点

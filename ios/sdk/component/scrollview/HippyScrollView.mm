@@ -64,7 +64,7 @@
 - (BOOL)_shouldDisableScrollInteraction {
     // Since this may be called on every pan, we need to make sure to only climb
     // the hierarchy on rare occasions.
-    UIView *JSResponder = [HippyUIManager JSResponder];
+    UIView *JSResponder = nil;
     if (JSResponder && JSResponder != self.superview) {
         BOOL superviewHasResponder = [self isDescendantOfView:JSResponder];
         return superviewHasResponder;
@@ -73,7 +73,7 @@
 }
 
 - (void)handleCustomPan:(__unused UIPanGestureRecognizer *)sender {
-    if ([self _shouldDisableScrollInteraction] && ![[HippyUIManager JSResponder] isKindOfClass:[HippyScrollView class]]) {
+    if ([self _shouldDisableScrollInteraction]) {
         self.panGestureRecognizer.enabled = NO;
         self.panGestureRecognizer.enabled = YES;
         // TODO: If mid bounce, animate the scroll view to a non-bounced position

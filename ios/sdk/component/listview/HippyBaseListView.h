@@ -25,13 +25,13 @@
 #import "HippyBridge.h"
 #import "HippyUIManager.h"
 #import "HippyBaseListViewProtocol.h"
-#import "HippyBaseListViewDataSource.h"
 #import "HippyListTableView.h"
 
 @class HippyBaseListViewCell;
 
 @interface HippyBaseListView : UIView <HippyBaseListViewProtocol, HippyScrollableProtocol, UITableViewDelegate, UITableViewDataSource,
                                    HippyInvalidating, HippyListTableViewLayoutProtocol>
+
 
 @property (nonatomic, copy) HippyDirectEventBlock initialListReady;
 @property (nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
@@ -51,13 +51,11 @@
 @property (nonatomic, assign) BOOL editable;
 
 @property (nonatomic, strong) HippyListTableView *tableView;
-@property (nonatomic, strong, readonly) HippyBaseListViewDataSource *dataSource;
 @property (nonatomic, assign) NSTimeInterval scrollEventThrottle;
-@property (nonatomic, assign, readonly) std::vector<std::shared_ptr<hippy::DomNode>> itemDomNodes;
 
 - (void)reloadData;
+- (NSString *)listViewCellName;
 - (Class)listViewCellClass;
-- (NSArray<NSString *> *)listItemViewNames;
 - (instancetype)initWithBridge:(HippyBridge *)bridge;
 - (void)scrollToContentOffset:(CGPoint)point animated:(BOOL)animated;
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;

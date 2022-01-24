@@ -95,7 +95,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         completion(@{});
         return NO;
     }
-    HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
+    HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
     if (!rootNode) {
         HippyLogWarn(@"DOM Model, getDocument error, root node is nil");
         completion(@{});
@@ -111,7 +111,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         rootDic[HippyDOMKeyBaseURL] = @"";
         rootDic[HippyDOMKeyDocumentURL] = @"";
         NSMutableArray *children = [NSMutableArray array];
-        for (HippyVirtualNode *childNode in rootNode.subNodes) {
+        for (HippyShadowView *childNode in rootNode.hippySubviews) {
             [children addObject:[self nodeJSONWithVirtualNode:childNode nodeType:HippyDOMNodeTypeElementNode]];
         }
         
@@ -123,7 +123,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     return YES;
 }
 
-- (BOOL)domGetBoxModelJSONWithNode:(nullable HippyVirtualNode *)node
+- (BOOL)domGetBoxModelJSONWithNode:(nullable HippyShadowView *)node
                            manager:(nullable HippyUIManager *)manager
                         completion:(void (^)(NSDictionary *rspObject))completion {
     if (!completion) {
@@ -167,13 +167,13 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         NSMutableDictionary *resultDic = [NSMutableDictionary dictionary];
-        HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
+        HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
         if (!rootNode) {
             HippyLogWarn(@"DOM Model, getNodeForLocation error, root node is nil");
             completion(@{});
             return;
         }
-        HippyVirtualNode *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
+        HippyShadowView *hitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
                                                                            node:rootNode
                                                                         manager:manager];
         if (!hitNode) {
@@ -201,13 +201,13 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         return NO;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        HippyVirtualNode *rootNode = [manager nodeForHippyTag:[manager rootHippyTag]];
+        HippyShadowView *rootNode = [manager shadowViewForHippyTag:[manager rootHippyTag]];
         if (!rootNode) {
             HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, root node is nil");
             completion(@{});
             return;
         }
-        HippyVirtualNode *hitNode = [self nodeForPath:path rootNode:rootNode];
+        HippyShadowView *hitNode = [self nodeForPath:path rootNode:rootNode];
         if (!hitNode) {
             HippyLogWarn(@"DOM Model, pushNodeByPathToFrontend error, hitNode is nil");
             completion(@{});
@@ -247,7 +247,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
 }
 
 #pragma mark - private method
-- (NSDictionary *)nodeJSONWithVirtualNode:(HippyVirtualNode *)node
+- (NSDictionary *)nodeJSONWithVirtualNode:(HippyShadowView *)node
                                  nodeType:(HippyDOMNodeType)nodeType {
     if (!node) {
         return @{};
@@ -263,7 +263,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         textMutableDic[HippyDOMKeyChildren] = @[];
         [childNodes addObject:textMutableDic];
     }
-    for (HippyVirtualNode *childNode in node.subNodes) {
+    for (HippyShadowView *childNode in node.hippySubviews) {
         NSDictionary *childNodeJSON = [self nodeJSONWithVirtualNode:childNode nodeType:nodeType];
         [childNodes addObject:childNodeJSON];
     }
@@ -274,7 +274,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     return [nodeJSON copy];
 }
 
-- (NSDictionary *)assemblyNodeBasicJSON:(HippyVirtualNode *)node
+- (NSDictionary *)assemblyNodeBasicJSON:(HippyShadowView *)node
                                nodeType:(HippyDOMNodeType)nodeType {
     if (!node) {
         return @{};
@@ -300,7 +300,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
         parentId = node.parent.hippyTag;
     }
     basicDictionary[HippyDOMKeyParentId] = parentId;
-    basicDictionary[HippyDOMKeyChildNodeCount] = @(node.subNodes.count);
+    basicDictionary[HippyDOMKeyChildNodeCount] = @(node.hippySubviews.count);
     basicDictionary[HippyNodePropAttributes] = [self assemblyAttributeJSON:[node.props objectForKey:HippyNodePropAttributes]];
     return [basicDictionary copy];
 }
@@ -466,7 +466,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     ];
 }
 
-- (HippyVirtualNode *)nodeForPath:(NSString *)path rootNode:(HippyVirtualNode *)rootNode {
+- (HippyShadowView *)nodeForPath:(NSString *)path rootNode:(HippyShadowView *)rootNode {
     if (path.length <= 0 || !rootNode) {
         return nil;
     }
@@ -474,17 +474,17 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     if (pathTokens.count <= 0) {
         return nil;
     }
-    HippyVirtualNode *node = rootNode;
+    HippyShadowView *node = rootNode;
     for (int index = 0; index < pathTokens.count - 1; index += 2) {
         NSInteger childNumber = [pathTokens[index] integerValue];
-        if (childNumber >= node.subNodes.count) {
+        if (childNumber >= node.hippySubviews.count) {
             return nil;
         }
         if (index + 1 >= pathTokens.count) {
             return nil;
         }
         NSString *childName = pathTokens[index + 1];
-        HippyVirtualNode *child = [node.subNodes objectAtIndex:childNumber];
+        HippyShadowView *child = [node.hippySubviews objectAtIndex:childNumber];
         if (!child || [child.tagName caseInsensitiveCompare:childName] != NSOrderedSame) {
             return nil;
         }
@@ -493,7 +493,7 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     return node;
 }
 
-- (CGRect)windowFrameWithNode:(HippyVirtualNode *)node
+- (CGRect)windowFrameWithNode:(HippyShadowView *)node
                       manager:(HippyUIManager *)manager {
     if (!node) {
         HippyLogWarn(@"DOM Model, windowFrameWithNode, node is nil");
@@ -519,27 +519,27 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     return nodeLocation;
 }
 
-- (HippyVirtualNode *)maxDepthAndMinAreaHitNodeWithLocation:(CGPoint)location
-                                                       node:(HippyVirtualNode *)node
-                                                    manager:(HippyUIManager *)manager {
+- (HippyShadowView *)maxDepthAndMinAreaHitNodeWithLocation:(CGPoint)location
+                                                      node:(HippyShadowView *)node
+                                                   manager:(HippyUIManager *)manager {
     if (!node || ![self isLocationHitNode:location node:node manager:manager]) {
         return nil;
     }
-    HippyVirtualNode *hitNode = nil;
-    for (HippyVirtualNode *childNode in node.subNodes) {
+    HippyShadowView *hitNode = nil;
+    for (HippyShadowView *childNode in node.hippySubviews) {
         if (![self isLocationHitNode:location node:childNode manager:manager]) {
             continue;
         }
-        HippyVirtualNode *newHitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
-                                                                              node:childNode
-                                                                           manager:manager];
+        HippyShadowView *newHitNode = [self maxDepthAndMinAreaHitNodeWithLocation:location
+                                                                             node:childNode
+                                                                          manager:manager];
         hitNode = [self smallerAreaNodeWithOldNode:hitNode newNode:newHitNode];
     }
     return hitNode != nil ? hitNode : node;
 }
 
 - (BOOL)isLocationHitNode:(CGPoint)location
-                     node:(HippyVirtualNode *)node
+                     node:(HippyShadowView *)node
                   manager:(HippyUIManager *)manager {
     if (!node || !manager) {
         return false;
@@ -551,8 +551,8 @@ typedef NS_ENUM(NSUInteger, HippyDOMNodeType) {
     return isInTopOffset && isInBottomOffset;
 }
 
-- (HippyVirtualNode *)smallerAreaNodeWithOldNode:(HippyVirtualNode *)oldNode
-                                         newNode:(HippyVirtualNode *)newNode {
+- (HippyShadowView *)smallerAreaNodeWithOldNode:(HippyShadowView *)oldNode
+                                        newNode:(HippyShadowView *)newNode {
     if (!oldNode) {
         return newNode;
     }

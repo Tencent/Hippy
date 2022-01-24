@@ -30,13 +30,13 @@
 #import "HippyBaseTextInput.h"
 #import "HippyShadowTextView.h"
 #import "HippyFont.h"
+#import "HippyUIManager.h"
 
 @implementation HippyTextViewManager
 
 HIPPY_EXPORT_MODULE(TextInput)
 
 - (UIView *)view {
-    // todo: 最佳实践？
     NSNumber *mutiline = self.props[@"multiline"];
     NSString *keyboardType = self.props[@"keyboardType"];
     if ([keyboardType isKindOfClass:[NSString class]] && [keyboardType isEqual:@"password"]) {

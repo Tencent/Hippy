@@ -21,16 +21,21 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyVirtualNode.h"
+
+@class HippyShadowView;
 
 @interface HippyBaseListViewDataSource : NSObject
 
-- (void)setDataSource:(NSArray<HippyVirtualCell *> *)dataSource;
-- (HippyVirtualCell *)cellForIndexPath:(NSIndexPath *)indexPath;
-- (HippyVirtualCell *)headerForSection:(NSInteger)section;
+@property(nonatomic, copy) NSString *itemViewName;
+
+- (void)setItemViewsName:(NSString *)viewName;
+- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource;
+- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath;
+- (HippyShadowView *)headerForSection:(NSInteger)section;
 - (NSInteger)numberOfSection;
 - (NSInteger)numberOfCellForSection:(NSInteger)section;
-- (NSIndexPath *)indexPathOfCell:(HippyVirtualCell *)cell;
+- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell;
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
+- (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
 
 @end

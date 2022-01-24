@@ -27,7 +27,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   using TaskRunner = hippy::base::TaskRunner;
 
   DomManager(uint32_t root_id);
-  ~DomManager();
+  ~DomManager() = default;
 
   int32_t GetId() { return id_; }
 
@@ -51,7 +51,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void SetRootNode(const std::shared_ptr<DomNode>& root_node);
   void DoLayout();
   void PostTask(std::function<void()> func);
-
+  void StartTaskRunner() { dom_task_runner_->Start(); }
+  void TerminateTaskRunner() { dom_task_runner_->Terminate(); }
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
   static std::shared_ptr<DomManager> Find(int32_t id);
   static bool Erase(int32_t id);

@@ -28,6 +28,7 @@ constexpr const char* kDisplay = "display";
 constexpr const char* kOverflow = "overflow";
 constexpr const char* kOpacity = "opacity";
 constexpr const char* kZIndex = "zIndex";
+constexpr const char* kAspectRatio = "aspectRatio";
 
 constexpr const char* kMargin = "margin";
 constexpr const char* kMarginAuto = "marginAuto";

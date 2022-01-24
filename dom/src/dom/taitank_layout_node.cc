@@ -127,7 +127,7 @@ static void CheckValueType(tdf::base::DomValue::Type type) {
   TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
 }
 
-LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
+static LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
   if (measure_mode == MeasureMode::MeasureModeUndefined) {
     return LayoutMeasureMode::Undefined;
   }
@@ -332,11 +332,11 @@ static HPSize TaitankMeasureFunction(HPNodeRef node, float width, MeasureMode wi
   return HPSize{0, 0};
 }
 
-bool TaitankLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
+void TaitankLayoutNode::SetMeasureFunction(MeasureFunction measure_function) {
   assert(engine_node_ != nullptr);
   measure_function_map[key_] = measure_function;
   engine_node_->setContext(reinterpret_cast<void*>(this));
-  return engine_node_->setMeasureFunc(TaitankMeasureFunction);
+  engine_node_->setMeasureFunc(TaitankMeasureFunction);
 }
 
 float TaitankLayoutNode::GetLeft() {
@@ -394,6 +394,7 @@ bool TaitankLayoutNode::LayoutHadOverflow() {
 
 void TaitankLayoutNode::InsertChild(std::shared_ptr<LayoutNode> child, uint32_t index) {
   assert(engine_node_ != nullptr);
+  if (engine_node_->measure != nullptr) return;
   auto node = std::static_pointer_cast<TaitankLayoutNode>(child);
   assert(node->GetLayoutEngineNodeRef() != nullptr);
   engine_node_->insertChild(node->GetLayoutEngineNodeRef(), index);
@@ -464,6 +465,15 @@ void TaitankLayoutNode::SetHeight(float height) {
   if (FloatIsEqual(engine_node_->style.dim[DimHeight], height)) return;
   engine_node_->style.dim[DimHeight] = height;
   engine_node_->markAsDirty();
+}
+
+void TaitankLayoutNode::SetPosition(Edge edge, float position) {
+  assert(engine_node_ != nullptr);
+  CSSDirection css_direction = GetCSSDirectionFromEdge(edge);
+  if (FloatIsEqual(engine_node_->style.position[css_direction], position)) return;
+  if (engine_node_->style.setPosition(css_direction, position)) {
+    engine_node_->markAsDirty();
+  }
 }
 
 void TaitankLayoutNode::SetScaleFactor(float sacle_factor) {
