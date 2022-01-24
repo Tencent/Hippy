@@ -107,26 +107,13 @@ function endBatch(app) {
           break;
         case NODE_OPERATION_TYPES.updateNode:
           trace(...componentName, 'updateNode', chunk.nodes);
-          if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
-            chunk.nodes.forEach(node => (
-              UIManagerModule.updateNode(rootViewId, [node])
-            ));
-          } else {
-            UIManagerModule.updateNode(rootViewId, chunk.nodes);
-          }
+          UIManagerModule.updateNode(rootViewId, chunk.nodes);
           break;
         case NODE_OPERATION_TYPES.deleteNode:
           trace(...componentName, 'deleteNode', chunk.nodes);
-          if (__PLATFORM__ === 'ios' || Native.Platform === 'ios') {
-            chunk.nodes.forEach(node => (
-              UIManagerModule.deleteNode(rootViewId, [node])
-            ));
-          } else {
-            UIManagerModule.deleteNode(rootViewId, chunk.nodes);
-          }
+          UIManagerModule.deleteNode(rootViewId, chunk.nodes);
           break;
         default:
-          // pass
       }
     });
     UIManagerModule.endBatch();
