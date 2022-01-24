@@ -131,7 +131,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   bool HasTouchEventListeners();
 
   nlohmann::json ToJSONString();
-  nlohmann::json GetDomDomainData(uint32_t depth);
+  nlohmann::json GetDomDomainData(uint32_t depth, std::shared_ptr<DomManager> dom_manager);
   nlohmann::json GetNodeIdByDomLocation(double x, double y);
   nlohmann::json ParseNodeProps(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>  &node_props);
   nlohmann::json ParseDomValue(const DomValue& value);

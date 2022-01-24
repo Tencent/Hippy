@@ -22,12 +22,12 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
     if (is_root) {
       auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-      callback(root_node->GetDomDomainData(depth));
+      callback(root_node->GetDomDomainData(depth, dom_manager));
       return;
     }
     auto node = dom_manager->GetNode(node_id);
     assert(node != nullptr);
-    callback(node->GetDomDomainData(depth));
+    callback(node->GetDomDomainData(depth, dom_manager));
   };
   DevToolUtils::PostDomTask(dom_id_, func);
 }

@@ -344,9 +344,8 @@ nlohmann::json DomNode::ToJSONString() {
   return node_json;
 }
 
-nlohmann::json DomNode::GetDomDomainData(uint32_t depth) {
-  auto dom_manager = dom_manager_.lock();
-  nlohmann::json domain_json{};
+nlohmann::json DomNode::GetDomDomainData(uint32_t depth, std::shared_ptr<DomManager> dom_manager) {
+  auto domain_json = nlohmann::json::object();
   domain_json[kNodeId] = GetId();
   domain_json[kParentId] = GetPid();
   domain_json[kRootId] = dom_manager->GetRootId();
@@ -364,7 +363,9 @@ nlohmann::json DomNode::GetDomDomainData(uint32_t depth) {
     // 不需要孩子节点数据 则直接返回
     return domain_json;
   }
-  auto children_data_json = nlohmann::json::array();
+  auto children_data_json = nlohmann::json::array();  for (auto &child : children_) {
+    children_data_json.push_back(child->GetDomDomainData(depth, dom_manager));
+  }
   domain_json[kChildren] = children_data_json;
   domain_json[kLayoutX] = layout_node_->GetLeft();
   domain_json[kLayoutY] = layout_node_->GetTop();
