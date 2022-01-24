@@ -35,14 +35,56 @@
  * Keys and values must always be strings or an error is returned.
  */
 extern NSString *const HippyStorageDirectory;
+
+extern NSUInteger HPLOCALSTORAGEIOTYPEREAD;
+
+extern NSUInteger HPLOCALSTORAGEIOTYPEWRITE;
+
 @interface HippyAsyncLocalStorage : NSObject <HippyBridgeModule, HippyInvalidating>
 
 @property (nonatomic, assign) BOOL clearOnInvalidate;
 
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
-// Clear the HippyAsyncLocalStorage data from native code
+/**
+ * Clear the HippyAsyncLocalStorage data from native code
+ */
 + (void)clearAllData;
 
+/**
+ * Get storage directory for HippyAsyncLocalStorage
+ * overwrite this function to return your customized directory
+ *
+ *@discussion default storage directory is #{your app sand box}/document/HippyAsyncLocalStorage_V1/#{module name}
+ * @return storage directory for HippyAsyncLocalStorage
+ */
 - (NSString *)HippyGetStorageDirectory;
+
+/**
+ * Get maxium data read limit
+ *
+ * @discussion if data size exceed range, *handleDataSizeExceed* method will be invoked.Default is NSUIntegerMax
+ * @return max read data size
+ */
+- (NSUInteger)maxReadDataSize;
+
+/**
+ * Get maxium data write limit
+ *
+ * @discussion if data size exceed range, *handleDataSizeExceed* method will be invoked.Default is NSUIntegerMax
+ * @return max write data size
+ */
+- (NSUInteger)maxWriteDataSize;
+
+/**
+ * handle data size exceed range event
+ *
+ * @discussion default return YES and does nothing
+ * @param IOType HPLOCALSTORAGEIOTYPEREAD or HPLOCALSTORAGEIOTYPEWRITE action
+ * @param moduleName module which triggered this operation
+ * @param length The amount of data that corresponds to this operation
+ * @return Continue read or write if return YES
+ */
+- (BOOL)handleDataSizeExceedForIOType:(NSUInteger)IOType moduleName:(NSString *)moduleName key:(NSString *)key dataLength:(NSUInteger)length;
+
 @end
