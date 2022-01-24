@@ -32,6 +32,7 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <devtools/devtool_helper.h>
 
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
@@ -61,7 +62,7 @@ REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cp
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-             "JLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;)J",
+             "JLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;Ljava/lang/String;)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -273,7 +274,8 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id,
-                   jobject j_vm_init_param) {
+                   jobject j_vm_init_param,
+                   jstring j_data_dir) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
                      << ", j_bridge_param_json = "
@@ -297,6 +299,12 @@ jlong InitInstance(JNIEnv* j_env,
     param->maximum_heap_size_in_bytes = static_cast<size_t>(maximum_heap_size_in_bytes);
     TDF_BASE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
   }
+  const jchar* chars = j_env->GetStringChars(j_data_dir, NULL);
+  std::u16string u16_string(reinterpret_cast<const char16_t*>(chars), j_env->GetStringLength(j_data_dir));
+  std::string dir_string = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(u16_string);
+  DEVTOOLS_INIT_V8_TRACING_CACHE(dir_string);
+  TDF_BASE_LOG(INFO) << "int data dir: " << dir_string;
+  j_env->ReleaseStringChars(j_data_dir, chars);
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
     TDF_BASE_LOG(INFO) << "run scope cb";
     hippy::bridge::CallJavaMethod(save_object_->GetObj(),INIT_CB_STATE::SUCCESS);
