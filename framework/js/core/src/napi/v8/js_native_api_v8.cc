@@ -27,8 +27,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
 #include "base/logging.h"
+
 #include "core/base/common.h"
 #include "core/base/macros.h"
 #include "core/base/string_view_utils.h"
@@ -37,6 +37,7 @@
 #include "core/napi/native_source_code.h"
 #include "core/napi/v8/serializer.h"
 #include "core/scope.h"
+#include "devtools/devtool_helper.h"
 #include "v8/libplatform/libplatform.h"
 
 
@@ -256,6 +257,8 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
 #endif
       TDF_BASE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
+      auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform_->GetTracingController());
+      DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace);
     }
   }
 

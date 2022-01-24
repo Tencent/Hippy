@@ -322,25 +322,13 @@ nlohmann::json DomNode::ToJSONString() {
   } else if(!view_name_.empty()){
     node_json[kNodeType] = view_name_;
   } else {
-    node_json[kNodeType] = "";
+    node_json[kNodeType] = "rootNode";
   }
   node_json[kId] = id_;
   if (layout_node_) {
-//    if (layout_node_->GetWidth() != (layout_node_->GetRight() - layout_node_->GetLeft())) {
-      TDF_BASE_DLOG(INFO) << "invalid bounds width:" << layout_node_->GetWidth() << " left:" << layout_node_->GetLeft() << " right:" << layout_node_->GetRight()
-      << "margin left:" << layout_node_->GetMargin(EdgeLeft)
-      << "margin right:" << layout_node_->GetMargin(EdgeRight)
-      << "margin top:" << layout_node_->GetMargin(EdgeTop)
-      << "margin bottom:" << layout_node_->GetMargin(EdgeBottom);
-//    }
-    node_json[kWidth] = layout_node_->GetWidth();
-    node_json[kHeight] = layout_node_->GetHeight();
-    nlohmann::json bounds_json;
-    bounds_json[kTop] = layout_node_->GetTop();
-    bounds_json[kLeft] = layout_node_->GetLeft();
-    bounds_json[kBottom] = layout_node_->GetBottom();
-    bounds_json[kRight] = layout_node_->GetRight();
-    node_json[kBounds] = bounds_json;
+    node_json[kWidth] = static_cast<uint32_t>(layout_node_->GetWidth());
+    node_json[kHeight] = static_cast<uint32_t>(layout_node_->GetHeight());
+    node_json[kBounds] = GetNodeBounds();
   }
 //  node_json[kBorderColor] = border_color_;
   node_json[kTotalProps] = ParseNodeProps(dom_ext_map_);
@@ -358,7 +346,7 @@ nlohmann::json DomNode::ToJSONString() {
 
 nlohmann::json DomNode::GetDomDomainData(uint32_t depth) {
   auto dom_manager = dom_manager_.lock();
-  auto domain_json = nlohmann::json::object();
+  nlohmann::json domain_json{};
   domain_json[kNodeId] = GetId();
   domain_json[kParentId] = GetPid();
   domain_json[kRootId] = dom_manager->GetRootId();
@@ -368,14 +356,8 @@ nlohmann::json DomNode::GetDomDomainData(uint32_t depth) {
   domain_json[kNodeValue] = "";
   domain_json[kChildNodeCount] = children_.size();
 
-  if (!GetStyleMap().empty()) {
-    auto style_props = GetStyleMap();
-    domain_json[kStyle] = ParseNodeProps(style_props);
-  }
-  if (!GetExtStyle().empty()) {
-    auto attribute_props = GetExtStyle();
-    domain_json[kAttributes] = ParseNodeProps(attribute_props);
-  }
+  domain_json[kStyle] = ParseNodeProps(style_map_);
+  domain_json[kAttributes] = ParseNodeProps(dom_ext_map_);
   // 每获取一层数据 深度减一
   depth--;
   if (depth <= 0) {
@@ -440,11 +422,11 @@ bool DomNode::IsLocationHitNode(double x, double y) {
 
 nlohmann::json DomNode::GetNodeBounds() {
   nlohmann::json bounds_json;
-  bounds_json[kTop] = layout_node_->GetTop();
-  bounds_json[kLeft] = layout_node_->GetLeft();
-  bounds_json[kBottom] = layout_node_->GetBottom();
-  bounds_json[kRight] = layout_node_->GetRight();
-
+  auto layout_result = GetLayoutInfoFromRoot();
+  bounds_json[kTop] = static_cast<uint32_t>(layout_result.top);
+  bounds_json[kLeft] = static_cast<uint32_t>(layout_result.left);
+  bounds_json[kBottom] = static_cast<uint32_t>(layout_result.top + layout_result.height);
+  bounds_json[kRight] = static_cast<uint32_t>(layout_result.left + layout_result.width);
   return bounds_json;
 }
 
@@ -500,14 +482,14 @@ nlohmann::json DomNode::ParseDomValue(const DomValue& dom_value) {
   return props_json;
 }
 
-nlohmann::json DomNode::ParseNodeProps(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &node_props) {
+nlohmann::json DomNode::ParseNodeProps(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>  &node_props) {
   nlohmann::json props_json = nlohmann::json::object();
-  if (node_props.empty()) {
+  if (!node_props || node_props->empty()) {
     TDF_BASE_DLOG(INFO) << "ParseTotalProps, node props is not object";
     return props_json;
   }
 
-  for(auto iterator = node_props.begin(); iterator != node_props.end(); iterator++){
+  for(auto iterator = node_props->begin(); iterator != node_props->end(); iterator++){
     if (iterator->first == "uri" || iterator->first == "src") {
       // 这个value是个base64，数据量太大，改成空字符串
 //      iterator.second = "";

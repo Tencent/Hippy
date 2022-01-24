@@ -50,7 +50,9 @@ const uint32_t kInvalidListenerId = 0;
 Scope::Scope(Engine* engine,
              std::string name,
              std::unique_ptr<RegisterMap> map)
-    : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {}
+    : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {
+  devtool_data_source_ = std::make_shared<DevtoolDataSource>();
+}
 
 Scope::~Scope() {
   TDF_BASE_DLOG(INFO) << "~Scope";
@@ -245,11 +247,4 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
   }
   std::shared_ptr<CtxValue> ret = future.get();
   return ret;
-}
-
-void Scope::InitDevtool(int32_t dom_id, int32_t runtime_id) {
-  std::shared_ptr<DomManager> dom_manager = dom_manager_.lock();
-  if (dom_manager) {
-    devtool_data_source_ = std::make_shared<DevtoolDataSource>(dom_id, runtime_id);
-  }
 }

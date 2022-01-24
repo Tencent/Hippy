@@ -160,6 +160,26 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   runtime->SetGroupId(group);
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
 
+#if TDF_SERVICE_ENABLED
+  scope->GetDevtoolsDataSource()->SetV8RequestHandler([runtime_id](std::string data) {
+    std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+    if (!runtime || !runtime->IsDebug()) {
+      TDF_BASE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
+      return;
+    }
+    std::shared_ptr<JavaScriptTaskRunner> runner =
+        runtime->GetEngine()->GetJSRunner();
+    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+    task->callback = [runtime, data] {
+      // 转成utf-16给v8（utf-8给v8有一些协议如 Runtime.enable 有 Message must be a valid JSON）
+      std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+      std::u16string u16 = convert.from_bytes(data);
+      global_inspector->SendMessageToV8(std::move(unicode_string_view(u16)));
+    };
+    runner->PostTask(task);
+  });
+#endif
+
   return runtime_id;
 }
 

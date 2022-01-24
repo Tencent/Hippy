@@ -130,7 +130,7 @@ void DoBind(JNIEnv* j_env,
   dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
   render_manager->SetDomManager(dom_manager);
 
-  scope->InitDevtool(j_dom_id, j_framework_id);
+  scope->BindDevtool(j_dom_id, j_framework_id);
 }
 
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {

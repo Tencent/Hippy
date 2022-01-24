@@ -26,20 +26,17 @@ namespace devtools {
  */
 class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
  public:
-  explicit DevtoolDataSource(int32_t dom_id, int32_t runtime_id);
   ~DevtoolDataSource() = default;
 
+  void Bind(int32_t dom_id, int32_t runtime_id);
+
 #ifdef OS_ANDROID
-  void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
+  static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
 #endif
 
-//  void SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler);
+  void SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler);
 
-//  void SendV8Response(std::string data);
-
-//  void SetDomainRequestHandler(HippyElementsRequestAdapter::DomainHandler domain_handler);
-//
-//  void SetNodeRequestHandler(HippyElementsRequestAdapter::NodeHandler domain_handler);
+  static void SendV8Response(std::string data);
 
   /**
    * @brief 设置是否通知 batch 事件

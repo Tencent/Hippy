@@ -138,10 +138,12 @@ class Scope {
     return render_manager_;
   }
 
-  /**
-   * @brief 初始化在DomManager初始化后调用
-   */
-  void InitDevtool(int32_t dom_id, int32_t runtime_id);
+  void BindDevtool(int32_t dom_id, int32_t runtime_id) {
+      devtool_data_source_->Bind(dom_id, runtime_id);
+  }
+  std::shared_ptr<DevtoolDataSource> GetDevtoolsDataSource() {
+    return devtool_data_source_;
+  }
 
  private:
   friend class Engine;
