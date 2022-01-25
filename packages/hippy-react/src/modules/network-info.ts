@@ -76,7 +76,7 @@ function addEventListener(eventName: string, listener: NetworkInfoCallback): Net
     },
   );
   // FIXME: Seems only accept one callback for each event, should support multiple callback.
-  subScriptions.set(handler, handler);
+  subScriptions.set(listener, handler);
   return new NetInfoRevoker(event, listener);
 }
 
