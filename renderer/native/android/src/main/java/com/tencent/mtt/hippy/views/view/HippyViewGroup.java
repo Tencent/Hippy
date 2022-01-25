@@ -302,6 +302,8 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     setChildrenDrawingOrderEnabled(mDrawingOrderHelper.shouldEnableCustomDrawingOrder());
   }
 
+
+
   @Override
   public void resetProps() {
     //		HippyViewController.resetTransform(this);
