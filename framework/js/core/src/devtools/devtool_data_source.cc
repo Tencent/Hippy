@@ -5,15 +5,16 @@
 
 #if TDF_SERVICE_ENABLED
 
+#include "devtools/devtool_data_source.h"
 #ifdef OS_ANDROID
 #include "core/runtime/v8/runtime.h"
 #endif
 #include "devtools/adapter/hippy_dom_tree_adapter.h"
 #include "devtools/adapter/hippy_elements_request_adapter.h"
 #include "devtools/adapter/hippy_runtime_adapter.h"
+#include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_v8_request_adapter.h"
-#include "devtools/devtool_data_source.h"
 #include "devtools/trace_control.h"
 #include "devtools_backend/devtools_backend_service.h"
 #include "dom/dom_manager.h"
@@ -57,6 +58,7 @@ void DevtoolDataSource::Bind(int32_t dom_id, int32_t runtime_id) {
   data_channel->GetProvider()->SetElementsRequestAdapter(std::make_shared<HippyElementsRequestAdapter>(dom_id_));
   data_channel->GetProvider()->SetTracingAdapter(std::make_shared<HippyTracingAdapter>());
   data_channel->GetProvider()->SetRuntimeAdapter(std::make_shared<HippyRuntimeAdapter>(runtime_id_));
+  data_channel->GetProvider()->SetScreenAdapter(std::make_shared<HippyScreenAdapter>(dom_id_));
   DevtoolsBackendService::GetInstance().EnableService();
   TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_channel:%p" << &data_channel;
 }
