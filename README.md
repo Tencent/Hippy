@@ -23,9 +23,11 @@ Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobi
 
 ### Preparing environment
 
-Run `git clone https://github.com/Tencent/Hippy.git`
+Make sure you have [git](https://git-scm.com/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed locally.
 
-> Hippy repository applies [git-lfs](https://git-lfs.github.com/) to manage so,gz,otf files, make sure you have installed [git-lfs](https://git-lfs.github.com/) first.
+Run `git clone https://github.com/Tencent/Hippy.git` and `npm install` at project root directory.
+
+> The Hippy repository applies [git-lfs](https://git-lfs.github.com/) to manage so,gz,otf files, make sure you have installed [git-lfs](https://git-lfs.github.com/) first.
 
 For macOS developers:
 
@@ -147,6 +149,7 @@ Hippy
 ├── core                              # JS modules implemented by C++, binding to JS engine.
 ├── docker                            # Native release docker image and build scripts.
 ├── layout                            # Hippy layout engine.
+├── static                            # Global static resources stored directory.
 └── scripts                           # Project build script.
 ```
 
