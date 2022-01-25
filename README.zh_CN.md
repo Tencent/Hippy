@@ -25,7 +25,9 @@ Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写�
 
 ### 准备环境
 
-运行 `git clone https://github.com/Tencent/Hippy.git`
+确保你本地已经安装 [git](https://git-scm.com/) 和 [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) 。
+
+运行 `git clone https://github.com/Tencent/Hippy.git`，然后在项目根目录运行 `npm install`。
 
 > Hippy 仓库使用 [git-lfs](https://git-lfs.github.com/) 来管理 so,gz,otf 文件, 请确保你已经安装 [git-lfs](https://git-lfs.github.com/)。
 
@@ -146,6 +148,7 @@ Hippy
 ├── core                              # C++ 实现的 JS 模块，通过 Binding 方式运行在 JS 引擎中。
 ├── docker                            # 发布 Native 的 Docker 镜像和构建脚本
 ├── layout                            # Hippy 布局引擎。
+├── static                            # 全局静态资源存储目录。
 └── scripts                           # 项目编译脚本。
 ```
 
