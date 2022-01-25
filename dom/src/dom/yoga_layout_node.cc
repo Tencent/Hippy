@@ -501,11 +501,11 @@ void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf:
     SetYGPosition(GetPositionEdge(kLeft), dom_value);
   }
   if (style_map.find(kRight) != style_map.end()) {
-    auto dom_value = style_map.find(kLeft)->second;
+    auto dom_value = style_map.find(kRight)->second;
     SetYGPosition(GetPositionEdge(kRight), dom_value);
   }
   if (style_map.find(kTop) != style_map.end()) {
-    auto dom_value = style_map.find(kLeft)->second;
+    auto dom_value = style_map.find(kTop)->second;
     SetYGPosition(GetPositionEdge(kTop), dom_value);
   }
   if (style_map.find(kBottom) != style_map.end()) {

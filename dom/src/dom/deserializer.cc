@@ -157,7 +157,7 @@ bool Deserializer::ReadTwoByteString(DomValue& dom_value) {
 
   const char16_t* start = reinterpret_cast<char16_t*>(const_cast<uint8_t*>(position_));
   position_ += two_byte_length;
-  unicode_string_view string_view(start, two_byte_length);
+  unicode_string_view string_view(start, two_byte_length/ sizeof(char16_t));
   dom_value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
   return true;
 };
