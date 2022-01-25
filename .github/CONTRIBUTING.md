@@ -5,8 +5,8 @@ Hi! I'm really excited that you are interested in contributing to Hippy. Before 
 - [Code of Conduct](https://github.com/Tencent/Hippy/blob/master/.github/CODE_OF_CONDUCT.md)
 - [Issue Reporting Guidelines](#issue-reporting-guidelines)
 - [Pull Request Guidelines](#pull-request-guidelines)
-- [Development Setup](https://github.com/Tencent/Hippy#getting-started)
-- [Project Structure](https://github.com/Tencent/Hippy#project-structure)
+- [Development Setup](https://github.com/Tencent/Hippy#-getting-started)
+- [Project Structure](https://github.com/Tencent/Hippy#-project-structure)
 
 ## Issue Reporting Guidelines
 
@@ -14,7 +14,7 @@ Hi! I'm really excited that you are interested in contributing to Hippy. Before 
 
 ## Pull Request Guidelines
 
-- Setting up your local environment to get started. You will need have [git](https://git-scm.com/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed locally, then run `npm install` to download all needed dependencies. These are detailed in the [Development Setup guide](https://github.com/Tencent/Hippy#getting-started). 
+- Setting up your local environment to get started. You will need have [git](https://git-scm.com/) and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed locally, then run `npm install` to download all needed dependencies. These are detailed in the [Development Setup guide](https://github.com/Tencent/Hippy#-getting-started). 
 
 - Checkout a topic branch from the relevant branch, e.g. `master`, and merge back against that branch.
 
