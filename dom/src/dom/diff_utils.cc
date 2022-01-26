@@ -8,57 +8,60 @@
 #include "dom/node_props.h"
 namespace hippy {
 inline namespace dom {
-DomValueMap DiffUtils::DiffProps(const DomValueMap& from, const DomValueMap& to) {
-  DomValueMap diff_props;
+DiffValue DiffUtils::DiffProps(
+    const DomValueMap& from, const DomValueMap& to) {
+    std::shared_ptr<DomValueMap> update_props = std::make_shared<DomValueMap>();
+    std::shared_ptr<std::vector<std::string>> delete_props = std::make_shared<std::vector<std::string>>();
   for (const auto& kv : from) {
     auto from_value = from.find(kv.first);  // old
     auto to_value = to.find(kv.first);      // new
     if (to_value == to.end()) {
+      delete_props->push_back(kv.first);
       continue;
     }
     if (from_value->second == nullptr) {
       if (to_value->second) {
-        diff_props[kv.first] = to_value->second;
+        (*update_props)[kv.first] = to_value->second;
       }
       continue;
     }
     if (from_value->second->IsBoolean()) {
       if (!to_value->second || (to_value->second->ToBoolean() != from_value->second->ToBoolean())) {
-        diff_props[kv.first] = to_value->second;
+        (*update_props)[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsNumber()) {
       if (!to_value->second || (to_value->second->ToDouble() != from_value->second->ToDouble())) {
-        diff_props[kv.first] = to_value->second;
+        (*update_props)[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsString()) {
       if (!to_value->second || (to_value->second->ToString() != from_value->second->ToString())) {
-        diff_props[kv.first] = to_value->second;
+        (*update_props)[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsArray()) {
       if (to_value->second && to_value->second->IsArray()) {
         DomValueArray result = DiffArray(from_value->second->ToArray(), to_value->second->ToArray());
         if (!result.empty()) {
-          diff_props[kv.first] = std::make_shared<DomValue>(result);
+          (*update_props)[kv.first] = std::make_shared<DomValue>(result);
         }
       } else {
-        diff_props[kv.first] = to_value->second;
+        (*update_props)[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsObject()) {
       if (to_value->second && to_value->second->IsObject()) {
         DomValueObject result = DiffObject(to_value->second->ToObject(), to_value->second->ToObject());
         if (!result.empty()) {
-          diff_props[kv.first] = to_value->second;
+          (*update_props)[kv.first] = to_value->second;
         }
       } else {
-        diff_props[kv.first] = std::make_shared<DomValue>(DomValue::Null());
+        (*update_props)[kv.first] = std::make_shared<DomValue>(DomValue::Null());
       }
     } else if (from_value->second->IsNull()) {
       if (to_value->second && !to_value->second->IsNull()) {
-        diff_props[kv.first] = to_value->second;
+        (*update_props)[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsUndefined()) {
       if (to_value->second && !to_value->second->IsUndefined()) {
-        diff_props[kv.first] = to_value->second;
+        (*update_props)[kv.first] = to_value->second;
       }
     } else {
       TDF_BASE_NOTREACHED();
@@ -68,9 +71,15 @@ DomValueMap DiffUtils::DiffProps(const DomValueMap& from, const DomValueMap& to)
     if (from.find(kv.first) != from.end()) {
       continue;
     }
-    diff_props[kv.first] = kv.second;
+    (*update_props)[kv.first] = kv.second;
   }
-
+  if (delete_props->empty()) {
+    delete_props = nullptr;
+  }
+  if (update_props->empty()) {
+    update_props = nullptr;
+  }
+  DiffValue diff_props = std::make_tuple(update_props, delete_props);
   return diff_props;
 }
 

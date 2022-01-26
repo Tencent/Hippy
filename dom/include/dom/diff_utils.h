@@ -12,9 +12,11 @@ using DomValue = tdf::base::DomValue;
 using DomValueMap = typename std::unordered_map<std::string, std::shared_ptr<DomValue>>;
 using DomValueObject = typename std::unordered_map<std::string, DomValue>;
 using DomValueArray = typename std::vector<DomValue>;
+using DiffValue = typename std::tuple<std::shared_ptr<DomValueMap>, std::shared_ptr<std::vector<std::string>>>;
+
 class DiffUtils {
  public:
-  static DomValueMap DiffProps(const DomValueMap& from, const DomValueMap& to);
+  static DiffValue DiffProps(const DomValueMap& from, const DomValueMap& to);
   static DomValueArray DiffArray(const DomValueArray& from, const DomValueArray& to);
   static DomValueObject DiffObject(const DomValueObject& from, const DomValueObject& to);
 };
