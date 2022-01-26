@@ -315,6 +315,7 @@ bool Deserializer::ReadObject(DomValue& value) {
 
 uint32_t Deserializer::ReadObjectProperties(DomValue& property, SerializationTag end_tag) {
   uint32_t num_properties = 0;
+  DomValue::DomValueObjectType object;
 
   // Slow path.
   for (;; num_properties++) {
@@ -326,7 +327,6 @@ uint32_t Deserializer::ReadObjectProperties(DomValue& property, SerializationTag
     }
 
     if (end_tag == SerializationTag::kEndJSObject) {
-      DomValue::DomValueObjectType object;
       DomValue key;
       ReadObject(key);
       DomValue value;
