@@ -103,14 +103,32 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
         continue;
       }
       // diff props
-      DomValueMap style_diff = DiffUtils::DiffProps(*node->GetStyleMap(), *it->GetStyleMap());
-      DomValueMap ext_diff = DiffUtils::DiffProps(*node->GetExtStyle(), *it->GetExtStyle());
-      style_diff.insert(ext_diff.begin(), ext_diff.end());
+      auto style_diff_value = DiffUtils::DiffProps(*node->GetStyleMap(), *it->GetStyleMap());
+      auto ext_diff_value = DiffUtils::DiffProps(*node->GetExtStyle(), *it->GetExtStyle());
+      auto style_update = std::get<0>(style_diff_value);
+      auto ext_update = std::get<0>(ext_diff_value);
+      std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
+      if (style_update) {
+        diff_value->insert(style_update->begin(), style_update->end());
+      }
+      if (ext_update) {
+        diff_value->insert(ext_update->begin(), ext_update->end());
+      }
       node->SetStyleMap(it->GetStyleMap());
       node->SetExtStyleMap(it->GetExtStyle());
-      auto diff_ptr = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(style_diff));
-      node->SetDiffStyle(diff_ptr);
-      it->SetDiffStyle(diff_ptr);
+      node->SetDiffStyle(diff_value);
+      auto style_delete = std::get<1>(style_diff_value);
+      auto ext_delete = std::get<1>(ext_diff_value);
+      std::shared_ptr<std::vector<std::string>> delete_value = std::make_shared<std::vector<std::string>>();
+      if (style_delete) {
+        delete_value->insert(delete_value->end(), style_delete->begin(), style_delete->end());
+      }
+      if (ext_delete) {
+        delete_value->insert(delete_value->end(), ext_delete->begin(), ext_delete->end());
+      }
+      node->SetDeleteProps(delete_value);
+      it->SetDiffStyle(diff_value);
+      it->SetDeleteProps(delete_value);
       it->SetRenderInfo(node->GetRenderInfo());
       // node->ParseLayoutStyleInfo();
       self->HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, nullptr));
