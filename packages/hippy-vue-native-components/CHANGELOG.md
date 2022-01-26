@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.12.1...2.12.2) (2022-01-26)
+
+
+### Features
+
+* **hippy-vue:** support  value for anim repeatCount ([4c7ede7](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/commit/4c7ede7453aa4922d7ec9e4e904dbd5124ef403f))
+
+
+
+
+
 ## [2.12.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-native-components/compare/2.12.0...2.12.1) (2022-01-18)
 
 **Note:** Version bump only for package @hippy/vue-native-components

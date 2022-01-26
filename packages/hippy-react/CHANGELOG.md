@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.12.1...2.12.2) (2022-01-26)
+
+
+### Bug Fixes
+
+* **hippy-react:** fixed network-info wrong stored listener ([e3926d9](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/commit/e3926d9582e0a15eea15ac721e620aeac20fa9cc))
+
+
+
+
+
 ## [2.12.1](https://github.com/Tencent/Hippy/tree/master/packages/hippy-react/compare/2.12.0...2.12.1) (2022-01-18)
 
 **Note:** Version bump only for package @hippy/react

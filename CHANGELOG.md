@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.2](https://github.com/Tencent/Hippy/compare/2.12.1...2.12.2) (2022-01-26)
+
+
+### Bug Fixes
+
+* **hippy-react:** fixed network-info wrong stored listener ([e3926d9](https://github.com/Tencent/Hippy/commit/e3926d9582e0a15eea15ac721e620aeac20fa9cc))
+
+
+### Features
+
+* **hippy-vue:** support  value for anim repeatCount ([4c7ede7](https://github.com/Tencent/Hippy/commit/4c7ede7453aa4922d7ec9e4e904dbd5124ef403f))
+* **ios:** 1.default enable turbo, 2.fix package jsi error ([#1475](https://github.com/Tencent/Hippy/issues/1475)) ([47ba8d1](https://github.com/Tencent/Hippy/commit/47ba8d133f7495b6a176f7f0b23fa5dcd01e037d))
+
+
+
+
+
 ## [2.12.1](https://github.com/Tencent/Hippy/compare/2.12.0...2.12.1) (2022-01-18)
 
 
