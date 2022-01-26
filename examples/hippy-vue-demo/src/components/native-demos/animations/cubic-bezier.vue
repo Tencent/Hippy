@@ -21,15 +21,15 @@ const horizonAnimation = {
         startValue: 50,
         toValue: 150,
         duration: 1000,
-        repeatCount: -1,
-        timingFunction: 'cubic-bezier(  0.45,2.84, 000.38,.5)',
+        repeatCount: -1, // 'loop' string supported above 2.12.2
+        timingFunction: 'cubic-bezier(0.45,2.84, 000.38,.5)',
       },
       {
         startValue: 150,
         toValue: 50,
         duration: 1000,
-        repeatCount: -1,
-        timingFunction: 'cubic-bezier(  0.45,2.84, 000.38,.5)',
+        repeatCount: -1, // 'loop' string supported above 2.12.2
+        timingFunction: 'cubic-bezier(0.45,2.84, 000.38,.5)',
       },
     ],
   },
