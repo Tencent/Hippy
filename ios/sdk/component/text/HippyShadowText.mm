@@ -42,6 +42,8 @@ CGFloat const HippyTextAutoSizeWidthErrorMargin = 0.05f;
 CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 
+static const CGFloat gDefaultFontSize = 14.f;
+
 @implementation HippyShadowText
 // MTTlayout
 static MTTSize x5MeasureFunc(
@@ -356,6 +358,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     if (_fontSize && !isnan(_fontSize)) {
         fontSize = @(_fontSize);
+    }
+    else if (nil == fontSize) {
+        //default font size is 14
+        fontSize = @(gDefaultFontSize);
     }
     if (_fontWeight) {
         fontWeight = _fontWeight;
