@@ -26,6 +26,7 @@ namespace devtools {
  */
 class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
  public:
+  DevtoolDataSource() { tdf::devtools::DevtoolsBackendService::GetInstance(); }
   ~DevtoolDataSource() = default;
 
   void Bind(int32_t dom_id, int32_t runtime_id);

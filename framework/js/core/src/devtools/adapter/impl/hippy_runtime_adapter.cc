@@ -20,10 +20,7 @@ bool HippyRuntimeAdapter::IsDebug() {
   }
   return runtime->IsDebug();
 #else
-  if (ServiceDevToolsJS::Instance()->GetHippyEngine()) {
-    return true;
-  }
-  return false;
+  return true;  // TODO: thomasyqguo, iOS 里面拿不到 Runtime
 #endif
 }
 }  // namespace devtools

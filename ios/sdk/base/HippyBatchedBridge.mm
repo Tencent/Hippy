@@ -767,12 +767,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         int32_t rootTag = [[rootView hippyTag] intValue];
         _domManager = std::make_shared<hippy::DomManager>(rootTag);
         _domManager->StartTaskRunner();
+        hippy::dom::DomManager::Insert(_domManager);
         [uiManager setDomManager:_domManager];
         _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
         _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
         _domManager->SetRenderManager(_nativeRenderManager);
         _domManager->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
         self.javaScriptExecutor.pScope->SetDomManager(_domManager);
+        self.javaScriptExecutor.pScope->BindDevtool(_domManager->GetId(), 0); // runtime_id for iOS is useless, set 0
     }
 }
 

@@ -16,7 +16,6 @@
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_v8_request_adapter.h"
 #include "devtools/trace_control.h"
-#include "devtools_backend/devtools_backend_service.h"
 #include "dom/dom_manager.h"
 
 namespace hippy {

@@ -7,6 +7,9 @@
 
 #ifdef OS_ANDROID
 #include "core/runtime/v8/runtime.h"
+#else
+#include "dom/dom_manager.h"
+#include "dom/dom_node.h"
 #endif
 
 namespace hippy {
@@ -20,5 +23,5 @@ class DevToolUtils {
     }
   }
 };
-}
-}
+}  // namespace devtools
+}  // namespace hippy

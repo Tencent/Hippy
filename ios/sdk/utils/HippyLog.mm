@@ -23,6 +23,7 @@
 #import "HippyLog.h"
 
 #include <asl.h>
+#include "base/logging.h"
 
 #import "HippyAssert.h"
 #import "HippyBridge.h"
