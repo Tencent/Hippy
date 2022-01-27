@@ -1,15 +1,15 @@
 import React from 'react';
-import { View, Text, ListView, StyleSheet } from '@hippy/react';
+import { ListView, StyleSheet, Text, View } from '@hippy/react';
 import {
-  getString,
-  getNum,
+  getArray,
   getBoolean,
   getMap,
+  getNum,
   getObject,
+  getString,
   getTurboConfig,
-  printTurboConfig,
   nativeWithPromise,
-  getArray,
+  printTurboConfig,
 } from './demoTurbo';
 
 const turboStyles = StyleSheet.create({
@@ -77,11 +77,11 @@ export default class TurboDemo extends React.Component {
       this.config = getTurboConfig();
       result = '获取到config对象';
     } else if (funcName === 'printTurboConfig') {
-      result = printTurboConfig(this.config);
+      result = printTurboConfig(this.config || getTurboConfig());
     } else if (funcName === 'getInfo') {
-      result = this.config.getInfo();
+      result = (this.config || getTurboConfig()).getInfo();
     } else if (funcName === 'setInfo') {
-      this.config.setInfo('Hello World');
+      (this.config || getTurboConfig()).setInfo('Hello World');
       result = '设置config信息成功';
     } else {
       const basicFuncs = {

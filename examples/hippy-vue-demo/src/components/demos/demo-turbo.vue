@@ -63,11 +63,11 @@ export default {
         this.config = getTurboConfig();
         this.result = '获取到config对象';
       } else if (funcName === 'printTurboConfig') {
-        this.result = printTurboConfig(this.config);
+        this.result = printTurboConfig((this.config  || getTurboConfig()));
       } else if (funcName === 'getInfo') {
-        this.result = this.config.getInfo();
+        this.result = (this.config  || getTurboConfig()).getInfo();
       } else if (funcName === 'setInfo') {
-        this.config.setInfo('Hello World');
+        (this.config  || getTurboConfig()).setInfo('Hello World');
         this.result = '设置config信息成功';
       } else {
         const basicFuncs = {
