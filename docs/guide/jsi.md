@@ -78,9 +78,90 @@ public class MyAPIProvider implements HippyAPIProvider {
   }
 ```
 
+#### iOS
+
+* 通过设置引擎初始化参数开启JSI能力
+iOS有两种方式去打开关闭enableTurbo能力，如下：
+
+```objc
+// 方式一：bridge初始化时通过配置参数设置生效
+NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
+HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
+                                                  bundleURL:[NSURL fileURLWithPath:commonBundlePath]
+                                             moduleProvider:nil
+                                              launchOptions:launchOptions
+                                                executorKey:@"Demo"];
+
+// 方式二：bridge初始化完成后，设置属性生效
+HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil
+                                                    businessURL:nil
+                                                     moduleName:@"Demo" 
+                                              initialProperties:@{@"isSimulator": @(isSimulator)} 
+                                                  launchOptions:nil 
+                                                   shareOptions:nil 
+                                                      debugMode:YES 
+                                                       delegate:nil];
+rootView.bridge.enableTurbo = YES;
+
+```
+
+* 定义Module
+
+> 继承HippyOCTurboModule，实现协议HippyTurboModule。
+
+目前iOS端仅支持继承关系来实现JSI能力，后续会考虑升级，只需实现协议HippyTurboModule就能实现能力。
+
+具体使用与实现协议如下：
+
+```obj
+
+@implementation TurboConfig
+
+...
+
+// 注册模块
+HIPPY_EXPORT_TURBO_MODULE(TurboConfig)
+
+// 注册交互函数
+HIPPY_EXPORT_TURBO_METHOD(getInfo) {
+    return self.strInfo;
+}
+HIPPY_EXPORT_TURBO_METHOD(setInfo:(NSString *)string) {
+    self.strInfo = string;
+    return @(YES);
+}
+
+...
+
+@end
+
+```
+
+> 支持的数据类型说明：
+
+| Objec类型  | Js类型  |
+|:----------|:----------|
+| BOOL    | Bool    |
+| NSInteger    | Number    |
+| NSUInteger    | Number    |
+| CGDouble    | Number    |
+| CGFloat    | Number    |
+| NSString    | String    |
+| NSArray    | Array    |
+| NSDictionary    | Object    |
+| Promise    | Function    |
+| NULL    | null    |
+
+
+
+更多示例可参考类[DemoIOSTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/turbomodule/TurboBaseModule.mm)
+
+
 ## 使用例子
 
 [Android Demo](https://github.com/Tencent/Hippy/blob/master/examples/android-demo)
+
+[iOS Demo](https://github.com/Tencent/Hippy/blob/master/examples/ios-demo)
 
 [HippyReact Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/Turbo/index.jsx)
 
