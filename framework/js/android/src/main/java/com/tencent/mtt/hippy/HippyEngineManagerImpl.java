@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -242,7 +243,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void onCreateNode(int nodeId, @NonNull final HashMap<String, Object> props) {
+    public void onCreateNode(int nodeId, @NonNull final Map<String, Object> props) {
         if (mRenderProcessInterceptors != null) {
             for (RenderProcessInterceptor interceptor : mRenderProcessInterceptors) {
                 interceptor.onCreateNode(nodeId, props);
@@ -251,7 +252,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void onUpdateNode(int nodeId, @NonNull final HashMap<String, Object> props) {
+    public void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props) {
         if (mRenderProcessInterceptors != null) {
             for (RenderProcessInterceptor interceptor : mRenderProcessInterceptors) {
                 interceptor.onUpdateNode(nodeId, props);
@@ -285,7 +286,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void updateDimension(boolean shouldRevise, HashMap<String, Object> dimension,
+    public void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
         HippyMap localDimension = new HippyMap(dimension);
         if (shouldRevise && mEngineContext != null) {
@@ -333,8 +334,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void handleNativeException(Exception exception, boolean haveCaught) {
-        mGlobalConfigs.getExceptionHandler().handleNativeException(exception, haveCaught);
+    public void handleNativeException(Exception exception) {
+        mGlobalConfigs.getExceptionHandler().handleNativeException(exception, true);
     }
 
     private void checkModuleLoadParams(ModuleLoadParams loadParams) {

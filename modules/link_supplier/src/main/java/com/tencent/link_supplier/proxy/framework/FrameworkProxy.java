@@ -24,5 +24,5 @@ public interface FrameworkProxy {
 
     void onFirstViewAdded();
 
-    void handleNativeException(Exception exception, boolean haveCaught);
+    void handleNativeException(Exception exception);
 }

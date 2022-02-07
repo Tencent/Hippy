@@ -13,58 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.refresh;
 
 import android.content.Context;
 import android.view.View;
 
 import android.view.ViewGroup;
-import com.tencent.mtt.hippy.HippyRootView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
-@SuppressWarnings({"deprecation", "unused"})
+import java.util.List;
+import java.util.Map;
+
 @HippyController(name = HippyPullFooterViewController.CLASS_NAME, isLazyLoad = true)
 public class HippyPullFooterViewController extends HippyViewController<HippyPullFooterView> {
 
-  public static final String CLASS_NAME = "PullFooterView";
+    public static final String CLASS_NAME = "PullFooterView";
+    private static final String COLLAPSE_PULL_FOOTER = "collapsePullFooter";
 
-  @Override
-  protected View createViewImpl(Context context) {
-    return new HippyPullFooterView(context);
-  }
-
-  @Override
-  public RenderNode createRenderNode(int id, HippyMap props, String className,
-          ViewGroup hippyRootView, ControllerManager controllerManager, boolean lazy) {
-    return new PullFooterRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
-  }
-
-  @HippyControllerProps(name = "sticky", defaultType = HippyControllerProps.BOOLEAN)
-  public void setStickEnabled(HippyPullFooterView view, boolean flag) {
-    view.setStickEnabled(flag);
-  }
-
-  @Override
-  public void dispatchFunction(HippyPullFooterView view, String functionName, HippyArray dataArray) {
-    super.dispatchFunction(view, functionName, dataArray);
-    View parent = view.getParentView();
-    switch (functionName) {
-      case "collapsePullFooter": {
-        if (parent instanceof HippyListView) {
-          ((HippyListView) parent).onFooterRefreshFinish();
-        } else if (parent instanceof IFooterContainer) {
-          ((IFooterContainer) parent).onFooterRefreshFinish();
-        }
-        break;
-      }
+    @Override
+    protected View createViewImpl(Context context) {
+        return new HippyPullFooterView(context);
     }
-  }
+
+    @Override
+    public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ViewGroup hippyRootView,
+            @NonNull ControllerManager controllerManager, boolean lazy) {
+        return new PullFooterRenderNode(id, props, className, hippyRootView, controllerManager,
+                lazy);
+    }
+
+    @HippyControllerProps(name = "sticky", defaultType = HippyControllerProps.BOOLEAN)
+    public void setStickEnabled(HippyPullFooterView view, boolean flag) {
+        view.setStickEnabled(flag);
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyPullFooterView pullFooterView,
+            @NonNull String functionName,
+            @NonNull List params) {
+        super.dispatchFunction(pullFooterView, functionName, params);
+        View parent = pullFooterView.getParentView();
+        if (COLLAPSE_PULL_FOOTER.equals(functionName)) {
+            if (parent instanceof HippyListView) {
+                ((HippyListView) parent).onFooterRefreshFinish();
+            } else if (parent instanceof IFooterContainer) {
+                ((IFooterContainer) parent).onFooterRefreshFinish();
+            }
+        }
+    }
 }

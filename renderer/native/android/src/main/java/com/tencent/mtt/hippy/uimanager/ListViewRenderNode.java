@@ -16,15 +16,20 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.view.ViewGroup;
+
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.common.HippyMap;
+
+import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class ListViewRenderNode extends RenderNode {
 
-  public ListViewRenderNode(int mId, HippyMap mPropsToUpdate, String className,
+  public ListViewRenderNode(int mId, @Nullable Map<String, Object> props, String className,
           ViewGroup mRootView, ControllerManager componentManager,
       boolean isLazyLoad) {
-    super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
+    super(mId, props, className, mRootView, componentManager, isLazyLoad);
   }
 
 

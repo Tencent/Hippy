@@ -16,19 +16,19 @@
 package com.tencent.link_supplier.proxy.framework;
 
 import androidx.annotation.NonNull;
-import java.util.HashMap;
+import java.util.Map;
 
 public interface JSFrameworkProxy extends FrameworkProxy {
 
-    void onCreateNode(int nodeId, @NonNull final HashMap<String, Object> props);
+    void onCreateNode(int nodeId, @NonNull final Map<String, Object> props);
 
-    void onUpdateNode(int nodeId, @NonNull final HashMap<String, Object> props);
+    void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props);
 
     void onDeleteNode(int nodeId);
 
     void onEndBatch();
 
-    void updateDimension(boolean shouldRevise, HashMap<String, Object> dimension,
+    void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
 
     Object getImageLoaderAdapter();

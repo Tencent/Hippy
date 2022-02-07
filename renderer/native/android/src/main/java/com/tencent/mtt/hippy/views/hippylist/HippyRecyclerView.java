@@ -314,7 +314,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
    */
   @Override
   public void onViewAbound(HippyRecyclerViewHolder viewHolder) {
-    if (viewHolder.bindNode != null && !viewHolder.bindNode.isDelete()) {
+    if (viewHolder.bindNode != null && !viewHolder.bindNode.isDeleted()) {
       getAdapter().deleteExistRenderView(viewHolder.bindNode);
     }
   }

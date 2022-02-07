@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"unused"})
@@ -64,7 +65,7 @@ public class Serializer extends PrimitiveValueSerializer {
         }
 
         if (object instanceof HippyArray) {
-            ArrayList array = ((HippyArray) object).getInternalArray();
+            List<Object> array = ((HippyArray) object).getInternalArray();
             writeValue(array);
             return true;
         }

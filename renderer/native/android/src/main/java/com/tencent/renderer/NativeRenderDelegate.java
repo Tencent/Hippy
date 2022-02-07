@@ -18,24 +18,24 @@ package com.tencent.renderer;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
 
-    void createNode(@NonNull ArrayList<Object> nodeList) throws NativeRenderException;
+    void createNode(@NonNull List<Object> nodeList) throws NativeRenderException;
 
-    void updateNode(@NonNull ArrayList<Object> nodeList) throws NativeRenderException;
+    void updateNode(@NonNull List<Object> nodeList) throws NativeRenderException;
 
     void deleteNode(@NonNull int[] ids) throws NativeRenderException;
 
-    void updateLayout(@NonNull ArrayList<Object> list) throws NativeRenderException;
+    void updateLayout(@NonNull List<Object> list) throws NativeRenderException;
 
-    void updateEventListener(@NonNull ArrayList<Object> eventList) throws NativeRenderException;
+    void updateEventListener(@NonNull List<Object> eventList) throws NativeRenderException;
 
     void callUIFunction(int id, long callbackId, String functionName,
-            @NonNull ArrayList<Object> eventList) throws NativeRenderException;
+            @NonNull List<Object> eventList) throws NativeRenderException;
 
     long measure(int id, float width, int widthMode, float height, int heightMode);
 
-    void endBatch();
+    void endBatch() throws NativeRenderException;
 }

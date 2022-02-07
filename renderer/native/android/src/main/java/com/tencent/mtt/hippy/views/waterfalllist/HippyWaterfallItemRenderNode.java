@@ -13,58 +13,81 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.waterfalllist;
 
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 
+import java.util.Map;
+
 public class HippyWaterfallItemRenderNode extends RenderNode {
 
-  static final String TAG = "HippyWaterfallItemNode";
-  IRecycleItemTypeChange mRecycleItemTypeChangeListener;
+    static final String TAG = "HippyWaterfallItemNode";
+    IRecycleItemTypeChange mRecycleItemTypeChangeListener;
 
-  public HippyWaterfallItemRenderNode(int mId, HippyMap mPropsToUpdate, String className,
-          ViewGroup mRootView,
-    ControllerManager componentManager, boolean isLazyLoad) {
-    super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
-  }
-
-  @Override
-  public String toString() {
-    return "[type:" + getType() + "]" + super.toString();
-  }
-
-  public int getType() {
-    int type = -1;
-    HippyMap props = getProps();
-    if (props != null && props.containsKey("type")) {
-      type = props.getInt("type");
+    public HippyWaterfallItemRenderNode(int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ViewGroup hippyRootView,
+            @NonNull ControllerManager controllerManager, boolean lazy) {
+        super(id, props, className, hippyRootView, controllerManager, lazy);
     }
-    return type;
-  }
 
-  @Override
-  public void updateNode(HippyMap map) {
-    int oldType = getProps().getInt("type");
-    int newType = map.getInt("type");
-    if (mRecycleItemTypeChangeListener != null && oldType != newType) {
-      mRecycleItemTypeChangeListener.onRecycleItemTypeChanged(oldType, newType, this);
+    @Override
+    public String toString() {
+        return "[type:" + getType() + "]" + super.toString();
     }
-    super.updateNode(map);
-  }
 
-  public void setRecycleItemTypeChangeListener(
-    IRecycleItemTypeChange recycleItemTypeChangeListener) {
-    mRecycleItemTypeChangeListener = recycleItemTypeChangeListener;
-  }
+    public int getType() {
+        int type = -1;
+        Map<String, Object> props = getProps();
+        if (props != null) {
+            Object valueObj = props.get("type");
+            if (props.get("type") instanceof Number) {
+                type = ((Number) valueObj).intValue();
+            }
+        }
+        return type;
+    }
 
-  public interface IRecycleItemTypeChange {
+    @Override
+    public void updateProps(@NonNull Map<String, Object> props) {
+        int oldType = 0;
+        int newType = 0;
+        Object valueObj = null;
+        if (props != null) {
+            valueObj = props.get("type");
+            if (valueObj instanceof Number) {
+                newType = ((Number) valueObj).intValue();
+            }
+        }
+        if (getProps() != null) {
+            valueObj = getProps().get("type");
+            if (valueObj instanceof Number) {
+                oldType = ((Number) valueObj).intValue();
+            }
+        }
+        if (mRecycleItemTypeChangeListener != null && oldType != newType) {
+            mRecycleItemTypeChangeListener.onRecycleItemTypeChanged(oldType, newType, this);
+        }
+        super.updateProps(props);
+    }
 
-    void onRecycleItemTypeChanged(int oldType, int newType,
-      HippyWaterfallItemRenderNode listItemNode);
-  }
+    public void setRecycleItemTypeChangeListener(
+            IRecycleItemTypeChange recycleItemTypeChangeListener) {
+        mRecycleItemTypeChangeListener = recycleItemTypeChangeListener;
+    }
+
+    public interface IRecycleItemTypeChange {
+
+        void onRecycleItemTypeChanged(int oldType, int newType,
+                HippyWaterfallItemRenderNode listItemNode);
+    }
 
 }

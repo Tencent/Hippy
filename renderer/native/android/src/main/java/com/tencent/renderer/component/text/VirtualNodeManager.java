@@ -42,7 +42,7 @@ import java.util.Set;
 public class VirtualNodeManager {
 
     private static final String TAG = "VirtualNodeManager";
-    private static final Map<Class, Map<String, PropertyMethod>> sClassPropertyMethod = new HashMap<>();
+    private static final Map<Class<?>, Map<String, PropertyMethod>> sClassPropertyMethod = new HashMap<>();
     private final String PADDING_LEFT = "paddingLeft";
     private final String PADDING_TOP = "paddingTop";
     private final String PADDING_RIGHT = "paddingRight";
@@ -63,7 +63,7 @@ public class VirtualNodeManager {
         return (node != null && node.mParent != null);
     }
 
-    public boolean updateEventListener(int id, @NonNull HashMap<String, Object> props) {
+    public boolean updateEventListener(int id, @NonNull Map<String, Object> props) {
         VirtualNode node = mVirtualNodes.get(id);
         if (node == null) {
             return false;
@@ -89,7 +89,7 @@ public class VirtualNodeManager {
     }
 
     @Nullable
-    public TextRenderSupply updateLayout(int id, float width, HashMap<String, Object> layoutInfo) {
+    public TextRenderSupply updateLayout(int id, float width, Map<String, Object> layoutInfo) {
         VirtualNode node = mVirtualNodes.get(id);
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
             return null;
@@ -130,6 +130,7 @@ public class VirtualNodeManager {
         return FlexOutput.make(layout.getWidth(), layout.getHeight());
     }
 
+    @SuppressWarnings("rawtypes")
     private void findPropertyMethod(Class nodeClass,
             @NonNull Map<String, PropertyMethod> methodMap) {
         if (nodeClass != VirtualNode.class) {
@@ -154,17 +155,18 @@ public class VirtualNodeManager {
         sClassPropertyMethod.put(nodeClass, new HashMap<>(methodMap));
     }
 
-    private void invokePropertyMethod(@NonNull VirtualNode node, @NonNull HashMap propsMap,
+    @SuppressWarnings("rawtypes")
+    private void invokePropertyMethod(@NonNull VirtualNode node, @NonNull Map props,
             @NonNull String key, @Nullable PropertyMethod methodHolder) {
         if (methodHolder == null) {
-            if (key.equals(NodeProps.STYLE) && (propsMap.get(key) instanceof HashMap)) {
-                updateProps(node, (HashMap) propsMap.get(key));
+            if (key.equals(NodeProps.STYLE) && (props.get(key) instanceof Map)) {
+                updateProps(node, (Map) props.get(key));
             }
             return;
         }
 
         try {
-            if (propsMap.get(key) == null) {
+            if (props.get(key) == null) {
                 switch (methodHolder.defaultType) {
                     case HippyControllerProps.BOOLEAN:
                         methodHolder.method.invoke(node, methodHolder.defaultBoolean);
@@ -185,15 +187,16 @@ public class VirtualNodeManager {
                 }
             } else {
                 methodHolder.method.invoke(node,
-                        ArgumentUtils.parseArgument(methodHolder.paramTypes[0], propsMap.get(key)));
+                        ArgumentUtils.parseArgument(methodHolder.paramTypes[0], props.get(key)));
             }
         } catch (Exception exception) {
             mNativeRender.handleRenderException(exception);
         }
     }
 
-    private void updateProps(@NonNull VirtualNode node, @Nullable HashMap propsMap) {
-        if (propsMap == null) {
+    @SuppressWarnings("rawtypes")
+    private void updateProps(@NonNull VirtualNode node, @Nullable Map props) {
+        if (props == null) {
             return;
         }
         Class nodeClass = node.getClass();
@@ -202,15 +205,15 @@ public class VirtualNodeManager {
             methodMap = new HashMap<>();
             findPropertyMethod(nodeClass, methodMap);
         }
-        Set<String> keySet = propsMap.keySet();
+        Set<String> keySet = props.keySet();
         for (String key : keySet) {
             PropertyMethod methodHolder = methodMap.get(key);
-            invokePropertyMethod(node, propsMap, key, methodHolder);
+            invokePropertyMethod(node, props, key, methodHolder);
         }
     }
 
     public void createNode(int id, int pid, int index, @NonNull String className,
-            @Nullable HashMap<String, Object> props) {
+            @Nullable Map<String, Object> props) {
         VirtualNode node;
         VirtualNode parent = mVirtualNodes.get(pid);
         if (className.equals(TEXT_CLASS_NAME)) {
@@ -228,7 +231,7 @@ public class VirtualNodeManager {
         updateProps(node, props);
     }
 
-    public void updateNode(int id, @Nullable HashMap<String, Object> props) {
+    public void updateNode(int id, @Nullable Map<String, Object> props) {
         VirtualNode node = mVirtualNodes.get(id);
         if (node != null) {
             updateProps(node, props);

@@ -30,7 +30,6 @@ import com.tencent.renderer.serialization.Serializer;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implementation of render provider, communicate with native (C++) render manager, deserialize and
@@ -40,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NativeRenderProvider {
 
-    public static final String TAG = "NativeRenderProvider";
+    private static final String TAG = "NativeRenderProvider";
     private final NativeRenderDelegate mRenderDelegate;
     private final Deserializer mDeserializer;
     private final Serializer mSerializer;
@@ -227,7 +226,11 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     private void endBatch() {
-        mRenderDelegate.endBatch();
+        try {
+            mRenderDelegate.endBatch();
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
+        }
     }
 
     public void onSizeChanged(int width, int height) {

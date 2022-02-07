@@ -54,11 +54,6 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
   }
 
   @Override
-  protected StyleNode createNode(boolean isVirtual) {
-    return new ModalStyleNode();
-  }
-
-  @Override
   public void onViewDestroy(HippyModalHostView hippyModalHostView) {
     super.onViewDestroy(hippyModalHostView);
     hippyModalHostView.onInstanceDestroy();
