@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
-import com.tencent.mtt.hippy.uimanager.DiffUtils.PatchType;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
@@ -77,11 +76,10 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
     } else {
       if (renderView == null) {
         throw new IllegalArgumentException("createRenderView error!"
-            + ",isDelete:" + renderNode.isDelete()
+            + ",isDelete:" + renderNode.isDeleted()
             + ",isViewExist:" + isViewExist
             + ",needsDelete:" + needsDelete
             + ",className:" + renderNode.getClassName()
-            + ",isLazy :" + renderNode.isIsLazyLoad()
             + ",itemCount :" + getItemCount()
             + ",getNodeCount:" + getRenderNodeCount()
             + ",notifyCount:" + hippyRecyclerView.renderNodeCount
@@ -176,16 +174,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends
     oldNode.setLazy(true);
     newNode.setLazy(false);
     if (oldNode != newNode) {
-      //step 1: diff
-      ArrayList<PatchType> patchTypes = DiffUtils.diff(oldNode, newNode);
-      //step:2 delete unUseful views
-      DiffUtils.deleteViews(hpContext.getRenderManager().getControllerManager(), patchTypes);
-      //step:3 replace id
-      DiffUtils.replaceIds(hpContext.getRenderManager().getControllerManager(), patchTypes);
-      //step:4 create view is do not  reUse
-      DiffUtils.createView(patchTypes);
-      //step:5 patch the dif result
-      DiffUtils.doPatch(hpContext.getRenderManager().getControllerManager(), patchTypes);
+      DiffUtils.doDiffAndPatch(hpContext.getRenderManager().getControllerManager(), oldNode, newNode);
     }
     newNode.setRecycleItemTypeChangeListener(this);
     hippyRecyclerViewHolder.bindNode = newNode;

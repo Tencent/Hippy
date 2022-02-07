@@ -38,8 +38,8 @@ public class HippyMap {
     mDatas = new HashMap<>();
   }
 
-  public HippyMap(HashMap<String, Object> map) {
-    mDatas = map;
+  public HippyMap(Map<String, Object> map) {
+    mDatas = (HashMap<String, Object>) map;
   }
 
   public HashMap<String, Object> getInternalMap() {

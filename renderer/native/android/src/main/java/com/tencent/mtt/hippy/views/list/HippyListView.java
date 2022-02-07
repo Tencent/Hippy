@@ -40,6 +40,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+import java.util.Map;
+
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyListView extends RecyclerView implements HippyViewBase {
 
@@ -504,13 +506,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     }
   }
 
-  protected void sendExposureEvent(View view, String eventName, HippyMap props) {
+  protected void sendExposureEvent(View view, String eventName, Map<String, Object> props) {
     if (props.containsKey(eventName)) {
       new HippyViewEvent(eventName).send(view, null);
     }
   }
 
-  private HippyMap getItemViewProps(int id) {
+  private Map<String, Object> getItemViewProps(int id) {
     if (nativeRenderer == null) {
       return null;
     }
@@ -534,7 +536,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     myEnd += parentStart;
 
     HippyListItemView itemView = (HippyListItemView) view;
-    HippyMap props = getItemViewProps(itemView.getId());
+    Map<String, Object> props = getItemViewProps(itemView.getId());
     if (props == null) {
       return;
     }

@@ -17,27 +17,27 @@ package com.tencent.mtt.hippy.common;
 
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 
-import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 @SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
 public class HippyArray {
 
-  private final ArrayList mDatas;
+  private final List<Object> mDatas;
 
   public HippyArray() {
     mDatas = new ArrayList();
   }
 
-  public HippyArray(ArrayList arrList) {
+  public HippyArray(List<Object> arrList) {
     mDatas = arrList;
   }
 
-  public ArrayList getInternalArray() {
+  public List getInternalArray() {
     return mDatas;
   }
 

@@ -19,6 +19,10 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
@@ -26,6 +30,8 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+
+import java.util.Map;
 
 @HippyController(name = WaterFallComponentName.ITEM, isLazyLoad = true)
 public class HippyWaterfallItemViewController extends
@@ -44,9 +50,9 @@ public class HippyWaterfallItemViewController extends
   }
 
   @Override
-  public RenderNode createRenderNode(int id, HippyMap props, String className,
-          ViewGroup hippyRootView, ControllerManager controllerManager,
-    boolean lazy) {
+  public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
+          @NonNull String className, @NonNull ViewGroup hippyRootView,
+          @NonNull ControllerManager controllerManager, boolean lazy) {
     return new HippyWaterfallItemRenderNode(id, props, className, hippyRootView,
       controllerManager, lazy);
   }

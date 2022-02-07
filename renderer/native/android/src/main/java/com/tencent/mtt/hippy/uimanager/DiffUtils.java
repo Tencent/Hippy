@@ -13,505 +13,344 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import android.text.TextUtils;
 
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
-import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.renderer.NativeRender;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
+import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_HAS_DTEB_ID;
 import static com.tencent.mtt.hippy.views.custom.HippyCustomPropsController.DT_EBLID;
 
-
-@SuppressWarnings("deprecation")
 public class DiffUtils {
 
-  public static ArrayList<PatchType> diff(RenderNode from, RenderNode toNoe) {
-    ArrayList<PatchType> patchTypes = new ArrayList<>();
-    if (from.getId() == toNoe.getId()) {
-      //when first create view  form eq toNode
-      return patchTypes;
+    private static final String TINT_COLORS = "tintColors";
+    private static final String TINT_COLOR = "tintColor";
+
+    private enum PatchType {
+        TYPE_DELETE_VIEW,
+        TYPE_UPDATE_PROPS,
+        TYPE_UPDATE_LAYOUT,
+        TYPE_UPDATE_EXTRA,
+        TYPE_REPLACE_ID,
+        TYPE_CREATE_VIEW
     }
 
-    try {
-      diffFromNode(from, toNoe, patchTypes);
-      diffToNode(from, toNoe, patchTypes);
-    } catch (Throwable e) {
-      LogUtils.d("DiffUtils", "diff: " + e.getMessage());
-    }
-
-    return patchTypes;
-  }
-
-  private static void diffToNode(RenderNode from, RenderNode toNoe,
-      ArrayList<PatchType> patchTypes) {
-    if (from == null || toNoe == null) {
-      return;
-    }
-
-    for (int i = 0; i < toNoe.getChildCount(); i++) {
-      if (i >= from.getChildCount()) {
-        RenderNode toNoeChild = toNoe.getChildAt(i);
-        patchTypes.add(new PatchType(Patch.TYPE_CREATE, new CreatePatch(toNoeChild)));
-        if (TextUtils.equals(toNoeChild.getClassName(), NodeProps.TEXT_CLASS_NAME)) {
-          patchTypes.add(new PatchType(Patch.TYPE_EXTRA,
-              new ExtraPatch(toNoeChild.mId, toNoeChild.mTextExtra, toNoeChild.getClassName())));
+    public static void doDiffAndPatch(@NonNull ControllerManager controllerManager,
+            @NonNull RenderNode fromNode, @NonNull RenderNode toNode) {
+        if (fromNode.getId() == toNode.getId()) {
+            return;
         }
-
-        patchTypes.add(new PatchType(Patch.TYPE_LAYOUT,
-            new LayoutPatch(toNoeChild.mX, toNoeChild.mY, toNoeChild.mHeight, toNoeChild
-                .getWidth(), toNoeChild.mId, toNoeChild.mParent.mId, toNoeChild.mClassName)));
-      } else {
-        diffToNode(from.getChildAt(i), toNoe.getChildAt(i), patchTypes);
-      }
-
-    }
-  }
-
-
-  private static void diffFromNode(RenderNode from, RenderNode toNode,
-      ArrayList<PatchType> patchTypes) {
-    if (TextUtils.equals(from.getClassName(), toNode.getClassName())) {
-      patchTypes.add(
-          new PatchType(Patch.TYPE_REPLACE_ID, new ReplacePatch(from.getId(), toNode.getId())));
-
-      HippyMap updateProps = diffProps(from.getProps(), toNode.getProps(), 0);
-      if (updateProps != null && updateProps.size() >= 1) {
-        patchTypes.add(new PatchType(Patch.TYPE_PROPS,
-            new PropsPatch(updateProps, toNode.getId(), toNode.getClassName())));
-      }
-
-      LayoutPatch lp = diffLayout(from, toNode);
-      if (lp != null) {
-        patchTypes.add(new PatchType(Patch.TYPE_LAYOUT, lp));
-      }
-
-      ExtraPatch extraPatch = diffExtra(from, toNode);
-      if (extraPatch != null) {
-        patchTypes.add(new PatchType(Patch.TYPE_EXTRA, extraPatch));
-      }
+        Map<PatchType, ArrayList<Patch>> patches = new HashMap<>();
+        diffFromNode(fromNode, toNode, patches);
+        diffToNode(fromNode, toNode, patches);
+        handleDeleteViewPatches(controllerManager, patches);
+        handleReplaceIdPatches(controllerManager, patches);
+        handleCreateViewPatches(patches);
+        handleUpdatePropsPatches(controllerManager, patches);
+        handleUpdateLayoutPatches(controllerManager, patches);
+        handleUpdateExtraPatches(controllerManager, patches);
     }
 
-    for (int i = 0; i < from.getChildCount(); i++) {
-      RenderNode fromChild = from.getChildAt(i);
-      RenderNode toChild = null;
-      if (i < toNode.getChildCount()) {
-        toChild = toNode.getChildAt(i);
-      }
-      if (toChild != null && TextUtils.equals(fromChild.getClassName(), toChild.getClassName())) {
-        diffFromNode(fromChild, toChild, patchTypes);
-      } else {
-        if (toChild != null) {
-          patchTypes.add(new PatchType(Patch.TYPE_CREATE, new CreatePatch(toChild)));
-          if (TextUtils.equals(toChild.getClassName(), NodeProps.TEXT_CLASS_NAME)) {
-            patchTypes.add(new PatchType(Patch.TYPE_EXTRA,
-                new ExtraPatch(toChild.mId, toChild.mTextExtra, toChild.getClassName())));
-          }
-
-          patchTypes.add(new PatchType(Patch.TYPE_LAYOUT,
-              new LayoutPatch(toChild.mX, toChild.mY, toChild.mHeight, toChild.getWidth(),
-                  toChild.mId, toChild.mParent.mId, toChild.mClassName)));
+    private static void addPatch(PatchType type, @NonNull Patch patch,
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        ArrayList<Patch> patchArray = patches.get(type);
+        if (patchArray == null) {
+            patchArray = new ArrayList<>();
+            patches.put(type, patchArray);
         }
-
-        patchTypes.add(new PatchType(Patch.TYPE_DELETE_CHILDREN,
-            new DeletePatch(fromChild.getId(), fromChild.getParent().getId(), fromChild
-                .getParent().getClassName())));
-      }
+        patchArray.add(patch);
     }
 
-
-  }
-
-  private static ExtraPatch diffExtra(RenderNode from, RenderNode toNode) {
-    if (from.mTextExtra != null && toNode.mTextExtra != null && !TextUtils
-        .equals(from.mTextExtra.toString(), toNode.mTextExtra.toString())) {
-      return new ExtraPatch(toNode.getId(), toNode.mTextExtra, toNode.getClassName());
-    }
-
-    return null;
-  }
-
-  private static LayoutPatch diffLayout(RenderNode fromNode, RenderNode toNode) {
-    if (fromNode == null || fromNode.getX() != toNode.getX() || fromNode.getY() != toNode.getY()
-        || fromNode.getWidth() != toNode.getWidth()
-        || fromNode.getHeight() != toNode.getHeight()) {
-      return new LayoutPatch(toNode.getX(), toNode.getY(), toNode.getHeight(), toNode.getWidth(),
-          toNode.getId(), toNode.mParent.getId(),
-          toNode.getClassName());
-    }
-    return null;
-  }
-
-
-  public static HippyMap diffProps(HippyMap from, HippyMap to, int diffLevel) {
-    if (from == null) {
-      return to;
-    }
-    HippyMap updateProps = new HippyMap();
-    Set<String> fromKeys = from.keySet();
-    for (String fromKey : fromKeys) {
-      if (fromKey.equals(DT_EBLID)) {
-        continue;
-      }
-
-      Object fromValue = from.get(fromKey);
-      Object toValue = to.get(fromKey);
-      if (fromValue instanceof Boolean) {
-        boolean fromBool = (boolean) fromValue;
-        if (toValue != null && fromBool == (boolean) toValue) {
-          LogUtils.d("DiffUtils", "don't do anything for bool value");
-        } else {
-          updateProps.pushObject(fromKey, toValue);
-        }
-      } else if (fromValue instanceof Number) {
-        boolean isSame = false;
-        double fromDoubleValue = ((Number) fromValue).doubleValue();
-        if (toValue instanceof Number) {
-          double toDoubleValue = ((Number) toValue).doubleValue();
-          isSame = (fromDoubleValue == toDoubleValue);
-        }
-        // if toValue is null, push null to trigger default value
-        if (!isSame) {
-          updateProps.pushObject(fromKey, toValue);
-        }
-      } else if (fromValue instanceof String) {
-        if (toValue != null && TextUtils.equals(fromValue.toString(), toValue.toString())) {
-          LogUtils.d("DiffUtils", "don't do anything for same value");
-        } else {
-          updateProps.pushObject(fromKey, toValue);
-        }
-      } else if (fromValue instanceof HippyArray) {
-        if (toValue instanceof HippyArray) {
-          HippyArray diffResult = diffArray((HippyArray) fromValue, (HippyArray) toValue,
-              diffLevel + 1);
-          //tintColor复用的时候必须要强制更新
-          if (fromKey.equals("tintColors") || fromKey.equals("tintColor")) {
-            diffResult = (HippyArray) toValue;
-          }
-          //这里diffResult == null标识属性没有更新
-          if (diffResult != null /* && diffResult.size() > 0*/) {
-            updateProps.pushObject(fromKey, toValue);
-          }
-        } else { // toValue(Array)没有的时候，要给个默认值
-          updateProps.pushObject(fromKey, null);
-        }
-      } else if (fromValue instanceof HippyMap) {
-        if (toValue instanceof HippyMap) {
-
-          HippyMap diffResult = diffProps((HippyMap) fromValue, (HippyMap) toValue, diffLevel + 1);
-          if (diffResult != null && diffResult.size() > 0) {
-            if (diffLevel == 0 && fromKey.equals(NodeProps.STYLE)) {
-              updateProps.pushObject(fromKey, diffResult);
+    private static void diffToNode(@NonNull RenderNode fromNode, @NonNull RenderNode toNode,
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        for (int i = 0; i < toNode.getChildCount(); i++) {
+            if (i >= fromNode.getChildCount()) {
+                RenderNode toChild = toNode.getChildAt(i);
+                addPatch(PatchType.TYPE_CREATE_VIEW, new Patch(toChild), patches);
+                if (TextUtils.equals(toChild.getClassName(), NodeProps.TEXT_CLASS_NAME)) {
+                    addPatch(PatchType.TYPE_UPDATE_EXTRA, new Patch(toChild), patches);
+                }
+                addPatch(PatchType.TYPE_UPDATE_LAYOUT, new Patch(toChild), patches);
             } else {
-              updateProps.pushObject(fromKey, toValue);
+                diffToNode(fromNode.getChildAt(i), toNode.getChildAt(i), patches);
             }
-          }
-        } else if (diffLevel == 0 && fromKey.equals(NodeProps.STYLE)) {
-          //style is null
-          HippyMap diffResult = diffProps((HippyMap) fromValue, new HippyMap(), diffLevel + 1);
-          updateProps.pushMap(fromKey, diffResult);
-        } else { // toValue没有的时候，要给个默认值
-          updateProps.pushObject(fromKey, null);
         }
-      }
     }
 
-    // new has prop, but old doesn't
-    // so we push these props directly
-
-    Set<String> tos = to.keySet();
-
-    for (String toKey : tos) {
-
-      if (from.get(toKey) != null || toKey.equals(DT_EBLID)) {
-        continue;
-      }
-      Object toValue = to.get(toKey);
-      updateProps.pushObject(toKey, toValue);
-    }
-
-    return updateProps;
-  }
-
-
-  private static HippyArray diffArray(HippyArray fromValue, HippyArray toValue, int diffLevel) {
-
-    if (fromValue.size() != toValue.size()) {
-      return toValue;
-    }
-    int size = fromValue.size();
-
-    for (int i = 0; i < size; i++) {
-      Object from = fromValue.getObject(i);
-      Object to = toValue.getObject(i);
-      // 这里默认from & to的类型相同
-      if (from instanceof Boolean) {
-        if ((boolean) from != (boolean) to) {
-          return toValue;
-        }
-      } else if (from instanceof Number) {
-
-        boolean isSame = false;
-
-        double fromDoubleValue = ((Number) from).doubleValue();
-        if (to instanceof Number) {
-          double toDoubleValue = ((Number) to).doubleValue();
-          isSame = (fromDoubleValue == toDoubleValue);
-        }
-        // if to is null, push null to trigger default value
-
-        if (!isSame) {
-          return toValue;
-        }
-
-      } else if (from instanceof String) {
-        if (!TextUtils.equals((String) from, (String) to)) {
-          return toValue;
-        }
-      } else if (from instanceof HippyArray) {
-        if (to instanceof HippyArray) {
-          HippyArray diffResult = diffArray((HippyArray) from, (HippyArray) to, diffLevel);
-          if (diffResult != null) {
-            return toValue;
-          }
-        }
-      } else if (from instanceof HippyMap) {
-        if (to instanceof HippyMap) {
-          HippyMap diffResult = diffProps((HippyMap) from, (HippyMap) to, diffLevel);
-          if (diffResult != null) {
-            return toValue;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-
-  public static class CreatePatch extends Patch {
-
-    @Override
-    public String toString() {
-      //			return "CreatePatch";
-      return "CreatePatch id :" + renderNode.mId;
-    }
-
-    public CreatePatch(RenderNode renderNode) {
-      this.renderNode = renderNode;
-    }
-
-    final RenderNode renderNode;
-
-  }
-
-  public static class ReplacePatch extends Patch {
-
-    @Override
-    public String toString() {
-      return "ReplacePatch oldId:" + oldId + " newId:" + newId;
-    }
-
-    public ReplacePatch(int oldId, int newId) {
-      this.oldId = oldId;
-      this.newId = newId;
-    }
-
-    final int oldId;
-    final int newId;
-  }
-
-  public static class PropsPatch extends Patch {
-
-    final HippyMap mPropsToUpdate;
-    final int mId;
-    final String mClassName;
-
-    public PropsPatch(HippyMap array, int tag, String className) {
-      this.mPropsToUpdate = array;
-      this.mId = tag;
-      this.mClassName = className;
-    }
-
-    @Override
-    public String toString() {
-      return "PropsPatch";
-    }
-  }
-
-  public static class ExtraPatch extends Patch {
-
-    public ExtraPatch(int mID, Object mText, String className) {
-      this.mID = mID;
-      this.mText = mText;
-      this.mClassName = className;
-    }
-
-    @Override
-    public String toString() {
-      return "ExtraPatch";
-    }
-
-    final String mClassName;
-    final int mID;
-    final Object mText;
-  }
-
-  @SuppressWarnings("unused")
-  public static class DeletePatch extends Patch {
-
-    final int mId;
-    final int mPid;
-    final String mPClassName;
-
-    @Override
-    public String toString() {
-      //			return "DeletePatch";
-      return "DeletePatch  Id " + mId;
-
-    }
-
-    public DeletePatch(int id, int pId, String className) {
-      this.mId = id;
-      this.mPid = pId;
-      this.mPClassName = className;
-    }
-  }
-
-  @SuppressWarnings("unused")
-  public static class LayoutPatch extends Patch {
-
-    final int mX;
-    final int mY;
-    final int mHeight;
-    final int mWidth;
-    final int mId;
-    final int mParentId;
-    final String mClassName;
-
-    @Override
-    public String toString() {
-      return "LayoutPatch";
-      //			return "mid" + mId + " x " + mX + " y " + mY + " width " + mWidth + " height " + mHeight;
-    }
-
-    public LayoutPatch(int mX, int mY, int mHeight, int mWidth, int mID, int mParentId,
-        String mClassName) {
-
-      this.mX = mX;
-      this.mY = mY;
-      this.mHeight = mHeight;
-      this.mWidth = mWidth;
-      this.mId = mID;
-      this.mParentId = mParentId;
-      this.mClassName = mClassName;
-    }
-  }
-
-  public static class PatchType {
-
-    public final int mType;
-    public final Patch mPatch;
-
-    public PatchType(int type, Patch p) {
-      mPatch = p;
-      mType = type;
-    }
-  }
-
-  public static class Patch {
-
-    public static final int TYPE_DELETE_CHILDREN = 0;
-    public static final int TYPE_PROPS = 1;
-    public static final int TYPE_LAYOUT = 2;
-    public static final int TYPE_EXTRA = 3;
-    public static final int TYPE_REPLACE_ID = 4;
-    public static final int TYPE_CREATE = 5;
-  }
-
-  public static void deleteViews(ControllerManager controllerManager, List<PatchType> patchTypes) {
-
-    for (int i = patchTypes.size() - 1; i >= 0; i--) {
-      PatchType patchType = patchTypes.get(i);
-      if (patchType.mType == Patch.TYPE_DELETE_CHILDREN) {
-        DeletePatch deletePatch = (DeletePatch) patchType.mPatch;
-        controllerManager.deleteChild(deletePatch.mPid, deletePatch.mId);
-        patchTypes.remove(patchType);
-      }
-    }
-  }
-
-  public static void replaceIds(ControllerManager controllerManager, List<PatchType> patchTypes) {
-
-    for (int i = patchTypes.size() - 1; i >= 0; i--) {
-      PatchType patchType = patchTypes.get(i);
-      if (patchType.mType == Patch.TYPE_REPLACE_ID) {
-        ReplacePatch replacePatch = (ReplacePatch) patchType.mPatch;
-        controllerManager.replaceID(replacePatch.oldId, replacePatch.newId);
-        patchTypes.remove(patchType);
-      }
-
-    }
-
-  }
-
-  public static void createView(List<PatchType> patchTypes) {
-    for (int i = 0; i < patchTypes.size(); i++) {
-      PatchType patchType = patchTypes.get(i);
-      if (patchType.mType == Patch.TYPE_CREATE) {
-        CreatePatch createPatch = (CreatePatch) patchType.mPatch;
-        createPatch.renderNode.createViewRecursive();
-        if (createPatch.renderNode.mParent != null) {
-          createPatch.renderNode.mParent.update();
-        }
-        createPatch.renderNode.updateViewRecursive();
-      }
-    }
-  }
-
-  public static void doPatch(ControllerManager controllerManager, List<PatchType> patches) {
-    for (PatchType pt : patches) {
-      if (pt.mType == Patch.TYPE_PROPS) {
-        PropsPatch propsPatch = (PropsPatch) pt.mPatch;
-        HippyMap propsToUpdate = propsPatch.mPropsToUpdate;
-        RenderNode node = controllerManager.getRenderManager().getRenderNode(propsPatch.mId);
-        if (node != null) {
-          HippyMap props = node.getProps();
-          if (node.mHasSetDteblId) {
-            if (propsToUpdate.containsKey(DT_EBLID)) {
-              propsToUpdate.remove(DT_EBLID);
+    private static void diffFromNode(@NonNull RenderNode fromNode, @NonNull RenderNode toNode,
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        if (TextUtils.equals(fromNode.getClassName(), toNode.getClassName())) {
+            addPatch(PatchType.TYPE_REPLACE_ID, new Patch(toNode, fromNode.getId()), patches);
+            Map<String, Object> updateProps = diffMapProps(fromNode.getProps(),
+                    toNode.getProps(), 0);
+            if (!updateProps.isEmpty()) {
+                addPatch(PatchType.TYPE_UPDATE_PROPS, new Patch(toNode, updateProps), patches);
             }
-          } else if (props != null && props.containsKey(DT_EBLID)) {
-            propsToUpdate.pushString(DT_EBLID, props.getString(DT_EBLID));
-          }
+            if (diffLayout(fromNode, toNode)) {
+                addPatch(PatchType.TYPE_UPDATE_LAYOUT, new Patch(toNode), patches);
+            }
+            if (TextUtils.equals(toNode.getClassName(), NodeProps.TEXT_CLASS_NAME)) {
+                addPatch(PatchType.TYPE_UPDATE_EXTRA, new Patch(toNode), patches);
+            }
         }
 
-        controllerManager.updateView(propsPatch.mId, propsPatch.mClassName, propsToUpdate);
-      } else if (pt.mType == Patch.TYPE_LAYOUT) {
-        LayoutPatch layoutPatch = (LayoutPatch) pt.mPatch;
-
-        controllerManager
-            .updateLayout(layoutPatch.mClassName, layoutPatch.mId, layoutPatch.mX, layoutPatch.mY,
-                layoutPatch.mWidth,
-                layoutPatch.mHeight);
-      } else if (pt.mType == Patch.TYPE_EXTRA) {
-        ExtraPatch extraPatch = (ExtraPatch) pt.mPatch;
-
-        controllerManager.updateExtra(extraPatch.mID, extraPatch.mClassName, extraPatch.mText);
-      }
-
-      //			else if (pt.mType == Patch.TYPE_CREATE)
-      //			{
-      //				CreatePatch createPatch = (CreatePatch) pt.mPatch;
-      //				controllerManager.createView(createPatch.renderNode.mRootView, createPatch.renderNode.mId, createPatch.renderNode.mPid,
-      //						createPatch.renderNode.mIndex, createPatch.renderNode.mClassName, createPatch.renderNode.mPropsToUpdate);
-      //			}
+        for (int i = 0; i < fromNode.getChildCount(); i++) {
+            RenderNode fromChild = fromNode.getChildAt(i);
+            RenderNode toChild = toNode.getChildAt(i);
+            if (toChild == null) {
+                addPatch(PatchType.TYPE_DELETE_VIEW, new Patch(fromChild), patches);
+                continue;
+            }
+            if (TextUtils.equals(fromChild.getClassName(), toChild.getClassName())) {
+                diffFromNode(fromChild, toChild, patches);
+            } else {
+                addPatch(PatchType.TYPE_CREATE_VIEW, new Patch(toChild), patches);
+                if (TextUtils.equals(toChild.getClassName(), NodeProps.TEXT_CLASS_NAME)) {
+                    addPatch(PatchType.TYPE_UPDATE_EXTRA, new Patch(toChild), patches);
+                }
+                addPatch(PatchType.TYPE_UPDATE_LAYOUT, new Patch(toChild), patches);
+                addPatch(PatchType.TYPE_DELETE_VIEW, new Patch(fromChild), patches);
+            }
+        }
     }
-  }
+
+    private static boolean diffLayout(@NonNull RenderNode fromNode,
+            @NonNull RenderNode toNode) {
+        return fromNode.getX() != toNode.getX() || fromNode.getY() != toNode.getY()
+                || fromNode.getWidth() != toNode.getWidth()
+                || fromNode.getHeight() != toNode.getHeight();
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static void diffProps(@NonNull String fromKey, @Nullable Object fromValue,
+            @Nullable Object toValue, @NonNull Map<String, Object> updateProps, int diffLevel) {
+        if (fromValue instanceof Boolean) {
+            if (!(toValue instanceof Boolean) || ((boolean) fromValue != (boolean) toValue)) {
+                updateProps.put(fromKey, toValue);
+            }
+        } else if (fromValue instanceof Number) {
+            if (!(toValue instanceof Number)
+                    || ((Number) fromValue).doubleValue() != ((Number) toValue).doubleValue()) {
+                updateProps.put(fromKey, toValue);
+            }
+        } else if (fromValue instanceof String) {
+            if (toValue == null || !TextUtils.equals(fromValue.toString(), toValue.toString())) {
+                updateProps.put(fromKey, toValue);
+            }
+        } else if (fromValue instanceof ArrayList) {
+            if (toValue instanceof ArrayList) {
+                boolean hasDifferent = diffArrayProps((ArrayList) fromValue,
+                        (ArrayList) toValue, diffLevel + 1);
+                if (hasDifferent || fromKey.equals(TINT_COLORS) || fromKey.equals(TINT_COLOR)) {
+                    updateProps.put(fromKey, toValue);
+                }
+            } else {
+                updateProps.put(fromKey, null);
+            }
+        } else if (fromValue instanceof Map) {
+            Map diffResult = null;
+            if (toValue instanceof Map) {
+                diffResult = diffMapProps((Map) fromValue, (Map) toValue,
+                        diffLevel + 1);
+                if (diffResult.isEmpty()) {
+                    return;
+                }
+            } else if (diffLevel == 0 && fromKey.equals(NodeProps.STYLE)) {
+                diffResult = diffMapProps((Map) fromValue, new HashMap<String, Object>(),
+                        diffLevel + 1);
+            }
+            updateProps.put(fromKey, diffResult);
+        }
+    }
+
+    @NonNull
+    public static Map<String, Object> diffMapProps(@NonNull Map<String, Object> fromMap,
+            @NonNull Map<String, Object> toMap, int diffLevel) {
+        Map<String, Object> updateProps = new HashMap<>();
+        Set<String> fromKeys = fromMap.keySet();
+        for (String fromKey : fromKeys) {
+            if (fromKey.equals(DT_EBLID)) {
+                continue;
+            }
+            Object fromValue = fromMap.get(fromKey);
+            Object toValue = toMap.get(fromKey);
+            if (fromValue == null) {
+                updateProps.put(fromKey, toValue);
+            } else {
+                diffProps(fromKey, fromValue, toValue, updateProps, diffLevel);
+            }
+        }
+        // Check to map whether there are properties that did not exist in from map.
+        Set<String> toKeys = toMap.keySet();
+        for (String toKey : toKeys) {
+            if (fromMap.get(toKey) != null || toKey.equals(DT_EBLID)) {
+                continue;
+            }
+            Object toValue = toMap.get(toKey);
+            updateProps.put(toKey, toValue);
+        }
+        return updateProps;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static boolean diffArrayProps(@NonNull ArrayList<Object> fromArray,
+            @NonNull ArrayList<Object> toArray, int diffLevel) {
+        if (fromArray.size() != toArray.size()) {
+            return true;
+        }
+        for (int i = 0; i < fromArray.size(); i++) {
+            Object fromValue = fromArray.get(i);
+            Object toValue = toArray.get(i);
+            if (fromValue instanceof Boolean) {
+                if (!(toValue instanceof Boolean) || ((boolean) fromValue != (boolean) toValue)) {
+                    return true;
+                }
+            } else if (fromValue instanceof Number) {
+                if (!(toValue instanceof Number)
+                        || ((Number) fromValue).doubleValue() != ((Number) toValue).doubleValue()) {
+                    return true;
+                }
+            } else if (fromValue instanceof String) {
+                if (!(toValue instanceof String) || !TextUtils
+                        .equals((String) fromValue, (String) toValue)) {
+                    return true;
+                }
+            } else if (fromValue instanceof ArrayList && toValue instanceof ArrayList) {
+                return diffArrayProps((ArrayList) fromValue, (ArrayList) toValue,
+                        diffLevel);
+            } else if (fromValue instanceof Map && toValue instanceof Map) {
+                Map diffResult = diffMapProps((Map) fromValue,
+                        (Map) toValue, diffLevel);
+                if (!diffResult.isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static class Patch {
+
+        public int oldId;
+        @NonNull
+        public final RenderNode node;
+        @Nullable
+        public Map<String, Object> updateProps;
+
+        public Patch(@NonNull RenderNode node) {
+            this.node = node;
+        }
+
+        public Patch(@NonNull RenderNode node, @Nullable Map<String, Object> updateProps) {
+            this.node = node;
+            this.updateProps = updateProps;
+        }
+
+        public Patch(@NonNull RenderNode node, int oldId) {
+            this.node = node;
+            this.oldId = oldId;
+        }
+    }
+
+    private static void handleDeleteViewPatches(@NonNull ControllerManager controllerManager,
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        ArrayList<Patch> patchArray = patches.get(PatchType.TYPE_DELETE_VIEW);
+        if (patchArray == null) {
+            return;
+        }
+        for (Patch patch : patchArray) {
+            if (patch.node.getParent() == null) {
+                continue;
+            }
+            int pid = patch.node.getParent().getId();
+            controllerManager.deleteChild(pid, patch.node.getId());
+        }
+    }
+
+    private static void handleReplaceIdPatches(@NonNull ControllerManager controllerManager,
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        ArrayList<Patch> patchArray = patches.get(PatchType.TYPE_REPLACE_ID);
+        if (patchArray == null) {
+            return;
+        }
+        for (Patch patch : patchArray) {
+            controllerManager.replaceID(patch.oldId, patch.node.getId());
+        }
+    }
+
+    private static void handleCreateViewPatches(
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        ArrayList<Patch> patchArray = patches.get(PatchType.TYPE_CREATE_VIEW);
+        if (patchArray == null) {
+            return;
+        }
+        for (Patch patch : patchArray) {
+            patch.node.createViewRecursive();
+            if (patch.node.getParent() != null) {
+                patch.node.getParent().updateView();
+            }
+            patch.node.updateViewRecursive();
+        }
+    }
+
+    private static void handleUpdatePropsPatches(@NonNull ControllerManager controllerManager,
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        ArrayList<Patch> patchArray = patches.get(PatchType.TYPE_UPDATE_PROPS);
+        if (patchArray == null) {
+            return;
+        }
+        for (Patch patch : patchArray) {
+            if (patch.updateProps == null) {
+                continue;
+            }
+            Map<String, Object> props = patch.node.getProps();
+            if (patch.node.checkNodeFlag(FLAG_HAS_DTEB_ID)) {
+                patch.updateProps.remove(DT_EBLID);
+            } else if (props != null && props.get(DT_EBLID) instanceof String) {
+                patch.updateProps.put(DT_EBLID, (String) props.get(DT_EBLID));
+            }
+            controllerManager
+                    .updateView(patch.node.getId(), patch.node.getClassName(), patch.updateProps,
+                            patch.node.getEvents());
+        }
+    }
+
+    private static void handleUpdateLayoutPatches(@NonNull ControllerManager controllerManager,
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        ArrayList<Patch> patchArray = patches.get(PatchType.TYPE_UPDATE_LAYOUT);
+        if (patchArray == null) {
+            return;
+        }
+        for (Patch patch : patchArray) {
+            controllerManager
+                    .updateLayout(patch.node.getClassName(),
+                            patch.node.getId(),
+                            patch.node.getX(),
+                            patch.node.getY(),
+                            patch.node.getWidth(),
+                            patch.node.getHeight());
+        }
+    }
+
+    private static void handleUpdateExtraPatches(@NonNull ControllerManager controllerManager,
+            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+        ArrayList<Patch> patchArray = patches.get(PatchType.TYPE_UPDATE_EXTRA);
+        if (patchArray == null) {
+            return;
+        }
+        for (Patch patch : patchArray) {
+            controllerManager.updateExtra(patch.node.getId(), patch.node.getClassName(),
+                    patch.node.getExtra());
+        }
+    }
 }

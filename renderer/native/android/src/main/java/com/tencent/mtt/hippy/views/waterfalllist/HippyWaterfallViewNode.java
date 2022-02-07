@@ -16,18 +16,24 @@
 package com.tencent.mtt.hippy.views.waterfalllist;
 
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+
+import java.util.Map;
 
 public class HippyWaterfallViewNode extends RenderNode {
 
   static final String TAG = "HippyWaterfallViewNode";
 
-  public HippyWaterfallViewNode(int mId, HippyMap mPropsToUpdate, String className,
-          ViewGroup mRootView, ControllerManager componentManager,
-    boolean isLazyLoad) {
-    super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
+  public HippyWaterfallViewNode(int id, @Nullable Map<String, Object> props,
+          @NonNull String className, @NonNull ViewGroup hippyRootView,
+          @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
+    super(id, props, className, hippyRootView, controllerManager, isLazyLoad);
   }
 
   @Override

@@ -27,6 +27,8 @@ import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -62,7 +64,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   public static final String IMAGE_PROPS = "props";
   public static final String IMAGE_VIEW_OBJ = "viewobj";
 
-  private HippyMap initProps = new HippyMap();
+  private Map<String, Object> initProps = new HashMap<>();
   private boolean mHasSetTempBackgroundColor = false;
   private boolean mUserHasSetBackgroudnColor = false;
   private int mUserSetBackgroundColor = Color.TRANSPARENT;
@@ -130,7 +132,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
   }
 
-  public void setInitProps(HippyMap props) {
+  public void setInitProps(@NonNull Map<String, Object> props) {
     initProps = props;
   }
 
@@ -513,7 +515,10 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
       return true;
     }
 
-    boolean isGif = (initProps != null) && initProps.getBoolean(NodeProps.CUSTOM_PROP_ISGIF);
+    boolean isGif = false;
+    if (initProps != null && initProps.get(NodeProps.CUSTOM_PROP_ISGIF) instanceof Boolean) {
+      isGif = (boolean) initProps.get(NodeProps.CUSTOM_PROP_ISGIF);
+    }
     if (!isGif) {
       isGif = !TextUtils.isEmpty(mImageType) && mImageType.equals(IMAGE_TYPE_GIF);
     }

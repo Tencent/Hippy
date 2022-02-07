@@ -27,7 +27,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
 import com.tencent.renderer.NativeRenderContext;
+
+import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = HippyImageViewController.CLASS_NAME)
@@ -36,15 +40,10 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
   public static final String CLASS_NAME = "Image";
 
   @Override
-  protected StyleNode createNode(boolean virtual) {
-    return new ImageNode(virtual);
-  }
-
-  @Override
-  protected View createViewImpl(Context context, HippyMap iniProps) {
+  protected View createViewImpl(Context context, @Nullable Map<String, Object> props) {
     HippyImageView imageView = new HippyImageView(context);
-    if (iniProps != null) {
-      imageView.setInitProps(iniProps);
+    if (props != null) {
+      imageView.setInitProps(props);
     }
 
     return imageView;

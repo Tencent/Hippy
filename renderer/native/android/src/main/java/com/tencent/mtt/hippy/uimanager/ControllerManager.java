@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
-import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,7 +29,6 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -60,17 +59,22 @@ import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unchecked", "rawtypes", "unused"})
 public class ControllerManager {
 
-    final NativeRender mNativeRenderer;
+    @NonNull
+    private final NativeRender mNativeRenderer;
+    @NonNull
     final ControllerRegistry mControllerRegistry;
+    @NonNull
     final ControllerUpdateManger<HippyViewController, View> mControllerUpdateManger;
-    final SparseArray<View> mPreCacheView = new SparseArray<>();
 
-    public ControllerManager(NativeRender nativeRenderer, @Nullable List<Class<?>> controllers) {
+    public ControllerManager(@NonNull NativeRender nativeRenderer,
+            @Nullable List<Class<?>> controllers) {
         mNativeRenderer = nativeRenderer;
         mControllerRegistry = new ControllerRegistry(nativeRenderer);
         mControllerUpdateManger = new ControllerUpdateManger();
@@ -164,60 +168,44 @@ public class ControllerManager {
         return mControllerRegistry.getView(id) != null;
     }
 
-    public void createPreView(ViewGroup rootView, int id, String className,
-            HippyMap initialProps) {
+    public View createView(@Nullable ViewGroup rootView, int id, @NonNull String className,
+            @Nullable Map<String, Object> props) {
         View view = mControllerRegistry.getView(id);
         if (view == null) {
             HippyViewController controller = mControllerRegistry.getViewController(className);
-            view = controller.createView(rootView, id, mNativeRenderer, className, initialProps);
-
-            mPreCacheView.put(id, view);
-        }
-
-    }
-
-    public View createView(ViewGroup rootView, int id, String className, HippyMap initialProps) {
-        View view = mControllerRegistry.getView(id);
-        if (view == null) {
-            //first get the preView
-            view = mPreCacheView.get(id);
-
-            mPreCacheView.remove(id);
-
-            HippyViewController controller = mControllerRegistry.getViewController(className);
-            if (view == null) {
-                view = controller
-                        .createView(rootView, id, mNativeRenderer, className, initialProps);
-            }
-
+            view = controller.createView(rootView, id, mNativeRenderer, className, props);
             if (view != null) {
                 mControllerRegistry.addView(view);
-                mControllerUpdateManger.updateProps(controller, view, initialProps);
+                mControllerUpdateManger.updateProps(controller, view, props);
                 controller.onAfterUpdateProps(view);
             }
         }
         return view;
     }
 
-    public StyleNode createStyleNode(String className, boolean isVirtual, int rootId) {
-        StyleNode tempNode = mControllerRegistry.getViewController(className)
-                .createNode(isVirtual, rootId);
-        if (tempNode != null) {
-            return tempNode;
-        }
-        return mControllerRegistry.getViewController(className).createNode(isVirtual);
-    }
-
-
-    public void updateView(int id, String name, HippyMap newProps) {
+    public void updateView(int id, @NonNull String name, @Nullable Map<String, Object> newProps,
+            @Nullable Map<String, Object> events) {
         View view = mControllerRegistry.getView(id);
         HippyViewController viewComponent = mControllerRegistry.getViewController(name);
-        if (view != null && viewComponent != null && newProps != null) {
-            mControllerUpdateManger.updateProps(viewComponent, view, newProps);
+        if (view == null || viewComponent == null) {
+            return;
+        }
+        Map<String, Object> total = new HashMap<>();
+        try {
+            if (newProps != null) {
+                total.putAll(newProps);
+            }
+            if (events != null) {
+                total.putAll(events);
+            }
+        } catch (Exception ignored) {
+            // If merge props and events failed, just use empty map
+        }
+        if (!total.isEmpty()) {
+            mControllerUpdateManger.updateProps(viewComponent, view, total);
             viewComponent.onAfterUpdateProps(view);
         }
     }
-
 
     public void updateLayout(String name, int id, int x, int y, int width, int height) {
         HippyViewController component = mControllerRegistry.getViewController(name);
@@ -228,76 +216,67 @@ public class ControllerManager {
         mControllerRegistry.addRootView(rootView);
     }
 
-    public void updateExtra(int viewID, String name, Object object) {
+    public void updateExtra(int id, String name, Object extra) {
         HippyViewController component = mControllerRegistry.getViewController(name);
-        View view = mControllerRegistry.getView(viewID);
-        component.updateExtra(view, object);
+        View view = mControllerRegistry.getView(id);
+        component.updateExtra(view, extra);
     }
 
-
-    public void move(int id, int toId, int index) {
+    public void move(int id, int newPid, int index) {
         View view = mControllerRegistry.getView(id);
-
-        if (view != null) {
-            if (view.getParent() != null) {
-                ViewGroup oldParent = (ViewGroup) view.getParent();
-                oldParent.removeView(view);
-            }
-            ViewGroup newParent = (ViewGroup) mControllerRegistry.getView(toId);
-            if (newParent != null) {
-                String parentClassName = HippyTag.getClassName(newParent);
-                mControllerRegistry.getViewController(parentClassName)
-                        .addView(newParent, view, index);
-            }
-
-            LogUtils.d("ControllerManager", "move id: " + id + " toid: " + toId);
+        if (view == null) {
+            return;
+        }
+        if (view.getParent() != null) {
+            ViewGroup oldParent = (ViewGroup) view.getParent();
+            oldParent.removeView(view);
+        }
+        ViewGroup newParent = (ViewGroup) mControllerRegistry.getView(newPid);
+        if (newParent != null) {
+            String className = HippyTag.getClassName(newParent);
+            mControllerRegistry.getViewController(className)
+                    .addView(newParent, view, index);
         }
     }
 
     public boolean isControllerLazy(String className) {
-        return mControllerRegistry.getControllerHolder(className).isLazy;
+        return mControllerRegistry.getControllerHolder(className).isLazy();
     }
 
     public void replaceID(int oldId, int newId) {
         View view = mControllerRegistry.getView(oldId);
         mControllerRegistry.removeView(oldId);
-
         if (view == null) {
-            //			Toast.makeText(mControllerRegistry.getRootView(mControllerRegistry.getRootIDAt(0)).getContext(),"replaceID时候出异常了",Toast.LENGTH_LONG).show();
-            //			Debug.waitForDebugger();
-            LogUtils.d("HippyListView", "error replaceID null oldId " + oldId);
-        } else {
-            if (view instanceof HippyRecycler) {
-                ((HippyRecycler) view).clear();
-            }
-
-            view.setId(newId);
-
-            if (view instanceof HippyHorizontalScrollView) {
-                ((HippyHorizontalScrollView) view).setContentOffset4Reuse();
-            }
-
-            mControllerRegistry.addView(view);
+            return;
         }
+        view.setId(newId);
+        if (view instanceof HippyRecycler) {
+            ((HippyRecycler) view).clear();
+        }
+        if (view instanceof HippyHorizontalScrollView) {
+            ((HippyHorizontalScrollView) view).setContentOffset4Reuse();
+        }
+        mControllerRegistry.addView(view);
     }
 
-    public RenderNode createRenderNode(int id, HippyMap props, String className,
-            ViewGroup hippyRootView, boolean lazy) {
+    public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
+            String className,
+            ViewGroup hippyRootView, boolean isLazy) {
         return mControllerRegistry.getViewController(className)
-                .createRenderNode(id, props, className, hippyRootView, this, lazy);
+                .createRenderNode(id, props, className, hippyRootView, this, isLazy);
     }
 
-    public void dispatchUIFunction(int id, String className, String functionName, HippyArray params,
-            Promise promise) {
+    public void dispatchUIFunction(int id, String className, String functionName,
+            List<Object> params, Promise promise) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(id);
         if (view == null) {
             return;
         }
         if (promise == null) {
-          controller.dispatchFunction(view, functionName, params);
+            controller.dispatchFunction(view, functionName, params);
         } else {
-          controller.dispatchFunction(view, functionName, params, promise);
+            controller.dispatchFunction(view, functionName, params, promise);
         }
     }
 
@@ -413,14 +392,6 @@ public class ControllerManager {
 
     }
 
-    public void onManageChildComplete(String className, int id) {
-        HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
-        View view = mControllerRegistry.getView(id);
-        if (view != null) {
-            hippyViewController.onManageChildComplete(view);
-        }
-    }
-
     public void addChild(int pid, int id, int index) {
         View childView = mControllerRegistry.getView(id);
         View parentView = mControllerRegistry.getView(pid);
@@ -467,17 +438,15 @@ public class ControllerManager {
         }
     }
 
-    public void deleteRootView(int mId) {
-
-        View view = mControllerRegistry.getRootView(mId);
+    public void deleteRootView(int rootId) {
+        View view = mControllerRegistry.getRootView(rootId);
         if (view != null) {
             ViewGroup hippyRootView = (ViewGroup) view;
             int count = hippyRootView.getChildCount();
-
             for (int i = count - 1; i >= 0; i--) {
-                deleteChild(mId, hippyRootView.getChildAt(i).getId());
+                deleteChild(rootId, hippyRootView.getChildAt(i).getId());
             }
         }
-        mControllerRegistry.removeRootView(mId);
+        mControllerRegistry.removeRootView(rootId);
     }
 }

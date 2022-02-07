@@ -15,10 +15,6 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
-
-/**
- * FileName: HippyViewBase Description： History：
- */
 public interface HippyViewBase {
 
   NativeGestureDispatcher getGestureDispatcher();

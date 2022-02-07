@@ -17,14 +17,16 @@
 package com.tencent.renderer;
 
 import android.view.ViewGroup;
+
 import androidx.annotation.Nullable;
+
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
-import java.util.HashMap;
+
+import java.util.Map;
 
 public interface NativeRender extends NativeRenderExceptionHandler {
 
@@ -32,6 +34,7 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     DomManager getDomManager();
 
+    @Nullable
     ViewGroup getRootView();
 
     Object getCustomViewCreator();
@@ -49,7 +52,7 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     void updateModalHostNodeSize(int id, int width, int height);
 
-    void updateDimension(boolean shouldRevise, HashMap<String, Object> dimension,
+    void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
 
     void dispatchUIComponentEvent(int id, String eventName, @Nullable Object param);

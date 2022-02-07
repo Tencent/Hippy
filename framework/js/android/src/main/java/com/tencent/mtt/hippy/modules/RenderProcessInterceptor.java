@@ -16,13 +16,13 @@
 package com.tencent.mtt.hippy.modules;
 
 import androidx.annotation.NonNull;
-import java.util.HashMap;
+import java.util.Map;
 
 public interface RenderProcessInterceptor {
 
-    void onCreateNode(int nodeId, @NonNull final HashMap<String, Object> props);
+    void onCreateNode(int nodeId, @NonNull final Map<String, Object> props);
 
-    void onUpdateNode(int nodeId, @NonNull final HashMap<String, Object> props);
+    void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props);
 
     void onDeleteNode(int nodeId);
 

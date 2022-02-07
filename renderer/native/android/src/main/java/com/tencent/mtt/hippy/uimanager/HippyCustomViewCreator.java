@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import android.content.Context;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.common.HippyMap;
+
+import java.util.Map;
 
 public interface HippyCustomViewCreator {
 
-  String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
+    String HIPPY_CUSTOM_VIEW_CREATOR = "CustomViewCreator";
 
-  @SuppressWarnings("deprecation")
-  View createCustomView(String className, Context context, HippyMap initialProps);
+    @SuppressWarnings("deprecation")
+    View createCustomView(@NonNull String className, @NonNull Context context,
+            @Nullable Map<String, Object> props);
 }

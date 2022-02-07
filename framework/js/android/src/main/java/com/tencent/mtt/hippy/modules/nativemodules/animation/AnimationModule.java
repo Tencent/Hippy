@@ -26,7 +26,6 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.ThreadExecutorManager;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.RenderProcessInterceptor;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
@@ -39,17 +38,15 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @HippyNativeModule(name = "AnimationModule", thread = HippyNativeModule.Thread.DOM)
 public class AnimationModule extends HippyNativeModuleBase implements RenderProcessInterceptor,
         Animation.AnimationListener, Handler.Callback, HippyEngineLifecycleEventListener {
 
-    private static final String TAG = "AnimationModule";
     private static final String ANIMATION_ID = "animationId";
     private static final String ANIMATION_PROPERTY_NAME = "animationKey";
     private static final String ANIMATION_PROPERTY_VALUE = "animationValue";
@@ -66,23 +63,19 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
     private Handler mHandler;
     private ConcurrentHashMap<Integer, Animation> mAnimations;
     private ConcurrentHashMap<Integer, AnimationNode> mAnimationNodes;
-    private ArrayList<JSObject> mNeedUpdateList;
+    private final ArrayList<JSObject> mNeedUpdateList;
     private SafeHeapWriter mSafeHeapWriter;
     private Serializer mRecommendSerializer;
 
     public AnimationModule(HippyEngineContext context) {
         super(context);
+        mNeedUpdateList = new ArrayList<>();
     }
 
     @Override
     public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-            case MSG_UPDATE_ANIMATION_NODE: {
-                doUpdateAnimationNodes();
-                break;
-            }
-            default:
-                LogUtils.w(TAG, "Unknown message type=" + msg.what);
+        if (msg.what == MSG_UPDATE_ANIMATION_NODE) {
+            doUpdateAnimationNodes();
         }
         return true;
     }
@@ -90,7 +83,6 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
     @Override
     public void initialize() {
         super.initialize();
-        mNeedUpdateList = new ArrayList<>();
         mRecommendSerializer = new Serializer();
         mHandler = new Handler(mContext.getThreadExecutor().getDomThread().getLooper(), this);
         mAnimations = new ConcurrentHashMap<>();
@@ -139,9 +131,7 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
             return;
         }
         ArrayList<JSObject> updateList = new ArrayList<>();
-        Iterator<Integer> iterator = animation.getAnimationNodes().iterator();
-        while (iterator.hasNext()) {
-            Integer nodeId = iterator.next();
+        for (Integer nodeId : animation.getAnimationNodes()) {
             Object value = animation.getAnimationValue();
             if (value != null) {
                 JSObject jsObject = new JSObject();
@@ -337,12 +327,12 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
     }
 
     @Override
-    public void onCreateNode(int nodeId, @NonNull final HashMap<String, Object> props) {
+    public void onCreateNode(int nodeId, @NonNull final Map<String, Object> props) {
         resetPropsIfNeeded(nodeId, props);
     }
 
     @Override
-    public void onUpdateNode(int nodeId, @NonNull final HashMap<String, Object> props) {
+    public void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props) {
         resetPropsIfNeeded(nodeId, props);
     }
 
@@ -361,12 +351,12 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
         }
     }
 
-    private void resetPropsIfNeeded(int nodeId, @NonNull final HashMap<String, Object> props) {
+    private void resetPropsIfNeeded(int nodeId, @NonNull final Map<String, Object> props) {
         if (!props.containsKey(USE_ANIMATION)) {
             removeAnimationFromNode(nodeId, true);
             return;
         }
-        final HashMap<Integer, String> animations = new HashMap<>();
+        final Map<Integer, String> animations = new HashMap<>();
         checkMapProps(nodeId, props, animations);
         if (animations.isEmpty()) {
             return;
@@ -391,9 +381,9 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
     }
 
     private void resetAnimationProperty(int nodeId, String key,
-            @NonNull HashMap<String, Object> outer,
-            @NonNull HashMap<String, Object> inner,
-            @NonNull final HashMap<Integer, String> animations) {
+            @NonNull Map<String, Object> outer,
+            @NonNull Map<String, Object> inner,
+            @NonNull final Map<Integer, String> animations) {
         Object value = inner.get(ANIMATION_ID);
         if (!(value instanceof Number)) {
             return;
@@ -414,17 +404,17 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
         }
     }
 
-    private void checkMapProps(int nodeId, @NonNull HashMap<String, Object> props,
-            @NonNull final HashMap<Integer, String> animations) {
+    private void checkMapProps(int nodeId, @NonNull Map<String, Object> props,
+            @NonNull final Map<Integer, String> animations) {
         Set<String> keys = props.keySet();
         for (String key : keys) {
             Object value = props.get(key);
-            if (value instanceof HashMap) {
-                boolean hasAnimationId = checkAnimationId((HashMap) value);
+            if (value instanceof Map) {
+                boolean hasAnimationId = checkAnimationId((Map) value);
                 if (hasAnimationId) {
-                    resetAnimationProperty(nodeId, key, props, (HashMap) value, animations);
+                    resetAnimationProperty(nodeId, key, props, (Map) value, animations);
                 } else {
-                    checkMapProps(nodeId, (HashMap) value, animations);
+                    checkMapProps(nodeId, (Map) value, animations);
                 }
             } else if (value instanceof ArrayList) {
                 checkArrayProps(nodeId, (ArrayList) value, animations);
@@ -433,11 +423,11 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
     }
 
     private void checkArrayProps(int nodeId, @NonNull ArrayList<Object> props,
-            @NonNull final HashMap<Integer, String> animations) {
+            @NonNull final Map<Integer, String> animations) {
         for (int i = 0; i < props.size(); i++) {
             Object value = props.get(i);
-            if (value instanceof HashMap) {
-                checkMapProps(nodeId, (HashMap) value, animations);
+            if (value instanceof Map) {
+                checkMapProps(nodeId, (Map) value, animations);
             } else if (value instanceof ArrayList) {
                 checkArrayProps(nodeId, (ArrayList) value, animations);
             }
@@ -462,7 +452,7 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
         }
     }
 
-    private boolean checkAnimationId(@NonNull HashMap props) {
+    private boolean checkAnimationId(@NonNull Map props) {
         return props.containsKey(ANIMATION_ID) && props.size() == 1;
     }
 
@@ -474,9 +464,8 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
         }
         AnimationNode node = mAnimationNodes.get(nodeId);
         if (node != null) {
-            Iterator<Animation> iterator = node.getAnimations().iterator();
-            while (iterator.hasNext()) {
-                animation = iterator.next();
+            for (Animation value : node.getAnimations()) {
+                animation = value;
                 if (animation != null && animation.getId() == animationId) {
                     return animation.getAnimationValue();
                 }

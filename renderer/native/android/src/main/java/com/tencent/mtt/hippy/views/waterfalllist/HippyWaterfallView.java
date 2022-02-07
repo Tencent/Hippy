@@ -47,6 +47,7 @@ import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 public class HippyWaterfallView extends HippyListView implements HippyViewBase, IFooterContainer {
@@ -519,8 +520,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
           throw t;
         }
       } else {
-        //step 1: diff
-        RenderNode fromNode = contentHolder.mBindNode;
         if (contentHolder.mBindNode != null) {
           contentHolder.mBindNode.setLazy(true);
         }
@@ -528,27 +527,8 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
           RenderNode toNode = nativeRenderer.getRenderManager().getRenderNode(getId())
             .getChildAt(position);
           toNode.setLazy(false);
-
-          ArrayList<DiffUtils.PatchType> patchTypes = DiffUtils
-            .diff(contentHolder.mBindNode, toNode);
-
-          try {
-            //step:2 delete unUseful views
-            DiffUtils.deleteViews(nativeRenderer.getRenderManager().getControllerManager(),
-              patchTypes);
-            //step:3 replace id
-            DiffUtils.replaceIds(nativeRenderer.getRenderManager().getControllerManager(),
-              patchTypes);
-            //step:4 create view is do not  reUse
-            DiffUtils.createView(patchTypes);
-            //step:5 patch the dif result
-            DiffUtils.doPatch(nativeRenderer.getRenderManager().getControllerManager(),
-              patchTypes);
-          } catch (Throwable t) {
-            Log.e(TAG, "onBindContentView #" + position, t);
-            throw t;
-          }
-
+          DiffUtils.doDiffAndPatch(nativeRenderer.getRenderManager().getControllerManager(),
+                  contentHolder.mBindNode, toNode);
           contentHolder.mBindNode = toNode;
         } catch (Throwable t) {
         }
@@ -584,9 +564,9 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     public int getItemViewType(int index) {
       RenderNode itemNode = getItemNode(index);
       if (itemNode != null) {
-        HippyMap props = itemNode.getProps();
-        if (props != null && props.containsKey("type")) {
-          return props.getInt("type");
+        Map<String, Object> props = itemNode.getProps();
+        if (props != null && props.get("type") instanceof Number) {
+          return ((Number) props.get("type")).intValue();
         }
 
         if (itemNode instanceof PullFooterRenderNode) {
@@ -888,7 +868,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       }
 
       if (matchHolder != null && ((NodeHolder) matchHolder.mContentHolder).mBindNode
-        .isDelete()) {
+        .isDeleted()) {
         matchHolder = findBestHolderRecursive(position, targetType, recycler);
       }
 
