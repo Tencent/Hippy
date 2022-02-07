@@ -82,7 +82,7 @@ export default class ListExample extends React.Component {
   async componentDidMount() {
     const dataSource = await this.mockFetchData();
     this.setState({ dataSource });
-    // // 结束时需主动调用collapsePullHeader
+    // 结束时需主动调用collapsePullHeader
     // this.listView.collapsePullHeader();
   }
 
@@ -138,7 +138,6 @@ export default class ListExample extends React.Component {
   //   });
   // }
 
-  // TODO: PullHeader is not supported on Android yet
   // 渲染 pullHeader 组件，只保留内容即可
   // renderPullHeader() {
   //   const { pullingText } = this.state;
@@ -149,8 +148,6 @@ export default class ListExample extends React.Component {
   //   );
   // }
 
-
-  // TODO: PullHeader is not supported on Android yet
   /**
    * 下拉过程中触发
    * 事件会通过 contentOffset 参数返回拖拽高度，我们已经知道了内容高度，
@@ -205,7 +202,6 @@ export default class ListExample extends React.Component {
    * @param {number} index - 被点击的索引号
    */
   onClickItem(index) {
-    // eslint-disable-next-line no-console
     console.log(`item: ${index} is clicked..`);
   }
 
@@ -223,8 +219,7 @@ export default class ListExample extends React.Component {
     this.listView.scrollToIndex({ index, animation: true });
   }
 
-  // TODO: renderBanner is not supported on Android yet
-  // render banner
+  // render banner(it is not supported on Android yet)
   renderBanner() {
     if (Platform.OS === 'android' || this.state.dataSource.length === 0) return null;
     return (<View style={{

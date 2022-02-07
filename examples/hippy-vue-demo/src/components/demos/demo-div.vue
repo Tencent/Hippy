@@ -149,8 +149,6 @@ export default {
 
 <style scoped>
 
-  /* Common CSS Styles */
-
   #div-demo {
     flex: 1;
     overflow-y: scroll;

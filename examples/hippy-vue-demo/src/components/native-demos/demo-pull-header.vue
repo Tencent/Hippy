@@ -141,26 +141,22 @@ export default {
       await (new Promise(resolve => setTimeout(() => resolve(), 3000)));
       this.refreshText = REFRESH_TEXT;
       this.dataSource = dataSource.reverse();
-      // 注意这里需要告诉终端刷新已经结束了，否则会一直卡着。
+      // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致released事件不能再次触发
       this.$refs.pullHeader.collapsePullHeader();
     },
     async onEndReached() {
       const { dataSource } = this;
-      // 检查锁，如果在加载中，则直接返回，防止二次加载数据
       if (this.isLoading) {
         return;
       }
-
       this.isLoading = true;
       this.loadingState = '正在加载...';
-
       const newData = await this.mockFetchData();
       if (!newData) {
         this.loadingState = '没有更多数据';
         this.isLoading = false;
         return;
       }
-
       this.loadingState = '';
       this.dataSource = [...dataSource, ...newData];
       this.isLoading = false;
@@ -171,7 +167,6 @@ export default {
     scrollToNextPage() {
       // 因为布局问题，浏览器内 flex: 1 后也会超出窗口尺寸高度，所以这么滚是不行的。
       if (!Vue.Native) {
-        /* eslint-disable-next-line no-alert */
         alert('This method is only supported in Native environment.');
         return;
       }
@@ -183,14 +178,13 @@ export default {
       list.scrollTo({
         left: scrollPos.left,
         top,
-      }); // 其实 scrollPost.left 写 0 也可以。
+      });
     },
     /**
      * 滚动到底部
      */
     scrollToBottom() {
       if (!Vue.Native) {
-        /* eslint-disable-next-line no-alert */
         alert('This method is only supported in Native environment.');
         return;
       }

@@ -15,7 +15,6 @@ const SKIN_COLOR = {
   textWhite: '#fff',
 };
 
-// 样式填写
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 10,
