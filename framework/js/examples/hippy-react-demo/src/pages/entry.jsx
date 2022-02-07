@@ -8,7 +8,7 @@ import routes from '../routes';
 import Header from '../shared/Header';
 import Gallery from './gallery';
 
-const ALLROUTES = [{
+const ALL_ROUTES = [{
   path: '/Gallery',
   name: 'Hippy React 示例',
   component: Gallery,
@@ -21,7 +21,7 @@ export const Entry = () => (
   <View style={{ flex: 1, backgroundColor: '#fff' }}>
     <MemoryRouter initialEntries={['/Gallery']}>
       {
-        ALLROUTES.map((item) => {
+        ALL_ROUTES.map((item) => {
           const Comp = item.component;
           return (
             <Route key={item.path} exact path={`${item.path}`}>

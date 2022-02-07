@@ -117,7 +117,7 @@ export default class TextExpo extends React.Component {
           <Text style={[styles.normalText,
             { color: '#242424',
               textShadowOffset,
-              // support declare textShadowOffsetX & textShadowOffsetY separately
+              // support declaring textShadowOffsetX & textShadowOffsetY separately
               // textShadowOffsetX: 1,
               // textShadowOffsetY: 1,
               textShadowRadius: 3,
