@@ -29,7 +29,6 @@ export default class DynamicImportDemo extends React.Component {
   }
 
   onAsyncComponentLoad() {
-    /* eslint-disable-next-line no-console */
     console.log('load async component');
     /**
      *  在支持动态加载的终端版本，可添加 magic comment 'webpackMode: "lazy"'，也可以不加，默认采用lazy模式;

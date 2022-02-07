@@ -1,5 +1,3 @@
-/* eslint-disable react/no-array-index-key */
-
 import React, { useRef, useState } from 'react';
 import {
   ScrollView,

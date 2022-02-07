@@ -25,12 +25,12 @@
 <script>
 import Vue from 'vue';
 /**
-   * 这个 Demo 里有直接操作 DOM 的章节
-   */
+ * 这个 Demo 里有直接操作 DOM 的章节
+ */
 export default {
   /**
-     * 组件加载时自动 focus 第一个输入框
-     */
+   * 组件加载时自动 focus 第一个输入框
+   */
   data() {
     return {
       text: '',
@@ -41,8 +41,8 @@ export default {
       Vue.Native.callNative('TestModule', 'remoteDebug', this.$root.$options.rootViewId, this.text);
     },
     /**
-       * 点击输入框时，点击事件会冒泡到顶部 View 导致 focus 时又被 blur 了，所以这里需要阻止一下冒泡
-       */
+     * 点击输入框时，点击事件会冒泡到顶部 View 导致 focus 时又被 blur 了，所以这里需要阻止一下冒泡
+     */
     stopPropagation(evt) {
       evt.stopPropagation();
     },
