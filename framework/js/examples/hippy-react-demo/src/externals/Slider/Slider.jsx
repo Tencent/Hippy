@@ -108,13 +108,10 @@ export default class Slider extends React.Component {
     if (this.width === 0) return;
     const offset = e.contentOffset.x;
     this.scrollOffset = offset;
-    // 过半 确定索引
+    // 滑动过半 确定索引
     const idx = Math.round(offset / this.width);
-
     const count = images ? React.Children.count(images) : 0;
-
     if (idx < 0 || idx >= count) return;
-
     this.indicator.update(idx);
     this.currentIndex = idx;
   }
@@ -133,7 +130,7 @@ export default class Slider extends React.Component {
   }
 
   doSwitchPage(index) {
-    this.scrollview.scrollTo({ x: this.imgWidth * index, y: 0, animated: true });
+    this.scrollView.scrollTo({ x: this.imgWidth * index, y: 0, animated: true });
   }
 
   doCreateTimer() {
@@ -176,7 +173,7 @@ export default class Slider extends React.Component {
           onScrollBeginDrag={this.onScrollBeginDrag}
           onScrollEndDrag={this.onScrollEndDrag}
           ref={(ref) => {
-            this.scrollview = ref;
+            this.scrollView = ref;
           }}
         >
           {childViews}

@@ -49,7 +49,7 @@ export default class ClipboardDemo extends React.Component {
     this.state = {
       hasCopied: false,
       text: 'Winter is coming',
-      clipboardText: '快点上面的按钮啊魂淡',
+      clipboardText: '点击上面的按钮',
     };
   }
 
@@ -86,7 +86,6 @@ export default class ClipboardDemo extends React.Component {
                 clipboardText: str,
               });
             } catch (err) {
-              /* eslint-disable-next-line no-console */
               console.error(err);
             }
           }}

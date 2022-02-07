@@ -108,7 +108,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 #dialog-demo {
   display: flex;
   align-items: center;

@@ -152,7 +152,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .vote-face {
   width: 40px;
   height: 40px;
