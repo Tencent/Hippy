@@ -66,24 +66,18 @@ export default class PagerExample extends React.Component {
       this.onPageSelected = this.onPageSelected.bind(this);
     }
 
-    // eslint-disable-next-line class-methods-use-this
     onPageSelected(pageData) {
-      // eslint-disable-next-line no-console
       console.log('onPageSelected', pageData.position);
       this.setState({
         selectedIndex: pageData.position,
       });
     }
 
-    // eslint-disable-next-line class-methods-use-this
     onPageScrollStateChanged(pageScrollState) {
-      // eslint-disable-next-line no-console
-      console.log('onPageScrollStateChanged===', pageScrollState);
+      console.log('onPageScrollStateChanged', pageScrollState);
     }
 
-    // eslint-disable-next-line class-methods-use-this
     onPageScroll({ offset, position }) {
-      // eslint-disable-next-line no-console
       console.log('onPageScroll', offset, position);
     }
     render() {

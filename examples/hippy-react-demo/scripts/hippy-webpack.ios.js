@@ -6,7 +6,6 @@ const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const pkg = require('../package.json');
 const manifest = require('../dist/ios/vendor-manifest.json');
 
-
 const platform = 'ios';
 
 module.exports = {

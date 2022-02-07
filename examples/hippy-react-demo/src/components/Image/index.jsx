@@ -41,20 +41,16 @@ export default function ImageExpo() {
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
         onLoadStart={() => {
-          /* eslint-disable-next-line no-console */
-          console.log('===image onloadStart===');
+          console.log('image onloadStart');
         }}
         onLoad={() => {
-          /* eslint-disable-next-line no-console */
-          console.log('===image onLoad===');
+          console.log('image onLoad');
         }}
         onError={(e) => {
-          /* eslint-disable-next-line no-console */
-          console.log('===image onError===', e);
+          console.log('image onError', e);
         }}
         onLoadEnd={() => {
-          /* eslint-disable-next-line no-console */
-          console.log('===image onLoadEnd===');
+          console.log('image onLoadEnd');
         }}
       />
       <Text style={styles.info_style}>Cover:</Text>
@@ -85,7 +81,6 @@ export default function ImageExpo() {
         defaultSource={defaultSource}
         source={{ uri: 'https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif' }}
         onLoadEnd={() => {
-          /* eslint-disable-next-line no-console */
           console.log('gif onLoadEnd');
         }}
       />
