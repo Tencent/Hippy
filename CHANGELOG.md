@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.13.0](https://github.com/Tencent/Hippy/compare/2.12.2...2.13.0) (2022-02-09)
+
+
+### Bug Fixes
+
+* **android:** fix lint warnings & errors ([dc7f4d3](https://github.com/Tencent/Hippy/commit/dc7f4d3f36da3e8472fe11876e1a915fc0ece9ca))
+* **android:** remove useless `V8` command-line flag ([371daac](https://github.com/Tencent/Hippy/commit/371daacc26597670d023b1e5ffec73034f66ce6d))
+* **ci:** add packages npm install ([6a9804e](https://github.com/Tencent/Hippy/commit/6a9804eb746ef35069947adca7d89e6e3bf8bcf6))
+* **core:** fix parse uri crash ([48f5af3](https://github.com/Tencent/Hippy/commit/48f5af3c14c95608b22171816ee83f981c52eaa4))
+* **ios:** fix ios elements DOM.pushNodesByBackendIdsToFrontend protocol ([38e928e](https://github.com/Tencent/Hippy/commit/38e928e7fa65f911b3c70c02cf87188478c56f92))
+* **js:** update ts version and ts declaration issues ([2df21c5](https://github.com/Tencent/Hippy/commit/2df21c55aef2e4369175abfc8bd40d861481a847))
+* **web:** fix turbo demo bugs ([6199202](https://github.com/Tencent/Hippy/commit/6199202c25b146eeec547baaa28cdafb009fae85))
+* **web:** fix turbo demo bugs ([5d5729d](https://github.com/Tencent/Hippy/commit/5d5729d6846b09d448e997ab7a66c9d236975008))
+
+
+### Features
+
+* **android,ios:** add jsi document & demo ([#1508](https://github.com/Tencent/Hippy/issues/1508)) ([e3b9143](https://github.com/Tencent/Hippy/commit/e3b914338755afbf02540da331cbd2a96542869c))
+* **android:** `HIDDEN_LIBRARY_SYMBOL` flag affects 3rd party libraries ([e0bc3f5](https://github.com/Tencent/Hippy/commit/e0bc3f5a651c22ea2c524400c452b87b63969986))
+* **android:** replace unsafe JNI numeric cast with safe method ([d857cba](https://github.com/Tencent/Hippy/commit/d857cba0c9a03b5d8633f6561b1b6d964dbbcea5))
+* **android:** update AGP to 7.0.4 version ([8e04792](https://github.com/Tencent/Hippy/commit/8e047922228a36609041bf6c9f3ebd58f2b7ccc3))
+* **android:** view pager support offscreenPageLimit ([91e2f6c](https://github.com/Tencent/Hippy/commit/91e2f6c58ebc125e621fee3a0bd01b78127c0ac8))
+* **ios:** elements css, add color display and modification ([ec5b5c2](https://github.com/Tencent/Hippy/commit/ec5b5c28823f7c2b7469f7ce6a12ae495b63faab))
+* **ios:** modify websocket url symbol ([f3d04e2](https://github.com/Tencent/Hippy/commit/f3d04e21bda1ac1327da166da50dc801c9dfe00b))
+* **ios:** parse websocket url from bundle url ([#1474](https://github.com/Tencent/Hippy/issues/1474)) ([03bc96f](https://github.com/Tencent/Hippy/commit/03bc96fe2ed49688344a5484f49c28e30de14e8d))
+* **ios:** set default font size to 14 ([0ac9398](https://github.com/Tencent/Hippy/commit/0ac9398b919d0475aa68211e460d44a82c1a1ffa))
+* **ios:** websocket url add hash and close with code and reason ([#1447](https://github.com/Tencent/Hippy/issues/1447)) ([3365605](https://github.com/Tencent/Hippy/commit/33656057cb7e7905e788f0a37928d3920b57e7a9))
+* **react,vue:** perf startBatch ([5bce8e9](https://github.com/Tencent/Hippy/commit/5bce8e9dedf1b5fd495216792f5f4b7f422671b5))
+
+
+
+
+
 ## [2.12.2](https://github.com/Tencent/Hippy/compare/2.12.1...2.12.2) (2022-01-26)
 
 

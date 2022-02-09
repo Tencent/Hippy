@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.13.0](https://github.com/Tencent/Hippy/compare/2.12.2...2.13.0) (2022-02-09)
+
+
+### Bug Fixes
+
+* **js:** update ts version and ts declaration issues ([2df21c5](https://github.com/Tencent/Hippy/commit/2df21c55aef2e4369175abfc8bd40d861481a847))
+
+
+
+
+
 ## [2.12.2](https://github.com/Tencent/Hippy/tree/master/packages/hippy-debug-server/compare/2.12.1...2.12.2) (2022-01-26)
 
 **Note:** Version bump only for package @hippy/debug-server
