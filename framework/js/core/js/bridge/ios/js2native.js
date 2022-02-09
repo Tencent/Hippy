@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+const UIManagerModule = internalBinding('UIManagerModule');
+
 const getModuleName = (originModuleName) => {
   if (originModuleName === 'UIManagerModule') {
     return 'UIManager';
@@ -118,6 +121,13 @@ Hippy.bridge.callNative = (...callArguments) => {
       return;
     }
   } else {
+    if (callArguments[0] === 'UIManagerModule' && callArguments[1] === 'measure') {
+      return UIManagerModule.callUIFunction(callArguments[2], callArguments[1], undefined, callArguments[3]);
+    } if (callArguments[0] === 'UIManagerModule'
+      && (callArguments[1] === 'measureInWindow' || callArguments[1] === 'measureInAppWindow')) {
+      return UIManagerModule.callUIFunction(callArguments[2], 'measureInAppWindow', undefined, callArguments[3]);
+    }
+
     let setName = '';
     if (callArguments[0] === 'UIManagerModule' && callArguments[1] === 'createNode') {
       setName = 'createView';
