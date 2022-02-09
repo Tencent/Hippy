@@ -22,33 +22,23 @@
 
 #pragma once
 
-#include <memory>
-#include "v8/v8-inspector.h"
-#include "runtime.h"
+#include "bridge/bridge_runtime.h"
+#include "core/runtime/v8/bridge.h"
 
-namespace hippy {
-namespace inspector {
-
-class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
+namespace voltron {
+using hippy::Bridge;
+class VoltronBridge : public Bridge {
  public:
-  explicit V8ChannelImpl(std::shared_ptr<PlatformRuntime> runtime);
-  ~V8ChannelImpl() override = default;
+  VoltronBridge(std::shared_ptr<PlatformRuntime> runtime);
+  ~VoltronBridge();
+#ifdef ENABLE_INSPECTOR
+  void SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) override;
+  void SendNotification(std::unique_ptr<v8_inspector::StringBuffer> message) override;
+#endif
 
-  inline std::shared_ptr<PlatformRuntime> GetBridge() { return runtime_; }
-
-  inline void SetBridge(std::shared_ptr<PlatformRuntime> runtime) { runtime_ = runtime; }
-
-  void sendResponse(
-      int callId,
-      std::unique_ptr<v8_inspector::StringBuffer> message) override;
-  void sendNotification(
-      std::unique_ptr<v8_inspector::StringBuffer> message) override;
-  void flushProtocolNotifications() override {}
-
+  std::shared_ptr<PlatformRuntime> GetPlatformRuntime();
  private:
-  friend class V8InspectorClientImpl;
   std::shared_ptr<PlatformRuntime> runtime_;
 };
 
-}  // namespace inspector
-}  // namespace hippy
+}

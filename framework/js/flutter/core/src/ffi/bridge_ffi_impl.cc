@@ -82,9 +82,17 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
   Sp<PlatformRuntime> ffi_runtime = std::make_shared<FFIPlatformRuntime>(engine_id);
   BridgeManager::Create(engine_id, ffi_runtime);
 
-  auto result = BridgeImpl::InitJsFrameWork(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
-                                            global_config,
-                                            [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+  auto result = BridgeImpl::InitJsEngine(ffi_runtime,
+                                         single_thread_mode,
+                                         bridge_param_json,
+                                         is_dev_module,
+                                         group_id,
+                                         global_config,
+                                         0,0,
+                                         [callback_id](int64_t value) {
+                                           CallGlobalCallback(callback_id,
+                                                              value);
+                                         });
   ffi_runtime->SetRuntimeId(result);
 
   return result;

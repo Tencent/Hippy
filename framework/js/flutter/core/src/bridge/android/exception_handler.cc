@@ -23,14 +23,14 @@
 #include "exception_handler.h"
 #include "bridge/string_util.h"
 
-using StringViewUtil = hippy::base::StringViewUtils;
 static const uint32_t kRuntimeKeyIndex = 0;
 
 void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime, const unicode_string_view& desc,
                                          const unicode_string_view& stack) {
   TDF_BASE_DLOG(INFO) << "ReportJsException begin";
 
-  if (runtime->GetPlatformRuntime()) {
+  auto runtime = runtime->GetBridge()->GetPlatformRuntime();
+  if (runtime->GetBridge()->GetPlatformRuntime()) {
     const char16_t* exception = StrViewToCU16String(desc);
     const char16_t* stack_trace = StrViewToCU16String(stack);
 

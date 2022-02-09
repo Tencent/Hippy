@@ -22,6 +22,7 @@
 #include <codecvt>
 #include <fstream>
 #include <string>
+#include <core/base/string_view_utils.h>
 
 #include "bridge/string_util.h"
 
@@ -48,6 +49,7 @@ char* copyCharToChar(const char* source_char, int length) {
 }
 
 #if defined(__ANDROID__) || defined(_WIN32)
+
 const char* v8Utf8ValueToCString(const v8::String::Utf8Value& value) {
   return *value ? *value : "<string conversion failed>";
 }
@@ -66,6 +68,7 @@ const char16_t* StrViewToCU16String(const unicode_string_view& str_view) {
 
   return copyChar16(result, str.length());
 }
+
 #endif
 
 std::string C16CharToString(const char16_t* source_char) {

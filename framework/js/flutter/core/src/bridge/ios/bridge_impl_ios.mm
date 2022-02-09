@@ -39,12 +39,14 @@ NSString* U16ToNSString(const char16_t *source) {
   return [[NSString alloc] initWithCharacters:(const unichar*)source length:std::char_traits<char16_t>::length(source)];
 }
 
-int64_t BridgeImpl::InitJsFrameWork(std::shared_ptr<voltron::PlatformRuntime> platform_runtime,
+int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::PlatformRuntime> platform_runtime,
                                     bool single_thread_mode,
                                     bool bridge_param_json,
                                     bool is_dev_module,
                                     int64_t group_id,
                                     const char16_t *char_globalConfig,
+                                    size_t initial_heap_size,
+                                    size_t maximum_heap_size,
                                     std::function<void(int64_t)> callback) {
     VoltronFlutterBridge *bridge = [VoltronFlutterBridge new];
     bridge.platformRuntime = platform_runtime;

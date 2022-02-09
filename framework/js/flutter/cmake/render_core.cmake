@@ -2,6 +2,9 @@ set(VOLTRON_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(VOLTRON_CORE_SRC_DIR ${VOLTRON_CORE_DIR}/src)
 set(RENDER_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../renderer/flutter/core)
 set(RENDER_CORE_SRC_DIR ${RENDER_CORE_DIR}/src)
+set(CODEC_DIR ${RENDER_CORE_DIR}/third_party/codec)
+set(CODEC_SRC_DIR ${RENDER_CORE_DIR}/third_party/codec/src)
+
 
 set(RENDER_CORE_SRC_FILES
         ${VOLTRON_CORE_SRC_DIR}/ffi/bridge_define.cc
@@ -14,8 +17,10 @@ set(RENDER_CORE_SRC_FILES
         ${RENDER_CORE_SRC_DIR}/render/voltron_render_manager.cc
         ${VOLTRON_CORE_SRC_DIR}/bridge/bridge_manager.cc
         ${VOLTRON_CORE_SRC_DIR}/bridge/string_util.cc
+        ${VOLTRON_CORE_SRC_DIR}/bridge/url.cc
         ${VOLTRON_CORE_SRC_DIR}/bridge/native_source_code_voltron.cc
-        ${RENDER_CORE_DIR}/third_party/codec/src/standard_codec.cc)
+        ${VOLTRON_CORE_SRC_DIR}/bridge/voltron_loader.cc
+        ${CODEC_SRC_DIR}/standard_codec.cc)
 
 if ((CMAKE_SYSTEM_NAME STREQUAL "Android") OR (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
     set(RENDER_CORE_SRC_FILES ${RENDER_CORE_SRC_FILES}
@@ -23,7 +28,7 @@ if ((CMAKE_SYSTEM_NAME STREQUAL "Android") OR (CMAKE_SYSTEM_NAME STREQUAL "Windo
             ${VOLTRON_CORE_SRC_DIR}/bridge/android/dart2js.cc
             ${VOLTRON_CORE_SRC_DIR}/bridge/android/exception_handler.cc
             ${VOLTRON_CORE_SRC_DIR}/bridge/android/js2dart.cc
-            ${VOLTRON_CORE_SRC_DIR}/bridge/android/runtime.cc)
+            ${VOLTRON_CORE_SRC_DIR}/bridge/android/voltron_bridge.cc)
     include_directories(${VOLTRON_CORE_SRC_DIR}/bridge/android)
 
 elseif ((CMAKE_SYSTEM_NAME STREQUAL "Darwin") OR (CMAKE_SYSTEM_NAME STREQUAL "iOS"))

@@ -23,10 +23,8 @@
 #pragma once
 
 #include "core/core.h"
-namespace voltron {
-namespace bridge {
+namespace voltron::bridge {
 
-void callDartMethod(hippy::napi::CBDataTuple* data);
+void CallDart(hippy::napi::CBDataTuple *data);
 
-}  // namespace bridge
 }  // namespace voltron

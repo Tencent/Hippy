@@ -33,9 +33,10 @@ class BridgeImpl {
   ~BridgeImpl() = default;
 
  public:
-  static int64_t InitJsFrameWork(std::shared_ptr<voltron::PlatformRuntime> platform_runtime, bool single_thread_mode,
-                                 bool bridge_param_json, bool is_dev_module, int64_t group_id,
-                                 const char16_t* char_globalConfig, std::function<void(int64_t)> callback);
+  static int64_t InitJsEngine(std::shared_ptr<voltron::PlatformRuntime> platform_runtime, bool single_thread_mode,
+                              bool bridge_param_json, bool is_dev_module, int64_t group_id,
+                              const char16_t* char_globalConfig, size_t initial_heap_size, size_t maximum_heap_size,
+                              std::function<void(int64_t)> callback);
 
   static bool RunScriptFromFile(int64_t runtime_id, const char16_t* file_path, const char16_t* script_nmae,
                                 const char16_t* code_cache_dir, bool can_use_code_cache,

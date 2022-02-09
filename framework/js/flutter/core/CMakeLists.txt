@@ -50,7 +50,7 @@ set(LINKED_LIBS
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(SRC_FILES ${SRC_FILES}
-            ${FRAMEWORK_ANDROID_SRC})
+            ${FRAMEWORK_INSPECTOR_SRC})
     set(LINKED_LIBS ${LINKED_LIBS}
             ${FRAMEWORK_ANDROID_DEPS}
             -Wl,--gc-sections)

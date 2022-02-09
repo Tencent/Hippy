@@ -3,10 +3,9 @@ set(ABI_COMPILE_OPTIONS
         -fno-rtti)
 
 add_compile_options(${ABI_COMPILE_OPTIONS})
-set(JNI_DIR ${FRAMEWORK_DIR}/js/android/src/main/jni)
-set(VOLTRON_JNI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../android/src/main/jni)
 
 set(JS_ENGINE "V8")
+set(JNI_DIR ${FRAMEWORK_DIR}/js/android/src/main/jni)
 set(V8_COMPONENT "${JNI_DIR}/third_party/v8/stable/official-release")
 
 set(FRAMEWORK_ANDROID_DEPS android log)
@@ -27,12 +26,13 @@ add_definitions("-DANDROID")
 
 # region source
 if (${ENABLE_INSPECTOR} STREQUAL "true")
-    set(FRAMEWORK_ANDROID_SRC
-            ${VOLTRON_JNI_DIR}/src/inspector/v8_channel_impl.cc
-            ${VOLTRON_JNI_DIR}/src/inspector/v8_inspector_client_impl.cc)
+    set(FRAMEWORK_CORE_INSPECTOR_DIR ${FRAMEWORK_DIR}/js/core)
+    set(FRAMEWORK_INSPECTOR_SRC
+            ${FRAMEWORK_CORE_INSPECTOR_DIR}/src/runtime/v8/inspector/v8_channel_impl.cc
+            ${FRAMEWORK_CORE_INSPECTOR_DIR}/src/runtime/v8/inspector/v8_inspector_client_impl.cc)
 endif ()
 
-message("FRAMEWORK_ANDROID_SRC: ${FRAMEWORK_ANDROID_SRC}")
+message("FRAMEWORK_INSPECTOR_SRC: ${FRAMEWORK_INSPECTOR_SRC}")
 # endregion
 
 message("JS_ENGINE:" ${JS_ENGINE})
@@ -59,5 +59,3 @@ elseif (${JS_ENGINE} STREQUAL "JSC")
 else ()
     message(FATAL_ERROR "${JS_ENGINE} is not supported")
 endif ()
-
-include_directories(${VOLTRON_JNI_DIR}/include)

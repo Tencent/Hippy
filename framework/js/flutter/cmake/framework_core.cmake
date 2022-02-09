@@ -26,7 +26,9 @@ if ((CMAKE_SYSTEM_NAME STREQUAL "Android") OR (CMAKE_SYSTEM_NAME STREQUAL "Windo
     set(FRAMEWORK_CORE_SRC_FILES ${FRAMEWORK_CORE_SRC_FILES}
             ${FRAMEWORK_CORE_SRC_DIR}/napi/v8/serializer.cc
             ${FRAMEWORK_CORE_SRC_DIR}/napi/v8/js_native_api_v8.cc
-            ${FRAMEWORK_CORE_SRC_DIR}/napi/v8/js_native_turbo_v8.cc)
+            ${FRAMEWORK_CORE_SRC_DIR}/napi/v8/js_native_turbo_v8.cc
+            ${FRAMEWORK_CORE_SRC_DIR}/runtime/v8/v8_bridge_utils.cc
+            ${FRAMEWORK_CORE_SRC_DIR}/runtime/v8/runtime.cc)
 
 else ()
     set(FRAMEWORK_CORE_SRC_FILES ${FRAMEWORK_CORE_SRC_FILES}
