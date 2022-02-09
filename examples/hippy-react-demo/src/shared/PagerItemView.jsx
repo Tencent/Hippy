@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from '@hippy/react';
 
-
 const styles = StyleSheet.create({
   pageContainer: {
     alignItems: 'center',
