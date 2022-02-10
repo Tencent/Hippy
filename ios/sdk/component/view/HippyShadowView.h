@@ -46,10 +46,8 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 /**
  * ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
  * 1. A node is in one of three lifecycles: uninitialized, computed, dirtied.
- * 1. HippyBridge may call any of the padding/margin/width/height/top/left setters. A setter would dirty
- *    the node and all of its ancestors.
  * 2. At the end of each Bridge transaction, we call collectUpdatedFrames:widthConstraint:heightConstraint
- *    at the root node to recursively lay out the entire hierarchy.
+ *    at the root node to recursively layout the entire hierarchy.
  * 3. If a node is "computed" and the constraint passed from above is identical to the constraint used to
  *    perform the last computation, we skip laying out the subtree entirely.
  */
@@ -58,10 +56,32 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 /**
  * HippyComponent interface.
  */
+
+/**
+ * Get all hippy shadow views
+ */
 - (NSArray<HippyShadowView *> *)hippySubviews NS_REQUIRES_SUPER;
+
+/**
+ * Get super shadow view
+ */
 - (HippyShadowView *)hippySuperview NS_REQUIRES_SUPER;
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex NS_REQUIRES_SUPER;
-- (void)removeHippySubview:(HippyShadowView *)subview NS_REQUIRES_SUPER;
+
+/**
+ * Insert hippy shadow view at index.
+ *
+ * @param subview A hippy shadow subview to insert
+ * @param atIndex position for hippy subview to insert
+ * @discussion atIndex must not exceed range of current index
+ */
+- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex;
+
+/**
+ * Remove hippy shadow view
+ *
+ * @param subview A hippy shadow subview to delete
+ */
+- (void)removeHippySubview:(HippyShadowView *)subview;
 
 @property (nonatomic, weak, readonly) HippyShadowView *superview;
 @property (nonatomic, copy) NSString *viewName;
@@ -87,10 +107,19 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  */
 @property (nonatomic, assign, getter=isHidden) BOOL hidden;
 
+/**
+ * Get frame set by layout system
+ */
 @property (nonatomic, assign) CGRect frame;
 
-- (UIEdgeInsets)paddingAsInsets;
+/**
+ * Get padding set by layout system
+ */
+@property(nonatomic, assign) UIEdgeInsets paddingAsInsets;
 
+/**
+ * Indicate whether the view corresponding to this can animate
+ */
 @property (nonatomic, assign) BOOL animated;
 
 /**
@@ -106,13 +135,16 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 - (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode;
 - (const std::weak_ptr<hippy::DomNode> &)domNode;
 
+/**
+ * reset layout frame to mark dirty and re-layout
+ */
 - (void)setLayoutFrame:(CGRect)frame;
+
 /**
  * Calculate property changes that need to be propagated to the view.
  * The applierBlocks set contains HippyApplierBlock functions that must be applied
  * on the main thread in order to update the view.
  */
-
 - (void)collectUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
                 parentProperties:(NSDictionary<NSString *, id> *)parentProperties;
 
@@ -120,7 +152,6 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  * Process the updated properties and apply them to view. Shadow view classes
  * that add additional propagating properties should override this method.
  */
-
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties NS_REQUIRES_SUPER;
 
@@ -162,5 +193,15 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 - (BOOL)viewIsDescendantOf:(HippyShadowView *)ancestor;
 
 - (NSDictionary *)mergeProps:(NSDictionary *)props;
+
+/**
+ * check if the current shadowview is a descendant of a shadow view whose corresponding view is created lazily
+ */
+- (BOOL)isDescendantOfLazilyCreatedShadowView;
+
+/**
+ * If true, UIView will be created as needed, not instantly
+ */
+- (BOOL)isInstantlyCreatedView;
 
 @end

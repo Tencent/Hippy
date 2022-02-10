@@ -211,6 +211,10 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     [subview removeFromSuperview];
 }
 
+- (void)removeFromHippySuperview {
+    [self.hippySuperview removeHippySubview:self];
+}
+
 - (void)resetHippySubviews {
     NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
     if (subviews) {

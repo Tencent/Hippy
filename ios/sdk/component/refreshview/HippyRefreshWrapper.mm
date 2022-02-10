@@ -65,7 +65,6 @@
         [self->_scrollableView.realScrollView setContentInset:insets];
         [self->_scrollableView.realScrollView setContentOffset:CGPointMake(0, -insets.top)];
     }];
-    //TODO 下拉刷新依赖这个
     if (_onRefresh) {
         _onRefresh(@{});
     }

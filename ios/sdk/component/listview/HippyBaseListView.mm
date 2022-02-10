@@ -304,15 +304,10 @@
     }
     //FIXME use cache for cell view creation
     UIView *cellView = [_bridge.uiManager viewForHippyTag:cellShadowView.hippyTag];
-    cellView.frame = CGRectMake(0, 0, CGRectGetWidth(cellView.frame), CGRectGetHeight(cellView.frame));
-//    if (cell.node.cell) {
-//        cellView = [_bridge.uiManager createViewFromNode:indexNode];
-//    } else {
-//        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
-//        if (nil == cellView) {
-//            cellView = [_bridge.uiManager createViewFromNode:indexNode];
-//        }
-//    }
+    if (!cellView) {
+        id shadowView = [_bridge.uiManager shadowViewForHippyTag:cellShadowView.hippyTag];
+        cellView = [_bridge.uiManager createViewRecursivelyFromShadowView:shadowView];
+    }
     cell.layer.zPosition = [self zPositionOfCell:cell forRowAtIndexPath:indexPath];
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");

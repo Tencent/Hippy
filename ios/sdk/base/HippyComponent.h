@@ -47,6 +47,7 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 
 - (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSInteger)atIndex;
 - (void)removeHippySubview:(id<HippyComponent>)subview;
+- (void)removeFromHippySuperview;
 - (void)hippySetFrame:(CGRect)frame;
 - (NSArray<id<HippyComponent>> *)hippySubviews;
 - (id<HippyComponent>)hippySuperview;
