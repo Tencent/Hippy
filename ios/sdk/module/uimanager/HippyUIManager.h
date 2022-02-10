@@ -145,6 +145,16 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)props;
 
 /**
+ * Manully create a view from shadowView
+ *
+ * @param shadowView HippyShadowView corresponding to UIView
+ * @return A view created by HippyShadowView
+ */
+- (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView;
+
+- (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
+
+/**
  * set dom manager for HippyUIManager which holds a weak reference to domManager
  */
 - (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
@@ -159,13 +169,13 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  *  update views' properties from dom nodes
  *  @param nodes A set of nodes for updating views' properties
  */
-- (void)updateRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>>&&)nodes;
+- (void)updateRenderNodes:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes;
 
 /**
  *  delete views from dom nodes
- *  @param nodes A set of nodes for deleting views
+ *  @param nodes nodes to delete
  */
-- (void)renderDeleteNodes:(const std::vector<std::shared_ptr<hippy::DomNode>> &)nodes;
+- (void)deleteRenderNodesIds:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes;
 
 /**
  * move views from container to another container
@@ -174,14 +184,15 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param fromContainer Source view container from which views move
  * @param toContainer Target view container to which views move
  */
-- (void)renderMoveViews:(const std::vector<int32_t> &)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
+- (void)renderMoveViews:(const std::vector<int32_t> &&)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer;
 
 /**
  * update layout for view
  *
- * @param nodes A set of nodes ids for views to update
+ * @param layoutInfos Vector for nodes layout infos
  */
-- (void)renderNodesUpdateLayout:(const std::vector<std::shared_ptr<hippy::DomNode>> &)nodes;
+- (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult, bool,
+                           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>>> &)layoutInfos;
 
 /**
  * Invoked after batched operations completed
@@ -204,34 +215,34 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * register event for specific view
  *
  * @param name event name
- * @param weak_node node for the event
+ * @param node_id id for node for the event
  */
-- (void)addEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+- (void)addEventName:(const std::string &)name forDomNodeId:(int32_t)node_id;
 
 /**
  * unregister event for specific view
  *
  * @param name event name
- * @param weak_node node for the event
+ * @param node_id node id for the event
  */
-- (void)removeEventName:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+- (void)removeEventName:(const std::string &)name forDomNodeId:(int32_t)node_id;
 
 /**
  * unregister event for specific view.
  *
  * @param name event name
- * @param weak_node node for the event
+ * @param node_id id of node for the event
  * @discussion this function will handle any event but gesture event, like touch, press, click, longclick, etc...
  */
-- (void)addRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+- (void)addRenderEvent:(const std::string &)name forDomNode:(int32_t)node_id;
 
 /**
  * unregister event for specific view
  *
  * @param name event name
- * @param weak_node node for the event
+ * @param node_id node id for the event
  */
-- (void)removeRenderEvent:(const std::string &)name forDomNode:(std::weak_ptr<hippy::DomNode>)weak_node;
+- (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id;
 
 @end
 

@@ -20,27 +20,12 @@
  * limitations under the License.
  */
 
-#import "HippyBaseListItemViewManager.h"
-#import "HippyBaseListItemView.h"
-#import "HippyBaseListItemShadowView.h"
+#import "HippyShadowView.h"
 
-@implementation HippyBaseListItemViewManager
+NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXPORT_MODULE(ListViewItem)
-
-HIPPY_EXPORT_VIEW_PROPERTY(type, id)
-HIPPY_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onDisappear, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onWillAppear, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
-
-- (UIView *)view {
-    return [HippyBaseListItemView new];
-}
-
-- (HippyShadowView *)shadowView {
-    return [HippyBaseListItemShadowView new];
-}
+@interface HippyBaseListItemShadowView : HippyShadowView
 
 @end
+
+NS_ASSUME_NONNULL_END
