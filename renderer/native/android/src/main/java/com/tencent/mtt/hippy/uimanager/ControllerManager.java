@@ -259,9 +259,15 @@ public class ControllerManager {
         mControllerRegistry.addView(view);
     }
 
+    public void postInvalidateDelayed(int id, long delayMilliseconds) {
+        View view = mControllerRegistry.getView(id);
+        if (view != null) {
+            view.postInvalidateDelayed(delayMilliseconds);
+        }
+    }
+
     public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
-            String className,
-            ViewGroup hippyRootView, boolean isLazy) {
+            String className, ViewGroup hippyRootView, boolean isLazy) {
         return mControllerRegistry.getViewController(className)
                 .createRenderNode(id, props, className, hippyRootView, this, isLazy);
     }
@@ -270,7 +276,7 @@ public class ControllerManager {
             List<Object> params, Promise promise) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(id);
-        if (view == null) {
+        if (view == null || controller == null) {
             return;
         }
         if (promise == null) {

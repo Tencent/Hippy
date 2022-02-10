@@ -37,6 +37,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
@@ -52,7 +53,6 @@ import java.util.List;
 
 public class TextVirtualNode extends VirtualNode {
 
-    private static final String TAG = "TextVirtualNode";
     private static final int TEXT_BOLD_MIN_VALUE = 500;
     private static final int TEXT_SHADOW_COLOR_DEFAULT = 0x55000000;
     private static final String TEXT_FONT_STYLE_ITALIC = "italic";
@@ -83,16 +83,19 @@ public class TextVirtualNode extends VirtualNode {
     private boolean mHasUnderlineTextDecoration = false;
     private boolean mHasLineThroughTextDecoration = false;
     private boolean mEnableScale = false;
-    private String mFontFamily = null;
-    private SpannableStringBuilder mSpanned = null;
+    @Nullable
+    private String mFontFamily;
+    @Nullable
+    private SpannableStringBuilder mSpanned;
+    @Nullable
     private CharSequence mText;
     private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_NORMAL;
-    private final TextUtils.TruncateAt mTruncateAt = TextUtils.TruncateAt.END;
-    private TextPaint mTextPaint = null;
+    @Nullable
+    private TextPaint mTextPaint;
     @Nullable
     private final FontAdapter mFontAdapter;
     @Nullable
-    private Layout mLayout = null;
+    private Layout mLayout;
 
     public TextVirtualNode(int id, int pid, int index, @Nullable FontAdapter fontAdapter) {
         super(id, pid, index);
@@ -273,8 +276,8 @@ public class TextVirtualNode extends VirtualNode {
         mEnableScale = enable;
     }
 
-    private SpannableStringBuilder createSpan(CharSequence text, boolean useChild) {
-        if (TextUtils.isEmpty(text)) {
+    private SpannableStringBuilder createSpan(@Nullable CharSequence text, boolean useChild) {
+        if (text == null) {
             return new SpannableStringBuilder("");
         }
         SpannableStringBuilder spannable = new SpannableStringBuilder();
@@ -291,7 +294,7 @@ public class TextVirtualNode extends VirtualNode {
         return createSpan(mText, useChild);
     }
 
-    private CharSequence getEmoticonText(CharSequence text) {
+    private CharSequence getEmoticonText(@Nullable CharSequence text) {
         CharSequence emoticonText = null;
         if (mFontAdapter != null && !TextUtils.isEmpty(text)) {
             emoticonText = mFontAdapter.getEmoticonText(text, mFontSize);
@@ -300,13 +303,26 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @Override
-    protected void createSpanOperation(List<SpanOperation> ops, SpannableStringBuilder builder,
-            boolean useChild) {
+    protected void createSpanOperation(@NonNull List<SpanOperation> ops,
+            @NonNull SpannableStringBuilder builder, boolean useChild) {
         createSpanOperationImpl(ops, builder, mText, useChild);
     }
 
-    private void createSpanOperationImpl(List<SpanOperation> ops, SpannableStringBuilder builder,
-            CharSequence text, boolean useChild) {
+    private void createChildrenSpanOperation(@NonNull List<SpanOperation> ops,
+            @NonNull SpannableStringBuilder builder) {
+        for (int i = 0; i < getChildCount(); i++) {
+            VirtualNode child = getChildAt(i);
+            if (child != null) {
+                // Only support nest one level, do not recurse check grandson node
+                // so we should set useChild to false here
+                child.createSpanOperation(ops, builder, false);
+            }
+        }
+    }
+
+    private void createSpanOperationImpl(@NonNull List<SpanOperation> ops,
+            @NonNull SpannableStringBuilder builder, @Nullable CharSequence text,
+            boolean useChild) {
         int start = builder.length();
         builder.append(getEmoticonText(text));
         int end = builder.length();
@@ -348,16 +364,8 @@ public class TextVirtualNode extends VirtualNode {
             span.addGestureTypes(mGestureTypes);
             ops.add(new SpanOperation(start, end, span));
         }
-        if (!useChild) {
-            return;
-        }
-        for (int i = 0; i < getChildCount(); i++) {
-            VirtualNode child = getChildAt(i);
-            if (child != null) {
-                // Only support nest one level, do not recurse check grandson node
-                // so we should set useChild to false here
-                child.createSpanOperation(ops, builder, false);
-            }
+        if (useChild) {
+            createChildrenSpanOperation(ops, builder);
         }
     }
 
@@ -414,12 +422,12 @@ public class TextVirtualNode extends VirtualNode {
             }
         }
         return new StaticLayout(source, mTextPaint, width, alignment, getLineSpacingMultiplier(),
-                mLineSpacingExtra,
-                true);
+                mLineSpacingExtra, true);
     }
 
+    @NonNull
     private StaticLayout createLayoutWithNumberOfLine(int lastLineStart, int width) {
-        String text = mSpanned.toString();
+        String text = (mSpanned == null) ? "" : mSpanned.toString();
         SpannableStringBuilder builder = (SpannableStringBuilder) mSpanned
                 .subSequence(0, text.length());
         String ellipsizeStr = (String) TextUtils
@@ -439,20 +447,15 @@ public class TextVirtualNode extends VirtualNode {
         return buildStaticLayout(builder.replace(start, text.length(), ELLIPSIS), width);
     }
 
-    private String truncate(String source, int width) {
+    private String truncate(@Nullable String source, int width) {
         String result = "";
-        if (TextUtils.isEmpty(source)) {
+        if (source == null) {
             return result;
         }
         for (int i = source.length(); i > 0; i--) {
-            StringBuilder builder = new StringBuilder(i + 1);
-            if (mTruncateAt != null) {
-                builder.append(source, 0, i > 1 ? i - 1 : i);
-                builder.append(ELLIPSIS);
-            } else {
-                builder.append(source, 0, i);
-            }
-            Spanned spanned = createSpan(builder.toString(), false);
+            int endIndex = i > 1 ? i - 1 : i;
+            String builder = source.substring(0, endIndex) + ELLIPSIS;
+            Spanned spanned = createSpan(builder, false);
             StaticLayout layout = buildStaticLayout(spanned, width);
             if (layout.getLineCount() <= 1) {
                 result = spanned.toString();

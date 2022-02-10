@@ -16,22 +16,31 @@
 
 package com.tencent.renderer.serialization;
 
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.SERIALIZER_NOT_SUPPORTED_ERR;
+
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.exception.UnreachableCodeException;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
 import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
-import java.util.ArrayList;
+import com.tencent.renderer.NativeRenderException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings({"unused"})
+/**
+ * Provide encode ability, all data object should serialize to byte buffer before send to native(C++)
+ *
+ * only support {@link Number}, {@link String}, {@link Boolean}, {@link Map}, {@link List}
+ * for compatible with old versions, temporary support {@link HashMap} and {@link HippyArray}
+ * but will removed in the future
+ */
 public class Serializer extends PrimitiveValueSerializer {
+
+    private static final String TAG = "Serializer";
 
     public Serializer() {
         this(null);
@@ -56,24 +65,24 @@ public class Serializer extends PrimitiveValueSerializer {
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public boolean writeValue(Object object) {
+    public boolean writeValue(@NonNull Object object) throws NativeRenderException {
+        //Compatible HippyMap with old versions, will be removed in the future.
         if (object instanceof HippyMap) {
             HashMap<String, Object> map = ((HippyMap) object).getInternalMap();
             writeValue(map);
             return true;
         }
-
+        //Compatible HippyArray with old versions, will be removed in the future.
         if (object instanceof HippyArray) {
             List<Object> array = ((HippyArray) object).getInternalArray();
             writeValue(array);
             return true;
         }
-
         if (super.writeValue(object)) {
             return true;
         }
-
         if (object instanceof Map) {
             assignId(object);
             for (Object key : ((Map) object).keySet()) {
@@ -88,13 +97,13 @@ public class Serializer extends PrimitiveValueSerializer {
             assignId(object);
             writeCollection((Collection) object);
         } else {
-            throw new UnreachableCodeException();
+            throw new NativeRenderException(SERIALIZER_NOT_SUPPORTED_ERR,
+                    TAG + ": Unsupported object data type, object=" + object);
         }
-
         return true;
     }
 
-    private void writeJSMap(Map map) {
+    private void writeJSMap(@NonNull Map map) {
         writeTag(SerializationTag.BEGIN_JS_MAP);
         int count = 0;
         for (Object key : map.keySet()) {
@@ -103,10 +112,10 @@ public class Serializer extends PrimitiveValueSerializer {
             writeValue(map.get(key));
         }
         writeTag(SerializationTag.END_JS_MAP);
-        writer.putVarint(2 * count);
+        writer.putVarint(2L * count);
     }
 
-    private void writeJSObject(Map map) {
+    private void writeJSObject(@NonNull Map map) {
         writeTag(SerializationTag.BEGIN_JS_OBJECT);
         for (Object key : map.keySet()) {
             if (key == null) {
@@ -120,7 +129,7 @@ public class Serializer extends PrimitiveValueSerializer {
         writer.putVarint(map.size());
     }
 
-    private void writeCollection(Collection collection) {
+    private void writeCollection(@NonNull Collection collection) {
         writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
         writer.putVarint(collection.size());
         for (Object value : collection) {
@@ -128,5 +137,4 @@ public class Serializer extends PrimitiveValueSerializer {
         }
         writeTag(SerializationTag.END_DENSE_JS_ARRAY);
     }
-
 }

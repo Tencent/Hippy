@@ -18,6 +18,8 @@ package com.tencent.renderer;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.view.ViewGroup;
+import java.util.List;
 
 public final class NativeRenderContext extends ContextWrapper {
 
@@ -33,10 +35,11 @@ public final class NativeRenderContext extends ContextWrapper {
     }
 
     /**
-     * Set renderer instance id, use default access permission,
-     * the instance id should not change by user.
+     * Set renderer instance id, use default access permission, use for reset root view context
+     * the instance id should not change by user,
      *
      * @param instanceId renderer instance id
+     * @see com.tencent.renderer.NativeRenderer#init(List, ViewGroup)
      */
     void setInstanceId(int instanceId) {
         mInstanceId = instanceId;

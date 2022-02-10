@@ -23,6 +23,7 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_Q
 import android.content.Context;
 import android.view.ViewGroup;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -33,7 +34,6 @@ import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.renderer.NativeRenderException.ExceptionCode;
 import com.tencent.renderer.component.text.TextRenderSupply;
 import com.tencent.renderer.component.text.VirtualNodeManager;
 
@@ -146,6 +146,14 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             return mFrameworkProxy.getFontAdapter();
         }
         return null;
+    }
+
+    @MainThread
+    @Override
+    public void postInvalidateDelayed(int id, long delayMilliseconds) {
+        if (UIThreadUtils.isOnUiThread()) {
+            mRenderManager.postInvalidateDelayed(id, delayMilliseconds);
+        }
     }
 
     @Override
@@ -293,8 +301,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     @SuppressWarnings("unused")
     public void dispatchCustomEvent(int id, String eventName, @Nullable Object params,
-            boolean useCapture,
-            boolean useBubble) {
+            boolean useCapture, boolean useBubble) {
         if (mRenderProvider != null) {
             mRenderProvider.dispatchEvent(id, eventName, params, useCapture, useBubble);
         }
@@ -345,12 +352,12 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void createNode(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
-            Object object = nodeList.get(i);
-            if (!(object instanceof Map)) {
+            Object element = nodeList.get(i);
+            if (!(element instanceof Map)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": createNode: invalid node object");
             }
-            Map<String, Object> node = (Map) object;
+            Map<String, Object> node = (Map) element;
             int nodeId;
             int nodePid;
             int nodeIndex;
@@ -369,9 +376,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                         TAG + ": createNode: id=" + nodeId + ", pId=" + nodePid + ", index="
                                 + nodeIndex);
             }
+            element = node.get(NODE_PROPS);
             final Map<String, Object> props =
-                    (node.get(NODE_PROPS) instanceof HashMap) ? (Map) node.get(NODE_PROPS)
-                            : new HashMap<String, Object>();
+                    (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
             // Props may reset by framework modules, such as js AnimationModule,
             // key={animationId=xxx} => key=value
             onCreateNode(nodeId, props);
@@ -399,12 +406,12 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void updateNode(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
-            Object object = nodeList.get(i);
-            if (!(object instanceof Map)) {
+            Object element = nodeList.get(i);
+            if (!(element instanceof Map)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateNode: invalid node object");
             }
-            Map<String, Object> node = (Map) object;
+            Map<String, Object> node = (Map) element;
             int nodeId;
             try {
                 nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
@@ -416,9 +423,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateNode: invalid negative id=" + nodeId);
             }
+            element = node.get(NODE_PROPS);
             final Map<String, Object> props =
-                    (node.get(NODE_PROPS) instanceof HashMap) ? (Map) node.get(NODE_PROPS)
-                            : new HashMap<String, Object>();
+                    (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
             // Props may reset by framework modules, such as js AnimationModule,
             // key={animationId=xxx} => key=value
             onUpdateNode(nodeId, props);
@@ -470,12 +477,12 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void updateLayout(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
-            Object object = nodeList.get(i);
-            if (!(object instanceof Map)) {
+            Object element = nodeList.get(i);
+            if (!(element instanceof Map)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateLayout: invalid node object");
             }
-            Map<String, Object> layoutInfo = (Map) object;
+            Map<String, Object> layoutInfo = (Map) element;
             int nodeId;
             float layoutLeft;
             float layoutTop;
@@ -529,12 +536,12 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     public void updateEventListener(@NonNull List<Object> eventList)
             throws NativeRenderException {
         for (int i = 0; i < eventList.size(); i++) {
-            Object object = eventList.get(i);
-            if (!(object instanceof Map)) {
+            Object element = eventList.get(i);
+            if (!(element instanceof Map)) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateEventListener: invalid event object");
             }
-            Map<String, Object> events = (Map) object;
+            Map<String, Object> events = (Map) element;
             Map<String, Object> eventProps;
             int nodeId;
             try {

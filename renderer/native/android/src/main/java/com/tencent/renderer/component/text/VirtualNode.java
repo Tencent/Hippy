@@ -40,6 +40,20 @@ public abstract class VirtualNode {
         mIndex = index;
     }
 
+    public int getId() {
+        return mId;
+    }
+
+    public int getAncestorId() {
+        VirtualNode parent = mParent;
+        int id = mId;
+        while (parent != null) {
+            id = parent.getId();
+            parent = parent.mParent;
+        }
+        return id;
+    }
+
     protected abstract void createSpanOperation(List<SpanOperation> ops,
             SpannableStringBuilder builder, boolean useChild);
 
