@@ -131,6 +131,12 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   CallFunctionCallback GetCallback(const std::string &name, uint32_t id);
   bool HasTouchEventListeners();
 
+  void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
+  void UpdateDomStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
+
+ private:
+  void UpdateObjectStyle(DomValue& style_map, const DomValue& update_style);
+
  private:
   uint32_t id_;             // 节点唯一id
   uint32_t pid_;            // 父节点id
