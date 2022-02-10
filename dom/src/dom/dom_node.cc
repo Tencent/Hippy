@@ -314,5 +314,78 @@ bool DomNode::HasTouchEventListeners() {
   return false;
 }
 
+void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+  auto dom_manager = dom_manager_.lock();
+  TDF_BASE_DCHECK(dom_manager);
+  if (dom_manager) {
+    dom_manager->PostTask([WEAK_THIS, update_style]() {
+      DEFINE_AND_CHECK_SELF(DomNode)
+      for (const auto& v : update_style) {
+        if (self->style_map_ == nullptr) {
+          self->style_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+        }
+
+        auto iter = self->style_map_->find(v.first);
+        if (iter == self->style_map_->end()) {
+          std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first, std::make_shared<DomValue>(std::move(*v.second))};
+          self->style_map_->insert(pair);
+        }
+
+        if (v.second->IsObject() && iter->second->IsObject()) {
+          self->UpdateObjectStyle(*iter->second, *v.second);
+        } else {
+          iter->second = std::make_shared<DomValue>(std::move(*v.second));
+        }
+      }
+    });
+  }
+}
+
+void DomNode::UpdateDomStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+  auto dom_manager = dom_manager_.lock();
+  TDF_BASE_DCHECK(dom_manager);
+  if (dom_manager) {
+    dom_manager->PostTask([WEAK_THIS, update_style]() {
+      DEFINE_AND_CHECK_SELF(DomNode)
+      for (const auto& v : update_style) {
+        if (self->dom_ext_map_ == nullptr) {
+          self->dom_ext_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+        }
+
+        auto iter = self->dom_ext_map_->find(v.first);
+        if (iter == self->dom_ext_map_->end()) {
+          std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first, std::make_shared<DomValue>(std::move(*v.second))};
+          self->dom_ext_map_->insert(pair);
+        }
+
+        if (v.second->IsObject() && iter->second->IsObject()) {
+          self->UpdateObjectStyle(*iter->second, *v.second);
+        } else {
+          iter->second = std::make_shared<DomValue>(std::move(*v.second));
+        }
+      }
+    });
+  }
+}
+
+void DomNode::UpdateObjectStyle(DomValue& style_map, const DomValue& update_style) {
+  TDF_BASE_DCHECK(style_map.IsObject());
+  TDF_BASE_DCHECK(update_style.IsObject());
+
+  auto style_object = style_map.ToObject();
+  for (auto& v : update_style.ToObject()) {
+    auto iter = style_object.find(v.first);
+    if (iter == style_object.end()) {
+      style_object[v.first] = v.second;
+    }
+
+    if (v.second.IsObject() && iter->second.IsObject()) {
+      UpdateObjectStyle(iter->second, v.second);
+    } else {
+      iter->second = v.second;
+    }
+  }
+}
+
 }  // namespace dom
 }  // namespace hippy
