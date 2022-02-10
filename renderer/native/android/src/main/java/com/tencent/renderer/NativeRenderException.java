@@ -54,6 +54,13 @@ public class NativeRenderException extends RuntimeException {
         DESERIALIZE_NOT_SUPPORTED_ERR,
 
         /**
+         * If the data object type not support by Serializer
+         *
+         * @see com.tencent.renderer.serialization.Serializer#writeValue(Object) 
+         */
+        SERIALIZER_NOT_SUPPORTED_ERR,
+
+        /**
          * If the node to measure is not text node or node parent is virtual node
          *
          * @see com.tencent.renderer.component.text.VirtualNodeManager#measure(int, float,

@@ -39,7 +39,6 @@ import java.util.ArrayList;
  */
 public class NativeRenderProvider {
 
-    private static final String TAG = "NativeRenderProvider";
     private final NativeRenderDelegate mRenderDelegate;
     private final Deserializer mDeserializer;
     private final Serializer mSerializer;
@@ -91,9 +90,10 @@ public class NativeRenderProvider {
      *
      * @param params the ui event params object
      * @return the result of serialization wrapped by {@link ByteBuffer}
+     * @throws NativeRenderException may throw by {@link Serializer#writeValue(Object)}
      */
     @NonNull
-    private ByteBuffer argumentToBytes(@NonNull Object params) {
+    private ByteBuffer argumentToBytes(@NonNull Object params) throws NativeRenderException {
         if (mSafeHeapWriter == null) {
             mSafeHeapWriter = new SafeHeapWriter();
         } else {

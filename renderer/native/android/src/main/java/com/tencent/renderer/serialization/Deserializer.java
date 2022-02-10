@@ -138,12 +138,12 @@ public class Deserializer extends PrimitiveValueDeserializer {
     }
 
     @Override
-    protected ArrayList readDenseArray() {
+    protected ArrayList<Object> readDenseArray() {
         int totalLength = (int) reader.getVarint();
         if (totalLength < 0) {
             throw new DataCloneOutOfRangeException(totalLength);
         }
-        ArrayList array = new ArrayList(totalLength);
+        ArrayList<Object> array = new ArrayList(totalLength);
         assignId(array);
         for (int i = 0; i < totalLength; i++) {
             SerializationTag tag = readTag();
@@ -151,7 +151,6 @@ public class Deserializer extends PrimitiveValueDeserializer {
                 array.add(readValue(tag, StringLocation.DENSE_ARRAY_ITEM, i));
             }
         }
-
         int propsLength = readArrayProperties();
         int expected = (int) reader.getVarint();
         if (propsLength != expected) {

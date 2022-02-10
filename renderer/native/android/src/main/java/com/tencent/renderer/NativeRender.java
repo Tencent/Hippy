@@ -18,6 +18,7 @@ package com.tencent.renderer;
 
 import android.view.ViewGroup;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
@@ -45,6 +46,17 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     @Nullable
     FontAdapter getFontAdapter();
+
+    /**
+     * Post invalidate to target view delayed by milliseconds, this method should only be called on
+     * the main thread.
+     *
+     * @param id view id
+     * @param delayMilliseconds delayed by milliseconds
+     * @see com.tencent.renderer.component.text.TextImageSpan#postInvalidateDelayed(long)
+     */
+    @MainThread
+    void postInvalidateDelayed(int id, long delayMilliseconds);
 
     void onFirstViewAdded();
 

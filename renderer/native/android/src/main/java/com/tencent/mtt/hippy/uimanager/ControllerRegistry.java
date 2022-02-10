@@ -58,6 +58,7 @@ public class ControllerRegistry {
     }
 
     @SuppressWarnings({"rawtypes"})
+    @Nullable
     public HippyViewController getViewController(@NonNull String className) {
         ControllerHolder holder = mControllers.get(className);
         if (holder == null) {

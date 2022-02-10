@@ -65,7 +65,7 @@ public class RenderManager {
     }
 
     public void destroy() {
-        getControllerManager().destroy();
+        mControllerManager.destroy();
     }
 
     public void createNode(ViewGroup rootView, int id, int pid, int index,
@@ -220,6 +220,9 @@ public class RenderManager {
         mControllerManager.replaceID(oldId, newId);
     }
 
+    public void postInvalidateDelayed(int id, long delayMilliseconds) {
+        mControllerManager.postInvalidateDelayed(id, delayMilliseconds);
+    }
 
     public void measureInWindow(int id, Promise promise) {
         RenderNode renderNode = mNodes.get(id);
