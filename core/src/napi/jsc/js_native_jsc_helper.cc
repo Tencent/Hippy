@@ -55,7 +55,7 @@ void ExceptionDescription(JSContextRef ctx, JSValueRef exception) {
   char *buf = new char[max_size];
   JSStringGetUTF8CString(exception_ref, buf, max_size);
 
-  std::cout << "call function expection: " << buf << std::endl;
+  std::cout << "call function exception, " << buf << std::endl;
   delete[] buf;
 }
 

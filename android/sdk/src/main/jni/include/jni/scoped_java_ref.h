@@ -30,10 +30,11 @@ class JavaRef {
  public:
   JavaRef(JNIEnv* env, jobject obj);
   ~JavaRef();
+  JavaRef(const JavaRef &) = delete;
+  JavaRef &operator=(const JavaRef &) = delete;
+
   jobject GetObj() { return obj_; }
 
  private:
   jobject obj_;
-
-  DISALLOW_COPY_AND_ASSIGN(JavaRef);
 };

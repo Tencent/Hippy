@@ -204,7 +204,7 @@ bool RunScript(const std::shared_ptr<Runtime>& runtime,
   auto ret = std::static_pointer_cast<hippy::napi::V8Ctx>(
                  runtime->GetScope()->GetContext())
                  ->RunScript(script_content, file_name, is_use_code_cache,
-                             &code_cache_content);
+                             &code_cache_content, true);
   if (is_use_code_cache) {
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
@@ -253,7 +253,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jobject j_cb) {
   TDF_BASE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(JniUtils::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
         << "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid";
@@ -456,10 +456,10 @@ jlong InitInstance(JNIEnv* j_env,
     jclass cls = j_env->GetObjectClass(j_vm_init_param);
     jfieldID init_field = j_env->GetFieldID(cls,"initialHeapSize","J");
     param->initial_heap_size_in_bytes =
-            JniUtils::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, init_field));
+        hippy::base::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, init_field));
     jfieldID max_field = j_env->GetFieldID(cls,"maximumHeapSize","J");
     param->maximum_heap_size_in_bytes =
-            JniUtils::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, max_field));
+        hippy::base::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, max_field));
     TDF_BASE_CHECK(param->initial_heap_size_in_bytes <= param->maximum_heap_size_in_bytes);
   }
   std::shared_ptr<Engine> engine;
