@@ -557,7 +557,7 @@
 		D84AB944273A618B00987D03 /* js_native_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api.h; sourceTree = "<group>"; };
 		D84AB945273A618B00987D03 /* native_source_code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_source_code.h; sourceTree = "<group>"; };
 		D84AB947273A618B00987D03 /* js_native_jsc_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_jsc_helper.h; sourceTree = "<group>"; };
-		D84AB948273A618B00987D03 /* js_native_api_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api_jsc.h; sourceTree = "<group>"; };
+		D84AB948273A618B00987D03 /* js_native_api_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = js_native_api_jsc.h; sourceTree = "<group>"; tabWidth = 2; };
 		D84AB94E273A618B00987D03 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		D84AB94F273A618B00987D03 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
 		D84AB950273A618B00987D03 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
