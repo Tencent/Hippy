@@ -125,6 +125,11 @@
     }
 }
 
+- (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
+    _initialListReady = initialListReady;
+    _isInitialListReady = NO;
+}
+
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
 }
@@ -153,7 +158,6 @@
 }
 
 - (void)didUpdateHippySubviews {
-    [super didUpdateHippySubviews];
     [self refreshItemNodes];
     [self reloadData];
 }
@@ -305,8 +309,7 @@
     //FIXME use cache for cell view creation
     UIView *cellView = [_bridge.uiManager viewForHippyTag:cellShadowView.hippyTag];
     if (!cellView) {
-        id shadowView = [_bridge.uiManager shadowViewForHippyTag:cellShadowView.hippyTag];
-        cellView = [_bridge.uiManager createViewRecursivelyFromShadowView:shadowView];
+        cellView = [_bridge.uiManager createViewRecursivelyFromShadowView:cellShadowView];
     }
     cell.layer.zPosition = [self zPositionOfCell:cell forRowAtIndexPath:indexPath];
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],

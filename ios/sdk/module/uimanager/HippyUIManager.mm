@@ -833,8 +833,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                 UIView *subview = viewRegistry[subviewTags[index]];
                 NSNumber *position = subviewIndices[index];
                 [superView insertHippySubview:subview atIndex:[position integerValue]];
-                [superView insertSubview:subview atIndex:[position integerValue]];
             }
+            [superView didUpdateHippySubviews];
         }];
     }];
 }
@@ -917,7 +917,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)dispatchFunction:(const std::string &)functionName viewName:(const std::string &)viewName viewTag:(int32_t)hippyTag
                   params:(const DomValue &)params callback:(CallFunctionCallback)cb {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"dispatchFunction can only be called from the shadow queue");
     NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
     DomValueType type = params.GetType();
     NSMutableArray *finalParams = [NSMutableArray arrayWithCapacity:8];
