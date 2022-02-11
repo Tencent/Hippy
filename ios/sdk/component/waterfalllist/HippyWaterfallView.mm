@@ -202,6 +202,11 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     _layout.minimumInteritemSpacing = _interItemSpacing;
 }
 
+- (void)setOnInitialListReady:(HippyDirectEventBlock)onInitialListReady {
+    _onInitialListReady = onInitialListReady;
+    _isInitialListReady = NO;
+}
+
 - (BOOL)flush {
     [self.collectionView reloadData];
     if (!_isInitialListReady) {
@@ -285,6 +290,9 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
     //TODO use reusable view here
     UIView *view = [self.bridge.uiManager viewForHippyTag:shadowView.hippyTag];
+    if (!view) {
+        view = [self.bridge.uiManager createViewRecursivelyFromShadowView:shadowView];
+    }
     hpCell.cellView = view;
 }
 
