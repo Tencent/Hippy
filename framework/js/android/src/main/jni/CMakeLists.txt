@@ -17,7 +17,7 @@ set(ABI_COMPILE_OPTIONS
         -fvisibility-inlines-hidden
         -std=c++14
         --param=ssp-buffer-size=4
-        -Werror
+#        -Werror
         -fno-exceptions
         -fno-strict-aliasing
         -Wall
@@ -111,7 +111,7 @@ message("CORE_SRC: ${CORE_SRC}")
 message("JNI_SRC: ${JNI_SRC}")
 # endregion
 
-set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
+set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom devtools_backend)
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
@@ -160,6 +160,11 @@ if (DEFINED TDF_SERVICE_ENABLED)
   include_directories(${DEVTOOLS_DIR}/include)
   include_directories(${DEVTOOLS_DIR}/third_party/footstone/include)
   include_directories(${DEVTOOLS_DIR}/third_party/footstone/third_party/json/include)
+  # 静态库直接引用
+  add_subdirectory(${DEVTOOLS_DIR} devtools_backend)
+  # so 动态库引用
+  #  add_library(DEVTOOLS_SO SHARED IMPORTED)
+  #  set_target_properties(DEVTOOLS_SO PROPERTIES IMPORTED_LOCATION ${DEVTOOLS_DIR}/libs/android/${ANDROID_ABI}/libdevtools_backend.so)
 else ()
   file(GLOB_RECURSE DEVTOOLS_BACKEND_SRC ${CORE_SRC_DIR}/src/devtools/*)
   message("DEVTOOLS_BACKEND_SRC: ${DEVTOOLS_BACKEND_SRC}")
@@ -169,12 +174,6 @@ endif ()
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
 set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 17)
-
-if (DEFINED TDF_SERVICE_ENABLED)
-  add_library(DEVTOOLS_SO SHARED IMPORTED)
-  set_target_properties(DEVTOOLS_SO PROPERTIES IMPORTED_LOCATION ${DEVTOOLS_DIR}/libs/android/${ANDROID_ABI}/libdevtools_backend.so)
-  target_link_libraries(${CMAKE_PROJECT_NAME} DEVTOOLS_SO)
-endif ()
 
 if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
   foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
