@@ -476,68 +476,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
 }
 
-- (void)manageChildren:(nonnull NSNumber *)containerTag moveFromIndices:(NSArray<NSNumber *> *)moveFromIndices
-         moveToIndices:(NSArray<NSNumber *> *)moveToIndices addChildHippyTags:(NSArray<NSNumber *> *)addChildHippyTags
-          addAtIndices:(NSArray<NSNumber *> *)addAtIndices removeAtIndices:(NSArray<NSNumber *> *)removeAtIndices {
-    [self manageChildren:containerTag moveFromIndices:moveFromIndices moveToIndices:moveToIndices addChildHippyTags:addChildHippyTags
-            addAtIndices:addAtIndices removeAtIndices:removeAtIndices
-                registry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)_shadowViewRegistry];
-    [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        [uiManager manageChildren:containerTag moveFromIndices:moveFromIndices moveToIndices:moveToIndices
-                addChildHippyTags:addChildHippyTags addAtIndices:addAtIndices removeAtIndices:removeAtIndices
-                         registry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)viewRegistry];
-    }];
-}
-
-- (void)manageChildren:(NSNumber *)containerTag moveFromIndices:(NSArray<NSNumber *> *)moveFromIndices
-         moveToIndices:(NSArray<NSNumber *> *)moveToIndices addChildHippyTags:(NSArray<NSNumber *> *)addChildHippyTags
-          addAtIndices:(NSArray<NSNumber *> *)addAtIndices removeAtIndices:(NSArray<NSNumber *> *)removeAtIndices
-              registry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)registry {
-    id<HippyComponent> container = registry[containerTag];
-    HippyAssert(moveFromIndices.count == moveToIndices.count, @"moveFromIndices had size %tu, moveToIndices had size %tu", moveFromIndices.count,
-        moveToIndices.count);
-    HippyAssert(addChildHippyTags.count == addAtIndices.count, @"there should be at least one Hippy child to add");
-
-    // Removes (both permanent and temporary moves) are using "before" indices
-    NSArray<id<HippyComponent>> *permanentlyRemovedChildren = [self childrenToRemoveFromContainer:container atIndices:removeAtIndices];
-    NSArray<id<HippyComponent>> *temporarilyRemovedChildren = [self childrenToRemoveFromContainer:container atIndices:moveFromIndices];
-    BOOL isUIViewRegistry = registry == (NSMutableDictionary<NSNumber *, id<HippyComponent>> *)_viewRegistry;
-    [self removeChildren:permanentlyRemovedChildren fromContainer:container];
-
-    [self removeChildren:temporarilyRemovedChildren fromContainer:container];
-    [self purgeChildren:permanentlyRemovedChildren fromRegistry:registry];
-
-    // Figure out what to insert - merge temporary inserts and adds
-    NSMutableDictionary *destinationsToChildrenToAdd = [NSMutableDictionary dictionary];
-    for (NSInteger index = 0, length = temporarilyRemovedChildren.count; index < length; index++) {
-        destinationsToChildrenToAdd[moveToIndices[index]] = temporarilyRemovedChildren[index];
-    }
-    for (NSInteger index = 0, length = addAtIndices.count; index < length; index++) {
-        id<HippyComponent> view = registry[addChildHippyTags[index]];
-        if (view) {
-            destinationsToChildrenToAdd[addAtIndices[index]] = view;
-        }
-    }
-
-    NSArray<NSNumber *> *sortedIndices = [destinationsToChildrenToAdd.allKeys sortedArrayUsingSelector:@selector(compare:)];
-    for (NSNumber *hippyIndex in sortedIndices) {
-        NSInteger insertAtIndex = hippyIndex.integerValue;
-
-        // When performing a delete animation, views are not removed immediately
-        // from their container so we need to offset the insertion index if a view
-        // that will be removed appears earlier than the view we are inserting.
-        if (isUIViewRegistry && _viewsToBeDeleted.count > 0) {
-            for (NSInteger index = 0; index < insertAtIndex; index++) {
-                UIView *subview = ((UIView *)container).hippySubviews[index];
-                if ([_viewsToBeDeleted containsObject:subview]) {
-                    insertAtIndex++;
-                }
-            }
-        }
-        [container insertHippySubview:destinationsToChildrenToAdd[hippyIndex] atIndex:insertAtIndex];
-    }
-}
-
 - (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView {
     HippyComponentData *componentData = _componentDataByName[shadowView.viewName];
     UIView *view = [self createViewByComponentData:componentData hippyTag:shadowView.hippyTag rootTag:_rootViewTag properties:shadowView.props viewName:shadowView.viewName];
@@ -547,9 +485,12 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView {
     UIView *view = [self createViewFromShadowView:shadowView];
+    NSUInteger index = 0;
     for (HippyShadowView *subShadowView in shadowView.hippySubviews) {
         UIView *subview = [self createViewRecursivelyFromShadowView:subShadowView];
-        [view addSubview:subview];
+        [view insertHippySubview:subview atIndex:index];
+        [view insertSubview:subview atIndex:index];
+        index++;
     }
     NSMutableSet<HippyApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
     [shadowView collectUpdatedProperties:applierBlocks parentProperties:@{}];
@@ -651,7 +592,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros {
     [self updateView:hippyTag viewName:nil props:pros];
-    [self batchDidComplete];
+    [self layoutAndMount];
 }
 
 - (void)updateView:(nonnull NSNumber *)hippyTag viewName:(NSString *)viewName props:(NSDictionary *)props {
@@ -879,7 +820,22 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [self createView:hippyTag viewName:viewName rootTag:rootTag tagName:tagName props:props domNode:node];
     }
     [manager enumerateViewsRelation:^(NSNumber *superviewTags, NSArray<NSNumber *> *subviewTags, NSArray<NSNumber *> *subviewIndices) {
-        [self manageChildren:superviewTags moveFromIndices:nil moveToIndices:nil addChildHippyTags:subviewTags addAtIndices:subviewIndices removeAtIndices:nil];
+        HippyAssert([subviewTags count] == [subviewIndices count], @"subviewTags count must be equal to subviewIndices count");
+        HippyShadowView *superShadowView = self->_shadowViewRegistry[superviewTags];
+        for (NSUInteger index = 0; index < [subviewTags count]; index++) {
+            HippyShadowView *subShadowView = self->_shadowViewRegistry[subviewTags[index]];
+            NSNumber *position = subviewIndices[index];
+            [superShadowView insertHippySubview:subShadowView atIndex:[position integerValue]];
+        }
+        [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *superView = viewRegistry[superviewTags];
+            for (NSUInteger index = 0; index < [subviewTags count]; index++) {
+                UIView *subview = viewRegistry[subviewTags[index]];
+                NSNumber *position = subviewIndices[index];
+                [superView insertHippySubview:subview atIndex:[position integerValue]];
+                [superView insertSubview:subview atIndex:[position integerValue]];
+            }
+        }];
     }];
 }
 
@@ -909,7 +865,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
 }
 
-- (void)renderMoveViews:(const std::vector<int32_t> &&)ids fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
+- (void)renderMoveViews:(const std::vector<int32_t> &&)ids
+          fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
     HippyAssertThread(HippyGetUIManagerQueue(), @"renderMoveViews can only be called from the shadow queue");
     HippyAssert(NO, @"no implementation for this method");
 }
@@ -953,7 +910,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 -(void)batch {
     HippyAssertThread(HippyGetUIManagerQueue(), @"flushUIBlocks can only be called from the shadow queue");
-    [self batchDidComplete];
+    [self layoutAndMount];
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidEndBatchNotification
                                                         object:self];
 }
@@ -1200,10 +1157,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 #pragma mark -
 #pragma mark Other
 
-- (void)batchDidComplete {
-    [self layoutAndMount];
-}
-
 /**
  * Sets up animations, computes layout, creates UI mounting blocks for computed layout,
  * runs these blocks and all other already existing blocks.
@@ -1216,12 +1169,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyViewManagerUIBlock uiBlock = [componentData uiBlockToAmendWithShadowViewRegistry:_shadowViewRegistry];
         [self addUIBlock:uiBlock];
     }
-
-    // Perform layout
-    //check all shadow views that has new layout & subviews from shadow rootview
-    //TODO remove this method below, for any layout change will apply in [HippyUIManager updateNodesLayout:] method
-//    [self addUIBlock:[self uiBlockWithLayoutUpdateForRootView:rootView]];
-    //collect propeties change when HippyShadowView lifeCycle is Dirtied
     [self amendPendingUIBlocksWithStylePropagationUpdateForShadowView:rootView];
 
     [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
