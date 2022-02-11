@@ -29,10 +29,10 @@
 namespace hippy {
 namespace base {
 
-const char kVMCreateCBKey[] = "VM_CREATED";
-const char kContextCreatedCBKey[] = "CONTEXT_CREATED";
-const char KScopeInitializedCBKey[] = "SCOPE_INITIALIEZED";
-const char kAsyncTaskEndKey[] = "ASYNC_TASK_END";
+constexpr char kVMCreateCBKey[] = "VM_CREATED";
+constexpr char kContextCreatedCBKey[] = "CONTEXT_CREATED";
+constexpr char KScopeInitializedCBKey[] = "SCOPE_INITIALIZED";
+constexpr char kAsyncTaskEndKey[] = "ASYNC_TASK_END";
 
 using RegisterFunction = std::function<void(void*)>;
 using RegisterMap = std::unordered_map<std::string, RegisterFunction>;
@@ -49,6 +49,13 @@ auto MakeCopyable(F&& f) {
   return [s](auto&&... args) -> decltype(auto) {
     return (*s)(decltype(args)(args)...);
   };
+}
+
+template<typename SourceType, typename TargetType>
+static constexpr TargetType CheckedNumericCast(SourceType value) {
+  using source_type_limits = typename std::numeric_limits<SourceType>;
+  TDF_BASE_CHECK(value <= source_type_limits::max() && value >= source_type_limits::min());
+  return static_cast<TargetType>(value);
 }
 
 }  // namespace base

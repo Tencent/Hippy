@@ -77,8 +77,8 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   std::string call_info = std::string(name_).append(".").append(method);
   std::vector<std::string> method_arg_types =
       ConvertUtils::GetMethodArgTypesFromSignature(method_info.signature_);
-  int expected_count = method_arg_types.size();
-  int actual_count = arg_values.size();
+  auto expected_count = method_arg_types.size();
+  auto actual_count = arg_values.size();
   if (expected_count != actual_count) {
     std::string exception_info = std::string("ArgCountException: ")
         .append(call_info)

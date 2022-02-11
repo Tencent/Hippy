@@ -41,9 +41,9 @@ constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
 namespace hippy {
 namespace napi {
 
-const char16_t kLengthStr[] = u"length";
-const char16_t kMessageStr[] = u"message";
-const char16_t kStackStr[] = u"stack";
+constexpr char16_t kLengthStr[] = u"length";
+constexpr char16_t kMessageStr[] = u"message";
+constexpr char16_t kStackStr[] = u"stack";
 
 class JSCVM : public VM {
  public:
@@ -103,7 +103,7 @@ class JSCCtx : public Ctx {
                                const unicode_string_view& str) override;
   virtual bool SetGlobalObjVar(const unicode_string_view& name,
                                const std::shared_ptr<CtxValue>& obj,
-                               const PropertyAttribute& attr = None) override;
+                               const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
       const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
@@ -177,10 +177,7 @@ class JSCCtx : public Ctx {
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
-      const unicode_string_view& file_name,
-      bool is_use_code_cache = false,
-      unicode_string_view* cache = nullptr,
-      bool is_copy = true) override;
+      const unicode_string_view& file_name) override;
   virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
   virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) override;
 

@@ -241,9 +241,9 @@ class StringViewUtils {
     return std::string(U8ToConstCharPointer(str.c_str()), str.length());
   }
 
-    static const size_t npos = -1;
+  static const size_t npos = -1;
 
-    inline static size_t FindLastOf(const unicode_string_view &str_view,
+  inline static size_t FindLastOf(const unicode_string_view &str_view,
                                   unicode_string_view::char8_t_ u8_ch,
                                   char ch,
                                   char16_t u16_ch,
