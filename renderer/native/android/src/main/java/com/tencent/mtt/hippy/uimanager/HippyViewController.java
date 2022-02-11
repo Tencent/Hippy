@@ -693,7 +693,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         baos.flush();
         baos.close();
         byte[] bitmapBytes = baos.toByteArray();
-        result = Base64.encodeToString(bitmapBytes, Base64.DEFAULT);
+        result = Base64.encodeToString(bitmapBytes, Base64.NO_WRAP);
       }
     } catch (IOException e) {
       LogUtils.e(TAG, "screenFrameAck, exception1=", e);
