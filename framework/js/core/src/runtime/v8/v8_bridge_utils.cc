@@ -240,7 +240,7 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
   auto ret = std::static_pointer_cast<hippy::napi::V8Ctx>(
       runtime->GetScope()->GetContext())
       ->RunScript(script_content, file_name, is_use_code_cache,
-                  &code_cache_content);
+                  &code_cache_content, true);
   if (is_use_code_cache) {
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();

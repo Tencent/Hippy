@@ -70,10 +70,8 @@ void CallFunction(JNIEnv* j_env,
                   bytes buffer_data,
                   std::shared_ptr<JavaRef> buffer_owner) {
   unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
-  TDF_BASE_DCHECK(j_runtime_id <= std::numeric_limits<std::int32_t>::max()
-                      && j_runtime_id >= std::numeric_limits<std::int32_t>::min());
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
-  V8BridgeUtils::CallJs(action_name, static_cast<int32_t>(j_runtime_id),
+  V8BridgeUtils::CallJs(action_name, hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id),
                         [cb](CALLFUNCTION_CB_STATE state, const unicode_string_view& msg) {
                   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
                   jstring j_msg = JniUtils::StrViewToJString(j_env, msg);

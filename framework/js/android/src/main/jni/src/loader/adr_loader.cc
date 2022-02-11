@@ -1,4 +1,3 @@
-#include <__bit_reference>
 /*
  *
  * Tencent is pleased to support the open source community by making
@@ -191,7 +190,7 @@ void OnResourceReady(JNIEnv* j_env,
                      jlong j_request_id) {
   TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
         << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
@@ -232,7 +231,8 @@ void OnResourceReady(JNIEnv* j_env,
     return;
   }
 
-  u8string str(reinterpret_cast<const char8_t_*>(buff), len);
+  u8string str(reinterpret_cast<const char8_t_*>(buff),
+               hippy::base::CheckedNumericCast<jlong, size_t>(len));
   cb(std::move(str));
 }
 

@@ -93,9 +93,6 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   typedef void (*TimerCallback)(void*);
   void startRepeatingTimer(double, TimerCallback, void* data) override {}
   void cancelTimer(void* data) override {}
-
-  // TODO(dgozman): this was added to support service worker shadow page. We
-  // should not connect at all.
   bool canExecuteScripts(int contextGroupId) override { return true; }
 
   void maxAsyncCallStackDepthChanged(int depth) override {}

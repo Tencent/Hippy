@@ -403,6 +403,8 @@ class ExternalOneByteStringResourceImpl
   }
 
   ~ExternalOneByteStringResourceImpl() override = default;
+  ExternalOneByteStringResourceImpl(const ExternalOneByteStringResourceImpl &) = delete;
+  const ExternalOneByteStringResourceImpl &operator=(const ExternalOneByteStringResourceImpl &) = delete;
 
   const char* data() const override {
     if (data_) {
@@ -417,8 +419,6 @@ class ExternalOneByteStringResourceImpl
   const uint8_t* data_;
   std::string str_data_;
   size_t length_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExternalOneByteStringResourceImpl);
 };
 
 class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
@@ -432,6 +432,9 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
   }
 
   ~ExternalStringResourceImpl() override = default;
+  ExternalStringResourceImpl(const ExternalStringResourceImpl &) = delete;
+  const ExternalStringResourceImpl &operator=(const ExternalStringResourceImpl &) = delete;
+
   const uint16_t* data() const override {
     if (data_) {
       return data_;
@@ -446,8 +449,6 @@ class ExternalStringResourceImpl : public v8::String::ExternalStringResource {
   const uint16_t* data_;
   const std::string str_data_;
   size_t length_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExternalStringResourceImpl);
 };
 
 // to do
@@ -728,6 +729,11 @@ void V8Ctx::RegisterNativeBinding(const unicode_string_view& name,
 }
 
 std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
+                                           const unicode_string_view& file_name) {
+  return RunScript(str_view, file_name, false, nullptr, true);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
                                            const unicode_string_view& file_name,
                                            bool is_use_code_cache,
                                            unicode_string_view* cache,
@@ -747,7 +753,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       if (is_copy) {
         source = v8::String::NewFromOneByte(
             isolate_, reinterpret_cast<const uint8_t*>(str.c_str()),
-            v8::NewStringType::kInternalized, str.length());
+            v8::NewStringType::kInternalized, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
       } else {
         auto* one_byte =
             new ExternalOneByteStringResourceImpl(
@@ -761,7 +767,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       if (is_copy) {
         source = v8::String::NewFromTwoByte(
             isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
-            v8::NewStringType::kNormal, str.length());
+            v8::NewStringType::kNormal, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
       } else {
         auto* two_byte = new ExternalStringResourceImpl(
             reinterpret_cast<const uint16_t*>(str.c_str()), str.length());
@@ -777,7 +783,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
                               bytes.length() / sizeof(char16_t));
       source = v8::String::NewFromTwoByte(
           isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
-          v8::NewStringType::kNormal, str.length());
+          v8::NewStringType::kNormal, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
@@ -789,7 +795,6 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
     }
     default: {
       TDF_BASE_NOTREACHED();
-      break;
     }
   }
 
@@ -823,7 +828,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
         const unicode_string_view::u8string& str = cache->utf8_value();
         auto* cached_data =
                 new v8::ScriptCompiler::CachedData(
-                        str.c_str(), str.length(),
+                        str.c_str(), hippy::base::CheckedNumericCast<size_t, int>(str.length()),
                         v8::ScriptCompiler::CachedData::BufferNotOwned);
         v8::ScriptCompiler::Source script_source(source, origin, cached_data);
         script = v8::ScriptCompiler::Compile(
@@ -1024,7 +1029,6 @@ v8::Local<v8::String> V8Ctx::CreateV8String(
                  reinterpret_cast<const uint8_t*>(one_byte_str.c_str()),
                  v8::NewStringType::kNormal)
           .ToLocalChecked();
-      break;
     }
     case unicode_string_view::Encoding::Utf8: {
       const unicode_string_view::u8string& utf8_str = str_view.utf8_value();
@@ -1032,7 +1036,6 @@ v8::Local<v8::String> V8Ctx::CreateV8String(
                  isolate_, reinterpret_cast<const char*>(utf8_str.c_str()),
                  v8::NewStringType::kNormal)
           .ToLocalChecked();
-      break;
     }
     case unicode_string_view::Encoding::Utf16: {
       const std::u16string& two_byte_str = str_view.utf16_value();
@@ -1041,13 +1044,11 @@ v8::Local<v8::String> V8Ctx::CreateV8String(
                  reinterpret_cast<const uint16_t*>(two_byte_str.c_str()),
                  v8::NewStringType::kNormal)
           .ToLocalChecked();
-      break;
     }
     default:
       break;
   }
   TDF_BASE_NOTREACHED();
-  return {};
 }
 
 std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
@@ -1375,7 +1376,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
     size_t count,
     std::shared_ptr<CtxValue> value[]) {
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Array> array = v8::Array::New(isolate_, count);
+  v8::Local<v8::Array> array = v8::Array::New(isolate_, hippy::base::CheckedNumericCast<size_t, int>(count));
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   for (size_t i = 0; i < count; i++) {

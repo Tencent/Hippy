@@ -78,7 +78,7 @@ class V8TurboEnv : public TurboEnv {
 
     ~HostObjectTracker() {
       TDF_BASE_DLOG(INFO) << "~HostObjectTracker";
-      assert(is_reset_);
+      TDF_BASE_CHECK(is_reset_);
     }
 
     bool equals(IHostProxy *proxy) { return host_proxy_ == proxy; }
@@ -195,7 +195,7 @@ class V8TurboEnv : public TurboEnv {
   v8::Persistent<v8::Function> host_object_constructor_;
 
   std::shared_ptr<HostObject> GetHostObject(
-      std::shared_ptr<CtxValue> value) override;
+      const std::shared_ptr<CtxValue>& value) override;
 };
 }  // namespace napi
 }  // namespace hippy

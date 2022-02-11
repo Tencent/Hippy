@@ -165,10 +165,7 @@ class Ctx {
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
-      const unicode_string_view& file_name,
-      bool is_use_code_cache = false,
-      unicode_string_view* cache = nullptr,
-      bool is_copy = true) = 0;
+      const unicode_string_view& file_name) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(
       const unicode_string_view& name) = 0;
   virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) = 0;

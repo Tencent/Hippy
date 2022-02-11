@@ -28,9 +28,6 @@
 
 #include "jni_env.h"
 
-#ifndef ANDROID_DEMO_TURBOMODULERUNTIME_H
-#define ANDROID_DEMO_TURBOMODULERUNTIME_H
-
 class TurboModuleRuntime {
  public:
   jobject turbo_module_manager_obj_;
@@ -60,5 +57,3 @@ class TurboModuleRuntime {
     }
   }
 };
-
-#endif  // ANDROID_DEMO_TURBOMODULERUNTIME_H
