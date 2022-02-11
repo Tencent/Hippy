@@ -69,10 +69,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
 - (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
     HippyAssert(shadowViewsHaveNewLayoutResult, @"we need shadowViewsNeedToApplyLayout to collect shadow views");
-    //TODO 由于获取shadowview改变的方法是从root shadow view开始递归，因此深层次subviews的更新以及subviews的改变需要一直dirty到rootview
-    //这里先简单处理
     if (_hasNewLayout || _visibilityChanged) {
-//    if (1) {
         _hasNewLayout = NO;
         _visibilityChanged = NO;
         [shadowViewsHaveNewLayoutResult addObject:self];
