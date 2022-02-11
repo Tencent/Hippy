@@ -142,7 +142,7 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
 }
 
 std::shared_ptr<HostObject> V8TurboEnv::GetHostObject(
-    std::shared_ptr<CtxValue> value) {
+    const std::shared_ptr<CtxValue>& value) {
   std::shared_ptr<V8Ctx> v8Ctx = std::static_pointer_cast<V8Ctx>(context_);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);

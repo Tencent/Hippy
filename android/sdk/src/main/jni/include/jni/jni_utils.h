@@ -54,11 +54,4 @@ class JniUtils {
   static unicode_string_view::u8string ToU8String(JNIEnv* j_env, jstring j_str);
 
   static unicode_string_view ToStrView(JNIEnv* j_env, jstring j_str);
-
-  template<typename SourceType, typename TargetType>
-  static constexpr TargetType CheckedNumericCast(SourceType value) {
-      using source_type_limits = typename std::numeric_limits<SourceType>;
-      TDF_BASE_CHECK(value <= source_type_limits::max() && value >= source_type_limits::min());
-      return static_cast<TargetType>(value);
-  }
 };

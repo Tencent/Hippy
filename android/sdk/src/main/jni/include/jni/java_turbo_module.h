@@ -31,9 +31,6 @@
 #include "core/napi/v8/js_native_turbo_v8.h"
 #include "hippy.h"
 
-#ifndef HIPPYJSI_JAVATURBOMODULE_H
-#define HIPPYJSI_JAVATURBOMODULE_H
-
 class JavaTurboModule : public hippy::napi::HippyTurboModule {
  public:
   JavaTurboModule(const std::string &name, std::shared_ptr<JavaRef> &impl);
@@ -66,5 +63,3 @@ class JavaTurboModule : public hippy::napi::HippyTurboModule {
 
   static void Destroy();
 };
-
-#endif  // HIPPYJSI_JAVATURBOMODULE_H

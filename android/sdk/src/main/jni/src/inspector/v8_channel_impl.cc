@@ -40,12 +40,12 @@ void V8ChannelImpl::sendResponse(
   }
 
   const uint16_t* source = message->string().characters16();
-  int len = message->string().length();
+  auto len = hippy::base::CheckedNumericCast<size_t, jsize>(message->string().length() * sizeof(*source));
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
-  jbyteArray msg = j_env->NewByteArray(len * sizeof(*source));
+  jbyteArray msg = j_env->NewByteArray(len);
   j_env->SetByteArrayRegion(
-      msg, 0, len * sizeof(*source),
+      msg, 0, len,
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
   if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
@@ -64,12 +64,12 @@ void V8ChannelImpl::sendNotification(
   }
 
   const uint16_t* source = message->string().characters16();
-  int len = message->string().length();
+  auto len = hippy::base::CheckedNumericCast<size_t, jsize>(message->string().length() * sizeof(*source));
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
-  jbyteArray msg = j_env->NewByteArray(len * sizeof(*source));
+  jbyteArray msg = j_env->NewByteArray(len);
   j_env->SetByteArrayRegion(
-      msg, 0, len * sizeof(*source),
+      msg, 0, len,
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
   if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
