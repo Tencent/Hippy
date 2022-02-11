@@ -84,7 +84,6 @@ export default class ModalExpo extends React.Component {
             <Text style={[styles.buttonText, { color: SKIN_COLOR.mainLight }]}>点击弹出浮层</Text>
           </View>
         </View>
-
         <Modal
           transparent
           animationType="slide_fade"

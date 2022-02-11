@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "HippyDevInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,11 +50,11 @@ typedef NS_ENUM(unsigned int, HippyDevWebSocketState) {
 @property(nonatomic, weak)id<HippyDevClientProtocol> delegate;
 @property(nonatomic, readonly)HippyDevWebSocketState state;
 
-- (instancetype)initWithDevIPAddress:(NSString *)ipAddress port:(NSString *)port contextName:(NSString *)contextName;
+- (instancetype)initWithDevInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName;
 
 - (void)sendData:(id)data;
 
-- (void)close;
+- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason;
 
 @end
 

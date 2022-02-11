@@ -10,6 +10,7 @@ import demoIFrame from './demo-iframe.vue';
 import demoWebSocket from './demo-websocket.vue';
 import demoDynamicImport from './demo-dynamicimport.vue';
 import demoTurbo from './demo-turbo.vue';
+import demoRemoteBundle from './demo-remote-bundle.vue';
 
 const demos = {
   demoDiv: {
@@ -59,6 +60,10 @@ const demos = {
   demoTurbo: {
     name: 'Turbo',
     component: demoTurbo,
+  },
+  demoRemoteBundle: {
+    name: 'RemoteBundle',
+    component: demoRemoteBundle,
   },
 };
 

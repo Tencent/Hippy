@@ -50,9 +50,8 @@ interface NavigatorProps {
 }
 
 class Stack {
-  top: Top | null = null;
-
-  size = 0;
+  public top: Top | null = null;
+  public size = 0;
 
   /**
    * Push into a new page/component.
@@ -96,7 +95,7 @@ class Stack {
   /**
    * Clear history stack
    */
-  clear() {
+  public clear() {
     this.top = null;
     this.size = 0;
   }
@@ -139,10 +138,10 @@ class Navigator extends React.Component<NavigatorProps, {}> {
   /**
    * @ignore
    */
-  constructor(props: NavigatorProps) {
+  public constructor(props: NavigatorProps) {
     super(props);
     const { initialRoute } = props;
-    if (initialRoute && initialRoute.component) {
+    if (initialRoute?.component) {
       const hippy = new Hippy({
         appName: initialRoute.routeName,
         entryPage: initialRoute.component,
@@ -203,7 +202,7 @@ class Navigator extends React.Component<NavigatorProps, {}> {
    * @param {Object} route - New router
    */
   public push(route: Route) {
-    if (route && route.component) {
+    if (route?.component) {
       if (!this.routeList[route.routeName]) {
         const hippy = new Hippy({
           appName: route.routeName,

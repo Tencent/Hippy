@@ -44,12 +44,12 @@ Hippy中运行的JS代码可以来源于本地文件(local file)，或者远程�
 3. 打开 `examples` 下的前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
 4. 回到模拟器，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
 
-    ![iOS 模拟器](//puui.qpic.cn/vupload/0/1577796352672_tmjp70r3bma.png/0)
+    ![iOS 模拟器](../assets/img/ios-simulator.png)
 
 5. 打开 Safari，首先确保 `预置` -> `高级` -> `显示开发菜单` 正常勾上。
 6. 然后按图打开 Safari 调试器即可开始调试工作。
    
-   <img src="//puui.qpic.cn/vupload/0/1577796789605_xogl73o57yk.png/0" alt="Safari 调试器" width="80%"/>
+   <img src="assets/img/safari-dev-process.png" alt="Safari 调试器" width="80%"/>
 
 7. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，需要通过按 `Command + R`刷新 或者 `Command + D` 键调起 Reload 面板刷新
 
@@ -74,11 +74,11 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
 7. 回到手机上，点击前端工程中的调试按钮，即可进入调试状态。hippy-react 有一个单独的页面，hippy-vue 在右上角。以 hippy-react 为例：
 
-   <img src="//puui.qpic.cn/vupload/0/1577798072036_g2qmcvgi6n9.png/0" style="box-shadow: 4px 4px 10px 1px rgba(0,0,0,0.4);" alt="Android 调试" width="40%"/>
+   <img src="assets/img/hippy-react-dev-process.png" style="box-shadow: 4px 4px 10px 1px rgba(0,0,0,0.4);" alt="Android 调试" width="40%"/>
 
 8. 然后打开 [Chrome](//www.google.com/chrome/)，输入 `chrome://inspect`，首先确保 `Discover USB devices` 的复选框呈未选中状态，然后确保 `Discover network targets` 选中，并在右侧 `Configure` 按钮的弹窗中包含了 `localhost:38989` 调试服务地址，下方的 `Remote Target` 中应该会出现 `Hippy debug tools for V8` 字样，点击下方的 `inspect` 链接即可打开 Chrome 调试器。
 
-    ![Chrome inspect](//puui.qpic.cn/vupload/0/1577798490075_9tezu60gzzo.png/0)
+    ![Chrome inspect](../assets/img/chrome-inspect-process.png)
 
 9. 当 JS 文件发生改动时，自动编译会执行，但是终端却无法获知 JS 文件已经发生改变，点击界面上的`小圆点`，选择弹出菜单中的 `Reload` 重新加载 JS 代码。
 
@@ -86,7 +86,7 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 
 Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Inspector 上进行 Elements 的可视化检查。
 
-<img src="https://user-images.githubusercontent.com/12878546/132838547-40ab9e10-ba93-4bc4-86b0-6babba020d03.png" alt="Inspect Elements" width="70%"/>
+<img src="assets/img/element-inspect.png" alt="Inspect Elements" width="70%"/>
 
 ## Android Chrome 调试
 
@@ -115,7 +115,7 @@ npm i -D @hippy/debug-server-next@latest
 
 如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
 
-<img src="//static.res.qq.com/nav/hippydoc/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
+<img src="assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
 
 <br />
 <br />
@@ -128,7 +128,7 @@ npm i -D @hippy/debug-server-next@latest
 
 [hippy-vue-demo 配置脚本](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.dev.js)
 
-<img src="https://img.gamecenter.qq.com/xgame/gm/1640318737484_8116362472a24eb51a5e01b2fcd35687.gif" alt="HMR preview" width="80%" />
+<img src="assets/img/hmr.gif" alt="HMR preview" width="80%" />
 <br />
 <br />
 

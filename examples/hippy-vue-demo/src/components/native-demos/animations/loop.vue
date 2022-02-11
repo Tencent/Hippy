@@ -20,7 +20,7 @@ const horizonAnimation = {
       startValue: 0,
       toValue: 200,
       duration: 2000,
-      repeatCount: -1,
+      repeatCount: -1, // 'loop' string supported above 2.12.2
     },
   },
 };
@@ -31,7 +31,7 @@ const verticalAnimation = {
       startValue: 0,
       toValue: 50,
       duration: 2000,
-      repeatCount: -1,
+      repeatCount: -1, // 'loop' string supported above 2.12.2
     },
   },
 };

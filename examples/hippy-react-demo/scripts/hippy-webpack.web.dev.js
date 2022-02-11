@@ -33,7 +33,7 @@ module.exports = {
       title: pkg.name,
       filename: `${pkg.name}.html`,
       template: path.resolve(__dirname, './template.html'),
-      favouriteIcon: pkg.favicon || 'https://res.imtt.qq.com/hippydoc/img/hippy-logo.ico',
+      favouriteIcon: pkg.favicon || 'https://hippyjs.org/assets/img/hippy-logo.ico',
     }),
     new CaseSensitivePathsPlugin(),
     new ReactRefreshWebpackPlugin(),
@@ -92,16 +92,13 @@ module.exports = {
       const aliases = {
         '@hippy/react': '@hippy/react-web',
       };
-
       // If hippy-react-web was built exist then make a alias to @hippy/react
       // Remove the section if you don't use it
       const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react-web');
       if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
-        /* eslint-disable-next-line no-console */
         console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
         aliases['@hippy/react'] = hippyReactPath;
       } else {
-        /* eslint-disable-next-line no-console */
         console.warn('* Using the @hippy/react defined in package.json');
       }
 

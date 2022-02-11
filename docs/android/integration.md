@@ -35,7 +35,7 @@
 
 3. Maven 集成（可选）
 
-   - 查询 [Maven Central Hippy 版本](https://search.maven.org/search?q=com.tencent.hippy)，其中 `hippy-common` 为 `release` 版本，`hippy-debug` 为 `debug` 版本（不携带 `inspector`）
+   - 查询 [Maven Central Hippy 版本](https://search.maven.org/search?q=com.tencent.hippy)，其中 `hippy-common` 为 `release` 版本（不携带 `inspector`），`hippy-debug` 为 `debug` 版本
 
    - 配置 build.gradle
 

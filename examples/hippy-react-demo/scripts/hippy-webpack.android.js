@@ -19,7 +19,7 @@ module.exports = {
     path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
     // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'https://static.res.qq.com/hippy/hippyReactDemo/',
+    // publicPath: 'https://xxx/hippy/hippyReactDemo/',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
@@ -100,11 +100,9 @@ module.exports = {
       // Remove the section if you don't use it
       const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react');
       if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
-        /* eslint-disable-next-line no-console */
         console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
         aliases['@hippy/react'] = hippyReactPath;
       } else {
-        /* eslint-disable-next-line no-console */
         console.warn('* Using the @hippy/react defined in package.json');
       }
 

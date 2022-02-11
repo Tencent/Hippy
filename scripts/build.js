@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 const path = require('path');
 const { rollup } = require('rollup');
 const reactBuilds = require('./react-configs').getAllBuilds();
@@ -23,7 +21,8 @@ function getSize(code) {
 }
 
 function logError(e) {
-  console.error(e);
+  console.error('build js packages error', e);
+  process.exit(1);
 }
 
 async function buildEntry(config) {
@@ -48,7 +47,6 @@ function build(buildSets) {
       })
       .catch(logError);
   };
-
   next();
 }
 

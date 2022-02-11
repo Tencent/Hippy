@@ -23,7 +23,7 @@
 
 * actions 详解
   
-  和 React 不同，它将单个动画 Animation 和动画序列 AnimationSet 合二为一了，其实方法特别简单，发现是个对象就是 Animation，如果是个数组就是动画序列就用 AnimationSet 处理，单个动画参数具体参考 [Animation 模块](../hippy-react/modules.md?id=animation)和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L5)，只有差异部分才需要填写。
+  和 React 不同，它将单个动画 Animation 和动画序列 AnimationSet 合二为一了，其实方法特别简单，发现是个对象就是 Animation，如果是个数组就是动画序列就用 AnimationSet 处理，单个动画参数具体参考 [Animation 模块](../hippy-react/modules.md?id=animation)和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L5)，只有差异部分才需要填写。循环播放参数 `repeatCount: 'loop'` 在 `2.12.2` 及以上版本支持，低版本请使用 `repeatCount: -1`。
 
   特别说明，对 actions 替换后会自动新建动画，需手动启动新动画。有两种处理方式：
   * 替换 actions => 延迟一定时间后（如setTimeout） 调用 `this.[animation ref].start()`（推荐）
@@ -157,7 +157,7 @@
 
 ### collapsePullHeader
 
-`() => void` 收起顶部刷新条 `<pull-header>`。
+`() => void` 收起顶部刷新条 `<pull-header>`。当使用了`pull-header`后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
 
 ---
 

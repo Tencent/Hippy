@@ -19,7 +19,6 @@
  */
 
 import React from 'react';
-import { PullingEvent } from '@localTypes/event';
 import { Fiber } from '@hippy/react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
@@ -35,7 +34,7 @@ interface PullHeaderProps extends LayoutableProps {
   /**
    * Trigger when release the finger after pulling distance larger than the content height
    */
-  onHeaderReleased?(): void;
+  onHeaderReleased?: () => void;
 
   /**
    * Trigger when pulling
@@ -43,7 +42,7 @@ interface PullHeaderProps extends LayoutableProps {
    * @param {Object} evt - Event data
    * @param {number} evt.contentOffset - Dragging distance
    */
-  onHeaderPulling?(evt: PullingEvent): void;
+  onHeaderPulling?: (evt: HippyTypes.PullingEvent) => void;
 }
 
 class PullHeader extends React.Component<PullHeaderProps, {}> {
@@ -52,7 +51,7 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
   /**
    * Expand the PullView and display the content
    */
-  expandPullHeader() {
+  public expandPullHeader() {
     callUIFunction(this.instance as Fiber, 'expandPullHeader', []);
   }
 
@@ -60,7 +59,7 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
    * Collapse the PullView and hide the content
    * @param {CollapsePullHeaderOptions} [options] - additional config for pull header
    */
-  collapsePullHeader(options: CollapsePullHeaderOptions) {
+  public collapsePullHeader(options: CollapsePullHeaderOptions) {
     if (Device.platform.OS === 'android') {
       callUIFunction(this.instance as Fiber, 'collapsePullHeader', [options]);
     } else {
@@ -73,7 +72,7 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
     }
   }
 
-  render() {
+  public render() {
     const { children, ...nativeProps } = this.props;
     return (
       <div

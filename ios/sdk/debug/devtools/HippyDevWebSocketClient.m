@@ -1,10 +1,24 @@
-//
-//  HippyDevWebSocketClient.m
-//  HippyDemo
-//
-//  Created by mengyanluo on 2021/10/20.
-//  Copyright © 2021 tencent. All rights reserved.
-//
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import "HippyDevWebSocketClient.h"
 #import "HippySRWebSocket.h"
@@ -77,9 +91,9 @@ static const char *stringFromReadyState(HippySRReadyState state) {
 
 #pragma mark initialization methods
 
-- (instancetype)initWithDevIPAddress:(NSString *)ipAddress port:(NSString *)port contextName:(NSString *)contextName {
+- (instancetype)initWithDevInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName {
     //ws://127.0.0.1:38989/debugger-proxy?clientId={clientId}&platform=1&role=ios_client&contextName={urlencode(contextName)}&deviceName={urlencode(deviceName)}
-    HippyAssertParam(ipAddress);
+    HippyAssertParam(devInfo.ipAddress);
     self = [super init];
     if (self) {
         NSString *uuid = UUIDForContextName(contextName);
@@ -87,7 +101,20 @@ static const char *stringFromReadyState(HippySRReadyState state) {
         NSString *encodeName = [contextName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
         NSString *deviceName = [[UIDevice currentDevice] name];
         NSString *encodedDeviceName = [deviceName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
-        NSString *devAddress = [NSString stringWithFormat:@"ws://%@:%@/debugger-proxy?clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", ipAddress, port?:@"38989", uuid, encodeName, encodedDeviceName];
+        NSString *addressPrefix = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy", devInfo.scheme, devInfo.ipAddress, devInfo.port?:@"38989"];
+        if (devInfo.wsURL.length > 0) {
+            // wsURL has a high priority
+            addressPrefix = devInfo.wsURL;
+        }
+        if ([addressPrefix containsString:@"?"]) {
+            addressPrefix = [NSString stringWithFormat:@"%@&", addressPrefix];
+        } else {
+            addressPrefix = [NSString stringWithFormat:@"%@?", addressPrefix];
+        }
+        NSString *devAddress = [NSString stringWithFormat:@"%@clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", addressPrefix, uuid, encodeName, encodedDeviceName];
+        if (devInfo.versionId.length > 0) {
+            devAddress = [NSString stringWithFormat:@"%@&hash=%@", devAddress, devInfo.versionId];
+        }
         _devURL = [NSURL URLWithString:devAddress];
         HippyLog(@"[DevTools client]:try to connect to %@", devAddress);
         [self setup];
@@ -123,11 +150,11 @@ static const char *stringFromReadyState(HippySRReadyState state) {
     [_devWebSocket send:data];
 }
 
-- (void)close {
+- (void)closeWithCode:(NSInteger)code reason:(NSString *)reason {
     if (!_devWebSocket) {
         return;
     }
-    [_devWebSocket close];
+    [_devWebSocket closeWithCode:code reason:reason];
 }
 
 #pragma mark dev websocket delegate methods

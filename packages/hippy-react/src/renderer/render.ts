@@ -20,7 +20,6 @@
 
 /* eslint-disable no-param-reassign */
 
-import Hippy from '@localTypes/hippy';
 import ViewNode from '../dom/view-node';
 import Element from '../dom/element-node';
 import * as UIManagerModule from '../modules/ui-manager-module';
@@ -31,7 +30,7 @@ import { trace, warn } from '../utils';
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
 interface BatchType {
-  [key: string]: Symbol;
+  [key: string]: symbol;
 }
 
 const NODE_OPERATION_TYPES: BatchType = {
@@ -41,11 +40,11 @@ const NODE_OPERATION_TYPES: BatchType = {
 };
 
 interface BatchChunk {
-  type: Symbol,
-  nodes: Hippy.NativeNode[]
+  type: symbol,
+  nodes: HippyTypes.NativeNode[]
 }
 
-let batchIdle: boolean = true;
+let batchIdle = true;
 let batchNodes: BatchChunk[] = [];
 
 /**
@@ -69,12 +68,6 @@ function chunkNodes(batchNodes: BatchChunk[]) {
   return result;
 }
 
-function startBatch(): void {
-  if (batchIdle) {
-    UIManagerModule.startBatch();
-  }
-}
-
 /**
  * batch Updates from js to native
  * @param {number} rootViewId
@@ -89,8 +82,6 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.updateNode:
         trace(...componentName, 'updateNode', chunk.nodes);
-        // FIXME: iOS should be able to update multiple nodes at once.
-        // @ts-ignore
         if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
           chunk.nodes.forEach(node => (
             UIManagerModule.updateNode(rootViewId, [node])
@@ -101,8 +92,6 @@ function batchUpdate(rootViewId: number): void {
         break;
       case NODE_OPERATION_TYPES.deleteNode:
         trace(...componentName, 'deleteNode', chunk.nodes);
-        // FIXME: iOS should be able to delete mutiple nodes at once.
-        // @ts-ignore
         if (__PLATFORM__ === 'ios' || Device.platform.OS === 'ios') {
           chunk.nodes.forEach(node => (
             UIManagerModule.deleteNode(rootViewId, [node])
@@ -129,6 +118,7 @@ function endBatch(isHookUsed = false): void {
     return;
   }
   const rootViewId = getRootViewId();
+  UIManagerModule.startBatch();
   // if commitEffectsHook used, call batchUpdate synchronously
   if (isHookUsed) {
     batchUpdate(rootViewId);
@@ -181,7 +171,7 @@ function getTargetNodeAttributes(targetNode: Element) {
 /**
  * Render Element to native
  */
-function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNode | null {
+function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.NativeNode | null {
   if (!targetNode.nativeName) {
     warn('Component need to define the native name', targetNode);
     return null;
@@ -193,9 +183,9 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
   // Translate to native node
-  const nativeNode: Hippy.NativeNode = {
+  const nativeNode: HippyTypes.NativeNode = {
     id: targetNode.nodeId,
-    pId: (targetNode.parentNode && targetNode.parentNode.nodeId) || rootViewId,
+    pId: (targetNode.parentNode?.nodeId) || rootViewId,
     index: targetNode.index,
     name: targetNode.nativeName,
     props: {
@@ -219,15 +209,15 @@ function renderToNative(rootViewId: number, targetNode: Element): Hippy.NativeNo
  * @param {ViewNode} node - current node
  * @param {number} [atIndex] - current node index
  * @param {Function} [callback] - function called on each traversing process
- * @returns {Hippy.NativeNode[]}
+ * @returns {HippyTypes.NativeNode[]}
  */
 function renderToNativeWithChildren(
   rootViewId: number,
   node: ViewNode,
   atIndex?: number,
   callback?: Function,
-): Hippy.NativeNode[] {
-  const nativeLanguages: Hippy.NativeNode[] = [];
+): HippyTypes.NativeNode[] {
+  const nativeLanguages: HippyTypes.NativeNode[] = [];
   let index = atIndex;
   if (typeof index === 'undefined' && node && node.parentNode) {
     index = node.parentNode.childNodes.indexOf(node);
@@ -274,7 +264,6 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
         }
       },
     );
-    startBatch();
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
@@ -292,7 +281,6 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
         }
       },
     );
-    startBatch();
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
@@ -308,12 +296,11 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
   childNode.isMounted = false;
   childNode.index = index;
   const rootViewId = getRootViewId();
-  const deleteNodeIds: Hippy.NativeNode[] = [{
+  const deleteNodeIds: HippyTypes.NativeNode[] = [{
     id: childNode.nodeId,
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  startBatch();
   batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
@@ -327,7 +314,6 @@ function updateChild(parentNode: Element) {
   }
   const rootViewId = getRootViewId();
   const translated = renderToNative(rootViewId, parentNode);
-  startBatch();
   if (translated) {
     batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
@@ -343,7 +329,6 @@ function updateWithChildren(parentNode: ViewNode) {
   }
   const rootViewId = getRootViewId();
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  startBatch();
   batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,

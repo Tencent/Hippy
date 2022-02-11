@@ -19,8 +19,6 @@
  */
 
 import React from 'react';
-import Style from '@localTypes/style';
-import { FocusEvent } from '@localTypes/event';
 import { Fiber } from '@hippy/react-reconciler';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
 
@@ -58,7 +56,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   nextFocusUpId?: string | Fiber;
   nextFocusLeftId?: string | Fiber;
   nextFocusRightId?: string | Fiber;
-  style?: Style;
+  style?: HippyTypes.Style;
 
   /**
    * The focus event occurs when the component is focused.
@@ -66,7 +64,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
    * @param {Object} evt - Focus event data
    * @param {boolean} evt.focus - Focus status
    */
-  onFocus?(evt: FocusEvent): void;
+  onFocus?: (evt: HippyTypes.FocusEvent) => void;
 }
 
 /**
@@ -79,9 +77,9 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
  * @noInheritDoc
  */
 class View extends React.Component<ViewProps, {}> {
-  render() {
+  public render() {
     const { collapsable, style = {}, ...nativeProps } = this.props;
-    const nativeStyle: Style = style;
+    const nativeStyle: HippyTypes.Style = style;
     if (typeof collapsable === 'boolean') {
       nativeStyle.collapsable = collapsable;
     }

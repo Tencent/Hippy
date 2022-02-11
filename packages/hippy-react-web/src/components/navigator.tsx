@@ -28,16 +28,16 @@ import { formatWebStyle } from '../adapters/transfer';
  * @noInheritDoc
  */
 class Navigator extends React.Component {
-  pop() {
-    // TODO
+  public pop() {
+    // noop
   }
 
-  push() {
-    // TODO
+  public push() {
+    // noop
   }
 
-  render() {
-    const { style } = this.props;
+  public render() {
+    const { style } = this.props as any;
     const newProps = Object.assign({}, this.props, {
       style: formatWebStyle(style),
     });

@@ -71,6 +71,15 @@ NS_ASSUME_NONNULL_BEGIN
                    manager:(nullable HippyUIManager *)manager
                 completion:(void (^)(NSDictionary *rspObject))completion;
 
+/**
+ * @brief Get NodeIds JSON With BackendIds
+ * @param backendIds backend id array
+ * @param completion completion block
+ * @return sucess or failure
+ */
+- (BOOL)domGetNodeIdsByBackendIds:(NSArray<NSNumber *> *)backendIds
+                       completion:(void (^)(NSDictionary *rspObject))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

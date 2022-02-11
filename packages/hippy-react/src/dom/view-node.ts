@@ -22,9 +22,8 @@
 /* eslint-disable no-param-reassign */
 
 import { insertChild, removeChild } from '../renderer/render';
-import '../../../types/global';
 
-let currentNodeId: number = 0;
+let currentNodeId = 0;
 function getNodeId() {
   currentNodeId += 1;
   // currentNodeId % 10 === 0 is rootView
@@ -51,9 +50,6 @@ class ViewNode {
     component: {},
   };
 
-  // Will change to be true after insert into Native dom.
-  private mounted = false;
-
   // Index number in children, will update at traverseChildren method.
   public index = 0;
 
@@ -62,26 +58,29 @@ class ViewNode {
 
   public parentNode: ViewNode | null = null;
 
-  constructor() {
+  // Will change to be true after insert into Native dom.
+  private mounted = false;
+
+  public constructor() {
     // Virtual DOM node id, will used in native to identify.
     this.nodeId = getNodeId();
   }
 
   /* istanbul ignore next */
-  toString() {
+  public toString() {
     return this.constructor.name;
   }
 
-  get isMounted() {
+  public get isMounted() {
     return this.mounted;
   }
 
-  set isMounted(isMounted: boolean) {
+  public set isMounted(isMounted: boolean) {
     // TODO: Maybe need validation, maybe not.
     this.mounted = isMounted;
   }
 
-  insertBefore(childNode: ViewNode, referenceNode: ViewNode) {
+  public insertBefore(childNode: ViewNode, referenceNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t insert child.');
     }
@@ -103,7 +102,7 @@ class ViewNode {
     return insertChild(this, childNode, index);
   }
 
-  moveChild(childNode: ViewNode, referenceNode: ViewNode) {
+  public moveChild(childNode: ViewNode, referenceNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t move child.');
     }
@@ -133,7 +132,7 @@ class ViewNode {
     return insertChild(this, childNode, newIndex);
   }
 
-  appendChild(childNode: ViewNode) {
+  public appendChild(childNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t append child.');
     }
@@ -148,7 +147,7 @@ class ViewNode {
     insertChild(this, childNode, this.childNodes.length - 1);
   }
 
-  removeChild(childNode: ViewNode) {
+  public removeChild(childNode: ViewNode) {
     if (!childNode) {
       throw new Error('Can\'t remove child.');
     }
@@ -169,7 +168,7 @@ class ViewNode {
   /**
    * Find a specific target with condition
    */
-  findChild(condition: Function): ViewNode | null {
+  public findChild(condition: Function): ViewNode | null {
     const yes = condition(this);
     if (yes) {
       return this;
@@ -191,7 +190,7 @@ class ViewNode {
    * @param callback - callback function
    * @param newIndex - index to be updated
    */
-  traverseChildren(callback: Function, newIndex: number | undefined = 0) {
+  public traverseChildren(callback: Function, newIndex: number | undefined = 0) {
     this.index = !this.parentNode ? 0 : newIndex;
     callback(this);
     // Find the children

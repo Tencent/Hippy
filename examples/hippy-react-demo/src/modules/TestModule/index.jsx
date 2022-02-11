@@ -10,7 +10,6 @@ export default class TestModuleDemo extends React.Component {
   }
 
   componentDidMount() {
-    // 调用
     TestModule.log('hello i am from js');
     TestModule.helloNative({ hello: 'i am form js' });
     TestModule.helloNativeWithPromise({ hello: 'i am form js' }).then((e) => {

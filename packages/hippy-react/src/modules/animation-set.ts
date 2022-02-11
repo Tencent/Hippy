@@ -64,7 +64,7 @@ const AnimationEventEmitter = new HippyEventEmitter();
  * It pushes the animation scheme to native at once.
  */
 class AnimationSet implements AnimationSet {
-  constructor(config: AnimationSetOption) {
+  public constructor(config: AnimationSetOption) {
     this.animationList = [];
     config.children.forEach((item) => {
       this.animationList.push({
@@ -117,7 +117,6 @@ class AnimationSet implements AnimationSet {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
-    // @ts-ignore
     if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
       animationEventName = 'onHippyAnimation';
     }

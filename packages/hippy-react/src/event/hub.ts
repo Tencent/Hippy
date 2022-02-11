@@ -31,7 +31,7 @@ interface HippyEventHub {
 }
 
 class HippyEventHub implements HippyEventHub {
-  constructor(eventName: string) {
+  public constructor(eventName: string) {
     this.handlerContainer = {};
     this.nextIdForHandler = 0;
     this.eventName = eventName;

@@ -59,7 +59,7 @@ interface ViewPagerProps {
    * @param {Object} evt - Page selected event data.
    * @param {number} evt.position - Page index of selected.
    */
-  onPageSelected?(evt: PageSelectedEvent): void;
+  onPageSelected?: (evt: PageSelectedEvent) => void;
 
   /**
    * Called when the page scroll starts.
@@ -68,7 +68,7 @@ interface ViewPagerProps {
    * @param {number} evt.position - Page index that will be selected.
    * @param {number} evt.offset - Scroll offset while scrolling.
    */
-  onPageScroll?(evt: PageScrollEvent): void;
+  onPageScroll?: (evt: PageScrollEvent) => void;
 
   /**
    * Called when the page scroll state changed.
@@ -80,7 +80,7 @@ interface ViewPagerProps {
    * * dragging
    * * settling
    */
-  onPageScrollStateChanged?(evt: PageScrollState): void;
+  onPageScrollStateChanged?: (evt: PageScrollState) => void;
 }
 
 function ViewPagerItem(props: any) {
@@ -109,14 +109,14 @@ function ViewPagerItem(props: any) {
 class ViewPager extends React.Component<ViewPagerProps, {}> {
   private instance: Element | HTMLDivElement | null = null;
 
-  constructor(props: ViewPagerProps) {
+  public constructor(props: ViewPagerProps) {
     super(props);
     this.setPage = this.setPage.bind(this);
     this.setPageWithoutAnimation = this.setPageWithoutAnimation.bind(this);
     this.onPageScrollStateChanged = this.onPageScrollStateChanged.bind(this);
   }
 
-  private onPageScrollStateChanged(params: PageScrollStateEvent) {
+  public onPageScrollStateChanged(params: PageScrollStateEvent) {
     const { onPageScrollStateChanged } = this.props;
     if (onPageScrollStateChanged) {
       onPageScrollStateChanged(params.pageScrollState);

@@ -31,8 +31,8 @@ import Vue from 'vue';
 export default {
   data() {
     return {
-      url: 'https://v.qq.com',
-      displayUrl: 'https://v.qq.com',
+      url: 'https://hippyjs.org',
+      displayUrl: 'https://hippyjs.org',
       iframeStyle: {
         'min-height': Vue.Native ? 100 : '100vh',
       },

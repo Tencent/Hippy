@@ -23,12 +23,10 @@ import Document from '../dom/document-node';
 import Element from '../dom/element-node';
 import { unicodeToChar } from '../utils';
 import { preCacheFiberNode, unCacheFiberNodeOnIdle } from '../utils/node';
-import '@localTypes/global';
 import {
   Type,
   Props,
   UpdatePayload,
-  Context,
 } from '../types';
 import { endBatch } from './render';
 
@@ -219,11 +217,11 @@ function resetAfterCommit() {}
 function resetTextContent() {
 }
 
-function getRootHostContext(): Context {
+function getRootHostContext() {
   return {};
 }
 
-function getChildHostContext(): Context {
+function getChildHostContext() {
   return {};
 }
 
@@ -294,15 +292,15 @@ function isOpaqueHydratingObject(): boolean {
   throw new Error('Not yet implemented');
 }
 
-function makeOpaqueHydratingObject(): String {
+function makeOpaqueHydratingObject(): string {
   throw new Error('Not yet implemented.');
 }
 
-function makeClientId(): String {
+function makeClientId(): string {
   throw new Error('Not yet implemented');
 }
 
-function makeClientIdInDEV(): String {
+function makeClientIdInDEV(): string {
   throw new Error('Not yet implemented');
 }
 

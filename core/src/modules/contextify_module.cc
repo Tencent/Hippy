@@ -126,11 +126,12 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
     unicode_string_view cur_dir;
     unicode_string_view file_name;
     size_t pos = StringViewUtils::FindLastOf(uri, '/', '/', u'/', U'/');
-    if (pos != -1) {
+    if (pos != StringViewUtils::npos) {
       cur_dir = StringViewUtils::SubStr(uri, 0, pos + 1);
       size_t len = StringViewUtils::GetLength(uri);
       file_name = StringViewUtils::SubStr(uri, pos + 1, len);
     } else {
+      cur_dir = "";
       file_name = uri;
     }
 

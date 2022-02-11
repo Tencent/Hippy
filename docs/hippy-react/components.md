@@ -22,7 +22,7 @@ hippy-react 的组件接近终端，语法上接近 React Native。
 ```jsx
 <Image
   style={{ width: 200, height: 200 }}
-  source={{ uri: 'http://res.imtt.qq.com/flower-h5/qb_icon_new.png' }}
+  source={{ uri: 'http://xxx/qb_icon_new.png' }}
   resizeMode={Image.resizeMode.cover}
 />;
 ```
@@ -444,12 +444,12 @@ import icon from './qb_icon_new.png';
 
 | 参数                     | 描述                                                         | 类型                                         | 支持平台 |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
-| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `ALL`    |
-| scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `ALL`    |
-| onPageSelected           | 指定一个函数，当page被选中时进行回调，回调参数是一个对象event，包括position值 回调参数： `position`: number -被选中即将滑到的目标page的index | `(obj: {position: number}) => void`                 | `ALL`    |
-| onPageScroll             | 指定一个函数，当page被滑动时进行回调，回调参数是一个对象event，包括position值与offset值 回调参数： `position`: number -即将滑到的目标page的index `offset`: number -当前被选中的page的相对位移，取值范围-1到1 | `(obj: {position: number, offset: number}) => void` | `ALL`    |
-| onPageScrollStateChanged | 指定一个函数，当page的滑动状态改变时进行回调 回调参数： `pageScrollState`: string -改变后的状态，idle表示停止，dragging表示用户用手拖拽，settling表示page正在滑动 | `(pageScrollState: string) => void`          | `ALL`    |
-| direction | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动 | `string`          | `Android`    |
+| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面 index，默认不指定的时候是0 | `number`                                     | `ALL`    |
+| scrollEnabled            | 指定 ViewPager 是否可以滑动，默认为 `true`                        | `boolean`                                    | `ALL`    |
+| onPageSelected           | 指定一个函数，当 page 被选中时进行回调。回调参数是一个 event 对象，回调参数： `position: number` - 表示即将滑到的目标 page 的索引 | `(obj: {position: number}) => void`      | `ALL`    |
+| onPageScroll             | 指定一个函数，当 page 被滑动时进行回调。回调参数是一个 event 对象，回调参数 `position: number` - 表示即将滑到的目标 page 的索引，`offset: number` - 当前被选中的 page 的相对位移，取值范围 -1 到 1 | `(obj: {position: number, offset: number}) => void` | `ALL`    |
+| onPageScrollStateChanged | 指定一个函数，当 page 的滑动状态改变时进行回调。回调参数： `pageScrollState: string` - 改变后的状态，`idle` 表示停止，`dragging` 表示用户用手拖拽，`settling` 表示 page 正在滑动 | `(pageScrollState: string) => void`          | `ALL`    |
+| direction | 设置 viewPager 滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动 | `string`          | `Android`    |
 
 ## 方法
 
