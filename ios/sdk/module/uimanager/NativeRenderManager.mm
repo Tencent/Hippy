@@ -65,7 +65,7 @@ void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode
             auto dom_value = it->second;
             useAnimation = dom_value->ToBoolean();
         }
-        DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, extStyle);
+        DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
         nodes_infos.push_back(nodeUpdateInfo);
     }
     dispatch_async(HippyGetUIManagerQueue(), ^{
