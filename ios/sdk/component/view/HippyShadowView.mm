@@ -67,14 +67,11 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 @synthesize parent = _parent;
 @synthesize tagName =_tagName;
 
-- (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
-    HippyAssert(shadowViewsHaveNewLayoutResult, @"we need shadowViewsNeedToApplyLayout to collect shadow views");
-    if (_hasNewLayout || _visibilityChanged) {
-        _hasNewLayout = NO;
+- (void)amendLayoutBeforeMount {
+    if (HippyUpdateLifecycleDirtied == _propagationLifecycle || _visibilityChanged) {
         _visibilityChanged = NO;
-        [shadowViewsHaveNewLayoutResult addObject:self];
         for (HippyShadowView *shadowView in self.hippySubviews) {
-            [shadowView collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResult];
+            [shadowView amendLayoutBeforeMount];
         }
     }
 }

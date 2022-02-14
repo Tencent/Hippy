@@ -180,7 +180,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return parentProperties;
 }
 
-- (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
+- (void)amendLayoutBeforeMount {
     @try {
         NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:hippy::Exactly];
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
@@ -216,10 +216,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 child.frame = childFrame;
             }
         }];
-        [super collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResult];
-
-    } @catch (NSException *exception) {
-        
+        [super amendLayoutBeforeMount];
+    }
+    @catch (NSException *exception) {
+        [super amendLayoutBeforeMount];
     }
 }
 

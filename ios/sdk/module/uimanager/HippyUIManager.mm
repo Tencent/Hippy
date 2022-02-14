@@ -47,6 +47,7 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "OCTypeToDomArgument.h"
+#include <mutex>
 
 using DomValue = tdf::base::DomValue;
 using DomArgument = hippy::dom::DomArgument;
@@ -145,6 +146,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
     NSMutableSet<NSNumber *> *_listAnimatedViewTags;
     std::weak_ptr<DomManager> _domManager;
+    std::mutex _shadowQueueLock;
 }
 
 @end
@@ -198,29 +200,29 @@ HIPPY_EXPORT_MODULE()
     /**
      * Called on the JS Thread since all modules are invalidated on the JS thread
      */
-
-    // This only accessed from the shadow queue
     _pendingUIBlocks = nil;
-    _shadowViewRegistry = nil;
-
+    __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        [(id<HippyInvalidating>)self->_viewRegistry[self->_rootViewTag] invalidate];
-        [self->_viewRegistry removeObjectForKey:self->_rootViewTag];
+        HippyUIManager *strongSelf = weakSelf;
+        if (strongSelf) {
+            strongSelf->_shadowViewRegistry = nil;
+            [(id<HippyInvalidating>)strongSelf->_viewRegistry[strongSelf->_rootViewTag] invalidate];
+            [strongSelf->_viewRegistry removeObjectForKey:strongSelf->_rootViewTag];
 
-        for (NSNumber *hippyTag in [self->_viewRegistry allKeys]) {
-            id<HippyComponent> subview = self->_viewRegistry[hippyTag];
-            if ([subview conformsToProtocol:@protocol(HippyInvalidating)]) {
-                [(id<HippyInvalidating>)subview invalidate];
+            for (NSNumber *hippyTag in [strongSelf->_viewRegistry allKeys]) {
+                id<HippyComponent> subview = strongSelf->_viewRegistry[hippyTag];
+                if ([subview conformsToProtocol:@protocol(HippyInvalidating)]) {
+                    [(id<HippyInvalidating>)subview invalidate];
+                }
             }
+
+            strongSelf->_rootViewTag = nil;
+            strongSelf->_viewRegistry = nil;
+            strongSelf->_bridgeTransactionListeners = nil;
+            strongSelf->_bridge = nil;
+            strongSelf->_listTags = nil;
+            [[NSNotificationCenter defaultCenter] removeObserver:strongSelf];
         }
-
-        self->_rootViewTag = nil;
-        self->_viewRegistry = nil;
-        self->_bridgeTransactionListeners = nil;
-        self->_bridge = nil;
-        self->_listTags = nil;
-
-        [[NSNotificationCenter defaultCenter] removeObserver:self];
     });
     [_completeBlocks removeAllObjects];
 }
@@ -285,7 +287,6 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (NSMutableDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
-    // NOTE: this method only exists so that it can be accessed by unit tests
     if (!_shadowViewRegistry) {
         _shadowViewRegistry = [NSMutableDictionary new];
     }
@@ -293,7 +294,6 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (NSMutableDictionary<NSNumber *, UIView *> *)viewRegistry {
-    // NOTE: this method only exists so that it can be accessed by unit tests
     if (!_viewRegistry) {
         _viewRegistry = [NSMutableDictionary new];
     }
@@ -307,6 +307,10 @@ HIPPY_EXPORT_MODULE()
 
 - (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag {
     return _shadowViewRegistry[hippyTag];
+}
+
+- (std::mutex &)shadowQueueLock {
+    return _shadowQueueLock;
 }
 
 dispatch_queue_t HippyGetUIManagerQueue(void) {
@@ -352,7 +356,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (!self->_viewRegistry) {
             return;
         }
-
+        std::lock_guard<std::mutex> lock([self shadowQueueLock]);
         HippyRootShadowView *shadowView = [HippyRootShadowView new];
         shadowView.hippyTag = hippyTag;
         shadowView.frame = frame;
@@ -385,6 +389,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
     NSNumber *hippyTag = view.hippyTag;
     dispatch_async(HippyGetUIManagerQueue(), ^{
+        std::lock_guard<std::mutex> lock([self shadowQueueLock]);
         HippyShadowView *shadowView = self->_shadowViewRegistry[hippyTag];
         if (shadowView == nil) {
             if (isRootView) {
@@ -417,10 +422,11 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)setBackgroundColor:(UIColor *)color forView:(UIView *)view {
     HippyAssertMainQueue();
     NSNumber *hippyTag = view.hippyTag;
+    if (!self->_viewRegistry) {
+        return;
+    }
     dispatch_async(HippyGetUIManagerQueue(), ^{
-        if (!self->_viewRegistry) {
-            return;
-        }
+        std::lock_guard<std::mutex> lock([self shadowQueueLock]);
         HippyShadowView *shadowView = self->_shadowViewRegistry[hippyTag];
         HippyAssert(shadowView != nil, @"Could not locate root view with tag #%@", hippyTag);
         shadowView.backgroundColor = color;
@@ -477,6 +483,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView {
+    HippyAssertMainQueue();
     HippyComponentData *componentData = _componentDataByName[shadowView.viewName];
     UIView *view = [self createViewByComponentData:componentData hippyTag:shadowView.hippyTag rootTag:_rootViewTag properties:shadowView.props viewName:shadowView.viewName];
     [view hippySetFrame:shadowView.frame];
@@ -484,10 +491,16 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView {
+    HippyAssertMainQueue();
+    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
+    return [self createViewRecursiveFromShadowViewWithNOLock:shadowView];
+}
+
+- (UIView *)createViewRecursiveFromShadowViewWithNOLock:(HippyShadowView *)shadowView {
     UIView *view = [self createViewFromShadowView:shadowView];
     NSUInteger index = 0;
     for (HippyShadowView *subShadowView in shadowView.hippySubviews) {
-        UIView *subview = [self createViewRecursivelyFromShadowView:subShadowView];
+        UIView *subview = [self createViewRecursiveFromShadowViewWithNOLock:subShadowView];
         [view insertHippySubview:subview atIndex:index];
         [view insertSubview:subview atIndex:index];
         index++;
@@ -721,29 +734,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     });
 }
 
-- (HippyViewManagerUIBlock)uiBlockWithLayoutUpdateForRootView:(HippyRootShadowView *)rootShadowView {
-//    HippyAssert(!HippyIsMainQueue(), @"Should be called on shadow queue");
-
-    // This is nuanced. In the JS thread, we create a new update buffer
-    // `frameTags`/`frames` that is created/mutated in the JS thread. We access
-    // these structures in the UI-thread block. `NSMutableArray` is not thread
-    // safe so we rely on the fact that we never mutate it after it's passed to
-    // the main thread.
-    NSSet<HippyShadowView *> *viewsWithNewFrames = [rootShadowView collectShadowViewsHaveNewLayoutResultsForRootShadowView];
-
-    if (!viewsWithNewFrames.count) {
-        // no frame change results in no UI update block
-        return nil;
-    }
-    return ^(HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        for (HippyShadowView *shadowView in viewsWithNewFrames) {
-            NSNumber *hippyTag = shadowView.hippyTag;
-            UIView *view = viewRegistry[hippyTag];
-            [view hippySetFrame:shadowView.frame];
-        }
-    };
-}
-
 - (void)amendPendingUIBlocksWithStylePropagationUpdateForShadowView:(HippyShadowView *)topView {
     NSMutableSet<HippyApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
 
@@ -806,6 +796,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
  */
 - (void)createRenderNodes:(std::vector<std::shared_ptr<DomNode>> &&)nodes {
     HippyAssertThread(HippyGetUIManagerQueue(), @"createRenderNodes can only be called from the shadow queue");
+    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     HippyViewsRelation *manager = [[HippyViewsRelation alloc] init];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
@@ -841,6 +832,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)updateRenderNodes:(std::vector<std::shared_ptr<DomNode>>&&)nodes {
     HippyAssertThread(HippyGetUIManagerQueue(), @"updateRenderNodes can only be called from the shadow queue");
+    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (const auto &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
         NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
@@ -854,6 +846,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)deleteRenderNodesIds:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes {
     HippyAssertThread(HippyGetUIManagerQueue(), @"deleteRenderNodesIds can only be called from the shadow queue");
+    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetId();
         HippyShadowView *shadowView = _shadowViewRegistry[@(tag)];
@@ -874,6 +867,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult, bool,
                            std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>>> &)layoutInfos {
     HippyAssertThread(HippyGetUIManagerQueue(), @"updateNodesId can only be called from the shadow queue");
+    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (auto &layoutInfoTuple : layoutInfos) {
         int32_t tag = std::get<0>(layoutInfoTuple);
         NSNumber *hippyTag = @(tag);
@@ -902,7 +896,12 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             shadowView.frame = frame;
             [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *view = viewRegistry[hippyTag];
-                [view hippySetFrame:frame];
+                /* do not use frame directly, because shadow view's frame possibly changed manually in
+                 * [HippyShadowView collectShadowViewsHaveNewLayoutResults]
+                 * This is a Wrong example:
+                 * [view hippySetFrame:frame]
+                 */
+                [view hippySetFrame:shadowView.frame];
             }];
         }
     }
@@ -1161,6 +1160,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
  * runs these blocks and all other already existing blocks.
  */
 - (void)layoutAndMount {
+    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     HippyRootShadowView *rootView = (HippyRootShadowView *)_shadowViewRegistry[_rootViewTag];
     // Gather blocks to be executed now that all view hierarchy manipulations have
     // been completed (note that these may still take place before layout has finished)
@@ -1168,6 +1168,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyViewManagerUIBlock uiBlock = [componentData uiBlockToAmendWithShadowViewRegistry:_shadowViewRegistry];
         [self addUIBlock:uiBlock];
     }
+    [rootView amendLayoutBeforeMount];
     [self amendPendingUIBlocksWithStylePropagationUpdateForShadowView:rootView];
 
     [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {

@@ -145,13 +145,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)props;
 
 /**
- * Manully create a view from shadowView
+ * Manully create views recursively from shadowView
  *
  * @param shadowView HippyShadowView corresponding to UIView
- * @return A view created by HippyShadowView
+ * @return view created by HippyShadowView
  */
-- (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView;
-
 - (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
 
 /**

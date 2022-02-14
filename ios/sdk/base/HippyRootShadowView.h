@@ -32,8 +32,7 @@
 
 /**
  * Calculate all views whose frame needs updating after layout has been calculated.
- * Returns a set contains the shadowviews that need updating.
  */
-- (NSSet<HippyShadowView *> *)collectShadowViewsHaveNewLayoutResultsForRootShadowView;
+- (void)recursivelyAmendSubviewsLayout;
 
 @end
