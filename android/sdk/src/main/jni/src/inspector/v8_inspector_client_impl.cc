@@ -22,10 +22,10 @@
 
 #include "inspector/v8_inspector_client_impl.h"
 
-#include "core/core.h"
-
 namespace hippy {
 namespace inspector {
+
+constexpr uint8_t kProjectName[] = "Hippy";
 
 V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope)
     : scope_(std::move(scope)) {
@@ -55,9 +55,8 @@ void V8InspectorClientImpl::CreateContext() {
   v8::Local<v8::Context> context =
       v8::Local<v8::Context>::New(isolate, ctx->context_persistent_);
   v8::Context::Scope context_scope(context);
-  uint8_t name_uint8[] = "Hippy";
   inspector_->contextCreated(v8_inspector::V8ContextInfo(
-      context, 1, v8_inspector::StringView(name_uint8, arraysize(name_uint8))));
+      context, 1, v8_inspector::StringView(kProjectName, arraysize(kProjectName))));
 }
 
 void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {

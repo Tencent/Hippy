@@ -23,6 +23,7 @@
 #pragma once
 
 #include "core/base/task_runner.h"
+#include <atomic>
 
 class JavaScriptTaskRunner : public hippy::base::TaskRunner {
  public:
@@ -37,5 +38,5 @@ class JavaScriptTaskRunner : public hippy::base::TaskRunner {
   void ResumeThreadForInspector();
 
  private:
-  bool is_inspector_call_pause_ = false;
+  std::atomic_bool is_inspector_call_pause_{false};
 };

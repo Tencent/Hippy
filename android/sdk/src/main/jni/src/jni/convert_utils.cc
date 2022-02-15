@@ -25,7 +25,6 @@
 #include <memory>
 #include <tuple>
 
-#include "core/napi/v8/js_native_turbo_v8.h"
 #include "jni/java_turbo_module.h"
 
 using namespace hippy::napi;
@@ -33,11 +32,11 @@ using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 bool IsBasicNumberType(const std::string &type) {
-  return type == kint || type == kdouble || type == kfloat || type == klong;
+  return type == kInt || type == kDouble || type == kFloat || type == kLong;
 }
 
 bool IsNumberObject(const std::string &type) {
-  return type == kInteger || type == kDouble || type == kFloat || type == kLong;
+  return type == kIntegerObject || type == kDoubleObject || type == kFloatObject || type == kLongObject;
 }
 
 /**
@@ -65,12 +64,12 @@ std::tuple<bool, std::string, std::shared_ptr<JNIArgs>> ConvertUtils::ConvertJSI
   std::shared_ptr<Ctx> ctx = turbo_env.context_;
   std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
 
-  int actual_arg_count = arg_values.size();
+  auto actual_arg_count = arg_values.size();
   std::shared_ptr<JNIArgs> jni_args =
       std::make_shared<JNIArgs>(actual_arg_count);
   auto &global_refs = jni_args->global_refs_;
 
-  for (int i = 0; i < actual_arg_count; i++) {
+  for (size_t i = 0; i < actual_arg_count; i++) {
     std::string type = method_arg_types.at(i);
 
     jvalue *j_args = &jni_args->args_[i];
@@ -125,20 +124,30 @@ std::tuple<bool, std::string, bool> ConvertUtils::HandleBasicType(TurboEnv &turb
 
   // number
   if (IsBasicNumberType(type)) {
-    double num;
-    if (!context->GetValueNumber(value, &num)) {
-      return std::make_tuple(false, "Must be int/long/float/double.", false);
+    if (type == kInt) {
+      int32_t num;
+      if (!context->GetValueNumber(value, &num)) {
+        return std::make_tuple(false, "value must be int", false);
+      }
+
+      j_args.i = num;
+    } else {
+      double num;
+      if (!context->GetValueNumber(value, &num)) {
+        return std::make_tuple(false, "value must be long/float/double", false);
+      }
+
+      if (type == kDouble) {  // double
+        j_args.d = num;
+      } else if (type == kFloat) {  // float
+        j_args.f = static_cast<jfloat>(num);
+      } else if (type == kLong) {  // long
+        if (!hippy::base::numeric_cast<double, jlong>(num, j_args.j)) {
+          return std::make_tuple(false, "value out of jlong boundary", false);
+        }
+      }
     }
 
-    if (type == kint) {  // int
-      j_args.i = num;
-    } else if (type == kdouble) {  // double
-      j_args.d = num;
-    } else if (type == kfloat) {  // float
-      j_args.f = num;
-    } else if (type == klong) {  // long
-      j_args.j = num;
-    }
     return std::make_tuple(true, "", true);
   }
 
@@ -146,7 +155,7 @@ std::tuple<bool, std::string, bool> ConvertUtils::HandleBasicType(TurboEnv &turb
   if (type == "Z") {
     bool b;
     if (!context->GetValueBoolean(value, &b)) {
-      return std::make_tuple(false, "Must be boolean.", false);
+      return std::make_tuple(false, "value must be boolean", false);
     }
 
     j_args.z = b;
@@ -183,7 +192,7 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
     if (turbo_env.context_->GetValueString(value, &str_view)) {
       str = StringViewUtils::ToU8StdStr(str_view);
     } else {
-      return std::make_tuple(false, "Must be String.", false);
+      return std::make_tuple(false, "value must be string", false);
     }
 
     TDF_BASE_DLOG(INFO) << "Promise callId " << str.c_str();
@@ -203,7 +212,7 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
   // HippyArray
   if (type == kHippyArray) {
     if (!context->IsArray(value)) {
-      return std::make_tuple(false, "Must be Array.", false);
+      return std::make_tuple(false, "value must be array", false);
     }
     auto to_array_tuple = ToHippyArray(turbo_env, value);
     if (!std::get<0>(to_array_tuple)) {
@@ -216,7 +225,7 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
   // HippyMap
   if (type == kHippyMap) {
     if (!context->IsMap(value)) {
-      return std::make_tuple(false, "Must be Map.", false);
+      return std::make_tuple(false, "value must be map", false);
     }
     auto to_map_tuple = ToHippyMap(turbo_env, value);
     if (!std::get<0>(to_map_tuple)) {
@@ -227,10 +236,10 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
   }
 
   // Boolean
-  if (type == kBoolean) {
+  if (type == kBooleanObject) {
     bool b;
     if (!context->GetValueBoolean(value, &b)) {
-      return std::make_tuple(false, "Must be Boolean.", false);
+      return std::make_tuple(false, "value must be boolean", false);
     }
     j_args.l =
         make_global(env->NewObject(boolean_clazz, boolean_constructor, b));
@@ -244,7 +253,7 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
     if (turbo_env.context_->GetValueString(value, &str_view)) {
       str = StringViewUtils::ToU8StdStr(str_view);
     } else {
-      return std::make_tuple(false, "Must be String.", false);
+      return std::make_tuple(false, "value must be string", false);
     }
 
     j_args.l = make_global(env->NewStringUTF(str.c_str()));
@@ -253,25 +262,35 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
 
   // Number Object
   if (IsNumberObject(type)) {
-    double num;
-    if (!context->GetValueNumber(value, &num)) {
-      return std::make_tuple(true, "Integer/Double/Float/Long.", false);
-    }
-
-    if (type == kInteger) {  // Integer
+    if (type == kIntegerObject) {
+      int32_t num;
+      if (!context->GetValueNumber(value, &num)) {
+        return std::make_tuple(true, "value must be int", false);
+      }
       j_args.l = make_global(
-          env->NewObject(integer_clazz, integer_constructor, (int) num));
-    } else if (type == kDouble) {  // Double
-      j_args.l =
-          make_global(env->NewObject(double_clazz, double_constructor, num));
-    } else if (type == kFloat) {  // Float
-      j_args.l = make_global(
-          env->NewObject(float_clazz, float_constructor, (float) num));
-    } else if (type == kLong) {  // Long
-      j_args.l = make_global(
-          env->NewObject(long_clazz, long_constructor, (int64_t) num));
+          env->NewObject(integer_clazz, integer_constructor, num));
     } else {
-      return std::make_tuple(false, "", false);
+      double num;
+      if (!context->GetValueNumber(value, &num)) {
+        return std::make_tuple(true, "value must be long/float/double", false);
+      }
+
+      if (type == kDoubleObject) {
+        j_args.l =
+            make_global(env->NewObject(double_clazz, double_constructor, num));
+      } else if (type == kFloatObject) {
+        j_args.l = make_global(
+            env->NewObject(float_clazz, float_constructor, static_cast<float>(num)));
+      } else if (type == kLongObject) {
+        jlong jlong_value;
+        if (!hippy::base::numeric_cast<double, jlong>(num, jlong_value)) {
+          return std::make_tuple(true, "value out of jlong boundary", false);
+        }
+        j_args.l = make_global(
+            env->NewObject(long_clazz, long_constructor, jlong_value));
+      } else {
+        return std::make_tuple(false, "", false);
+      }
     }
     return std::make_tuple(true, "", true);
   }
@@ -295,8 +314,8 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv &turbo_
   jobject obj = env->NewObject(hippy_map_clazz, hippy_map_constructor);
   std::shared_ptr<CtxValue> array = context->ConvertMapToArray(value);
 
-  int array_len = context->GetArrayLength(array);
-  for (int i = 0; i < array_len; i = i + 2) {
+  auto array_len = context->GetArrayLength(array);
+  for (uint32_t i = 0; i < array_len; i = i + 2) {
     // key
     std::shared_ptr<CtxValue> key = context->CopyArrayElement(array, i);
     unicode_string_view str_view;
@@ -304,7 +323,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv &turbo_
     if (turbo_env.context_->GetValueString(key, &str_view)) {
       key_str = StringViewUtils::ToU8StdStr(str_view);
     } else {
-      return std::make_tuple(false, "Key must be String in Map.", static_cast<jobject>(nullptr));
+      return std::make_tuple(false, "key must be string in map", static_cast<jobject>(nullptr));
     }
 
     jobject key_j_obj = env->NewStringUTF(key_str.c_str());
@@ -331,8 +350,8 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyArray(TurboEnv &turb
   std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject obj = env->NewObject(hippy_array_clazz, hippy_array_constructor);
-  int array_len = context->GetArrayLength(value);
-  for (int i = 0; i < array_len; i++) {
+  auto array_len = context->GetArrayLength(value);
+  for (uint32_t i = 0; i < array_len; i++) {
     std::shared_ptr<CtxValue> item = context->CopyArrayElement(value, i);
     auto to_jobject_tuple = ToJObject(turbo_env, item);
     if (!std::get<0>(to_jobject_tuple)) {
@@ -379,7 +398,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(TurboEnv &turbo_e
   } else if (context->IsNullOrUndefined(value)) {
     result = nullptr;
   } else {
-    return std::make_tuple(false, "UnSupported Type in HippyArray or HippyMap.",
+    return std::make_tuple(false, "unsupported type in HippyArray or HippyMap",
                            static_cast<jobject>(nullptr));
   }
   return std::make_tuple(true, "", result);
@@ -509,16 +528,16 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ConvertMe
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   std::string return_type = method_info.signature_.substr(
       method_info.signature_.find_last_of(')') + 1);
-  if (klong == return_type) {
-    jlong result = env->CallLongMethodA(obj, method_info.method_id_, args);
-    ret = ctx->CreateNumber(result);
-  } else if (kint == return_type) {
+  if (kLong == return_type) {
+    auto result = env->CallLongMethodA(obj, method_info.method_id_, args);
+    ret = ctx->CreateNumber(hippy::base::checked_numeric_cast<jlong, double>(result));
+  } else if (kInt == return_type) {
     jint result = env->CallIntMethodA(obj, method_info.method_id_, args);
     ret = ctx->CreateNumber(result);
-  } else if (kfloat == return_type) {
+  } else if (kFloat == return_type) {
     jfloat result = env->CallFloatMethodA(obj, method_info.method_id_, args);
     ret = ctx->CreateNumber(result);
-  } else if (kdouble == return_type) {
+  } else if (kDouble == return_type) {
     jdouble result = env->CallDoubleMethodA(obj, method_info.method_id_, args);
     ret = ctx->CreateNumber(result);
   } else if (kString == return_type) {
@@ -531,11 +550,11 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ConvertMe
       env->DeleteLocalRef(result_str);
       ret = ctx->CreateString(str_view);
     }
-  } else if (kboolean == return_type) {
+  } else if (kBoolean == return_type) {
     auto result =
         (jboolean) env->CallBooleanMethodA(obj, method_info.method_id_, args);
     ret = ctx->CreateBoolean(result);
-  } else if (kvoid == return_type) {
+  } else if (kVoid == return_type) {
     env->CallVoidMethodA(obj, method_info.method_id_, args);
   } else if (kHippyArray == return_type) {
     auto array = env->CallObjectMethodA(obj, method_info.method_id_, args);
@@ -592,7 +611,7 @@ std::tuple<bool,
   } else if (kString == signature) {
     unicode_string_view obj_str_view = JniUtils::ToStrView(env, reinterpret_cast<jstring>(obj));
     result = ctx->CreateString(obj_str_view);
-  } else if (kBoolean == signature) {
+  } else if (kBooleanObject == signature) {
     jboolean b = env->CallBooleanMethod(reinterpret_cast<jclass>(obj), boolean_value);
     result = ctx->CreateBoolean(b);
   } else if (kHippyArray == signature) {
@@ -626,7 +645,7 @@ ConvertUtils::ToJsArray(TurboEnv &turbo_env, jobject array) {
   }
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  int size = env->CallIntMethod(array, hippy_array_size);
+  auto size = env->CallIntMethod(array, hippy_array_size);
 
   if (size <= 0) {
     return std::make_tuple(true, "", ctx->CreateNull());
@@ -640,7 +659,7 @@ ConvertUtils::ToJsArray(TurboEnv &turbo_env, jobject array) {
     }
     value[i] = std::get<2>(value_tuple);
   }
-  return std::make_tuple(true, "", ctx->CreateArray(size, value));
+  return std::make_tuple(true, "", ctx->CreateArray(static_cast<size_t>(size), value));
 }
 
 std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ToJsMap(TurboEnv &turbo_env,
@@ -656,21 +675,21 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ToJsMap(T
     return std::make_tuple(true, "", ctx->CreateNull());
   }
 
-  int size = env->CallIntMethod(array, hippy_array_size);
+  auto size = env->CallIntMethod(array, hippy_array_size);
   if (size <= 0) {
     return std::make_tuple(true, "", ctx->CreateNull());
   }
 
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
   std::shared_ptr<CtxValue> value[size];
-  for (int i = 0; i < size; i++) {
+  for (auto i = 0; i < size; i++) {
     auto value_tuple = ToJsValueInArray(turbo_env, array, i);
     if (!std::get<0>(value_tuple)) {
       return value_tuple;
     }
     value[i] = std::get<2>(value_tuple);
   }
-  return std::make_tuple(true, "", v8_ctx->CreateMap(size, value));
+  return std::make_tuple(true, "", v8_ctx->CreateMap(static_cast<size_t>(size), value));
 }
 
 bool ConvertUtils::Init() {

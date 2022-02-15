@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <stdio.h>
-
 #include <memory>
 #include <vector>
 
@@ -38,6 +36,8 @@ namespace napi {
 class ReturnValue {
  public:
   ReturnValue() = default;
+  ReturnValue(const ReturnValue &) = delete;
+  ReturnValue &operator=(const ReturnValue &) = delete;
 
   void SetUndefined() { value_ = nullptr; }
   void Set(std::shared_ptr<CtxValue> value) { value_ = value; }
@@ -45,8 +45,6 @@ class ReturnValue {
 
  private:
   std::shared_ptr<CtxValue> value_;
-
-  DISALLOW_COPY_AND_ASSIGN(ReturnValue);
 };
 
 class ExceptionValue {
@@ -54,6 +52,8 @@ class ExceptionValue {
   using unicode_string_view = tdf::base::unicode_string_view;
 
   ExceptionValue() = default;
+  ExceptionValue(const ExceptionValue &) = delete;
+  ExceptionValue &operator=(const ExceptionValue &) = delete;
 
   void Set(std::shared_ptr<CtxValue> value) { value_ = value; }
   void Set(const std::shared_ptr<Ctx>& context, const unicode_string_view& str);
@@ -61,16 +61,16 @@ class ExceptionValue {
 
  private:
   std::shared_ptr<CtxValue> value_;
-
-  DISALLOW_COPY_AND_ASSIGN(ExceptionValue);
 };
 
 class CallbackInfo {
  public:
   explicit CallbackInfo(std::shared_ptr<Scope> scope);
+  CallbackInfo(const CallbackInfo &) = delete;
+  CallbackInfo &operator=(const CallbackInfo &) = delete;
 
   void AddValue(const std::shared_ptr<CtxValue>& value);
-  std::shared_ptr<CtxValue> operator[](int index) const;
+  std::shared_ptr<CtxValue> operator[](size_t index) const;
 
   size_t Length() const { return values_.size(); }
   std::shared_ptr<Scope> GetScope() const { return scope_; }
@@ -82,8 +82,6 @@ class CallbackInfo {
   std::vector<std::shared_ptr<CtxValue>> values_;
   std::unique_ptr<ReturnValue> ret_value_;
   std::unique_ptr<ExceptionValue> exception_value_;
-
-  DISALLOW_COPY_AND_ASSIGN(CallbackInfo);
 };
 
 }  // namespace napi

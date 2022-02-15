@@ -44,6 +44,7 @@ set(ABI_COMPILE_OPTIONS
         -Wall
         -Wextra
         -Wextra-semi
+        -Wconversion
         -Wimplicit-fallthrough
         -Wloop-analysis
         -Wmissing-field-initializers
@@ -123,6 +124,7 @@ set(HIPPY_DEPS android log tdf_base)
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
+  add_definitions("-DJS_V8")
   # region remove jsc code
   file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
   message("JSC_SRC: ${JSC_SRC}")
@@ -149,6 +151,7 @@ if (${JS_ENGINE} STREQUAL "V8")
     add_definitions(${DEFINITION})
   endforeach()
 elseif (${JS_ENGINE} STREQUAL "JSC")
+  add_definitions("-DJS_JSC")
   # region remove v8 code
   file(GLOB_RECURSE V8_SRC ${CORE_SRC_DIR}/src/napi/v8/*)
   message("V8_SRC: ${V8_SRC}")

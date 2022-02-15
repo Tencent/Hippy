@@ -28,7 +28,6 @@
 #include "base/unicode_string_view.h"
 #include "bridge/runtime.h"
 #include "bridge/serializer.h"
-#include "core/base/string_view_utils.h"
 #include "jni/jni_env.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
@@ -153,10 +152,10 @@ void CallJava(hippy::napi::CBDataTuple *data) {
   if (transfer_type == 1) {  // Direct
     j_buffer = j_env->NewDirectByteBuffer(
         const_cast<void *>(reinterpret_cast<const void *>(buffer_data.c_str())),
-        buffer_data.length());
+        hippy::base::checked_numeric_cast<size_t, jlong>(buffer_data.length()));
     j_method = instance->GetMethods().j_call_natives_direct_method_id;
   } else {  // Default
-    auto buffer_size = JniUtils::CheckedNumericCast<size_t, jsize>(buffer_data.length());
+    auto buffer_size = hippy::base::checked_numeric_cast<size_t, jsize>(buffer_data.length());
     j_buffer = j_env->NewByteArray(buffer_size);
     j_env->SetByteArrayRegion(
         reinterpret_cast<jbyteArray>(j_buffer), 0, buffer_size,
