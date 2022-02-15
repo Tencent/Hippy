@@ -99,7 +99,7 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
         std::string exception_info =
             std::string("Cannot find TurboModule: ").append(name);
         TDF_BASE_LOG(ERROR) << "cannot find TurboModule = " << name.c_str();
-        ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(exception_info)));
+        ctx->ThrowExceptionToJS(unicode_string_view(std::move(exception_info)));
         return info.GetReturnValue().SetUndefined();
       }
 

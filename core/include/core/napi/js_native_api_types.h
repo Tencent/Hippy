@@ -163,7 +163,8 @@ class Ctx {
       const unicode_string_view& file_name) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(
       const unicode_string_view& name) = 0;
-  virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) = 0;
+  virtual bool HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) = 0;
+  virtual void ThrowExceptionToJS(const unicode_string_view& info) = 0;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) = 0;

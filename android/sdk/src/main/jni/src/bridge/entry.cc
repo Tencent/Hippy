@@ -354,8 +354,7 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
                       << ", stack = " << ctx->GetStackInfo(message);
   ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
                                       ctx->GetStackInfo(message));
-  ctx->ThrowExceptionToJS(
-      std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
+  ctx->HandleUncaughtException(std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }

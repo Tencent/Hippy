@@ -223,7 +223,8 @@ class V8Ctx : public Ctx {
       bool is_copy);
 
   virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
-  virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) override;
+  virtual void ThrowExceptionToJS(const unicode_string_view& info) override;
+  virtual bool HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) override;

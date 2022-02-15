@@ -423,7 +423,11 @@ unicode_string_view JSCCtx::GetExceptionMsg(
   return ret;
 }
 
-bool JSCCtx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
+void JSCCtx::ThrowExceptionToJS(const unicode_string_view &info) {
+    SetException(std::static_pointer_cast<JSCCtxValue>(CreateJsError(info)));
+}
+
+bool JSCCtx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) {
   if (!exception) {
     return false;
   }

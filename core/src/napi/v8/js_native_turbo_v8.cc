@@ -89,7 +89,7 @@ std::shared_ptr<CtxValue> V8TurboEnv::CreateObject(
   if (!host_object_constructor_.Get(isolate)
            ->NewInstance(context)
            .ToLocal(&new_object)) {
-    v8_ctx->ThrowExceptionToJS(v8_ctx->CreateJsError(unicode_string_view("CreateObject Fail.")));
+    v8_ctx->ThrowExceptionToJS(unicode_string_view("CreateObject Fail."));
     return context_->CreateUndefined();
   }
 
@@ -123,7 +123,7 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
                isolate, v8::External::New(isolate, host_function_proxy)),
            param_count)
            .ToLocal(&new_function)) {
-    v8_ctx->ThrowExceptionToJS(v8_ctx->CreateJsError(unicode_string_view("CreateFunction Fail.")));
+    v8_ctx->ThrowExceptionToJS(unicode_string_view("CreateFunction Fail."));
     return context_->CreateUndefined();
   }
 

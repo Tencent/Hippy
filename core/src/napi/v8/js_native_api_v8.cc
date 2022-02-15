@@ -855,7 +855,15 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const unicode_string_view& name) {
   return std::make_shared<V8CtxValue>(isolate_, maybe_func.ToLocalChecked());
 }
 
-bool V8Ctx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
+void V8Ctx::ThrowExceptionToJS(const unicode_string_view& info) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  isolate_->ThrowException(v8::Exception::Error(CreateV8String(info)));
+}
+
+bool V8Ctx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) {
   unicode_string_view error_handle_name(kHippyErrorHandlerName);
   std::shared_ptr<CtxValue> exception_handler =
       GetGlobalObjVar(error_handle_name);
