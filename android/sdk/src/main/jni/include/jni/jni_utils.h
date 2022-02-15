@@ -27,8 +27,6 @@
 #include <string>
 
 #include "base/unicode_string_view.h"
-#include "core/core.h"
-#include "v8/v8.h"
 
 class JniUtils {
   using unicode_string_view = tdf::base::unicode_string_view;

@@ -35,7 +35,6 @@
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
-#include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
@@ -253,7 +252,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jobject j_cb) {
   TDF_BASE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
         << "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid";
@@ -456,10 +455,12 @@ jlong InitInstance(JNIEnv* j_env,
     jclass cls = j_env->GetObjectClass(j_vm_init_param);
     jfieldID init_field = j_env->GetFieldID(cls,"initialHeapSize","J");
     param->initial_heap_size_in_bytes =
-        hippy::base::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, init_field));
+        hippy::base::checked_numeric_cast<jlong, size_t>(j_env->GetLongField(j_vm_init_param,
+                                                                             init_field));
     jfieldID max_field = j_env->GetFieldID(cls,"maximumHeapSize","J");
     param->maximum_heap_size_in_bytes =
-        hippy::base::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, max_field));
+        hippy::base::checked_numeric_cast<jlong, size_t>(j_env->GetLongField(j_vm_init_param,
+                                                                             max_field));
     TDF_BASE_CHECK(param->initial_heap_size_in_bytes <= param->maximum_heap_size_in_bytes);
   }
   std::shared_ptr<Engine> engine;

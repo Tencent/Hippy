@@ -26,6 +26,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "base/logging.h"
+
 namespace hippy {
 namespace base {
 
@@ -52,10 +54,22 @@ auto MakeCopyable(F&& f) {
 }
 
 template<typename SourceType, typename TargetType>
-static constexpr TargetType CheckedNumericCast(SourceType value) {
-  using source_type_limits = typename std::numeric_limits<SourceType>;
-  TDF_BASE_CHECK(value <= source_type_limits::max() && value >= source_type_limits::min());
-  return static_cast<TargetType>(value);
+static constexpr bool numeric_cast(const SourceType& source, TargetType& target) {
+  auto target_value = static_cast<TargetType>(source);
+  if (static_cast<SourceType>(target_value)!=source || (target_value < 0 && source > 0)
+      || (target_value > 0 && source < 0)) {
+    return false;
+  }
+  target = target_value;
+  return true;
+}
+
+template<typename SourceType, typename TargetType>
+static constexpr TargetType checked_numeric_cast(const SourceType& source) {
+  TargetType target;
+  auto result = numeric_cast<SourceType, TargetType>(source, target);
+  TDF_BASE_CHECK(result);
+  return target;
 }
 
 }  // namespace base

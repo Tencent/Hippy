@@ -27,12 +27,9 @@
 #include <string>
 
 #include "base/logging.h"
-#include "core/base/string_view_utils.h"
 #include "core/base/uri_loader.h"
 #include "core/modules/module_register.h"
-#include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
-#include "core/napi/js_native_api_types.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/common_task.h"
 #include "core/task/javascript_task.h"
