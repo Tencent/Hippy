@@ -33,6 +33,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
+import java.util.UUID;
 
 @SuppressWarnings({"unused"})
 public class DevServerImpl implements View.OnClickListener, DevServerInterface,
@@ -50,9 +51,12 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
   // 一个 DevServerImpl 实例可管理多个 HippyRootView 的调试，对应多个DebugButton
   private final Stack<DevFloatButton> mDebugButtonStack;
   private final LiveReloadController mLiveReloadController;
+  // to differ hippy page
+  private final UUID mInstanceUUID = UUID.randomUUID();
 
-  DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName) {
-    mFetchHelper = new DevServerHelper(configs, serverHost);
+  DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName,
+    String remoteServerUrl) {
+    mFetchHelper = new DevServerHelper(configs, serverHost, remoteServerUrl);
     mServerConfig = new DevServerConfig(serverHost, bundleName);
     mDebugButtonStack = new Stack<>();
     mHostButtonMap = new HashMap<>();
@@ -141,6 +145,11 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
         }
       }
     }, url);
+  }
+
+  @Override
+  public String createDebugUrl(String host) {
+    return mFetchHelper.createDebugURL(host, mServerConfig.getBundleName(), mInstanceUUID.toString());
   }
 
   @Override
