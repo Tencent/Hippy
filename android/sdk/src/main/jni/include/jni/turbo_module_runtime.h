@@ -22,14 +22,11 @@
 
 #pragma once
 
-#include <core/napi/v8/js_native_turbo_v8.h>
-
 #include <string>
 
-#include "jni_env.h"
+#include "core/core.h"
 
-#ifndef ANDROID_DEMO_TURBOMODULERUNTIME_H
-#define ANDROID_DEMO_TURBOMODULERUNTIME_H
+#include "jni_env.h"
 
 class TurboModuleRuntime {
  public:
@@ -60,5 +57,3 @@ class TurboModuleRuntime {
     }
   }
 };
-
-#endif  // ANDROID_DEMO_TURBOMODULERUNTIME_H

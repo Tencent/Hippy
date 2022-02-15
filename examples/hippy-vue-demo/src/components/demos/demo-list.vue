@@ -17,15 +17,6 @@
         列表元素数量：{{ dataSource.length }}
       </p>
     </div>
-    <!--
-      *** numberOfRows 是 iOS 渲染列表的必备参数，它的值是 ul 中 li 的数量***
-
-      iOS 上有个渲染上屏时机的优化，它不是发送一个 li 渲染一个 li，而是先更新 numberOfRows 告诉终端将有几个列表元素要
-      渲染了，然后再去添加 li，达到那个数量再统一上屏。
-      对于都是静态的 li，hippy-vue 会自动计算好 li 数量（这可以通过计算子节点数量获得），但是对于从数据中动态生成的 li 就没有办法了，
-      因为 hippy-vue 作为 Vue 的一个终端渲染层，Vue 只是向它发送 createNode 的指令，而根本无法知道将有多少个数据会生成 li。
-      所以这里就需要开发者手动填一下，值就是：静态的 li 数量 + 将生成 li 的数据数量。
-    -->
     <ul
       id="list"
       ref="list"
@@ -41,7 +32,7 @@
       @delete="onDelete"
     >
       <!--
-        li 有两个参数是一定要加上的。
+        li 有两个参数建议加上。
         1. :key 是用于标示数据唯一性的，数据不发生改动，key 就不能变，这牵扯到 Vue 的 diff 算法，加上 key 后能避免节点重新渲染，对业务性能会有帮助。
             这里用 index 做 key 是个坏例子，因为 demo 数据都是重复的，业务开发时不能用 index 做 key。
             详情：https://cn.vuejs.org/v2/guide/list.html#key
@@ -104,12 +95,11 @@ export default {
     };
   },
   mounted() {
-    // *** isLoading 是加载锁 ***
-    // 因为 onEndReach 位于屏幕底部时会多次触发，
+    // onEndReach 位于屏幕底部时会多次触发，
     // 所以需要加一个锁，当未加载完成时不进行二次加载
     this.isLoading = false;
     this.dataSource = [...mockData];
-    // 启动时保存一下屏幕高度，一会儿算曝光时会用到
+    // 启动时保存一下屏幕高度，用于计算曝光
     if (Vue.Native) {
       this.$windowHeight = Vue.Native.Dimensions.window.height;
     } else {
@@ -149,7 +139,6 @@ export default {
     },
     async onEndReached() {
       const { dataSource } = this;
-
       // 检查锁，如果在加载中，则直接返回，防止二次加载数据
       if (this.isLoading) {
         return;
@@ -175,12 +164,11 @@ export default {
       };
     },
     /**
-       * 翻到下一页
-       */
+     * 翻到下一页
+     */
     scrollToNextPage() {
       // 因为布局问题，浏览器内 flex: 1 后也会超出窗口尺寸高度，所以这么滚是不行的。
       if (!Vue.Native) {
-        /* eslint-disable-next-line no-alert */
         alert('This method is only supported in Native environment.');
         return;
       }
@@ -192,14 +180,13 @@ export default {
       list.scrollTo({
         left: scrollPos.left,
         top,
-      }); // 其实 scrollPost.left 写 0 也可以。
+      });
     },
     /**
-       * 滚动到底部
-       */
+     * 滚动到底部
+     */
     scrollToBottom() {
       if (!Vue.Native) {
-        /* eslint-disable-next-line no-alert */
         alert('This method is only supported in Native environment.');
         return;
       }

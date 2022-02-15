@@ -24,7 +24,7 @@
 
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
-#include "core/base/string_view_utils.h"
+#include "core/core.h"
 #include "jni/jni_register.h"
 
 namespace hippy {
@@ -71,7 +71,7 @@ void CallFunction(JNIEnv* j_env,
                   bytes buffer_data,
                   std::shared_ptr<JavaRef> buffer_owner) {
   TDF_BASE_DLOG(INFO) << "CallFunction j_runtime_id = " << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(JniUtils::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "CallFunction j_runtime_id invalid";
     return;
@@ -207,7 +207,8 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
       static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
   TDF_BASE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
-               bytes(buffer_address + j_offset, JniUtils::CheckedNumericCast<jint, size_t>(j_length)),
+               bytes(buffer_address + j_offset,
+                     hippy::base::checked_numeric_cast<jint, size_t>(j_length)),
                std::make_shared<JavaRef>(j_env, j_buffer));
 }
 

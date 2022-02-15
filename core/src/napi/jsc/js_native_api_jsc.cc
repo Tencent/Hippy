@@ -60,7 +60,7 @@ JSValueRef JsCallbackFunc(JSContextRef ctx,
   JsCallback cb = fn_data->callback_;
   std::shared_ptr<JSCCtx> context =
       std::static_pointer_cast<JSCCtx>(scope->GetContext());
-  CallbackInfo info(scope);
+  CallbackInfo info{scope};
   for (size_t i = 0; i < argumentCount; i++) {
     info.AddValue(
         std::make_shared<JSCCtxValue>(context->GetCtxRef(), arguments[i]));
@@ -429,10 +429,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const unicode_string_view& name) {
 
 std::shared_ptr<CtxValue> JSCCtx::RunScript(
     const unicode_string_view& data,
-    const unicode_string_view& file_name,
-    bool is_use_code_cache,
-    unicode_string_view* cache,
-    bool is_copy) {
+    const unicode_string_view& file_name) {
   if (StringViewUtils::IsEmpty(data)) {
     return nullptr;
   }

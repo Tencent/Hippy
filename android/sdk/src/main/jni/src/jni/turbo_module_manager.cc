@@ -22,16 +22,12 @@
 
 #include "jni/turbo_module_manager.h"
 
-#include <jni.h>
-
 #include <cstdint>
 
 #include "bridge/runtime.h"
-#include "core/core.h"
-#include "core/napi/v8/js_native_api_v8.h"
 #include "jni/java_turbo_module.h"
+#include "jni/jni_register.h"
 #include "jni/jni_utils.h"
-#include "jni/scoped_java_ref.h"
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(cert-err58-cpp)
              "install",
@@ -186,7 +182,7 @@ void TurboModuleManager::Destroy() {
 
 int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
   TDF_BASE_LOG(INFO) << "install TurboModuleManager";
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_LOG(ERROR) << "TurboModuleManager install, v8RuntimePtr invalid";
     return -1;
@@ -212,7 +208,7 @@ int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
 
 void Uninstall(JNIEnv *, jobject, jlong j_runtime_id) {
   TDF_BASE_LOG(INFO) << "uninstall install TurboModuleManager";
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_LOG(ERROR) << "TurboModuleManager install, v8RuntimePtr invalid";
     return;

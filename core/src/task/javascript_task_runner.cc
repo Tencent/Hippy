@@ -37,7 +37,6 @@ bool JavaScriptTaskRunner::IsJsThread() {
 // keep the same with TaskRunner::run
 void JavaScriptTaskRunner::PauseThreadForInspector() {
   is_inspector_call_pause_ = true;
-
   while (is_inspector_call_pause_) {
     std::shared_ptr<hippy::base::Task> task = GetNext();
     if (task == nullptr) {
