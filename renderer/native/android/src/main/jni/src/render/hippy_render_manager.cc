@@ -283,22 +283,13 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
     return;
   }
 
-  tdf::base::DomValue::DomValueArrayType param_array;
-  DomValue param_value;
-  if (param.ToObject(param_value)) {
-    param_array.emplace_back(param_value);
-  }
-
-  serializer_->Release();
-  serializer_->WriteHeader();
-  serializer_->WriteDenseJSArray(param_array);
-
-  std::pair<uint8_t*, size_t> buffer = serializer_->Release();
+  std::vector<uint8_t> param_bson;
+  param.ToBson(param_bson);
 
   jbyteArray j_buffer;
-  j_buffer = j_env->NewByteArray(buffer.second);
-  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, buffer.second,
-                            reinterpret_cast<const jbyte*>(buffer.first));
+  j_buffer = j_env->NewByteArray(param_bson.size());
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, param_bson.size(),
+                            reinterpret_cast<const jbyte*>(param_bson.data()));
 
   jstring j_name = j_env->NewStringUTF(name.c_str());
 
