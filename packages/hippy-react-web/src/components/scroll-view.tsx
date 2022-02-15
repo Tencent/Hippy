@@ -30,14 +30,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     flexDirection: 'column',
-    overflow: 'auto',
-    display: 'block',
+    ovewflowX: 'hidden',
+    overflowY: 'auto',
   },
   baseHorizontal: {
     flexGrow: 1,
     flexShrink: 1,
     flexDirection: 'row',
-    overflow: 'auto',
+    overflowX: 'auto',
+    overflowY: 'hidden',
   },
   contentContainerVertical: {
     collapse: false,
@@ -221,8 +222,8 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
       className={!showScrollIndicator && HIDE_SCROLLBAR_CLASS}
       ref={scrollRef}
       style={[
-        style,
         directionStyle,
+        style,
         !scrollEnabled && styles.scrollDisable,
       ]}
     >

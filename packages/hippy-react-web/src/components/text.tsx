@@ -89,7 +89,7 @@ export class Text extends React.Component {
     const baseStyle = {
       textOverflow,
       overflow: 'hidden',
-      display: '-webkit-box',
+      display: numberOfLines > 1 ? '-webkit-box' : 'inline',
       WebkitBoxOrient: 'vertical',
       WebkitLineClamp: numberOfLines ? numberOfLines.toString() : '0',
     };

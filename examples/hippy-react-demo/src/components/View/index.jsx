@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
 } from '@hippy/react';
+import imageUrl from './defaultSource.jpg';
 
 const styles = StyleSheet.create({
   itemTitle: {
@@ -48,7 +49,7 @@ export default function ViewExpo() {
     console.log('layoutemit', e);
   };
   return (
-    <ScrollView style={{ padding: 10, height: '100vh', overflow: 'scroll' }}>
+    <ScrollView showScrollIndicator={false} style={{ padding: 10 }}>
       {renderTitle('onLayout')}
       <View onLayout={onLayout} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
       {renderTitle('backgroundColor')}
@@ -58,7 +59,7 @@ export default function ViewExpo() {
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
-        backgroundImage: 'url(https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png)',
+        backgroundImage: imageUrl,
       }]}
         accessible={true}
         accessibilityLabel={'背景图'}

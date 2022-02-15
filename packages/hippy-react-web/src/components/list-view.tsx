@@ -143,7 +143,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const observerCallback = useCallback((entries: any[]) => {
     entries.forEach((entry) => {
       const target = entry.target as HTMLElement;
-      const rowId = target && target.getAttribute('rowid');
+      const rowId = target?.getAttribute('rowid');
       const { intersectionRatio } = entry;
       if (intersectionRatio === 1) {
         if (!itemShowMap.current.has(rowId)) {

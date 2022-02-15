@@ -20,6 +20,7 @@
   "dependencies": {
     "animated-scroll-to": "^2.2.0",
     "bezier-easing": "^2.1.0",
+    "normalize-css-color": "^1.0.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "rmc-list-view": "^0.11.5",

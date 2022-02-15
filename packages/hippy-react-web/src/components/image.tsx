@@ -120,27 +120,6 @@ const resolveAssetUri = (source: string | { uri: string }) => {
   return finalUri;
 };
 
-interface Props {
-  resizeMode?: string;
-  children?: any[];
-  defaultSource?: string;
-  style?: HippyTypes.Style;
-  withRef: React.Ref<any>
-  displayInWeb?: boolean;
-  source: string | { uri: string }
-  sources?: any[];
-  onLoadStart?: () => void;
-  onLoad?: (param: object) => void;
-  onLoadEnd?: () => void;
-  onError?: (param: object) => void;
-}
-
-interface State {
-  isLoadSuccess: boolean;
-  imageUrl: string;
-  prevImageUrl: string;
-}
-
 /**
  * A React component for displaying different types of images, including network images,
  * static resources, temporary local images, and images from local disk, such as the camera roll.

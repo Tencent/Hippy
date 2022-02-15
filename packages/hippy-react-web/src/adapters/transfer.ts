@@ -23,6 +23,7 @@
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import normalizeValue from './normalize-value';
+import { normalizeColor } from './styleSheet/normalizeColor';
 
 const borderSpecialPropsArray = ['borderTopWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRightWidth'];
 const borderPropsArray = ['borderWidth'];
@@ -77,18 +78,6 @@ function resolveTransform(transformArray: any[]): any {
   return transform;
 }
 
-function is8DigitHexColor(color: string) {
-  return color && color.length === 9 && color[0] === '#';
-}
-
-function transformHexToRgba(color: number) {
-  const red = (color & 0xff000000) >>> 24;
-  const green = (color & 0x00ff0000) >> 16;
-  const blue = (color & 0x0000ff00) >> 8;
-  const alpha = (color & 0x000000ff);
-  return `rbga(${red},${green},${blue},${alpha})`;
-}
-
 function isNumeric(num: unknown) {
   if (typeof num === 'number' && Number.isFinite(num)) {
     return true;
@@ -138,6 +127,10 @@ interface WebStyle {
   boxShadowOffsetY?: number | string;
   boxShadowSpread?: number | string;
   boxShadowColor?: HippyTypes.color;
+  textShadow?: string;
+  textShadowOffset?: { x: number, y: number };
+  textShadowRadius?: number | string;
+  textShadowColor?: HippyTypes.color;
 }
 
 function handleBoxStyle(webStyle: WebStyle) {
@@ -199,52 +192,54 @@ function handleSpecialColor(webStyle: WebStyle) {
 }
 
 function handleBoxShadow(webStyle: WebStyle) {
-  let boxShadow = '';
-  const propertyGap = ' ';
-  const { boxShadowOffsetX, boxShadowOffsetY, boxShadowRadius, boxShadowSpread, boxShadowColor } = webStyle;
-  [boxShadowOffsetX, boxShadowOffsetY, boxShadowRadius, boxShadowSpread].forEach((properyty) => {
-    if (properyty) {
-      boxShadow += `${toPx(properyty)}${propertyGap}`;
-    } else {
-      boxShadow += `0 ${propertyGap}`;
+  const {
+    boxShadowOffsetX = 0,
+    boxShadowOffsetY = 0,
+    boxShadowRadius = 0,
+    boxShadowSpread = 0,
+    boxShadowColor,
+  } = webStyle;
+  const offsetX = toPx(boxShadowOffsetX);
+  const offsetY = toPx(boxShadowOffsetY);
+  // TODO: radius 不能小于 0
+  const radius = toPx(boxShadowRadius);
+  const spread = toPx(boxShadowSpread);
+  if (boxShadowColor && offsetX && offsetY) {
+    webStyle.boxShadow = `${offsetX} ${offsetY} ${radius} ${spread} ${boxShadowColor}`;
+  }
+}
+
+function handleTextShadow(style: WebStyle) {
+  const { textShadowColor, textShadowOffset = { x: 0, y: 0 }, textShadowRadius } = style;
+  const { x, y } = textShadowOffset;
+  const offsetX = toPx(x);
+  const offsetY = toPx(y);
+  const radius = toPx(textShadowRadius);
+  if (x && y) {
+    style.textShadow = `${offsetX} ${offsetY} ${radius} ${textShadowColor}`;
+  }
+}
+
+const handlePropertyColor = (style: WebStyle) => {
+  const colorProps = {
+    backgroundColor: true,
+    color: true,
+    borderColor: true,
+    borderTopColor: true,
+    borderRightColor: true,
+    borderBottomColor: true,
+    borderLeftColor: true,
+    shadowColor: true,
+    textDecorationColor: true,
+    textShadowColor: true,
+  };
+  const propertyList = Object.keys(colorProps);
+  propertyList.forEach((property) => {
+    if (property !== null && style[property]) {
+      style[property] = normalizeColor(style[property]);
     }
   });
-  if (boxShadowColor) {
-    boxShadow += boxShadowColor;
-  }
-  webStyle.boxShadow = boxShadow;
-}
-
-function handle8BitHexColor(webStyle: WebStyle) {
-  // covert color from hex to rgba
-  if (is8DigitHexColor(webStyle.backgroundColor)) {
-    webStyle.backgroundColor = transformHexToRgba(webStyle.backgroundColor);
-  }
-
-  if (is8DigitHexColor(webStyle.color)) {
-    webStyle.color = transformHexToRgba(webStyle.color);
-  }
-
-  if (is8DigitHexColor(webStyle.borderColor)) {
-    webStyle.borderColor = transformHexToRgba(webStyle.borderColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderTopColor)) {
-    webStyle.borderTopColor = transformHexToRgba(webStyle.borderTopColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderBottomColor)) {
-    webStyle.borderBottomColor = transformHexToRgba(webStyle.borderBottomColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderLeftColor)) {
-    webStyle.borderLeftColor = transformHexToRgba(webStyle.borderLeftColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderRightColor)) {
-    webStyle.borderRightColor = transformHexToRgba(webStyle.borderRightColor);
-  }
-}
+};
 
 function hackWebStyle(webStyle_: any) {
   const webStyle = webStyle_;
@@ -291,8 +286,7 @@ function hackWebStyle(webStyle_: any) {
     webStyle.height = '1px';
   }
   handleSpecialColor(webStyle);
-  // convert 8bit color from hex rgba
-  handle8BitHexColor(webStyle);
+  handlePropertyColor(webStyle);
 
   Object.keys(webStyle)
     .forEach((key) => {
@@ -329,8 +323,9 @@ function hackWebStyle(webStyle_: any) {
       webStyle.transform = finalTransformStyleResult;
     }
   }
-  // handle boxShadow
+  // handle shadow
   handleBoxShadow(webStyle);
+  handleTextShadow(webStyle);
 }
 
 function formatWebStyle(style: any) {
