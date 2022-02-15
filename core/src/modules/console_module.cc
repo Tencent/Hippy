@@ -27,7 +27,6 @@
 #include "base/logging.h"
 #include "core/base/string_view_utils.h"
 #include "core/modules/module_register.h"
-#include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/scope.h"
 
@@ -44,7 +43,7 @@ unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
   size_t len = u8_str.length();
   std::string ret;
   for (size_t i = 0; i < len; i++) {
-    char16_t c = u8_str[i];
+    auto c = u8_str[i];
     ret += c;
     if (c == '%') {
       ret += '%';

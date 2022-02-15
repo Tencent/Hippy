@@ -22,10 +22,8 @@
 
 #include "core/napi/v8/js_native_turbo_v8.h"
 
-#include <core/base/string_view_utils.h>
-#include <jni/java_turbo_module.h>
-
-#include "hippy.h"
+#include "core/base/string_view_utils.h"
+#include "jni/java_turbo_module.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 

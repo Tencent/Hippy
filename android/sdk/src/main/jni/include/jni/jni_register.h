@@ -25,8 +25,8 @@
 #include <jni.h>
 
 #include <string>
-
-#include "core/core.h"
+#include <unordered_map>
+#include <vector>
 
 class JNIRegisterData {
  public:

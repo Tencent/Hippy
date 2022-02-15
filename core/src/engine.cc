@@ -22,12 +22,8 @@
 
 #include "core/engine.h"
 
-#include <memory>
-#include <mutex>  // NOLINT(build/c++11)
-
 #include "core/scope.h"
 #include "core/task/javascript_task.h"
-#include "core/task/javascript_task_runner.h"
 
 constexpr uint32_t Engine::kDefaultWorkerPoolSize = 1;
 

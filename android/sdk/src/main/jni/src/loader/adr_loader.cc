@@ -25,8 +25,6 @@
 #include <future>
 
 #include "bridge/runtime.h"
-#include "core/base/string_view_utils.h"
-#include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
@@ -190,7 +188,7 @@ void OnResourceReady(JNIEnv* j_env,
                      jlong j_request_id) {
   TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
         << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
@@ -231,7 +229,8 @@ void OnResourceReady(JNIEnv* j_env,
     return;
   }
 
-  u8string str(reinterpret_cast<const char8_t_*>(buff), hippy::base::CheckedNumericCast<jlong, size_t>(len));
+  u8string str(reinterpret_cast<const char8_t_ *>(buff),
+               hippy::base::checked_numeric_cast<jlong, size_t>(len));
   cb(std::move(str));
 }
 

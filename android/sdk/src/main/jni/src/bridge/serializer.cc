@@ -22,8 +22,6 @@
 
 #include "bridge/serializer.h"
 
-#include "v8/v8.h"
-
 const int kMaxReusedBuffersSize = 128 * 1024;  // 128k
 
 Serializer::Serializer(v8::Isolate* isolate,

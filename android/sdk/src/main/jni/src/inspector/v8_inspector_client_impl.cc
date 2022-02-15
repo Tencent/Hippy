@@ -22,8 +22,6 @@
 
 #include "inspector/v8_inspector_client_impl.h"
 
-#include "core/core.h"
-
 namespace hippy {
 namespace inspector {
 
