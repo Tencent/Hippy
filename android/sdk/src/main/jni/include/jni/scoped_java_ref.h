@@ -24,8 +24,6 @@
 
 #include <jni.h>
 
-#include "core/core.h"
-
 class JavaRef {
  public:
   JavaRef(JNIEnv* env, jobject obj);

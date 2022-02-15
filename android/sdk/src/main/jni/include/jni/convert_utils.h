@@ -24,8 +24,7 @@
 
 #include <jni.h>
 
-#include "core/napi/js_native_api_types.h"
-#include "hippy.h"
+#include "core/core.h"
 
 struct JNIArgs {
   JNIArgs(size_t count) : args_(count) {}

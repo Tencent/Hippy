@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <stdio.h>
-
 #include <memory>
 #include <vector>
 
@@ -72,7 +70,7 @@ class CallbackInfo {
   CallbackInfo &operator=(const CallbackInfo &) = delete;
 
   void AddValue(const std::shared_ptr<CtxValue>& value);
-  std::shared_ptr<CtxValue> operator[](int index) const;
+  std::shared_ptr<CtxValue> operator[](size_t index) const;
 
   size_t Length() const { return values_.size(); }
   std::shared_ptr<Scope> GetScope() const { return scope_; }

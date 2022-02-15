@@ -32,6 +32,7 @@
 
 #include "base/logging.h"
 #include "base/unicode_string_view.h"
+#include "core/base/common.h"
 #include "core/base/string_view_utils.h"
 
 namespace hippy {
@@ -62,13 +63,14 @@ class HippyFile {
       std::streamsize size = file.gcount();
       file.clear();
       file.seekg(0, std::ios_base::beg);
-      std::streamsize data_size = size;
-      if (is_auto_fill) {
-        data_size += 1;
+      size_t data_size;
+      if (!numeric_cast<std::streamsize, size_t>(size + (is_auto_fill ? 1:0), data_size)) {
+        file.close();
+        return false;
       }
       bytes.resize(data_size);
-      std::streamsize read_size =
-          file.read(reinterpret_cast<char*>(&bytes[0]), size).gcount();
+      auto read_size =
+          file.read(reinterpret_cast<char *>(&bytes[0]), size).gcount();
       if (size != read_size) {
         TDF_BASE_DLOG(WARNING)
             << "ReadFile file_path = " << file_path << ", size = " << size
