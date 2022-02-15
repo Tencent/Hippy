@@ -51,8 +51,7 @@ V8TurboEnv::~V8TurboEnv() {
 void V8TurboEnv::AddHostObjectTracker(
     const std::shared_ptr<HostObjectTracker> &host_object_tracker) {
   host_object_tracker_list_.push_back(host_object_tracker);
-  TDF_BASE_DLOG(INFO) << "AddHostObjectTracker %d",
-      host_object_tracker_list_.size();
+  TDF_BASE_DLOG(INFO) << "AddHostObjectTracker " << host_object_tracker_list_.size();
 }
 
 void V8TurboEnv::CreateHostObjectConstructor() {
@@ -90,7 +89,7 @@ std::shared_ptr<CtxValue> V8TurboEnv::CreateObject(
   if (!host_object_constructor_.Get(isolate)
            ->NewInstance(context)
            .ToLocal(&new_object)) {
-    ConvertUtils::ThrowException(context_, "CreateObject Fail.");
+    v8_ctx->ThrowExceptionToJS(v8_ctx->CreateJsError(unicode_string_view("CreateObject Fail.")));
     return context_->CreateUndefined();
   }
 
@@ -124,7 +123,7 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
                isolate, v8::External::New(isolate, host_function_proxy)),
            param_count)
            .ToLocal(&new_function)) {
-    ConvertUtils::ThrowException(context_, "CreateFunction Fail.");
+    v8_ctx->ThrowExceptionToJS(v8_ctx->CreateJsError(unicode_string_view("CreateFunction Fail.")));
     return context_->CreateUndefined();
   }
 
