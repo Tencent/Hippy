@@ -26,7 +26,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "core/base/string_view_utils.h"
+#include "core/core.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -56,7 +56,7 @@ JniUtils::bytes JniUtils::AppendJavaByteArrayToBytes(JNIEnv* j_env,
   }
 
   bytes ret;
-  ret.resize(hippy::base::CheckedNumericCast<jsize, size_t>(j_length));
+  ret.resize(hippy::base::checked_numeric_cast<jsize, size_t>(j_length));
   j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
                             reinterpret_cast<int8_t*>(&ret[0]));
   return ret;
@@ -81,7 +81,7 @@ unicode_string_view JniUtils::JByteArrayToStrView(JNIEnv* j_env,
   }
 
   std::string ret;
-  ret.resize(hippy::base::CheckedNumericCast<jsize, size_t>(j_len));
+  ret.resize(hippy::base::checked_numeric_cast<jsize, size_t>(j_len));
   j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
                             reinterpret_cast<int8_t*>(&ret[0]));
 
@@ -95,7 +95,7 @@ jstring JniUtils::StrViewToJString(JNIEnv* j_env,
       StringViewUtils::Convert(str_view, unicode_string_view::Encoding::Utf16)
           .utf16_value();
   return j_env->NewString(reinterpret_cast<const jchar*>(str.c_str()),
-                          hippy::base::CheckedNumericCast<size_t, jsize>(str.length()));
+                          hippy::base::checked_numeric_cast<size_t, jsize>(str.length()));
 }
 
 unicode_string_view::u8string JniUtils::ToU8String(JNIEnv* j_env,
@@ -105,7 +105,8 @@ unicode_string_view::u8string JniUtils::ToU8String(JNIEnv* j_env,
   const char* c_str = j_env->GetStringUTFChars(j_str, nullptr);
   auto len = j_env->GetStringLength(j_str);
   unicode_string_view::u8string ret(
-      reinterpret_cast<const unicode_string_view::char8_t_*>(c_str), hippy::base::CheckedNumericCast<jsize, size_t>(len));
+      reinterpret_cast<const unicode_string_view::char8_t_ *>(c_str),
+      hippy::base::checked_numeric_cast<jsize, size_t>(len));
   j_env->ReleaseStringUTFChars(j_str, c_str);
   return ret;
 }
@@ -115,7 +116,8 @@ unicode_string_view JniUtils::ToStrView(JNIEnv* j_env, jstring j_str) {
 
   const jchar* j_char = j_env->GetStringChars(j_str, nullptr);
   auto len = j_env->GetStringLength(j_str);
-  unicode_string_view ret(reinterpret_cast<const char16_t*>(j_char), hippy::base::CheckedNumericCast<jsize, size_t>(len));
+  unicode_string_view ret(reinterpret_cast<const char16_t *>(j_char),
+                          hippy::base::checked_numeric_cast<jsize, size_t>(len));
   j_env->ReleaseStringChars(j_str, j_char);
   return ret;
 }

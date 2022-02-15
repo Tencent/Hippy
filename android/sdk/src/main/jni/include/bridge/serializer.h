@@ -24,7 +24,10 @@
 
 #include <string>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8.h"
+#pragma clang diagnostic pop
 
 class Serializer : public v8::ValueSerializer::Delegate {
  public:

@@ -28,8 +28,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "core/base/common.h"
-#include "core/engine.h"
 #include "core/modules/module_register.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/javascript_task.h"

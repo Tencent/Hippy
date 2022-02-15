@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include "base/logging.h"
-#include "base/unicode_string_view.h"
 #include "core/base/base_time.h"
 #include "core/base/common.h"
 #include "core/base/file.h"
@@ -33,6 +31,7 @@
 #include "core/base/thread.h"
 #include "core/base/thread_id.h"
 #include "core/base/uri_loader.h"
+#include "core/base/string_view_utils.h"
 #include "core/engine.h"
 #include "core/modules/console_module.h"
 #include "core/modules/contextify_module.h"
@@ -45,11 +44,13 @@
 #include "core/napi/native_source_code.h"
 #include "core/scope.h"
 
-#ifdef OS_ANDROID
+#ifdef JS_V8
 #include "core/napi/v8/js_native_api_v8.h"
+#include "core/napi/v8/js_native_turbo_v8.h"
 #else
 #include "core/napi/jsc/js_native_api_jsc.h"
 #include "core/napi/jsc/js_native_jsc_helper.h"
+#include "core/napi/jsc/js_native_turbo_jsc.h"
 #endif
 
 #include "core/task/common_task.h"

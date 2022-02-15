@@ -44,6 +44,7 @@ set(ABI_COMPILE_OPTIONS
         -Wall
         -Wextra
         -Wextra-semi
+        -Wconversion
         -Wimplicit-fallthrough
         -Wloop-analysis
         -Wmissing-field-initializers

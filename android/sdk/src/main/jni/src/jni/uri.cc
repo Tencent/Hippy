@@ -22,8 +22,7 @@
 
 #include "jni/uri.h"
 
-#include "base/unicode_string_view.h"
-#include "core/base/string_view_utils.h"
+#include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 

@@ -24,6 +24,7 @@
 
 #include <string>
 
+#include "core/core.h"
 #include "jni/jni_env.h"
 
 namespace hippy {
@@ -40,7 +41,8 @@ void V8ChannelImpl::sendResponse(
   }
 
   const uint16_t* source = message->string().characters16();
-  auto len = hippy::base::CheckedNumericCast<size_t, jsize>(message->string().length() * sizeof(*source));
+  auto len = hippy::base::checked_numeric_cast<size_t, jsize>(
+      message->string().length() * sizeof(*source));
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
   jbyteArray msg = j_env->NewByteArray(len);
@@ -64,7 +66,8 @@ void V8ChannelImpl::sendNotification(
   }
 
   const uint16_t* source = message->string().characters16();
-  auto len = hippy::base::CheckedNumericCast<size_t, jsize>(message->string().length() * sizeof(*source));
+  auto len = hippy::base::checked_numeric_cast<size_t, jsize>(
+      message->string().length() * sizeof(*source));
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
   jbyteArray msg = j_env->NewByteArray(len);
