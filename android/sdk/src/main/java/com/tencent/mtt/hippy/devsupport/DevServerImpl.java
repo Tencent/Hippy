@@ -149,7 +149,7 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
 
   @Override
   public String createDebugUrl(String host) {
-    return mFetchHelper.createDebugURL(host, mInstanceUUID.toString());
+    return mFetchHelper.createDebugURL(host, mServerConfig.getBundleName(), mInstanceUUID.toString());
   }
 
   @Override
