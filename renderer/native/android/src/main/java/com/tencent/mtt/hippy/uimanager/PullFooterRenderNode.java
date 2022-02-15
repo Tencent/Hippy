@@ -17,20 +17,23 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.common.HippyMap;
+
+import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class PullFooterRenderNode extends ListItemRenderNode {
 
-  public PullFooterRenderNode(int mId, HippyMap mPropsToUpdate, String className,
-          ViewGroup mRootView, ControllerManager componentManager,
-      boolean isLazyLoad) {
-    super(mId, mPropsToUpdate, className, mRootView, componentManager, isLazyLoad);
+  public PullFooterRenderNode(int id, @Nullable Map<String, Object> props, @NonNull String className,
+          @Nullable ViewGroup rootView, @NonNull ControllerManager componentManager,
+          boolean isLazyLoad) {
+    super(id, props, className, rootView, componentManager, isLazyLoad);
   }
 
-  /**
-   * 通过类名的hashCode来定义type，计算出来是一个很大的值，几乎不会和前端类型重复
-   */
   @Override
   public int getItemViewType() {
     return this.getClassName().hashCode();

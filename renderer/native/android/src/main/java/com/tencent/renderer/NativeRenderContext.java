@@ -18,7 +18,6 @@ package com.tencent.renderer;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import java.nio.ByteBuffer;
 
 public final class NativeRenderContext extends ContextWrapper {
 

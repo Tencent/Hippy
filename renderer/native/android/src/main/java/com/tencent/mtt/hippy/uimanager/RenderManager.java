@@ -16,13 +16,14 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_ALREADY_DELETED;
+import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
 
 import androidx.annotation.NonNull;
 import com.tencent.renderer.NativeRenderException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import android.text.TextUtils;
@@ -31,21 +32,16 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRender;
+import java.util.Map;
 
-@SuppressWarnings({"deprecation", "unused"})
 public class RenderManager {
 
     private static final String TAG = "RenderManager";
     final SparseArray<RenderNode> mNodes = new SparseArray<>();
-
-    final SparseArray<Boolean> mPreIsLazy = new SparseArray<>();
-
     final ArrayList<RenderNode> mUIUpdateNodes = new ArrayList<>();
     final ArrayList<RenderNode> mNullUIUpdateNodes = new ArrayList<>();
 
@@ -73,19 +69,16 @@ public class RenderManager {
     }
 
     public void createNode(ViewGroup rootView, int id, int pid, int index,
-            String className, HashMap<String, Object> props) {
-        HippyMap localProps = new HippyMap(props);
+            @NonNull String className, @NonNull Map<String, Object> props) {
         boolean isLazy = mControllerManager.isControllerLazy(className);
         RenderNode parentNode = mNodes.get(pid);
         if (parentNode == null) {
             throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                     TAG + ": createNode: parentNode==null, id=" + id + ", pid=" + pid);
         }
-
-        RenderNode node = mControllerManager.createRenderNode(id, localProps, className,
-                rootView, isLazy || parentNode.mIsLazyLoad);
+        RenderNode node = mControllerManager.createRenderNode(id, props, className,
+                rootView, isLazy || parentNode.checkNodeFlag(FLAG_LAZY_LOAD));
         mNodes.put(id, node);
-        mPreIsLazy.remove(id);
         parentNode.addChild(node, index);
         addUpdateNodeIfNeeded(parentNode);
         addUpdateNodeIfNeeded(node);
@@ -111,7 +104,7 @@ public class RenderManager {
         }
     }
 
-    public void updateEventListener(int id, @NonNull HashMap<String, Object> props) {
+    public void updateEventListener(int id, @NonNull Map<String, Object> props) {
         RenderNode node = mNodes.get(id);
         if (node != null) {
             node.updateEventListener(props);
@@ -119,28 +112,25 @@ public class RenderManager {
         }
     }
 
-    public void updateNode(int id, HashMap<String, Object> props) {
+    public void updateNode(int id, Map<String, Object> props) {
         RenderNode node = mNodes.get(id);
         if (node != null) {
-            HippyMap localProps = new HippyMap(props);
-            node.updateNode(localProps);
+            node.updateProps(props);
             addUpdateNodeIfNeeded(node);
         }
     }
 
-    public void moveNode(ArrayList<Integer> moveIds, int pId, int id) {
-
-        RenderNode parentNode = mNodes.get(pId);
-        RenderNode newParent = mNodes.get(id);
-        List<RenderNode> arrayList = new ArrayList<>();
-
+    public void moveNode(ArrayList<Integer> moveIds, int oldPid, int newPid) {
+        RenderNode oldParent = mNodes.get(oldPid);
+        RenderNode newParent = mNodes.get(newPid);
+        List<RenderNode> moveNodes = new ArrayList<>();
         for (int i = 0; i < moveIds.size(); i++) {
-            RenderNode renderNode = mNodes.get(moveIds.get(i));
-            arrayList.add(renderNode);
-            parentNode.removeChild(renderNode);
-            newParent.addChild(renderNode, i);
+            RenderNode node = mNodes.get(moveIds.get(i));
+            moveNodes.add(node);
+            oldParent.removeChild(node);
+            newParent.addChild(node, i);
         }
-        parentNode.move(arrayList, id);
+        newParent.addMoveNodes(moveNodes);
         addUpdateNodeIfNeeded(newParent);
     }
 
@@ -153,27 +143,25 @@ public class RenderManager {
     }
 
     public void deleteNode(int id) {
-        RenderNode uiNode = mNodes.get(id);
-        uiNode.setDelete(true);
-
-        if (uiNode.mParent != null && mControllerManager.hasView(id)) {
-            uiNode.mParent.addDeleteId(id, uiNode);
-            addUpdateNodeIfNeeded(uiNode.mParent);
-        } else if (TextUtils.equals(NodeProps.ROOT_NODE, uiNode.getClassName())) {
-            addUpdateNodeIfNeeded(uiNode);
+        RenderNode node = mNodes.get(id);
+        if (node == null) {
+            return;
         }
-        deleteSelfFromParent(uiNode);
-
+        if (node.mParent != null && mControllerManager.hasView(id)) {
+            node.mParent.deleteView(node);
+            addUpdateNodeIfNeeded(node.mParent);
+        } else if (TextUtils.equals(NodeProps.ROOT_NODE, node.getClassName())) {
+            node.deleteView(null);
+        }
+        deleteSelfFromParent(node);
     }
 
     public void dispatchUIFunction(int id, @NonNull String functionName,
-            @NonNull ArrayList<Object> params,
-            @NonNull Promise promise) {
-        HippyArray localParams = new HippyArray(params);
+            @NonNull List<Object> params, @Nullable Promise promise) {
         RenderNode node = mNodes.get(id);
         if (node != null) {
             mControllerManager
-                    .dispatchUIFunction(id, node.mClassName, functionName, localParams, promise);
+                    .dispatchUIFunction(id, node.mClassName, functionName, params, promise);
         }
     }
 
@@ -185,7 +173,7 @@ public class RenderManager {
 
         for (int i = 0; i < mUIUpdateNodes.size(); i++) {
             RenderNode uiNode = mUIUpdateNodes.get(i);
-            uiNode.update();
+            uiNode.updateView();
         }
 
         for (int i = 0; i < mUIUpdateNodes.size(); i++) {
@@ -199,33 +187,25 @@ public class RenderManager {
             mNullUIUpdateNodes.get(i).createView();
         }
         for (int i = 0; i < mNullUIUpdateNodes.size(); i++) {
-            mNullUIUpdateNodes.get(i).update();
+            mNullUIUpdateNodes.get(i).updateView();
         }
 
         mNullUIUpdateNodes.clear();
     }
 
-    private void deleteSelfFromParent(RenderNode uiNode) {
-
-        LogUtils.d("RenderManager",
-                "delete RenderNode " + uiNode.mId + " class " + uiNode.mClassName);
-        if (uiNode.mParent != null) {
-            uiNode.mParent.removeChild(uiNode);
+    private void deleteSelfFromParent(@Nullable RenderNode node) {
+        if (node == null) {
+            return;
         }
-
-        mNodes.remove(uiNode.mId);
-
-        int childCount = uiNode.getChildCount();
+        if (node.mParent != null) {
+            node.mParent.removeChild(node);
+        }
+        mNodes.remove(node.getId());
+        node.setNodeFlag(FLAG_ALREADY_DELETED);
+        int childCount = node.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            deleteSelfFromParent(uiNode.getChildAt(0));
+            deleteSelfFromParent(node.getChildAt(i));
         }
-    }
-
-    public DomNode createStyleNode(String className, boolean isVirtual, int id, int rootId) {
-        DomNode domNode = mControllerManager.createStyleNode(className, isVirtual, rootId);
-        domNode.setViewClassName(className);
-        domNode.setId(id);
-        return domNode;
     }
 
     public RenderNode getRenderNode(int id) {
@@ -251,23 +231,5 @@ public class RenderManager {
             addNullUINodeIfNeeded(renderNode);
         }
 
-    }
-
-    public void createPreView(ViewGroup hippyRootView, int id, int pid, int mIndex,
-            String className, HippyMap newProps) {
-
-        boolean isLazy = mControllerManager.isControllerLazy(className);
-
-        RenderNode parentNode = mNodes.get(pid);
-        if (parentNode != null) {
-            isLazy = isLazy || parentNode.mIsLazyLoad;
-        } else {
-            isLazy = isLazy || mPreIsLazy.get(pid);
-        }
-        mPreIsLazy.put(id, isLazy);
-
-        if (!isLazy) {
-            mControllerManager.createPreView(hippyRootView, id, className, newProps);
-        }
     }
 }

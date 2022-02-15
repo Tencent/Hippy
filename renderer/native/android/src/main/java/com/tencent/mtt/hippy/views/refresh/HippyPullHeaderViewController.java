@@ -20,10 +20,11 @@ import android.content.Context;
 import android.view.View;
 
 import android.view.ViewGroup;
-import com.tencent.mtt.hippy.HippyRootView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.annotation.HippyController;
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
@@ -33,73 +34,79 @@ import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
 import com.tencent.mtt.hippy.views.hippylist.PullHeaderEventHelper;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
-@SuppressWarnings({"deprecation", "unused"})
+import java.util.List;
+import java.util.Map;
+
 @HippyController(name = HippyPullHeaderViewController.CLASS_NAME, isLazyLoad = true)
 public class HippyPullHeaderViewController extends HippyViewController<HippyPullHeaderView> {
 
-  public static final String CLASS_NAME = "PullHeaderView";
-  public static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
-  public static final String EXPAND_PULL_HEADER = "expandPullHeader";
+    private static final String TAG = "HippyPullHeaderViewController";
+    public static final String CLASS_NAME = "PullHeaderView";
+    private static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
+    private static final String EXPAND_PULL_HEADER = "expandPullHeader";
 
-  @Override
-  protected View createViewImpl(Context context) {
-    return new HippyPullHeaderView(context);
-  }
-
-  @Override
-  public RenderNode createRenderNode(int id, HippyMap props, String className,
-          ViewGroup hippyRootView,
-      ControllerManager controllerManager, boolean lazy) {
-    return new PullHeaderRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
-  }
-
-  private void execListViewFunction(HippyListView listView, String functionName) {
-    switch (functionName) {
-      case COLLAPSE_PULL_HEADER: {
-        listView.onHeaderRefreshFinish();
-        break;
-      }
-      case EXPAND_PULL_HEADER: {
-        listView.onHeaderRefresh();
-        break;
-      }
-      default: {
-        LogUtils
-            .d("HippyPullHeaderViewController", "execListViewFunction: unknown function name!!");
-      }
+    @Override
+    protected View createViewImpl(Context context) {
+        return new HippyPullHeaderView(context);
     }
-  }
 
-  private void execRecyclerViewFunction(HippyRecyclerView recyclerView, String functionName) {
-    PullHeaderEventHelper headerEventHelper = recyclerView.getAdapter()
-        .getHeaderEventHelper();
-    if (headerEventHelper != null) {
-      switch (functionName) {
-        case COLLAPSE_PULL_HEADER: {
-          headerEventHelper.onHeaderRefreshFinish();
-          break;
-        }
-        case EXPAND_PULL_HEADER: {
-          headerEventHelper.onHeaderRefresh();
-          break;
-        }
-        default: {
-          LogUtils.d("HippyPullHeaderViewController",
-              "execRecyclerViewFunction: unknown function name!!");
-        }
-      }
+    @Override
+    public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ViewGroup hippyRootView,
+            @NonNull ControllerManager controllerManager, boolean lazy) {
+        return new PullHeaderRenderNode(id, props, className, hippyRootView, controllerManager,
+                lazy);
     }
-  }
 
-  @Override
-  public void dispatchFunction(HippyPullHeaderView view, String functionName,
-      HippyArray dataArray) {
-    super.dispatchFunction(view, functionName, dataArray);
-    View parent = view.getParentView();
-    if (parent instanceof HippyListView) {
-      execListViewFunction((HippyListView)parent, functionName);
-    } else if (parent instanceof HippyRecyclerView) {
-      execRecyclerViewFunction((HippyRecyclerView)parent, functionName);
+    private void execListViewFunction(@NonNull HippyListView listView,
+            @NonNull String functionName) {
+        switch (functionName) {
+            case COLLAPSE_PULL_HEADER: {
+                listView.onHeaderRefreshFinish();
+                break;
+            }
+            case EXPAND_PULL_HEADER: {
+                listView.onHeaderRefresh();
+                break;
+            }
+            default: {
+                LogUtils.e(TAG, "Unknown function name: " + functionName);
+            }
+        }
     }
-  }
+
+    private void execRecyclerViewFunction(@NonNull HippyRecyclerView recyclerView,
+            @NonNull String functionName) {
+        assert recyclerView.getAdapter() != null;
+        PullHeaderEventHelper headerEventHelper = recyclerView.getAdapter()
+                .getHeaderEventHelper();
+        if (headerEventHelper == null) {
+            return;
+        }
+        switch (functionName) {
+            case COLLAPSE_PULL_HEADER: {
+                headerEventHelper.onHeaderRefreshFinish();
+                break;
+            }
+            case EXPAND_PULL_HEADER: {
+                headerEventHelper.onHeaderRefresh();
+                break;
+            }
+            default: {
+                LogUtils.e(TAG, "Unknown function name: " + functionName);
+            }
+        }
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyPullHeaderView pullHeaderView,
+            @NonNull String functionName, @NonNull List params) {
+        super.dispatchFunction(pullHeaderView, functionName, params);
+        View parent = pullHeaderView.getParentView();
+        if (parent instanceof HippyListView) {
+            execListViewFunction((HippyListView) parent, functionName);
+        } else if (parent instanceof HippyRecyclerView) {
+            execRecyclerViewFunction((HippyRecyclerView) parent, functionName);
+        }
+    }
 }

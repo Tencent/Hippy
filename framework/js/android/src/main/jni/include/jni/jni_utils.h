@@ -53,5 +53,4 @@ class JniUtils {
   static unicode_string_view::u8string ToU8String(JNIEnv* j_env, jstring j_str);
 
   static unicode_string_view ToStrView(JNIEnv* j_env, jstring j_str);
-  static void printCurrentThreadID();
 };

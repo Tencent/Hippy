@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.custom;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
@@ -25,38 +26,38 @@ import com.tencent.renderer.NativeRendererManager;
 import android.content.Context;
 import android.view.View;
 
+import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_HAS_DTEB_ID;
+
 @SuppressWarnings("rawtypes")
 @HippyController(name = HippyCustomPropsController.CLASS_NAME)
 public class HippyCustomPropsController extends HippyViewController {
 
-  public static final String CLASS_NAME = "CustomProps";
-  public static final String DT_EBLID = "dt_elementBizLeafIdentifier";
+    public static final String CLASS_NAME = "CustomProps";
+    public static final String DT_EBLID = "dt_elementBizLeafIdentifier";
 
-  @SuppressWarnings("unused")
-  @Override
-  protected View createViewImpl(Context context) {
-    return null;
-  }
-
-  @SuppressWarnings("unused")
-  protected void onSetDTElementBizLeafIdentifier(View view) {
-    if (view == null) {
-      return;
+    @SuppressWarnings("unused")
+    @Override
+    protected View createViewImpl(Context context) {
+        return null;
     }
 
-    Context context = view.getContext();
-    if (context instanceof NativeRenderContext) {
-      int instanceId = ((NativeRenderContext)view.getContext()).getInstanceId();
-      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-      //noinspection ConstantConditions
-      if (nativeRenderer == null) {
-        return;
-      }
-
-      RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view.getId());
-      if (node != null) {
-        node.mHasSetDteblId = true;
-      }
+    @SuppressWarnings("unused")
+    protected void onSetDTElementBizLeafIdentifier(View view) {
+        if (view == null) {
+            return;
+        }
+        Context context = view.getContext();
+        if (context instanceof NativeRenderContext) {
+            int instanceId = ((NativeRenderContext) view.getContext()).getInstanceId();
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+            //noinspection ConstantConditions
+            if (nativeRenderer == null) {
+                return;
+            }
+            RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view.getId());
+            if (node != null) {
+                node.setNodeFlag(FLAG_HAS_DTEB_ID);
+            }
+        }
     }
-  }
 }

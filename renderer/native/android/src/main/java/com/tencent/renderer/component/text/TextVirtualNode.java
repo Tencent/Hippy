@@ -400,7 +400,7 @@ public class TextVirtualNode extends VirtualNode {
         }
         layout.getPaint().setTextSize(mFontSize);
         mLayout = layout;
-        mLastLayoutWidth = width;
+        mLastLayoutWidth = layout.getWidth();
         return layout;
     }
 

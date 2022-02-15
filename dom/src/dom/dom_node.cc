@@ -319,7 +319,7 @@ nlohmann::json DomNode::ToJSONString() {
   nlohmann::json node_json{};
   if (!tag_name_.empty()) {
     node_json[kNodeType] = tag_name_;
-  } else if(!view_name_.empty()){
+  } else if (!view_name_.empty()) {
     node_json[kNodeType] = view_name_;
   } else {
     node_json[kNodeType] = "rootNode";
@@ -330,14 +330,14 @@ nlohmann::json DomNode::ToJSONString() {
     node_json[kHeight] = static_cast<uint32_t>(layout_node_->GetHeight());
     node_json[kBounds] = GetNodeBounds();
   }
-//  node_json[kBorderColor] = border_color_;
+  //  node_json[kBorderColor] = border_color_;
   node_json[kTotalProps] = ParseNodeProps(dom_ext_map_);
   node_json[kFlexNodeStyle] = ParseNodeProps(style_map_);
   // child
   if (!children_.empty()) {
     nlohmann::json child_json_array = nlohmann::json::array();
     for (int i = 0; i < children_.size(); i++) {
-        child_json_array.push_back(children_[i]->ToJSONString());
+      child_json_array.push_back(children_[i]->ToJSONString());
     }
     node_json[kChild] = child_json_array;
   }
@@ -363,7 +363,8 @@ nlohmann::json DomNode::GetDomDomainData(uint32_t depth, std::shared_ptr<DomMana
     // 不需要孩子节点数据 则直接返回
     return domain_json;
   }
-  auto children_data_json = nlohmann::json::array();  for (auto &child : children_) {
+  auto children_data_json = nlohmann::json::array();
+  for (auto& child : children_) {
     children_data_json.push_back(child->GetDomDomainData(depth, dom_manager));
   }
   domain_json[kChildren] = children_data_json;
@@ -469,7 +470,7 @@ nlohmann::json DomNode::ParseDomValue(const DomValue& dom_value) {
     } else if (iterator.second.IsArray()) {
       nlohmann::json props_json_array = nlohmann::json::array();
       auto props_array = iterator.second.ToArray();
-      for (auto &child : props_array) {
+      for (auto& child : props_array) {
         if (child.IsNull() || child.IsUndefined()) {
           continue;
         }
@@ -483,17 +484,18 @@ nlohmann::json DomNode::ParseDomValue(const DomValue& dom_value) {
   return props_json;
 }
 
-nlohmann::json DomNode::ParseNodeProps(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>  &node_props) {
+nlohmann::json DomNode::ParseNodeProps(
+    const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& node_props) {
   nlohmann::json props_json = nlohmann::json::object();
   if (!node_props || node_props->empty()) {
     TDF_BASE_DLOG(INFO) << "ParseTotalProps, node props is not object";
     return props_json;
   }
 
-  for(auto iterator = node_props->begin(); iterator != node_props->end(); iterator++){
+  for (auto iterator = node_props->begin(); iterator != node_props->end(); iterator++) {
     if (iterator->first == "uri" || iterator->first == "src") {
       // 这个value是个base64，数据量太大，改成空字符串
-//      iterator.second = "";
+      //      iterator.second = "";
     }
     std::string key = iterator->first;
     if (iterator->second->IsBoolean()) {
@@ -509,7 +511,7 @@ nlohmann::json DomNode::ParseNodeProps(const std::shared_ptr<std::unordered_map<
     } else if (iterator->second->IsArray()) {
       nlohmann::json props_json_array = nlohmann::json::array();
       auto props_array = iterator->second->ToArray();
-      for (auto &child : props_array) {
+      for (auto& child : props_array) {
         if (child.IsNull() || child.IsUndefined()) {
           continue;
         }
@@ -522,6 +524,80 @@ nlohmann::json DomNode::ParseNodeProps(const std::shared_ptr<std::unordered_map<
     }
   }
   return props_json;
+}
+void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+  auto dom_manager = dom_manager_.lock();
+  TDF_BASE_DCHECK(dom_manager);
+  if (dom_manager) {
+    dom_manager->PostTask([WEAK_THIS, update_style]() {
+      DEFINE_AND_CHECK_SELF(DomNode)
+      for (const auto& v : update_style) {
+        if (self->style_map_ == nullptr) {
+          self->style_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+        }
+
+        auto iter = self->style_map_->find(v.first);
+        if (iter == self->style_map_->end()) {
+          std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first,
+                                                                    std::make_shared<DomValue>(std::move(*v.second))};
+          self->style_map_->insert(pair);
+        }
+
+        if (v.second->IsObject() && iter->second->IsObject()) {
+          self->UpdateObjectStyle(*iter->second, *v.second);
+        } else {
+          iter->second = std::make_shared<DomValue>(std::move(*v.second));
+        }
+      }
+    });
+  }
+}
+
+void DomNode::UpdateDomStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+  auto dom_manager = dom_manager_.lock();
+  TDF_BASE_DCHECK(dom_manager);
+  if (dom_manager) {
+    dom_manager->PostTask([WEAK_THIS, update_style]() {
+      DEFINE_AND_CHECK_SELF(DomNode)
+      for (const auto& v : update_style) {
+        if (self->dom_ext_map_ == nullptr) {
+          self->dom_ext_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+        }
+
+        auto iter = self->dom_ext_map_->find(v.first);
+        if (iter == self->dom_ext_map_->end()) {
+          std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first,
+                                                                    std::make_shared<DomValue>(std::move(*v.second))};
+          self->dom_ext_map_->insert(pair);
+        }
+
+        if (v.second->IsObject() && iter->second->IsObject()) {
+          self->UpdateObjectStyle(*iter->second, *v.second);
+        } else {
+          iter->second = std::make_shared<DomValue>(std::move(*v.second));
+        }
+      }
+    });
+  }
+}
+
+void DomNode::UpdateObjectStyle(DomValue& style_map, const DomValue& update_style) {
+  TDF_BASE_DCHECK(style_map.IsObject());
+  TDF_BASE_DCHECK(update_style.IsObject());
+
+  auto style_object = style_map.ToObject();
+  for (auto& v : update_style.ToObject()) {
+    auto iter = style_object.find(v.first);
+    if (iter == style_object.end()) {
+      style_object[v.first] = v.second;
+    }
+
+    if (v.second.IsObject() && iter->second.IsObject()) {
+      UpdateObjectStyle(iter->second, v.second);
+    } else {
+      iter->second = v.second;
+    }
+  }
 }
 
 }  // namespace dom

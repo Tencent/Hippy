@@ -146,11 +146,11 @@ std::shared_ptr<Task> TaskRunner::GetNext() {
     }
 
     if (task_queue_.empty() && !delayed_task_queue_.empty()) {
-      const DelayedEntry &delayed_task = delayed_task_queue_.top();
-      DelayedTimeInMs wait_in_msseconds = delayed_task.first - now;
+      const DelayedEntry& delayed_task = delayed_task_queue_.top();
+      DelayedTimeInMs wait_in_ms = delayed_task.first - now;
       bool notified =
-          cv_.wait_for(lock, std::chrono::milliseconds(wait_in_msseconds)) ==
-              std::cv_status::timeout;
+          cv_.wait_for(lock, std::chrono::milliseconds(wait_in_ms)) ==
+          std::cv_status::timeout;
       HIPPY_USE(notified);
     } else {
       cv_.wait(lock);

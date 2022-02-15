@@ -50,6 +50,8 @@ import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManagerImpl;
 import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
+import com.tencent.mtt.hippy.modules.RenderProcessInterceptor;
+import com.tencent.mtt.hippy.modules.RenderProcessInterceptor;
 import com.tencent.mtt.hippy.modules.javascriptmodules.Dimensions;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule;
@@ -60,9 +62,11 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -111,6 +115,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     boolean mHasReportEngineLoadResult = false;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
+    private CopyOnWriteArrayList<RenderProcessInterceptor> mRenderProcessInterceptors;
 
     final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -215,6 +220,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         mCurrentState = EngineState.DESTROYED;
         destroyInstance(mRootView);
 
+        if (mRenderProcessInterceptors != null) {
+            mRenderProcessInterceptors.clear();
+        }
         if (mEngineContext != null) {
             mEngineContext.destroy();
         }
@@ -235,6 +243,42 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
+    public void onCreateNode(int nodeId, @NonNull final Map<String, Object> props) {
+        if (mRenderProcessInterceptors != null) {
+            for (RenderProcessInterceptor interceptor : mRenderProcessInterceptors) {
+                interceptor.onCreateNode(nodeId, props);
+            }
+        }
+    }
+
+    @Override
+    public void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props) {
+        if (mRenderProcessInterceptors != null) {
+            for (RenderProcessInterceptor interceptor : mRenderProcessInterceptors) {
+                interceptor.onUpdateNode(nodeId, props);
+            }
+        }
+    }
+
+    @Override
+    public void onDeleteNode(int nodeId) {
+        if (mRenderProcessInterceptors != null) {
+            for (RenderProcessInterceptor interceptor : mRenderProcessInterceptors) {
+                interceptor.onDeleteNode(nodeId);
+            }
+        }
+    }
+
+    @Override
+    public void onEndBatch() {
+        if (mRenderProcessInterceptors != null) {
+            for (RenderProcessInterceptor interceptor : mRenderProcessInterceptors) {
+                interceptor.onEndBatch();
+            }
+        }
+    }
+
+    @Override
     public void onFirstViewAdded() {
         if (moduleListener != null) {
             moduleListener.onFirstViewAdded();
@@ -242,7 +286,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void updateDimension(boolean shouldRevise, HashMap<String, Object> dimension,
+    public void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
         HippyMap localDimension = new HippyMap(dimension);
         if (shouldRevise && mEngineContext != null) {
@@ -290,8 +334,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void handleNativeException(Exception exception, boolean haveCaught) {
-        mGlobalConfigs.getExceptionHandler().handleNativeException(exception, haveCaught);
+    public void handleNativeException(Exception exception) {
+        mGlobalConfigs.getExceptionHandler().handleNativeException(exception, true);
     }
 
     private void checkModuleLoadParams(ModuleLoadParams loadParams) {
@@ -736,6 +780,28 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             // Call linker to bind framework until get v8 runtime id after js bridge initialized,
             // and use v8 runtime id to represent framework id.
             mLinkHelper.bind((int) runtimeId);
+        }
+
+        @Override
+        public void addRenderProcessInterceptor(@NonNull RenderProcessInterceptor interceptor) {
+            if (mRenderProcessInterceptors == null) {
+                mRenderProcessInterceptors = new CopyOnWriteArrayList<>();
+            }
+            mRenderProcessInterceptors.add(interceptor);
+        }
+
+        @Override
+        public void removeRenderProcessInterceptor(@NonNull RenderProcessInterceptor interceptor) {
+            if (mRenderProcessInterceptors != null) {
+                mRenderProcessInterceptors.remove(interceptor);
+            }
+        }
+
+        @Override
+        public void updateAnimationNode(byte[] buffer, int offset, int length) {
+            if (mLinkHelper != null) {
+                mLinkHelper.updateAnimationNode(buffer, offset, length);
+            }
         }
 
         @Override

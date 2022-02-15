@@ -22,6 +22,7 @@
 
 #import "HippyBaseListItemViewManager.h"
 #import "HippyBaseListItemView.h"
+#import "HippyBaseListItemShadowView.h"
 
 @implementation HippyBaseListItemViewManager
 
@@ -36,6 +37,10 @@ HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [HippyBaseListItemView new];
+}
+
+- (HippyShadowView *)shadowView {
+    return [HippyBaseListItemShadowView new];
 }
 
 @end

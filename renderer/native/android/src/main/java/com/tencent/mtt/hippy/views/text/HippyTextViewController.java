@@ -60,11 +60,6 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
   }
 
   @Override
-  protected StyleNode createNode(boolean virtual) {
-    return new TextNode(virtual);
-  }
-
-  @Override
   protected boolean handleGestureBySelf() {
     return true;
   }

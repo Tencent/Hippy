@@ -190,7 +190,8 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jobject j_cb) {
   TDF_BASE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(
+      hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
     << "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid";
@@ -243,7 +244,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
       time_begin] {
     TDF_BASE_DLOG(INFO) << "runScriptFromUri enter";
     bool flag = V8BridgeUtils::RunScript(runtime, script_name, j_can_use_code_cache,
-                                 code_cache_dir, uri, !(aasset_manager == nullptr));
+                                         code_cache_dir, uri, aasset_manager != nullptr);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
         std::chrono::system_clock::now())
         .time_since_epoch()
@@ -336,7 +337,8 @@ void DestroyInstance(__unused JNIEnv* j_env,
                      jlong j_runtime_id,
                      __unused jboolean j_single_thread_mode,
                      jobject j_callback) {
-  auto ret = V8BridgeUtils::DestroyInstance(static_cast<int32_t>(j_runtime_id));
+  auto ret = V8BridgeUtils::DestroyInstance(
+      hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (ret) {
     hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   } else {

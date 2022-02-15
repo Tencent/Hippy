@@ -13,87 +13,97 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRenderException;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.GET_VIEW_CONTROLLER_FAILED_ERR;
+
 public class ControllerRegistry {
 
-  private final SparseArray<View> mViews;    // store all views here
-  private final SparseArray<View> mRoots;    // store all root views here
-  private final Map<String, ControllerHolder> mControllers;  // store all viewManager instance here
-  final NativeRender nativeRenderer;
+    @NonNull
+    private final SparseArray<View> mViews;
+    @NonNull
+    private final SparseArray<View> mRoots;
+    @NonNull
+    private final Map<String, ControllerHolder> mControllers;
+    @NonNull
+    private final NativeRender mNativeRenderer;
 
-  public ControllerRegistry(NativeRender nativeRenderer) {
-    mViews = new SparseArray<>();
-    mRoots = new SparseArray<>();
-    mControllers = new HashMap<>();
-    this.nativeRenderer = nativeRenderer;
-  }
-
-  public void addControllerHolder(String name, ControllerHolder controllerHolder) {
-    mControllers.put(name, controllerHolder);
-  }
-
-  public ControllerHolder getControllerHolder(String className) {
-    return mControllers.get(className);
-  }
-
-  @SuppressWarnings({"rawtypes"})
-  public HippyViewController getViewController(String className) {
-    try {
-      return mControllers.get(className).hippyViewController;
-    } catch (Throwable e) {
-      if (nativeRenderer != null) {
-        String message = "getViewController: error className=" + className;
-        Exception exception = new RuntimeException(message);
-        nativeRenderer.handleRenderException(exception);
-      }
+    public ControllerRegistry(@NonNull NativeRender nativeRenderer) {
+        mViews = new SparseArray<>();
+        mRoots = new SparseArray<>();
+        mControllers = new HashMap<>();
+        mNativeRenderer = nativeRenderer;
     }
-    return null;
-  }
 
-  public View getView(int id) {
-    View view = mViews.get(id);
-    if (view == null) {
-      view = mRoots.get(id);
+    public void addControllerHolder(String name, ControllerHolder controllerHolder) {
+        mControllers.put(name, controllerHolder);
     }
-    return view;
-  }
 
-  public int getRootViewCount() {
-    return mRoots.size();
-  }
+    public ControllerHolder getControllerHolder(String className) {
+        return mControllers.get(className);
+    }
 
-  public int getRootIDAt(int index) {
-    return mRoots.keyAt(index);
-  }
+    @SuppressWarnings({"rawtypes"})
+    public HippyViewController getViewController(@NonNull String className) {
+        ControllerHolder holder = mControllers.get(className);
+        if (holder == null) {
+            NativeRenderException exception = new NativeRenderException(
+                    GET_VIEW_CONTROLLER_FAILED_ERR, "Unknown class name=" + className);
+            mNativeRenderer.handleRenderException(exception);
+            return null;
+        }
+        return holder.getViewController();
+    }
 
-  public View getRootView(int id) {
-    return mRoots.get(id);
-  }
+    @Nullable
+    public View getView(int id) {
+        View view = mViews.get(id);
+        if (view == null) {
+            view = mRoots.get(id);
+        }
+        return view;
+    }
 
+    public int getRootViewCount() {
+        return mRoots.size();
+    }
 
-  public void addView(View view) {
-    mViews.put(view.getId(), view);
-  }
+    public int getRootIDAt(int index) {
+        return mRoots.keyAt(index);
+    }
 
-  public void addRootView(ViewGroup rootView) {
-    mRoots.put(rootView.getId(), rootView);
-  }
+    public View getRootView(int id) {
+        return mRoots.get(id);
+    }
 
+    public void addView(View view) {
+        mViews.put(view.getId(), view);
+    }
 
-  public void removeView(int id) {
-    mViews.remove(id);
-  }
+    public void addRootView(ViewGroup rootView) {
+        mRoots.put(rootView.getId(), rootView);
+    }
 
-  public void removeRootView(int id) {
-    mRoots.remove(id);
-  }
+    public void removeView(int id) {
+        mViews.remove(id);
+    }
+
+    public void removeRootView(int id) {
+        mRoots.remove(id);
+    }
 
 }

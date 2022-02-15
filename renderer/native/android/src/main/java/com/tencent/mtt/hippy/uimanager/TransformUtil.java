@@ -15,8 +15,8 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class TransformUtil {
@@ -28,7 +28,7 @@ public class TransformUtil {
     }
   };
 
-  private static double convertToRadians(HippyMap transformMap, String key) {
+  private static double convertToRadians(HashMap<String, Object> transformMap, String key) {
     double value = 0;
     boolean inRadians = true;
     if (transformMap.get(key) instanceof String) {
@@ -46,21 +46,25 @@ public class TransformUtil {
     return inRadians ? value : MatrixUtil.degreesToRadians(value);
   }
 
-  public static void processTransform(HippyArray transforms, double[] result) {
+  public static void processTransform(ArrayList<Object> transforms, double[] result) {
     double[] helperMatrix = sHelperMatrix.get();
     MatrixUtil.resetIdentityMatrix(result);
 
     for (int transformIdx = 0, size = transforms.size(); transformIdx < size; transformIdx++) {
-      HippyMap transform = transforms.getMap(transformIdx);
+      Object transformObj = transforms.get(transformIdx);
+      if (!(transformObj instanceof HashMap)) {
+        continue;
+      }
+      HashMap<String, Object> transform = (HashMap) transformObj;
       String transformType = transform.keySet().iterator().next();
 
       assert helperMatrix != null;
       MatrixUtil.resetIdentityMatrix(helperMatrix);
       Object value = transform.get(transformType);
-      if ("matrix".equals(transformType) && value instanceof HippyArray) {
-        HippyArray matrix = (HippyArray) value;
+      if ("matrix".equals(transformType) && value instanceof ArrayList) {
+        ArrayList<Object> matrix = (ArrayList) value;
         for (int i = 0; i < 16; i++) {
-          Object matrixValue = matrix.getObject(i);
+          Object matrixValue = matrix.get(i);
           if (matrixValue instanceof Number) {
             helperMatrix[i] = ((Number) matrixValue).doubleValue();
           }
@@ -81,25 +85,25 @@ public class TransformUtil {
         MatrixUtil.applyScaleX(helperMatrix, ((Number) value).doubleValue());
       } else if ("scaleY".equals(transformType)) {
         MatrixUtil.applyScaleY(helperMatrix, ((Number) value).doubleValue());
-      } else if ("translate".equals(transformType) && value instanceof HippyArray) {
+      } else if ("translate".equals(transformType) && value instanceof ArrayList) {
         double x = 0d, y = 0d, z = 0d;
 
-        if (((HippyArray) value).size() > 0) {
-          Object tranX = ((HippyArray) value).getObject(0);
+        if (((ArrayList) value).size() > 0) {
+          Object tranX = ((ArrayList) value).get(0);
           if (tranX instanceof Number) {
             x = ((Number) tranX).doubleValue();
           }
         }
 
-        if (((HippyArray) value).size() > 1) {
-          Object tranY = ((HippyArray) value).getObject(1);
+        if (((ArrayList) value).size() > 1) {
+          Object tranY = ((ArrayList) value).get(1);
           if (tranY instanceof Number) {
             y = ((Number) tranY).doubleValue();
           }
         }
 
-        if (((HippyArray) value).size() > 2) {
-          Object tranZ = ((HippyArray) value).getObject(2);
+        if (((ArrayList) value).size() > 2) {
+          Object tranZ = ((ArrayList) value).get(2);
           if (tranZ instanceof Number) {
             z = ((Number) tranZ).doubleValue();
           }

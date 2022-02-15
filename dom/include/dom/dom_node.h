@@ -126,6 +126,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetDiffStyle(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff) {
     diff_ = std::move(diff);
   }
+  const std::shared_ptr<std::vector<std::string>> GetDeleteProps() { return delete_props_; };
+  void SetDeleteProps(std::shared_ptr<std::vector<std::string>> delete_props) { delete_props_ = delete_props; }
 
   CallFunctionCallback GetCallback(const std::string &name, uint32_t id);
   bool HasTouchEventListeners();
@@ -135,6 +137,11 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   nlohmann::json GetNodeIdByDomLocation(double x, double y);
   nlohmann::json ParseNodeProps(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>  &node_props);
   nlohmann::json ParseDomValue(const DomValue& value);
+  void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
+  void UpdateDomStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
+
+ private:
+  void UpdateObjectStyle(DomValue& style_map, const DomValue& update_style);
 
  private:
   uint32_t id_;             // 节点唯一id
@@ -147,6 +154,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> dom_ext_map_;
   //  用户自定义数据
   std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff_;
+  std::shared_ptr<std::vector<std::string>> delete_props_;
   // Update 时用户自定义数据差异，UpdateRenderNode 完成后会清空 map，以节省内存
 
   std::shared_ptr<LayoutNode> layout_node_;

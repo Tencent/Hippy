@@ -50,12 +50,13 @@ class WorkerTaskRunner {
    public:
     explicit WorkerThread(WorkerTaskRunner*);
     ~WorkerThread();
+    WorkerThread(const WorkerThread &) = delete;
+    WorkerThread &operator=(const WorkerThread &) = delete;
+
     void Run();
 
    private:
     WorkerTaskRunner* runner_;
-
-    DISALLOW_COPY_AND_ASSIGN(WorkerThread);
   };
 
   static const uint32_t kDefaultTaskPriority;

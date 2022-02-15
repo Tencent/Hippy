@@ -18,16 +18,9 @@ package com.tencent.mtt.hippy.utils;
 import android.os.Handler;
 import android.os.Looper;
 
-@SuppressWarnings({"unused"})
 public class UIThreadUtils {
 
   private static final Handler sMainHandler = new Handler(Looper.getMainLooper());
-
-  public static void assertOnUiThread() {
-    if (Looper.getMainLooper().getThread() != Thread.currentThread()) {
-      throw new RuntimeException("must run on ui thread!");
-    }
-  }
 
   public static boolean isOnUiThread() {
     return Looper.getMainLooper().getThread() == Thread.currentThread();

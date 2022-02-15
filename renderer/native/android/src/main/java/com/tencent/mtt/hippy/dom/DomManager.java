@@ -220,92 +220,92 @@ public class DomManager {
 
   public void createNode(final ViewGroup hippyRootView, int rootId, final int id, int pid, int index,
       final String className, String tagName, HippyMap map) {
-    if (nativeRendererWeakReference.get() == null) {
-      return;
-    }
-
-    final DomNode parentNode = mNodeRegistry.getNode(pid);
-    if (parentNode != null) {
-      if (mActionInterceptors != null) {
-        for (DomActionInterceptor interceptor : mActionInterceptors) {
-          map = interceptor.onCreateNode(id, hippyRootView, map);
-        }
-      }
-      HippyMap props = map;
-
-      boolean isVirtual = false;
-      if (TextUtils.equals(parentNode.getViewClass(), NodeProps.TEXT_CLASS_NAME)) {
-        isVirtual = true;
-      }
-
-      DomNode node = nativeRendererWeakReference.get().getRenderManager()
-          .createStyleNode(className, isVirtual, id, hippyRootView.getId());
-
-      node.setLazy(parentNode.isLazy() || nativeRendererWeakReference.get().getRenderManager().getControllerManager()
-          .isControllerLazy(className));
-      node.setProps(map);
-
-//      if (nativeRendererWeakReference.get().isDebugMode()) {
-//        node.setDomainData(new DomDomainData(id, rootId, pid, className, tagName, map));
+//    if (nativeRendererWeakReference.get() == null) {
+//      return;
+//    }
+//
+//    final DomNode parentNode = mNodeRegistry.getNode(pid);
+//    if (parentNode != null) {
+//      if (mActionInterceptors != null) {
+//        for (DomActionInterceptor interceptor : mActionInterceptors) {
+//          map = interceptor.onCreateNode(id, hippyRootView, map);
+//        }
 //      }
-
-      boolean isLayoutOnly =
-          (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout(
-              (HippyMap) props.get(NodeProps.STYLE))
-              && !isTouchEvent(props);
-      LogUtils.d(TAG,
-          "dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:"
-              + index + " isJustLayout :"
-              + isLayoutOnly + " isVirtual " + isVirtual);
-      //updateProps
-      node.updateProps(props);
-      //noinspection unchecked
-      mDomStyleUpdateManager.updateStyle(node, props);
-
-      //add to parent
-      int realIndex = index;
-      if (realIndex > parentNode.getChildCount()) {
-        realIndex = parentNode.getChildCount();
-        LogUtils.d("DomManager", "createNode  addChild  error index > parent.size");
-      }
-      parentNode.addChildAt(node, realIndex);
-
-      //add to registry
-      mNodeRegistry.addNode(node);
-
-      node.setIsJustLayout(isLayoutOnly);
-
-      if (!isLayoutOnly && !node.isVirtual()) {
-        final DomNode nativeParentNode = findNativeViewParent(node);
-        final ViewIndex childIndex = findNativeViewIndex(nativeParentNode, node, 0);
-        final HippyMap newProps = map;
-
-        //this is create view ahead  in every doframe
-        if (!node.isLazy()) {
-          synchronized (mDispatchLock) {
-            addDispatchTask(new IDomExecutor() {
-              @Override
-              public void exec() {
-                mRenderManager
-                    .createPreView(hippyRootView, id, nativeParentNode.getId(), childIndex.mIndex,
-                        className, newProps);
-              }
-            });
-          }
-        }
-
-//        addUITask(new IDomExecutor() {
-//          @Override
-//          public void exec() {
-//            mRenderManager
-//                .createNode(hippyRootView, id, nativeParentNode.getId(), childIndex.mIndex,
-//                    className, newProps);
+//      HippyMap props = map;
+//
+//      boolean isVirtual = false;
+//      if (TextUtils.equals(parentNode.getViewClass(), NodeProps.TEXT_CLASS_NAME)) {
+//        isVirtual = true;
+//      }
+//
+//      DomNode node = nativeRendererWeakReference.get().getRenderManager()
+//          .createStyleNode(className, isVirtual, id, hippyRootView.getId());
+//
+//      node.setLazy(parentNode.isLazy() || nativeRendererWeakReference.get().getRenderManager().getControllerManager()
+//          .isControllerLazy(className));
+//      node.setProps(map);
+//
+////      if (nativeRendererWeakReference.get().isDebugMode()) {
+////        node.setDomainData(new DomDomainData(id, rootId, pid, className, tagName, map));
+////      }
+//
+//      boolean isLayoutOnly =
+//          (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout(
+//              (HippyMap) props.get(NodeProps.STYLE))
+//              && !isTouchEvent(props);
+//      LogUtils.d(TAG,
+//          "dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:"
+//              + index + " isJustLayout :"
+//              + isLayoutOnly + " isVirtual " + isVirtual);
+//      //updateProps
+//      node.updateProps(props);
+//      //noinspection unchecked
+//      mDomStyleUpdateManager.updateStyle(node, props);
+//
+//      //add to parent
+//      int realIndex = index;
+//      if (realIndex > parentNode.getChildCount()) {
+//        realIndex = parentNode.getChildCount();
+//        LogUtils.d("DomManager", "createNode  addChild  error index > parent.size");
+//      }
+//      parentNode.addChildAt(node, realIndex);
+//
+//      //add to registry
+//      mNodeRegistry.addNode(node);
+//
+//      node.setIsJustLayout(isLayoutOnly);
+//
+//      if (!isLayoutOnly && !node.isVirtual()) {
+//        final DomNode nativeParentNode = findNativeViewParent(node);
+//        final ViewIndex childIndex = findNativeViewIndex(nativeParentNode, node, 0);
+//        final HippyMap newProps = map;
+//
+//        //this is create view ahead  in every doframe
+//        if (!node.isLazy()) {
+//          synchronized (mDispatchLock) {
+//            addDispatchTask(new IDomExecutor() {
+//              @Override
+//              public void exec() {
+//                mRenderManager
+//                    .createPreView(hippyRootView, id, nativeParentNode.getId(), childIndex.mIndex,
+//                        className, newProps);
+//              }
+//            });
 //          }
-//        });
-      }
-    } else {
-      LogUtils.d("DomManager", "Create Node DomManager Parent IS Null");
-    }
+//        }
+//
+////        addUITask(new IDomExecutor() {
+////          @Override
+////          public void exec() {
+////            mRenderManager
+////                .createNode(hippyRootView, id, nativeParentNode.getId(), childIndex.mIndex,
+////                    className, newProps);
+////          }
+////        });
+//      }
+//    } else {
+//      LogUtils.d("DomManager", "Create Node DomManager Parent IS Null");
+//    }
 
   }
 

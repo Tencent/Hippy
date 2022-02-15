@@ -90,4 +90,13 @@ public interface LinkHelper {
      * Will destroy native (C++) dom manager and renderer instance, call by framework.
      */
     void destroy();
+
+    /**
+     * Update node property on animation update.
+     *
+     * @param params params buffer encoded by serializer
+     * @param offset start position of params buffer
+     * @param length available total length of params buffer
+     */
+    void updateAnimationNode(byte[] params, int offset, int length);
 }

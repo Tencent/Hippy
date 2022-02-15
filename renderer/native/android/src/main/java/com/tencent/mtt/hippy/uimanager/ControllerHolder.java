@@ -13,18 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
+
+import androidx.annotation.NonNull;
 
 @SuppressWarnings("rawtypes")
 public class ControllerHolder {
 
-  public final HippyViewController hippyViewController;
-  public final boolean isLazy;
+    @NonNull
+    private final HippyViewController mHippyViewController;
+    private final boolean mIsLazy;
 
-  public ControllerHolder(HippyViewController hippyViewController, boolean isLazy) {
-    this.hippyViewController = hippyViewController;
-    this.isLazy = isLazy;
-  }
+    public ControllerHolder(@NonNull HippyViewController viewController, boolean isLazy) {
+        mHippyViewController = viewController;
+        mIsLazy = isLazy;
+    }
 
+    @NonNull
+    public HippyViewController getViewController() {
+        return mHippyViewController;
+    }
 
+    public boolean isLazy() {
+        return mIsLazy;
+    }
 }

@@ -54,6 +54,9 @@ class ModuleRegister {
 
   static ModuleRegister* instance();
 
+  ModuleRegister(const ModuleRegister &) = delete;
+  ModuleRegister &operator=(const ModuleRegister &) = delete;
+
   template <typename Module, typename Function>
   void RegisterInternalModule(Function Module::*member_fn,
                               const unicode_string_view& module_name,
@@ -106,6 +109,4 @@ class ModuleRegister {
 
   hippy::napi::ModuleClassMap internal_modules_;
   hippy::napi::ModuleClassMap global_modules_;
-
-  DISALLOW_COPY_AND_ASSIGN(ModuleRegister);
 };

@@ -157,7 +157,7 @@ bool Deserializer::ReadTwoByteString(DomValue& dom_value) {
 
   const char16_t* start = reinterpret_cast<char16_t*>(const_cast<uint8_t*>(position_));
   position_ += two_byte_length;
-  unicode_string_view string_view(start, two_byte_length);
+  unicode_string_view string_view(start, two_byte_length/ sizeof(char16_t));
   dom_value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
   return true;
 };
@@ -315,6 +315,7 @@ bool Deserializer::ReadObject(DomValue& value) {
 
 uint32_t Deserializer::ReadObjectProperties(DomValue& property, SerializationTag end_tag) {
   uint32_t num_properties = 0;
+  DomValue::DomValueObjectType object;
 
   // Slow path.
   for (;; num_properties++) {
@@ -326,7 +327,6 @@ uint32_t Deserializer::ReadObjectProperties(DomValue& property, SerializationTag
     }
 
     if (end_tag == SerializationTag::kEndJSObject) {
-      DomValue::DomValueObjectType object;
       DomValue key;
       ReadObject(key);
       DomValue value;

@@ -44,17 +44,6 @@ CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView) {
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
-typedef NS_ENUM(unsigned int, meta_prop_t) {
-    META_PROP_LEFT,
-    META_PROP_TOP,
-    META_PROP_RIGHT,
-    META_PROP_BOTTOM,
-    META_PROP_HORIZONTAL,
-    META_PROP_VERTICAL,
-    META_PROP_ALL,
-    META_PROP_COUNT,
-};
-
 @interface HippyShadowView () {
     HippyUpdateLifecycle _propagationLifecycle;
     HippyUpdateLifecycle _textLifecycle;
@@ -64,10 +53,8 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     BOOL _recomputeMargin;
     BOOL _recomputeBorder;
     BOOL _didUpdateSubviews;
-    float _paddingMetaProps[META_PROP_COUNT];
-    float _marginMetaProps[META_PROP_COUNT];
-    float _borderMetaProps[META_PROP_COUNT];
     std::weak_ptr<hippy::DomNode> _domNode;
+    NSInteger _isDecendantOfLazilyShadowView;
 }
 
 @end
@@ -78,19 +65,13 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 @synthesize props = _props;
 @synthesize rootTag = _rootTag;
 @synthesize parent = _parent;
-@synthesize tagName;
+@synthesize tagName =_tagName;
 
-- (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
-    HippyAssert(shadowViewsHaveNewLayoutResult, @"we need shadowViewsNeedToApplyLayout to collect shadow views");
-    //FIXME 由于获取shadowview改变的方法是从root shadow view开始递归，因此深层次subviews的更新以及subviews的改变需要一直dirty到rootview
-    //这里先简单处理
-//    if (_hasNewLayout || _visibilityChanged) {
-    if (1) {
-        _hasNewLayout = NO;
+- (void)amendLayoutBeforeMount {
+    if (HippyUpdateLifecycleDirtied == _propagationLifecycle || _visibilityChanged) {
         _visibilityChanged = NO;
-        [shadowViewsHaveNewLayoutResult addObject:self];
         for (HippyShadowView *shadowView in self.hippySubviews) {
-            [shadowView collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResult];
+            [shadowView amendLayoutBeforeMount];
         }
     }
 }
@@ -171,14 +152,8 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 - (instancetype)init {
     if ((self = [super init])) {
         _frame = CGRectMake(0, 0, NAN, NAN);
-
-        for (unsigned int ii = 0; ii < META_PROP_COUNT; ii++) {
-            _paddingMetaProps[ii] = NAN;
-            _marginMetaProps[ii] = NAN;
-            _borderMetaProps[ii] = NAN;
-        }
-
         _newView = YES;
+        _isDecendantOfLazilyShadowView = -1;
         _propagationLifecycle = HippyUpdateLifecycleUninitialized;
         _textLifecycle = HippyUpdateLifecycleUninitialized;
         _hasNewLayout = YES;
@@ -189,9 +164,6 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
 
 - (BOOL)isHippyRootView {
     return HippyIsHippyRootView(self.hippyTag);
-}
-
-- (void)dealloc {
 }
 
 - (BOOL)isCSSLeafNode {
@@ -257,6 +229,11 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
     _didUpdateSubviews = YES;
     subview->_superview = nil;
     [_hippySubviews removeObject:subview];
+}
+
+- (void)removeFromHippySuperview {
+    id superview = [self hippySuperview];
+    [superview removeHippySubview:self];
 }
 
 - (NSArray<HippyShadowView *> *)hippySubviews {
@@ -332,23 +309,7 @@ typedef NS_ENUM(unsigned int, meta_prop_t) {
         layoutNode->SetHeight(frame.size.height);
         layoutNode->MarkDirty();
         [self dirtyPropagation];
-    }
-}
-
-static inline void x5AssignSuggestedDimension(HPNodeRef cssNode, Dimension dimension, CGFloat amount) {
-    if (amount != UIViewNoIntrinsicMetric) {
-        switch (dimension) {
-            case DimWidth:
-                if (isnan(HPNodeLayoutGetWidth(cssNode))) {
-                    HPNodeStyleSetWidth(cssNode, amount);
-                }
-                break;
-            case DimHeight:
-                if (isnan(HPNodeLayoutGetHeight(cssNode))) {
-                    HPNodeStyleSetHeight(cssNode, amount);
-                }
-                break;
-        }
+        self.hasNewLayout = YES;
     }
 }
 
@@ -416,6 +377,27 @@ static inline void x5AssignSuggestedDimension(HPNodeRef cssNode, Dimension dimen
         ret = (id)kCFNull;
     }
     return ret;
+}
+
+- (BOOL)isDescendantOfLazilyCreatedShadowView {
+    if (-1 == _isDecendantOfLazilyShadowView) {
+        _isDecendantOfLazilyShadowView = 0;
+        id superShadowView = self;
+        while (superShadowView && ![superShadowView isHippyRootView]) {
+            if (![superShadowView isInstantlyCreatedView]) {
+                _isDecendantOfLazilyShadowView = 1;
+                break;
+            }
+            else {
+                superShadowView = [self hippySuperview];
+            }
+        }
+    }
+    return 1 == _isDecendantOfLazilyShadowView ? YES : NO;
+}
+
+- (BOOL)isInstantlyCreatedView {
+    return YES;
 }
 
 @end

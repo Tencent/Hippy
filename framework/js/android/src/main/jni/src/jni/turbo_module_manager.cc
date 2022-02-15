@@ -187,7 +187,7 @@ void TurboModuleManager::Destroy() {
 
 int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
   TDF_BASE_LOG(INFO) << "install TurboModuleManager";
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_LOG(ERROR) << "TurboModuleManager install, v8RuntimePtr invalid";
     return -1;
@@ -213,7 +213,7 @@ int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
 
 void Uninstall(JNIEnv *, jobject, jlong j_runtime_id) {
   TDF_BASE_LOG(INFO) << "uninstall install TurboModuleManager";
-  std::shared_ptr<Runtime> runtime = Runtime::Find(j_runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_LOG(ERROR) << "TurboModuleManager install, v8RuntimePtr invalid";
     return;

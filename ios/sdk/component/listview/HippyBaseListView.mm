@@ -125,6 +125,11 @@
     }
 }
 
+- (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
+    _initialListReady = initialListReady;
+    _isInitialListReady = NO;
+}
+
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
 }
@@ -153,7 +158,6 @@
 }
 
 - (void)didUpdateHippySubviews {
-    [super didUpdateHippySubviews];
     [self refreshItemNodes];
     [self reloadData];
 }
@@ -304,15 +308,9 @@
     }
     //FIXME use cache for cell view creation
     UIView *cellView = [_bridge.uiManager viewForHippyTag:cellShadowView.hippyTag];
-    cellView.frame = CGRectMake(0, 0, CGRectGetWidth(cellView.frame), CGRectGetHeight(cellView.frame));
-//    if (cell.node.cell) {
-//        cellView = [_bridge.uiManager createViewFromNode:indexNode];
-//    } else {
-//        cellView = [_bridge.uiManager updateNode:cell.node withNode:indexNode];
-//        if (nil == cellView) {
-//            cellView = [_bridge.uiManager createViewFromNode:indexNode];
-//        }
-//    }
+    if (!cellView) {
+        cellView = [_bridge.uiManager createViewRecursivelyFromShadowView:cellShadowView];
+    }
     cell.layer.zPosition = [self zPositionOfCell:cell forRowAtIndexPath:indexPath];
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");

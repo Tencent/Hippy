@@ -41,6 +41,8 @@ CGFloat const HippyTextAutoSizeWidthErrorMargin = 0.05f;
 CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 
+static const CGFloat gDefaultFontSize = 14.f;
+
 @implementation HippyShadowText
 
 hippy::LayoutSize textMeasureFunc(
@@ -178,7 +180,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     return parentProperties;
 }
 
-- (void)collectShadowViewsHaveNewLayoutResults:(NSMutableSet<HippyShadowView *> *)shadowViewsHaveNewLayoutResult {
+- (void)amendLayoutBeforeMount {
     @try {
         NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:hippy::Exactly];
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
@@ -214,10 +216,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 child.frame = childFrame;
             }
         }];
-        [super collectShadowViewsHaveNewLayoutResults:shadowViewsHaveNewLayoutResult];
-
-    } @catch (NSException *exception) {
-        
+        [super amendLayoutBeforeMount];
+    }
+    @catch (NSException *exception) {
+        [super amendLayoutBeforeMount];
     }
 }
 
@@ -300,6 +302,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     if (_fontSize && !isnan(_fontSize)) {
         fontSize = @(_fontSize);
+    }
+    else if (nil == fontSize) {
+        //default font size is 14
+        fontSize = @(gDefaultFontSize);
     }
     if (_fontWeight) {
         fontWeight = _fontWeight;

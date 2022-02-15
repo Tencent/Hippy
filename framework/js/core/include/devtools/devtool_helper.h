@@ -7,6 +7,7 @@
 
 #if TDF_SERVICE_ENABLED
 #include "devtools/devtool_data_source.h"
+#include "devtools_backend/devtools_backend_service.h"
 
 #define DEVTOOLS_JS_REGISTER_RECEIVE_V8_RESPONSE(result) hippy::devtools::DevtoolDataSource::SendV8Response(result)
 
@@ -14,7 +15,7 @@
   hippy::devtools::DevtoolDataSource::OnGlobalTracingControlGenerate(trace_control)
 
 #define DEVTOOLS_INIT_V8_TRACING_CACHE(trace_dir) \
-  tdf::devtools::DevtoolsBackendService::GetInstance().SetFileCacheDir(trace_dir);
+  tdf::devtools::DevtoolsBackendService::GetInstance().SetFileCacheDir(trace_dir)
 
 #else
 #define DEVTOOLS_JS_REGISTER_RECEIVE_V8_RESPONSE(result) void(0)

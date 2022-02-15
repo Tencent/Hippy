@@ -31,6 +31,7 @@ import com.tencent.renderer.NativeRenderException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Deserializer extends PrimitiveValueDeserializer {
 
@@ -46,13 +47,12 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
     @Override
     protected Object readJSBoolean(boolean value) {
-        return assignId(Boolean.valueOf(value));
+        return assignId(value);
     }
 
     @Override
     protected Number readJSNumber() {
-        double value = reader.getDouble();
-        return assignId(Double.valueOf(value));
+        return assignId(reader.getDouble());
     }
 
     @Override
@@ -66,8 +66,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
     }
 
     @Override
-    protected HashMap readJSObject() {
-        HashMap<String, Object> map = new HashMap<>();
+    protected Map<String, Object> readJSObject() {
+        Map<String, Object> map = new HashMap<>();
         assignId(map);
         int read = readObjectProperties(map);
         int expected = (int) reader.getVarint();
@@ -97,7 +97,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
         return count;
     }
 
-    private int readObjectProperties(HashMap<String, Object> map) {
+    private int readObjectProperties(Map<String, Object> map) {
         final StringLocation keyLocation = StringLocation.OBJECT_KEY;
         final StringLocation valueLocation = StringLocation.OBJECT_VALUE;
 
@@ -118,8 +118,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
     }
 
     @Override
-    protected HashMap readJSMap() {
-        HashMap<Object, Object> map = new HashMap<>();
+    protected Map<Object, Object> readJSMap() {
+        Map<Object, Object> map = new HashMap<>();
         assignId(map);
         SerializationTag tag;
         int read = 0;

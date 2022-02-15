@@ -34,6 +34,9 @@
 #include "core/napi/native_source_code.h"
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
+#ifdef JS_V8
+#include "core/napi/v8/js_native_api_v8.h"
+#endif
 
 using unicode_string_view = tdf::base::unicode_string_view;
 
@@ -45,7 +48,7 @@ using TryCatch = hippy::napi::TryCatch;
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
-const uint32_t kInvalidListenerId = 0;
+constexpr uint32_t kInvalidListenerId = 0;
 
 Scope::Scope(Engine* engine,
              std::string name,
@@ -125,13 +128,12 @@ void Scope::Initialized() {
   TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
   unicode_string_view str_view(source_code.data_, source_code.length_);
   std::shared_ptr<CtxValue> function = context_->RunScript(
-      str_view, kHippyBootstrapJSName, false, nullptr, true);
+      str_view, kHippyBootstrapJSName);
 
   bool is_func = context_->IsFunction(function);
-  TDF_BASE_CHECK(is_func) << "bootstrap return not function, register fail!!!";
+  TDF_BASE_CHECK(is_func) << "bootstrap return not function, len = " << source_code.length_;
+  // TODO(super): The following statement will be removed when TDF_BASE_CHECK will be cause abort
   if (!is_func) {
-    TDF_BASE_DLOG(ERROR) << "bootstrap return not function, js = " << str_view
-                         << ", len = " << source_code.length_;
     return;
   }
 
@@ -144,9 +146,9 @@ void Scope::Initialized() {
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIEZED begin";
+      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIZED begin";
       f(wrapper_.get());
-      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIEZED end";
+      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIZED end";
       map_->erase(it);
     }
   }
@@ -204,11 +206,17 @@ void Scope::RunJS(const unicode_string_view& data,
                   bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function callback = [data, name, is_copy, weak_context] {
-    std::shared_ptr<Ctx> context = weak_context.lock();
-    if (!context) {
-      return;
+#ifdef JS_V8
+    auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+    if (context) {
+      context->RunScript(data, name, false, nullptr, is_copy);
     }
-    context->RunScript(data, name, false, nullptr, is_copy);
+#else
+    auto context = weak_context.lock();
+    if (!context) {
+      context->RunScript(data, name);
+    }
+#endif
   };
 
   std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
@@ -230,10 +238,17 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
   JavaScriptTask::Function cb = hippy::base::MakeCopyable(
       [data, name, is_copy, weak_context, p = std::move(promise)]() mutable {
         std::shared_ptr<CtxValue> rst = nullptr;
-        std::shared_ptr<Ctx> context = weak_context.lock();
+#ifdef JS_V8
+        auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
         if (context) {
           rst = context->RunScript(data, name, false, nullptr, is_copy);
         }
+#else
+        auto context = weak_context.lock();
+        if (context) {
+          rst = context->RunScript(data, name);
+        }
+#endif
         p.set_value(rst);
       });
 

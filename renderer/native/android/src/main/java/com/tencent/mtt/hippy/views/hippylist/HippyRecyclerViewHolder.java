@@ -32,7 +32,7 @@ public class HippyRecyclerViewHolder extends ViewHolder {
 
   public boolean isRenderDeleted() {
     if (bindNode != null) {
-      return bindNode.isDelete();
+      return bindNode.isDeleted();
     }
     return false;
   }
