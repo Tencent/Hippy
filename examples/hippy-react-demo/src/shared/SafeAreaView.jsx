@@ -39,7 +39,7 @@ export default class SafeAreaView extends Component {
   }
 
   onLayout(e) {
-    const { width, height } = e?.layout;
+    const { width, height } = e.layout;
     this.setState({ isVertical: width < height });
   }
 

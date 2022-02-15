@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   ScrollView,
   Text,
@@ -44,51 +44,15 @@ export default function ViewExpo() {
       <Text>{title}</Text>
     </View>
   );
-  const ref = useRef(null);
-  const onTouchStart = (e) => {
-    console.log('touch start', e);
-  };
-  const onTouchMove = (e) => {
-    console.log('touch move', e);
-  };
-  const onTouchEnd = (e) => {
-    console.log('touch end', e);
-  };
-  const onTouchCancel = (e) => {
-    console.log('touch cancel', e);
-  };
   const onLayout = (e) => {
     console.log('layoutemit', e);
-  };
-  const interruptTouch = () => {
-    alert('touch event was interrupted');
-  };
-  const onAttachedToWindow = () => {
-    console.log('component mount');
   };
   return (
     <ScrollView style={{ padding: 10, height: '100vh', overflow: 'scroll' }}>
       {renderTitle('onLayout')}
       <View onLayout={onLayout} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-      {renderTitle('onAttachedToWindow')}
-      <View onAttachedToWindow={onAttachedToWindow} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-      {renderTitle('onTouchDown')}
-      <View ref={ref} onTouchDown={onTouchStart} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-      {renderTitle('onTouchMove')}
-      <View onTouchMove={onTouchMove} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-      {renderTitle('onTouchEnd')}
-      <View onTouchEnd={onTouchEnd} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-      {renderTitle('onTouchCancel')}
-      <View onTouchMove={interruptTouch} onTouchCancel={onTouchCancel} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-
       {renderTitle('backgroundColor')}
       <View style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-      {renderTitle('opacity')}
-      <View opacity={0.5} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-      {renderTitle('overflow')}
-      <View overflow={'hidden'} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
-      {renderTitle('overflow')}
-      <View overflow={'visible'} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
       {renderTitle('backgroundImage')}
       <View style={[styles.rectangle, {
         alignItems: 'center',

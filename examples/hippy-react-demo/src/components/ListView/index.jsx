@@ -140,10 +140,6 @@ export default class ListExample extends React.Component {
     this.onWillDisappear = this.onWillDisappear.bind(this);
     this.rowShouldSticky = this.rowShouldSticky.bind(this);
     this.listRef = React.createRef(null);
-    this.renderPullHeader = this.renderPullHeader.bind(this);
-    this.onHeaderReleased = this.onHeaderReleased.bind(this);
-    this.onHeaderPulling = this.onHeaderPulling.bind(this);
-    this.getPullHeaderHeight = this.getPullHeaderHeight.bind(this);
   }
 
   onDelete({ index }) {
@@ -194,7 +190,7 @@ export default class ListExample extends React.Component {
   // configure listItem style if horizontal listview is set
   getRowStyle() {
     return {
-      // width: 100,
+      width: 100,
       height: 50,
     };
   }
@@ -266,63 +262,6 @@ export default class ListExample extends React.Component {
     return [10, 20, 30].includes(rowIndex);
   }
 
-  componentDidMount() {
-    // setTimeout(() => {
-    //   this.listRef.current.scrollToIndex(0, 1, false);
-    // }, 100);
-    // setTimeout(() => {
-    //   this.listRef.current.scrollToIndex(0, 10, true);
-    // }, 200);
-    // setTimeout(() => {
-    //   this.listRef.current.scrollToContentOffset(0, 750);
-    // }, 300);
-  }
-
-  getPullHeaderHeight() {
-    return styles.pullContainer.height;
-  }
-  renderPullHeader() {
-    const { pullingText } = this.state;
-    return (
-      <View style={styles.pullContainer}>
-        <Text style={styles.pullContent}>{pullingText}</Text>
-      </View>
-    );
-  }
-
-  /**
-   * 下拉超过内容高度，松手后触发
-   */
-  async onHeaderReleased() {
-    this.setState({
-      pullingText: this.pullingText.loading,
-    });
-    console.log('refreshing');
-    setTimeout(() => {
-      console.log('refreshing finish');
-      this.listRef.current.collapsePullHeader();
-    }, 1000);
-  }
-
-  /**
-   * 下拉过程中触发
-   */
-  onHeaderPulling(evt) {
-    const { pullingText } = this.state;
-    if (evt.contentOffset < this.getPullHeaderHeight()) {
-      if (pullingText !== this.pullingText.pull) {
-        this.setState({
-          pullingText: this.pullingText.pull,
-        });
-      }
-    } else {
-      if (pullingText !== this.pullingText.release) {
-        this.setState({
-          pullingText: this.pullingText.release,
-        });
-      }
-    }
-  }
 
   render() {
     const { dataSource } = this.state;
@@ -365,10 +304,6 @@ export default class ListExample extends React.Component {
         onDisappear={this.onDisappear}
         onWillAppear={this.onWillAppear}
         onWillDisappear={this.onWillDisappear}
-        renderPullHeader={this.renderPullHeader}
-        onHeaderReleased={this.onHeaderReleased}
-        onHeaderPulling={this.onHeaderPulling}
-        getPullHeaderHeight={this.getPullHeaderHeight}
       />
     );
   }

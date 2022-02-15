@@ -39,25 +39,6 @@ const styles = StyleSheet.create({
 });
 
 export default function ScrollExpo() {
-  const onScroll = (e) => {
-    console.log('scroll', e);
-  };
-  const scrollRef = React.useRef(null);
-  const scrollTo = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo(100, null, false);
-    }
-  };
-  const scrollToWithAnimated = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo(200, null, true);
-    }
-  };
-  const scrollToWithDuration = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollToWithDuration(200, null, 500);
-    }
-  };
   return (
     <ScrollView>
       <View style={styles.itemTitle}>
@@ -65,11 +46,8 @@ export default function ScrollExpo() {
       </View>
       <View>
         <ScrollView
-          ref={scrollRef}
           horizontal={true}
           bounces={true}
-          scrollEventThrottle={300}
-          onScroll={onScroll}
           showsHorizontalScrollIndicator={false} // only iOS support
           showScrollIndicator={false} // only Android support
         >
@@ -82,15 +60,6 @@ export default function ScrollExpo() {
           <Text style={styles.itemStyle}>A</Text>
         </ScrollView>
       </View>
-      <View style={styles.itemTitle} onClick={scrollTo}>
-        <Text>scrollTo</Text>
-      </View>
-      <View style={styles.itemTitle} onClick={scrollToWithAnimated}>
-        <Text>scrollToWithAnimated</Text>
-      </View>
-      <View style={styles.itemTitle} onClick={scrollToWithDuration}>
-        <Text>scrollToWithDuration</Text>
-      </View>
       <View style={styles.itemTitle}>
         <Text>Vertical ScrollView</Text>
       </View>
@@ -98,7 +67,7 @@ export default function ScrollExpo() {
         bounces={true}
         horizontal={false}
         style={styles.verticalScrollView}
-        showScrollIndicator={true} // web Android support
+        showScrollIndicator={false} // only Android support
         showsVerticalScrollIndicator={false} // only iOS support
       >
         <Text style={styles.itemStyle}>A</Text>
@@ -109,23 +78,6 @@ export default function ScrollExpo() {
         <Text style={styles.itemStyle}>F</Text>
         <Text style={styles.itemStyle}>A</Text>
       </ScrollView>
-      <View style={styles.itemTitle}>
-        <Text>Scroll Dsiable</Text>
-      </View>
-      <View>
-        <ScrollView
-          horizontal={true}
-          scrollEnabled={false}
-        >
-          <Text style={styles.itemStyle}>A</Text>
-          <Text style={styles.itemStyle}>B</Text>
-          <Text style={styles.itemStyle}>C</Text>
-          <Text style={styles.itemStyle}>D</Text>
-          <Text style={styles.itemStyle}>E</Text>
-          <Text style={styles.itemStyle}>F</Text>
-          <Text style={styles.itemStyle}>A</Text>
-        </ScrollView>
-      </View>
     </ScrollView>
   );
 }

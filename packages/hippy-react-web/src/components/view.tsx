@@ -20,9 +20,9 @@
 
 import React, { useEffect, useRef } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import useResponderEvents from '../modules/responder-events';
+import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
-import { Touch } from '../modules/responder-events/responder-event-types';
+import { Touch } from '../modules/use-responder-events/types';
 import { LayoutEvent, StyleSheet } from '../types';
 
 const styles = {
@@ -44,6 +44,7 @@ const styles = {
 };
 
 export interface ViewProps {
+  [key: string]: any;
   ref?: any;
   accessible?: boolean;
   accessibilityLabel?: string;
@@ -103,12 +104,15 @@ const View: React.FC<ViewProps> = React.forwardRef((props, ref) => {
   const accessibilityLabelValue = newProps.accessibilityLabel;
   // delete unsupported props
   delete newProps.onAttachedToWindow;
+  delete newProps.accessible;
+  delete newProps.accessibilityLabel;
+  delete newProps.accessibilityValue;
+  delete newProps.accessibilityRole;
+  delete newProps.accessibilityState;
   delete newProps.onTouchCancel;
   delete newProps.onTouchEnd;
   delete newProps.onTouchMove;
   delete newProps.onTouchDown;
-  delete newProps.accessible;
-  delete newProps.accessibilityLabel;
   delete newProps.onScroll;
   delete newProps.opacity;
   delete newProps.ref;

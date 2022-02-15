@@ -115,6 +115,7 @@ function ListViewItem(props: ListViewItemProp) {
   delete liElementProps.height;
   delete liElementProps.getRowKey;
   delete liElementProps.type;
+  delete liElementProps.rowShouldSticky;
 
   return (
     <li {...liElementProps} ref={ref} rowid={getRowKey()} />
@@ -127,7 +128,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     onHeaderReleased = () => { }, onHeaderPulling = () => { }, renderPullHeader = () => null,
     getPullHeaderHeight = () => 0, onDisappear = () => { }, onAppear = () => { },
   } = props;
-  const isShowPullHeader = useRef(isFunc(getPullHeaderHeight) && isFunc(renderPullHeader));
+  const isShowPullHeader = useRef(getPullHeaderHeight() && getPullHeaderHeight());
   const pullHeaderRef = useRef(null);
   const pullHeaderHeight = useRef((isShowPullHeader.current && getPullHeaderHeight()) || 0);
   const listRef = useRef<null | {
@@ -309,7 +310,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       <MListView
         {...listViewProps}
         ref={listRef}
-        contentContainerStyle={isShowPullHeader.current && { marginTop: `-${pullHeaderHeight.current}px` }}
+        contentContainerStyle={isShowPullHeader.current ?  { marginTop: `-${pullHeaderHeight.current}px` } : {}}
         className={(!showScrollIndicator && HIDE_SCROLLBAR_CLASS) || ''}
         dataSource={getDataSource()}
         renderRow={renderRow}

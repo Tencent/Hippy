@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStable } from '../../utils';
 import ResponderEvent from './responder-events';
-import { Touch } from './responder-event-types';
+import { Touch } from './types';
 
 let idCounter = 0;
 
@@ -26,7 +26,7 @@ const useResponderEvents = (ref: any, config: ResponderConfig = {}) => {
     const { onTouchDown, onTouchMove, onTouchEnd, onTouchCancel, onScroll } = config;
     const node = ref.current;
 
-    const isNeedResponderEvent = (onTouchDown || onTouchMove || onTouchEnd || onTouchCancel || onScroll) && node;
+    const isNeedResponderEvent = [onTouchDown, onTouchMove, onTouchEnd, onTouchCancel, onScroll].some(v => v) && node;
 
     if (isNeedResponderEvent) {
       ResponderEvent.addNode(id, node, config);

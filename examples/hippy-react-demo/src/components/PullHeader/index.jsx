@@ -55,11 +55,6 @@ const styles = StyleSheet.create({
 export default class PullHeaderExample extends React.Component {
   constructor(props) {
     super(props);
-    this.pullingText = {
-      pull: '继续下拉触发刷新',
-      release: '松手，即可触发刷新',
-      loading: '刷新数据中，请稍等，1秒后自动收起',
-    };
     this.state = {
       dataSource: [],
       pullingText: '继续下拉触发刷新',
@@ -74,7 +69,6 @@ export default class PullHeaderExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.onHeaderReleased = this.onHeaderReleased.bind(this);
     this.onHeaderPulling = this.onHeaderPulling.bind(this);
-    this.getPullHeaderHeight = this.getPullHeaderHeight.bind(this);
   }
 
   async componentDidMount() {
@@ -124,7 +118,7 @@ export default class PullHeaderExample extends React.Component {
     this.fetchingDataFlag = true;
     console.log('onHeaderReleased');
     this.setState({
-      pullingText: this.pullingText.loading,
+      pullingText: '刷新数据中，请稍等，2秒后自动收起',
     });
     let dataSource = [];
     try {
@@ -147,23 +141,18 @@ export default class PullHeaderExample extends React.Component {
    * 这里简单处理，其实可以做到更复杂的动态效果。
    */
   onHeaderPulling(evt) {
-    const { pullingText } = this.state;
     if (this.fetchingDataFlag) {
       return;
     }
     console.log('onHeaderPulling', evt.contentOffset);
     if (evt.contentOffset > styles.pullContent.height) {
-      if (pullingText !== this.pullingText.pull) {
-        this.setState({
-          pullingText: this.pullingText.pull,
-        });
-      }
+      this.setState({
+        pullingText: '松手，即可触发刷新',
+      });
     } else {
-      if (pullingText !== this.pullingText.release) {
-        this.setState({
-          pullingText: this.pullingText.release,
-        });
-      }
+      this.setState({
+        pullingText: '继续下拉，触发刷新',
+      });
     }
   }
 
@@ -227,10 +216,6 @@ export default class PullHeaderExample extends React.Component {
     );
   }
 
-  getPullHeaderHeight() {
-    return styles.pullContainer.height;
-  }
-
   /**
    * 渲染单个列表行
    *
@@ -270,7 +255,6 @@ export default class PullHeaderExample extends React.Component {
     );
   }
 
-
   /**
    * 渲染范例组件
    */
@@ -287,11 +271,10 @@ export default class PullHeaderExample extends React.Component {
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
         renderRow={this.renderRow}
+        renderPullHeader={this.renderPullHeader}
         onEndReached={this.onEndReached}
         onHeaderReleased={this.onHeaderReleased}
         onHeaderPulling={this.onHeaderPulling}
-        renderPullHeader={this.renderPullHeader}
-        getPullHeaderHeight={this.getPullHeaderHeight}
       />
     );
   }

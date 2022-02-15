@@ -6,7 +6,7 @@ import View, { ViewProps } from './view';
 
 
 const cssFunction = (): 'contant' | 'env' => {
-  if (canUseDOM && window.CSS && window.CSS.supports && window.CSS.supports('top: constants(safe-area-inset-top)')) {
+  if (canUseDOM && window?.CSS?.supports('top: constants(safe-area-inset-top)')) {
     return 'contant';
   }
   return 'env';

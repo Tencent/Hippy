@@ -1,9 +1,8 @@
 import { canUseDOM } from '../../utils/execution-environment';
 import {
-  getResponderPaths, setResponderId, TOUCH_CANCEL, TOUCH_END, TOUCH_MOVE, TOUCH_START, SCROLL_EVENT,
-  isTouchStart, isTouchMove, isTouchCacel, isTouchEnd, isScrollEvent,
+  getResponderPaths, setResponderId, TOUCH_CANCEL, TOUCH_END, TOUCH_MOVE, TOUCH_START, SCROLL_EVENT, isScrollEvent,
 } from './utils';
-import { Touch } from './responder-event-types';
+import { Touch } from './types';
 import { ResponderConfig } from './index';
 
 interface ResponderEvent {
@@ -15,15 +14,8 @@ interface ResponderEvent {
 const reponderEventKey = '__reactResponderSystemActive';
 const responderListerersMap = new Map<number, ResponderConfig>();
 
-const documentEventCapturePhase = [SCROLL_EVENT];
-const documentEventsBubblePhase = [
-  // touch
-  TOUCH_START,
-  TOUCH_MOVE,
-  TOUCH_END,
-  TOUCH_CANCEL,
-];
 const touchEvent = [TOUCH_START, TOUCH_MOVE, TOUCH_END, TOUCH_CANCEL];
+const documentEvents = [...touchEvent, SCROLL_EVENT];
 let touchEventStore: Touch = {
   pageX: 0,
   pageY: 0,
@@ -34,28 +26,41 @@ let touchEventStore: Touch = {
 
 const handleTouchEvent = (touchEvent: Touch, config: ResponderConfig, eventType: string) => {
   const { onTouchDown, onTouchMove, onTouchEnd, onTouchCancel } = config;
-  if (isTouchStart(eventType) && onTouchDown) {
-    touchEventStore = { ...touchEvent };
-    onTouchDown(touchEvent);
-  }
-  if (isTouchMove(eventType) && onTouchMove) {
-    touchEventStore = { ...touchEvent };
-    onTouchMove(touchEvent);
-  }
-  if (isTouchEnd(eventType) && onTouchEnd) {
-    onTouchEnd(touchEvent);
-  }
-  if (isTouchCacel(eventType) && onTouchCancel) {
-    onTouchCancel(touchEventStore);
+  const touchEventHandlerMap = {
+    TOUCH_START: () => {
+      if (onTouchDown) {
+        touchEventStore = { ...touchEvent };
+        onTouchDown(touchEvent);
+      }
+    },
+    TOUCH_MOVE: () => {
+      if (onTouchMove) {
+        touchEventStore = { ...touchEvent };
+        onTouchMove(touchEvent);
+      }
+    },
+    TOUCH_END: () => {
+      if (onTouchEnd) {
+        onTouchEnd(touchEvent);
+      }
+    },
+    TOUCH_CANCEL: () => {
+      if (onTouchCancel) {
+        onTouchCancel(touchEventStore);
+      }
+    },
+  };
+  if (touchEventHandlerMap[eventType]) {
+    touchEventHandlerMap[eventType]();
   }
 };
 
 const eventListerner = (domEvent: any) => {
   const eventType = domEvent?.type;
   const eventPath = getResponderPaths(domEvent);
-  const responderId = eventPath.idPath[0];
+  const [responderId] = eventPath.idPath;
   if (touchEvent.includes(eventType)) {
-    const touches = domEvent.changedTouches[0];
+    const [touches] = domEvent.changedTouches;
     if (responderListerersMap.has(responderId)) {
       const touchEvent: Touch = {
         pageX: touches.pageX,
@@ -92,10 +97,7 @@ const responderEvent: ResponderEvent = {
   attachListerers() {
     if (canUseDOM && !window[reponderEventKey]) {
       window[reponderEventKey] = true;
-      documentEventsBubblePhase.forEach((eventType) => {
-        document.addEventListener(eventType, eventListerner);
-      });
-      documentEventCapturePhase.forEach((eventType) => {
+      documentEvents.forEach((eventType) => {
         document.addEventListener(eventType, eventListerner);
       });
     }

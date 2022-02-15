@@ -56,15 +56,6 @@ export default function ImageExpo() {
         onLoadEnd={() => {
           console.log('image onLoadEnd');
         }}
-        onTouchDown={() => {
-          console.log('===image onTouch start');
-        }}
-        onTouchMove={() => {
-          console.log('===image onTouch move');
-        }}
-        onTouchEnd={() => {
-          console.log('===image onTouchEnd');
-        }}
       />
       <Text style={styles.info_style}>Cover:</Text>
       <Image

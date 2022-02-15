@@ -1,4 +1,5 @@
 import { canUseClipboard, canUseDOM, canUseCopyCommand } from '../utils/execution-environment';
+import { warn } from '../utils';
 
 const Clipboard = {
   getString() {
@@ -7,20 +8,26 @@ const Clipboard = {
         window.navigator.clipboard.readText().then((text) => {
           resolve(text);
         }, () => {
-          reject('');
+          warn('Clipboard getString is not supported');
+          resolve('');
         });
       } else {
-        reject('');
+        warn('Clipboard getString is not supported');
+        resolve('');
       }
     });
   },
   setString(text: string): Promise<void> {
+    const setStringNotSupportWarn = () => {
+      warn('Clipboard setString is not supported');
+    };
     return new Promise((resolve, reject) => {
       if (canUseClipboard) {
         window.navigator.clipboard.writeText(text).then(() => {
           resolve();
         }, () => {
-          reject();
+          setStringNotSupportWarn();
+          resolve();
         });
       } else if (canUseDOM && canUseCopyCommand) {
         const textarea = document.createElement('textarea');
@@ -32,12 +39,14 @@ const Clipboard = {
           document.execCommand('copy');
           resolve();
         } catch {
-          reject();
+          setStringNotSupportWarn();
+          resolve();
         } finally {
           document.body.removeChild(textarea);
         }
       } else {
-        reject();
+        setStringNotSupportWarn();
+        resolve();
       }
     });
   },

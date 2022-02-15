@@ -1,17 +1,28 @@
 import React from 'react';
+import { warn } from '../utils';
 
 const BackAndroid = (() => ({
-  exitApp() { },
+  exitApp() {
+    warn('BackAndroid.exitApp is not suported in the web');
+  },
   addListener() {
+    warn('BackAndroid.addListener is not suported in the web');
     return {
       remove() { },
     };
   },
-  removeListener() { },
-  initEventListener() { },
+  removeListener() {
+    warn('BackAndroid.removeListener is not suported in the web');
+  },
+  initEventListener() {
+    warn('BackAndroid.initEventListener is not suported in the web');
+  },
 }))();
 
 class Focusable extends React.Component {
+  public componentDidMount() {
+    warn('Focusable is not suported in the web');
+  }
   public render(): React.ReactNode {
     return '';
   }
@@ -20,6 +31,7 @@ class Focusable extends React.Component {
 class HippyEventEmitter {
   public name: string;
   public constructor(name) {
+    warn('HippyEventEmitter is not suported in the web');
     this.name = name;
   }
   public sharedListeners() {
@@ -39,8 +51,12 @@ class HippyEventEmitter {
   }
 }
 
-const callNative = () => { };
-const callNativeWithPromise = () => { };
+const callNative = () => {
+  warn('callNative is not suported in the web');
+};
+const callNativeWithPromise = () => {
+  warn('callNativeWithPromise is not suported in the web');
+};
 
 export {
   BackAndroid,

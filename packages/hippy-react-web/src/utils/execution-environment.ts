@@ -1,18 +1,6 @@
-export const canUseDOM = !!(
-  typeof window !== 'undefined'
-  && window.document
-  && window.document.createElement
-);
+export const canUseDOM = !!(window?.document?.createElement);
 
-export const canUseClipboard = !!(
-  typeof window !== 'undefined'
-  && window.navigator
-  && window.navigator.clipboard
-);
+export const canUseClipboard = !!(window?.navigator?.clipboard);
 
 
-export const canUseCopyCommand = !!(
-  typeof document !== 'undefined'
-  && document.queryCommandSupported
-  && document.queryCommandSupported('copy')
-);
+export const canUseCopyCommand = !!(document?.queryCommandSupported && document?.queryCommandSupported('copy'));

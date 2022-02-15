@@ -48,62 +48,20 @@ export default class TextInputExpo extends Component {
     this.changeInputContent = this.changeInputContent.bind(this);
     this.focus = this.focus.bind(this);
     this.blur = this.blur.bind(this);
-    this.clear = this.clear.bind(this);
-    this.getValue = this.getValue.bind(this);
-    this.setValue = this.setValue.bind(this);
-    this.hideInputMethod = this.hideInputMethod.bind(this);
-    this.showInputMethod = this.showInputMethod.bind(this);
-    this.onTextChange = this.onTextChange.bind(this);
-    this.input = React.createRef();
   }
 
   changeInputContent() {
-    console.log('set content');
-    this.setState(() => ({
-      textContent: `当前时间毫秒：${Date.now()}`,
-    }));
-    console.log('text content', this.state.textContent);
-  }
-
-  focus() {
-    this.input.current.focus();
-  }
-
-  blur() {
-    this.input.current.blur();
-  }
-
-  clear() {
-    console.log('this input', this.input);
-    this.input.current.clear();
-  }
-
-  getValue() {
-    console.log('input value', this.input.current.getValue());
-  }
-
-  setValue() {
-    this.input.current.setValue('set Value');
-  }
-
-  hideInputMethod() {
-    console.log('show Input Method');
-    this.input.current.hideInputMethod();
-  }
-
-  showInputMethod() {
-    this.input.current.showInputMethod();
-  }
-
-  onTextChange(text) {
-    console.log('onText change', text);
     this.setState({
-      textContent: text,
+      textContent: `当前时间毫秒：${Date.now()}`,
     });
   }
 
-  componentDidMount() {
-    console.log('this ref', this.input);
+  focus() {
+    this.input.focus();
+  }
+
+  blur() {
+    this.input.blur();
   }
 
   render() {
@@ -117,14 +75,14 @@ export default class TextInputExpo extends Component {
       <ScrollView style={styles.container_style}>
         {renderTitle('text')}
         <TextInput
-          ref={this.input}
+          ref={(ref) => {
+            this.input = ref;
+          }}
           style={styles.input_style}
           caretColor='yellow'
           underlineColorAndroid='grey'
           placeholderTextColor='#4c9afa'
           placeholder="text"
-          value={textContent}
-          onChangeText={this.onTextChange}
           defaultValue={textContent}
         />
         <View style={styles.button} onClick={this.changeInputContent}>
@@ -135,21 +93,6 @@ export default class TextInputExpo extends Component {
         </View>
         <View style={styles.button} onClick={this.blur}>
           <Text>Blur</Text>
-        </View>
-        <View style={styles.button} onClick={this.clear}>
-          <Text>clear</Text>
-        </View>
-        <View style={styles.button} onClick={this.setValue}>
-          <Text>setValue</Text>
-        </View>
-        <View style={styles.button} onClick={this.getValue}>
-          <Text>getValue</Text>
-        </View>
-        <View style={styles.button} onClick={this.hideInputMethod}>
-          <Text>hideInputMethod</Text>
-        </View>
-        <View style={styles.button} onClick={this.showInputMethod}>
-          <Text>showInputMethod</Text>
         </View>
         {renderTitle('numeric')}
         <TextInput
@@ -172,16 +115,10 @@ export default class TextInputExpo extends Component {
         />
         {renderTitle('maxLength')}
         <TextInput
+          caretColor={'yellow'}
           style={styles.input_style}
           placeholder="maxLength=5"
           maxLength={5}
-        />
-        {renderTitle('multiline')}
-        <TextInput
-          style={styles.input_style}
-          placeholder="maxLength=5"
-          maxLength={5}
-          multiline={true}
         />
       </ScrollView>
     );
