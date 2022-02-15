@@ -91,17 +91,6 @@ export default function ImageExpo() {
         source={{ uri: HippyLogoImg }}
         resizeMode={Image.resizeMode.center}
       />
-=======
-      <Text style={styles.info_style}>Children:</Text>
-      <Image
-        style={[styles.image_style]}
-        defaultSource={defaultSource}
-        source={{ uri: imageUrl }}
-        resizeMode={Image.resizeMode.center}
-      >
-        <Text style={styles.info_style}>Children:</Text>
-      </Image>
->>>>>>> feat(hippy-react-web): supports hippy-react components
       <Text style={styles.info_style}>Cover GIF:</Text>
       <Image
         style={[styles.image_style]}

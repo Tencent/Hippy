@@ -132,6 +132,12 @@ interface WebStyle {
   borderRightColors?: HippyTypes.colors;
   backgroundColor?: HippyTypes.color;
   backgroundColors?: HippyTypes.colors;
+  boxShadow?: string;
+  boxShadowRadius?: number | string;
+  boxShadowOffsetX?: number | string;
+  boxShadowOffsetY?: number | string;
+  boxShadowSpread?: number | string;
+  boxShadowColor?: HippyTypes.color;
 }
 
 function handleBoxStyle(webStyle: WebStyle) {
@@ -190,6 +196,23 @@ function handleSpecialColor(webStyle: WebStyle) {
       [webStyle[color]] = webStyle[colors];
     }
   });
+}
+
+function handleBoxShadow(webStyle: WebStyle) {
+  let boxShadow = '';
+  const propertyGap = ' ';
+  const { boxShadowOffsetX, boxShadowOffsetY, boxShadowRadius, boxShadowSpread, boxShadowColor } = webStyle;
+  [boxShadowOffsetX, boxShadowOffsetY, boxShadowRadius, boxShadowSpread].forEach((properyty) => {
+    if (properyty) {
+      boxShadow += `${toPx(properyty)}${propertyGap}`;
+    } else {
+      boxShadow += `0 ${propertyGap}`;
+    }
+  });
+  if (boxShadowColor) {
+    boxShadow += boxShadowColor;
+  }
+  webStyle.boxShadow = boxShadow;
 }
 
 function handle8BitHexColor(webStyle: WebStyle) {
@@ -306,6 +329,8 @@ function hackWebStyle(webStyle_: any) {
       webStyle.transform = finalTransformStyleResult;
     }
   }
+  // handle boxShadow
+  handleBoxShadow(webStyle);
 }
 
 function formatWebStyle(style: any) {
