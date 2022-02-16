@@ -204,6 +204,8 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     __weak CALayer *_borderWidthLayer;
     BOOL _needsUpdateBorderRadius;
     CGSize _size;
+    BOOL _needsReloadImage;
+    BOOL _needsUpdateImage;
 }
 
 @property (nonatomic) HippyAnimatedImageOperation *animatedImageOperation;
@@ -260,9 +262,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 - (void)setSource:(NSArray *)source {
     if (![_source isEqualToArray:source]) {
         _source = [source copy];
-        self.animatedImage = nil;
-        [self updateImage:nil];
-        [self reloadImage];
+        _needsReloadImage = YES;
     }
 }
 
@@ -280,10 +280,10 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     if (!UIEdgeInsetsEqualToEdgeInsets(_capInsets, capInsets)) {
         if (UIEdgeInsetsEqualToEdgeInsets(_capInsets, UIEdgeInsetsZero) || UIEdgeInsetsEqualToEdgeInsets(capInsets, UIEdgeInsetsZero)) {
             _capInsets = capInsets;
-            [self reloadImage];
+            _needsReloadImage = YES;
         } else {
             _capInsets = capInsets;
-            [self updateImage:self.image];
+            _needsUpdateImage = YES;
         }
     }
 }
@@ -291,14 +291,16 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 - (void)setBlurRadius:(CGFloat)blurRadius {
     if (blurRadius != _blurRadius) {
         _blurRadius = blurRadius;
-        [self reloadImage];
+        _needsReloadImage = YES;
     }
 }
 
 - (void)setFrame:(CGRect)frame {
+    CGSize originSize = self.frame.size;
     [super setFrame:frame];
     _size = frame.size;
-    if (nil == self.image) {
+    BOOL currentImageIsDefaultImage = self.image == _defaultImage && nil != self.image;
+    if (CGSizeEqualToSize(CGSizeZero, originSize) || !currentImageIsDefaultImage) {
         [self reloadImage];
     }
     [self updateCornerRadius];
@@ -314,7 +316,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             self.contentMode = (UIViewContentMode)resizeMode;
         }
         if (self.image) {
-            [self updateImage:self.image];
+            _needsUpdateImage = YES;
         }
     }
 }
@@ -322,8 +324,21 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 - (void)setRenderingMode:(UIImageRenderingMode)renderingMode {
     if (_renderingMode != renderingMode) {
         _renderingMode = renderingMode;
+        _needsUpdateImage = YES;
+    }
+}
+
+- (void)didSetProps:(NSArray<NSString *> *)changedProps {
+    if (_needsReloadImage) {
+        self.animatedImage = nil;
+        [self updateImage:nil];
+        [self reloadImage];
+    }
+    else if (_needsUpdateImage) {
         [self updateImage:self.image];
     }
+    _needsReloadImage = NO;
+    _needsUpdateImage = NO;
 }
 
 - (BOOL)shouldChangeImageSource {
