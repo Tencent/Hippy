@@ -34,7 +34,7 @@
     "@types/webpack": "^4.4.27",
     "cache-loader": "^2.0.1",
     "css-loader": "^1.0.0",
-    "follow-redirects": "^1.14.7",
+    "follow-redirects": "^1.14.8",
     "null-loader": "^0.1.1",
     "postcss": "^8.4.5",
     "vue": "^2.5.16",
