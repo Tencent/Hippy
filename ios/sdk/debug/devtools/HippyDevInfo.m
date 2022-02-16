@@ -24,7 +24,7 @@
 
 NSString *const HippyDevWebSocketSchemeWs = @"ws";
 NSString *const HippyDevWebSocketSchemeWss = @"wss";
-NSString *const HippyDevWebSocketInfoDebugURL = @"debugURL=";
+NSString *const HippyDevWebSocketInfoDebugURL = @"debugUrl=";
 
 @implementation HippyDevInfo
 
