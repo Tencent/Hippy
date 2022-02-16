@@ -83,16 +83,17 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  */
 - (void)removeHippySubview:(HippyShadowView *)subview;
 
-@property (nonatomic, weak, readonly) HippyShadowView *superview;
-@property (nonatomic, copy) NSString *viewName;
-@property (nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
-@property (nonatomic, copy) HippyDirectEventBlock onLayout;
-@property (nonatomic, assign) BOOL isList;
-@property (nonatomic, weak) HippyBridge *bridge;
-@property (nonatomic, assign) HPDirection layoutDirection;
-@property (nonatomic, copy) NSString *visibility;
-@property (nonatomic, assign) BOOL visibilityChanged;
-@property (nonatomic, assign) BOOL hasNewLayout;
+@property(nonatomic, weak, readonly) HippyShadowView *superview;
+@property(nonatomic, copy) NSString *viewName;
+@property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
+@property(nonatomic, copy) HippyDirectEventBlock onLayout;
+@property(nonatomic, assign) BOOL isList;
+@property(nonatomic, weak) HippyBridge *bridge;
+@property(nonatomic, assign) HPDirection layoutDirection;
+@property(nonatomic, copy) NSString *visibility;
+@property(nonatomic, assign) BOOL visibilityChanged;
+@property(nonatomic, assign) BOOL hasNewLayout;
+@property(nonatomic, assign) hippy::LayoutResult nodeLayoutResult;
 
 /**
  * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is
@@ -132,8 +133,8 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  */
 @property (nonatomic, assign) OverflowType overflow;
 
-- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode;
-- (const std::weak_ptr<hippy::DomNode> &)domNode;
+- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager;
+- (std::weak_ptr<hippy::DomManager>)domManager;
 
 /**
  * reset layout frame to mark dirty and re-layout
