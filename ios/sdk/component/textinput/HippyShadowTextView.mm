@@ -57,17 +57,21 @@ static hippy::LayoutSize x5MeasureFunc(
     return self;
 }
 
-- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
-    [super setDomNode:domNode];
-    std::shared_ptr<hippy::DomNode> node = domNode.lock();
-    if (node) {
-        hippy::dom::MeasureFunction measureFunc =
-            [shadow_view = self](float width, hippy::LayoutMeasureMode widthMeasureMode, float height,
-                                 hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
-            return x5MeasureFunc(shadow_view, width, widthMeasureMode,
-                                   height, heightMeasureMode, layoutContext);
-        };
-        node->GetLayoutNode()->SetMeasureFunction(measureFunc);
+- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
+    [super setDomManager:domManager];
+    auto shared_domNode = domManager.lock();
+    if (shared_domNode) {
+        int32_t hippyTag = [self.hippyTag intValue];
+        auto node = shared_domNode->GetNode(hippyTag);
+        if (node) {
+            hippy::MeasureFunction measureFunc =
+                [shadow_view = self](float width, hippy::LayoutMeasureMode widthMeasureMode,
+                                     float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
+                return x5MeasureFunc(shadow_view, width, widthMeasureMode,
+                                       height, heightMeasureMode, layoutContext);
+            };
+            node->GetLayoutNode()->SetMeasureFunction(measureFunc);
+        }
     }
 }
 

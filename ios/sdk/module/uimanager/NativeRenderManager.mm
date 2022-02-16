@@ -30,25 +30,15 @@ using LayoutResult = hippy::LayoutResult;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
-    __block auto block_nodes = std::move(nodes);
-//    create nodes needs load syncronizely for setting measure function for Text
-    dispatch_sync(HippyGetUIManagerQueue(), ^{
-        [uiManager_ createRenderNodes:std::move(block_nodes)];
-    });
+    [uiManager_ createRenderNodes:std::move(nodes)];
 }
 
 void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    __block auto block_nodes = std::move(nodes);
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [uiManager_ updateRenderNodes:std::move(block_nodes)];
-    });
+    [uiManager_ updateRenderNodes:std::move(nodes)];
 }
 
 void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    __block auto block_nodes = std::move(nodes);
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [uiManager_ deleteRenderNodesIds:std::move(block_nodes)];
-    });
+    [uiManager_ deleteRenderNodesIds:std::move(nodes)];
 }
 
 void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
@@ -68,24 +58,17 @@ void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode
         DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
         nodes_infos.push_back(nodeUpdateInfo);
     }
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [uiManager_ updateNodesLayout:nodes_infos];
-    });
+    [uiManager_ updateNodesLayout:nodes_infos];
 }
 
 void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
                                       int32_t pid,
                                       int32_t id) {
-    __block auto block_ids = std::move(ids);
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [uiManager_ renderMoveViews:std::move(block_ids) fromContainer:pid toContainer:id];
-    });
+    [uiManager_ renderMoveViews:std::move(ids) fromContainer:pid toContainer:id];
 }
 
 void NativeRenderManager::EndBatch() {
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [uiManager_ batch];
-    });
+    [uiManager_ batch];
 }
 
 void NativeRenderManager::BeforeLayout() {}
@@ -96,10 +79,7 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, cons
     auto node = dom_node.lock();
     if (node) {
         int32_t tag = node->GetId();
-        std::string name_ = name;
-        dispatch_async(HippyGetUIManagerQueue(), ^{
-            [uiManager_ addEventName:name_ forDomNodeId:tag];
-        });
+        [uiManager_ addEventName:name forDomNodeId:tag];
     }
 };
 
@@ -107,10 +87,7 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, c
     auto node = dom_node.lock();
     if (node) {
         int32_t node_id = node->GetId();
-        std::string name_ = name;
-        dispatch_async(HippyGetUIManagerQueue(), ^{
-            [uiManager_ removeEventName:name_ forDomNodeId:node_id];
-        });
+        [uiManager_ removeEventName:name forDomNodeId:node_id];
     }
 }
 

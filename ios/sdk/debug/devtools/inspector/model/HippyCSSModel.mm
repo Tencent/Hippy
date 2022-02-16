@@ -164,9 +164,7 @@ NSString *const HippyCSSDefaultPosition = @"relative";
             }
         }
         NSDictionary *resultProps = [newProps copy];
-        dispatch_async(HippyGetUIManagerQueue(), ^{
-            [manager updateViewWithHippyTag:nodeId props:resultProps];
-        });
+        [manager updateViewWithHippyTag:nodeId props:resultProps];
         NSDictionary *ret = [self assemblyCSSStyleJSONWithProps:resultProps nodeId:nodeId];
         completion(ret);
     });
