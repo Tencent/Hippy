@@ -1,8 +1,9 @@
 import { canUseDOM } from '../../utils/execution-environment';
 import {
-  getResponderPaths, setResponderId, TOUCH_CANCEL, TOUCH_END, TOUCH_MOVE, TOUCH_START, SCROLL_EVENT, isScrollEvent,
+  getResponderPaths, setResponderId, TOUCH_CANCEL, TOUCH_END, TOUCH_MOVE, TOUCH_START, SCROLL_EVENT,
+  isScrollEvent,
 } from './utils';
-import { Touch } from './types';
+import { TouchEvent } from './types';
 import { ResponderConfig } from './index';
 
 interface ResponderEvent {
@@ -15,36 +16,40 @@ const reponderEventKey = '__reactResponderSystemActive';
 const responderListerersMap = new Map<number, ResponderConfig>();
 
 const touchEvent = [TOUCH_START, TOUCH_MOVE, TOUCH_END, TOUCH_CANCEL];
-const documentEvents = [...touchEvent, SCROLL_EVENT];
-let touchEventStore: Touch = {
+const documentEventsBubblePhase = [...touchEvent];
+const documentEventsCapturePhase = [SCROLL_EVENT];
+
+let touchEventStore: TouchEvent = {
   pageX: 0,
   pageY: 0,
   target: null,
+  currentTarget: null,
   force: 0,
   identifier: 0,
+  stopPropagation: () => {},
 };
 
-const handleTouchEvent = (touchEvent: Touch, config: ResponderConfig, eventType: string) => {
+const handleTouchEvent = (touchEvent: TouchEvent, config: ResponderConfig, eventType: string) => {
   const { onTouchDown, onTouchMove, onTouchEnd, onTouchCancel } = config;
   const touchEventHandlerMap = {
-    TOUCH_START: () => {
+    [TOUCH_START]: () => {
       if (onTouchDown) {
         touchEventStore = { ...touchEvent };
         onTouchDown(touchEvent);
       }
     },
-    TOUCH_MOVE: () => {
+    [TOUCH_MOVE]: () => {
       if (onTouchMove) {
         touchEventStore = { ...touchEvent };
         onTouchMove(touchEvent);
       }
     },
-    TOUCH_END: () => {
+    [TOUCH_END]: () => {
       if (onTouchEnd) {
         onTouchEnd(touchEvent);
       }
     },
-    TOUCH_CANCEL: () => {
+    [TOUCH_CANCEL]: () => {
       if (onTouchCancel) {
         onTouchCancel(touchEventStore);
       }
@@ -62,12 +67,14 @@ const eventListerner = (domEvent: any) => {
   if (touchEvent.includes(eventType)) {
     const [touches] = domEvent.changedTouches;
     if (responderListerersMap.has(responderId)) {
-      const touchEvent: Touch = {
+      const touchEvent: TouchEvent = {
         pageX: touches.pageX,
         pageY: touches.pageY,
         target: touches.target,
+        currentTarget: touches.target,
         force: touches.force,
         identifier: touches.identifier,
+        stopPropagation: () => {},
       };
       const config = responderListerersMap.get(responderId);
       if (config) {
@@ -77,7 +84,7 @@ const eventListerner = (domEvent: any) => {
   }
   if (isScrollEvent(eventType)) {
     const config = responderListerersMap.get(responderId);
-    if (config && config.onScroll) {
+    if (config?.onScroll) {
       config.onScroll(domEvent);
     }
   }
@@ -97,8 +104,11 @@ const responderEvent: ResponderEvent = {
   attachListerers() {
     if (canUseDOM && !window[reponderEventKey]) {
       window[reponderEventKey] = true;
-      documentEvents.forEach((eventType) => {
+      documentEventsBubblePhase.forEach((eventType) => {
         document.addEventListener(eventType, eventListerner);
+      });
+      documentEventsCapturePhase.forEach((eventType) => {
+        document.addEventListener(eventType, eventListerner, true);
       });
     }
   },

@@ -50,7 +50,7 @@ export const getResponderPaths = (domEvent: any): { idPath: number[]; nodePath: 
   for (let i = 0; i < eventPath.length; i++) {
     const node = eventPath[i];
     const id = getResponderId(node);
-    if (id !== null) {
+    if (id) {
       idPath.push(id);
       nodePath.push(node);
     }

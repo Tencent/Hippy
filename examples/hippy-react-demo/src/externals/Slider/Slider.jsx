@@ -166,7 +166,7 @@ export default class Slider extends React.Component {
       <View>
         <ScrollView
           horizontal
-          pagingEnabled
+          pagingEnabled={this.duration === 0}
           style={{ width: this.imgWidth, height: this.imgHeight }}
           onLayout={this.onLayout}
           onScroll={this.onScroll}

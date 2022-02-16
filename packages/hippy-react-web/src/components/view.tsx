@@ -22,7 +22,7 @@ import React, { useEffect, useRef } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
-import { Touch } from '../modules/use-responder-events/types';
+import { TouchEvent } from '../modules/use-responder-events/types';
 import { LayoutEvent, StyleSheet } from '../types';
 
 const styles = {
@@ -55,10 +55,10 @@ export interface ViewProps {
   onScroll?: (e: any) => void;
   onLayout?: (e: LayoutEvent) => void;
   onAttachedToWindow?: Function;
-  onTouchDown?: (e: Touch) => void;
-  onTouchMove?: (e: Touch) => void;
-  onTouchEnd?: (e: Touch) => void;
-  onTouchCancel?: (e: Touch) => void;
+  onTouchDown?: (e: TouchEvent) => void;
+  onTouchMove?: (e: TouchEvent) => void;
+  onTouchEnd?: (e: TouchEvent) => void;
+  onTouchCancel?: (e: TouchEvent) => void;
 }
 
 /**

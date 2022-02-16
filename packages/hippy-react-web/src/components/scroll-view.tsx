@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import React, { useImperativeHandle } from 'react';
+import React, { useImperativeHandle, useState } from 'react';
 import animateScrollTo from 'animated-scroll-to';
 import StyleSheet from '../modules/stylesheet';
 import { isFunc } from '../utils/validation';
@@ -56,6 +56,15 @@ const styles = StyleSheet.create({
   hideScrollbar: {
     scrollbarWidth: 'none',
   },
+  pagingEnabledHorizontal: {
+    scrollSnapType: 'x mandatory',
+  },
+  pagingEnabledVertical: {
+    scrollSnapType: 'y mandatory',
+  },
+  pagingEnabledChild: {
+    scrollSnapAlign: 'start',
+  },
 });
 
 export interface ScrollViewProps extends ViewProps {
@@ -65,9 +74,9 @@ export interface ScrollViewProps extends ViewProps {
   onMomentumScrollBegin?: Function; // unsupported yet
   onMomentumScrollEnd?: Function; // unsupported yet
   onScroll?: (e: any) => void;
-  onScrollBeginDrag?: Function; // unsupported yet
-  onScrollEndDrag?: Function; // unsupported yet
-  pagingEnabled?: boolean; // unsupported yet
+  onScrollBeginDrag?: Function;
+  onScrollEndDrag?: Function;
+  pagingEnabled?: boolean;
   scrollEventThrottle?: number;
   scrollIndicatorInsets?: {
     top: number;
@@ -131,26 +140,47 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
     horizontal,
     scrollEnabled = true,
     scrollEventThrottle = 0,
+    pagingEnabled = false,
     showScrollIndicator = false,
+    onScrollBeginDrag = () => {},
+    onScrollEndDrag = () => {},
     onMomentumScrollBegin = () => {},
     onMomentumScrollEnd = () => {},
     showsHorizontalScrollIndicator,
     showsVerticalScrollIndicator,
     contentContainerStyle,
-    children,
     ...rest
   } = copyProps;
   shouldHideScrollBar(!showsVerticalScrollIndicator);
   const scrollState = React.useRef({ isScrolling: false, scrollLastTick: 0 });
   const scrollTimeout = React.useRef<null | number>(null);
   const scrollRef = React.useRef<any>(null);
+  const [isTouchStart, setIsTouchStart] = useState(false);
+  const [isBeginDragCalled, setIsBeginDragCalled] = useState(false);
 
   const directionStyle = horizontal ? styles.baseHorizontal : styles.baseVertical;
+  const pagingEnabledStyle = horizontal ? styles.pagingEnabledHorizontal : styles.pagingEnabledVertical;
 
   const containerStyle = Object.assign(
     {}, horizontal ? styles.contentContainerHorizontal : styles.contentContainerVertical,
     contentContainerStyle,
   );
+
+  const onTouchStart = () => {
+    setIsTouchStart(() => true);
+  };
+  const onTouchMove = () => {
+    if (isTouchStart && scrollEnabled) {
+      onScrollBeginDrag();
+      setIsTouchStart(false);
+      setIsBeginDragCalled(true);
+    }
+  };
+  const onTouchEnd = () => {
+    if (isBeginDragCalled && scrollEnabled) {
+      onScrollEndDrag();
+    }
+  };
 
 
   const handleScrollTick = (e: any) => {
@@ -193,10 +223,17 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
       }
     }
   };
+  const children = pagingEnabled ? React.Children.map(props.children, (child) => {
+    if (child !== null) {
+      return <View style={styles.pagingEnabledChild}>{child}</View>;
+    }
+    return child;
+  }) : props.children;
 
   // set methods
   useImperativeHandle(ref, () => ({
-    scrollTo: (x: number, y: number, animated) => {
+    scrollTo: (param: { x: number, y: number, animated: boolean }) => {
+      const { x, y, animated } = param;
       if (animated) {
         animateScrollTo([x, y], {
           elementToScroll: scrollRef.current,
@@ -205,7 +242,8 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
         scrollRef.current?.scrollTo(x, y);
       }
     },
-    scrollToWithDuration: (x: number, y: number, duration: number) => {
+    scrollToWithDuration: (param: { x: number, y: number, duration: number }) => {
+      const { x, y, duration } = param;
       // minDuration 250, maxDuration 3000
       animateScrollTo([x, y], {
         elementToScroll: scrollRef.current,
@@ -219,12 +257,16 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
     <View
       {...rest}
       onScroll={handleScroll}
+      onTouchDown={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
       className={!showScrollIndicator && HIDE_SCROLLBAR_CLASS}
       ref={scrollRef}
       style={[
         directionStyle,
         style,
         !scrollEnabled && styles.scrollDisable,
+        pagingEnabled && pagingEnabledStyle,
       ]}
     >
       <View style={containerStyle}>

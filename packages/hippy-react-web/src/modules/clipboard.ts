@@ -3,7 +3,7 @@ import { warn } from '../utils';
 
 const Clipboard = {
   getString() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (canUseClipboard) {
         window.navigator.clipboard.readText().then((text) => {
           resolve(text);
@@ -21,7 +21,7 @@ const Clipboard = {
     const setStringNotSupportWarn = () => {
       warn('Clipboard setString is not supported');
     };
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (canUseClipboard) {
         window.navigator.clipboard.writeText(text).then(() => {
           resolve();

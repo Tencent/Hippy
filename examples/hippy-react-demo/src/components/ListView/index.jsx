@@ -83,7 +83,7 @@ function Style1({ index }) {
       onTouchDown={(event) => {
         // if stopPropagation && return false called at the same time, stopPropagation has higher priority
         event.stopPropagation();
-        console.log('onTouchDown style1', event.target.nodeId, event.currentTarget.nodeId);
+        console.log('onTouchDown style1', event);
         return false;
       }}
       onClick={(event) => {
