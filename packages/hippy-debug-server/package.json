@@ -44,7 +44,7 @@
     "p-retry": "^4.5.0",
     "portfinder": "^1.0.28",
     "schema-utils": "^4.0.0",
-    "selfsigned": "^1.10.14",
+    "selfsigned": "^2.0.0",
     "serve-index": "^1.9.1",
     "signale": "^1.4.0",
     "sockjs": "^0.3.21",
