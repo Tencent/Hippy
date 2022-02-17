@@ -65,7 +65,7 @@ export class ViewPager extends Component {
       children,
       initialPage = 0,
       onPageSelected,
-      scrollEnabled,
+      scrollEnabled = true,
       loop = false,
       direction = 'horizontal' } = this.props as Props;
     const renderViewPagerItem = () => {
