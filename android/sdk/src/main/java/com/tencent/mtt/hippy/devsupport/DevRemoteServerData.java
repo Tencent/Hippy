@@ -1,16 +1,14 @@
 package com.tencent.mtt.hippy.devsupport;
 
 import android.text.TextUtils;
-
 import com.tencent.mtt.hippy.utils.LogUtils;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 
 public class DevRemoteServerData {
 
-  private static String KEY_DEBUG_URL = "debugURL";
+  private static String KEY_DEBUG_URL = "debugUrl";
   private String scheme;  // protocol http or https
   private String host;  // host:port address
   private String path;

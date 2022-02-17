@@ -8,8 +8,8 @@ import android.view.WindowManager;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.dom.node.DomDomainData;
 import com.tencent.mtt.hippy.dom.DomManager;
+import com.tencent.mtt.hippy.dom.node.DomDomainData;
 import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -19,6 +19,7 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.Map;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DomModel {
@@ -40,8 +41,9 @@ public class DomModel {
 
       DomNodeRecord domainData = domNode.getDomNodeRecord();
       // rootNode domainData为空
-      if (domainData instanceof DomDomainData && !TextUtils.isEmpty(((DomDomainData)domainData).text)) {
-        childrenArray.put(getTextNodeJson((DomDomainData)domainData));
+      if (domainData instanceof DomDomainData && !TextUtils
+        .isEmpty(((DomDomainData) domainData).text)) {
+        childrenArray.put(getTextNodeJson((DomDomainData) domainData));
       }
 
       for (int i = 0, size = domNode.getChildCount(); i < size; i++) {
@@ -50,7 +52,7 @@ public class DomModel {
       }
 
       try {
-        result = getNodeJson((DomDomainData)domainData, NodeType.ELEMENT_NODE);
+        result = getNodeJson((DomDomainData) domainData, NodeType.ELEMENT_NODE);
         if (result == null) {
           result = new JSONObject();
         }
@@ -81,7 +83,7 @@ public class DomModel {
     JSONObject result = new JSONObject();
     try {
       result.put("nodeId", domainData.id);
-      result.put("backendNodeId", 0);
+      result.put("backendNodeId", domainData.id);
       result.put("nodeType", nodeType);
       result.put("localName", domainData.tagName);
       result.put("nodeName", domainData.tagName);
@@ -299,7 +301,8 @@ public class DomModel {
       if (domManager != null && renderManager != null) {
         DomNode domNode = domManager.getNode(nodeId);
         RenderNode renderNode = renderManager.getRenderNode(nodeId);
-        if (domNode != null && domNode.getDomNodeRecord() instanceof DomDomainData && renderNode != null) {
+        if (domNode != null && domNode.getDomNodeRecord() instanceof DomDomainData
+          && renderNode != null) {
           int[] viewLocation = getRenderViewLocation(context, renderNode);
           // 没找到view，还未创建
           if (viewLocation == null) {
@@ -308,7 +311,7 @@ public class DomModel {
 
           JSONArray border = getBorder(viewLocation[0], viewLocation[1], renderNode.getWidth(),
             renderNode.getHeight());
-          HippyMap style = ((DomDomainData)domNode.getDomNodeRecord()).style;
+          HippyMap style = ((DomDomainData) domNode.getDomNodeRecord()).style;
           JSONArray padding = getPadding(border, style);
           JSONArray content = getContent(padding, style);
           JSONArray margin = getMargin(border, style);
@@ -512,6 +515,80 @@ public class DomModel {
       LogUtils.e(TAG, "setInspectMode, exception:", e);
     }
     return new JSONObject();
+  }
+
+  /**
+   * find node by path, the path will this: 1,HTML,1,BODY,1,MAIN,1,SECTION,0,DIV,1,P
+   * the order will like this (the child number, the child tag name)
+   *
+   * @param context Hippy Context
+   * @param paramsObj params from devtools
+   * @return the find node json object
+   */
+  public JSONObject getNodeForPath(HippyEngineContext context, JSONObject paramsObj) {
+    JSONObject nodeObject = new JSONObject();
+    if (context == null || paramsObj == null) {
+      return nodeObject;
+    }
+    DomManager domManager = context.getDomManager();
+    if (domManager == null) {
+      return nodeObject;
+    }
+    int rootId = domManager.getRootNodeId();
+    DomNode rootNode = domManager.getNode(rootId);
+    if (rootNode == null) {
+      return nodeObject;
+    }
+    DomNode findNode = rootNode;
+    try {
+      String path = paramsObj.optString("path");
+      String[] pathArrays = path.split(",");
+      for (int i = 0; i < pathArrays.length; i += 2) {
+        int childNumber = Integer.parseInt(pathArrays[i]);
+        String childName = pathArrays[i + 1];
+        if (childNumber >= findNode.getChildCount()) {
+          return nodeObject;
+        }
+        DomNode node = findNode.getChildAt(childNumber);
+        if (node != null && node.getDomNodeRecord() != null && childName
+          .equals(node.getDomNodeRecord().tagName)) {
+          findNode = node;
+        }
+      }
+      nodeObject.put("nodeId", findNode.getId());
+    } catch (JSONException e) {
+      LogUtils.e(TAG, "getNodeForPath, exception:", e);
+    }
+    return nodeObject;
+  }
+
+  /**
+   * find node id by backend node id where getDocument return backendNodeId
+   *
+   * @param context Hippy Context
+   * @param paramsObj params from devtools
+   * @return the find node json object
+   */
+  public JSONObject getNodeByBackendIds(HippyEngineContext context, JSONObject paramsObj) {
+    JSONObject nodeObject = new JSONObject();
+    if (context == null || paramsObj == null) {
+      return nodeObject;
+    }
+    try {
+      JSONArray backendNodeIds = paramsObj.optJSONArray("backendNodeIds");
+      if (backendNodeIds == null) {
+        return nodeObject;
+      }
+      JSONArray nodeIdArrays = new JSONArray();
+      for (int i = 0; i < backendNodeIds.length(); i++) {
+        int backendNodeId = backendNodeIds.optInt(i);
+        nodeIdArrays.put(backendNodeId);
+      }
+      nodeObject.put("nodeIds", nodeIdArrays);
+    } catch (JSONException e) {
+      LogUtils.e(TAG, "getNodeByBackendIds, exception:", e);
+    }
+    return nodeObject;
   }
 
   private static HippyRootView getRootView(HippyEngineContext context) {
