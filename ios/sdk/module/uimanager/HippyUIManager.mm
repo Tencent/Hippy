@@ -271,8 +271,10 @@ HIPPY_EXPORT_MODULE()
         auto domManager = _domManager.lock();
         if (domManager) {
             auto func = [hippyTag, domManager, resultBlock](){
-                auto node = domManager->GetNode(hippyTag);
-                resultBlock(node);
+                @autoreleasepool {
+                    auto node = domManager->GetNode(hippyTag);
+                    resultBlock(node);
+                }
             };
             domManager->PostTask(func);
         }
