@@ -25,8 +25,8 @@
 #include <jni.h>
 
 #include <string>
-
-#include "core/core.h"
+#include <unordered_map>
+#include <vector>
 
 class JNIRegisterData {
  public:
@@ -50,6 +50,9 @@ class JNIRegister {
   static bool RegisterMethods(JNIEnv *j_env);
 
   JNIRegister() = default;
+  JNIRegister(const JNIRegister &) = delete;
+  JNIRegister &operator=(const JNIRegister &) = delete;
+
   bool RegisterJNIModule(const char *module,
                          const char *name,
                          const char *signature,
@@ -71,8 +74,6 @@ class JNIRegister {
 
  private:
   std::unordered_map<std::string, std::vector<JNIRegisterData>> jni_modules_;
-
-  DISALLOW_COPY_AND_ASSIGN(JNIRegister);
 };
 
 #define REGISTER_JNI_INTERNAL(clazz, name, signature, pointer, is_static, key) \

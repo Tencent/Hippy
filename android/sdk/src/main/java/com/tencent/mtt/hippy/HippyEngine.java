@@ -304,7 +304,8 @@ public abstract class HippyEngine {
             EngineInitParams.class.getName() + " imageLoader must not be null!");
       }
       if (sharedPreferencesAdapter == null) {
-        sharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(context);
+        sharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(
+          context.getApplicationContext());
       }
       if (exceptionHandler == null) {
         exceptionHandler = new DefaultExceptionHandler();
