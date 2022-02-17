@@ -21,16 +21,24 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "HippyDevInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class HippyBridge;
 
+typedef NS_ENUM(NSInteger, HippyDevCloseType) {
+    HippyDevCloseTypeClosePage = 4003,
+    HippyDevCloseTypeReload = 4004
+};
+
 @interface HippyDevManager : NSObject
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge devIPAddress:(NSString *)devIPAddress devPort:(NSString *)devPort contextName:(NSString *)contextName;
+- (instancetype)initWithBridge:(HippyBridge *)bridge devInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName;
 
 - (void)sendDataToFrontendWithData:(NSString *)dataString;
+
+- (void)closeWebSocket:(HippyDevCloseType)type;
 
 @property(nonatomic, weak) HippyBridge *bridge;
 

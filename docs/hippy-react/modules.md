@@ -28,7 +28,7 @@
 | valueType\*      | `number`, `string` | 否   | null   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通 Number。 PS: Web 平台此接口只支持 number 类型传参            |
 | duration         | `number`           | 否   | -      | 动画时长，单位为毫秒(ms)                                                                                                  |
 | timingFunction\* | `string`           | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
-| repeatCount      | `number`, `loop`   | 否   | -      | 动画的重复次数，默认为 0，即只播放一次，为"loop"时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次             |
+| repeatCount      | `number`, `loop`   | 否   | -      | 动画的重复次数，默认为 0，即只播放一次；为 -1 或者 "loop" 时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次             |
 
 - valueType 的参数选项：
 
@@ -460,4 +460,4 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 `(ref, callback: Function) => Promise`
 
-> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错可能返回 -1 或者 `this view is null` 字符串
+> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](hippy-react/components?id=样式内特殊属性)可能返回 -1 或者 `this view is null` 字符串

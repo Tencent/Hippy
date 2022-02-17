@@ -48,7 +48,7 @@ interface WebViewProps {
    * @param {Object} evt - Load event data
    * @param {string} evt.url - Web page url
    */
-  onLoad?(evt: LoadEvent): void;
+  onLoad?: (evt: LoadEvent) => void;
 
   /**
    * Invoke when web page start to load.
@@ -56,7 +56,7 @@ interface WebViewProps {
    * @param {Object} evt - Load event data
    * @param {string} evt.url - Web page url
    */
-  onLoadStart?(evt: LoadEvent): void;
+  onLoadStart?: (evt: LoadEvent) => void;
 
   /**
    * Invoke when web page load completed
@@ -64,7 +64,7 @@ interface WebViewProps {
    * @param {Object} evt - Load event data
    * @param {string} evt.url - Web page url
    */
-  onLoadEnd(evt: LoadEvent): void;
+  onLoadEnd: (evt: LoadEvent) => void;
 }
 
 /**

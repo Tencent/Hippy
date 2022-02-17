@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-import { Fiber } from 'react-reconciler';
-import '@localTypes/global';
+import { Fiber } from '@hippy/react-reconciler';
 import ElementNode from '../dom/element-node';
 
 type RootContainer = any;
@@ -96,7 +95,7 @@ function unCacheFiberNode(nodeId: number): void {
  * @param {number} fiberNode
  */
 function getElementFromFiber(fiberNode: Fiber) {
-  return (fiberNode && fiberNode.stateNode) || null;
+  return fiberNode?.stateNode || null;
 }
 
 /**
@@ -130,7 +129,9 @@ function recursivelyUnCacheFiberNode(node: ElementNode | number): void {
     unCacheFiberNode(node);
   } else if (node) {
     unCacheFiberNode(node.nodeId);
-    node.childNodes && node.childNodes.forEach(node => recursivelyUnCacheFiberNode(node as ElementNode));
+    if (Array.isArray(node.childNodes)) {
+      node.childNodes.forEach(node => recursivelyUnCacheFiberNode(node as ElementNode));
+    }
   }
 }
 
@@ -139,8 +140,10 @@ function recursivelyUnCacheFiberNode(node: ElementNode | number): void {
  * @param {Function} cb
  * @param {{timeout: number}} [options]
  */
-function requestIdleCallback(cb: Function, options?: { timeout: number }): ReturnType<typeof setTimeout> {
-  // @ts-ignore
+function requestIdleCallback(
+  cb: IdleRequestCallback,
+  options?: { timeout: number },
+): ReturnType<typeof setTimeout> | number {
   if (!global.requestIdleCallback) {
     return setTimeout(() => {
       cb({
@@ -151,25 +154,38 @@ function requestIdleCallback(cb: Function, options?: { timeout: number }): Retur
       });
     }, 1);
   }
-  // @ts-ignore
   return global.requestIdleCallback(cb, options);
 }
 
 /**
  * cancelIdleCallback polyfill
- * @param {ReturnType<typeof setTimeout>} id
+ * @param {ReturnType<typeof requestIdleCallback>} id
  */
-function cancelIdleCallback(id: ReturnType<typeof setTimeout>): void {
-  // @ts-ignore
+function cancelIdleCallback(id: ReturnType<typeof requestIdleCallback>): void {
   if (!global.cancelIdleCallback) {
-    clearTimeout(id);
+    clearTimeout(id as ReturnType<typeof setTimeout>);
   } else {
-    // @ts-ignore
-    global.cancelIdleCallback(id);
+    global.cancelIdleCallback(id as number);
   }
 }
 
+interface EventNamesMap {
+  [propName: string]: string[];
+}
+
+// Event Names map
+const NATIVE_EVENT = 1;
+const eventNamesMap: EventNamesMap = {
+  // TODO pressIn, pressOut will be deprecated in future
+  // onPressIn: ['onPressIn', 'onTouchDown'],
+  // onPressOut: ['onPressOut', 'onTouchEnd'],
+  onTouchStart: ['onTouchStart', 'onTouchDown'],
+  onPress: ['onPress', 'onClick'],
+};
+
 export {
+  NATIVE_EVENT,
+  eventNamesMap,
   requestIdleCallback,
   cancelIdleCallback,
   setRootContainer,

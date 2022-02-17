@@ -33,7 +33,6 @@ const READY_STATE_CLOSED = 3;
 const WEB_SOCKET_MODULE_NAME = 'websocket';
 const WEB_SOCKET_NATIVE_EVENT = 'hippyWebsocketEvents';
 
-let websocketEventHub;
 let app;
 
 /**
@@ -60,9 +59,7 @@ class WebSocket {
    * @param {Object} extrasHeaders - Http headers will append to connection.
    */
   constructor(url, protocols, extrasHeaders) {
-    if (!app) {
-      app = getApp();
-    }
+    app = getApp();
     this.url = url;
     this.readyState = READY_STATE_CONNECTING;
     this.webSocketCallbacks = {};
@@ -70,9 +67,7 @@ class WebSocket {
     const headers = {
       ...extrasHeaders,
     };
-    if (!websocketEventHub) {
-      websocketEventHub = app.$on(WEB_SOCKET_NATIVE_EVENT, this.onWebSocketEvent);
-    }
+    app.$on(WEB_SOCKET_NATIVE_EVENT, this.onWebSocketEvent);
     if (!url || typeof url !== 'string') {
       throw new TypeError('Invalid WebSocket url');
     }
@@ -184,7 +179,7 @@ class WebSocket {
       this.readyState = READY_STATE_OPEN;
     } else if (eventType === 'onClose') {
       this.readyState = READY_STATE_CLOSED;
-      app.$off(WEB_SOCKET_NATIVE_EVENT);
+      app.$off(WEB_SOCKET_NATIVE_EVENT, this.onWebSocketEvent);
     }
     const callback = this.webSocketCallbacks[eventType];
     if (isFunction(callback)) {

@@ -101,23 +101,18 @@ public class NetInfoModule extends HippyNativeModuleBase {
       mConnectivityReceiver = new ConnectivityReceiver();
     }
 
-    if (!mConnectivityReceiver.isRegistered()) {
-      try {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        mContext.getGlobalConfigs().getContext().registerReceiver(mConnectivityReceiver, filter);
-        mConnectivityReceiver.setRegistered(true);
-      } catch (Throwable e) {
-        LogUtils.d("NetInfoModule", "registerReceiver: " + e.getMessage());
-      }
+    try {
+      Context context = mContext.getGlobalConfigs().getContext();
+      mConnectivityReceiver.register(context);
+    } catch (Throwable e) {
+      LogUtils.d("NetInfoModule", "registerReceiver: " + e.getMessage());
     }
   }
 
   private void unregisterReceiver() {
     try {
-      if (mConnectivityReceiver != null && mConnectivityReceiver.isRegistered()) {
-        mContext.getGlobalConfigs().getContext().unregisterReceiver(mConnectivityReceiver);
-        mConnectivityReceiver.setRegistered(false);
+      if (mConnectivityReceiver != null) {
+        mConnectivityReceiver.unregister();
         mConnectivityReceiver = null;
       }
     } catch (Throwable e) {
@@ -128,15 +123,33 @@ public class NetInfoModule extends HippyNativeModuleBase {
   private class ConnectivityReceiver extends BroadcastReceiver {
 
     private final String EVENT_NAME = "networkStatusDidChange";
-    private boolean isRegistered = false;
+    private boolean isRegistered;
     private String mCurrentConnectivity;
 
-    public boolean isRegistered() {
-      return isRegistered;
+    private Context context;
+
+    void register(Context context) {
+      if (isRegistered) {
+        return;
+      }
+
+      this.context = context;
+      if (context != null) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        context.registerReceiver(this, filter);
+        isRegistered = true;
+      }
     }
 
-    public void setRegistered(boolean registered) {
-      isRegistered = registered;
+    void unregister() {
+      if (!isRegistered) {
+        return;
+      }
+      if (context != null) {
+        context.unregisterReceiver(this);
+        context = null;
+      }
     }
 
     @Override

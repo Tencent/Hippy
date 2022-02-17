@@ -1,9 +1,9 @@
 const path = require('path');
-const alias = require('rollup-plugin-alias');
-const buble = require('rollup-plugin-buble');
-const cjs = require('rollup-plugin-commonjs');
-const replace = require('rollup-plugin-replace');
-const node = require('rollup-plugin-node-resolve');
+const alias = require('@rollup/plugin-alias');
+const { babel } = require('@rollup/plugin-babel');
+const cjs = require('@rollup/plugin-commonjs');
+const replace = require('@rollup/plugin-replace');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const flow = require('rollup-plugin-flow-no-whitespace');
 
 const VueVersion = require('vue/package.json').version;
@@ -109,36 +109,60 @@ function genConfig(name) {
     input: opts.entry,
     external: opts.external,
     treeshake: {
-      pureExternalModules: id => id.startsWith('weex'),
+      moduleSideEffects: id => !id.startsWith('weex'),
     },
     plugins: [
       replace({
-        __WEEX__: false,
-        __VERSION__: VueVersion,
-        'let _isServer': 'let _isServer = false',
-        'process.env.VUE_VERSION': `"${VueVersion}"`,
-        'process.env.HIPPY_VUE_VERSION': `"${hippyVuePackage.version}"`,
-      }),
-      flow(),
-      buble({
-        objectAssign: 'Object.assign',
-        transforms: {
-          arrow: true,
-          modules: false,
-          dangerousForOf: true,
+        preventAssignment: true,
+        values: {
+          __WEEX__: false,
+          __VERSION__: VueVersion,
+          'let _isServer': 'let _isServer = false',
+          'process.env.VUE_VERSION': `"${VueVersion}"`,
+          'process.env.HIPPY_VUE_VERSION': `"${hippyVuePackage.version}"`,
         },
       }),
-      alias(aliases),
-      node({
+      flow(),
+      alias({
+        entries: aliases,
+      }),
+      nodeResolve({
         preferBuiltins: true,
       }),
       cjs(),
+      babel({
+        presets: [
+          [
+            '@babel/env',
+            {
+              targets: {
+                chrome: '57',
+              },
+            },
+          ],
+        ],
+        plugins: [
+          [
+            '@babel/plugin-transform-runtime',
+            {
+              corejs: false,
+            },
+          ],
+        ],
+        babelHelpers: 'runtime',
+      }),
     ].concat(opts.plugins || []),
     output: {
       file: opts.dest,
       format: opts.format,
       banner: opts.banner,
       name: opts.moduleName || 'hippy-vue',
+      exports: 'auto',
+    },
+    onwarn: (msg, warn) => {
+      if (!/Circular/.test(msg)) {
+        warn(msg);
+      }
     },
   };
 

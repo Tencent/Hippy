@@ -1,10 +1,22 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 
 const platform = 'ios';
+let vueLoader = '@hippy/vue-loader';
+let VueLoaderPlugin;
+const hippyVueLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib');
+if (fs.existsSync(hippyVueLoaderPath)) {
+  /* eslint-disable-next-line no-console */
+  console.warn(`* Using the @hippy/vue-loader in ${hippyVueLoaderPath}`);
+  vueLoader = hippyVueLoaderPath;
+  VueLoaderPlugin = require(path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib/plugin'));
+} else {
+  /* eslint-disable-next-line no-console */
+  console.warn('* Using the @hippy/vue-loader defined in package.json');
+  VueLoaderPlugin = require('@hippy/vue-loader/lib/plugin');
+}
 
 module.exports = {
   mode: 'production',
@@ -37,7 +49,7 @@ module.exports = {
       {
         test: /\.vue$/,
         use: [
-          'vue-loader',
+          vueLoader,
         ],
       },
       {

@@ -41,7 +41,10 @@
 #include "core/scope.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8.h"
+#pragma clang diagnostic pop
 
 namespace hippy {
 namespace napi {
@@ -135,7 +138,7 @@ class V8Ctx : public Ctx {
                                const unicode_string_view& str) override;
   virtual bool SetGlobalObjVar(const unicode_string_view& name,
                                const std::shared_ptr<CtxValue>& obj,
-                               const PropertyAttribute& attr = None) override;
+                               const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
       const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
@@ -193,7 +196,7 @@ class V8Ctx : public Ctx {
                                                      uint32_t index) override;
 
   // Map Helpers
-  virtual uint32_t GetMapLength(std::shared_ptr<CtxValue>& value);
+  virtual size_t GetMapLength(std::shared_ptr<CtxValue>& value);
   virtual std::shared_ptr<CtxValue> ConvertMapToArray(
       const std::shared_ptr<CtxValue>& value);
 
@@ -211,10 +214,13 @@ class V8Ctx : public Ctx {
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
+      const unicode_string_view& file_name) override;
+  virtual std::shared_ptr<CtxValue> RunScript(
+      const unicode_string_view& data,
       const unicode_string_view& file_name,
-      bool is_use_code_cache = false,
-      unicode_string_view* cache = nullptr,
-      bool is_copy = true) override;
+      bool is_use_code_cache,
+      unicode_string_view* cache,
+      bool is_copy);
 
   virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
   virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) override;
@@ -249,11 +255,11 @@ struct V8CtxValue : public CtxValue {
   V8CtxValue(v8::Isolate* isolate, const v8::Persistent<v8::Value>& value)
       : global_value_(isolate, value) {}
   ~V8CtxValue() { global_value_.Reset(); }
+  V8CtxValue(const V8CtxValue &) = delete;
+  V8CtxValue &operator=(const V8CtxValue &) = delete;
 
   v8::Global<v8::Value> global_value_;
   v8::Isolate* isolate_;
-
-  DISALLOW_COPY_AND_ASSIGN(V8CtxValue);
 };
 
 }  // namespace napi

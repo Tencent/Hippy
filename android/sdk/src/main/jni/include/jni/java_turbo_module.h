@@ -26,13 +26,10 @@
 
 #include <string>
 
-#include "convert_utils.h"
-#include "core/napi/js_native_turbo.h"
-#include "core/napi/v8/js_native_turbo_v8.h"
-#include "hippy.h"
+#include "core/core.h"
 
-#ifndef HIPPYJSI_JAVATURBOMODULE_H
-#define HIPPYJSI_JAVATURBOMODULE_H
+#include "convert_utils.h"
+#include "scoped_java_ref.h"
 
 class JavaTurboModule : public hippy::napi::HippyTurboModule {
  public:
@@ -66,5 +63,3 @@ class JavaTurboModule : public hippy::napi::HippyTurboModule {
 
   static void Destroy();
 };
-
-#endif  // HIPPYJSI_JAVATURBOMODULE_H

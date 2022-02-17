@@ -16,7 +16,6 @@ const SKIN_COLOR = {
   textWhite: '#fff',
 };
 
-
 const styles = StyleSheet.create({
   rowContainer: {
     alignItems: 'center',

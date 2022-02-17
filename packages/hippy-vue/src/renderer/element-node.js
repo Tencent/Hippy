@@ -397,6 +397,13 @@ class ElementNode extends ViewNode {
     }
   }
 
+  /**
+   * repaint element with latest style map, which maybe loaded from HMR chunk or dynamic chunk
+   */
+  repaintWithChildren() {
+    updateWithChildren(this);
+  }
+
   setStyleScope(styleScopeId) {
     if (typeof styleScopeId !== 'string') {
       styleScopeId = styleScopeId.toString();

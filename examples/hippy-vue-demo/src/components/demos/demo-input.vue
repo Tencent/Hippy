@@ -8,6 +8,7 @@
     <input
       ref="input"
       v-model="text"
+      caret-color="yellow"
       placeholder="Text"
       class="input"
       @click="stopPropagation"
@@ -64,13 +65,11 @@
 
 <script>
 import Vue from 'vue';
-/**
-   * 这个 Demo 里有直接操作 DOM 的章节
-   */
+
 export default {
   /**
-     * 组件加载时自动 focus 第一个输入框
-     */
+   * 组件加载时自动 focus 第一个输入框
+   */
   data() {
     return {
       text: '',
@@ -82,22 +81,21 @@ export default {
   },
   methods: {
     /**
-       * 当文字改变时输出
-       */
+     * 当文字改变时输出
+     */
     textChange(evt) {
-      // 输入框的内容通过 evt.value 传递回来
       console.log(evt.value);
     },
     /**
-       * 当点击顶部 View 时取消所有输入框的 focus 状态
-       */
+     * 当点击顶部 View 时取消所有输入框的 focus 状态
+     */
     blurAllInput() {
       this.getChildNodes(this.$refs.inputDemo.childNodes).filter(element => element.tagName === 'input')
         .forEach(input => input.blur());
     },
     /**
-       * 点击输入框时，点击事件会冒泡到顶部 View 导致 focus 时又被 blur 了，所以这里需要阻止一下冒泡
-       */
+     * 点击输入框时，点击事件会冒泡到顶部 View 导致 focus 时又被 blur 了，所以这里需要阻止一下冒泡
+     */
     stopPropagation(evt) {
       evt.stopPropagation();
     },
@@ -122,7 +120,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .demo-input {
   display: flex;
   flex: 1;
@@ -138,7 +136,6 @@ export default {
   font-size: 16px;
   margin: 20px;
   placeholder-text-color: #aaa;
-  /* underline-color-android: #40b883; */
 }
 .demo-input .input-button {
   border-color: #4c9afa;

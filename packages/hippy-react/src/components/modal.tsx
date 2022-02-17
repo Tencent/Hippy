@@ -21,9 +21,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import Style from '@localTypes/style';
 import * as StyleSheet from '../modules/stylesheet';
-import { HippyEventListener } from '../events';
+import { HippyEventListener } from '../event';
 import { Device } from '../native';
 import View from './view';
 
@@ -91,28 +90,28 @@ interface ModalProps {
    */
   supportedOrientations?: ModalOrientation[];
 
-  style?: Style;
+  style?: HippyTypes.Style;
 
   /**
    * Trigger when hardware button pressed
    * > Android Only
    */
-  onRequestClose?(): void;
+  onRequestClose?: () => void;
 
   /**
    * Trigger when the Modal will show
    */
-  onShow?(): void;
+  onShow?: () => void;
 
   /**
    * Trigger when the Modal will hide
    */
-  onDismiss?(): void;
+  onDismiss?: () => void;
 
   /**
    * Trigger when the device orientation changed.
    */
-  onOrientationChange?(): void;
+  onOrientationChange?: () => void;
 }
 
 const styles = StyleSheet.create({
@@ -131,13 +130,14 @@ const styles = StyleSheet.create({
  * @noInheritDoc
  */
 class Modal extends React.Component<ModalProps, {}> {
+  private static defaultProps = {
+    visible: true,
+  };
   private eventSubscription: null | HippyEventListener;
-  static defaultProps: { visible: boolean };
-
   /**
    * @ignore
    */
-  constructor(props: ModalProps) {
+  public constructor(props: ModalProps) {
     super(props);
     this.eventSubscription = null;
   }
@@ -211,12 +211,5 @@ class Modal extends React.Component<ModalProps, {}> {
     );
   }
 }
-
-/**
-* @ignore
-*/
-Modal.defaultProps = {
-  visible: true,
-};
 
 export default Modal;

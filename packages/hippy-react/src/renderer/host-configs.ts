@@ -23,13 +23,12 @@ import Document from '../dom/document-node';
 import Element from '../dom/element-node';
 import { unicodeToChar } from '../utils';
 import { preCacheFiberNode, unCacheFiberNodeOnIdle } from '../utils/node';
-import '@localTypes/global';
 import {
   Type,
   Props,
   UpdatePayload,
-  Context,
 } from '../types';
+import { endBatch } from './render';
 
 function appendChild(parent: Element, child: Element): void {
   if (parent.childNodes.indexOf(child) >= 0) {
@@ -62,6 +61,16 @@ function commitUpdate(
   const updatePayloadPropList: string[] = Object.keys(updatePayload);
   if (updatePayloadPropList.length === 0) return;
   updatePayloadPropList.forEach(propKey => instance.setAttribute(propKey, updatePayload[propKey]));
+}
+
+// this is the hook when commitMutationEffects begin
+export function commitMutationEffectsBegin(): void {
+  // noop
+}
+
+// this is the hook when commitMutationEffects finish
+export function commitMutationEffectsComplete(): void {
+  endBatch(true);
 }
 
 function prepareUpdate(
@@ -208,12 +217,16 @@ function resetAfterCommit() {}
 function resetTextContent() {
 }
 
-function getRootHostContext(): Context {
+function getRootHostContext() {
   return {};
 }
 
-function getChildHostContext(): Context {
+function getChildHostContext() {
   return {};
+}
+
+export function getCurrentEventPriority(): number {
+  return 0b0000000000000000000000000010000;
 }
 
 function shouldDeprioritizeSubtree(): boolean {
@@ -279,15 +292,15 @@ function isOpaqueHydratingObject(): boolean {
   throw new Error('Not yet implemented');
 }
 
-function makeOpaqueHydratingObject(): String {
+function makeOpaqueHydratingObject(): string {
   throw new Error('Not yet implemented.');
 }
 
-function makeClientId(): String {
+function makeClientId(): string {
   throw new Error('Not yet implemented');
 }
 
-function makeClientIdInDEV(): String {
+function makeClientIdInDEV(): string {
   throw new Error('Not yet implemented');
 }
 
@@ -303,8 +316,14 @@ function preparePortalMount(): void {
   // noop
 }
 
+function detachDeletedInstance(): void {
+  // noop
+}
+
 export const scheduleTimeout = setTimeout;
 export const cancelTimeout = clearTimeout;
+// @ts-ignore
+export const noTimeout = -1;
 
 export {
   afterActiveInstanceBlur,
@@ -319,6 +338,7 @@ export {
   createContainerChildSet,
   createInstance,
   createTextInstance,
+  detachDeletedInstance,
   finalizeContainerChildren,
   finalizeInitialChildren,
   getChildHostContext,

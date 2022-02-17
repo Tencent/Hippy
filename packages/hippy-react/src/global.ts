@@ -18,19 +18,12 @@
  * limitations under the License.
  */
 
-import '@localTypes/global';
-// @ts-ignore
 if (!global.__GLOBAL__) {
-  // @ts-ignore
-  global.__GLOBAL__ = {};
+  global.__GLOBAL__ = {} as HippyTypes.__GLOBAL__;
 }
 
-// @ts-ignore
-const { __GLOBAL__ } = global;
-
-__GLOBAL__.nodeId = 0;
-__GLOBAL__.animationId = 0;
-__GLOBAL__.renderCount = 0;
+global.__GLOBAL__.nodeId = 0;
+global.__GLOBAL__.animationId = 0;
 
 const {
   asyncStorage: AsyncStorage,
@@ -41,7 +34,6 @@ const {
   on: addEventListener,
   off: removeEventListener,
   emit: dispatchEvent,
-  // @ts-ignore
 } = global.Hippy;
 
 export {

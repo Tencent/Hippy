@@ -19,7 +19,7 @@
  */
 
 /* eslint-disable jsx-a11y/media-has-caption */
-
+// @ts-nocheck
 import React from 'react';
 
 function VideoPlayer(props) {

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import HippyEventListener from '../events/listener';
+import HippyEventListener from '../event/listener';
 import { Bridge } from '../global';
 import { warn } from '../utils';
 
@@ -27,33 +27,6 @@ const enum ReadyState {
   OPEN,
   CLOSING,
   CLOSED,
-}
-
-interface WebSocket {
-  /**
-   * Read-only property returns the absolute URL of the WebSocket as resolved by the constructor.
-   */
-  url: string;
-
-  /**
-   * read-only property returns the name of the sub-protocol the server selected; this will be
-   * one of the strings specified in the protocols parameter when creating the WebSocket object,
-   * or the empty string if no connection is established.
-   */
-  protocol: string;
-
-  /**
-   * Read-only property returns the current state of the WebSocket connection.
-   */
-  readyState: ReadyState;
-  webSocketCallbacks: {
-    onOpen?: Function;
-    onClose?: Function;
-    onError?: Function;
-    onMessage?: Function;
-  }
-  webSocketCallbackId: number;
-  webSocketId?: number;
 }
 
 const WEB_SOCKET_MODULE_NAME = 'websocket';
@@ -65,8 +38,18 @@ let websocketEventHub: HippyEventListener;
  * you can send messages to a server and receive event-driven responses without having to
  * poll the server for a reply.
  */
-class WebSocket implements WebSocket {
-  protocol = '';
+class WebSocket implements HippyTypes.WebSocket {
+  public protocol = '';
+  public url: string;
+  public readyState: number;
+  public webSocketCallbackId: number;
+  public webSocketId: number | undefined;
+  public readonly webSocketCallbacks: {
+    onOpen?: (...args: any[]) => void;
+    onClose?: (...args: any[]) => void;
+    onError?: (...args: any[]) => void;
+    onMessage?: (...args: any[]) => void;
+  };
 
   /**
    * Returns a newly created WebSocket object.
@@ -84,7 +67,7 @@ class WebSocket implements WebSocket {
    *                                          string is assumed.
    * @param {Object} extrasHeaders - Http headers will append to connection.
    */
-  constructor(url: string, protocols: string[] | string, extrasHeaders: {[key: string]: string}) {
+  public constructor(url: any, protocols: string[] | string, extrasHeaders: {[key: string]: string}) {
     this.onWebSocketEvent = this.onWebSocketEvent.bind(this);
 
     if (!websocketEventHub) {
@@ -122,7 +105,7 @@ class WebSocket implements WebSocket {
     this.webSocketCallbackId = websocketEventHub.addCallback(this.onWebSocketEvent);
 
     Bridge.callNativeWithPromise(WEB_SOCKET_MODULE_NAME, 'connect', params)
-      .then((resp: { code: number, id: number }) => {
+      .then((resp: { code: number, id: number | undefined } | any) => {
         if (!resp || resp.code !== 0 || typeof resp.id !== 'number') {
           warn('Fail to create websocket connection', resp);
           return;
@@ -162,7 +145,7 @@ class WebSocket implements WebSocket {
    *
    * @param {string} data - The data to send to the server. Hippy supports string type only.
    */
-  public send(data: string) {
+  public send(data: string | undefined) {
     if (this.readyState !== ReadyState.OPEN) {
       warn('WebSocket is not connected');
       return;
@@ -196,7 +179,7 @@ class WebSocket implements WebSocket {
   /**
    * Set an EventHandler that is called when a message is received from the server.
    */
-  public set onerror(callback: Function) {
+  public set onerror(callback: () => void) {
     this.webSocketCallbacks.onError = callback;
   }
 

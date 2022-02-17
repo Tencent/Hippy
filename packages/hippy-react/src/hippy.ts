@@ -29,6 +29,7 @@ const {
   createContainer,
   updateContainer,
   getPublicRootInstance,
+  injectIntoDevTools,
 } = renderer;
 
 interface HippyReactConfig {
@@ -68,16 +69,16 @@ const componentName = ['%c[Hippy-React process.env.HIPPY_REACT_VERSION]%c', 'col
 interface HippyReact {
   config: HippyReactConfig;
   rootContainer: any;
-  // Keep forward comaptatble.
+  // Keep forward compatible.
   regist: () => void;
 }
 
 class HippyReact implements HippyReact {
   // version
-  static version = process.env.HIPPY_REACT_VERSION;
+  public static version = process.env.HIPPY_REACT_VERSION as string;
 
   // Native methods
-  static get Native() {
+  public static get Native() {
     warn('HippyReact.Native interface is not stable yet. DO NOT USE IT');
     return Native;
   }
@@ -87,10 +88,10 @@ class HippyReact implements HippyReact {
    *
    * @param {Object} config - Hippy config.
    * @param {string} config.appName - The name of Hippy app.
-   * @param {Component} config.entryPage - The Entry page of Hippy app.
+   * @param {HippyReactConfig.entryPage} config.entryPage - The Entry page of Hippy app.
    * @param {function} config.callback - The callback after rendering.
    */
-  constructor(config: HippyReactConfig) {
+  public constructor(config: HippyReactConfig) {
     if (!config.appName || !config.entryPage) {
       throw new TypeError('Invalid arguments');
     }
@@ -100,7 +101,7 @@ class HippyReact implements HippyReact {
 
     // Start Render
     const rootDocument = new Document();
-    this.rootContainer = createContainer(rootDocument, false, false);
+    this.rootContainer = createContainer(rootDocument, 0, false, null);
   }
 
   /**
@@ -124,6 +125,14 @@ class HippyReact implements HippyReact {
     } = this.config;
     const { __instanceId__: rootViewId } = superProps;
     trace(...componentName, 'Start', appName, 'with rootViewId', rootViewId, superProps);
+
+    if (process.env.NODE_ENV === 'development') {
+      injectIntoDevTools({
+        bundleType: 1,
+        version: HippyReact.version,
+        rendererPackageName: 'hippy-react',
+      });
+    }
 
     // Update nodeId for container
     this.rootContainer.containerInfo.nodeId = rootViewId;

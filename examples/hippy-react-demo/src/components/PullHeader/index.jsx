@@ -81,7 +81,7 @@ export default class PullHeaderExample extends React.Component {
   /**
    * 页面加载更多时触发
    *
-   * 这里触发加载更多还可以使用 PullFooter 组件，主要看是否需要一个内容加载区。
+   * 这里触发加载更多还可以使用 PullFooter 组件。
    *
    * onEndReached 更适合用来无限滚动的场景。
    */
@@ -116,7 +116,6 @@ export default class PullHeaderExample extends React.Component {
       return;
     }
     this.fetchingDataFlag = true;
-    // eslint-disable-next-line no-console
     console.log('onHeaderReleased');
     this.setState({
       pullingText: '刷新数据中，请稍等，2秒后自动收起',
@@ -145,7 +144,6 @@ export default class PullHeaderExample extends React.Component {
     if (this.fetchingDataFlag) {
       return;
     }
-    // eslint-disable-next-line no-console
     console.log('onHeaderPulling', evt.contentOffset);
     if (evt.contentOffset > styles.pullContent.height) {
       this.setState({
@@ -163,10 +161,7 @@ export default class PullHeaderExample extends React.Component {
    *
    * @param {number} index - 被点击的索引号
    */
-  // eslint-disable-next-line class-methods-use-this
   onClickItem(index, event) {
-    // let target = event.target;
-    // eslint-disable-next-line no-console
     console.log(`item: ${index} is clicked..`, event.target.nodeId, event.currentTarget.nodeId);
   }
 
@@ -178,8 +173,7 @@ export default class PullHeaderExample extends React.Component {
    * @param {number} index 对应的行
    */
   getRowType(index) {
-    const self = this;
-    const item = self.state.dataSource[index];
+    const item = this.state.dataSource[index];
     return item.style;
   }
 
@@ -190,7 +184,6 @@ export default class PullHeaderExample extends React.Component {
    *
    * @param {number} index 对应的行
    */
-  // eslint-disable-next-line class-methods-use-this
   getRowKey(index) {
     return `row-${index}`;
   }
@@ -247,7 +240,6 @@ export default class PullHeaderExample extends React.Component {
         styleUI = <Text style={styles.loading}>{loadingState}</Text>;
         break;
       default:
-        // pass
     }
     return (
       <View style={styles.container}>

@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-import Style from '@localTypes/style';
 import { Device } from '../native';
 
 const ratio = Device.window.scale;
@@ -29,7 +28,7 @@ if (HAIRLINE_WIDTH === 0) {
 }
 
 interface StyleObj {
-  [key: string]: Style;
+  [key: string]: HippyTypes.Style;
 }
 
 /**

@@ -15,6 +15,9 @@
  */
 package com.tencent.mtt.hippy.views.textinput;
 
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
+import androidx.core.content.ContextCompat;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -622,47 +625,62 @@ public class HippyTextInput extends EditText implements HippyViewBase, CommonBor
 
   @SuppressWarnings("JavaReflectionMemberAccess")
   public void setCursorColor(int color) {
-    try {
-      Field field = TextView.class.getDeclaredField("mCursorDrawableRes");
-      field.setAccessible(true);
-      int drawableResId = field.getInt(this);
-      field = TextView.class.getDeclaredField("mEditor");
-      field.setAccessible(true);
-      Object editor = field.get(this);
-      Drawable drawable = null;
-      final int version = Build.VERSION.SDK_INT;
-      if (version >= 21) {
-        drawable = this.getContext().getDrawable(drawableResId);
-      } else if (version >= 16) {
-        drawable = this.getContext().getResources().getDrawable(drawableResId);
+    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+      // Pre-Android 10, there was no supported API to change the cursor color programmatically.
+      // In Android 9.0, they changed the underlying implementation,
+      // but also "dark greylisted" the new field, rendering it unusable.
+      return;
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      Drawable cursorDrawable = getTextCursorDrawable();
+      if (cursorDrawable != null) {
+        cursorDrawable.setColorFilter(new BlendModeColorFilter(color, BlendMode.SRC_IN));
+        setTextCursorDrawable(cursorDrawable);
       }
-      if (drawable == null) {
-        return;
-      }
-      drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-      assert editor != null;
-      Class<?> editorClass = editor
-          .getClass(); //有的ROM自己复写了，Editor类，所以之类里面没有mDrawableForCursor，这里需要遍历
-      while (editorClass != null) {
-        try {
-          if (version >= 28) {
-            field = editorClass.getDeclaredField("mDrawableForCursor");//mCursorDrawable
-            field.setAccessible(true);
-            field.set(editor, drawable);
-          } else {
-            Drawable[] drawables = {drawable, drawable};
-            field = editorClass.getDeclaredField("mCursorDrawable");//mCursorDrawable
-            field.setAccessible(true);
-            field.set(editor, drawables);
-          }
-          break;
-        } catch (Throwable e) {
-          LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
+    } else {
+      try {
+        Field field = TextView.class.getDeclaredField("mCursorDrawableRes");
+        field.setAccessible(true);
+        int drawableResId = field.getInt(this);
+        field = TextView.class.getDeclaredField("mEditor");
+        field.setAccessible(true);
+        Object editor = field.get(this);
+        Drawable drawable = null;
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 21) {
+          drawable = this.getContext().getDrawable(drawableResId);
+        } else if (version >= 16) {
+          drawable = this.getContext().getResources().getDrawable(drawableResId);
         }
-        editorClass = editorClass.getSuperclass(); //继续往上反射父亲
+        if (drawable == null) {
+          return;
+        }
+        drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        assert editor != null;
+        Class<?> editorClass = editor
+            .getClass(); //有的ROM自己复写了，Editor类，所以之类里面没有mDrawableForCursor，这里需要遍历
+        while (editorClass != null) {
+          try {
+            if (version >= 28) {
+              field = editorClass.getDeclaredField("mDrawableForCursor");//mCursorDrawable
+              field.setAccessible(true);
+              field.set(editor, drawable);
+            } else {
+              Drawable[] drawables = {drawable, drawable};
+              field = editorClass.getDeclaredField("mCursorDrawable");//mCursorDrawable
+              field.setAccessible(true);
+              field.set(editor, drawables);
+            }
+            break;
+          } catch (Throwable e) {
+            LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
+          }
+          editorClass = editorClass.getSuperclass(); //继续往上反射父亲
+        }
+      } catch (Throwable e) {
+        LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
       }
-    } catch (Throwable e) {
-      LogUtils.d("HippyTextInput", "setCursorColor: " + e.getMessage());
     }
   }
 }

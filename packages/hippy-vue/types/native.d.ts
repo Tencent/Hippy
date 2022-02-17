@@ -80,7 +80,7 @@ interface Native {
    * @param {string} eventName - The event name will be registered.
    * @param {Function} listener - Event callback.
    */
-  on(eventName: string, listener: Function): void;
+  on: (eventName: string, listener: Function) => void;
 
   /**
    * Remove specific event listener,
@@ -89,7 +89,7 @@ interface Native {
    * @param {Function} listener - Specific event callback will be removed,
    *                              the listeners will clean all if not specific.
    */
-  off(eventName: string, listener?: Function): void;
+  off: (eventName: string, listener?: Function) => void;
 
   /**
    * Trigger a event with arguments.
@@ -97,7 +97,7 @@ interface Native {
    * @param {string} eventName - The event name will be trigger.
    * @param  {any} args - Event callback arguments.
    */
-  emit(eventName: string, ...args: any[]): void;
+  emit: (eventName: string, ...args: any[]) => void;
 
   /**
    * Call native UI methods.

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import reactReconciler from 'react-reconciler';
+import reactReconciler from '@hippy/react-reconciler';
 import * as hostConfigs from './host-configs';
 
 const hippyReconciler = reactReconciler({

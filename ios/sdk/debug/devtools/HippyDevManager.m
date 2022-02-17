@@ -38,11 +38,11 @@
 @implementation HippyDevManager
 
 #pragma mark Life Cycles
-- (instancetype)initWithBridge:(HippyBridge *)bridge devIPAddress:(NSString *)devIPAddress devPort:(NSString *)devPort contextName:(NSString *)contextName {
+- (instancetype)initWithBridge:(HippyBridge *)bridge devInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName {
     self = [super init];
     if (self) {
         _bridge = bridge;
-        _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevIPAddress:devIPAddress port:devPort contextName:contextName];
+        _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevInfo:devInfo contextName:contextName];
         _devWSClient.delegate = self;
         [HippyInspector sharedInstance].devManager = self;
     }
@@ -53,6 +53,18 @@
     if (DevWebSocketState_OPEN == _devWSClient.state) {
         [_devWSClient sendData:dataString];
     }
+}
+
+- (void)closeWebSocket:(HippyDevCloseType)type {
+    if (!_devWSClient) {
+        return;
+    }
+    NSInteger code = type;
+    NSString *reason = @"socket was closed because the page was closed";
+    if (type == HippyDevCloseTypeReload) {
+        reason = @"socket was closed because the page was reload";
+    }
+    [_devWSClient closeWithCode:code reason:reason];
 }
 
 #pragma mark WS Delegate

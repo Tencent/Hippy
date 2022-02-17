@@ -26,7 +26,10 @@
 
 #include "core/napi/js_native_turbo.h"
 #include "core/napi/v8/js_native_api_v8.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8.h"
+#pragma clang diagnostic pop
 
 namespace hippy {
 namespace napi {
@@ -78,7 +81,7 @@ class V8TurboEnv : public TurboEnv {
 
     ~HostObjectTracker() {
       TDF_BASE_DLOG(INFO) << "~HostObjectTracker";
-      assert(is_reset_);
+      TDF_BASE_CHECK(is_reset_);
     }
 
     bool equals(IHostProxy *proxy) { return host_proxy_ == proxy; }
@@ -133,7 +136,7 @@ class V8TurboEnv : public TurboEnv {
   class HostFunctionProxy : public IHostProxy {
    public:
     HostFunctionProxy(V8TurboEnv &v8_turbo_env, HostFunctionType func)
-        : func_(std::move(func)), v8_turbo_env_(v8_turbo_env){};
+        : func_(std::move(func)), v8_turbo_env_(v8_turbo_env){}
 
     static void Call(HostFunctionProxy &host_function_proxy,
                      const v8::FunctionCallbackInfo<v8::Value> &callback_info) {
@@ -143,8 +146,8 @@ class V8TurboEnv : public TurboEnv {
       TDF_BASE_DLOG(INFO) << "enter call";
 
       std::vector<std::shared_ptr<CtxValue>> arg_values;
-      int arg_size = callback_info.Length();
-      for (int i = 0; i < arg_size; i++) {
+      auto arg_size = callback_info.Length();
+      for (auto i = 0; i < arg_size; i++) {
         arg_values.push_back(
             std::make_shared<V8CtxValue>(isolate, callback_info[i]));
       }
@@ -153,7 +156,10 @@ class V8TurboEnv : public TurboEnv {
           std::make_shared<V8CtxValue>(isolate, callback_info.This());
 
       std::shared_ptr<CtxValue> result = host_function_proxy.func_(
-          v8_turbo_env, this_val, arg_values.data(), arg_size);
+          v8_turbo_env,
+          this_val,
+          arg_values.data(),
+          hippy::base::checked_numeric_cast<int, size_t>(arg_size));
       std::shared_ptr<V8CtxValue> v8_result =
           std::static_pointer_cast<V8CtxValue>(result);
       callback_info.GetReturnValue().Set(v8_result->global_value_);
@@ -195,7 +201,7 @@ class V8TurboEnv : public TurboEnv {
   v8::Persistent<v8::Function> host_object_constructor_;
 
   std::shared_ptr<HostObject> GetHostObject(
-      std::shared_ptr<CtxValue> value) override;
+      const std::shared_ptr<CtxValue>& value) override;
 };
 }  // namespace napi
 }  // namespace hippy

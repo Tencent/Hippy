@@ -82,9 +82,7 @@ export default class RefreshWrapperExample extends React.Component {
     }, 1000);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   onClickItem(index) {
-    // eslint-disable-next-line no-console
     console.log(`item: ${index} is clicked..`);
   }
 
@@ -107,7 +105,6 @@ export default class RefreshWrapperExample extends React.Component {
         styleUI = <Text style={styles.loading}>{loadingState}</Text>;
         break;
       default:
-        // pass
     }
     return (
       <View style={styles.container}>
@@ -129,12 +126,10 @@ export default class RefreshWrapperExample extends React.Component {
     return item.style;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getRowKey(index) {
     return `row-${index}`;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getRefresh() {
     return (
       <View style={{ flex: 1, height: 30 }}>

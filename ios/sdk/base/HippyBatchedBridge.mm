@@ -481,19 +481,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 - (void)setUpDevClientWithName:(NSString *)name {
     if ([self.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
         if ([self.delegate shouldStartInspector:self.parentBridge]) {
-            NSString *ipAddress = nil;
-            NSString *ipPort = nil;
+            HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
             if ([self.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
                 NSURL *url = [self.delegate inspectorSourceURLForBridge:self.parentBridge];
-                ipAddress = [url host];
-                ipPort = [NSString stringWithFormat:@"%@", [url port]];
+                devInfo.scheme = [url scheme];
+                devInfo.ipAddress = [url host];
+                devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
+                devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
+                [devInfo parseWsURLWithURLQuery:[url query]];
             }
             else {
                 HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
-                ipAddress = bundleURLProvider.localhostIP;
-                ipPort = bundleURLProvider.localhostPort;
+                devInfo.scheme = bundleURLProvider.scheme;
+                devInfo.ipAddress = bundleURLProvider.localhostIP;
+                devInfo.port = bundleURLProvider.localhostPort;
+                devInfo.versionId = bundleURLProvider.versionId;
+                devInfo.wsURL = bundleURLProvider.wsURL;
             }
-            _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devIPAddress:ipAddress devPort:ipPort contextName:name];
+            _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devInfo:devInfo contextName:name];
         }
     }
 }
@@ -685,7 +690,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (BOOL)enableTurbo {
-    return _parentBridge.enableTurbo ?: NO;
+    return _parentBridge.enableTurbo;
 }
 
 - (void)setExecutorClass:(Class)executorClass {
@@ -761,6 +766,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     _valid = NO;
     if ([HippyBridge currentBridge] == self) {
         [HippyBridge setCurrentBridge:nil];
+    }
+    if (_devManager) {
+        HippyDevCloseType closeType = HippyDevCloseTypeClosePage;
+        if (self.invalidateReason == HippyInvalidateReasonReload) {
+            closeType = HippyDevCloseTypeReload;
+        }
+        [_devManager closeWebSocket:closeType];
     }
 
     // Invalidate modules

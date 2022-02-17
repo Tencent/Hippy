@@ -12,8 +12,10 @@ jobs:
       - name: setup-node
         uses: actions/setup-node@master
         with:
-          node-version: 16.x
+          node-version: 14.x
       - name: Install
-        run: npm install commitlint-plugin-function-rules@1.4.0 @commitlint/cli@15.0.0 @commitlint/config-conventional@15.0.0 @commitlint/lint@15.0.0 @commitlint/prompt-cli@15.0.0 --save
+        run: |
+          npm install commitlint-plugin-function-rules@1.6.0 @commitlint/cli@16.2.1 @commitlint/config-conventional@16.2.1 @commitlint/lint@16.2.1 @commitlint/prompt-cli@16.2.1
       - name: commitlint
-        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+        run: |
+          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose

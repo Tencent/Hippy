@@ -136,7 +136,7 @@ class Ctx {
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             unicode_string_view* result) = 0;
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) = 0;
-    
+
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) = 0;
 
   // Array Helpers
@@ -160,10 +160,7 @@ class Ctx {
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
-      const unicode_string_view& file_name,
-      bool is_use_code_cache = false,
-      unicode_string_view* cache = nullptr,
-      bool is_copy = true) = 0;
+      const unicode_string_view& file_name) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(
       const unicode_string_view& name) = 0;
   virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) = 0;
@@ -178,8 +175,8 @@ struct VMInitParam {};
 
 class VM {
  public:
-  VM(std::shared_ptr<VMInitParam> param = nullptr){};
-  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; };
+  VM(std::shared_ptr<VMInitParam> param = nullptr){}
+  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; }
 
   virtual std::shared_ptr<Ctx> CreateContext() = 0;
 };

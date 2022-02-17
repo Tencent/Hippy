@@ -95,6 +95,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   final String mServerBundleName;
   // Hippy Server的host，调试模式下有效
   private final String mServerHost;
+  // Hippy Server url using remote debug in no usb，only take effect in debugMode = true
+  private final String mRemoteServerUrl;
 
   final boolean enableV8Serialization;
 
@@ -139,6 +141,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     this.mStartTimeMonitor = new TimeMonitor(!params.debugMode);
     this.enableV8Serialization = params.enableV8Serialization;
     this.mServerHost = params.debugServerHost;
+    this.mRemoteServerUrl = params.remoteServerUrl;
     this.mGroupId = params.groupId;
     this.mThirdPartyAdapter = params.thirdPartyAdapter;
     this.v8InitParams = params.v8InitParams;
@@ -166,7 +169,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     try {
       mDevSupportManager = new DevSupportManager(mGlobalConfigs, mDebugMode, mServerHost,
-          mServerBundleName);
+          mServerBundleName, mRemoteServerUrl);
       mDevSupportManager.setDevCallback(this);
 
       if (mDebugMode) {
@@ -515,7 +518,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   public HippyRootView restoreInstanceState(final ArrayList<DomNodeRecord> domNodeRecordList,
-      HippyEngine.ModuleLoadParams loadParams) {
+      HippyEngine.ModuleLoadParams loadParams, final Callback<Boolean> callback) {
     if (domNodeRecordList == null || domNodeRecordList.isEmpty() || mEngineContext == null) {
       return null;
     }
@@ -549,8 +552,16 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             pid = 0 - pid;
           }
           int id = 0 - domNodeRecord.id;
-          domManager.createNode(tempRootView, tempRootId, id, pid, domNodeRecord.index,
-              domNodeRecord.className, domNodeRecord.tagName, domNodeRecord.props);
+          try {
+            domManager.createNode(tempRootView, tempRootId, id, pid, domNodeRecord.index,
+                    domNodeRecord.className, domNodeRecord.tagName, domNodeRecord.props);
+          } catch (Exception exception) {
+            domManager.renderBatchStop();
+            if (callback != null) {
+              callback.callback(false, exception);
+            }
+            return;
+          }
         }
         domManager.renderBatchEnd();
       }
@@ -864,6 +875,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       this.componentName = componentName;
     }
 
+    @Override
     public String getComponentName() {
       return componentName;
     }

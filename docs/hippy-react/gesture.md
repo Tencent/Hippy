@@ -142,12 +142,15 @@ new Hippy({
 
 ## 事件捕获
 
-> 最低支持版本 2.11.2
+> 最低支持版本 2.11.5
 
 [[事件捕获范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
 
-点击事件和触屏事件支持事件捕获，如需注册捕获阶段的事件处理函数，则应在目标元素事件名添加 `Capture` 后缀，如 `onClickCapture`、`onTouchDownCapture`。如果目标元素没有`Capture`
-事件处理函数，默认不开启捕获。事件捕获会有一定性能损耗，如非必要尽量不开启。
+点击事件和触屏事件支持事件捕获，如需注册捕获阶段的事件处理函数，则应在目标元素事件名添加 `Capture` 后缀，如 `onClickCapture`、`onTouchDownCapture`。
+
+Hippy为了做更好的性能优化，如果目标元素没有 `Capture` 事件处理函数，默认不开启捕获，全局冒泡配置 `bubbles: false` 不会影响捕获开启。事件捕获设计与 Web 标准一致，当在任意一个捕获函数内调用 `stopPropagation` 时，会同时阻止剩余的捕获阶段、目标节点阶段和冒泡阶段执行。 
+
+!> 事件捕获会有一定性能损耗，如非必要尽量不开启。
 
 例子如下：
 
@@ -159,14 +162,17 @@ render()
               onClick={() => {
                   console.log("根节点 点击");
               }}
-              onClickCapture={() => console.log("根节点 捕获点击")}
+              onClickCapture={(event) => {
+                  // 如果根节点调用 stopPropagation，则按钮2的 onClickCapture 和按钮1的 onClick 都不会触发
+                  // event.stopPropagation();
+                  console.log("根节点 捕获点击")
+              }}
         >
             <Text style={{width: 150, height: 100, backgroundColor: "#FF0000"}}
                   onClick={() => {
                       // 点击按钮1不会触发根节点捕获点击
                       console.log("按钮1 点击")
                   }}
-
             >
                 点击按钮1
             </Text>

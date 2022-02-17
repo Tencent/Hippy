@@ -1,9 +1,31 @@
+#
+# Tencent is pleased to support the open source community by making
+# Hippy available.
+#
+# Copyright (C) 2022 THL A29 Limited, a Tencent company.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 cmake_minimum_required(VERSION 3.4.1)
 
 project("hippy")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN on)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS off)
 
 if (${ANDROID_STL} STREQUAL "c++_static")
   string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++_static.a")
@@ -12,50 +34,47 @@ endif()
 
 # region ABI_COMPILE_OPTIONS
 set(ABI_COMPILE_OPTIONS
-        -fno-rtti
+        -fomit-frame-pointer
         -fno-threadsafe-statics
-        -fvisibility-inlines-hidden
-        -std=c++14
-        --param=ssp-buffer-size=4
-        -Werror
-        -fno-exceptions
         -fno-strict-aliasing
-        -Wall
-        -Wno-unused-parameter
-        -Wno-missing-field-initializers
-        -pipe
-        -fPIC
-        -Wno-unused-local-typedefs
-        -funwind-tables
-        -fstack-protector
         -fno-short-enums
-        -Os
-        -g
-        -fdata-sections
-        -ffunction-sections
-        -fomit-frame-pointer)
+        -fno-unique-section-names
+        -fno-trigraphs
+        -Werror
+        -Wall
+        -Wextra
+        -Wextra-semi
+        -Wconversion
+        -Wimplicit-fallthrough
+        -Wloop-analysis
+        -Wmissing-field-initializers
+        -Wunused-local-typedefs
+        -Wstring-conversion
+        -Wthread-safety
+        -Wtautological-overlap-compare
+        -Wunreachable-code
+        -Wenum-compare-conditional
+        -Wheader-hygiene
+        -Wshadow
+        -Wno-unused-parameter
+        -Wno-trigraphs
+        --param=ssp-buffer-size=4
+        -pipe
+        -Os)
 
 message("ANDROID_ABI: ${ANDROID_ABI}")
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
   set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -march=armv7-a
-          -mtune=generic-armv7-a
-          -mfpu=vfpv3-d16
-          -mfloat-abi=softfp
-          -mthumb)
+          -mfloat-abi=softfp)
 elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
   # (Empty)
 elseif (${ANDROID_ABI} STREQUAL "x86")
   set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -march=i686
-          -mtune=intel
           -m32
           -mssse3
           -mfpmath=sse)
 elseif (${ANDROID_ABI} STREQUAL "x86_64")
   set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -march=x86-64
-          -mtune=intel
           -m64
           -mpopcnt
           -msse4.2)
@@ -64,7 +83,7 @@ else()
 endif()
 
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS} -fvisibility=hidden)
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 endif()
 
 message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
@@ -76,7 +95,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/bas
 set(ENABLE_INSPECTOR true)
 if (${JS_ENGINE} STREQUAL "V8")
   get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
-  add_subdirectory(${V8_COMPONENT_PATH})
+  add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
 endif()
 # endregion
 
@@ -85,7 +104,6 @@ if (${ENABLE_INSPECTOR} STREQUAL "true")
   add_definitions("-DENABLE_INSPECTOR")
 endif()
 add_definitions("-DOS_ANDROID")
-add_definitions("-DANDROID")
 # endregion
 
 # region source
@@ -106,6 +124,7 @@ set(HIPPY_DEPS android log tdf_base)
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
+  add_definitions("-DJS_V8")
   # region remove jsc code
   file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
   message("JSC_SRC: ${JSC_SRC}")
@@ -115,7 +134,9 @@ if (${JS_ENGINE} STREQUAL "V8")
   if (${V8_LINKING_MODE} STREQUAL "shared")
     add_library(v8 SHARED IMPORTED)
   elseif (${V8_LINKING_MODE} STREQUAL "static")
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,${V8_LIBRARY_NAME}")
+    if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
+      string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,${V8_LIBRARY_NAME}")
+    endif()
     add_library(v8 STATIC IMPORTED)
   else()
     message(FATAL_ERROR "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
@@ -130,6 +151,7 @@ if (${JS_ENGINE} STREQUAL "V8")
     add_definitions(${DEFINITION})
   endforeach()
 elseif (${JS_ENGINE} STREQUAL "JSC")
+  add_definitions("-DJS_JSC")
   # region remove v8 code
   file(GLOB_RECURSE V8_SRC ${CORE_SRC_DIR}/src/napi/v8/*)
   message("V8_SRC: ${V8_SRC}")
@@ -145,6 +167,9 @@ include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${CORE_SRC_DIR}/third_party/base/include)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
+if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
+  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
+endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
 
 if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))

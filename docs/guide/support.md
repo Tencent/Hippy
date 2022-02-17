@@ -9,4 +9,4 @@
 
 也可以加入 QQ 群 [784894901](//shang.qq.com/wpa/qunwpa?idkey=ce9cd2eb06fd6da26a1a63b70da82edd132964d22998e5154e533822f7b757cc)
 
-[![QQ群](//puui.qpic.cn/vupload/0/1577700402806_3qd3bjxmlq7.png/0)](//shang.qq.com/wpa/qunwpa?idkey=ce9cd2eb06fd6da26a1a63b70da82edd132964d22998e5154e533822f7b757cc)
+[![QQ群](../assets/img/qq-group.png)](//shang.qq.com/wpa/qunwpa?idkey=ce9cd2eb06fd6da26a1a63b70da82edd132964d22998e5154e533822f7b757cc)

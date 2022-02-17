@@ -88,7 +88,7 @@ jobs:
     - name: Generate ${{ matrix.arch }}
       working-directory: ./v8
       run: |
-        gn gen out/${{ matrix.arch }} --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" ${{ github.event.inputs.build_args }}"
+        gn gen out/${{ matrix.arch }} --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" android32_ndk_api_level=21 android64_ndk_api_level=21 ${{ github.event.inputs.build_args }}"
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
       run: |
@@ -178,6 +178,7 @@ jobs:
               _Do NOT modify this release manually._
 
               Refs: [v8/v8@${{ steps.merge_all_artifact.outputs.head_lite }}][1]
+
               Branch/Tag: ${{ github.event.inputs.v8_revision }}
 
               [1]: https://github.com/v8/v8/tree/${{ steps.merge_all_artifact.outputs.head_full }}

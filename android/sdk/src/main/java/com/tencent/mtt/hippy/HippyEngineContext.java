@@ -26,6 +26,8 @@ import com.tencent.mtt.hippy.utils.TimeMonitor;
 @SuppressWarnings("unused")
 public interface HippyEngineContext {
 
+  String getComponentName();
+
   HippyGlobalConfigs getGlobalConfigs();
 
   HippyModuleManager getModuleManager();

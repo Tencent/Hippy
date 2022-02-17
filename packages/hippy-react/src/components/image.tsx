@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import Style from '@localTypes/style';
+import React, { LegacyRef } from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
@@ -47,7 +46,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
   /**
    * Image source object
    */
-  source?: ImageSource | ImageSource[];
+  source?: ImageSource | ImageSource[] | null;
 
   srcs?: string[];
   sources?: ImageSource[];
@@ -62,12 +61,12 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * Fill color to the image
    */
   tintColor?: number | string;
-  tintColors?: number[] | string[];
+  tintColors?: (number | string)[];
 
   /**
    * Image style when `Image` have other children.
    */
-  imageStyle?: Style;
+  imageStyle?: HippyTypes.Style;
 
   /**
    * Image ref when `Image` have other children.
@@ -91,22 +90,22 @@ interface ImageProps extends LayoutableProps, ClickableProps {
     left: number;
   };
 
-  style: Style;
+  style: HippyTypes.Style;
 
   /**
    * Invoked on `Image` is loaded.
    */
-  onLoad?(): void;
+  onLoad?: () => void;
 
   /**
    * Invoke on `Image` is end of loading.
    */
-  onLoadEnd?(): void;
+  onLoadEnd?: () => void;
 
   /**
    * Invoke on `Image` is start to loading.
    */
-  onLoadStart?(): void;
+  onLoadStart?: () => void;
 
   /**
    * Invoke on loading of `Image` get error.
@@ -114,7 +113,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * @param {Object} evt - Loading error data.
    * @param {string} evt.nativeEvent.error - Loading error message.
    */
-  onError?(evt: { nativeEvent: { error: string }}): void;
+  onError?: (evt: { nativeEvent: { error: string }}) => void;
 
   /**
    * Invoke on Image is loading.
@@ -123,7 +122,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * @param {number} evt.nativeEvent.loaded - The image is loaded.
    * @param {number} evt.nativeEvent.total - The loadded progress.
    */
-  onProgress?(evt: { nativeEvent: { loaded: number; total: number }}): void;
+  onProgress?: (evt: { nativeEvent: { loaded: number; total: number }}) => void;
 }
 
 /**
@@ -132,7 +131,7 @@ interface ImageProps extends LayoutableProps, ClickableProps {
  * @noInheritDoc
  */
 class Image extends React.Component<ImageProps, {}> {
-  static get resizeMode() {
+  public static get resizeMode() {
     return {
       contain: 'contain',
       cover: 'cover',
@@ -142,7 +141,9 @@ class Image extends React.Component<ImageProps, {}> {
     };
   }
 
-  static getSize(
+  public static prefetch = prefetch;
+
+  public static getSize(
     url: any,
     success: (width: number, height: number) => void,
     failure: (err: typeof Error) => void,
@@ -152,7 +153,7 @@ class Image extends React.Component<ImageProps, {}> {
     }
     const size = getSize(url);
     if (typeof success === 'function') {
-      size.then((result: Size) => success(result.width, result.height));
+      size.then((result: Size | any) => success(result.width, result.height));
     }
     if (typeof failure === 'function') {
       size.catch(failure);
@@ -162,66 +163,6 @@ class Image extends React.Component<ImageProps, {}> {
     return size;
   }
 
-  static prefetch = prefetch;
-
-  private getImageUrls({ src, srcs, source, sources }: {
-    src: string | any,
-    srcs: string[] | any,
-    source: string | any,
-    sources: string[] | any,
-  }) {
-    let imageUrls = [];
-    if (typeof src === 'string') {
-      imageUrls.push(src);
-    }
-    if (Array.isArray(srcs)) {
-      imageUrls = [...imageUrls, ...srcs];
-    }
-    if (source) {
-      if (typeof source === 'string') {
-        imageUrls.push(source);
-      } else if (typeof source === 'object' && source !== null) {
-        const { uri } = source as ImageSource;
-        if (uri) {
-          imageUrls.push(uri);
-        }
-      }
-    }
-    if (sources) {
-      if (Array.isArray(sources)) {
-        sources.forEach((imageSrc) => {
-          if (typeof imageSrc === 'string') {
-            imageUrls.push(imageSrc);
-          } else if (typeof imageSrc === 'object' && imageSrc !== null && imageSrc.uri) {
-            imageUrls.push(imageSrc.uri);
-          }
-        });
-      }
-    }
-
-    if (imageUrls.length) {
-      imageUrls = imageUrls.map((url: string) => convertImgUrl(url));
-    }
-    return imageUrls;
-  }
-
-  private handleTintColor(
-    nativeStyle: { tintColor?: number, tintColors?: number[] },
-    tintColor: Color, tintColors: Color[],
-  ) {
-    if (tintColor) {
-      // eslint-disable-next-line no-param-reassign
-      nativeStyle.tintColor = colorParse(tintColor) as number;
-    }
-    if (Array.isArray(tintColors)) {
-      // eslint-disable-next-line no-param-reassign
-      nativeStyle.tintColors = colorArrayParse(tintColors) as number[];
-    }
-  }
-
-  /**
-   * @ignore
-   */
   public render() {
     const {
       children,
@@ -240,7 +181,6 @@ class Image extends React.Component<ImageProps, {}> {
     /**
      * Image source prop
      */
-
     // Define the image source url array.
     const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
 
@@ -299,14 +239,69 @@ class Image extends React.Component<ImageProps, {}> {
       );
     }
     return (
+      // @ts-ignore
       <img
         {...nativeProps}
         nativeName="Image"
         alt=""
-        // @ts-ignore
-        ref={imageRef}
+        ref={imageRef as LegacyRef<HTMLImageElement>}
       />
     );
+  }
+
+  private getImageUrls({ src, srcs, source, sources }: {
+    src: string | any,
+    srcs: string[] | any,
+    source: string | any,
+    sources: string[] | any,
+  }) {
+    let imageUrls: string[] = [];
+    if (typeof src === 'string') {
+      imageUrls.push(src);
+    }
+    if (Array.isArray(srcs)) {
+      imageUrls = [...imageUrls, ...srcs];
+    }
+    if (source) {
+      if (typeof source === 'string') {
+        imageUrls.push(source);
+      } else if (typeof source === 'object' && source !== null) {
+        const { uri } = source as ImageSource;
+        if (uri) {
+          imageUrls.push(uri);
+        }
+      }
+    }
+    if (sources) {
+      if (Array.isArray(sources)) {
+        sources.forEach((imageSrc) => {
+          if (typeof imageSrc === 'string') {
+            imageUrls.push(imageSrc);
+          } else if (typeof imageSrc === 'object' && imageSrc !== null && imageSrc.uri) {
+            imageUrls.push(imageSrc.uri);
+          }
+        });
+      }
+    }
+
+    if (imageUrls.length) {
+      imageUrls = imageUrls.map((url: string) => convertImgUrl(url));
+    }
+    return imageUrls;
+  }
+
+  private handleTintColor(
+    nativeStyle: { tintColor?: number, tintColors?: number[] },
+    tintColor: Color, tintColors: Color[],
+  ) {
+    if (tintColor) {
+      // eslint-disable-next-line no-param-reassign
+      nativeStyle.tintColor = colorParse(tintColor) as number;
+    }
+    if (Array.isArray(tintColors)) {
+      // eslint-disable-next-line no-param-reassign
+      nativeStyle.tintColors = colorArrayParse(tintColors) as number[];
+    }
   }
 }
 export default Image;

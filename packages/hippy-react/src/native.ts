@@ -25,6 +25,10 @@ import * as ImageLoader from './modules/image-loader-module';
 import * as NetworkInfo from './modules/network-info';
 import * as UIManager from './modules/ui-manager-module';
 import BackAndroid from './modules/back-android';
+import renderer from './renderer';
+const {
+  flushSync,
+} = renderer;
 
 const {
   addEventListener,
@@ -50,4 +54,5 @@ export {
   ImageLoader,
   NetworkInfo,
   UIManager,
+  flushSync,
 };

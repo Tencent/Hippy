@@ -50,7 +50,7 @@ std::vector<std::shared_ptr<CtxValue>> HostObject::GetPropertyNames(TurboEnv &) 
 }
 
 std::shared_ptr<HostObject> TurboEnv::GetHostObject(
-    std::shared_ptr<CtxValue> value) {
+    const std::shared_ptr<CtxValue>& value) {
   return nullptr;
 }
 

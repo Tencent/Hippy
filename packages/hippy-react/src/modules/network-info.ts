@@ -20,7 +20,7 @@
 
 /* eslint-disable no-use-before-define */
 
-import { HippyEventEmitter } from '../events';
+import { HippyEventEmitter } from '../event';
 import { Bridge } from '../global';
 
 type NetworkChangeEventData = any;
@@ -28,7 +28,7 @@ type NetworkInfoCallback = (data: NetworkChangeEventData) => void;
 
 interface NetInfoRevoker {
   eventName: string;
-  listener: NetworkInfoCallback | undefined;
+  listener?: NetworkInfoCallback | undefined;
 }
 
 const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';
@@ -37,12 +37,12 @@ const subScriptions = new Map();
 let NetInfoEventEmitter: HippyEventEmitter;
 
 class NetInfoRevoker implements NetInfoRevoker {
-  constructor(eventName: string, listener: (data: any) => void) {
+  public constructor(eventName: string, listener: (data: any) => void) {
     this.eventName = eventName;
     this.listener = listener;
   }
 
-  remove() {
+  public remove() {
     if (!this.eventName || !this.listener) {
       return;
     }
@@ -76,7 +76,7 @@ function addEventListener(eventName: string, listener: NetworkInfoCallback): Net
     },
   );
   // FIXME: Seems only accept one callback for each event, should support multiple callback.
-  subScriptions.set(handler, handler);
+  subScriptions.set(listener, handler);
   return new NetInfoRevoker(event, listener);
 }
 

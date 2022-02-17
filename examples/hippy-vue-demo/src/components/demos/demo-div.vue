@@ -149,8 +149,6 @@ export default {
 
 <style scoped>
 
-  /* Common CSS Styles */
-
   #div-demo {
     flex: 1;
     overflow-y: scroll;
@@ -185,7 +183,7 @@ export default {
   /*.div-demo-1 {*/
   /*  display: flex;*/
   /*  height: 40px;*/
-  /*  background-image: url('http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');*/
+  /*  background-image: url('https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png');*/
   /*  background-repeat: no-repeat;*/
   /*}*/
 

@@ -42,6 +42,7 @@ import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
@@ -206,7 +207,7 @@ public abstract class HippyEngine {
   public abstract void saveInstanceState();
 
   public abstract HippyRootView restoreInstanceState(ArrayList<DomNodeRecord> domNodeRecordList,
-      HippyEngine.ModuleLoadParams loadParams);
+      HippyEngine.ModuleLoadParams loadParams, Callback<Boolean> callback);
 
   public abstract void destroyInstanceState(HippyRootView rootView);
 
@@ -252,6 +253,8 @@ public abstract class HippyEngine {
     public final String debugBundleName = "index.bundle";
     // 可选参数 Hippy Server的Host。默认为"localhost:38989"。debugMode = true时有效
     public String debugServerHost = "localhost:38989";
+    // optional args, Hippy Server url using remote debug in no usb (if not empty will replace debugServerHost and debugBundleName). debugMode = true take effect
+    public String remoteServerUrl = "";
     // 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
     public List<HippyAPIProvider> providers;
     //Optional  is use V8 serialization or json
@@ -301,7 +304,8 @@ public abstract class HippyEngine {
             EngineInitParams.class.getName() + " imageLoader must not be null!");
       }
       if (sharedPreferencesAdapter == null) {
-        sharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(context);
+        sharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(
+          context.getApplicationContext());
       }
       if (exceptionHandler == null) {
         exceptionHandler = new DefaultExceptionHandler();

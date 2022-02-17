@@ -18,12 +18,11 @@
  * limitations under the License.
  */
 
-import '@localTypes/global';
 import './global';
 import {
   HippyEventEmitter,
   HippyEventListener,
-} from './events';
+} from './event';
 import { colorParse } from './color';
 import HippyReact from './hippy';
 import AppRegistry from './adapters/app-registry';
@@ -51,8 +50,7 @@ import WaterfallView from './components/waterfall-view';
 import * as Native from './native';
 import * as StyleSheet from './modules/stylesheet';
 
-// @ts-ignore
-global.WebSocket = WebSocket;
+global.WebSocket = WebSocket as HippyTypes.WebSocket;
 
 const {
   AsyncStorage,
@@ -65,6 +63,7 @@ const {
   ImageLoader: ImageLoaderModule,
   NetworkInfo: NetInfo,
   UIManager: UIManagerModule,
+  flushSync,
 } = Native;
 
 const {
@@ -100,6 +99,7 @@ const PixelRatio = {
 };
 
 export {
+  flushSync,
   colorParse,
   callNative,
   callNativeWithPromise,
