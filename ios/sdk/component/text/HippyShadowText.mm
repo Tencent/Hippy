@@ -262,11 +262,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     auto domManager = self.domManager.lock();
     if (domManager) {
         std::function<void ()> func = [lambdaSelf = self, domManager](){
-            int32_t hippyTag = [[lambdaSelf hippyTag] intValue];
-            auto layoutNode = domManager->GetNode(hippyTag)->GetLayoutNode();
-            layoutNode->MarkDirty();
-            [lambdaSelf dirtyPropagation];
-            lambdaSelf.hasNewLayout = YES;
+            @autoreleasepool {
+                int32_t hippyTag = [[lambdaSelf hippyTag] intValue];
+                auto layoutNode = domManager->GetNode(hippyTag)->GetLayoutNode();
+                layoutNode->MarkDirty();
+                [lambdaSelf dirtyPropagation];
+                lambdaSelf.hasNewLayout = YES;
+            }
         };
         domManager->PostTask(func);
     }
