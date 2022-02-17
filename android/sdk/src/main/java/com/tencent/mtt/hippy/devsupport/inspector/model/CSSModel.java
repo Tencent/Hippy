@@ -24,6 +24,7 @@ public class CSSModel {
 
   private Map<String, String[]> transformEnumMap = new HashMap<>();
   private Set<String> transformDoubleMap = new HashSet<>();
+  private Set<String> transformColorSet = new HashSet<>();
 
   public CSSModel() {
     initTransformValue();
@@ -39,7 +40,7 @@ public class CSSModel {
     try {
       DomNodeRecord domNodeRecord = context.getDomManager().getNode(nodeId).getDomNodeRecord();
       if (domNodeRecord instanceof DomDomainData) {
-        HippyMap style = ((DomDomainData)domNodeRecord).style;
+        HippyMap style = ((DomDomainData) domNodeRecord).style;
         if (style != null) {
           matchedObject.put("inlineStyle", getCSSStyle(style, nodeId));
         }
@@ -70,7 +71,7 @@ public class CSSModel {
     try {
       DomNodeRecord domNodeRecord = context.getDomManager().getNode(nodeId).getDomNodeRecord();
       if (domNodeRecord instanceof DomDomainData) {
-        HippyMap style = ((DomDomainData)domNodeRecord).style;
+        HippyMap style = ((DomDomainData) domNodeRecord).style;
         if (style != null) {
           computedStyle.put("computedStyle", getComputedStyle(context, nodeId, style));
         }
@@ -247,7 +248,8 @@ public class CSSModel {
   }
 
   private boolean isCanHandleStyle(String key) {
-    return transformDoubleMap.contains(key) || transformEnumMap.containsKey(key);
+    return transformDoubleMap.contains(key) || transformEnumMap.containsKey(key)
+      || transformColorSet.contains(key);
   }
 
   private static double getDoubleValue(String value) {
@@ -255,6 +257,15 @@ public class CSSModel {
       return Double.parseDouble(value);
     } catch (Exception e) {
       LogUtils.e(TAG, "getDoubleValue, Exception: ", e);
+    }
+    return 0;
+  }
+
+  private static int getIntegerValue(String value) {
+    try {
+      return Integer.parseInt(value);
+    } catch (Exception e) {
+      LogUtils.e(TAG, "getIntegerValue, Exception: ", e);
     }
     return 0;
   }
@@ -336,6 +347,17 @@ public class CSSModel {
     transformEnumMap.put(NodeProps.TEXT_ALIGN, new String[]{"left", "center", "right"});
     transformEnumMap
       .put(NodeProps.RESIZE_MODE, new String[]{"cover", "contain", "stretch", "repeat", "center"});
+
+    transformColorSet.add("backgroundColor");
+    transformColorSet.add("borderColor");
+    transformColorSet.add("borderLeftColor");
+    transformColorSet.add("borderTopColor");
+    transformColorSet.add("borderRightColor");
+    transformColorSet.add("borderBottomColor");
+    transformColorSet.add("shadowColor");
+    transformColorSet.add("color");
+    transformColorSet.add("textShadowColor");
+    transformColorSet.add("textDecorationColor");
   }
 
   private Map<String, String> getBoxModelRequireMap() {
@@ -363,7 +385,7 @@ public class CSSModel {
   /**
    * 判断是否可以转换
    *
-   * @param key   css key
+   * @param key css key
    * @param value css value
    * @return 转换的 value
    */
@@ -373,6 +395,9 @@ public class CSSModel {
     }
     if (transformEnumMap.containsKey(key)) {
       return getEnumValue(transformEnumMap.get(key), value);
+    }
+    if (transformColorSet.contains(key)) {
+      return getIntegerValue(value);
     }
     return value;
   }
