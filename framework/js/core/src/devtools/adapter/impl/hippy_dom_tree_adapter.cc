@@ -18,8 +18,8 @@
 namespace hippy {
 namespace devtools {
 
-#if TDF_SERVICE_ENABLED
 void HippyDomTreeAdapter::UpdateDomTree(std::string tree_data, UpdateDomTreeCallback callback) {
+#if TDF_SERVICE_ENABLED
   if (!callback) {
     return;
   }
@@ -62,16 +62,18 @@ void HippyDomTreeAdapter::UpdateDomTree(std::string tree_data, UpdateDomTreeCall
         auto node = dom_manager->GetNode(node_id);
         // TODO:sicilyliu 等接口更新再联调效果
         node->UpdateStyle(style_map);
-        dom_manager->EndBatch();
+        dom_manager->DoLayout();
       }
     } else {
       is_success = false;
     }
   }
+#endif
 }
 
 void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
   if (callback) {
+#if TDF_SERVICE_ENABLED
     std::function func = [this, callback] {
       std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
       if (dom_manager) {
@@ -82,8 +84,8 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
     };
     DevToolUtils::PostDomTask(dom_id_, func);
   }
-}
 #endif
+}
 
 }  // namespace devtools
 }  // namespace hippy

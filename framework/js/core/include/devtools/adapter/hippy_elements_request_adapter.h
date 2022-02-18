@@ -19,7 +19,6 @@ class HippyElementsRequestAdapter : public tdf::devtools::ElementsRequestAdapter
   void SetDomainHandler(DomainHandler domain_handler) { domain_handler_ = domain_handler; }
   void SetNodeHandler(NodeHandler node_handler) { node_handler_ = node_handler; }
 
-#if TDF_SERVICE_ENABLED
   /**
    * @brief 获取domain数据
    */
@@ -29,7 +28,6 @@ class HippyElementsRequestAdapter : public tdf::devtools::ElementsRequestAdapter
    * @brief 根据location坐标获取NodeId
    */
   void GetNodeIdByLocation(double x, double y, DomainDataCallback callback) override;
-#endif
 
  private:
   DomainHandler domain_handler_;
