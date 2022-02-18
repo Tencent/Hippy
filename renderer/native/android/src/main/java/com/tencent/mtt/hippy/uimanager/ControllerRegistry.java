@@ -34,18 +34,15 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.GET_VIEW_
 public class ControllerRegistry {
 
     @NonNull
-    private final SparseArray<View> mViews;
+    private final SparseArray<View> mViews = new SparseArray<>();
     @NonNull
-    private final SparseArray<View> mRoots;
+    private final SparseArray<View> mRoots = new SparseArray<>();
     @NonNull
-    private final Map<String, ControllerHolder> mControllers;
+    private final Map<String, ControllerHolder> mControllers =  new HashMap<>();
     @NonNull
     private final NativeRender mNativeRenderer;
 
     public ControllerRegistry(@NonNull NativeRender nativeRenderer) {
-        mViews = new SparseArray<>();
-        mRoots = new SparseArray<>();
-        mControllers = new HashMap<>();
         mNativeRenderer = nativeRenderer;
     }
 

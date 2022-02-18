@@ -28,12 +28,16 @@ public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
 
     void deleteNode(@NonNull int[] ids) throws NativeRenderException;
 
+    void moveNode(int[] ids, int newPid, int oldPid) throws NativeRenderException;
+
     void updateLayout(@NonNull List<Object> list) throws NativeRenderException;
 
     void updateEventListener(@NonNull List<Object> eventList) throws NativeRenderException;
 
     void callUIFunction(int id, long callbackId, String functionName,
             @NonNull List<Object> eventList) throws NativeRenderException;
+
+    void measureInWindow(int id, long callbackId);
 
     long measure(int id, float width, int widthMode, float height, int heightMode);
 

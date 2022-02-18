@@ -28,61 +28,62 @@ import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 @HippyController(name = HippyModalHostManager.HIPPY_CLASS)
 public class HippyModalHostManager extends HippyGroupController<HippyModalHostView> {
 
-  public static final String HIPPY_CLASS = "Modal";
+    public static final String HIPPY_CLASS = "Modal";
 
-  @Override
-  protected View createViewImpl(Context context) {
-    final HippyModalHostView hippyModalHostView = createModalHostView(context);
+    @Override
+    protected View createViewImpl(Context context) {
+        final HippyModalHostView hippyModalHostView = createModalHostView(context);
 
-    hippyModalHostView.setOnRequestCloseListener(new HippyModalHostView.OnRequestCloseListener() {
-      @Override
-      public void onRequestClose(DialogInterface dialog) {
-        new RequestCloseEvent().send(hippyModalHostView, null);
-      }
-    });
-    hippyModalHostView.setOnShowListener(new DialogInterface.OnShowListener() {
-      @Override
-      public void onShow(DialogInterface dialog) {
-        new ShowEvent().send(hippyModalHostView, null);
-      }
-    });
-    return hippyModalHostView;
-  }
+        hippyModalHostView
+                .setOnRequestCloseListener(new HippyModalHostView.OnRequestCloseListener() {
+                    @Override
+                    public void onRequestClose(DialogInterface dialog) {
+                        new RequestCloseEvent().send(hippyModalHostView, null);
+                    }
+                });
+        hippyModalHostView.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                new ShowEvent().send(hippyModalHostView, null);
+            }
+        });
+        return hippyModalHostView;
+    }
 
-  protected HippyModalHostView createModalHostView(Context context) {
-    return new HippyModalHostView(context);
-  }
+    protected HippyModalHostView createModalHostView(Context context) {
+        return new HippyModalHostView(context);
+    }
 
-  @Override
-  public void onViewDestroy(HippyModalHostView hippyModalHostView) {
-    super.onViewDestroy(hippyModalHostView);
-    hippyModalHostView.onInstanceDestroy();
-  }
+    @Override
+    public void onViewDestroy(HippyModalHostView hippyModalHostView) {
+        super.onViewDestroy(hippyModalHostView);
+        hippyModalHostView.onInstanceDestroy();
+    }
 
-  @HippyControllerProps(name = "animationType", defaultType = HippyControllerProps.STRING, defaultString = "none")
-  public void setAnimationType(HippyModalHostView view, String animationType) {
-    view.setAnimationType(animationType);
-  }
+    @HippyControllerProps(name = "animationType", defaultType = HippyControllerProps.STRING, defaultString = "none")
+    public void setAnimationType(HippyModalHostView view, String animationType) {
+        view.setAnimationType(animationType);
+    }
 
-  @HippyControllerProps(name = "immersionStatusBar", defaultType = HippyControllerProps.BOOLEAN)
-  public void setEnterImmersionStatusBar(HippyModalHostView view, boolean fullScreen) {
-    view.setEnterImmersionStatusBar(fullScreen);
-  }
+    @HippyControllerProps(name = "immersionStatusBar", defaultType = HippyControllerProps.BOOLEAN)
+    public void setEnterImmersionStatusBar(HippyModalHostView view, boolean fullScreen) {
+        view.setEnterImmersionStatusBar(fullScreen);
+    }
 
-  @HippyControllerProps(name = "darkStatusBarText", defaultType = HippyControllerProps.BOOLEAN)
-  public void setImmersionStatusBarTextDarkColor(HippyModalHostView view, boolean fullScreen) {
-    view.setImmersionStatusBarTextDarkColor(fullScreen);
-  }
+    @HippyControllerProps(name = "darkStatusBarText", defaultType = HippyControllerProps.BOOLEAN)
+    public void setImmersionStatusBarTextDarkColor(HippyModalHostView view, boolean fullScreen) {
+        view.setImmersionStatusBarTextDarkColor(fullScreen);
+    }
 
-  @HippyControllerProps(name = "transparent", defaultType = HippyControllerProps.BOOLEAN)
-  public void setTransparent(HippyModalHostView view, boolean transparent) {
-    view.setTransparent(transparent);
-  }
+    @HippyControllerProps(name = "transparent", defaultType = HippyControllerProps.BOOLEAN)
+    public void setTransparent(HippyModalHostView view, boolean transparent) {
+        view.setTransparent(transparent);
+    }
 
-  @Override
-  public void onAfterUpdateProps(HippyModalHostView v) {
-    super.onAfterUpdateProps(v);
-    v.showOrUpdate();
-  }
+    @Override
+    public void onAfterUpdateProps(HippyModalHostView v) {
+        super.onAfterUpdateProps(v);
+        v.showOrUpdate();
+    }
 
 }
