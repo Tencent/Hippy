@@ -415,7 +415,7 @@ import icon from './qb_icon_new.png';
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。启用无障碍的其他属性时，必须优先设置 `accessible` 为 `true`。 | `boolean` | `ALL`     |
-| accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `node`                               | `ALL`     |
+| accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `string`                               | `ALL`     |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `ALL`     |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `ALL`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `ALL`     |
@@ -457,6 +457,7 @@ import icon from './qb_icon_new.png';
 
 | 参数                     | 描述                                                         | 类型                                         | 支持平台 |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
+| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
 | initialPage              | 指定一个数字，用于决定初始化后默认显示的页面 index，默认不指定的时候是0 | `number`                                     | `ALL`    |
 | scrollEnabled            | 指定 ViewPager 是否可以滑动，默认为 `true`                        | `boolean`                                    | `ALL`    |
 | onPageSelected           | 指定一个函数，当 page 被选中时进行回调。回调参数是一个 event 对象，回调参数： `position: number` - 表示即将滑到的目标 page 的索引 | `(obj: {position: number}) => void`      | `ALL`    |
