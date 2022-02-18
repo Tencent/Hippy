@@ -167,7 +167,7 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateMap(
       size_t count,
       std::shared_ptr<CtxValue> value[]) override;
-  virtual std::shared_ptr<CtxValue> CreateJsError(
+  virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) override;
 
   // Get From Value
@@ -223,7 +223,9 @@ class V8Ctx : public Ctx {
       bool is_copy);
 
   virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
-  virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) override;
+  virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) override;
+  virtual void ThrowException(const unicode_string_view& exception) override;
+  virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) override;
