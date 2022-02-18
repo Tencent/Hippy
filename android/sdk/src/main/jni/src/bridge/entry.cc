@@ -108,7 +108,7 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
   }
 
   jmethodID j_method =
-      j_env->GetMethodID(j_cls, "onReceiveNativeLogMessage", "(Ljava/lang/String;)V");
+      j_env->GetMethodID(j_cls, "onReceiveNativeLogMessage", "(ILjava/lang/String;)V");
   if (!j_method) {
     return;
   }
@@ -121,7 +121,8 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
 
     std::string str = stream.str();
     jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
-    j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
+    jint j_level = static_cast<jint>(severity);
+    j_env->CallVoidMethod(logger->GetObj(), j_method, j_level, j_logger_str);
     j_env->DeleteLocalRef(j_logger_str);
   });
 }

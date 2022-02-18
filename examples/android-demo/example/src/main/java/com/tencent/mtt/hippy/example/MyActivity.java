@@ -33,7 +33,7 @@ public class MyActivity extends Activity
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
 		HippyEngine.setNativeLogHandler(
-				msg -> Log.e("HippyCore", "onReceiveNativeLogMessage: " + msg));
+      (level, msg) -> Log.e("HippyCore", "onReceiveNativeLogMessage: " + msg));
 
 		// 1/3. 初始化hippy引擎
 		{
