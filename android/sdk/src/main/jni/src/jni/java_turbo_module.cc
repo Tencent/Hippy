@@ -114,7 +114,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
   if (!std::get<0>(jni_tuple)) {
     DeleteGlobalRef(jni_args);
-    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(std::get<1>(jni_tuple))));
+    ctx->ThrowExceptionToJs(unicode_string_view(std::get<1>(jni_tuple)));
     return ctx->CreateUndefined();
   }
   jni_args = std::get<2>(jni_tuple);
@@ -126,7 +126,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
   if (!std::get<0>(js_tuple)) {
     DeleteGlobalRef(jni_args);
-    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(std::get<1>(js_tuple))));
+    ctx->ThrowExceptionToJs(unicode_string_view(std::get<1>(js_tuple)));
     return ctx->CreateUndefined();
   }
 

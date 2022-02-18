@@ -285,7 +285,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateArray(
   return std::make_shared<JSCCtxValue>(context_, value_ref);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateJsError(
+std::shared_ptr<CtxValue> JSCCtx::CreateError(
     const unicode_string_view& msg) {
   JSStringRef str_ref = CreateJSCString(msg);
   JSValueRef value = JSValueMakeString(context_, str_ref);
@@ -423,9 +423,14 @@ unicode_string_view JSCCtx::GetExceptionMsg(
   return ret;
 }
 
-bool JSCCtx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
+void JSCCtx::ThrowExceptionToJs(const unicode_string_view& exception_str) {
+  auto exception = std::static_pointer_cast<JSCCtxValue>(CreateError(exception_str));
+  SetException(exception);
+}
+
+void JSCCtx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) {
   if (!exception) {
-    return false;
+    return;
   }
 
   std::shared_ptr<CtxValue> exception_handler =
@@ -446,8 +451,6 @@ bool JSCCtx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
   args[0] = CreateString("uncaughtException");
   args[1] = exception;
   CallFunction(exception_handler, 2, args);
-
-  return true;
 }
 
 JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
