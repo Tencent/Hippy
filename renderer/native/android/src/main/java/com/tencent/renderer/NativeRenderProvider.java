@@ -154,6 +154,23 @@ public class NativeRenderProvider {
     }
 
     /**
+     * Call from native (C++) render manager to move render node
+     *
+     * @param ids the node id array list
+     * @param newPid the new parent node id
+     * @param newPid the old parent node id
+     */
+    @CalledByNative
+    @SuppressWarnings("unused")
+    private void moveNode(int[] ids, int newPid, int oldPid) {
+        try {
+            mRenderDelegate.moveNode(ids, newPid, oldPid);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
+        }
+    }
+
+    /**
      * Call from native (C++) render manager to update layout of render node
      *
      * @param buffer the byte array serialize by native (C++)
@@ -180,6 +197,22 @@ public class NativeRenderProvider {
         try {
             final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateEventListener(list);
+        } catch (NativeRenderException e) {
+            mRenderDelegate.handleRenderException(e);
+        }
+    }
+
+    /**
+     * Call from native (C++) render manager to measure view location and size in window
+     *
+     * @param id node id
+     * @param callbackId the callback id identifies the caller
+     */
+    @CalledByNative
+    @SuppressWarnings("unused")
+    private void measureInWindow(int id, long callbackId) {
+        try {
+            mRenderDelegate.measureInWindow(id, callbackId);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }

@@ -475,6 +475,19 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
+    public void moveNode(final int[] ids, final int newPid, final int oldPid)
+            throws NativeRenderException {
+        UITaskExecutor task = new UITaskExecutor() {
+            @Override
+            public void exec() {
+                mRenderManager.moveNode(ids, newPid, oldPid);
+            }
+        };
+        addUITask(task);
+        executeUITask();
+    }
+
+    @Override
     public void updateLayout(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
@@ -571,6 +584,23 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             };
             addUITask(task);
         }
+        executeUITask();
+    }
+
+    @Override
+    public void measureInWindow(final int id, long callbackId) {
+        if (callbackId == 0) {
+            return;
+        }
+        final UIPromise promise = new UIPromise(callbackId, null, id,
+                        mRenderProvider.getInstanceId());
+        UITaskExecutor task = new UITaskExecutor() {
+            @Override
+            public void exec() {
+                mRenderManager.measureInWindow(id, promise);
+            }
+        };
+        addUITask(task);
         executeUITask();
     }
 
