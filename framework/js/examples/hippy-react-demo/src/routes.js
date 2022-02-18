@@ -140,6 +140,14 @@ export default [
     },
   },
   {
+    path: '/RippleViewAndroid',
+    name: 'RippleViewAndroid 组件',
+    component: PAGE_LIST.RippleViewAndroid,
+    meta: {
+      style: 1,
+    },
+  },
+  {
     path: '/WebSocket',
     name: 'WebSocket 模块',
     component: PAGE_LIST.WebSocket,
