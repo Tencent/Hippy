@@ -2938,7 +2938,6 @@
 					USE_TAITANK,
 					"DEBUG=1",
 					"$(inherited)",
-					"TDF_SERVICE_ENABLED=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",

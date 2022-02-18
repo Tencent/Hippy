@@ -10,11 +10,15 @@
 #include "devtools/devtool_utils.h"
 #include "dom/dom_value.h"
 #include "dom/node_props.h"
+
+#if TDF_SERVICE_ENABLED
 #include "nlohmann/json.hpp"
+#endif
 
 namespace hippy {
 namespace devtools {
 
+#if TDF_SERVICE_ENABLED
 void HippyDomTreeAdapter::UpdateDomTree(std::string tree_data, UpdateDomTreeCallback callback) {
   if (!callback) {
     return;
@@ -79,6 +83,7 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
     DevToolUtils::PostDomTask(dom_id_, func);
   }
 }
+#endif
 
 }  // namespace devtools
 }  // namespace hippy

@@ -11,6 +11,8 @@
 
 namespace hippy {
 namespace devtools {
+
+#if TDF_SERVICE_ENABLED
 void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
                                                 bool is_root,
                                                 uint32_t depth,
@@ -43,5 +45,7 @@ void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, Domain
   };
   DevToolUtils::PostDomTask(dom_id_, func);
 }
+#endif
+
 }  // namespace devtools
 }  // namespace hippy
