@@ -654,7 +654,7 @@ static void handleJsExcepiton(std::shared_ptr<Scope> scope) {
   std::shared_ptr<hippy::napi::JSCCtxValue> exception = std::static_pointer_cast<hippy::napi::JSCCtxValue>(context->GetException());
   if (exception) {
     if (!context->IsExceptionHandled()) {
-      context->ThrowExceptionToJS(exception);
+      context->HandleUncaughtException(exception);
     }
     std::u16string exceptionStr = StringViewUtils::Convert(context->GetExceptionMsg(exception), unicode_string_view::Encoding::Utf16).utf16_value();
     NSString *err = [NSString stringWithCharacters:(const unichar *)exceptionStr.c_str() length:(exceptionStr.length())];

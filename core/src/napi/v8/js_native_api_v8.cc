@@ -855,7 +855,15 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const unicode_string_view& name) {
   return std::make_shared<V8CtxValue>(isolate_, maybe_func.ToLocalChecked());
 }
 
-bool V8Ctx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
+void V8Ctx::ThrowExceptionToJs(const unicode_string_view &exception) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  isolate_->ThrowException(CreateV8String(exception));
+}
+
+void V8Ctx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) {
   unicode_string_view error_handle_name(kHippyErrorHandlerName);
   std::shared_ptr<CtxValue> exception_handler =
       GetGlobalObjVar(error_handle_name);
@@ -883,7 +891,6 @@ bool V8Ctx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
                           << GetMsgDesc(message)
                           << ", stack = " << GetStackInfo(message);
   }
-  return true;
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CallFunction(
@@ -1251,8 +1258,8 @@ std::shared_ptr<CtxValue> V8Ctx::CreateMap(size_t count,
   return std::make_shared<V8CtxValue>(isolate_, map);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::CreateJsError(const unicode_string_view& msg) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx::CreateJsError msg = " << msg;
+std::shared_ptr<CtxValue> V8Ctx::CreateError(const unicode_string_view& msg) {
+  TDF_BASE_DLOG(INFO) << "V8Ctx::CreateError msg = " << msg;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
