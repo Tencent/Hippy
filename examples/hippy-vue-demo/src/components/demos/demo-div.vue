@@ -90,14 +90,43 @@
           </p>
         </div>
       </div>
+      <label>水波纹效果:(iOS暂不支持水波纹效果)</label>
+      <demo-ripple-div
+        :wrapper-style="nobRippleWithBg"
+        :native-background-android="{ borderless: true, color: 'rgba(0,0,0,0.07)', rippleRadius: 100 }"
+        title="外层背景图，内层无边框水波纹，受外层影响始终有边框"
+      />
+      <demo-ripple-div
+        :wrapper-style="nobCircieRipple"
+        text-class="circle-ripple-text"
+        :native-background-android="{ borderless: true, color: '#00000011', rippleRadius: 100 }"
+        title="无边框圆形水波纹"
+      />
+      <div :style="{width: 150, height: 150, marginLeft: 20}">
+        <img
+          src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
+          :style="{width: 150, height: 150}"
+        >
+        <demo-ripple-div
+          :wrapper-style="bRippleWrapper"
+          :content-style="bRippleContentStyle"
+          ripple-class="square-rippe-block"
+          :native-background-android="{ borderless: false, color: '#00000011' }"
+          title="有边框，带底图效果水波纹"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import defaultImage from '../../assets/defaultSource.jpg';
+import DemoRippleDiv from './demo-ripple-div.vue';
 
 export default {
+  components: {
+    'demo-ripple-div': DemoRippleDiv,
+  },
   data() {
     /**
      * demo1 needs to use variable base64 DefaultImage，so inline style mode is a must.
@@ -118,6 +147,33 @@ export default {
         alignItems: 'center',
         marginTop: '10px',
         marginBottom: '10px',
+      },
+      nobRippleWithBg: {
+        display: 'flex',
+        height: '40px',
+        width: '200px',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: '10px',
+        marginBottom: '10px',
+        backgroundImage: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
+        backgroundRepeat: 'no-repeat',
+      },
+      nobCircieRipple: {
+        height: '40px',
+        width: '200px',
+      },
+      bRippleWrapper: {
+        height: '150px',
+        width: '150px',
+        position: 'absolute',
+      },
+      bRippleContentStyle: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 150,
+        height: 150,
+        position: 'absolute',
       },
     };
   },
@@ -201,9 +257,17 @@ export default {
     margin-bottom: 10px;
   }
 
-  .div-demo-1-text {
-    color: white;
+  .circle-ripple-text {
+    color: black;
     margin-left: 10px;
+  }
+
+  .square-rippe-block {
+    align-items: center;
+    justify-content: center;
+    width: 150;
+    height: 150;
+    position: absolute;
   }
 
   /* flex-direction is necessary for horizontal scrolling for Native */
