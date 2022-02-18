@@ -54,7 +54,6 @@ Scope::Scope(Engine* engine,
              std::string name,
              std::unique_ptr<RegisterMap> map)
     : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {
-  devtool_data_source_ = std::make_shared<DevtoolDataSource>();
 }
 
 Scope::~Scope() {

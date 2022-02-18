@@ -131,7 +131,9 @@ void DoBind(JNIEnv* j_env,
   dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
   render_manager->SetDomManager(dom_manager);
 
+#if TDF_SERVICE_ENABLED
   scope->BindDevtool(j_dom_id, j_framework_id);
+#endif
 }
 
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {

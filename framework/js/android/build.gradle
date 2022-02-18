@@ -128,7 +128,7 @@ android {
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
-                  "-DTDF_SERVICE_ENABLED=1",
+//                  "-DTDF_SERVICE_ENABLED=1",
                   "-DV8_COMPONENT=$V8_COMPONENT_DEBUG",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 

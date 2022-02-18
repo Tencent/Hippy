@@ -11,7 +11,9 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_value.h"
 #include "dom/layout_node.h"
+#if TDF_SERVICE_ENABLED
 #include "nlohmann/json.hpp"
+#endif
 
 namespace hippy {
 inline namespace dom {
@@ -132,11 +134,14 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   CallFunctionCallback GetCallback(const std::string &name, uint32_t id);
   bool HasTouchEventListeners();
 
+#if TDF_SERVICE_ENABLED
   nlohmann::json ToJSONString();
   nlohmann::json GetDomDomainData(uint32_t depth, std::shared_ptr<DomManager> dom_manager);
   nlohmann::json GetNodeIdByDomLocation(double x, double y);
   nlohmann::json ParseNodeProps(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>  &node_props);
   nlohmann::json ParseDomValue(const DomValue& value);
+#endif
+
   void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
   void UpdateDomStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
 
@@ -178,10 +183,12 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   std::shared_ptr<DomNode> GetMaxDepthAndMinAreaHitNode(double x, double y,
                                                         std::shared_ptr<DomNode> node);
+#if TDF_SERVICE_ENABLED
   nlohmann::json GetNodeBounds();
   bool IsLocationHitNode(double x, double y);
   static std::shared_ptr<DomNode> GetSmallerAreaNode(std::shared_ptr<DomNode> old_node,
                                                      std::shared_ptr<DomNode> new_node);
+#endif
 };
 
 }  // namespace dom

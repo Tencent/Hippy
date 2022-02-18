@@ -111,7 +111,12 @@ message("CORE_SRC: ${CORE_SRC}")
 message("JNI_SRC: ${JNI_SRC}")
 # endregion
 
-set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom devtools_backend)
+
+if (DEFINED TDF_SERVICE_ENABLED)
+  set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom devtools_backend)
+else()
+  set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
+endif()
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")

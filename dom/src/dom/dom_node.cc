@@ -314,6 +314,7 @@ bool DomNode::HasTouchEventListeners() {
   return false;
 }
 
+#if TDF_SERVICE_ENABLED
 nlohmann::json DomNode::ToJSONString() {
   TDF_BASE_DLOG(INFO) << "node_json1";
   nlohmann::json node_json{};
@@ -525,6 +526,9 @@ nlohmann::json DomNode::ParseNodeProps(
   }
   return props_json;
 }
+#endif
+
+
 void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);

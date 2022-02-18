@@ -33,7 +33,9 @@
 #include "core/napi/js_native_api.h"
 #include "core/napi/js_native_api_types.h"
 #include "core/task/worker_task_runner.h"
+#if TDF_SERVICE_ENABLED
 #include "devtools/devtool_data_source.h"
+#endif
 #include "dom/dom_manager.h"
 #include "dom/render_manager.h"
 
@@ -61,7 +63,6 @@ class Scope {
   using FunctionData = hippy::napi::FunctionData;
   using BindingData = hippy::napi::BindingData;
   using Encoding = hippy::napi::Encoding;
-  using DevtoolDataSource = hippy::devtools::DevtoolDataSource;
 
   Scope(Engine* engine,
         std::string  name,
@@ -138,12 +139,20 @@ class Scope {
     return render_manager_;
   }
 
+#if TDF_SERVICE_ENABLED
   void BindDevtool(int32_t dom_id, int32_t runtime_id) {
-      devtool_data_source_->Bind(dom_id, runtime_id);
+    if (!devtool_data_source_) {
+      devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>();
+    }
+    devtool_data_source_->Bind(dom_id, runtime_id);
   }
-  std::shared_ptr<DevtoolDataSource> GetDevtoolsDataSource() {
+  std::shared_ptr<hippy::devtools::DevtoolDataSource> GetDevtoolsDataSource() {
+    if (!devtool_data_source_) {
+      devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>();
+    }
     return devtool_data_source_;
   }
+#endif
 
  private:
   friend class Engine;
@@ -165,5 +174,7 @@ class Scope {
   std::shared_ptr<UriLoader> loader_;
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
-  std::shared_ptr<DevtoolDataSource> devtool_data_source_;
+#if TDF_SERVICE_ENABLED
+  std::shared_ptr<hippy::devtools::DevtoolDataSource> devtool_data_source_;
+#endif
 };
