@@ -34,6 +34,10 @@ else()
   message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")
 endif()
 
+if (DEFINED TDF_SERVICE_ENABLED)
+  add_definitions(-DTDF_SERVICE_ENABLED=1)
+endif()
+
 include_directories(${CORE_DIR}/include)
 include_directories(${CORE_DIR}/third_party/base/include)
 include_directories(${LAYOUT_DIR})
