@@ -43,6 +43,12 @@ HippyViewEventType viewEventTypeFromName(const std::string &name) {
     else if (hippy::kTouchCancelEvent == name) {
         type = HippyViewEventTypeTouchCancel;
     }
+    else if (hippy::kPressIn == name) {
+        type = HippyViewEventTypePressIn;
+    }
+    else if (hippy::kPressOut == name) {
+        type = HippyViewEventTypePressOut;
+    }
     else if (hippy::kLayoutEvent == name) {
         type = HippyViewEventLayout;
     }
