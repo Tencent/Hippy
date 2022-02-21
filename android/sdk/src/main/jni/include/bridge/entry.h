@@ -27,7 +27,7 @@
 namespace hippy {
 namespace bridge {
 
-void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
+void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
 
 jlong InitInstance(JNIEnv* j_env,
                    jobject j_object,
