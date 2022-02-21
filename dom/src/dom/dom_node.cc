@@ -337,11 +337,17 @@ void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<
           iter->second = std::make_shared<DomValue>(std::move(*v.second));
         }
       }
+
+      auto dom_manager = self->dom_manager_.lock();
+      TDF_BASE_DCHECK(dom_manager);
+      if(dom_manager) {
+        dom_manager->AddStyleUpdateNode(self->shared_from_this());
+      }
     });
   }
 }
 
-void DomNode::UpdateDomStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+void DomNode::UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
@@ -363,6 +369,12 @@ void DomNode::UpdateDomStyle(const std::unordered_map<std::string, std::shared_p
         } else {
           iter->second = std::make_shared<DomValue>(std::move(*v.second));
         }
+      }
+
+      auto dom_manager = self->dom_manager_.lock();
+      TDF_BASE_DCHECK(dom_manager);
+      if(dom_manager) {
+        dom_manager->AddStyleUpdateNode(self->shared_from_this());
       }
     });
   }

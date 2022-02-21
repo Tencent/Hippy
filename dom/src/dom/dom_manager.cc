@@ -328,6 +328,17 @@ void DomManager::DoLayout() {
     if (!render_manager) {
       return;
     }
+
+    // update style change
+    std::vector<std::shared_ptr<DomNode>> nodes;
+    if (self->style_update_nodes_.size() != 0) {
+      for (auto& v : self->style_update_nodes_) {
+        nodes.emplace_back(v.second);
+      }
+      render_manager->UpdateRenderNode(std::move(nodes));
+    }
+    self->style_update_nodes_.clear();
+
     // Before Layout
     render_manager->BeforeLayout();
     // build layout tree
@@ -444,6 +455,12 @@ void DomManager::PostTask(std::function<void()> func) {
     task->func_ = std::move(func);
     dom_task_runner_->PostTask(std::move(task));
   }
+}
+
+void DomManager::AddStyleUpdateNode(const std::shared_ptr<DomNode>& node) {
+  if (node == nullptr) return;
+  if (style_update_nodes_.find(node->GetId()) != style_update_nodes_.end()) return;
+  style_update_nodes_.insert(std::make_pair(node->GetId(), node));
 }
 
 }  // namespace dom
