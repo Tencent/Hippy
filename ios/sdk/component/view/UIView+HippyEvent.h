@@ -28,10 +28,27 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * A catagory to handle HippyTouchesProtocol
+ * Empty implementation for [HippyTouchesProtocol addViewEvent:eventListener:], [HippyTouchesProtocol removeViewEvent]
+ * Return NO for [HippyTouchesProtocol canBePreventedByInCapturing:], [HippyTouchesProtocol canBePreventedByInCapturing:]
+ * Return NULL for [HippyTouchesProtocol eventListenerForEventType:]
+ */
+
 @interface UIView(HippyEvent)<HippyTouchesProtocol>
 
-- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
-- (void)removeRenderEvent:(const std::string &)name;
+/**
+ * add status change event for view
+ * @param name event name
+ * @param callback event call back for event
+ */
+- (void)addStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+
+/**
+ * remove status change event for view
+ * @param name event name
+ */
+- (void)removeStatusChangeEvent:(const std::string &)name;
 
 @end
 

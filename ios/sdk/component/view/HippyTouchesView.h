@@ -25,6 +25,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * HippyTouchesView is used to response HippyTouchesProtocol
+ * which is used to handle touches event.
+ * We need to override touchesBegan/touchesEnded/touchesCancelled/touchesMoved methods to handle coresponding event.
+ */
 @interface HippyTouchesView : UIView<HippyTouchesProtocol>
 
 @end

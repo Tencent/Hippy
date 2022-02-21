@@ -28,7 +28,7 @@
 
 @implementation UIView(HippyEvent)
 
-- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
+- (void)addStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
     //try to contrustor origin setter
     char n = std::toupper(name.at(0));
     NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
@@ -48,7 +48,7 @@
     }
 }
 
-- (void)removeRenderEvent:(const std::string &)name {
+- (void)removeStatusChangeEvent:(const std::string &)name {
     //try to contrustor origin setter
     char n = std::toupper(name.at(0));
     NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
