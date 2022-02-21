@@ -11,7 +11,6 @@
 #endif
 #include "devtools/adapter/hippy_dom_tree_adapter.h"
 #include "devtools/adapter/hippy_elements_request_adapter.h"
-#include "devtools/adapter/hippy_runtime_adapter.h"
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_v8_request_adapter.h"
@@ -56,10 +55,17 @@ void DevtoolDataSource::Bind(int32_t dom_id, int32_t runtime_id) {
   data_channel->GetProvider()->SetDomTreeAdapter(domTreeAdapter);
   data_channel->GetProvider()->SetElementsRequestAdapter(std::make_shared<HippyElementsRequestAdapter>(dom_id_));
   data_channel->GetProvider()->SetTracingAdapter(std::make_shared<HippyTracingAdapter>());
-  data_channel->GetProvider()->SetRuntimeAdapter(std::make_shared<HippyRuntimeAdapter>(runtime_id_));
+  runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>(runtime_id_);
+  data_channel->GetProvider()->SetRuntimeAdapter(runtime_adapter_);
   data_channel->GetProvider()->SetScreenAdapter(std::make_shared<HippyScreenAdapter>(dom_id_));
   DevtoolsBackendService::GetInstance().EnableService();
   TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_channel:%p" << &data_channel;
+}
+
+void DevtoolDataSource::SetRuntimeAdapterDebugMode(bool debug_mode) {
+  if (runtime_adapter_) {
+    runtime_adapter_->SetDebugMode(debug_mode);
+  }
 }
 
 }  // namespace devtools

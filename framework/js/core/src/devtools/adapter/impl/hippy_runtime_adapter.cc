@@ -4,6 +4,7 @@
 //
 
 #include "devtools/adapter/hippy_runtime_adapter.h"
+
 #include <string>
 #ifdef OS_ANDROID
 #include "core/runtime/v8/runtime.h"
@@ -20,7 +21,7 @@ bool HippyRuntimeAdapter::IsDebug() {
   }
   return runtime->IsDebug();
 #else
-  return true;  // TODO: thomasyqguo, iOS 里面拿不到 Runtime
+  return debug_mode_;
 #endif
 }
 }  // namespace devtools

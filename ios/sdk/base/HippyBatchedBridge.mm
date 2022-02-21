@@ -776,6 +776,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 #if TDF_SERVICE_ENABLED
         hippy::dom::DomManager::Insert(_domManager);
         self.javaScriptExecutor.pScope->BindDevtool(_domManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+        self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->SetRuntimeAdapterDebugMode(self.debugMode);
 #endif
     }
 }
