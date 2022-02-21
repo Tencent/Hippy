@@ -10,7 +10,6 @@ import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.IHippyNativeLogHandler;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -31,9 +30,6 @@ public class MyActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
-		HippyEngine.setNativeLogHandler(
-      (level, msg) -> Log.e("HippyCore", "onReceiveNativeLogMessage: " + msg));
 
 		// 1/3. 初始化hippy引擎
 		{
