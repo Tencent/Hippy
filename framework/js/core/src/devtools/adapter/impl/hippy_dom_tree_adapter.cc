@@ -83,8 +83,8 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
       }
     };
     DevToolUtils::PostDomTask(dom_id_, func);
-  }
 #endif
+  }
 }
 
 }  // namespace devtools
