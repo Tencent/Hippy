@@ -20,13 +20,19 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "HippyView.h"
+#import <UIKit/UIKit.h>
+#import "HippyDefines.h"
+#import "HippyComponent.h"
+#import "HippyTouchesView.h"
+#include <string>
 
-typedef CGRect(^FrameSetBlock)(CGRect frame);
+NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyViewPagerItem : UIView
+@interface UIView(HippyEvent)<HippyTouchesProtocol>
 
-@property (nonatomic, copy)FrameSetBlock frameSetBlock;
+- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+- (void)removeRenderEvent:(const std::string &)name;
 
 @end
+
+NS_ASSUME_NONNULL_END

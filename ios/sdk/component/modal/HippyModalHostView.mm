@@ -25,7 +25,6 @@
 #import "HippyAssert.h"
 #import "HippyBridge.h"
 #import "HippyModalHostViewController.h"
-#import "HippyTouchHandler.h"
 #import "HippyUIManager.h"
 #import "UIView+Hippy.h"
 #import "HippyModalHostViewInteractor.h"
@@ -50,9 +49,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
         UIView *containerView = [UIView new];
         containerView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         _modalViewController.view = containerView;
-        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:containerView bridge:bridge];
         _isPresented = NO;
-
         __weak __typeof(self) weakSelf = self;
         _modalViewController.boundsDidChangeBlock = ^(CGRect newBounds) {
             [weakSelf notifyForBoundsChange:newBounds];
@@ -90,7 +87,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     HippyAssert(_hippySubview == nil, @"Modal view can only have one subview");
     [super insertHippySubview:subview atIndex:atIndex];
-    [subview addGestureRecognizer:_touchHandler];
     subview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 
     [_modalViewController.view insertSubview:subview atIndex:0];
@@ -101,7 +97,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 - (void)removeHippySubview:(UIView *)subview {
     HippyAssert(subview == _hippySubview, @"Cannot remove view other than modal view");
     [super removeHippySubview:subview];
-    [subview removeGestureRecognizer:_touchHandler];
     _hippySubview = nil;
 }
 

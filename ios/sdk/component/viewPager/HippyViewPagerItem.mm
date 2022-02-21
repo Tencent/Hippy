@@ -20,13 +20,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "HippyView.h"
+#import "HippyViewPagerItem.h"
 
-typedef CGRect(^FrameSetBlock)(CGRect frame);
+@implementation HippyViewPagerItem
 
-@interface HippyViewPagerItem : UIView
-
-@property (nonatomic, copy)FrameSetBlock frameSetBlock;
+- (void)setFrame:(CGRect)frame {
+    CGRect finalFrame = frame;
+    if (self.frameSetBlock) {
+        finalFrame = self.frameSetBlock(frame);
+    }
+    [super setFrame:finalFrame];
+}
 
 @end

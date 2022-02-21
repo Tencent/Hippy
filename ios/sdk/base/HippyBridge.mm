@@ -144,7 +144,6 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 @interface HippyBridge() {
     NSURL *_delegateBundleURL;
     id<HippyImageViewCustomLoader> _imageLoader;
-    id<HippyCustomTouchHandlerProtocol> _customTouchHandler;
     NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
 }
@@ -281,13 +280,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         }
     }
     return _imageLoader;
-}
-
-- (id<HippyCustomTouchHandlerProtocol>)customTouchHandler {
-    if (!_customTouchHandler) {
-        _customTouchHandler = [[self modulesConformingToProtocol:@protocol(HippyCustomTouchHandlerProtocol)] lastObject];
-    }
-    return _customTouchHandler;
 }
 
 - (NSSet<Class<HippyImageProviderProtocol>> *)imageProviders {

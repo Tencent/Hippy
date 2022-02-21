@@ -21,27 +21,17 @@
  */
 
 #import "UIView+RootViewRegister.h"
-#import "HippyTouchHandler.h"
 #import "HippyUIManager.h"
 #import "HippyInvalidating.h"
 
 @implementation UIView (RootViewRegister)
 
 - (void)registerAsHippyRootView:(HippyBridge *)bridge {
-    id touchHander = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
-    [self addGestureRecognizer:touchHander];
     [bridge.uiManager registerRootView:self withSizeFlexibility:HippyRootViewSizeFlexibilityNone];
     self.bridge = bridge;
 }
 
 - (void)cancelTouches {
-    NSArray<UIGestureRecognizer *> *grs = [self gestureRecognizers];
-    for (HippyTouchHandler *handler in grs) {
-        if ([handler isKindOfClass:[HippyTouchHandler class]]) {
-            [handler cancelTouch];
-            break;
-        }
-    }
 }
 
 - (void)invalidate {}

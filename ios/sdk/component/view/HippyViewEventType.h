@@ -20,13 +20,30 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "HippyView.h"
+#import "HippyDefines.h"
+#include <string>
 
-typedef CGRect(^FrameSetBlock)(CGRect frame);
+typedef NS_ENUM(NSInteger, HippyViewEventType) {
+    //touche event
+    HippyViewEventTypeTouchStart,
+    HippyViewEventTypeTouchMove,
+    HippyViewEventTypeTouchEnd,
+    HippyViewEventTypeTouchCancel,
+    
+    HippyViewEventTypePressIn,
+    HippyViewEventTypePressOut,
+    
+    HippyViewEventLayout,
+        
+    //show event
+    HippyViewEventTypeShow,
+    HippyViewEventTypeDismiss,
+    
+    //click event
+    HippyViewEventTypeClick,
+    HippyViewEventTypeLongClick,
+    
+    HippyViewEventTypeUnknown = -1,
+};
 
-@interface HippyViewPagerItem : UIView
-
-@property (nonatomic, copy)FrameSetBlock frameSetBlock;
-
-@end
+HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);

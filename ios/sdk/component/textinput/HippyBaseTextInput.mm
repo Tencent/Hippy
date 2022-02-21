@@ -20,13 +20,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "HippyView.h"
+#import "HippyBaseTextInput.h"
 
-typedef CGRect(^FrameSetBlock)(CGRect frame);
-
-@interface HippyViewPagerItem : UIView
-
-@property (nonatomic, copy)FrameSetBlock frameSetBlock;
+@implementation HippyBaseTextInput
+- (void)focus {
+    // base method, should be override
+}
+- (void)blur {
+    // base method, should be override
+}
+- (void)clearText {
+    // base method, should be override
+}
+- (void)keyboardWillShow:(NSNotification *)aNotification {
+    // base method, should be override
+}
 
 @end

@@ -39,6 +39,8 @@
 - (void)removeHippySubview:(UIView *)subview;
 - (void)resetHippySubviews;
 
+- (UIView *)hippyRootView;
+
 /**
  * HippyViewTouchHandlerProtocol interface.
  */
@@ -48,8 +50,6 @@
  * z-index, used to override sibling order in didUpdateHippySubviews.
  */
 @property (nonatomic, assign) NSInteger hippyZIndex;
-
-@property (nonatomic, assign) std::weak_ptr<hippy::DomNode> domNode;
 
 /**
  * set true when hippy subviews changed, but subviews does not.
@@ -113,45 +113,4 @@
 
 @property (nonatomic, weak) __kindof HippyShadowView *hippyShadowView;
 
-@end
-
-/**
- * gesture event
- */
-typedef void(^onTouchEventListener)(CGPoint);
-typedef NS_ENUM(NSInteger, HippyViewEventType) {
-    //touche event
-    HippyViewEventTypeTouchStart,
-    HippyViewEventTypeTouchMove,
-    HippyViewEventTypeTouchEnd,
-    HippyViewEventTypeTouchCancel,
-    
-    HippyViewEventTypePressIn,
-    HippyViewEventTypePressOut,
-    
-    HippyViewEventTypeLayout,
-    
-    //show event
-    HippyViewEventTypeShow,
-    HippyViewEventTypeDismiss,
-    
-    //click event
-    HippyViewEventTypeClick,
-    HippyViewEventTypeLongClick,
-    
-    HippyViewEventTypeUnknown = -1,
-};
-
-HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
-
-@interface UIView(HippyEvent)
-
-- (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener;
-- (onTouchEventListener)eventListenerForEventType:(HippyViewEventType)eventType;
-- (void)removeViewEvent:(HippyViewEventType)touchEvent;
-- (void)removeViewEventByID:(NSInteger)touchID;
-- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
-- (void)removeRenderEvent:(const std::string &)name;
-- (BOOL)canBePreventedByInCapturing:(const std::string &)name;
-- (BOOL)canBePreventInBubbling:(const std::string &)name;
 @end

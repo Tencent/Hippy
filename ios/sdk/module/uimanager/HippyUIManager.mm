@@ -47,6 +47,7 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "OCTypeToDomArgument.h"
+#import "UIView+HippyEvent.h"
 #include <mutex>
 
 using DomValue = tdf::base::DomValue;
@@ -557,7 +558,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
             UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootTag properties:newProps viewName:viewName];
             view.hippyShadowView = shadowView;
-            view.domNode = node_;
         }];
     }
 }

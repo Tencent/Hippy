@@ -20,13 +20,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "HippyView.h"
+#import <UIKit/UIKit.h>
+#import "HippyTouchesProtocol.h"
 
-typedef CGRect(^FrameSetBlock)(CGRect frame);
+NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyViewPagerItem : UIView
-
-@property (nonatomic, copy)FrameSetBlock frameSetBlock;
+@interface HippyTouchesView : UIView<HippyTouchesProtocol>
 
 @end
+
+NS_ASSUME_NONNULL_END
