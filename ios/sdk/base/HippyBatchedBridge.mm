@@ -761,7 +761,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)didReceiveCreationOfRootView:(NSNotification *)notification {
-    if (self.isValid) {
+    HippyBridge *bridge = [[notification userInfo] objectForKey:HippyUIManagerBridgeKey];
+    if (self == bridge && self.isValid) {
         HippyUIManager *uiManager = [self moduleForName:@"UIManager"];
         UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
         int32_t rootTag = [[rootView hippyTag] intValue];

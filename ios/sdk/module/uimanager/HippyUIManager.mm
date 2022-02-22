@@ -126,6 +126,7 @@ NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNot
     = @"HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification";
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
+NSString *const HippyUIManagerBridgeKey = @"HippyUIManagerBridgeKey";
 NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
 
 @interface HippyUIManager() {
@@ -370,7 +371,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     });
 
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRegisterRootViewNotification object:self
-                                                      userInfo:@{ HippyUIManagerRootViewKey: rootView }];
+                                                      userInfo:@{ HippyUIManagerRootViewKey: rootView , HippyUIManagerBridgeKey: self.bridge}];
 }
 
 
