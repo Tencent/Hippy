@@ -42,8 +42,9 @@ import VideoPlayer from './components/video-player';
 import Animation from './modules/animation';
 import AnimationSet from './modules/animation-set';
 import StyleSheet from './modules/stylesheet';
-import Clipboard  from './modules/clipboard';
-import * as NetInfo from './modules/net-info';
+import Clipboard from './modules/clipboard';
+import NetInfo from './modules/net-info';
+import WebSocket from './modules/websocket';
 import * as NetworkModule from './modules/network-module';
 
 const Hippy = HippyReact;
@@ -105,6 +106,7 @@ export {
   PixelRatio,
   AsyncStorage,
   NetInfo,
+  WebSocket,
   BackAndroid,
   Clipboard,
   Focusable,

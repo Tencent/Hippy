@@ -124,11 +124,11 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
       hostRef.current.value = String(value);
     }
   };
-  const getValue = () => {
+  const getValue = (): Promise<string> => {
     if (hostRef.current) {
-      return hostRef.current.value;
+      return Promise.resolve(hostRef.current.value);
     }
-    return '';
+    return Promise.resolve('');
   };
   const hideInputMethod = () => {
     blur();

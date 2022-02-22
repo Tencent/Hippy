@@ -25,25 +25,8 @@ export interface ResizeObserver {
 type NetworkChangeEventData = any;
 type NetworkInfoCallback = (data: NetworkChangeEventData) => void;
 
-export class NetInfoRevoker {
-  public eventName: string;
-  public listener: undefined | NetworkInfoCallback;
-  public constructor(eventName: string, listener: NetworkInfoCallback) {
-    this.eventName = eventName;
-    this.listener = listener;
-  }
-
-  public remove() {
-    if (!this.eventName || !this.listener) {
-      return;
-    }
-    removeEventListener(this.eventName, this.listener);
-    this.listener = undefined;
-  }
-}
-
 export interface NetInfoModule {
-  addEventListener: (eventName: string, listener: NetworkInfoCallback) => NetInfoRevoker;
-  removeEventListener: (eventName: string, listener?: NetInfoRevoker | NetworkInfoCallback) => void;
+  addEventListener: (eventName: string, listener: NetworkInfoCallback) => { remove: () => void };
+  removeEventListener: (eventName: string, listener?: NetworkInfoCallback) => void;
   fetch: () => Promise<NetworkChangeEventData>;
 };
