@@ -18,14 +18,45 @@
  * limitations under the License.
  */
 
+import { canUseDOM } from './utils/execution-environment';
+import { getDirection } from './modules/i18n';
+
 /* eslint-disable import/prefer-default-export */
 
 const globalThis = typeof window === 'object'
   ? window
   : { innerHeight: 0, innerWidth: 0, screen: { height: 0, width: 0 } };
 
-const Device = {
-  platform: 'web',
+interface DeviceInfo {
+  platform: {
+    OS: string;
+    Localization: {
+      language: string | undefined;
+      direction: 0 | 1 | undefined;
+    }
+  },
+  window: {
+    height: number;
+    width: number;
+    scale: number;
+    statusBarHeight: number;
+  },
+  screen: {
+    height: number;
+    width: number;
+    scale: number;
+    statusBarHeight: number;
+  }
+}
+
+const Device: DeviceInfo = {
+  platform: {
+    OS: 'web',
+    Localization: {
+      language: '',
+      direction: undefined,
+    },
+  },
   window: {
     height: globalThis.innerHeight,
     width: globalThis.innerWidth,
@@ -39,6 +70,15 @@ const Device = {
     statusBarHeight: 0,
   },
 };
+
+const setLocalization = () => {
+  if (canUseDOM) {
+    Device.platform.Localization.language = navigator.language;
+    Device.platform.Localization.direction = getDirection();
+  }
+};
+
+setLocalization();
 
 export {
   Device,

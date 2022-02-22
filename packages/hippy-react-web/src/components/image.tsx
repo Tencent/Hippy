@@ -21,12 +21,12 @@
 import React, { useState, useEffect } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import ImageLoader, { LoadError } from '../adapters/image-loader';
-import { LayoutEvent, StyleSheet } from '../types';
+import { LayoutEvent } from '../types';
 import { View, ViewProps } from './view';
 
 
 interface ImageProp {
-  style: StyleSheet;
+  style: HippyTypes.Style;
   children?: any;
   onError?: LoadError;
   defaultSource?: string;

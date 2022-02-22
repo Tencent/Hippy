@@ -24,7 +24,6 @@ import React, { useImperativeHandle, useEffect, useRef } from 'react';
 
 import { formatWebStyle } from '../adapters/transfer';
 import useElementLayout from '../modules/use-element-layout';
-import { StyleSheet } from '../types';
 import { isFunc } from '../utils/validation';
 
 /**
@@ -34,7 +33,7 @@ import { isFunc } from '../utils/validation';
  * @noInheritDoc
  */
 export interface TextInputProps {
-  style?: StyleSheet;
+  style?: HippyTypes.Style;
   caretColor?: string;
   defaultValue?: string;
   editable?: boolean;

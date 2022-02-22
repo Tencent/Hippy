@@ -22,4 +22,28 @@ export interface ResizeObserver {
   unobserve: (target: Element) => void;
 };
 
-export type StyleSheet = Record<string, any> | Record<string, any>[];
+type NetworkChangeEventData = any;
+type NetworkInfoCallback = (data: NetworkChangeEventData) => void;
+
+export class NetInfoRevoker {
+  public eventName: string;
+  public listener: undefined | NetworkInfoCallback;
+  public constructor(eventName: string, listener: NetworkInfoCallback) {
+    this.eventName = eventName;
+    this.listener = listener;
+  }
+
+  public remove() {
+    if (!this.eventName || !this.listener) {
+      return;
+    }
+    removeEventListener(this.eventName, this.listener);
+    this.listener = undefined;
+  }
+}
+
+export interface NetInfoModule {
+  addEventListener: (eventName: string, listener: NetworkInfoCallback) => NetInfoRevoker;
+  removeEventListener: (eventName: string, listener?: NetInfoRevoker | NetworkInfoCallback) => void;
+  fetch: () => Promise<NetworkChangeEventData>;
+};

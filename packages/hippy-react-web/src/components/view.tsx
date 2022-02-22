@@ -23,7 +23,7 @@ import { formatWebStyle } from '../adapters/transfer';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
 import { TouchEvent } from '../modules/use-responder-events/types';
-import { LayoutEvent, StyleSheet } from '../types';
+import { LayoutEvent } from '../types';
 
 const styles = {
   root: {
@@ -48,7 +48,7 @@ export interface ViewProps {
   ref?: any;
   accessible?: boolean;
   accessibilityLabel?: string;
-  style?: StyleSheet;
+  style?: HippyTypes.Style;
   opacity?: number;
   overflow?: 'visible' | 'hidden';
   className?: any;
@@ -84,6 +84,7 @@ const View: React.FC<ViewProps> = React.forwardRef((props, ref) => {
       style.opacity = opacity;
     }
     if (overflow) {
+      // @ts-ignore
       style.overflow = overflow;
     }
   }

@@ -49,9 +49,7 @@ import * as NetworkModule from './modules/network-module';
 const Hippy = HippyReact;
 const ConsoleModule = console;
 
-const Platform = {
-  OS: Device.platform,
-};
+const Platform = Device.platform;
 
 const Dimensions = {
   get(name: 'window' | 'screen') {
