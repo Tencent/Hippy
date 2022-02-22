@@ -19,6 +19,7 @@ constexpr const char* kMaxWidth = "maxWidth";
 constexpr const char* kMaxHeight = "maxHeight";
 constexpr const char* kQuality = "quality";
 
+static const char *const kGetScreenShot = "getScreenShot";
 class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
  public:
   explicit HippyScreenAdapter(int32_t dom_id) : dom_id_(dom_id) {}
@@ -38,18 +39,22 @@ class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
             domValueArray.push_back(tdf::base::DomValue(domValueObject));
             tdf::base::DomValue argumentValue(domValueArray);
             hippy::dom::DomArgument argument(argumentValue);
-            std::function screen_shot_callback = [this, callback](std::shared_ptr<DomArgument> arg) {
+            std::function screen_shot_callback = [callback](std::shared_ptr<DomArgument> arg) {
               tdf::base::DomValue result_dom_value;
               arg->ToObject(result_dom_value);
-              tdf::base::DomValue::DomValueArrayType resultArray = result_dom_value.ToArray();
-              auto base64_dom_value = resultArray[0].ToObject();
+              tdf::base::DomValue::DomValueObjectType base64_dom_value;
+              if (result_dom_value.IsArray()) {
+                base64_dom_value = result_dom_value.ToArray()[0].ToObject();
+              } else {
+                base64_dom_value = result_dom_value.ToObject();
+              }
               std::string base64_str = base64_dom_value.find(kScreenShot)->second.ToString();
               int32_t width = base64_dom_value.find(kScreenWidth)->second.ToInt32();
               int32_t height = base64_dom_value.find(kScreenHeight)->second.ToInt32();
               TDF_BASE_DLOG(INFO) << "GetScreenShot callback " << base64_str.size();
               callback(base64_str, width, height);
             };
-            children[0]->CallFunction("getScreenShot", argument, screen_shot_callback);
+            children[0]->CallFunction(kGetScreenShot, argument, screen_shot_callback);
           }
         }
       };
