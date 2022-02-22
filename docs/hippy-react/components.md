@@ -128,7 +128,7 @@ import icon from './qb_icon_new.png';
 
 ### scrollToContentOffset
 
-`(xOffset: number, yOffset: number: animated: boolean) => void` 通知 ListView 滑动到某个具体坐标偏移值(offset)的位置。
+`(xOffset: number, yOffset: number, animated: boolean) => void` 通知 ListView 滑动到某个具体坐标偏移值(offset)的位置。
 
 > * `xOffset`: number - 滑动到 X 方向的 offset
 > * `yOffset`: number - 滑动到 Y 方向的 offset
@@ -136,7 +136,7 @@ import icon from './qb_icon_new.png';
 
 ### scrollToIndex
 
-`(xIndex: number, yIndex: number: animated: boolean) => void` 通知 ListView 滑动到第几个 item。
+`(xIndex: number, yIndex: number, animated: boolean) => void` 通知 ListView 滑动到第几个 item。
 
 > * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
 > * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
@@ -309,7 +309,7 @@ import icon from './qb_icon_new.png';
 | defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `ALL`     |
 | editable              | 如果为 false，文本框是不可编辑的。                           | `boolean`                                                    | `ALL`     |
 | keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum(default, numeric, password, email, phone-pad)` | `ALL`     |
-| maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `numbers`                                                    | `ALL`     |
+| maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `number`                                                    | `ALL`     |
 | multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `ALL`     |
 | numberOfLines         | 设置 `TextInput` 的最大行数，在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `ALL`     |
 | onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `ALL`     |
@@ -431,7 +431,7 @@ import icon from './qb_icon_new.png';
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
-| nativeBackgroundAndroid    | 配置安卓水波纹效果；配置项为 `{ borderless: boolean, color: Color, rippleRadius: int }` `borderless`表示波纹是否有边界，默认false；`color`波纹颜色；`rippleRadius`波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示,详情参考相关demo.` | `Object`| `Android`    |
+| nativeBackgroundAndroid    | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: int }`； `borderless`表示波纹是否有边界，默认false；`color`波纹颜色；`rippleRadius`波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关demo。` | `Object`| `Android`    |
 
 ## 方法
 

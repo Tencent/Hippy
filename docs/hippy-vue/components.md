@@ -63,7 +63,7 @@
 | showScrollIndicator            | 是否显示滚动条。 `default: false`（仅在 overflow-y/x: scroll 时适用） | `boolean`  | `Android`    |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`                                                    | `iOS`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`  | `iOS`   | 
-| nativeBackgroundAndroid        | 配置安卓水波纹效果；配置项为 `{ borderless: boolean, color: Color, rippleRadius: int }` `borderless`表示波纹是否有边界，默认false；`color`波纹颜色；`rippleRadius`波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示,详情参考相关demo.` | `Object`| `Android`    |
+| nativeBackgroundAndroid        | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: int }`； `borderless`表示波纹是否有边界，默认false；`color`波纹颜色；`rippleRadius`波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关demo。` | `Object`| `Android`    |
 
 ## 样式内特殊属性
 
@@ -248,7 +248,6 @@
 | placeholderTextColor  | 占位字符串显示的文字颜色。                                   | [`color`](style/color.md)                                | `ALL`     |
 | returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum(done, go, next, search, send)`              | `ALL`     |
 | value                 | 指定 `input` 组件的值。                                  | `string`                                                     | `ALL`     |
-| autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `ALL`     |
 
 ## 事件
 
