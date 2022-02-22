@@ -288,17 +288,24 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 - (void)setLayoutFrame:(CGRect)frame {
     auto domManager = self.domManager.lock();
     if (domManager) {
-        std::function<void ()> func = [lambdaSelf = self, domManager, frame](){
+        __weak HippyShadowView *weakSelf = self;
+        std::function<void ()> func = [weakSelf, domManager, frame](){
             @autoreleasepool {
-                int32_t hippyTag = [[lambdaSelf hippyTag] intValue];
-                auto layoutNode = domManager->GetNode(hippyTag)->GetLayoutNode();
-                layoutNode->SetPosition(hippy::dom::EdgeLeft, frame.origin.x);
-                layoutNode->SetPosition(hippy::dom::EdgeTop, frame.origin.y);
-                layoutNode->SetWidth(frame.size.width);
-                layoutNode->SetHeight(frame.size.height);
-                layoutNode->MarkDirty();
-                [lambdaSelf dirtyPropagation];
-                lambdaSelf.hasNewLayout = YES;
+                if (weakSelf) {
+                    HippyShadowView *strongSelf = weakSelf;
+                    int32_t hippyTag = [[strongSelf hippyTag] intValue];
+                    auto node = domManager->GetNode(hippyTag);
+                    if (node) {
+                        auto layoutNode = node->GetLayoutNode();
+                        layoutNode->SetPosition(hippy::dom::EdgeLeft, frame.origin.x);
+                        layoutNode->SetPosition(hippy::dom::EdgeTop, frame.origin.y);
+                        layoutNode->SetWidth(frame.size.width);
+                        layoutNode->SetHeight(frame.size.height);
+                        layoutNode->MarkDirty();
+                        [strongSelf dirtyPropagation];
+                        strongSelf.hasNewLayout = YES;
+                    }
+                }
             }
         };
         domManager->PostTask(func);
