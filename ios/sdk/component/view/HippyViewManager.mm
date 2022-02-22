@@ -60,17 +60,16 @@ HIPPY_EXPORT_MODULE(View)
     return nil;
 }
 
-HIPPY_EXPORT_METHOD(getScreenShot
-                    : (nonnull NSNumber *)hippyTag params
-                    : (NSDictionary *__nonnull)params callback
-                    : (HippyPromiseResolveBlock)callback) {
+HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
+                    params:(NSDictionary *__nonnull)params
+                    callback:(HippyResponseSenderBlock)callback) {
     [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (view == nil) {
-            callback(@{});
+            callback(@[]);
             return;
         }
-      
+
         CGFloat viewWidth = view.frame.size.width;
         CGFloat viewHeight = view.frame.size.height;
         int maxWidth = [params[@"maxWidth"] intValue];
@@ -88,14 +87,15 @@ HIPPY_EXPORT_METHOD(getScreenShot
         if (resultImage) {
             int quality = [params[@"quality"] intValue];
             NSData *imageData = UIImageJPEGRepresentation(resultImage, (quality > 0 ? quality : 80) / 100.f);
-            NSString *base64String = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-            NSDictionary *srceenShotDict =
-                @{@"width": @(scale * viewWidth),
-                 @"height": @(scale * viewHeight),
-             @"screenShot": base64String.length ? base64String : @""};
-            callback(srceenShotDict);
+            NSString *base64String = [imageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+            NSDictionary *srceenShotDict = @{
+                @"width": @(int(scale * viewWidth)),
+                @"height": @(int(scale * viewHeight)),
+                @"screenShot": base64String.length ? base64String : @""
+            };
+            callback(@[srceenShotDict]);
         } else {
-            callback(@{});
+            callback(@[]);
         }
     }];
 }
