@@ -50,6 +50,8 @@ class HippyRenderManager : public RenderManager {
   static bool Erase(const std::shared_ptr<HippyRenderManager>& render_manager);
 
  private:
+  inline void MarkTextDirty(uint32_t node_id);
+
   inline float DpToPx(float dp);
 
   inline float PxToDp(float px);
