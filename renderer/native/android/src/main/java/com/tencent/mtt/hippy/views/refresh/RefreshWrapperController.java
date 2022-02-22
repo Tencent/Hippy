@@ -55,7 +55,7 @@ public class RefreshWrapperController extends HippyGroupController<RefreshWrappe
     }
 
     @Override
-    public void dispatchFunction(RefreshWrapper refreshWrapper, @NonNull String functionName,
+    public void dispatchFunction(@NonNull RefreshWrapper refreshWrapper, @NonNull String functionName,
             @NonNull List params) {
         super.dispatchFunction(refreshWrapper, functionName, params);
         if (REFRESH_COMPLECTED.equals(functionName)) {

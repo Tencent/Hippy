@@ -16,7 +16,8 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
-import android.annotation.SuppressLint;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
@@ -58,14 +57,17 @@ import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
 import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 
+import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.NativeRenderException.ExceptionCode;
+import com.tencent.renderer.component.text.VirtualNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings({"deprecation", "unchecked", "rawtypes", "unused"})
 public class ControllerManager {
 
+    private static final String TAG = "ControllerManager";
     @NonNull
     private final NativeRender mNativeRenderer;
     @NonNull
@@ -220,7 +222,7 @@ public class ControllerManager {
         controller.updateExtra(view, extra);
     }
 
-    public void move(int id, int newPid, int index) {
+    public void moveView(int id, int newPid, int index) {
         View view = mControllerRegistry.getView(id);
         if (view == null) {
             return;
@@ -264,10 +266,24 @@ public class ControllerManager {
         }
     }
 
+    @Nullable
     public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
             String className, ViewGroup hippyRootView, boolean isLazy) {
-        return mControllerRegistry.getViewController(className)
-                .createRenderNode(id, props, className, hippyRootView, this, isLazy);
+        HippyViewController controller = mControllerRegistry.getViewController(className);
+        if (controller != null) {
+            return controller.createRenderNode(id, props, className, hippyRootView, this, isLazy);
+        }
+        return null;
+    }
+
+    @Nullable
+    public VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+            @Nullable Map<String, Object> props) {
+        HippyViewController controller = mControllerRegistry.getViewController(className);
+        if (controller != null) {
+            return controller.createVirtualNode(id, pid, index, props);
+        }
+        return null;
     }
 
     public void dispatchUIFunction(int id, String className, String functionName,
@@ -292,50 +308,44 @@ public class ControllerManager {
         }
     }
 
-    public void deleteChildRecursive(ViewGroup viewParent, View child, int childIndex) {
-        if (viewParent == null || child == null) {
+    public void deleteChildRecursive(ViewGroup parent, View child, int childIndex) {
+        if (parent == null || child == null) {
             return;
         }
-        HippyViewController hippyChildViewController = null;
-        String childTagString = HippyTag.getClassName(child);
-        if (!TextUtils.isEmpty(childTagString)) {
-            hippyChildViewController = mControllerRegistry.getViewController(childTagString);
-            if (hippyChildViewController != null) {
-                hippyChildViewController.onViewDestroy(child);
+        HippyViewController childController = null;
+        String childTag = HippyTag.getClassName(child);
+        if (!TextUtils.isEmpty(childTag)) {
+            childController = mControllerRegistry.getViewController(childTag);
+            if (childController != null) {
+                childController.onViewDestroy(child);
             }
         }
-
         if (child instanceof ViewGroup) {
-            ViewGroup childViewGroup = (ViewGroup) child;
-            if (hippyChildViewController != null) {
-                for (int i = hippyChildViewController.getChildCount(childViewGroup) - 1; i >= 0;
-                        i--) {
-                    deleteChildRecursive(childViewGroup,
-                            hippyChildViewController.getChildAt(childViewGroup, i), -1);
+            int count;
+            View grandson;
+            if (childController != null) {
+                count = childController.getChildCount(child);
+                for (int i = count - 1; i >= 0; i--) {
+                    grandson = childController.getChildAt((ViewGroup) child, i);
+                    deleteChildRecursive((ViewGroup) child, grandson, -1);
                 }
             } else {
-                for (int i = childViewGroup.getChildCount() - 1; i >= 0; i--) {
-                    deleteChildRecursive(childViewGroup, childViewGroup.getChildAt(i), -1);
+                count = ((ViewGroup) child).getChildCount();
+                for (int i = count - 1; i >= 0; i--) {
+                    grandson = ((ViewGroup) child).getChildAt(i);
+                    deleteChildRecursive((ViewGroup) child, grandson, -1);
                 }
             }
         }
-
-        if (mControllerRegistry.getView(child.getId()) != child
-                && mControllerRegistry.getView(viewParent.getId()) != viewParent) {
-            return;
-        }
-
-        String parentTagString = HippyTag.getClassName(viewParent);
-        if (parentTagString != null) {
-            //remove component Like listView there is a RecycleItemView is not js UI
-            if (mControllerRegistry.getControllerHolder(parentTagString) != null) {
-                HippyViewController hippyViewController = mControllerRegistry.getViewController(
-                        parentTagString);
-                hippyViewController.deleteChild(viewParent, child, childIndex);
-                //				LogUtils.d("HippyListView", "delete " + child.getId());
+        String parentTag = HippyTag.getClassName(parent);
+        if (parentTag != null) {
+            HippyViewController parentController = mControllerRegistry.getViewController(
+                    parentTag);
+            if (parentController != null) {
+                parentController.deleteChild(parent, child, childIndex);
             }
         } else {
-            viewParent.removeView(child);
+            parent.removeView(child);
         }
         mControllerRegistry.removeView(child.getId());
     }
@@ -345,100 +355,57 @@ public class ControllerManager {
     }
 
     public void deleteChild(int pId, int childId, int childIndex) {
-        View parentView = mControllerRegistry.getView(pId);
-        View childView = mControllerRegistry.getView(childId);
-        if (parentView instanceof ViewGroup && childView != null) {
-            deleteChildRecursive((ViewGroup) parentView, childView, childIndex);
+        View parent = mControllerRegistry.getView(pId);
+        View child = mControllerRegistry.getView(childId);
+        if (parent instanceof ViewGroup && child != null) {
+            deleteChildRecursive((ViewGroup) parent, child, childIndex);
         }
     }
 
-    @SuppressLint("Range")
     public void measureInWindow(int id, Promise promise) {
-        View v = mControllerRegistry.getView(id);
-        if (v == null) {
+        View view = mControllerRegistry.getView(id);
+        if (view == null) {
             promise.reject("Accessing view that do not exist!");
-        } else {
-            int[] outputBuffer = new int[4];
-            int statusBarHeight;
-            try {
-                v.getLocationOnScreen(outputBuffer);
-
-                // We need to remove the status bar from the height.  getLocationOnScreen will include the
-                // status bar.
-                statusBarHeight = DimensionsUtil.getStatusBarHeight();
-                if (statusBarHeight > 0) {
-                    outputBuffer[1] -= statusBarHeight;
-                }
-
-                // outputBuffer[0,1] already contain what we want
-                outputBuffer[2] = v.getWidth();
-                outputBuffer[3] = v.getHeight();
-            } catch (Throwable e) {
-                promise.reject("exception" + e.getMessage());
-                e.printStackTrace();
-                return;
-            }
-
-            float x = PixelUtil.px2dp(outputBuffer[0]);
-            float y = PixelUtil.px2dp(outputBuffer[1]);
-            float width = PixelUtil.px2dp(outputBuffer[2]);
-            float height = PixelUtil.px2dp(outputBuffer[3]);
-            float fStatusbarHeight = PixelUtil.px2dp(statusBarHeight);
-
-            HippyMap hippyMap = new HippyMap();
-            hippyMap.pushDouble("x", x);
-            hippyMap.pushDouble("y", y);
-            hippyMap.pushDouble("width", width);
-            hippyMap.pushDouble("height", height);
-            hippyMap.pushDouble("statusBarHeight", fStatusbarHeight);
-            promise.resolve(hippyMap);
+            return;
         }
-
+        int[] outputBuffer = new int[2];
+        int statusBarHeight;
+        try {
+            view.getLocationOnScreen(outputBuffer);
+            // We need to remove the status bar from the height.  getLocationOnScreen will include the
+            // status bar.
+            statusBarHeight = DimensionsUtil.getStatusBarHeight();
+            if (statusBarHeight > 0) {
+                outputBuffer[1] -= statusBarHeight;
+            }
+        } catch (Exception e) {
+            promise.reject(
+                    "An exception occurred when get view location on screen: " + e.getMessage());
+            return;
+        }
+        LogUtils.d(TAG, "measureInWindow: x=" + outputBuffer[0]
+                + ", y=" + outputBuffer[1]
+                + ", width=" + view.getWidth()
+                + ", height=" + view.getHeight()
+                + ", statusBarHeight=" + statusBarHeight);
+        Map<String, Object> result = new HashMap<>();
+        result.put("x", PixelUtil.px2dp(outputBuffer[0]));
+        result.put("y", PixelUtil.px2dp(outputBuffer[1]));
+        result.put("width", PixelUtil.px2dp(view.getWidth()));
+        result.put("height", PixelUtil.px2dp(view.getHeight()));
+        result.put("statusBarHeight", PixelUtil.px2dp(statusBarHeight));
+        promise.resolve(result);
     }
 
     public void addChild(int pid, int id, int index) {
-        View childView = mControllerRegistry.getView(id);
-        View parentView = mControllerRegistry.getView(pid);
-
-        if (childView != null && parentView instanceof ViewGroup) {
-            if (childView.getParent() == null) {
-                LogUtils.d("ControllerManager", "addChild id: " + id + " pid: " + pid);
-                String parentClassName = HippyTag.getClassName(parentView);
-                mControllerRegistry.getViewController(parentClassName)
-                        .addView((ViewGroup) parentView, childView, index);
-            }
+        View child = mControllerRegistry.getView(id);
+        View parent = mControllerRegistry.getView(pid);
+        if (child != null && parent instanceof ViewGroup && child.getParent() == null) {
+            String parentClassName = HippyTag.getClassName(parent);
+            mControllerRegistry.getViewController(parentClassName)
+                    .addView((ViewGroup) parent, child, index);
         } else {
-            RenderNode parentNode = mNativeRenderer.getRenderManager().getRenderNode(pid);
-            String renderNodeClass = "null";
-            if (parentNode != null) {
-                renderNodeClass = parentNode.getClassName();
-            }
-
-            // 上报重要错误
-            // 这个错误原因是：前端用了某个UI控件来做父亲，而这个UI控件实际上是不应该做父亲的（不是ViewGroup），务必要把这个parentView的className打出来
-            String parentTag = null, parentClass = null, childTag = null, childClass = null;
-            if (parentView != null) {
-                Object temp = HippyTag.getClassName(parentView);
-                if (temp != null) {
-                    parentTag = temp.toString();
-                }
-                parentClass = parentView.getClass().getName();
-            }
-            if (childView != null) {
-                Object temp = HippyTag.getClassName(childView);
-                if (temp != null) {
-                    childTag = temp.toString();
-                }
-                childClass = childView.getClass().getName();
-            }
-            Exception exception = new RuntimeException(
-                    "child null or parent not ViewGroup pid " + pid
-                            + " parentTag " + parentTag
-                            + " parentClass " + parentClass
-                            + " renderNodeClass " + renderNodeClass + " id " + id
-                            + " childTag " + childTag
-                            + " childClass " + childClass);
-            mNativeRenderer.handleRenderException(exception);
+            reportAddChildException(pid, parent, id, child);
         }
     }
 
@@ -452,5 +419,29 @@ public class ControllerManager {
             }
         }
         mControllerRegistry.removeRootView(rootId);
+    }
+
+    private void reportAddChildException(int pid, View parent, int id, View child) {
+        String parentTag = "";
+        String parentClass = "";
+        String childTag = "";
+        String childClass = "";
+        if (parent != null) {
+            parentTag = HippyTag.getClassName(parent);
+            parentClass = parent.getClass().getName();
+        }
+        if (child != null) {
+            childTag = HippyTag.getClassName(child);
+            childClass = child.getClass().getName();
+        }
+        String message = "Add child to parent failed: id=" + id
+                + ", childTag=" + childTag
+                + ", childClass=" + childClass
+                + ", pid=" + pid
+                + ", parentTag=" + parentTag
+                + ", parentClass=" + parentClass;
+        NativeRenderException exception = new NativeRenderException(ADD_CHILD_VIEW_FAILED_ERR,
+                message);
+        mNativeRenderer.handleRenderException(exception);
     }
 }

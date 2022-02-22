@@ -117,7 +117,7 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
     }
 
     @Override
-    public void onBatchComplete(View view) {
+    public void onBatchComplete(@NonNull View view) {
         super.onBatchComplete(view);
 
         if (view instanceof HippyScrollView) {
@@ -170,7 +170,7 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
     }
 
     @Override
-    public void dispatchFunction(View view, @NonNull String functionName,
+    public void dispatchFunction(@NonNull View view, @NonNull String functionName,
             @NonNull List params) {
         super.dispatchFunction(view, functionName, params);
         if (!(view instanceof HippyScrollView)) {

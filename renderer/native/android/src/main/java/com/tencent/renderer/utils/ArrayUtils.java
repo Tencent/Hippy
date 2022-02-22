@@ -64,7 +64,7 @@ public class ArrayUtils {
             return false;
         }
         Object element = params.get(index);
-        if (element instanceof String) {
+        if (element instanceof Boolean) {
             return ((boolean) element);
         }
         return false;
