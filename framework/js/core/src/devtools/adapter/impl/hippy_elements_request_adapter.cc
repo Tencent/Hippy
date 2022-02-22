@@ -11,10 +11,12 @@
 
 namespace hippy {
 namespace devtools {
+
 void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
                                                 bool is_root,
                                                 uint32_t depth,
                                                 DomainDataCallback callback) {
+#if TDF_SERVICE_ENABLED
   if (!callback) {
     return;
   }
@@ -30,9 +32,11 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
     callback(node->GetDomDomainData(depth, dom_manager));
   };
   DevToolUtils::PostDomTask(dom_id_, func);
+#endif
 }
 
 void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, DomainDataCallback callback) {
+#if TDF_SERVICE_ENABLED
   if (!callback) {
     return;
   }
@@ -42,6 +46,8 @@ void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, Domain
     callback(root_node->GetNodeIdByDomLocation(x, y));
   };
   DevToolUtils::PostDomTask(dom_id_, func);
+#endif
 }
+
 }  // namespace devtools
 }  // namespace hippy

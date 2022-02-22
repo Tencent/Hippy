@@ -13,8 +13,10 @@ namespace devtools {
 class HippyDomTreeAdapter : public tdf::devtools::DomTreeAdapter {
  public:
   explicit HippyDomTreeAdapter(int32_t dom_id) : dom_id_(dom_id) {}
+
   void UpdateDomTree(std::string tree_data, UpdateDomTreeCallback callback) override;
   void GetDomTree(DumpDomTreeCallback callback) override;
+
  private:
   int16_t dom_id_;
 };
