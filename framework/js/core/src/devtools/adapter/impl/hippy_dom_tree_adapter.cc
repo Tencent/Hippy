@@ -60,9 +60,10 @@ void HippyDomTreeAdapter::UpdateDomTree(std::string tree_data, UpdateDomTreeCall
       std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
       if (dom_manager) {
         auto node = dom_manager->GetNode(node_id);
-        // TODO:sicilyliu 等接口更新再联调效果
+        // TODO:sicilyliu 继续跟进，iOS生效但安卓不生效
         node->UpdateStyle(style_map);
         dom_manager->DoLayout();
+        dom_manager->EndBatch();
       }
     } else {
       is_success = false;
