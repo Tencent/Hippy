@@ -84,6 +84,8 @@ std::mutex inspector_mutex;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
 
+constexpr char kLogTag[] = "native";
+
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
     reuse_engine_map;
 static std::mutex engine_mutex;
@@ -121,7 +123,7 @@ void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_log
 
     std::string str = stream.str();
     jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
-    jstring j_tag_str = j_env->NewStringUTF("native");
+    jstring j_tag_str = j_env->NewStringUTF(kLogTag);
     jint j_level = static_cast<jint>(severity);
     j_env->CallVoidMethod(logger->GetObj(), j_method, j_level, j_tag_str, j_logger_str);
     j_env->DeleteLocalRef(j_logger_str);
@@ -394,10 +396,8 @@ jlong InitInstance(JNIEnv* j_env,
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
   engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
 
-  unicode_string_view global_config =
-      JniUtils::JByteArrayToStrView(j_env, j_global_config);
-
-  TDF_BASE_LOG(INFO) << "global_config = " << global_config;
+  unicode_string_view global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
+  TDF_BASE_LOG(DEBUG) << "global_config = " << global_config;
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(j_env, j_callback);
