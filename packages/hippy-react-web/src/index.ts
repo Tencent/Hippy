@@ -45,7 +45,7 @@ import StyleSheet from './modules/stylesheet';
 import Clipboard from './modules/clipboard';
 import NetInfo from './modules/net-info';
 import WebSocket from './modules/websocket';
-import * as NetworkModule from './modules/network-module';
+import * as NetworkModule from './modules/cookie-module';
 
 const Hippy = HippyReact;
 const ConsoleModule = console;
