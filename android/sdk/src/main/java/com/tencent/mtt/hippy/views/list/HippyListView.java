@@ -33,6 +33,7 @@ import com.tencent.mtt.supportui.views.recyclerview.LinearLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerAdapter;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
+import com.tencent.mtt.supportui.views.recyclerview.Scroller;
 
 import android.content.Context;
 import android.view.MotionEvent;
@@ -251,6 +252,8 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
     HippyMap event = new HippyMap();
     event.pushMap("contentOffset", contentOffset);
+    Scroller scroller = mViewFlinger.getScroller();
+    event.pushBoolean("fling", scroller.isFling());
     return event;
   }
 
@@ -485,6 +488,9 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     if (mMomentumScrollEndEventEnable) {
       getOnScrollFlingEndedEvent().send(this, generateScrollEvent());
     }
+    // reset scroll mode while stop scroll
+    Scroller scroller = mViewFlinger.getScroller();
+    scroller.resetCurrentMode();
   }
 
   @Override

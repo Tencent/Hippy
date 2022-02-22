@@ -239,6 +239,13 @@ public class Scroller
 		mCurrVelocity = 0;
 	}
 
+  /**
+   * reset mMode
+   */
+	public void resetCurrentMode() {
+	  mMode = SCROLL_MODE;
+  }
+
 	/**
 	 * Returns the start X offset in the scroll.
 	 *
