@@ -19,6 +19,7 @@ package com.tencent.renderer;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
@@ -27,6 +28,7 @@ import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
+import com.tencent.renderer.component.text.VirtualNode;
 import java.util.Map;
 
 public interface NativeRender extends NativeRenderExceptionHandler {
@@ -57,6 +59,20 @@ public interface NativeRender extends NativeRenderExceptionHandler {
      */
     @MainThread
     void postInvalidateDelayed(int id, long delayMilliseconds);
+
+    /**
+     * Get customize virtual node from host. For be able to customize some behavior of virtual node,
+     * host can define his own virtual node through inherit from base virtual node.
+     *
+     * @param id node id
+     * @param pid node parent id
+     * @param index sequence number of child node in parent node
+     * @param className class name of node
+     * @param props node props
+     */
+    @Nullable
+    VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+            @Nullable Map<String, Object> props);
 
     void onFirstViewAdded();
 

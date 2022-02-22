@@ -46,7 +46,7 @@ public class HippyWebViewController extends HippyViewController<HippyWebView> {
     }
 
     @Override
-    public void dispatchFunction(@NonNull HippyWebView webView, String functionName,
+    public void dispatchFunction(@NonNull HippyWebView webView, @NonNull String functionName,
             @NonNull List params) {
         super.dispatchFunction(webView, functionName, params);
         if (LOAD_URL.equals(functionName)) {

@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.image;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -40,7 +41,7 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
   public static final String CLASS_NAME = "Image";
 
   @Override
-  protected View createViewImpl(Context context, @Nullable Map<String, Object> props) {
+  protected View createViewImpl(@NonNull Context context, @Nullable Map<String, Object> props) {
     HippyImageView imageView = new HippyImageView(context);
     if (props != null) {
       imageView.setInitProps(props);

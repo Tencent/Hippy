@@ -85,7 +85,7 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
     }
 
     @Override
-    public void onBatchComplete(HippyListView view) {
+    public void onBatchComplete(@NonNull HippyListView view) {
         super.onBatchComplete(view);
         view.setListData();
     }

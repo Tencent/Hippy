@@ -289,7 +289,7 @@ public class RenderNode {
                 }
             });
             for (RenderNode moveNode : mMoveNodes) {
-                mComponentManager.move(moveNode.getId(), getId(),
+                mComponentManager.moveView(moveNode.getId(), getId(),
                         moveNode.indexFromParent());
             }
             mMoveNodes.clear();

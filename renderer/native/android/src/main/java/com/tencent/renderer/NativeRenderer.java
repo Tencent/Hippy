@@ -35,6 +35,7 @@ import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.component.text.TextRenderSupply;
+import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
 
 import java.util.ArrayList;
@@ -593,7 +594,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             return;
         }
         final UIPromise promise = new UIPromise(callbackId, null, id,
-                        mRenderProvider.getInstanceId());
+                mRenderProvider.getInstanceId());
         UITaskExecutor task = new UITaskExecutor() {
             @Override
             public void exec() {
@@ -657,6 +658,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         };
         addUITask(task);
         executeUITask();
+    }
+
+    @Override
+    @Nullable
+    public VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+            @Nullable Map<String, Object> props) {
+        return mRenderManager.createVirtualNode(id, pid, index, className, props);
     }
 
     private void onCreateNode(int nodeId, @NonNull final Map<String, Object> props) {

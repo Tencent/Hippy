@@ -81,7 +81,6 @@ public class ControllerUpdateManger<T, G> {
         } else {
             hashMap.putAll(methodHolder);
         }
-
     }
 
     private Map<String, PropsMethodHolder> findPropsMethod(Class cla) {

@@ -47,6 +47,7 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
+import com.tencent.renderer.NativeRender;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -97,9 +98,9 @@ public class TextVirtualNode extends VirtualNode {
     @Nullable
     private Layout mLayout;
 
-    public TextVirtualNode(int id, int pid, int index, @Nullable FontAdapter fontAdapter) {
+    public TextVirtualNode(int id, int pid, int index, @NonNull NativeRender nativeRender) {
         super(id, pid, index);
-        mFontAdapter = fontAdapter;
+        mFontAdapter = nativeRender.getFontAdapter();
         if (I18nUtil.isRTL()) {
             mAlignment = Layout.Alignment.ALIGN_OPPOSITE;
         }
@@ -290,11 +291,11 @@ public class TextVirtualNode extends VirtualNode {
         return spannable;
     }
 
-    private SpannableStringBuilder createSpan(boolean useChild) {
+    protected SpannableStringBuilder createSpan(boolean useChild) {
         return createSpan(mText, useChild);
     }
 
-    private CharSequence getEmoticonText(@Nullable CharSequence text) {
+    protected CharSequence getEmoticonText(@Nullable CharSequence text) {
         CharSequence emoticonText = null;
         if (mFontAdapter != null && !TextUtils.isEmpty(text)) {
             emoticonText = mFontAdapter.getEmoticonText(text, mFontSize);
@@ -308,7 +309,7 @@ public class TextVirtualNode extends VirtualNode {
         createSpanOperationImpl(ops, builder, mText, useChild);
     }
 
-    private void createChildrenSpanOperation(@NonNull List<SpanOperation> ops,
+    protected void createChildrenSpanOperation(@NonNull List<SpanOperation> ops,
             @NonNull SpannableStringBuilder builder) {
         for (int i = 0; i < getChildCount(); i++) {
             VirtualNode child = getChildAt(i);
@@ -320,7 +321,11 @@ public class TextVirtualNode extends VirtualNode {
         }
     }
 
-    private void createSpanOperationImpl(@NonNull List<SpanOperation> ops,
+    protected TextForegroundColorSpan createForegroundColorSpan() {
+        return new TextForegroundColorSpan(mColor);
+    }
+
+    protected void createSpanOperationImpl(@NonNull List<SpanOperation> ops,
             @NonNull SpannableStringBuilder builder, @Nullable CharSequence text,
             boolean useChild) {
         int start = builder.length();
@@ -329,7 +334,7 @@ public class TextVirtualNode extends VirtualNode {
         if (start > end) {
             return;
         }
-        ops.add(new SpanOperation(start, end, new ForegroundColorSpan(mColor)));
+        ops.add(new SpanOperation(start, end, createForegroundColorSpan()));
         if (mLetterSpacing != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ops.add(new SpanOperation(start, end,
                     new TextLetterSpacingSpan(mLetterSpacing)));
@@ -447,7 +452,7 @@ public class TextVirtualNode extends VirtualNode {
         return buildStaticLayout(builder.replace(start, text.length(), ELLIPSIS), width);
     }
 
-    private String truncate(@Nullable String source, int width) {
+    protected String truncate(@Nullable String source, int width) {
         String result = "";
         if (source == null) {
             return result;

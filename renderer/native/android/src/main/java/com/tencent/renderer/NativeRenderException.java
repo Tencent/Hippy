@@ -97,6 +97,13 @@ public class NativeRenderException extends RuntimeException {
          *         List)
          */
         HANDLE_CALL_UI_FUNCTION_ERR,
+
+        /**
+         * If fail to add child view to parent
+         *
+         * @see com.tencent.mtt.hippy.uimanager.ControllerManager#addChild(int, int, int)
+         */
+        ADD_CHILD_VIEW_FAILED_ERR,
     }
 
     public ExceptionCode mCode;

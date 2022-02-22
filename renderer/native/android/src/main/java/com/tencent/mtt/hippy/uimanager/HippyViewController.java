@@ -45,6 +45,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import com.tencent.renderer.component.text.VirtualNode;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -577,8 +578,15 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
             @NonNull String className, @NonNull ViewGroup hippyRootView,
-            @NonNull ControllerManager controllerManager, boolean lazy) {
-        return new RenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+            @NonNull ControllerManager controllerManager, boolean isLazy) {
+        return new RenderNode(id, props, className, hippyRootView, controllerManager, isLazy);
+    }
+
+    @Nullable
+    public VirtualNode createVirtualNode(int id, int pid, int index,
+            @Nullable Map<String, Object> props) {
+        // The host can create customize virtual node in a derived class.
+        return null;
     }
 
     private void applyTransform(T view, ArrayList<Object> transformArray) {
