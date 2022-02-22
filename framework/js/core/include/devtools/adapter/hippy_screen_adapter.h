@@ -12,6 +12,9 @@
 
 namespace hippy {
 namespace devtools {
+static const char *const kScreenShot = "screenShot";
+static const char *const kScreenWidth = "width";
+static const char *const kScreenHeight = "height";
 class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
  public:
   explicit HippyScreenAdapter(int32_t dom_id) : dom_id_(dom_id) {}
@@ -24,29 +27,15 @@ class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
           auto children = root_node->GetChildren();
           if (!children.empty()) {
             hippy::dom::DomArgument argument;
-            std::function screen_width_callback = [this](std::shared_ptr<DomArgument> arg) {
-              tdf::base::DomValue result_dom_value;
-              arg->ToObject(result_dom_value);
-              auto base64_dom_value = result_dom_value.ToObject();
-              width_ = base64_dom_value.find("width")->second.ToInt32();
-              TDF_BASE_DLOG(INFO) << "GetScreenShot callback width:" << width_;
-            };
-            children[0]->CallFunction("getViewWidth", argument, screen_width_callback);
-            std::function screen_height_callback = [this](std::shared_ptr<DomArgument> arg) {
-              tdf::base::DomValue result_dom_value;
-              arg->ToObject(result_dom_value);
-              auto base64_dom_value = result_dom_value.ToObject();
-              height_ = base64_dom_value.find("height")->second.ToInt32();
-              TDF_BASE_DLOG(INFO) << "GetScreenShot callback height:" << height_;
-            };
-            children[0]->CallFunction("getViewHeight", argument, screen_height_callback);
             std::function screen_shot_callback = [this, callback](std::shared_ptr<DomArgument> arg) {
               tdf::base::DomValue result_dom_value;
               arg->ToObject(result_dom_value);
               auto base64_dom_value = result_dom_value.ToObject();
-              std::string base64_str = base64_dom_value.find("screenShot")->second.ToString();
+              std::string base64_str = base64_dom_value.find(kScreenShot)->second.ToString();
+              int32_t width = base64_dom_value.find(kScreenWidth)->second.ToInt32();
+              int32_t height = base64_dom_value.find(kScreenHeight)->second.ToInt32();
               TDF_BASE_DLOG(INFO) << "GetScreenShot callback" << base64_str.size();
-              callback(base64_str, width_, height_);
+              callback(base64_str, width, height);
             };
             children[0]->CallFunction("getScreenShot", argument, screen_shot_callback);
           }

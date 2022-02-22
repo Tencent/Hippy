@@ -55,11 +55,14 @@ import java.util.Map;
 public abstract class HippyViewController<T extends View & HippyViewBase> implements
         View.OnFocusChangeListener {
 
-    private static final String TAG = "HippyViewController";
-
-    private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
-    private static final double[] sTransformDecompositionArray = new double[16];
-    private boolean bUserChageFocus = false;
+  private static final String TAG = "HippyViewController";
+  private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
+  private static final double[] sTransformDecompositionArray = new double[16];
+  private static final String SCREEN_SHOT = "screenShot";
+  private static final String SCREEN_WIDTH = "width";
+  private static final String SCREEN_HEIGHT = "height";
+  private static final String GET_SCREEN_SHOT = "getScreenShot";
+  private boolean bUserChageFocus = false;
 
     @SuppressWarnings("deprecation")
     public View createView(@Nullable ViewGroup rootView, int id,
@@ -641,7 +644,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
   public void dispatchFunction(@NonNull T view, @NonNull String functionName,
     @NonNull List params, @Nullable Promise promise) {
-    if ("getScreenShot".equals(functionName)) {
+    if (GET_SCREEN_SHOT.equals(functionName)) {
       if (promise != null) {
         HippyMap resultMap = new HippyMap();
         boolean isEnableDrawingCache = view.isDrawingCacheEnabled();
@@ -650,21 +653,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
         Bitmap bitmap = view.getDrawingCache();
         String base64 = bitmapToBase64Str(bitmap);
-        resultMap.pushString("screenShot", base64);
+        resultMap.pushString(SCREEN_SHOT, base64);
+        resultMap.pushInt(SCREEN_WIDTH, view.getWidth());
+        resultMap.pushInt(SCREEN_HEIGHT, view.getHeight());
         promise.resolve(resultMap);
         view.setDrawingCacheEnabled(isEnableDrawingCache);
-      }
-    } else if ("getViewWidth".equals(functionName)) {
-      if (promise != null) {
-        HippyMap resultMap = new HippyMap();
-        resultMap.pushInt("width", view.getWidth());
-        promise.resolve(resultMap);
-      }
-    } else if ("getViewHeight".equals(functionName)) {
-      if (promise != null) {
-        HippyMap resultMap = new HippyMap();
-        resultMap.pushInt("height", view.getHeight());
-        promise.resolve(resultMap);
       }
     }
   }
