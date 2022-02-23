@@ -24,10 +24,11 @@
 #import "HippyView.h"
 #import "HippyBaseListViewProtocol.h"
 #import "HippyScrollableProtocol.h"
+#import "HippyTouchesView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyWaterfallView : HippyView <HippyBaseListViewProtocol, HippyScrollableProtocol>
+@interface HippyWaterfallView : HippyTouchesView <HippyBaseListViewProtocol, HippyScrollableProtocol>
 
 @property (nonatomic, assign) UIEdgeInsets contentInset;
 @property (nonatomic, assign) NSInteger numberOfColumns;

@@ -22,11 +22,15 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyInvalidating.h"
+#import "HippyTouchesView.h"
+
 NS_ASSUME_NONNULL_BEGIN
-@class HippyBridge;
-@interface HippyRefreshWrapper : UIView <HippyInvalidating>
+
+@interface HippyRefreshWrapper : HippyTouchesView <HippyInvalidating>
+
 - (void)refreshCompleted;
 - (void)startRefresh;
+
 @end
 
 NS_ASSUME_NONNULL_END

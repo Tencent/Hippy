@@ -21,7 +21,8 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "HippyTouchesView.h"
 
-@interface HippyRefreshWrapperItemView : UIView
+@interface HippyRefreshWrapperItemView : HippyTouchesView
 
 @end

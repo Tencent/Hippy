@@ -21,11 +21,11 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyView.h"
+#import "HippyTouchesView.h"
 
 typedef CGRect(^FrameSetBlock)(CGRect frame);
 
-@interface HippyViewPagerItem : UIView
+@interface HippyViewPagerItem : HippyTouchesView
 
 @property (nonatomic, copy)FrameSetBlock frameSetBlock;
 
