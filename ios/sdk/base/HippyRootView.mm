@@ -32,7 +32,6 @@
 #import "HippyKeyCommands.h"
 #import "HippyLog.h"
 #import "HippyPerformanceLogger.h"
-#import "HippyTouchHandler.h"
 #import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "HippyView.h"
@@ -50,7 +49,6 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 @interface HippyRootContentView : HippyView <HippyInvalidating>
 
 @property (nonatomic, readonly) BOOL contentHasAppeared;
-@property (nonatomic, strong) HippyTouchHandler *touchHandler;
 @property (nonatomic, assign) int64_t startTimpStamp;
 
 - (instancetype)initWithFrame:(CGRect)frame
@@ -402,7 +400,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)cancelTouches {
-    [[_contentView touchHandler] cancelTouch];
 }
 
 @end
@@ -432,9 +429,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if ((self = [super initWithFrame:frame])) {
         _bridge = bridge;
         self.hippyTag = hippyTag;
-
-        _touchHandler = [[HippyTouchHandler alloc] initWithRootView:self bridge:bridge];
-        [self addGestureRecognizer:_touchHandler];
         [_bridge.uiManager registerRootView:self withSizeFlexibility:sizeFlexibility];
         self.layer.backgroundColor = NULL;
         _startTimpStamp = CACurrentMediaTime() * 1000;

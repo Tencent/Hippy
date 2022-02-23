@@ -20,14 +20,30 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import <UIKit/UIGestureRecognizerSubclass.h>
-#import "HippyBridge.h"
+#import "HippyDefines.h"
+#include <string>
 
-@interface HippyTouchHandler : UIGestureRecognizer <UIGestureRecognizerDelegate>
+typedef NS_ENUM(NSInteger, HippyViewEventType) {
+    //touche event
+    HippyViewEventTypeTouchStart,
+    HippyViewEventTypeTouchMove,
+    HippyViewEventTypeTouchEnd,
+    HippyViewEventTypeTouchCancel,
+    
+    HippyViewEventTypePressIn,
+    HippyViewEventTypePressOut,
+    
+    HippyViewEventLayout,
+        
+    //show event
+    HippyViewEventTypeShow,
+    HippyViewEventTypeDismiss,
+    
+    //click event
+    HippyViewEventTypeClick,
+    HippyViewEventTypeLongClick,
+    
+    HippyViewEventTypeUnknown = -1,
+};
 
-- (instancetype)initWithRootView:(UIView *)view;
-- (instancetype)initWithRootView:(UIView *)view bridge:(HippyBridge *)bridge;
-- (void)cancelTouch;
-
-@end
+HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);

@@ -25,13 +25,14 @@
 #import "HippyBorderStyle.h"
 #import "HippyComponent.h"
 #import "HippyPointerEvents.h"
+#import "HippyTouchesView.h"
 
 @protocol HippyAutoInsetsProtocol;
 
 @class HippyGradientObject;
 @class HippyBridge;
 
-@interface HippyView : UIView
+@interface HippyView : HippyTouchesView
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge;
 

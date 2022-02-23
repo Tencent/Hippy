@@ -47,6 +47,7 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "OCTypeToDomArgument.h"
+#import "UIView+HippyEvent.h"
 #include <mutex>
 
 using DomValue = tdf::base::DomValue;
@@ -557,7 +558,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
             UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootTag properties:newProps viewName:viewName];
             view.hippyShadowView = shadowView;
-            view.domNode = node_;
         }];
     }
 }
@@ -1111,7 +1111,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         std::string name_ = eventName;
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
-            [view removeRenderEvent:name_];
+            [view removeStatusChangeEvent:name_];
         }];
     }
 }
@@ -1129,7 +1129,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (mapToEventName) {
             BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name_];
             BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name_];
-            [view addRenderEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
+            [view addStatusChangeEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
                 [self domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> domNode) {
                     if (domNode) {
                         DomValue value = [body toDomValue];
@@ -1148,7 +1148,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     std::string name_ = name;
     [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
-        [view removeRenderEvent:name_];
+        [view removeStatusChangeEvent:name_];
     }];
 }
 

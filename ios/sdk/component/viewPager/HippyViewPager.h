@@ -25,9 +25,8 @@
 #import "HippyInvalidating.h"
 
 /**
- ViewPagerItem数量发生变化的回调Block
-
- @param count 新的ViewPagerItem数量
+ * A Callback block to indicate view pager's item count changed
+ * @param count number of view pager's items
  */
 typedef void (^ViewPagerItemsCountChanged)(NSUInteger count);
 

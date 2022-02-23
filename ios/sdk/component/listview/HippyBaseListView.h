@@ -26,12 +26,12 @@
 #import "HippyUIManager.h"
 #import "HippyBaseListViewProtocol.h"
 #import "HippyListTableView.h"
+#import "HippyTouchesView.h"
 
 @class HippyBaseListViewCell;
 
-@interface HippyBaseListView : UIView <HippyBaseListViewProtocol, HippyScrollableProtocol, UITableViewDelegate, UITableViewDataSource,
-                                   HippyInvalidating, HippyListTableViewLayoutProtocol>
-
+@interface HippyBaseListView : HippyTouchesView <HippyBaseListViewProtocol, HippyScrollableProtocol, UITableViewDelegate,
+                                        UITableViewDataSource, HippyInvalidating, HippyListTableViewLayoutProtocol>
 
 @property (nonatomic, copy) HippyDirectEventBlock initialListReady;
 @property (nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
