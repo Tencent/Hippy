@@ -58,6 +58,9 @@ export default class PullHeaderExample extends React.Component {
     this.state = {
       dataSource: [],
       pullingText: '继续下拉触发刷新',
+      loadingText: '刷新数据中，请稍等，2秒后自动收起',
+      releaseText: '松手，即可触发刷新',
+      continueText: '继续下拉触发刷新',
       loadingState: '正在加载...',
     };
     this.fetchTimes = 0;
@@ -69,6 +72,7 @@ export default class PullHeaderExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.onHeaderReleased = this.onHeaderReleased.bind(this);
     this.onHeaderPulling = this.onHeaderPulling.bind(this);
+    this.getPullHeaderHeight = this.getPullHeaderHeight.bind(this);
   }
 
   async componentDidMount() {
@@ -76,6 +80,10 @@ export default class PullHeaderExample extends React.Component {
     this.setState({ dataSource });
     // 结束时需主动调用collapsePullHeader
     this.listView.collapsePullHeader();
+  }
+
+  getPullHeaderHeight() {
+    return 60;
   }
 
   /**
@@ -116,9 +124,8 @@ export default class PullHeaderExample extends React.Component {
       return;
     }
     this.fetchingDataFlag = true;
-    console.log('onHeaderReleased');
     this.setState({
-      pullingText: '刷新数据中，请稍等，2秒后自动收起',
+      pullingText: this.state.loadingText,
     });
     let dataSource = [];
     try {
@@ -128,6 +135,9 @@ export default class PullHeaderExample extends React.Component {
     this.setState({ dataSource }, () => {
       // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致onHeaderReleased事件不能再次触发
       this.listView.collapsePullHeader();
+      this.setState({
+        pullingText: this.state.continueText,
+      });
       this.fetchTimes = 0;
     });
   }
@@ -144,14 +154,13 @@ export default class PullHeaderExample extends React.Component {
     if (this.fetchingDataFlag) {
       return;
     }
-    console.log('onHeaderPulling', evt.contentOffset);
     if (evt.contentOffset > styles.pullContent.height) {
       this.setState({
-        pullingText: '松手，即可触发刷新',
+        pullingText: this.state.releaseText,
       });
     } else {
       this.setState({
-        pullingText: '继续下拉，触发刷新',
+        pullingText: this.state.continueText,
       });
     }
   }
@@ -271,6 +280,7 @@ export default class PullHeaderExample extends React.Component {
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
         renderRow={this.renderRow}
+        getPullHeaderHeight={this.getPullHeaderHeight}
         renderPullHeader={this.renderPullHeader}
         onEndReached={this.onEndReached}
         onHeaderReleased={this.onHeaderReleased}

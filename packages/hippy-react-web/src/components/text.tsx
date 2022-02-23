@@ -104,6 +104,7 @@ export class Text extends React.Component {
     });
     delete newProps.numberOfLines;
     delete newProps.ellipsizeMode;
+    delete newProps.enableScale;
 
     if (isInAParentText) return <View {...newProps} />;
     return (

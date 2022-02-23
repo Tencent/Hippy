@@ -129,7 +129,8 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     getPullHeaderHeight = () => 0, onDisappear = () => { }, onAppear = () => { },
   } = props;
   const isShowPullHeader = useRef(getPullHeaderHeight() && getPullHeaderHeight());
-  const pullHeaderRef = useRef(null);
+  const pullHeaderRef = useRef<null | HTMLDivElement>(null);
+  const pullHeaderOffset = useRef(0);
   const pullHeaderHeight = useRef((isShowPullHeader.current && getPullHeaderHeight()) || 0);
   const listRef = useRef<null | {
     ListViewRef: any
@@ -274,15 +275,21 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   }, [props.renderPullHeader]);
   const pullIndicator = {
     get activate() {
-      if (isFunc(onHeaderPulling)) {
+      let currentOffset = 0;
+      if (pullHeaderRef.current) {
+        currentOffset = pullHeaderRef.current.getClientRects()[0].y;
+      }
+      if (
+        isFunc(onHeaderPulling)
+        && pullHeaderHeight.current > 0
+        && currentOffset !== pullHeaderOffset.current
+      ) {
+        pullHeaderOffset.current = currentOffset;
         onHeaderPulling({ contentOffset: pullHeaderHeight.current + 1 });
       }
       return <PullHeader />;
     },
     get deactivate() {
-      if (isFunc(onHeaderPulling) && pullHeaderRef.current) {
-        onHeaderPulling({ contentOffset: 0 });
-      }
       return <PullHeader />;
     },
     get release() {

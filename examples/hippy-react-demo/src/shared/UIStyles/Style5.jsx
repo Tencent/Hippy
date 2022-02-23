@@ -60,7 +60,7 @@ export default function Style5(props) {
     );
   }
   return (
-    <View {...props}>
+    <View onClick={props.onClick}>
       <Text style={styles.text} numberOfLines={2} enableScale>
         {title}
       </Text>

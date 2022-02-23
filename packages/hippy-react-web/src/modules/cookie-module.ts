@@ -1,16 +1,3 @@
-import { canUseDOM } from '../utils/execution-environment';
-
-/**
- * Get cookies from url
- *
- * @param {string} url - Specific url for cookie
- */
-function getCookies(): Promise<string> {
-  if (canUseDOM && document.cookie) {
-    return Promise.resolve(document.cookie);
-  };
-  return Promise.resolve('');
-};
 /*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
@@ -30,6 +17,20 @@ function getCookies(): Promise<string> {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { canUseDOM } from '../utils/execution-environment';
+
+/**
+ * Get cookies from url
+ *
+ * @param {string} url - Specific url for cookie
+ */
+function getCookies(): Promise<string> {
+  if (canUseDOM && document.cookie) {
+    return Promise.resolve(document.cookie);
+  };
+  return Promise.resolve('');
+};
 
 /**
  * Set cookie to url

@@ -59,7 +59,7 @@ export default function Style1(props) {
   }
 
   return (
-    <View {...props} style={{ collapsable: false }}>
+    <View onClick={props.onClick} style={{ collapsable: false }}>
       <Text style={[styles.title]} numberOfLines={2} enableScale>
         {title}
       </Text>
