@@ -851,9 +851,15 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         int32_t tag = dom_node->GetId();
         HippyShadowView *shadowView = _shadowViewRegistry[@(tag)];
         [shadowView removeFromHippySuperview];
+        [_shadowViewRegistry removeObjectForKey:@(tag)];
+        __weak auto weakSelf = self;
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = viewRegistry[@(tag)];
             [view removeFromHippySuperview];
+            if (weakSelf) {
+                auto strongSelf = weakSelf;
+                [strongSelf->_viewRegistry removeObjectForKey:@(tag)];
+            }
         }];
     }
 }
