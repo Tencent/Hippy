@@ -82,7 +82,11 @@ public class DomModel {
     }
     JSONObject result = new JSONObject();
     try {
-      result.put("nodeId", domainData.id);
+      int nodeId = domainData.id;
+      if (nodeType == NodeType.TEXT_NODE) {  // TextNode node Id is the negative id for the ELEMENT_NODE id
+        nodeId = -nodeId;
+      }
+      result.put("nodeId", nodeId);
       result.put("backendNodeId", domainData.id);
       result.put("nodeType", nodeType);
       result.put("localName", domainData.tagName);
