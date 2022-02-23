@@ -46,17 +46,20 @@ static const CGFloat gDefaultFontSize = 14.f;
 @implementation HippyShadowText
 
 hippy::LayoutSize textMeasureFunc(
-    HippyShadowText *shadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
+    HippyShadowText *weakShadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
                                  float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
-    NSTextStorage *textStorage = [shadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
-    [shadowText calculateTextFrame:textStorage];
-    NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
-    NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
-    CGSize size = [layoutManager usedRectForTextContainer:textContainer].size;
-
     hippy::LayoutSize retSize;
-    retSize.width = HippyCeilPixelValue(size.width);
-    retSize.height = HippyCeilPixelValue(size.height);
+    if (weakShadowText) {
+        HippyShadowText *strongShadowText = weakShadowText;
+        NSTextStorage *textStorage = [strongShadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
+        [strongShadowText calculateTextFrame:textStorage];
+        NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
+        NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
+        CGSize size = [layoutManager usedRectForTextContainer:textContainer].size;
+
+        retSize.width = HippyCeilPixelValue(size.width);
+        retSize.height = HippyCeilPixelValue(size.height);
+    }
     return retSize;
 }
 
@@ -674,10 +677,11 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         int32_t hippyTag = [self.hippyTag intValue];
         auto node = shared_domNode->GetNode(hippyTag);
         if (node) {
+            __weak HippyShadowText *weakSelf = self;
             hippy::MeasureFunction measureFunc =
-                [shadow_view = self](float width, hippy::LayoutMeasureMode widthMeasureMode,
+                [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                      float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
-                return textMeasureFunc(shadow_view, width, widthMeasureMode,
+                return textMeasureFunc(weakSelf, width, widthMeasureMode,
                                        height, heightMeasureMode, layoutContext);
             };
             node->GetLayoutNode()->SetMeasureFunction(measureFunc);
