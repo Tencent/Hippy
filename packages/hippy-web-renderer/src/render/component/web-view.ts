@@ -71,8 +71,8 @@ class WebView extends View<HTMLIFrameElement> {
     dispatchEventToHippy(this.id, NodeProps.ON_LOAD_END, this.props[NodeProps.SOURCE]);
   }
 
-  public beforeMount(parent: BaseView, position: number) {
-    super.beforeMount(parent, position);
+  public async beforeMount(parent: BaseView, position: number) {
+    await super.beforeMount(parent, position);
     if (this.props[NodeProps.SOURCE].uri) this.dom!.src = this.props[NodeProps.SOURCE].uri ?? '';
     if (this.dom!.src) {
       this.onLoadStart(this.props[NodeProps.SOURCE]);

@@ -20,7 +20,7 @@
 
 declare function hippyBridge (action: string, params: any): void;
 
-export interface UIProps {[key: string|'style']: any}
+export interface UIProps {[key: string]: any}
 
 export interface BaseView
 {
@@ -34,9 +34,9 @@ export interface BaseView
   onAttachedToWindow: () => void;
   onLayout: () => void;
   updateProps: (data: UIProps) => void;
-  beforeMount: (parent: BaseView, position: number) => void;
-  beforeChildMount: (child: BaseView, childPosition: number) => void;
-  beforeRemove: () => void;
+  beforeMount: (parent: BaseView, position: number) => Promise<void>;
+  beforeChildMount: (child: BaseView, childPosition: number) => Promise<void>;
+  beforeRemove: () => Promise<void>;
   destroy: () => void;
   beforeChildRemove: (child: BaseView) => void;
   appendChild: (child: BaseView, index: number) => void;
@@ -132,6 +132,7 @@ export enum NodeProps {
   SCROLL_ENABLED = 'scrollEnabled',
   SHOW_HORIZONTAL_SCROLL_INDICATOR = 'showsHorizontalScrollIndicator',
   SHOW_VERTICAL_SCROLL_INDICATOR = 'showsVerticalScrollIndicator',
+  SHOW_SCROLL_INDICATOR = 'showScrollIndicator',
   DEFAULT_VALUE = 'defaultValue',
   EDITABLE = 'editable',
   KEY_BOARD_TYPE = 'keyboardType',
@@ -192,4 +193,24 @@ export enum ReturnKeyType {
   next = 'next',
   search = 'search',
   send = 'send',
+}
+
+export enum ModalAnimationType {
+  Slide = 'slide',
+  Fade = 'fade',
+  SlideFade = 'slide_fade',
+  None = 'none',
+}
+export enum ModalOrientations {
+  Portrait = 'portrait',
+  PortraitUpsideDown = 'portrait-upside-down',
+  Landscape = 'landscape',
+  LandscapeLeft = 'landscape-left',
+  LandscapeRight = 'landscape-right',
+}
+
+export enum SCROLL_STATE {
+  IDLE = 'idle',
+  DRAG = 'dragging',
+  SETTL = 'settling',
 }

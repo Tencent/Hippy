@@ -23,12 +23,12 @@ import { setElementStyle } from '../common';
 const TIME_CHECK_LONG = 100;
 export const GESTURE_CAPTURE_THRESHOLD = 5;
 export interface TouchMoveListenerConfig {
-  onBeginDrag?: (el: HTMLElement, position: Array<number>) => void;
-  onEndDrag?: (el: HTMLElement, position: Array<number>) => void;
-  onScroll?: (el: HTMLElement) => void;
-  onBeginSliding?: (el: HTMLElement) => void;
-  onEndSliding?: (el: HTMLElement) => void;
-  onTouchMove?: (el: HTMLElement, event: Touch, lastEvent: Touch) => void;
+  onBeginDrag?: (position: Array<number>) => void;
+  onEndDrag?: (position: Array<number>) => void;
+  onScroll?: () => void;
+  onBeginSliding?: () => void;
+  onEndSliding?: () => void;
+  onTouchMove?: (event: Touch, lastEvent: Touch) => void;
   recordPosition: Array<number>;
   scrollEnable: (lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) => boolean;
   needSimulatedScrolling?: boolean;
@@ -43,7 +43,7 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
   const lastPosition = config.recordPosition;
   const scrollOverTimeCheck = () => {
     if (isScroll && !isTouchIn) {
-      config?.onEndSliding?.(el);
+      config?.onEndSliding?.();
       isScroll = false;
     }
   };
@@ -106,14 +106,14 @@ function scrollDeal(
   scrollStopCheckTimer: number,
   timeCheck: Function,
   position: Array<number>,
-  beginDragCallBack?: (el: HTMLElement, position: Array<number>) => void,
-  scrollCallBack?: (el: HTMLElement) => void,
+  beginDragCallBack?: (position: Array<number>) => void,
+  scrollCallBack?: () => void,
 ) {
   clearTimeout(scrollStopCheckTimer);
   if (!isScroll && isTouchIn) {
-    beginDragCallBack?.(el, position);
+    beginDragCallBack?.(position);
   }
-  scrollCallBack?.(el);
+  scrollCallBack?.();
 
   return setTimeout(timeCheck, TIME_CHECK_LONG);
 }
@@ -123,15 +123,15 @@ function touchEndDeal(
   isScroll: boolean,
   enableScroll: boolean,
   lastPosition: Array<number>,
-  endDragCallBack?: (el: HTMLElement, lastPosition: Array<number>) => void,
-  slidingBeginCallBack?: (el: HTMLElement) => void,
+  endDragCallBack?: (lastPosition: Array<number>) => void,
+  slidingBeginCallBack?: () => void,
 ) {
   if (isTouchIn) {
     if (enableScroll) {
-      endDragCallBack?.(el, lastPosition);
+      endDragCallBack?.(lastPosition);
     }
     if (isScroll && enableScroll) {
-      slidingBeginCallBack?.(el);
+      slidingBeginCallBack?.();
     }
   }
 }
@@ -140,7 +140,7 @@ function touchMoveDeal(
   event: TouchEvent,
   lastEvent: TouchEvent,
   lastPosition: Array<number>,
-  touchMoveCallBack?: (el: HTMLElement, touch: Touch, lastTouch: Touch) => void,
+  touchMoveCallBack?: (touch: Touch, lastTouch: Touch) => void,
 ) {
   const currentTouch = event.changedTouches[0];
   const lastTouch = lastEvent.changedTouches[0];
@@ -174,7 +174,7 @@ function touchMoveDeal(
     lastPosition[1] = minVValue;
   }
   updateTransform(el, lastPosition);
-  touchMoveCallBack?.(el, currentTouch, lastTouch);
+  touchMoveCallBack?.(currentTouch, lastTouch);
 }
 export function touchMoveCalculate(event: TouchEvent, lastEvent: TouchEvent) {
   const currentTouch = event.changedTouches[0];
