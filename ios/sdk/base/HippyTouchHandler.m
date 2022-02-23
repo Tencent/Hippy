@@ -593,6 +593,11 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
             return YES;
         }
     }
+    if ([preventedGestureRecognizer isKindOfClass:[self class]]) {
+        UIView *currentHandlerView = [self view];
+        BOOL canPreventGestureRecognizer = [currentHandlerView isDescendantOfView:gestureView];
+        return canPreventGestureRecognizer;
+    }
     return NO;
 }
 
@@ -601,7 +606,14 @@ typedef void (^ViewBlock)(UIView *view, BOOL *stop);
     // iOS will ask `delegate`'s opinion about this gesture recognizer little bit later.
     if (![preventingGestureRecognizer.view isDescendantOfView:_rootView]) {
         return NO;
-    } else {
+    }
+    else if ([preventingGestureRecognizer isKindOfClass:[self class]]) {
+        UIView *currentHandlerView = [self view];
+        UIView *gestureView = [preventingGestureRecognizer view];
+        BOOL canPreventGestureRecognizer = [currentHandlerView isDescendantOfView:gestureView];
+        return !canPreventGestureRecognizer;
+    }
+    else {
         return ![preventingGestureRecognizer.view isDescendantOfView:self.view];
     }
 }
