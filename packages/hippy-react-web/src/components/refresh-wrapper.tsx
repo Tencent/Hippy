@@ -20,28 +20,108 @@
 
 /* eslint-disable react/prefer-stateless-function */
 
-import React from 'react';
+import React, { useState } from 'react';
+import MPullToRefresh from 'rmc-pull-to-refresh';
 import { formatWebStyle } from '../adapters/transfer';
-// @ts-nocheck
-interface Props {
-  // @ts-ignore
+import { isFunc } from '../utils/validation';
+
+export interface RefreshWrapperProp {
+  ref?: any;
   style?: HippyTypes.Style;
-  withRef: React.Ref<any>
-  displayInWeb: boolean
+  getRefresh?: () => null | Element;
+  onRefresh?: () => void;
+  bounceTime?: number;
 }
 
 /**
  * Simply to implement the drag down to refresh feature.
  * @noInheritDoc
  */
-function RefreshWrapper(props) {
-  const { style, children } = props;
+const RefreshWrapper: React.FC<RefreshWrapperProp> = React.forwardRef((props, ref) => {
+  const { getRefresh, style, children, onRefresh } = props;
   const newProps = { ...props, style: formatWebStyle(style) };
+  const wrapperRef = React.useRef(null);
+  const pullHeaderRef = React.useRef<null | HTMLDivElement>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const PullHeader = React.useCallback(() => {
+    const offsetY = React.useRef(0);
+    const headerVisibility = React.useRef<'hidden' | 'visible'>('hidden');
+    if (!isFunc(getRefresh) || !getRefresh) {
+      return null;
+    }
+    React.useEffect(() => {
+      if (pullHeaderRef.current) {
+        const headerRect = pullHeaderRef.current.getBoundingClientRect();
+        offsetY.current = headerRect.height;
+        if (offsetY.current > 0) {
+          headerVisibility.current = 'visible';
+        }
+      }
+    }, [pullHeaderRef]);
+    return (
+      <div ref={pullHeaderRef} style={{ marginTop: `-${offsetY.current}px`, visibility: headerVisibility.current }}>
+        {getRefresh()}
+      </div>
+    );
+  }, [props.getRefresh]);
+
+  const refreshComplected = () => {
+    setRefreshing(false);
+  };
+
+  const startRefresh = () => {
+    setRefreshing(true);
+  };
+
+  React.useImperativeHandle(ref, () => ({
+    refreshComplected,
+    startRefresh,
+  }));
+
+  const pullIndicator = {
+    get activate() {
+      return <PullHeader />;
+    },
+    get deactivate() {
+      return <PullHeader />;
+    },
+    get release() {
+      return <PullHeader />;
+    },
+    get finish() {
+      return <PullHeader />;
+    },
+  };
+
+  const handleOnRefresh = () => {
+    if (onRefresh && isFunc(onRefresh)) {
+      onRefresh();
+      setRefreshing(true);
+    }
+  };
+
+  // @ts-ignore
+  const newChildren = React.cloneElement(children, {
+    pullToRefresh: <MPullToRefresh
+      direction='down'
+      refreshing={refreshing}
+      onRefresh={handleOnRefresh}
+      indicator={pullIndicator}
+    />,
+  });
+
+  // delete unsupported props
+  delete newProps.bounceTime;
+  delete newProps.getRefresh;
+  delete newProps.onRefresh;
+
   return (
-    <div {...newProps} >
-      {children}
+    <div {...newProps} ref={wrapperRef}>
+      { newChildren }
     </div>
   );
-}
+});
+RefreshWrapper.displayName = 'RefreshWrapper';
 
 export default RefreshWrapper;
