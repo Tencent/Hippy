@@ -26,8 +26,7 @@ import {
   mountTouchListener,
   scrollToIntegerSize,
   touchMoveCalculate,
-} from './scrollable2';
-import { ANIMATION_TIME } from './modal/process';
+} from './scrollable';
 
 
 interface HippyScrollEvent {
@@ -42,6 +41,8 @@ interface HippyScrollDragEvent extends HippyScrollEvent {
   velocity: { x: number; y: number };
   targetContentOffset: { x: number; y: number };
 }
+
+const ANIMATION_TIME = 100;
 
 class ScrollView extends View<HTMLDivElement> {
   private lastPosition = [0, 0];
@@ -74,7 +75,7 @@ class ScrollView extends View<HTMLDivElement> {
 
   public set bounces(value: boolean) {
     this.props[NodeProps.BOUNCES] = value;
-    // TODO 待实现
+    // TODO to implement
   }
 
   public get horizontal() {
@@ -108,7 +109,7 @@ class ScrollView extends View<HTMLDivElement> {
 
   public set scrollIndicatorInsets(value: { top: number, left: number, bottom: number, right: number }) {
     this.props[NodeProps.SCROLL_INDICATOR_INSETS] = value;
-    // TODO 待实现
+    // TODO to implement
   }
 
   public get scrollEnabled() {
@@ -206,8 +207,8 @@ class ScrollView extends View<HTMLDivElement> {
     eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
       console.log('scroll', buildScrollDragEvent(this.dom!));
       this.onScroll(buildScrollEvent(this.dom!));
+      this.lastTimestamp = Date.now();
     });
-    this.lastTimestamp = Date.now();
   }
 
   private handleBeginSliding() {

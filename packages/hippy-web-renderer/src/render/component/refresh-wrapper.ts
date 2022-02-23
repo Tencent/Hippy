@@ -40,7 +40,7 @@ class RefreshWrapper extends View<HTMLDivElement> {
   }
 
   public defaultStyle() {
-    return { display: 'flex', flexDirection: 'column', overflow: ' hidden', boxSizing: 'border-box' };
+    return { display: 'flex', flexDirection: 'column', overflow: ' hidden', boxSizing: 'border-box', position: 'relative' };
   }
 
   public get bounceTime() {
@@ -63,7 +63,8 @@ class RefreshWrapper extends View<HTMLDivElement> {
     this.pullRefresh?.start();
   }
 
-  public beforeChildMount(child: BaseView, childPosition: number) {
+  public async beforeChildMount(child: BaseView, childPosition: number) {
+    await super.beforeChildMount(child, childPosition);
     if (child.tagName === NodeTag.LIST) {
       setElementStyle(child.dom!, { position: 'relative', zIndex: 2 });
       const refreshHeader = new PullRefresh(child.dom!, this.dom!, this.handlePull);

@@ -21,6 +21,7 @@
 import { ElementProps, NodeTag } from '../module/node-def';
 import { findAnimation } from '../module/animation/animation-impement';
 import { ComponentMap } from '../module/dom-process';
+import { hippyBridge } from '../../types';
 import { rnStyleSupport } from './rn-style-support';
 export interface ProcessType {
   [key: string]: (

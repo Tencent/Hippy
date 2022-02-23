@@ -31,7 +31,7 @@ class Image extends View<HTMLImageElement> {
 
   public set capInsets(value: ImageResizeMode) {
     this.props[NodeProps.CAP_INSETS] = value;
-    // TODO 待实现
+    // TODO to implement
   }
 
   public get capInsets() {

@@ -19,7 +19,7 @@
  */
 import { BaseView, NodeTag, UIProps } from '../../types';
 import { setElementStyle } from '../common';
-const ViewDictionary: {[key: string|number]: BaseView} = {};
+const ViewDictionary: {[key in string|number]: BaseView} = {};
 export class View<T extends HTMLElement> implements BaseView {
   public tagName!: NodeTag;
   public id!: number;
@@ -67,11 +67,11 @@ export class View<T extends HTMLElement> implements BaseView {
     }
   }
 
-  public beforeMount(parent: BaseView, position: number) {
+  public async beforeMount(parent: BaseView, position: number) {
     this.index = position;
   }
 
-  public beforeChildMount(parent: BaseView, childPosition: number) {
+  public async beforeChildMount(child: BaseView, childPosition: number) {
   }
 
   public mounted(): void {
@@ -80,7 +80,7 @@ export class View<T extends HTMLElement> implements BaseView {
   public beforeChildRemove(child: BaseView): void {
   }
 
-  public beforeRemove(): void {
+  public async beforeRemove() {
   }
 
   public findViewById(id: number): BaseView|null {

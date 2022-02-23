@@ -31,7 +31,7 @@ class TextInput extends View<HTMLInputElement> {
 
   public set defaultValue(value: string) {
     this.props[NodeProps.DEFAULT_VALUE] = value;
-    // TODO 待js 逻辑实现
+    // TODO to implement js logic
   }
 
   public get defaultValue() {
@@ -91,7 +91,7 @@ class TextInput extends View<HTMLInputElement> {
 
   public set multiline(value: boolean) {
     this.props[NodeProps.MULTILINE] = value;
-    // TODO 待补充 实现
+    // TODO to implement
   }
 
   public get multiline() {
@@ -100,7 +100,7 @@ class TextInput extends View<HTMLInputElement> {
 
   public set numberOfLines(value: number) {
     this.props[NodeProps.NUMBER_OF_LINES] = value;
-    // TODO 待补充 实现
+    // TODO to implement
   }
 
   public get numberOfLines() {
@@ -197,7 +197,7 @@ class TextInput extends View<HTMLInputElement> {
 
   public hideInputMethod() {
     this.dom?.blur();
-    // TODO h5场景还需要处理滚动问题
+    // TODO to implement, page will scroll when keyboard show
   }
 
   public setValue(value: string) {
@@ -211,8 +211,8 @@ class TextInput extends View<HTMLInputElement> {
     this.dom?.focus();
   }
 
-  public beforeRemove(): void {
-    super.beforeRemove();
+  public async beforeRemove() {
+    await super.beforeRemove();
     document.removeEventListener('selectionchange', this.handleSelection);
     this.dom?.removeEventListener('input', this.handleInput);
     this.dom?.removeEventListener('blur', this.handleBlur);
@@ -227,7 +227,7 @@ class TextInput extends View<HTMLInputElement> {
     const cacheLastSelection = [0, 0];
     const selectionObj = window.getSelection();
     if (document.activeElement === this.dom && this.dom && selectionObj) {
-      // TODO web场景缺失api 导致无法处理 文本重复的情况
+      // TODO can't process text repeat
       const index = this.dom!.value.indexOf(selectionObj.toString());
       if (
         index === cacheLastSelection[0]
