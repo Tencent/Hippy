@@ -23,20 +23,24 @@
 #include "exception_handler.h"
 #include "bridge/string_util.h"
 
+namespace voltron {
 static const uint32_t kRuntimeKeyIndex = 0;
 
 void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime, const unicode_string_view& desc,
                                          const unicode_string_view& stack) {
   TDF_BASE_DLOG(INFO) << "ReportJsException begin";
 
-  auto runtime = runtime->GetBridge()->GetPlatformRuntime();
-  if (runtime->GetBridge()->GetPlatformRuntime()) {
-    const char16_t* exception = StrViewToCU16String(desc);
-    const char16_t* stack_trace = StrViewToCU16String(stack);
+  auto bridge = std::static_pointer_cast<VoltronBridge>(runtime->GetBridge());
 
-    runtime->GetPlatformRuntime()->ReportJSException(exception, stack_trace);
+  if (bridge) {
+    auto platform_runtime = bridge->GetPlatformRuntime();
+    if (platform_runtime) {
+      const char16_t* exception = StrViewToCU16String(desc);
+      const char16_t* stack_trace = StrViewToCU16String(stack);
+
+      platform_runtime->ReportJSException(exception, stack_trace);
+    }
   }
-
   TDF_BASE_DLOG(INFO) << "ReportJsException end";
 }
 
@@ -64,4 +68,5 @@ void ExceptionHandler::HandleUncaughtJsError(v8::Local<v8::Message> message, v8:
   ctx->ThrowExceptionToJS(std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
+}
 }

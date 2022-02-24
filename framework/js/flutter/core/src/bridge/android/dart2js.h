@@ -31,6 +31,7 @@ namespace bridge {
 using bytes = std::string;
 using unicode_string_view = tdf::base::unicode_string_view;
 using CALLFUNCTION_CB_STATE = hippy::runtime::CALL_FUNCTION_CB_STATE;
+using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 
 void CallJSFunction(int64_t runtime_id, const unicode_string_view& action_name, bytes params_data,
                     std::function<void(int64_t)> callback);

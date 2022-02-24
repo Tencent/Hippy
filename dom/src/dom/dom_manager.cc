@@ -57,10 +57,6 @@ bool DomManager::Erase(int32_t id) {
 
 bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
-DomManager::~DomManager() {
-  dom_task_runner_->Terminate();
-}
-
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes = std::move(nodes)]() {
     DEFINE_AND_CHECK_SELF(DomManager)

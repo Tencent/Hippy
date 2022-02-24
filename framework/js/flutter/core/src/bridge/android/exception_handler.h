@@ -26,6 +26,9 @@
 #include <sstream>
 
 #include "core/runtime/v8/runtime.h"
+#include "voltron_bridge.h"
+
+namespace voltron {
 
 class ExceptionHandler {
  public:
@@ -33,8 +36,10 @@ class ExceptionHandler {
 
   ExceptionHandler() = default;
   ~ExceptionHandler() = default;
-  static void ReportJsException(const std::shared_ptr<Runtime>& runtime, const unicode_string_view& desc,
-                                const unicode_string_view& stack);
+  static void ReportJsException(const std::shared_ptr<Runtime> &runtime,
+                                const unicode_string_view &desc,
+                                const unicode_string_view &stack);
 
   static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::Value> error);
 };
+}

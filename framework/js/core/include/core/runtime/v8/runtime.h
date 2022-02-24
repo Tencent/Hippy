@@ -85,6 +85,6 @@ class Runtime {
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<CtxValue> bridge_func_;
   int32_t id_;
-  std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
+//  std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
   std::shared_ptr<Bridge> bridge_;
 };

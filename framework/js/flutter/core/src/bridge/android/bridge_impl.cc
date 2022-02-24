@@ -78,7 +78,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<PlatformRuntime> &platfor
   V8BridgeUtils::SetOnThrowExceptionToJS([](const std::shared_ptr<Runtime>& runtime,
                                             const unicode_string_view& desc,
                                             const unicode_string_view& stack) {
-    ExceptionHandler::ReportJsException(runtime, desc, stack);
+    voltron::ExceptionHandler::ReportJsException(runtime, desc, stack);
   });
   std::shared_ptr<VoltronBridge> bridge = std::make_shared<VoltronBridge>(platform_runtime);
   unicode_string_view global_config = CU16StringToStrView(char_globalConfig);
@@ -248,7 +248,7 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, const 
 
 void BridgeImpl::Destroy(int64_t runtimeId,
                          const std::function<void(int64_t)>& callback) {
-  V8BridgeUtils::DestroyInstance(runtimeId);
+  V8BridgeUtils::DestroyInstance(runtimeId, []() {});
   callback(1);
 }
 

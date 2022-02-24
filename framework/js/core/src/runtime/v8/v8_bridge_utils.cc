@@ -328,7 +328,7 @@ void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
-bool V8BridgeUtils::DestroyInstance(int64_t runtime_id) {
+bool V8BridgeUtils::DestroyInstance(int64_t runtime_id,  const std::function<void()>& callback) {
   TDF_BASE_DLOG(INFO) << "DestroyInstance begin, runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(
       hippy::base::checked_numeric_cast<jlong, int32_t>(runtime_id));
@@ -376,8 +376,9 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id) {
       if (cnt == 1) {
         reuse_engine_map.erase(it);
         auto detach_task = std::make_shared<JavaScriptTask>();
-        detach_task->callback = [] {
-          JNIEnvironment::GetInstance()->DetachCurrentThread();
+        detach_task->callback = [callback] {
+          callback();
+//          JNIEnvironment::GetInstance()->DetachCurrentThread();
         };
         runner->PostTask(detach_task);
         engine->TerminateRunner();

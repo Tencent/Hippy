@@ -39,11 +39,11 @@ void CallDart(hippy::napi::CBDataTuple *data) {
                const unicode_string_view &cb_id,
                bool is_heap_buffer,
                const bytes &buffer) {
-    char16_t *module_name = StrViewToCU16String(module);
-    char16_t *module_func = StrViewToCU16String(func);
-    char16_t *call_id = StrViewToCU16String(cb_id);
-    const char *buffer_data = buffer.c_str();
+    const char16_t *module_name = StrViewToCU16String(module);
+    const char16_t *module_func = StrViewToCU16String(func);
+    const char16_t *call_id = StrViewToCU16String(cb_id);
     int buffer_length = buffer.length();
+    const char *buffer_data = copyCharToChar(buffer.c_str(), buffer_length);
 
     auto bridge = std::static_pointer_cast<VoltronBridge>(runtime->GetBridge());
 

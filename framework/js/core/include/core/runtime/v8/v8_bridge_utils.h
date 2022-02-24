@@ -60,7 +60,7 @@ class V8BridgeUtils {
                               std::shared_ptr<Bridge> bridge,
                               const RegisterFunction& scope_cb,
                               const RegisterFunction& call_native_cb);
-  static bool DestroyInstance(int64_t runtime_id);
+  static bool DestroyInstance(int64_t runtime_id,  const std::function<void()>& callback);
   static bool RunScript(const std::shared_ptr<Runtime>& runtime,
                         const unicode_string_view& file_name,
                         bool is_use_code_cache,

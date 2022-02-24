@@ -56,13 +56,19 @@ void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode> &node) {
   args_map[EncodableValue(kChildIndexKey)] = EncodableValue(render_info.index);
   args_map[EncodableValue(kClassNameKey)] = EncodableValue(view_name);
   args_map[EncodableValue(kParentNodeIdKey)] = EncodableValue(render_info.pid);
-  if (!node->GetStyleMap().empty()) {
-    args_map[EncodableValue(kStylesKey)] =
-        DecodeDomValueMap(node->GetStyleMap());
+  if (!node->GetStyleMap()->empty()) {
+    auto style_map = node->GetStyleMap();
+    if (style_map) {
+      args_map[EncodableValue(kStylesKey)] =
+          DecodeDomValueMap(*style_map);
+    }
   }
-  if (!node->GetExtStyle().empty()) {
-    args_map[EncodableValue(kPropsKey)] =
-        DecodeDomValueMap(node->GetExtStyle());
+  if (!node->GetExtStyle()->empty()) {
+    auto ext_style = node->GetExtStyle();
+    if (ext_style) {
+      args_map[EncodableValue(kPropsKey)] =
+          DecodeDomValueMap(*ext_style);
+    }
   }
 
   auto create_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_NODE,
@@ -80,12 +86,15 @@ void VoltronRenderTaskRunner::RunDeleteDomNode(const Sp<DomNode> &node) {
 void VoltronRenderTaskRunner::RunUpdateDomNode(const Sp<DomNode> &node) {
   TDF_BASE_DLOG(INFO) << "RunUpdateDomNode id" << node->GetId();
   auto args_map = EncodableMap();
-  if (!node->GetDiffStyle().empty()) {
-    args_map[EncodableValue(kPropsKey)] =
-        DecodeDomValueMap(node->GetDiffStyle());
-    auto update_task = std::make_shared<RenderTask>(
-        VoltronRenderOpType::UPDATE_NODE, node->GetId(), args_map);
-    queue_->ProduceRenderOp(update_task);
+  if (!node->GetDiffStyle()->empty()) {
+    auto diff_style = node->GetDiffStyle();
+    if (diff_style) {
+      args_map[EncodableValue(kPropsKey)] =
+          DecodeDomValueMap(*diff_style);
+      auto update_task = std::make_shared<RenderTask>(
+          VoltronRenderOpType::UPDATE_NODE, node->GetId(), args_map);
+      queue_->ProduceRenderOp(update_task);
+    }
   }
 }
 
