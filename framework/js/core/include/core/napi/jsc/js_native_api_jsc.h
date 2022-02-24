@@ -216,10 +216,10 @@ class JSCCtxValue : public CtxValue {
       : context_(context), value_(value) {
     JSValueProtect(context_, value_);
   }
-  JSCCtxValue(const JSCCtxValue&) = delete;
-  JSCCtxValue &operator=(const JSCCtxValue&) = delete;
 
   ~JSCCtxValue() { JSValueUnprotect(context_, value_); }
+  JSCCtxValue(const JSCCtxValue&) = delete;
+  JSCCtxValue &operator=(const JSCCtxValue&) = delete;
 
   JSGlobalContextRef context_;
   JSValueRef value_;
