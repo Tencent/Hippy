@@ -20,27 +20,18 @@
  * limitations under the License.
  */
 
-#import "HippyBridgeModule.h"
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import "HippyTouchesProtocol.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  used for custom touche handler
+ * HippyTouchesView is used to response HippyTouchesProtocol
+ * which is used to handle touches event.
+ * We need to override touchesBegan/touchesEnded/touchesCancelled/touchesMoved methods to handle coresponding event.
  */
-@protocol HippyCustomTouchHandlerProtocol <HippyBridgeModule>
-
-/**
- *  if The following methods return YES, HippyTouchHandler will return,
- * see implements in HippyTouchHandler.m
- */
-@optional
-- (BOOL)customTouchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
-
-- (BOOL)customTouchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
-
-- (BOOL)customTouchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
-
-- (BOOL)customTouchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event;
-
-- (BOOL)customReset;
+@interface HippyTouchesView : UIView<HippyTouchesProtocol>
 
 @end
+
+NS_ASSUME_NONNULL_END

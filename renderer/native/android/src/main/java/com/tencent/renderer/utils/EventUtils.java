@@ -13,35 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.uimanager;
+
+package com.tencent.renderer.utils;
 
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
-public class HippyViewEvent {
+public class EventUtils {
+    public static final String EVENT_IMAGE_ON_LOAD = "load";
+    public static final String EVENT_IMAGE_LOAD_ERROR = "error";
+    public static final String EVENT_IMAGE_LOAD_END = "loadend";
+    public static final String EVENT_IMAGE_LOAD_START = "loadstart";
 
-    private final String mEventName;
-
-    public HippyViewEvent(@NonNull String eventName) {
-        mEventName = eventName;
-    }
-
-    public void send(@NonNull View view, @Nullable Object params) {
+    public static void send(@NonNull View view, @NonNull String eventName,
+            @Nullable Object params) {
         if (view.getContext() instanceof NativeRenderContext) {
             int instanceId = ((NativeRenderContext) view.getContext()).getInstanceId();
             NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-            send(view.getId(), nativeRenderer, params);
+            send(view.getId(), nativeRenderer, eventName, params);
         }
     }
 
-    public void send(int id, @Nullable NativeRender nativeRenderer, @Nullable Object params) {
+    public static void send(int id, @Nullable NativeRender nativeRenderer,
+            @NonNull String eventName, @Nullable Object params) {
         if (nativeRenderer != null) {
-            nativeRenderer.dispatchUIComponentEvent(id, mEventName, params);
+            nativeRenderer.dispatchUIComponentEvent(id, eventName, params);
         }
     }
 }

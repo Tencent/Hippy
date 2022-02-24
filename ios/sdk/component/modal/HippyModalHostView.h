@@ -27,7 +27,6 @@
 #import "HippyView.h"
 
 @class HippyBridge;
-@class HippyTouchHandler;
 @class HippyModalHostViewController;
 
 @protocol HippyModalHostViewInteractor;
@@ -50,7 +49,6 @@
 @property (nonatomic, readonly) HippyBridge *bridge;
 @property (nonatomic, readonly) BOOL isPresented;
 @property (nonatomic, strong) HippyModalHostViewController *modalViewController;
-@property (nonatomic, readonly) HippyTouchHandler *touchHandler;
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)notifyForBoundsChange:(CGRect)newBounds;

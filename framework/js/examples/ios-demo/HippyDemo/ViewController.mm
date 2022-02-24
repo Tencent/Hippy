@@ -116,6 +116,7 @@
     //you need hold dom mananger
     HippyUIManager *uiManager = [_bridge moduleForName:@"UIManager"];
     _domManager = std::make_shared<hippy::DomManager>(rootTag);
+    _domManager->StartTaskRunner();
     [uiManager setDomManager:_domManager];
     
     //step5: set root view size for dom_manager

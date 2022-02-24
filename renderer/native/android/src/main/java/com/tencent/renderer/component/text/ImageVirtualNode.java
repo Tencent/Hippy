@@ -15,7 +15,6 @@
  */
 package com.tencent.renderer.component.text;
 
-
 import static com.tencent.mtt.hippy.dom.node.NodeProps.IMAGE_SPAN_TEXT;
 
 import android.graphics.Bitmap;
@@ -26,121 +25,126 @@ import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.views.image.HippyImageView;
-import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
-import java.util.ArrayList;
+import com.tencent.renderer.NativeRender;
 import java.util.List;
 
 public class ImageVirtualNode extends VirtualNode {
 
     public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
-    private float width = 0.0f;
-    private float height = 0.0f;
-    private @Nullable
-    TextImageSpan imageSpan;
-    private @Nullable
-    String url;
-    private @Nullable
-    String defaultSource;
-    private int verticalAlignment = ImageSpan.ALIGN_BASELINE;
-    private final boolean[] shouldSendImageEvent;
-    private @Nullable
-    ArrayList<String> gestureTypes;
-    protected final IImageLoaderAdapter imageAdapter;
+    protected int mWidth;
+    protected int mHeight;
+    protected int mLeft;
+    protected int mTop;
+    protected int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
+    @Nullable
+    protected TextImageSpan mImageSpan;
+    @Nullable
+    protected String mUrl;
+    @Nullable
+    protected String mDefaultSource;
+    @NonNull
+    private final NativeRender mNativeRenderer;
 
-    public ImageVirtualNode(int id, int pid, int index, IImageLoaderAdapter adapter) {
+    public ImageVirtualNode(int id, int pid, int index, @NonNull NativeRender nativeRender) {
         super(id, pid, index);
-        imageAdapter = adapter;
-        shouldSendImageEvent = new boolean[ImageEvent.values().length];
+        mNativeRenderer = nativeRender;
     }
 
-    @HippyControllerProps(name = NodeProps.WIDTH, defaultType = HippyControllerProps.NUMBER)
-    public void setWidth(float width) {
-        this.width = PixelUtil.dp2px(width);
-    }
-
-    @HippyControllerProps(name = NodeProps.HEIGHT, defaultType = HippyControllerProps.NUMBER)
-    public void setHeight(float height) {
-        this.height = PixelUtil.dp2px(height);
-    }
-
-    @Override
-    protected void createSpanOperation(List<SpanOperation> ops,
-            SpannableStringBuilder builder, boolean useChild) {
+    @NonNull
+    protected TextImageSpan createImageSpan() {
         Drawable drawable = null;
-        if (!TextUtils.isEmpty(defaultSource) && imageAdapter != null) {
-            IDrawableTarget hippyDrawable = imageAdapter.getImage(defaultSource, null);
+        IImageLoaderAdapter imageLoaderAdapter = mNativeRenderer.getImageLoaderAdapter();
+        if (!TextUtils.isEmpty(mDefaultSource) && imageLoaderAdapter != null) {
+            IDrawableTarget hippyDrawable = imageLoaderAdapter.getImage(mDefaultSource, null);
             Bitmap bitmap = hippyDrawable.getBitmap();
             if (bitmap != null) {
                 drawable = new BitmapDrawable(bitmap);
             }
         }
         if (drawable == null) {
-            drawable = new ColorDrawable(Color.parseColor("#00000000"));
+            drawable = new ColorDrawable(Color.WHITE);
         }
-        drawable.setBounds(0, 0, Math.round(width), Math.round(height));
-//        imageSpan = new TextImageSpan(drawable, url, this, imageAdapter,
-//                engineContext);
+        drawable.setBounds(0, 0, mWidth, mHeight);
+        return new TextImageSpan(drawable, mUrl, this, mNativeRenderer);
+    }
+
+    @Override
+    protected void createSpanOperation(List<SpanOperation> ops,
+            SpannableStringBuilder builder, boolean useChild) {
+        mImageSpan = createImageSpan();
         int start = builder.length();
         builder.append(IMAGE_SPAN_TEXT);
         int end = start + IMAGE_SPAN_TEXT.length();
-        ops.add(new SpanOperation(start, end, imageSpan));
+        ops.add(new SpanOperation(start, end, mImageSpan));
+        if (mGestureTypes != null && mGestureTypes.size() > 0) {
+            TextGestureSpan span = new TextGestureSpan(mId);
+            span.addGestureTypes(mGestureTypes);
+            ops.add(new SpanOperation(start, end, span));
+        }
     }
 
-    public void setImageSpan(TextImageSpan imageSpan) {
-        imageSpan = imageSpan;
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.WIDTH, defaultType = HippyControllerProps.NUMBER)
+    public void setWidth(float width) {
+        mWidth = Math.round(PixelUtil.dp2px(width));
+        markDirty();
     }
 
-    public boolean isEnableImageEvent(ImageEvent event) {
-        return shouldSendImageEvent[event.ordinal()];
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.HEIGHT, defaultType = HippyControllerProps.NUMBER)
+    public void setHeight(float height) {
+        mHeight = Math.round(PixelUtil.dp2px(height));
+        markDirty();
     }
 
-    public int getVerticalAlignment() {
-        return verticalAlignment;
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.LEFT, defaultType = HippyControllerProps.NUMBER)
+    public void setLeft(float left) {
+        float lpx = PixelUtil.dp2px(left);
+        mLeft = (Float.isNaN(lpx)) ? 0 : Math.round(lpx);
+        markDirty();
     }
 
-    public ArrayList<String> getGestureTypes() {
-        return gestureTypes;
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.TOP, defaultType = HippyControllerProps.NUMBER)
+    public void setTop(float top) {
+        float tpx = PixelUtil.dp2px(top);
+        mTop = (Float.isNaN(tpx)) ? 0 : Math.round(tpx);
+        markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER, defaultNumber = ImageSpan.ALIGN_BASELINE)
     public void setVerticalAlignment(int alignment) {
-        verticalAlignment = alignment;
+        if (alignment != mVerticalAlignment) {
+            mVerticalAlignment = alignment;
+            if (mImageSpan != null) {
+                mImageSpan.setVerticalAlignment(alignment);
+            }
+        }
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "defaultSource", defaultType = HippyControllerProps.STRING)
     public void setDefaultSource(String defaultSource) {
-        this.defaultSource = defaultSource;
+        mDefaultSource = defaultSource;
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING)
     public void setUrl(String src) {
-        url = src;
-        if (imageSpan != null) {
-            imageSpan.setUrl(url);
+        if (mUrl == null || !mUrl.equals(src)) {
+            mUrl = src;
+            if (mImageSpan != null) {
+                mImageSpan.setUrl(src);
+            }
         }
-    }
-
-    @SuppressWarnings("unused")
-    @HippyControllerProps(name = "onLoad", defaultType = HippyControllerProps.BOOLEAN)
-    public void setOnLoadEnd(boolean enable) {
-        shouldSendImageEvent[ImageEvent.ONLOAD.ordinal()] = enable;
-    }
-
-    @SuppressWarnings("unused")
-    @HippyControllerProps(name = "onError", defaultType = HippyControllerProps.BOOLEAN)
-    public void setOnError(boolean enable) {
-        shouldSendImageEvent[ImageEvent.ONERROR.ordinal()] = enable;
     }
 }

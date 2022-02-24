@@ -392,22 +392,22 @@ public class DomManager {
 //      });
 //    }
     //step2: move child
-    final ArrayList<Integer> moveIds = new ArrayList<>();
-    node.markUpdated();
-    findMoveChildren(node, moveIds);
-    node.setIsJustLayout(false);
-
-    if (!node.isVirtual()) {
-      addUITask(new IDomExecutor() {
-        @Override
-        public void exec() {
-          mRenderManager.moveNode(moveIds, reallyParent.getId(), node.getId());
-        }
-      });
-    }
-    //step3:updateStyle Layout
-    applyLayoutUpdateRecursive(node);
-    mTagsWithLayoutVisited.clear();
+//    final ArrayList<Integer> moveIds = new ArrayList<>();
+//    node.markUpdated();
+//    findMoveChildren(node, moveIds);
+//    node.setIsJustLayout(false);
+//
+//    if (!node.isVirtual()) {
+//      addUITask(new IDomExecutor() {
+//        @Override
+//        public void exec() {
+//          mRenderManager.moveNode(moveIds, reallyParent.getId(), node.getId());
+//        }
+//      });
+//    }
+//    //step3:updateStyle Layout
+//    applyLayoutUpdateRecursive(node);
+//    mTagsWithLayoutVisited.clear();
 
   }
 

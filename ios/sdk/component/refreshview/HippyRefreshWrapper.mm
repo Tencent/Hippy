@@ -24,13 +24,16 @@
 #import "UIView+Hippy.h"
 #import "HippyRefreshWrapperItemView.h"
 #import "HippyScrollableProtocol.h"
+
 @interface HippyRefreshWrapper () <UIScrollViewDelegate>
+
 @property (nonatomic, weak) HippyRefreshWrapperItemView *wrapperItemView;
 @property (nonatomic, weak) id<HippyScrollableProtocol> scrollableView;
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, assign) CGFloat bounceTime;
-@property (nonatomic, weak) HippyBridge *bridge;
+
 @end
+
 @implementation HippyRefreshWrapper
 - (void)addSubview:(UIView *)view {
     if (view != _wrapperItemView) {

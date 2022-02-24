@@ -31,20 +31,23 @@
 @end
 
 static hippy::LayoutSize x5MeasureFunc(
-                            HippyShadowTextView *shadowText,
+                            HippyShadowTextView *weakShadowText,
                             float width, hippy::LayoutMeasureMode widthMeasureMode, float height,
                             hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
-    NSString *text = shadowText.text ?: shadowText.placeholder;
-    if (nil == shadowText.dicAttributes) {
-        if (shadowText.font == nil) {
-            shadowText.font = [UIFont systemFontOfSize:16];
-        }
-        shadowText.dicAttributes = @ { NSFontAttributeName: shadowText.font };
-    }
-    CGSize computedSize = [text sizeWithAttributes:shadowText.dicAttributes];
     hippy::LayoutSize result;
-    result.width = HippyCeilPixelValue(computedSize.width);
-    result.height = HippyCeilPixelValue(computedSize.height);
+    if (weakShadowText) {
+        HippyShadowTextView *strongShadowText = weakShadowText;
+        NSString *text = strongShadowText.text ?: strongShadowText.placeholder;
+        if (nil == strongShadowText.dicAttributes) {
+            if (strongShadowText.font == nil) {
+                strongShadowText.font = [UIFont systemFontOfSize:16];
+            }
+            strongShadowText.dicAttributes = @ { NSFontAttributeName: strongShadowText.font };
+        }
+        CGSize computedSize = [text sizeWithAttributes:strongShadowText.dicAttributes];
+        result.width = HippyCeilPixelValue(computedSize.width);
+        result.height = HippyCeilPixelValue(computedSize.height);
+    }
     return result;
 }
 
@@ -57,17 +60,22 @@ static hippy::LayoutSize x5MeasureFunc(
     return self;
 }
 
-- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
-    [super setDomNode:domNode];
-    std::shared_ptr<hippy::DomNode> node = domNode.lock();
-    if (node) {
-        hippy::dom::MeasureFunction measureFunc =
-            [shadow_view = self](float width, hippy::LayoutMeasureMode widthMeasureMode, float height,
-                                 hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
-            return x5MeasureFunc(shadow_view, width, widthMeasureMode,
-                                   height, heightMeasureMode, layoutContext);
-        };
-        node->GetLayoutNode()->SetMeasureFunction(measureFunc);
+- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
+    [super setDomManager:domManager];
+    auto shared_domNode = domManager.lock();
+    if (shared_domNode) {
+        int32_t hippyTag = [self.hippyTag intValue];
+        auto node = shared_domNode->GetNode(hippyTag);
+        if (node) {
+            __weak HippyShadowTextView *weakSelf = self;
+            hippy::MeasureFunction measureFunc =
+                [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
+                                     float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
+                return x5MeasureFunc(weakSelf, width, widthMeasureMode,
+                                       height, heightMeasureMode, layoutContext);
+            };
+            node->GetLayoutNode()->SetMeasureFunction(measureFunc);
+        }
     }
 }
 

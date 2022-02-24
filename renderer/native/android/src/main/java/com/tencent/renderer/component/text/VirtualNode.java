@@ -25,19 +25,35 @@ import java.util.List;
 
 public abstract class VirtualNode {
 
-    private static final String TAG = "VirtualNode";
     protected final int mId;
     protected final int mPid;
     protected final int mIndex;
     protected boolean mDirty = true;
-    protected @Nullable List<VirtualNode> mChildren;
-    protected @Nullable VirtualNode mParent;
-    protected @Nullable ArrayList<String> mGestureTypes = null;
+    @Nullable
+    protected List<VirtualNode> mChildren;
+    @Nullable
+    protected VirtualNode mParent;
+    @Nullable
+    protected ArrayList<String> mGestureTypes = null;
 
     public VirtualNode(int id, int pid, int index) {
         mId = id;
         mPid = pid;
         mIndex = index;
+    }
+
+    public int getId() {
+        return mId;
+    }
+
+    public int getAncestorId() {
+        VirtualNode parent = mParent;
+        int id = mId;
+        while (parent != null) {
+            id = parent.getId();
+            parent = parent.mParent;
+        }
+        return id;
     }
 
     protected abstract void createSpanOperation(List<SpanOperation> ops,
@@ -72,8 +88,7 @@ public abstract class VirtualNode {
 
     public void addChildAt(@NonNull VirtualNode child, int index) {
         if (child.mParent != null) {
-            throw new IllegalStateException(
-                    TAG + ": addChildAt: Child already has a parent, it must be removed first.");
+            return;
         }
         if (mChildren == null) {
             mChildren = new ArrayList<>(4);
@@ -82,8 +97,8 @@ public abstract class VirtualNode {
         child.mParent = this;
     }
 
-    public @Nullable
-    VirtualNode getChildAt(int index) {
+    @Nullable
+    public VirtualNode getChildAt(int index) {
         if (mChildren == null) {
             return null;
         }

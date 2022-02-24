@@ -21,8 +21,9 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "HippyTouchesView.h"
 
-@interface HippyText : UIView {
+@interface HippyText : HippyTouchesView {
 @protected
     NSTextStorage *_textStorage;
     CAShapeLayer *_highlightLayer;

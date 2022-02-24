@@ -25,18 +25,6 @@
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HippyShadowView.h"
-#import "dom/dom_listener.h"
-
-@interface HippyViewPropertyWrapper : NSObject
-
-@property (nonatomic, assign)std::weak_ptr<hippy::DomNode> domNode;
-@property (nonatomic, weak) id<HippyComponent> parent;
-
-@end
-
-@implementation HippyViewPropertyWrapper
-
-@end
 
 #define HippyEventMethod(name, value, type)                                                       \
     -(void)set##name : (type)value {                                                              \
@@ -102,28 +90,6 @@
 
 - (void)setTagName:(NSString *)tagName {
     objc_setAssociatedObject(self, @selector(tagName), tagName, OBJC_ASSOCIATION_COPY_NONATOMIC);
-}
-
-- (std::weak_ptr<hippy::DomNode>)domNode {
-    HippyViewPropertyWrapper *wrapper = objc_getAssociatedObject(self, _cmd);
-    return wrapper.domNode;
-}
-
-- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
-    HippyViewPropertyWrapper *wrapper = [[HippyViewPropertyWrapper alloc] init];
-    wrapper.domNode = domNode;
-    objc_setAssociatedObject(self, @selector(domNode), wrapper, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (void)setParent:(id<HippyComponent>)parent {
-    HippyViewPropertyWrapper *object = [[HippyViewPropertyWrapper alloc] init];
-    object.parent = parent;
-    objc_setAssociatedObject(self, @selector(parent), object, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (id<HippyComponent>)parent {
-    HippyViewPropertyWrapper *object = objc_getAssociatedObject(self, @selector(parent));
-    return object.parent;
 }
 
 // clang-format off
@@ -223,6 +189,16 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
         [subviews removeAllObjects];
     }
     [self clearSortedSubviews];
+}
+
+- (UIView *)hippyRootView {
+    UIView *candidateRootView = self;
+    BOOL isHippyRootView = [candidateRootView isHippyRootView];
+    while (!isHippyRootView && !candidateRootView) {
+        candidateRootView = [candidateRootView superview];
+        isHippyRootView = [candidateRootView isHippyRootView];
+    }
+    return candidateRootView;
 }
 
 - (NSInteger)hippyZIndex {
@@ -352,164 +328,4 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     return YES;
 }
 
-@end
-
-@interface HippyViewEventInfo : NSObject
-
-@property(nonatomic, assign) NSInteger index;
-@property(nonatomic, assign) HippyViewEventType touchType;
-@property(nonatomic, copy) onTouchEventListener listener;
-
-@end
-
-@implementation HippyViewEventInfo
-
-@end
-
-HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name) {
-    HippyViewEventType type = HippyViewEventTypeUnknown;
-    if (hippy::kClickEvent == name) {
-        type = HippyViewEventTypeClick;
-    }
-    else if (hippy::kLongClickEvent == name) {
-        type = HippyViewEventTypeLongClick;
-    }
-    else if (hippy::kTouchStartEvent == name) {
-        type = HippyViewEventTypeTouchStart;
-    }
-    else if (hippy::kTouchMoveEvent == name) {
-        type = HippyViewEventTypeTouchMove;
-    }
-    else if (hippy::kTouchEndEvent == name) {
-        type = HippyViewEventTypeTouchEnd;
-    }
-    else if (hippy::kTouchCancelEvent == name) {
-        type = HippyViewEventTypeTouchCancel;
-    }
-    else if (hippy::kLayoutEvent == name) {
-        type = HippyViewEventTypeLayout;
-    }
-    else if (hippy::kShowEvent == name) {
-        type = HippyViewEventTypeShow;
-    }
-    else if (hippy::kDismissEvent == name) {
-        type = HippyViewEventTypeDismiss;
-    }
-    return type;
-}
-
-@implementation UIView(HippyEvent)
-
-- (NSMutableArray<HippyViewEventInfo *> *)allTouchInfos {
-    return objc_getAssociatedObject(self, _cmd);
-}
-
-- (NSInteger)addTouchInfo:(HippyViewEventInfo *)touchInfo {
-    if (!touchInfo) {
-        return -1;
-    }
-    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
-    if (!values) {
-        values = [NSMutableArray arrayWithCapacity:8];
-        objc_setAssociatedObject(self, @selector(allTouchInfos), values, OBJC_ASSOCIATION_RETAIN);
-    }
-    HippyViewEventInfo *touchInfoValue = [values lastObject];
-    NSInteger index = 0;
-    if (touchInfoValue) {
-        index = touchInfoValue.index + 1;
-    }
-    touchInfo.index = index;
-    [values addObject:touchInfo];
-    return index;
-}
-
-- (NSInteger)addViewEvent:(HippyViewEventType)touchEvent eventListener:(onTouchEventListener)listener {
-    HippyViewEventInfo *touchInfo = [[HippyViewEventInfo alloc] init];
-    touchInfo.touchType = touchEvent;
-    touchInfo.listener = listener;
-    return [self addTouchInfo:touchInfo];
-}
-
-- (onTouchEventListener)eventListenerForEventType:(HippyViewEventType)eventType {
-    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
-    __block onTouchEventListener listener = NULL;
-    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (eventType == obj.touchType) {
-            listener = obj.listener;
-            *stop = YES;
-        }
-    }];
-    return listener;
-}
-
-- (void)removeViewEvent:(HippyViewEventType)touchEvent {
-    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
-    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (touchEvent == obj.touchType) {
-            [indexSet addIndex:idx];
-        }
-    }];
-    [values removeObjectsAtIndexes:indexSet];
-}
-
-- (void)removeViewEventByID:(NSInteger)touchID {
-    NSMutableArray<HippyViewEventInfo *> *values = [self allTouchInfos];
-    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    [values enumerateObjectsUsingBlock:^(HippyViewEventInfo * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (touchID == obj.index) {
-            [indexSet addIndex:idx];
-            *stop = YES;
-        }
-    }];
-    [values removeObjectsAtIndexes:indexSet];
-}
-
-- (void)addRenderEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
-    //try to contrustor origin setter
-    char n = std::toupper(name.at(0));
-    NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
-    SEL selector = NSSelectorFromString(setterName);
-    @try {
-        if ([self respondsToSelector:selector]) {
-            void *cb = (__bridge void *)callback;
-            NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
-            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
-            [invocation setTarget:self];
-            [invocation setSelector:selector];
-            [invocation setArgument:&cb atIndex:2];
-            [invocation invoke];
-        }
-    } @catch (NSException *exception) {
-        
-    }
-}
-
-- (void)removeRenderEvent:(const std::string &)name {
-    //try to contrustor origin setter
-    char n = std::toupper(name.at(0));
-    NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
-    SEL selector = NSSelectorFromString(setterName);
-    @try {
-        if ([self respondsToSelector:selector]) {
-            HippyDirectEventBlock cb = NULL;
-            NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
-            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
-            [invocation setTarget:self];
-            [invocation setSelector:selector];
-            [invocation setArgument:&cb atIndex:2];
-            [invocation invoke];
-        }
-    } @catch (NSException *exception) {
-        
-    }
-}
-
-- (BOOL)canBePreventedByInCapturing:(const std::string &)name {
-    return NO;
-}
-
-- (BOOL)canBePreventInBubbling:(const std::string &)name {
-    return NO;
-}
 @end

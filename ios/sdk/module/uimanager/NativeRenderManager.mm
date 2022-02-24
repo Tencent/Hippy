@@ -30,62 +30,57 @@ using LayoutResult = hippy::LayoutResult;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
-    __block auto block_nodes = std::move(nodes);
-//    create nodes needs load syncronizely for setting measure function for Text
-    dispatch_sync(HippyGetUIManagerQueue(), ^{
-        [uiManager_ createRenderNodes:std::move(block_nodes)];
-    });
+    @autoreleasepool {
+        [uiManager_ createRenderNodes:std::move(nodes)];
+    }
 }
 
 void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    __block auto block_nodes = std::move(nodes);
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [uiManager_ updateRenderNodes:std::move(block_nodes)];
-    });
+    @autoreleasepool {
+        [uiManager_ updateRenderNodes:std::move(nodes)];
+    }
 }
 
 void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-    __block auto block_nodes = std::move(nodes);
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [uiManager_ deleteRenderNodesIds:std::move(block_nodes)];
-    });
+    @autoreleasepool {
+        [uiManager_ deleteRenderNodesIds:std::move(nodes)];
+    }
 }
 
 void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-    using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult, bool, std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>>;
-    std::vector<DomNodeUpdateInfoTuple> nodes_infos;
-    nodes_infos.resize(nodes.size());
-    for (auto node : nodes) {
-        int32_t tag = node->GetId();
-        hippy::LayoutResult layoutResult = node->GetLayoutResult();
-        auto extStyle = node->GetExtStyle();
-        auto it = extStyle->find("useAnimation");
-        bool useAnimation = false;
-        if (extStyle->end() != it) {
-            auto dom_value = it->second;
-            useAnimation = dom_value->ToBoolean();
+    @autoreleasepool {
+        using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult, bool, std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>>;
+        std::vector<DomNodeUpdateInfoTuple> nodes_infos;
+        nodes_infos.resize(nodes.size());
+        for (auto node : nodes) {
+            int32_t tag = node->GetId();
+            hippy::LayoutResult layoutResult = node->GetLayoutResult();
+            auto extStyle = node->GetExtStyle();
+            auto it = extStyle->find("useAnimation");
+            bool useAnimation = false;
+            if (extStyle->end() != it) {
+                auto dom_value = it->second;
+                useAnimation = dom_value->ToBoolean();
+            }
+            DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
+            nodes_infos.push_back(nodeUpdateInfo);
         }
-        DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
-        nodes_infos.push_back(nodeUpdateInfo);
-    }
-    dispatch_async(HippyGetUIManagerQueue(), ^{
         [uiManager_ updateNodesLayout:nodes_infos];
-    });
+    }
 }
 
 void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
                                       int32_t pid,
                                       int32_t id) {
-    __block auto block_ids = std::move(ids);
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [uiManager_ renderMoveViews:std::move(block_ids) fromContainer:pid toContainer:id];
-    });
+    @autoreleasepool {
+        [uiManager_ renderMoveViews:std::move(ids) fromContainer:pid toContainer:id];
+    }
 }
 
 void NativeRenderManager::EndBatch() {
-    dispatch_async(HippyGetUIManagerQueue(), ^{
+    @autoreleasepool {
         [uiManager_ batch];
-    });
+    }
 }
 
 void NativeRenderManager::BeforeLayout() {}
@@ -93,37 +88,37 @@ void NativeRenderManager::BeforeLayout() {}
 void NativeRenderManager::AfterLayout() {}
 
 void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-    auto node = dom_node.lock();
-    if (node) {
-        int32_t tag = node->GetId();
-        std::string name_ = name;
-        dispatch_async(HippyGetUIManagerQueue(), ^{
-            [uiManager_ addEventName:name_ forDomNodeId:tag];
-        });
+    @autoreleasepool {
+        auto node = dom_node.lock();
+        if (node) {
+            int32_t tag = node->GetId();
+            [uiManager_ addEventName:name forDomNodeId:tag];
+        }
     }
 };
 
 void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) {
-    auto node = dom_node.lock();
-    if (node) {
-        int32_t node_id = node->GetId();
-        std::string name_ = name;
-        dispatch_async(HippyGetUIManagerQueue(), ^{
-            [uiManager_ removeEventName:name_ forDomNodeId:node_id];
-        });
+    @autoreleasepool {
+        auto node = dom_node.lock();
+        if (node) {
+            int32_t node_id = node->GetId();
+            [uiManager_ removeEventName:name forDomNodeId:node_id];
+        }
     }
 }
 
 void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
                                     const DomArgument& param,
                                     uint32_t cb) {
-    std::shared_ptr<DomNode> node = dom_node.lock();
-    if (node) {
-        DomValue dom_value;
-        param.ToObject(dom_value);
-        [uiManager_ dispatchFunction:name viewName:node->GetViewName()
-                             viewTag:node->GetId() params:dom_value
-                            callback:node->GetCallback(name, cb)];
+    @autoreleasepool {
+        std::shared_ptr<DomNode> node = dom_node.lock();
+        if (node) {
+            DomValue dom_value;
+            param.ToObject(dom_value);
+            [uiManager_ dispatchFunction:name viewName:node->GetViewName()
+                                 viewTag:node->GetId() params:dom_value
+                                callback:node->GetCallback(name, cb)];
+        }
+        EndBatch();
     }
-    EndBatch();
 }

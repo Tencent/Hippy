@@ -219,7 +219,7 @@ public class VirtualNodeManager {
         if (className.equals(TEXT_CLASS_NAME)) {
             node = new TextVirtualNode(id, pid, index, mNativeRender.getFontAdapter());
         } else if (className.equals(IMAGE_CLASS_NAME) && parent != null) {
-            node = new ImageVirtualNode(id, pid, index, mNativeRender.getImageLoaderAdapter());
+            node = new ImageVirtualNode(id, pid, index, mNativeRender);
         } else {
             // Only text or text child need to create virtual node.
             return;

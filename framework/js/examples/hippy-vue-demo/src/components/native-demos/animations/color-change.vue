@@ -35,7 +35,7 @@ const backgroundColorAnimation = {
       mode: 'timing',
       timingFunction: 'linear',
       follow: true,
-      repeatCount: -1,
+      repeatCount: -1, // 'loop' string supported above 2.12.2
     },
   ],
 };

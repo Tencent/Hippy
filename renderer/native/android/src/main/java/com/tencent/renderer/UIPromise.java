@@ -15,6 +15,7 @@
  */
 package com.tencent.renderer;
 
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.modules.Promise;
 
 public class UIPromise implements Promise {
@@ -22,6 +23,7 @@ public class UIPromise implements Promise {
     private final int mNodeId;
     private final int mInstanceId;
     private final long mCallbackId;
+    @Nullable
     private final String mFunctionName;
 
     public UIPromise(long callbackId, String functionName, int nodeId, int instanceId) {

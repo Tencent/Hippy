@@ -528,12 +528,12 @@ nlohmann::json DomNode::ParseNodeProps(
 }
 #endif
 
-
-void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
+                               const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, update_style]() {
+    dom_manager->PostTask([WEAK_THIS, update_style, update_dom_ext]() {
       DEFINE_AND_CHECK_SELF(DomNode)
       for (const auto& v : update_style) {
         if (self->style_map_ == nullptr) {
@@ -553,17 +553,8 @@ void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<
           iter->second = std::make_shared<DomValue>(std::move(*v.second));
         }
       }
-    });
-  }
-}
 
-void DomNode::UpdateDomStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, update_style]() {
-      DEFINE_AND_CHECK_SELF(DomNode)
-      for (const auto& v : update_style) {
+      for (const auto& v : update_dom_ext) {
         if (self->dom_ext_map_ == nullptr) {
           self->dom_ext_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
         }
@@ -581,6 +572,14 @@ void DomNode::UpdateDomStyle(const std::unordered_map<std::string, std::shared_p
           iter->second = std::make_shared<DomValue>(std::move(*v.second));
         }
       }
+
+      // update Render Node
+      auto dom_manager = self->dom_manager_.lock();
+      TDF_BASE_DCHECK(dom_manager);
+      if(dom_manager) {
+        dom_manager->UpdateRenderNode(self->shared_from_this());
+      }
+
     });
   }
 }

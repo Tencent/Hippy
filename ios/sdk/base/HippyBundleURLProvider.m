@@ -71,7 +71,7 @@ NSString *const HippyBundleURLSchemetHttps = @"https";
         _localhostPort = @"38989";
         self.debugPathUrl = @"/index.bundle?platform=ios&dev=true&minify=false";
         // websocket url after url encode
-        //_wsURL = @"debugURL=wss%3A%2F%2Fdevtools.hippy.myqcloud.com%3A443%2Fdebugger-proxy";
+        //_wsURL = @"debugUrl=wss%3A%2F%2Fdevtools.hippy.myqcloud.com%3A443%2Fdebugger-proxy";
     }
     return self;
 }

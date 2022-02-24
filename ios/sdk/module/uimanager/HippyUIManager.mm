@@ -47,6 +47,7 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "OCTypeToDomArgument.h"
+#import "UIView+HippyEvent.h"
 #include <mutex>
 
 using DomValue = tdf::base::DomValue;
@@ -126,6 +127,7 @@ NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNot
     = @"HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification";
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
+NSString *const HippyUIManagerBridgeKey = @"HippyUIManagerBridgeKey";
 NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
 
 @interface HippyUIManager() {
@@ -271,8 +273,10 @@ HIPPY_EXPORT_MODULE()
         auto domManager = _domManager.lock();
         if (domManager) {
             auto func = [hippyTag, domManager, resultBlock](){
-                auto node = domManager->GetNode(hippyTag);
-                resultBlock(node);
+                @autoreleasepool {
+                    auto node = domManager->GetNode(hippyTag);
+                    resultBlock(node);
+                }
             };
             domManager->PostTask(func);
         }
@@ -368,7 +372,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     });
 
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRegisterRootViewNotification object:self
-                                                      userInfo:@{ HippyUIManagerRootViewKey: rootView }];
+                                                      userInfo:@{ HippyUIManagerRootViewKey: rootView , HippyUIManagerBridgeKey: self.bridge}];
 }
 
 
@@ -542,7 +546,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         shadowView.bridge = self.bridge;
         shadowView.viewName = viewName;
         shadowView.props = newProps;
-        shadowView.domNode = domNode;
+        shadowView.domManager = _domManager;
+        shadowView.nodeLayoutResult = domNode->GetLayoutResult();
         shadowView.frame = CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
         [componentData setProps:newProps forShadowView:shadowView];
         _shadowViewRegistry[hippyTag] = shadowView;
@@ -553,7 +558,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [self addUIBlock:^(HippyUIManager *uiManager, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
             UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootTag properties:newProps viewName:viewName];
             view.hippyShadowView = shadowView;
-            view.domNode = node_;
         }];
     }
 }
@@ -765,7 +769,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     // First copy the previous blocks into a temporary variable, then reset the
     // pending blocks to a new array. This guards against mutation while
     // processing the pending blocks in another thread.
-    HippyAssertThread(HippyGetUIManagerQueue(), @"flushUIBlocks can only be called from the shadow queue");
     NSArray<HippyViewManagerUIBlock> *previousPendingUIBlocks = _pendingUIBlocks;
     _pendingUIBlocks = [NSMutableArray new];
     __weak HippyUIManager *weakManager = self;
@@ -795,7 +798,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
  *
  */
 - (void)createRenderNodes:(std::vector<std::shared_ptr<DomNode>> &&)nodes {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"createRenderNodes can only be called from the shadow queue");
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     HippyViewsRelation *manager = [[HippyViewsRelation alloc] init];
     for (const std::shared_ptr<DomNode> &node : nodes) {
@@ -831,7 +833,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)updateRenderNodes:(std::vector<std::shared_ptr<DomNode>>&&)nodes {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"updateRenderNodes can only be called from the shadow queue");
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (const auto &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
@@ -845,28 +846,31 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)deleteRenderNodesIds:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"deleteRenderNodesIds can only be called from the shadow queue");
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetId();
         HippyShadowView *shadowView = _shadowViewRegistry[@(tag)];
         [shadowView removeFromHippySuperview];
+        [_shadowViewRegistry removeObjectForKey:@(tag)];
+        __weak auto weakSelf = self;
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = viewRegistry[@(tag)];
             [view removeFromHippySuperview];
+            if (weakSelf) {
+                auto strongSelf = weakSelf;
+                [strongSelf->_viewRegistry removeObjectForKey:@(tag)];
+            }
         }];
     }
 }
 
 - (void)renderMoveViews:(const std::vector<int32_t> &&)ids
           fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"renderMoveViews can only be called from the shadow queue");
     HippyAssert(NO, @"no implementation for this method");
 }
 
 - (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult, bool,
                            std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>>> &)layoutInfos {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"updateNodesId can only be called from the shadow queue");
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (auto &layoutInfoTuple : layoutInfos) {
         int32_t tag = std::get<0>(layoutInfoTuple);
@@ -908,7 +912,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 -(void)batch {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"flushUIBlocks can only be called from the shadow queue");
     [self layoutAndMount];
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidEndBatchNotification
                                                         object:self];
@@ -947,7 +950,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 #pragma mark Event Handler
 
 - (void)addEventName:(const std::string &)name forDomNodeId:(int32_t)node_id {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"dispatchFunction can only be called from the shadow queue");
     if (name == hippy::kClickEvent) {
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             [uiManager addClickEventListenerForView:node_id];
@@ -1092,7 +1094,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)removeEventName:(const std::string &)eventName forDomNodeId:(int32_t)node_id {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"removeEventName can only be called from the shadow queue");
     int32_t hippyTag = node_id;
     if (eventName == hippy::kClickEvent ||
         eventName ==hippy::kLongClickEvent ||
@@ -1110,7 +1111,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         std::string name_ = eventName;
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
-            [view removeRenderEvent:name_];
+            [view removeStatusChangeEvent:name_];
         }];
     }
 }
@@ -1128,7 +1129,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (mapToEventName) {
             BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name_];
             BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name_];
-            [view addRenderEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
+            [view addStatusChangeEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
                 [self domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> domNode) {
                     if (domNode) {
                         DomValue value = [body toDomValue];
@@ -1143,12 +1144,11 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id {
-    HippyAssertThread(HippyGetUIManagerQueue(), @"removeRenderEvent can only be called from the shadow queue");
     int32_t hippyTag = node_id;
     std::string name_ = name;
     [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
-        [view removeRenderEvent:name_];
+        [view removeStatusChangeEvent:name_];
     }];
 }
 

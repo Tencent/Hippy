@@ -22,6 +22,7 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
+#import "HippyTouchesView.h"
 
 typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
     HippyRefreshStatusIdle,
@@ -38,7 +39,7 @@ typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {
 
 @end
 
-@interface HippyRefresh : UIView {
+@interface HippyRefresh : HippyTouchesView {
 @protected
     __weak UIScrollView *_scrollView;
     HippyRefreshStatus _status;

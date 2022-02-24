@@ -23,7 +23,6 @@
 #import "HippyModalHostViewManager.h"
 #import "HippyBridge.h"
 #import "HippyModalHostViewController.h"
-#import "HippyTouchHandler.h"
 #import "HippyShadowView.h"
 #import "HippyUtils.h"
 #import "HippyModalTransitioningDelegate.h"

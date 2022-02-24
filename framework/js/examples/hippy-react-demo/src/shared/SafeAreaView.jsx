@@ -37,10 +37,12 @@ export default class SafeAreaView extends Component {
     }
     return null;
   }
+
   onLayout(e) {
     const { width, height } = e.layout;
     this.setState({ isVertical: width < height });
   }
+
   render() {
     const { children, statusBarColor } = this.props;
     const { isVertical } = this.state;

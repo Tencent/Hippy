@@ -20,6 +20,31 @@ constexpr char kTop[] = "top";
 constexpr char kProps[] = "props";
 constexpr char kMeasureNode[] = "Text";
 
+constexpr char kFontStyle[] = "fontStyle";
+constexpr char kLetterSpacing[] = "letterSpacing";
+constexpr char kColor[] = "kColor";
+constexpr char kFontSize[] = "fontSize";
+constexpr char kFontFamily[] = "fontFamily";
+constexpr char kFontWeight[] = "fontWeight";
+constexpr char kTextDecorationLine[] = "textDecorationLine";
+constexpr char kTextShadowOffset[] = "textShadowOffset";
+constexpr char kTextShadowRadius[] = "textShadowRadius";
+constexpr char kTextShadowColor[] = "textShadowColor";
+constexpr char kLineHeight[] = "lineHeight";
+constexpr char kTextAlign[] = "textAlign";
+constexpr char kText[] = "text";
+constexpr char kEnableScale[] = "enableScale";
+constexpr char kNumberOfLines[] = "numberOfLines";
+
+#define MARK_DIRTY_PROPERTY(STYLES, FIND_STYLE, NODE) \
+  do {                                                \
+    TDF_BASE_DCHECK(NODE != nullptr);                 \
+    if (STYLES->find(FIND_STYLE) != STYLES->end()) {  \
+      NODE->MarkDirty();                              \
+      return;                                         \
+    }                                                 \
+  } while (0)
+
 namespace hippy {
 inline namespace dom {
 
@@ -119,6 +144,12 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
 };
 
 void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+  for (const auto& n : nodes) {
+    if (n->GetTagName() == "Text") {
+      MarkTextDirty(n->GetId());
+    }
+  }
+
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -283,22 +314,13 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
     return;
   }
 
-  tdf::base::DomValue::DomValueArrayType param_array;
-  DomValue param_value;
-  if (param.ToObject(param_value)) {
-    param_array.emplace_back(param_value);
-  }
-
-  serializer_->Release();
-  serializer_->WriteHeader();
-  serializer_->WriteDenseJSArray(param_array);
-
-  std::pair<uint8_t*, size_t> buffer = serializer_->Release();
+  std::vector<uint8_t> param_bson;
+  param.ToBson(param_bson);
 
   jbyteArray j_buffer;
-  j_buffer = j_env->NewByteArray(buffer.second);
-  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, buffer.second,
-                            reinterpret_cast<const jbyte*>(buffer.first));
+  j_buffer = j_env->NewByteArray(param_bson.size());
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, param_bson.size(),
+                            reinterpret_cast<const jbyte*>(param_bson.data()));
 
   jstring j_name = j_env->NewStringUTF(name.c_str());
 
@@ -435,6 +457,35 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const s
   serializer_->WriteDenseJSArray(event_listener_ops);
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
   CallNativeMethod(buffer_pair, method_name);
+}
+
+void HippyRenderManager::MarkTextDirty(uint32_t node_id) {
+  auto dom_manager = dom_manager_.lock();
+  TDF_BASE_DCHECK(dom_manager);
+  if (dom_manager) {
+    auto node = dom_manager->GetNode(node_id);
+    TDF_BASE_DCHECK(node);
+    if (node) {
+      auto diff_style = node->GetDiffStyle();
+      if (diff_style) {
+        MARK_DIRTY_PROPERTY(diff_style, kFontStyle, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kLetterSpacing, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kColor, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kFontSize, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kFontFamily, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kFontWeight, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kTextDecorationLine, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kTextShadowOffset, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kTextShadowRadius, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kTextShadowColor, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kLineHeight, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kTextAlign, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kText, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kEnableScale, node->GetLayoutNode());
+        MARK_DIRTY_PROPERTY(diff_style, kNumberOfLines, node->GetLayoutNode());
+      }
+    }
+  }
 }
 
 }  // namespace dom

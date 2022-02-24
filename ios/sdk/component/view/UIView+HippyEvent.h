@@ -21,15 +21,34 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyInvalidating.h"
+#import "HippyDefines.h"
+#import "HippyComponent.h"
 #import "HippyTouchesView.h"
+#include <string>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyRefreshWrapper : HippyTouchesView <HippyInvalidating>
+/**
+ * A catagory to handle HippyTouchesProtocol
+ * Empty implementation for [HippyTouchesProtocol addViewEvent:eventListener:], [HippyTouchesProtocol removeViewEvent]
+ * Return NO for [HippyTouchesProtocol canBePreventedByInCapturing:], [HippyTouchesProtocol canBePreventedByInCapturing:]
+ * Return NULL for [HippyTouchesProtocol eventListenerForEventType:]
+ */
 
-- (void)refreshCompleted;
-- (void)startRefresh;
+@interface UIView(HippyEvent)<HippyTouchesProtocol>
+
+/**
+ * add status change event for view
+ * @param name event name
+ * @param callback event call back for event
+ */
+- (void)addStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+
+/**
+ * remove status change event for view
+ * @param name event name
+ */
+- (void)removeStatusChangeEvent:(const std::string &)name;
 
 @end
 

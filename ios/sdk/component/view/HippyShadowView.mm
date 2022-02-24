@@ -31,17 +31,6 @@
 #import "HippyI18nUtils.h"
 #include "dom/layout_node.h"
 
-CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView) {
-    if (shadowView) {
-        std::shared_ptr<hippy::DomNode> node = shadowView.domNode.lock();
-        if (node) {
-            const hippy::LayoutResult &layoutResult = node->GetLayoutResult();
-            return CGRectMake(layoutResult.left, layoutResult.top, layoutResult.width, layoutResult.height);
-        }
-    }
-    return CGRectZero;
-}
-
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
 @interface HippyShadowView () {
@@ -53,8 +42,8 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     BOOL _recomputeMargin;
     BOOL _recomputeBorder;
     BOOL _didUpdateSubviews;
-    std::weak_ptr<hippy::DomNode> _domNode;
     NSInteger _isDecendantOfLazilyShadowView;
+    std::weak_ptr<hippy::DomManager> _domManager;
 }
 
 @end
@@ -192,16 +181,16 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     return _textLifecycle != HippyUpdateLifecycleComputed;
 }
 
-- (void)setDomNode:(std::weak_ptr<hippy::DomNode>)domNode {
-    _domNode = domNode;
-}
-
-- (const std::weak_ptr<hippy::DomNode> &)domNode {
-    return _domNode;
-}
-
 - (void)setTextComputed {
     _textLifecycle = HippyUpdateLifecycleComputed;
+}
+
+- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
+    _domManager = domManager;
+}
+
+- (std::weak_ptr<hippy::DomManager>)domManager {
+    return _domManager;
 }
 
 - (BOOL)isHidden {
@@ -285,10 +274,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
 - (UIEdgeInsets)paddingAsInsets {
     UIEdgeInsets insets = UIEdgeInsetsZero;
-    auto domNode = self.domNode.lock();
-    if (domNode) {
-        insets = UIEdgeInsetsFromLayoutResult(domNode->GetLayoutResult());
-    }
+    insets = UIEdgeInsetsFromLayoutResult(_nodeLayoutResult);
     return insets;
 }
 
@@ -300,16 +286,29 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 }
 
 - (void)setLayoutFrame:(CGRect)frame {
-    auto domNode = self.domNode.lock();
-    if (domNode) {
-        auto layoutNode = domNode->GetLayoutNode();
-        layoutNode->SetPosition(hippy::dom::EdgeLeft, frame.origin.x);
-        layoutNode->SetPosition(hippy::dom::EdgeTop, frame.origin.y);
-        layoutNode->SetWidth(frame.size.width);
-        layoutNode->SetHeight(frame.size.height);
-        layoutNode->MarkDirty();
-        [self dirtyPropagation];
-        self.hasNewLayout = YES;
+    auto domManager = self.domManager.lock();
+    if (domManager) {
+        __weak HippyShadowView *weakSelf = self;
+        std::function<void ()> func = [weakSelf, domManager, frame](){
+            @autoreleasepool {
+                if (weakSelf) {
+                    HippyShadowView *strongSelf = weakSelf;
+                    int32_t hippyTag = [[strongSelf hippyTag] intValue];
+                    auto node = domManager->GetNode(hippyTag);
+                    if (node) {
+                        auto layoutNode = node->GetLayoutNode();
+                        layoutNode->SetPosition(hippy::dom::EdgeLeft, frame.origin.x);
+                        layoutNode->SetPosition(hippy::dom::EdgeTop, frame.origin.y);
+                        layoutNode->SetWidth(frame.size.width);
+                        layoutNode->SetHeight(frame.size.height);
+                        layoutNode->MarkDirty();
+                        [strongSelf dirtyPropagation];
+                        strongSelf.hasNewLayout = YES;
+                    }
+                }
+            }
+        };
+        domManager->PostTask(func);
     }
 }
 

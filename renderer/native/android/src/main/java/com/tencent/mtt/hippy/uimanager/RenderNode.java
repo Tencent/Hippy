@@ -34,9 +34,11 @@ public class RenderNode {
     public static final int FLAG_UPDATE_LAYOUT = 0x00000001;
     public static final int FLAG_UPDATE_EXTRA = 0x00000002;
     public static final int FLAG_UPDATE_EVENT = 0x00000004;
-    public static final int FLAG_ALREADY_DELETED = 0x00000008;
-    public static final int FLAG_LAZY_LOAD = 0x00000010;
-    public static final int FLAG_HAS_DTEB_ID = 0x00000020;
+    public static final int FLAG_UPDATE_TOTAL_PROPS = 0x00000008;
+    public static final int FLAG_ALREADY_DELETED = 0x00000010;
+    public static final int FLAG_LAZY_LOAD = 0x00000020;
+    public static final int FLAG_HAS_DTEB_ID = 0x00000040;
+
 
     private int mNodeFlags = 0;
     protected int mX;
@@ -66,8 +68,6 @@ public class RenderNode {
     protected Object mExtra;
     @Nullable
     protected List<RenderNode> mMoveNodes = null;
-    @Nullable
-    protected List<Promise> mMeasureInWindows = null;
 
     public RenderNode(int id, @NonNull String className,
             @NonNull ControllerManager componentManager) {
@@ -170,8 +170,8 @@ public class RenderNode {
     public void removeChild(int index) {
         try {
             removeChild(mChildren.get(index));
-        } catch (IndexOutOfBoundsException ignored) {
-            // ignore remove child exception
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
         }
     }
 
@@ -220,7 +220,10 @@ public class RenderNode {
     public View createView() {
         if (shouldCreateView() && !TextUtils.equals(NodeProps.ROOT_NODE, mClassName)
                 && mParent != null) {
-            mPropsToUpdate = null;
+            mPropsToUpdate = getProps();
+            // New created view should use total props, therefore set this flag for
+            // update node not need to diff props in this batch cycle.
+            setNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
             mParent.addChildToPendingList(this);
             return mComponentManager.createView(mRootView, mId, mClassName, getProps());
         }
@@ -277,6 +280,7 @@ public class RenderNode {
         }
         mComponentManager.updateView(mId, mClassName, mPropsToUpdate, events);
         mPropsToUpdate = null;
+        resetNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
         if (mMoveNodes != null && !mMoveNodes.isEmpty()) {
             Collections.sort(mMoveNodes, new Comparator<RenderNode>() {
                 @Override
@@ -299,16 +303,10 @@ public class RenderNode {
             mComponentManager.updateExtra(mId, mClassName, mExtra);
             resetNodeFlag(FLAG_UPDATE_EXTRA);
         }
-        if (mMeasureInWindows != null && !mMeasureInWindows.isEmpty()) {
-            for (Promise promise : mMeasureInWindows) {
-                mComponentManager.measureInWindow(mId, promise);
-            }
-            mMeasureInWindows.clear();
-        }
     }
 
     public void updateProps(@NonNull Map<String, Object> newProps) {
-        if (mProps != null) {
+        if (mProps != null && !checkNodeFlag(FLAG_UPDATE_TOTAL_PROPS)) {
             mPropsToUpdate = DiffUtils.diffMapProps(mProps, newProps, 0);
         } else {
             mPropsToUpdate = newProps;
@@ -330,10 +328,7 @@ public class RenderNode {
     }
 
     public void measureInWindow(@NonNull Promise promise) {
-        if (mMeasureInWindows == null) {
-            mMeasureInWindows = new ArrayList<>();
-        }
-        mMeasureInWindows.add(promise);
+        mComponentManager.measureInWindow(mId, promise);
     }
 
     public void addMoveNodes(@NonNull List<RenderNode> moveNodes) {

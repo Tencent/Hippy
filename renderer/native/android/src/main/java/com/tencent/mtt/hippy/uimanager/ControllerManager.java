@@ -87,8 +87,8 @@ public class ControllerManager {
         return mNativeRenderer.getRenderManager();
     }
 
-    private @NonNull
-    List<Class<?>> getDefaultControllers() {
+    @NonNull
+    private List<Class<?>> getDefaultControllers() {
         List<Class<?>> controllers = new ArrayList<>();
         controllers.add(HippyTextViewController.class);
         controllers.add(HippyViewGroupController.class);
@@ -176,8 +176,6 @@ public class ControllerManager {
             view = controller.createView(rootView, id, mNativeRenderer, className, props);
             if (view != null) {
                 mControllerRegistry.addView(view);
-                mControllerUpdateManger.updateProps(controller, view, props);
-                controller.onAfterUpdateProps(view);
             }
         }
         return view;
@@ -186,8 +184,8 @@ public class ControllerManager {
     public void updateView(int id, @NonNull String name, @Nullable Map<String, Object> newProps,
             @Nullable Map<String, Object> events) {
         View view = mControllerRegistry.getView(id);
-        HippyViewController viewComponent = mControllerRegistry.getViewController(name);
-        if (view == null || viewComponent == null) {
+        HippyViewController controller = mControllerRegistry.getViewController(name);
+        if (view == null || controller == null) {
             return;
         }
         Map<String, Object> total = new HashMap<>();
@@ -202,14 +200,14 @@ public class ControllerManager {
             // If merge props and events failed, just use empty map
         }
         if (!total.isEmpty()) {
-            mControllerUpdateManger.updateProps(viewComponent, view, total);
-            viewComponent.onAfterUpdateProps(view);
+            mControllerUpdateManger.updateProps(controller, view, total);
+            controller.onAfterUpdateProps(view);
         }
     }
 
     public void updateLayout(String name, int id, int x, int y, int width, int height) {
-        HippyViewController component = mControllerRegistry.getViewController(name);
-        component.updateLayout(id, x, y, width, height, mControllerRegistry);
+        HippyViewController controller = mControllerRegistry.getViewController(name);
+        controller.updateLayout(id, x, y, width, height, mControllerRegistry);
     }
 
     public void addRootView(ViewGroup rootView) {
@@ -217,9 +215,9 @@ public class ControllerManager {
     }
 
     public void updateExtra(int id, String name, Object extra) {
-        HippyViewController component = mControllerRegistry.getViewController(name);
+        HippyViewController controller = mControllerRegistry.getViewController(name);
         View view = mControllerRegistry.getView(id);
-        component.updateExtra(view, extra);
+        controller.updateExtra(view, extra);
     }
 
     public void move(int id, int newPid, int index) {
@@ -259,9 +257,15 @@ public class ControllerManager {
         mControllerRegistry.addView(view);
     }
 
+    public void postInvalidateDelayed(int id, long delayMilliseconds) {
+        View view = mControllerRegistry.getView(id);
+        if (view != null) {
+            view.postInvalidateDelayed(delayMilliseconds);
+        }
+    }
+
     public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
-            String className,
-            ViewGroup hippyRootView, boolean isLazy) {
+            String className, ViewGroup hippyRootView, boolean isLazy) {
         return mControllerRegistry.getViewController(className)
                 .createRenderNode(id, props, className, hippyRootView, this, isLazy);
     }
@@ -270,7 +274,7 @@ public class ControllerManager {
             List<Object> params, Promise promise) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(id);
-        if (view == null) {
+        if (view == null || controller == null) {
             return;
         }
         if (promise == null) {
@@ -281,10 +285,10 @@ public class ControllerManager {
     }
 
     public void onBatchComplete(String className, int id) {
-        HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
+        HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(id);
         if (view != null) {
-            hippyViewController.onBatchComplete(view);
+            controller.onBatchComplete(view);
         }
     }
 
@@ -352,7 +356,7 @@ public class ControllerManager {
     public void measureInWindow(int id, Promise promise) {
         View v = mControllerRegistry.getView(id);
         if (v == null) {
-            promise.reject("this view is null");
+            promise.reject("Accessing view that do not exist!");
         } else {
             int[] outputBuffer = new int[4];
             int statusBarHeight;
