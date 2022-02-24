@@ -33,7 +33,6 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.CharacterStyle;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 
@@ -181,7 +180,7 @@ public class TextVirtualNode extends VirtualNode {
         markDirty();
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "rawtypes"})
     @HippyControllerProps(name = TEXT_SHADOW_OFFSET, defaultType = HippyControllerProps.MAP)
     public void textShadowOffset(HashMap offsetMap) {
         mShadowOffsetDx = 0.0f;
@@ -439,7 +438,7 @@ public class TextVirtualNode extends VirtualNode {
                 .ellipsize(text.substring(lastLineStart), mTextPaint, width,
                         TextUtils.TruncateAt.END);
         String tempStr =
-                text.subSequence(0, lastLineStart).toString() + truncate(ellipsizeStr, width);
+                text.subSequence(0, lastLineStart) + truncate(ellipsizeStr, width);
         int start = Math.max(tempStr.length() - 1, 0);
         CharacterStyle[] spans = builder.getSpans(start, text.length(), CharacterStyle.class);
         if (spans != null && spans.length > 0) {

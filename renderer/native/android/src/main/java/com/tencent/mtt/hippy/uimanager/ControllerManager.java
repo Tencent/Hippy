@@ -79,7 +79,7 @@ public class ControllerManager {
             @Nullable List<Class<?>> controllers) {
         mNativeRenderer = nativeRenderer;
         mControllerRegistry = new ControllerRegistry(nativeRenderer);
-        mControllerUpdateManger = new ControllerUpdateManger();
+        mControllerUpdateManger = new ControllerUpdateManger(nativeRenderer);
         processControllers(controllers);
         mControllerUpdateManger.setCustomPropsController(mControllerRegistry.getViewController(
                 HippyCustomPropsController.CLASS_NAME));

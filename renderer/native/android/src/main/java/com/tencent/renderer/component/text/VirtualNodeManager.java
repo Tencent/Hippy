@@ -28,11 +28,11 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.utils.PropertyUtils;
+import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,17 +42,17 @@ import java.util.Set;
 public class VirtualNodeManager {
 
     private static final String TAG = "VirtualNodeManager";
-    private static final Map<Class<?>, Map<String, PropertyMethod>> sClassPropertyMethod = new HashMap<>();
-    private final String PADDING_LEFT = "paddingLeft";
-    private final String PADDING_TOP = "paddingTop";
-    private final String PADDING_RIGHT = "paddingRight";
-    private final String PADDING_BOTTOM = "paddingBottom";
+    private static final Map<Class<?>, Map<String, PropertyMethodHolder>> sClassPropertyMethod = new HashMap<>();
+    private static final String PADDING_LEFT = "paddingLeft";
+    private static final String PADDING_TOP = "paddingTop";
+    private static final String PADDING_RIGHT = "paddingRight";
+    private static final String PADDING_BOTTOM = "paddingBottom";
     private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>();
     @NonNull
-    private final NativeRender mNativeRender;
+    private final NativeRender mNativeRenderer;
 
     public VirtualNodeManager(@NonNull NativeRender nativeRenderer) {
-        mNativeRender = nativeRenderer;
+        mNativeRenderer = nativeRenderer;
     }
 
     /**
@@ -132,7 +132,7 @@ public class VirtualNodeManager {
 
     @SuppressWarnings("rawtypes")
     private void findPropertyMethod(Class nodeClass,
-            @NonNull Map<String, PropertyMethod> methodMap) {
+            @NonNull Map<String, PropertyMethodHolder> methodMap) {
         if (nodeClass != VirtualNode.class) {
             findPropertyMethod(nodeClass.getSuperclass(), methodMap);
         }
@@ -142,7 +142,7 @@ public class VirtualNodeManager {
             HippyControllerProps controllerProps = method.getAnnotation(HippyControllerProps.class);
             if (controllerProps != null) {
                 String style = controllerProps.name();
-                PropertyMethod propsMethodHolder = new PropertyMethod();
+                PropertyMethodHolder propsMethodHolder = new PropertyMethodHolder();
                 propsMethodHolder.defaultNumber = controllerProps.defaultNumber();
                 propsMethodHolder.defaultType = controllerProps.defaultType();
                 propsMethodHolder.defaultString = controllerProps.defaultString();
@@ -157,7 +157,7 @@ public class VirtualNodeManager {
 
     @SuppressWarnings("rawtypes")
     private void invokePropertyMethod(@NonNull VirtualNode node, @NonNull Map props,
-            @NonNull String key, @Nullable PropertyMethod methodHolder) {
+            @NonNull String key, @Nullable PropertyMethodHolder methodHolder) {
         if (methodHolder == null) {
             if (key.equals(NodeProps.STYLE) && (props.get(key) instanceof Map)) {
                 updateProps(node, (Map) props.get(key));
@@ -171,8 +171,12 @@ public class VirtualNodeManager {
                         methodHolder.method.invoke(node, methodHolder.defaultBoolean);
                         break;
                     case HippyControllerProps.NUMBER:
-                        methodHolder.method.invoke(node,
-                                ArgumentUtils.parseArgument(methodHolder.paramTypes[0],
+                        if (methodHolder.paramTypes == null) {
+                            methodHolder.paramTypes = methodHolder.method
+                                    .getGenericParameterTypes();
+                        }
+                        methodHolder.method.invoke(node, PropertyUtils
+                                .convertNumber(methodHolder.paramTypes[0],
                                         methodHolder.defaultNumber));
                         break;
                     case HippyControllerProps.STRING:
@@ -186,10 +190,12 @@ public class VirtualNodeManager {
                 }
             } else {
                 methodHolder.method.invoke(node,
-                        ArgumentUtils.parseArgument(methodHolder.paramTypes[0], props.get(key)));
+                        PropertyUtils.convertProperty(methodHolder.paramTypes[0], props.get(key)));
             }
         } catch (Exception exception) {
-            mNativeRender.handleRenderException(exception);
+            mNativeRenderer.handleRenderException(
+                    PropertyUtils
+                            .makePropertyConvertException(exception, key, methodHolder.method));
         }
     }
 
@@ -199,14 +205,14 @@ public class VirtualNodeManager {
             return;
         }
         Class nodeClass = node.getClass();
-        Map<String, PropertyMethod> methodMap = sClassPropertyMethod.get(nodeClass);
+        Map<String, PropertyMethodHolder> methodMap = sClassPropertyMethod.get(nodeClass);
         if (methodMap == null) {
             methodMap = new HashMap<>();
             findPropertyMethod(nodeClass, methodMap);
         }
         Set<String> keySet = props.keySet();
         for (String key : keySet) {
-            PropertyMethod methodHolder = methodMap.get(key);
+            PropertyMethodHolder methodHolder = methodMap.get(key);
             invokePropertyMethod(node, props, key, methodHolder);
         }
     }
@@ -214,16 +220,16 @@ public class VirtualNodeManager {
     @Nullable
     private VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props) {
-        VirtualNode node = mNativeRender.createVirtualNode(id, pid, index, className, props);
+        VirtualNode node = mNativeRenderer.createVirtualNode(id, pid, index, className, props);
         VirtualNode parent = mVirtualNodes.get(pid);
         // Only text or text child need to create virtual node.
         if (className.equals(TEXT_CLASS_NAME)) {
             if (!(node instanceof TextVirtualNode)) {
-                node = new TextVirtualNode(id, pid, index, mNativeRender);
+                node = new TextVirtualNode(id, pid, index, mNativeRenderer);
             }
         } else if (className.equals(IMAGE_CLASS_NAME) && parent != null) {
             if (!(node instanceof ImageVirtualNode)) {
-                node = new ImageVirtualNode(id, pid, index, mNativeRender);
+                node = new ImageVirtualNode(id, pid, index, mNativeRenderer);
             }
         }
         return node;
@@ -266,15 +272,5 @@ public class VirtualNodeManager {
             node.mChildren.clear();
         }
         mVirtualNodes.delete(id);
-    }
-
-    private static class PropertyMethod {
-
-        public Method method;
-        public String defaultType;
-        public String defaultString;
-        public double defaultNumber;
-        public boolean defaultBoolean;
-        public Type[] paramTypes;
     }
 }

@@ -69,6 +69,7 @@ public class NativeRenderProvider {
      * @param buffer the byte array from native (C++) DOM wrapped by {@link ByteBuffer}
      * @return the result {@link ArrayList} of deserialize
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @NonNull
     private ArrayList<Object> bytesToArgument(ByteBuffer buffer) {
         final BinaryReader binaryReader;
@@ -158,7 +159,7 @@ public class NativeRenderProvider {
      *
      * @param ids the node id array list
      * @param newPid the new parent node id
-     * @param newPid the old parent node id
+     * @param oldPid the old parent node id
      */
     @CalledByNative
     @SuppressWarnings("unused")

@@ -26,7 +26,7 @@ public class UIPromise implements Promise {
     @Nullable
     private final String mFunctionName;
 
-    public UIPromise(long callbackId, String functionName, int nodeId, int instanceId) {
+    public UIPromise(long callbackId, @Nullable String functionName, int nodeId, int instanceId) {
         mCallbackId = callbackId;
         mFunctionName = functionName;
         mNodeId = nodeId;

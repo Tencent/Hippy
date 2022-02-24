@@ -17,117 +17,110 @@ package com.tencent.mtt.hippy.uimanager;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.utils.PropertyUtils;
+import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings({"deprecation", "unused", "rawtypes"})
 public class ControllerUpdateManger<T, G> {
 
-    static final Map<Class, Map<String, PropsMethodHolder>> CLASS_PROPS_METHOD = new HashMap<>();
-
-    public static class PropsMethodHolder {
-
-        Method mMethod;
-        String mDefaultType;
-        String mDefaultString;
-        double mDefaultNumber;
-        boolean mDefaultBoolean;
-        Type[] mTypes;
-    }
-
+    private static final Map<Class, Map<String, PropertyMethodHolder>> CLASS_PROPS_METHOD = new HashMap<>();
+    @NonNull
+    private final NativeRender mNativeRenderer;
     private T customPropsController;
+
+    public ControllerUpdateManger(@NonNull NativeRender nativeRenderer) {
+        mNativeRenderer = nativeRenderer;
+    }
 
     public void setCustomPropsController(T controller) {
         assert (controller != null);
         customPropsController = controller;
     }
 
-    private void findPropsMethod(Class cls, Map<String, PropsMethodHolder> hashMap) {
+    private void findPropsMethod(Class cls, Map<String, PropertyMethodHolder> hashMap) {
         if (cls != HippyViewController.class) {
             // find parent methods first
             findPropsMethod(cls.getSuperclass(), hashMap);
         }
-
-        Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cls);
+        Map<String, PropertyMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cls);
         if (methodHolder == null) {
-
             Method[] methods = cls.getMethods();
             for (Method method : methods) {
                 HippyControllerProps controllerProps = method
                         .getAnnotation(HippyControllerProps.class);
                 if (controllerProps != null) {
                     String style = controllerProps.name();
-                    PropsMethodHolder propsMethodHolder = new PropsMethodHolder();
-                    propsMethodHolder.mDefaultNumber = controllerProps.defaultNumber();
-                    propsMethodHolder.mDefaultType = controllerProps.defaultType();
-                    propsMethodHolder.mDefaultString = controllerProps.defaultString();
-                    propsMethodHolder.mDefaultBoolean = controllerProps.defaultBoolean();
-                    propsMethodHolder.mMethod = method;
+                    PropertyMethodHolder propsMethodHolder = new PropertyMethodHolder();
+                    propsMethodHolder.defaultNumber = controllerProps.defaultNumber();
+                    propsMethodHolder.defaultType = controllerProps.defaultType();
+                    propsMethodHolder.defaultString = controllerProps.defaultString();
+                    propsMethodHolder.defaultBoolean = controllerProps.defaultBoolean();
+                    propsMethodHolder.method = method;
                     hashMap.put(style, propsMethodHolder);
                 }
             }
-            // put to CLASS_PROPS_METHOD
             CLASS_PROPS_METHOD.put(cls, new HashMap<>(hashMap));
         } else {
             hashMap.putAll(methodHolder);
         }
     }
 
-    private Map<String, PropsMethodHolder> findPropsMethod(Class cla) {
-        Map<String, PropsMethodHolder> methodHolderMap = new HashMap<>();
+    private Map<String, PropertyMethodHolder> findPropsMethod(Class cla) {
+        Map<String, PropertyMethodHolder> methodHolderMap = new HashMap<>();
         findPropsMethod(cla, methodHolderMap);
         return methodHolderMap;
     }
 
     private void invokePropMethod(T t, G g, Map<String, Object> props, String key,
-            PropsMethodHolder propsMethodHolder) {
+            PropertyMethodHolder methodHolder) {
         try {
             if (props.get(key) == null) {
-                switch (propsMethodHolder.mDefaultType) {
+                switch (methodHolder.defaultType) {
                     case HippyControllerProps.BOOLEAN:
-                        propsMethodHolder.mMethod.invoke(t, g, propsMethodHolder.mDefaultBoolean);
+                        methodHolder.method.invoke(t, g, methodHolder.defaultBoolean);
                         break;
                     case HippyControllerProps.NUMBER:
-                        if (propsMethodHolder.mTypes == null) {
-                            propsMethodHolder.mTypes = propsMethodHolder.mMethod
+                        if (methodHolder.paramTypes == null) {
+                            methodHolder.paramTypes = methodHolder.method
                                     .getGenericParameterTypes();
                         }
-                        propsMethodHolder.mMethod.invoke(t, g, ArgumentUtils
-                                .parseArgument(propsMethodHolder.mTypes[1],
-                                        propsMethodHolder.mDefaultNumber));
+                        methodHolder.method.invoke(t, g, PropertyUtils
+                                .convertNumber(methodHolder.paramTypes[1],
+                                        methodHolder.defaultNumber));
                         break;
                     case HippyControllerProps.STRING:
-                        propsMethodHolder.mMethod.invoke(t, g, propsMethodHolder.mDefaultString);
+                        methodHolder.method.invoke(t, g, methodHolder.defaultString);
                         break;
                     default:
-                        propsMethodHolder.mMethod.invoke(t, g, null);
+                        methodHolder.method.invoke(t, g, null);
                         break;
                 }
             } else {
                 Object value = props.get(key);
-                if (value instanceof Number) {
-                    if (propsMethodHolder.mTypes == null) {
-                        propsMethodHolder.mTypes = propsMethodHolder.mMethod
-                                .getGenericParameterTypes();
-                    }
-                    value = ArgumentUtils
-                            .parseArgument(propsMethodHolder.mTypes[1], value);
+                if (methodHolder.paramTypes == null) {
+                    methodHolder.paramTypes = methodHolder.method.getGenericParameterTypes();
                 }
-                propsMethodHolder.mMethod.invoke(t, g, value);
+                value = PropertyUtils.convertProperty(methodHolder.paramTypes[1], value);
+                methodHolder.method.invoke(t, g, value);
             }
-        } catch (Throwable e) {
-            LogUtils.e("ControllerUpdateManager", e.getMessage(), e);
-            e.printStackTrace();
+        } catch (Exception exception) {
+            mNativeRenderer.handleRenderException(
+                    PropertyUtils
+                            .makePropertyConvertException(exception, key, methodHolder.method));
         }
     }
 
@@ -140,22 +133,16 @@ public class ControllerUpdateManger<T, G> {
         if (customPropsController != null
                 && customPropsController instanceof HippyCustomPropsController) {
             Class cla = customPropsController.getClass();
-            Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cla);
-            if (methodHolder == null) {
-                methodHolder = findPropsMethod(cla);
+            Map<String, PropertyMethodHolder> methodHolderMap = CLASS_PROPS_METHOD.get(cla);
+            if (methodHolderMap == null) {
+                methodHolderMap = findPropsMethod(cla);
             }
-            PropsMethodHolder propsMethodHolder = methodHolder.get(key);
-            try {
-                if (propsMethodHolder != null) {
-                    invokePropMethod(customPropsController, g, props, key, propsMethodHolder);
-                    hasCustomMethodHolder = true;
-                }
-            } catch (Throwable e) {
-                LogUtils.e("ControllerUpdateManager", "customProps " + e.getMessage(), e);
-                e.printStackTrace();
+            PropertyMethodHolder methodHolder = methodHolderMap.get(key);
+            if (methodHolder != null) {
+                invokePropMethod(customPropsController, g, props, key, methodHolder);
+                hasCustomMethodHolder = true;
             }
         }
-
         if (!hasCustomMethodHolder && t instanceof HippyViewController) {
             //noinspection unchecked
             ((HippyViewController) t).setCustomProp((View) g, key, customProps);
@@ -167,15 +154,15 @@ public class ControllerUpdateManger<T, G> {
             return;
         }
         Class cls = t.getClass();
-        Map<String, PropsMethodHolder> methodHolder = CLASS_PROPS_METHOD.get(cls);
-        if (methodHolder == null) {
-            methodHolder = findPropsMethod(cls);
+        Map<String, PropertyMethodHolder> methodHolderMap = CLASS_PROPS_METHOD.get(cls);
+        if (methodHolderMap == null) {
+            methodHolderMap = findPropsMethod(cls);
         }
         Set<String> keySet = props.keySet();
         for (String key : keySet) {
-            PropsMethodHolder propsMethodHolder = methodHolder.get(key);
-            if (propsMethodHolder != null) {
-                invokePropMethod(t, g, props, key, propsMethodHolder);
+            PropertyMethodHolder methodHolder = methodHolderMap.get(key);
+            if (methodHolder != null) {
+                invokePropMethod(t, g, props, key, methodHolder);
             } else {
                 if (key.equals(NodeProps.STYLE) && props.get(key) instanceof Map) {
                     updateProps(t, g, (Map) props.get(key));
