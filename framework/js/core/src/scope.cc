@@ -211,7 +211,7 @@ void Scope::RunJS(const unicode_string_view& data,
     }
 #else
     auto context = weak_context.lock();
-    if (!context) {
+    if (context) {
       context->RunScript(data, name);
     }
 #endif
