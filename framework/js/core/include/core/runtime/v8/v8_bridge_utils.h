@@ -43,6 +43,7 @@ class V8BridgeUtils {
  public:
   using bytes = std::string;
   using unicode_string_view = tdf::base::unicode_string_view;
+  using u8string = unicode_string_view::u8string;
   using V8VMInitParam = hippy::napi::V8VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
   using Bridge = hippy::Bridge;
@@ -66,6 +67,13 @@ class V8BridgeUtils {
                         const unicode_string_view& code_cache_dir,
                         const unicode_string_view& uri,
                         bool is_local_file);
+  static bool RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runtime,
+                                     const unicode_string_view& file_name,
+                                     bool is_use_code_cache,
+                                     const unicode_string_view& code_cache_dir,
+                                     const unicode_string_view& uri,
+                                     bool is_local_file,
+                                     std::function<unicode_string_view()> content_cb);
   static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::Value> error);
   static inline void SetOnThrowExceptionToJS(std::function<void(std::shared_ptr<Runtime>,
                                                                 unicode_string_view,

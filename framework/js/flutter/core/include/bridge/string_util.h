@@ -29,6 +29,7 @@
 #  include "base/unicode_string_view.h"
 #  include "core/base/string_view_utils.h"
 #  include "v8/v8.h"
+#  include "ffi/common_header.h"
 #elif __APPLE__
 #endif
 

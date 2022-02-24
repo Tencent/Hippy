@@ -56,17 +56,12 @@ class BridgeImpl {
                                   const char16_t* code_cache_dir_str, std::function<void(int64_t)> callback,
                                   const char16_t* asset_content_str);
 
-  static void Destroy(int64_t runtime_id, bool single_thread_mode, std::function<void(int64_t)> callback);
+  static void Destroy(int64_t runtime_id, const std::function<void(int64_t)>& callback);
 
   static void CallFunction(int64_t runtime_id, const char16_t* action, const char16_t* params,
                            std::function<void(int64_t)> callback);
 
   static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
-
- private:
-  static bool RunScript(int64_t runtime_id, const unicode_string_view& script_content,
-                        const unicode_string_view& script_name, const unicode_string_view& script_path,
-                        bool can_use_code_cache, const unicode_string_view& code_cache_dir, bool fromAssets);
 };
 
 #ifdef __cplusplus

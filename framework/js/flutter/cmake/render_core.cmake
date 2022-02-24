@@ -19,7 +19,6 @@ set(RENDER_CORE_SRC_FILES
         ${VOLTRON_CORE_SRC_DIR}/bridge/string_util.cc
         ${VOLTRON_CORE_SRC_DIR}/bridge/url.cc
         ${VOLTRON_CORE_SRC_DIR}/bridge/native_source_code_voltron.cc
-        ${VOLTRON_CORE_SRC_DIR}/bridge/voltron_loader.cc
         ${CODEC_SRC_DIR}/standard_codec.cc)
 
 if ((CMAKE_SYSTEM_NAME STREQUAL "Android") OR (CMAKE_SYSTEM_NAME STREQUAL "Windows"))

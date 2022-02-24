@@ -208,14 +208,14 @@ EXTERN_C void NotifyRenderManager(int32_t engine_id) { BridgeManager::Notify(eng
 
 EXTERN_C const char* GetCrashMessageFFI() { return "lucas_crash_report_test"; }
 
-EXTERN_C void DestroyFFI(int32_t engine_id, bool single_thread_mode, int32_t callback_id) {
+EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     auto runtime = bridge_manager->GetRuntime().lock();
     BridgeManager::Destroy(engine_id);
     if (runtime) {
       auto runtime_id = runtime->GetRuntimeId();
-      BridgeImpl::Destroy(runtime_id, single_thread_mode,
+      BridgeImpl::Destroy(runtime_id,
                           [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
     }
   }

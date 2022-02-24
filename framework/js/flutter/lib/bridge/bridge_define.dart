@@ -123,9 +123,9 @@ typedef CallNativeEventFfiDartType = void Function(int engineId, int rootId,
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
 typedef DestroyFfiNativeType = Void Function(
-    Int32 engineId, Int32 singleThreadMode, Int32 callbackId);
+    Int32 engineId, Int32 callbackId);
 typedef DestroyFfiDartType = void Function(
-    int engineId, int singleThreadMode, int callbackId);
+    int engineId, int callbackId);
 
 typedef RegisterCallbackFfiNativeType = Int32 Function(
     Int32 type, Pointer<NativeFunction<GlobalCallbackNativeType>> func);

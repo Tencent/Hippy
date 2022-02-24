@@ -26,8 +26,6 @@
 #include <cstdint>
 
 #include <memory>
-#include "jni/turbo_module_runtime.h"
-#include "jni/scoped_java_ref.h"
 #ifdef ENABLE_INSPECTOR
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif

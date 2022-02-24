@@ -320,8 +320,8 @@ class VoltronApi {
   }
 
   static Future<dynamic> destroy(
-      int engineId, bool singleThreadMode, CommonCallback callback) async {
-    _BridgeFFIManager.instance.destroy(engineId, singleThreadMode ? 1 : 0,
+      int engineId, CommonCallback callback) async {
+    _BridgeFFIManager.instance.destroy(engineId,
         generateCallback((value) {
       callback(value);
     }));

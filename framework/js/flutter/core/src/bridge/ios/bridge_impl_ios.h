@@ -49,7 +49,7 @@ class BridgeImpl {
   static void RunNativeRunnable(int64_t runtime_id, const char16_t* code_cache_path, int64_t runnable_id,
                                 std::function<void(int64_t)> callback);
 
-  static void Destroy(int64_t runtime_id, bool single_thread_mode, std::function<void(int64_t)> callback);
+  static void Destroy(int64_t runtime_id, std::function<void(int64_t)> callback);
 
   static void CallFunction(int64_t runtime_id, const char16_t* action, const char16_t* params,
                            std::function<void(int64_t)> callback);

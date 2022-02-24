@@ -169,6 +169,31 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
                               const unicode_string_view& code_cache_dir,
                               const unicode_string_view& uri,
                               bool is_local_file) {
+  return RunScriptWithoutLoader(
+      runtime, file_name, is_use_code_cache, code_cache_dir, uri, is_local_file,
+      [uri_ = uri, runtime_ = runtime]() {
+        u8string content;
+        auto loader = runtime_->GetScope()->GetUriLoader();
+        if (loader) {
+          bool flag =
+              loader->RequestUntrustedContent(
+                  uri_, content);
+          if (flag) {
+            return unicode_string_view(std::move(content));
+          }
+        }
+
+        return unicode_string_view{};
+      });
+}
+
+bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runtime,
+                                   const unicode_string_view& file_name,
+                                   bool is_use_code_cache,
+                                   const unicode_string_view& code_cache_dir,
+                                   const unicode_string_view& uri,
+                                   bool is_local_file,
+                                   std::function<unicode_string_view()> content_cb) {
   TDF_BASE_LOG(INFO) << "RunScript begin, file_name = " << file_name
                      << ", is_use_code_cache = " << is_use_code_cache
                      << ", code_cache_dir = " << code_cache_dir
@@ -187,14 +212,14 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
     }
 
     code_cache_path = code_cache_dir + file_name + unicode_string_view("_") +
-        unicode_string_view(std::to_string(modify_time));
+                      unicode_string_view(std::to_string(modify_time));
 
     std::promise<u8string> read_file_promise;
     std::future<u8string> read_file_future = read_file_promise.get_future();
     std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
     task->func_ =
         hippy::base::MakeCopyable([p = std::move(read_file_promise),
-                                      code_cache_path, code_cache_dir]() mutable {
+                                   code_cache_path, code_cache_dir]() mutable {
           u8string content;
           HippyFile::ReadFile(code_cache_path, content, true);
           if (content.empty()) {
@@ -211,19 +236,15 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
     std::shared_ptr<Engine> engine = runtime->GetEngine();
     task_runner = engine->GetWorkerTaskRunner();
     task_runner->PostTask(std::move(task));
-    u8string content;
-    read_script_flag = runtime->GetScope()->GetUriLoader()
-        ->RequestUntrustedContent(uri, content);
-    if (read_script_flag) {
-      script_content = unicode_string_view(std::move(content));
+    script_content = content_cb();
+    if (!StringViewUtils::IsEmpty(script_content)) {
+      read_script_flag = true;
     }
     code_cache_content = read_file_future.get();
   } else {
-    u8string content;
-    read_script_flag = runtime->GetScope()->GetUriLoader()
-        ->RequestUntrustedContent(uri, content);
-    if (read_script_flag) {
-      script_content = unicode_string_view(std::move(content));
+    script_content = content_cb();
+    if (!StringViewUtils::IsEmpty(script_content)) {
+      read_script_flag = true;
     }
   }
 
@@ -238,9 +259,9 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
   }
 
   auto ret = std::static_pointer_cast<hippy::napi::V8Ctx>(
-      runtime->GetScope()->GetContext())
-      ->RunScript(script_content, file_name, is_use_code_cache,
-                  &code_cache_content, true);
+                 runtime->GetScope()->GetContext())
+                 ->RunScript(script_content, file_name, is_use_code_cache,
+                             &code_cache_content, true);
   if (is_use_code_cache) {
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
@@ -258,7 +279,7 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
         int check_parent_dir_ret =
             HippyFile::CheckDir(code_cache_parent_dir, F_OK);
         TDF_BASE_DLOG(INFO)
-        << "check_parent_dir_ret = " << check_parent_dir_ret;
+            << "check_parent_dir_ret = " << check_parent_dir_ret;
         if (check_parent_dir_ret) {
           HippyFile::CreateDir(code_cache_parent_dir, S_IRWXU);
         }

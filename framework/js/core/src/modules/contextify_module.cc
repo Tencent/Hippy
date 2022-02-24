@@ -196,6 +196,9 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
     };
     scope->GetTaskRunner()->PostTask(js_task);
   };
-  loader->RequestUntrustedContent(uri, cb);
+  if (loader) {
+    loader->RequestUntrustedContent(uri, cb);
+  }
+
   info.GetReturnValue()->SetUndefined();
 }

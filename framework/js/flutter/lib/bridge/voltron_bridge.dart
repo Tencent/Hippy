@@ -25,6 +25,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -278,7 +279,9 @@ class VoltronBridgeManager implements Destroyable {
   }
 
   void sendWebSocketMessage(dynamic msg) {
-    print('utf8: $msg');
+    if (kDebugMode) {
+      print('utf8: $msg');
+    }
     _webSocketChannel?.sink.add(msg);
   }
 
@@ -299,7 +302,7 @@ class VoltronBridgeManager implements Destroyable {
     sBridgeNum--;
     _voltronBuffer.release();
     bridgeMap.remove(_engineId);
-    await VoltronApi.destroy(_engineId, _isSingleThread, (value) {});
+    await VoltronApi.destroy(_engineId, (value) {});
     _context.renderContext.destroy();
   }
 

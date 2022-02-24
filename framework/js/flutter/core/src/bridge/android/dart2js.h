@@ -23,12 +23,16 @@
 #pragma once
 
 #include "core/core.h"
+#include "core/runtime/v8/v8_bridge_utils.h"
+
 namespace voltron {
 namespace bridge {
 
+using bytes = std::string;
 using unicode_string_view = tdf::base::unicode_string_view;
+using CALLFUNCTION_CB_STATE = hippy::runtime::CALL_FUNCTION_CB_STATE;
 
-void CallJSFunction(int64_t runtime_id, const unicode_string_view& action_name, const unicode_string_view& params_data,
+void CallJSFunction(int64_t runtime_id, const unicode_string_view& action_name, bytes params_data,
                     std::function<void(int64_t)> callback);
 
 }  // namespace bridge

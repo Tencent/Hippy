@@ -125,7 +125,7 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id, bool can_use_code_cache
     return true;
 }
 
-void BridgeImpl::Destroy(int64_t runtime_id, bool single_thread_mode, std::function<void(int64_t)> callback) {
+void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callback) {
 
     VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
     bridge.platformRuntime->Destroy();

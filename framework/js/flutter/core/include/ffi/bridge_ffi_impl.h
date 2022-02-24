@@ -60,7 +60,7 @@ EXTERN_C void CallNativeEventFFI(int32_t engine_id, int32_t root_id, int node_id
 
 EXTERN_C const char* GetCrashMessageFFI();
 
-EXTERN_C void DestroyFFI(int32_t engine_id, bool single_thread_mode, int32_t callback_id);
+EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id);
 
 EXTERN_C int32_t RegisterCallFunc(int32_t type, void* func);
 
