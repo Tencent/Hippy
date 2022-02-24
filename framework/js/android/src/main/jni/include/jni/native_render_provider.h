@@ -42,6 +42,9 @@ void OnDestroyNativeRenderProvider(JNIEnv* j_env,
 void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id,
                     jfloat width, jfloat height);
 
+void UpdateNodeSize(JNIEnv* j_env, jobject j_obj, jint j_node_id,
+                    jfloat width, jfloat height);
+
 void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
                      jint j_instance_id, jint j_dom_id, jstring j_event_name,
                      jbyteArray j_buffer, jint j_offset, jint j_length,

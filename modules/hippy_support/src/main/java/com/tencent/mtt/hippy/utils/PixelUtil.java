@@ -20,16 +20,15 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class PixelUtil {
 
+    @Nullable
     private static DisplayMetrics sDisplayMetrics = null;
 
-    public static void initDisplayMetrics(Context appContext) {
-        if (appContext == null) {
-            return;
-        }
-
+    public static void initDisplayMetrics(@NonNull Context appContext) {
         if (sDisplayMetrics == null) {
             sDisplayMetrics = new DisplayMetrics();
             WindowManager windowManager = (WindowManager) appContext

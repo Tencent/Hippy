@@ -47,9 +47,14 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              OnDestroyNativeRenderProvider)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-             "onRootSizeChanged",
+             "updateRootSize",
              "(IFF)V",
              UpdateRootSize)
+
+REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
+             "updateNodeSize",
+             "(IFF)V",
+             UpdateNodeSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onReceivedEvent",
@@ -95,6 +100,11 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
   }
   dom_manager->SetRootSize(j_width, j_height);
   dom_manager->DoLayout();
+}
+
+void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_node_id,
+                    jfloat j_width, jfloat j_height) {
+
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
