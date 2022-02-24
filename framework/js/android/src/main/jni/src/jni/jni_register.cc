@@ -81,7 +81,7 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
     }
 
     j_env->RegisterNatives(j_class, methods.data(),
-                           hippy::base::CheckedNumericCast<size_t, jint>(methods.size()));
+                           hippy::base::checked_numeric_cast<size_t, jint>(methods.size()));
   }
   return true;
 }

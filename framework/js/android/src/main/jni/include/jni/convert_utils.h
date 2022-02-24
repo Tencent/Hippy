@@ -23,15 +23,14 @@
 #pragma once
 
 #include <jni.h>
-
-#include "core/napi/js_native_api_types.h"
-#include "hippy.h"
+#include "core/napi/js_native_turbo.h"
+#include "scoped_java_ref.h"
 
 struct JNIArgs {
   JNIArgs(size_t count) : args_(count) {}
 
   std::vector<jvalue> args_;
-  std::vector<jobject> global_refs_;
+  std::vector<std::shared_ptr<JavaRef>> global_refs_;
 };
 
 template<typename T>
@@ -109,7 +108,7 @@ class ConvertUtils {
       const std::string &type,
       jvalue &j_args,
       const std::shared_ptr<CtxValue> &value,
-      std::vector<jobject> &global_refs);
+      std::vector<std::shared_ptr<JavaRef>> &global_refs);
 
   static std::unordered_map<std::string, MethodInfo> GetMethodMap(
       const std::string &method_map_str);

@@ -60,8 +60,8 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   MethodInfo method_info = method_map_[method];
   if (method_info.signature_.empty()) {
     std::string exception_info = "MethodUnsupportedException: " + name_ +  "." + method;
-    ctx->ThrowException(unicode_string_view((std::move(exception_info))));
-    return ctx->CreateUndefined();
+    v8_ctx->ThrowException(unicode_string_view((std::move(exception_info))));
+    return v8_ctx->CreateUndefined();
   }
   TDF_BASE_DLOG(INFO) << "invokeJavaMethod, method = " << method.c_str();
 
@@ -80,29 +80,30 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
     std::string exception_info = "ArgCountException: " +
         call_info + ": ExpectedArgCount=" + std::to_string(expected_count) +
         ", ActualArgCount = " + std::to_string(actual_count);
-    ctx->ThrowException(unicode_string_view((std::move(exception_info))));
-    return ctx->CreateUndefined();
+    v8_ctx->ThrowException(unicode_string_view((std::move(exception_info))));
+    return v8_ctx->CreateUndefined();
   }
 
   // methodId
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   if (!method_info.method_id_) {
-    method_info.method_id_ = env->GetMethodID(impl_j_clazz_, method.c_str(),
+    method_info.method_id_ = env->GetMethodID((jclass)(impl_j_clazz_->GetObj()),
+                                              method.c_str(),
                                               method_info.signature_.c_str());
 
     if (!method_info.method_id_) {
       JNIEnvironment::ClearJEnvException(env);
       std::string exception_info = "NullMethodIdException: " + call_info +
           ": Signature=" + method_info.signature_;
-      ctx->ThrowException(unicode_string_view((std::move(exception_info))));
-      return ctx->CreateUndefined();
+      v8_ctx->ThrowException(unicode_string_view((std::move(exception_info))));
+      return v8_ctx->CreateUndefined();
     }
 
     method_map_[method] = method_info;
   }
 
-  std::shared_ptr<JNIArgs> jni_args = nullptr;
-  std::shared_ptr<CtxValue> ret = ctx->CreateUndefined();
+  std::shared_ptr<JNIArgs> jni_args;
+  std::shared_ptr<CtxValue> ret = v8_ctx->CreateUndefined();
 
   // args convert
   TDF_BASE_DLOG(INFO) << "[turbo-perf] enter convertJSIArgsToJNIArgs";
@@ -110,9 +111,8 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
       turbo_env, name_, method, method_arg_types, arg_values);
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
   if (!std::get<0>(jni_tuple)) {
-    DeleteGlobalRef(jni_args);
-    ctx->ThrowException(unicode_string_view(std::get<1>(jni_tuple)));
-    return ctx->CreateUndefined();
+    v8_ctx->ThrowException(unicode_string_view(std::get<1>(jni_tuple)));
+    return v8_ctx->CreateUndefined();
   }
   jni_args = std::get<2>(jni_tuple);
   TDF_BASE_DLOG(INFO) << "[turbo-perf] enter convertMethodResultToJSValue";
@@ -122,53 +122,35 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
       turbo_env, impl_->GetObj(), method_info, jni_args->args_.data());
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
   if (!std::get<0>(js_tuple)) {
-    DeleteGlobalRef(jni_args);
-    ctx->ThrowException(unicode_string_view(std::get<1>(js_tuple)));
-    return ctx->CreateUndefined();
+    v8_ctx->ThrowException(unicode_string_view(std::get<1>(js_tuple)));
+    return v8_ctx->CreateUndefined();
   }
 
-  DeleteGlobalRef(jni_args);
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit invokeJavaMethod";
 
   if (JNIEnvironment::ClearJEnvException(
       JNIEnvironment::GetInstance()->AttachCurrentThread())) {
     TDF_BASE_LOG(ERROR) << "ClearJEnvException when %s", call_info.c_str();
-    return ctx->CreateUndefined();
+    return v8_ctx->CreateUndefined();
   }
 
   return std::get<2>(js_tuple);
 }
 
-void JavaTurboModule::DeleteGlobalRef(const std::shared_ptr<JNIArgs> &jni_args) {
-  TDF_BASE_DLOG(INFO) << "enter deleteGlobalRef";
-  JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  if (!jni_args || jni_args->global_refs_.empty()) {
-    return;
-  }
-
-  TDF_BASE_DLOG(INFO) << "deleteGlobalRef size %d",
-      jni_args->global_refs_.size();
-  for (auto global_ref : jni_args->global_refs_) {
-    if (global_ref) {
-      env->DeleteGlobalRef(global_ref);
-    }
-  }
-}
-
 void JavaTurboModule::InitPropertyMap() {
-  JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jclass obj_clazz = env->GetObjectClass(impl_->GetObj());
-  impl_j_clazz_ = (jclass) env->NewGlobalRef(obj_clazz);
-  auto methods_sig = (jstring) env->CallStaticObjectMethod(
+  JNIEnv *j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  jclass obj_clazz = j_env->GetObjectClass(impl_->GetObj());
+  impl_j_clazz_ = std::make_shared<JavaRef>(j_env, j_env->NewGlobalRef(obj_clazz));
+  auto methods_sig = (jstring) j_env->CallStaticObjectMethod(
       argument_utils_clazz, get_methods_signature, impl_->GetObj());
   if (methods_sig) {
-    unicode_string_view str_view = JniUtils::ToStrView(env, methods_sig);
+    unicode_string_view str_view = JniUtils::ToStrView(j_env, methods_sig);
     std::string method_map_str = StringViewUtils::ToU8StdStr(str_view);
     method_map_ = ConvertUtils::GetMethodMap(method_map_str);
-    env->DeleteLocalRef(methods_sig);
+    j_env->DeleteLocalRef(methods_sig);
   }
 
-  env->DeleteLocalRef(obj_clazz);
+  j_env->DeleteLocalRef(obj_clazz);
 }
 
 JavaTurboModule::JavaTurboModule(const std::string &name,
@@ -178,19 +160,7 @@ JavaTurboModule::JavaTurboModule(const std::string &name,
 }
 
 JavaTurboModule::~JavaTurboModule() {
-  TDF_BASE_DLOG(INFO) << "~JavaTurboModule %s", name_.c_str();
-
-  if (impl_) {
-    impl_.reset();
-  }
-
-  if (impl_j_clazz_) {
-    JNIEnvironment::GetInstance()->AttachCurrentThread()->DeleteGlobalRef(impl_j_clazz_);
-  }
-
-  if (!method_map_.empty()) {
-    method_map_.clear();
-  }
+  TDF_BASE_DLOG(INFO) << "~JavaTurboModule " << name_.c_str();
 }
 
 std::shared_ptr<CtxValue> JavaTurboModule::Get(

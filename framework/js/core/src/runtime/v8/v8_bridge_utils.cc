@@ -310,7 +310,7 @@ void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
 bool V8BridgeUtils::DestroyInstance(int64_t runtime_id) {
   TDF_BASE_DLOG(INFO) << "DestroyInstance begin, runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(
-      hippy::base::CheckedNumericCast<jlong, int32_t>(runtime_id));
+      hippy::base::checked_numeric_cast<jlong, int32_t>(runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl destroy, runtime_id invalid";
     return false;
