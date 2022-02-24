@@ -17,6 +17,8 @@ package com.tencent.mtt.hippy.common;
 
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,222 +27,240 @@ import java.util.Iterator;
 import java.util.List;
 
 @SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
+@Deprecated
 public class HippyArray {
 
-  private final List<Object> mDatas;
+    private final List<Object> mDatas;
 
-  public HippyArray() {
-    mDatas = new ArrayList();
-  }
-
-  public HippyArray(List<Object> arrList) {
-    mDatas = arrList;
-  }
-
-  public List getInternalArray() {
-    return mDatas;
-  }
-
-  public int size() {
-    return mDatas.size();
-  }
-
-  public Object get(int index) {
-    return mDatas.get(index);
-  }
-
-  public void pushObject(Object obj) {
-    mDatas.add(obj);
-  }
-
-  public void setObject(int index, Object obj) {
-    mDatas.set(index, obj);
-  }
-
-  public int getInt(int index) {
-    if (mDatas.size() > index) {
-      Object value = mDatas.get(index);
-      return value instanceof Number ? ((Number) value).intValue() : 0;
-    }
-    return 0;
-  }
-
-  public long getLong(int index) {
-    if (mDatas.size() > index) {
-      Object value = mDatas.get(index);
-      return value instanceof Number ? ((Number) value).longValue() : 0;
-    }
-    return 0;
-  }
-
-  public double getDouble(int index) {
-    if (mDatas.size() > index) {
-      Object value = mDatas.get(index);
-      return value instanceof Number ? ((Number) value).doubleValue() : 0;
-    }
-    return 0;
-  }
-
-  public String getString(int index) {
-    if (mDatas.size() > index) {
-      return String.valueOf(mDatas.get(index));
-    }
-    return null;
-  }
-
-  public boolean getBoolean(int index) {
-    if (mDatas.size() > index) {
-      Object value = mDatas.get(index);
-      return (value instanceof Boolean) && (boolean) value;
-    }
-    return false;
-  }
-
-  public HippyArray getArray(int index) {
-    if (mDatas.size() > index) {
-      Object value = mDatas.get(index);
-      return value instanceof HippyArray ? (HippyArray) value : null;
-    }
-    return null;
-  }
-
-  public HippyMap getMap(int index) {
-    if (mDatas.size() > index) {
-      Object value = mDatas.get(index);
-      return value instanceof HippyMap ? (HippyMap) value : null;
-    }
-    return null;
-  }
-
-  public Object getObject(int index) {
-    if (mDatas.size() > index) {
-      return mDatas.get(index);
-    }
-    return null;
-  }
-
-  public void pushInt(int value) {
-    mDatas.add(value);
-  }
-
-  public void pushLong(long value) {
-    mDatas.add(value);
-  }
-
-  public void pushDouble(double value) {
-    mDatas.add(value);
-  }
-
-  public void pushBoolean(boolean value) {
-    mDatas.add(value);
-  }
-
-  public void pushString(String value) {
-    mDatas.add(value);
-  }
-
-  public void pushArray(HippyArray array) {
-    mDatas.add(array);
-  }
-
-  public void pushMap(HippyMap map) {
-    mDatas.add(map);
-  }
-
-  public void pushNull() {
-    mDatas.add(null);
-  }
-
-  @SuppressWarnings("unused")
-  public void clear() {
-    mDatas.clear();
-  }
-
-  public HippyArray copy() {
-    HippyArray newArray = new HippyArray();
-    Iterator<Object> it = mDatas.iterator();
-    Object value;
-    Object newValue;
-    while (it.hasNext()) {
-      value = it.next();
-      if (value instanceof HippyMap) {
-        newValue = ((HippyMap) value).copy();
-      } else if (value instanceof HippyArray) {
-        newValue = ((HippyArray) value).copy();
-      } else {
-        newValue = value;
-      }
-      newArray.pushObject(newValue);
+    public HippyArray() {
+        mDatas = new ArrayList();
     }
 
-    return newArray;
-  }
-
-  @Override
-  public String toString() {
-    return mDatas.toString();
-  }
-
-  public void pushJSONArray(JSONArray jArray) {
-    if (jArray == null || jArray.length() <= 0) {
-      return;
+    public HippyArray(List<Object> arrList) {
+        mDatas = arrList;
     }
 
-    try {
-      for (int i = 0; i < jArray.length(); i++) {
-        Object obj = jArray.opt(i);
+    public List getInternalArray() {
+        return mDatas;
+    }
+
+    public int size() {
+        return mDatas.size();
+    }
+
+    public Object get(int index) {
+        return mDatas.get(index);
+    }
+
+    public void pushObject(Object obj) {
+        mDatas.add(obj);
+    }
+
+    public void setObject(int index, Object obj) {
+        mDatas.set(index, obj);
+    }
+
+    public int getInt(int index) {
+        if (mDatas.size() > index) {
+            Object value = mDatas.get(index);
+            return value instanceof Number ? ((Number) value).intValue() : 0;
+        }
+        return 0;
+    }
+
+    public long getLong(int index) {
+        if (mDatas.size() > index) {
+            Object value = mDatas.get(index);
+            return value instanceof Number ? ((Number) value).longValue() : 0;
+        }
+        return 0;
+    }
+
+    public double getDouble(int index) {
+        if (mDatas.size() > index) {
+            Object value = mDatas.get(index);
+            return value instanceof Number ? ((Number) value).doubleValue() : 0;
+        }
+        return 0;
+    }
+
+    public String getString(int index) {
+        if (mDatas.size() > index) {
+            return String.valueOf(mDatas.get(index));
+        }
+        return null;
+    }
+
+    public boolean getBoolean(int index) {
+        if (mDatas.size() > index) {
+            Object value = mDatas.get(index);
+            return (value instanceof Boolean) && (boolean) value;
+        }
+        return false;
+    }
+
+    public HippyArray getArray(int index) {
+        if (mDatas.size() > index) {
+            Object value = mDatas.get(index);
+            if (value instanceof HippyArray) {
+                return (HippyArray) value;
+            }
+            if (value instanceof ArrayList) {
+                return new HippyArray((List<Object>) value);
+            }
+        }
+        return null;
+    }
+
+    public HippyMap getMap(int index) {
+        if (mDatas.size() > index) {
+            Object value = mDatas.get(index);
+            if (value instanceof HippyMap) {
+                return (HippyMap) value;
+            }
+            if (value instanceof HashMap) {
+                return new HippyMap((Map<String, Object>) value);
+            }
+        }
+        return null;
+    }
+
+    public Object getObject(int index) {
+        if (mDatas.size() > index) {
+            Object value = mDatas.get(index);
+            if (value instanceof HashMap) {
+                return new HippyMap((Map<String, Object>) value);
+            }
+            if (value instanceof ArrayList) {
+                return new HippyArray((List<Object>) value);
+            }
+            return value;
+        }
+        return null;
+    }
+
+    public void pushInt(int value) {
+        mDatas.add(value);
+    }
+
+    public void pushLong(long value) {
+        mDatas.add(value);
+    }
+
+    public void pushDouble(double value) {
+        mDatas.add(value);
+    }
+
+    public void pushBoolean(boolean value) {
+        mDatas.add(value);
+    }
+
+    public void pushString(String value) {
+        mDatas.add(value);
+    }
+
+    public void pushArray(HippyArray array) {
+        mDatas.add(array);
+    }
+
+    public void pushMap(HippyMap map) {
+        mDatas.add(map);
+    }
+
+    public void pushNull() {
+        mDatas.add(null);
+    }
+
+    @SuppressWarnings("unused")
+    public void clear() {
+        mDatas.clear();
+    }
+
+    public HippyArray copy() {
+        HippyArray newArray = new HippyArray();
+        Iterator<Object> it = mDatas.iterator();
+        Object value;
+        Object newValue;
+        while (it.hasNext()) {
+            value = it.next();
+            if (value instanceof HippyMap) {
+                newValue = ((HippyMap) value).copy();
+            } else if (value instanceof HippyArray) {
+                newValue = ((HippyArray) value).copy();
+            } else {
+                newValue = value;
+            }
+            newArray.pushObject(newValue);
+        }
+
+        return newArray;
+    }
+
+    @Override
+    public String toString() {
+        return mDatas.toString();
+    }
+
+    public void pushJSONArray(JSONArray jArray) {
+        if (jArray == null || jArray.length() <= 0) {
+            return;
+        }
+
+        try {
+            for (int i = 0; i < jArray.length(); i++) {
+                Object obj = jArray.opt(i);
+                if (obj == null) {
+                    pushNull();
+                } else if (obj instanceof JSONObject) {
+                    HippyMap hippyMap = new HippyMap();
+                    hippyMap.pushJSONObject((JSONObject) obj);
+                    pushMap(hippyMap);
+                } else if (obj instanceof JSONArray) {
+                    HippyArray hippyArray = new HippyArray();
+                    hippyArray.pushJSONArray((JSONArray) obj);
+                    pushArray(hippyArray);
+                } else {
+                    pushObject(obj);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public JSONArray toJSONArray() {
+        JSONArray jArray = new JSONArray();
+        if (size() <= 0) {
+            return jArray;
+        }
+
+        try {
+            Iterator<Object> it = mDatas.iterator();
+            Object value;
+            while (it.hasNext()) {
+                value = it.next();
+                if (value instanceof HippyMap) {
+                    JSONObject jObjectMap = ((HippyMap) value).toJSONObject();
+                    jArray.put(jObjectMap);
+                } else if (value instanceof HippyArray) {
+                    JSONArray jObjectArray = ((HippyArray) value).toJSONArray();
+                    jArray.put(jObjectArray);
+                } else {
+                    jArray.put(value);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return jArray;
+    }
+
+    public String getSignature(int index) {
+        Object obj = get(index);
         if (obj == null) {
-          pushNull();
-        } else if (obj instanceof JSONObject) {
-          HippyMap hippyMap = new HippyMap();
-          hippyMap.pushJSONObject((JSONObject) obj);
-          pushMap(hippyMap);
-        } else if (obj instanceof JSONArray) {
-          HippyArray hippyArray = new HippyArray();
-          hippyArray.pushJSONArray((JSONArray) obj);
-          pushArray(hippyArray);
-        } else {
-          pushObject(obj);
+            return null;
         }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+        return ArgumentUtils.getSupportSignature(obj.getClass());
     }
-  }
-
-  public JSONArray toJSONArray() {
-    JSONArray jArray = new JSONArray();
-    if (size() <= 0) {
-      return jArray;
-    }
-
-    try {
-      Iterator<Object> it = mDatas.iterator();
-      Object value;
-      while (it.hasNext()) {
-        value = it.next();
-        if (value instanceof HippyMap) {
-          JSONObject jObjectMap = ((HippyMap) value).toJSONObject();
-          jArray.put(jObjectMap);
-        } else if (value instanceof HippyArray) {
-          JSONArray jObjectArray = ((HippyArray) value).toJSONArray();
-          jArray.put(jObjectArray);
-        } else {
-          jArray.put(value);
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    return jArray;
-  }
-
-  public String getSignature(int index) {
-    Object obj = get(index);
-    if (obj == null) {
-      return null;
-    }
-    return ArgumentUtils.getSupportSignature(obj.getClass());
-  }
 }

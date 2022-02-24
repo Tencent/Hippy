@@ -350,6 +350,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void createNode(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
@@ -404,6 +405,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         executeUITask();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void updateNode(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
@@ -488,6 +490,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         executeUITask();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void updateLayout(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
@@ -546,6 +549,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         executeUITask();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void updateEventListener(@NonNull List<Object> eventList)
             throws NativeRenderException {
