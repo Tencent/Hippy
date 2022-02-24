@@ -121,7 +121,7 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;
-  virtual std::shared_ptr<CtxValue> CreateJsError(
+  virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) = 0;
 
   // Get From Value
@@ -168,7 +168,10 @@ class Ctx {
       const unicode_string_view& file_name) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(
       const unicode_string_view& name) = 0;
-  virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) = 0;
+    
+  virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) = 0;
+  virtual void ThrowException(const unicode_string_view& exception) = 0;
+  virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) = 0;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) = 0;

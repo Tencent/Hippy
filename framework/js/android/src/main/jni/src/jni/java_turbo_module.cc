@@ -60,7 +60,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   MethodInfo method_info = method_map_[method];
   if (method_info.signature_.empty()) {
     std::string exception_info = "MethodUnsupportedException: " + name_ +  "." + method;
-    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view((std::move(exception_info)))));
+    ctx->ThrowException(unicode_string_view((std::move(exception_info))));
     return ctx->CreateUndefined();
   }
   TDF_BASE_DLOG(INFO) << "invokeJavaMethod, method = " << method.c_str();
@@ -80,7 +80,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
     std::string exception_info = "ArgCountException: " +
         call_info + ": ExpectedArgCount=" + std::to_string(expected_count) +
         ", ActualArgCount = " + std::to_string(actual_count);
-    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view((std::move(exception_info)))));
+    ctx->ThrowException(unicode_string_view((std::move(exception_info))));
     return ctx->CreateUndefined();
   }
 
@@ -94,7 +94,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
       JNIEnvironment::ClearJEnvException(env);
       std::string exception_info = "NullMethodIdException: " + call_info +
           ": Signature=" + method_info.signature_;
-      ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view((std::move(exception_info)))));
+      ctx->ThrowException(unicode_string_view((std::move(exception_info))));
       return ctx->CreateUndefined();
     }
 
@@ -111,8 +111,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
   if (!std::get<0>(jni_tuple)) {
     DeleteGlobalRef(jni_args);
-    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(
-        std::get<1>(jni_tuple))));
+    ctx->ThrowException(unicode_string_view(std::get<1>(jni_tuple)));
     return ctx->CreateUndefined();
   }
   jni_args = std::get<2>(jni_tuple);
@@ -124,8 +123,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
   if (!std::get<0>(js_tuple)) {
     DeleteGlobalRef(jni_args);
-    ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(
-        std::get<1>(js_tuple))));
+    ctx->ThrowException(unicode_string_view(std::get<1>(js_tuple)));
     return ctx->CreateUndefined();
   }
 

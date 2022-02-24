@@ -183,7 +183,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         }
       } else {
         unicode_string_view err_msg = uri + " not found";
-        error = ctx->CreateJsError(unicode_string_view(err_msg));
+        error = ctx->CreateError(unicode_string_view(err_msg));
       }
 
       std::shared_ptr<CtxValue> function = weak_function.lock();

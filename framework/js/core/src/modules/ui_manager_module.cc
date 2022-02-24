@@ -488,8 +488,7 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
             }
             return;
           } else {
-            context->ThrowExceptionToJS(context->CreateJsError(
-                unicode_string_view("param ToObject failed")));
+            context->ThrowException(unicode_string_view("param ToObject failed"));
           }
         };
         runner->PostTask(task);
