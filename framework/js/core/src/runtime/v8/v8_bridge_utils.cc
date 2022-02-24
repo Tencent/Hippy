@@ -300,16 +300,17 @@ void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
   TDF_BASE_LOG(ERROR) << "HandleUncaughtJsError error desc = "
                       << ctx->GetMsgDesc(message)
                       << ", stack = " << ctx->GetStackInfo(message);
-  V8BridgeUtils::on_throw_exception_to_js_(runtime, ctx->GetMsgDesc(message), ctx->GetStackInfo(message));
-  ctx->ThrowExceptionToJS(
-      std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
+  V8BridgeUtils::on_throw_exception_to_js_(runtime, ctx->GetMsgDesc(message),
+                                           ctx->GetStackInfo(message));
+  ctx->HandleUncaughtException(std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
 bool V8BridgeUtils::DestroyInstance(int64_t runtime_id) {
   TDF_BASE_DLOG(INFO) << "DestroyInstance begin, runtime_id = " << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(
+      hippy::base::CheckedNumericCast<jlong, int32_t>(runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl destroy, runtime_id invalid";
     return false;
