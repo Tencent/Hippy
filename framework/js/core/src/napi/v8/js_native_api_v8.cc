@@ -753,7 +753,8 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       if (is_copy) {
         source = v8::String::NewFromOneByte(
             isolate_, reinterpret_cast<const uint8_t*>(str.c_str()),
-            v8::NewStringType::kInternalized, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
+            v8::NewStringType::kInternalized,
+            hippy::base::checked_numeric_cast<size_t, int>(str.length()));
       } else {
         auto* one_byte =
             new ExternalOneByteStringResourceImpl(
@@ -767,7 +768,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       if (is_copy) {
         source = v8::String::NewFromTwoByte(
             isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
-            v8::NewStringType::kNormal, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
+            v8::NewStringType::kNormal, hippy::base::checked_numeric_cast<size_t, int>(str.length()));
       } else {
         auto* two_byte = new ExternalStringResourceImpl(
             reinterpret_cast<const uint16_t*>(str.c_str()), str.length());
@@ -783,7 +784,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
                               bytes.length() / sizeof(char16_t));
       source = v8::String::NewFromTwoByte(
           isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
-          v8::NewStringType::kNormal, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
+          v8::NewStringType::kNormal, hippy::base::checked_numeric_cast<size_t, int>(str.length()));
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
@@ -828,7 +829,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
         const unicode_string_view::u8string& str = cache->utf8_value();
         auto* cached_data =
                 new v8::ScriptCompiler::CachedData(
-                        str.c_str(), hippy::base::CheckedNumericCast<size_t, int>(str.length()),
+                        str.c_str(), hippy::base::checked_numeric_cast<size_t, int>(str.length()),
                         v8::ScriptCompiler::CachedData::BufferNotOwned);
         v8::ScriptCompiler::Source script_source(source, origin, cached_data);
         script = v8::ScriptCompiler::Compile(
@@ -1390,7 +1391,8 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
     size_t count,
     std::shared_ptr<CtxValue> value[]) {
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Array> array = v8::Array::New(isolate_, hippy::base::CheckedNumericCast<size_t, int>(count));
+  v8::Local<v8::Array> array = v8::Array::New(isolate_,
+                                              hippy::base::checked_numeric_cast<size_t, int>(count));
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   for (size_t i = 0; i < count; i++) {
