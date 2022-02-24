@@ -25,10 +25,10 @@ import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 
 @SuppressWarnings("unused")
-@HippyController(name = HippyModalHostManager.HIPPY_CLASS)
+@HippyController(name = HippyModalHostManager.CLASS_NAME)
 public class HippyModalHostManager extends HippyGroupController<HippyModalHostView> {
 
-    public static final String HIPPY_CLASS = "Modal";
+    public static final String CLASS_NAME = "Modal";
 
     @Override
     protected View createViewImpl(Context context) {

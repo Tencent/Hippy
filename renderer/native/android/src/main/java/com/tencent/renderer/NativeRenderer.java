@@ -21,6 +21,7 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_N
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_UNAVAILABLE_ERR;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
@@ -33,11 +34,14 @@ import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.flex.FlexOutput;
+import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.renderer.component.text.TextRenderSupply;
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
 
+import com.tencent.renderer.utils.DisplayUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -383,7 +387,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
             // Props may reset by framework modules, such as js AnimationModule,
             // key={animationId=xxx} => key=value
-            onCreateNode(nodeId, props);
+            onCreateNode(nodeId, className, props);
             mVirtualNodeManager.createNode(nodeId, nodePid, nodeIndex, className, props);
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
                 // If the node has a virtual parent, no need to create corresponding render node,
@@ -671,7 +675,16 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         return mRenderManager.createVirtualNode(id, pid, index, className, props);
     }
 
-    private void onCreateNode(int nodeId, @NonNull final Map<String, Object> props) {
+    private void onCreateNode(int nodeId, @NonNull String className,
+            @NonNull final Map<String, Object> props) {
+        // If this node is a modal type, should update node size with window width and height
+        // before layout.
+        if (className.equals(HippyModalHostManager.CLASS_NAME)) {
+            DisplayMetrics metrics = DisplayUtils.getMetrics(ContextHolder.getAppContext(), false);
+            if (mRenderProvider != null) {
+                mRenderProvider.onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels);
+            }
+        }
         if (checkJSFrameworkProxy()) {
             ((JSFrameworkProxy) mFrameworkProxy).onCreateNode(nodeId, props);
         }
