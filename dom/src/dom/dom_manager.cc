@@ -446,5 +446,37 @@ void DomManager::PostTask(std::function<void()> func) {
   }
 }
 
+void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
+  layout_changed_nodes_.clear();
+  auto render_manager = render_manager_.lock();
+  TDF_BASE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
+
+  TDF_BASE_DCHECK(node);
+  std::vector<std::shared_ptr<DomNode>> nodes;
+  nodes.push_back(node);
+  render_manager->UpdateRenderNode(std::move(nodes));
+
+  // Before Layout
+  render_manager->BeforeLayout();
+  // build layout tree
+  for (auto& layout_operation : layout_operations_) {
+    layout_operation();
+  }
+  layout_operations_.clear();
+
+  // 触发布局计算
+  root_node_->DoLayout();
+  // After Layout
+  render_manager->AfterLayout();
+  if (!layout_changed_nodes_.empty()) {
+    render_manager->UpdateLayout(layout_changed_nodes_);
+  }
+
+  render_manager->EndBatch();
+}
+
 }  // namespace dom
 }  // namespace hippy

@@ -88,6 +88,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void DeleteDomNode(std::shared_ptr<DomNode> node);
+  void UpdateRenderNode(const std::shared_ptr<DomNode>& node);
 
   friend DomNode;
 };
