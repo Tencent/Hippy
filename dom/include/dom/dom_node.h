@@ -142,7 +142,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   nlohmann::json ParseDomValue(const DomValue& value);
 #endif
 
-  void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
   void UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
                         const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);
 

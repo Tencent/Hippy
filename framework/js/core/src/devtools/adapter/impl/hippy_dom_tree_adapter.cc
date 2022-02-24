@@ -61,9 +61,7 @@ void HippyDomTreeAdapter::UpdateDomTree(std::string tree_data, UpdateDomTreeCall
       if (dom_manager) {
         auto node = dom_manager->GetNode(node_id);
         // TODO:sicilyliu 继续跟进，iOS生效但安卓不生效
-        node->UpdateStyle(style_map);
-        dom_manager->DoLayout();
-        dom_manager->EndBatch();
+        node->UpdateProperties(style_map, std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>{});
       }
     } else {
       is_success = false;
