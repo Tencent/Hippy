@@ -47,7 +47,9 @@ id domValueToOCType(const DomValue *const pDomValue) {
             for (const auto &pair : objectType) {
                 map[pair.first] = std::make_shared<DomValue>(pair.second);
             }
-            value = unorderedMapDomValueToDictionary(map);
+            std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> shared_map =
+                    std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(map));
+            value = unorderedMapDomValueToDictionary(shared_map);
         }
             break;
         case DomValueType::kArray: {
@@ -121,9 +123,9 @@ DomValue OCTypeToDomValue(id value) {
     }
 }
 
-NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::string, std::shared_ptr<DomValue>> &domValuesObject) {
-    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:domValuesObject.size()];
-    for (auto it = domValuesObject.begin(); it != domValuesObject.end(); it++) {
+NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> &domValuesObject) {
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:domValuesObject->size()];
+    for (auto it = domValuesObject->begin(); it != domValuesObject->end(); it++) {
         NSString *key = [NSString stringWithUTF8String:it->first.c_str()];
         std::shared_ptr<DomValue> domValue = it->second;
         id value = domValueToOCType(domValue.get());
@@ -179,4 +181,15 @@ NSNumber *domValueToNumber(const DomValue *const pDomValue) {
             break;
     }
     return number;
+}
+
+NSDictionary *stylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode) {
+    auto &styles = domNode->GetStyleMap();
+    auto &extStyles = domNode->GetExtStyle();
+    NSMutableDictionary *allStyles = [NSMutableDictionary dictionaryWithCapacity:styles->size() + extStyles->size()];
+    NSDictionary *dicStyles  = unorderedMapDomValueToDictionary(styles);
+    NSDictionary *dicExtStyles = unorderedMapDomValueToDictionary(extStyles);
+    [allStyles addEntriesFromDictionary:dicStyles];
+    [allStyles addEntriesFromDictionary:dicExtStyles];
+    return [allStyles copy];
 }

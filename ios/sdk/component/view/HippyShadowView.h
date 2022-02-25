@@ -37,6 +37,12 @@ typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
     HippyUpdateLifecycleDirtied,
 };
 
+typedef NS_ENUM(NSUInteger, HippyCreationType) {
+    HippyCreationTypeUndetermined = 0,
+    HippyCreationTypeInstantly,
+    HippyCreationTypeLazily,
+};
+
 @class HippyShadowView;
 
 HIPPY_EXTERN CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView);
@@ -133,6 +139,18 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  */
 @property (nonatomic, assign) OverflowType overflow;
 
+/**
+ * Indicate how we create coresponding UIView
+ * HippyCreationTypeInstantly : create views instantly when HippyShadowView is created
+ * HippyCreationTypeLazily: create views when UIView is needed
+ */
+@property (nonatomic, assign) HippyCreationType creationType;
+
+/**
+ * set create type of itself and its all descendants to HippyCreationTypeInstantly
+ */
+- (void)recusivelySetCreationTypeToInstant;
+
 - (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager;
 - (std::weak_ptr<hippy::DomManager>)domManager;
 
@@ -196,13 +214,23 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 - (NSDictionary *)mergeProps:(NSDictionary *)props;
 
 /**
- * check if the current shadowview is a descendant of a shadow view whose corresponding view is created lazily
+ * Add event to HippyShadowView
+ * @param name event name
+ * @discussion In general, events are mounted directly on UIViews.
+ * But for the lazy loading UIViews, UIViews may not be created when events requires to mount on UIViews.
+ * So we have to mount on ShadowView temparily, and mount on UIViews when UIViews are created by HippyShadowViews
  */
-- (BOOL)isDescendantOfLazilyCreatedShadowView;
+- (void)addEventName:(const std::string &)name;
 
 /**
- * If true, UIView will be created as needed, not instantly
+ * Get all events name
+ * @return all events name
  */
-- (BOOL)isInstantlyCreatedView;
+- (const std::vector<std::string> &)allEventNames;
+
+/**
+ * clear all event names
+ */
+- (void)clearEventNames;
 
 @end
