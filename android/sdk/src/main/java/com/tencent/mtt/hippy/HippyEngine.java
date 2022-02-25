@@ -70,10 +70,6 @@ public abstract class HippyEngine {
   protected int mGroupId;
   ModuleListener mModuleListener;
 
-  static {
-    LibraryLoader.loadLibraryIfNeed();
-  }
-
   @SuppressWarnings("JavaJniMissingFunction")
   private static native void setNativeLogHandler(HippyLogAdapter handler);
 
@@ -84,6 +80,7 @@ public abstract class HippyEngine {
     if (params == null) {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
+    LibraryLoader.loadLibraryIfNeed(params.soLoader);
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
     setNativeLogHandler(params.logAdapter);
