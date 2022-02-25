@@ -18,16 +18,16 @@ class DomValue final {
     int32_t i32_;
     uint32_t u32_;
     double d_;
-    Number(int32_t i32) : i32_(i32){};
-    Number(uint32_t u32) : u32_(u32){};
-    Number(float f) : d_(f){};
-    Number(double d) : d_(d){};
+    Number(int32_t i32) : i32_(i32){}
+    Number(uint32_t u32) : u32_(u32){}
+    Number(float f) : d_(f){}
+    Number(double d) : d_(d){}
   };
 
   static const DomValue Undefined();
   static const DomValue Null();
 
-  DomValue(){};
+  DomValue(){}
   DomValue(const DomValue& source);
 
   /**

@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "base/logging.h"
+#include "core/base/common.h"
 #include "jni/jni_env.h"
 
 #include "dom/taitank_layout_node.h"
@@ -55,7 +56,7 @@ static std::atomic<int32_t> global_hippy_render_manager_key{0};
 HippyRenderManager::HippyRenderManager(std::shared_ptr<JavaRef> render_delegate)
     : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<tdf::base::Serializer>()) {
   id_ = global_hippy_render_manager_key.fetch_add(1);
-};
+}
 
 void HippyRenderManager::Insert(const std::shared_ptr<HippyRenderManager>& render_manager) {
   std::lock_guard<std::mutex> lock(mutex);
@@ -89,7 +90,7 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
   serializer_->Release();
   serializer_->WriteHeader();
 
-  uint32_t len = nodes.size();
+  auto len = nodes.size();
   tdf::base::DomValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
@@ -100,16 +101,18 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
     dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
 
     if (nodes[i]->GetViewName() == kMeasureNode) {
-      int32_t id = nodes[i]->GetId();
-      MeasureFunction measure_function = [this, id](float width, LayoutMeasureMode width_measure_mode, float height,
-                                                    LayoutMeasureMode height_measure_mode,
-                                                    void* layoutContext) -> LayoutSize {
+      int32_t id =  hippy::base::checked_numeric_cast<uint32_t, int32_t>(nodes[i]->GetId());
+      MeasureFunction measure_function = [this, id](float width,
+          LayoutMeasureMode width_measure_mode, float height,
+          LayoutMeasureMode height_measure_mode,
+          void* layoutContext) -> LayoutSize {
         int64_t result;
-        this->CallNativeMeasureMethod(id, DpToPx(width), width_measure_mode, DpToPx(height), height_measure_mode,
+        this->CallNativeMeasureMethod(id, DpToPx(width), width_measure_mode,
+                                      DpToPx(height), height_measure_mode,
                                       result);
         LayoutSize layout_result;
-        layout_result.width = PxToDp((int32_t)(0xFFFFFFFF & (result >> 32)));
-        layout_result.height = PxToDp((int32_t)(0xFFFFFFFF & result));
+        layout_result.width = PxToDp(static_cast<float>((int32_t) (0xFFFFFFFF & (result >> 32))));
+        layout_result.height = PxToDp(static_cast<float>((int32_t) (0xFFFFFFFF & result)));
         TDF_BASE_DLOG(INFO) << "measure width: " << (int32_t)(0xFFFFFFFF & (result >> 32))
                             << ", height: " << (int32_t)(0xFFFFFFFF & result) << ", result: " << result;
         return layout_result;
@@ -141,7 +144,7 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "createNode");
-};
+}
 
 void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   for (const auto& n : nodes) {
@@ -153,7 +156,7 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   serializer_->Release();
   serializer_->WriteHeader();
 
-  uint32_t len = nodes.size();
+  auto len = nodes.size();
   tdf::base::DomValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
@@ -187,20 +190,21 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "updateNode");
-};
+}
 
 void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
   jintArray j_int_array;
-  j_int_array = j_env->NewIntArray(nodes.size());
-  std::vector<int> id;
+  auto size = hippy::base::checked_numeric_cast<size_t, jint>(nodes.size());
+  j_int_array = j_env->NewIntArray(size);
+  std::vector<jint> id;
   id.resize(nodes.size());
   for (size_t i = 0; i < nodes.size(); i++) {
-    id[i] = nodes[i]->GetId();
+    id[i] = hippy::base::checked_numeric_cast<uint32_t, jint>(nodes[i]->GetId());
   }
-  j_env->SetIntArrayRegion(j_int_array, 0, nodes.size(), &id[0]);
+  j_env->SetIntArrayRegion(j_int_array, 0, size, &id[0]);
 
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
@@ -217,7 +221,7 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array);
   j_env->DeleteLocalRef(j_int_array);
-};
+}
 
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
   // 更新布局信息前处理事件监听
@@ -226,7 +230,7 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
   serializer_->Release();
   serializer_->WriteHeader();
 
-  uint32_t len = nodes.size();
+  auto len = nodes.size();
   tdf::base::DomValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
@@ -249,15 +253,16 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "updateLayout");
-};
+}
 
 void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
   jintArray j_int_array;
-  j_int_array = j_env->NewIntArray(moved_ids.size());
-  j_env->SetIntArrayRegion(j_int_array, 0, moved_ids.size(), &moved_ids[0]);
+  auto j_size = hippy::base::checked_numeric_cast<size_t, jint>(moved_ids.size());
+  j_int_array = j_env->NewIntArray(j_size);
+  j_env->SetIntArrayRegion(j_int_array, 0, j_size, &moved_ids[0]);
 
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
@@ -274,13 +279,13 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array, from_pid, to_pid);
   j_env->DeleteLocalRef(j_int_array);
-};
+}
 
-void HippyRenderManager::EndBatch() { CallNativeMethod("endBatch"); };
+void HippyRenderManager::EndBatch() { CallNativeMethod("endBatch"); }
 
-void HippyRenderManager::BeforeLayout(){};
+void HippyRenderManager::BeforeLayout(){}
 
-void HippyRenderManager::AfterLayout(){};
+void HippyRenderManager::AfterLayout(){}
 
 void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
   event_listener_ops_.emplace_back(ListenerOp(true, dom_node, name));
@@ -318,8 +323,9 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
   param.ToBson(param_bson);
 
   jbyteArray j_buffer;
-  j_buffer = j_env->NewByteArray(param_bson.size());
-  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, param_bson.size(),
+  auto j_size = hippy::base::checked_numeric_cast<size_t, jint>(param_bson.size());
+  j_buffer = j_env->NewByteArray(j_size);
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, j_size,
                             reinterpret_cast<const jbyte*>(param_bson.data()));
 
   jstring j_name = j_env->NewStringUTF(name.c_str());
@@ -329,17 +335,18 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
   j_env->DeleteLocalRef(j_name);
 }
 
-float HippyRenderManager::DpToPx(float dp) { return dp * density_; }
+float HippyRenderManager::DpToPx(float dp) const { return dp * density_; }
 
-float HippyRenderManager::PxToDp(float px) { return px / density_; }
+float HippyRenderManager::PxToDp(float px) const { return px / density_; }
 
 void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
   jobject j_buffer;
-  j_buffer = j_env->NewByteArray(buffer.second);
-  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, buffer.second,
+  auto j_size = hippy::base::checked_numeric_cast<size_t, jint>(buffer.second);
+  j_buffer = j_env->NewByteArray(j_size);
+  j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, j_size,
                             reinterpret_cast<const jbyte*>(buffer.first));
 
   jobject j_object = render_delegate_->GetObj();
@@ -410,9 +417,9 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const s
     return;
   }
 
-  uint32_t len = ops.size();
+  auto len = ops.size();
   tdf::base::DomValue::DomValueArrayType event_listener_ops;
-  int index = 0;
+  size_t index = 0;
   while (index < len) {
     std::shared_ptr<DomNode> dom_node = ops[index].dom_node.lock();
     if (dom_node == nullptr) {
@@ -420,7 +427,7 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const s
       continue;
     }
 
-    int current_id = dom_node->GetId();
+    auto current_id = dom_node->GetId();
     bool current_add = ops[index].add;
     tdf::base::DomValue::DomValueObjectType op;
     op[kId] = tdf::base::DomValue(current_id);

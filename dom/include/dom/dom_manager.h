@@ -8,6 +8,7 @@
 
 #include "base/logging.h"
 #include "core/base/task_runner.h"
+#include "core/base/common.h"
 #include "core/task/common_task.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_event.h"
@@ -35,7 +36,9 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) { render_manager_ = render_manager; }
   inline void SetDelegateTaskRunner(std::shared_ptr<TaskRunner> runner) { delegate_task_runner_ = runner; }
   inline uint32_t GetRootId() { return root_id_; }
-  inline std::shared_ptr<DomNode> GetNode(uint32_t id) { return dom_node_registry_.GetNode(id); }
+  inline std::shared_ptr<DomNode> GetNode(uint32_t id) {
+    return dom_node_registry_.GetNode(hippy::base::checked_numeric_cast<uint32_t , int32_t>(id));
+  }
 
   void CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
@@ -87,7 +90,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void AddLayoutChangedNode(const std::shared_ptr<DomNode>& node);
   void AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
-  void DeleteDomNode(std::shared_ptr<DomNode> node);
+  void DeleteDomNode(const std::shared_ptr<DomNode>& node);
   void UpdateRenderNode(const std::shared_ptr<DomNode>& node);
 
   friend DomNode;

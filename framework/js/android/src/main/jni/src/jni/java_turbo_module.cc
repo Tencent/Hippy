@@ -22,12 +22,6 @@
 
 #include "jni/java_turbo_module.h"
 
-#include "core/base/string_view_utils.h"
-#include "core/napi/js_native_api_types.h"
-#include "core/napi/v8/js_native_turbo_v8.h"
-#include "hippy.h"
-#include "jni/convert_utils.h"
-
 using namespace hippy::napi;
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -68,7 +62,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   // arguments count
   std::vector<std::shared_ptr<CtxValue>> arg_values;
   arg_values.reserve(count);
-  for (int i = 0; i < count; i++) {
+  for (size_t i = 0; i < count; i++) {
     arg_values.push_back(args[i]);
   }
   std::string call_info = std::string(name_).append(".").append(method);

@@ -63,7 +63,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   inline std::shared_ptr<DomNode> GetParent() { return parent_.lock(); }
   inline void SetParent(std::shared_ptr<DomNode> parent) { parent_ = parent; }
-  inline uint32_t GetChildCount() const { return children_.size(); }
+  inline uint32_t GetChildCount() const {
+    return hippy::base::checked_numeric_cast<size_t, uint32_t>(children_.size());
+  }
   inline void SetTagName(const std::string &tag_name) { tag_name_ = tag_name; }
   inline const std::string &GetTagName() { return tag_name_; }
   inline const std::string &GetViewName() { return view_name_; }
@@ -125,7 +127,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetDiffStyle(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff) {
     diff_ = std::move(diff);
   }
-  const std::shared_ptr<std::vector<std::string>> GetDeleteProps() { return delete_props_; };
+  const std::shared_ptr<std::vector<std::string>> GetDeleteProps() { return delete_props_; }
   void SetDeleteProps(std::shared_ptr<std::vector<std::string>> delete_props) { delete_props_ = delete_props; }
 
   CallFunctionCallback GetCallback(const std::string &name, uint32_t id);

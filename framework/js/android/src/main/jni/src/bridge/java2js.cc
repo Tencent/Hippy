@@ -105,7 +105,8 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
   char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
   TDF_BASE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
-               bytes(buffer_address + j_offset, j_length),
+               bytes(buffer_address + j_offset,
+                     hippy::base::checked_numeric_cast<jint, unsigned long>(j_length)),
                std::make_shared<JavaRef>(j_env, j_buffer));
 }
 

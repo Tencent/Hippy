@@ -88,7 +88,7 @@ DomValueArray DiffUtils::DiffArray(const DomValueArray& from, const DomValueArra
     return to;
   }
   DomValueArray diff_array;
-  for (int i = 0; i < from.size(); i++) {
+  for (size_t i = 0; i < from.size(); i++) {
     auto from_value = from[i];
     auto to_value = to[i];
     if (from_value.IsBoolean()) {

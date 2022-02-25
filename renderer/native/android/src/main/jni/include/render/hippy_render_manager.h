@@ -15,7 +15,7 @@ class HippyRenderManager : public RenderManager {
  public:
   HippyRenderManager(std::shared_ptr<JavaRef> render_delegate);
 
-  ~HippyRenderManager(){};
+  ~HippyRenderManager(){}
 
   int32_t GetId() { return id_; }
 
@@ -38,7 +38,7 @@ class HippyRenderManager : public RenderManager {
   void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,
                     uint32_t cb_id) override;
 
-  void SetDensity(float density) { density_ = density; };
+  void SetDensity(float density) { density_ = density; }
   float GetDensity() { return density_; }
 
   void SetDomManager(std::weak_ptr<DomManager> dom_manager) { dom_manager_ = dom_manager; }
@@ -52,9 +52,9 @@ class HippyRenderManager : public RenderManager {
  private:
   inline void MarkTextDirty(uint32_t node_id);
 
-  inline float DpToPx(float dp);
+  inline float DpToPx(float dp) const;
 
-  inline float PxToDp(float px);
+  inline float PxToDp(float px) const;
 
   void CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method);
 

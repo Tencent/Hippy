@@ -26,6 +26,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "base/logging.h"
+
 namespace hippy {
 namespace base {
 

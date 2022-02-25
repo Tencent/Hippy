@@ -22,9 +22,6 @@
 
 #include "core/base/task_runner.h"
 
-#include <memory>
-#include <utility>
-
 #include "base/logging.h"
 #include "core/base/base_time.h"
 #include "core/base/macros.h"

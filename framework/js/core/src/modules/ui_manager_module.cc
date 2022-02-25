@@ -236,7 +236,7 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
   auto events = context->GetProperty(node, kEventListsKey);
   if (events && context->IsArray(events)) {
     auto len = context->GetArrayLength(events);
-    for (auto i = 0; i < len; ++i) {
+    for (uint32_t i = 0; i < len; ++i) {
       auto event = context->CopyArrayElement(events, i);
       auto name_prop = context->GetProperty(event, kEventNameKey);
       auto cb = context->GetProperty(event, kEventCBKey);
@@ -394,9 +394,9 @@ void UIManagerModule::DeleteNodes(const hippy::napi::CallbackInfo &info) {
   TDF_BASE_CHECK(context);
 
   std::shared_ptr<CtxValue> nodes = info[1];
-  uint32_t len = context->GetArrayLength(nodes);
+  auto len = context->GetArrayLength(nodes);
   std::vector<std::shared_ptr<DomNode>> dom_nodes;
-  for (auto i = 0; i < len; ++i) {
+  for (uint32_t i = 0; i < len; ++i) {
     std::shared_ptr<CtxValue> node = context->CopyArrayElement(nodes, i);
     auto id_tuple = GetNodeId(context, node);
     if (!std::get<0>(id_tuple)) {
@@ -496,5 +496,5 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
     };
   }
   TDF_BASE_CHECK(!scope->GetDomManager().expired());
-  scope->GetDomManager().lock()->CallFunction(id, name, param_value, cb);
+  scope->GetDomManager().lock()->CallFunction(static_cast<uint32_t>(id), name, param_value, cb);
 }
