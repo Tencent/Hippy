@@ -19,6 +19,8 @@ package com.tencent.mtt.hippy.views.hippylist;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_SETTLING;
+import static com.tencent.renderer.utils.EventUtils.EVENT_LIST_ITEM_APPEAR;
+import static com.tencent.renderer.utils.EventUtils.EVENT_LIST_ITEM_DISAPPEAR;
 
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
@@ -315,12 +317,12 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
       HippyListItemView itemView = (HippyListItemView) view;
       if (isViewVisible(view)) {
         if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_APPEAR) {
-          sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_APPEAR);
+          sendExposureEvent(view, EVENT_LIST_ITEM_APPEAR);
           itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_APPEAR);
         }
       } else {
         if (itemView.getExposureState() != HippyListItemView.EXPOSURE_STATE_DISAPPEAR) {
-          sendExposureEvent(view, HippyListItemView.EXPOSURE_EVENT_DISAPPEAR);
+          sendExposureEvent(view, EVENT_LIST_ITEM_DISAPPEAR);
           itemView.setExposureState(HippyListItemView.EXPOSURE_STATE_DISAPPEAR);
         }
       }
@@ -328,8 +330,8 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
   }
 
   protected void sendExposureEvent(View view, String eventName) {
-    if (eventName.equals(HippyListItemView.EXPOSURE_EVENT_APPEAR) || eventName
-        .equals(HippyListItemView.EXPOSURE_EVENT_DISAPPEAR)) {
+    if (eventName.equals(EVENT_LIST_ITEM_APPEAR) || eventName
+        .equals(EVENT_LIST_ITEM_DISAPPEAR)) {
       new HippyViewEvent(eventName).send(view, null);
     }
   }

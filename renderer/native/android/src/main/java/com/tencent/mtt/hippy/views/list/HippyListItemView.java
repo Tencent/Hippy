@@ -36,11 +36,6 @@ public class HippyListItemView extends HippyViewGroup {
   public final static int EXPOSURE_STATE_DISAPPEAR = 2;
   public final static int EXPOSURE_STATE_WILL_DISAPPEAR = 3;
 
-  public final static String EXPOSURE_EVENT_WILL_APPEAR = "willappear";
-  public final static String EXPOSURE_EVENT_APPEAR = "appear";
-  public final static String EXPOSURE_EVENT_DISAPPEAR = "disappear";
-  public final static String EXPOSURE_EVENT_WILL_DISAPPEAR = "willdisappear";
-
   private int mExposureState = EXPOSURE_STATE_DISAPPEAR;
 
   public int getExposureState() {
