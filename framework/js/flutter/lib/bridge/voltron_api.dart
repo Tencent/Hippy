@@ -297,7 +297,7 @@ class VoltronApi {
   }
 
   static Future<dynamic> callFunction(int engineId, String action,
-      String params, CommonCallback callback) async {
+      Object params, CommonCallback callback, {bool bridgeParamsJson = false}) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();

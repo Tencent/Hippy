@@ -101,9 +101,9 @@ typedef RunScriptFromAssetsFfiDartType = int Function(
     int callbackId);
 
 typedef CallFunctionFfiNativeType = Void Function(Int32 engineId,
-    Pointer<Utf16> action, Pointer<Utf16> params, Int32 callbackId);
+    Pointer<Utf16> action, Pointer<Uint8> params, Int32 paramsLen, Int32 callbackId);
 typedef CallFunctionFfiDartType = void Function(
-    int engineId, Pointer<Utf16> action, Pointer<Utf16> params, int callbackId);
+    int engineId, Pointer<Utf16> action, Pointer<Uint8> params, int paramsLen, int callbackId);
 
 typedef CallNativeFunctionFfiNativeType = Void Function(Int32 engineId, Int32 rootId,
     Pointer<Utf16> callId, Pointer<Uint8> params, Int32 paramsLen, Int32 keep);
