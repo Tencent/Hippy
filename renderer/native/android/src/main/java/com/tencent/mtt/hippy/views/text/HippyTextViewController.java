@@ -19,8 +19,6 @@ import android.content.Context;
 import android.text.Spannable;
 import android.view.View;
 import com.tencent.mtt.hippy.annotation.HippyController;
-import com.tencent.mtt.hippy.dom.node.StyleNode;
-import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextRenderSupply;

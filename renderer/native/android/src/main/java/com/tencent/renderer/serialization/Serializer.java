@@ -65,7 +65,7 @@ public class Serializer extends PrimitiveValueSerializer {
         return null;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "rawtypes"})
     @Override
     public boolean writeValue(@NonNull Object object) throws NativeRenderException {
         //Compatible HippyMap with old versions, will be removed in the future.

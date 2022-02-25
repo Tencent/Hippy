@@ -55,8 +55,9 @@ public class TypeFaceUtil {
             try {
                 typeface = Typeface
                         .createFromAsset(ContextHolder.getAppContext().getAssets(), fileName);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 // If create type face from asset failed, other builder can also be used
+                LogUtils.w(TAG, e.getMessage());
             }
         }
         if (typeface == null && fontAdapter != null) {
@@ -64,8 +65,9 @@ public class TypeFaceUtil {
             if (!TextUtils.isEmpty(filePath)) {
                 try {
                     typeface = Typeface.createFromFile(filePath);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
                     // If create type face from asset file, other builder can also be used
+                    LogUtils.w(TAG, e.getMessage());
                 }
             }
         }

@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

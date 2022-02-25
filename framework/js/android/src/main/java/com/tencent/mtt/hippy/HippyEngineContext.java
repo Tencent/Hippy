@@ -21,7 +21,6 @@ import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
-import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.RenderProcessInterceptor;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
@@ -39,10 +38,6 @@ public interface HippyEngineContext {
   DevSupportManager getDevSupportManager();
 
   ThreadExecutor getThreadExecutor();
-
-  DomManager getDomManager();
-
-  RenderManager getRenderManager();
 
   ViewGroup getRootView();
 

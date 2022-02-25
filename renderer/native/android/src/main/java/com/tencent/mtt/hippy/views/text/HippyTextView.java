@@ -26,8 +26,6 @@ import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.tencent.mtt.hippy.dom.node.DomNode;
-import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -76,23 +74,6 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
   @Override
   public void clear() {
     mLayout = null;
-  }
-
-  @Override
-  public void setId(int id) {
-    super.setId(id);
-
-    Context context = getContext();
-    if (context instanceof NativeRenderContext) {
-      int instanceId = ((NativeRenderContext)context).getInstanceId();
-      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-      if (nativeRenderer != null) {
-        DomNode node = nativeRenderer.getDomManager().getNode(id);
-        if (node instanceof TextNode) {
-          ((TextNode)node).setTextView(this);
-        }
-      }
-    }
   }
 
   public HippyTextView(Context context) {

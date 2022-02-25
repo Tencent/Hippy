@@ -52,6 +52,8 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import com.tencent.renderer.utils.EventUtils;
+
+import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -346,10 +348,8 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
 
     protected void onTouchMove(int x, int y) {
         int totalHeight = mAdapter.getTotalHeight();
-        HippyMap param = new HippyMap();
         float contentOffset = 0;
         String eventName = "";
-
         if (mLayout.canScrollHorizontally()) {
             if (mOffsetX < mState.mCustomHeaderWidth) {
                 contentOffset = Math.abs((mOffsetX - mState.mCustomHeaderWidth));
@@ -367,15 +367,12 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
                 eventName = EVENT_LIST_FOOTER_PULLING;
             }
         }
-
-        param.pushDouble("contentOffset", PixelUtil.px2dp(contentOffset));
-        switch (eventName) {
-            case EVENT_LIST_HEADER_PULLING:
-                sendPullHeaderEvent(eventName, param);
-                break;
-            case EVENT_LIST_FOOTER_PULLING:
-                sendPullFooterEvent(eventName, param);
-                break;
+        Map<String, Object> params = new HashMap<>();
+        params.put("contentOffset", Double.valueOf(PixelUtil.px2dp(contentOffset)));
+        if (eventName.equals(EVENT_LIST_HEADER_PULLING)) {
+            sendPullHeaderEvent(eventName, params);
+        } else if (eventName.equals(EVENT_LIST_FOOTER_PULLING)) {
+            sendPullFooterEvent(eventName, params);
         }
     }
 

@@ -53,7 +53,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 
@@ -74,7 +73,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private int mRootId;
     private RenderManager mRenderManager;
     private VirtualNodeManager mVirtualNodeManager;
-    private DomManager domManager;
     private HippyRootView mRootView;
     private FrameworkProxy mFrameworkProxy;
     private final NativeRenderProvider mRenderProvider;
@@ -93,7 +91,6 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
         mRenderManager = new RenderManager(this, controllers);
         mVirtualNodeManager = new VirtualNodeManager(this);
-        domManager = new DomManager(this);
         if (rootView instanceof HippyRootView) {
             mRenderManager.createRootNode(mRootId);
             mRenderManager.addRootView(rootView);
@@ -205,25 +202,10 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
         return mRootView;
     }
-
-    @Override
-    public Object getDomManagerObject() {
-        return getDomManager();
-    }
-
-    @Override
-    public Object getRenderManagerObject() {
-        return getRenderManager();
-    }
-
+    
     @Override
     public RenderManager getRenderManager() {
         return mRenderManager;
-    }
-
-    @Override
-    public DomManager getDomManager() {
-        return domManager;
     }
 
     @Override
@@ -363,7 +345,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": createNode: invalid node object");
             }
-            Map<String, Object> node = (Map) element;
+            Map node = (Map) element;
             int nodeId;
             int nodePid;
             int nodeIndex;

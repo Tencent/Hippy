@@ -625,7 +625,6 @@ public class TextNode extends StyleNode {
       Layout mLayout = createLayout(
           getLayoutWidth() - getPadding(FlexSpacing.LEFT) - getPadding(FlexSpacing.RIGHT),
           FlexMeasureMode.EXACTLY);
-      nativeRenderer.getDomManager().postWarmLayout(mLayout);
       setData(mLayout);
     }
 
