@@ -36,14 +36,6 @@ public class CSSModel {
    */
   public JSONObject getMatchedStyles(HippyEngineContext context, int nodeId) {
     JSONObject matchedObject = new JSONObject();
-    try {
-      HippyMap style = context.getDomManager().getNode(nodeId).getDomainData().style;
-      if (style != null) {
-        matchedObject.put("inlineStyle", getCSSStyle(style, nodeId));
-      }
-    } catch (Exception e) {
-      LogUtils.e(TAG, "getMatchedStyles, Exception: ", e);
-    }
     return matchedObject;
   }
 
@@ -64,45 +56,12 @@ public class CSSModel {
    */
   public JSONObject getComputedStyle(HippyEngineContext context, int nodeId) {
     JSONObject computedStyle = new JSONObject();
-    try {
-      HippyMap style = context.getDomManager().getNode(nodeId).getDomainData().style;
-      computedStyle.put("computedStyle", getComputedStyle(context, nodeId, style));
-    } catch (Exception e) {
-      LogUtils.e(TAG, "getComputedStyle, Exception: ", e);
-    }
     return computedStyle;
   }
 
   private JSONArray getComputedStyle(HippyEngineContext context, int nodeId, HippyMap style)
     throws JSONException {
     JSONArray computedArray = new JSONArray();
-    if (style != null) {
-      // property style
-      for (Map.Entry entry : style.entrySet()) {
-        String key = (String) entry.getKey();
-        if (!isCanHandleStyle(key) || NodeProps.WIDTH.equals(key) || NodeProps.HEIGHT
-          .equals(key)) {
-          continue;
-        }
-        String value = entry.getValue().toString();
-        computedArray.put(getStyleProperty(unCamelize(key), value));
-      }
-
-      // box model property
-      Map<String, String> boxModelRequireMap = getBoxModelRequireMap();
-      for (Map.Entry<String, String> entry : boxModelRequireMap.entrySet()) {
-        if (!style.containsKey(entry.getKey())) {
-          computedArray.put(getStyleProperty(unCamelize(entry.getKey()), entry.getValue()));
-        }
-      }
-      RenderNode renderNode = context.getRenderManager().getRenderNode(nodeId);
-      if (renderNode != null) {
-        computedArray.put(
-          getStyleProperty(unCamelize(NodeProps.WIDTH), String.valueOf(renderNode.getWidth())));
-        computedArray.put(
-          getStyleProperty(unCamelize(NodeProps.HEIGHT), String.valueOf(renderNode.getHeight())));
-      }
-    }
     return computedArray;
   }
 
@@ -114,63 +73,11 @@ public class CSSModel {
   public JSONObject setStyleTexts(HippyEngineContext context, JSONArray editArray,
     CSSDomain cssDomain) {
     JSONObject styleObject = new JSONObject();
-    try {
-      JSONArray styleList = new JSONArray();
-      for (int i = 0; i < editArray.length(); i++) {
-        JSONObject editObj = (JSONObject) editArray.opt(i);
-        JSONObject styleText = setStyleText(context, editObj);
-        if (styleText == null) {
-          continue;
-        }
-        styleList.put(styleText);
-      }
-
-      /// 更新样式集合不为空，就批量更新节点样式
-      if (styleList.length() > 0) {
-        // 避免更新 CSS 时，触发 DOM 监听 batch 的更新，同时避免入侵 DomManager 的结构，加个变量控制下
-        cssDomain.setNeedBatchUpdateDom(false);
-        context.getDomManager().batch();
-        cssDomain.setNeedBatchUpdateDom(true);
-      }
-      styleObject.put("styles", styleList);
-    } catch (Exception e) {
-      LogUtils.e(TAG, "setStyleTexts, Exception: ", e);
-    }
     return styleObject;
   }
 
   private JSONObject setStyleText(HippyEngineContext context, JSONObject editObj) {
-    // set style
-    int nodeId = editObj.optInt("styleSheetId");
-    DomNode node = context.getDomManager().getNode(nodeId);
-    if (node == null || node.getDomainData() == null) {
-      LogUtils.e(TAG, "setStyleText node is null");
-      return null;
-    }
-    ViewGroup hippyRootView = context.getRootView();
-    if (hippyRootView == null) {
-      LogUtils.e(TAG, "setStyleText hippyRootView is null");
-      return null;
-    }
-    HippyMap newMap = node.getTotalProps() == null ? new HippyMap() : node.getTotalProps().copy();
-    HippyMap style =
-      newMap.get(NodeProps.STYLE) != null ? (HippyMap) newMap.get(NodeProps.STYLE) : new HippyMap();
-
-    String text = editObj.optString("text");
-    String[] textList = text.split(";");
-    for (String item : textList) {
-      String[] propertyList = item.trim().split(":");
-      if (propertyList.length != 2) {
-        continue;
-      }
-      String key = camelize(propertyList[0].trim());
-      String value = propertyList[1].trim();
-      Object formatValue = getTransformValue(key, value);
-      style.pushObject(key, formatValue);
-    }
-    newMap.pushMap(NodeProps.STYLE, style);
-    context.getDomManager().updateNode(nodeId, newMap, hippyRootView);
-    return getCSSStyle(style, nodeId);
+    return null;
   }
 
   private JSONObject getCSSStyle(HippyMap style, int nodeId) {

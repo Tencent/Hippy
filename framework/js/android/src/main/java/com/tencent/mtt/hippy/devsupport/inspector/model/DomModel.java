@@ -10,7 +10,6 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.DomDomainData;
-import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
@@ -29,38 +28,7 @@ public class DomModel {
   private DomNode mInspectNode;
 
   private JSONObject getNode(HippyEngineContext context, int nodeId) {
-    JSONArray childrenArray = new JSONArray();
-    JSONObject result = null;
-    DomManager domManager = context.getDomManager();
-    if (domManager != null) {
-      DomNode domNode = domManager.getNode(nodeId);
-      if (domNode == null) {
-        return null;
-      }
-
-      DomDomainData domainData = domNode.getDomainData();
-      // rootNode domainData为空
-      if (domainData != null && !TextUtils.isEmpty(domainData.text)) {
-        childrenArray.put(getTextNodeJson(domainData));
-      }
-
-      for (int i = 0, size = domNode.getChildCount(); i < size; i++) {
-        DomNode childNode = domNode.getChildAt(i);
-        childrenArray.put(getNode(context, childNode.getId()));
-      }
-
-      try {
-        result = getNodeJson(domainData, NodeType.ELEMENT_NODE);
-        if (result == null) {
-          result = new JSONObject();
-        }
-        result.put("childNodeCount", childrenArray.length());
-        result.put("children", childrenArray);
-      } catch (Exception e) {
-        LogUtils.e(TAG, "getNode, exception:", e);
-      }
-    }
-    return result;
+    return null;
   }
 
   private JSONObject getTextNodeJson(DomDomainData domainData) {
@@ -130,36 +98,6 @@ public class DomModel {
   }
 
   public JSONObject getDocument(HippyEngineContext context) {
-    if (context == null) {
-      return new JSONObject();
-    }
-    try {
-      JSONObject result = new JSONObject();
-      JSONObject root = new JSONObject();
-      int documentNodeId = -3;
-      result.put("root", root);
-      root.put("nodeId", documentNodeId);
-      root.put("backendNodeId", documentNodeId);
-      root.put("nodeType", 9);
-      root.put("childNodeCount", 1);
-      root.put("nodeName", "#document");
-      root.put("baseURL", "");
-      root.put("documentURL", "");
-      DomManager domManager = context.getDomManager();
-      if (domManager != null) {
-        int rootId = domManager.getRootNodeId();
-        JSONObject rootNode = getNode(context, rootId);
-        if (rootNode != null) {
-          JSONArray childrenArray = rootNode.optJSONArray("children");
-          if (childrenArray != null) {
-            root.put("children", childrenArray);
-          }
-        }
-      }
-      return result;
-    } catch (Exception e) {
-      LogUtils.e(TAG, "getDocument, exception:", e);
-    }
     return new JSONObject();
   }
 
@@ -289,67 +227,11 @@ public class DomModel {
   }
 
   public JSONObject getBoxModel(HippyEngineContext context, JSONObject paramsObj) {
-    if (context == null || paramsObj == null) {
-      return new JSONObject();
-    }
-    try {
-      int nodeId = paramsObj.optInt("nodeId", -1);
-      DomManager domManager = context.getDomManager();
-      RenderManager renderManager = context.getRenderManager();
-      if (domManager != null && renderManager != null) {
-        DomNode domNode = domManager.getNode(nodeId);
-        RenderNode renderNode = renderManager.getRenderNode(nodeId);
-        if (domNode != null && domNode.getDomainData() != null && renderNode != null) {
-          int[] viewLocation = getRenderViewLocation(context, renderNode);
-          // 没找到view，还未创建
-          if (viewLocation == null) {
-            return new JSONObject();
-          }
-
-          JSONArray border = getBorder(viewLocation[0], viewLocation[1], renderNode.getWidth(),
-            renderNode.getHeight());
-          HippyMap style = domNode.getDomainData().style;
-          JSONArray padding = getPadding(border, style);
-          JSONArray content = getContent(padding, style);
-          JSONArray margin = getMargin(border, style);
-          JSONObject result = new JSONObject();
-          JSONObject model = new JSONObject();
-          model.put("content", content);
-          model.put("padding", padding);
-          model.put("border", border);
-          model.put("margin", margin);
-          model.put("width", renderNode.getWidth());
-          model.put("height", renderNode.getHeight());
-          result.put("model", model);
-          return result;
-        }
-      }
-    } catch (Exception e) {
-      LogUtils.e(TAG, "getDocument, exception:", e);
-    }
     return new JSONObject();
   }
 
   private int[] getRenderViewLocation(HippyEngineContext context, RenderNode renderNode) {
     int[] viewLocation = new int[2];
-    viewLocation[0] = renderNode.getX();
-    viewLocation[1] = renderNode.getY();
-    ControllerManager controllerManager = context.getRenderManager().getControllerManager();
-    if (controllerManager != null) {
-      View view = controllerManager.findView(renderNode.getId());
-      if (view != null) {
-        view.getLocationOnScreen(viewLocation);
-        ViewGroup rootView = getRootView(context);
-        if (rootView != null) {
-          int[] rootViewLocation = new int[2];
-          rootView.getLocationOnScreen(rootViewLocation);
-          viewLocation[0] = viewLocation[0] - rootViewLocation[0];
-          viewLocation[1] = viewLocation[1] - rootViewLocation[1];
-        }
-      } else {
-        return null;
-      }
-    }
     return viewLocation;
   }
 
@@ -445,34 +327,6 @@ public class DomModel {
   }
 
   public JSONObject getNodeForLocation(HippyEngineContext context, JSONObject paramsObj) {
-    if (context == null || paramsObj == null) {
-      return new JSONObject();
-    }
-    try {
-      int x = paramsObj.optInt("x", 0);
-      int y = paramsObj.optInt("y", 0);
-      DomManager domManager = context.getDomManager();
-      RenderManager renderManager = context.getRenderManager();
-      if (domManager != null && renderManager != null) {
-        int rootId = domManager.getRootNodeId();
-        RenderNode renderNode = renderManager.getRenderNode(rootId);
-        if (renderNode.getChildCount() > 0) {
-          RenderNode rootNode = getRootRenderNode(renderNode, x, y);
-          if (rootNode != null) {
-            RenderNode hitRenderNode = getMaxDepthAndMinAreaHitRenderNode(context, x, y, rootNode);
-            JSONObject result = new JSONObject();
-            if (hitRenderNode != null) {
-              result.put("backendId", hitRenderNode.getId());
-              result.put("frameId", DEFAULT_FRAME_ID);
-              result.put("nodeId", hitRenderNode.getId());
-            }
-            return result;
-          }
-        }
-      }
-    } catch (Exception e) {
-      LogUtils.e(TAG, "getDocument, exception:", e);
-    }
     return new JSONObject();
   }
 
@@ -495,21 +349,6 @@ public class DomModel {
   }
 
   public JSONObject setInspectMode(HippyEngineContext context, JSONObject paramsObj) {
-    if (context == null || paramsObj == null) {
-      return new JSONObject();
-    }
-    try {
-      int nodeId = paramsObj.optInt("nodeId", 0);
-      DomManager domManager = context.getDomManager();
-      if (domManager != null) {
-        DomNode domNode = domManager.getNode(nodeId);
-        if (domNode != null) {
-          mInspectNode = domNode;
-        }
-      }
-    } catch (Exception e) {
-      LogUtils.e(TAG, "setInspectMode, exception:", e);
-    }
     return new JSONObject();
   }
 

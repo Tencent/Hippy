@@ -25,6 +25,8 @@ import com.tencent.mtt.hippy.views.list.HippyListView;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallView;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 
+import static com.tencent.renderer.utils.EventUtils.EVENT_LIST_FOOTER_RELEASED;
+
 public class FooterUtil {
 
   public static boolean isFooterView(View view) {
@@ -44,7 +46,7 @@ public class FooterUtil {
       if (footerContainer != null) {
         footerContainer.setFooterState(HippyListView.REFRESH_STATE_LOADING);
       }
-      new HippyViewEvent(HippyListView.EVENT_TYPE_FOOTER_RELEASED).send(footerView, null);
+      new HippyViewEvent(EVENT_LIST_FOOTER_RELEASED).send(footerView, null);
     }
 
     if (footerContainer instanceof HippyWaterfallView) {
