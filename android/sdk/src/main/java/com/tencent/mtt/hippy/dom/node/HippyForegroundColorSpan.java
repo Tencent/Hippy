@@ -1,27 +1,24 @@
 package com.tencent.mtt.hippy.dom.node;
 
 import android.text.style.ForegroundColorSpan;
+import androidx.annotation.Nullable;
 
 public final class HippyForegroundColorSpan extends ForegroundColorSpan {
 
-  private final Object customData;
-  private final int color;
+  // Support host set custom colors data, such as change skin or night mode.
+  @Nullable
+  private Object mCustomColors;
 
-  public HippyForegroundColorSpan(int color, Object customData) {
+  public HippyForegroundColorSpan(int color, Object customColors) {
     super(color);
-    this.color = color;
-    this.customData = customData;
+    mCustomColors = customColors;
   }
 
   public HippyForegroundColorSpan(int color) {
     this(color, null);
   }
 
-  public int getColor() {
-    return color;
-  }
-
-  public Object getCustomData() {
-    return customData;
+  public Object getCustomColors() {
+    return mCustomColors;
   }
 }
