@@ -236,7 +236,7 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
             spanFlags = Spannable.SPAN_INCLUSIVE_INCLUSIVE;
           }
           textSpan.setSpan(
-            new HippyForegroundColorSpan(textColor, span.getCustomData()), start, end, spanFlags);
+            new HippyForegroundColorSpan(textColor, span.getCustomColors()), start, end, spanFlags);
         }
       }
       if (spans == null || spans.length == 0) {

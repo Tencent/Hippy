@@ -57,7 +57,7 @@ public class TextNode extends StyleNode {
   protected float mLineSpacingMultiplier = UNSET;
   protected float mLineSpacingExtra;
 
-  private int mColor = Color.BLACK;
+  protected int mColor = Color.BLACK;
   private final boolean mIsBackgroundColorSet = false;
   private int mBackgroundColor;
   private String mFontFamily = null;
