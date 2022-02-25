@@ -2,7 +2,10 @@
 
 #include <memory>
 #ifdef ENABLE_INSPECTOR
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8-inspector.h"
+#pragma clang diagnostic pop
 #endif
 
 namespace hippy {

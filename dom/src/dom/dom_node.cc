@@ -53,9 +53,9 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
 DomNode::~DomNode() = default;
 
 int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
-  for (int i = 0; i < children_.size(); i++) {
+  for (size_t i = 0; i < children_.size(); i++) {
     if (children_[i] == child) {
-      return i;
+      return hippy::base::checked_numeric_cast<size_t, int32_t>(i);
     }
   }
   return kInvalidIndex;
@@ -89,7 +89,7 @@ void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
-  auto child = children_[index];
+  auto child = children_[hippy::base::checked_numeric_cast<int32_t, unsigned long>(index)];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
   return child;

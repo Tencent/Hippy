@@ -120,7 +120,7 @@ void FlexLine::FreezeViolations(std::vector<HPNode*>& violations) {
     totalFlexGrow -= item->style.flexGrow;
     totalFlexShrink -= item->style.flexShrink;
     totalWeightedFlexShrink -= item->style.flexShrink * item->result.flexBaseSize;
-    totalWeightedFlexShrink = fmax(totalWeightedFlexShrink, 0.0);
+    totalWeightedFlexShrink = static_cast<float>(fmax(totalWeightedFlexShrink, 0.0));
     item->isFrozen = true;
   }
 }
@@ -199,7 +199,7 @@ bool FlexLine::ResolveFlexibleLengths() {
    * Negative
    * Freeze all the items with max violations.
    */
-  if (totalViolation) {
+  if (static_cast<bool>(totalViolation)) {
     FreezeViolations(totalViolation < 0 ? maxViolations : minViolations);
   } else {
     remainingFreeSpace -= usedFreeSpace;
@@ -207,7 +207,7 @@ bool FlexLine::ResolveFlexibleLengths() {
     // FreezeViolations(items);
   }
 
-  return !totalViolation;
+  return !static_cast<bool>(totalViolation);
 }
 
 /*
@@ -223,11 +223,11 @@ void FlexLine::alignItems() {
   // because 'alignItems' calculate item's positions
   // which influenced by node's layout direction property.
   FlexDirection mainAxis = flexContainer->resolveMainAxis();
-  int itemsSize = items.size();
+  auto itemsSize = items.size();
   // get autoMargin count,assure remainingFreeSpace Calculate again
   remainingFreeSpace = containerMainInnerSize;
   int autoMarginCount = 0;
-  for (int i = 0; i < itemsSize; i++) {
+  for (size_t i = 0; i < itemsSize; i++) {
     HPNodeRef item = items[i];
     remainingFreeSpace -= (item->getLayoutDim(mainAxis) + item->getMargin(mainAxis));
     // TODO(ianwang): remainingFreeSpace may be a small float value , for example
@@ -248,11 +248,11 @@ void FlexLine::alignItems() {
 
   float autoMargin = 0;
   if (remainingFreeSpace > 0 && autoMarginCount > 0) {
-    autoMargin = remainingFreeSpace / autoMarginCount;
+    autoMargin = remainingFreeSpace / static_cast<float>(autoMarginCount);
     remainingFreeSpace = 0;
   }
 
-  for (int i = 0; i < itemsSize; i++) {
+  for (size_t i = 0; i < itemsSize; i++) {
     HPNodeRef item = items[i];
     if (item->isAutoStartMargin(mainAxis)) {
       item->setLayoutStartMargin(mainAxis, autoMargin);
@@ -282,14 +282,14 @@ void FlexLine::alignItems() {
       offset += remainingFreeSpace;
       break;
     case FlexAlignSpaceBetween:
-      space = remainingFreeSpace / (itemsSize - 1);
+      space = remainingFreeSpace / (static_cast<float>(itemsSize - 1));
       break;
     case FlexAlignSpaceAround:
-      space = remainingFreeSpace / itemsSize;
+      space = remainingFreeSpace / static_cast<float>(itemsSize);
       offset += space / 2;
       break;
     case FlexAlignSpaceEvenly:
-      space = remainingFreeSpace / (itemsSize + 1);
+      space = remainingFreeSpace / (static_cast<float>(itemsSize + 1));
       offset += space;
       break;
     default:
@@ -297,7 +297,7 @@ void FlexLine::alignItems() {
   }
 
   // start end position set.
-  for (int i = 0; i < itemsSize; i++) {
+  for (size_t i = 0; i < itemsSize; i++) {
     HPNodeRef item = items[i];
     offset += item->getLayoutStartMargin(mainAxis);
     item->setLayoutStartPosition(mainAxis, offset);

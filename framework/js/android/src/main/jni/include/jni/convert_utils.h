@@ -23,8 +23,8 @@
 #pragma once
 
 #include <jni.h>
-#include "core/napi/js_native_turbo.h"
-#include "scoped_java_ref.h"
+#include "core/core.h"
+#include "jni/scoped_java_ref.h"
 
 struct JNIArgs {
   JNIArgs(size_t count) : args_(count) {}

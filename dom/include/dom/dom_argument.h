@@ -16,28 +16,28 @@ enum class ArgumentType {
 
 class DomArgument {
  public:
-  DomArgument(){};
+  DomArgument(){}
   DomArgument(const DomArgument& source);
 
   DomArgument(const tdf::base::DomValue& dom_value)
-      : data_(std::make_any<tdf::base::DomValue>(dom_value)), argument_type_(ArgumentType::OBJECT){};
+      : data_(std::make_any<tdf::base::DomValue>(dom_value)), argument_type_(ArgumentType::OBJECT){}
   DomArgument(const std::vector<uint8_t>& bson_value)
-      : data_(std::make_any<std::vector<uint8_t>>(bson_value)), argument_type_(ArgumentType::BSON){};
+      : data_(std::make_any<std::vector<uint8_t>>(bson_value)), argument_type_(ArgumentType::BSON){}
   DomArgument(const std::pair<uint8_t*, size_t>& bson_value)
       : data_(std::make_any<std::vector<uint8_t>>(bson_value.first, bson_value.first + bson_value.second)),
-        argument_type_(ArgumentType::BSON){};
+        argument_type_(ArgumentType::BSON){}
 
   ~DomArgument();
 
-  DomArgument& operator=(const DomArgument& rhs) noexcept;
+  DomArgument& operator=(const DomArgument& rhs) noexcept = default;
 
   bool ToBson(std::vector<uint8_t>& bson) const;
   bool ToObject(tdf::base::DomValue& dom_value) const;
 
  private:
-  bool ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson) const;
+  static bool ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson) ;
 
-  bool ConvertBsonToObject(const std::vector<const uint8_t>& bson, tdf::base::DomValue& dom_value) const;
+  static bool ConvertBsonToObject(const std::vector<const uint8_t>& bson, tdf::base::DomValue& dom_value) ;
 
   std::any data_;
   ArgumentType argument_type_;

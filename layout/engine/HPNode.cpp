@@ -17,9 +17,8 @@
 
 #include "HPNode.h"
 
-#include <string.h>
-
 #include <algorithm>
+#include <cstring>
 #include <string>
 
 // the layout progress refers
@@ -44,7 +43,7 @@ std::string toString(float value) {
 }
 
 void HPNode::printNode(uint32_t indent) {
-  std::string indentStr = getIndentString(indent);
+  std::string indentStr = getIndentString(static_cast<int>(indent));
   std::string startStr;
   startStr = indentStr + "<div layout=\"width:%s; height:%s; left:%s; top:%s;\" style=\"%s\">\n";
   HPLogd(startStr.c_str(), toString(result.dim[0]).c_str(), toString(result.dim[1]).c_str(),
@@ -52,8 +51,7 @@ void HPNode::printNode(uint32_t indent) {
          style.toString().c_str());
 
   std::vector<HPNodeRef>& items = children;
-  for (size_t i = 0; i < items.size(); i++) {
-    HPNodeRef item = items[i];
+  for (auto item : items) {
     item->printNode(indent + 4);
   }
   std::string endStr = indentStr + "</div>\n";
@@ -79,8 +77,7 @@ HPNode::~HPNode() {
   }
 
   // set child's parent as null
-  for (size_t i = 0; i < children.size(); i++) {
-    HPNodeRef item = children[i];
+  for (auto item : children) {
     if (item != nullptr) {
       item->setParent(nullptr);
     }
@@ -145,7 +142,7 @@ void HPNode::resetLayoutRecursive(bool isDisplayNone) {
   }
 }
 
-HPStyle HPNode::getStyle() {
+HPStyle HPNode::getStyle() const {
   return style;
 }
 
@@ -174,7 +171,7 @@ void HPNode::setParent(HPNodeRef _parent) {
   parent = _parent;
 }
 
-HPNodeRef HPNode::getParent() {
+HPNodeRef HPNode::getParent() const {
   return parent;
 }
 
@@ -206,7 +203,7 @@ HPNodeRef HPNode::getChild(uint32_t index) {
 }
 
 bool HPNode::removeChild(HPNodeRef child) {
-  std::vector<HPNodeRef>::iterator p = std::find(children.begin(), children.end(), child);
+  auto p = std::find(children.begin(), children.end(), child);
   if (p != children.end()) {
     children.erase(p);
     child->setParent(nullptr);
@@ -231,8 +228,8 @@ bool HPNode::removeChild(uint32_t index) {
   return true;
 }
 
-uint32_t HPNode::childCount() {
-  return children.size();
+uint32_t HPNode::childCount() const {
+  return static_cast<uint32_t>(children.size());
 }
 
 void HPNode::setDisplayType(DisplayType displayType) {
@@ -501,9 +498,9 @@ void HPNode::SetConfig(HPConfigRef config) {
   _config = config;
 }
 
-HPConfigRef HPNode::GetConfig() {
+HPConfigRef HPNode::GetConfig() const {
   return _config;
-};
+}
 
 float HPNode::boundAxis(FlexDirection axis, float value) {
   float min = style.minDim[axisDim[axis]];
@@ -679,8 +676,8 @@ bool HPNode::collectFlexLines(std::vector<FlexLine*>& flexLines, HPSize availabl
   }
 
   FlexLine* line = nullptr;
-  int itemsSize = items.size();
-  int i = 0;
+  auto itemsSize = items.size();
+  size_t i = 0;
   while (i < itemsSize) {
     HPNodeRef item = items[i];
     if (item->style.positionType == PositionTypeAbsolute ||
@@ -1202,15 +1199,14 @@ float HPNode::determineCrossAxisSize(std::vector<FlexLine*>& flexLines,
     if (sumLinesCrossSize < innerCrossSize) {
       for (size_t i = 0; i < flexLines.size(); i++) {
         FlexLine* line = flexLines[i];
-        line->lineCrossSize += (innerCrossSize - sumLinesCrossSize) / flexLines.size();
+        line->lineCrossSize += (innerCrossSize - sumLinesCrossSize) / static_cast<float>(flexLines.size());
       }
     }
   }
 
   // 11.Determine the used cross size of each flex item
   // Think about item align-self: stretch
-  for (size_t i = 0; i < flexLines.size(); i++) {
-    FlexLine* line = flexLines[i];
+  for (auto line : flexLines) {
     for (size_t j = 0; j < line->items.size(); j++) {
       HPNodeRef item = line->items[j];
 
@@ -1288,9 +1284,9 @@ void HPNode::mainAxisAlignment(std::vector<FlexLine*>& flexLines) {
 void HPNode::crossAxisAlignment(std::vector<FlexLine*>& flexLines) {
   FlexDirection crossAxis = resolveCrossAxis();
   float sumLinesCrossSize = 0;
-  int linesCount = flexLines.size();
-  for (int i = 0; i < linesCount; i++) {
-    FlexLine* line = flexLines[i];
+  int linesCount = static_cast<int>(flexLines.size());
+  for (auto i = 0; i < linesCount; i++) {
+    FlexLine* line = flexLines[static_cast<unsigned long>(i)];
     sumLinesCrossSize += line->lineCrossSize;
     for (size_t j = 0; j < line->items.size(); j++) {
       HPNodeRef item = line->items[j];
@@ -1378,10 +1374,10 @@ void HPNode::crossAxisAlignment(std::vector<FlexLine*>& flexLines) {
       offset += remainingFreeSpace;
       break;
     case FlexAlignSpaceBetween:
-      space = remainingFreeSpace / (linesCount - 1);
+      space = remainingFreeSpace / (static_cast<float>(linesCount - 1));
       break;
     case FlexAlignSpaceAround:
-      space = remainingFreeSpace / linesCount;
+      space = remainingFreeSpace / static_cast<float>(linesCount);
       offset += space / 2;
       break;
     default:
@@ -1394,9 +1390,8 @@ void HPNode::crossAxisAlignment(std::vector<FlexLine*>& flexLines) {
   // axis direction.
   float crossAxisPostionStart = offset;
   for (int i = 0; i < linesCount; i++) {
-    FlexLine* line = flexLines[i];
-    for (size_t j = 0; j < line->items.size(); j++) {
-      HPNodeRef item = line->items[j];
+    FlexLine* line = flexLines[static_cast<unsigned long>(i)];
+    for (auto item : line->items) {
       // include (axisStart[crossAxis] == CSSTop) and (axisStart[crossAxis] ==
       // CSSBottom) getLayoutStartPosition set in step 14.
       item->setLayoutStartPosition(crossAxis,

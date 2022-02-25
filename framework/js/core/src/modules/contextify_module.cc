@@ -27,12 +27,9 @@
 #include <string>
 
 #include "base/logging.h"
-#include "core/base/string_view_utils.h"
 #include "core/base/uri_loader.h"
 #include "core/modules/module_register.h"
-#include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
-#include "core/napi/js_native_api_types.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/common_task.h"
 #include "core/task/javascript_task.h"
@@ -137,7 +134,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
     unicode_string_view cur_dir;
     unicode_string_view file_name;
     size_t pos = StringViewUtils::FindLastOf(uri, '/', '/', u'/', U'/');
-    if (pos != -1) {
+    if (pos != static_cast<size_t>(-1)) {
       cur_dir = StringViewUtils::SubStr(uri, 0, pos + 1);
       size_t len = StringViewUtils::GetLength(uri);
       file_name = StringViewUtils::SubStr(uri, pos + 1, len);

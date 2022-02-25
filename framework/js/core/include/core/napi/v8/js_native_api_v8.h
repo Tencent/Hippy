@@ -41,7 +41,10 @@
 #include "core/scope.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8.h"
+#pragma clang diagnostic pop
 
 namespace hippy {
 namespace napi {
@@ -194,7 +197,7 @@ class V8Ctx : public Ctx {
                                                      uint32_t index) override;
 
   // Map Helpers
-  virtual uint32_t GetMapLength(std::shared_ptr<CtxValue>& value);
+  virtual size_t GetMapLength(std::shared_ptr<CtxValue>& value);
   virtual std::shared_ptr<CtxValue> ConvertMapToArray(
       const std::shared_ptr<CtxValue>& value);
 

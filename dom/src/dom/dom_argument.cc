@@ -11,7 +11,7 @@ inline namespace dom {
 
 DomArgument::DomArgument(const DomArgument& source) : data_(source.data_), argument_type_(source.argument_type_) {}
 
-DomArgument::~DomArgument() {}
+DomArgument::~DomArgument() = default;
 
 bool DomArgument::ToBson(std::vector<uint8_t>& bson) const {
   if (argument_type_ == ArgumentType::OBJECT) {
@@ -36,7 +36,7 @@ bool DomArgument::ToObject(tdf::base::DomValue& dom_value) const {
   return false;
 }
 
-bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson) const {
+bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson) {
   tdf::base::Serializer serializer;
   serializer.WriteHeader();
 
@@ -91,9 +91,9 @@ bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std:
   bson.resize(pair.second);
   memcpy(&bson[0], pair.first, sizeof(uint8_t) * pair.second);
   return true;
-};
+}
 
-bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, tdf::base::DomValue& dom_value) const {
+bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, tdf::base::DomValue& dom_value) {
   tdf::base::Deserializer deserializer(bson);
   deserializer.ReadHeader();
 
@@ -168,7 +168,7 @@ bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, td
   }
 
   return ret;
-};
+}
 
 }  // namespace dom
 }  // namespace hippy

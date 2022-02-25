@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include <core/napi/v8/js_native_turbo_v8.h>
-
 #include <string>
+
+#include "core/core.h"
 
 #include "jni_env.h"
 

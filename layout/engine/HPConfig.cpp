@@ -21,10 +21,10 @@
 
 #include "HPConfig.h"
 
-void HPConfig::SetScaleFactor(float scaleFactor) {
-    this->scaleFactor = scaleFactor;
+void HPConfig::SetScaleFactor(float value) {
+    this->scaleFactor = value;
 }
 
-float HPConfig::GetScaleFactor() {
+float HPConfig::GetScaleFactor() const {
     return this->scaleFactor;
 }

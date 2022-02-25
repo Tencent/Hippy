@@ -1,7 +1,9 @@
 // Copyright 2020 Tencent
 #pragma once
 #include <codecvt>
+#include <cassert>
 #include <sstream>
+
 
 #include "log_level.h"
 #include "macros.h"

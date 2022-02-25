@@ -23,8 +23,8 @@
 
 class HPConfig {
  public:
-  void SetScaleFactor(float scaleFactor);
-  float GetScaleFactor();
+  void SetScaleFactor(float value);
+  float GetScaleFactor() const;
 
  public:
   float scaleFactor = 1.0f;

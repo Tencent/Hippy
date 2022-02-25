@@ -21,6 +21,20 @@ set(ABI_COMPILE_OPTIONS
         -fno-exceptions
         -fno-strict-aliasing
         -Wall
+        -Wextra
+        -Wextra-semi
+        -Wconversion
+        -Wimplicit-fallthrough
+        -Wloop-analysis
+        -Wmissing-field-initializers
+        -Wunused-local-typedefs
+        -Wstring-conversion
+        -Wthread-safety
+        -Wtautological-overlap-compare
+        -Wunreachable-code
+        -Wenum-compare-conditional
+        -Wheader-hygiene
+        -Wshadow
         -Wno-unused-parameter
         -Wno-missing-field-initializers
         -pipe

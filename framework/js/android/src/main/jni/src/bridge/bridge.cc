@@ -1,5 +1,6 @@
 #include "bridge/bridge.h"
 
+#include "core/base/common.h"
 #include "jni/jni_env.h"
 
 namespace hippy {
@@ -27,7 +28,7 @@ void ADRBridge::SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message
   }
 
   j_env->DeleteLocalRef(msg);
-};
+}
 
 void ADRBridge::SendNotification(std::unique_ptr<v8_inspector::StringBuffer> message) {
   if (message->string().is8Bit()) {

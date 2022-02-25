@@ -26,7 +26,6 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "core/base/string_view_utils.h"
 #include "core/core.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;

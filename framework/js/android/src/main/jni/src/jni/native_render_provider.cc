@@ -122,7 +122,7 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
     TDF_BASE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
     return;
   }
-  auto node = dom_manager->GetNode(j_node_id);
+  auto node = dom_manager->GetNode(hippy::base::checked_numeric_cast<jlong, uint32_t>(j_node_id));
   if (node == nullptr) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack DomNode not found for id: " << j_node_id;
     return;
@@ -130,7 +130,8 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
 
   jboolean is_copy = JNI_TRUE;
   const char* func_name = j_env->GetStringUTFChars(j_func_name, &is_copy);
-  auto callback = node->GetCallback(func_name, j_cb_id);
+  auto callback = node->GetCallback(func_name,
+                                    hippy::base::checked_numeric_cast<jlong, uint32_t>(j_cb_id));
   if (callback == nullptr) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack Callback not found for func_name: " << func_name;
     return;
@@ -140,7 +141,8 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
   if (j_buffer != nullptr && j_length > 0) {
     jbyte params_buffer[j_length];
     j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
-    tdf::base::Deserializer deserializer((const uint8_t*) params_buffer, j_length);
+    tdf::base::Deserializer deserializer((const uint8_t*) params_buffer,
+                                         hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
     deserializer.ReadObject(*params);
   }
@@ -163,7 +165,7 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
     return;
   }
-  auto node = dom_manager->GetNode(j_dom_id);
+  auto node = dom_manager->GetNode(hippy::base::checked_numeric_cast<jlong, uint32_t>(j_dom_id));
   if (node == nullptr) {
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent DomNode not found for id: " << j_dom_id;
     return;
@@ -174,7 +176,8 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
     jbyte params_buffer[j_length];
     j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
     params = std::make_shared<DomValue>();
-    tdf::base::Deserializer deserializer((const uint8_t*) params_buffer, j_length);
+    tdf::base::Deserializer deserializer((const uint8_t*) params_buffer,
+                                         hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
     deserializer.ReadObject(*params);
   }

@@ -168,7 +168,7 @@ class Ctx {
       const unicode_string_view& file_name) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(
       const unicode_string_view& name) = 0;
-    
+
   virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) = 0;
   virtual void ThrowException(const unicode_string_view& exception) = 0;
   virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) = 0;
@@ -190,8 +190,8 @@ struct VMInitParam {};
 
 class VM {
  public:
-  VM(std::shared_ptr<VMInitParam> param = nullptr){};
-  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; };
+  VM(std::shared_ptr<VMInitParam> param = nullptr){}
+  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; }
 
   virtual std::shared_ptr<Ctx> CreateContext() = 0;
 };
