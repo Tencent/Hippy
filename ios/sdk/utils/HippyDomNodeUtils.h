@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 HIPPY_EXTERN id domValueToOCType(const tdf::base::DomValue *const pDomValue);
 
-HIPPY_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> &domValuesObject);
+HIPPY_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> &domValuesObject);
 
 extern std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary);
 
@@ -43,5 +43,7 @@ HIPPY_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
 HIPPY_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
 HIPPY_EXTERN NSNumber *domValueToNumber(const tdf::base::DomValue *const pDomValue);
+
+HIPPY_EXTERN NSDictionary *stylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
 NS_ASSUME_NONNULL_END

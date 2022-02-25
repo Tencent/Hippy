@@ -265,6 +265,7 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellShadowView = [_dataSource cellForIndexPath:indexPath];
+    [cellShadowView recusivelySetCreationTypeToInstant];
     NSInteger index = [_dataSource flatIndexForIndexPath:indexPath];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{

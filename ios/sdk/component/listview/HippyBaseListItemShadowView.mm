@@ -24,8 +24,12 @@
 
 @implementation HippyBaseListItemShadowView
 
-- (BOOL)isInstantlyCreatedView {
-    return NO;
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.creationType = HippyCreationTypeLazily;
+    }
+    return self;
 }
 
 @end
