@@ -514,6 +514,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView {
     HippyAssertMainQueue();
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
+    [shadowView dirtyDescendantPropagation];
     return [self createViewRecursiveFromShadowViewWithNOLock:shadowView];
 }
 

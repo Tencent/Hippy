@@ -184,6 +184,8 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 - (BOOL)isCSSLeafNode;
 
 - (void)dirtyPropagation NS_REQUIRES_SUPER;
+- (void)dirtySelfPropagation;
+- (void)dirtyDescendantPropagation;
 - (BOOL)isPropagationDirty;
 
 - (void)dirtyText NS_REQUIRES_SUPER;
