@@ -1209,6 +1209,10 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             }];
         }
     }
+    else {
+        HippyShadowView *shadowView = _shadowViewRegistry[@(node_id)];
+        [shadowView addEventName:name];
+    }
 }
 
 - (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id {
