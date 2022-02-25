@@ -167,6 +167,17 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     }
 }
 
+- (void)dirtySelfPropagation {
+    _propagationLifecycle = HippyUpdateLifecycleDirtied;
+}
+
+- (void)dirtyDescendantPropagation {
+    [self dirtySelfPropagation];
+    for (HippyShadowView *shadowView in self.hippySubviews) {
+        [shadowView dirtySelfPropagation];
+    }
+}
+
 - (BOOL)isPropagationDirty {
     return _propagationLifecycle != HippyUpdateLifecycleComputed;
 }
