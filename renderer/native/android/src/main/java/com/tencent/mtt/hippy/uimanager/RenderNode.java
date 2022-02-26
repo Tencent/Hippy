@@ -38,8 +38,6 @@ public class RenderNode {
     public static final int FLAG_ALREADY_DELETED = 0x00000010;
     public static final int FLAG_LAZY_LOAD = 0x00000020;
     public static final int FLAG_HAS_DTEB_ID = 0x00000040;
-
-
     private int mNodeFlags = 0;
     protected int mX;
     protected int mY;

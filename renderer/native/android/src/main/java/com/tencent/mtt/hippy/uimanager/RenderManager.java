@@ -140,7 +140,7 @@ public class RenderManager {
         addUpdateNodeIfNeeded(newParent);
     }
 
-    public void updateExtra(int id, Object object) {
+    public void updateExtra(int id, @Nullable Object object) {
         RenderNode node = mNodes.get(id);
         if (node != null) {
             node.updateExtra(object);

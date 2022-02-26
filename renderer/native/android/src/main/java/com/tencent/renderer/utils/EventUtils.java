@@ -37,10 +37,14 @@ public class EventUtils {
     public static final String EVENT_LIST_HEADER_PULLING = "headerPulling";
     public static final String EVENT_LIST_FOOTER_RELEASED = "footerReleased";
     public static final String EVENT_LIST_FOOTER_PULLING = "footerPulling";
-    public final static String EVENT_LIST_ITEM_WILL_APPEAR = "willAppear";
-    public final static String EVENT_LIST_ITEM_APPEAR = "appear";
-    public final static String EVENT_LIST_ITEM_DISAPPEAR = "disappear";
-    public final static String EVENT_LIST_ITEM_WILL_DISAPPEAR = "willDisappear";
+    public static final String EVENT_LIST_ITEM_WILL_APPEAR = "willAppear";
+    public static final String EVENT_LIST_ITEM_APPEAR = "appear";
+    public static final String EVENT_LIST_ITEM_DISAPPEAR = "disappear";
+    public static final String EVENT_LIST_ITEM_WILL_DISAPPEAR = "willDisappear";
+
+    /** Event of modal view */
+    public static final String EVENT_MODAL_REQUEST_CLOSE = "requestClose";
+    public static final String EVENT_MODAL_SHOW = "onShow";
 
     @MainThread
     public static void send(@NonNull View view, @NonNull String eventName,

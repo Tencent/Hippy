@@ -15,42 +15,41 @@
  */
 package com.tencent.mtt.hippy.views.common;
 
-import com.tencent.mtt.hippy.dom.flex.FlexConstants;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 
 public class CommonBackgroundDrawable extends BackgroundDrawable {
 
   public void setBorderRadius(float radius, int position) {
-    if (!FlexConstants.isUndefined(radius)) {
+    if (!(Float.compare(radius, Float.NaN) == 0)) {
       radius = PixelUtil.dp2px(radius);
       super.setBorderRadius(radius, position);
     }
   }
 
   public void setBorderWidth(float width, int position) {
-    if (!FlexConstants.isUndefined(width)) {
+    if (!(Float.compare(width, Float.NaN) == 0)) {
       width = PixelUtil.dp2px(width);
       super.setBorderWidth(width, position);
     }
   }
 
   public void setShadowOffsetX(float x) {
-    if (!FlexConstants.isUndefined(x)) {
+    if (!(Float.compare(x, Float.NaN) == 0)) {
       x = PixelUtil.dp2px(x);
       super.setShadowOffsetX(x);
     }
   }
 
   public void setShadowOffsetY(float y) {
-    if (!FlexConstants.isUndefined(y)) {
+    if (!(Float.compare(y, Float.NaN) == 0)) {
       y = PixelUtil.dp2px(y);
       super.setShadowOffsetY(y);
     }
   }
 
   public void setShadowRadius(float radius) {
-    if (!FlexConstants.isUndefined(radius)) {
+    if (!(Float.compare(radius, Float.NaN) == 0)) {
       radius = PixelUtil.dp2px(radius);
       super.setShadowRadius(radius);
     }

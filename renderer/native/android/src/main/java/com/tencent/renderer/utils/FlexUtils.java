@@ -14,13 +14,31 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.dom.flex;
+package com.tencent.renderer.utils;
 
-public class FlexConstants {
+public class FlexUtils {
 
-  public static final float UNDEFINED = Float.NaN;
+    public enum FlexMeasureMode {
+        UNDEFINED,
+        EXACTLY,
+        AT_MOST;
 
-  public static boolean isUndefined(float value) {
-    return Float.compare(value, UNDEFINED) == 0;
-  }
+        public static FlexMeasureMode fromInt(int value) {
+            switch (value) {
+                case 1:
+                    return EXACTLY;
+                case 2:
+                    return AT_MOST;
+                case 0:
+                    // fall through
+                default:
+                    return UNDEFINED;
+
+            }
+        }
+    }
+
+    public static long makeSizeToLong(float width, float height) {
+        return ((long) width) << 32 | ((long) height);
+    }
 }

@@ -41,12 +41,13 @@ import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
 import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

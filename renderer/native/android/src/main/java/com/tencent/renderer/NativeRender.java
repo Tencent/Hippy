@@ -32,6 +32,7 @@ import java.util.Map;
 
 public interface NativeRender extends NativeRenderExceptionHandler {
 
+    @NonNull
     RenderManager getRenderManager();
 
     @Nullable

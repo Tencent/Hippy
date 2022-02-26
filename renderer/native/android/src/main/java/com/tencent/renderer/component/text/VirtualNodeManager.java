@@ -25,11 +25,11 @@ import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
-import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.utils.FlexUtils;
+import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import java.lang.reflect.Method;
@@ -127,7 +127,7 @@ public class VirtualNodeManager {
         }
         TextVirtualNode textNode = (TextVirtualNode) node;
         Layout layout = textNode.createLayout(width, widthMode);
-        return FlexOutput.make(layout.getWidth(), layout.getHeight());
+        return FlexUtils.makeSizeToLong(layout.getWidth(), layout.getHeight());
     }
 
     @SuppressWarnings("rawtypes")

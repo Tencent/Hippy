@@ -13,52 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.text;
 
 import android.content.Context;
 import android.text.Spannable;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextRenderSupply;
 
-@SuppressWarnings({"unused"})
 @HippyController(name = HippyTextViewController.CLASS_NAME)
 public class HippyTextViewController extends HippyViewController<HippyTextView> {
 
-  public static final String CLASS_NAME = "Text";
+    public static final String CLASS_NAME = "Text";
 
-  @Override
-  protected View createViewImpl(Context context) {
-    return new HippyTextView(context);
-  }
-
-  @Override
-  protected void updateExtra(View view, Object object) {
-    TextRenderSupply supply = (TextRenderSupply) object;
-    if (supply != null && supply.layout != null && view instanceof HippyTextView) {
-      HippyTextView hippyTextView = (HippyTextView) view;
-      CharSequence textSequence = supply.layout.getText();
-      if (textSequence instanceof Spannable) {
-        Spannable spannable = (Spannable) textSequence;
-        TextGestureSpan[] spans = spannable
-            .getSpans(0, spannable.length(), TextGestureSpan.class);
-        hippyTextView.setNativeGestureEnable(spans != null && spans.length > 0);
-      }
-      hippyTextView.setPadding((int) Math.floor(supply.leftPadding),
-          (int) Math.floor(supply.topPadding),
-          (int) Math.floor(supply.rightPadding), (int) Math.floor(supply.bottomPadding));
-
-      hippyTextView.setLayout(supply.layout);
-      hippyTextView.postInvalidate();
+    @Override
+    protected View createViewImpl(Context context) {
+        return new HippyTextView(context);
     }
 
+    @Override
+    protected void updateExtra(View view, @Nullable Object object) {
+        if (!(object instanceof TextRenderSupply)) {
+            return;
+        }
+        TextRenderSupply supply = (TextRenderSupply) object;
+        if (supply.layout != null && view instanceof HippyTextView) {
+            HippyTextView textView = (HippyTextView) view;
+            CharSequence textSequence = supply.layout.getText();
+            if (textSequence instanceof Spannable) {
+                Spannable spannable = (Spannable) textSequence;
+                TextGestureSpan[] spans = spannable
+                        .getSpans(0, spannable.length(), TextGestureSpan.class);
+                textView.setNativeGestureEnable(spans != null && spans.length > 0);
+            }
+            textView.setPadding((int) Math.floor(supply.leftPadding),
+                    (int) Math.floor(supply.topPadding),
+                    (int) Math.floor(supply.rightPadding), (int) Math.floor(supply.bottomPadding));
+            textView.setLayout(supply.layout);
+            textView.postInvalidate();
+        }
+    }
 
-  }
-
-  @Override
-  protected boolean handleGestureBySelf() {
-    return true;
-  }
+    @Override
+    protected boolean handleGestureBySelf() {
+        return true;
+    }
 }

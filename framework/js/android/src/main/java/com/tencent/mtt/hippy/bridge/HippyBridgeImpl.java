@@ -25,13 +25,11 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeDirectReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
-import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -412,11 +410,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   @Override
   public void onReceiveData(String msg) {
     if (this.mIsDevModule) {
-      boolean isInspectMsg = Inspector.getInstance(mContext)
-        .setWebSocketClient(mDebugWebSocketClient).dispatchReqFromFrontend(mContext, msg);
-      if (!isInspectMsg) {
-        callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
-      }
+      callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
     }
   }
 }
