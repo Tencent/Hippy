@@ -32,8 +32,6 @@ import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
-import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
-import com.tencent.mtt.hippy.dom.flex.FlexOutput;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
@@ -55,6 +53,8 @@ import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
+import com.tencent.renderer.utils.FlexUtils;
+import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 
 public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
 
@@ -603,7 +603,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         } catch (NativeRenderException e) {
             handleRenderException(e);
         }
-        return FlexOutput.make(width, height);
+        return FlexUtils.makeSizeToLong(width, height);
     }
 
     @Override

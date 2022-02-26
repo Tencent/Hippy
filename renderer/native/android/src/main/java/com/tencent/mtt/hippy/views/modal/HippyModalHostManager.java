@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.modal;
 
 import android.content.Context;
@@ -21,10 +22,12 @@ import android.view.View;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
+import com.tencent.renderer.utils.EventUtils;
 
-@SuppressWarnings("unused")
+import static com.tencent.renderer.utils.EventUtils.EVENT_MODAL_REQUEST_CLOSE;
+import static com.tencent.renderer.utils.EventUtils.EVENT_MODAL_SHOW;
+
 @HippyController(name = HippyModalHostManager.CLASS_NAME)
 public class HippyModalHostManager extends HippyGroupController<HippyModalHostView> {
 
@@ -32,22 +35,20 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
 
     @Override
     protected View createViewImpl(Context context) {
-        final HippyModalHostView hippyModalHostView = createModalHostView(context);
-
-        hippyModalHostView
-                .setOnRequestCloseListener(new HippyModalHostView.OnRequestCloseListener() {
-                    @Override
-                    public void onRequestClose(DialogInterface dialog) {
-                        new RequestCloseEvent().send(hippyModalHostView, null);
-                    }
-                });
-        hippyModalHostView.setOnShowListener(new DialogInterface.OnShowListener() {
+        final HippyModalHostView modalHostView = createModalHostView(context);
+        modalHostView.setOnRequestCloseListener(new HippyModalHostView.OnRequestCloseListener() {
             @Override
-            public void onShow(DialogInterface dialog) {
-                new ShowEvent().send(hippyModalHostView, null);
+            public void onRequestClose(DialogInterface dialog) {
+                EventUtils.send(modalHostView, EVENT_MODAL_REQUEST_CLOSE, null);
             }
         });
-        return hippyModalHostView;
+        modalHostView.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                EventUtils.send(modalHostView, EVENT_MODAL_SHOW, null);
+            }
+        });
+        return modalHostView;
     }
 
     protected HippyModalHostView createModalHostView(Context context) {

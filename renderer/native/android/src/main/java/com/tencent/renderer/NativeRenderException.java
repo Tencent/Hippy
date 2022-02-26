@@ -20,8 +20,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInput;
+import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -57,7 +57,7 @@ public class NativeRenderException extends RuntimeException {
         /**
          * If the data object type not support by Serializer
          *
-         * @see com.tencent.renderer.serialization.Serializer#writeValue(Object) 
+         * @see com.tencent.renderer.serialization.Serializer#writeValue(Object)
          */
         SERIALIZER_NOT_SUPPORTED_ERR,
 

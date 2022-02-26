@@ -90,7 +90,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     }
 
-    protected void updateExtra(View view, Object object) {
+    protected void updateExtra(View view, @Nullable Object object) {
 
     }
 

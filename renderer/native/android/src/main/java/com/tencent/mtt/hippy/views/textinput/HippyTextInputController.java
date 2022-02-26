@@ -39,13 +39,11 @@ import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.dom.node.TextExtra;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.utils.ArrayUtils;
@@ -83,14 +81,14 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     protected void updateExtra(View view, Object object) {
         super.updateExtra(view, object);
 
-        if (object instanceof TextExtra) {
-            TextExtra textExtra = (TextExtra) object;
-            HippyTextInput hippyTextInput = (HippyTextInput) view;
-            hippyTextInput.setPadding((int) Math.ceil(textExtra.mLeftPadding),
-                    (int) Math.ceil(textExtra.mTopPadding),
-                    (int) Math.ceil(textExtra.mRightPadding),
-                    (int) Math.ceil(textExtra.mBottomPadding));
-        }
+//        if (object instanceof TextExtra) {
+//            TextExtra textExtra = (TextExtra) object;
+//            HippyTextInput hippyTextInput = (HippyTextInput) view;
+//            hippyTextInput.setPadding((int) Math.ceil(textExtra.mLeftPadding),
+//                    (int) Math.ceil(textExtra.mTopPadding),
+//                    (int) Math.ceil(textExtra.mRightPadding),
+//                    (int) Math.ceil(textExtra.mBottomPadding));
+//        }
     }
 
     @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER, defaultNumber = 14)
