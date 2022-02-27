@@ -59,7 +59,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   nextFocusLeftId?: string | Fiber;
   nextFocusRightId?: string | Fiber;
   style?: HippyTypes.Style;
-  nativeBackgroundAndroid?: { color: Color, borderless: boolean, rippleRadius: number}
+  nativeBackgroundAndroid?: { color: Color, borderless: boolean, rippleRadius: number }
 
   /**
    * The focus event occurs when the component is focused.
@@ -82,17 +82,16 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
 class View extends React.Component<ViewProps, {}> {
   private instance: HTMLDivElement | Fiber | null = null;
 
+  // startRipple
   public setPressed(pressed: boolean) {
     callUIFunction(this.instance as Fiber, 'setPressed', [pressed]);
   }
 
+  // setRippleSpot
   public setHotspot(x: number, y: number) {
     callUIFunction(this.instance as Fiber, 'setHotspot', [x, y]);
   }
 
-  /**
-   * @ignore
-   */
   public render() {
     const { collapsable, style = {}, ...nativeProps } = this.props;
     const nativeStyle: HippyTypes.Style = style;
@@ -112,7 +111,6 @@ class View extends React.Component<ViewProps, {}> {
         // @ts-ignore
         style={nativeStyle}
         {...nativeProps}
-        nativeBackgroundAndroid={nativeBackgroundAndroid}
       />
     );
   }

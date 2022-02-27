@@ -23,7 +23,7 @@
 
 # button
 
-[[范例：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-button.vue)
+[[范例：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-button.vue)
 
 该组件映射到 View 上是因为它是一个可点击的容器，容器里面可以放图片、也可以放文本。但是因为 View 不能包裹文本，所以需要在 `<button>` 里包裹其它文本组件才能显示文字，这个跟浏览器不一样，浏览器的 `<button>` 也可以包裹 `<span>` 组件，所以这只是需要开发时注意一下。
 
@@ -42,7 +42,7 @@
 
 # div
 
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
 > div 组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。在终端侧会被映射成 [ScrollView](hippy-react/components.md?id=ScrollView)，因此具备 [ScrollView](hippy-react/components.md?id=ScrollView) 通用的能力。
 
@@ -62,8 +62,8 @@
 | scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true` （仅在 overflow-y/x: scroll 时适用） | `boolean`                                                    | `ALL`    |
 | showScrollIndicator            | 是否显示滚动条。 `default: false`（仅在 overflow-y/x: scroll 时适用） | `boolean`  | `Android`    |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`                                                    | `iOS`    |
-| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`  | `iOS`   |
-| nativeBackgroundAndroid        | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: int }`； `borderless`表示波纹是否有边界，默认false；`color`波纹颜色；`rippleRadius`波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关demo。` | `Object`| `Android`    |
+| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`  | `iOS`   | 
+| nativeBackgroundAndroid        | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
 
 ## 样式内特殊属性
 
@@ -102,11 +102,29 @@
 > * y: number - Y 偏移值
 > * duration: number | boolean - 毫秒为单位的滚动时间, 默认 1000ms，false 等同 0ms
 
+### setPressed
+
+[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
+
+`最低支持版本 2.13.1`
+
+`(pressed: boolean) => void` 通过传入一个布尔值，通知终端当前是否需要显示水波纹效果
+
+> * pressed: boolean - true 显示水波纹，false 收起水波纹
+
+### setHotspot
+
+[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
+
+`最低支持版本 2.13.1`
+
+`(x: number, y: number) => void` 通过传入一个 `x, y` 坐标值，通知终端设置当前波纹中心位置
+
 ---
 
 # form
 
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
 别的组件容器。 一切同 [div](hippy-vue/components.md?id=div)。
 
@@ -114,7 +132,7 @@
 
 # iframe
 
-[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
+[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
 
 内嵌网页容器。
 
@@ -138,7 +156,7 @@
 
 # img
 
-[[范例：demo-img.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
+[[范例：demo-img.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
 
 图片组件，和浏览器的一样。
 
@@ -177,7 +195,7 @@
 
 # input
 
-[[范例：demo-input.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-input.vue)
+[[范例：demo-input.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-input.vue)
 
 单行文本组件。
 
@@ -286,7 +304,7 @@
 
 # label
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
 显示文本。 一切同 [p](hippy-vue/components.md?id=p)。
 
@@ -303,7 +321,7 @@
 
 # ul
 
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
 
 Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被映射成 `ListView`，包含 `ListView` 所有能力。里面第一层只能包含 `<li>`。
 
@@ -362,7 +380,7 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 
 ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
 
 ## 参数
 
@@ -382,7 +400,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 # p
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
 显示文本，不过因为 Hippy 下没有 `display: inline` 的显示模式，默认全部都是 flex 的。
 
@@ -413,7 +431,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 # span
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
 显示文本。 一切同 [p](hippy-vue/components.md?id=p)。
 
@@ -430,6 +448,6 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 # textarea
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-textarea.vue)
+[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-textarea.vue)
 
 多行文本输入框。 一切同 [input](hippy-vue/components.md?id=input)。
