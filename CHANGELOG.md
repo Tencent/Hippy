@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.1](https://github.com/Tencent/Hippy/compare/2.13.0...2.13.1) (2022-02-27)
+
+
+### Bug Fixes
+
+* **android:** fix `armeabi` architecture build script ([bf06413](https://github.com/Tencent/Hippy/commit/bf06413a2853f27c2c6ccb1df6764c77120b27e5))
+* **android:** fix context leaks on EngineInitParams ([4ce08d3](https://github.com/Tencent/Hippy/commit/4ce08d35bb3820bfc8a404119cdb5d9993292d3c))
+* **android:** fix leaf node can't show css ([a41c07a](https://github.com/Tencent/Hippy/commit/a41c07a84fa512cee003ceb69b66bff549e9fcdc))
+* **android:** remove color property in HippyForegroundColorSpan ([376dd9b](https://github.com/Tencent/Hippy/commit/376dd9b320d33dcf85c6212b1108615bccbe7b6c))
+* **android:** support elements color/findNode by path ([1ef25c2](https://github.com/Tencent/Hippy/commit/1ef25c27f9782c4f8664d8d6d398614f9b3559fa))
+* **android:** use context.getResources() get windowDisplayMetrics ([8813195](https://github.com/Tencent/Hippy/commit/8813195119148b3e01bf927460bbc10487e4f19e))
+* **core:** add HandleUncaughtException function and refactor ThrowException function ([0ffe8f9](https://github.com/Tencent/Hippy/commit/0ffe8f90b7defa77cef3e8db683aabe98734b285))
+* **core:** fix dynamicLoad bug ([0a51dd4](https://github.com/Tencent/Hippy/commit/0a51dd47cc4f300f5070fcce6518d4b02a91657c))
+* **ios:** fix view pager item index error ([151512e](https://github.com/Tencent/Hippy/commit/151512e94df7459fdea2f5bd76a095e183e5f02f))
+
+
+### Features
+
+* **android:** add log level for delegate ([d2bb277](https://github.com/Tencent/Hippy/commit/d2bb277dbe1532a0367fd9bcc5040c1ce4d92f9a))
+* **android:** add remote debugging in non-usb ([e46d571](https://github.com/Tencent/Hippy/commit/e46d571e2874b82e3bd87e73da74b6cc880394ee))
+* **android:** cmake script adds `V8` library file format check ([3e90885](https://github.com/Tencent/Hippy/commit/3e908853bd731213f6d82946e2904bfccb77a287))
+* **android:** support remote non usb debug ([5bf9109](https://github.com/Tencent/Hippy/commit/5bf91090da4d90fb770d58423b6bedb442b49e0f))
+* **android:** textnode custom forgroudcolor ([16c6baf](https://github.com/Tencent/Hippy/commit/16c6bafbdf39489e9b66a323746df59b2f5f649c))
+* **android:** update AGP version to 7.1.1 ([cf5eda5](https://github.com/Tencent/Hippy/commit/cf5eda59c710ef5ca973de93dc13107f6f821ff7))
+* **android:** view adds touch ripple feature ([#989](https://github.com/Tencent/Hippy/issues/989)) ([5518ffb](https://github.com/Tencent/Hippy/commit/5518ffb68a3348697d9a5586486c43a6ef376793))
+* **c++:** optimize c++ code-quality ([e40d6a5](https://github.com/Tencent/Hippy/commit/e40d6a55042208d5a5fabe58880d3b8e66654c10))
+* **core:** add log level for delegate ([c211c61](https://github.com/Tencent/Hippy/commit/c211c616fb88ae0040787c654fbf199774f758fa))
+* **core:** change print log level and fix check macro not crash bug ([e6779ac](https://github.com/Tencent/Hippy/commit/e6779ac03b25b07699f8165683ec1ac27764f7e2))
+* **core:** replacing manually managed GlobalRef with JavaRef ([01e3fc7](https://github.com/Tencent/Hippy/commit/01e3fc73a059b3a1292e2c52891850878351a6a3))
+* **ios:** devtools modify debugURL key ([98a0693](https://github.com/Tencent/Hippy/commit/98a06933366c9d22eea99e3e24e7e283087bf4e6))
+
+
+
+
+
 # [2.13.0](https://github.com/Tencent/Hippy/compare/2.12.2...2.13.0) (2022-02-09)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.1](https://github.com/Tencent/Hippy/compare/2.13.0...2.13.1) (2022-02-27)
+
+
+### Features
+
+* **android:** view adds touch ripple feature ([#989](https://github.com/Tencent/Hippy/issues/989)) ([5518ffb](https://github.com/Tencent/Hippy/commit/5518ffb68a3348697d9a5586486c43a6ef376793))
+
+
+
+
+
 # [2.13.0](https://github.com/Tencent/Hippy/compare/2.12.2...2.13.0) (2022-02-09)
 
 
