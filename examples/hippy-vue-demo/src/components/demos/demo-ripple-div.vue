@@ -1,18 +1,13 @@
 <template>
   <div
-    :style="[wrapperStyle]"
+    ref="ripple1"
+    :style="wrapperStyle"
+    :nativeBackgroundAndroid="{ ...nativeBackgroundAndroid }"
+    @layout="onLayout"
+    @touchstart="onTouchStart"
+    @touchend="onTouchEnd"
   >
-    <div
-      ref="ripple1"
-      :style="contentStyle"
-      :nativeBackgroundAndroid="{ ...nativeBackgroundAndroid }"
-      @touchstart="onTouchStart"
-      @touchend="onTouchEnd"
-    >
-      <p :class="['div-demo-1-text', textClass]">
-        {{ title }}
-      </p>
-    </div>
+    <slot />
   </div>
 </template>
 
@@ -23,14 +18,11 @@ import defaultImage from '../../assets/defaultSource.jpg';
 const defaultRippleConfig = {
   borderless: false,
 };
+
 const demo1Style = {
   display: 'flex',
   height: '40px',
   width: '200px',
-  /**
-    *  inline style 'backgroundImage': `url(${DefaultImage})` with 'url()' syntax only supported above 2.6.1.
-    *  declaration css style supports 'background-image': `url('https://xxxx')` format and remote address only.
-    */
   backgroundImage: `${defaultImage}`,
   backgroundRepeat: 'no-repeat',
   justifyContent: 'center',
@@ -38,6 +30,7 @@ const demo1Style = {
   marginTop: '10px',
   marginBottom: '10px',
 };
+
 export default {
   name: 'DemoRippleDiv',
   props: {
@@ -48,75 +41,40 @@ export default {
       type: Object,
       default: () => demo1Style,
     },
-    textClass: {
-      default: '',
-    },
-    contentStyle: {
-      default: () => ({}),
-    },
-    rippleClass: {
-      default: '',
-    },
-    title: {
-      default: '',
+    positionY: {
+      default: 0,
     },
   },
   data() {
-    /**
-     * demo1 needs to use variable base64 DefaultImage，so inline style mode is a must.
-     * if image path is remote address, declaration style class .div-demo-1 can be used.
-     */
     return {
+      scrollOffsetY: this.positionY,
+      viewX: 0,
+      viewY: 0,
       demo1Style,
-      Platform: Vue.Native.Platform,
     };
   },
+  watch: {
+    positionY(to) {
+      this.scrollOffsetY = to;
+    },
+  },
   mounted() {
-    this.demon2 = this.$refs.ripple1;
+    this.rippleRef = this.$refs.ripple1;
   },
   methods: {
+    async onLayout() {
+      const rect = await Vue.Native.measureInAppWindow(this.rippleRef);
+      this.viewX = rect.left;
+      this.viewY = rect.top;
+    },
     onTouchStart(e) {
-      if (this.Platform === 'ios') {
-        return;
-      }
-      this.demon2.setPressed(true);
       const t = e.touches[0];
-      this.demon2.setHotspot(t.clientX, t.clientY);
+      this.rippleRef.setHotspot(t.clientX - this.viewX, t.clientY + this.scrollOffsetY - this.viewY);
+      this.rippleRef.setPressed(true);
     },
     onTouchEnd() {
-      if (this.Platform === 'ios') {
-        return;
-      }
-      this.demon2.setPressed(false);
+      this.rippleRef.setPressed(false);
     },
   },
 };
 </script>
-
-<style scoped>
-
-  /* Common CSS Styles */
-
-  #div-demo {
-    flex: 1;
-    overflow-y: scroll;
-  }
-
-  .display-flex {
-    display: flex;
-  }
-
-  .flex-row {
-    flex-direction: row;
-  }
-
-  .flex-column {
-    flex-direction: column;
-  }
-
-  .div-demo-1-text {
-    color: black;
-    margin-left: 10px;
-  }
-
-</style>

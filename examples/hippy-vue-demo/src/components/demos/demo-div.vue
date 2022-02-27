@@ -1,6 +1,41 @@
 <template>
-  <div id="div-demo">
+  <div
+    id="div-demo"
+    @scroll="onOuterScroll"
+  >
     <div>
+      <div v-if="Vue.Native.Platform !== 'ios'">
+        <label>水波纹效果: </label>
+        <div :style="{ ...imgRectangle, ...imgRectangleExtra}">
+          <demo-ripple-div
+            :position-y="offsetY"
+            :wrapper-style="imgRectangle"
+            :native-background-android="{ borderless: true, color: '#666666' }"
+          >
+            <p :style="{ color: 'white', maxWidth: 200 }">
+              外层背景图，内层无边框水波纹，受外层影响始终有边框
+            </p>
+          </demo-ripple-div>
+        </div>
+        <demo-ripple-div
+          :position-y="offsetY"
+          :wrapper-style="circleRipple"
+          :native-background-android="{ borderless: true, color: '#666666', rippleRadius: 100 }"
+        >
+          <p :style="{ color: 'black', textAlign: 'center' }">
+            无边框圆形水波纹
+          </p>
+        </demo-ripple-div>
+        <demo-ripple-div
+          :position-y="offsetY"
+          :wrapper-style="squareRipple"
+          :native-background-android="{ borderless: false, color: '#666666' }"
+        >
+          <p :style="{ color: '#fff' }">
+            带背景色水波纹
+          </p>
+        </demo-ripple-div>
+      </div>
       <label>背景图效果:</label>
       <div
         :style="demo1Style"
@@ -71,7 +106,6 @@
         class="div-demo-3"
         :showsVerticalScrollIndicator="false"
       >
-        <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-column">
           <p class="text-block">
             A
@@ -90,36 +124,12 @@
           </p>
         </div>
       </div>
-      <label>水波纹效果:(iOS暂不支持水波纹效果)</label>
-      <demo-ripple-div
-        :wrapper-style="nobRippleWithBg"
-        :native-background-android="{ borderless: true, color: 'rgba(0,0,0,0.07)', rippleRadius: 100 }"
-        title="外层背景图，内层无边框水波纹，受外层影响始终有边框"
-      />
-      <demo-ripple-div
-        :wrapper-style="nobCircieRipple"
-        text-class="circle-ripple-text"
-        :native-background-android="{ borderless: true, color: '#00000011', rippleRadius: 100 }"
-        title="无边框圆形水波纹"
-      />
-      <div :style="{width: 150, height: 150, marginLeft: 20}">
-        <img
-          src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
-          :style="{width: 150, height: 150}"
-        >
-        <demo-ripple-div
-          :wrapper-style="bRippleWrapper"
-          :content-style="bRippleContentStyle"
-          ripple-class="square-rippe-block"
-          :native-background-android="{ borderless: false, color: '#00000011' }"
-          title="有边框，带底图效果水波纹"
-        />
-      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
 import defaultImage from '../../assets/defaultSource.jpg';
 import DemoRippleDiv from './demo-ripple-div.vue';
 
@@ -133,6 +143,8 @@ export default {
      * if image path is remote address, declaration style class .div-demo-1 can be used.
      */
     return {
+      Vue,
+      offsetY: 0,
       demo1Style: {
         display: 'flex',
         height: '40px',
@@ -148,32 +160,37 @@ export default {
         marginTop: '10px',
         marginBottom: '10px',
       },
-      nobRippleWithBg: {
-        display: 'flex',
-        height: '40px',
-        width: '200px',
-        justifyContent: 'center',
+      imgRectangle: {
+        width: '260px',
+        height: '56px',
         alignItems: 'center',
-        marginTop: '10px',
-        marginBottom: '10px',
-        backgroundImage: 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png',
+        justifyContent: 'center',
+      },
+      imgRectangleExtra: {
+        marginTop: '20px',
+        backgroundImage: `${defaultImage}`,
+        backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
       },
-      nobCircieRipple: {
-        height: '40px',
-        width: '200px',
-      },
-      bRippleWrapper: {
-        height: '150px',
+      circleRipple: {
+        marginTop: '30px',
         width: '150px',
-        position: 'absolute',
-      },
-      bRippleContentStyle: {
+        height: '56px',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 150,
-        height: 150,
-        position: 'absolute',
+        borderWidth: '3px',
+        borderColor: '#40b883',
+      },
+      squareRipple: {
+        marginBottom: '20px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '150px',
+        height: '150px',
+        backgroundColor: '#40b883',
+        marginTop: '30px',
+        borderRadius: '12px',
+        overflow: 'hidden',
       },
     };
   },
@@ -184,6 +201,9 @@ export default {
     }, 1000);
   },
   methods: {
+    onOuterScroll(e) {
+      this.offsetY = e.offsetY;
+    },
     onScroll(e) {
       console.log('onScroll', e);
     },
@@ -208,6 +228,7 @@ export default {
   #div-demo {
     flex: 1;
     overflow-y: scroll;
+    margin: 7px;
   }
 
   .display-flex {
@@ -257,20 +278,10 @@ export default {
     margin-bottom: 10px;
   }
 
-  .circle-ripple-text {
-    color: black;
-    margin-left: 10px;
+  .div-demo-1-text {
+    color: white;
   }
 
-  .square-rippe-block {
-    align-items: center;
-    justify-content: center;
-    width: 150;
-    height: 150;
-    position: absolute;
-  }
-
-  /* flex-direction is necessary for horizontal scrolling for Native */
   .div-demo-2 {
     overflow-x: scroll;
     margin: 10px;
@@ -278,6 +289,7 @@ export default {
   }
 
   .div-demo-3 {
+    width: 150px;
     overflow-y: scroll;
     margin: 10px;
     height: 320px;
