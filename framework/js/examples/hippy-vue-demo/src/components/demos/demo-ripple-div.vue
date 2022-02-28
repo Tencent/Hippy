@@ -6,6 +6,7 @@
     @layout="onLayout"
     @touchstart="onTouchStart"
     @touchend="onTouchEnd"
+    @touchcancel="onTouchEnd"
   >
     <slot />
   </div>
