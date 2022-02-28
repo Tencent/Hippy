@@ -29,7 +29,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_CLICK;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_LONG_CLICK;
@@ -52,7 +52,7 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
     private int mLastY = 0;
     private int mTouchSlop = -1;
     private View mTargetView = null;
-    private ArrayList<String> mGestureTypes = null;
+    private List<String> mGestureTypes = null;
     private NativeGestureProcessor mGestureProcessor;
     private Handler mHandler;
     private NativeRender mNativeRenderer;
@@ -61,7 +61,7 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
         mId = id;
     }
 
-    public void addGestureTypes(ArrayList<String> types) {
+    public void addGestureTypes(List<String> types) {
         mGestureTypes = types;
     }
 
@@ -135,7 +135,7 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
                 break;
             }
             default:
-                LogUtils.e(TAG, "handleDispatchTouchEvent: Unknown motion event =" + action);
+                LogUtils.w(TAG, "handleDispatchTouchEvent: Unknown motion event =" + action);
         }
         mLastX = x;
         mLastY = y;
@@ -169,7 +169,7 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
                         .handleTouchEvent(mNativeRenderer, mTargetView, mId, x, y, type);
                 break;
             default:
-                LogUtils.e(TAG, "handle: Unknown event type=" + type);
+                LogUtils.w(TAG, "handle: Unknown event type=" + type);
         }
     }
 

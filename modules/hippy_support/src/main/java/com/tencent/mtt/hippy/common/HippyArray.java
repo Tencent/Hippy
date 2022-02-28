@@ -40,7 +40,7 @@ public class HippyArray {
         mDatas = arrList;
     }
 
-    public List getInternalArray() {
+    public List<Object> getInternalArray() {
         return mDatas;
     }
 

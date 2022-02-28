@@ -51,6 +51,7 @@ import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TextVirtualNode extends VirtualNode {
 
@@ -97,6 +98,9 @@ public class TextVirtualNode extends VirtualNode {
     private final FontAdapter mFontAdapter;
     @Nullable
     private Layout mLayout;
+    // Can only be accessed inside sdk.
+    @Nullable
+    Map<String, Object> mUnusedProps;
 
     public TextVirtualNode(int id, int pid, int index, @NonNull NativeRender nativeRender) {
         super(id, pid, index);
@@ -275,6 +279,58 @@ public class TextVirtualNode extends VirtualNode {
     @HippyControllerProps(name = "enableScale", defaultType = HippyControllerProps.BOOLEAN)
     public void enableScale(boolean enable) {
         mEnableScale = enable;
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_RADIUS, defaultType = HippyControllerProps.NUMBER)
+    public void setBorderRadius(float borderRadius) {
+        addUnusedProps(NodeProps.BORDER_RADIUS, borderRadius);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_WIDTH, defaultType = HippyControllerProps.NUMBER)
+    public void setBorderWidth(float borderWidth) {
+        addUnusedProps(NodeProps.BORDER_WIDTH, borderWidth);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_LEFT_WIDTH, defaultType = HippyControllerProps.NUMBER)
+    public void setLeftBorderWidth(float leftWidth) {
+        addUnusedProps(NodeProps.BORDER_LEFT_WIDTH, leftWidth);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_TOP_WIDTH, defaultType = HippyControllerProps.NUMBER)
+    public void setTopBorderWidth(float topWidth) {
+        addUnusedProps(NodeProps.BORDER_LEFT_WIDTH, topWidth);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_RIGHT_WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+    public void setRightBorderWidth(float rightWidth) {
+        addUnusedProps(NodeProps.BORDER_RIGHT_WIDTH, rightWidth);
+    }
+
+    @HippyControllerProps(name = NodeProps.BORDER_BOTTOM_WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+    public void setBottomBorderWidth(float bottomWidth) {
+        addUnusedProps(NodeProps.BORDER_BOTTOM_WIDTH, bottomWidth);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
+    public void setBorderColor(int borderColor) {
+        addUnusedProps(NodeProps.BORDER_COLOR, borderColor);
+    }
+
+    private void addUnusedProps(@NonNull String key, @NonNull Object value) {
+        // Only top level text node need set unused props to render node.
+        if (mParent != null) {
+            return;
+        }
+        if (mUnusedProps == null) {
+            mUnusedProps = new HashMap<>();
+        }
+        mUnusedProps.put(key, value);
     }
 
     private SpannableStringBuilder createSpan(@Nullable CharSequence text, boolean useChild) {
