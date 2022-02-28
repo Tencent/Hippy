@@ -131,6 +131,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
+    @Nullable
     public IImageLoaderAdapter getImageLoaderAdapter() {
         if (checkJSFrameworkProxy()) {
             Object adapterObj = ((JSFrameworkProxy) mFrameworkProxy).getImageLoaderAdapter();

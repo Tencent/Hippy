@@ -21,7 +21,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class VirtualNode {
 
@@ -34,7 +36,7 @@ public abstract class VirtualNode {
     @Nullable
     protected VirtualNode mParent;
     @Nullable
-    protected ArrayList<String> mGestureTypes = null;
+    protected List<String> mGestureTypes;
 
     public VirtualNode(int id, int pid, int index) {
         mId = id;

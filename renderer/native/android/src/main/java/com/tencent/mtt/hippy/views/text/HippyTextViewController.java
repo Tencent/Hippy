@@ -50,7 +50,7 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
                 Spannable spannable = (Spannable) textSequence;
                 TextGestureSpan[] spans = spannable
                         .getSpans(0, spannable.length(), TextGestureSpan.class);
-                textView.setNativeGestureEnable(spans != null && spans.length > 0);
+                textView.setGestureEnable(spans != null && spans.length > 0);
             }
             textView.setPadding((int) Math.floor(supply.leftPadding),
                     (int) Math.floor(supply.topPadding),

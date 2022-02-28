@@ -22,8 +22,10 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_M
 
 import android.text.Layout;
 import android.util.SparseArray;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.renderer.NativeRender;
@@ -32,6 +34,7 @@ import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -160,7 +163,7 @@ public class VirtualNodeManager {
             @NonNull String key, @Nullable PropertyMethodHolder methodHolder) {
         if (methodHolder == null) {
             if (key.equals(NodeProps.STYLE) && (props.get(key) instanceof Map)) {
-                updateProps(node, (Map) props.get(key));
+                updateProps(node, (Map) props.get(key), false);
             }
             return;
         }
@@ -200,7 +203,8 @@ public class VirtualNodeManager {
     }
 
     @SuppressWarnings("rawtypes")
-    private void updateProps(@NonNull VirtualNode node, @Nullable Map props) {
+    private void updateProps(@NonNull VirtualNode node, @Nullable Map<String, Object> props,
+            Boolean needToReset) {
         if (props == null) {
             return;
         }
@@ -214,6 +218,14 @@ public class VirtualNodeManager {
         for (String key : keySet) {
             PropertyMethodHolder methodHolder = methodMap.get(key);
             invokePropertyMethod(node, props, key, methodHolder);
+        }
+        if (needToReset && node instanceof TextVirtualNode) {
+            props.clear();
+            TextVirtualNode textNode = (TextVirtualNode) node;
+            if (textNode.mUnusedProps != null) {
+                props.putAll(textNode.mUnusedProps);
+                textNode.mUnusedProps = null;
+            }
         }
     }
 
@@ -246,13 +258,13 @@ public class VirtualNodeManager {
         if (parent != null) {
             parent.addChildAt(node, index);
         }
-        updateProps(node, props);
+        updateProps(node, props, true);
     }
 
     public void updateNode(int id, @Nullable Map<String, Object> props) {
         VirtualNode node = mVirtualNodes.get(id);
         if (node != null) {
-            updateProps(node, props);
+            updateProps(node, props, true);
         }
     }
 
