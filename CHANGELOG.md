@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.3](https://github.com/Tencent/Hippy/compare/2.12.2...2.12.3) (2022-02-28)
+
+
+### Bug Fixes
+
+* **android:** use context.getResources() get windowDisplayMetrics ([a1fb410](https://github.com/Tencent/Hippy/commit/a1fb410d2a0526c36c8ea0dab3e5dd18f28c6286))
+* **core:** fix parse uri crash ([c77a853](https://github.com/Tencent/Hippy/commit/c77a853315b7de63330f79332b7c19ad98b9532f))
+
+
+
+
+
 ## [2.12.2](https://github.com/Tencent/Hippy/compare/2.12.1...2.12.2) (2022-01-26)
 
 
