@@ -30,6 +30,7 @@ export default function RippleViewAndroid(props) {
       style={style}
       onTouchDown={onTouchDown}
       onTouchEnd={onTouchEnd}
+      onTouchCancel={onTouchEnd}
       ref={rViewRef}
       nativeBackgroundAndroid={{ ...defaultRippleConfig, ...nativeBackgroundAndroid }}
     >

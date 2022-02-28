@@ -431,13 +431,13 @@ import icon from './qb_icon_new.png';
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
-| nativeBackgroundAndroid    | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认 false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/index.jsx)。 | `Object`| `Android`    |
+| nativeBackgroundAndroid    | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认 false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/RippleViewAndroid/index.jsx)。 | `Object`| `Android`    |
 
 ## 方法
 
 ### setPressed
 
-[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
+[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
 
 `最低支持版本 2.13.1`
 
@@ -447,7 +447,7 @@ import icon from './qb_icon_new.png';
 
 ### setHotspot
 
-[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
+[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
 
 `最低支持版本 2.13.1`
 

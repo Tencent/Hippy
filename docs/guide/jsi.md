@@ -56,7 +56,7 @@ public class DemoJavaTurboModule extends HippyNativeModuleBase {
 <br />
 <br />
 
-更多示例可参考类[DemoJavaTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/turbo/DemoJavaTurboModule.java)
+更多示例可参考类[DemoJavaTurboModule](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/turbo/DemoJavaTurboModule.java)
 
 * 注册TurboModule模块，跟NativeModule注册方法完全一致
 
@@ -154,7 +154,7 @@ HIPPY_EXPORT_TURBO_METHOD(setInfo:(NSString *)string) {
 
 
 
-更多示例可参考类[DemoIOSTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/turbomodule/TurboBaseModule.mm)
+更多示例可参考类[DemoIOSTurboModule](https://github.com/Tencent/Hippy/blob/master/framework/js/examples/ios-demo/HippyDemo/turbomodule/TurboBaseModule.mm)
 
 
 ## 使用例子
