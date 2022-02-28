@@ -57,7 +57,7 @@ public class TextNode extends StyleNode {
   protected float mLineSpacingMultiplier = UNSET;
   protected float mLineSpacingExtra;
 
-  private int mColor = Color.BLACK;
+  protected int mColor = Color.BLACK;
   private final boolean mIsBackgroundColorSet = false;
   private int mBackgroundColor;
   private String mFontFamily = null;
@@ -518,8 +518,8 @@ public class TextNode extends StyleNode {
     sb.append(text);
     int end = sb.length();
     if (start <= end) {
-
-      ops.add(new SpanOperation(start, end, new ForegroundColorSpan(textNode.mColor)));
+      ops
+        .add(new SpanOperation(start, end, createForegroundColorSpan(textNode.mColor, textNode)));
       if (textNode.mIsBackgroundColorSet) {
         ops.add(new SpanOperation(start, end, new BackgroundColorSpan(textNode.mBackgroundColor)));
       }
@@ -596,6 +596,10 @@ public class TextNode extends StyleNode {
         domNode.markUpdateSeen();
       }
     }
+  }
+
+  protected HippyForegroundColorSpan createForegroundColorSpan(int color, TextNode textNode) {
+    return new HippyForegroundColorSpan(color);
   }
 
   private static final FlexNodeAPI.MeasureFunction TEXT_MEASURE_FUNCTION = new FlexNodeAPI.MeasureFunction() {

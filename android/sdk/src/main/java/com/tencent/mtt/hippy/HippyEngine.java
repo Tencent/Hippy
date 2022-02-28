@@ -70,18 +70,8 @@ public abstract class HippyEngine {
   protected int mGroupId;
   ModuleListener mModuleListener;
 
-  static {
-    LibraryLoader.loadLibraryIfNeed();
-  }
-
-  public static void setNativeLogHandler(IHippyNativeLogHandler handler) {
-    if (handler != null) {
-      initNativeLogHandler(handler);
-    }
-  }
-
   @SuppressWarnings("JavaJniMissingFunction")
-  private static native void initNativeLogHandler(IHippyNativeLogHandler handler);
+  private static native void setNativeLogHandler(HippyLogAdapter handler);
 
   /**
    * @param params 创建实例需要的参数 创建一个HippyEngine实例
@@ -90,8 +80,10 @@ public abstract class HippyEngine {
     if (params == null) {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
+    LibraryLoader.loadLibraryIfNeed(params.soLoader);
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
+    setNativeLogHandler(params.logAdapter);
     ContextHolder.initAppContext(params.context);
 
     HippyEngine hippyEngine;
@@ -288,8 +280,6 @@ public abstract class HippyEngine {
     // 设置Hippy引擎的组，同一组的HippyEngine，会共享C层的v8 引擎实例。 默认值为-1（无效组，即不属于任何group组）
     public int groupId = -1;
     // 可选参数 日志输出
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
     public HippyLogAdapter logAdapter;
     public V8InitParams v8InitParams;
     public boolean enableTurbo;

@@ -48,9 +48,9 @@ namespace hippy {
 namespace bridge {
 
 REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cpp)
-                    "initNativeLogHandler",
-                    "(Lcom/tencent/mtt/hippy/IHippyNativeLogHandler;)V",
-                    InitNativeLogHandler)
+                    "setNativeLogHandler",
+                    "(Lcom/tencent/mtt/hippy/adapter/HippyLogAdapter;)V",
+                    setNativeLogHandler)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
@@ -84,6 +84,8 @@ std::mutex inspector_mutex;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
 
+constexpr char kLogTag[] = "native";
+
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
     reuse_engine_map;
 static std::mutex engine_mutex;
@@ -97,7 +99,7 @@ enum INIT_CB_STATE {
   SUCCESS = 0,
 };
 
-void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
+void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
   if (!j_logger) {
     return;
   }
@@ -108,7 +110,7 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
   }
 
   jmethodID j_method =
-      j_env->GetMethodID(j_cls, "onReceiveNativeLogMessage", "(Ljava/lang/String;)V");
+      j_env->GetMethodID(j_cls, "onReceiveLogMessage", "(ILjava/lang/String;Ljava/lang/String;)V");
   if (!j_method) {
     return;
   }
@@ -121,7 +123,9 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
 
     std::string str = stream.str();
     jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
-    j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
+    jstring j_tag_str = j_env->NewStringUTF(kLogTag);
+    jint j_level = static_cast<jint>(severity);
+    j_env->CallVoidMethod(logger->GetObj(), j_method, j_level, j_tag_str, j_logger_str);
     j_env->DeleteLocalRef(j_logger_str);
   });
 }
@@ -354,7 +358,7 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
                       << ", stack = " << ctx->GetStackInfo(message);
   ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
                                       ctx->GetStackInfo(message));
-  ctx->ThrowExceptionToJS(
+  ctx->HandleUncaughtException(
       std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
@@ -392,10 +396,8 @@ jlong InitInstance(JNIEnv* j_env,
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
   engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
 
-  unicode_string_view global_config =
-      JniUtils::JByteArrayToStrView(j_env, j_global_config);
-
-  TDF_BASE_LOG(INFO) << "global_config = " << global_config;
+  unicode_string_view global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
+  TDF_BASE_LOG(DEBUG) << "global_config = " << global_config;
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   std::shared_ptr<JavaRef> save_object =
       std::make_shared<JavaRef>(j_env, j_callback);

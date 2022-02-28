@@ -25,12 +25,13 @@
 #include <jni.h>
 
 #include "core/core.h"
+#include "scoped_java_ref.h"
 
 struct JNIArgs {
   JNIArgs(size_t count) : args_(count) {}
 
   std::vector<jvalue> args_;
-  std::vector<jobject> global_refs_;
+  std::vector<std::shared_ptr<JavaRef>> global_refs_;
 };
 
 template<typename T>
@@ -108,10 +109,7 @@ class ConvertUtils {
       const std::string &type,
       jvalue &j_args,
       const std::shared_ptr<CtxValue> &value,
-      std::vector<jobject> &global_refs);
-
-  static void ThrowException(const std::shared_ptr<Ctx> &ctx,
-                             const std::string &info);
+      std::vector<std::shared_ptr<JavaRef>> &global_refs);
 
   static std::unordered_map<std::string, MethodInfo> GetMethodMap(
       const std::string &method_map_str);

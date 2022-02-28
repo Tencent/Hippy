@@ -131,6 +131,27 @@ if (${JS_ENGINE} STREQUAL "V8")
   list(REMOVE_ITEM CORE_SRC ${JSC_SRC})
   # endregion
   # region library
+  set(ANDROID_READELF
+          "${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-readelf${ANDROID_TOOLCHAIN_SUFFIX}")
+  execute_process(
+          COMMAND ${ANDROID_READELF} ${V8_LIBRARY_PATH}/${V8_LIBRARY_NAME}
+          RESULT_VARIABLE CHECKER_RESULT
+          ERROR_VARIABLE CHECKER_ERROR
+          OUTPUT_QUIET
+  )
+  if (NOT ${CHECKER_RESULT} STREQUAL "0")
+    set(ERROR_MESSAGE "The V8 library file(${V8_LIBRARY_NAME}) format was not recognized.\n")
+    if (${V8_COMPONENT_PATH} MATCHES ${PROJECT_SOURCE_DIR})
+      string(APPEND ERROR_MESSAGE
+              "Did you forget to fetch files from the Git Large File Storage (LFS)? "
+              "Try running the following command in the project root to fetch files.\n"
+              "$ git lfs fetch\n")
+    endif()
+    string(APPEND ERROR_MESSAGE
+            "The checker(llvm-readelf) output as follows: "
+            ${CHECKER_ERROR})
+    message(FATAL_ERROR ${ERROR_MESSAGE})
+  endif()
   if (${V8_LINKING_MODE} STREQUAL "shared")
     add_library(v8 SHARED IMPORTED)
   elseif (${V8_LINKING_MODE} STREQUAL "static")
@@ -139,7 +160,8 @@ if (${JS_ENGINE} STREQUAL "V8")
     endif()
     add_library(v8 STATIC IMPORTED)
   else()
-    message(FATAL_ERROR "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
+    message(FATAL_ERROR
+            "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
   endif()
   set_property(TARGET v8 PROPERTY IMPORTED_LOCATION ${V8_LIBRARY_PATH}/${V8_LIBRARY_NAME})
   list(APPEND HIPPY_DEPS v8)
@@ -168,7 +190,8 @@ include_directories(${CORE_SRC_DIR}/third_party/base/include)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
+  set_target_properties(${CMAKE_PROJECT_NAME}
+          PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
 endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
 
@@ -176,6 +199,7 @@ if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
   foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
     add_custom_command(
             TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+            COMMAND ${CMAKE_COMMAND} -E
+              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
   endforeach()
 endif()
