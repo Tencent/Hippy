@@ -44,7 +44,7 @@ interface HippyScrollDragEvent extends HippyScrollEvent {
 
 const ANIMATION_TIME = 100;
 
-class ScrollView extends View<HTMLDivElement> {
+export class ScrollView extends View<HTMLDivElement> {
   private lastPosition = [0, 0];
   private lastTimestamp = 0;
   private scrollableCache = false;

@@ -5,7 +5,7 @@ import { mountTouchListener } from './scrollable';
 
 const ANIMATION_TIME = 200;
 
-class ViewPager extends View<HTMLDivElement> {
+export class ViewPager extends View<HTMLDivElement> {
   private pageIndex =0;
   private scrollableCache = false;
   private lastPosition = [0, 0];

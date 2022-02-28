@@ -12,5 +12,8 @@
   "keywords": [
     "Hippy",
     "Web"
-  ]
+  ],
+  "dependencies": {
+    "whatwg-fetch": "^3.6.2"
+  }
 }

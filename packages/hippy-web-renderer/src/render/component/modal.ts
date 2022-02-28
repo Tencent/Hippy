@@ -17,13 +17,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { NodeProps, NodeTag, ModalAnimationType, ModalOrientations, BaseView } from '../../types';
 import { dispatchEventToHippy, setElementStyle } from '../common';
 import { View } from './view';
 
 export const ANIMATION_TIME = 200;
 interface ModalAnimationData {animation?: { [key: string]: any }, newState?: { [key: string]: any }}
-enum ModalAnmiatonModel
+enum ModalAnimationModel
   {
   ENTRY,
   LEAVE,
@@ -75,7 +76,7 @@ const DefaultLeaveAnimationMap = {
     },
   },
 };
-class Modal extends View<HTMLDivElement> {
+export class Modal extends View<HTMLDivElement> {
   public constructor(id: number, pId: number) {
     super(id, pId);
     this.tagName = NodeTag.MODAL;
@@ -174,14 +175,18 @@ class Modal extends View<HTMLDivElement> {
     await super.beforeChildMount(child, childPosition);
     if (childPosition === 0 && child.dom) {
       setElementStyle(child.dom, { flex: '1', position: 'static' });
+      // eslint-disable-next-line no-param-reassign
+      // @ts-ignore
       delete child.dom.style.top;
+      // eslint-disable-next-line no-param-reassign
+      // @ts-ignore
       delete child.dom.style.left;
     }
   }
 
   public async beforeMount(parent: BaseView, position: number) {
     await super.beforeMount(parent, position);
-    await this.runAnimation(position, ModalAnmiatonModel.ENTRY);
+    await this.runAnimation(position, ModalAnimationModel.ENTRY);
   }
 
   public mounted(): void {
@@ -191,16 +196,16 @@ class Modal extends View<HTMLDivElement> {
 
   public async beforeRemove() {
     await super.beforeRemove();
-    await this.runAnimation(ModalAnmiatonModel.LEAVE);
+    await this.runAnimation(ModalAnimationModel.LEAVE);
   }
 
-  private runAnimation(animationModel: ModalAnmiatonModel, position?: number) {
-    return new Promise((resolve) => {
+  private runAnimation(animationModel: ModalAnimationModel, position?: number) {
+    return new Promise<void>((resolve) => {
       if (
         this.animated
         && this.animationType !== ModalAnimationType.None && this.dom
       ) {
-        const { animation, newState } = animationModel === ModalAnmiatonModel.ENTRY
+        const { animation, newState } = animationModel === ModalAnimationModel.ENTRY
           ? Modal.buildModalEntryAnimation(this.animationType) : Modal.buildModalLeaveAnimation(this.animationType);
         setElementStyle(this.dom, { zIndex: position, ...newState });
         setTimeout(() => {
