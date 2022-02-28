@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { BaseView, NodeTag, UIProps } from '../../types';
 import { setElementStyle } from '../common';
 const ViewDictionary: {[key in string|number]: BaseView} = {};
@@ -45,28 +46,6 @@ export class View<T extends HTMLElement> implements BaseView {
 
   }
 
-  public updateProps(data: UIProps) {
-    if (data) {
-      Object.assign(this.props, data);
-      if (!data) {
-        return;
-      }
-      const keys = Object.keys(data);
-      if (data.style) {
-        setElementStyle(this.dom!, data.style);
-      }
-      for (const key of keys) {
-        if (key === 'style') {
-          continue;
-        }
-        if (typeof this[key] === 'function' && key.indexOf('on') === 0) {
-          continue;
-        }
-        this[key] = data[key];
-      }
-    }
-  }
-
   public async beforeMount(parent: BaseView, position: number) {
     this.index = position;
   }
@@ -83,31 +62,6 @@ export class View<T extends HTMLElement> implements BaseView {
   public async beforeRemove() {
   }
 
-  public findViewById(id: number): BaseView|null {
-    if (ViewDictionary[id]) {
-      return ViewDictionary[id];
-    }
-    return null;
-  }
-
-  public appendChild(child: BaseView, index: number) {
-    if (this.dom && child.dom) {
-      let realIndex = index;
-      if (index > this.dom!.childNodes.length) {
-        realIndex = this.dom!.childNodes.length;
-      }
-      this.dom.insertBefore(child.dom, this.dom!.childNodes[realIndex] ?? null);
-    }
-    ViewDictionary[child.id] = child;
-  }
-
-  public removeChild(childId: number) {
-    const childView = this.findViewById(childId);
-    if (childView && childView.dom) {
-      this.dom?.removeChild(childView.dom);
-    }
-    delete ViewDictionary[childId];
-  }
   public destroy() {
     this.dom = null;
   }

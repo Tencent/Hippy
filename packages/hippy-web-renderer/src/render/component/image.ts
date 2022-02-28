@@ -22,7 +22,7 @@ import { ImageResizeMode, NodeProps, NodeTag } from '../../types';
 import { dispatchEventToHippy, setElementStyle } from '../common';
 import { View } from './view';
 
-class Image extends View<HTMLImageElement> {
+export class Image extends View<HTMLImageElement> {
   public constructor(id: number, pId: number) {
     super(id, pId);
     this.tagName = NodeTag.VIEW;

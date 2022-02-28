@@ -19,7 +19,6 @@
  */
 
 import { ElementProps, NodeTag } from '../module/node-def';
-import { findAnimation } from '../module/animation/animation-impement';
 import { ComponentMap } from '../module/dom-process';
 import { hippyBridge } from '../../types';
 import { rnStyleSupport } from './rn-style-support';
@@ -55,7 +54,8 @@ export function setElementProps(
 function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return Object.prototype.hasOwnProperty.call(obj, name);
 }
-export function setElementStyle(element: HTMLElement, object: any) {
+export function setElementStyle(element: HTMLElement, object: any, animationProcess?:
+(key: string, value: any, element: HTMLElement) => void) {
   if (object === null) return;
   for (const key of Object.keys(object)) {
     if (! hasOwnProperty(object, key)) {
@@ -66,9 +66,8 @@ export function setElementStyle(element: HTMLElement, object: any) {
       styleUpdateWithCheck(element, key, newValue);
       continue;
     }
-    if (hasOwnProperty(object, 'animationId')) {
-      const newValue = transformAnimation(key, object[key], element);
-      styleUpdateWithCheck(element, key, newValue);
+    if (isAnimationProps(key, object[key]) && animationProcess) {
+      animationProcess(key, object[key], element);
       continue;
     }
     if (isLayout(key, object[key])) {
@@ -76,12 +75,15 @@ export function setElementStyle(element: HTMLElement, object: any) {
       styleUpdateWithCheck(element, key, newValue);
       continue;
     }
-    if (key === 'transform') {
-      const newValue = transformStyleAdapt(object[key], element);
-      styleUpdateWithCheck(element, key, newValue);
-      continue;
-    }
     styleUpdateWithCheck(element, key, object[key]);
+  }
+}
+function isAnimationProps(key: string, value: any) {
+  if (hasOwnProperty(value, 'animationId')) {
+    return true;
+  }
+  if (key === 'transform' && Array.isArray(value)) {
+    return true;
   }
 }
 export function refreshElementProps(
@@ -118,12 +120,15 @@ export function dispatchModuleEventToHippy(params: any) {
     params,
   });
 }
+
 export function callBackUIFunctionToHippy(callBackId: number, params: any, success: boolean) {
   callbackToHippy(callBackId, params, success, 'callUIFunction', 'UIManagerModule');
 }
+
 export function callBackMeasureInWindowToHippy(callBackId: number, params: any, success: boolean) {
   callbackToHippy(callBackId, params, success, 'measureInWindow', 'UIManagerModule');
 }
+
 export function callbackToHippy(
   callBackId: number,
   params: any,
@@ -196,42 +201,6 @@ export function transformForColor(value) {
 function transformForSize(value) {
   return !isNaN(value) ? `${value}px` : value;
 }
-function transformStyleAdapt(value, element) {
-  if (Array.isArray(value)) {
-    let valueString = '';
-    for (const item of value) {
-      for (const key of Object.keys(item)) {
-        if (!hasOwnProperty(item, key)) {
-          continue;
-        }
-        const animationObject = findAnimation(item[key].animationId);
-        if (item[key].animationId && animationObject) {
-          animationObject.animationProperty = key;
-          animationObject.refNodeId = element.id;
-          valueString += `${animationObject.initStartValue} `;
-          continue;
-        }
-        valueString += `${key}(${item[key]}${isNaN(item[key]) || key === 'scale' ? '' : 'px'}) `;
-      }
-    }
-
-    return valueString;
-  }
-  return value;
-}
-function transformAnimation(
-  animationForKey,
-  animationValue: { animationId: number },
-  element: HTMLElement,
-) {
-  const animationObject = findAnimation(animationValue.animationId);
-  if (!animationObject) {
-    return '';
-  }
-  animationObject.animationProperty = animationForKey;
-  animationObject.refNodeId = element.id;
-  return animationObject.animationBeginValue;
-}
 function borderStyleProcess(el: HTMLElement, style: { [key: string]: any }) {
   const borderRecord = {
     borderTop: { width: false, style: false },
@@ -300,18 +269,4 @@ function borderStyleFind(style: { [key: string]: any }) {
   }
   return borderRecord;
 }
-export function buildCallBackProps(
-  el: HTMLElement,
-  isNeed: boolean,
-  elPropsKey: string,
-  props: string,
-  nodeId: number,
-) {
-  if (isNeed) {
-    el[elPropsKey][props] = (event) => {
-      dispatchEventToHippy(nodeId, props, event);
-    };
-    return;
-  }
-  el[elPropsKey][props] = null;
-}
+

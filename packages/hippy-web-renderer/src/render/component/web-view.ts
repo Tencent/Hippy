@@ -21,7 +21,7 @@ import { BaseView, NodeProps, NodeTag } from '../../types';
 import { dispatchEventToHippy } from '../common';
 import { View } from './view';
 
-class WebView extends View<HTMLIFrameElement> {
+export class WebView extends View<HTMLIFrameElement> {
   private isMounted = false;
   public constructor(id: number, pId: number) {
     super(id, pId);

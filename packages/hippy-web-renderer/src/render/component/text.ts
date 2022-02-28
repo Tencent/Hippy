@@ -26,7 +26,7 @@ const HippyEllipsizeModeMap = {
   middle: { 'text-overflow': 'ellipsis' },
   tail: { 'text-overflow': 'ellipsis' },
 };
-class Text extends View<HTMLSpanElement> {
+export class Text extends View<HTMLSpanElement> {
   private lines: number | undefined;
   private ellipsis: EllipsizeMode | undefined;
   private content = '';

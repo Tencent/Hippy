@@ -8,7 +8,7 @@ import {
   touchMoveCalculate,
 } from './scrollable';
 
-class ListView extends View<HTMLDivElement> {
+export class ListView extends View<HTMLDivElement> {
   private lastPosition = [0, 0];
   private lastTimestamp = 0;
   private scrollableCache = false;

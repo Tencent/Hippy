@@ -33,17 +33,38 @@ export interface BaseView
   defaultStyle: () => {[key: string]: any}|any;
   onAttachedToWindow: () => void;
   onLayout: () => void;
-  updateProps: (data: UIProps) => void;
+  updateProps?: (data: UIProps, defaultProcess?: (component: BaseView, data: UIProps) => void) => void;
   beforeMount: (parent: BaseView, position: number) => Promise<void>;
   beforeChildMount: (child: BaseView, childPosition: number) => Promise<void>;
   beforeRemove: () => Promise<void>;
   destroy: () => void;
   beforeChildRemove: (child: BaseView) => void;
-  appendChild: (child: BaseView, index: number) => void;
-  removeChild: (id: number) => void;
   mounted: () => void;
-  findViewById: (id: number) => BaseView|null;
 }
+
+export type BaseViewConstructor = new (id: number, pId: number) => BaseView;
+
+export interface NodeData
+{
+  id: number,
+  pId: number,
+  props: any,
+  index: number,
+  name: string,
+}
+
+export interface ModuleContext
+{
+  receiveNativeEvent: (eventName: string, params: any) => void
+  getModuleByName: (moduleName: string) => any|null
+}
+export interface BaseModule
+{
+  initialize?: () => void;
+  destroy?: () => void;
+}
+export type BaseModuleConstructor = new (context: ModuleContext) => BaseModule;
+
 export enum NodeTag {
   VIEW = 'View',
   TEXT = 'Text',

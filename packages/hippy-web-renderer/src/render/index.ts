@@ -20,7 +20,6 @@
 
 import { hippyCallNatives } from './entry-method';
 import { getGlobalConfigs } from './env';
-
 (function () {
   // @ts-ignore
   global.__HIPPYNATIVEGLOBAL__ = getGlobalConfigs();

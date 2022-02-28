@@ -19,7 +19,7 @@
  */
 
 import { Modules } from './module/node-def';
-import { AnimationModuleDispatch } from './module/animation';
+import { AnimationModuleDispatch } from './module/animation-module';
 import { UIManagerModuleDispatch } from './module/ui-manager';
 
 export function hippyCallNatives(

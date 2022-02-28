@@ -21,7 +21,7 @@ import { KeyboardType, NodeProps, NodeTag, ReturnKeyType } from '../../types';
 import { callBackUIFunctionToHippy, dispatchEventToHippy } from '../common';
 import { View } from './view';
 
-class TextInput extends View<HTMLInputElement> {
+export  class TextInput extends View<HTMLInputElement> {
   public constructor(id: number, pId: number) {
     super(id, pId);
     this.tagName = NodeTag.TEXT_INPUT;

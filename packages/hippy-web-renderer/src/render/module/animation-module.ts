@@ -18,34 +18,93 @@
  * limitations under the License.
  */
 
-import { dispatchModuleEventToHippy, setElementStyle } from '../../common';
+import { BaseModule, BaseView, ModuleContext } from '../../types';
+import { dispatchModuleEventToHippy, setElementStyle } from '../common';
 
-export function createAnimation(animationId: number, params: { [key: string]: any }, mode: string) {
-  if (AnimationPools[animationId]) {
-    console.error('animation build error,animation id exits');
-    return;
+export class AnimationModule implements BaseModule {
+  public static moduleName = 'AnimationModule';
+  private animationPool: {[key: string]: SimpleAnimation|null} = {}
+  private context!: ModuleContext;
+
+  public constructor(context: ModuleContext) {
+    this.context = context;
   }
-  AnimationPools[animationId] = new SimpleAnimation(animationId, params as AnimationOptions, mode);
-}
-export function updateAnimation(animationId: number, params: { [key: string]: any }) {
-  AnimationPools[animationId]?.update(params);
-}
-export function startAnimation(animationId: number) {
-  AnimationPools[animationId]?.start();
-}
-export function createAnimationSet(_animationId: number, _params: { [key: string]: any }) {}
-export function stopAnimation(animationId: number) {
-  AnimationPools[animationId]?.start();
-}
-export function pauseAnimation(_animationId: number) {}
-export function resumeAnimation(_animationId: number) {}
-export function destroyAnimation(_animationId: number) {}
-export function findAnimation(animationId: number | string): SimpleAnimation | null {
-  if (AnimationPools[animationId]) {
-    return AnimationPools[animationId];
+
+  public createAnimation(callBackId: number, animationId: number, params: AnimationOptions, mode?: string) {
+    if (this.animationPool[animationId]) {
+      return;
+    }
+    if (!mode) {
+      this.animationPool[animationId] = null;
+    }
+    if (mode === 'timing') {
+      this.animationPool[animationId] = new SimpleAnimation(animationId, params as AnimationOptions, mode);
+    }
   }
-  return null;
+
+  public updateAnimation(callBackId: number, animationId: number, param: AnimationOptions) {
+    if (!this.animationPool[animationId]) {
+      console.log('hippy', 'animation update failed, animationId not find animation object');
+      return;
+    }
+    this.animationPool[animationId]!.update(param);
+  }
+
+  public startAnimation(callBackId: number, animationId: number) {
+    if (!this.animationPool[animationId]) {
+      console.log('hippy', 'animation start failed, animationId not find animation object');
+      return;
+    }
+    this.animationPool[animationId]!.start();
+  }
+
+  public stopAnimation(callBackId: number, animationId: number) {
+    if (!this.animationPool[animationId]) {
+      console.log('hippy', 'animation stop failed, animationId not find animation object');
+      return;
+    }
+    this.animationPool[animationId]!.stop();
+  }
+
+  public resumeAnimation(callBackId: number, animationId: number) {
+    if (!this.animationPool[animationId]) {
+      console.log('hippy', 'animation resume failed, animationId not find animation object');
+      return;
+    }
+    this.animationPool[animationId]!.resume();
+  }
+
+  public destroyAnimation(callBackId: number, animationId: number) {
+    if (!this.animationPool[animationId]) {
+      console.log('hippy', 'animation destroy failed, animationId not find animation object');
+      return;
+    }
+    this.animationPool[animationId]!.destroy();
+  }
+
+  public initialize() {
+
+  }
+
+  public destroy() {
+  }
+
+  public linkAnimation2Element(animationId: number, component: BaseView, animationProperty: string) {
+    if (!this.animationPool[animationId]) {
+      return;
+    }
+    this.animationPool[animationId]!.refNodeId = component.id;
+    this.animationPool[animationId]!.animationProperty = animationProperty;
+  }
+
+  public getAnimationStartValue(animationId: number) {
+    if (!this.animationPool[animationId]) {
+      return null;
+    }
+    return this.animationPool[animationId]!.animationBeginValue;
+  }
 }
+
 export type AnimationValue = number | { animationId: number };
 enum AnimationEvent {
   START = 'onHippyAnimationStart',
@@ -106,11 +165,9 @@ class SimpleAnimation {
   public static buildTransformSingleValue(value: string) {
     return `${value} `;
   }
-
   public static buildTransitionSingleValue(value: string) {
     return `${value},`;
   }
-
   public static transitionStringFormat(value: string) {
     let formatValue = value;
     if (value.length > 0 && value.charAt(value.length - 1) === ',') {
@@ -118,41 +175,33 @@ class SimpleAnimation {
     }
     return formatValue;
   }
-
   public set nodeId(nodeId: string | number) {
     this.refNodeId = nodeId;
   }
-
   public set animationProperty(name: string) {
     this.transformName = name;
   }
-
   public get realAnimationPropertyName() {
     if (this.transformName && TransformList[this.transformName]) {
       return 'transform';
     }
     return this.transformName;
   }
-
   public get transitionPropertyName() {
     if (this.transformName && TransformList[this.transformName]) {
       return 'transform';
     }
     return Camel2Kebab(this.transformName);
   }
-
   public get transitionValue() {
     return `${this.transitionPropertyName} ${this.animationTime},`;
   }
-
   public get animationBeginValue() {
     return this.buildAnimationValue(this.animationInfo.startValue);
   }
-
   public get animationEndValue() {
     return this.buildAnimationValue(this.animationInfo.toValue);
   }
-
   public get animationTime() {
     return `${this.animationInfo.duration / 1000}s`;
   }
@@ -160,7 +209,6 @@ class SimpleAnimation {
   public get initStartValue() {
     return `${this.transformName}(${this.animationBeginValue})`;
   }
-
   public start() {
     if (!this.refNodeId) {
       return;
@@ -179,28 +227,22 @@ class SimpleAnimation {
       }, this.animationInfo.duration);
     }, 16);
   }
-
   public stop() {}
-
-  public resume() {}
-
-  public destroy() {}
 
   public update(param: AnimationOptions) {
     this.animationInfo = param;
   }
-
+  public resume() {}
+  public destroy() {}
   private dispatchEvent(eventName: AnimationEvent) {
     dispatchModuleEventToHippy([eventName, this.id]);
   }
-
   private buildCssValue(value: string) {
     if (this.realAnimationPropertyName === 'transform') {
       return `${this.transformName}(${value})`;
     }
     return value;
   }
-
   private buildAnimationValue(value: any) {
     let unit = 'px';
     if (this.animationInfo.valueType) {
@@ -211,7 +253,6 @@ class SimpleAnimation {
     }
     return `${value}${unit}`;
   }
-
   private updateElementAnimationValue(element: HTMLElement, animationCssValue: string) {
     if (!this.realAnimationPropertyName) {
       return;
@@ -240,7 +281,6 @@ class SimpleAnimation {
     style[this.realAnimationPropertyName] = newAnimationValue;
     setElementStyle(element, style);
   }
-
   private updateElementTransition(element: HTMLElement, transitionValue: string) {
     const oldTransition = element.style.transition;
     let newTransition = transitionValue;

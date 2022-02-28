@@ -30,7 +30,7 @@ const PullOverStage = [
   { threshold: [100, Number.MAX_SAFE_INTEGER], damp: 0.2 },
 ];
 
-class RefreshWrapper extends View<HTMLDivElement> {
+export class RefreshWrapper extends View<HTMLDivElement> {
   private pullRefresh!: PullRefresh;
   public constructor(id: number, pId: number) {
     super(id, pId);
