@@ -45,12 +45,12 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset
                                         int32_t callback_id);
 
 EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width, double height, const char16_t* action,
-                                const char16_t* params, int32_t callback_id);
+                                const char* params, int32_t params_length, int32_t callback_id);
 
-EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char16_t* action, const char16_t* params,
+EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char16_t* action,
                                  int32_t callback_id);
 
-EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char16_t* params, int32_t callback_id);
+EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char* params, int32_t params_length, int32_t callback_id);
 
 EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, int32_t root_id, const char16_t* call_id, const uint8_t* params,
                                     const int32_t& params_len, int32_t keep);

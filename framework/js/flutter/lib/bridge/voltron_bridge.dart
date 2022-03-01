@@ -251,11 +251,7 @@ class VoltronBridgeManager implements Destroyable {
     if (!_isFrameWorkInit) {
       return;
     }
-    var paramsJsonStr = objectToJson(id);
-    if (isEmpty(paramsJsonStr)) {
-      return;
-    }
-    await VoltronApi.destroyInstance(_engineId, id, paramsJsonStr, (value) {});
+    await VoltronApi.destroyInstance(_engineId, id, (value) {});
   }
 
   Future<dynamic> callJsFunction(Object params, String action) async {

@@ -50,7 +50,8 @@ typedef CreateInstanceFfiNativeType = Int64 Function(
     Double width,
     Double height,
     Pointer<Utf16> action,
-    Pointer<Utf16> params,
+    Pointer<Uint8> params,
+    Int32 paramsLength,
     Int32 callbackId);
 typedef CreateInstanceFfiDartType = int Function(
     int engineId,
@@ -58,17 +59,17 @@ typedef CreateInstanceFfiDartType = int Function(
     double width,
     double height,
     Pointer<Utf16> action,
-    Pointer<Utf16> params,
+    Pointer<Uint8> params,
+    int paramsLength,
     int callbackId);
 
 typedef DestroyInstanceFfiNativeType = Int64 Function(
     Int32 engineId,
     Int32 rootId,
     Pointer<Utf16> action,
-    Pointer<Utf16> params,
     Int32 callbackId);
 typedef DestroyInstanceFfiDartType = int Function(int engineId, int rootId,
-    Pointer<Utf16> action, Pointer<Utf16> params, int callbackId);
+    Pointer<Utf16> action, int callbackId);
 
 typedef RunScriptFromFileFfiNativeType = Int32 Function(
     Int32 engineId,

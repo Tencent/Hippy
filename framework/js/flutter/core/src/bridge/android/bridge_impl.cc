@@ -238,11 +238,11 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
   return true;
 }
 
-void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, const char16_t *params,
+void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, std::string params,
                               std::function<void(int64_t)> callback) {
   voltron::bridge::CallJSFunction(runtime_id,
                                   CU16StringToStrView(action),
-                                  C16CharToString(params),
+                                  std::move(params),
                                   std::move(callback));
 }
 

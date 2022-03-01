@@ -264,54 +264,67 @@ class VoltronApi {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
-    var paramsPtr = params.toNativeUtf16();
+    var paramsBuffer = params.encode();
+    final paramsPointer = malloc<Uint8>(paramsBuffer.length);
+    final nativeParams = paramsPointer.asTypedList(paramsBuffer.length);
+    nativeParams.setRange(0, paramsBuffer.length, paramsBuffer);
     stopwatch.stop();
     LogUtils.profile("createInstance", stopwatch.elapsedMilliseconds);
     _BridgeFFIManager.instance.createInstance(
-        engineId, rootId, rootSize.width, rootSize.height, actionPtr, paramsPtr,
-        generateCallback((value) {
+        engineId,
+        rootId,
+        rootSize.width,
+        rootSize.height,
+        actionPtr,
+        paramsPointer,
+        paramsBuffer.length, generateCallback((value) {
       stopwatch.stop();
       LogUtils.profile("createInstance", stopwatch.elapsedMilliseconds);
       callback(value);
     }));
     free(actionPtr);
-    free(paramsPtr);
+    free(paramsPointer);
   }
 
-  static Future destroyInstance(int engineId, int rootId, String params, CommonCallback callback) async {
+  static Future destroyInstance(int engineId, int rootId, CommonCallback callback) async {
     var action = "destroyInstance";
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
-    var paramsPtr = params.toNativeUtf16();
     stopwatch.stop();
     LogUtils.profile("destroyInstance", stopwatch.elapsedMilliseconds);
-    _BridgeFFIManager.instance.destroyInstance(engineId, rootId, actionPtr, paramsPtr,
+    _BridgeFFIManager.instance.destroyInstance(engineId, rootId, actionPtr,
         generateCallback((value) {
           stopwatch.stop();
           LogUtils.profile("destroyInstance", stopwatch.elapsedMilliseconds);
           callback(value);
         }));
     free(actionPtr);
-    free(paramsPtr);
   }
 
   static Future<dynamic> callFunction(int engineId, String action,
-      Object params, CommonCallback callback, {bool bridgeParamsJson = false}) async {
+      Object params, CommonCallback callback) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
-    var paramsPtr = params.toNativeUtf16();
+    var paramsBuffer = params.encode();
+    var decodeObject = paramsBuffer.decode();
+    print('params: $params, decode object: $decodeObject');
+    final paramsPointer = malloc<Uint8>(paramsBuffer.length);
+    final nativeParams = paramsPointer.asTypedList(paramsBuffer.length);
+    nativeParams.setRange(
+        0, paramsBuffer.length, paramsBuffer);
     stopwatch.stop();
     LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
-    _BridgeFFIManager.instance.callFunction(engineId, actionPtr, paramsPtr,
-        generateCallback((value) {
+    _BridgeFFIManager.instance
+        .callFunction(engineId, actionPtr, paramsPointer, paramsBuffer.length,
+            generateCallback((value) {
       stopwatch.stop();
       LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
       callback(value);
     }));
     free(actionPtr);
-    free(paramsPtr);
+    free(paramsPointer);
   }
 
   static Future<String> getCrashMessage() async {

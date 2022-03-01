@@ -18,8 +18,10 @@
 // limitations under the License.
 //
 
+import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:ffi/ffi.dart';
 import 'package:voltron_renderer/serialization/serializer.dart';
 
 import '../serialization.dart';
@@ -35,9 +37,11 @@ extension TypeEx on Object {
 }
 
 extension BinaryUtilEncodeEx on Object {
-  Uint8List encode(dynamic object) {
+  Uint8List encode() {
     var serializer = Serializer.defaultSerializer();
-    serializer.writeValue(object);
+    serializer.reset();
+    serializer.writeHeader();
+    serializer.writeValue(this);
     return serializer.chunk;
   }
 }

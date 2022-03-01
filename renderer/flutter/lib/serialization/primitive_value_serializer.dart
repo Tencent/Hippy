@@ -37,6 +37,7 @@ abstract class PrimitiveValueSerializer extends SharedSerialization {
   void reset() {
     _objectMap.clear();
     nextId = 0;
+    writer.reset();
   }
 
   ///
@@ -87,8 +88,9 @@ abstract class PrimitiveValueSerializer extends SharedSerialization {
   }
 
   void writeInt(int value) {
+    int zigzag = (value << 1) ^ (value >> 31);
     writeTag(SerializationTag.kInt32);
-    writer.putVarint(BigInt.from(value).toUnsigned(32).toInt());
+    writer.putVarint(BigInt.from(zigzag).toUnsigned(32).toInt());
   }
 
   void writeDouble(double value) {

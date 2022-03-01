@@ -120,12 +120,13 @@ class BinaryWriter {
     int b;
     do {
       b = _parseByte(rest);
-      b |= 0x80;
+      if (b != rest) {
+        b |= 0x80;
+      }
       putByte(b);
       rest >>>= 7;
       bytes++;
     } while (rest != 0);
-    putByte(_parseByte(b));
     return bytes;
   }
 

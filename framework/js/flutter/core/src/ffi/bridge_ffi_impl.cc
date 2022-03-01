@@ -51,7 +51,7 @@ using voltron::StandardMessageCodec;
 using voltron::VoltronRenderManager;
 
 EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width, double height, const char16_t* action,
-                                const char16_t* params, int32_t callback_id) {
+                                const char* params, int32_t params_length, int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     bridge_manager->InitInstance(engine_id, root_id);
@@ -62,17 +62,17 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
       BridgeImpl::BindDomManager(runtime_id, dom_manager);
     }
     dom_manager->SetRootSize((float)width, (float)height);
-    CallFunctionFFI(engine_id, action, params, callback_id);
+    CallFunctionFFI(engine_id, action, params, params_length, callback_id);
   }
 }
 
-EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char16_t* action, const char16_t* params,
+EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char16_t* action,
                                  int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     bridge_manager->DestroyInstance(engine_id, root_id);
 
-    CallFunctionFFI(engine_id, action, params, callback_id);
+    CallFunctionFFI(engine_id, action, nullptr, 0, callback_id);
   }
 }
 
@@ -132,14 +132,26 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset
   return result;
 }
 
-EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char16_t* params, int32_t callback_id) {
+EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char* params, int32_t params_length, int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     auto runtime = bridge_manager->GetRuntime().lock();
     if (runtime) {
-      auto runtime_id = runtime->GetRuntimeId();
-      BridgeImpl::CallFunction(runtime_id, action, params,
-                               [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+        auto runtime_id = runtime->GetRuntimeId();
+        if (params == nullptr && params_length <= 0) {
+            BridgeImpl::CallFunction(runtime_id, action, std::string{},
+                                     [callback_id](int64_t value) {
+                                         CallGlobalCallback(callback_id, value);
+                                     });
+        } else {
+            auto copy_params = copyCharToChar(params, params_length);
+            std::string params_str(copy_params, params_length);
+            BridgeImpl::CallFunction(runtime_id, action, std::move(params_str),
+                                     [callback_id, copy_params](int64_t value) {
+                                         CallGlobalCallback(callback_id, value);
+                                         delete copy_params;
+                                     });
+        }
     }
   }
 }

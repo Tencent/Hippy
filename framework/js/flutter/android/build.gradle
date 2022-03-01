@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 
 buildscript {
   ext {
-    kotlin_version = '1.3.50'
+    kotlin_version = '1.6.10'
 
     THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
     JNI_LIBRARY_PATH = "$projectDir.absolutePath/libs"
