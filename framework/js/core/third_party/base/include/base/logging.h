@@ -132,13 +132,13 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 #define TDF_BASE_DCHECK(condition) TDF_BASE_EAT_STREAM_PARAMETERS(condition)
 #endif
 
-#define TDF_BASE_NOTREACHED() \
+#define TDF_BASE_UNREACHABLE() \
   do {                        \
     TDF_BASE_DCHECK(false);   \
     abort();                  \
   } while (0)
 
-#define TDF_BASE_NOTIMPLEMENTED() \
+#define TDF_BASE_UNIMPLEMENTED() \
   TDF_BASE_LOG(ERROR) << "Not implemented in: " << __PRETTY_FUNCTION__
 
 #define TDF_BASE_USE(expr) \

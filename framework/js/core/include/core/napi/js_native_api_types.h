@@ -23,6 +23,7 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -115,9 +116,16 @@ class Ctx {
       const unicode_string_view& string) = 0;
   virtual std::shared_ptr<CtxValue> CreateUndefined() = 0;
   virtual std::shared_ptr<CtxValue> CreateNull() = 0;
-  virtual std::shared_ptr<CtxValue> CreateObject(
-      const unicode_string_view& json) = 0;
-  virtual std::shared_ptr<CtxValue> CreateMap(size_t count, std::shared_ptr<CtxValue>* value) = 0;
+  virtual std::shared_ptr<CtxValue> ParseJson(const unicode_string_view& json) = 0;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      unicode_string_view,
+      std::shared_ptr<CtxValue>>& object) = 0;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& object) = 0;
+  virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& map) = 0;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;

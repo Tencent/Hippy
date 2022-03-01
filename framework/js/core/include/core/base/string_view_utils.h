@@ -68,7 +68,7 @@ class StringViewUtils {
       }
     }
 
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   static unicode_string_view CovertToLatin(
@@ -82,10 +82,10 @@ class StringViewUtils {
       case unicode_string_view::Encoding::Utf32:
       case unicode_string_view::Encoding::Utf8:
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   static unicode_string_view CovertToUtf16(
@@ -106,10 +106,10 @@ class StringViewUtils {
         return unicode_string_view(U8ToU16(str_view.utf8_value()));
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   static unicode_string_view CovertToUtf32(
@@ -130,10 +130,10 @@ class StringViewUtils {
         return unicode_string_view(U8ToU32(str_view.utf8_value()));
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   static unicode_string_view CovertToUtf8(
@@ -156,10 +156,10 @@ class StringViewUtils {
         return unicode_string_view(str_view.utf8_value());
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   static unicode_string_view Convert(
@@ -180,10 +180,10 @@ class StringViewUtils {
         return CovertToUtf8(str_view, src_encoding);
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   inline static const char *U8ToConstCharPointer(
@@ -217,10 +217,10 @@ class StringViewUtils {
         return U8ToConstCharPointer(ref.c_str());
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   inline static unicode_string_view ConstCharPointerToStrView(const char *p,
@@ -267,11 +267,11 @@ class StringViewUtils {
         return str.find_last_of(u8_ch);
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
 
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   inline static unicode_string_view SubStr(const unicode_string_view &str_view,
@@ -296,11 +296,11 @@ class StringViewUtils {
         return unicode_string_view(str.substr(pos, n));
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
 
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   inline static size_t GetLength(const unicode_string_view &str_view) {
@@ -323,11 +323,11 @@ class StringViewUtils {
         return str.length();
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
 
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
  private:
@@ -432,7 +432,7 @@ inline unicode_string_view operator+(const unicode_string_view &lhs,
                 rhs.utf8_value());
       }
       default: {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
       }
     }
   }
@@ -459,10 +459,10 @@ inline unicode_string_view operator+(const unicode_string_view &lhs,
               StringViewUtils::Convert(rhs, lhs_encoding).utf8_value());
     }
     default: {
-      TDF_BASE_NOTREACHED();
+      TDF_BASE_UNREACHABLE();
     }
   }
-  TDF_BASE_NOTREACHED();
+  TDF_BASE_UNREACHABLE();
 }
 
 }  // namespace base
