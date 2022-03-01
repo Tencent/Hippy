@@ -22,7 +22,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.text.*;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.ForegroundColorSpan;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -30,6 +29,7 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.dom.node.DomNode;
+import com.tencent.mtt.hippy.dom.node.HippyForegroundColorSpan;
 import com.tencent.mtt.hippy.dom.node.HippyNativeGestureSpan;
 import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
@@ -223,11 +223,11 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
   protected void setTextColor(int textColor) {
     if (mLayout != null && mLayout.getText() instanceof SpannableStringBuilder) {
       SpannableStringBuilder textSpan = (SpannableStringBuilder) mLayout.getText();
-      ForegroundColorSpan[] spans = textSpan
-          .getSpans(0, mLayout.getText().length(), ForegroundColorSpan.class);
+      HippyForegroundColorSpan[] spans = textSpan
+        .getSpans(0, mLayout.getText().length(), HippyForegroundColorSpan.class);
       boolean hasSpans = false;
       if (spans != null) {
-        for (ForegroundColorSpan span : spans) {
+        for (HippyForegroundColorSpan span : spans) {
           int start = textSpan.getSpanStart(span);
           int end = textSpan.getSpanEnd(span);
           textSpan.removeSpan(span);
@@ -235,15 +235,16 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
           if (start == 0) {
             spanFlags = Spannable.SPAN_INCLUSIVE_INCLUSIVE;
           }
-          textSpan.setSpan(new ForegroundColorSpan(textColor), start, end, spanFlags);
+          textSpan.setSpan(
+            new HippyForegroundColorSpan(textColor, span.getCustomColors()), start, end, spanFlags);
         }
       }
       if (spans == null || spans.length == 0) {
-        textSpan.setSpan(new ForegroundColorSpan(textColor), 0, textSpan.toString().length(),
+        textSpan
+          .setSpan(new HippyForegroundColorSpan(textColor, null), 0, textSpan.toString().length(),
             Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
       }
     }
-
   }
 
   @Override

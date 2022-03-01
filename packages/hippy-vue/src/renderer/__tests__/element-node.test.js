@@ -230,3 +230,11 @@ test('Element.dispatchEvent with polyfill event', (t) => {
   t.is(called, true);
   node.removeEventListener('endReached', callback);
 });
+
+test('Element.setAttribute("nativeBackgroundAndroid") test', (t) => {
+  const nbaNode = new ElementNode('div');
+  nbaNode.setAttribute('nativeBackgroundAndroid', { color: '#00000011' });
+  t.is(nbaNode.attributes.nativeBackgroundAndroid.color, 285212672);
+  nbaNode.setAttribute('nativeBackgroundAndroid', { color: 'rgba(0,0,0,0.07)' });
+  t.is(nbaNode.attributes.nativeBackgroundAndroid.color, 301989888);
+});

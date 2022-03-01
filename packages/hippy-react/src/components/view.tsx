@@ -20,7 +20,9 @@
 
 import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
+import { callUIFunction } from '../modules/ui-manager-module';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
+import { Color, colorParse } from '../color';
 
 interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   /**
@@ -57,6 +59,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   nextFocusLeftId?: string | Fiber;
   nextFocusRightId?: string | Fiber;
   style?: HippyTypes.Style;
+  nativeBackgroundAndroid?: { color: Color, borderless: boolean, rippleRadius: number }
 
   /**
    * The focus event occurs when the component is focused.
@@ -77,15 +80,38 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
  * @noInheritDoc
  */
 class View extends React.Component<ViewProps, {}> {
+  private instance: HTMLDivElement | Fiber | null = null;
+
+  // startRipple
+  public setPressed(pressed: boolean) {
+    callUIFunction(this.instance as Fiber, 'setPressed', [pressed]);
+  }
+
+  // setRippleSpot
+  public setHotspot(x: number, y: number) {
+    callUIFunction(this.instance as Fiber, 'setHotspot', [x, y]);
+  }
+
   public render() {
     const { collapsable, style = {}, ...nativeProps } = this.props;
     const nativeStyle: HippyTypes.Style = style;
+    const { nativeBackgroundAndroid } = nativeProps;
     if (typeof collapsable === 'boolean') {
       nativeStyle.collapsable = collapsable;
     }
+    if (typeof nativeBackgroundAndroid?.color !== 'undefined') {
+      nativeBackgroundAndroid.color = colorParse(nativeBackgroundAndroid.color);
+    }
     return (
-    // @ts-ignore
-      <div nativeName="View" style={nativeStyle} {...nativeProps} />
+      <div
+        ref={(ref) => {
+          this.instance = ref;
+        }}
+        nativeName="View"
+        // @ts-ignore
+        style={nativeStyle}
+        {...nativeProps}
+      />
     );
   }
 }

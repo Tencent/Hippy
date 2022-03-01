@@ -30,10 +30,14 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import java.util.ArrayList;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Created by leonardgong on 2017/12/7 0007.
@@ -62,6 +66,8 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	protected int					mTintColor;
 	protected ScaleType				mScaleType;
 	protected Drawable				mContentDrawable;
+
+  protected Drawable        mRippleDrawable;
 
 	private boolean					mIsAttached;
 	protected IImageLoaderAdapter	mImageAdapter;
@@ -222,6 +228,10 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	{
 		mImagePositionY = positionY;
 	}
+
+  public void setRippleDrawable(Drawable mRippleDrawable) {
+    this.mRippleDrawable = mRippleDrawable;
+  }
 
 	protected void onFetchImage(String url)
 	{
@@ -448,36 +458,54 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		return null;
 	}
 
-	protected void setContent(int sourceType)
-	{
-		if (mContentDrawable != null)
-		{
-			if (!shouldSetContent())
-			{
-				return;
-			}
+protected void setContent(int sourceType)
+{
+  if (mContentDrawable != null)
+  {
+    if (!shouldSetContent())
+    {
+      return;
+    }
 
-			onSetContent(mUrl);
-			updateContentDrawableProperty(sourceType);
+    onSetContent(mUrl);
+    updateContentDrawableProperty(sourceType);
 
-			if (mBGDrawable != null)
-			{
-				if (mContentDrawable instanceof ContentDrawable)
-				{
-					((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
-					((ContentDrawable) mContentDrawable).setShadowOffsetX(mBGDrawable.getShadowOffsetX());
-					((ContentDrawable) mContentDrawable).setShadowOffsetY(mBGDrawable.getShadowOffsetY());
-					((ContentDrawable) mContentDrawable).setShadowRadius(mBGDrawable.getShadowRadius());
-				}
-				setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable }));
-			}
-			else
-			{
-				setBackgroundDrawable(mContentDrawable);
-			}
-			afterSetContent(mUrl);
-		}
-	}
+    setMultiLevelBackgroundDrawable(mBGDrawable, mContentDrawable, mRippleDrawable);
+    afterSetContent(mUrl);
+  }
+}
+
+  /**
+   * set multiple level background to avoid covering by each other
+   * @param mBGDrawable
+   * @param mContentDrawable
+   * @param mRippleDrawable
+   */
+  protected void setMultiLevelBackgroundDrawable(BackgroundDrawable mBGDrawable, Drawable mContentDrawable, Drawable mRippleDrawable) {
+  if (mBGDrawable != null)
+  {
+    if (mContentDrawable instanceof ContentDrawable)
+    {
+      ((ContentDrawable) mContentDrawable).setBorder(mBGDrawable.getBorderRadiusArray(), mBGDrawable.getBorderWidthArray());
+      ((ContentDrawable) mContentDrawable).setShadowOffsetX(mBGDrawable.getShadowOffsetX());
+      ((ContentDrawable) mContentDrawable).setShadowOffsetY(mBGDrawable.getShadowOffsetY());
+      ((ContentDrawable) mContentDrawable).setShadowRadius(mBGDrawable.getShadowRadius());
+    }
+    if (mRippleDrawable != null) {
+      setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable, mRippleDrawable }));
+    } else {
+      setBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, mContentDrawable }));
+    }
+  }
+  else
+  {
+    if (mRippleDrawable != null) {
+      setBackgroundDrawable(new LayerDrawable(new Drawable[] { mContentDrawable, mRippleDrawable }));
+    } else {
+      setBackgroundDrawable(mContentDrawable);
+    }
+  }
+}
 
 	protected void updateContentDrawableProperty(int sourceType) {
 		if (!(mContentDrawable instanceof ContentDrawable)) {
@@ -697,4 +725,45 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 		}
 		return mBGDrawable;
 	}
+
+
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  public void setTranslucentBackgroundDrawable(@Nullable Drawable background) {
+    // it's required to call setBackground to null, as in some of the cases we may set new
+    // background to be a layer drawable that contains a drawable that has been setup
+    // as a background previously. This will not work correctly as the drawable callback logic is
+    // messed up in AOSP
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+      return;
+    }
+    updateBackgroundDrawable(null);
+    if (mContentDrawable != null && background != null) {
+      setMultiLevelBackgroundDrawable(mBGDrawable, mContentDrawable, background);
+    } else if (background != null) {
+      if (mBGDrawable != null)
+      {
+        // while mContentDrawable is null but mBGDrawable is not null
+        updateBackgroundDrawable(new LayerDrawable(new Drawable[] { mBGDrawable, background }));
+      }
+      else
+      {
+        updateBackgroundDrawable(background); // set ripple drawable
+      }
+    }
+    setRippleDrawable(background); // is used to avoid covering the ripple layer by setBackgroundImage
+  }
+
+  /**
+   * Set the background for the view or remove the background. It calls {@link
+   * #setBackground(Drawable)} or {@link #setBackgroundDrawable(Drawable)} based on the sdk version.
+   *
+   * @param drawable {@link Drawable} The Drawable to use as the background, or null to remove the
+   *     background
+   */
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+  private void updateBackgroundDrawable(Drawable drawable) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      super.setBackground(drawable);
+    }
+  }
 }

@@ -16,6 +16,8 @@ public class DomDomain extends InspectorDomain {
   private static final String METHOD_GET_NODE_FOR_LOCATION = "getNodeForLocation";
   private static final String METHOD_REMOVE_NODE = "removeNode";
   private static final String METHOD_SET_INSPECT_NODE = "setInspectedNode";
+  private static final String METHOD_PUSH_NODE_BY_PATH = "pushNodeByPathToFrontend";
+  private static final String METHOD_PUSH_NODE_BY_BACKEND = "pushNodesByBackendIdsToFrontend";
 
   private DomModel domModel;
 
@@ -45,6 +47,12 @@ public class DomDomain extends InspectorDomain {
       case METHOD_SET_INSPECT_NODE:
         handleSetInspectMode(context, id, paramsObj);
         break;
+      case METHOD_PUSH_NODE_BY_PATH:
+        handlePushNodeByPath(context, id, paramsObj);
+        break;
+      case METHOD_PUSH_NODE_BY_BACKEND:
+        handlePushNodesByBackendIds(context, id, paramsObj);
+        break;
       default:
         return false;
     }
@@ -70,6 +78,18 @@ public class DomDomain extends InspectorDomain {
     JSONObject result = domModel.setInspectMode(context, paramsObj);
     sendRspToFrontend(id, result);
   }
+
+  private void handlePushNodeByPath(HippyEngineContext context, int id, JSONObject paramsObj) {
+    JSONObject result = domModel.getNodeForPath(context, paramsObj);
+    sendRspToFrontend(id, result);
+  }
+
+  private void handlePushNodesByBackendIds(HippyEngineContext context, int id,
+    JSONObject paramsObj) {
+    JSONObject result = domModel.getNodeByBackendIds(context, paramsObj);
+    sendRspToFrontend(id, result);
+  }
+
 
   public void sendUpdateEvent() {
     InspectEvent updateEvent = new InspectEvent("DOM.documentUpdated", new JSONObject());

@@ -51,6 +51,10 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    */
   private static final long MAX_UINT32_VALUE = 4294967295L;
   /**
+   * Unsigned int min value.
+   */
+  private static final long MIN_UINT32_VALUE = 0L;
+  /**
    * Small string max length, used for SSO(Short / Small String Optimization).
    */
   private static final int SSO_SMALL_STRING_MAX_LENGTH = 32;
@@ -122,7 +126,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
         writeInt32((int) value);
       } else if (value instanceof Long) {
         long longValue = (long) value;
-        if (longValue <= MAX_UINT32_VALUE) {
+        if (longValue <= MAX_UINT32_VALUE && longValue >= MIN_UINT32_VALUE) {
           writeTag(SerializationTag.UINT32);
           writer.putVarint(longValue);
         } else {

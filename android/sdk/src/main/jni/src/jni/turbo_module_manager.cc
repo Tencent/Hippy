@@ -51,7 +51,7 @@ jmethodID get_method_id;
  */
 std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Runtime> &runtime,
                                               const std::string &module_name) {
-  TDF_BASE_DLOG(INFO) << "enter QueryTurboModuleImpl %s", module_name.c_str();
+  TDF_BASE_DLOG(INFO) << "enter QueryTurboModuleImpl " << module_name.c_str();
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring name = env->NewStringUTF(module_name.c_str());
   jobject module_impl = env->CallObjectMethod(
@@ -98,8 +98,8 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
       if (!module_impl->GetObj()) {
         std::string exception_info =
             std::string("Cannot find TurboModule: ").append(name);
-        TDF_BASE_LOG(ERROR) << "cannot find TurboModule = %s", name.c_str();
-        ConvertUtils::ThrowException(ctx, exception_info);
+        TDF_BASE_LOG(ERROR) << "cannot find TurboModule = " << name.c_str();
+        ctx->ThrowException(unicode_string_view(exception_info));
         return info.GetReturnValue().SetUndefined();
       }
 
@@ -113,14 +113,13 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
       }
 
       // 5. bind c++ JavaTurboModule to js
-      result =
-          turbo_module_runtime->turbo_env_->CreateObject(java_turbo_module);
+      result = turbo_module_runtime->turbo_env_->CreateObject(java_turbo_module);
 
       // 6. add To Cache
       turbo_module_runtime->module_cache_[name] = result;
-      TDF_BASE_DLOG(INFO) << "return module=%s", name.c_str();
+      TDF_BASE_DLOG(INFO) << "return module= " << name.c_str();
     } else {
-      TDF_BASE_DLOG(INFO) << "return cached module=%s", name.c_str();
+      TDF_BASE_DLOG(INFO) << "return cached module = " << name.c_str();
     }
 
     std::shared_ptr<V8CtxValue> v8_result =

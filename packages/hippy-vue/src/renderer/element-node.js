@@ -300,6 +300,14 @@ class ElementNode extends ViewNode {
         case 'caret-color':
           this.attributes['caret-color'] = Native.parseColor(value);
           break;
+        case 'nativeBackgroundAndroid': {
+          const nativeBackgroundAndroid = value;
+          if (typeof nativeBackgroundAndroid.color !== 'undefined') {
+            nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
+          }
+          this.attributes.nativeBackgroundAndroid = nativeBackgroundAndroid;
+          break;
+        }
         default:
           this.attributes[key] = value;
       }
@@ -536,6 +544,14 @@ class ElementNode extends ViewNode {
     } else {
       this.scrollToPosition(x, y, duration);
     }
+  }
+
+  setPressed(pressed) {
+    Native.callUIFunction(this, 'setPressed', [pressed]);
+  }
+
+  setHotspot(x, y) {
+    Native.callUIFunction(this, 'setHotspot', [x, y]);
   }
 }
 
