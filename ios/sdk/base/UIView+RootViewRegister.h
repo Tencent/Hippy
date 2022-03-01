@@ -35,8 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)registerAsHippyRootView:(HippyBridge *)bridge;
 
-- (void)cancelTouches;
-
 @end
 
 NS_ASSUME_NONNULL_END

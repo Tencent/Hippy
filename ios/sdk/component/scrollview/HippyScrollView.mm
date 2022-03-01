@@ -465,7 +465,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollEventBody]);
     }
-    [[self rootView] cancelTouches];
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
             [scrollViewListener scrollViewWillBeginDragging:scrollView];

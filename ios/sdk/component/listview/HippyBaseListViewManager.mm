@@ -43,6 +43,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(initialContentOffset, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(editable, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(showScrollIndicator, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 
 - (UIView *)view {
     return [[HippyBaseListView alloc] initWithBridge:self.bridge];

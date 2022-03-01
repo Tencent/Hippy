@@ -22,34 +22,199 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyView.h"
-#import "HippyBaseListViewProtocol.h"
 #import "HippyScrollableProtocol.h"
 #import "HippyTouchesView.h"
+#import "HippyCollectionViewWaterfallLayout.h"
+#import "HippyScrollProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
+/**
+ * CollectionViewCell for HippyWaterfallView
+ */
+@interface HippyCollectionViewCell : UICollectionViewCell
 
-@interface HippyWaterfallView : HippyTouchesView <HippyBaseListViewProtocol, HippyScrollableProtocol>
+@property (nonatomic, weak) UIView *cellView;
 
-@property (nonatomic, assign) UIEdgeInsets contentInset;
-@property (nonatomic, assign) NSInteger numberOfColumns;
-@property (nonatomic, assign) CGFloat columnSpacing;
-@property (nonatomic, assign) CGFloat interItemSpacing;
-@property (nonatomic, assign) NSInteger preloadItemNumber;
-@property (nonatomic, assign) BOOL initialized;
-@property (nonatomic, strong) UIColor *backgroundColor;
-@property (nonatomic, assign) BOOL containBannerView;
-@property (nonatomic, assign) CFTimeInterval scrollEventThrottle; //单位毫秒
+@end
+
+@class HippyWaterfallViewDataSource;
+
+/**
+ * HippyWaterfallView is a waterfall component, internal implementation is UICollectionView
+ */
+@interface HippyWaterfallView : HippyTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
+                                        HippyCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol, HippyScrollProtocol> {
+    HippyWaterfallViewDataSource *_dataSource;
+}
+
+/**
+ * Content inset for HippyWaterfallView
+ */
+@property(nonatomic, assign) UIEdgeInsets contentInset;
+
+/**
+ * Number of columns for HippyWaterfallView
+ */
+@property(nonatomic, assign) NSInteger numberOfColumns;
+
+/**
+ * Column spacing for HippyWaterfallView
+ */
+@property(nonatomic, assign) CGFloat columnSpacing;
+
+/**
+ * Item spacing for HippyWaterfallView
+ */
+@property(nonatomic, assign) CGFloat interItemSpacing;
+
+/**
+ * Indicate index from last to load more data
+ */
+@property(nonatomic, assign) NSInteger preloadItemNumber;
+
+/**
+ * Set background color
+ */
+@property(nonatomic, strong) UIColor *backgroundColor;
+
+/**
+ * Indicate interval between onScroll event report
+ */
+@property(nonatomic, assign) CFTimeInterval scrollEventThrottle;
+
+/**
+ * Indicate internal collectionview
+ */
+@property(nonatomic, strong) __kindof UICollectionView *collectionView;
+
+/**
+ * Get data source for HippyWaterfallView
+ */
+@property(nonatomic, readonly)HippyWaterfallViewDataSource *dataSource;
+
+/**
+ * Indicate whether components is scrolling manully
+ */
+@property(nonatomic, assign) BOOL manualScroll;
+
+/**
+ * Hippy Events
+ */
 @property (nonatomic, copy) HippyDirectEventBlock onScroll;
-
+@property (nonatomic, copy) HippyDirectEventBlock onInitialListReady;
+@property (nonatomic, copy) HippyDirectEventBlock onEndReached;
+@property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
+@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
+@property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge;
 
+/**
+ * Indicate class for item
+ *
+ * @return Class for item
+ */
+- (Class)listItemClass;
+
+/**
+ * Indicate component name for item
+ *
+ * @return name for item
+ *
+ * @discuss Name exported to frontend, not class name
+ */
+- (NSString *)compoentItemName;
+
+/**
+ * Indicate layout instance for HippyWatefallView
+ */
+- (__kindof UICollectionViewLayout *)collectionViewLayout;
+
+/**
+ * Called when HippyWaterfallView register its cell class
+ * Override it if custom cell is needed
+ */
+- (void)registerCells;
+
+/**
+ * Called when HippyWaterfallView register its supplementary views
+ * Override it if custome supplementary view is needed
+ */
+- (void)registerSupplementaryViews;
+
+/**
+ * Reload data
+ */
+- (void)reloadData;
+
+/**
+ * Reserved, not implemented
+ */
 - (void)refreshCompleted:(NSInteger)status text:(NSString *)text;
+
+/**
+ * Invoke onExposureReport event immediately
+ */
 - (void)callExposureReport;
+
+/**
+ * Reserved, not implemented
+ */
 - (void)startRefreshFromJSWithType:(NSUInteger)type;
+
+/**
+ * Reserved, not implemented
+ */
 - (void)startRefreshFromJS;
+
+/**
+ * Invoke onEndReached event immmediately
+ */
 - (void)startLoadMore;
+
+/**
+ * Scroll to specific item at index
+ *
+ * @param index Index of item
+ * @param animated Indicate whether to show animation effects
+ */
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
+
+/**
+ * Size for item at index path
+ *
+ * @param collectionView Internal collection view for HippyCollectionView
+ * @param collectionViewLayout Layout configuration for HippyCollectionView
+ * @param indexPath Index path of item
+ *
+ * @return Size for item at index path
+ */
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
+
+/**
+ * Column count for section
+ *
+ * @param collectionView Internal collection view for HippyCollectionView
+ * @param collectionViewLayout Layout configuration for HippyCollectionView
+ * @param section index of section to get column count
+ *
+ * @return Column count for section
+ */
+- (NSInteger)collectionView:(UICollectionView *)collectionView
+                     layout:(UICollectionViewLayout *)collectionViewLayout columnCountForSection:(NSInteger)section;
+
+/**
+ * Edge insets for section
+ *
+ * @param collectionView Internal collection view for HippyCollectionView
+ * @param collectionViewLayout Layout configuration for HippyCollectionView
+ * @param section index of section to get edge insets
+ *
+ * @return Edge insets for section
+ */
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView
+                        layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section;
 
 @end
 

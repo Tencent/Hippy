@@ -21,7 +21,6 @@
  */
 
 #import "HippyWaterfallView.h"
-#import "HippyCollectionViewWaterfallLayout.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
 #import "HippyWaterfallItemView.h"
@@ -36,11 +35,9 @@
 
 static NSString *kCellIdentifier = @"cellIdentifier";
 
-typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDraging, ScrollStateScrolling };
+static NSString *kWaterfallItemName = @"WaterfallItem";
 
-@interface HippyCollectionViewCell : UICollectionViewCell
-@property (nonatomic, weak) UIView *cellView;
-@end
+typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDraging, ScrollStateScrolling };
 
 @implementation HippyCollectionViewCell
 
@@ -60,25 +57,20 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 @end
 
-@interface HippyWaterfallView () <UICollectionViewDataSource, UICollectionViewDelegate, HippyCollectionViewDelegateWaterfallLayout, HippyInvalidating, HippyRefreshDelegate> {
-    NSMutableArray *_scrollListeners;
+@interface HippyWaterfallView () <HippyInvalidating, HippyRefreshDelegate> {
+    NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
-    HippyWaterfallViewDataSource *_dataSource;
     UIColor *_backgroundColor;
     double _lastOnScrollEventTimeInterval;
+    BOOL _manualScroll;
 }
 
 @property (nonatomic, strong) HippyCollectionViewWaterfallLayout *layout;
-@property (nonatomic, strong) UICollectionView *collectionView;
 
 @property (nonatomic, assign) NSInteger initialListSize;
-@property (nonatomic, copy) HippyDirectEventBlock onInitialListReady;
-@property (nonatomic, copy) HippyDirectEventBlock onEndReached;
-@property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
-@property (nonatomic, copy) HippyDirectEventBlock onRefresh;
-@property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
+@property (nonatomic, assign) BOOL containBannerView;
 
 @property (nonatomic, weak) UIView *rootView;
 @property (nonatomic, strong) UIView *loadingView;
@@ -93,10 +85,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     if (self = [super initWithFrame:CGRectZero]) {
         self.backgroundColor = [UIColor clearColor];
         self.bridge = bridge;
-        _scrollListeners = [NSMutableArray array];
+        _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
         _dataSource = [[HippyWaterfallViewDataSource alloc] init];
-        [_dataSource setItemViewName:@"WaterfallItem"];
+        self.dataSource.itemViewName = [self compoentItemName];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
             self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
@@ -107,9 +99,8 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)initCollectionView {
     if (_layout == nil) {
-        _layout = [[HippyCollectionViewWaterfallLayout alloc] init];
+        _layout = [self collectionViewLayout];
     }
-
     if (_collectionView == nil) {
         _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:_layout];
         _collectionView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
@@ -117,9 +108,30 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _collectionView.delegate = self;
         _collectionView.alwaysBounceVertical = YES;
         _collectionView.backgroundColor = [UIColor clearColor];
-        [_collectionView registerClass:[HippyCollectionViewCell class] forCellWithReuseIdentifier:kCellIdentifier];
+        [self registerCells];
+        [self registerSupplementaryViews];
         [self addSubview:_collectionView];
     }
+}
+
+- (void)registerCells {
+    Class cls = [self listItemClass];
+    [_collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
+}
+- (void)registerSupplementaryViews {
+    
+}
+
+- (__kindof UICollectionViewLayout *)collectionViewLayout {
+    return [[HippyCollectionViewWaterfallLayout alloc] init];
+}
+
+- (Class)listItemClass {
+    return [HippyCollectionViewCell class];
+}
+
+- (NSString *)compoentItemName {
+    return kWaterfallItemName;
 }
 
 - (void)setScrollEventThrottle:(CFTimeInterval)scrollEventThrottle {
@@ -143,11 +155,11 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     [_scrollListeners removeAllObjects];
 }
 
-- (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener {
+- (void)addScrollListener:(id<UIScrollViewDelegate>)scrollListener {
     [_scrollListeners addObject:scrollListener];
 }
 
-- (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener {
+- (void)removeScrollListener:(id<UIScrollViewDelegate>)scrollListener {
     [_scrollListeners removeObject:scrollListener];
 }
 
@@ -159,7 +171,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     return _collectionView.contentSize;
 }
 
-- (NSArray *)scrollListeners {
+- (NSHashTable<id<UIScrollViewDelegate>> *)scrollListeners {
     return _scrollListeners;
 }
 
@@ -179,7 +191,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     [_dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:_containBannerView];
 }
 
-#pragma mark Setter
+#pragma mark Setter & Getter
 
 - (void)setContentInset:(UIEdgeInsets)contentInset {
     _contentInset = contentInset;
@@ -205,6 +217,14 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 - (void)setOnInitialListReady:(HippyDirectEventBlock)onInitialListReady {
     _onInitialListReady = onInitialListReady;
     _isInitialListReady = NO;
+}
+
+- (BOOL)isManualScrolling {
+    return _manualScroll;
+}
+
+- (void)reloadData {
+    [self.collectionView reloadData];
 }
 
 - (BOOL)flush {
@@ -336,6 +356,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     }
 }
 
+- (BOOL)manualScroll {
+    return _manualScroll;
+}
+
 #pragma mark - UIScrollView Delegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -408,6 +432,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
+        _manualScroll = NO;
         if (self.onExposureReport) {
             HippyScrollState state = scrollView.decelerating ? ScrollStateScrolling : ScrollStateStop;
             NSDictionary *exposureInfo = [self scrollEventDataWithState:state];
@@ -424,19 +449,23 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     [_footerRefreshView scrollViewDidEndDragging];
 }
 
-- (void)scrollViewDidZoom:(UIScrollView *)scrollView NS_AVAILABLE_IOS(3_2) {
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
 
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView;
-{
-    [self cancelTouch];
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    _manualScroll = YES;
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
                      withVelocity:(CGPoint)velocity
-              targetContentOffset:(inout CGPoint *)targetContentOffset NS_AVAILABLE_IOS(5_0);
-{
+              targetContentOffset:(inout CGPoint *)targetContentOffset NS_AVAILABLE_IOS(5_0) {
+    if (velocity.y == 0 && velocity.x == 0) {
+        dispatch_after(
+            dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                self->_manualScroll = NO;
+            });
+    }
     if (velocity.y > 0) {
         if (self.onExposureReport) {
             NSDictionary *exposureInfo = [self scrollEventDataWithState:ScrollStateScrolling];
@@ -522,13 +551,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         }
     }
     return view;
-}
-
-- (void)cancelTouch {
-    UIView *view = [self rootView];
-    if (view) {
-        [view cancelTouches];
-    }
 }
 
 - (void)didMoveToSuperview {
