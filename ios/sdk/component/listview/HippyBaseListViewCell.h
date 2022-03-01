@@ -21,6 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "HippyWaterfallView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,12 +41,12 @@ typedef NS_ENUM(NSUInteger, CellShowState) { CellNotShowState, CellHalfShowState
 
 @end
 
-@interface HippyBaseListViewCell : UITableViewCell
+@interface HippyBaseListViewCell : HippyCollectionViewCell
 
-@property (nonatomic, weak) UITableView *tableView;
-@property (nonatomic, assign) UIView<ViewAppearStateProtocol> *cellView;
+@property (nonatomic, weak) UIView<ViewAppearStateProtocol> *cellView;
 
 - (void)setCellShowState:(CellShowState)cellShowState NS_REQUIRES_SUPER;
+
 - (CellShowState)cellShowState;
 
 @end

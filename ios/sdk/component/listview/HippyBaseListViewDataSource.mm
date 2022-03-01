@@ -25,29 +25,25 @@
 #import "HippyShadowView.h"
 
 @interface HippyBaseListViewDataSource () {
-    NSMutableArray<HippyShadowView *> *_headerShadowViews;
+    NSMutableArray *_headerShadowViews;
     NSMutableArray<NSMutableArray<HippyShadowView *> *> *_cellShadowViews;
-    NSString *_itemViewName;
 }
 
 @end
 
 @implementation HippyBaseListViewDataSource
 
-- (void)setItemViewsName:(NSString *)viewName {
-    _itemViewName = [viewName copy];
-}
-
-- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource {
-    NSMutableArray<HippyShadowView *> *headerShadowViews = [NSMutableArray array];
+- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView {
+    NSMutableArray *headerShadowViews = [NSMutableArray array];
     NSMutableArray<NSMutableArray<HippyShadowView *> *> *cellShadowViews = [NSMutableArray array];
     NSMutableArray<HippyShadowView *> *sectionCellShadowViews = nil;
+    BOOL isFirstIndex = YES;
     for (HippyShadowView *shadowView in dataSource) {
         NSString *viewName = [shadowView viewName];
-        if ([_itemViewName isEqualToString:viewName]) {
+        if ([self.itemViewName isEqualToString:viewName]) {
             NSNumber *sticky = shadowView.props[@"sticky"];
             if ([sticky boolValue]) {
-                [_headerShadowViews addObject:shadowView];
+                [headerShadowViews addObject:shadowView];
                 if (sectionCellShadowViews) {
                     [cellShadowViews addObject:sectionCellShadowViews];
                     sectionCellShadowViews = nil;
@@ -58,6 +54,10 @@
                     sectionCellShadowViews = [NSMutableArray array];
                 }
                 [sectionCellShadowViews addObject:shadowView];
+            }
+            if (isFirstIndex && 0 == [headerShadowViews count]) {
+                [headerShadowViews addObject:[NSNull null]];
+                isFirstIndex = NO;
             }
         }
     }
@@ -144,6 +144,14 @@
         }
     }
     return flatIndex;
+}
+
+- (BOOL)containBannerView {
+    return NO;
+}
+
+- (UIView *)bannerView {
+    return nil;
 }
 
 @end

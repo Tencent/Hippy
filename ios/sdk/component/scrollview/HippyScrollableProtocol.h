@@ -22,24 +22,58 @@
 
 #import <UIKit/UIKit.h>
 
-#define RN_FORWARD_SCROLL_EVENT(call)                                                     \
-    for (NSObject<UIScrollViewDelegate> * scrollViewListener in [self scrollListeners]) { \
-        if ([scrollViewListener respondsToSelector:_cmd]) {                               \
-            [scrollViewListener call];                                                    \
-        }                                                                                 \
-    }
-
+/**
+ * Protocol for any scrollable components inherit from UIScrollView
+ */
 @protocol HippyScrollableProtocol <UIScrollViewDelegate>
 
+/**
+ * Content size for components
+ */
 @property (nonatomic, readonly) CGSize contentSize;
 
+/**
+ * Add listener for scroll events
+ *
+ * @param scrollListener listener for scroll events
+ */
 - (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
+
+/**
+ * Remove listener for scroll events
+ *
+ * @param scrollListener listener for scroll events
+ */
 - (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener;
+
+/**
+ * Get the internal UIScrollView
+ *
+ * @return Internal UIScrollView
+ */
 - (UIScrollView *)realScrollView;
+
+/**
+ * Scroll event listeners table
+ */
 - (NSHashTable *)scrollListeners;
 
 @optional
+
+/**
+ * Set components scroll to location offset
+ *
+ * @param offset X coordinate for the offset
+ * @param animated Indicate whether to show animation effects
+ */
 - (void)scrollToOffset:(CGPoint)offset animated:(BOOL)animated;
+
+/**
+ * Set components scroll to index
+ *
+ * @param index Index of item
+ * @param animated Indicate whether to show animation effects
+ */
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
 
 @end

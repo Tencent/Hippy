@@ -23,6 +23,9 @@
 #import <Foundation/Foundation.h>
 
 @protocol HippyScrollProtocol <NSObject>
+
 @required
+
 - (BOOL)isManualScrolling;
+
 @end

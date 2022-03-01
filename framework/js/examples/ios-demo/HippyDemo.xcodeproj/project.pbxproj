@@ -326,7 +326,6 @@
 		064C594C23AB1A51001E80DD /* HippyAnimatedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimatedImage.h; sourceTree = "<group>"; };
 		064C594D23AB1A51001E80DD /* HippyImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyImageCache.m; sourceTree = "<group>"; };
 		064C594F23AB1A51001E80DD /* HippyBaseListItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBaseListItemView.h; sourceTree = "<group>"; };
-		064C595023AB1A51001E80DD /* HippyBaseListViewProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBaseListViewProtocol.h; sourceTree = "<group>"; };
 		064C595123AB1A51001E80DD /* HippyBaseListItemViewManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyBaseListItemViewManager.mm; sourceTree = "<group>"; };
 		064C595323AB1A51001E80DD /* HippyBaseListViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBaseListViewManager.h; sourceTree = "<group>"; };
 		064C595423AB1A51001E80DD /* HippyBaseListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBaseListView.h; sourceTree = "<group>"; };
@@ -1033,7 +1032,6 @@
 			children = (
 				F44AA04827980F3D00E072AE /* HippyBaseListViewDataSource.h */,
 				F44AA04727980F3D00E072AE /* HippyBaseListViewDataSource.mm */,
-				064C595023AB1A51001E80DD /* HippyBaseListViewProtocol.h */,
 				064C595523AB1A51001E80DD /* HippyBaseListItemViewManager.h */,
 				064C595123AB1A51001E80DD /* HippyBaseListItemViewManager.mm */,
 				064C595323AB1A51001E80DD /* HippyBaseListViewManager.h */,

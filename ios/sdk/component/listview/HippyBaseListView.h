@@ -24,46 +24,59 @@
 #import "HippyScrollView.h"
 #import "HippyBridge.h"
 #import "HippyUIManager.h"
-#import "HippyBaseListViewProtocol.h"
 #import "HippyListTableView.h"
 #import "HippyTouchesView.h"
+#import "HippyWaterfallView.h"
 
 @class HippyBaseListViewCell;
 
-@interface HippyBaseListView : HippyTouchesView <HippyBaseListViewProtocol, HippyScrollableProtocol, UITableViewDelegate,
-                                        UITableViewDataSource, HippyInvalidating, HippyListTableViewLayoutProtocol>
+@interface HippyBaseListView : HippyWaterfallView <HippyListTableViewLayoutProtocol>
 
-@property (nonatomic, copy) HippyDirectEventBlock initialListReady;
-@property (nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
-@property (nonatomic, copy) HippyDirectEventBlock onScroll;
-@property (nonatomic, copy) HippyDirectEventBlock onScrollEndDrag;
-@property (nonatomic, copy) HippyDirectEventBlock onMomentumScrollBegin;
-@property (nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
-@property (nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
-@property (nonatomic, copy) HippyDirectEventBlock onEndReached;
-@property (nonatomic, copy) HippyDirectEventBlock onDelete;
+/**
+ * Hippy events
+ */
+@property(nonatomic, copy) HippyDirectEventBlock initialListReady;
+@property(nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
+@property(nonatomic, copy) HippyDirectEventBlock onScrollEndDrag;
+@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollBegin;
+@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
+@property(nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
+@property(nonatomic, copy) HippyDirectEventBlock onDelete;
 
-@property (nonatomic, assign) NSUInteger preloadItemNumber;
-@property (nonatomic, assign) CGFloat initialContentOffset;
-@property (nonatomic, assign) BOOL manualScroll;
-@property (nonatomic, assign) BOOL bounces;
-@property (nonatomic, assign) BOOL showScrollIndicator;
-@property (nonatomic, assign) BOOL editable;
+/**
+ * Indication initial content offset when HippyBaseListView finish loading data
+ *
+ * @discuss This variable will be set to 0 after HippyBaseListView finish loading data
+ */
+@property(nonatomic, assign) CGFloat initialContentOffset;
 
-@property (nonatomic, strong) HippyListTableView *tableView;
-@property (nonatomic, assign) NSTimeInterval scrollEventThrottle;
+/**
+ * Indicate whether bounces past edge of content and back again
+ */
+@property(nonatomic, assign) BOOL bounces;
 
+/**
+ * Indicate whether compoents can show scroll indicator when tracking
+ */
+@property(nonatomic, assign) BOOL showScrollIndicator;
+
+/**
+ * Indicate whether item is editable
+ */
+@property(nonatomic, assign) BOOL editable;
+
+/**
+ * Indicate list view scrolls horizontally, defualt is NO
+ */
+@property(nonatomic, assign) BOOL horizontal;
+
+/**
+ * Reload data
+ */
 - (void)reloadData;
-- (NSString *)listViewCellName;
-- (Class)listViewCellClass;
+
 - (instancetype)initWithBridge:(HippyBridge *)bridge;
 - (void)scrollToContentOffset:(CGPoint)point animated:(BOOL)animated;
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
-
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath NS_REQUIRES_SUPER;
-- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath NS_REQUIRES_SUPER;
-
-- (CGFloat)zPositionOfCell:(HippyBaseListViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath;
-- (CGFloat)zPositionOfSectionView:(UIView *)sectionView forSection:(NSInteger)section;
 
 @end

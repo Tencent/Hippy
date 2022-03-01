@@ -20,22 +20,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "HippyWaterfallViewDataSource.h"
 
-@class HippyShadowView;
-
-@interface HippyBaseListViewDataSource : NSObject
-
-@property(nonatomic, copy) NSString *itemViewName;
-
-- (void)setItemViewsName:(NSString *)viewName;
-- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource;
-- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath;
-- (HippyShadowView *)headerForSection:(NSInteger)section;
-- (NSInteger)numberOfSection;
-- (NSInteger)numberOfCellForSection:(NSInteger)section;
-- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell;
-- (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
-- (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
+@interface HippyBaseListViewDataSource : HippyWaterfallViewDataSource
 
 @end

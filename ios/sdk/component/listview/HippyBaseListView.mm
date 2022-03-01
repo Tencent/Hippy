@@ -30,91 +30,106 @@
 #import "HippyBaseListViewCell.h"
 #import "HippyBaseListViewDataSource.h"
 #import "UIView+RootViewRegister.h"
+#import "objc/runtime.h"
 
 #define kCellZIndexConst 10000.f
 
-@interface HippyBaseListView () <HippyScrollProtocol, HippyRefreshDelegate> {
+static NSString *const kCellIdentifier = @"cellIdentifier";
+static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
+static NSString *const kListViewItem = @"ListViewItem";
+
+@interface HippyBaseListView () <HippyRefreshDelegate> {
     __weak HippyBridge *_bridge;
     __weak UIView *_rootView;
-    NSHashTable *_scrollListeners;
     BOOL _isInitialListReady;
-    NSUInteger _preNumberOfRows;
     NSTimeInterval _lastScrollDispatchTime;
     HippyHeaderRefresh *_headerRefreshView;
     HippyFooterRefresh *_footerRefreshView;
-    NSArray<HippyBaseListViewCell *> *_previousVisibleCells;
-    HippyBaseListViewDataSource *_dataSource;
+    NSArray<UICollectionViewCell *> *_previousVisibleCells;
+    BOOL _manualScroll;
 }
 
 @end
 
 @implementation HippyBaseListView
 
+#pragma mark Life Cycle
 - (instancetype)initWithBridge:(HippyBridge *)bridge {
-    if (self = [super initWithFrame:CGRectZero]) {
+    if (self = [super initWithBridge:bridge]) {
         _bridge = bridge;
-        _scrollListeners = [NSHashTable weakObjectsHashTable];
         _isInitialListReady = NO;
-        _preNumberOfRows = 0;
-        _preloadItemNumber = 1;
+        self.preloadItemNumber = 1;
         _dataSource = [[HippyBaseListViewDataSource alloc] init];
-        [_dataSource setItemViewsName:[self listViewCellName]];
-        [self initTableView];
+        self.dataSource.itemViewName = [self compoentItemName];
     }
 
     return self;
 }
 
+
+- (void)dealloc {
+    [_headerRefreshView unsetFromScrollView];
+    [_footerRefreshView unsetFromScrollView];
+}
+
 - (void)invalidate {
-    [_scrollListeners removeAllObjects];
+    [super invalidate];
 }
 
-- (NSString *)listViewCellName {
-    return @"ListViewItem";
+#pragma mark Setter & Getter
+- (NSString *)compoentItemName {
+    return kListViewItem;
 }
 
-- (Class)listViewCellClass {
+- (Class)listItemClass {
     return [HippyBaseListViewCell class];
 }
 
-- (void)initTableView {
-    if (_tableView == nil) {
-        _tableView = [[HippyListTableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-        _tableView.dataSource = self;
-        _tableView.delegate = self;
-        _tableView.layoutDelegate = self;
-        _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        _tableView.backgroundColor = [UIColor clearColor];
-        _tableView.allowsSelection = NO;
-        _tableView.estimatedRowHeight = 0;
-        _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-#ifdef __IPHONE_15_0
-        if (@available(iOS 15.0, *)) {
-            [_tableView setSectionHeaderTopPadding:0.0f];
-        }
-#endif
-        if (@available(iOS 11.0, *)) {
-            _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-            _tableView.insetsContentViewsToSafeArea = NO;
-        }
-
-        [self addSubview:_tableView];
-    }
+- (__kindof UICollectionViewLayout *)collectionViewLayout {
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumLineSpacing = .0f;
+    layout.minimumInteritemSpacing = .0f;
+    layout.sectionHeadersPinToVisibleBounds = YES;
+    return layout;
 }
 
-- (void)setPreloadItemNumber:(NSUInteger)preloadItemNumber {
-    _preloadItemNumber = MAX(1, preloadItemNumber);
+- (void)registerCells {
+    Class cls = [self listItemClass];
+    HippyAssert([cls isSubclassOfClass:[HippyBaseListViewCell class]], @"list item class must be a subclass of HippyBaseListViewCell");
+    [self.collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
 
+- (void)registerSupplementaryViews {
+    [self.collectionView registerClass:[UICollectionReusableView class]
+            forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+                   withReuseIdentifier:kSupplementaryIdentifier];
+}
+
+- (void)setFrame:(CGRect)frame {
+    [super setFrame:frame];
+}
+
+- (void)hippySetFrame:(CGRect)frame {
+    [super hippySetFrame:frame];
+    self.collectionView.frame = self.bounds;
+}
+
+- (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
+    _initialListReady = initialListReady;
+    _isInitialListReady = NO;
+}
+
+#pragma mark Data Load
+ 
 - (BOOL)flush {
     [self refreshItemNodes];
     return YES;
 }
 
 - (void)reloadData {
-    [_tableView reloadData];
+    [self.collectionView reloadData];
     if (self.initialContentOffset) {
-        [_tableView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
+        [self.collectionView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
         self.initialContentOffset = 0;
     }
     if (!_isInitialListReady) {
@@ -125,34 +140,20 @@
     }
 }
 
-- (void)setInitialListReady:(HippyDirectEventBlock)initialListReady {
-    _initialListReady = initialListReady;
-    _isInitialListReady = NO;
-}
-
-- (void)setFrame:(CGRect)frame {
-    [super setFrame:frame];
-}
-
-- (void)hippySetFrame:(CGRect)frame {
-    [super hippySetFrame:frame];
-    _tableView.frame = self.bounds;
-}
-
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView unsetFromScrollView];
         }
         _headerRefreshView = (HippyHeaderRefresh *)subview;
-        [_headerRefreshView setScrollView:self.tableView];
+        [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
         }
         _footerRefreshView = (HippyFooterRefresh *)subview;
-        [_footerRefreshView setScrollView:self.tableView];
+        [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
     }
 }
@@ -163,13 +164,13 @@
 }
 
 - (void)refreshItemNodes {
-    [_dataSource setDataSource:self.hippyShadowView.hippySubviews];
+    [self.dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:NO];
 }
 
 #pragma mark -Scrollable
 
 - (void)setScrollEnabled:(BOOL)value {
-    [_tableView setScrollEnabled:value];
+    [self.collectionView setScrollEnabled:value];
 }
 
 - (void)scrollToOffset:(__unused CGPoint)offset {
@@ -181,92 +182,87 @@
 - (void)zoomToRect:(__unused CGRect)rect animated:(__unused BOOL)animated {
 }
 
-- (void)addScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener {
-    [_scrollListeners addObject:scrollListener];
-}
-
-- (void)removeScrollListener:(NSObject<UIScrollViewDelegate> *)scrollListener {
-    [_scrollListeners removeObject:scrollListener];
-}
-
 - (UIScrollView *)realScrollView {
-    return self.tableView;
+    return self.collectionView;
 }
 
 - (CGSize)contentSize {
-    return self.tableView.contentSize;
-}
-
-- (NSHashTable *)scrollListeners {
-    return _scrollListeners;
+    return self.collectionView.contentSize;
 }
 
 - (void)scrollToContentOffset:(CGPoint)offset animated:(BOOL)animated {
-    [self.tableView setContentOffset:offset animated:animated];
+    [self.collectionView setContentOffset:offset animated:animated];
 }
 
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
-    NSIndexPath *indexPath = [_dataSource indexPathForFlatIndex:index];
+    NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
     if (indexPath != nil) {
-        [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
+        [self.collectionView scrollToItemAtIndexPath:indexPath
+                                    atScrollPosition:UITableViewScrollPositionTop animated:animated];
     }
 }
 
 #pragma mark - Delegate & Datasource
 
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+- (BOOL)collectionView:(UICollectionView *)collectionView canEditItemAtIndexPath:(NSIndexPath *)indexPath {
     return self.editable;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSString *delText = self.hippyShadowView.props[@"delText"];
-    return delText;
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    NSInteger count = [self.dataSource numberOfSection];
+    return count;
 }
 
-- (BOOL)tableView: (UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath {		
-	return NO;
-}
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (UITableViewCellEditingStyleDelete == editingStyle) {
-        if (self.onDelete) {
-            NSInteger index = [_dataSource flatIndexForIndexPath:indexPath];
-            self.onDelete(@{@"index": @(index)});
-        }
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout
+ heightForHeaderInSection:(NSInteger)section {
+    HippyShadowView *header = [self.dataSource headerForSection:section];
+    if (header) {
+        return CGRectGetHeight(header.frame);
+    } else {
+        return 0.00001;
     }
 }
 
-- (NSInteger)numberOfSectionsInTableView:(__unused UITableView *)tableView {
-    return [_dataSource numberOfSection];
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout*)collectionViewLayout
+referenceSizeForHeaderInSection:(NSInteger)section {
+    HippyShadowView *headerShadowView = [self.dataSource headerForSection:section];
+    if ([headerShadowView isKindOfClass:[HippyShadowView class]]) {
+        return headerShadowView.frame.size;
+    }
+    return CGSizeZero;
 }
 
-- (CGFloat)tableView:(__unused UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    HippyShadowView *header = [_dataSource headerForSection:section];
-    if (header) {
-        return CGRectGetHeight(header.frame);
-    } else
-        return 0.00001;
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView
+           viewForSupplementaryElementOfKind:(NSString *)kind
+                                 atIndexPath:(NSIndexPath *)indexPath {
+    NSInteger section = [indexPath section];
+    UICollectionReusableView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind
+                                                                        withReuseIdentifier:kSupplementaryIdentifier
+                                                                               forIndexPath:indexPath];
+    HippyShadowView *headerShadowView = [self.dataSource headerForSection:section];
+    if (headerShadowView && [headerShadowView isKindOfClass:[HippyShadowView class]]) {
+        UIView *headerView = [_bridge.uiManager viewForHippyTag:headerShadowView.hippyTag];
+        if (!headerView) {
+            headerView = [_bridge.uiManager createViewRecursivelyFromShadowView:headerShadowView];
+        }
+        CGRect frame = headerView.frame;
+        frame.origin = CGPointZero;
+        headerView.frame = frame;
+        [view addSubview:headerView];
+    }
+    return view;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    //TODO create view with reusable view
-    HippyShadowView *header = [_dataSource headerForSection:section];
-    return [_bridge.uiManager viewForHippyTag:header.hippyTag];
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return [self.dataSource numberOfCellForSection:section];
 }
 
-- (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    HippyShadowView *itemView = [_dataSource cellForIndexPath:indexPath];
-    return itemView.frame.size.height;
-}
-
-- (NSInteger)tableView:(__unused UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [_dataSource numberOfCellForSection:section];
-}
-
-- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    HippyShadowView *cellShadowView = [_dataSource cellForIndexPath:indexPath];
+- (void)collectionView:(UICollectionView *)collectionView
+       willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
     [cellShadowView recusivelySetCreationTypeToInstant];
-    NSInteger index = [_dataSource flatIndexForIndexPath:indexPath];
+    NSInteger index = [self.dataSource flatIndexForIndexPath:indexPath];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
             @"index": @(index),
@@ -278,54 +274,42 @@
             }
         });
     }
-
     if (self.onEndReached) {
-        NSInteger lastSectionIndex = [self numberOfSectionsInTableView:tableView] - 1;
-        NSInteger lastRowIndexInSection = [self tableView:tableView numberOfRowsInSection:lastSectionIndex] - _preloadItemNumber;
+        NSInteger lastSectionIndex = [self numberOfSectionsInCollectionView:collectionView] - 1;
+        NSInteger lastRowIndexInSection = [self collectionView:collectionView numberOfItemsInSection:lastSectionIndex] - self.preloadItemNumber;
         if (lastRowIndexInSection < 0) {
             lastRowIndexInSection = 0;
         }
-
         BOOL isLastIndex = [indexPath section] == lastSectionIndex && [indexPath row] == lastRowIndexInSection;
-
         if (isLastIndex) {
             self.onEndReached(@{});
         }
     }
 }
 
-- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    HippyShadowView *cellShadowView = [_dataSource cellForIndexPath:indexPath];
-    //FIXME use identifier
-    HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[tableView dequeueReusableCellWithIdentifier:@"identifier"];
-    if (nil == cell) {
-        Class cls = [self listViewCellClass];
-        NSAssert([cls isSubclassOfClass:[HippyBaseListViewCell class]], @"listViewCellClass must return a subclass of HippyShadowView");
-        cell = [[cls alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"identifier"];
-        cell.tableView = tableView;
-    }
-    //FIXME use cache for cell view creation
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
+    HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     UIView *cellView = [_bridge.uiManager viewForHippyTag:cellShadowView.hippyTag];
     if (!cellView) {
         cellView = [_bridge.uiManager createViewRecursivelyFromShadowView:cellShadowView];
     }
-    cell.layer.zPosition = [self zPositionOfCell:cell forRowAtIndexPath:indexPath];
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
-//    cell.node = indexNode;
-//    cell.node.cell = cell;
+    return cell;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
+    HippyCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     return cell;
 }
 
 - (void)tableViewDidLayoutSubviews:(HippyListTableView *)tableView {
-    NSArray<HippyBaseListViewCell *> *visibleCells = [self.tableView visibleCells];
+    NSArray<UICollectionViewCell *> *visibleCells = [self.collectionView visibleCells];
     for (HippyBaseListViewCell *cell in visibleCells) {
-        CGRect cellRectInTableView = [self.tableView convertRect:[cell bounds] fromView:cell];
-        CGRect intersection = CGRectIntersection(cellRectInTableView, [self.tableView bounds]);
+        CGRect cellRectInTableView = [self.collectionView convertRect:[cell bounds] fromView:cell];
+        CGRect intersection = CGRectIntersection(cellRectInTableView, [self.collectionView bounds]);
         if (CGRectEqualToRect(cellRectInTableView, intersection)) {
             [cell setCellShowState:CellFullShowState];
         } else if (!CGRectIsNull(intersection)) {
@@ -333,24 +317,13 @@
         }
     }
     if (_previousVisibleCells && ![_previousVisibleCells isEqualToArray:visibleCells]) {
-        NSMutableArray<HippyBaseListViewCell *> *diff = [_previousVisibleCells mutableCopy];
+        NSMutableArray<UICollectionViewCell *> *diff = [_previousVisibleCells mutableCopy];
         [diff removeObjectsInArray:visibleCells];
         for (HippyBaseListViewCell *cell in diff) {
             [cell setCellShowState:CellNotShowState];
         }
     }
     _previousVisibleCells = visibleCells;
-}
-
-- (CGFloat)zPositionOfCell:(HippyBaseListViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    return [indexPath section] * kCellZIndexConst + [indexPath row];
-}
-
-- (CGFloat)zPositionOfSectionView:(UIView *)sectionView forSection:(NSInteger)section {
-    CGFloat zPositionForFirstCellInSection = section * kCellZIndexConst;
-    NSInteger numberOfRowsInSection = [self.tableView numberOfRowsInSection:section];
-    //make sure section view's zPosition is higher than last cell's in section {section}
-    return zPositionForFirstCellInSection + numberOfRowsInSection;
 }
 
 #pragma mark - Scroll
@@ -364,7 +337,7 @@
         _lastScrollDispatchTime = now;
     }
 
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
             [scrollViewListener scrollViewDidScroll:scrollView];
         }
@@ -379,8 +352,7 @@
         self.onScrollBeginDrag([self scrollBodyData]);
     }
     _manualScroll = YES;
-    [self cancelTouch];
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDragging:)]) {
             [scrollViewListener scrollViewWillBeginDragging:scrollView];
         }
@@ -391,7 +363,7 @@
     if (self.onMomentumScrollBegin) {
         self.onMomentumScrollBegin([self scrollBodyData]);
     }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
             [scrollViewListener scrollViewWillBeginDecelerating:scrollView];
         }
@@ -402,7 +374,7 @@
     if (!decelerate) {
         _manualScroll = NO;
     }
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
             [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
         }
@@ -423,7 +395,7 @@
         self.onScrollEndDrag([self scrollBodyData]);
     }
 
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillEndDragging:withVelocity:targetContentOffset:)]) {
             [scrollViewListener scrollViewWillEndDragging:scrollView withVelocity:velocity targetContentOffset:targetContentOffset];
         }
@@ -439,7 +411,7 @@
         self.onMomentumScrollEnd([self scrollBodyData]);
     }
 
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
             [scrollViewListener scrollViewDidEndDecelerating:scrollView];
         }
@@ -447,7 +419,7 @@
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginZooming:withView:)]) {
             [scrollViewListener scrollViewWillBeginZooming:scrollView withView:view];
         }
@@ -455,7 +427,7 @@
 }
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView {
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidZoom:)]) {
             [scrollViewListener scrollViewDidZoom:scrollView];
         }
@@ -463,7 +435,7 @@
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndZooming:withView:atScale:)]) {
             [scrollViewListener scrollViewDidEndZooming:scrollView withView:view atScale:scale];
         }
@@ -471,7 +443,7 @@
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
             [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
         }
@@ -479,32 +451,7 @@
 }
 
 - (NSDictionary *)scrollBodyData {
-    return @{ @"contentOffset": @ { @"x": @(_tableView.contentOffset.x), @"y": @(_tableView.contentOffset.y) } };
-}
-
-#pragma mark touch conflict
-- (UIView *)rootView {
-    if (_rootView) {
-        return _rootView;
-    }
-    UIView *view = [self superview];
-    while (view) {
-        if (0 == [[view hippyTag] intValue] % 10) {
-            _rootView = view;
-            return view;
-        }
-        else {
-            view = [view superview];
-        }
-    }
-    return view;
-}
-
-- (void)cancelTouch {
-    UIView *view = [self rootView];
-    if (view) {
-        [view cancelTouches];
-    }
+    return @{ @"contentOffset": @ { @"x": @(self.collectionView.contentOffset.x), @"y": @(self.collectionView.contentOffset.y) } };
 }
 
 - (void)didMoveToSuperview {
@@ -516,24 +463,50 @@
 }
 
 - (void)setBounces:(BOOL)bounces {
-    [_tableView setBounces:bounces];
+    [self.collectionView setBounces:bounces];
 }
 
 - (BOOL)bounces {
-    return [_tableView bounces];
+    return [self.collectionView bounces];
 }
 
 - (void)setShowScrollIndicator:(BOOL)show {
-    [_tableView setShowsVerticalScrollIndicator:show];
+    [self.collectionView setShowsVerticalScrollIndicator:show];
 }
 
 - (BOOL)showScrollIndicator {
-    return [_tableView showsVerticalScrollIndicator];
+    return [self.collectionView showsVerticalScrollIndicator];
 }
 
-- (void)dealloc {
-    [_headerRefreshView unsetFromScrollView];
-    [_footerRefreshView unsetFromScrollView];
+#pragma mark UICollectionViewLayout Delegate
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView
+                     layout:(UICollectionViewLayout *)collectionViewLayout columnCountForSection:(NSInteger)section {
+    return 1;
+}
+
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView
+                        layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+    return UIEdgeInsetsZero;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView
+                                      layout:(UICollectionViewLayout *)collectionViewLayout
+    minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    return .0f;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView
+                                   layout:(UICollectionViewLayout *)collectionViewLayout
+    minimumColumnSpacingForSectionAtIndex:(NSInteger)section {
+    return .0f;
+}
+
+- (void)setHorizontal:(BOOL)horizontal {
+    if (_horizontal != horizontal) {
+        _horizontal = horizontal;
+        [self.collectionView.collectionViewLayout invalidateLayout];
+    }
 }
 
 #pragma mark HippyRefresh Delegate

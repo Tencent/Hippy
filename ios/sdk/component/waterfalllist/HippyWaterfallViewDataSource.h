@@ -20,16 +20,26 @@
  * limitations under the License.
  */
 
-#import "HippyBaseListViewDataSource.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyWaterfallViewDataSource : HippyBaseListViewDataSource
+@class HippyShadowView;
+
+@interface HippyWaterfallViewDataSource : NSObject
 
 @property(nonatomic, readonly) BOOL containBannerView;
 @property(nonatomic, readonly) HippyShadowView *bannerView;
+@property(nonatomic, copy) NSString *itemViewName;
 
 - (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView;
+- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath;
+- (HippyShadowView *)headerForSection:(NSInteger)section;
+- (NSInteger)numberOfSection;
+- (NSInteger)numberOfCellForSection:(NSInteger)section;
+- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell;
+- (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
+- (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
 
 @end
 

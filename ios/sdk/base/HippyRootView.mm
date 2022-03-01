@@ -399,9 +399,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
 }
 
-- (void)cancelTouches {
-}
-
 @end
 
 @implementation HippyUIManager (HippyRootView)
