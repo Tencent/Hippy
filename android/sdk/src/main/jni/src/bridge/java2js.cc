@@ -167,7 +167,7 @@ void CallFunction(JNIEnv* j_env,
       unicode_string_view buf_str(std::move(str));
       TDF_BASE_DLOG(INFO) << "action_name = " << action_name
                           << ", buf_str = " << buf_str;
-      params = context->CreateObject(buf_str);
+      params = context->ParseJson(buf_str);
     }
     if (!params) {
       params = context->CreateNull();

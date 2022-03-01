@@ -89,7 +89,7 @@ std::shared_ptr<CtxValue> V8TurboEnv::CreateObject(
   if (!host_object_constructor_.Get(isolate)
            ->NewInstance(context)
            .ToLocal(&new_object)) {
-    v8_ctx->ThrowException(unicode_string_view("CreateObject Fail."));
+    v8_ctx->ThrowException(unicode_string_view("ParseJson Fail."));
     return context_->CreateUndefined();
   }
 
