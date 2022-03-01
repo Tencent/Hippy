@@ -212,11 +212,6 @@ class VoltronBridgeManager implements Destroyable {
     map.push("id", id);
     map.push("params", params);
 
-    var paramsJsonStr = objectToJson(map);
-
-    if (isEmpty(paramsJsonStr)) {
-      return;
-    }
 
     var rootView = _context.getInstance(id);
     var rootSize = Size.zero;
@@ -228,7 +223,7 @@ class VoltronBridgeManager implements Destroyable {
       }
     }
 
-    await VoltronApi.createInstance(_engineId, id, rootSize, paramsJsonStr, (value) {
+    await VoltronApi.createInstance(_engineId, id, rootSize, map, (value) {
       var curRootView = _context.getInstance(id);
       if (curRootView != null && curRootView.timeMonitor != null) {
         curRootView.timeMonitor

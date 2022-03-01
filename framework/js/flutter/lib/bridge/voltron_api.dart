@@ -259,12 +259,14 @@ class VoltronApi {
   }
 
   static Future createInstance(int engineId, int rootId, Size rootSize,
-      String params, CommonCallback callback) async {
+      VoltronMap params, CommonCallback callback) async {
     var action = "loadInstance";
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
     var paramsBuffer = params.encode();
+    var decodeObject = paramsBuffer.decode();
+    print('load instance params: $params, decode object: $decodeObject');
     final paramsPointer = malloc<Uint8>(paramsBuffer.length);
     final nativeParams = paramsPointer.asTypedList(paramsBuffer.length);
     nativeParams.setRange(0, paramsBuffer.length, paramsBuffer);
