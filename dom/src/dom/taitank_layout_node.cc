@@ -137,7 +137,7 @@ static LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
   if (measure_mode == MeasureMode::MeasureModeAtMost) {
     return LayoutMeasureMode::AtMost;
   }
-  TDF_BASE_NOTREACHED();
+  TDF_BASE_UNREACHABLE();
 }
 
 static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
@@ -150,7 +150,7 @@ static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
   } else if (Edge::EdgeBottom == edge) {
     return CSSDirection::CSSBottom;
   } else {
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 }
 
@@ -177,7 +177,7 @@ void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height,
   } else if (direction == Direction::RTL) {
     taitank_direction = HPDirection::DirectionRTL;
   } else {
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
   engine_node_->layout(parent_width, parent_height, engine_node_->GetConfig(), taitank_direction, layout_context);
 }

@@ -44,7 +44,7 @@ void Serializer::WriteOddball(Oddball oddball) {
       tag = SerializationTag::kNull;
       break;
     default:
-      TDF_BASE_NOTREACHED();
+      TDF_BASE_UNREACHABLE();
   }
   WriteTag(tag);
 }
