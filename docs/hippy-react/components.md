@@ -8,7 +8,7 @@ hippy-react 的组件接近终端，语法上接近 React Native。
 
 # Image
 
-[[Image 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/Image)
+[[Image 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Image)
 
 图片组件，用于显示单张图片。
 
@@ -85,7 +85,7 @@ import icon from './qb_icon_new.png';
 
 # ListView
 
-[[ListView 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/ListView)
+[[ListView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
 
 可复用垂直列表功能，尤其适合大量条目的数据渲染。
 
@@ -117,7 +117,7 @@ import icon from './qb_icon_new.png';
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件 | `number`                                                    | `ALL`    |
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `All` |
 | showScrollIndicator   | 是否显示滚动条。 | `boolean`  | `ALL`    |
-| renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/PullHeader/index.jsx)。 | `() => View`                                                   | `ALL`    |
+| renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeader/index.jsx)。 | `() => View`                                                   | `ALL`    |
 | onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `ALL`    |
 | onHeaderReleased   | 下拉超过内容高度，松手后触发。 | `() => any`                                                   | `ALL`    |
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
@@ -150,7 +150,7 @@ import icon from './qb_icon_new.png';
 
 # Modal
 
-[[Modal 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/Modal)
+[[Modal 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Modal)
 
 模态弹窗组件。
 
@@ -175,7 +175,7 @@ import icon from './qb_icon_new.png';
 
 # RefreshWrapper
 
-[[RefreshWrapper 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/RefreshWrapper)
+[[RefreshWrapper 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RefreshWrapper)
 
 包裹住 `ListView` 提供下滑刷新功能的组件.
 
@@ -203,7 +203,7 @@ import icon from './qb_icon_new.png';
 
 # ScrollView
 
-[[Scroll 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/ScrollView)
+[[Scroll 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ScrollView)
 
 滚动视图组件，用于展示不确定高度的内容，它可以将一系列不确定高度的子组件装到一个确定高度的容器中，使用者可通过上下或左右滚动操作查看组件宽高之外的内容。
 
@@ -254,7 +254,7 @@ import icon from './qb_icon_new.png';
 
 # TextInput
 
-[[TextInput 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/TextInput)
+[[TextInput 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/TextInput)
 
 输入文本的基本组件。
 
@@ -362,7 +362,7 @@ import icon from './qb_icon_new.png';
 
 # Text
 
-[[Text 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/Text)
+[[Text 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/Text)
 
 文本组件。
 
@@ -406,7 +406,7 @@ import icon from './qb_icon_new.png';
 
 # View
 
-[[View 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/View)
+[[View 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/View)
 
 最基础的容器组件，它是一个支持Flexbox布局、样式、一些触摸处理、和一些无障碍功能的容器，并且它可以放到其它的视图里，也可以有任意多个任意类型的子视图。不论在什么平台上，`View` 都会直接对应一个平台的原生视图。
 
@@ -425,19 +425,19 @@ import icon from './qb_icon_new.png';
 | onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 | onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
 | onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| nativeBackgroundAndroid    | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认 false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/index.jsx) | `Object`| `Android`    |
 
-## 样式内特殊属性
+## style 样式内特殊属性
 
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
-| nativeBackgroundAndroid    | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认 false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/RippleViewAndroid/index.jsx)。 | `Object`| `Android`    |
+| collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失 `（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 | `boolean`                            | `Android` |
 
 ## 方法
 
 ### setPressed
 
-[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
+[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
 
 `最低支持版本 2.13.1`
 
@@ -447,7 +447,7 @@ import icon from './qb_icon_new.png';
 
 ### setHotspot
 
-[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
+[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
 
 `最低支持版本 2.13.1`
 
@@ -457,7 +457,7 @@ import icon from './qb_icon_new.png';
 
 # ViewPager
 
-[[ViewPager 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/ViewPager)
+[[ViewPager 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ViewPager)
 
 支持横滑翻页的容器，它的每一个子容器组件会被视作一个单独的页面，并且会被拉伸宽度至 `ViewPager` 本身宽度。
 
@@ -493,7 +493,7 @@ import icon from './qb_icon_new.png';
 
 > 最低支持版本 2.9.0
 
-[[WaterfallView 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/WaterfallView)
+[[WaterfallView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/WaterfallView)
 
 瀑布流组件。
 
@@ -540,7 +540,7 @@ import icon from './qb_icon_new.png';
 
 # WebView
 
-[[WebView 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-react-demo/src/components/WebView/index.jsx)
+[[WebView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/WebView/index.jsx)
 
 WebView组件。
 
