@@ -22,67 +22,6 @@
 
 declare function hippyBridge (action: string, params: any): void;
 
-export interface UIProps {[key: string]: any}
-
-export interface BaseView
-{
-  tagName: NodeTag;
-  id: number;
-  pId: number;
-  index: number;
-  props: {[key: string]: any};
-  dom: HTMLElement|null;
-  defaultStyle: () => {[key: string]: any}|any;
-  onAttachedToWindow: () => void;
-  onLayout: () => void;
-  updateProps?: (data: UIProps, defaultProcess?: (component: BaseView, data: UIProps) => void) => void;
-  beforeMount: (parent: BaseView, position: number) => Promise<void>;
-  beforeChildMount: (child: BaseView, childPosition: number) => Promise<void>;
-  beforeRemove: () => Promise<void>;
-  destroy: () => void;
-  beforeChildRemove: (child: BaseView) => void;
-  mounted: () => void;
-}
-
-export type BaseViewConstructor = new (id: number, pId: number) => BaseView;
-
-export interface NodeData
-{
-  id: number,
-  pId: number,
-  props: any,
-  index: number,
-  name: string,
-}
-
-export interface ModuleContext
-{
-  receiveNativeEvent: (eventName: string, params: any) => void
-  getModuleByName: (moduleName: string) => any|null
-}
-export interface BaseModule
-{
-  initialize?: () => void;
-  destroy?: () => void;
-}
-export type BaseModuleConstructor = new (context: ModuleContext) => BaseModule;
-
-export enum NodeTag {
-  VIEW = 'View',
-  TEXT = 'Text',
-  IMAGE = 'Image',
-  LIST_ITEM = 'ListViewItem',
-  LIST = 'ListView',
-  REFRESH = 'RefreshWrapper',
-  REFRESH_ITEM = 'RefreshWrapperItemView',
-
-  SCROLL_VIEW = 'ScrollView',
-  VIEW_PAGER = 'ViewPager',
-  VIEW_PAGER_ITEM = 'ViewPagerItem',
-  TEXT_INPUT = 'TextInput',
-  MODAL = 'Modal',
-  WEB_VIEW = 'WebView'
-}
 export enum EllipsizeMode {
   HEAD = 'head',
   clip = 'clip',
@@ -200,7 +139,6 @@ export enum NodeProps {
   SET_PAGE_WITHOUT_ANIMATION = 'setPageWithoutAnimation',
   ON_CLICK = 'onClick',
 }
-
 export enum KeyboardType {
   default = 'default',
   numeric = 'numeric',
@@ -209,7 +147,6 @@ export enum KeyboardType {
   phonePad = 'phone-pad',
   search = 'search',
 }
-
 export enum ReturnKeyType {
   done = 'done',
   go = 'go',
@@ -217,7 +154,6 @@ export enum ReturnKeyType {
   search = 'search',
   send = 'send',
 }
-
 export enum ModalAnimationType {
   Slide = 'slide',
   Fade = 'fade',
@@ -231,9 +167,12 @@ export enum ModalOrientations {
   LandscapeLeft = 'landscape-left',
   LandscapeRight = 'landscape-right',
 }
-
 export enum SCROLL_STATE {
   IDLE = 'idle',
   DRAG = 'dragging',
   SETTL = 'settling',
 }
+export const STYLE_MARGIN_V = 'marginVertical';
+export const STYLE_MARGIN_H = 'marginHorizontal';
+export const STYLE_PADDING_V = 'paddingVertical';
+export const STYLE_PADDING_H = 'paddingHorizontal';

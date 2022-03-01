@@ -17,13 +17,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import './global';
-import './render';
-import './core/entry/hippy';
-import { registerComponent, registerModule } from './module';
 
-export default {
-  registerComponent,
-  registerModule,
+import { Image } from './image';
+import { ListView, ListViewItem } from './list-view';
+import { Modal } from './modal';
+import { RefreshWrapper } from './refresh-wrapper';
+import { ScrollView } from './scroll-view';
+import { TextInput } from './text-input';
+import { View } from './view';
+import { ViewPager, ViewPagerItem } from './view-pager';
+import { WebView } from './web-view';
+import { Text } from './text';
+
+export {
+  Image,
+  ListView,
+  Modal,
+  RefreshWrapper,
+  ScrollView,
+  TextInput,
+  View,
+  ViewPager,
+  WebView,
+  Text,
+  ViewPagerItem,
 };
-
