@@ -53,6 +53,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void SetRootSize(float width, float height);
   void SetRootNode(const std::shared_ptr<DomNode>& root_node);
   void DoLayout();
+  void DoLayout(std::function<void()> func);
+  void DoNotifyRender();
   void PostTask(std::function<void()> func);
   void StartTaskRunner() { dom_task_runner_->Start(); }
   void TerminateTaskRunner() { dom_task_runner_->Terminate(); }
@@ -92,6 +94,12 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void DeleteDomNode(const std::shared_ptr<DomNode>& node);
   void UpdateRenderNode(const std::shared_ptr<DomNode>& node);
+
+  void NotifyBuildRenderTree();
+  void BindEvent();
+  void Layout();
+  void NotifyRender();
+
 
   friend DomNode;
 };
