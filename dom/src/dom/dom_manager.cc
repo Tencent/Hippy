@@ -205,37 +205,10 @@ void DomManager::DeleteDomNode(const std::shared_ptr<DomNode>& node) {
 void DomManager::EndBatch() {
   PostTask([WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(DomManager)
-    std::vector<std::shared_ptr<DomNode>> delete_nodes;
-    for (auto& batch_operation : self->batched_operations_) {
-      batch_operation();
-    }
-    self->batched_operations_.clear();
-    for (auto& listener_operation : self->listener_operations_) {
-      listener_operation();
-    }
-    self->listener_operations_.clear();
-    auto render_manager = self->render_manager_.lock();
-    TDF_BASE_DCHECK(render_manager);
-    if (!render_manager) {
-      return;
-    }
-    // Before Layout
-    render_manager->BeforeLayout();
-    // build layout tree
-    for (auto& layout_operation : self->layout_operations_) {
-      layout_operation();
-    }
-    self->layout_operations_.clear();
-    // 清理布局计算
-    self->layout_changed_nodes_.clear();
-    // 触发布局计算
-    self->root_node_->DoLayout();
-    // After Layout
-    render_manager->AfterLayout();
-    if (!self->layout_changed_nodes_.empty()) {
-      render_manager->UpdateLayout(self->layout_changed_nodes_);
-    }
-    render_manager->EndBatch();
+    self->NotifyBuildRenderTree();
+    self->BindEvent();
+    self->Layout();
+    self->NotifyRender();
   });
 }
 
@@ -330,27 +303,22 @@ void DomManager::SetRootNode(const std::shared_ptr<DomNode>& root_node) {
 void DomManager::DoLayout() {
   PostTask([WEAK_THIS]() {
     DEFINE_AND_CHECK_SELF(DomManager)
-    self->layout_changed_nodes_.clear();
-    auto render_manager = self->render_manager_.lock();
-    TDF_BASE_DCHECK(render_manager);
-    if (!render_manager) {
-      return;
-    }
-    // Before Layout
-    render_manager->BeforeLayout();
-    // build layout tree
-    for (auto& layout_operation : self->layout_operations_) {
-      layout_operation();
-    }
-    self->layout_operations_.clear();
+    self->Layout();
+  });
+}
 
-    // 触发布局计算
-    self->root_node_->DoLayout();
-    // After Layout
-    render_manager->AfterLayout();
-    if (!self->layout_changed_nodes_.empty()) {
-      render_manager->UpdateLayout(self->layout_changed_nodes_);
-    }
+void DomManager::DoLayout(std::function<void()> func) {
+  PostTask([WEAK_THIS, func]() {
+    DEFINE_AND_CHECK_SELF(DomManager)
+    self->Layout();
+    if(func) func();
+  });
+}
+
+void DomManager::DoNotifyRender() {
+  PostTask([WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(DomManager)
+    self->NotifyRender();
   });
 }
 
@@ -455,7 +423,6 @@ void DomManager::PostTask(std::function<void()> func) {
 }
 
 void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
-  layout_changed_nodes_.clear();
   auto render_manager = render_manager_.lock();
   TDF_BASE_DCHECK(render_manager);
   if (!render_manager) {
@@ -466,7 +433,31 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   std::vector<std::shared_ptr<DomNode>> nodes;
   nodes.push_back(node);
   render_manager->UpdateRenderNode(std::move(nodes));
+  Layout();
+  NotifyRender();
+}
 
+void DomManager::NotifyBuildRenderTree() {
+  for (auto& batch_operation : batched_operations_) {
+    batch_operation();
+  }
+  batched_operations_.clear();
+}
+
+void DomManager::BindEvent() {
+  for (auto& listener_operation : listener_operations_) {
+    listener_operation();
+  }
+  listener_operations_.clear();
+}
+
+void DomManager::Layout() {
+  auto render_manager = render_manager_.lock();
+  // check render_manager, measure text dependent render_manager
+  TDF_BASE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
   // Before Layout
   render_manager->BeforeLayout();
   // build layout tree
@@ -474,15 +465,23 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
     layout_operation();
   }
   layout_operations_.clear();
-
+  // 清理布局计算
+  layout_changed_nodes_.clear();
   // 触发布局计算
   root_node_->DoLayout();
   // After Layout
   render_manager->AfterLayout();
+}
+
+void DomManager::NotifyRender() {
+  auto render_manager = render_manager_.lock();
+  TDF_BASE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
   if (!layout_changed_nodes_.empty()) {
     render_manager->UpdateLayout(layout_changed_nodes_);
   }
-
   render_manager->EndBatch();
 }
 
