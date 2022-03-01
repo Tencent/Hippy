@@ -58,7 +58,6 @@ import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 
 import com.tencent.renderer.NativeRenderException;
-import com.tencent.renderer.NativeRenderException.ExceptionCode;
 import com.tencent.renderer.component.text.VirtualNode;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,11 +74,13 @@ public class ControllerManager {
     @NonNull
     final ControllerUpdateManger<HippyViewController, View> mControllerUpdateManger;
 
-    public ControllerManager(@NonNull NativeRender nativeRenderer,
-            @Nullable List<Class<?>> controllers) {
+    public ControllerManager(@NonNull NativeRender nativeRenderer) {
         mNativeRenderer = nativeRenderer;
         mControllerRegistry = new ControllerRegistry(nativeRenderer);
         mControllerUpdateManger = new ControllerUpdateManger(nativeRenderer);
+    }
+
+    public void init(@Nullable List<Class<?>> controllers) {
         processControllers(controllers);
         mControllerUpdateManger.setCustomPropsController(mControllerRegistry.getViewController(
                 HippyCustomPropsController.CLASS_NAME));
@@ -209,7 +210,9 @@ public class ControllerManager {
 
     public void updateLayout(String name, int id, int x, int y, int width, int height) {
         HippyViewController controller = mControllerRegistry.getViewController(name);
-        controller.updateLayout(id, x, y, width, height, mControllerRegistry);
+        if (controller != null) {
+            controller.updateLayout(id, x, y, width, height, mControllerRegistry);
+        }
     }
 
     public void addRootView(ViewGroup rootView) {
@@ -402,8 +405,10 @@ public class ControllerManager {
         View parent = mControllerRegistry.getView(pid);
         if (child != null && parent instanceof ViewGroup && child.getParent() == null) {
             String parentClassName = HippyTag.getClassName(parent);
-            mControllerRegistry.getViewController(parentClassName)
-                    .addView((ViewGroup) parent, child, index);
+            HippyViewController controller = mControllerRegistry.getViewController(parentClassName);
+            if (controller != null) {
+                controller.addView((ViewGroup) parent, child, index);
+            }
         } else {
             reportAddChildException(pid, parent, id, child);
         }

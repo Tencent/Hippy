@@ -36,7 +36,9 @@ import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -51,6 +53,11 @@ public class VirtualNodeManager {
     private static final String PADDING_RIGHT = "paddingRight";
     private static final String PADDING_BOTTOM = "paddingBottom";
     private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>();
+    /**
+     * Reserved the node id whose node attribute has been updated.
+     */
+    @Nullable
+    private List<Integer> mUpdateNodes;
     @NonNull
     private final NativeRender mNativeRenderer;
 
@@ -59,6 +66,8 @@ public class VirtualNodeManager {
     }
 
     /**
+     * Check whether the specified node has a virtual parent.
+     *
      * @return {@code true} if the node has a virtual parent
      */
     public boolean hasVirtualParent(int id) {
@@ -66,6 +75,14 @@ public class VirtualNodeManager {
         return (node != null && node.mParent != null);
     }
 
+    /**
+     * Update event listening status of specified node.
+     *
+     * @param id target node id
+     * @param props event listener props of node
+     * @return {@code true} the node event listening status have been changed
+     *         {@code false} the node event listening status no change
+     */
     public boolean updateEventListener(int id, @NonNull Map<String, Object> props) {
         VirtualNode node = mVirtualNodes.get(id);
         if (node == null) {
@@ -91,6 +108,14 @@ public class VirtualNodeManager {
         return true;
     }
 
+    /**
+     * Update layout of specified node.
+     *
+     * @param id target node id
+     * @param width the width of layout
+     * @param layoutInfo the layout params of node
+     * @return {@link TextRenderSupply}
+     */
     @Nullable
     public TextRenderSupply updateLayout(int id, float width, Map<String, Object> layoutInfo) {
         VirtualNode node = mVirtualNodes.get(id);
@@ -116,6 +141,9 @@ public class VirtualNodeManager {
         }
         Layout layout = ((TextVirtualNode) node)
                 .createLayout((width - leftPadding - rightPadding), FlexMeasureMode.EXACTLY);
+        if (mUpdateNodes != null) {
+            mUpdateNodes.remove(Integer.valueOf(id));
+        }
         return new TextRenderSupply(layout, leftPadding, topPadding,
                 rightPadding, bottomPadding);
     }
@@ -139,12 +167,10 @@ public class VirtualNodeManager {
         if (nodeClass != VirtualNode.class) {
             findPropertyMethod(nodeClass.getSuperclass(), methodMap);
         }
-
         Method[] methods = nodeClass.getDeclaredMethods();
         for (Method method : methods) {
             HippyControllerProps controllerProps = method.getAnnotation(HippyControllerProps.class);
             if (controllerProps != null) {
-                String style = controllerProps.name();
                 PropertyMethodHolder propsMethodHolder = new PropertyMethodHolder();
                 propsMethodHolder.defaultNumber = controllerProps.defaultNumber();
                 propsMethodHolder.defaultType = controllerProps.defaultType();
@@ -152,7 +178,7 @@ public class VirtualNodeManager {
                 propsMethodHolder.defaultBoolean = controllerProps.defaultBoolean();
                 propsMethodHolder.method = method;
                 propsMethodHolder.paramTypes = method.getGenericParameterTypes();
-                methodMap.put(style, propsMethodHolder);
+                methodMap.put(controllerProps.name(), propsMethodHolder);
             }
         }
         sClassPropertyMethod.put(nodeClass, new HashMap<>(methodMap));
@@ -164,6 +190,9 @@ public class VirtualNodeManager {
         if (methodHolder == null) {
             if (key.equals(NodeProps.STYLE) && (props.get(key) instanceof Map)) {
                 updateProps(node, (Map) props.get(key), false);
+            } else if (node instanceof TextVirtualNode) {
+                // Some unused attributes are reserved and may be used by render node.
+                ((TextVirtualNode) node).addUnusedProps(key, props.get(key));
             }
             return;
         }
@@ -220,12 +249,7 @@ public class VirtualNodeManager {
             invokePropertyMethod(node, props, key, methodHolder);
         }
         if (needToReset && node instanceof TextVirtualNode) {
-            props.clear();
-            TextVirtualNode textNode = (TextVirtualNode) node;
-            if (textNode.mUnusedProps != null) {
-                props.putAll(textNode.mUnusedProps);
-                textNode.mUnusedProps = null;
-            }
+            ((TextVirtualNode) node).resetProps(props);
         }
     }
 
@@ -265,6 +289,12 @@ public class VirtualNodeManager {
         VirtualNode node = mVirtualNodes.get(id);
         if (node != null) {
             updateProps(node, props, true);
+            if (node.mParent == null) {
+                if (mUpdateNodes == null) {
+                    mUpdateNodes = new ArrayList<>();
+                }
+                mUpdateNodes.add(id);
+            }
         }
     }
 
@@ -284,5 +314,27 @@ public class VirtualNodeManager {
             node.mChildren.clear();
         }
         mVirtualNodes.delete(id);
+    }
+
+    @Nullable
+    public Map<Integer, Layout> endBatch() {
+        if (mUpdateNodes == null || mUpdateNodes.isEmpty()) {
+            return null;
+        }
+        Map<Integer, Layout> layoutToUpdate = null;
+        for (Integer id : mUpdateNodes) {
+            VirtualNode node = mVirtualNodes.get(id);
+            if (node != null && node instanceof TextVirtualNode) {
+                // If the node has been updated, but there is no updateLayout call from native(C++)
+                // render manager, we should renew the layout on end batch and update to render node.
+                Layout layout = ((TextVirtualNode) node).createLayout();
+                if (layoutToUpdate == null) {
+                    layoutToUpdate = new HashMap<>();
+                }
+                layoutToUpdate.put(id, layout);
+            }
+        }
+        mUpdateNodes.clear();
+        return layoutToUpdate;
     }
 }

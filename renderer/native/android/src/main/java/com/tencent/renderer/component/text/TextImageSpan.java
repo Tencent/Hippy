@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer.component.text;
 
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_ERROR;
@@ -34,6 +35,7 @@ import android.text.style.ImageSpan;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -44,6 +46,7 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.utils.EventUtils;
+
 import java.lang.reflect.Field;
 
 public class TextImageSpan extends ImageSpan {
@@ -207,10 +210,10 @@ public class TextImageSpan extends ImageSpan {
             }
         }
         mGifLastPlayTime = now;
-        float mGifScaleX = width / (float) mGifMovie.width();
-        float mGifScaleY = height / (float) mGifMovie.height();
-        float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
-        float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
+        final float mGifScaleX = width / (float) mGifMovie.width();
+        final float mGifScaleY = height / (float) mGifMovie.height();
+        final float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
+        final float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
         mGifMovie.setTime(mGifProgress);
         canvas.save();
         canvas.scale(mGifScaleX, mGifScaleY);
@@ -237,16 +240,15 @@ public class TextImageSpan extends ImageSpan {
             int h = (mHeight == 0) ? drawable.getIntrinsicHeight() : mHeight;
             drawable.setBounds(0, 0, w, h);
             try {
-                Field mDrawableField;
-                Field mDrawableRefField;
                 //noinspection JavaReflectionMemberAccess
-                mDrawableField = ImageSpan.class.getDeclaredField("mDrawable");
-                mDrawableField.setAccessible(true);
-                mDrawableField.set(TextImageSpan.this, drawable);
+                final Field drawableField = ImageSpan.class.getDeclaredField("mDrawable");
+                drawableField.setAccessible(true);
+                drawableField.set(TextImageSpan.this, drawable);
                 //noinspection JavaReflectionMemberAccess
-                mDrawableRefField = DynamicDrawableSpan.class.getDeclaredField("mDrawableRef");
-                mDrawableRefField.setAccessible(true);
-                mDrawableRefField.set(TextImageSpan.this, null);
+                final Field drawableRefField = DynamicDrawableSpan.class
+                        .getDeclaredField("mDrawableRef");
+                drawableRefField.setAccessible(true);
+                drawableRefField.set(TextImageSpan.this, null);
             } catch (IllegalAccessException | NoSuchFieldException ignored) {
                 // Reflective access likely to remove in future Android releases
             }

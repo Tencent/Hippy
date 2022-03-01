@@ -26,24 +26,35 @@ import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 public class EventUtils {
-    /** Event of image view */
+    // On image loaded.
     public static final String EVENT_IMAGE_ON_LOAD = "load";
+    // On image load error.
     public static final String EVENT_IMAGE_LOAD_ERROR = "error";
+    // On image load end.
     public static final String EVENT_IMAGE_LOAD_END = "loadEnd";
+    // On image load start.
     public static final String EVENT_IMAGE_LOAD_START = "loadStart";
 
-    /** Event of list view */
+    // On list view header released.
     public static final String EVENT_LIST_HEADER_RELEASED = "headerReleased";
+    // On list view header pulling.
     public static final String EVENT_LIST_HEADER_PULLING = "headerPulling";
+    // On list view footer released.
     public static final String EVENT_LIST_FOOTER_RELEASED = "footerReleased";
+    // On list view footer pulling.
     public static final String EVENT_LIST_FOOTER_PULLING = "footerPulling";
+    // On list view item will appear, event of exposure monitor.
     public static final String EVENT_LIST_ITEM_WILL_APPEAR = "willAppear";
+    // On list view item appear, event of exposure monitor.
     public static final String EVENT_LIST_ITEM_APPEAR = "appear";
+    // On list view item disappear, event of exposure monitor.
     public static final String EVENT_LIST_ITEM_DISAPPEAR = "disappear";
+    // On list view item will disappear, event of exposure monitor.
     public static final String EVENT_LIST_ITEM_WILL_DISAPPEAR = "willDisappear";
 
-    /** Event of modal view */
+    // On modal view request close.
     public static final String EVENT_MODAL_REQUEST_CLOSE = "requestClose";
+    // On modal view show.
     public static final String EVENT_MODAL_SHOW = "onShow";
 
     @MainThread
