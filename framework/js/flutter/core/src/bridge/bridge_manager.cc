@@ -89,7 +89,9 @@ void BridgeManager::DestroyInstance(int32_t engine_id, int32_t root_id) {
   if (render_manager_map_.find(root_id) != render_manager_map_.end()) {
     render_manager_map_.erase(root_id);
   }
-  if (dom_manager_map_.find(root_id) != dom_manager_map_.end()) {
+  auto dom_manager = dom_manager_map_.find(root_id);
+  if (dom_manager != dom_manager_map_.end()) {
+    dom_manager->second->TerminateTaskRunner();
     dom_manager_map_.erase(root_id);
   }
 }

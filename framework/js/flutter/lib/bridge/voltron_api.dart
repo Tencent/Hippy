@@ -265,8 +265,6 @@ class VoltronApi {
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
     var paramsBuffer = params.encode();
-    var decodeObject = paramsBuffer.decode();
-    print('load instance params: $params, decode object: $decodeObject');
     final paramsPointer = malloc<Uint8>(paramsBuffer.length);
     final nativeParams = paramsPointer.asTypedList(paramsBuffer.length);
     nativeParams.setRange(0, paramsBuffer.length, paramsBuffer);
@@ -310,8 +308,6 @@ class VoltronApi {
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
     var paramsBuffer = params.encode();
-    var decodeObject = paramsBuffer.decode();
-    print('params: $params, decode object: $decodeObject');
     final paramsPointer = malloc<Uint8>(paramsBuffer.length);
     final nativeParams = paramsPointer.asTypedList(paramsBuffer.length);
     nativeParams.setRange(

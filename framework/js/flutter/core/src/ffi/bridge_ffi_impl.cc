@@ -62,6 +62,7 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
       BridgeImpl::BindDomManager(runtime_id, dom_manager);
     }
     dom_manager->SetRootSize((float)width, (float)height);
+    dom_manager->StartTaskRunner();
     CallFunctionFFI(engine_id, action, params, params_length, callback_id);
   }
 }
