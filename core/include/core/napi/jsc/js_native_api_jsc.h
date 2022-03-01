@@ -124,16 +124,22 @@ class JSCCtx : public Ctx {
       const unicode_string_view& string) override;
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
-  virtual std::shared_ptr<CtxValue> CreateObject(
-      const unicode_string_view& json) override;
-  virtual std::shared_ptr<CtxValue> CreateMap(size_t count,
-                                              std::shared_ptr<CtxValue>* value) override {
-      TDF_BASE_NOTIMPLEMENTED();
-      return nullptr;
-  };
+  virtual std::shared_ptr<CtxValue> ParseJson(const unicode_string_view& json) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      unicode_string_view,
+      std::shared_ptr<CtxValue>>& object) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& object) override;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) override;
+  virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& map) override {
+    TDF_BASE_UNIMPLEMENTED();
+    return nullptr;
+  }
   virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) override;
 
@@ -151,9 +157,9 @@ class JSCCtx : public Ctx {
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             unicode_string_view* result) override;
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) override {
-      TDF_BASE_NOTIMPLEMENTED();
-      return false;
-  };
+    TDF_BASE_UNIMPLEMENTED();
+    return false;
+  }
   // Null Helpers
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
 

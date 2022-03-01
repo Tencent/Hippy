@@ -159,14 +159,20 @@ class V8Ctx : public Ctx {
       const unicode_string_view& string) override;
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
-  virtual std::shared_ptr<CtxValue> CreateObject(
+  virtual std::shared_ptr<CtxValue> ParseJson(
       const unicode_string_view& json) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      unicode_string_view,
+      std::shared_ptr<CtxValue>>& object) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& object) override;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) override;
-  virtual std::shared_ptr<CtxValue> CreateMap(
-      size_t count,
-      std::shared_ptr<CtxValue> value[]) override;
+  virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& map) override;
   virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) override;
 
