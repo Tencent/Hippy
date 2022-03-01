@@ -7,6 +7,7 @@
   "homepage": "http://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-web-render",
   "license": "Apache-2.0",
+  "types": "types/index.d.ts",
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
   },
