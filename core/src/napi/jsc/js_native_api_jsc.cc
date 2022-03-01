@@ -420,7 +420,7 @@ void JSCCtx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
 void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
                                    hippy::base::RegisterFunction fn,
                                    void* data) {
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
 }
 
 std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const unicode_string_view& name) {
@@ -525,7 +525,7 @@ std::shared_ptr<JSValueWrapper> JSCCtx::ToJsValueWrapper(
     return std::make_shared<JSValueWrapper>(ret);
   }
 
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
   return nullptr;
 }
 
@@ -574,7 +574,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
     }
     return std::make_shared<JSCCtxValue>(context_, obj_ref);
   }
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
   return nullptr;
 }
 

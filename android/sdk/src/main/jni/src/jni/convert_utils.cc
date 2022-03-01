@@ -686,7 +686,11 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ToJsMap(T
     }
     value[i] = std::get<2>(value_tuple);
   }
-  return std::make_tuple(true, "", v8_ctx->CreateMap(static_cast<size_t>(size), value));
+  std::map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> param;
+  for (auto i = 0; i < size; i += 2) {
+    param[value[i]] = value[i + 1];
+  }
+  return std::make_tuple(true, "", v8_ctx->CreateMap(param));
 }
 
 bool ConvertUtils::Init() {
