@@ -22,7 +22,7 @@ public class LibraryLoader {
 
   private static boolean hasLoaded = false;
   private final static String[] SO_NAME_LIST = new String[]{
-      "hippy", "flexbox"
+      "hippy"
   };
 
   public static synchronized void loadLibraryIfNeed() {

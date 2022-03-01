@@ -41,10 +41,15 @@ public class RenderManager {
     private static final String TAG = "RenderManager";
     private final SparseArray<RenderNode> mNodes = new SparseArray<>();
     private final List<RenderNode> mUIUpdateNodes = new ArrayList<>();
+    @NonNull
     private final ControllerManager mControllerManager;
 
-    public RenderManager(NativeRender nativeRenderer, @Nullable List<Class<?>> controllers) {
-        mControllerManager = new ControllerManager(nativeRenderer, controllers);
+    public RenderManager(NativeRender nativeRenderer) {
+        mControllerManager = new ControllerManager(nativeRenderer);
+    }
+
+    public void init(@Nullable List<Class<?>> controllers) {
+        mControllerManager.init(controllers);
     }
 
     public ControllerManager getControllerManager() {

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer.component.text;
 
 import static com.tencent.mtt.hippy.dom.node.NodeProps.IMAGE_SPAN_TEXT;
@@ -25,14 +26,17 @@ import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.renderer.NativeRender;
+
 import java.util.List;
 
 public class ImageVirtualNode extends VirtualNode {
@@ -121,7 +125,8 @@ public class ImageVirtualNode extends VirtualNode {
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER, defaultNumber = ImageSpan.ALIGN_BASELINE)
+    @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = ImageSpan.ALIGN_BASELINE)
     public void setVerticalAlignment(int alignment) {
         if (alignment != mVerticalAlignment) {
             mVerticalAlignment = alignment;

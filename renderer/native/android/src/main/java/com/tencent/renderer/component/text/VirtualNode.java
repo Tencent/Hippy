@@ -74,6 +74,10 @@ public abstract class VirtualNode {
         }
     }
 
+    public boolean isDirty() {
+        return mDirty;
+    }
+
     public void markDirty() {
         if (mParent != null) {
             mParent.markDirty();

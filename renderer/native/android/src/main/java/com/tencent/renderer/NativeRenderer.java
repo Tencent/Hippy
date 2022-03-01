@@ -21,6 +21,7 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_N
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_UNAVAILABLE_ERR;
 
 import android.content.Context;
+import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -71,13 +73,20 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
     private static final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
     private int mRootId;
-    private RenderManager mRenderManager;
-    private VirtualNodeManager mVirtualNodeManager;
+    @Nullable
     private HippyRootView mRootView;
+    @Nullable
     private FrameworkProxy mFrameworkProxy;
-    private final NativeRenderProvider mRenderProvider;
-    private final BlockingQueue<UITaskExecutor> mUITaskQueue;
+    @Nullable
     private List<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
+    @NonNull
+    private final NativeRenderProvider mRenderProvider;
+    @NonNull
+    private final BlockingQueue<UITaskExecutor> mUITaskQueue;
+    @NonNull
+    private final RenderManager mRenderManager;
+    @NonNull
+    private final VirtualNodeManager mVirtualNodeManager;
 
     public NativeRenderer() {
         mRenderProvider = new NativeRenderProvider(this);
@@ -85,12 +94,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
         // node operation cause OOM.
         mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
+        mRenderManager = new RenderManager(this);
+        mVirtualNodeManager = new VirtualNodeManager(this);
     }
 
     @Override
     public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
-        mRenderManager = new RenderManager(this, controllers);
-        mVirtualNodeManager = new VirtualNodeManager(this);
+        mRenderManager.init(controllers);
         if (rootView instanceof HippyRootView) {
             mRenderManager.createRootNode(mRootId);
             mRenderManager.addRootView(rootView);
@@ -182,9 +192,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void destroy() {
         mRenderProvider.destroy();
-        if (mRenderManager != null) {
-            mRenderManager.destroy();
-        }
+        mRenderManager.destroy();
         if (mInstanceLifecycleEventListeners != null) {
             mInstanceLifecycleEventListeners.clear();
         }
@@ -204,6 +212,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         return mRootView;
     }
     
+    @NonNull
     @Override
     public RenderManager getRenderManager() {
         return mRenderManager;
@@ -223,11 +232,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
 
     @Override
     public void onSizeChanged(int w, int h, int oldw, int oldh) {
-        if (mRenderProvider != null) {
-            LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
-                    + oldw + ", oldh=" + oldh);
-            mRenderProvider.onSizeChanged(w, h);
-        }
+        LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
+                + oldw + ", oldh=" + oldh);
+        mRenderProvider.onSizeChanged(w, h);
     }
 
     @Override
@@ -253,11 +260,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
      */
     @Override
     public void dispatchUIComponentEvent(int id, String eventName, @Nullable Object params) {
-        if (mRenderProvider != null) {
-            // UI component event default disable capture and bubble phase,
-            // can not enable both in native and js.
-            mRenderProvider.dispatchEvent(id, eventName, params, false, false);
-        }
+        // UI component event default disable capture and bubble phase,
+        // can not enable both in native and js.
+        mRenderProvider.dispatchEvent(id, eventName, params, false, false);
     }
 
     /**
@@ -270,11 +275,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
      */
     @Override
     public void dispatchNativeGestureEvent(int id, String eventName, @Nullable Object params) {
-        if (mRenderProvider != null) {
-            // Gesture event default enable capture and bubble phase, can not disable in native,
-            // but can stop propagation in js.
-            mRenderProvider.dispatchEvent(id, eventName, params, true, true);
-        }
+        // Gesture event default enable capture and bubble phase, can not disable in native,
+        // but can stop propagation in js.
+        mRenderProvider.dispatchEvent(id, eventName, params, true, true);
     }
 
     /**
@@ -290,9 +293,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @SuppressWarnings("unused")
     public void dispatchCustomEvent(int id, String eventName, @Nullable Object params,
             boolean useCapture, boolean useBubble) {
-        if (mRenderProvider != null) {
-            mRenderProvider.dispatchEvent(id, eventName, params, useCapture, useBubble);
-        }
+        mRenderProvider.dispatchEvent(id, eventName, params, useCapture, useBubble);
     }
 
     @Override
@@ -633,14 +634,25 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void doPromiseCallBack(int result, long callbackId, @NonNull String functionName,
             int nodeId, @Nullable Object params) {
-        if (mRenderProvider != null) {
-            mRenderProvider.doPromiseCallBack(result, callbackId, functionName, nodeId, params);
-        }
+        mRenderProvider.doPromiseCallBack(result, callbackId, functionName, nodeId, params);
     }
 
     @Override
     public void endBatch() throws NativeRenderException {
-        onEndBatch();
+        Map<Integer, Layout> layoutToUpdate = mVirtualNodeManager.endBatch();
+        if (layoutToUpdate != null) {
+            for (Entry<Integer, Layout> entry : layoutToUpdate.entrySet()) {
+                final int id = entry.getKey();
+                final Layout layout = entry.getValue();
+                UITaskExecutor task = new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.updateExtra(id, layout);
+                    }
+                };
+                addUITask(task);
+            }
+        }
         UITaskExecutor task = new UITaskExecutor() {
             @Override
             public void exec() {
@@ -649,6 +661,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         };
         addUITask(task);
         executeUITask();
+        onEndBatch();
     }
 
     @Override
@@ -664,9 +677,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         // before layout.
         if (className.equals(HippyModalHostManager.CLASS_NAME)) {
             DisplayMetrics metrics = DisplayUtils.getMetrics(ContextHolder.getAppContext(), false);
-            if (mRenderProvider != null) {
-                mRenderProvider.onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels);
-            }
+            mRenderProvider.onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels);
         }
         if (checkJSFrameworkProxy()) {
             ((JSFrameworkProxy) mFrameworkProxy).onCreateNode(nodeId, props);

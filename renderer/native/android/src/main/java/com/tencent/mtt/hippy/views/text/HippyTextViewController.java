@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.views.text;
 
 import android.content.Context;
+import android.text.Layout;
 import android.text.Spannable;
 import android.view.View;
 
@@ -39,23 +40,32 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
 
     @Override
     protected void updateExtra(View view, @Nullable Object object) {
-        if (!(object instanceof TextRenderSupply)) {
+        TextRenderSupply supply = null;
+        Layout layout;
+        if (object instanceof TextRenderSupply) {
+            supply = (TextRenderSupply) object;
+            layout = supply.layout;
+        } else if (object instanceof Layout) {
+            layout = (Layout) object;
+        } else {
             return;
         }
-        TextRenderSupply supply = (TextRenderSupply) object;
-        if (supply.layout != null && view instanceof HippyTextView) {
+        if (layout != null && view instanceof HippyTextView) {
             HippyTextView textView = (HippyTextView) view;
-            CharSequence textSequence = supply.layout.getText();
+            CharSequence textSequence = layout.getText();
             if (textSequence instanceof Spannable) {
                 Spannable spannable = (Spannable) textSequence;
                 TextGestureSpan[] spans = spannable
                         .getSpans(0, spannable.length(), TextGestureSpan.class);
                 textView.setGestureEnable(spans != null && spans.length > 0);
             }
-            textView.setPadding((int) Math.floor(supply.leftPadding),
-                    (int) Math.floor(supply.topPadding),
-                    (int) Math.floor(supply.rightPadding), (int) Math.floor(supply.bottomPadding));
-            textView.setLayout(supply.layout);
+            if (supply != null) {
+                textView.setPadding((int) Math.floor(supply.leftPadding),
+                        (int) Math.floor(supply.topPadding),
+                        (int) Math.floor(supply.rightPadding),
+                        (int) Math.floor(supply.bottomPadding));
+            }
+            textView.setLayout(layout);
             textView.postInvalidate();
         }
     }

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer.component.text;
 
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
+
 import androidx.annotation.NonNull;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
