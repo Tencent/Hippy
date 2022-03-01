@@ -43,6 +43,8 @@
 @property(nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
 @property(nonatomic, copy) HippyDirectEventBlock onDelete;
 
+- (instancetype)initWithBridge:(HippyBridge *)bridge;
+
 /**
  * Indication initial content offset when HippyBaseListView finish loading data
  *
@@ -75,8 +77,20 @@
  */
 - (void)reloadData;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge;
+/**
+ * Scroll to offset
+ *
+ * @param point Offset point
+ * @param animated Indicate whether scroll to point with animation effects
+ */
 - (void)scrollToContentOffset:(CGPoint)point animated:(BOOL)animated;
+
+/**
+ * Scroll to index of item
+ *
+ * @param index Index of items
+ * @param animated Indicate whether scroll to point with animation effects
+ */
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated;
 
 @end
