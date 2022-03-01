@@ -66,7 +66,7 @@ public class TextVirtualNode extends VirtualNode {
     private static final String TEXT_ALIGN_JUSTIFY = "justify";
     private static final String TEXT_ALIGN_RIGHT = "right";
     private static final String TEXT_ALIGN_CENTER = "center";
-    private static final String ELLIPSIS = "\u2026";
+    private static final String ELLIPSIS = "...";
 
     private int mColor = Color.BLACK;
     private int mNumberOfLines;
@@ -128,14 +128,16 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
+    @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = Color.BLACK)
     public void color(Integer color) {
         mColor = color;
         markDirty();
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER, defaultNumber = NodeProps.FONT_SIZE_SP)
+    @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = NodeProps.FONT_SIZE_SP)
     public void fontSize(float size) {
         mFontSize = (int) Math.ceil(PixelUtil.dp2px(size));
         markDirty();
@@ -211,7 +213,8 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = TEXT_SHADOW_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = TEXT_SHADOW_COLOR_DEFAULT)
+    @HippyControllerProps(name = TEXT_SHADOW_COLOR, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = TEXT_SHADOW_COLOR_DEFAULT)
     public void setTextShadowColor(int shadowColor) {
         mShadowColor = shadowColor;
         markDirty();
@@ -246,7 +249,8 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING, defaultString = TEXT_ALIGN_LEFT)
+    @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING,
+            defaultString = TEXT_ALIGN_LEFT)
     public void setTextAlign(String align) {
         switch (align) {
             case TEXT_ALIGN_LEFT:
@@ -401,12 +405,12 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @NonNull
-    public Layout createLayout() {
+    protected Layout createLayout() {
         return createLayout(mLastLayoutWidth, FlexMeasureMode.EXACTLY);
     }
 
     @NonNull
-    public Layout createLayout(final float width, final FlexMeasureMode widthMode) {
+    protected Layout createLayout(final float width, final FlexMeasureMode widthMode) {
         if (mTextPaint == null) {
             mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         }
