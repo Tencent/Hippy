@@ -135,7 +135,7 @@ void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callba
 
 void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
                               std::function<void(int64_t)> callback) {
-    if (action == nullptr || params == nullptr) {
+    if (action == nullptr) {
       return;
     }
 
@@ -144,6 +144,7 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::s
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
                                                 encoding:[NSString defaultCStringEncoding]];
     NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *jsonError;
     NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
                                           options:NSJSONReadingMutableContainers
                                             error:&jsonError];
