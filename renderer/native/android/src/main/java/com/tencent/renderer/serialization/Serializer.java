@@ -138,11 +138,14 @@ public class Serializer extends PrimitiveValueSerializer {
     }
 
     private void writeList(@NonNull List<?> list) {
+        int length = list.size();
         writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
-        writer.putVarint(list.size());
+        writer.putVarint(length);
         for (Object value : list) {
             writeValue(value);
         }
         writeTag(SerializationTag.END_DENSE_JS_ARRAY);
+        writer.putVarint(0);
+        writer.putVarint(length);
     }
 }

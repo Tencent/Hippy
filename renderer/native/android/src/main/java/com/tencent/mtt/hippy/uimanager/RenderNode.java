@@ -25,9 +25,12 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.renderer.UIPromise;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 public class RenderNode {
 

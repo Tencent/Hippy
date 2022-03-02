@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer;
 
 import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.modules.Promise;
 
 public class UIPromise implements Promise {

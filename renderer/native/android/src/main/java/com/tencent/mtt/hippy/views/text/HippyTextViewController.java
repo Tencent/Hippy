@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.component.text.TextGestureSpan;
-import com.tencent.renderer.component.text.TextRenderSupply;
+import com.tencent.renderer.component.text.TextRenderSupplier;
 
 @HippyController(name = HippyTextViewController.CLASS_NAME)
 public class HippyTextViewController extends HippyViewController<HippyTextView> {
@@ -40,11 +40,11 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
 
     @Override
     protected void updateExtra(View view, @Nullable Object object) {
-        TextRenderSupply supply = null;
+        TextRenderSupplier supplier = null;
         Layout layout;
-        if (object instanceof TextRenderSupply) {
-            supply = (TextRenderSupply) object;
-            layout = supply.layout;
+        if (object instanceof TextRenderSupplier) {
+            supplier = (TextRenderSupplier) object;
+            layout = supplier.layout;
         } else if (object instanceof Layout) {
             layout = (Layout) object;
         } else {
@@ -59,11 +59,11 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
                         .getSpans(0, spannable.length(), TextGestureSpan.class);
                 textView.setGestureEnable(spans != null && spans.length > 0);
             }
-            if (supply != null) {
-                textView.setPadding((int) Math.floor(supply.leftPadding),
-                        (int) Math.floor(supply.topPadding),
-                        (int) Math.floor(supply.rightPadding),
-                        (int) Math.floor(supply.bottomPadding));
+            if (supplier != null) {
+                textView.setPadding((int) Math.floor(supplier.leftPadding),
+                        (int) Math.floor(supplier.topPadding),
+                        (int) Math.floor(supplier.rightPadding),
+                        (int) Math.floor(supplier.bottomPadding));
             }
             textView.setLayout(layout);
             textView.postInvalidate();

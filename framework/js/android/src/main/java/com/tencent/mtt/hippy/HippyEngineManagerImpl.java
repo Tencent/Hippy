@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import com.tencent.link_supplier.LinkHelper;
 import com.tencent.link_supplier.Linker;
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
+import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
@@ -304,7 +305,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public Object getImageLoaderAdapter() {
+    public ImageLoaderAdapter getImageLoaderAdapter() {
         return mEngineContext.getGlobalConfigs().getImageLoaderAdapter();
     }
 

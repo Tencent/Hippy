@@ -15,19 +15,24 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.image;
 
+import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
+import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
+import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
-import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
+import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "ImageLoaderModule")
 public class ImageLoaderModule extends HippyNativeModuleBase {
 
-  final HippyImageLoader mImageAdapter;
+  final ImageLoaderAdapter mImageAdapter;
 
   public ImageLoaderModule(HippyEngineContext context) {
     super(context);
@@ -36,21 +41,39 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
 
   @HippyMethod(name = "getSize")
   public void getSize(final String url, final Promise promise) {
-    if (mImageAdapter != null) {
-      mImageAdapter.getSize(url, promise);
-    }
+    mImageAdapter.fetchImage(url, new ImageRequestListener() {
+      @Override
+      public void onRequestStart(ImageDataSupplier supplier) {
+      }
+
+      @Override
+      public void onRequestSuccess(ImageDataSupplier supplier) {
+        if (supplier != null) {
+          HippyMap resultMap = new HippyMap();
+          resultMap.pushInt("width", supplier.getImageWidth());
+          resultMap.pushInt("height", supplier.getImageWidth());
+          promise.resolve(resultMap);
+        } else {
+          promise.reject("Fetch image failed, source=" + url);
+        }
+      }
+
+      @Override
+      public void onRequestFail(Throwable throwable, String source) {
+        promise.reject("Fetch image failed, source=" + source);
+      }
+    }, null);
   }
 
   @HippyMethod(name = "prefetch")
   public void prefetch(String url) {
-    mImageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
+    mImageAdapter.fetchImage(url, new ImageRequestListener() {
       @Override
-      public void onRequestStart(HippyDrawable hippyDrawable) {
+      public void onRequestStart(ImageDataSupplier supplier) {
       }
 
       @Override
-      public void onRequestSuccess(HippyDrawable hippyDrawable) {
-        hippyDrawable.onDrawableDetached();
+      public void onRequestSuccess(ImageDataSupplier supplier) {
       }
 
       @Override

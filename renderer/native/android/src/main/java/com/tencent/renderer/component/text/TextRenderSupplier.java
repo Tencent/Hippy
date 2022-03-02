@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.link_supplier.proxy.framework;
 
-import androidx.annotation.NonNull;
-import java.util.Map;
+package com.tencent.renderer.component.text;
 
-public interface JSFrameworkProxy extends FrameworkProxy {
+import android.text.Layout;
 
-    void onCreateNode(int nodeId, @NonNull final Map<String, Object> props);
+/**
+ * Used for save layout info of text node, should send it to text view after update layout
+ * complete.
+ */
+public class TextRenderSupplier {
 
-    void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props);
+    public final Layout layout;
+    public final float leftPadding;
+    public final float rightPadding;
+    public final float bottomPadding;
+    public final float topPadding;
 
-    void onDeleteNode(int nodeId);
-
-    void onEndBatch();
-
-    void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
-            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
-
-    Object getCustomViewCreator();
-
-    String getBundlePath();
+    public TextRenderSupplier(Layout layout, float left, float top, float right, float bottom) {
+        this.layout = layout;
+        this.leftPadding = left;
+        this.rightPadding = right;
+        this.bottomPadding = bottom;
+        this.topPadding = top;
+    }
 }
