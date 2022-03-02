@@ -143,7 +143,6 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::s
     NSString *actionName = U16ToNSString(action);
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
                                                 encoding:[NSString defaultCStringEncoding]];
-    NSError *jsonError;
     NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
                                           options:NSJSONReadingMutableContainers
