@@ -18,8 +18,6 @@
 // limitations under the License.
 //
 
-import 'dart:collection';
-
 import 'voltron_array.dart';
 
 class VoltronMap {
@@ -139,7 +137,7 @@ class VoltronMap {
 
   @override
   bool operator ==(Object other) {
-    if (!(other is VoltronMap)) {
+    if (other is! VoltronMap) {
       return false;
     }
 

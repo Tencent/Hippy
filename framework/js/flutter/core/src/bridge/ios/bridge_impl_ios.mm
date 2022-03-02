@@ -133,9 +133,7 @@ void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callba
     callback(1);
 }
 
-void BridgeImpl::CallFunction(int64_t runtime_id,
-                              const char16_t *action,
-                              const char16_t *params,
+void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
                               std::function<void(int64_t)> callback) {
     if (action == nullptr || params == nullptr) {
       return;
@@ -143,7 +141,8 @@ void BridgeImpl::CallFunction(int64_t runtime_id,
 
     VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
     NSString *actionName = U16ToNSString(action);
-    NSString *paramsStr = U16ToNSString(params);
+    NSString *paramsStr = [NSString stringWithCString:params.c_str()
+                                                encoding:[NSString defaultCStringEncoding]];
     NSError *jsonError;
     NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData

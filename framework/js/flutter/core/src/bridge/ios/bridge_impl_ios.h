@@ -46,13 +46,10 @@ class BridgeImpl {
                                   const char16_t* code_cache_dir, std::function<void(int64_t)> callback,
                                   const char16_t* asset_content);
 
-  static void RunNativeRunnable(int64_t runtime_id, const char16_t* code_cache_path, int64_t runnable_id,
-                                std::function<void(int64_t)> callback);
-
   static void Destroy(int64_t runtime_id, std::function<void(int64_t)> callback);
 
-  static void CallFunction(int64_t runtime_id, const char16_t* action, const char16_t* params,
-                           std::function<void(int64_t)> callback);
+  static void CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
+                             std::function<void(int64_t)> callback);
 
   static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
 

@@ -125,7 +125,6 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
     _serverBundleName = params.debugMode ? params.debugBundleName : "";
     _startTimeMonitor = TimeMonitor(true);
     _engineMonitor = params.engineMonitor!;
-    _enableVoltronBuffer = params.enableBuffer;
     _serverHost = params.debugServerHost;
     _groupId = params.groupId;
     _thirdPartyAdapter = params.thirdPartyAdapter;
@@ -252,7 +251,6 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
       _apiProviders,
       _coreBundleLoader,
       bridgeType,
-      _enableVoltronBuffer,
       _debugMode,
       _groupId,
       _thirdPartyAdapter,

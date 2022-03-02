@@ -77,7 +77,6 @@ class EngineContext implements Destroyable {
       List<APIProvider>? apiProviders,
       VoltronBundleLoader? coreLoader,
       int bridgeType,
-      bool enableVoltronBuffer,
       bool isDevModule,
       int groupId,
       VoltronThirdPartyAdapter? thirdPartyAdapter,
@@ -93,7 +92,6 @@ class EngineContext implements Destroyable {
         this, _id, processControllers(apiProviders), engineMonitor);
     _moduleManager = ModuleManager(this, apiProviders);
     _bridgeManager = VoltronBridgeManager(this, coreLoader, groupId, _id,
-        enableVoltronBuffer: enableVoltronBuffer,
         thirdPartyAdapter: thirdPartyAdapter,
         bridgeType: bridgeType,
         isDevModule: isDevModule);

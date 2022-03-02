@@ -60,7 +60,6 @@ class VoltronBridgeManager implements Destroyable {
   final VoltronThirdPartyAdapter? _thirdPartyAdapter;
   bool _isFrameWorkInit = false;
   bool _isBridgeInit = false;
-  final bool _enableVoltronBuffer;
   final bool _isDevModule;
 
   bool get isDevModule => _isDevModule;
@@ -82,14 +81,12 @@ class VoltronBridgeManager implements Destroyable {
       VoltronBundleLoader? coreBundleLoader, int groupId, int id,
       {VoltronThirdPartyAdapter? thirdPartyAdapter,
       int bridgeType = kBridgeTypeNormal,
-      bool enableVoltronBuffer = false,
       bool isDevModule = false})
       : _context = context,
         _coreBundleLoader = coreBundleLoader,
         _groupId = groupId,
         _engineId = id,
         _isDevModule = isDevModule,
-        _enableVoltronBuffer = enableVoltronBuffer,
         _thirdPartyAdapter = thirdPartyAdapter,
         _isSingleThread = bridgeType == kBridgeTypeSingleThread {
     sBridgeNum++;
@@ -104,7 +101,6 @@ class VoltronBridgeManager implements Destroyable {
       _v8RuntimeId = await VoltronApi.initJsFrameWork(
           getGlobalConfigs(),
           _isSingleThread,
-          !_enableVoltronBuffer,
           _isDevModule,
           _groupId,
           _engineId, (value) {

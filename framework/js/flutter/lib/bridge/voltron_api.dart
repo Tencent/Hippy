@@ -21,11 +21,13 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:voltron_renderer/voltron_renderer.dart';
 
@@ -83,9 +85,7 @@ class _BridgeFFIManager {
 
   static _BridgeFFIManager _getInstance() {
     // 只能有一个实例
-    if (_instance == null) {
-      _instance = _BridgeFFIManager._internal();
-    }
+    _instance ??= _BridgeFFIManager._internal();
 
     return _instance!;
   }
@@ -146,11 +146,13 @@ class _BridgeFFIManager {
 
 /// 封装dart to c++的api调用，处理各种中间数据
 class VoltronApi {
+  // jsc暂时不支持通过bson通信
+  static bool get enableVoltronBuffer => (Platform.isIOS || Platform.isMacOS) ? false : true;
+
   // ------------------ dart call native方法 start ---------------------
   static Future<int> initJsFrameWork(
       String globalConfig,
       bool singleThreadMode,
-      bool bridgeParamJson,
       bool isDevModule,
       int groupId,
       int engineId,
@@ -160,7 +162,7 @@ class VoltronApi {
     var result = _BridgeFFIManager.instance.initJsFramework(
         globalConfigPtr,
         singleThreadMode ? 1 : 0,
-        bridgeParamJson ? 1 : 0,
+        enableVoltronBuffer ? 0 : 1,
         isDevModule ? 1 : 0,
         groupId,
         engineId, generateCallback((value) {
@@ -168,6 +170,26 @@ class VoltronApi {
     }));
     free(globalConfigPtr);
     return result;
+  }
+
+  static VoltronPair<Pointer<Uint8>, Uint8List> _parseParams(Object params) {
+    if (enableVoltronBuffer) {
+      var paramsBuffer = params.encode();
+      assert(paramsBuffer.isNotEmpty);
+      final paramsPointer = malloc<Uint8>(paramsBuffer.length);
+      final nativeParams = paramsPointer.asTypedList(paramsBuffer.length);
+      nativeParams.setRange(0, paramsBuffer.length, paramsBuffer);
+      return VoltronPair(paramsPointer, nativeParams);
+    } else {
+      var paramsJson = objectToJson(params);
+      assert(paramsJson.isNotEmpty);
+      final units = utf8.encode(paramsJson);
+      final Pointer<Uint8> result = malloc<Uint8>(units.length + 1);
+      final Uint8List nativeString = result.asTypedList(units.length + 1);
+      nativeString.setAll(0, units);
+      nativeString[units.length] = 0;
+      return VoltronPair(result, nativeString);
+    }
   }
 
   static Future<bool> runScriptFromFile(
@@ -264,10 +286,7 @@ class VoltronApi {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
-    var paramsBuffer = params.encode();
-    final paramsPointer = malloc<Uint8>(paramsBuffer.length);
-    final nativeParams = paramsPointer.asTypedList(paramsBuffer.length);
-    nativeParams.setRange(0, paramsBuffer.length, paramsBuffer);
+    var paramsPair = _parseParams(params);
     stopwatch.stop();
     LogUtils.profile("createInstance", stopwatch.elapsedMilliseconds);
     _BridgeFFIManager.instance.createInstance(
@@ -276,14 +295,14 @@ class VoltronApi {
         rootSize.width,
         rootSize.height,
         actionPtr,
-        paramsPointer,
-        paramsBuffer.length, generateCallback((value) {
+        paramsPair.left,
+        paramsPair.right.length, generateCallback((value) {
       stopwatch.stop();
       LogUtils.profile("createInstance", stopwatch.elapsedMilliseconds);
       callback(value);
     }));
     free(actionPtr);
-    free(paramsPointer);
+    free(paramsPair.left);
   }
 
   static Future destroyInstance(int engineId, int rootId, CommonCallback callback) async {
@@ -307,22 +326,18 @@ class VoltronApi {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var actionPtr = action.toNativeUtf16();
-    var paramsBuffer = params.encode();
-    final paramsPointer = malloc<Uint8>(paramsBuffer.length);
-    final nativeParams = paramsPointer.asTypedList(paramsBuffer.length);
-    nativeParams.setRange(
-        0, paramsBuffer.length, paramsBuffer);
+    var paramsPair = _parseParams(params);
     stopwatch.stop();
     LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
     _BridgeFFIManager.instance
-        .callFunction(engineId, actionPtr, paramsPointer, paramsBuffer.length,
+        .callFunction(engineId, actionPtr, paramsPair.left, paramsPair.right.length,
             generateCallback((value) {
       stopwatch.stop();
       LogUtils.profile("callFunction", stopwatch.elapsedMilliseconds);
       callback(value);
     }));
     free(actionPtr);
-    free(paramsPointer);
+    free(paramsPair.left);
   }
 
   static Future<String> getCrashMessage() async {
@@ -391,7 +406,9 @@ class VoltronApi {
 
 // 提供全局listen port，从c ffi侧传入work方法指针后，直接调用executeCallback执行
 void requestExecuteCallback(dynamic message) {
-  print('requestExecuteCallback');
+  if (kDebugMode) {
+    print('requestExecuteCallback');
+  }
   final int workAddress = message;
   final work = Pointer<Work>.fromAddress(workAddress);
   _BridgeFFIManager.instance.executeCallback(work);
@@ -454,16 +471,16 @@ void sendResponse(int engineId, Pointer<Uint16> source, int len) {
 
 VoltronBridgeManager? getCurrentBridge(int engineId) {
   var bridge = VoltronBridgeManager.bridgeMap[engineId];
-  if (bridge == null) {
-    bridge = VoltronBridgeManager.bridgeMap[0];
-  }
+  bridge ??= VoltronBridgeManager.bridgeMap[0];
   return bridge;
 }
 
 void sendNotification(int engineId, Pointer<Uint16> source, int len) {
   var bytes = source.asTypedList(len);
   var msg = utf8.decode(bytes);
-  print('sendNotification utf8: $msg');
+  if (kDebugMode) {
+    print('sendNotification utf8: $msg');
+  }
 
   final bridge = getCurrentBridge(engineId);
   if (bridge != null) {
