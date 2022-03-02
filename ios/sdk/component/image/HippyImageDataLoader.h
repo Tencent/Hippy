@@ -21,10 +21,16 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "HippyImageDataLoaderProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyImageDataLoader : NSObject
+extern NSString *const HippyImageDataLoaderErrorDomain;
+extern const NSUInteger HippyImageDataLoaderErrorFileNotExists;
+extern const NSUInteger HippyImageDataLoaderErrorNoPathIncoming;
+extern const NSUInteger HippyImageDataLoaderErrorPathToUrl;
+
+@interface HippyImageDataLoader : NSObject<HippyImageDataLoaderProtocol>
 
 @end
 

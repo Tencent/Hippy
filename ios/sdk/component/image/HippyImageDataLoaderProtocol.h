@@ -33,10 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
 @required
 
 - (void)loadImageAtPath:(NSString *)path progress:(void (^)(NSUInteger, NSUInteger))progress
-        dataCompletion:(void (^)(NSData *, NSURL *, NSError *))dataCompletion;
+        dataCompletion:(void (^)(NSData *, NSString *, NSError *))dataCompletion;
 
 - (void)loadImageAtPath:(NSString *)path progress:(void (^)(NSUInteger, NSUInteger))progress
-        imageCompletion:(void (^)(UIImage *, NSURL *, NSError *))dataCompletion;
+        imageCompletion:(void (^)(UIImage *, NSString *, NSError *))dataCompletion;
 
 - (void)cancelImageDownloadAtPath:(NSString *)path;
 
