@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.component.text;
+package com.tencent.link_supplier.proxy.framework;
 
-import android.text.Layout;
+public interface ImageRequestListener {
 
-/**
- * Used for save layout info of text node, should send it to text view after update layout
- * complete.
- */
-public class TextRenderSupply {
+    /**
+     * Notify image request start
+     */
+    void onRequestStart(ImageDataSupplier imageDataSupplier);
 
-    public final Layout layout;
-    public final float leftPadding;
-    public final float rightPadding;
-    public final float bottomPadding;
-    public final float topPadding;
+    /**
+     * Notify image request success
+     */
+    void onRequestSuccess(ImageDataSupplier imageDataSupplier);
 
-    public TextRenderSupply(Layout layout, float left, float top, float right, float bottom) {
-        this.layout = layout;
-        this.leftPadding = left;
-        this.rightPadding = right;
-        this.bottomPadding = bottom;
-        this.topPadding = top;
-    }
+    /**
+     * Notify image request failed
+     */
+    void onRequestFail(Throwable cause, String source);
 }

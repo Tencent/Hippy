@@ -114,10 +114,10 @@ public class VirtualNodeManager {
      * @param id target node id
      * @param width the width of layout
      * @param layoutInfo the layout params of node
-     * @return {@link TextRenderSupply}
+     * @return {@link TextRenderSupplier}
      */
     @Nullable
-    public TextRenderSupply updateLayout(int id, float width, Map<String, Object> layoutInfo) {
+    public TextRenderSupplier updateLayout(int id, float width, Map<String, Object> layoutInfo) {
         VirtualNode node = mVirtualNodes.get(id);
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
             return null;
@@ -144,7 +144,7 @@ public class VirtualNodeManager {
         if (mUpdateNodes != null) {
             mUpdateNodes.remove(Integer.valueOf(id));
         }
-        return new TextRenderSupply(layout, leftPadding, topPadding,
+        return new TextRenderSupplier(layout, leftPadding, topPadding,
                 rightPadding, bottomPadding);
     }
 
@@ -316,6 +316,11 @@ public class VirtualNodeManager {
         mVirtualNodes.delete(id);
     }
 
+    /**
+     * On end batch, check the node has been updated and renew layout of text node if needed.
+     *
+     * @return the layout map need update to render node
+     */
     @Nullable
     public Map<Integer, Layout> endBatch() {
         if (mUpdateNodes == null || mUpdateNodes.isEmpty()) {
@@ -324,7 +329,7 @@ public class VirtualNodeManager {
         Map<Integer, Layout> layoutToUpdate = null;
         for (Integer id : mUpdateNodes) {
             VirtualNode node = mVirtualNodes.get(id);
-            if (node != null && node instanceof TextVirtualNode) {
+            if (node instanceof TextVirtualNode) {
                 // If the node has been updated, but there is no updateLayout call from native(C++)
                 // render manager, we should renew the layout on end batch and update to render node.
                 Layout layout = ((TextVirtualNode) node).createLayout();

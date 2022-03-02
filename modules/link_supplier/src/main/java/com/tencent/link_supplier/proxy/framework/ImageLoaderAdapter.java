@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.link_supplier.proxy.framework;
 
 import androidx.annotation.NonNull;
-import java.util.Map;
+import androidx.annotation.Nullable;
 
-public interface JSFrameworkProxy extends FrameworkProxy {
+public interface ImageLoaderAdapter {
 
-    void onCreateNode(int nodeId, @NonNull final Map<String, Object> props);
+    void fetchImage(@NonNull String url, @NonNull ImageRequestListener listener,
+            @Nullable Object params);
 
-    void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props);
+    void getLocalImage(@NonNull String source, @NonNull ImageRequestListener listener);
 
-    void onDeleteNode(int nodeId);
+    @NonNull
+    ImageDataSupplier getLocalImage(@NonNull String source);
 
-    void onEndBatch();
-
-    void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
-            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
-
-    Object getCustomViewCreator();
-
-    String getBundlePath();
+    void destroyIfNeed();
 }

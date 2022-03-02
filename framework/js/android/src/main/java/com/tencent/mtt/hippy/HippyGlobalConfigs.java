@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy;
 
 import android.content.Context;
 
+import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -29,7 +30,6 @@ import com.tencent.mtt.hippy.adapter.font.DefaultFontScaleAdapter;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.adapter.http.DefaultHttpAdapter;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpAdapter;
-import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.adapter.monitor.DefaultEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.sharedpreferences.DefaultSharedPreferencesAdapter;
@@ -39,6 +39,7 @@ import com.tencent.mtt.hippy.adapter.soloader.HippySoLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.renderer.component.image.ImageLoader;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyGlobalConfigs {
@@ -63,7 +64,7 @@ public class HippyGlobalConfigs {
   /**
    * Image loader adapter
    */
-  private final HippyImageLoader mImageLoaderAdapter;
+  private final ImageLoaderAdapter mImageLoaderAdapter;
 
   /**
    * Storage adapter
@@ -118,7 +119,7 @@ public class HippyGlobalConfigs {
   private HippyGlobalConfigs(Context context,
       HippySharedPreferencesAdapter sharedPreferencesAdapter,
       HippyExceptionHandlerAdapter exceptionHandler, HippyHttpAdapter httpAdapter,
-      HippyImageLoader imageLoaderAdapter,
+      ImageLoaderAdapter imageLoaderAdapter,
       HippyExecutorSupplierAdapter executorSupplierAdapter, HippyStorageAdapter storageAdapter,
       HippyEngineMonitorAdapter engineMonitorAdapter,
       HippyFontScaleAdapter hippyFontScaleAdapter, HippySoLoaderAdapter hippySoLoaderAdapter,
@@ -190,7 +191,7 @@ public class HippyGlobalConfigs {
     return mContext;
   }
 
-  public HippyImageLoader getImageLoaderAdapter() {
+  public ImageLoaderAdapter getImageLoaderAdapter() {
     return mImageLoaderAdapter;
   }
 
@@ -234,7 +235,7 @@ public class HippyGlobalConfigs {
 
     private HippyHttpAdapter mHttpAdapter;
 
-    private HippyImageLoader mImageLoaderAdapter;
+    private ImageLoaderAdapter mImageLoaderAdapter;
 
     private HippyStorageAdapter mStorageAdapter;
 
@@ -297,7 +298,7 @@ public class HippyGlobalConfigs {
       return this;
     }
 
-    public Builder setImageLoaderAdapter(HippyImageLoader adapter) {
+    public Builder setImageLoaderAdapter(ImageLoaderAdapter adapter) {
       this.mImageLoaderAdapter = adapter;
       return this;
     }

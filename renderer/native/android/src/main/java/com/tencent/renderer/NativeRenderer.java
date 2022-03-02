@@ -31,12 +31,13 @@ import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
+import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
-import com.tencent.renderer.component.text.TextRenderSupply;
+import com.tencent.renderer.component.text.TextRenderSupplier;
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
 
@@ -54,7 +55,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 
@@ -142,12 +142,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
 
     @Override
     @Nullable
-    public IImageLoaderAdapter getImageLoaderAdapter() {
-        if (checkJSFrameworkProxy()) {
-            Object adapterObj = ((JSFrameworkProxy) mFrameworkProxy).getImageLoaderAdapter();
-            if (adapterObj instanceof IImageLoaderAdapter) {
-                return (IImageLoaderAdapter) adapterObj;
-            }
+    public ImageLoaderAdapter getImageLoaderAdapter() {
+        if (mFrameworkProxy != null) {
+            return mFrameworkProxy.getImageLoaderAdapter();
         }
         return null;
     }
@@ -521,13 +518,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             final int top = Math.round(layoutTop);
             final int width = Math.round(layoutWidth);
             final int height = Math.round(layoutHeight);
-            final TextRenderSupply supply = mVirtualNodeManager
+            final TextRenderSupplier supplier = mVirtualNodeManager
                     .updateLayout(nodeId, layoutWidth, layoutInfo);
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
-                    if (supply != null) {
-                        mRenderManager.updateExtra(id, supply);
+                    if (supplier != null) {
+                        mRenderManager.updateExtra(id, supplier);
                     }
                     mRenderManager.updateLayout(id, left, top, width, height);
                 }
