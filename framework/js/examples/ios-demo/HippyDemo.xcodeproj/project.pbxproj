@@ -657,6 +657,7 @@
 		F48291A9274E5BB500D91128 /* NSObject+HippyTurbo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSObject+HippyTurbo.mm"; sourceTree = "<group>"; };
 		F4833E6527CF24320054A33D /* HippyImageDataLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyImageDataLoader.h; sourceTree = "<group>"; };
 		F4833E6627CF24320054A33D /* HippyImageDataLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyImageDataLoader.m; sourceTree = "<group>"; };
+		F4833E6827CF462C0054A33D /* HippyImageDataLoaderProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyImageDataLoaderProtocol.h; sourceTree = "<group>"; };
 		F4AFCB1427BE29D50058AAB1 /* UIView+HippyEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+HippyEvent.h"; sourceTree = "<group>"; };
 		F4AFCB1527BE29D50058AAB1 /* UIView+HippyEvent.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIView+HippyEvent.mm"; sourceTree = "<group>"; };
 		F4CB9D27279270D3008D6F2C /* UIView+RootViewRegister.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+RootViewRegister.h"; sourceTree = "<group>"; };
@@ -1017,6 +1018,7 @@
 				06FF8EEB2511C10B00C03900 /* HippyDefaultImageProvider.m */,
 				F4833E6527CF24320054A33D /* HippyImageDataLoader.h */,
 				F4833E6627CF24320054A33D /* HippyImageDataLoader.m */,
+				F4833E6827CF462C0054A33D /* HippyImageDataLoaderProtocol.h */,
 			);
 			path = image;
 			sourceTree = "<group>";
