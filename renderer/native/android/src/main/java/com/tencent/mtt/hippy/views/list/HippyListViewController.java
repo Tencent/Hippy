@@ -42,8 +42,8 @@ import java.util.Map;
 @HippyController(name = HippyListViewController.CLASS_NAME)
 public class HippyListViewController extends HippyViewController<HippyListView> {
 
-    private static final String TAG = "HippyListViewController";
     public static final String CLASS_NAME = "ListView";
+    private static final String TAG = "HippyListViewController";
     private static final String SCROLL_TO_INDEX = "scrollToIndex";
     private static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
     private static final String SCROLL_TO_TOP = "scrollToTop";

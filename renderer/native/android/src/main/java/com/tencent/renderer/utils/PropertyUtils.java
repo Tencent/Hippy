@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.renderer.NativeRenderException;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -55,6 +56,13 @@ public class PropertyUtils {
         return new NativeRenderException(UPDATE_VIEW_PROPS_ERR, message);
     }
 
+    /**
+     * Convert object value to supported types according to class type
+     *
+     * @param paramCls {@link Type}
+     * @param value object value of property
+     * @throws IllegalArgumentException if the passed object is none of the support types
+     */
     @SuppressWarnings({"deprecation", "unchecked"})
     @NonNull
     public static Object convertProperty(Type paramCls, Object value)
@@ -81,6 +89,13 @@ public class PropertyUtils {
         throw new IllegalArgumentException("Unknown property class type!");
     }
 
+    /**
+     * Convert object value to number according to class type
+     *
+     * @param paramCls {@link Type}
+     * @param value object value of property
+     * @throws IllegalArgumentException if the passed object is none of the number types
+     */
     @Nullable
     public static Object convertNumber(Type paramCls, Object value)
             throws IllegalArgumentException {

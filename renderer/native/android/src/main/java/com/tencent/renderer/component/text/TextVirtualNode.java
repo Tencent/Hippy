@@ -78,8 +78,8 @@ public class TextVirtualNode extends VirtualNode {
     private float mShadowOffsetDy = 0.0f;
     private float mShadowRadius = 1.0f;
     private float mLineHeight;
-    protected float mLineSpacingMultiplier = 1.0f;
-    protected float mLineSpacingExtra;
+    private float mLineSpacingMultiplier = 1.0f;
+    private float mLineSpacingExtra;
     private float mLetterSpacing;
     private float mLastLayoutWidth = 0.0f;
     private boolean mHasUnderlineTextDecoration = false;
@@ -111,7 +111,7 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_STYLE, defaultType = HippyControllerProps.STRING)
-    public void fontStyle(String style) {
+    public void setFontStyle(String style) {
         if (TEXT_FONT_STYLE_ITALIC.equals(style)) {
             mFontStyle = Typeface.ITALIC;
         } else {
@@ -122,7 +122,7 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LETTER_SPACING, defaultType = HippyControllerProps.NUMBER)
-    public void letterSpacing(float spacing) {
+    public void setLetterSpacing(float spacing) {
         mLetterSpacing = PixelUtil.dp2px(spacing);
         markDirty();
     }
@@ -130,7 +130,7 @@ public class TextVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER,
             defaultNumber = Color.BLACK)
-    public void color(Integer color) {
+    public void setColor(Integer color) {
         mColor = color;
         markDirty();
     }
@@ -138,21 +138,21 @@ public class TextVirtualNode extends VirtualNode {
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER,
             defaultNumber = NodeProps.FONT_SIZE_SP)
-    public void fontSize(float size) {
+    public void setFontSize(float size) {
         mFontSize = (int) Math.ceil(PixelUtil.dp2px(size));
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_FAMILY, defaultType = HippyControllerProps.STRING)
-    public void fontFamily(String family) {
+    public void setFontFamily(String family) {
         mFontFamily = family;
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING)
-    public void fontWeight(String weight) {
+    public void setFontWeight(String weight) {
         int fontWeight = 0;
         if (!TextUtils.isEmpty(weight) && weight.length() == 3
                 && weight.endsWith("00")
@@ -170,7 +170,7 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.TEXT_DECORATION_LINE, defaultType = HippyControllerProps.STRING)
-    public void textDecorationLine(String textDecorationLine) {
+    public void setTextDecorationLine(String textDecorationLine) {
         mHasUnderlineTextDecoration = false;
         mHasLineThroughTextDecoration = false;
         if (TextUtils.isEmpty(textDecorationLine)) {
@@ -188,7 +188,7 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings({"unused", "rawtypes"})
     @HippyControllerProps(name = TEXT_SHADOW_OFFSET, defaultType = HippyControllerProps.MAP)
-    public void textShadowOffset(HashMap offsetMap) {
+    public void setTextShadowOffset(HashMap offsetMap) {
         mShadowOffsetDx = 0.0f;
         mShadowOffsetDy = 0.0f;
         if (offsetMap == null) {
@@ -207,7 +207,7 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = TEXT_SHADOW_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 1.0f)
-    public void textShadowRadius(float shadowRadius) {
+    public void setTextShadowRadius(float shadowRadius) {
         mShadowRadius = shadowRadius;
         markDirty();
     }
@@ -222,21 +222,21 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LINE_HEIGHT, defaultType = HippyControllerProps.NUMBER)
-    public void lineHeight(int lineHeight) {
+    public void setLineHeight(int lineHeight) {
         mLineHeight = PixelUtil.dp2px(lineHeight);
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LINE_SPACING_MULTIPLIER, defaultType = HippyControllerProps.NUMBER)
-    public void lineSpacingMultiplier(float lineSpacingMultiplier) {
+    public void setLineSpacingMultiplier(float lineSpacingMultiplier) {
         mLineSpacingMultiplier = lineSpacingMultiplier;
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LINE_SPACING_EXTRA, defaultType = HippyControllerProps.NUMBER)
-    public void lineSpacingExtra(float lineSpacingExtra) {
+    public void setLineSpacingExtra(float lineSpacingExtra) {
         mLineSpacingExtra = PixelUtil.dp2px(lineSpacingExtra);
         markDirty();
     }
@@ -273,14 +273,14 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "text", defaultType = HippyControllerProps.STRING)
-    public void text(String text) {
+    public void setText(String text) {
         mText = text;
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "enableScale", defaultType = HippyControllerProps.BOOLEAN)
-    public void enableScale(boolean enable) {
+    public void setEnableScale(boolean enable) {
         mEnableScale = enable;
     }
 

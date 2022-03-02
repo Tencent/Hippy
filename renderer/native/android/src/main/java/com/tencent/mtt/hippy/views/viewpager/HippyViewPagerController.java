@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.views.viewpager;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
@@ -60,7 +59,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
         boolean isVertical = false;
         if (props != null) {
             Object valueObj = props.get("direction");
-            if ((valueObj instanceof String && ((String) valueObj).equals("vertical")) || props
+            if ((valueObj instanceof String && valueObj.equals("vertical")) || props
                     .containsKey("vertical")) {
                 isVertical = true;
             }
@@ -119,7 +118,8 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
         pager.setPageMargin((int) PixelUtil.dp2px(margin));
     }
 
-    @HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING, defaultString = "visible")
+    @HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING,
+            defaultString = "visible")
     public void setOverflow(HippyViewPager pager, String overflow) {
         pager.setOverflow(overflow);
     }
@@ -141,7 +141,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
             return;
         }
         boolean animated = false;
-        int index = ((Number) value).intValue();
+        final int index = ((Number) value).intValue();
         value = elementMap.get(FUNC_PARAMS_ANIMATED);
         if (value instanceof Boolean) {
             animated = (boolean) value;
@@ -151,7 +151,8 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
     }
 
     @Override
-    public void dispatchFunction(@NonNull HippyViewPager viewPager, @NonNull String functionName, @NonNull List params) {
+    public void dispatchFunction(@NonNull HippyViewPager viewPager, @NonNull String functionName,
+            @NonNull List params) {
         super.dispatchFunction(viewPager, functionName, params);
         int currentItem = viewPager.getCurrentItem();
         Object element = (params.isEmpty()) ? null : params.get(0);
@@ -188,8 +189,8 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
     }
 
     @Override
-    public void dispatchFunction(@NonNull HippyViewPager viewPager, @NonNull String functionName, @NonNull List params,
-            @Nullable Promise promise) {
+    public void dispatchFunction(@NonNull HippyViewPager viewPager, @NonNull String functionName,
+            @NonNull List params, @Nullable Promise promise) {
         super.dispatchFunction(viewPager, functionName, params, promise);
         if (FUNC_SET_INDEX.equals(functionName)) {
             Object element = (params.isEmpty()) ? null : params.get(0);
