@@ -18,6 +18,8 @@
 // limitations under the License.
 //
 
+import 'package:flutter/foundation.dart';
+
 import '../common.dart';
 import 'reader/binary_reader.dart';
 import 'serialization_tag.dart';
@@ -34,11 +36,7 @@ abstract class PrimitiveValueDeserializer extends SharedSerialization {
   final StringTable stringTable;
 
   /// Reader used for read buffer.
-  late BinaryReader _reader;
-
-  set reader(BinaryReader binaryReader) => _reader = binaryReader;
-
-  BinaryReader get reader => _reader;
+  late BinaryReader reader;
 
   /// Version of the data format used during serialization.
   int _version = 0;
@@ -295,7 +293,9 @@ abstract class PrimitiveValueDeserializer extends SharedSerialization {
     }
     var fun = _valueReaderMap[tag];
     if (fun == null) {
-      print("readValue expected tag $tag");
+      if (kDebugMode) {
+        print("readValue expected tag $tag");
+      }
       if (_version < 13) {
         reader.position = -1;
         return readHostObject();

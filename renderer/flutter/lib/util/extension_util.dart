@@ -20,6 +20,8 @@
 
 import 'dart:typed_data';
 
+import 'package:voltron_renderer/serialization/serializer.dart';
+
 import '../serialization.dart';
 import '../util.dart';
 
@@ -29,6 +31,14 @@ extension TypeEx on Object {
       return this as T;
     }
     return null;
+  }
+}
+
+extension BinaryUtilEncodeEx on Object {
+  Uint8List encode(dynamic object) {
+    var serializer = Serializer.defaultSerializer();
+    serializer.writeValue(object);
+    return serializer.chunk;
   }
 }
 

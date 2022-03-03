@@ -18,27 +18,21 @@
 // limitations under the License.
 //
 
+const Object kUndefined = Object();
+const Object kNull = Object();
+const Object kHole = Object();
+
 abstract class SharedSerialization {
   static const int latestVersion = 13;
 
-  var _nul;
+  final Object _nul = kNull;
   Object get nul => _nul;
 
-  var _undefined;
+  final Object _undefined = kUndefined;
   Object get undefined => _undefined;
 
-  var _hole;
+  final Object _hole = kHole;
   Object get hole => _hole;
 
-  SharedSerialization() {
-    _nul = getNull();
-    _undefined = getUndefined();
-    _hole = getHole();
-  }
-
-  Object getUndefined();
-
-  Object? getNull();
-
-  Object getHole();
+  SharedSerialization();
 }

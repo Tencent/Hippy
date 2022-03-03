@@ -38,21 +38,6 @@ class Deserializer extends PrimitiveValueDeserializer {
   Deserializer(StringTable stringTable) : super(stringTable);
 
   @override
-  Object getHole() {
-    return undefined;
-  }
-
-  @override
-  Object? getNull() {
-    return null;
-  }
-
-  @override
-  Object getUndefined() {
-    return Object();
-  }
-
-  @override
   VoltronArray readDenseArray() {
     var length = reader.getVarint();
     if (length < 0) {
