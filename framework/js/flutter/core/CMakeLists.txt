@@ -21,8 +21,8 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(CMAKE_CXX_STANDARD 17)
 endif ()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-
+if ((CMAKE_SYSTEM_NAME STREQUAL "Android") OR (CMAKE_SYSTEM_NAME STREQUAL "Android"))
+    add_definitions("-DJS_V8")
 endif ()
 
 set(DOM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../dom)

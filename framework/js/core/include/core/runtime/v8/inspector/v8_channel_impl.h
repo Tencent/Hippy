@@ -25,9 +25,6 @@
 #include <memory>
 
 #include "core/runtime/v8/bridge.h"
-#include "jni/jni_env.h"
-#include "jni/jni_utils.h"
-#include "jni/scoped_java_ref.h"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8-inspector.h"

@@ -138,13 +138,13 @@ static unicode_string_view NSStringToU8(NSString* str) {
           handleJsExcepiton(strongSelf->_pScope);
         }
     };
-  
+
     hippy::base::RegisterFunction ctxCreateCB = [weakSelf, weakGlobalConfig](void *p) {
       VoltronJSCExecutor *strongSelf = weakSelf;
       if (!strongSelf) {
           return;
       }
-      
+
       NSString *strongGlobalConfig = weakGlobalConfig;
       ScopeWrapper *wrapper = reinterpret_cast<ScopeWrapper *>(p);
       std::shared_ptr<Scope> scope = wrapper->scope_.lock();
@@ -152,28 +152,28 @@ static unicode_string_view NSStringToU8(NSString* str) {
         std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
         JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
         context->RegisterGlobalInJs();
-        
+
         if (!strongSelf->_jscWrapper) {
           [strongSelf->_performanceLogger markStartForTag:VoltronPLJSCWrapperOpenLibrary];
           strongSelf->_jscWrapper = VoltronJSCWrapperCreate(strongSelf->_useCustomJSCLibrary);
           [strongSelf->_performanceLogger markStopForTag:VoltronPLJSCWrapperOpenLibrary];
           installBasicSynchronousHooksOnContext(jsContext);
         }
-        
+
         context->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", NSStringToU8(strongGlobalConfig));
         context->SetGlobalJsonVar("__fbBatchedBridgeConfig", NSStringToU8(@""));
-        
+
         jsContext[@"hippyCallNatives"] = ^(id module, id method, NSString *callbackId, NSArray *args) {
             VoltronJSCExecutor *strongSelf = weakSelf;
             if (!strongSelf.valid) {
                 return ;
             }
-            
+
             [strongSelf.provider callNativeModule:module method:method params:args callId:callbackId];
             return ;
         };
-        
-        
+
+
 #if HIPPY_DEV
             // Inject handler used by HMR
             jsContext[@"nativeInjectHMRUpdate"] = ^(NSString *sourceCode, NSString *sourceCodeURL) {
@@ -191,7 +191,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
 #endif
       }
     };
-  
+
     hippy::base::RegisterFunction scopeInitializedCB = [weakSelf](void *p) {
       VoltronJSCExecutor *strongSelf = weakSelf;
       if (!strongSelf) {
@@ -220,12 +220,12 @@ static BOOL handleJsExcepiton(std::shared_ptr<Scope> scope) {
   std::shared_ptr<hippy::napi::JSCCtxValue> exception = std::static_pointer_cast<hippy::napi::JSCCtxValue>(context->GetException());
   if (exception) {
     if (!context->IsExceptionHandled()) {
-      context->ThrowExceptionToJS(exception);
+      context->ThrowException(exception);
     }
     std::u16string exceptionStr = StringViewUtils::Convert(context->GetExceptionMsg(exception), unicode_string_view::Encoding::Utf16).utf16_value();
     NSString *err = [NSString stringWithCharacters:(const unichar *)exceptionStr.c_str() length:(exceptionStr.length())];
     NSError *error = VoltronErrorWithMessage(err);
-    
+
     // NSError *error = RCTErrorWithMessageAndModule(err, strongSelf.bridge.moduleName);
     //VoltronFatal(error);
     context->SetException(nullptr);
@@ -481,7 +481,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     [self invalidate];
     _randomAccessBundle.bundle.reset();
     _randomAccessBundle.table.reset();
-  
+
     if (_jscWrapper) {
         VoltronJSCWrapperRelease(_jscWrapper);
         _jscWrapper = NULL;
@@ -579,16 +579,16 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
           if (!strongSelf || !strongSelf.isValid) {
               return;
           }
-          
+
           //Voltron_PROFILE_BEGIN_EVENT(0, @"executeJSCall", (@{@"method": method, @"args": arguments}));
-          
+
 #ifndef VOLTRON_DEBUG
           @try {
 #endif
               VoltronJSCWrapper *jscWrapper = strongSelf->_jscWrapper;
               JSContext *context = [self JSContext];
               JSGlobalContextRef contextJSRef = context.JSGlobalContextRef;
-              
+
               // get the BatchedBridge object
               JSValueRef errorJSRef = NULL;
               JSValueRef batchedBridgeRef = strongSelf->_batchedBridgeRef;
@@ -599,7 +599,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                   jscWrapper->JSStringRelease(moduleNameJSStringRef);
                   strongSelf->_batchedBridgeRef = batchedBridgeRef;
               }
-              
+
               NSError *error;
               JSValueRef resultJSRef = NULL;
               if (batchedBridgeRef != NULL && errorJSRef == NULL && !jscWrapper->JSValueIsUndefined(contextJSRef, batchedBridgeRef)) {
@@ -607,7 +607,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                   JSStringRef methodNameJSStringRef = jscWrapper->JSStringCreateWithCFString((__bridge CFStringRef)method);
                   JSValueRef methodJSRef = jscWrapper->JSObjectGetProperty(contextJSRef, (JSObjectRef)batchedBridgeRef, methodNameJSStringRef, &errorJSRef);
                   jscWrapper->JSStringRelease(methodNameJSStringRef);
-                  
+
                   if (methodJSRef != NULL && errorJSRef == NULL && !jscWrapper->JSValueIsUndefined(contextJSRef, methodJSRef)) {
                       JSValueRef jsArgs[arguments.count];
                       for (NSUInteger i = 0; i < arguments.count; i++) {
@@ -624,7 +624,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                       error = VoltronErrorWithMessage(@"Unable to execute JS call: __fbBatchedBridge is undefined");
                   }
               }
-              
+
               id objcValue;
               if (errorJSRef || error) {
                   if (!error) {
@@ -643,9 +643,9 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
               MttVoltronException(exception);
           }
 #endif
-          
+
           //Voltron_PROFILE_END_EVENT(0, @"js_call");
-          
+
           onComplete(objcValue, error);
       }
   }];
@@ -664,16 +664,16 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
             if (!strongSelf || !strongSelf.isValid) {
                 return;
             }
-            
+
             //Voltron_PROFILE_BEGIN_EVENT(0, @"executeJSCall", (@{@"method": method, @"args": arguments}));
-            
+
 #ifndef VOLTRON_DEBUG
             @try {
 #endif
                 VoltronJSCWrapper *jscWrapper = strongSelf->_jscWrapper;
                 JSContext *context = [self JSContext];
                 JSGlobalContextRef contextJSRef = context.JSGlobalContextRef;
-                
+
                 // get the BatchedBridge object
                 JSValueRef errorJSRef = NULL;
                 JSValueRef batchedBridgeRef = strongSelf->_batchedBridgeRef;
@@ -684,7 +684,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                     jscWrapper->JSStringRelease(moduleNameJSStringRef);
                     strongSelf->_batchedBridgeRef = batchedBridgeRef;
                 }
-                
+
                 NSError *error;
                 JSValueRef resultJSRef = NULL;
                 if (batchedBridgeRef != NULL && errorJSRef == NULL && !jscWrapper->JSValueIsUndefined(contextJSRef, batchedBridgeRef)) {
@@ -698,7 +698,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                         error = VoltronErrorWithMessage(@"Unable to execute JS call: hippyBridge is undefined");
                     }
                 }
-                
+
                 id objcValue;
                 if (errorJSRef || error) {
                     if (!error) {
@@ -717,9 +717,9 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
                 MttVoltronException(exception);
             }
 #endif
-            
+
             //Voltron_PROFILE_END_EVENT(0, @"js_call");
-            
+
             onComplete(objcValue, error);
         }
     }];
