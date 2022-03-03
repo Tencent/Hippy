@@ -46,16 +46,18 @@ bool ReadAsset(const tdf::base::unicode_string_view& path,
   auto asset =
       AAssetManager_open(aasset_manager, asset_path, AASSET_MODE_STREAMING);
   if (asset) {
-    int size = AAsset_getLength(asset);
-    if (is_auto_fill) {
-      size += 1;
+    size_t size;
+    if (!hippy::base::numeric_cast<off_t, size_t>(AAsset_getLength(asset) + (is_auto_fill ? 1:0),
+                                                  size)) {
+      AAsset_close(asset);
+      return false;
     }
     bytes.resize(size);
-    int offset = 0;
+    size_t offset = 0;
     int readbytes;
     while ((readbytes = AAsset_read(asset, &bytes[0] + offset,
                                     bytes.size() - offset)) > 0) {
-      offset += readbytes;
+      offset += static_cast<size_t>(readbytes);
     }
     if (is_auto_fill) {
       bytes.back() = '\0';

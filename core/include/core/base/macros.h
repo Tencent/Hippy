@@ -34,14 +34,3 @@
 
 template <typename CharType, size_t N>
 char (&ArraySizeHelper(CharType (&array)[N]))[N];
-
-// Suppress copy
-#define DISALLOW_COPY_AND_ASSIGN(Type) \
-  Type(const Type&) = delete;          \
-  Type& operator=(const Type&) = delete
-
-// Enable move and suppress copy
-#define MOVE_ONLY(Type)                       \
-  Type(Type&&) noexcept = default;            \
-  Type& operator=(Type&&) noexcept = default; \
-  DISALLOW_COPY_AND_ASSIGN(Type)

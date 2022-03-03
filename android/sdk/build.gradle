@@ -36,7 +36,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.0.4'
+    classpath 'com.android.tools.build:gradle:7.1.1'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -231,6 +231,14 @@ project.tasks.whenTaskAdded { task ->
   if (task.name == 'mergeDebugNativeLibs') {
     task.finalizedBy dealAfterMergeDebugNativeLibs
   }
+
+  if (task.name == 'stripReleaseDebugSymbols') {
+    task.finalizedBy dealAfterStripReleaseDebugSymbols
+  }
+
+  if (task.name == 'stripDebugDebugSymbols') {
+    task.finalizedBy dealAfterStripDebugDebugSymbols
+  }
 }
 
 def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
@@ -248,16 +256,6 @@ def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
       delete "$mergedNativeLibsPath/x86_64/$filename"
     }
   }
-  delete "$mergedNativeLibsPath/armeabi"
-  if (INCLUDE_ABI_ARMEABI.toBoolean()) {
-    copy {
-      from "$mergedNativeLibsPath/armeabi-v7a"
-      into "$mergedNativeLibsPath/armeabi"
-    }
-    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
-      delete "$mergedNativeLibsPath/armeabi-v7a"
-    }
-  }
 }
 
 def MERGED_NATIVE_LIBS_PATH = "$buildDir/intermediates/merged_native_libs"
@@ -270,6 +268,32 @@ task dealAfterMergeReleaseNativeLibs() {
 task dealAfterMergeDebugNativeLibs() {
   doLast {
     dealAfterMergeNativeLibs("$MERGED_NATIVE_LIBS_PATH/debug/out/lib")
+  }
+}
+
+def dealAfterStripSymbols(strippedNativeLibsPath) {
+  delete "$strippedNativeLibsPath/armeabi"
+  if (INCLUDE_ABI_ARMEABI.toBoolean()) {
+    copy {
+      from "$strippedNativeLibsPath/armeabi-v7a"
+      into "$strippedNativeLibsPath/armeabi"
+    }
+    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      delete "$strippedNativeLibsPath/armeabi-v7a"
+    }
+  }
+}
+
+def STRIPPED_NATIVE_LIBS_PATH = "$buildDir/intermediates/stripped_native_libs"
+task dealAfterStripReleaseDebugSymbols() {
+  doLast {
+    dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/release/out/lib")
+  }
+}
+
+task dealAfterStripDebugDebugSymbols() {
+  doLast {
+    dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/debug/out/lib")
   }
 }
 

@@ -23,6 +23,7 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -110,13 +111,20 @@ class Ctx {
       const unicode_string_view& string) = 0;
   virtual std::shared_ptr<CtxValue> CreateUndefined() = 0;
   virtual std::shared_ptr<CtxValue> CreateNull() = 0;
-  virtual std::shared_ptr<CtxValue> CreateObject(
-      const unicode_string_view& json) = 0;
-  virtual std::shared_ptr<CtxValue> CreateMap(size_t count, std::shared_ptr<CtxValue>* value) = 0;
+  virtual std::shared_ptr<CtxValue> ParseJson(const unicode_string_view& json) = 0;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      unicode_string_view,
+      std::shared_ptr<CtxValue>>& object) = 0;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& object) = 0;
+  virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& map) = 0;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) = 0;
-  virtual std::shared_ptr<CtxValue> CreateJsError(
+  virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) = 0;
 
   // Get From Value
@@ -136,7 +144,7 @@ class Ctx {
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             unicode_string_view* result) = 0;
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) = 0;
-    
+
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) = 0;
 
   // Array Helpers
@@ -160,13 +168,13 @@ class Ctx {
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
-      const unicode_string_view& file_name,
-      bool is_use_code_cache = false,
-      unicode_string_view* cache = nullptr,
-      bool is_copy = true) = 0;
+      const unicode_string_view& file_name) = 0;
   virtual std::shared_ptr<CtxValue> GetJsFn(
       const unicode_string_view& name) = 0;
-  virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) = 0;
+
+  virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) = 0;
+  virtual void ThrowException(const unicode_string_view& exception) = 0;
+  virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) = 0;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) = 0;

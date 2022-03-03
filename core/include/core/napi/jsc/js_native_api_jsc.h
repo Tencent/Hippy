@@ -41,9 +41,9 @@ constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
 namespace hippy {
 namespace napi {
 
-const char16_t kLengthStr[] = u"length";
-const char16_t kMessageStr[] = u"message";
-const char16_t kStackStr[] = u"stack";
+constexpr char16_t kLengthStr[] = u"length";
+constexpr char16_t kMessageStr[] = u"message";
+constexpr char16_t kStackStr[] = u"stack";
 
 class JSCVM : public VM {
  public:
@@ -103,7 +103,7 @@ class JSCCtx : public Ctx {
                                const unicode_string_view& str) override;
   virtual bool SetGlobalObjVar(const unicode_string_view& name,
                                const std::shared_ptr<CtxValue>& obj,
-                               const PropertyAttribute& attr = None) override;
+                               const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
       const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
@@ -124,17 +124,23 @@ class JSCCtx : public Ctx {
       const unicode_string_view& string) override;
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
-  virtual std::shared_ptr<CtxValue> CreateObject(
-      const unicode_string_view& json) override;
-  virtual std::shared_ptr<CtxValue> CreateMap(size_t count,
-                                              std::shared_ptr<CtxValue>* value) override {
-      TDF_BASE_NOTIMPLEMENTED();
-      return nullptr;
-  };
+  virtual std::shared_ptr<CtxValue> ParseJson(const unicode_string_view& json) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      unicode_string_view,
+      std::shared_ptr<CtxValue>>& object) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& object) override;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) override;
-  virtual std::shared_ptr<CtxValue> CreateJsError(
+  virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& map) override {
+    TDF_BASE_UNIMPLEMENTED();
+    return nullptr;
+  }
+  virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) override;
 
   // Get From Value
@@ -151,9 +157,9 @@ class JSCCtx : public Ctx {
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             unicode_string_view* result) override;
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) override {
-      TDF_BASE_NOTIMPLEMENTED();
-      return false;
-  };
+    TDF_BASE_UNIMPLEMENTED();
+    return false;
+  }
   // Null Helpers
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
 
@@ -177,12 +183,12 @@ class JSCCtx : public Ctx {
 
   virtual std::shared_ptr<CtxValue> RunScript(
       const unicode_string_view& data,
-      const unicode_string_view& file_name,
-      bool is_use_code_cache = false,
-      unicode_string_view* cache = nullptr,
-      bool is_copy = true) override;
+      const unicode_string_view& file_name) override;
   virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
-  virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) override;
+    
+  virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) override;
+  virtual void ThrowException(const unicode_string_view& exception) override;
+  virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) override;
@@ -209,13 +215,12 @@ class JSCCtxValue : public CtxValue {
       : context_(context), value_(value) {
     JSValueProtect(context_, value_);
   }
-
   ~JSCCtxValue() { JSValueUnprotect(context_, value_); }
+  JSCCtxValue(const JSCCtxValue&) = delete;
+  JSCCtxValue &operator=(const JSCCtxValue&) = delete;
 
   JSGlobalContextRef context_;
   JSValueRef value_;
-
-  DISALLOW_COPY_AND_ASSIGN(JSCCtxValue);
 };
 
 class JSCTryCatch : public TryCatch {

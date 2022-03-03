@@ -70,18 +70,8 @@ public abstract class HippyEngine {
   protected int mGroupId;
   ModuleListener mModuleListener;
 
-  static {
-    LibraryLoader.loadLibraryIfNeed();
-  }
-
-  public static void setNativeLogHandler(IHippyNativeLogHandler handler) {
-    if (handler != null) {
-      initNativeLogHandler(handler);
-    }
-  }
-
   @SuppressWarnings("JavaJniMissingFunction")
-  private static native void initNativeLogHandler(IHippyNativeLogHandler handler);
+  private static native void setNativeLogHandler(HippyLogAdapter handler);
 
   /**
    * @param params 创建实例需要的参数 创建一个HippyEngine实例
@@ -90,8 +80,10 @@ public abstract class HippyEngine {
     if (params == null) {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
+    LibraryLoader.loadLibraryIfNeed(params.soLoader);
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
+    setNativeLogHandler(params.logAdapter);
     ContextHolder.initAppContext(params.context);
 
     HippyEngine hippyEngine;
@@ -253,6 +245,8 @@ public abstract class HippyEngine {
     public final String debugBundleName = "index.bundle";
     // 可选参数 Hippy Server的Host。默认为"localhost:38989"。debugMode = true时有效
     public String debugServerHost = "localhost:38989";
+    // optional args, Hippy Server url using remote debug in no usb (if not empty will replace debugServerHost and debugBundleName). debugMode = true take effect
+    public String remoteServerUrl = "";
     // 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
     public List<HippyAPIProvider> providers;
     //Optional  is use V8 serialization or json
@@ -286,8 +280,6 @@ public abstract class HippyEngine {
     // 设置Hippy引擎的组，同一组的HippyEngine，会共享C层的v8 引擎实例。 默认值为-1（无效组，即不属于任何group组）
     public int groupId = -1;
     // 可选参数 日志输出
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
     public HippyLogAdapter logAdapter;
     public V8InitParams v8InitParams;
     public boolean enableTurbo;
@@ -302,7 +294,8 @@ public abstract class HippyEngine {
             EngineInitParams.class.getName() + " imageLoader must not be null!");
       }
       if (sharedPreferencesAdapter == null) {
-        sharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(context);
+        sharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(
+          context.getApplicationContext());
       }
       if (exceptionHandler == null) {
         exceptionHandler = new DefaultExceptionHandler();

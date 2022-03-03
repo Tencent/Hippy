@@ -22,10 +22,8 @@
 
 #include "core/napi/v8/js_native_turbo_v8.h"
 
-#include <core/base/string_view_utils.h>
-#include <jni/java_turbo_module.h>
-
-#include "hippy.h"
+#include "core/base/string_view_utils.h"
+#include "jni/java_turbo_module.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 
@@ -53,8 +51,7 @@ V8TurboEnv::~V8TurboEnv() {
 void V8TurboEnv::AddHostObjectTracker(
     const std::shared_ptr<HostObjectTracker> &host_object_tracker) {
   host_object_tracker_list_.push_back(host_object_tracker);
-  TDF_BASE_DLOG(INFO) << "AddHostObjectTracker %d",
-      host_object_tracker_list_.size();
+  TDF_BASE_DLOG(INFO) << "AddHostObjectTracker " << host_object_tracker_list_.size();
 }
 
 void V8TurboEnv::CreateHostObjectConstructor() {
@@ -92,7 +89,7 @@ std::shared_ptr<CtxValue> V8TurboEnv::CreateObject(
   if (!host_object_constructor_.Get(isolate)
            ->NewInstance(context)
            .ToLocal(&new_object)) {
-    ConvertUtils::ThrowException(context_, "CreateObject Fail.");
+    v8_ctx->ThrowException(unicode_string_view("ParseJson Fail."));
     return context_->CreateUndefined();
   }
 
@@ -126,7 +123,7 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
                isolate, v8::External::New(isolate, host_function_proxy)),
            param_count)
            .ToLocal(&new_function)) {
-    ConvertUtils::ThrowException(context_, "CreateFunction Fail.");
+    v8_ctx->ThrowException(unicode_string_view("CreateFunction Fail."));
     return context_->CreateUndefined();
   }
 
@@ -142,7 +139,7 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
 }
 
 std::shared_ptr<HostObject> V8TurboEnv::GetHostObject(
-    std::shared_ptr<CtxValue> value) {
+    const std::shared_ptr<CtxValue>& value) {
   std::shared_ptr<V8Ctx> v8Ctx = std::static_pointer_cast<V8Ctx>(context_);
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(value);
