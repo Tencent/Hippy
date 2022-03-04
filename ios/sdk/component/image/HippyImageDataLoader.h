@@ -20,14 +20,18 @@
  * limitations under the License.
  */
 
-#import "HippyViewManager.h"
+#import <Foundation/Foundation.h>
 #import "HippyImageDataLoaderProtocol.h"
-#import "HippyImageProviderProtocol.h"
 
-@interface HippyImageViewManager : HippyViewManager
+NS_ASSUME_NONNULL_BEGIN
 
-@property(nonatomic, strong)Class<HippyImageDataLoaderProtocol> imageDataLoaderClass;
+extern NSString *const HippyImageDataLoaderErrorDomain;
+extern const NSUInteger HippyImageDataLoaderErrorFileNotExists;
+extern const NSUInteger HippyImageDataLoaderErrorNoPathIncoming;
+extern const NSUInteger HippyImageDataLoaderErrorPathToUrl;
 
-@property(nonatomic, strong)Class<HippyImageProviderProtocol> imageProviderClass;
+@interface HippyImageDataLoader : NSObject<HippyImageDataLoaderProtocol>
 
 @end
+
+NS_ASSUME_NONNULL_END

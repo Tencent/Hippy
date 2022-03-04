@@ -37,14 +37,14 @@
  */
 + (BOOL)isAnimatedImage:(NSData *)data;
 
-/** return priority for data
- *  instance with higher priority will process data
- */
-+ (NSUInteger)priorityForData:(NSData *)data;
+@property(nonatomic, copy)NSString *imageDataPath;
 
-/** return image provider instance for data
+/**
+ * Set image data for provider
+ *
+ * @param data Image data
  */
-+ (instancetype)imageProviderInstanceForData:(NSData *)data;
+- (void)setImageData:(NSData *)data;
 
 /** return image.If it is an animated image,return first frame
  */

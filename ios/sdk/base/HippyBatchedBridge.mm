@@ -783,7 +783,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     if (!_valid) {
         return;
     }
-    _domManager->TerminateTaskRunner();
+    if (_domManager) {
+        _domManager->TerminateTaskRunner();
+    }
     HippyAssertMainQueue();
     HippyAssert(_javaScriptExecutor != nil, @"Can't complete invalidation without a JS executor");
 

@@ -515,7 +515,7 @@ BOOL HippyIsLocalAssetURL(NSURL *__nullable imageURL) {
     return [extension isEqualToString:@"png"] || [extension isEqualToString:@"jpg"];
 }
 
-HIPPY_EXTERN NSString *__nullable HippyTempFilePath(NSString *extension, NSError **error) {
+NSString *__nullable HippyTempFilePath(NSString *extension, NSError **error) {
     static NSError *setupError = nil;
     static NSString *directory;
     static dispatch_once_t onceToken;
@@ -695,7 +695,7 @@ UIColor *HippyConvertStringToColor(NSString *colorString) {
     return color;
 }
 
-HIPPY_EXTERN UIColor *HippyConvertNumberToColor(NSInteger colorNumber) {
+UIColor *HippyConvertNumberToColor(NSInteger colorNumber) {
     NSInteger a = (colorNumber >> 24) & 0xFF;
     NSInteger r = (colorNumber >> 16) & 0xFF;
     NSInteger g = (colorNumber >> 8) & 0xFF;
@@ -765,15 +765,18 @@ NSURL *__nullable HippyURLByReplacingQueryParam(NSURL *__nullable URL, NSString 
 NSURL *__nullable HippyURLWithString(NSString *URLString, NSString *baseURLString) {
     if (URLString) {
         NSURL *baseURL = HippyURLWithString(baseURLString, NULL);
-        CFURLRef URLRef = CFURLCreateWithString(NULL, (CFStringRef)URLString, (CFURLRef)baseURL);
-        if (URLRef) {
-            return CFBridgingRelease(URLRef);
+        NSData *uriData = [URLString dataUsingEncoding:NSUTF8StringEncoding];
+        if (nil == uriData) {
+            return nil;
         }
+        CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, (__bridge CFURLRef)baseURL);
+        NSURL *source_url = CFBridgingRelease(urlRef);
+        return source_url;
     }
     return nil;
 }
 
-HIPPY_EXTERN NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLResponse *response) {
+NSStringEncoding HippyGetStringEncodingFromURLResponse(NSURLResponse *response) {
     NSString *textEncoding = [response textEncodingName];
     if (!textEncoding) {
         return NSUTF8StringEncoding;

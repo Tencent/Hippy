@@ -20,14 +20,24 @@
  * limitations under the License.
  */
 
-#import "HippyViewManager.h"
-#import "HippyImageDataLoaderProtocol.h"
-#import "HippyImageProviderProtocol.h"
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@interface HippyImageViewManager : HippyViewManager
+NS_ASSUME_NONNULL_BEGIN
 
-@property(nonatomic, strong)Class<HippyImageDataLoaderProtocol> imageDataLoaderClass;
+@protocol HippyImageDataLoaderProtocol <NSObject>
 
-@property(nonatomic, strong)Class<HippyImageProviderProtocol> imageProviderClass;
+@optional
+
+- (BOOL)canHandleImageAtPath:(NSString *)path;
+
+@required
+
+- (void)loadImageAtPath:(NSString *)path progress:(void (^)(NSUInteger, NSUInteger))progress
+        completion:(void (^)(id, NSString *, NSError *))completion;
+
+- (void)cancelImageDownloadAtPath:(NSString *)path;
 
 @end
+
+NS_ASSUME_NONNULL_END
