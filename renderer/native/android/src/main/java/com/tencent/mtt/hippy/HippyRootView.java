@@ -96,7 +96,7 @@ public class HippyRootView extends FrameLayout {
             getGlobalLayoutListener().checkUpdateDimension(w, h, false, false);
             NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
             if (nativeRenderer != null) {
-                nativeRenderer.onSizeChanged(w, h, oldw, oldh);
+                nativeRenderer.onSizeChanged(w, h);
             }
         }
     }

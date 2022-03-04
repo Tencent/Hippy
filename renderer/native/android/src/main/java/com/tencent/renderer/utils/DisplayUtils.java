@@ -21,11 +21,18 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.tencent.mtt.hippy.utils.ContextHolder;
 
 public class DisplayUtils {
 
-    @NonNull
-    public static DisplayMetrics getMetrics(@NonNull Context applicationContext, boolean isReal) {
+    @Nullable
+    public static DisplayMetrics getMetrics(boolean isReal) {
+        Context applicationContext = ContextHolder.getAppContext();
+        if (applicationContext == null) {
+            return null;
+        }
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager windowManager = (WindowManager) applicationContext
                 .getSystemService(Context.WINDOW_SERVICE);
@@ -36,5 +43,21 @@ public class DisplayUtils {
             defaultDisplay.getMetrics(metrics);
         }
         return metrics;
+    }
+
+    public static int getScreenHeight() {
+        DisplayMetrics metrics = getMetrics(true);
+        if (metrics == null) {
+            return 0;
+        }
+        return metrics.heightPixels;
+    }
+
+    public static int getScreenWidth() {
+        DisplayMetrics metrics = getMetrics(true);
+        if (metrics == null) {
+            return 0;
+        }
+        return metrics.widthPixels;
     }
 }
