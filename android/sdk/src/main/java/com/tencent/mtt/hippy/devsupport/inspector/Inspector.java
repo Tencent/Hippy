@@ -22,36 +22,38 @@ public class Inspector implements BatchListener {
 
   private static final String CHROME_SOCKET_CLOSED = "chrome_socket_closed";
 
-  private static Inspector sInspector;
-
   private Map<String, InspectorDomain> mDomainMap = new HashMap<>();
   private DebugWebSocketClient mDebugWebSocketClient;
   private WeakReference<HippyEngineContext> mContextRef;
   private boolean needBatchUpdateDom = true;
 
-  public static synchronized Inspector getInstance(HippyEngineContext context) {
-    if (sInspector == null) {
-      sInspector = new Inspector(context);
-    }
-    return sInspector;
-  }
-
-  private Inspector(HippyEngineContext context) {
+  public Inspector() {
     DomDomain domDomain = new DomDomain(this);
     CSSDomain cssDomain = new CSSDomain(this);
     PageDomain pageDomain = new PageDomain(this);
     mDomainMap.put(domDomain.getDomainName(), domDomain);
     mDomainMap.put(cssDomain.getDomainName(), cssDomain);
     mDomainMap.put(pageDomain.getDomainName(), pageDomain);
+  }
+
+  public Inspector setEngineContext(HippyEngineContext context, DebugWebSocketClient client) {
+    mContextRef = new WeakReference<>(context);
+    mDebugWebSocketClient = client;
     DomManager domManager = context.getDomManager();
     if (domManager != null) {
       domManager.setOnBatchListener(this);
     }
+    return this;
   }
 
-  public Inspector setWebSocketClient(DebugWebSocketClient client) {
-    mDebugWebSocketClient = client;
-    return this;
+  public void onDestroy() {
+    if (getContext() == null) {
+      return;
+    }
+    DomManager domManager = getContext().getDomManager();
+    if (domManager != null) {
+      domManager.setOnBatchListener(null);
+    }
   }
 
   public boolean dispatchReqFromFrontend(HippyEngineContext context, String msg) {
@@ -80,11 +82,7 @@ public class Inspector implements BatchListener {
               String method = methodParamArray[1];
               int id = msgObj.optInt("id");
               JSONObject paramsObj = msgObj.optJSONObject("params");
-              boolean shouldHandle = inspectorDomain.handleRequestFromBackend(context, method, id, paramsObj);
-              if (shouldHandle) {
-                mContextRef = new WeakReference<>(context);
-              }
-              return shouldHandle;
+              return inspectorDomain.handleRequestFromBackend(context, method, id, paramsObj);
             }
           }
         }

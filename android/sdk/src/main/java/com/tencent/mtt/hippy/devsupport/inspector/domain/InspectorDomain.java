@@ -42,13 +42,8 @@ public abstract class InspectorDomain {
       isEnable = false;
       inspector.rspToFrontend(id, null);
       return true;
-    } else {
-      if (isEnable) {
-        return handleRequest(context, method, id, paramsObj);
-      } else {
-        return false;
-      }
     }
+    return handleRequest(context, method, id, paramsObj);
   }
 
   /**
