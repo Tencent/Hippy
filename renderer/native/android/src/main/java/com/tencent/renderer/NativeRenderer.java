@@ -228,15 +228,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void onSizeChanged(int w, int h, int oldw, int oldh) {
-        LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
-                + oldw + ", oldh=" + oldh);
+    public void onSizeChanged(int w, int h) {
         mRenderProvider.onSizeChanged(w, h);
     }
 
     @Override
-    public void updateModalHostNodeSize(final int id, final int width, final int height) {
-
+    public void onSizeChanged(int nodeId, int width, int height) {
+        mRenderProvider.onSizeChanged(nodeId, width, height);
     }
 
     @Override
@@ -673,8 +671,10 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         // If this node is a modal type, should update node size with window width and height
         // before layout.
         if (className.equals(HippyModalHostManager.CLASS_NAME)) {
-            DisplayMetrics metrics = DisplayUtils.getMetrics(ContextHolder.getAppContext(), false);
-            mRenderProvider.onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels);
+            DisplayMetrics metrics = DisplayUtils.getMetrics(false);
+            if (metrics != null) {
+                mRenderProvider.onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels);
+            }
         }
         if (checkJSFrameworkProxy()) {
             ((JSFrameworkProxy) mFrameworkProxy).onCreateNode(nodeId, props);

@@ -75,9 +75,9 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     void onFirstViewAdded();
 
-    void onSizeChanged(int w, int h, int oldw, int oldh);
+    void onSizeChanged(int width, int height);
 
-    void updateModalHostNodeSize(int id, int width, int height);
+    void onSizeChanged(int nodeId, int width, int height);
 
     void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
