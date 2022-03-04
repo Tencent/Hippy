@@ -127,7 +127,6 @@ using HPViewBinding = std::unordered_map<int32_t, std::tuple<std::vector<int32_t
 static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<HippyComponent>)) {
     if (view.hippyTag) {
         block(view);
-
         for (id<HippyComponent> subview in view.hippySubviews) {
             HippyTraverseViewNodes(subview, block);
         }
@@ -462,34 +461,11 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                 [(id<HippyInvalidating>)subview invalidate];
             }
             [registry removeObjectForKey:subview.hippyTag];
-
             if (registry == (NSMutableDictionary<NSNumber *, id<HippyComponent>> *)self->_viewRegistry) {
                 [self->_bridgeTransactionListeners removeObject:subview];
             }
         });
     }
-}
-
-/**
- * Disassociates children from container. Doesn't remove from registries.
- * @returns Array of removed items.
- */
-- (NSArray<id<HippyComponent>> *)childrenToRemoveFromContainer:(id<HippyComponent>)container atIndices:(NSArray<NSNumber *> *)atIndices {
-    // If there are no indices to move or the container has no subviews don't bother
-    // We support parents with nil subviews so long as they're all nil so this allows for this behavior
-    if (atIndices.count == 0 || [container hippySubviews].count == 0) {
-        return nil;
-    }
-    // Construction of removed children must be done "up front", before indices are disturbed by removals.
-    NSMutableArray<id<HippyComponent>> *removedChildren = [NSMutableArray arrayWithCapacity:atIndices.count];
-    HippyAssert(container != nil, @"container view (for ID %@) not found", container);
-    for (NSNumber *indexNumber in atIndices) {
-        NSUInteger index = indexNumber.unsignedIntegerValue;
-        if (index < [container hippySubviews].count) {
-            [removedChildren addObject:[container hippySubviews][index]];
-        }
-    }
-    return removedChildren;
 }
 
 - (void)removeChildren:(NSArray<id<HippyComponent>> *)children fromContainer:(id<HippyComponent>)container {
@@ -884,14 +860,14 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         int32_t tag = dom_node->GetId();
         HippyShadowView *shadowView = _shadowViewRegistry[@(tag)];
         [shadowView removeFromHippySuperview];
-        [_shadowViewRegistry removeObjectForKey:@(tag)];
+        [self purgeChildren:@[shadowView] fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)_shadowViewRegistry];
         __weak auto weakSelf = self;
         [self addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = viewRegistry[@(tag)];
             [view removeFromHippySuperview];
             if (weakSelf) {
                 auto strongSelf = weakSelf;
-                [strongSelf->_viewRegistry removeObjectForKey:@(tag)];
+                [strongSelf purgeChildren:@[view] fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)(strongSelf->_viewRegistry)];
             }
         }];
     }

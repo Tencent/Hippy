@@ -22,6 +22,7 @@
 
 #import "HippyImageDataLoader.h"
 #import "HippyUtils.h"
+#import "HippyImageCacheManager.h"
 
 NSString *const HippyImageDataLoaderErrorDomain = @"HippyImageDataLoaderErrorDomain";
 
@@ -37,7 +38,7 @@ typedef NS_ENUM(NSUInteger, ImagePathType) {
 };
 
 typedef void(^DownloadProgress)(NSUInteger, NSUInteger);
-typedef void(^CompletionBlock)(NSData *, NSString *, NSError *);
+typedef void(^CompletionBlock)(id, NSString *, NSError *);
 
 static ImagePathType checkPathTypeFromPath(NSString *path) {
     ImagePathType type = ImagePathTypeUnknown;
@@ -53,7 +54,7 @@ static ImagePathType checkPathTypeFromPath(NSString *path) {
     return type;
 }
 
-static NSOperationQueue *dataLoaderQueue(void) {
+static NSOperationQueue *ImageDataLoaderQueue(void) {
     static dispatch_once_t onceToken;
     static NSOperationQueue *_hippy_image_queue = nil;
     dispatch_once(&onceToken, ^{
@@ -84,7 +85,7 @@ static NSOperationQueue *dataLoaderQueue(void) {
 }
 
 - (void)loadImageAtPath:(NSString *)path progress:(DownloadProgress)progress
-         dataCompletion:(CompletionBlock)dataCompletion {
+         completion:(CompletionBlock)dataCompletion {
     ImagePathType type = checkPathTypeFromPath(path);
     switch (type) {
         case ImagePathTypeHTTPPath:
@@ -101,22 +102,12 @@ static NSOperationQueue *dataLoaderQueue(void) {
     }
 }
 
-- (void)loadImageAtPath:(NSString *)path progress:(DownloadProgress)progress
-        imageCompletion:(void (^)(UIImage *, NSString *, NSError *))dataCompletion {
-    [self loadImageAtPath:path progress:progress dataCompletion:^(NSData *data, NSString *path, NSError *error) {
-        UIImage *image = nil;
-        if (data) {
-            image = [UIImage imageWithData:data];
-        }
-        dataCompletion(image, path, error);
-    }];
-}
-
 - (void)cancelImageDownloadAtPath:(NSString *)path {
     [_task cancel];
 }
 
 #pragma mark Image Data Loader
+
 - (void)loadImageAtHTTPPath:(NSString *)path progress:(DownloadProgress)progress dataCompletion:(CompletionBlock)dataCompletion {
     if (_task) {
         [_task cancel];
@@ -125,7 +116,7 @@ static NSOperationQueue *dataLoaderQueue(void) {
     if (sourceUrl) {
         NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
         NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:self
-                                                         delegateQueue:dataLoaderQueue()];
+                                                         delegateQueue:ImageDataLoaderQueue()];
         _task = [session dataTaskWithURL:sourceUrl];
         [_task resume];
         _progress = progress;
@@ -231,6 +222,10 @@ didReceiveResponse:(NSURLResponse *)response
         }
     }
     [session finishTasksAndInvalidate];
+}
+
+- (void)dealloc {
+    [_task cancel];
 }
 
 @end

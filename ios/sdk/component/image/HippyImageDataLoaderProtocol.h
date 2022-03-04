@@ -28,15 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol HippyImageDataLoaderProtocol <NSObject>
 
 @optional
+
 - (BOOL)canHandleImageAtPath:(NSString *)path;
 
 @required
 
 - (void)loadImageAtPath:(NSString *)path progress:(void (^)(NSUInteger, NSUInteger))progress
-        dataCompletion:(void (^)(NSData *, NSString *, NSError *))dataCompletion;
-
-- (void)loadImageAtPath:(NSString *)path progress:(void (^)(NSUInteger, NSUInteger))progress
-        imageCompletion:(void (^)(UIImage *, NSString *, NSError *))dataCompletion;
+        completion:(void (^)(id, NSString *, NSError *))completion;
 
 - (void)cancelImageDownloadAtPath:(NSString *)path;
 

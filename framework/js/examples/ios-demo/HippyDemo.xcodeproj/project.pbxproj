@@ -123,7 +123,6 @@
 		0691853226281E05005D599D /* CALayer+HippyAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 0691853126281E05005D599D /* CALayer+HippyAnimation.m */; };
 		06F2A76F2519E319000AF839 /* HippyJSEnginesMapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 06F2A76E2519E319000AF839 /* HippyJSEnginesMapper.mm */; };
 		06F3E3E025A5D867007934F6 /* HippyListTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 06F3E3DF25A5D867007934F6 /* HippyListTableView.m */; };
-		06FF8BD62511BC0400C03900 /* HippyImageProviderProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FF8BD52511BC0400C03900 /* HippyImageProviderProtocol.m */; };
 		06FF8EEC2511C10B00C03900 /* HippyDefaultImageProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FF8EEB2511C10B00C03900 /* HippyDefaultImageProvider.m */; };
 		06FF8EEF2511C20900C03900 /* NSData+DataType.m in Sources */ = {isa = PBXBuildFile; fileRef = 06FF8EEE2511C20900C03900 /* NSData+DataType.m */; };
 		781580042795449A006E92D4 /* HippyDevInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 7815800327954499006E92D4 /* HippyDevInfo.m */; };
@@ -476,7 +475,6 @@
 		06F3E3DE25A5D867007934F6 /* HippyListTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyListTableView.h; sourceTree = "<group>"; };
 		06F3E3DF25A5D867007934F6 /* HippyListTableView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyListTableView.m; sourceTree = "<group>"; };
 		06FF8BD42511BC0400C03900 /* HippyImageProviderProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyImageProviderProtocol.h; sourceTree = "<group>"; };
-		06FF8BD52511BC0400C03900 /* HippyImageProviderProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyImageProviderProtocol.m; sourceTree = "<group>"; };
 		06FF8EEA2511C10B00C03900 /* HippyDefaultImageProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDefaultImageProvider.h; sourceTree = "<group>"; };
 		06FF8EEB2511C10B00C03900 /* HippyDefaultImageProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDefaultImageProvider.m; sourceTree = "<group>"; };
 		06FF8EED2511C20900C03900 /* NSData+DataType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+DataType.h"; sourceTree = "<group>"; };
@@ -1013,7 +1011,6 @@
 				064C594323AB1A51001E80DD /* HippyAnimatedImageView.h */,
 				064C594723AB1A51001E80DD /* HippyAnimatedImageView.m */,
 				06FF8BD42511BC0400C03900 /* HippyImageProviderProtocol.h */,
-				06FF8BD52511BC0400C03900 /* HippyImageProviderProtocol.m */,
 				06FF8EEA2511C10B00C03900 /* HippyDefaultImageProvider.h */,
 				06FF8EEB2511C10B00C03900 /* HippyDefaultImageProvider.m */,
 				F4833E6527CF24320054A33D /* HippyImageDataLoader.h */,
@@ -1916,7 +1913,6 @@
 				781580042795449A006E92D4 /* HippyDevInfo.m in Sources */,
 				064C5A4A23AB1A51001E80DD /* HippyModuleMethod.mm in Sources */,
 				D84AB9C6273A618B00987D03 /* thread.cc in Sources */,
-				06FF8BD62511BC0400C03900 /* HippyImageProviderProtocol.m in Sources */,
 				F4E7B43E276C61EB00F17139 /* dom_event.cc in Sources */,
 				D84AB9BF273A618B00987D03 /* timer_module.cc in Sources */,
 				D84AB9C5273A618B00987D03 /* task.cc in Sources */,

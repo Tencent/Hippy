@@ -23,8 +23,16 @@
 #import "HippyImageViewManager.h"
 #import "HippyImageView.h"
 #import "HippyConvert.h"
-#import "HippyBridge+LocalFileSource.h"
+#import "HippyImageDataLoader.h"
+#import "HippyDefaultImageProvider.h"
+#import "objc/runtime.h"
 #import <UIKit/UIKit.h>
+
+@interface HippyImageViewManager () {
+    NSMapTable<UIView *, id<HippyImageDataLoaderProtocol>> *_imageViewLoaderMapTable;
+}
+
+@end
 
 @implementation HippyImageViewManager
 
@@ -33,7 +41,6 @@ HIPPY_EXPORT_MODULE(Image)
 HIPPY_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
 HIPPY_EXPORT_VIEW_PROPERTY(resizeMode, HippyResizeMode)
-HIPPY_EXPORT_VIEW_PROPERTY(source, NSArray)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onProgress, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onError, HippyDirectEventBlock)
@@ -42,6 +49,37 @@ HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(downSample, BOOL)
 
+HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
+    NSArray *pathSources = [HippyConvert NSArray:json];
+    if ([pathSources isKindOfClass:[NSArray class]]) {
+        NSDictionary *dicSource = [pathSources firstObject];
+        NSString *path = dicSource[@"uri"];
+        id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoaderForView:view];
+        __weak HippyImageView *weakView = view;
+        [imageDataLoader loadImageAtPath:path progress:^(NSUInteger current, NSUInteger total) {
+        } completion:^(id result, NSString *path, NSError *error) {
+            if (!error && weakView) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (weakView) {
+                        HippyImageView *strongView = weakView;
+                        if ([result isKindOfClass:[UIImage class]]) {
+                            [strongView updateImage:(UIImage *)result];
+                        }
+                        else if ([result isKindOfClass:[NSData class]]) {
+                            Class cls = [self imageProviderClass];
+                            id<HippyImageProviderProtocol> imageProvider = [[cls alloc] init];
+                            imageProvider.imageDataPath = path;
+                            [imageProvider setImageData:(NSData *)result];
+                            [strongView setImageProvider:imageProvider];
+                            [strongView reloadImage];
+                        }
+                    }
+                });
+            }
+        }];
+    }
+}
+
 HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
     view.tintColor = [HippyConvert UIColor:json] ?: defaultView.tintColor;
     view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
@@ -49,25 +87,27 @@ HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     NSString *source = [HippyConvert NSString:json];
-    if ([HippyBridge isHippyLocalFileURLString:source]) {
-        NSString *localPath = [self.bridge absoluteStringFromHippyLocalFileURLString:source];
-        BOOL isDirectory = NO;
-        BOOL fileExist = [[NSFileManager defaultManager] fileExistsAtPath:localPath isDirectory:&isDirectory];
-        if (fileExist && !isDirectory) {
-            NSData *imageData = [NSData dataWithContentsOfFile:localPath];
-            UIImage *image = [view imageFromData:imageData];
-            view.defaultImage = image;
+    id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoaderForView:view];
+    __weak HippyImageView *weakView = view;
+    [imageDataLoader loadImageAtPath:source progress:^(NSUInteger current, NSUInteger total) {
+    } completion:^(id result, NSString *path, NSError *error) {
+        if (!error && weakView) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (weakView) {
+                    HippyImageView *strongView = weakView;
+                    if ([result isKindOfClass:[NSData class]]) {
+                        Class cls = [self imageProviderClass];
+                        id<HippyImageProviderProtocol> imageProvider = [[cls alloc] init];
+                        [imageProvider setImageData:(NSData *)result];
+                        strongView.defaultImage = [imageProvider image];
+                    }
+                    else if ([result isKindOfClass:[UIImage class]]) {
+                        strongView.defaultImage = (UIImage *)result;
+                    }
+                }
+            });
         }
-    }
-    else if ([source hasPrefix:@"data:image/"]) {
-        NSRange range = [source rangeOfString:@";base64,"];
-        if (NSNotFound != range.location) {
-            source = [source substringFromIndex:range.location + range.length];
-        }
-        NSData *imageData = [[NSData alloc] initWithBase64EncodedString:source options:NSDataBase64DecodingIgnoreUnknownCharacters];
-        UIImage *image = [view imageFromData:imageData];
-        view.defaultImage = image;
-    }
+    }];
 }
 
 #define HIPPY_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                \
@@ -84,6 +124,49 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 - (UIView *)view {
     return [[HippyImageView alloc] initWithBridge:self.bridge];
+}
+
+- (Class<HippyImageDataLoaderProtocol>)imageDataLoaderClass {
+    if (!_imageDataLoaderClass) {
+        _imageDataLoaderClass = [HippyImageDataLoader class];
+    }
+    return _imageDataLoaderClass;
+}
+
+- (Class<HippyImageProviderProtocol>)imageProviderClass {
+    if (!_imageProviderClass) {
+        _imageProviderClass = [HippyDefaultImageProvider class];
+    }
+    return _imageProviderClass;
+}
+
+- (id<HippyImageDataLoaderProtocol>)getNewImageDataLoaderInstance {
+    Class cls = [self imageDataLoaderClass];
+    return [[cls alloc] init];
+}
+
+- (id<HippyImageProviderProtocol>)getNewImageProviderInstance {
+    Class cls = [self imageProviderClass];
+    return [[cls alloc] init];
+}
+
+- (NSMapTable *)imageViewLoaderMapTable {
+    if (_imageViewLoaderMapTable) {
+        _imageViewLoaderMapTable = [NSMapTable weakToStrongObjectsMapTable];
+    }
+    return _imageViewLoaderMapTable;
+}
+
+- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForView:(UIView *)view {
+    id<HippyImageDataLoaderProtocol> loader = nil;
+    if (view) {
+        loader = objc_getAssociatedObject(view, @selector(imageDataLoaderForView:));
+        if (!loader) {
+            loader = [self getNewImageDataLoaderInstance];
+            objc_setAssociatedObject(view, @selector(imageDataLoaderForView:), loader, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+    }
+    return loader;
 }
 
 @end

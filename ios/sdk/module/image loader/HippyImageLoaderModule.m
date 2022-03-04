@@ -24,7 +24,6 @@
 #import "HippyBridge.h"
 #import "HippyImageLoaderModule.h"
 #import "HippyImageCacheManager.h"
-#import "HippyImageProviderProtocol.h"
 
 @implementation HippyImageLoaderModule
 
@@ -34,52 +33,53 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-    UIImage *image = [[HippyImageCacheManager sharedInstance] loadImageFromCacheForURLString:urlString radius:0 isBlurredImage:nil];
-    if (image) {
-        NSDictionary *dic = @{@"width": @(image.size.width), @"height": @(image.size.height)};
-        resolve(dic);
-        return;
-    }
-    NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
-    if (nil == uriData) {
-        NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:1 userInfo:@{@"reason": @"url parse error"}];
-        reject(@"1", @"url parse error", error);
-        return;
-    }
-    CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
-    NSURL *source_url = CFBridgingRelease(urlRef);
-    
-    typedef void (^HandleCompletedBlock)(BOOL, NSData *, NSURL *, NSError *);
-    HandleCompletedBlock completedBlock = ^void(BOOL cached, NSData *data, NSURL *url, NSError *error) {
-        if (error) {
-             NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:1 userInfo:@{@"reason": @"url parse error"}];
-             reject(@"2", @"url request error", error);
-         } else {
-             if (!cached) {
-                 [[HippyImageCacheManager sharedInstance] setImageCacheData:data forURLString:urlString];
-             }
-             Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data,self.bridge);
-             id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
-             UIImage *image = [instance image];
-             if (image) {
-               NSDictionary *dic = @{@"width": @(image.size.width), @"height": @(image.size.height)};
-               resolve(dic);
-             } else {
-               NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:2 userInfo:@{@"reason": @"image parse error"}];
-               reject(@"2", @"image request error", error);
-             }
-         }
-    };
-    
-    if (_bridge.imageLoader && [_bridge.imageLoader respondsToSelector: @selector(loadImage:completed:)]) {
-        [_bridge.imageLoader loadImage: source_url completed:^(NSData *data, NSURL *url, NSError *error, BOOL cached) {
-            completedBlock(cached, data, url, error);
-        }];
-    } else {
-        [[[NSURLSession sharedSession] dataTaskWithURL:source_url completionHandler:^(NSData * _Nullable data, __unused NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            completedBlock(NO, data, source_url, error);
-        }] resume];
-    }
+    //TODO complete this method
+//    UIImage *image = [[HippyImageCacheManager sharedInstance] loadImageFromCacheForURLString:urlString radius:0 isBlurredImage:nil];
+//    if (image) {
+//        NSDictionary *dic = @{@"width": @(image.size.width), @"height": @(image.size.height)};
+//        resolve(dic);
+//        return;
+//    }
+//    NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
+//    if (nil == uriData) {
+//        NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:1 userInfo:@{@"reason": @"url parse error"}];
+//        reject(@"1", @"url parse error", error);
+//        return;
+//    }
+//    CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
+//    NSURL *source_url = CFBridgingRelease(urlRef);
+//    
+//    typedef void (^HandleCompletedBlock)(BOOL, NSData *, NSURL *, NSError *);
+//    HandleCompletedBlock completedBlock = ^void(BOOL cached, NSData *data, NSURL *url, NSError *error) {
+//        if (error) {
+//             NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:1 userInfo:@{@"reason": @"url parse error"}];
+//             reject(@"2", @"url request error", error);
+//         } else {
+//             if (!cached) {
+//                 [[HippyImageCacheManager sharedInstance] setImageCacheData:data forURLString:urlString];
+//             }
+//             Class<HippyImageProviderProtocol> ipClass = imageProviderClassFromBridge(data,self.bridge);
+//             id<HippyImageProviderProtocol> instance = [ipClass imageProviderInstanceForData:data];
+//             UIImage *image = [instance image];
+//             if (image) {
+//               NSDictionary *dic = @{@"width": @(image.size.width), @"height": @(image.size.height)};
+//               resolve(dic);
+//             } else {
+//               NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:2 userInfo:@{@"reason": @"image parse error"}];
+//               reject(@"2", @"image request error", error);
+//             }
+//         }
+//    };
+//    
+//    if (_bridge.imageLoader && [_bridge.imageLoader respondsToSelector: @selector(loadImage:completed:)]) {
+//        [_bridge.imageLoader loadImage: source_url completed:^(NSData *data, NSURL *url, NSError *error, BOOL cached) {
+//            completedBlock(cached, data, url, error);
+//        }];
+//    } else {
+//        [[[NSURLSession sharedSession] dataTaskWithURL:source_url completionHandler:^(NSData * _Nullable data, __unused NSURLResponse * _Nullable response, NSError * _Nullable error) {
+//            completedBlock(NO, data, source_url, error);
+//        }] resume];
+//    }
 }
 // clang-format on
 
