@@ -128,10 +128,6 @@
 
 `() => void` 启动动画。注意：如果调用该方法前，动画尚未经过 render 赋值给相应控件, 或该动画已经 destroy 的话，那 start 将不会生效；
 
-### updateAnimation
-
-`(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数
-
 ---
 
 # AsyncStorage
