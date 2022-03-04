@@ -175,7 +175,7 @@ AnimationSet 为实现动画集合添加了 3 个属性
 
 * children ：接收一个 Array，用于指定子动画，该 Array 的每个元素包括：
   * animation：子动画对应的 Animation 对象；
-  * follow：配置子动画的执行是否跟随执行，为 true，代表该子动画会等待上一个子动画执行完成后在开始，为 false 则代表和上一个子动画同时开始，默认为 false；
+  * follow：配置子动画的执行是否跟随执行，为 `true` 代表该子动画会等待上一个子动画执行完成后在开始，为 `false` 则代表和上一个子动画同时开始，默认为 `false`；
 
 ## 方法
 
@@ -183,7 +183,7 @@ AnimationSet 为实现动画集合添加了 3 个属性
 
 * start() ：启动动画，注意，如果调用该方法前，动画尚未经过 render 赋值给相应控件或者该动画已经 destroy，那 start 将不会生效；
 * destroy()：停止并销毁一个动画；
-* updateAnimation( newConfig ) ：修改动画的配置参数，注意，如果动画已经 start 或 destroy，更新操作将不会生效，该方法接收的 newConfig 参数结构与 Animation 构造函数中动画配置参数一致；
+* updateAnimation(newConfig) ：(仅 Animation 具有) 修改动画的配置参数，注意，如果动画已经 start 或 destroy，更新操作将不会生效，该方法接收的 newConfig 参数结构与 Animation 构造函数中动画配置参数一致；
 * removeEventListener()：撤销所有注册的动画监听；
 
 ## 回调

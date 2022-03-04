@@ -55,3 +55,7 @@ hippy-react-web 使用了 [webpack-dev-server](//webpack.js.org/configuration/de
 # 启动调试
 
 执行 `npm run serve` 后就会启动 Web 调试，但要注意默认生成的 HTML 文件名是从 `package.json` 的 `name` 字段定义，而不是默认的 `index.html`，所以对于官方范例，需要使用 `http://localhost:8080/hippy-react-demo.html` 来访问调试用页面。
+
+# 转 Web 新方案
+
+未来 Hippy 会采用 `WebRenderer` 方案，增加基于公共通信协议的转换层，业务开发者可以使用同一套 Hippy 语法开发的业务代码，映射成 JS 实现的组件和模块，上层无论使用 React，Vue 或者其他第三方框架，都可以实现兼容，敬请期待。
