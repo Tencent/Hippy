@@ -8,6 +8,7 @@
 #include <string>
 
 #include "devtools/devtool_utils.h"
+#include "dom/devtools/dom_devtools_utils.h"
 #include "dom/dom_value.h"
 #include "dom/node_props.h"
 
@@ -77,7 +78,7 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
       std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
       if (dom_manager) {
         auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-        tdf::devtools::DomNodeMetas metas = root_node->ToDomNodeMetas();
+        tdf::devtools::DomNodeMetas metas = DomDevtoolsUtils::ToDomNodeMetas(root_node);
         callback(true, metas);
       }
     };
