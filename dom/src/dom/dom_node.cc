@@ -315,84 +315,82 @@ bool DomNode::HasTouchEventListeners() {
 }
 
 #if TDF_SERVICE_ENABLED
-nlohmann::json DomNode::ToJSONString() {
+tdf::devtools::DomNodeMetas DomNode::ToDomNodeMetas() {
   TDF_BASE_DLOG(INFO) << "node_json1";
-  nlohmann::json node_json{};
+  tdf::devtools::DomNodeMetas metas(id_);
   if (!tag_name_.empty()) {
-    node_json[kNodeType] = tag_name_;
+    metas.SetNodeType(tag_name_);
   } else if (!view_name_.empty()) {
-    node_json[kNodeType] = view_name_;
+    metas.SetNodeType(view_name_);
   } else {
-    node_json[kNodeType] = "rootNode";
+    metas.SetNodeType("rootNode");
   }
-  node_json[kId] = id_;
   if (layout_node_) {
-    node_json[kWidth] = static_cast<uint32_t>(layout_node_->GetWidth());
-    node_json[kHeight] = static_cast<uint32_t>(layout_node_->GetHeight());
-    node_json[kBounds] = GetNodeBounds();
+    metas.SetWidth(static_cast<uint32_t>(layout_node_->GetWidth()));
+    metas.SetHeight(static_cast<uint32_t>(layout_node_->GetHeight()));
+    auto layout_result = GetLayoutInfoFromRoot();
+    metas.SetBounds(tdf::devtools::BoundRect{layout_result.left, layout_result.top,
+                                             layout_result.left + layout_result.width,
+                                             layout_result.top + layout_result.height});
   }
-  //  node_json[kBorderColor] = border_color_;
-  node_json[kTotalProps] = ParseNodeProps(dom_ext_map_);
-  node_json[kFlexNodeStyle] = ParseNodeProps(style_map_);
-  // child
+  metas.SetStyleProps(ParseNodeProps(style_map_));
+  metas.SetTotalProps(ParseNodeProps(dom_ext_map_));
   if (!children_.empty()) {
-    nlohmann::json child_json_array = nlohmann::json::array();
     for (int i = 0; i < children_.size(); i++) {
-      child_json_array.push_back(children_[i]->ToJSONString());
+      metas.AddChild(children_[i]->ToDomNodeMetas());
     }
-    node_json[kChild] = child_json_array;
   }
-  return node_json;
+  return metas;
 }
 
-nlohmann::json DomNode::GetDomDomainData(uint32_t depth, std::shared_ptr<DomManager> dom_manager) {
-  auto domain_json = nlohmann::json::object();
-  domain_json[kNodeId] = GetId();
-  domain_json[kParentId] = GetPid();
-  domain_json[kRootId] = dom_manager->GetRootId();
-  domain_json[kClassName] = GetViewName();
-  domain_json[kNodeName] = GetTagName();
-  domain_json[kLocalName] = GetTagName();
-  domain_json[kNodeValue] = "";
-  domain_json[kChildNodeCount] = children_.size();
-
-  domain_json[kStyle] = ParseNodeProps(style_map_);
-  domain_json[kAttributes] = ParseNodeProps(dom_ext_map_);
+tdf::devtools::DomainMetas DomNode::GetDomDomainData(uint32_t depth, std::shared_ptr<DomManager> dom_manager) {
+  tdf::devtools::DomainMetas metas(GetId());
+  metas.SetParentId(GetPid());
+  metas.SetRootId(dom_manager->GetRootId());
+  if (GetId() == dom_manager->GetRootId()) {
+    metas.SetClassName("rootView");
+    metas.SetNodeName("rootView");
+    metas.SetLocalName("rootView");
+    metas.SetNodeValue("rootView");
+  } else {
+    metas.SetClassName(GetViewName());
+    metas.SetNodeName(GetTagName());
+    metas.SetLocalName(GetTagName());
+    metas.SetNodeValue("");
+  }
+  metas.SetStyleProps(ParseNodeProps(style_map_));
+  metas.SetTotalProps(ParseNodeProps(dom_ext_map_));
   // 每获取一层数据 深度减一
   depth--;
   if (depth <= 0) {
     // 不需要孩子节点数据 则直接返回
-    return domain_json;
+    return metas;
   }
-  auto children_data_json = nlohmann::json::array();
   for (auto& child : children_) {
-    children_data_json.push_back(child->GetDomDomainData(depth, dom_manager));
+    metas.AddChild(child->GetDomDomainData(depth, dom_manager));
   }
-  domain_json[kChildren] = children_data_json;
-  domain_json[kLayoutX] = layout_node_->GetLeft();
-  domain_json[kLayoutY] = layout_node_->GetTop();
-  domain_json[kWidth] = layout_node_->GetWidth();
-  domain_json[kHeight] = layout_node_->GetHeight();
-  return domain_json;
+  auto layout_result = GetLayoutInfoFromRoot();
+  metas.SetLayoutX(layout_result.left);
+  metas.SetLayoutY(layout_result.top);
+  metas.SetWidth(layout_result.width);
+  metas.SetHeight(layout_result.height);
+  return metas;
 }
 
-nlohmann::json DomNode::GetNodeIdByDomLocation(double x, double y) {
-  auto result_json = nlohmann::json::object();
+tdf::devtools::DomNodeLocation DomNode::GetNodeIdByDomLocation(double x, double y) {
   auto hit_node = GetMaxDepthAndMinAreaHitNode(x, y, shared_from_this());
   if (hit_node == nullptr) {
     hit_node = shared_from_this();
   }
-  auto hit_node_relation_tree_json = nlohmann::json::array();
   int32_t node_id = hit_node->GetId();
-  hit_node_relation_tree_json.push_back(node_id);
+  tdf::devtools::DomNodeLocation node_location(node_id);
+  node_location.AddRelationId(node_id);
   auto temp_hit_node = hit_node->GetParent();
   while (temp_hit_node != nullptr && temp_hit_node != shared_from_this()) {
-    hit_node_relation_tree_json.push_back(temp_hit_node->GetId());
+    node_location.AddRelationId(temp_hit_node->GetId());
     temp_hit_node = temp_hit_node->GetParent();
   }
-  result_json[kNodeId] = node_id;
-  result_json[kHitNodeRelationTree] = hit_node_relation_tree_json;
-  return result_json;
+  return node_location;
 }
 
 std::shared_ptr<DomNode> DomNode::GetMaxDepthAndMinAreaHitNode(double x, double y, std::shared_ptr<DomNode> node) {
@@ -411,26 +409,12 @@ std::shared_ptr<DomNode> DomNode::GetMaxDepthAndMinAreaHitNode(double x, double 
 }
 
 bool DomNode::IsLocationHitNode(double x, double y) {
-  double self_x = layout_node_->GetLeft();
-  double self_y = layout_node_->GetTop();
-  auto bounds_json = GetNodeBounds();
-  if (bounds_json.is_object()) {
-    self_x = bounds_json[kLeft];
-    self_y = bounds_json[kTop];
-  }
+  LayoutResult layout_result = GetLayoutInfoFromRoot();
+  double self_x = static_cast<uint32_t>(layout_result.left);
+  double self_y = static_cast<uint32_t>(layout_result.top);
   bool in_top_offset = (x >= self_x) && (y >= self_y);
   bool in_bottom_offset = (x <= self_x + layout_node_->GetWidth()) && (y <= self_y + layout_node_->GetHeight());
   return in_top_offset && in_bottom_offset;
-}
-
-nlohmann::json DomNode::GetNodeBounds() {
-  nlohmann::json bounds_json;
-  auto layout_result = GetLayoutInfoFromRoot();
-  bounds_json[kTop] = static_cast<uint32_t>(layout_result.top);
-  bounds_json[kLeft] = static_cast<uint32_t>(layout_result.left);
-  bounds_json[kBottom] = static_cast<uint32_t>(layout_result.top + layout_result.height);
-  bounds_json[kRight] = static_cast<uint32_t>(layout_result.left + layout_result.width);
-  return bounds_json;
 }
 
 std::shared_ptr<DomNode> DomNode::GetSmallerAreaNode(std::shared_ptr<DomNode> old_node,
@@ -446,12 +430,13 @@ std::shared_ptr<DomNode> DomNode::GetSmallerAreaNode(std::shared_ptr<DomNode> ol
   return old_node_area > new_node_area ? new_node : old_node;
 }
 
-nlohmann::json DomNode::ParseDomValue(const DomValue& dom_value) {
-  nlohmann::json props_json = nlohmann::json::object();
+std::string DomNode::ParseDomValue(const DomValue& dom_value) {
   if (!dom_value.IsObject()) {
     TDF_BASE_DLOG(INFO) << "ParseTotalProps, node props is not object";
-    return props_json;
+    return "{}";
   }
+  std::string node_str = "{";
+  bool first_object = true;
   for (auto iterator : dom_value.ToObject()) {
     if (iterator.first == "uri" || iterator.first == "src") {
       // 这个value是个base64，数据量太大，改成空字符串
@@ -459,72 +444,143 @@ nlohmann::json DomNode::ParseDomValue(const DomValue& dom_value) {
     }
     std::string key = iterator.first;
     if (iterator.second.IsBoolean()) {
-      props_json[key] = iterator.second.ToBoolean();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += iterator.second.ToBoolean() ? "true" : "false";
+      first_object = false;
     } else if (iterator.second.IsInt32()) {
-      props_json[key] = iterator.second.ToInt32();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += std::to_string(iterator.second.ToInt32());
+      first_object = false;
     } else if (iterator.second.IsUInt32()) {
-      props_json[key] = iterator.second.ToUint32();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += std::to_string(iterator.second.IsUInt32());
+      first_object = false;
     } else if (iterator.second.IsDouble()) {
-      props_json[key] = iterator.second.ToDouble();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += std::to_string(iterator.second.ToDouble());
+      first_object = false;
     } else if (iterator.second.IsString()) {
-      props_json[key] = iterator.second.ToString();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":\"";
+      node_str += iterator.second.ToString();
+      node_str += "\"";
+      first_object = false;
     } else if (iterator.second.IsArray()) {
-      nlohmann::json props_json_array = nlohmann::json::array();
       auto props_array = iterator.second.ToArray();
-      for (auto& child : props_array) {
-        if (child.IsNull() || child.IsUndefined()) {
+      std::string array = "[";
+      for (auto it = props_array.begin(); it != props_array.end(); ++it) {
+        if (it->IsNull() || it->IsUndefined()) {
           continue;
         }
-        props_json_array.push_back(ParseDomValue(child));
+        array += ParseDomValue(*it);
+        if (it != props_array.end() - 1) {
+          array += ",";
+        }
       }
-      props_json[key] = props_json_array;
+      array += "]";
+
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += array;
+      first_object = false;
+
     } else if (iterator.second.IsObject()) {
-      props_json[key] = ParseDomValue(iterator.second);
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += ParseDomValue(iterator.second);
+      first_object = false;
     }
   }
-  return props_json;
+  node_str += "}";
+  return node_str;
 }
 
-nlohmann::json DomNode::ParseNodeProps(
+std::string DomNode::ParseNodeProps(
     const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& node_props) {
-  nlohmann::json props_json = nlohmann::json::object();
   if (!node_props || node_props->empty()) {
     TDF_BASE_DLOG(INFO) << "ParseTotalProps, node props is not object";
-    return props_json;
+    return "{}";
   }
-
+  std::string node_str = "{";
+  bool first_object = true;
   for (auto iterator = node_props->begin(); iterator != node_props->end(); iterator++) {
     if (iterator->first == "uri" || iterator->first == "src") {
       // 这个value是个base64，数据量太大，改成空字符串
-      //      iterator.second = "";
+//            iterator.second = "";
     }
     std::string key = iterator->first;
     if (iterator->second->IsBoolean()) {
-      props_json[key] = iterator->second->ToBoolean();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += iterator->second->ToBoolean() ? "true" : "false";
+      first_object = false;
     } else if (iterator->second->IsInt32()) {
-      props_json[key] = iterator->second->ToInt32();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += std::to_string(iterator->second->ToInt32());
+      first_object = false;
     } else if (iterator->second->IsUInt32()) {
-      props_json[key] = iterator->second->IsUInt32();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += std::to_string(iterator->second->IsUInt32());
+      first_object = false;
     } else if (iterator->second->IsDouble()) {
-      props_json[key] = iterator->second->ToDouble();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += std::to_string(iterator->second->ToDouble());
+      first_object = false;
     } else if (iterator->second->IsString()) {
-      props_json[key] = iterator->second->ToString();
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":\"";
+      node_str += iterator->second->ToString();
+      node_str += "\"";
+      first_object = false;
     } else if (iterator->second->IsArray()) {
-      nlohmann::json props_json_array = nlohmann::json::array();
       auto props_array = iterator->second->ToArray();
-      for (auto& child : props_array) {
-        if (child.IsNull() || child.IsUndefined()) {
+      std::string array = "[";
+      for (auto it = props_array.begin(); it != props_array.end(); ++it) {
+        if (it->IsNull() || it->IsUndefined()) {
           continue;
         }
-        props_json_array.push_back(ParseDomValue(child));
+        array += ParseDomValue(*it);;
+        if (it != props_array.end() - 1) {
+          array += ",";
+        }
       }
-      props_json[key] = props_json_array;
+      array += "]";
+
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += array;
+      first_object = false;
     } else if (iterator->second->IsObject()) {
       DomValue dom_value = *(iterator->second);
-      props_json[key] = ParseDomValue(dom_value);
+      node_str += first_object ? "\"" : ",\"";
+      node_str += key;
+      node_str += "\":";
+      node_str += ParseDomValue(dom_value);
+      first_object = false;
     }
   }
-  return props_json;
+  node_str += "}";
+  return node_str;
 }
 #endif
 

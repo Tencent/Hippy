@@ -27,7 +27,7 @@ class HippyElementsRequestAdapter : public tdf::devtools::ElementsRequestAdapter
   /**
    * @brief 根据location坐标获取NodeId
    */
-  void GetNodeIdByLocation(double x, double y, DomainDataCallback callback) override;
+  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
 
  private:
   DomainHandler domain_handler_;

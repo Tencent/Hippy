@@ -12,7 +12,9 @@
 #include "dom/dom_value.h"
 #include "dom/layout_node.h"
 #if TDF_SERVICE_ENABLED
-#include "nlohmann/json.hpp"
+#include "devtools_backend/data/dom_node_metas.h"
+#include "devtools_backend/data/domain_metas.h"
+#include "devtools_backend/data/dom_node_location.h"
 #endif
 
 namespace hippy {
@@ -135,11 +137,11 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   bool HasTouchEventListeners();
 
 #if TDF_SERVICE_ENABLED
-  nlohmann::json ToJSONString();
-  nlohmann::json GetDomDomainData(uint32_t depth, std::shared_ptr<DomManager> dom_manager);
-  nlohmann::json GetNodeIdByDomLocation(double x, double y);
-  nlohmann::json ParseNodeProps(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>  &node_props);
-  nlohmann::json ParseDomValue(const DomValue& value);
+  tdf::devtools::DomNodeMetas ToDomNodeMetas();
+  tdf::devtools::DomainMetas GetDomDomainData(uint32_t depth, std::shared_ptr<DomManager> dom_manager);
+  tdf::devtools::DomNodeLocation GetNodeIdByDomLocation(double x, double y);
+  std::string ParseNodeProps(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>  &node_props);
+  std::string ParseDomValue(const DomValue& value);
 #endif
 
   void UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
@@ -184,7 +186,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::shared_ptr<DomNode> GetMaxDepthAndMinAreaHitNode(double x, double y,
                                                         std::shared_ptr<DomNode> node);
 #if TDF_SERVICE_ENABLED
-  nlohmann::json GetNodeBounds();
   bool IsLocationHitNode(double x, double y);
   static std::shared_ptr<DomNode> GetSmallerAreaNode(std::shared_ptr<DomNode> old_node,
                                                      std::shared_ptr<DomNode> new_node);

@@ -20,22 +20,25 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
   if (!callback) {
     return;
   }
+  tdf::base::DomValue domValue;
   std::function func = [this, node_id, is_root, depth, callback] {
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
     if (is_root) {
       auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-      callback(root_node->GetDomDomainData(depth, dom_manager));
+      tdf::devtools::DomainMetas metas = root_node->GetDomDomainData(depth, dom_manager);
+      callback(metas);
       return;
     }
     auto node = dom_manager->GetNode(node_id);
     assert(node != nullptr);
-    callback(node->GetDomDomainData(depth, dom_manager));
+    tdf::devtools::DomainMetas metas = node->GetDomDomainData(depth, dom_manager);
+    callback(metas);
   };
   DevToolUtils::PostDomTask(dom_id_, func);
 #endif
 }
 
-void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, DomainDataCallback callback) {
+void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) {
 #if TDF_SERVICE_ENABLED
   if (!callback) {
     return;

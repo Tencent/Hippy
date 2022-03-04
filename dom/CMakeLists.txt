@@ -36,6 +36,7 @@ endif()
 
 if (DEFINED TDF_SERVICE_ENABLED)
   add_definitions(-DTDF_SERVICE_ENABLED=1)
+  include_directories(${DEVTOOLS_DIR}/include)
 endif()
 
 include_directories(${CORE_DIR}/include)

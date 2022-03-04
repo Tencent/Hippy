@@ -77,8 +77,8 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
       std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
       if (dom_manager) {
         auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-        nlohmann::json node_json = root_node->ToJSONString();
-        callback(true, node_json);
+        tdf::devtools::DomNodeMetas metas = root_node->ToDomNodeMetas();
+        callback(true, metas);
       }
     };
     DevToolUtils::PostDomTask(dom_id_, func);
