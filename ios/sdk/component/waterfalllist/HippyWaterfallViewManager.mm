@@ -26,8 +26,6 @@
 
 @implementation HippyWaterfallViewManager
 
-HIPPY_EXPORT_MODULE(WaterfallView)
-
 HIPPY_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets)
 HIPPY_EXPORT_VIEW_PROPERTY(numberOfColumns, NSInteger)
 HIPPY_EXPORT_VIEW_PROPERTY(preloadItemNumber, NSInteger)
@@ -45,7 +43,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
 HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
 
 - (UIView *)view {
-    return [[HippyWaterfallView alloc] initWithBridge:self.bridge];
+    return [[HippyWaterfallView alloc] init];
 }
 
 HIPPY_EXPORT_METHOD(refreshCompleted
@@ -54,7 +52,7 @@ HIPPY_EXPORT_METHOD(refreshCompleted
                     : (nonnull NSString *)text duration
                     : (nonnull NSNumber *)duration imageUrl
                     : (nonnull NSString *)imageUrl) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -66,7 +64,7 @@ HIPPY_EXPORT_METHOD(refreshCompleted
 }
 
 HIPPY_EXPORT_METHOD(startRefresh : (nonnull NSNumber *)reactTag) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -78,7 +76,7 @@ HIPPY_EXPORT_METHOD(startRefresh : (nonnull NSNumber *)reactTag) {
 }
 
 HIPPY_EXPORT_METHOD(startRefreshWithType : (nonnull NSNumber *)reactTag type : (NSUInteger)type) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -90,7 +88,7 @@ HIPPY_EXPORT_METHOD(startRefreshWithType : (nonnull NSNumber *)reactTag type : (
 }
 
 HIPPY_EXPORT_METHOD(callExposureReport : (nonnull NSNumber *)reactTag) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -106,7 +104,7 @@ HIPPY_EXPORT_METHOD(scrollToIndex
                     : (nonnull NSNumber *)xIndex yIndex
                     : (nonnull NSNumber *)yIndex animation
                     : (nonnull NSNumber *)animation) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -122,7 +120,7 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset
                     : (nonnull NSNumber *)x y
                     : (nonnull NSNumber *)y animation
                     : (nonnull NSNumber *)animation) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -134,7 +132,7 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset
 }
 
 HIPPY_EXPORT_METHOD(startLoadMore : (nonnull NSNumber *)reactTag) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;

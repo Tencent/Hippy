@@ -107,8 +107,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge;
-
 /**
  * Indicate class for item
  *

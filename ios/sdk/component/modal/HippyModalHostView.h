@@ -50,7 +50,6 @@
 @property (nonatomic, readonly) BOOL isPresented;
 @property (nonatomic, strong) HippyModalHostViewController *modalViewController;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)notifyForBoundsChange:(CGRect)newBounds;
 
 @end

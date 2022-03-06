@@ -176,10 +176,8 @@
     __weak HippyRootView *_rootView;
 }
 
-- (instancetype)initWithEventDispatcher:(HippyEventDispatcher *)eventDispatcher {
-    HippyAssertParam(eventDispatcher);
-
-    if ((self = [super initWithFrame:CGRectZero])) {
+- (instancetype)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
         _scrollView = [[HippyCustomScrollView alloc] initWithFrame:CGRectZero];
         _scrollView.delegate = self;
         _scrollView.delaysContentTouches = NO;
@@ -210,7 +208,6 @@
     [_scrollListeners removeAllObjects];
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)setRemoveClippedSubviews:(__unused BOOL)removeClippedSubviews {

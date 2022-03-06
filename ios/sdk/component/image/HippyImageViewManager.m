@@ -36,8 +36,6 @@
 
 @implementation HippyImageViewManager
 
-HIPPY_EXPORT_MODULE(Image)
-
 HIPPY_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
 HIPPY_EXPORT_VIEW_PROPERTY(resizeMode, HippyResizeMode)
@@ -123,7 +121,7 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
 HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 - (UIView *)view {
-    return [[HippyImageView alloc] initWithBridge:self.bridge];
+    return [[HippyImageView alloc] init];
 }
 
 - (Class<HippyImageDataLoaderProtocol>)imageDataLoaderClass {

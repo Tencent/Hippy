@@ -31,8 +31,6 @@
 
 @interface HippyScrollView : HippyView <UIScrollViewDelegate, HippyScrollableProtocol, HippyAutoInsetsProtocol, HippyInvalidating>
 
-- (instancetype)initWithEventDispatcher:(HippyEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
-
 /**
  * The `HippyScrollView` may have at most one single subview. This will ensure
  * that the scroll view's `contentSize` will be efficiently set to the size of

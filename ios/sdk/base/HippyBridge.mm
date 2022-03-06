@@ -632,24 +632,3 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
 }
 
 @end
-
-
-@implementation UIView(Bridge)
-
-#define kBridgeKey @"bridgeKey"
-
-- (void)setBridge:(HippyBridge *)bridge {
-    NSHashTable *hashTable = nil;
-    if (bridge) {
-        hashTable = [NSHashTable weakObjectsHashTable];
-        [hashTable addObject:bridge];
-    }
-    objc_setAssociatedObject(self, @selector(bridge), hashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (HippyBridge *)bridge {
-    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
-    return [hashTable anyObject];
-}
-
-@end

@@ -25,7 +25,6 @@
 
 @implementation HippyRefreshWrapperItemViewManager
 
-HIPPY_EXPORT_MODULE(RefreshWrapperItemView)
 - (UIView *)view {
     return [HippyRefreshWrapperItemView new];
 }

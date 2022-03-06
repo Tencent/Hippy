@@ -31,7 +31,6 @@
 #import <UIKit/UIKit.h>
 
 @implementation HippyModalHostView {
-    __weak HippyBridge *_bridge;
     BOOL _isPresented;
     HippyModalHostViewController *_modalViewController;
     UIView *_hippySubview;
@@ -39,12 +38,10 @@
     UIInterfaceOrientation _lastKnownOrientation;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    if ((self = [super initWithFrame:CGRectZero])) {
-        _bridge = bridge;
+- (instancetype)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
         _modalViewController = [HippyModalHostViewController new];
         UIView *containerView = [UIView new];
         containerView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;

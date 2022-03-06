@@ -20,23 +20,21 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import "HippyInvalidating.h"
-@class HippyBridge;
-NS_ASSUME_NONNULL_BEGIN
-@protocol NavigatorHostViewDelegate <NSObject>
+#import "UIView+Render.h"
+
+@implementation UIView (Render)
+
+- (void)setRenderContext:(id<HippyRenderContext>)renderContext {
+    if (renderContext) {
+        NSHashTable *weakContainer = [NSHashTable weakObjectsHashTable];
+        [weakContainer addObject:renderContext];
+        objc_setAssociatedObject(self, @selector(renderContext), weakContainer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+}
+
+- (id<HippyRenderContext>)renderContext {
+    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
+    return [hashTable anyObject];
+}
+
 @end
-
-@interface HippyNavigatorHostView : UIView <HippyInvalidating, UINavigationControllerDelegate>
-
-@property (nonatomic, weak) id<NavigatorHostViewDelegate> delegate;
-
-- (instancetype)initWithProps:(nonnull NSDictionary *)props;
-
-- (void)push:(NSDictionary *)params;
-
-- (void)pop:(NSDictionary *)params;
-
-@end
-
-NS_ASSUME_NONNULL_END

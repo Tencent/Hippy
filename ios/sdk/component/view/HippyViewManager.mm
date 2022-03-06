@@ -36,27 +36,31 @@
 
 @implementation HippyViewManager
 
-@synthesize bridge = _bridge;
-
-HIPPY_EXPORT_MODULE(View)
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        NSLog(@"222");
+    }
+    return self;
+}
 
 - (dispatch_queue_t)methodQueue {
     return HippyGetUIManagerQueue();
 }
 
 - (UIView *)view {
-    return [[HippyView alloc] initWithBridge:self.bridge];
+    return [[HippyView alloc] init];
 }
 
 - (HippyShadowView *)shadowView {
     return [HippyShadowView new];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(__unused HippyShadowView *)shadowView {
+- (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(__unused HippyShadowView *)shadowView {
     return nil;
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(__unused NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
+- (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(__unused NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
     return nil;
 }
 
@@ -100,12 +104,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
     if (json) {
-        NSMutableDictionary *object = [NSMutableDictionary dictionaryWithObject:self.bridge.moduleName forKey:@"moduleName"];
+        //TODO 这里需要
         NSDictionary *linearGradientObject = [HippyConvert NSDictionary:json];
-        if (linearGradientObject) {
-            [object addEntriesFromDictionary:linearGradientObject];
-        }
-        view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:object];
+        view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:linearGradientObject];
         [view.layer setNeedsDisplay];
     }
 }

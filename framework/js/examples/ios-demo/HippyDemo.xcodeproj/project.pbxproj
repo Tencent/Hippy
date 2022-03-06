@@ -620,6 +620,8 @@
 		F44AA04827980F3D00E072AE /* HippyBaseListViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBaseListViewDataSource.h; sourceTree = "<group>"; };
 		F44AA04D27994A4300E072AE /* HippyWaterfallViewDataSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyWaterfallViewDataSource.h; sourceTree = "<group>"; };
 		F44AA04E27994A4300E072AE /* HippyWaterfallViewDataSource.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyWaterfallViewDataSource.mm; sourceTree = "<group>"; };
+		F459C45827D4F355009A7441 /* UIView+Render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Render.h"; sourceTree = "<group>"; };
+		F459C45927D4F355009A7441 /* UIView+Render.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+Render.m"; sourceTree = "<group>"; };
 		F45D1BDB26B1555E004010EE /* HippyI18nUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyI18nUtils.h; sourceTree = "<group>"; };
 		F45D1BDC26B1555E004010EE /* HippyI18nUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyI18nUtils.m; sourceTree = "<group>"; };
 		F47230182774805600A120AC /* OCTypeToDomArgument.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OCTypeToDomArgument.h; sourceTree = "<group>"; };
@@ -1728,6 +1730,8 @@
 				F4A8424027D38CF900AEFC88 /* NativeRenderManager.h */,
 				F4A8424127D38CF900AEFC88 /* HippyUIManager.mm */,
 				F4A8424427D38D7900AEFC88 /* HippyRenderContext.h */,
+				F459C45827D4F355009A7441 /* UIView+Render.h */,
+				F459C45927D4F355009A7441 /* UIView+Render.m */,
 			);
 			name = renderer;
 			path = ../../../../renderer/native/ios/renderer;

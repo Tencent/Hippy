@@ -125,8 +125,8 @@
     }
 }
 
-- (instancetype)init {
-    if ((self = [super initWithFrame:CGRectZero])) {
+- (instancetype)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
         [self setContentInset:UIEdgeInsetsZero];
         _textView = [[HippyUITextField alloc] initWithFrame:CGRectZero];
         _textView.responderDelegate = self;

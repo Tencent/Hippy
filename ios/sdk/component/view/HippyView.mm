@@ -168,14 +168,6 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
 
 @synthesize hippyZIndex = _hippyZIndex;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    self = [super init];
-    if (self) {
-        _bridge = bridge;
-    }
-    return self;
-}
-
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {

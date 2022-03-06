@@ -30,6 +30,7 @@
 #import "HippyBaseListViewCell.h"
 #import "HippyBaseListViewDataSource.h"
 #import "UIView+RootViewRegister.h"
+#import "UIView+Render.h"
 #import "objc/runtime.h"
 
 #define kCellZIndexConst 10000.f
@@ -39,7 +40,6 @@ static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
 @interface HippyBaseListView () <HippyRefreshDelegate> {
-    __weak HippyBridge *_bridge;
     __weak UIView *_rootView;
     BOOL _isInitialListReady;
     NSTimeInterval _lastScrollDispatchTime;
@@ -54,9 +54,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 @implementation HippyBaseListView
 
 #pragma mark Life Cycle
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    if (self = [super initWithBridge:bridge]) {
-        _bridge = bridge;
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
         self.preloadItemNumber = 1;
         _dataSource = [[HippyBaseListViewDataSource alloc] init];

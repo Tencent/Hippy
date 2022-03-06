@@ -20,28 +20,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyViewManager;
+@interface UIView (Render)
 
-@protocol HippyRenderContext;
-@class HippyShadowView;
-typedef void (^HippyRenderUIBlock)(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
-
-@protocol HippyRenderContext <NSObject>
-
-@property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;
-
-- (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName;
-
-- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)hippyTag;
-
-//TODO Use a render view protocol instead of HippyShadowView in the future
-- (__kindof UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
-
-- (void)addUIBlock:(HippyRenderUIBlock)block;
+@property(nonatomic, weak)id<HippyRenderContext> renderContext;
 
 @end
 

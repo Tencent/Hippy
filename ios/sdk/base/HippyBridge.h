@@ -281,9 +281,3 @@ typedef void (^SecondaryBundleCompletion)(BOOL);
                  completion:(SecondaryBundleCompletion)completion;
 
 @end
-
-@interface UIView(Bridge)
-
-@property(nonatomic, weak) HippyBridge *bridge;
-
-@end

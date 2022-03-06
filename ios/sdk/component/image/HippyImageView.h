@@ -58,7 +58,6 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 @property (nonatomic, copy) NSArray *source;
 @property (nonatomic, strong) UIImage *defaultImage;
 @property (nonatomic, assign) UIImageRenderingMode renderingMode;
-@property (nonatomic, weak) HippyBridge *bridge;
 @property (nonatomic, assign) BOOL downSample;
 @property (nonatomic, assign) CGFloat borderTopLeftRadius;
 @property (nonatomic, assign) CGFloat borderTopRightRadius;
@@ -71,8 +70,6 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 @property (nonatomic, copy) HippyDirectEventBlock onError;
 @property (nonatomic, copy) HippyDirectEventBlock onLoad;
 @property (nonatomic, copy) HippyDirectEventBlock onLoadEnd;
-
-- (instancetype)initWithBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 
 - (void)reloadImage;
 

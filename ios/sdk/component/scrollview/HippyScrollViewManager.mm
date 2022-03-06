@@ -49,10 +49,8 @@ HIPPY_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
 
 @implementation HippyScrollViewManager
 
-HIPPY_EXPORT_MODULE(ScrollView)
-
 - (UIView *)view {
-    return [[HippyScrollView alloc] initWithEventDispatcher:self.bridge.eventDispatcher];
+    return [[HippyScrollView alloc] init];
 }
 
 HIPPY_EXPORT_VIEW_PROPERTY(alwaysBounceHorizontal, BOOL)
@@ -102,8 +100,8 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
 // clang-format off
 HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
                     callback:(HippyResponseSenderBlock)callback) {
-    [self.bridge.uiManager addUIBlock:
-     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:
+     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         
         HippyScrollView *view = viewRegistry[hippyTag];
         
@@ -128,8 +126,8 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
                     offsetX:(CGFloat)x
                     offsetY:(CGFloat)y
                     animated:(BOOL)animated) {
-    [self.bridge.uiManager addUIBlock:
-     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:
+     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
@@ -145,8 +143,8 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
 // clang-format off
 HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
                     options:(NSDictionary *)options) {
-    [self.bridge.uiManager addUIBlock:
-     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:
+     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {

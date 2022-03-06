@@ -50,8 +50,6 @@ static void collectDirtyNonTextDescendants(HippyShadowText *shadowView, NSMutabl
 
 @implementation HippyTextManager
 
-HIPPY_EXPORT_MODULE(Text)
-
 - (UIView *)view {
     return [HippyText new];
 }
@@ -87,7 +85,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(minimumFontScale, CGFloat)
 HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
 HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
+- (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
     for (HippyShadowView *rootView in shadowViewRegistry.allValues) {
         if (![rootView isHippyRootView]) {
             // This isn't a root view
@@ -127,11 +125,11 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
     return nil;
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowText *)shadowView {
+- (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(HippyShadowText *)shadowView {
     NSNumber *hippyTag = shadowView.hippyTag;
     UIEdgeInsets padding = shadowView.paddingAsInsets;
 
-    return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, HippyText *> *viewRegistry) {
+    return ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, HippyText *> *viewRegistry) {
         HippyText *text = viewRegistry[hippyTag];
         text.contentInset = padding;
     };

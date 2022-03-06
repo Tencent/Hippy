@@ -24,7 +24,7 @@
 #import "HippyViewPagerItem.h"
 
 @implementation HippyViewPagerItemManager
-HIPPY_EXPORT_MODULE(ViewPagerItem)
+
 - (UIView *)view {
     return [HippyViewPagerItem new];
 }

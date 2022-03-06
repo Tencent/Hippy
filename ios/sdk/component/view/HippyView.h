@@ -34,10 +34,6 @@
 
 @interface HippyView : HippyTouchesView
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge;
-
-@property (nonatomic, weak) HippyBridge *bridge;
-
 /**
  * Used to control how touch events are processed.
  */

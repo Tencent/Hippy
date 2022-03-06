@@ -57,25 +57,23 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
     NSMutableDictionary<NSString *, HippyPropBlock> *_shadowPropBlocks;
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
     BOOL _implementsUIBlockToAmendWithShadowViewRegistry;
-    __weak HippyBridge *_bridge;
+    __weak HippyViewManager *_manager;
 }
 
-@synthesize manager = _manager;
-
-- (instancetype)initWithManagerClass:(Class)managerClass bridge:(HippyBridge *)bridge {
-    if ((self = [super init])) {
-        _bridge = bridge;
-        _managerClass = managerClass;
+- (instancetype)initWithViewManager:(HippyViewManager *)viewManager {
+    self = [super init];
+    if (self) {
+        _managerClass = [viewManager class];
+        _manager = viewManager;
         _viewPropBlocks = [NSMutableDictionary new];
         _shadowPropBlocks = [NSMutableDictionary new];
-
         // Hackety hack, this partially re-implements HippyBridgeModuleNameForClass
         // We want to get rid of Hippy and RK prefixes, but a lot of JS code still references
         // view names by prefix. So, while HippyBridgeModuleNameForClass now drops these
         // prefixes by default, we'll still keep them around here.
-        NSString *name = [managerClass moduleName];
+        NSString *name = [_managerClass moduleName];
         if (name.length == 0) {
-            name = NSStringFromClass(managerClass);
+            name = NSStringFromClass(_managerClass);
         }
         if ([name hasPrefix:@"RK"]) {
             name = [name stringByReplacingCharactersInRange:(NSRange) { 0, @"RK".length } withString:@"Hippy"];
@@ -97,13 +95,6 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
         }
     }
     return self;
-}
-
-- (HippyViewManager *)manager {
-    if (!_manager) {
-        _manager = [_bridge moduleForClass:_managerClass];
-    }
-    return _manager;
 }
 
 HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
@@ -206,50 +197,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             // Build setter block
             void (^setterBlock)(id target, id json) = nil;
             if (type == NSSelectorFromString(@"HippyDirectEventBlock:")) {
-                // Special case for event handlers
-                __weak HippyViewManager *weakManager = self.manager;
-                setterBlock = ^(id target, id json) {
-                    __weak id<HippyComponent> weakTarget = target;
-                    id argu = nil;
-                    if ([HippyConvert BOOL:json]) {
-                        argu = ^(NSDictionary *body) {
-                            NSMutableDictionary *params = [NSMutableDictionary new];
-                            id tag = weakTarget.hippyTag;
-                            if (tag) {
-                                [params setObject:tag forKey:@"id"];
-                                [params setObject:tag forKey:@"target"];
-                            }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                            static NSArray *defaultEvent = nil;
-                            static dispatch_once_t onceToken;
-                            dispatch_once(&onceToken, ^{
-                                if (defaultEvent == nil) {
-                                    defaultEvent = @[
-                                        @"onClick", @"onPressIn", @"onPressOut", @"onLongClick", @"onTouchDown", @"onTouchEnd", @"onTouchCancel",
-                                        @"onTouchMove"
-                                    ];
-                                }
-                            });
-
-                            if ([defaultEvent containsObject:key]) {
-                                [params setObject:key forKey:@"name"];
-                                if (body) {
-                                    [params addEntriesFromDictionary:body];
-                                }
-                                [weakManager.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeGesture" args:params];
-                            } else {
-                                [params setValue:body ?: @{} forKey:@"extra"];
-                                [params setObject:key forKey:@"eventName"];
-                                [weakManager.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveUIComponentEvent"
-                                                                             args:params];
-                            }
-#pragma clang diagnostic pop
-                        };
-                    }
-                    ((void (*)(id, SEL, id))objc_msgSend)(target, setter, argu);
-                };
-
+                //TODO
+                //The component event response logic no longer executes this code
             } else {
                 // Ordinary property handlers
                 NSMethodSignature *typeSignature = [[HippyConvert class] methodSignatureForSelector:type];
@@ -459,7 +408,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [_eventNameMap copy];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
+- (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
     if (_implementsUIBlockToAmendWithShadowViewRegistry) {
         return [[self manager] uiBlockToAmendWithShadowViewRegistry:registry];
     }

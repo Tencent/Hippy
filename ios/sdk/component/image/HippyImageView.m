@@ -202,9 +202,8 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 @implementation HippyImageView
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    if (self = [super init]) {
-        _bridge = bridge;
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         self.clipsToBounds = YES;
         _needsUpdateBorderRadius = NO;
         _borderTopLeftRadius = CGFLOAT_MAX;
@@ -420,7 +419,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             NSError *error = nil;
             UIImage *blurredImage = HippyBlurredImageWithRadiusv(image, br, &error);
             if (error) {
-                NSError *finalError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+                NSError *finalError = HippyErrorFromErrorAndModuleName(error, nil);
                 HippyFatal(finalError);
             }
             HippyExecuteOnMainQueue(^{
