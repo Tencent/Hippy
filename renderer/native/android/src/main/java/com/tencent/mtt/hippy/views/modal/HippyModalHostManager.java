@@ -61,7 +61,8 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
         hippyModalHostView.onInstanceDestroy();
     }
 
-    @HippyControllerProps(name = "animationType", defaultType = HippyControllerProps.STRING, defaultString = "none")
+    @HippyControllerProps(name = "animationType", defaultType = HippyControllerProps.STRING,
+            defaultString = "none")
     public void setAnimationType(HippyModalHostView view, String animationType) {
         view.setAnimationType(animationType);
     }

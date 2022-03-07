@@ -253,34 +253,17 @@ public class HippyModalHostView extends HippyViewGroup implements
     }
 
     private boolean isActivityFinishing() {
-        NativeRenderContext nativeRendererContext = (NativeRenderContext) getContext();
-
-        Context context = nativeRendererContext.getBaseContext();
-        if (!(context instanceof Activity)) {
-            return true;
+        Context context = ((ContextWrapper) getContext()).getBaseContext();
+        if (context instanceof Activity) {
+            return ((Activity) context).isFinishing();
         }
-
-        Activity currentActivity = (Activity) context;
-        return currentActivity.isFinishing();
+        return true;
     }
 
-    protected void showOrUpdate() {
-        if (isActivityFinishing()) {
+    private void initDialog() {
+        if (mDialog == null) {
             return;
         }
-        if (mDialog != null) {
-            if (mNewDialogRequired) {
-                dismiss();
-            } else {
-                updateProperties();
-                return;
-            }
-        }
-        mNewDialogRequired = false;
-        mDialog = createDialog(getContext());
-        mContentView = createContentView(mDialogRootView);
-        mDialog.setContentView(mContentView);
-        updateProperties();
         if (mDialog.getWindow() != null && mEnterImmersionStatusBar) {
             setDialogBar(mStatusBarTextDarkColor);
         }
@@ -343,6 +326,26 @@ public class HippyModalHostView extends HippyViewGroup implements
             }
         });
         mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    }
+
+    protected void showOrUpdate() {
+        if (isActivityFinishing()) {
+            return;
+        }
+        if (mDialog != null) {
+            if (mNewDialogRequired) {
+                dismiss();
+            } else {
+                updateProperties();
+                return;
+            }
+        }
+        mNewDialogRequired = false;
+        mDialog = createDialog(getContext());
+        mContentView = createContentView(mDialogRootView);
+        mDialog.setContentView(mContentView);
+        updateProperties();
+        initDialog();
         mDialog.show();
         int screenHeight = DisplayUtils.getScreenHeight();
         switch (mAnimationStyleTheme) {
