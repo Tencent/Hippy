@@ -4,7 +4,7 @@
 
 #pragma once
 
-//#if TDF_SERVICE_ENABLED
+#if TDF_SERVICE_ENABLED
 
 #include "dom/devtools/dom_devtools_utils.h"
 
@@ -284,4 +284,4 @@ std::string DomDevtoolsUtils::ParseNodeProps(
 }
 }  // namespace devtools
 }  // namespace hippy
-//#endif
+#endif

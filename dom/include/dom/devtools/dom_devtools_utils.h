@@ -4,7 +4,7 @@
 
 #pragma once
 
-//#if TDF_SERVICE_ENABLED
+#if TDF_SERVICE_ENABLED
 
 #include <memory>
 #include "devtools_backend/data/dom_node_location.h"
@@ -33,4 +33,4 @@ class DomDevtoolsUtils {
 };
 }  // namespace devtools
 }  // namespace hippy
-//#endif
+#endif
