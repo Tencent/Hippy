@@ -12,19 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 import static com.tencent.link_supplier.LinkHelper.RenderMode.NATIVE_RENDER;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.tencent.link_supplier.LinkHelper;
 import com.tencent.link_supplier.Linker;
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
@@ -58,10 +65,13 @@ import com.tencent.mtt.hippy.modules.nativemodules.deviceevent.DeviceEventModule
 import com.tencent.mtt.hippy.uimanager.HippyCustomViewCreator;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -80,6 +90,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     /**
      * global configuration
      */
+    @NonNull
     final HippyGlobalConfigs mGlobalConfigs;
     /**
      * core bundle loader
@@ -286,21 +297,30 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
-            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
-        HippyMap localDimension = new HippyMap(dimension);
-        if (shouldRevise && mEngineContext != null) {
+    public void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
+            boolean systemUiVisibilityChanged) {
+        if (mEngineContext == null) {
+            return;
+        }
+        Context context = mEngineContext.getGlobalConfigs().getContext();
+        HippyMap dimensionMap = DimensionsUtil
+                .getDimensions(width, height, context, shouldUseScreenDisplay);
+        int dimensionW = 0;
+        int dimensionH = 0;
+        if (dimensionMap != null) {
+            HippyMap windowMap = dimensionMap.getMap("windowPhysicalPixels");
+            dimensionW = windowMap.getInt("width");
+            dimensionH = windowMap.getInt("height");
+        }
+        if (height < 0 || dimensionW == dimensionH) {
             HippyDeviceAdapter deviceAdapter = mEngineContext.getGlobalConfigs().getDeviceAdapter();
             if (deviceAdapter != null) {
-                deviceAdapter.reviseDimensionIfNeed(ContextHolder.getAppContext(), localDimension,
-                        shouldUseScreenDisplay,
+                deviceAdapter.reviseDimensionIfNeed(context, dimensionMap, shouldUseScreenDisplay,
                         systemUiVisibilityChanged);
             }
         }
-
         if (mEngineContext.getModuleManager() != null) {
-            mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class)
-                    .set(localDimension);
+            mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class).set(dimensionMap);
         }
     }
 

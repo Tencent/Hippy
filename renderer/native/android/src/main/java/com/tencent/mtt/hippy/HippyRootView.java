@@ -17,43 +17,37 @@
 package com.tencent.mtt.hippy;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Parcelable;
-import android.util.DisplayMetrics;
 import android.util.SparseArray;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.HippyTag;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.utils.DimensionsUtil;
+import com.tencent.mtt.hippy.uimanager.NativeViewTag;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
-import java.lang.reflect.Method;
+import java.util.Map;
 
 import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
 
-@SuppressWarnings({"deprecation", "unused"})
 public class HippyRootView extends FrameLayout {
 
-    private final int instanceId;
-    private GlobalLayoutListener mGlobalLayoutListener;
+    private static final String TAG = "HippyRootView";
     protected boolean firstViewAdded = false;
+    @Nullable
+    private GlobalLayoutListener mGlobalLayoutListener;
 
     public HippyRootView(Context context, int instanceId, int rootId) {
         super(new NativeRenderContext(context, instanceId));
-
-        this.instanceId = instanceId;
         setId(rootId);
-        HippyMap tagMap = HippyTag.createTagMap(NodeProps.ROOT_NODE);
+        Map<String, Object> tagMap = NativeViewTag.createViewTag(NodeProps.ROOT_NODE);
         setTag(tagMap);
         getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
         setOnSystemUiVisibilityChangeListener(getGlobalLayoutListener());
@@ -63,8 +57,7 @@ public class HippyRootView extends FrameLayout {
     public void onViewAdded(View child) {
         if (!firstViewAdded) {
             firstViewAdded = true;
-
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
             if (nativeRenderer != null) {
                 nativeRenderer.onFirstViewAdded();
             }
@@ -85,16 +78,14 @@ public class HippyRootView extends FrameLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec),
                 MeasureSpec.getSize(heightMeasureSpec));
-        //		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
         if (w != oldw || h != oldh) {
             getGlobalLayoutListener().checkUpdateDimension(w, h, false, false);
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
             if (nativeRenderer != null) {
                 nativeRenderer.onSizeChanged(w, h);
             }
@@ -105,7 +96,7 @@ public class HippyRootView extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         try {
-            getViewTreeObserver().removeGlobalOnLayoutListener(getGlobalLayoutListener());
+            getViewTreeObserver().removeOnGlobalLayoutListener(getGlobalLayoutListener());
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -116,14 +107,10 @@ public class HippyRootView extends FrameLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         try {
-            getViewTreeObserver().removeGlobalOnLayoutListener(getGlobalLayoutListener());
+            getViewTreeObserver().removeOnGlobalLayoutListener(getGlobalLayoutListener());
         } catch (Throwable e) {
             e.printStackTrace();
         }
-    }
-
-    public void checkUpdateDimension() {
-        getGlobalLayoutListener().checkUpdateDimension(false, false);
     }
 
     private GlobalLayoutListener getGlobalLayoutListener() {
@@ -161,58 +148,20 @@ public class HippyRootView extends FrameLayout {
         }
 
         private void sendOrientationChangeEvent(int orientation) {
-            LogUtils.d("HippyRootView", "sendOrientationChangeEvent: orientation=" + orientation);
+            LogUtils.d(TAG, "sendOrientationChangeEvent: orientation=" + orientation);
         }
 
         private void checkUpdateDimension(boolean shouldUseScreenDisplay,
                 boolean systemUiVisibilityChanged) {
-            checkUpdateDimension(-1, -1, false, false);
+            checkUpdateDimension(-1, -1, shouldUseScreenDisplay, systemUiVisibilityChanged);
         }
 
-        @SuppressWarnings("SameParameterValue")
-        private void checkUpdateDimension(int windowWidth, int windowHeight,
-                boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
-            DisplayMetrics windowDisplayMetrics = getContext().getResources().getDisplayMetrics();
-            DisplayMetrics screenDisplayMetrics = new DisplayMetrics();
-            screenDisplayMetrics.setTo(windowDisplayMetrics);
-            WindowManager windowManager = (WindowManager) getContext()
-                    .getSystemService(Context.WINDOW_SERVICE);
-            Display defaultDisplay = windowManager.getDefaultDisplay();
-            try {
-                if (Build.VERSION.SDK_INT >= 17) {
-                    defaultDisplay.getRealMetrics(screenDisplayMetrics);
-                } else {
-                    //noinspection JavaReflectionMemberAccess
-                    Method mGetRawH = Display.class.getMethod("getRawHeight");
-                    //noinspection JavaReflectionMemberAccess
-                    Method mGetRawW = Display.class.getMethod("getRawWidth");
-
-                    Object width = mGetRawW.invoke(defaultDisplay);
-                    screenDisplayMetrics.widthPixels = width != null ? (Integer) width : 0;
-
-                    Object height = mGetRawH.invoke(defaultDisplay);
-                    screenDisplayMetrics.heightPixels = height != null ? (Integer) height : 0;
-                }
-
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
-            }
-
-            HippyMap dimensionMap = DimensionsUtil
-                    .getDimensions(windowWidth, windowHeight, getContext(), shouldUseScreenDisplay);
-            int dimensionW = 0;
-            int dimensionH = 0;
-            if (dimensionMap != null) {
-                HippyMap windowMap = dimensionMap.getMap("windowPhysicalPixels");
-                dimensionW = windowMap.getInt("width");
-                dimensionH = windowMap.getInt("height");
-            }
-
-            boolean shouldRevise = (windowHeight < 0 || dimensionW == dimensionH) ? true : false;
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+        private void checkUpdateDimension(int width, int height, boolean shouldUseScreenDisplay,
+                boolean systemUiVisibilityChanged) {
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
             if (nativeRenderer != null) {
-                nativeRenderer.updateDimension(shouldRevise, dimensionMap.getInternalMap(),
-                        shouldUseScreenDisplay, systemUiVisibilityChanged);
+                nativeRenderer.updateDimension(width, height, shouldUseScreenDisplay,
+                        systemUiVisibilityChanged);
             }
         }
     }
