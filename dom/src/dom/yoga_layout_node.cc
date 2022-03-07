@@ -224,7 +224,7 @@ static YGEdge GetYGEdgeFromEdge(hippy::dom::Edge edge) {
   } else if (hippy::dom::Edge::EdgeBottom == edge) {
     return YGEdge::YGEdgeBottom;
   } else {
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 }
 
@@ -248,7 +248,7 @@ void YogaLayoutNode::CalculateLayout(float parent_width, float parent_height, Di
   } else if (direction == hippy::dom::Direction::RTL) {
     yoga_direction = YGDirectionRTL;
   } else {
-    TDF_BASE_NOTREACHED();
+    TDF_BASE_UNREACHABLE();
   }
 
   YGNodeCalculateLayout(yoga_node_, parent_width, parent_height, yoga_direction);
@@ -274,7 +274,7 @@ static LayoutMeasureMode ToLayoutMeasureMode(YGMeasureMode measure_mode) {
   if (measure_mode == YGMeasureMode::YGMeasureModeAtMost) {
     return LayoutMeasureMode::AtMost;
   }
-  TDF_BASE_NOTREACHED();
+  TDF_BASE_UNREACHABLE();
 }
 
 static YGSize YGMeasureFunction(YGNodeRef node, float width, YGMeasureMode width_mode, float height,
