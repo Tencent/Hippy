@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 
 import com.tencent.renderer.component.text.VirtualNode;
+
 import java.util.Map;
 
 public interface NativeRender extends NativeRenderExceptionHandler {
@@ -79,8 +80,8 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     void onSizeChanged(int nodeId, int width, int height);
 
-    void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
-            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
+    void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
+            boolean systemUiVisibilityChanged);
 
     void dispatchUIComponentEvent(int id, String eventName, @Nullable Object param);
 

@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.link_supplier.proxy.framework;
 
 import androidx.annotation.NonNull;
+
 import java.util.Map;
 
 public interface JSFrameworkProxy extends FrameworkProxy {
@@ -28,8 +30,8 @@ public interface JSFrameworkProxy extends FrameworkProxy {
 
     void onEndBatch();
 
-    void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
-            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
+    void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
+            boolean systemUiVisibilityChanged);
 
     Object getCustomViewCreator();
 

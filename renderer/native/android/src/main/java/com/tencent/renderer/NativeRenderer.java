@@ -42,6 +42,7 @@ import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
 
 import com.tencent.renderer.utils.DisplayUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -208,7 +209,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
         return mRootView;
     }
-    
+
     @NonNull
     @Override
     public RenderManager getRenderManager() {
@@ -238,10 +239,10 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
-            boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged) {
+    public void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
+            boolean systemUiVisibilityChanged) {
         if (checkJSFrameworkProxy()) {
-            ((JSFrameworkProxy) mFrameworkProxy).updateDimension(shouldRevise, dimension,
+            ((JSFrameworkProxy) mFrameworkProxy).updateDimension(width, height,
                     shouldUseScreenDisplay, systemUiVisibilityChanged);
         }
     }

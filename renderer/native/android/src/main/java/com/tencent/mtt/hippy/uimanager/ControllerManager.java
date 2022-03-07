@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
-import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
@@ -236,9 +235,11 @@ public class ControllerManager {
         }
         ViewGroup newParent = (ViewGroup) mControllerRegistry.getView(newPid);
         if (newParent != null) {
-            String className = HippyTag.getClassName(newParent);
-            mControllerRegistry.getViewController(className)
-                    .addView(newParent, view, index);
+            String className = NativeViewTag.getClassName(newParent);
+            HippyViewController controller = mControllerRegistry.getViewController(className);
+            if (controller != null) {
+                controller.addView(newParent, view, index);
+            }
         }
     }
 
@@ -316,7 +317,7 @@ public class ControllerManager {
             return;
         }
         HippyViewController childController = null;
-        String childTag = HippyTag.getClassName(child);
+        String childTag = NativeViewTag.getClassName(child);
         if (!TextUtils.isEmpty(childTag)) {
             childController = mControllerRegistry.getViewController(childTag);
             if (childController != null) {
@@ -340,7 +341,7 @@ public class ControllerManager {
                 }
             }
         }
-        String parentTag = HippyTag.getClassName(parent);
+        String parentTag = NativeViewTag.getClassName(parent);
         if (parentTag != null) {
             HippyViewController parentController = mControllerRegistry.getViewController(
                     parentTag);
@@ -404,7 +405,7 @@ public class ControllerManager {
         View child = mControllerRegistry.getView(id);
         View parent = mControllerRegistry.getView(pid);
         if (child != null && parent instanceof ViewGroup && child.getParent() == null) {
-            String parentClassName = HippyTag.getClassName(parent);
+            String parentClassName = NativeViewTag.getClassName(parent);
             HippyViewController controller = mControllerRegistry.getViewController(parentClassName);
             if (controller != null) {
                 controller.addView((ViewGroup) parent, child, index);
@@ -432,11 +433,11 @@ public class ControllerManager {
         String childTag = "";
         String childClass = "";
         if (parent != null) {
-            parentTag = HippyTag.getClassName(parent);
+            parentTag = NativeViewTag.getClassName(parent);
             parentClass = parent.getClass().getName();
         }
         if (child != null) {
-            childTag = HippyTag.getClassName(child);
+            childTag = NativeViewTag.getClassName(child);
             childClass = child.getClass().getName();
         }
         String message = "Add child to parent failed: id=" + id

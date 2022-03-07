@@ -31,7 +31,6 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -80,8 +79,8 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
                 }
             }
             view.setId(id);
-            HippyMap tagObj = HippyTag.createTagMap(className);
-            view.setTag(tagObj);
+            Map<String, Object> tagMap = NativeViewTag.createViewTag(NodeProps.ROOT_NODE);
+            view.setTag(tagMap);
         }
         return view;
     }
