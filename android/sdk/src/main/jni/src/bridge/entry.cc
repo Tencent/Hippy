@@ -90,9 +90,11 @@ static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
     reuse_engine_map;
 static std::mutex engine_mutex;
 
-static const int64_t kDefaultEngineId = -1;
-static const int64_t kDebuggerEngineId = -9999;
-static const uint32_t kRuntimeSlotIndex = 0;
+constexpr int64_t kDefaultEngineId = -1;
+constexpr int64_t kDebuggerEngineId = -9999;
+constexpr uint32_t kRuntimeSlotIndex = 0;
+// -1 means single isolate multi-context mode
+constexpr int32_t kReuseRuntimeId = -1;
 
 enum INIT_CB_STATE {
   RUN_SCRIPT_ERROR = -1,
@@ -348,16 +350,23 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
     return;
   }
 
-  std::shared_ptr<hippy::napi::V8Ctx> ctx =
-      std::static_pointer_cast<hippy::napi::V8Ctx>(
-          runtime->GetScope()->GetContext());
-  TDF_BASE_LOG(ERROR) << "HandleUncaughtJsError error desc = "
+  auto scope = runtime->GetScope();
+  if (!scope) {
+    return;
+  }
+  auto context = scope->GetContext();
+  if (!context) {
+    return;
+  }
+  std::shared_ptr<hippy::napi::V8Ctx> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+  TDF_BASE_LOG(ERROR) << "HandleUncaughtJsError, runtime_id = "
+                      << runtime->GetId()
+                      << ", desc = "
                       << ctx->GetMsgDesc(message)
                       << ", stack = " << ctx->GetStackInfo(message);
   ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
                                       ctx->GetStackInfo(message));
-  ctx->ThrowExceptionToJS(
-      std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
+  ctx->ThrowExceptionToJS(std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
@@ -373,7 +382,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jobject j_vm_init_param) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
-                     << ", j_bridge_param_json = "
+                     << ", j_enable_v8_serialization = "
                      << static_cast<uint32_t>(j_enable_v8_serialization)
                      << ", j_is_dev_module = "
                      << static_cast<uint32_t>(j_is_dev_module)
@@ -383,12 +392,19 @@ jlong InitInstance(JNIEnv* j_env,
                                 j_enable_v8_serialization, j_is_dev_module);
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
-  RegisterFunction vm_cb = [runtime_id](void* vm) {
+  int64_t group = j_group_id;
+  RegisterFunction vm_cb = [group, runtime_id](void* vm) {
     V8VM* v8_vm = reinterpret_cast<V8VM*>(vm);
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
+    if (group == kDefaultEngineId) {
+      TDF_BASE_LOG(INFO) << "isolate->SetData runtime_id = " << runtime_id;
+      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
+    } else {
+      TDF_BASE_LOG(INFO) << "isolate->SetData runtime_id = " << kReuseRuntimeId;
+      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(kReuseRuntimeId));
+    }
     isolate->AddMessageListener(HandleUncaughtJsError);
-    isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
   };
 
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
@@ -450,7 +466,6 @@ jlong InitInstance(JNIEnv* j_env,
   scope_cb_map->insert(
       std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
 
-  int64_t group = j_group_id;
   std::shared_ptr<V8VMInitParam> param;
   if (j_vm_init_param) {
     param = std::make_shared<V8VMInitParam>();
@@ -491,10 +506,6 @@ jlong InitInstance(JNIEnv* j_env,
       engine = std::get<std::shared_ptr<Engine>>(it->second);
       runtime->SetEngine(engine);
       std::get<uint32_t>(it->second) += 1;
-      std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
-      v8::Isolate* isolate = v8_vm->isolate_;
-      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(-1));
-      // -1 means single isolate multi-context mode
       TDF_BASE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
                           << ", use_count = " << engine.use_count();
     } else {
