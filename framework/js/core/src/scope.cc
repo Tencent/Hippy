@@ -28,8 +28,6 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "core/base/common.h"
-#include "core/engine.h"
 #include "core/modules/module_register.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/javascript_task.h"
@@ -212,7 +210,7 @@ void Scope::RunJS(const unicode_string_view& data,
     }
 #else
     auto context = weak_context.lock();
-    if (!context) {
+    if (context) {
       context->RunScript(data, name);
     }
 #endif

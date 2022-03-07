@@ -42,7 +42,7 @@ public class MyViewController extends HippyViewController<MyView>
 
 	//this is show receive js call
 	@Override
-	public void dispatchFunction(MyView view, @NonNull String functionName,
+	public void dispatchFunction(@NonNull MyView view, @NonNull String functionName,
 			@NonNull List params) {
 		super.dispatchFunction(view, functionName, params);
 		try {

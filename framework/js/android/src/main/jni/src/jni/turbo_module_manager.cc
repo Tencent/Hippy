@@ -22,16 +22,13 @@
 
 #include "jni/turbo_module_manager.h"
 
-#include <jni.h>
-
 #include <cstdint>
 
 #include "core/runtime/v8/runtime.h"
-#include "core/core.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "jni/java_turbo_module.h"
+#include "jni/jni_register.h"
 #include "jni/jni_utils.h"
-#include "jni/scoped_java_ref.h"
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(cert-err58-cpp)
              "install",
@@ -55,7 +52,7 @@ jmethodID get_method_id;
  */
 std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Runtime> &runtime,
                                               const std::string &module_name) {
-  TDF_BASE_DLOG(INFO) << "enter QueryTurboModuleImpl %s", module_name.c_str();
+  TDF_BASE_DLOG(INFO) << "enter QueryTurboModuleImpl " << module_name.c_str();
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring name = env->NewStringUTF(module_name.c_str());
   jobject module_impl = env->CallObjectMethod(
@@ -72,7 +69,7 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
   auto data = info.Data().As<v8::External>();
   int64_t runtime_key = *(reinterpret_cast<int64_t *>(data->Value()));
 
-  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_key);
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_key));
   std::shared_ptr<Ctx> ctx =
       std::static_pointer_cast<Ctx>(runtime->GetScope()->GetContext());
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
@@ -102,9 +99,9 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
       std::shared_ptr<JavaRef> module_impl =
           QueryTurboModuleImpl(runtime, name);
       if (!module_impl->GetObj()) {
-        std::string exception_info = "Cannot find TurboModule: " + name;
-        TDF_BASE_LOG(ERROR) << "cannot find TurboModule = " << name;
-        ctx->ThrowExceptionToJS(ctx->CreateJsError(unicode_string_view(exception_info)));
+        std::string exception_info = std::string("Cannot find TurboModule: ").append(name);
+        TDF_BASE_LOG(ERROR) << "cannot find TurboModule = " << name.c_str();
+        v8_ctx->ThrowException(unicode_string_view(exception_info));
         return info.GetReturnValue().SetUndefined();
       }
 
@@ -118,14 +115,13 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
       }
 
       // 5. bind c++ JavaTurboModule to js
-      result =
-          turbo_module_runtime->turbo_env_->CreateObject(java_turbo_module);
+      result = turbo_module_runtime->turbo_env_->CreateObject(java_turbo_module);
 
       // 6. add To Cache
       turbo_module_runtime->module_cache_[name] = result;
-      TDF_BASE_DLOG(INFO) << "return module=%s", name.c_str();
+      TDF_BASE_DLOG(INFO) << "return module= " << name.c_str();
     } else {
-      TDF_BASE_DLOG(INFO) << "return cached module=%s", name.c_str();
+      TDF_BASE_DLOG(INFO) << "return cached module = " << name.c_str();
     }
 
     std::shared_ptr<V8CtxValue> v8_result =
@@ -187,7 +183,7 @@ void TurboModuleManager::Destroy() {
 
 int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
   TDF_BASE_LOG(INFO) << "install TurboModuleManager";
-  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_LOG(ERROR) << "TurboModuleManager install, v8RuntimePtr invalid";
     return -1;
@@ -213,7 +209,7 @@ int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
 
 void Uninstall(JNIEnv *, jobject, jlong j_runtime_id) {
   TDF_BASE_LOG(INFO) << "uninstall install TurboModuleManager";
-  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_LOG(ERROR) << "TurboModuleManager install, v8RuntimePtr invalid";
     return;

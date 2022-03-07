@@ -44,11 +44,13 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<D
   if (!nodes_to_create.empty()) {
     // step1: create child
     render_manager_->CreateRenderNode(std::vector<std::shared_ptr<DomNode>>(nodes_to_create));
-    for (auto node : nodes_to_create) {
+    for (const auto& node : nodes_to_create) {
       // step2: move child
       std::vector<int32_t> moved_ids;
       FindMoveChildren(node, moved_ids);
-      MoveRenderNode(std::move(moved_ids), node->GetRenderInfo().pid, node->GetId());
+      MoveRenderNode(std::move(moved_ids),
+                     hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().pid),
+                     hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetId()));
     }
   }
 
@@ -76,7 +78,7 @@ void LayerOptimizedRenderManager::UpdateLayout(const std::vector<std::shared_ptr
       nodes_to_update.push_back(node);
     }
   }
-  render_manager_->UpdateLayout(std::move(nodes_to_update));
+  render_manager_->UpdateLayout(nodes_to_update);
 }
 
 void LayerOptimizedRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids,
@@ -242,8 +244,9 @@ std::pair<bool, int32_t>
 LayerOptimizedRenderManager::CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
                                                       const std::shared_ptr<DomNode> &node,
                                                       int32_t index) {
-  for (int i = 0; i < parent->GetChildCount(); i++) {
-    std::shared_ptr<DomNode> child_node = parent->GetChildAt(i);
+  for (uint32_t i = 0; i < parent->GetChildCount(); i++) {
+    std::shared_ptr<DomNode> child_node = parent->GetChildAt(
+        hippy::base::checked_numeric_cast<uint32_t, int32_t>(i));
     if (child_node == node) {
       return std::make_pair(true, index);
     }
@@ -264,12 +267,12 @@ LayerOptimizedRenderManager::CalculateRenderNodeIndex(const std::shared_ptr<DomN
 
 void LayerOptimizedRenderManager::FindMoveChildren(const std::shared_ptr<DomNode>& node,
                                           std::vector<int32_t> &removes) {
-  for (int32_t i = 0; i < node->GetChildCount(); i++) {
-    auto child_node = node->GetChildAt(i);
+  for (uint32_t i = 0; i < node->GetChildCount(); i++) {
+    auto child_node = node->GetChildAt(hippy::base::checked_numeric_cast<uint32_t, int32_t>(i));
     if (child_node->IsJustLayout()) {
       FindMoveChildren(child_node, removes);
     } else {
-      removes.push_back(child_node->GetId());
+      removes.push_back(hippy::base::checked_numeric_cast<uint32_t, int32_t>(child_node->GetId()));
     }
   }
 }

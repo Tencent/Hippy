@@ -22,9 +22,7 @@
 
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 
-#include "core/core.h"
 #include "core/runtime/v8/bridge.h"
-
 
 namespace hippy::inspector {
 
@@ -91,7 +89,7 @@ void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {
       }
       default:
         TDF_BASE_DLOG(INFO) << "encoding = " << static_cast<int>(encoding);
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
     }
     session_->dispatchProtocolMessage(message_view);
   }

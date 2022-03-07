@@ -45,7 +45,7 @@ public class HippyListItemViewController extends HippyViewController<HippyListIt
     @Override
     public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
             @NonNull String className, @NonNull ViewGroup hippyRootView,
-            @NonNull ControllerManager controllerManager, boolean lazy) {
-        return new ListItemRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+            @NonNull ControllerManager controllerManager, boolean isLazy) {
+        return new ListItemRenderNode(id, props, className, hippyRootView, controllerManager, isLazy);
     }
 }

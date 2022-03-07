@@ -62,8 +62,8 @@
 | scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true` （仅在 overflow-y/x: scroll 时适用） | `boolean`                                                    | `ALL`    |
 | showScrollIndicator            | 是否显示滚动条。 `default: false`（仅在 overflow-y/x: scroll 时适用） | `boolean`  | `Android`    |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`                                                    | `iOS`    |
-| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`  | `iOS`   |
-| nativeBackgroundAndroid        | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: int }`； `borderless`表示波纹是否有边界，默认false；`color`波纹颜色；`rippleRadius`波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关demo。` | `Object`| `Android`    |
+| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` （仅在 overflow-y/x: scroll 时适用）| `boolean`  | `iOS`   | 
+| nativeBackgroundAndroid        | 配置安卓水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用setPressed以及setHotspot方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
 
 ## 样式内特殊属性
 
@@ -101,6 +101,24 @@
 > * x: number - X 偏移值
 > * y: number - Y 偏移值
 > * duration: number | boolean - 毫秒为单位的滚动时间, 默认 1000ms，false 等同 0ms
+
+### setPressed
+
+[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
+
+`最低支持版本 2.13.1`
+
+`(pressed: boolean) => void` 通过传入一个布尔值，通知终端当前是否需要显示水波纹效果
+
+> * pressed: boolean - true 显示水波纹，false 收起水波纹
+
+### setHotspot
+
+[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/framework/js/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
+
+`最低支持版本 2.13.1`
+
+`(x: number, y: number) => void` 通过传入一个 `x, y` 坐标值，通知终端设置当前波纹中心位置
 
 ---
 

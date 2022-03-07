@@ -4,10 +4,10 @@
 #include <type_traits>
 
 #include "base/logging.h"
+#include "core/base/common.h"
 
-namespace tdf {
-namespace base {
-Serializer::Serializer() {}
+namespace tdf::base {
+Serializer::Serializer() = default;
 
 Serializer::~Serializer() {
   if (buffer_) {
@@ -18,7 +18,7 @@ Serializer::~Serializer() {
 void Serializer::WriteHeader() {
   WriteTag(SerializationTag::kVersion);
   WriteVarint(kLatestVersion);
-};
+}
 
 std::pair<uint8_t*, size_t> Serializer::Release() {
   auto result = std::make_pair(buffer_, buffer_size_);
@@ -44,10 +44,10 @@ void Serializer::WriteOddball(Oddball oddball) {
       tag = SerializationTag::kNull;
       break;
     default:
-      TDF_BASE_NOTREACHED();
+      TDF_BASE_UNREACHABLE();
   }
   WriteTag(tag);
-};
+}
 
 void Serializer::WriteUint32(uint32_t value) {
   WriteTag(SerializationTag::kUint32);
@@ -89,8 +89,7 @@ void Serializer::WriteString(const std::string& value) {
 }
 
 void Serializer::WriteDenseJSArray(const DomValue::DomValueArrayType& dom_value) {
-  uint32_t length = 0;
-  length = dom_value.size();
+  uint32_t length = hippy::base::checked_numeric_cast<size_t, uint32_t>(dom_value.size());
 
   WriteTag(SerializationTag::kBeginDenseJSArray);
   WriteVarint<uint32_t>(length);
@@ -107,7 +106,7 @@ void Serializer::WriteDenseJSArray(const DomValue::DomValueArrayType& dom_value)
 }
 
 void Serializer::WriteJSObject(const DomValue::DomValueObjectType& dom_value) {
-  uint32_t length = dom_value.size();
+  uint32_t length = hippy::base::checked_numeric_cast<size_t, uint32_t>(dom_value.size());
   WriteTag(SerializationTag::kBeginJSObject);
   for (const auto& it : dom_value) {
     WriteString(it.first);
@@ -118,7 +117,7 @@ void Serializer::WriteJSObject(const DomValue::DomValueObjectType& dom_value) {
 }
 
 void Serializer::WriteTag(SerializationTag tag) {
-  uint8_t raw_tag = static_cast<uint8_t>(tag);
+  auto raw_tag = static_cast<uint8_t>(tag);
   WriteRawBytes(&raw_tag, sizeof(raw_tag));
 }
 
@@ -138,7 +137,7 @@ void Serializer::WriteVarint(T value) {
     value >>= 7;
   } while (value);
   *(next_byte - 1) &= 0x7F;
-  WriteRawBytes(stack_buffer, next_byte - stack_buffer);
+  WriteRawBytes(stack_buffer, static_cast<size_t>(next_byte - stack_buffer));
 }
 
 template <typename T>
@@ -150,16 +149,18 @@ void Serializer::WriteZigZag(T value) {
   static_assert(std::is_integral<T>::value && std::is_signed<T>::value,
                 "Only signed integer types can be written as zigzag.");
   using UnsignedT = typename std::make_unsigned<T>::type;
-  WriteVarint((static_cast<UnsignedT>(value) << 1) ^ (value >> (8 * sizeof(T) - 1)));
+  WriteVarint((static_cast<UnsignedT>(value) << 1) ^ (static_cast<unsigned int>(value
+      >> (8 * sizeof(T) - 1))));
 }
 
 void Serializer::WriteOneByteString(const char* chars, size_t length) {
-  WriteVarint<uint32_t>(length);
+  WriteVarint<uint32_t>(hippy::base::checked_numeric_cast<size_t, uint32_t>(length));
   WriteRawBytes(chars, length * sizeof(char));
 }
 
 void Serializer::WriteTwoByteString(const char16_t* chars, size_t length) {
-  WriteVarint<uint32_t>(length * sizeof(char16_t));
+  WriteVarint<uint32_t>(
+      hippy::base::checked_numeric_cast<size_t, uint32_t>(length * sizeof(char16_t)));
   WriteRawBytes(chars, length * sizeof(char16_t));
 }
 
@@ -244,5 +245,4 @@ void Serializer::ExpandBuffer(size_t required_capacity) {
   buffer_capacity_ = requested_capacity;
 }
 
-}  // namespace base
 }  // namespace tdf

@@ -20,6 +20,7 @@ import android.text.TextUtils;
 
 import android.view.ViewGroup;
 
+import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
@@ -33,7 +34,6 @@ import com.tencent.mtt.hippy.adapter.font.DefaultFontScaleAdapter;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.adapter.http.DefaultHttpAdapter;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpAdapter;
-import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.adapter.monitor.DefaultEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.sharedpreferences.DefaultSharedPreferencesAdapter;
@@ -221,7 +221,7 @@ public abstract class HippyEngine {
     // 必须 宿主（Hippy的使用者）的Context
     public Context context;
     // 必须 图片加载器：需要实现异步的图片加载接口fetchImage()，和同步的图片加载接口getImage()。
-    public HippyImageLoader imageLoader;
+    public ImageLoaderAdapter imageLoader;
 
     // 可选参数 核心的jsbundle的assets路径（assets路径和文件路径二选一，优先使用assets路径），debugMode = false时有效
     public String coreJSAssetsPath;

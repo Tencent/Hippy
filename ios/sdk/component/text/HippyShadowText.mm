@@ -342,6 +342,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
+    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+    if (NSWritingDirectionRightToLeft == direction) {
+        NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding)]};
+        [attributedString addAttributes:dic range:NSMakeRange(0, [self.text length])];
+    }
     for (HippyShadowView *child in [self hippySubviews]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             HippyShadowText *shadowText = (HippyShadowText *)child;

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer.component.text;
 
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_ERROR;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_ON_LOAD;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Movie;
@@ -34,16 +36,20 @@ import android.text.style.ImageSpan;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
-import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
+
+import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
+import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
+import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
+import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 
-import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
 import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.component.image.ImageDataHolder;
 import com.tencent.renderer.utils.EventUtils;
+
 import java.lang.reflect.Field;
 
 public class TextImageSpan extends ImageSpan {
@@ -174,9 +180,9 @@ public class TextImageSpan extends ImageSpan {
 
     @MainThread
     private void loadImageWithUrl(@Nullable final String url) {
-        IImageLoaderAdapter imageLoaderAdapter = mNativeRenderer.getImageLoaderAdapter();
+        ImageLoaderAdapter adapter = mNativeRenderer.getImageLoaderAdapter();
         if (TextUtils.isEmpty(url) || mImageLoadState == STATE_LOADING
-                || imageLoaderAdapter == null) {
+                || adapter == null) {
             return;
         }
         if (shouldUseFetchImageMode(url)) {
@@ -184,10 +190,12 @@ public class TextImageSpan extends ImageSpan {
             props.pushBoolean(NodeProps.CUSTOM_PROP_ISGIF, false);
             props.pushInt(NodeProps.WIDTH, mWidth);
             props.pushInt(NodeProps.HEIGHT, mHeight);
-            doFetchImage(url, props, imageLoaderAdapter);
+            doFetchImage(url, props, adapter);
         } else {
-            HippyDrawable hippyDrawable = (HippyDrawable) imageLoaderAdapter.getImage(url, null);
-            shouldReplaceDrawable(hippyDrawable);
+            ImageDataSupplier supplier = adapter.getLocalImage(url);
+            if (supplier instanceof ImageDataHolder) {
+                shouldReplaceDrawable((ImageDataHolder) supplier);
+            }
         }
     }
 
@@ -207,10 +215,10 @@ public class TextImageSpan extends ImageSpan {
             }
         }
         mGifLastPlayTime = now;
-        float mGifScaleX = width / (float) mGifMovie.width();
-        float mGifScaleY = height / (float) mGifMovie.height();
-        float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
-        float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
+        final float mGifScaleX = width / (float) mGifMovie.width();
+        final float mGifScaleY = height / (float) mGifMovie.height();
+        final float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
+        final float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
         mGifMovie.setTime(mGifProgress);
         canvas.save();
         canvas.scale(mGifScaleX, mGifScaleY);
@@ -225,34 +233,34 @@ public class TextImageSpan extends ImageSpan {
     }
 
     @SuppressLint("DiscouragedPrivateApi")
-    private void shouldReplaceDrawable(HippyDrawable hippyDrawable) {
-        if (hippyDrawable == null) {
+    private void shouldReplaceDrawable(ImageDataHolder supplier) {
+        if (supplier == null) {
             mImageLoadState = STATE_UNLOAD;
             return;
         }
-        Bitmap bitmap = hippyDrawable.getBitmap();
+        Bitmap bitmap = supplier.getBitmap();
         if (bitmap != null) {
-            BitmapDrawable drawable = new BitmapDrawable(bitmap);
+            Resources resources = ContextHolder.getAppContext().getResources();
+            BitmapDrawable drawable = new BitmapDrawable(resources, bitmap);
             int w = (mWidth == 0) ? drawable.getIntrinsicWidth() : mWidth;
             int h = (mHeight == 0) ? drawable.getIntrinsicHeight() : mHeight;
             drawable.setBounds(0, 0, w, h);
             try {
-                Field mDrawableField;
-                Field mDrawableRefField;
                 //noinspection JavaReflectionMemberAccess
-                mDrawableField = ImageSpan.class.getDeclaredField("mDrawable");
-                mDrawableField.setAccessible(true);
-                mDrawableField.set(TextImageSpan.this, drawable);
+                final Field drawableField = ImageSpan.class.getDeclaredField("mDrawable");
+                drawableField.setAccessible(true);
+                drawableField.set(TextImageSpan.this, drawable);
                 //noinspection JavaReflectionMemberAccess
-                mDrawableRefField = DynamicDrawableSpan.class.getDeclaredField("mDrawableRef");
-                mDrawableRefField.setAccessible(true);
-                mDrawableRefField.set(TextImageSpan.this, null);
+                final Field drawableRefField = DynamicDrawableSpan.class
+                        .getDeclaredField("mDrawableRef");
+                drawableRefField.setAccessible(true);
+                drawableRefField.set(TextImageSpan.this, null);
             } catch (IllegalAccessException | NoSuchFieldException ignored) {
                 // Reflective access likely to remove in future Android releases
             }
             mImageLoadState = STATE_LOADED;
-        } else if (hippyDrawable.isAnimated()) {
-            mGifMovie = hippyDrawable.getGIF();
+        } else if (supplier.isAnimated()) {
+            mGifMovie = supplier.getGIF();
             mImageLoadState = STATE_LOADED;
         } else {
             mImageLoadState = STATE_UNLOAD;
@@ -260,34 +268,36 @@ public class TextImageSpan extends ImageSpan {
         postInvalidateDelayed(0);
     }
 
-    private void handleFetchImageResult(@Nullable final HippyDrawable hippyDrawable) {
+    private void handleFetchImageResult(@Nullable final ImageDataSupplier supplier) {
         String eventName;
-        if (hippyDrawable == null) {
+        if (supplier == null) {
             mImageLoadState = STATE_UNLOAD;
             eventName = EVENT_IMAGE_LOAD_ERROR;
         } else {
-            shouldReplaceDrawable(hippyDrawable);
+            if (supplier instanceof ImageDataHolder) {
+                shouldReplaceDrawable((ImageDataHolder) supplier);
+            }
             eventName = EVENT_IMAGE_ON_LOAD;
         }
         EventUtils.send(mId, mNativeRenderer, eventName, null);
     }
 
-    private void doFetchImage(String url, HippyMap props, IImageLoaderAdapter imageAdapter) {
+    private void doFetchImage(String url, HippyMap props, ImageLoaderAdapter adapter) {
         mImageLoadState = STATE_LOADING;
-        imageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
+        adapter.fetchImage(url, new ImageRequestListener() {
             @Override
-            public void onRequestStart(HippyDrawable hippyDrawable) {
+            public void onRequestStart(ImageDataSupplier supplier) {
             }
 
             @Override
-            public void onRequestSuccess(final HippyDrawable hippyDrawable) {
+            public void onRequestSuccess(final ImageDataSupplier supplier) {
                 if (UIThreadUtils.isOnUiThread()) {
-                    handleFetchImageResult(hippyDrawable);
+                    handleFetchImageResult(supplier);
                 } else {
                     UIThreadUtils.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            handleFetchImageResult(hippyDrawable);
+                            handleFetchImageResult(supplier);
                         }
                     });
                 }

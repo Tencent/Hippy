@@ -71,7 +71,7 @@ void CallFunction(JNIEnv* j_env,
                   std::shared_ptr<JavaRef> buffer_owner) {
   unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
-  V8BridgeUtils::CallJs(action_name, hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id),
+  V8BridgeUtils::CallJs(action_name, hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
                         [cb](CALLFUNCTION_CB_STATE state, const unicode_string_view& msg) {
                   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
                   jstring j_msg = JniUtils::StrViewToJString(j_env, msg);
@@ -105,7 +105,8 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
   char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
   TDF_BASE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
-               bytes(buffer_address + j_offset, j_length),
+               bytes(buffer_address + j_offset,
+                     hippy::base::checked_numeric_cast<jint, unsigned long>(j_length)),
                std::make_shared<JavaRef>(j_env, j_buffer));
 }
 

@@ -28,11 +28,11 @@ import androidx.annotation.Nullable;
 import com.tencent.link_supplier.LinkHelper;
 import com.tencent.link_supplier.Linker;
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
+import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
-import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
@@ -305,7 +305,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public Object getImageLoaderAdapter() {
+    public ImageLoaderAdapter getImageLoaderAdapter() {
         return mEngineContext.getGlobalConfigs().getImageLoaderAdapter();
     }
 
@@ -802,32 +802,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (mLinkHelper != null) {
                 mLinkHelper.updateAnimationNode(buffer, offset, length);
             }
-        }
-
-        @Override
-        public DomManager getDomManager() {
-            if (mLinkHelper.getRenderer() instanceof NativeRenderProxy) {
-                Object domManagerObj = ((NativeRenderProxy) mLinkHelper.getRenderer())
-                        .getDomManagerObject();
-                if (domManagerObj instanceof DomManager) {
-                    return (DomManager) domManagerObj;
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        public RenderManager getRenderManager() {
-            if (mLinkHelper.getRenderer() instanceof NativeRenderProxy) {
-                Object renderManagerObj = ((NativeRenderProxy) mLinkHelper.getRenderer())
-                        .getRenderManagerObject();
-                if (renderManagerObj instanceof RenderManager) {
-                    return (RenderManager) renderManagerObj;
-                }
-            }
-
-            return null;
         }
 
         public void setComponentName(String componentName) {

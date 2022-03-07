@@ -333,7 +333,7 @@ double DomValue::ToDouble() const {
   if (number_type_ == DomValue::NumberType::kDouble) return num_.d_;
   if (number_type_ == DomValue::NumberType::kInt32) return num_.i32_;
   if (number_type_ == DomValue::NumberType::kUInt32) return num_.u32_;
-  TDF_BASE_NOTREACHED();
+  TDF_BASE_UNREACHABLE();
 }
 
 bool DomValue::ToBoolean() const {

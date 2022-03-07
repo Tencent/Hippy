@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.link_supplier.proxy.framework;
 
 import androidx.annotation.Nullable;
 
 public interface FrameworkProxy {
+
+    @Nullable
+    ImageLoaderAdapter getImageLoaderAdapter();
 
     @Nullable
     FontAdapter getFontAdapter();

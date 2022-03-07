@@ -30,6 +30,7 @@ import com.tencent.renderer.serialization.Serializer;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of render provider, communicate with native (C++) render manager, deserialize and
@@ -39,12 +40,17 @@ import java.util.ArrayList;
  */
 public class NativeRenderProvider {
 
+    @NonNull
     private final NativeRenderDelegate mRenderDelegate;
+    @NonNull
     private final Deserializer mDeserializer;
+    @NonNull
     private final Serializer mSerializer;
-    private final int mInstanceId;
+    @Nullable
     private BinaryReader mSafeHeapReader;
+    @Nullable
     private SafeHeapWriter mSafeHeapWriter;
+    private final int mInstanceId;
 
     public NativeRenderProvider(@NonNull NativeRenderDelegate renderDelegate) {
         mRenderDelegate = renderDelegate;
@@ -69,8 +75,9 @@ public class NativeRenderProvider {
      * @param buffer the byte array from native (C++) DOM wrapped by {@link ByteBuffer}
      * @return the result {@link ArrayList} of deserialize
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @NonNull
-    private ArrayList<Object> bytesToArgument(ByteBuffer buffer) {
+    private List<Object> bytesToArgument(ByteBuffer buffer) {
         final BinaryReader binaryReader;
         if (mSafeHeapReader == null) {
             mSafeHeapReader = new SafeHeapReader();
@@ -115,7 +122,7 @@ public class NativeRenderProvider {
     @SuppressWarnings("unused")
     private void createNode(byte[] buffer) {
         try {
-            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.createNode(list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
@@ -131,7 +138,7 @@ public class NativeRenderProvider {
     @SuppressWarnings("unused")
     private void updateNode(byte[] buffer) {
         try {
-            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateNode(list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
@@ -158,7 +165,7 @@ public class NativeRenderProvider {
      *
      * @param ids the node id array list
      * @param newPid the new parent node id
-     * @param newPid the old parent node id
+     * @param oldPid the old parent node id
      */
     @CalledByNative
     @SuppressWarnings("unused")
@@ -179,7 +186,7 @@ public class NativeRenderProvider {
     @SuppressWarnings("unused")
     private void updateLayout(byte[] buffer) {
         try {
-            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateLayout(list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
@@ -195,7 +202,7 @@ public class NativeRenderProvider {
     @SuppressWarnings("unused")
     private void updateEventListener(byte[] buffer) {
         try {
-            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateEventListener(list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
@@ -246,7 +253,7 @@ public class NativeRenderProvider {
     @SuppressWarnings("unused")
     private void callUIFunction(int id, long callbackId, String functionName, byte[] buffer) {
         try {
-            final ArrayList<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.callUIFunction(id, callbackId, functionName, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
@@ -267,9 +274,23 @@ public class NativeRenderProvider {
     }
 
     public void onSizeChanged(int width, int height) {
-        onRootSizeChanged(mInstanceId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
+        updateRootSize(mInstanceId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
+    public void onSizeChanged(int nodeId, int width, int height) {
+        updateNodeSize(nodeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
+    }
+
+    /**
+     * After handle call ui function, return the result to js through promise.
+     *
+     * @param result resolve {@link UIPromise#PROMISE_CODE_RESOLVE}
+     *               reject {@link UIPromise#PROMISE_CODE_REJECT}
+     * @param callbackId call back id of js function
+     * @param functionName call back function name
+     * @param nodeId the dom node id
+     * @param params parameters to be return to js
+     */
     public void doPromiseCallBack(int result, long callbackId, @NonNull String functionName,
             int nodeId, @Nullable Object params) {
         byte[] bytes = null;
@@ -331,10 +352,20 @@ public class NativeRenderProvider {
      * switching, call this jni interface to invoke dom tree relayout.
      *
      * @param instanceId the unique id of native (C++) render manager
-     * @param width root view new width use dp unit
-     * @param height root view new height use dp unit
+     * @param width new width of root view, use dp unit
+     * @param height new height of root view, use dp unit
      */
-    private native void onRootSizeChanged(int instanceId, float width, float height);
+    private native void updateRootSize(int instanceId, float width, float height);
+
+    /**
+     * Updates the size to the specified node, such as modal node, should set new window size before
+     * layout.
+     *
+     * @param nodeId the dom node id
+     * @param width new width of node, use dp unit
+     * @param height new height of node, use dp unit
+     */
+    private native void updateNodeSize(int nodeId, float width, float height);
 
     /**
      * Dispatch event generated by native renderer to (C++) dom manager.

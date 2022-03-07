@@ -788,7 +788,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     if (!_valid) {
         return;
     }
-    _domManager->TerminateTaskRunner();
+    if (_domManager) {
+        _domManager->TerminateTaskRunner();
+    }
     HippyAssertMainQueue();
     HippyAssert(_javaScriptExecutor != nil, @"Can't complete invalidation without a JS executor");
 
@@ -1140,12 +1142,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     //    }
     NSArray<HippyModuleData *> *moduleDataByID = [_moduleDataByID copy];
     if (moduleID >= [moduleDataByID count]) {
-        HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
+        if (_valid) {
+            HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
+        }
         return nil;
     }
     HippyModuleData *moduleData = moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {
-        HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
+        if (_valid) {
+            HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
+        }
         return nil;
     }
     // not for UI Actions if NO==_valid
@@ -1155,12 +1161,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         }
     }
     if (methodID >= [moduleData.methods count]) {
-        HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [moduleData.methods count], (long)_valid);
+        if (_valid) {
+            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [moduleData.methods count], (long)_valid);
+        }
         return nil;
     }
     id<HippyBridgeMethod> method = moduleData.methods[methodID];
     if (HIPPY_DEBUG && !method) {
-        HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
+        if (_valid) {
+            HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
+        }
         return nil;
     }
 

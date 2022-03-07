@@ -47,17 +47,17 @@ class HPNode {
   void initLayoutResult();
   bool reset();
   void printNode(uint32_t indent = 0);
-  HPStyle getStyle();
+  HPStyle getStyle() const;
   void setStyle(const HPStyle &st);
   bool setMeasureFunc(HPMeasureFunc _measure);
   void setParent(HPNodeRef _parent);
-  HPNodeRef getParent();
+  HPNodeRef getParent() const;
   void addChild(HPNodeRef item);
   bool insertChild(HPNodeRef item, uint32_t index);
   HPNodeRef getChild(uint32_t index);
   bool removeChild(HPNodeRef child);
   bool removeChild(uint32_t index);
-  uint32_t childCount();
+  uint32_t childCount() const;
 
   void setDisplayType(DisplayType displayType);
   void setHasNewLayout(bool hasNewLayoutOrNot);
@@ -109,7 +109,7 @@ class HPNode {
   HPDirection getLayoutDirection();
   FlexAlign getNodeAlign(HPNodeRef item);
   void SetConfig(HPConfigRef config);
-  HPConfigRef GetConfig();
+  HPConfigRef GetConfig() const;
 
  protected:
   HPDirection resolveDirection(HPDirection parentDirection);
@@ -147,16 +147,16 @@ class HPNode {
 
  public:
   HPStyle style;
-  HPLayout result;
+  HPLayout result{};
 
   void *context;
   std::vector<HPNodeRef> children;
   HPNodeRef parent;
   HPMeasureFunc measure;
 
-  bool isFrozen;
-  bool isDirty;
-  bool _hasNewLayout;
+  bool isFrozen{};
+  bool isDirty{};
+  bool _hasNewLayout{};
   HPDirtiedFunc dirtiedFunc;
 
   // cache layout or measure positions, used if conditions are met

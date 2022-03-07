@@ -20,9 +20,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInput;
+import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +57,7 @@ public class NativeRenderException extends RuntimeException {
         /**
          * If the data object type not support by Serializer
          *
-         * @see com.tencent.renderer.serialization.Serializer#writeValue(Object) 
+         * @see com.tencent.renderer.serialization.Serializer#writeValue(Object)
          */
         SERIALIZER_NOT_SUPPORTED_ERR,
 
@@ -97,6 +98,20 @@ public class NativeRenderException extends RuntimeException {
          *         List)
          */
         HANDLE_CALL_UI_FUNCTION_ERR,
+
+        /**
+         * If fail to add child view to parent
+         *
+         * @see com.tencent.mtt.hippy.uimanager.ControllerManager#addChild(int, int, int)
+         */
+        ADD_CHILD_VIEW_FAILED_ERR,
+
+        /**
+         * If fail to update props of view, such as unknown type or convert failed
+         *
+         * @see com.tencent.renderer.utils.PropertyUtils#convertProperty(Type, Object)
+         */
+        UPDATE_VIEW_PROPS_ERR,
     }
 
     public ExceptionCode mCode;

@@ -31,8 +31,6 @@ public interface JSFrameworkProxy extends FrameworkProxy {
     void updateDimension(boolean shouldRevise, Map<String, Object> dimension,
             boolean shouldUseScreenDisplay, boolean systemUiVisibilityChanged);
 
-    Object getImageLoaderAdapter();
-
     Object getCustomViewCreator();
 
     String getBundlePath();

@@ -25,12 +25,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <vector>
-
-#include "base/logging.h"
 
 namespace hippy::base {
 
@@ -42,9 +37,13 @@ bool HippyFile::SaveFile(const unicode_string_view& file_path,
   const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
   std::ofstream file(path, mode);
   if (file.is_open()) {
-    file.write(content.c_str(), content.length());
+    std::streamsize len;
+    bool is_success = numeric_cast<size_t, std::streamsize>(content.length(), len);
+    if (is_success) {
+      file.write(content.c_str(), len);
+    }
     file.close();
-    return true;
+    return is_success;
   } else {
     return false;
   }
@@ -122,7 +121,7 @@ uint64_t HippyFile::GetFileModifytime(const unicode_string_view& file_path) {
   if (fstat(fd, &statInfo)) {
     return 0;
   }
-  uint64_t modify_time = statInfo.st_mtime;
+  uint64_t modify_time = checked_numeric_cast<time_t, uint64_t>(statInfo.st_mtime);
   TDF_BASE_DLOG(INFO) << "modify_time = " << modify_time;
   fclose(fp);
   return modify_time;

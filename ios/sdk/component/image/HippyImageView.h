@@ -78,7 +78,7 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 
 - (void)updateImage:(UIImage *)image;
 
-- (UIImage *)imageFromData:(NSData *)data;
+- (void)setImageProvider:(id<HippyImageProviderProtocol>)imageProvider;
 
 - (void)clearImageIfDetached;
 

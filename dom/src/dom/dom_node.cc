@@ -6,6 +6,7 @@
 #include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
+#include "dom/diff_utils.h"
 
 namespace hippy {
 inline namespace dom {
@@ -53,9 +54,9 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
 DomNode::~DomNode() = default;
 
 int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
-  for (int i = 0; i < children_.size(); i++) {
+  for (size_t i = 0; i < children_.size(); i++) {
     if (children_[i] == child) {
-      return i;
+      return hippy::base::checked_numeric_cast<size_t, int32_t>(i);
     }
   }
   return kInvalidIndex;
@@ -89,7 +90,7 @@ void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
-  auto child = children_[index];
+  auto child = children_[hippy::base::checked_numeric_cast<int32_t, unsigned long>(index)];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
   return child;
@@ -321,6 +322,21 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
   if (dom_manager) {
     dom_manager->PostTask([WEAK_THIS, update_style, update_dom_ext]() {
       DEFINE_AND_CHECK_SELF(DomNode)
+
+      // udpate diff
+      auto style_diff_value = DiffUtils::DiffProps(update_style, *self->GetStyleMap());
+      auto ext_diff_value = DiffUtils::DiffProps(update_style, *self->GetStyleMap());
+      auto style_update = std::get<0>(style_diff_value);
+      auto ext_update = std::get<0>(ext_diff_value);
+      std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
+      if (style_update) {
+        diff_value->insert(style_update->begin(), style_update->end());
+      }
+      if (ext_update) {
+        diff_value->insert(ext_update->begin(), ext_update->end());
+      }
+      self->SetDiffStyle(diff_value);
+
       for (const auto& v : update_style) {
         if (self->style_map_ == nullptr) {
           self->style_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();

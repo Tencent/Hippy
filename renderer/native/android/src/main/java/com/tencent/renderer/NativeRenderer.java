@@ -21,6 +21,8 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_N
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_UNAVAILABLE_ERR;
 
 import android.content.Context;
+import android.text.Layout;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
@@ -29,18 +31,22 @@ import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
+import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
-import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
-import com.tencent.mtt.hippy.dom.flex.FlexOutput;
+import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.renderer.component.text.TextRenderSupply;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
+import com.tencent.renderer.component.text.TextRenderSupplier;
+import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
 
+import com.tencent.renderer.utils.DisplayUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -48,9 +54,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.supportui.adapters.image.IImageLoaderAdapter;
+import com.tencent.renderer.utils.FlexUtils;
+import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 
 public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
 
@@ -67,14 +73,20 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
     private static final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
     private int mRootId;
-    private RenderManager mRenderManager;
-    private VirtualNodeManager mVirtualNodeManager;
-    private DomManager domManager;
+    @Nullable
     private HippyRootView mRootView;
+    @Nullable
     private FrameworkProxy mFrameworkProxy;
-    private final NativeRenderProvider mRenderProvider;
-    private final BlockingQueue<UITaskExecutor> mUITaskQueue;
+    @Nullable
     private List<HippyInstanceLifecycleEventListener> mInstanceLifecycleEventListeners;
+    @NonNull
+    private final NativeRenderProvider mRenderProvider;
+    @NonNull
+    private final BlockingQueue<UITaskExecutor> mUITaskQueue;
+    @NonNull
+    private final RenderManager mRenderManager;
+    @NonNull
+    private final VirtualNodeManager mVirtualNodeManager;
 
     public NativeRenderer() {
         mRenderProvider = new NativeRenderProvider(this);
@@ -82,13 +94,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
         // node operation cause OOM.
         mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
+        mRenderManager = new RenderManager(this);
+        mVirtualNodeManager = new VirtualNodeManager(this);
     }
 
     @Override
     public void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView) {
-        mRenderManager = new RenderManager(this, controllers);
-        mVirtualNodeManager = new VirtualNodeManager(this);
-        domManager = new DomManager(this);
+        mRenderManager.init(controllers);
         if (rootView instanceof HippyRootView) {
             mRenderManager.createRootNode(mRootId);
             mRenderManager.addRootView(rootView);
@@ -129,12 +141,10 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public IImageLoaderAdapter getImageLoaderAdapter() {
-        if (checkJSFrameworkProxy()) {
-            Object adapterObj = ((JSFrameworkProxy) mFrameworkProxy).getImageLoaderAdapter();
-            if (adapterObj instanceof IImageLoaderAdapter) {
-                return (IImageLoaderAdapter) adapterObj;
-            }
+    @Nullable
+    public ImageLoaderAdapter getImageLoaderAdapter() {
+        if (mFrameworkProxy != null) {
+            return mFrameworkProxy.getImageLoaderAdapter();
         }
         return null;
     }
@@ -179,9 +189,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void destroy() {
         mRenderProvider.destroy();
-        if (mRenderManager != null) {
-            mRenderManager.destroy();
-        }
+        mRenderManager.destroy();
         if (mInstanceLifecycleEventListeners != null) {
             mInstanceLifecycleEventListeners.clear();
         }
@@ -200,25 +208,11 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
         return mRootView;
     }
-
-    @Override
-    public Object getDomManagerObject() {
-        return getDomManager();
-    }
-
-    @Override
-    public Object getRenderManagerObject() {
-        return getRenderManager();
-    }
-
+    
+    @NonNull
     @Override
     public RenderManager getRenderManager() {
         return mRenderManager;
-    }
-
-    @Override
-    public DomManager getDomManager() {
-        return domManager;
     }
 
     @Override
@@ -235,11 +229,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
 
     @Override
     public void onSizeChanged(int w, int h, int oldw, int oldh) {
-        if (mRenderProvider != null) {
-            LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
-                    + oldw + ", oldh=" + oldh);
-            mRenderProvider.onSizeChanged(w, h);
-        }
+        LogUtils.d(TAG, "onSizeChanged: w=" + w + ", h=" + h + ", oldw="
+                + oldw + ", oldh=" + oldh);
+        mRenderProvider.onSizeChanged(w, h);
     }
 
     @Override
@@ -265,11 +257,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
      */
     @Override
     public void dispatchUIComponentEvent(int id, String eventName, @Nullable Object params) {
-        if (mRenderProvider != null) {
-            // UI component event default disable capture and bubble phase,
-            // can not enable both in native and js.
-            mRenderProvider.dispatchEvent(id, eventName, params, false, false);
-        }
+        // UI component event default disable capture and bubble phase,
+        // can not enable both in native and js.
+        mRenderProvider.dispatchEvent(id, eventName, params, false, false);
     }
 
     /**
@@ -282,11 +272,9 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
      */
     @Override
     public void dispatchNativeGestureEvent(int id, String eventName, @Nullable Object params) {
-        if (mRenderProvider != null) {
-            // Gesture event default enable capture and bubble phase, can not disable in native,
-            // but can stop propagation in js.
-            mRenderProvider.dispatchEvent(id, eventName, params, true, true);
-        }
+        // Gesture event default enable capture and bubble phase, can not disable in native,
+        // but can stop propagation in js.
+        mRenderProvider.dispatchEvent(id, eventName, params, true, true);
     }
 
     /**
@@ -302,9 +290,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @SuppressWarnings("unused")
     public void dispatchCustomEvent(int id, String eventName, @Nullable Object params,
             boolean useCapture, boolean useBubble) {
-        if (mRenderProvider != null) {
-            mRenderProvider.dispatchEvent(id, eventName, params, useCapture, useBubble);
-        }
+        mRenderProvider.dispatchEvent(id, eventName, params, useCapture, useBubble);
     }
 
     @Override
@@ -349,6 +335,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void createNode(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
@@ -357,7 +344,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": createNode: invalid node object");
             }
-            Map<String, Object> node = (Map) element;
+            Map node = (Map) element;
             int nodeId;
             int nodePid;
             int nodeIndex;
@@ -381,7 +368,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
             // Props may reset by framework modules, such as js AnimationModule,
             // key={animationId=xxx} => key=value
-            onCreateNode(nodeId, props);
+            onCreateNode(nodeId, className, props);
             mVirtualNodeManager.createNode(nodeId, nodePid, nodeIndex, className, props);
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
                 // If the node has a virtual parent, no need to create corresponding render node,
@@ -403,6 +390,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         executeUITask();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void updateNode(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
@@ -487,6 +475,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         executeUITask();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void updateLayout(@NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
@@ -529,13 +518,13 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             final int top = Math.round(layoutTop);
             final int width = Math.round(layoutWidth);
             final int height = Math.round(layoutHeight);
-            final TextRenderSupply supply = mVirtualNodeManager
+            final TextRenderSupplier supplier = mVirtualNodeManager
                     .updateLayout(nodeId, layoutWidth, layoutInfo);
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
-                    if (supply != null) {
-                        mRenderManager.updateExtra(id, supply);
+                    if (supplier != null) {
+                        mRenderManager.updateExtra(id, supplier);
                     }
                     mRenderManager.updateLayout(id, left, top, width, height);
                 }
@@ -545,6 +534,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         executeUITask();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void updateEventListener(@NonNull List<Object> eventList)
             throws NativeRenderException {
@@ -593,7 +583,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
             return;
         }
         final UIPromise promise = new UIPromise(callbackId, null, id,
-                        mRenderProvider.getInstanceId());
+                mRenderProvider.getInstanceId());
         UITaskExecutor task = new UITaskExecutor() {
             @Override
             public void exec() {
@@ -612,7 +602,7 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         } catch (NativeRenderException e) {
             handleRenderException(e);
         }
-        return FlexOutput.make(width, height);
+        return FlexUtils.makeSizeToLong(width, height);
     }
 
     @Override
@@ -641,14 +631,25 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     @Override
     public void doPromiseCallBack(int result, long callbackId, @NonNull String functionName,
             int nodeId, @Nullable Object params) {
-        if (mRenderProvider != null) {
-            mRenderProvider.doPromiseCallBack(result, callbackId, functionName, nodeId, params);
-        }
+        mRenderProvider.doPromiseCallBack(result, callbackId, functionName, nodeId, params);
     }
 
     @Override
     public void endBatch() throws NativeRenderException {
-        onEndBatch();
+        Map<Integer, Layout> layoutToUpdate = mVirtualNodeManager.endBatch();
+        if (layoutToUpdate != null) {
+            for (Entry<Integer, Layout> entry : layoutToUpdate.entrySet()) {
+                final int id = entry.getKey();
+                final Layout layout = entry.getValue();
+                UITaskExecutor task = new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.updateExtra(id, layout);
+                    }
+                };
+                addUITask(task);
+            }
+        }
         UITaskExecutor task = new UITaskExecutor() {
             @Override
             public void exec() {
@@ -657,9 +658,24 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         };
         addUITask(task);
         executeUITask();
+        onEndBatch();
     }
 
-    private void onCreateNode(int nodeId, @NonNull final Map<String, Object> props) {
+    @Override
+    @Nullable
+    public VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+            @Nullable Map<String, Object> props) {
+        return mRenderManager.createVirtualNode(id, pid, index, className, props);
+    }
+
+    private void onCreateNode(int nodeId, @NonNull String className,
+            @NonNull final Map<String, Object> props) {
+        // If this node is a modal type, should update node size with window width and height
+        // before layout.
+        if (className.equals(HippyModalHostManager.CLASS_NAME)) {
+            DisplayMetrics metrics = DisplayUtils.getMetrics(ContextHolder.getAppContext(), false);
+            mRenderProvider.onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels);
+        }
         if (checkJSFrameworkProxy()) {
             ((JSFrameworkProxy) mFrameworkProxy).onCreateNode(nodeId, props);
         }

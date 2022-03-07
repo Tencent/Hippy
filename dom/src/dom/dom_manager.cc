@@ -34,7 +34,7 @@ DomManager::DomManager(uint32_t root_id) : root_id_(root_id) {
 void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
   std::lock_guard<std::mutex> lock(mutex);
   dom_manager_map[dom_manager->id_] = dom_manager;
-};
+}
 
 std::shared_ptr<DomManager> DomManager::Find(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
@@ -43,7 +43,7 @@ std::shared_ptr<DomManager> DomManager::Find(int32_t id) {
     return nullptr;
   }
   return it->second;
-};
+}
 
 bool DomManager::Erase(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
@@ -53,7 +53,7 @@ bool DomManager::Erase(int32_t id) {
   }
   dom_manager_map.erase(it);
   return true;
-};
+}
 
 bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
@@ -61,7 +61,8 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes = std::move(nodes)]() {
     DEFINE_AND_CHECK_SELF(DomManager)
     for (const auto& node : nodes) {
-      std::shared_ptr<DomNode> parent_node = self->dom_node_registry_.GetNode(node->GetPid());
+      std::shared_ptr<DomNode> parent_node = self->dom_node_registry_.GetNode(
+          hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetPid()));
       if (parent_node == nullptr) {
         // it = nodes.erase(it);
         continue;
@@ -74,7 +75,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       // 延迟构造layout tree
       auto layout_node = node->GetLayoutNode();
       auto parent_layout_node = parent_node->GetLayoutNode();
-      uint32_t index = node->GetIndex();
+      uint32_t index = hippy::base::checked_numeric_cast<int32_t, uint32_t>(node->GetIndex());
       self->layout_operations_.emplace_back(
           [layout_node, parent_layout_node, index]() { parent_layout_node->InsertChild(layout_node, index); });
 
@@ -83,7 +84,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     }
 
     if (!nodes.empty()) {
-      self->batched_operations_.emplace_back([self, moved_nodes = std::move(nodes)]() mutable {
+      self->batched_operations_.emplace_back([self, moved_nodes = nodes]() mutable {
         auto render_manager = self->render_manager_.lock();
         TDF_BASE_DCHECK(render_manager);
         if (render_manager) {
@@ -98,7 +99,8 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes]() {
     DEFINE_AND_CHECK_SELF(DomManager)
     for (const auto& it : nodes) {
-      std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode(it->GetId());
+      std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode(
+          hippy::base::checked_numeric_cast<uint32_t , int32_t>(it->GetId()));
       if (node == nullptr) {
         continue;
       }
@@ -134,7 +136,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       self->HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, nullptr));
 
       // 延迟更新 layout tree
-      int32_t id = node->GetId();
+      int32_t id = hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetId());
       self->layout_operations_.emplace_back([self, id]() {
         auto node = self->dom_node_registry_.GetNode(id);
         node->ParseLayoutStyleInfo();
@@ -142,7 +144,7 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     }
 
     if (!nodes.empty()) {
-      self->batched_operations_.emplace_back([self, moved_nodes = std::move(nodes)]() mutable {
+      self->batched_operations_.emplace_back([self, moved_nodes = nodes]() mutable {
         auto render_manager = self->render_manager_.lock();
         TDF_BASE_DCHECK(render_manager);
         if (render_manager) {
@@ -156,8 +158,9 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes] {
     DEFINE_AND_CHECK_SELF(DomManager)
-    for (auto it = nodes.begin(); it != nodes.end(); it++) {
-      std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode((*it)->GetId());
+    for (const auto & it : nodes) {
+      std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode(
+          hippy::base::checked_numeric_cast<uint32_t, int32_t>(it->GetId()));
       if (node == nullptr) {
         continue;
       }
@@ -176,7 +179,7 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     }
 
     if (!nodes.empty()) {
-      self->batched_operations_.emplace_back([self, moved_nodes = std::move(nodes)]() mutable {
+      self->batched_operations_.emplace_back([self, moved_nodes = nodes]() mutable {
         auto render_manager = self->render_manager_.lock();
         TDF_BASE_DCHECK(render_manager);
         if (render_manager) {
@@ -187,51 +190,25 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   });
 }
 
-void DomManager::DeleteDomNode(std::shared_ptr<DomNode> node) {
+void DomManager::DeleteDomNode(const std::shared_ptr<DomNode>& node) {
   if (node) {
-    for (auto child : node->GetChildren()) {
+    for (const auto& child : node->GetChildren()) {
       if (child) {
         DeleteDomNode(child);
       }
     }
-    dom_node_registry_.RemoveNode(node->GetId());
+    dom_node_registry_.RemoveNode(
+        hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetId()));
   }
 }
 
 void DomManager::EndBatch() {
   PostTask([WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(DomManager)
-    std::vector<std::shared_ptr<DomNode>> delete_nodes;
-    for (auto& batch_operation : self->batched_operations_) {
-      batch_operation();
-    }
-    self->batched_operations_.clear();
-    for (auto& listener_operation : self->listener_operations_) {
-      listener_operation();
-    }
-    self->listener_operations_.clear();
-    auto render_manager = self->render_manager_.lock();
-    TDF_BASE_DCHECK(render_manager);
-    if (!render_manager) {
-      return;
-    }
-    // Before Layout
-    render_manager->BeforeLayout();
-    // build layout tree
-    for (auto& layout_operation : self->layout_operations_) {
-      layout_operation();
-    }
-    self->layout_operations_.clear();
-    // 清理布局计算
-    self->layout_changed_nodes_.clear();
-    // 触发布局计算
-    self->root_node_->DoLayout();
-    // After Layout
-    render_manager->AfterLayout();
-    if (!self->layout_changed_nodes_.empty()) {
-      render_manager->UpdateLayout(self->layout_changed_nodes_);
-    }
-    render_manager->EndBatch();
+    self->NotifyBuildRenderTree();
+    self->BindEvent();
+    self->Layout();
+    self->NotifyRender();
   });
 }
 
@@ -239,7 +216,8 @@ void DomManager::AddEventListener(uint32_t id, const std::string& name, bool use
                                   const CallFunctionCallback& callback) {
   PostTask([WEAK_THIS, id, name, use_capture, cb, callback]() {
     DEFINE_AND_CHECK_SELF(DomManager)
-    auto node = self->dom_node_registry_.GetNode(id);
+    auto node = self->dom_node_registry_.GetNode(
+        hippy::base::checked_numeric_cast<uint32_t, int32_t>(id));
     if (!node && callback) {
       callback(std::make_shared<DomArgument>(DomValue(kInvalidListenerId)));
       return;
@@ -251,7 +229,8 @@ void DomManager::AddEventListener(uint32_t id, const std::string& name, bool use
 void DomManager::RemoveEventListener(uint32_t id, const std::string& name, uint32_t listener_id) {
   PostTask([WEAK_THIS, id, name, listener_id]() {
     DEFINE_AND_CHECK_SELF(DomManager)
-    auto node = self->dom_node_registry_.GetNode(id);
+    auto node = self->dom_node_registry_.GetNode(
+        hippy::base::checked_numeric_cast<uint32_t, int32_t>(id));
     if (!node) {
       return;
     }
@@ -263,7 +242,8 @@ void DomManager::CallFunction(uint32_t id, const std::string& name, const DomArg
                               const CallFunctionCallback& cb) {
   PostTask([WEAK_THIS, id, name, param, cb]() {
     DEFINE_AND_CHECK_SELF(DomManager)
-    auto node = self->dom_node_registry_.GetNode(id);
+    auto node = self->dom_node_registry_.GetNode(
+        hippy::base::checked_numeric_cast<uint32_t, int32_t>(id));
     if (node == nullptr) {
       return;
     }
@@ -311,7 +291,8 @@ void DomManager::SetRootNode(const std::shared_ptr<DomNode>& root_node) {
     DEFINE_AND_CHECK_SELF(DomManager)
     if (root_node) {
       if (self->root_node_) {
-        self->dom_node_registry_.RemoveNode(self->root_node_->GetId());
+        self->dom_node_registry_.RemoveNode(
+            hippy::base::checked_numeric_cast<uint32_t, int32_t>(self->root_node_->GetId()));
       }
       self->root_node_ = root_node;
       self->dom_node_registry_.AddNode(root_node);
@@ -322,27 +303,22 @@ void DomManager::SetRootNode(const std::shared_ptr<DomNode>& root_node) {
 void DomManager::DoLayout() {
   PostTask([WEAK_THIS]() {
     DEFINE_AND_CHECK_SELF(DomManager)
-    self->layout_changed_nodes_.clear();
-    auto render_manager = self->render_manager_.lock();
-    TDF_BASE_DCHECK(render_manager);
-    if (!render_manager) {
-      return;
-    }
-    // Before Layout
-    render_manager->BeforeLayout();
-    // build layout tree
-    for (auto& layout_operation : self->layout_operations_) {
-      layout_operation();
-    }
-    self->layout_operations_.clear();
+    self->Layout();
+  });
+}
 
-    // 触发布局计算
-    self->root_node_->DoLayout();
-    // After Layout
-    render_manager->AfterLayout();
-    if (!self->layout_changed_nodes_.empty()) {
-      render_manager->UpdateLayout(self->layout_changed_nodes_);
-    }
+void DomManager::DoLayout(std::function<void()> func) {
+  PostTask([WEAK_THIS, func]() {
+    DEFINE_AND_CHECK_SELF(DomManager)
+    self->Layout();
+    if(func) func();
+  });
+}
+
+void DomManager::DoNotifyRender() {
+  PostTask([WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(DomManager)
+    self->NotifyRender();
   });
 }
 
@@ -447,7 +423,6 @@ void DomManager::PostTask(std::function<void()> func) {
 }
 
 void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
-  layout_changed_nodes_.clear();
   auto render_manager = render_manager_.lock();
   TDF_BASE_DCHECK(render_manager);
   if (!render_manager) {
@@ -458,7 +433,31 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   std::vector<std::shared_ptr<DomNode>> nodes;
   nodes.push_back(node);
   render_manager->UpdateRenderNode(std::move(nodes));
+  Layout();
+  NotifyRender();
+}
 
+void DomManager::NotifyBuildRenderTree() {
+  for (auto& batch_operation : batched_operations_) {
+    batch_operation();
+  }
+  batched_operations_.clear();
+}
+
+void DomManager::BindEvent() {
+  for (auto& listener_operation : listener_operations_) {
+    listener_operation();
+  }
+  listener_operations_.clear();
+}
+
+void DomManager::Layout() {
+  auto render_manager = render_manager_.lock();
+  // check render_manager, measure text dependent render_manager
+  TDF_BASE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
   // Before Layout
   render_manager->BeforeLayout();
   // build layout tree
@@ -466,15 +465,23 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
     layout_operation();
   }
   layout_operations_.clear();
-
+  // 清理布局计算
+  layout_changed_nodes_.clear();
   // 触发布局计算
   root_node_->DoLayout();
   // After Layout
   render_manager->AfterLayout();
+}
+
+void DomManager::NotifyRender() {
+  auto render_manager = render_manager_.lock();
+  TDF_BASE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
   if (!layout_changed_nodes_.empty()) {
     render_manager->UpdateLayout(layout_changed_nodes_);
   }
-
   render_manager->EndBatch();
 }
 

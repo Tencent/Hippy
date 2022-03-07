@@ -72,7 +72,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     }
 
     @Override
-    public void onBatchComplete(HRW view) {
+    public void onBatchComplete(@NonNull HRW view) {
         super.onBatchComplete(view);
         view.setListData();
     }

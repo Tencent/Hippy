@@ -33,7 +33,6 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.CharacterStyle;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 
@@ -42,14 +41,17 @@ import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.dom.flex.FlexMeasureMode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TextVirtualNode extends VirtualNode {
 
@@ -64,7 +66,7 @@ public class TextVirtualNode extends VirtualNode {
     private static final String TEXT_ALIGN_JUSTIFY = "justify";
     private static final String TEXT_ALIGN_RIGHT = "right";
     private static final String TEXT_ALIGN_CENTER = "center";
-    private static final String ELLIPSIS = "\u2026";
+    private static final String ELLIPSIS = "...";
 
     private int mColor = Color.BLACK;
     private int mNumberOfLines;
@@ -76,8 +78,8 @@ public class TextVirtualNode extends VirtualNode {
     private float mShadowOffsetDy = 0.0f;
     private float mShadowRadius = 1.0f;
     private float mLineHeight;
-    protected float mLineSpacingMultiplier = 1.0f;
-    protected float mLineSpacingExtra;
+    private float mLineSpacingMultiplier = 1.0f;
+    private float mLineSpacingExtra;
     private float mLetterSpacing;
     private float mLastLayoutWidth = 0.0f;
     private boolean mHasUnderlineTextDecoration = false;
@@ -96,10 +98,12 @@ public class TextVirtualNode extends VirtualNode {
     private final FontAdapter mFontAdapter;
     @Nullable
     private Layout mLayout;
+    @Nullable
+    private Map<String, Object> mUnusedProps;
 
-    public TextVirtualNode(int id, int pid, int index, @Nullable FontAdapter fontAdapter) {
+    public TextVirtualNode(int id, int pid, int index, @NonNull NativeRender nativeRender) {
         super(id, pid, index);
-        mFontAdapter = fontAdapter;
+        mFontAdapter = nativeRender.getFontAdapter();
         if (I18nUtil.isRTL()) {
             mAlignment = Layout.Alignment.ALIGN_OPPOSITE;
         }
@@ -107,7 +111,7 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_STYLE, defaultType = HippyControllerProps.STRING)
-    public void fontStyle(String style) {
+    public void setFontStyle(String style) {
         if (TEXT_FONT_STYLE_ITALIC.equals(style)) {
             mFontStyle = Typeface.ITALIC;
         } else {
@@ -118,35 +122,37 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LETTER_SPACING, defaultType = HippyControllerProps.NUMBER)
-    public void letterSpacing(float spacing) {
+    public void setLetterSpacing(float spacing) {
         mLetterSpacing = PixelUtil.dp2px(spacing);
         markDirty();
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
-    public void color(Integer color) {
+    @HippyControllerProps(name = NodeProps.COLOR, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = Color.BLACK)
+    public void setColor(Integer color) {
         mColor = color;
         markDirty();
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER, defaultNumber = NodeProps.FONT_SIZE_SP)
-    public void fontSize(float size) {
+    @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = NodeProps.FONT_SIZE_SP)
+    public void setFontSize(float size) {
         mFontSize = (int) Math.ceil(PixelUtil.dp2px(size));
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_FAMILY, defaultType = HippyControllerProps.STRING)
-    public void fontFamily(String family) {
+    public void setFontFamily(String family) {
         mFontFamily = family;
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.FONT_WEIGHT, defaultType = HippyControllerProps.STRING)
-    public void fontWeight(String weight) {
+    public void setFontWeight(String weight) {
         int fontWeight = 0;
         if (!TextUtils.isEmpty(weight) && weight.length() == 3
                 && weight.endsWith("00")
@@ -164,7 +170,7 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.TEXT_DECORATION_LINE, defaultType = HippyControllerProps.STRING)
-    public void textDecorationLine(String textDecorationLine) {
+    public void setTextDecorationLine(String textDecorationLine) {
         mHasUnderlineTextDecoration = false;
         mHasLineThroughTextDecoration = false;
         if (TextUtils.isEmpty(textDecorationLine)) {
@@ -180,9 +186,9 @@ public class TextVirtualNode extends VirtualNode {
         markDirty();
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "rawtypes"})
     @HippyControllerProps(name = TEXT_SHADOW_OFFSET, defaultType = HippyControllerProps.MAP)
-    public void textShadowOffset(HashMap offsetMap) {
+    public void setTextShadowOffset(HashMap offsetMap) {
         mShadowOffsetDx = 0.0f;
         mShadowOffsetDy = 0.0f;
         if (offsetMap == null) {
@@ -201,13 +207,14 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = TEXT_SHADOW_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 1.0f)
-    public void textShadowRadius(float shadowRadius) {
+    public void setTextShadowRadius(float shadowRadius) {
         mShadowRadius = shadowRadius;
         markDirty();
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = TEXT_SHADOW_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = TEXT_SHADOW_COLOR_DEFAULT)
+    @HippyControllerProps(name = TEXT_SHADOW_COLOR, defaultType = HippyControllerProps.NUMBER,
+            defaultNumber = TEXT_SHADOW_COLOR_DEFAULT)
     public void setTextShadowColor(int shadowColor) {
         mShadowColor = shadowColor;
         markDirty();
@@ -215,21 +222,21 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LINE_HEIGHT, defaultType = HippyControllerProps.NUMBER)
-    public void lineHeight(int lineHeight) {
+    public void setLineHeight(int lineHeight) {
         mLineHeight = PixelUtil.dp2px(lineHeight);
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LINE_SPACING_MULTIPLIER, defaultType = HippyControllerProps.NUMBER)
-    public void lineSpacingMultiplier(float lineSpacingMultiplier) {
+    public void setLineSpacingMultiplier(float lineSpacingMultiplier) {
         mLineSpacingMultiplier = lineSpacingMultiplier;
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = NodeProps.LINE_SPACING_EXTRA, defaultType = HippyControllerProps.NUMBER)
-    public void lineSpacingExtra(float lineSpacingExtra) {
+    public void setLineSpacingExtra(float lineSpacingExtra) {
         mLineSpacingExtra = PixelUtil.dp2px(lineSpacingExtra);
         markDirty();
     }
@@ -242,7 +249,8 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING, defaultString = TEXT_ALIGN_LEFT)
+    @HippyControllerProps(name = NodeProps.TEXT_ALIGN, defaultType = HippyControllerProps.STRING,
+            defaultString = TEXT_ALIGN_LEFT)
     public void setTextAlign(String align) {
         switch (align) {
             case TEXT_ALIGN_LEFT:
@@ -265,15 +273,34 @@ public class TextVirtualNode extends VirtualNode {
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "text", defaultType = HippyControllerProps.STRING)
-    public void text(String text) {
+    public void setText(String text) {
         mText = text;
         markDirty();
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "enableScale", defaultType = HippyControllerProps.BOOLEAN)
-    public void enableScale(boolean enable) {
+    public void setEnableScale(boolean enable) {
         mEnableScale = enable;
+    }
+
+    public void addUnusedProps(@NonNull String key, @Nullable Object value) {
+        // Only top level text node need to reserved unused attributes.
+        if (mParent != null) {
+            return;
+        }
+        if (mUnusedProps == null) {
+            mUnusedProps = new HashMap<>();
+        }
+        mUnusedProps.put(key, value);
+    }
+
+    public void resetProps(@NonNull Map<String, Object> props) {
+        props.clear();
+        if (mUnusedProps != null) {
+            props.putAll(mUnusedProps);
+            mUnusedProps.clear();
+        }
     }
 
     private SpannableStringBuilder createSpan(@Nullable CharSequence text, boolean useChild) {
@@ -290,11 +317,11 @@ public class TextVirtualNode extends VirtualNode {
         return spannable;
     }
 
-    private SpannableStringBuilder createSpan(boolean useChild) {
+    protected SpannableStringBuilder createSpan(boolean useChild) {
         return createSpan(mText, useChild);
     }
 
-    private CharSequence getEmoticonText(@Nullable CharSequence text) {
+    protected CharSequence getEmoticonText(@Nullable CharSequence text) {
         CharSequence emoticonText = null;
         if (mFontAdapter != null && !TextUtils.isEmpty(text)) {
             emoticonText = mFontAdapter.getEmoticonText(text, mFontSize);
@@ -308,7 +335,7 @@ public class TextVirtualNode extends VirtualNode {
         createSpanOperationImpl(ops, builder, mText, useChild);
     }
 
-    private void createChildrenSpanOperation(@NonNull List<SpanOperation> ops,
+    protected void createChildrenSpanOperation(@NonNull List<SpanOperation> ops,
             @NonNull SpannableStringBuilder builder) {
         for (int i = 0; i < getChildCount(); i++) {
             VirtualNode child = getChildAt(i);
@@ -320,7 +347,11 @@ public class TextVirtualNode extends VirtualNode {
         }
     }
 
-    private void createSpanOperationImpl(@NonNull List<SpanOperation> ops,
+    protected TextForegroundColorSpan createForegroundColorSpan() {
+        return new TextForegroundColorSpan(mColor);
+    }
+
+    protected void createSpanOperationImpl(@NonNull List<SpanOperation> ops,
             @NonNull SpannableStringBuilder builder, @Nullable CharSequence text,
             boolean useChild) {
         int start = builder.length();
@@ -329,7 +360,7 @@ public class TextVirtualNode extends VirtualNode {
         if (start > end) {
             return;
         }
-        ops.add(new SpanOperation(start, end, new ForegroundColorSpan(mColor)));
+        ops.add(new SpanOperation(start, end, createForegroundColorSpan()));
         if (mLetterSpacing != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ops.add(new SpanOperation(start, end,
                     new TextLetterSpacingSpan(mLetterSpacing)));
@@ -373,7 +404,13 @@ public class TextVirtualNode extends VirtualNode {
         return mLineSpacingMultiplier <= 0 ? 1.0f : mLineSpacingMultiplier;
     }
 
-    public Layout createLayout(final float width, final FlexMeasureMode widthMode) {
+    @NonNull
+    protected Layout createLayout() {
+        return createLayout(mLastLayoutWidth, FlexMeasureMode.EXACTLY);
+    }
+
+    @NonNull
+    protected Layout createLayout(final float width, final FlexMeasureMode widthMode) {
         if (mTextPaint == null) {
             mTextPaint = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
         }
@@ -434,7 +471,7 @@ public class TextVirtualNode extends VirtualNode {
                 .ellipsize(text.substring(lastLineStart), mTextPaint, width,
                         TextUtils.TruncateAt.END);
         String tempStr =
-                text.subSequence(0, lastLineStart).toString() + truncate(ellipsizeStr, width);
+                text.subSequence(0, lastLineStart) + truncate(ellipsizeStr, width);
         int start = Math.max(tempStr.length() - 1, 0);
         CharacterStyle[] spans = builder.getSpans(start, text.length(), CharacterStyle.class);
         if (spans != null && spans.length > 0) {
@@ -447,7 +484,7 @@ public class TextVirtualNode extends VirtualNode {
         return buildStaticLayout(builder.replace(start, text.length(), ELLIPSIS), width);
     }
 
-    private String truncate(@Nullable String source, int width) {
+    protected String truncate(@Nullable String source, int width) {
         String result = "";
         if (source == null) {
             return result;

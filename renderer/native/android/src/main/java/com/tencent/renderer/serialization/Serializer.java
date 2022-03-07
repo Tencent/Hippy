@@ -19,6 +19,8 @@ package com.tencent.renderer.serialization;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.SERIALIZER_NOT_SUPPORTED_ERR;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
@@ -26,7 +28,6 @@ import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import com.tencent.renderer.NativeRenderException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +36,10 @@ import java.util.Map;
  * Provide encode ability, all data object should serialize to byte buffer before send to native(C++)
  *
  * only support {@link Number}, {@link String}, {@link Boolean}, {@link Map}, {@link List}
- * for compatible with old versions, temporary support {@link HashMap} and {@link HippyArray}
+ * for compatible with old versions, temporary support {@link HippyMap} and {@link HippyArray}
  * but will removed in the future
  */
+@SuppressWarnings("deprecation")
 public class Serializer extends PrimitiveValueSerializer {
 
     private static final String TAG = "Serializer";
@@ -65,18 +67,22 @@ public class Serializer extends PrimitiveValueSerializer {
         return null;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("rawtypes")
     @Override
-    public boolean writeValue(@NonNull Object object) throws NativeRenderException {
+    public boolean writeValue(@Nullable Object object) throws NativeRenderException {
+        if (object == null) {
+            throw new NativeRenderException(SERIALIZER_NOT_SUPPORTED_ERR,
+                    TAG + ": Cannot write an empty object");
+        }
         //Compatible HippyMap with old versions, will be removed in the future.
         if (object instanceof HippyMap) {
-            HashMap<String, Object> map = ((HippyMap) object).getInternalMap();
+            HashMap map = ((HippyMap) object).getInternalMap();
             writeValue(map);
             return true;
         }
         //Compatible HippyArray with old versions, will be removed in the future.
         if (object instanceof HippyArray) {
-            List<Object> array = ((HippyArray) object).getInternalArray();
+            List array = ((HippyArray) object).getInternalArray();
             writeValue(array);
             return true;
         }
@@ -93,9 +99,9 @@ public class Serializer extends PrimitiveValueSerializer {
                 }
                 break;
             }
-        } else if (object instanceof Collection) {
+        } else if (object instanceof List) {
             assignId(object);
-            writeCollection((Collection) object);
+            writeList((List) object);
         } else {
             throw new NativeRenderException(SERIALIZER_NOT_SUPPORTED_ERR,
                     TAG + ": Unsupported object data type, object=" + object);
@@ -103,6 +109,7 @@ public class Serializer extends PrimitiveValueSerializer {
         return true;
     }
 
+    @SuppressWarnings("rawtypes")
     private void writeJSMap(@NonNull Map map) {
         writeTag(SerializationTag.BEGIN_JS_MAP);
         int count = 0;
@@ -115,6 +122,7 @@ public class Serializer extends PrimitiveValueSerializer {
         writer.putVarint(2L * count);
     }
 
+    @SuppressWarnings("rawtypes")
     private void writeJSObject(@NonNull Map map) {
         writeTag(SerializationTag.BEGIN_JS_OBJECT);
         for (Object key : map.keySet()) {
@@ -129,12 +137,15 @@ public class Serializer extends PrimitiveValueSerializer {
         writer.putVarint(map.size());
     }
 
-    private void writeCollection(@NonNull Collection collection) {
+    private void writeList(@NonNull List<?> list) {
+        int length = list.size();
         writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
-        writer.putVarint(collection.size());
-        for (Object value : collection) {
+        writer.putVarint(length);
+        for (Object value : list) {
             writeValue(value);
         }
         writeTag(SerializationTag.END_DENSE_JS_ARRAY);
+        writer.putVarint(0);
+        writer.putVarint(length);
     }
 }

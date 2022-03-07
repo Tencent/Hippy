@@ -193,7 +193,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   TDF_BASE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
                       << j_runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(
-      hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+      hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
     << "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid";
@@ -294,12 +294,12 @@ jlong InitInstance(JNIEnv* j_env,
     jclass cls = j_env->GetObjectClass(j_vm_init_param);
     jfieldID init_field = j_env->GetFieldID(cls, "initialHeapSize", "J");
     jlong initial_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, init_field);
-    TDF_BASE_CHECK(initial_heap_size_in_bytes <= std::numeric_limits<size_t>::max());
-    param->initial_heap_size_in_bytes = static_cast<size_t>(initial_heap_size_in_bytes);
+    param->initial_heap_size_in_bytes = hippy::base::checked_numeric_cast<jlong, size_t>(
+        initial_heap_size_in_bytes);
     jfieldID max_field = j_env->GetFieldID(cls, "maximumHeapSize", "J");
     jlong maximum_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, max_field);
-    TDF_BASE_CHECK(maximum_heap_size_in_bytes <= std::numeric_limits<size_t>::max());
-    param->maximum_heap_size_in_bytes = static_cast<size_t>(maximum_heap_size_in_bytes);
+    param->maximum_heap_size_in_bytes = hippy::base::checked_numeric_cast<jlong, size_t>(
+        maximum_heap_size_in_bytes);
     TDF_BASE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
   }
   const jchar* chars = j_env->GetStringChars(j_data_dir, NULL);
@@ -340,7 +340,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
                      __unused jboolean j_single_thread_mode,
                      jobject j_callback) {
   auto ret = V8BridgeUtils::DestroyInstance(
-      hippy::base::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+      hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (ret) {
     hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   } else {

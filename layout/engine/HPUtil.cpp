@@ -29,6 +29,7 @@ void HPLog(LogLevel level, const char *format, ...) {
       break;
     case LogLevelVerbose:
       androidLevel = ANDROID_LOG_VERBOSE;
+      break;
     case LogLevelDebug:
       androidLevel = ANDROID_LOG_DEBUG;
       break;
@@ -102,7 +103,7 @@ float HPRoundValueToPixelGrid(float value, float scaleFactor, bool forceCeil, bo
     // First we check if the value is already rounded
     scaleValue = scaleValue - fractial;
   } else if (FloatIsEqual(fractial, 1.0)) {
-    scaleValue = scaleValue - fractial + 1.0;
+    scaleValue = static_cast<float>(scaleValue - fractial + 1.0);
   } else if (forceCeil) {
     // Next we check if we need to use forced rounding
     scaleValue = scaleValue - fractial + 1.0f;

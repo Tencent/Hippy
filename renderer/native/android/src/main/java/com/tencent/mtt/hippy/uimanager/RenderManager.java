@@ -21,6 +21,7 @@ import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
 
 import androidx.annotation.NonNull;
 
+import com.tencent.renderer.component.text.VirtualNode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,10 +41,15 @@ public class RenderManager {
     private static final String TAG = "RenderManager";
     private final SparseArray<RenderNode> mNodes = new SparseArray<>();
     private final List<RenderNode> mUIUpdateNodes = new ArrayList<>();
+    @NonNull
     private final ControllerManager mControllerManager;
 
-    public RenderManager(NativeRender nativeRenderer, @Nullable List<Class<?>> controllers) {
-        mControllerManager = new ControllerManager(nativeRenderer, controllers);
+    public RenderManager(NativeRender nativeRenderer) {
+        mControllerManager = new ControllerManager(nativeRenderer);
+    }
+
+    public void init(@Nullable List<Class<?>> controllers) {
+        mControllerManager.init(controllers);
     }
 
     public ControllerManager getControllerManager() {
@@ -59,6 +65,12 @@ public class RenderManager {
         mNodes.put(id, node);
     }
 
+    @Nullable
+    public VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+            @Nullable Map<String, Object> props) {
+        return mControllerManager.createVirtualNode(id, pid, index, className, props);
+    }
+
     public void destroy() {
         mControllerManager.destroy();
     }
@@ -68,11 +80,15 @@ public class RenderManager {
         boolean isLazy = mControllerManager.isControllerLazy(className);
         RenderNode parentNode = mNodes.get(pid);
         if (parentNode == null) {
-            LogUtils.e(TAG, "createNode: parentNode == null, pid=" + pid);
+            LogUtils.w(TAG, "createNode: parentNode == null, pid=" + pid);
             return;
         }
         RenderNode node = mControllerManager.createRenderNode(id, props, className,
                 rootView, isLazy || parentNode.checkNodeFlag(FLAG_LAZY_LOAD));
+        if (node == null) {
+            LogUtils.w(TAG, "createNode: node == null");
+            return;
+        }
         mNodes.put(id, node);
         parentNode.addChild(node, index);
         addUpdateNodeIfNeeded(parentNode);
@@ -113,7 +129,7 @@ public class RenderManager {
         RenderNode oldParent = mNodes.get(oldPid);
         RenderNode newParent = mNodes.get(newPid);
         if (oldParent == null || newParent == null) {
-            LogUtils.e(TAG, "moveNode: oldParent=" + oldParent + ", newParent=" + newParent);
+            LogUtils.w(TAG, "moveNode: oldParent=" + oldParent + ", newParent=" + newParent);
             return;
         }
         List<RenderNode> moveNodes = new ArrayList<>();
@@ -129,7 +145,7 @@ public class RenderManager {
         addUpdateNodeIfNeeded(newParent);
     }
 
-    public void updateExtra(int id, Object object) {
+    public void updateExtra(int id, @Nullable Object object) {
         RenderNode node = mNodes.get(id);
         if (node != null) {
             node.updateExtra(object);

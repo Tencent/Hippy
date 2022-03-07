@@ -24,8 +24,7 @@
 
 #include "core/napi/js_native_api.h"
 
-namespace hippy {
-namespace napi {
+namespace hippy::napi {
 
 CallbackInfo::CallbackInfo(std::shared_ptr<Scope> scope) : scope_(std::move(scope)) {
   ret_value_ = std::make_unique<ReturnValue>();
@@ -38,8 +37,8 @@ void CallbackInfo::AddValue(const std::shared_ptr<CtxValue>& value) {
   values_.push_back(value);
 }
 
-std::shared_ptr<CtxValue> CallbackInfo::operator[](int index) const {
-  if (index < 0 || index >= Length()) {
+std::shared_ptr<CtxValue> CallbackInfo::operator[](size_t index) const {
+  if (index < 0 || static_cast<size_t>(index) >= Length()) {
     return nullptr;
   }
   return values_[index];
@@ -50,5 +49,4 @@ void ExceptionValue::Set(const std::shared_ptr<Ctx>& context,
   value_ = context->CreateString(str);
 }
 
-}  // namespace napi
 }  // namespace hippy

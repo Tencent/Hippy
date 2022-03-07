@@ -68,6 +68,7 @@
     "module-alias": "^2.2.2",
     "nyc": "^15.1.0",
     "path-to-regexp": "^1.7.0",
+    "prismjs": "^1.27.0",
     "react": "^17.0.2",
     "rimraf": "^2.6.3",
     "rollup": "^2.63.0",

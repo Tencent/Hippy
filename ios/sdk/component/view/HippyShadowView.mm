@@ -44,6 +44,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     BOOL _didUpdateSubviews;
     NSInteger _isDecendantOfLazilyShadowView;
     std::weak_ptr<hippy::DomManager> _domManager;
+    std::vector<std::string> _eventNames;
 }
 
 @end
@@ -166,6 +167,17 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     }
 }
 
+- (void)dirtySelfPropagation {
+    _propagationLifecycle = HippyUpdateLifecycleDirtied;
+}
+
+- (void)dirtyDescendantPropagation {
+    [self dirtySelfPropagation];
+    for (HippyShadowView *shadowView in self.hippySubviews) {
+        [shadowView dirtySelfPropagation];
+    }
+}
+
 - (BOOL)isPropagationDirty {
     return _propagationLifecycle != HippyUpdateLifecycleComputed;
 }
@@ -181,8 +193,45 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     return _textLifecycle != HippyUpdateLifecycleComputed;
 }
 
+- (HippyCreationType)creationType {
+    if (HippyCreationTypeUndetermined == _creationType) {
+        HippyShadowView *superShadowView = [self hippySuperview];
+        if (superShadowView && ![superShadowView isHippyRootView]) {
+            _creationType = [superShadowView creationType];
+        }
+        else {
+            _creationType = HippyCreationTypeInstantly;
+        }
+    }
+    return _creationType;
+}
+
 - (void)setTextComputed {
     _textLifecycle = HippyUpdateLifecycleComputed;
+}
+
+- (void)recusivelySetCreationTypeToInstant {
+    auto domManager = self.domManager.lock();
+    if (domManager) {
+        __weak HippyShadowView *weakSelf = self;
+        std::function<void ()> func = [weakSelf](){
+            if (weakSelf) {
+                HippyShadowView *strongSelf = weakSelf;
+                strongSelf.creationType = HippyCreationTypeInstantly;
+                for (HippyShadowView *subShadowView in strongSelf.hippySubviews) {
+                    [subShadowView synchronousRecusivelySetCreationTypeToInstant];
+                }
+            }
+        };
+        domManager->PostTask(func);
+    }
+}
+
+- (void)synchronousRecusivelySetCreationTypeToInstant {
+    self.creationType = HippyCreationTypeInstantly;
+    for (HippyShadowView *subShadowView in self.hippySubviews) {
+        [subShadowView synchronousRecusivelySetCreationTypeToInstant];
+    }
 }
 
 - (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
@@ -378,25 +427,17 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     return ret;
 }
 
-- (BOOL)isDescendantOfLazilyCreatedShadowView {
-    if (-1 == _isDecendantOfLazilyShadowView) {
-        _isDecendantOfLazilyShadowView = 0;
-        id superShadowView = self;
-        while (superShadowView && ![superShadowView isHippyRootView]) {
-            if (![superShadowView isInstantlyCreatedView]) {
-                _isDecendantOfLazilyShadowView = 1;
-                break;
-            }
-            else {
-                superShadowView = [self hippySuperview];
-            }
-        }
-    }
-    return 1 == _isDecendantOfLazilyShadowView ? YES : NO;
+- (void)addEventName:(const std::string &)name {
+    _eventNames.push_back(name);
 }
 
-- (BOOL)isInstantlyCreatedView {
-    return YES;
+- (const std::vector<std::string> &)allEventNames {
+    return _eventNames;
 }
+
+- (void)clearEventNames {
+    _eventNames.clear();
+}
+
 
 @end

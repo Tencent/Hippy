@@ -31,6 +31,7 @@ import com.tencent.renderer.NativeRenderException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Deserializer extends PrimitiveValueDeserializer {
@@ -138,12 +139,12 @@ public class Deserializer extends PrimitiveValueDeserializer {
     }
 
     @Override
-    protected ArrayList<Object> readDenseArray() {
+    protected List<Object> readDenseArray() {
         int totalLength = (int) reader.getVarint();
         if (totalLength < 0) {
             throw new DataCloneOutOfRangeException(totalLength);
         }
-        ArrayList<Object> array = new ArrayList(totalLength);
+        List<Object> array = new ArrayList(totalLength);
         assignId(array);
         for (int i = 0; i < totalLength; i++) {
             SerializationTag tag = readTag();

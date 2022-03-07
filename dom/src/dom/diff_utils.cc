@@ -64,7 +64,7 @@ DiffValue DiffUtils::DiffProps(
         (*update_props)[kv.first] = to_value->second;
       }
     } else {
-      TDF_BASE_NOTREACHED();
+      TDF_BASE_UNREACHABLE();
     }
   }
   for (const auto& kv : to) {
@@ -88,7 +88,7 @@ DomValueArray DiffUtils::DiffArray(const DomValueArray& from, const DomValueArra
     return to;
   }
   DomValueArray diff_array;
-  for (int i = 0; i < from.size(); i++) {
+  for (size_t i = 0; i < from.size(); i++) {
     auto from_value = from[i];
     auto to_value = to[i];
     if (from_value.IsBoolean()) {
@@ -120,7 +120,7 @@ DomValueArray DiffUtils::DiffArray(const DomValueArray& from, const DomValueArra
         return to;
       }
     } else {
-      TDF_BASE_NOTREACHED();
+      TDF_BASE_UNREACHABLE();
     }
   }
   return diff_array;
@@ -170,7 +170,7 @@ DomValueObject DiffUtils::DiffObject(const DomValueObject& from, const DomValueO
         diff_props[kv.first] = to_value->second;
       }
     } else {
-      TDF_BASE_NOTREACHED();
+      TDF_BASE_UNREACHABLE();
     }
   }
   for (const auto& kv : to) {

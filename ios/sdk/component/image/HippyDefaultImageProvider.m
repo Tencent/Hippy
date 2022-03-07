@@ -35,6 +35,8 @@
 
 @implementation HippyDefaultImageProvider
 
+@synthesize imageDataPath;
+
 HIPPY_EXPORT_MODULE(defaultImageProvider)
 
 + (BOOL)canHandleData:(NSData *)data {
@@ -46,24 +48,20 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
     return ret;
 }
 
-+ (NSUInteger)priorityForData:(NSData *)data {
-    return 0;
-}
-
-+ (instancetype)imageProviderInstanceForData:(NSData *)data {
-    return [[[self class] alloc] initWithData:data];
-}
-
 - (instancetype)initWithData:(NSData *)data {
     self = [super init];
     if (self) {
-        if ([[self class] isAnimatedImage:data]) {
-            _imageSourceRef = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
-        } else {
-            _data = data;
-        }
+        [self setImageData:data];
     }
     return self;
+}
+
+- (void)setImageData:(NSData *)imageData {
+    if ([[self class] isAnimatedImage:imageData]) {
+        _imageSourceRef = CGImageSourceCreateWithData((__bridge CFDataRef)imageData, NULL);
+    } else {
+        _data = imageData;
+    }
 }
 
 - (UIImage *)image {

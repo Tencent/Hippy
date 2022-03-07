@@ -40,7 +40,7 @@ class IOSLoader : public hippy::base::UriLoader {
   virtual bool RequestUntrustedContent(const unicode_string_view& uri, std::function<void(u8string)> cb);
 
   virtual bool RequestUntrustedContent(const unicode_string_view& uri, u8string& content) {
-    TDF_BASE_NOTIMPLEMENTED();
+    TDF_BASE_UNIMPLEMENTED();
     return "";
   };
 

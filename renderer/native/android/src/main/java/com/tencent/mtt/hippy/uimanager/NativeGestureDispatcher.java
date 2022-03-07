@@ -45,8 +45,6 @@ import static com.tencent.mtt.hippy.dom.node.NodeProps.ON_TOUCH_MOVE;
 public class NativeGestureDispatcher implements NativeGestureProcessor.Callback {
 
     private static final String TAG = "NativeGestureDispatcher";
-    private static final String KEY_EVENT_NAME = "name";
-    private static final String KEY_TAG_ID = "id";
     private static final String KEY_PAGE_X = "page_x";
     private static final String KEY_PAGE_Y = "page_y";
     private static final int TAP_TIMEOUT = ViewConfiguration.getTapTimeout();
@@ -167,9 +165,9 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
         int[] location = new int[2];
         try {
             view.getLocationInWindow(location);
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException e) {
             LogUtils.e(TAG,
-                    "handleTouchEvent: getLocationInWindow exception " + ignored.getMessage());
+                    "handleTouchEvent: getLocationInWindow exception " + e.getMessage());
         }
         HashMap<String, Object> params = new HashMap<>();
         params.put(KEY_PAGE_X, PixelUtil.px2dp(location[0] + x));

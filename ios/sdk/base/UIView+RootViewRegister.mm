@@ -31,9 +31,6 @@
     self.bridge = bridge;
 }
 
-- (void)cancelTouches {
-}
-
 - (void)invalidate {}
 
 @end

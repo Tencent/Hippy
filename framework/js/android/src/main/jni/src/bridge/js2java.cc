@@ -53,15 +53,16 @@ void CallNative(hippy::napi::CBDataTuple* data) {
     jstring j_module = JniUtils::StrViewToJString(j_env, module);
     jstring j_func = JniUtils::StrViewToJString(j_env, func);
     jstring j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
+    auto len = hippy::base::checked_numeric_cast<size_t, jsize>(buffer.length());
     if (is_heap_buffer == 1) {  // Direct
       j_buffer = j_env->NewDirectByteBuffer(
           const_cast<void*>(reinterpret_cast<const void*>(buffer.c_str())),
-          buffer.length());
+          len);
       j_method = instance->GetMethods().j_call_natives_direct_method_id;
     } else {  // Default
-      j_buffer = j_env->NewByteArray(buffer.length());
+      j_buffer = j_env->NewByteArray(len);
       j_env->SetByteArrayRegion(
-          reinterpret_cast<jbyteArray>(j_buffer), 0, buffer.length(),
+          reinterpret_cast<jbyteArray>(j_buffer), 0, len,
           reinterpret_cast<const jbyte*>(buffer.c_str()));
       j_method = instance->GetMethods().j_call_natives_method_id;
     }

@@ -25,9 +25,12 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.renderer.UIPromise;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 public class RenderNode {
 
@@ -38,8 +41,6 @@ public class RenderNode {
     public static final int FLAG_ALREADY_DELETED = 0x00000010;
     public static final int FLAG_LAZY_LOAD = 0x00000020;
     public static final int FLAG_HAS_DTEB_ID = 0x00000040;
-
-
     private int mNodeFlags = 0;
     protected int mX;
     protected int mY;
@@ -289,7 +290,7 @@ public class RenderNode {
                 }
             });
             for (RenderNode moveNode : mMoveNodes) {
-                mComponentManager.move(moveNode.getId(), getId(),
+                mComponentManager.moveView(moveNode.getId(), getId(),
                         moveNode.indexFromParent());
             }
             mMoveNodes.clear();

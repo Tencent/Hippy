@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.image;
 
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_END;
@@ -34,13 +35,11 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
-import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
-import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
+import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -48,7 +47,6 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
-import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
 import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
@@ -56,7 +54,9 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import com.tencent.renderer.component.image.ImageDataHolder;
 import com.tencent.renderer.utils.EventUtils;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -205,14 +205,14 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
             // 这里不判断下是取背景图片还是取当前图片怎么行？
             final String url = sourceType == SOURCE_TYPE_SRC ? mUrl : mDefaultSourceUrl;
             //noinspection unchecked
-            mImageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
+            mImageAdapter.fetchImage(url, new ImageRequestListener() {
                 @Override
-                public void onRequestStart(HippyDrawable drawableTarget) {
-                    mSourceDrawable = drawableTarget;
+                public void onRequestStart(ImageDataSupplier supplier) {
+                    mSourceDrawable = supplier;
                 }
 
                 @Override
-                public void onRequestSuccess(HippyDrawable drawableTarget) {
+                public void onRequestSuccess(ImageDataSupplier supplier) {
                     if (sourceType == SOURCE_TYPE_SRC) {
                         if (!TextUtils.equals(url, mUrl)) {
                             return;
@@ -225,7 +225,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
                         return;
                     }
 
-                    handleImageRequest(drawableTarget, sourceType, null);
+                    handleImageRequest(supplier, sourceType, null);
                 }
 
                 @Override
@@ -446,20 +446,24 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
 
     @Override
-    protected void handleImageRequest(IDrawableTarget target, int sourceType, Object requestInfo) {
-        if (target != null && !TextUtils.isEmpty(target.getImageType())) {
-            mImageType = target.getImageType();
+    protected void handleImageRequest(ImageDataSupplier supplier, int sourceType, Object requestInfo) {
+        if (!(supplier instanceof ImageDataHolder)) {
+            return;
+        }
+        ImageDataHolder holder = (ImageDataHolder) supplier;
+        if (!TextUtils.isEmpty(holder.getImageType())) {
+            mImageType = holder.getImageType();
         }
 
-        if (target instanceof HippyDrawable && ((HippyDrawable) target).isAnimated()) {
-            mGifMovie = ((HippyDrawable) target).getGIF();
+        if (holder.isAnimated()) {
+            mGifMovie = holder.getGIF();
             setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
 
         if (!TextUtils.isEmpty(mImageType) && mImageType.equals(IMAGE_TYPE_APNG)
                 && sourceType == SOURCE_TYPE_SRC) {
-            if (target != null) {
-                Drawable drawable = target.getDrawable();
+            if (supplier != null) {
+                Drawable drawable = supplier.getDrawable();
                 if (drawable != null) {
                     mSourceDrawable = null;
                     mContentDrawable = drawable;
@@ -473,7 +477,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
             mUrlFetchState = IMAGE_UNLOAD;
             handleGetImageFail(requestInfo instanceof Throwable ? (Throwable) requestInfo : null);
         } else {
-            super.handleImageRequest(target, sourceType, requestInfo);
+            super.handleImageRequest(supplier, sourceType, requestInfo);
         }
     }
 

@@ -18,8 +18,6 @@ package com.tencent.mtt.hippy.modules.nativemodules.animation;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
-import com.tencent.mtt.hippy.dom.HippyChoreographer;
-import com.tencent.mtt.hippy.dom.ICSChoreographer;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
@@ -33,14 +31,5 @@ public class AnimationFrameModule extends HippyNativeModuleBase {
   @SuppressWarnings("unused")
   @HippyMethod(name = "requestAnimationFrame")
   public void requestAnimationFrame(final Promise promise) {
-    ICSChoreographer.getInstance().postFrameCallback(new HippyChoreographer.FrameCallback() {
-      @SuppressWarnings("unused")
-      @Override
-      public void doFrame(long frameTimeNanos) {
-        if (promise != null) {
-          promise.resolve(null);
-        }
-      }
-    });
   }
 }

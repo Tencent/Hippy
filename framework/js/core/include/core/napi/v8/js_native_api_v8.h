@@ -41,7 +41,10 @@
 #include "core/scope.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8.h"
+#pragma clang diagnostic pop
 
 namespace hippy {
 namespace napi {
@@ -157,15 +160,21 @@ class V8Ctx : public Ctx {
       const unicode_string_view& string) override;
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
-  virtual std::shared_ptr<CtxValue> CreateObject(
+  virtual std::shared_ptr<CtxValue> ParseJson(
       const unicode_string_view& json) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      unicode_string_view,
+      std::shared_ptr<CtxValue>>& object) override;
+  virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& object) override;
   virtual std::shared_ptr<CtxValue> CreateArray(
       size_t count,
       std::shared_ptr<CtxValue> value[]) override;
-  virtual std::shared_ptr<CtxValue> CreateMap(
-      size_t count,
-      std::shared_ptr<CtxValue> value[]) override;
-  virtual std::shared_ptr<CtxValue> CreateJsError(
+  virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
+      std::shared_ptr<CtxValue>,
+      std::shared_ptr<CtxValue>>& map) override;
+  virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) override;
 
   // Get From Value
@@ -194,7 +203,7 @@ class V8Ctx : public Ctx {
                                                      uint32_t index) override;
 
   // Map Helpers
-  virtual uint32_t GetMapLength(std::shared_ptr<CtxValue>& value);
+  virtual size_t GetMapLength(std::shared_ptr<CtxValue>& value);
   virtual std::shared_ptr<CtxValue> ConvertMapToArray(
       const std::shared_ptr<CtxValue>& value);
 
@@ -221,7 +230,9 @@ class V8Ctx : public Ctx {
       bool is_copy);
 
   virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
-  virtual bool ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) override;
+  virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) override;
+  virtual void ThrowException(const unicode_string_view& exception) override;
+  virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) override;

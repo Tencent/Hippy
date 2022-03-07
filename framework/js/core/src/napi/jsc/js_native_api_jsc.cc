@@ -438,7 +438,7 @@ void JSCCtx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
 void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
                                    hippy::base::RegisterFunction fn,
                                    void* data) {
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
 }
 
 std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const unicode_string_view& name) {
@@ -543,7 +543,7 @@ std::shared_ptr<JSValueWrapper> JSCCtx::ToJsValueWrapper(
     return std::make_shared<JSValueWrapper>(ret);
   }
 
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
   return nullptr;
 }
 
@@ -595,7 +595,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
     }
     return std::make_shared<JSCCtxValue>(context_, obj_ref);
   }
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
   return nullptr;
 }
 
@@ -653,13 +653,13 @@ std::shared_ptr<DomValue> JSCCtx::ToDomValue(const std::shared_ptr<CtxValue>& va
       std::shared_ptr<DomValue> value_obj =
         ToDomValue(props_value_obj);
       ret[key_obj] = *value_obj;
+    }
+    JSPropertyNameArrayRelease(name_arry);
+    return std::make_shared<DomValue>(ret);
   }
-  JSPropertyNameArrayRelease(name_arry);
-  return std::make_shared<DomValue>(ret);
-}
 
-TDF_BASE_NOTIMPLEMENTED();
-return nullptr;
+  TDF_BASE_UNIMPLEMENTED();
+  return nullptr;
 }
 
 std::shared_ptr<DomArgument> JSCCtx::ToDomArgument(const std::shared_ptr<CtxValue>& value) {
@@ -724,7 +724,7 @@ std::shared_ptr<DomArgument> JSCCtx::ToDomArgument(const std::shared_ptr<CtxValu
       return std::make_shared<DomArgument>(DomValue(std::move(ret)));
     }
 
-    TDF_BASE_NOTIMPLEMENTED();
+    TDF_BASE_UNIMPLEMENTED();
     return nullptr;
   #endif
 }
@@ -773,7 +773,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>
       }
       return std::make_shared<JSCCtxValue>(context_, obj_ref);
     }
-    TDF_BASE_NOTIMPLEMENTED();
+    TDF_BASE_UNIMPLEMENTED();
     return nullptr;
 }
 

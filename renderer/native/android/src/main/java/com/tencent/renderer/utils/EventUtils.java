@@ -17,6 +17,7 @@
 package com.tencent.renderer.utils;
 
 import android.view.View;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -25,11 +26,38 @@ import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 public class EventUtils {
+    // On image loaded.
     public static final String EVENT_IMAGE_ON_LOAD = "load";
+    // On image load error.
     public static final String EVENT_IMAGE_LOAD_ERROR = "error";
-    public static final String EVENT_IMAGE_LOAD_END = "loadend";
-    public static final String EVENT_IMAGE_LOAD_START = "loadstart";
+    // On image load end.
+    public static final String EVENT_IMAGE_LOAD_END = "loadEnd";
+    // On image load start.
+    public static final String EVENT_IMAGE_LOAD_START = "loadStart";
 
+    // On list view header released.
+    public static final String EVENT_LIST_HEADER_RELEASED = "headerReleased";
+    // On list view header pulling.
+    public static final String EVENT_LIST_HEADER_PULLING = "headerPulling";
+    // On list view footer released.
+    public static final String EVENT_LIST_FOOTER_RELEASED = "footerReleased";
+    // On list view footer pulling.
+    public static final String EVENT_LIST_FOOTER_PULLING = "footerPulling";
+    // On list view item will appear, event of exposure monitor.
+    public static final String EVENT_LIST_ITEM_WILL_APPEAR = "willAppear";
+    // On list view item appear, event of exposure monitor.
+    public static final String EVENT_LIST_ITEM_APPEAR = "appear";
+    // On list view item disappear, event of exposure monitor.
+    public static final String EVENT_LIST_ITEM_DISAPPEAR = "disappear";
+    // On list view item will disappear, event of exposure monitor.
+    public static final String EVENT_LIST_ITEM_WILL_DISAPPEAR = "willDisappear";
+
+    // On modal view request close.
+    public static final String EVENT_MODAL_REQUEST_CLOSE = "requestClose";
+    // On modal view show.
+    public static final String EVENT_MODAL_SHOW = "onShow";
+
+    @MainThread
     public static void send(@NonNull View view, @NonNull String eventName,
             @Nullable Object params) {
         if (view.getContext() instanceof NativeRenderContext) {
@@ -39,10 +67,11 @@ public class EventUtils {
         }
     }
 
+    @MainThread
     public static void send(int id, @Nullable NativeRender nativeRenderer,
             @NonNull String eventName, @Nullable Object params) {
         if (nativeRenderer != null) {
-            nativeRenderer.dispatchUIComponentEvent(id, eventName, params);
+            nativeRenderer.dispatchUIComponentEvent(id, eventName.toLowerCase(), params);
         }
     }
 }

@@ -23,24 +23,16 @@
 #include "core/napi/v8/js_native_api_v8.h"
 
 #include <iostream>
-#include <mutex>
 #include <sstream>
-#include <string>
-#include <vector>
-#include "base/logging.h"
-
-#include "core/base/common.h"
-#include "core/base/macros.h"
 #include "core/base/string_view_utils.h"
-#include "core/modules/module_base.h"
-#include "core/napi/callback_info.h"
-#include "core/napi/native_source_code.h"
 #include "core/napi/v8/serializer.h"
 #include "core/scope.h"
 #if TDF_SERVICE_ENABLED
 #include "devtools/devtool_helper.h"
 #endif
 #include "v8/libplatform/libplatform.h"
+#include "v8/v8.h"
+
 
 
 namespace hippy::napi {
@@ -144,7 +136,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  size_t count = info.Length();
+  auto count = info.Length();
   if (count <= 0 || !info[0]->IsString()) {
     info.GetReturnValue().SetUndefined();
     return;
@@ -506,9 +498,9 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
   }
 
   std::basic_stringstream<char> stack_stream;
-  int len = trace->GetFrameCount();
-  for (int i = 0; i < len; ++i) {
-    v8::Local<v8::StackFrame> frame = trace->GetFrame(isolate_, i);
+  auto len = trace->GetFrameCount();
+  for (auto i = 0; i < len; ++i) {
+    v8::Local<v8::StackFrame> frame = trace->GetFrame(isolate_, static_cast<uint32_t>(i));
     if (frame.IsEmpty()) {
       continue;
     }
@@ -760,7 +752,8 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       if (is_copy) {
         source = v8::String::NewFromOneByte(
             isolate_, reinterpret_cast<const uint8_t*>(str.c_str()),
-            v8::NewStringType::kInternalized, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
+            v8::NewStringType::kInternalized,
+            hippy::base::checked_numeric_cast<size_t, int>(str.length()));
       } else {
         auto* one_byte =
             new ExternalOneByteStringResourceImpl(
@@ -774,7 +767,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       if (is_copy) {
         source = v8::String::NewFromTwoByte(
             isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
-            v8::NewStringType::kNormal, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
+            v8::NewStringType::kNormal, hippy::base::checked_numeric_cast<size_t, int>(str.length()));
       } else {
         auto* two_byte = new ExternalStringResourceImpl(
             reinterpret_cast<const uint16_t*>(str.c_str()), str.length());
@@ -790,7 +783,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
                               bytes.length() / sizeof(char16_t));
       source = v8::String::NewFromTwoByte(
           isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
-          v8::NewStringType::kNormal, hippy::base::CheckedNumericCast<size_t, int>(str.length()));
+          v8::NewStringType::kNormal, hippy::base::checked_numeric_cast<size_t, int>(str.length()));
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
@@ -801,7 +794,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       break;
     }
     default: {
-      TDF_BASE_NOTREACHED();
+      TDF_BASE_UNREACHABLE();
     }
   }
 
@@ -835,13 +828,13 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
         const unicode_string_view::u8string& str = cache->utf8_value();
         auto* cached_data =
                 new v8::ScriptCompiler::CachedData(
-                        str.c_str(), hippy::base::CheckedNumericCast<size_t, int>(str.length()),
+                        str.c_str(), hippy::base::checked_numeric_cast<size_t, int>(str.length()),
                         v8::ScriptCompiler::CachedData::BufferNotOwned);
         v8::ScriptCompiler::Source script_source(source, origin, cached_data);
         script = v8::ScriptCompiler::Compile(
                 context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
     } else {
-        TDF_BASE_NOTREACHED();
+        TDF_BASE_UNREACHABLE();
     }
   } else {
     if (is_use_code_cache && cache) {
@@ -853,7 +846,9 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
       const v8::ScriptCompiler::CachedData* cached_data =
           v8::ScriptCompiler::CreateCodeCache(
               script.ToLocalChecked()->GetUnboundScript());
-      *cache = unicode_string_view(cached_data->data, cached_data->length);
+      *cache = unicode_string_view(cached_data->data,
+                                   hippy::base::checked_numeric_cast<int,
+                                                                     size_t>(cached_data->length));
     } else {
       script = v8::Script::Compile(context, source, &origin);
     }
@@ -890,7 +885,22 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const unicode_string_view& name) {
   return std::make_shared<V8CtxValue>(isolate_, maybe_func.ToLocalChecked());
 }
 
-bool V8Ctx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
+void V8Ctx::ThrowException(const std::shared_ptr<CtxValue> &exception) {
+  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(exception);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
+  isolate_->ThrowException(handle_value);
+}
+
+void V8Ctx::ThrowException(const unicode_string_view &exception) {
+  ThrowException(CreateError(exception));
+}
+
+void V8Ctx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) {
   unicode_string_view error_handle_name(kHippyErrorHandlerName);
   std::shared_ptr<CtxValue> exception_handler =
       GetGlobalObjVar(error_handle_name);
@@ -918,7 +928,6 @@ bool V8Ctx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
                           << GetMsgDesc(message)
                           << ", stack = " << GetStackInfo(message);
   }
-  return true;
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CallFunction(
@@ -1055,7 +1064,7 @@ v8::Local<v8::String> V8Ctx::CreateV8String(
     default:
       break;
   }
-  TDF_BASE_NOTREACHED();
+  TDF_BASE_UNREACHABLE();
 }
 
 std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
@@ -1255,9 +1264,10 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return CreateBoolean(wrapper->BooleanValue());
   } else if (wrapper->IsArray()) {
     auto arr = wrapper->ArrayValue();
-    std::shared_ptr<CtxValue> args[arr.size()];
-    for (auto i = 0; i < arr.size(); ++i) {
-      args[i] = CreateCtxValue(std::make_shared<JSValueWrapper>(arr[i]));
+    auto len = hippy::base::checked_numeric_cast<size_t, int32_t>(arr.size());
+    std::shared_ptr<CtxValue> args[len];
+    for (auto i = 0; i < len; ++i) {
+      args[i] = CreateCtxValue(std::make_shared<JSValueWrapper>(arr[static_cast<unsigned long>(i)]));
     }
     return CreateArray(arr.size(), args);
   } else if (wrapper->IsObject()) {
@@ -1286,7 +1296,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return std::make_shared<V8CtxValue>(isolate_, v8_obj);
   }
 
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
   return nullptr;
 }
 
@@ -1310,8 +1320,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return CreateBoolean(value->ToBoolean());
   } else if (value->IsArray()) {
     auto arr = value->ToArray();
-    std::shared_ptr<CtxValue> args[arr.size()];
-    for (auto i = 0; i < arr.size(); ++i) {
+    auto len = arr.size();
+    std::shared_ptr<CtxValue> args[len];
+    for (size_t i = 0; i < len; ++i) {
       args[i] = CreateCtxValue(std::make_shared<DomValue>(arr[i]));
     }
     return CreateArray(arr.size(), args);
@@ -1348,7 +1359,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
 unicode_string_view V8Ctx::ToStringView(v8::Local<v8::String> str) const {
   TDF_BASE_DCHECK(!str.IsEmpty());
   v8::String* v8_string = v8::String::Cast(*str);
-  int32_t len = v8_string->Length();
+  auto len = hippy::base::checked_numeric_cast<int, size_t>(v8_string->Length());
   if (v8_string->IsOneByte()) {
     std::string one_byte_string;
     one_byte_string.resize(len);
@@ -1362,7 +1373,7 @@ unicode_string_view V8Ctx::ToStringView(v8::Local<v8::String> str) const {
   return unicode_string_view(two_byte_string);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::CreateObject(const unicode_string_view& json) {
+std::shared_ptr<CtxValue> V8Ctx::ParseJson(const unicode_string_view& json) {
   if (StringViewUtils::IsEmpty(json)) {
     return nullptr;
   }
@@ -1379,25 +1390,58 @@ std::shared_ptr<CtxValue> V8Ctx::CreateObject(const unicode_string_view& json) {
   return std::make_shared<V8CtxValue>(isolate_, maybe_obj.ToLocalChecked());
 }
 
+std::shared_ptr<CtxValue> V8Ctx::CreateObject(const std::unordered_map<
+    unicode_string_view,
+    std::shared_ptr<CtxValue>>& object) {
+  std::unordered_map<std::shared_ptr<CtxValue>,std::shared_ptr<CtxValue>> obj;
+  for (const auto& it : object) {
+    auto key = CreateString(it.first);
+    obj[key] = it.second;
+  }
+  return CreateObject(obj);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateObject(const std::unordered_map<
+    std::shared_ptr<CtxValue>,
+    std::shared_ptr<CtxValue>>& object) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  v8::Local<v8::Object> obj = v8::Object::New(isolate_);
+  for (const auto& it : object) {
+    auto key_ctx_value = std::static_pointer_cast<V8CtxValue>(it.first);
+    auto key_handle_value =  v8::Local<v8::Value>::New(isolate_, key_ctx_value->global_value_);
+    auto value_ctx_value = std::static_pointer_cast<V8CtxValue>(it.second);
+    auto value_handle_value = v8::Local<v8::Value>::New(isolate_, value_ctx_value->global_value_);
+    obj->Set(context, key_handle_value, value_handle_value).ToChecked();
+  }
+  return std::make_shared<V8CtxValue>(isolate_, obj);
+}
+
 std::shared_ptr<CtxValue> V8Ctx::CreateArray(
     size_t count,
     std::shared_ptr<CtxValue> value[]) {
+  int array_size;
+  if (!hippy::base::numeric_cast<size_t, int>(count, array_size)) {
+    TDF_BASE_LOG(ERROR) << "array length out of boundary";
+    return nullptr;
+  }
   v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Array> array = v8::Array::New(isolate_, hippy::base::CheckedNumericCast<size_t, int>(count));
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  for (size_t i = 0; i < count; i++) {
+
+  v8::Local<v8::Array> array = v8::Array::New(isolate_, array_size);
+  for (auto i = 0; i < array_size; i++) {
     v8::Local<v8::Value> handle_value;
-    std::shared_ptr<V8CtxValue> ctx_value =
-        std::static_pointer_cast<V8CtxValue>(value[i]);
+    std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(value[i]);
     if (ctx_value) {
-      const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-      handle_value = v8::Local<v8::Value>::New(isolate_, global_value);
+      handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
     } else {
       TDF_BASE_LOG(ERROR) << "array item error";
       return nullptr;
     }
-    if (!array->Set(context, i, handle_value).FromMaybe(false)) {
+    if (!array->Set(context, static_cast<uint32_t >(i), handle_value).FromMaybe(false)) {
       TDF_BASE_LOG(ERROR) << "set array item failed";
       return nullptr;
     }
@@ -1405,36 +1449,27 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
   return std::make_shared<V8CtxValue>(isolate_, array);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::CreateMap(size_t count,
-                                           std::shared_ptr<CtxValue>* value) {
-  if (!count) {
-    return nullptr;
-  }
-  v8::HandleScope handle_scope(isolate_);
+std::shared_ptr<CtxValue> V8Ctx::CreateMap(const std::map<
+    std::shared_ptr<CtxValue>,
+    std::shared_ptr<CtxValue>>& map) {
 
-  v8::Local<v8::Map> map = v8::Map::New(isolate_);
+  v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  for (size_t i = 0; i < count; i += 2) {
-    std::shared_ptr<V8CtxValue> ctx_value_key =
-        std::static_pointer_cast<V8CtxValue>(value[i]);
-    const v8::Global<v8::Value>& persistent_value_key =
-        ctx_value_key->global_value_;
-    v8::Local<v8::Value> handle_value_key =
-        v8::Local<v8::Value>::New(isolate_, persistent_value_key);
 
-    std::shared_ptr<V8CtxValue> ctx_value =
-        std::static_pointer_cast<V8CtxValue>(value[i + 1]);
-    const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
-    v8::Local<v8::Value> handle_value =
-        v8::Local<v8::Value>::New(isolate_, persistent_value);
-    map->Set(context, handle_value_key, handle_value).ToLocalChecked();
+  v8::Local<v8::Map> js_map = v8::Map::New(isolate_);
+  for (auto & it : map) {
+    auto key_ctx_value = std::static_pointer_cast<V8CtxValue>(it.first);
+    auto key_handle_value =  v8::Local<v8::Value>::New(isolate_, key_ctx_value->global_value_);
+    auto value_ctx_value = std::static_pointer_cast<V8CtxValue>(it.second);
+    auto value_handle_value = v8::Local<v8::Value>::New(isolate_, value_ctx_value->global_value_);
+    js_map->Set(context, key_handle_value, value_handle_value).ToLocalChecked();
   }
-  return std::make_shared<V8CtxValue>(isolate_, map);
+  return std::make_shared<V8CtxValue>(isolate_, js_map);
 }
 
-std::shared_ptr<CtxValue> V8Ctx::CreateJsError(const unicode_string_view& msg) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx::CreateJsError msg = " << msg;
+std::shared_ptr<CtxValue> V8Ctx::CreateError(const unicode_string_view& msg) {
+  TDF_BASE_DLOG(INFO) << "V8Ctx::CreateError msg = " << msg;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -1454,11 +1489,8 @@ bool V8Ctx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* resul
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  std::shared_ptr<V8CtxValue> ctx_value =
-      std::static_pointer_cast<V8CtxValue>(value);
-  const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-  v8::Local<v8::Value> handle_value =
-      v8::Local<v8::Value>::New(isolate_, global_value);
+  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(value);
+  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
 
   if (handle_value.IsEmpty() || !handle_value->IsNumber()) {
     return false;
@@ -1690,7 +1722,7 @@ std::shared_ptr<CtxValue> V8Ctx::CopyArrayElement(
 }
 
 // Map Helpers
-uint32_t V8Ctx::GetMapLength(std::shared_ptr<CtxValue>& value) {
+size_t V8Ctx::GetMapLength(std::shared_ptr<CtxValue>& value) {
   if (value == nullptr) {
     return 0;
   }

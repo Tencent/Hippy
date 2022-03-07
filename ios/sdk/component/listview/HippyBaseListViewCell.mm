@@ -33,13 +33,22 @@
 
 @implementation HippyBaseListViewCell
 
-@synthesize tableView = _tableView;
-
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
-    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
-        self.backgroundColor = [UIColor clearColor];
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
         _cellShowState = CellNotShowState;
         _previousShowState = CellNotShowState;
+        self.backgroundColor = [UIColor clearColor];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        _cellShowState = CellNotShowState;
+        _previousShowState = CellNotShowState;
+        self.backgroundColor = [UIColor clearColor];
     }
     return self;
 }

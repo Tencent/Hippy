@@ -25,7 +25,7 @@ void Deserializer::ReadHeader() {
     version_ = ReadVarint<uint32_t>();
     TDF_BASE_CHECK(version_ <= kLatestVersion);
   }
-};
+}
 
 bool Deserializer::PeekTag(SerializationTag& tag) {
   const uint8_t* peek_position = position_;
@@ -35,7 +35,7 @@ bool Deserializer::PeekTag(SerializationTag& tag) {
     peek_position++;
   } while (tag == SerializationTag::kPadding);
   return true;
-};
+}
 
 bool Deserializer::ReadTag(SerializationTag& tag) {
   do {
@@ -44,33 +44,33 @@ bool Deserializer::ReadTag(SerializationTag& tag) {
     position_++;
   } while (tag == SerializationTag::kPadding);
   return true;
-};
+}
 
 void Deserializer::ConsumeTag(SerializationTag peek_tag) {
   SerializationTag tag;
   ReadTag(tag);
   TDF_BASE_DCHECK(tag == peek_tag);
-};
+}
 
 bool Deserializer::ReadInt32(int32_t& value) {
   value = ReadZigZag<int32_t>();
   return true;
-};
+}
 
 bool Deserializer::ReadInt32(DomValue& dom_value) {
   dom_value = DomValue(ReadZigZag<int32_t>());
   return true;
-};
+}
 
 bool Deserializer::ReadUInt32(uint32_t& value) {
   value = ReadVarint<uint32_t>();
   return true;
-};
+}
 
 bool Deserializer::ReadUInt32(DomValue& dom_value) {
   dom_value = DomValue(ReadVarint<uint32_t>());
   return true;
-};
+}
 
 bool Deserializer::ReadDouble(double& value) {
   if (sizeof(double) > static_cast<unsigned>(end_ - position_)) return false;
@@ -78,7 +78,7 @@ bool Deserializer::ReadDouble(double& value) {
   position_ += sizeof(double);
   if (std::isnan(value)) value = std::numeric_limits<double>::quiet_NaN();
   return true;
-};
+}
 
 bool Deserializer::ReadDouble(DomValue& dom_value) {
   if (sizeof(double) > static_cast<unsigned>(end_ - position_)) return false;
@@ -88,7 +88,7 @@ bool Deserializer::ReadDouble(DomValue& dom_value) {
   if (std::isnan(value)) value = std::numeric_limits<double>::quiet_NaN();
   dom_value = DomValue(value);
   return true;
-};
+}
 
 bool Deserializer::ReadUtf8String(std::string& value) {
   uint32_t utf8_length;
@@ -100,7 +100,7 @@ bool Deserializer::ReadUtf8String(std::string& value) {
   unicode_string_view string_view(start, utf8_length);
   value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
   return true;
-};
+}
 
 bool Deserializer::ReadUtf8String(DomValue& dom_value) {
   uint32_t utf8_length;
@@ -112,7 +112,7 @@ bool Deserializer::ReadUtf8String(DomValue& dom_value) {
   unicode_string_view string_view(start, utf8_length);
   dom_value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
   return true;
-};
+}
 
 bool Deserializer::ReadOneByteString(std::string& value) {
   uint32_t one_byte_length;
@@ -124,7 +124,7 @@ bool Deserializer::ReadOneByteString(std::string& value) {
   unicode_string_view string_view(start, one_byte_length);
   value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
   return true;
-};
+}
 
 bool Deserializer::ReadOneByteString(DomValue& dom_value) {
   uint32_t one_byte_length;
@@ -136,7 +136,7 @@ bool Deserializer::ReadOneByteString(DomValue& dom_value) {
   unicode_string_view string_view(start, one_byte_length);
   dom_value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
   return true;
-};
+}
 
 bool Deserializer::ReadTwoByteString(std::string& value) {
   uint32_t two_byte_length;
@@ -148,7 +148,7 @@ bool Deserializer::ReadTwoByteString(std::string& value) {
   unicode_string_view string_view(start, two_byte_length);
   value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
   return true;
-};
+}
 
 bool Deserializer::ReadTwoByteString(DomValue& dom_value) {
   uint32_t two_byte_length;
@@ -160,7 +160,7 @@ bool Deserializer::ReadTwoByteString(DomValue& dom_value) {
   unicode_string_view string_view(start, two_byte_length/ sizeof(char16_t));
   dom_value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
   return true;
-};
+}
 
 bool Deserializer::ReadDenseJSArray(DomValue& dom_value) {
   uint32_t length = ReadVarint<uint32_t>();
@@ -193,7 +193,7 @@ bool Deserializer::ReadDenseJSArray(DomValue& dom_value) {
 
   dom_value = array;
   return true;
-};
+}
 
 bool Deserializer::ReadJSObject(DomValue& dom_value) {
   bool ret = true;
@@ -245,7 +245,8 @@ T Deserializer::ReadZigZag() {
   using UnsignedT = typename std::make_unsigned<T>::type;
   UnsignedT unsigned_value;
   unsigned_value = ReadVarint<UnsignedT>();
-  return static_cast<T>((unsigned_value >> 1) ^ -static_cast<T>(unsigned_value & 1));
+  return static_cast<T>((unsigned_value >> 1) ^ static_cast<unsigned int>(-static_cast<T>(
+      unsigned_value & 1)));
 }
 
 bool Deserializer::ReadObject(DomValue& value) {

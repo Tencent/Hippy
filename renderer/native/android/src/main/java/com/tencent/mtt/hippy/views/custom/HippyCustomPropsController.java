@@ -20,7 +20,6 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import android.content.Context;
@@ -35,25 +34,17 @@ public class HippyCustomPropsController extends HippyViewController {
     public static final String CLASS_NAME = "CustomProps";
     public static final String DT_EBLID = "dt_elementBizLeafIdentifier";
 
-    @SuppressWarnings("unused")
     @Override
     protected View createViewImpl(Context context) {
         return null;
     }
 
-    @SuppressWarnings("unused")
     protected void onSetDTElementBizLeafIdentifier(View view) {
         if (view == null) {
             return;
         }
-        Context context = view.getContext();
-        if (context instanceof NativeRenderContext) {
-            int instanceId = ((NativeRenderContext) view.getContext()).getInstanceId();
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-            //noinspection ConstantConditions
-            if (nativeRenderer == null) {
-                return;
-            }
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
+        if (nativeRenderer != null) {
             RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view.getId());
             if (node != null) {
                 node.setNodeFlag(FLAG_HAS_DTEB_ID);

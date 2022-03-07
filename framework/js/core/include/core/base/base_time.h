@@ -26,13 +26,16 @@
 
 #include <chrono>
 
+#include "common.h"
+
 namespace hippy {
 namespace base {
 inline uint64_t MonotonicallyIncreasingTime() {
   auto now = std::chrono::steady_clock::now();
   auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now)
                     .time_since_epoch();
-  return std::chrono::duration_cast<std::chrono::milliseconds>(now_ms).count();
+  auto ticks = std::chrono::duration_cast<std::chrono::milliseconds>(now_ms).count();
+  return checked_numeric_cast<long long, uint64_t>(ticks);
 }
 }  // namespace base
 }  // namespace hippy

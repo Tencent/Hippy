@@ -34,6 +34,13 @@
 
 @implementation HippyWaterfallViewDataSource
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+    }
+    return self;
+}
+
 - (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource {
     [self setDataSource:dataSource containBannerView:NO];
 }

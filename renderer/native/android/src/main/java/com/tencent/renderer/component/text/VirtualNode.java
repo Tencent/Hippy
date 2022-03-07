@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer.component.text;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -34,7 +36,7 @@ public abstract class VirtualNode {
     @Nullable
     protected VirtualNode mParent;
     @Nullable
-    protected ArrayList<String> mGestureTypes = null;
+    protected List<String> mGestureTypes;
 
     public VirtualNode(int id, int pid, int index) {
         mId = id;
@@ -70,6 +72,10 @@ public abstract class VirtualNode {
         if (mGestureTypes != null) {
             mGestureTypes.remove(event);
         }
+    }
+
+    public boolean isDirty() {
+        return mDirty;
     }
 
     public void markDirty() {
