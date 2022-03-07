@@ -71,6 +71,9 @@ std::shared_ptr<Runtime> Runtime::Find(v8::Isolate *isolate) {
         continue;
       }
       std::shared_ptr<V8Ctx> ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
+      if (!ctx) {
+        continue;
+      }
       if (ctx->context_persistent_ == context) {
         return p.second;
       }

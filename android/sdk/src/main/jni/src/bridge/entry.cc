@@ -556,8 +556,6 @@ void DestroyInstance(__unused JNIEnv* j_env,
 #else
     runtime->GetScope()->WillExit();
 #endif
-    TDF_BASE_LOG(INFO) << "SetScope nullptr";
-    runtime->SetScope(nullptr);
     TDF_BASE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
     TDF_BASE_LOG(INFO) << "js destroy end";
