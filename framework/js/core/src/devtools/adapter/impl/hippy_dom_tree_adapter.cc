@@ -31,7 +31,7 @@ void HippyDomTreeAdapter::UpdateDomTree(std::string tree_data, UpdateDomTreeCall
     return;
   }
 
-  bool is_success = true;
+  bool is_success = false;
   for (auto &json_obj : update_info) {
     int32_t node_id = 0;
     std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map{};
@@ -61,13 +61,12 @@ void HippyDomTreeAdapter::UpdateDomTree(std::string tree_data, UpdateDomTreeCall
       std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
       if (dom_manager) {
         auto node = dom_manager->GetNode(node_id);
-        // TODO:sicilyliu 继续跟进，iOS生效但安卓不生效
         node->UpdateProperties(style_map, std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>{});
+        is_success = true;
       }
-    } else {
-      is_success = false;
     }
   }
+  callback(is_success);
 #endif
 }
 
