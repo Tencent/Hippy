@@ -21,6 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "HippyRenderContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -142,7 +142,6 @@
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)index {

@@ -104,7 +104,6 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
     if (json) {
-        //TODO 这里需要
         NSDictionary *linearGradientObject = [HippyConvert NSDictionary:json];
         view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:linearGradientObject];
         [view.layer setNeedsDisplay];

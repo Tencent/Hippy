@@ -60,7 +60,7 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
     __weak HippyViewManager *_manager;
 }
 
-- (instancetype)initWithViewManager:(HippyViewManager *)viewManager {
+- (instancetype)initWithViewManager:(HippyViewManager *)viewManager viewName:(NSString *)viewName {
     self = [super init];
     if (self) {
         _managerClass = [viewManager class];
@@ -71,7 +71,7 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
         // We want to get rid of Hippy and RK prefixes, but a lot of JS code still references
         // view names by prefix. So, while HippyBridgeModuleNameForClass now drops these
         // prefixes by default, we'll still keep them around here.
-        NSString *name = [_managerClass moduleName];
+        NSString *name = viewName;
         if (name.length == 0) {
             name = NSStringFromClass(_managerClass);
         }

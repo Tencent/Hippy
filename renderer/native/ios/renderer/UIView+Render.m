@@ -21,6 +21,7 @@
  */
 
 #import "UIView+Render.h"
+#import "objc/runtime.h"
 
 @implementation UIView (Render)
 

@@ -146,7 +146,6 @@
     [_textView removeObserver:self forKeyPath:@"selectedTextRange"];
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 // This method is overridden for `onKeyPress`. The manager

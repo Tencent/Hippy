@@ -34,7 +34,7 @@
 @property (nonatomic, copy, readonly) NSString *name;
 @property (nonatomic, weak, readonly) HippyViewManager *manager;
 
-- (instancetype)initWithViewManager:(HippyViewManager *)viewManager NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithViewManager:(HippyViewManager *)viewManager viewName:(NSString *)viewName NS_DESIGNATED_INITIALIZER;
 
 - (UIView *)createViewWithTag:(NSNumber *)tag;
 

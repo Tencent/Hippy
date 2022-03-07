@@ -26,7 +26,7 @@
 #import "HippyUIManager.h"
 
 @implementation MyViewManager
-HIPPY_EXPORT_MODULE(MyView)
+
 HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
 
 HIPPY_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag

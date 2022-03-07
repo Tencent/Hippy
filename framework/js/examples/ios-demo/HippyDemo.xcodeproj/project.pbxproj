@@ -207,6 +207,7 @@
 		F4A8424227D38CF900AEFC88 /* NativeRenderManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A8423F27D38CF900AEFC88 /* NativeRenderManager.mm */; };
 		F4A8424327D38CF900AEFC88 /* HippyUIManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A8424127D38CF900AEFC88 /* HippyUIManager.mm */; };
 		F4AFCB1627BE29D50058AAB1 /* UIView+HippyEvent.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4AFCB1527BE29D50058AAB1 /* UIView+HippyEvent.mm */; };
+		F4BD045827D5AE2500339A2C /* UIView+Render.m in Sources */ = {isa = PBXBuildFile; fileRef = F459C45927D4F355009A7441 /* UIView+Render.m */; };
 		F4CB9D29279270D3008D6F2C /* UIView+RootViewRegister.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4CB9D28279270D3008D6F2C /* UIView+RootViewRegister.mm */; };
 		F4D0028F2675C7D5004A43B6 /* HippyGradientObject.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */; };
 		F4E2AD79271FC23500E36EFB /* HippyDevWebSocketClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E2AD78271FC23500E36EFB /* HippyDevWebSocketClient.m */; };
@@ -1821,6 +1822,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4BD045827D5AE2500339A2C /* UIView+Render.m in Sources */,
 				D4B09E392750D2C000643CDF /* Flex.cpp in Sources */,
 				064C5A5523AB1A51001E80DD /* HippyBridge.mm in Sources */,
 				064C5A0623AB1A51001E80DD /* HippyScrollView.mm in Sources */,

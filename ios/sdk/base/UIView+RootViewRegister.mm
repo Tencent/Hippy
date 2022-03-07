@@ -28,7 +28,7 @@
 
 - (void)registerAsHippyRootView:(HippyBridge *)bridge {
     [bridge.uiManager registerRootView:self withSizeFlexibility:HippyRootViewSizeFlexibilityNone];
-    self.bridge = bridge;
+//    self.bridge = bridge;
 }
 
 - (void)invalidate {}

@@ -49,6 +49,7 @@
 #import "OCTypeToDomArgument.h"
 #import "UIView+HippyEvent.h"
 #import "objc/runtime.h"
+#import "UIView+Render.h"
 #include <mutex>
 
 using DomValue = tdf::base::DomValue;
@@ -182,6 +183,7 @@ HIPPY_EXPORT_MODULE()
         [center addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [center addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
         [center addObserver:self selector:@selector(appWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
+        [self initContext];
     }
     return self;
 }
@@ -224,10 +226,12 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)invalidate {
+    //TODO needs Framework call invalide manually
     /**
      * Called on the JS Thread since all modules are invalidated on the JS thread
      */
     _pendingUIBlocks = nil;
+    [_completeBlocks removeAllObjects];
     __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         HippyUIManager *strongSelf = weakSelf;
@@ -251,7 +255,6 @@ HIPPY_EXPORT_MODULE()
             [[NSNotificationCenter defaultCenter] removeObserver:strongSelf];
         }
     });
-    [_completeBlocks removeAllObjects];
 }
 
 #pragma mark Setter & Getter
@@ -350,11 +353,11 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             HippyViewManager *viewManager = [self renderViewManagerForViewName:viewName];
             HippyAssert(viewManager, @"No view manager found for %@", viewName);
             if (viewManager) {
-                componentData = [[HippyComponentData alloc] initWithViewManager:viewManager];
+                componentData = [[HippyComponentData alloc] initWithViewManager:viewManager viewName:viewName];
                 _componentDataByName[viewName] = componentData;
-                return componentData;
             }
         }
+        return componentData;
     }
     return nil;
 }
@@ -485,8 +488,9 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView {
     HippyAssertMainQueue();
-    HippyComponentData *componentData = _componentDataByName[shadowView.viewName];
+    HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName];
     UIView *view = [self createViewByComponentData:componentData hippyTag:shadowView.hippyTag rootTag:_rootViewTag properties:shadowView.props viewName:shadowView.viewName];
+    view.renderContext = self;
     [view hippySetFrame:shadowView.frame];
     const std::vector<std::string> &eventNames = [shadowView allEventNames];
     for (auto &event : eventNames) {
@@ -528,7 +532,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         NSString *viewName = [NSString stringWithUTF8String:domNode->GetViewName().c_str()];
         NSString *tagName = [NSString stringWithUTF8String:domNode->GetTagName().c_str()];
         NSDictionary *props = stylesFromDomNode(domNode);
-        HippyComponentData *componentData = _componentDataByName[viewName];
+        HippyComponentData *componentData = [self componentDataForViewName:viewName];
         HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
         if (componentData == nil) {
             HippyLogError(@"No component found for view with name \"%@\"", viewName);
@@ -589,6 +593,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (view) {
         view.viewName = viewName;
         view.rootTag = rootTag;
+        view.renderContext = self;
         [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
 
         if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
@@ -616,8 +621,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)updateView:(nonnull NSNumber *)hippyTag viewName:(NSString *)viewName props:(NSDictionary *)props {
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
-    HippyComponentData *componentData = _componentDataByName[shadowView.viewName ?: viewName];
-
+    HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName ? : viewName];
     id isAnimated = props[@"useAnimation"];
     if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
         HippyExtAnimationModule *animationModule = self.bridge.animationModule;
@@ -724,6 +728,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 #pragma mark Render Context Implementation
 #define Init(Component) NSClassFromString(@#Component)
 - (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName {
+    //TODO 需要接口接收自定义ViewManager:MyView
     if (!_viewManagers) {
         _viewManagers = [@{@"View": Init(HippyViewManager),
                           @"WaterfallItem": Init(HippyWaterfallItemViewManager),
@@ -815,6 +820,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                 id<HippyRenderContext> renderContext = weakManager;
                 @try {
                     for (HippyRenderUIBlock block in previousPendingUIBlocks) {
+                        HippyUIManager *uiManager = (HippyUIManager *)renderContext;
                         block(uiManager, uiManager->_viewRegistry);
                     }
                 } @catch (NSException *exception) {
@@ -859,11 +865,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (HippyCreationTypeInstantly == [shadowView creationType]) {
             NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
             NSDictionary *props = [dicProps objectForKey:@(node->GetId())];
-            HippyComponentData *componentData = _componentDataByName[viewName];
+            HippyComponentData *componentData = [self componentDataForViewName:viewName];
             NSNumber *rootViewTag = _rootViewTag;
             [self addUIBlock:^(id<HippyRenderContext> renderContext, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+                HippyUIManager *uiManager = (HippyUIManager *)renderContext;
                 UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootViewTag properties:props viewName:viewName];
                 view.hippyShadowView = shadowView;
+                view.renderContext = renderContext;
             }];
         }
     }
@@ -907,10 +915,12 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         __weak auto weakSelf = self;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = viewRegistry[@(tag)];
-            [view removeFromHippySuperview];
-            if (weakSelf) {
-                auto strongSelf = weakSelf;
-                [strongSelf purgeChildren:@[view] fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)(strongSelf->_viewRegistry)];
+            if (view) {
+                [view removeFromHippySuperview];
+                if (weakSelf) {
+                    auto strongSelf = weakSelf;
+                    [strongSelf purgeChildren:@[view] fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)(strongSelf->_viewRegistry)];
+                }
             }
         }];
     }
@@ -1003,32 +1013,38 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)addEventName:(const std::string &)name forDomNodeId:(int32_t)node_id {
     if (name == hippy::kClickEvent) {
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             [uiManager addClickEventListenerForView:node_id];
         }];
     } else if (name == hippy::kLongClickEvent) {
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             [uiManager addLongClickEventListenerForView:node_id];
         }];
     } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
                || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
         std::string name_ = name;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             [uiManager addTouchEventListenerForType:name_ forView:node_id];
         }];
     } else if (name == hippy::kShowEvent || name == hippy::kDismissEvent) {
         std::string name_ = name;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             [uiManager addShowEventListenerForType:name_ forView:node_id];
         }];
     } else if (name == hippy::kPressIn || name == hippy::kPressOut) {
         std::string name_ = name;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             [uiManager addPressEventListenerForType:name_ forView:node_id];
         }];
     }
     else {
         std::string name_ = name;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             [uiManager addRenderEvent:name_ forDomNode:node_id];
         }];
     }
@@ -1191,6 +1207,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         eventName == hippy::kPressIn || eventName == hippy::kPressOut) {
         std::string name_ = eventName;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
             [view removeViewEvent:viewEventTypeFromName(name_)];
         }];
@@ -1198,6 +1215,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     else {
         std::string name_ = eventName;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
             [view removeStatusChangeEvent:name_];
         }];
@@ -1239,6 +1257,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     int32_t hippyTag = node_id;
     std::string name_ = name;
     [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        HippyUIManager *uiManager = (HippyUIManager *)renderContext;
         UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
         [view removeStatusChangeEvent:name_];
     }];

@@ -244,9 +244,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     HippyShadowView *headerShadowView = [self.dataSource headerForSection:section];
     if (headerShadowView && [headerShadowView isKindOfClass:[HippyShadowView class]]) {
-        UIView *headerView = [_bridge.uiManager viewForHippyTag:headerShadowView.hippyTag];
+        UIView *headerView = [self.renderContext viewFromRenderViewTag:headerShadowView.hippyTag];
         if (!headerView) {
-            headerView = [_bridge.uiManager createViewRecursivelyFromShadowView:headerShadowView];
+            headerView = [self.renderContext createViewRecursivelyFromShadowView:headerShadowView];
         }
         CGRect frame = headerView.frame;
         frame.origin = CGPointZero;
@@ -292,9 +292,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
     HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    UIView *cellView = [_bridge.uiManager viewForHippyTag:cellShadowView.hippyTag];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag];
     if (!cellView) {
-        cellView = [_bridge.uiManager createViewRecursivelyFromShadowView:cellShadowView];
+        cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
     }
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");

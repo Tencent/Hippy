@@ -672,7 +672,8 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
 - (HippyBackgroundImageCacheManager *)backgroundCachemanager {
     if (!_backgroundCachemanager) {
         _backgroundCachemanager = [[HippyBackgroundImageCacheManager alloc] init];
-        _backgroundCachemanager.bridge = [self bridge];
+        //TODO 
+//        _backgroundCachemanager.bridge = [self bridge];
     }
     return _backgroundCachemanager;
 }
