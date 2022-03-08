@@ -31,7 +31,8 @@
 #import <UIKit/UIKit.h>
 
 @interface HippyImageViewManager () {
-    NSMapTable<UIView *, id<HippyImageDataLoaderProtocol>> *_imageViewLoaderMapTable;
+    id<HippyImageDataLoaderProtocol> _imageDataLoader;
+    NSUInteger _sequence;
 }
 
 @end
@@ -57,12 +58,14 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
         if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
             path = [self.renderContext.frameworkProxy standardizeAssetUrlString:path];
         }
-        id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoaderForView:view path:path];
+        id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
         __weak HippyImageView *weakView = view;
         NSURL *url = HippyURLWithString(path, nil);
-        [imageDataLoader loadImageAtUrl:url progress:^(NSUInteger current, NSUInteger total) {
-        } completion:^(id result, NSURL *url, NSError *error) {
-            if (!error && weakView) {
+        //TODO sequence should set to View
+        NSUInteger sequence = _sequence++;
+        [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
+        } completion:^(NSUInteger seq, id result, NSURL *url, NSError *error) {
+            if (!error && weakView && sequence == seq) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (weakView) {
                         HippyImageView *strongView = weakView;
@@ -95,12 +98,13 @@ HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
         source = [self.renderContext.frameworkProxy standardizeAssetUrlString:source];
     }
-    id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoaderForView:view path:source];
+    id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
     __weak HippyImageView *weakView = view;
     NSURL *url = HippyURLWithString(source, nil);
-    [imageDataLoader loadImageAtUrl:url progress:^(NSUInteger current, NSUInteger total) {
-    } completion:^(id result, NSURL *url, NSError *error) {
-        if (!error && weakView) {
+    NSUInteger sequence = _sequence++;
+    [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
+    } completion:^(NSUInteger seq, id result, NSURL *url, NSError *error) {
+        if (!error && weakView && sequence == seq) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (weakView) {
                     HippyImageView *strongView = weakView;
@@ -136,23 +140,12 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
     return [[HippyImageView alloc] init];
 }
 
-- (Class<HippyImageDataLoaderProtocol>)imageDataLoaderClass {
-    if (!_imageDataLoaderClass) {
-        _imageDataLoaderClass = [HippyImageDataLoader class];
-    }
-    return _imageDataLoaderClass;
-}
-
 - (Class<HippyImageProviderProtocol>)imageProviderClass {
     if (!_imageProviderClass) {
+        //TODO HippyImageProviderProtocol instance should be fetched from proxy
         _imageProviderClass = [HippyDefaultImageProvider class];
     }
     return _imageProviderClass;
-}
-
-- (id<HippyImageDataLoaderProtocol>)getNewImageDataLoaderInstance {
-    Class cls = [self imageDataLoaderClass];
-    return [[cls alloc] init];
 }
 
 - (id<HippyImageProviderProtocol>)getNewImageProviderInstance {
@@ -160,26 +153,16 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
     return [[cls alloc] init];
 }
 
-- (NSMapTable *)imageViewLoaderMapTable {
-    if (_imageViewLoaderMapTable) {
-        _imageViewLoaderMapTable = [NSMapTable weakToStrongObjectsMapTable];
-    }
-    return _imageViewLoaderMapTable;
-}
-
-- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForView:(UIView *)view path:(NSString *)path {
-    id<HippyImageDataLoaderProtocol> loader = nil;
-    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoaderForPath:)]) {
-        loader = [self.renderContext.frameworkProxy imageDataLoaderForPath:path];
-    }
-    if (!loader && view) {
-        loader = objc_getAssociatedObject(view, @selector(imageDataLoaderForView:path:));
-        if (!loader) {
-            loader = [self getNewImageDataLoaderInstance];
-            objc_setAssociatedObject(view, @selector(imageDataLoaderForView:path:), loader, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (id<HippyImageDataLoaderProtocol>)imageDataLoader {
+    if (!_imageDataLoader) {
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoader)]) {
+            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoader];
+        }
+        if (!_imageDataLoader) {
+            _imageDataLoader = [[HippyImageDataLoader alloc] init];
         }
     }
-    return loader;
+    return _imageDataLoader;
 }
 
 @end

@@ -22,7 +22,7 @@
 
 #import "HippyBridgeModule.h"
 @class HippyImageView;
-
+//TODO remove this protocol
 @protocol HippyImageViewCustomLoader <HippyBridgeModule>
 
 @optional

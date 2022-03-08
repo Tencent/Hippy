@@ -26,6 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface HippyDownloadTask : NSObject
 
+- (instancetype)initWithURL:(NSURL *)URL progress:(void(^)(NSUInteger, NSUInteger))progress
+                 completion:(void(^)(NSData *, NSURL *, NSError *))completion;
+
+- (void)beginTask;
+
+- (void)cancel;
+
 @end
 
 NS_ASSUME_NONNULL_END

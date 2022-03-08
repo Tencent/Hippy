@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)standardizeAssetUrlString:(NSString *)UrlString;
 
-- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForPath:(NSString *)path;
+- (id<HippyImageDataLoaderProtocol>)imageDataLoader;
 
 @end
 
