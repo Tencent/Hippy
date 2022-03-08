@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.2](https://github.com/Tencent/Hippy/compare/2.13.1...2.13.2) (2022-03-08)
+
+
+### Bug Fixes
+
+* **android:** add lower bound checking for `uint32` value ([7743a52](https://github.com/Tencent/Hippy/commit/7743a52e31eee9e80dd5cb682fb007f5302a63ea))
+* **android:** fix context leaks on EngineInitParams ([67bbea5](https://github.com/Tencent/Hippy/commit/67bbea588d6d257ad8cb900a3185ec564c6ef9f6))
+* **ios:** close web socket when dev manager release ([a81e2a3](https://github.com/Tencent/Hippy/commit/a81e2a340ababcdde7b8e9a2c26b1cd8e7a138fb))
+* **ios:** fix currentRadioAccessTechnology unavailable in ios14.2 ([2031178](https://github.com/Tencent/Hippy/commit/2031178d3ab70dbb5d519a480e3ecadedfa51c01))
+* **ios:** fix mixed type text word order bug ([6ed4df3](https://github.com/Tencent/Hippy/commit/6ed4df30c4644d8aa45a8b18dde3db97d0cf0236))
+* **lerna:** change lerna execute path ([021fc89](https://github.com/Tencent/Hippy/commit/021fc89d32b24d6af36f360b00d241185cb092dd))
+
+
+
+
+
 ## [2.13.1](https://github.com/Tencent/Hippy/compare/2.13.0...2.13.1) (2022-02-27)
 
 

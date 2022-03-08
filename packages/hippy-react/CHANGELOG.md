@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.2](https://github.com/Tencent/Hippy/compare/2.13.1...2.13.2) (2022-03-08)
+
+**Note:** Version bump only for package @hippy/react
+
+
+
+
+
 ## [2.13.1](https://github.com/Tencent/Hippy/compare/2.13.0...2.13.1) (2022-02-27)
 
 
