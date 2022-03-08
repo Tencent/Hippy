@@ -1,3 +1,4 @@
+import { HippyWebModule } from '../../base';
 import { BaseModule, ModuleContext } from '../../types';
 import { callbackToHippy, dispatchModuleEventToHippy } from '../common';
 const enum EventType {
@@ -6,14 +7,10 @@ const enum EventType {
   ON_ERROR='onError',
   ON_MESSAGE='text',
 }
-export class WebSocketModule implements BaseModule {
+export class WebSocketModule extends HippyWebModule {
   public static moduleName = 'WebSocketModule';
-  private context!: ModuleContext;
   private webSocketConnections: {[key: string]: WebsocketObject} = {};
 
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
 
   public connect(callBackId: number, data: {url?: string, headers?: {[key: string]: any} }) {
     const response = {

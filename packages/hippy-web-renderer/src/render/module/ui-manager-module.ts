@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+import { HippyWebModule } from '../../base';
 import {
   BaseModule,
   BaseView,
@@ -28,15 +29,11 @@ import {
 } from '../../types';
 import { callBackMeasureInWindowToHippy, setElementStyle } from '../common';
 
-export class UIManagerModule implements BaseModule {
+export class UIManagerModule extends HippyWebModule {
   public static moduleName = ''
-  private context!: ModuleContext;
   private viewDictionary: {[key in string|number]: BaseView} = {};
   private rootDom: HTMLElement|undefined;
   private contentDom: HTMLElement|undefined;
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
 
   public initialize() {
 

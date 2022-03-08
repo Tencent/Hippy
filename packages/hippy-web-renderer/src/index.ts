@@ -17,6 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import './global';
-import './render';
-import './core/entry/hippy';
+
+import './env';
+
+export * from './base';
+export * from './render/module';

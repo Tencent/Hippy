@@ -1,13 +1,10 @@
+import { HippyWebModule } from '../../base';
 import { BaseModule, ModuleContext } from '../../types';
 import { callbackToHippy } from '../common';
 
-export class StorageModule implements BaseModule {
+export class StorageModule extends HippyWebModule {
   public static moduleName = 'StorageModule';
-  private context!: ModuleContext;
   private readonly STORE_PRX_KEY = 'hippy-storage-';
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
 
   public static preCheck() {
     if (!window.localStorage) {

@@ -1,4 +1,4 @@
-import { HippyNativeBridge } from "../hippy-internal-types";
+import { HippyNativeBridge } from "../types/hippy-internal-types";
 
 export const nativeBridge: HippyNativeBridge = (_action, _callObj) => {
   let resp = 'success';

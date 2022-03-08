@@ -1,13 +1,9 @@
+import { HippyWebModule } from '../../base';
 import { BaseModule, ModuleContext } from '../../types';
 import { callbackToHippy } from '../common';
 interface NetResponse {status: number, statusLine: string, body: string, respHeaders: any}
-class NetworkModule implements BaseModule {
+class NetworkModule extends HippyWebModule {
   public static moduleName = 'NetworkModule'
-  private context!: ModuleContext;
-
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
 
   public fetch(callBackId: number, data: any) {
     if (!data) {
