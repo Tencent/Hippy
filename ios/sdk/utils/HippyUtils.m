@@ -769,7 +769,15 @@ NSURL *__nullable HippyURLWithString(NSString *URLString, NSString *baseURLStrin
         if (nil == uriData) {
             return nil;
         }
-        CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, (__bridge CFURLRef)baseURL);
+        CFURLRef urlRef = NULL;
+        if ([URLString hasPrefix:@"http"] ||
+            [URLString hasPrefix:@"data:"] ||
+            [URLString hasPrefix:@"file:"]) {
+            urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, (__bridge CFURLRef)baseURL);
+        }
+        else {
+            urlRef = CFURLCreateWithFileSystemPath(NULL, (__bridge CFStringRef)URLString, kCFURLPOSIXPathStyle, NO);
+        }
         NSURL *source_url = CFBridgingRelease(urlRef);
         return source_url;
     }
