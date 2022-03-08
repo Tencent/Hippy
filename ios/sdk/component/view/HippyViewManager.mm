@@ -94,7 +94,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
         CGFloat scale = [UIScreen mainScreen].scale;
         NSURL *url = HippyURLWithString(imagePath, nil);
         [imageDataLoader loadImageAtUrl:url progress:^(NSUInteger current, NSUInteger total) {
-        } completion:^(id result, NSString *path, NSError *error) {
+        } completion:^(id result, NSURL *url, NSError *error) {
             if (!error) {
                 UIImage *backgroundImage = nil;
                 if ([result isKindOfClass:[UIImage class]]) {

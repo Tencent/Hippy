@@ -38,7 +38,7 @@ typedef NS_ENUM(NSUInteger, ImagePathType) {
 };
 
 typedef void(^DownloadProgress)(NSUInteger, NSUInteger);
-typedef void(^CompletionBlock)(id, NSString *, NSError *);
+typedef void(^CompletionBlock)(id, NSURL *, NSError *);
 
 static ImagePathType checkPathTypeFromUrl(NSURL *Url) {
     ImagePathType type = ImagePathTypeUnknown;
@@ -135,7 +135,7 @@ static NSOperationQueue *ImageDataLoaderQueue(void) {
             NSError *error = nil;
             NSData *data = [NSData dataWithContentsOfFile:path options:NSDataReadingMappedIfSafe error:&error];
             if (error) {
-                dataCompletion(nil, path, error);
+                dataCompletion(nil, Url, error);
             }
             else {
                 NSUInteger length = [data length];
@@ -143,19 +143,19 @@ static NSOperationQueue *ImageDataLoaderQueue(void) {
                     progress(length, length);
                 }
                 if (dataCompletion) {
-                    dataCompletion(data, path, nil);
+                    dataCompletion(data, Url, nil);
                 }
             }
         }else {
             if (dataCompletion) {
                 NSError *error = [NSError errorWithDomain:HippyImageDataLoaderErrorDomain code:HippyImageDataLoaderErrorFileNotExists userInfo:@{@"path": path}];
-                dataCompletion(nil, path, error);
+                dataCompletion(nil, Url, error);
             }
         }
     }else {
         if (dataCompletion) {
             NSError *error = [NSError errorWithDomain:HippyImageDataLoaderErrorDomain code:HippyImageDataLoaderErrorNoPathIncoming userInfo:nil];
-            dataCompletion(nil, [Url path], error);
+            dataCompletion(nil, Url, error);
         }
     }
 }
@@ -166,26 +166,26 @@ static NSOperationQueue *ImageDataLoaderQueue(void) {
             NSError *error = nil;
             NSData *data = [NSData dataWithContentsOfURL:Url options:NSDataReadingMappedIfSafe error:&error];
             if (error) {
-                dataCompletion(nil, [Url absoluteString], error);
+                dataCompletion(nil, Url, error);
             }else {
                 NSUInteger length = [data length];
                 if (progress) {
                     progress(length, length);
                 }
                 if (dataCompletion) {
-                    dataCompletion(data, [Url absoluteString], nil);
+                    dataCompletion(data, Url, nil);
                 }
             }
         }else {
             if (dataCompletion) {
                 NSError *error = [NSError errorWithDomain:HippyImageDataLoaderErrorDomain code:HippyImageDataLoaderErrorNoPathIncoming userInfo:nil];
-                dataCompletion(nil, [Url absoluteString], error);
+                dataCompletion(nil, Url, error);
             }
         }
     }else {
         if (dataCompletion) {
             NSError *error = [NSError errorWithDomain:HippyImageDataLoaderErrorDomain code:HippyImageDataLoaderErrorNoPathIncoming userInfo:nil];
-            dataCompletion(nil, [Url absoluteString], error);
+            dataCompletion(nil, Url, error);
         }
     }
 }
@@ -220,7 +220,7 @@ didReceiveResponse:(NSURLResponse *)response
             _progress([_imageData length], _imageDataTotalLength);
         }
         if (_completion) {
-            _completion(_imageData, [[[task originalRequest] URL] absoluteString], error);
+            _completion(_imageData, [[task originalRequest] URL], error);
         }
     }
     [session finishTasksAndInvalidate];

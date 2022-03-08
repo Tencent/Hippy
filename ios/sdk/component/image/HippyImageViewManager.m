@@ -61,7 +61,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
         __weak HippyImageView *weakView = view;
         NSURL *url = HippyURLWithString(path, nil);
         [imageDataLoader loadImageAtUrl:url progress:^(NSUInteger current, NSUInteger total) {
-        } completion:^(id result, NSString *path, NSError *error) {
+        } completion:^(id result, NSURL *url, NSError *error) {
             if (!error && weakView) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     if (weakView) {
@@ -99,7 +99,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     __weak HippyImageView *weakView = view;
     NSURL *url = HippyURLWithString(source, nil);
     [imageDataLoader loadImageAtUrl:url progress:^(NSUInteger current, NSUInteger total) {
-    } completion:^(id result, NSString *path, NSError *error) {
+    } completion:^(id result, NSURL *url, NSError *error) {
         if (!error && weakView) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (weakView) {

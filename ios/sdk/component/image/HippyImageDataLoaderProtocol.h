@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @required
 
 - (void)loadImageAtUrl:(NSURL *)Url progress:(void (^)(NSUInteger, NSUInteger))progress
-            completion:(void (^)(id, NSString *, NSError *))completion;
+            completion:(void (^)(id, NSURL *, NSError *))completion;
 
 - (void)cancelImageDownloadAtUrl:(NSURL *)Url;
 
