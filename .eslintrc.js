@@ -35,30 +35,15 @@ module.exports = {
   overrides: [
     {
       files: ['**/*.ts', '**/*.tsx'],
+      extends: ['eslint-config-tencent/ts'],
       rules: {
         // Allow interface export
         'no-undef': 'off',
-        // Force use 2 space for indent
-        '@typescript-eslint/indent': ['error', 2],
         // Note you must disable the base rule as it can report incorrect errors
         'no-unused-vars': 'off',
-        '@typescript-eslint/explicit-member-accessibility': ['error'],
-        '@typescript-eslint/member-ordering': ['error'],
-        '@typescript-eslint/adjacent-overload-signatures': ['error'],
-        '@typescript-eslint/unified-signatures': ['error'],
-        '@typescript-eslint/consistent-type-assertions': ['error'],
-        '@typescript-eslint/no-inferrable-types': ['error'],
-        '@typescript-eslint/typedef': ['error'],
-        '@typescript-eslint/prefer-function-type': ['error'],
-        '@typescript-eslint/no-parameter-properties': ['error'],
-        '@typescript-eslint/no-namespace': ['error'],
-        '@typescript-eslint/prefer-namespace-keyword': ['error'],
-        '@typescript-eslint/no-non-null-asserted-optional-chain': ['error'],
-        '@typescript-eslint/no-unused-expressions': ['error'],
-        '@typescript-eslint/triple-slash-reference': ['error'],
-        '@typescript-eslint/type-annotation-spacing': ['error'],
-        '@typescript-eslint/method-signature-style': ['error'],
-        '@typescript-eslint/consistent-type-definitions': ['error'],
+        '@typescript-eslint/consistent-type-assertions': 'off',
+        '@typescript-eslint/naming-convention': 'off',
+        '@typescript-eslint/prefer-for-of': 'off',
       },
     },
   ],

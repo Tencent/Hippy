@@ -476,8 +476,6 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
       }
     } else {
       LogUtils.d(TAG, "update error node is null id " + id);
-
-      mContext.getGlobalConfigs().getLogAdapter().log(TAG, "update error node is null id " + id);
     }
   }
 

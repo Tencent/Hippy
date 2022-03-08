@@ -24,14 +24,14 @@
 
 #include <jni.h>
 
-#include "core/napi/js_native_api_types.h"
-#include "hippy.h"
+#include "core/core.h"
+#include "scoped_java_ref.h"
 
 struct JNIArgs {
   JNIArgs(size_t count) : args_(count) {}
 
   std::vector<jvalue> args_;
-  std::vector<jobject> global_refs_;
+  std::vector<std::shared_ptr<JavaRef>> global_refs_;
 };
 
 template<typename T>
@@ -109,10 +109,7 @@ class ConvertUtils {
       const std::string &type,
       jvalue &j_args,
       const std::shared_ptr<CtxValue> &value,
-      std::vector<jobject> &global_refs);
-
-  static void ThrowException(const std::shared_ptr<Ctx> &ctx,
-                             const std::string &info);
+      std::vector<std::shared_ptr<JavaRef>> &global_refs);
 
   static std::unordered_map<std::string, MethodInfo> GetMethodMap(
       const std::string &method_map_str);
@@ -152,19 +149,19 @@ static jmethodID boolean_value;
 static jclass promise_clazz;
 static jmethodID promise_constructor;
 
-const std::string kint = "I";
-const std::string kdouble = "D";
-const std::string kfloat = "F";
-const std::string klong = "J";
-const std::string kboolean = "Z";
-const std::string kInteger = "Ljava/lang/Integer;";
-const std::string kDouble = "Ljava/lang/Double;";
-const std::string kFloat = "Ljava/lang/Float;";
-const std::string kLong = "Ljava/lang/Long;";
-const std::string kString = "Ljava/lang/String;";
-const std::string kBoolean = "Ljava/lang/Boolean;";
-const std::string kHippyArray = "Lcom/tencent/mtt/hippy/common/HippyArray;";
-const std::string kHippyMap = "Lcom/tencent/mtt/hippy/common/HippyMap;";
-const std::string kPromise = "Lcom/tencent/mtt/hippy/modules/Promise;";
-const std::string kvoid = "V";
-const std::string kUnSupportedType = "Lcom/invalid;";
+constexpr char kInt[] = "I";
+constexpr char kDouble[] = "D";
+constexpr char kFloat[] = "F";
+constexpr char kLong[] = "J";
+constexpr char kBoolean[] = "Z";
+constexpr char kVoid[] = "V";
+constexpr char kIntegerObject[] = "Ljava/lang/Integer;";
+constexpr char kDoubleObject[] = "Ljava/lang/Double;";
+constexpr char kFloatObject[] = "Ljava/lang/Float;";
+constexpr char kLongObject[] = "Ljava/lang/Long;";
+constexpr char kBooleanObject[] = "Ljava/lang/Boolean;";
+constexpr char kString[] = "Ljava/lang/String;";
+constexpr char kHippyArray[] = "Lcom/tencent/mtt/hippy/common/HippyArray;";
+constexpr char kHippyMap[] = "Lcom/tencent/mtt/hippy/common/HippyMap;";
+constexpr char kPromise[] = "Lcom/tencent/mtt/hippy/modules/Promise;";
+constexpr char kUnSupportedType[] = "Lcom/invalid;";

@@ -2,7 +2,7 @@
 
 * [开始接入](guide/integration.md)
 * [调试](guide/debug.md)
-* [C++ Core 架构](core/introduction.md)
+* [架构](structure/introduction.md)
 * [布局与单位](guide/layout.md)
 * [网络请求](guide/network-request.md)
 * [定时器](guide/timer.md)

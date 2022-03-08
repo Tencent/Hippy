@@ -32,15 +32,22 @@ public class DevServerConfig {
   // Hippy Server JsBundle名字
   private final String mServerHost;
 
+  private final String mBundleName;
+
   @SuppressWarnings("unused")
   public DevServerConfig(String serverHost, String bundleName) {
     sharedPreferences = ContextHolder.getAppContext()
         .getSharedPreferences(HIPPYDEBUGPREF, Context.MODE_PRIVATE);
     mServerHost = serverHost;
+    mBundleName = bundleName;
   }
 
   public String getServerHost() {
     return mServerHost;
+  }
+
+  public String getBundleName() {
+    return mBundleName;
   }
 
   public boolean enableRemoteDebug() {

@@ -8,12 +8,19 @@ const {
   test,
 } = require('shelljs');
 
+const cmdExample = 'please execute command like \'npm run buildexample -- hippy-react-demo\' or \'npm run buildexample -- hippy-vue-demo\'';
 const example = process.argv[2];
+if (!example) {
+  console.error(`❌ No example argument found, ${cmdExample}.`);
+  process.exit(1);
+  return;
+}
 const BASE_PATH = process.cwd();
 // Target demo project path
 const DEMO_PATH = path.join(BASE_PATH, 'examples', example);
 if (!test('-d', DEMO_PATH)) {
-  console.log(`❌ Can not find demo project: ${example}`);
+  console.error(`❌ Can not find demo project: ${example}, ${cmdExample}`);
+  process.exit(1);
   return;
 }
 

@@ -41,8 +41,7 @@ bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* resu
   if (!value) {
     return false;
   }
-  std::shared_ptr<JSCCtxValue> ctx_value =
-      std::static_pointer_cast<JSCCtxValue>(value);
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   if (JSValueIsNumber(context_, value_ref)) {
     JSValueRef exception = nullptr;
@@ -61,8 +60,7 @@ bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, int32_t* res
   if (!value) {
     return false;
   }
-  std::shared_ptr<JSCCtxValue> ctx_value =
-      std::static_pointer_cast<JSCCtxValue>(value);
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   if (JSValueIsNumber(context_, value_ref)) {
     JSValueRef exception = nullptr;
@@ -222,7 +220,7 @@ bool JSCCtx::IsFunction(const std::shared_ptr<CtxValue>& value) {
 
 unicode_string_view JSCCtx::CopyFunctionName(
     const std::shared_ptr<CtxValue>& function) {
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
   return "";
 }
 
@@ -254,12 +252,52 @@ std::shared_ptr<CtxValue> JSCCtx::CreateNull() {
   return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateObject(
-    const unicode_string_view& json) {
+std::shared_ptr<CtxValue> JSCCtx::ParseJson(const unicode_string_view& json) {
   JSStringRef str_ref = CreateJSCString(json);
   JSValueRef value = JSValueMakeFromJSONString(context_, str_ref);
   JSStringRelease(str_ref);
   return std::make_shared<JSCCtxValue>(context_, value);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<
+    unicode_string_view,
+    std::shared_ptr<CtxValue>>& object) {
+  std::unordered_map<std::shared_ptr<CtxValue>,std::shared_ptr<CtxValue>> obj;
+  for (const auto& it : object) {
+    auto key = CreateString(it.first);
+    obj[key] = it.second;
+  }
+  return CreateObject(obj);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> &object) {
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef obj = JSObjectMake(context_, cls_ref, nullptr);
+  JSValueRef exception = nullptr;
+  for (const auto& it : object) {
+    unicode_string_view key;
+    auto flag = GetValueString(it.first, &key);
+    TDF_BASE_DCHECK(flag);
+    if (!flag) {
+      auto error = CreateError("CreateObject");
+      SetException(std::static_pointer_cast<JSCCtxValue>(error));
+      return nullptr;
+    }
+    auto object_key = CreateJSCString(key);
+    auto ctx_value = std::static_pointer_cast<JSCCtxValue>(it.second);
+    auto object_value = JSValueToObject(context_, ctx_value->value_, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return nullptr;
+    }
+    JSObjectSetProperty(context_, obj, object_key, object_value, kJSPropertyAttributeNone, &exception);
+    if (exception) {
+      SetException(std::make_shared<JSCCtxValue>(context_, exception));
+      return nullptr;
+    }
+  }
+  return std::make_shared<JSCCtxValue>(context_, obj);
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateArray(
@@ -285,7 +323,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateArray(
   return std::make_shared<JSCCtxValue>(context_, value_ref);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateJsError(
+std::shared_ptr<CtxValue> JSCCtx::CreateError(
     const unicode_string_view& msg) {
   JSStringRef str_ref = CreateJSCString(msg);
   JSValueRef value = JSValueMakeString(context_, str_ref);
@@ -423,9 +461,17 @@ unicode_string_view JSCCtx::GetExceptionMsg(
   return ret;
 }
 
-bool JSCCtx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
+void JSCCtx::ThrowException(const std::shared_ptr<CtxValue> &exception) {
+  SetException(std::static_pointer_cast<JSCCtxValue>(exception));
+}
+
+void JSCCtx::ThrowException(const unicode_string_view& exception) {
+  ThrowException(CreateError(exception));
+}
+
+void JSCCtx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) {
   if (!exception) {
-    return false;
+    return;
   }
 
   std::shared_ptr<CtxValue> exception_handler =
@@ -446,8 +492,6 @@ bool JSCCtx::ThrowExceptionToJS(const std::shared_ptr<CtxValue>& exception) {
   args[0] = CreateString("uncaughtException");
   args[1] = exception;
   CallFunction(exception_handler, 2, args);
-
-  return true;
 }
 
 JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
@@ -455,7 +499,7 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
   JSStringRef ret;
   switch (encoding) {
     case unicode_string_view::Encoding::Unkown: {
-      TDF_BASE_NOTREACHED();
+      TDF_BASE_UNREACHABLE();
       break;
     }
     case unicode_string_view::Encoding::Latin1: {
@@ -463,10 +507,10 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
-      std::string aaa(
+      std::string u8_str(
           reinterpret_cast<const char*>(str_view.utf8_value().c_str()),
           str_view.utf8_value().length());
-      ret = JSStringCreateWithUTF8CString(aaa.c_str());
+      ret = JSStringCreateWithUTF8CString(u8_str.c_str());
       break;
     }
     case unicode_string_view::Encoding::Utf16: {
@@ -485,7 +529,7 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
       break;
     }
     default:
-      TDF_BASE_NOTIMPLEMENTED();
+      TDF_BASE_UNIMPLEMENTED();
       break;
   }
   return ret;

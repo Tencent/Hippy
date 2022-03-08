@@ -26,13 +26,15 @@
 #include <string>
 #include <unordered_map>
 
+#include "base/logging.h"
+
 namespace hippy {
 namespace base {
 
-const char kVMCreateCBKey[] = "VM_CREATED";
-const char kContextCreatedCBKey[] = "CONTEXT_CREATED";
-const char KScopeInitializedCBKey[] = "SCOPE_INITIALIEZED";
-const char kAsyncTaskEndKey[] = "ASYNC_TASK_END";
+constexpr char kVMCreateCBKey[] = "VM_CREATED";
+constexpr char kContextCreatedCBKey[] = "CONTEXT_CREATED";
+constexpr char KScopeInitializedCBKey[] = "SCOPE_INITIALIZED";
+constexpr char kAsyncTaskEndKey[] = "ASYNC_TASK_END";
 
 using RegisterFunction = std::function<void(void*)>;
 using RegisterMap = std::unordered_map<std::string, RegisterFunction>;
@@ -49,6 +51,25 @@ auto MakeCopyable(F&& f) {
   return [s](auto&&... args) -> decltype(auto) {
     return (*s)(decltype(args)(args)...);
   };
+}
+
+template<typename SourceType, typename TargetType>
+static constexpr bool numeric_cast(const SourceType& source, TargetType& target) {
+  auto target_value = static_cast<TargetType>(source);
+  if (static_cast<SourceType>(target_value)!=source || (target_value < 0 && source > 0)
+      || (target_value > 0 && source < 0)) {
+    return false;
+  }
+  target = target_value;
+  return true;
+}
+
+template<typename SourceType, typename TargetType>
+static constexpr TargetType checked_numeric_cast(const SourceType& source) {
+  TargetType target;
+  auto result = numeric_cast<SourceType, TargetType>(source, target);
+  TDF_BASE_CHECK(result);
+  return target;
 }
 
 }  // namespace base

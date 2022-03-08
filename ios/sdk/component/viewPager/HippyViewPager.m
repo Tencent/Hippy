@@ -91,12 +91,16 @@
     if ([view isKindOfClass:[HippyViewPagerItem class]]) {
         HippyViewPagerItem *item = (HippyViewPagerItem *)view;
         __weak HippyViewPager *weakPager = self;
+        __weak UIView *weakItem = item;
         item.frameSetBlock = ^CGRect(CGRect frame) {
-            NSInteger index = atIndex;
             if (weakPager) {
                 HippyViewPager *strongPager = weakPager;
-                CGRect finalFrame = [strongPager frameForItemAtIndex:index];
-                return finalFrame;
+                UIView *strongItem = weakItem;
+                if (strongItem) {
+                    NSUInteger index = [strongPager.viewPagerItems indexOfObject:strongItem];
+                    CGRect finalFrame = [strongPager frameForItemAtIndex:index];
+                    return finalFrame;
+                }
             }
             return frame;
         };
@@ -117,6 +121,7 @@
 - (void)removeHippySubview:(UIView *)subview {
     [super removeHippySubview:subview];
     [self.viewPagerItems removeObject:subview];
+    [self setNeedsLayout];
     if (_itemsChangedBlock) {
         _itemsChangedBlock([self.viewPagerItems count]);
     }

@@ -57,10 +57,6 @@ std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage:
           break;
       }
       __android_log_write(priority, "tdf", stream.str().c_str());
-
-      if (severity >= TDF_LOG_FATAL) {
-        abort();
-      }
     };
 
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
@@ -78,6 +74,10 @@ LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const c
 
 LogMessage::~LogMessage() {
   stream_ << std::endl;
+
+  if (severity_ >= TDF_LOG_FATAL) {
+    abort();
+  }
 
   if (delegate_) {
     delegate_(stream_, severity_);

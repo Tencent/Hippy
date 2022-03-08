@@ -34,7 +34,7 @@ public class BaseActivity extends Activity implements EngineListener, DeviceEven
 		getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
         MyHippyEngineHost mHost = new MyHippyEngineHost(BaseActivity.this.getApplication());
-		mEngineManager = mHost.createDebugHippyEngineManager("index.bundle");
+		mEngineManager = mHost.createDebugHippyEngineManager("index.bundle", getIntent().getStringExtra("remoteServerUrl"));
 		mEngineManager.addEngineEventListener(this);
 		mEngineManager.initEngineInBackground();
 

@@ -149,27 +149,19 @@ export default class ListExample extends React.Component {
     this.setState({ dataSource: newDataSource });
   }
   // item完全曝光
-  // eslint-disable-next-line class-methods-use-this
   onAppear(index) {
-    // eslint-disable-next-line no-console
     console.log('onAppear', index);
   }
   // item完全隐藏
-  // eslint-disable-next-line class-methods-use-this
   onDisappear(index) {
-    // eslint-disable-next-line no-console
     console.log('onDisappear', index);
   }
   // item至少一个像素曝光
-  // eslint-disable-next-line class-methods-use-this
   onWillAppear(index) {
-    // eslint-disable-next-line no-console
     console.log('onWillAppear', index);
   }
   // item至少一个像素隐藏
-  // eslint-disable-next-line class-methods-use-this
   onWillDisappear(index) {
-    // eslint-disable-next-line no-console
     console.log('onWillDisappear', index);
   }
   rowShouldSticky(index) {
@@ -188,7 +180,6 @@ export default class ListExample extends React.Component {
     };
   }
 
-  /* eslint-disable-next-line class-methods-use-this */
   getRowKey(index) {
     return `row-${index}`;
   }
@@ -260,7 +251,7 @@ export default class ListExample extends React.Component {
             console.log('onTouchDown ListView', event.target.nodeId, event.currentTarget.nodeId);
           }}
           onClickCapture={(event) => {
-            // if calling capture event stopPropagation in one of node,
+            // if calling capture event stopPropagation function in one of node,
             // all capture phase left, target phase and bubbling phase would stop.
             // event.stopPropagation();
             console.log('onClickCapture listview', event.target.nodeId, event.currentTarget.nodeId);
@@ -282,6 +273,7 @@ export default class ListExample extends React.Component {
         onDelete={this.onDelete}
         delText={this.delText}
         editable={true}
+        // configure listItem style if horizontal listview is set
         // getRowStyle={this.getRowStyle}
         getRowKey={this.getRowKey}
         initialListSize={15}
