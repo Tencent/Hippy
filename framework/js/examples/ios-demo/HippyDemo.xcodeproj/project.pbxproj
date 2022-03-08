@@ -655,6 +655,8 @@
 		F4833E6527CF24320054A33D /* HippyImageDataLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyImageDataLoader.h; sourceTree = "<group>"; };
 		F4833E6627CF24320054A33D /* HippyImageDataLoader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyImageDataLoader.m; sourceTree = "<group>"; };
 		F4833E6827CF462C0054A33D /* HippyImageDataLoaderProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyImageDataLoaderProtocol.h; sourceTree = "<group>"; };
+		F484AD5227D75C8B00C84E95 /* HippyDownloadTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDownloadTask.h; sourceTree = "<group>"; };
+		F484AD5327D75C8B00C84E95 /* HippyDownloadTask.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyDownloadTask.m; sourceTree = "<group>"; };
 		F4A8423E27D38CF900AEFC88 /* HippyUIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyUIManager.h; sourceTree = "<group>"; };
 		F4A8423F27D38CF900AEFC88 /* NativeRenderManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderManager.mm; sourceTree = "<group>"; };
 		F4A8424027D38CF900AEFC88 /* NativeRenderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderManager.h; sourceTree = "<group>"; };
@@ -1021,6 +1023,8 @@
 				F4833E6527CF24320054A33D /* HippyImageDataLoader.h */,
 				F4833E6627CF24320054A33D /* HippyImageDataLoader.m */,
 				F4833E6827CF462C0054A33D /* HippyImageDataLoaderProtocol.h */,
+				F484AD5227D75C8B00C84E95 /* HippyDownloadTask.h */,
+				F484AD5327D75C8B00C84E95 /* HippyDownloadTask.m */,
 			);
 			path = image;
 			sourceTree = "<group>";
