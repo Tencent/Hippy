@@ -323,7 +323,8 @@ public class HippyGlobalConfigs {
         throw new IllegalArgumentException("HippyGlobalConfigs Context must is not null!");
       }
       if (mSharedPreferencesAdapter == null) {
-        mSharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(mContext);
+        mSharedPreferencesAdapter = new DefaultSharedPreferencesAdapter(
+          mContext.getApplicationContext());
       }
       if (mExceptionHandler == null) {
         mExceptionHandler = new DefaultExceptionHandler();
@@ -335,7 +336,7 @@ public class HippyGlobalConfigs {
         mExecutorSupplierAdapter = new DefaultExecutorSupplierAdapter();
       }
       if (mStorageAdapter == null) {
-        mStorageAdapter = new DefaultStorageAdapter(mContext,
+        mStorageAdapter = new DefaultStorageAdapter(mContext.getApplicationContext(),
             mExecutorSupplierAdapter.getDBExecutor());
       }
       if (mEngineMonitorAdapter == null) {

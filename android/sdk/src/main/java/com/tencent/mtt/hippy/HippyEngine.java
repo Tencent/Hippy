@@ -307,7 +307,8 @@ public abstract class HippyEngine {
         executorSupplier = new DefaultExecutorSupplierAdapter();
       }
       if (storageAdapter == null) {
-        storageAdapter = new DefaultStorageAdapter(context, executorSupplier.getDBExecutor());
+        storageAdapter = new DefaultStorageAdapter(context.getApplicationContext(),
+          executorSupplier.getDBExecutor());
       }
       if (engineMonitor == null) {
         engineMonitor = new DefaultEngineMonitorAdapter();
