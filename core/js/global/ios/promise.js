@@ -313,5 +313,3 @@ Promise.prototype['catch'] = function (onRejected) {
 };
 
 global.Promise = Promise;
-
-/* eslint-disable */

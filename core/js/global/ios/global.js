@@ -131,7 +131,7 @@ __GLOBAL__.loadModule = (name, moduleID) => {
 };
 
 __GLOBAL__.genMethod = (moduleID, methodID, type) => {
-  let fn = null;
+  let fn;
   if (type === 'promise') {
     fn = (...args) => new Promise((resolve, reject) => {
       __GLOBAL__.enqueueNativeCall(

@@ -63,7 +63,6 @@ module.exports = {
     modules: [path.resolve(__dirname, '../node_modules')],
     alias: (() => {
       const aliases = {};
-
       // If hippy-react was built exist then make a alias
       // Remove the section if you don't use it
       const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react');

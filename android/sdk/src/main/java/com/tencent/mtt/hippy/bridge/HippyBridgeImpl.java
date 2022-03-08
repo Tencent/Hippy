@@ -74,6 +74,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   private BinaryReader safeHeapReader;
   private BinaryReader safeDirectReader;
   private final HippyEngine.V8InitParams v8InitParams;
+  private Inspector mInspector;
 
   public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
       boolean singleThreadMode, boolean enableV8Serialization, boolean isDevModule,
@@ -113,7 +114,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       if (TextUtils.isEmpty(mDebugServerHost)) {
         mDebugServerHost = "localhost:38989";
       }
-      String debugUrl = mContext.getDevSupportManager().createDebugUrl(mDebugServerHost);
+      DevSupportManager devSupportManager = mContext.getDevSupportManager();
+      mInspector = devSupportManager.getInspector().setEngineContext(mContext, mDebugWebSocketClient);
+      String debugUrl = devSupportManager.createDebugUrl(mDebugServerHost);
       mDebugWebSocketClient.connect(debugUrl, new DebugWebSocketClient.JSDebuggerCallback() {
             @SuppressWarnings("unused")
             @Override
@@ -240,6 +243,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     if (mDebugWebSocketClient != null) {
       mDebugWebSocketClient.closeQuietly();
       mDebugWebSocketClient = null;
+    }
+    if (mInspector != null) {
+      mInspector.onDestroy();
     }
 
     if (!mInit) {
@@ -409,8 +415,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   @Override
   public void onReceiveData(String msg) {
     if (this.mIsDevModule) {
-      boolean isInspectMsg = Inspector.getInstance(mContext)
-        .setWebSocketClient(mDebugWebSocketClient).dispatchReqFromFrontend(mContext, msg);
+      boolean isInspectMsg = mInspector != null && mInspector.dispatchReqFromFrontend(mContext, msg);
       if (!isInspectMsg) {
         callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
       }

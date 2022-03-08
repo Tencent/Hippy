@@ -160,8 +160,9 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
   }
 
   @Override
-  public void onFrameUpdate(HippyEngineContext context) {
+  public void onFrameUpdate() {
     mIsFrameUpdate = true;
+    HippyEngineContext context = null;
     if (mInspectorRef != null && mInspectorRef.get() != null
       && mInspectorRef.get().getContext() != null) {
       context = mInspectorRef.get().getContext();
@@ -211,5 +212,4 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
       return mHandler;
     }
   }
-
 }

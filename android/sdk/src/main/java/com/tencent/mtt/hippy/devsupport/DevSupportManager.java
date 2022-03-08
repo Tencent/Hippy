@@ -17,19 +17,20 @@ package com.tencent.mtt.hippy.devsupport;
 
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
-import java.util.Locale;
-import java.util.UUID;
+import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
 
 @SuppressWarnings({"unused"})
 public class DevSupportManager {
 
   final DevServerInterface mDevImp;
   final boolean mSupportDev;
+  private final Inspector mInspector;
 
   public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
       String bundleName, String remoteServerUrl) {
     this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName, remoteServerUrl);
     mSupportDev = enableDev;
+    mInspector = new Inspector();
   }
 
   public DevServerInterface getDevImp() {
@@ -66,5 +67,9 @@ public class DevSupportManager {
 
   public boolean isSupportDev() {
 	  return mSupportDev;
+  }
+
+  public Inspector getInspector() {
+    return mInspector;
   }
 }

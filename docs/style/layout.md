@@ -10,7 +10,7 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/align-items)
 
-`alignItems`决定了子元素在次轴方向的排列方式（此样式设置在父元素上）。例如若子元素本来是沿着竖直方向排列的（即主轴竖直，次轴水平），则`alignItems`决定了它们在水平方向的排列方式。此样式和CSS中的`alignItems`表现一致，默认值为stretch。
+`alignItems`决定了子元素在次轴方向的排列方式（此样式设置在父元素上）。例如若子元素本来是沿着竖直方向排列的（即主轴竖直，次轴水平），则 `alignItems` 决定了它们在水平方向的排列方式。此样式和CSS中的`alignItems`表现一致，默认值为 `stretch`。
 
 | 类型                                                            | 必需 |
 | --------------------------------------------------------------- | -------- |
@@ -20,73 +20,12 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/align-self)
 
-`alignSelf`决定了元素在父元素的次轴方向的排列方式（此样式设置在子元素上），其值会覆盖父元素的`alignItems`的值。其表现和 CSS 上的`align-self`一致（默认值为auto）。
+`alignSelf`决定了元素在父元素的次轴方向的排列方式（此样式设置在子元素上），其值会覆盖父元素的`alignItems`的值。其表现和 CSS 上的`align-self`一致（默认值为`auto`）。
 
 | 类型                                                                    | 必需 |
 | ----------------------------------------------------------------------- | -------- |
 | enum('auto', 'flex-start', 'flex-end', 'center', 'stretch', 'baseline') | 否       |
 
-# borderBottomWidth
-
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/border-bottom-width)
-
-`borderBottomWidth`和 CSS 上的`border-bottom-width`表现一致。
-
-| 类型   | 必需 |
-| ------ | -------- |
-| number | 否       |
-
-# borderLeftWidth
-
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/border-left-width)
-
-`borderLeftWidth`和 CSS 上的`border-left-width`表现一致。
-
-| 类型   | 必需 |
-| ------ | -------- |
-| number | 否       |
-
-# borderRightWidth
-
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/border-right-width)
-
-`borderRightWidth` 和 CSS 上的`border-right-width`表现一致。
-
-| 类型   | 必需 |
-| ------ | -------- |
-| number | 否       |
-
-# borderTopWidth
-
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/border-top-width)
-
-`borderTopWidth`和 CSS 上的`border-top-width`表现一致。
-
-| 类型   | 必需 |
-| ------ | -------- |
-| number | 否       |
-
-# borderWidth
-
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/border-width)
-
-`borderWidth`和 CSS 上的`border-width`表现一致。
-
-| 类型   | 必需 |
-| ------ | -------- |
-| number | 否       |
-
-# bottom
-
-[MDN 文档](//developer.mozilla.org/zh-CN/docs/Web/CSS/bottom)
-
-`bottom` 值是指将本组件定位到距离底部多少个逻辑像素（底部的定义取决于position属性）。
-
-它的表现和 CSS 上的bottom类似，但注意在Hippy上只能使用逻辑像素值（数字单位），而不能使用百分比、em、rem、vh 或是任何其他单位。
-
-| 类型            | 必需 |
-| --------------- | -------- |
-| number | 否       |
 
 # backgroundImage
 
@@ -105,8 +44,8 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 > <br/>
 > 注意：
 >
-> + Android 如果使用 `to [top | bottom] || [left | right]` 四个顶角设置渐变角度，color-stop不能使用百分比；
-> + iOS color-stop 百分比只能从小到大依次显式设置，不能部分省略，即 `red 10%, yellow 20%, blue 50%`，不能是 `red 10%, yellow 20%, blue 10%`
+> + Android 如果使用 `to [top | bottom] || [left | right]` 四个顶角设置渐变角度，`color-stop` 不能使用百分比；
+> + iOS `color-stop` 百分比只能从小到大依次显式设置，不能部分省略，即 `red 10%, yellow 20%, blue 50%`，不能是 `red 10%, yellow 20%, blue 10%`
 
 # backgroundPositionX
 

@@ -100,11 +100,9 @@ module.exports = {
       // Remove the section if you don't use it
       const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react');
       if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
-        /* eslint-disable-next-line no-console */
         console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
         aliases['@hippy/react'] = hippyReactPath;
       } else {
-        /* eslint-disable-next-line no-console */
         console.warn('* Using the @hippy/react defined in package.json');
       }
 

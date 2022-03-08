@@ -33,7 +33,6 @@ public class PageModel {
   private int maxHeight;
   private Bitmap screenBitmap;
   private WeakReference<FrameUpdateListener> mFrameUpdateListenerRef;
-  private ViewTreeObserver.OnDrawListener mOnDrawListener;
 
   public JSONObject startScreenCast(HippyEngineContext context, final JSONObject paramsObj) {
     isFramingScreenCast = true;
@@ -61,20 +60,6 @@ public class PageModel {
         LogUtils.e(TAG, "listenFrameUpdate error none hippyRootView");
         return;
       }
-      if (mOnDrawListener == null) {
-        mOnDrawListener = new ViewTreeObserver.OnDrawListener() {
-          @Override
-          public void onDraw() {
-            LogUtils.d(TAG, "HippyRootView, onDraw");
-            if (mFrameUpdateListenerRef != null) {
-              FrameUpdateListener listener = mFrameUpdateListenerRef.get();
-              if (listener != null) {
-                listener.onFrameUpdate(context);
-              }
-            }
-          }
-        };
-      }
       try {
         hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
         hippyRootView.getViewTreeObserver().addOnDrawListener(mOnDrawListener);
@@ -83,6 +68,19 @@ public class PageModel {
       }
     }
   }
+
+  private final ViewTreeObserver.OnDrawListener mOnDrawListener = new ViewTreeObserver.OnDrawListener() {
+    @Override
+    public void onDraw() {
+      LogUtils.d(TAG, "HippyRootView, onDraw");
+      if (mFrameUpdateListenerRef != null) {
+        FrameUpdateListener listener = mFrameUpdateListenerRef.get();
+        if (listener != null) {
+          listener.onFrameUpdate();
+        }
+      }
+    }
+  };
 
   public void setFrameUpdateListener(FrameUpdateListener listener) {
     if (listener != null) {
@@ -221,6 +219,6 @@ public class PageModel {
   }
 
   public interface FrameUpdateListener {
-    void onFrameUpdate(HippyEngineContext context);
+    void onFrameUpdate();
   }
 }
