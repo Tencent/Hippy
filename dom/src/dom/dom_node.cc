@@ -323,55 +323,9 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
     dom_manager->PostTask([WEAK_THIS, update_style, update_dom_ext]() {
       DEFINE_AND_CHECK_SELF(DomNode)
 
-      // udpate diff
-      auto style_diff_value = DiffUtils::DiffProps(update_style, *self->GetStyleMap());
-      auto ext_diff_value = DiffUtils::DiffProps(update_style, *self->GetStyleMap());
-      auto style_update = std::get<0>(style_diff_value);
-      auto ext_update = std::get<0>(ext_diff_value);
-      std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
-      if (style_update) {
-        diff_value->insert(style_update->begin(), style_update->end());
-      }
-      if (ext_update) {
-        diff_value->insert(ext_update->begin(), ext_update->end());
-      }
-      self->SetDiffStyle(diff_value);
-
-      for (const auto& v : update_style) {
-        if (self->style_map_ == nullptr) {
-          self->style_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
-        }
-
-        auto iter = self->style_map_->find(v.first);
-        if (iter == self->style_map_->end()) {
-          std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first, std::make_shared<DomValue>(std::move(*v.second))};
-          self->style_map_->insert(pair);
-        }
-
-        if (v.second->IsObject() && iter->second->IsObject()) {
-          self->UpdateObjectStyle(*iter->second, *v.second);
-        } else {
-          iter->second = std::make_shared<DomValue>(std::move(*v.second));
-        }
-      }
-
-      for (const auto& v : update_dom_ext) {
-        if (self->dom_ext_map_ == nullptr) {
-          self->dom_ext_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
-        }
-
-        auto iter = self->dom_ext_map_->find(v.first);
-        if (iter == self->dom_ext_map_->end()) {
-          std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first, std::make_shared<DomValue>(std::move(*v.second))};
-          self->dom_ext_map_->insert(pair);
-        }
-
-        if (v.second->IsObject() && iter->second->IsObject()) {
-          self->UpdateObjectStyle(*iter->second, *v.second);
-        } else {
-          iter->second = std::make_shared<DomValue>(std::move(*v.second));
-        }
-      }
+      self->UpdateDiff(update_style, update_dom_ext);
+      self->UpdateStyle(update_style);
+      self->UpdateDomExt(update_dom_ext);
 
       // update Render Node
       auto dom_manager = self->dom_manager_.lock();
@@ -381,6 +335,79 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
       }
 
     });
+  }
+}
+
+void DomNode::UpdateDomNodeStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+  auto dom_manager = dom_manager_.lock();
+  TDF_BASE_DCHECK(dom_manager);
+  if (dom_manager) {
+    dom_manager->PostTask([WEAK_THIS, update_style]() {
+      DEFINE_AND_CHECK_SELF(DomNode)
+      self->UpdateStyle(update_style);
+    });
+  }
+}
+
+void DomNode::UpdateDiff(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
+                         const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
+  auto style_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_style);
+  auto ext_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_dom_ext);
+  auto style_update = std::get<0>(style_diff_value);
+  auto ext_update = std::get<0>(ext_diff_value);
+  std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
+  if (style_update) {
+    diff_value->insert(style_update->begin(), style_update->end());
+  }
+  if (ext_update) {
+    diff_value->insert(ext_update->begin(), ext_update->end());
+  }
+  this->SetDiffStyle(diff_value);
+}
+
+void DomNode::UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
+  if (update_dom_ext.size() == 0) return;
+
+  for (const auto& v : update_dom_ext) {
+    if (this->dom_ext_map_ == nullptr) {
+      this->dom_ext_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+    }
+
+    auto iter = this->dom_ext_map_->find(v.first);
+    if (iter == this->dom_ext_map_->end()) {
+      std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first, std::make_shared<DomValue>(*v.second)};
+      this->dom_ext_map_->insert(pair);
+      continue;
+    }
+
+    if (v.second->IsObject() && iter->second->IsObject()) {
+      this->UpdateObjectStyle(*iter->second, *v.second);
+    } else {
+      iter->second = std::make_shared<DomValue>(*v.second);
+    }
+  }
+}
+
+void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+  if (update_style.size() == 0) return;
+
+  for (const auto& v : update_style) {
+    if (this->style_map_ == nullptr) {
+      this->style_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+    }
+
+    auto iter = this->style_map_->find(v.first);
+    if (iter == this->style_map_->end()) {
+      std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first, std::make_shared<DomValue>(*v.second)};
+      this->style_map_->insert(pair);
+      continue;
+    }
+
+    if (v.second->IsObject() && iter->second->IsObject()) {
+      this->UpdateObjectStyle(*iter->second, *v.second);
+    } else {
+      iter->second = std::make_shared<DomValue>(*v.second);
+    }
   }
 }
 

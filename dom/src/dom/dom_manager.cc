@@ -428,11 +428,16 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   if (!render_manager) {
     return;
   }
-
   TDF_BASE_DCHECK(node);
+
+  // 更新 layout tree
+  node->ParseLayoutStyleInfo();
+
+  // 更新属性
   std::vector<std::shared_ptr<DomNode>> nodes;
   nodes.push_back(node);
   render_manager->UpdateRenderNode(std::move(nodes));
+
   Layout();
   NotifyRender();
 }
