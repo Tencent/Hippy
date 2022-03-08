@@ -33,16 +33,13 @@
 #import "UIView+Hippy.h"
 #import "HippyConvert+Transform.h"
 #import "HippyGradientObject.h"
+#import "HippyImageDataLoaderProtocol.h"
+#import "HippyRenderContext.h"
+#import "HippyImageDataLoader.h"
+#import "HippyDefaultImageProvider.h"
+#import "objc/runtime.h"
 
 @implementation HippyViewManager
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        NSLog(@"222");
-    }
-    return self;
-}
 
 - (dispatch_queue_t)methodQueue {
     return HippyGetUIManagerQueue();
@@ -88,16 +85,35 @@ HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
 
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
-        NSString *backgroundImage = [HippyConvert NSString:json];
-        if ([backgroundImage length] > 0) {
-            if ([backgroundImage hasPrefix:@"http"] ||
-                [backgroundImage hasPrefix:@"data:image/"] ||
-                [backgroundImage hasPrefix:@"hpfile://"]) {
-                view.backgroundImageUrl = backgroundImage;
-            }
-            else {
-                HippyAssert(NO, @"backgroundImage %@ not supported", backgroundImage);
-            }
+        NSString *imagePath = [HippyConvert NSString:json];
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
+            imagePath = [self.renderContext.frameworkProxy standardizeAssetUrlString:imagePath];
+            id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoaderForView:view path:imagePath];
+            __weak HippyView *weakView = view;
+            CGFloat scale = [UIScreen mainScreen].scale;
+            NSURL *url = HippyURLWithString(imagePath, nil);
+            [imageDataLoader loadImageAtUrl:url progress:^(NSUInteger current, NSUInteger total) {
+            } completion:^(id result, NSString *path, NSError *error) {
+                if (!error) {
+                    UIImage *backgroundImage = nil;
+                    if ([result isKindOfClass:[UIImage class]]) {
+                        backgroundImage = result;
+                    }
+                    else if ([result isKindOfClass:[NSData class]]) {
+                        HippyDefaultImageProvider *imageProvider = [[HippyDefaultImageProvider alloc] init];
+                        imageProvider.imageDataPath = imagePath;
+                        [imageProvider setImageData:(NSData *)result];
+                        imageProvider.scale = scale;
+                        backgroundImage = [imageProvider image];
+                    }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (weakView) {
+                            HippyView *strongView = weakView;
+                            strongView.backgroundImage = backgroundImage;
+                        }
+                    });
+                }
+            }];
         }
     }
 }
@@ -336,6 +352,21 @@ HIPPY_CUSTOM_VIEW_PROPERTY(direction, HPDirection, HippyShadowView) {
         HPDirection dir = (HPDirection)[HippyConvert int:json];
         view.layoutDirection = dir;
     }
+}
+
+- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForView:(UIView *)view path:(NSString *)path {
+    id<HippyImageDataLoaderProtocol> loader = nil;
+    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoaderForPath:)]) {
+        loader = [self.renderContext.frameworkProxy imageDataLoaderForPath:path];
+    }
+    if (!loader && view) {
+        loader = objc_getAssociatedObject(view, @selector(imageDataLoaderForView:path:));
+        if (!loader) {
+            loader = [[HippyImageDataLoader alloc] init];
+            objc_setAssociatedObject(view, @selector(imageDataLoaderForView:path:), loader, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }
+    }
+    return loader;
 }
 
 @end

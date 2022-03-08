@@ -295,6 +295,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return _imageProviders;
 }
 
+- (id<HippyFrameworkProxy>)frameworkProxy {
+    return _frameworkProxy ?: self;
+}
+
 - (NSArray *)modulesConformingToProtocol:(Protocol *)protocol {
     NSMutableArray *modules = [NSMutableArray new];
     for (Class moduleClass in self.moduleClasses) {
@@ -358,6 +362,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
+    self.uiManager.frameworkProxy = self;
 }
 
 - (void)setUpDevClientWithName:(NSString *)name {
@@ -422,6 +427,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #endif  // HIPPY_DEBUG
 }
 
+#pragma mark HippyFrameworkProxy Delegate Implementation
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString {
+    if ([HippyBridge isHippyLocalFileURLString:UrlString]) {
+        return [self absoluteStringFromHippyLocalFileURLString:UrlString];
+    }
+    return UrlString;
+}
+
 @end
 
 NSString *const HippySecondaryBundleDidStartLoadNotification = @"HippySecondaryBundleDidStartLoadNotification";
@@ -481,7 +494,7 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
         return;
     }
     __weak HippyBatchedBridge *batchedBridge = (HippyBatchedBridge *)[self batchedBridge];
-    NSString *secondaryBundleURLString = secondaryBundleURL.absoluteString;
+    NSString *secondaryBundleURLString = [secondaryBundleURL path];
     batchedBridge.sandboxDirectory = [secondaryBundleURLString stringByDeletingLastPathComponent];
     BOOL loaded;
     @synchronized(self) {

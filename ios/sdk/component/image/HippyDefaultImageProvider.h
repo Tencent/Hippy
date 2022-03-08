@@ -27,5 +27,6 @@
 
 @property (nonatomic, assign) BOOL downSample;
 @property (nonatomic, assign) CGSize imageViewSize;
+@property (nonatomic, assign) CGFloat scale;
 
 @end

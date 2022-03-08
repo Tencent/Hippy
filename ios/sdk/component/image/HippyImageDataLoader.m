@@ -40,16 +40,19 @@ typedef NS_ENUM(NSUInteger, ImagePathType) {
 typedef void(^DownloadProgress)(NSUInteger, NSUInteger);
 typedef void(^CompletionBlock)(id, NSString *, NSError *);
 
-static ImagePathType checkPathTypeFromPath(NSString *path) {
+static ImagePathType checkPathTypeFromUrl(NSURL *Url) {
     ImagePathType type = ImagePathTypeUnknown;
-    if ([path hasPrefix:@"http"]) {
-        type = ImagePathTypeHTTPPath;
-    }
-    else if ([path hasPrefix:@"file://"]) {
+    if ([Url isFileURL]) {
         type = ImagePathTypeFilePath;
     }
-    else if ([path containsString:@"data:image/"] && [path containsString:@";base64,"]) {
-        type = ImagePathTypeBase64Path;
+    else {
+        NSString *path = [Url absoluteString];
+        if ([path hasPrefix:@"http"]) {
+            type = ImagePathTypeHTTPPath;
+        }
+        else if ([path containsString:@"data:image/"] && [path containsString:@";base64,"]) {
+            type = ImagePathTypeBase64Path;
+        }
     }
     return type;
 }
@@ -79,53 +82,53 @@ static NSOperationQueue *ImageDataLoaderQueue(void) {
 
 #pragma mark HippyImageDataLoaderProtocol Implementation
 
-- (BOOL)canHandleImageAtPath:(NSString *)path {
-    ImagePathType type = checkPathTypeFromPath(path);
+- (BOOL)canHandleImageAtUrl:(NSURL *)Url {
+    ImagePathType type = checkPathTypeFromUrl(Url);
     return ImagePathTypeUnknown != type;
 }
 
-- (void)loadImageAtPath:(NSString *)path progress:(DownloadProgress)progress
+- (void)loadImageAtUrl:(NSURL *)Url progress:(DownloadProgress)progress
          completion:(CompletionBlock)dataCompletion {
-    ImagePathType type = checkPathTypeFromPath(path);
+    ImagePathType type = checkPathTypeFromUrl(Url);
     switch (type) {
         case ImagePathTypeHTTPPath:
-            [self loadImageAtHTTPPath:path progress:progress dataCompletion:dataCompletion];
+            [self loadImageAtHTTPUrl:Url progress:progress dataCompletion:dataCompletion];
             break;
         case ImagePathTypeFilePath:
-            [self loadImageAtFilePath:path progress:progress dataCompletion:dataCompletion];
+            [self loadImageAtFileUrl:Url progress:progress dataCompletion:dataCompletion];
             break;
         case ImagePathTypeBase64Path:
-            [self loadImageAtBase64Path:path progress:progress dataCompletion:dataCompletion];
+            [self loadImageAtBase64Url:Url progress:progress dataCompletion:dataCompletion];
             break;
         default:
             break;
     }
 }
 
-- (void)cancelImageDownloadAtPath:(NSString *)path {
+- (void)cancelImageDownloadAtUrl:(NSURL *)Url {
     [_task cancel];
 }
 
 #pragma mark Image Data Loader
 
-- (void)loadImageAtHTTPPath:(NSString *)path progress:(DownloadProgress)progress dataCompletion:(CompletionBlock)dataCompletion {
+- (void)loadImageAtHTTPUrl:(NSURL *)Url progress:(DownloadProgress)progress dataCompletion:(CompletionBlock)dataCompletion {
     if (_task) {
         [_task cancel];
     }
-    NSURL *sourceUrl = HippyURLWithString(path, nil);
-    if (sourceUrl) {
+    if (Url) {
         NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
         NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:self
                                                          delegateQueue:ImageDataLoaderQueue()];
-        _task = [session dataTaskWithURL:sourceUrl];
+        _task = [session dataTaskWithURL:Url];
         [_task resume];
         _progress = progress;
         _completion = dataCompletion;
     }
 }
 
-- (void)loadImageAtFilePath:(NSString *)path progress:(DownloadProgress)progress dataCompletion:(CompletionBlock)dataCompletion {
-    if (path) {
+- (void)loadImageAtFileUrl:(NSURL *)Url progress:(DownloadProgress)progress dataCompletion:(CompletionBlock)dataCompletion {
+    if (Url) {
+        NSString *path = [Url path];
         BOOL isDirectory = NO;
         BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory];
         if (fileExists) {
@@ -152,38 +155,37 @@ static NSOperationQueue *ImageDataLoaderQueue(void) {
     }else {
         if (dataCompletion) {
             NSError *error = [NSError errorWithDomain:HippyImageDataLoaderErrorDomain code:HippyImageDataLoaderErrorNoPathIncoming userInfo:nil];
-            dataCompletion(nil, path, error);
+            dataCompletion(nil, [Url path], error);
         }
     }
 }
 
-- (void)loadImageAtBase64Path:(NSString *)path progress:(DownloadProgress)progress dataCompletion:(CompletionBlock)dataCompletion {
-    if (path) {
-        NSURL *url = [NSURL URLWithString:path];
-        if (url) {
+- (void)loadImageAtBase64Url:(NSURL *)Url progress:(DownloadProgress)progress dataCompletion:(CompletionBlock)dataCompletion {
+    if (Url) {
+        if (Url) {
             NSError *error = nil;
-            NSData *data = [NSData dataWithContentsOfURL:url options:NSDataReadingMappedIfSafe error:&error];
+            NSData *data = [NSData dataWithContentsOfURL:Url options:NSDataReadingMappedIfSafe error:&error];
             if (error) {
-                dataCompletion(nil, path, error);
+                dataCompletion(nil, [Url absoluteString], error);
             }else {
                 NSUInteger length = [data length];
                 if (progress) {
                     progress(length, length);
                 }
                 if (dataCompletion) {
-                    dataCompletion(data, path, nil);
+                    dataCompletion(data, [Url absoluteString], nil);
                 }
             }
         }else {
             if (dataCompletion) {
                 NSError *error = [NSError errorWithDomain:HippyImageDataLoaderErrorDomain code:HippyImageDataLoaderErrorNoPathIncoming userInfo:nil];
-                dataCompletion(nil, path, error);
+                dataCompletion(nil, [Url absoluteString], error);
             }
         }
     }else {
         if (dataCompletion) {
             NSError *error = [NSError errorWithDomain:HippyImageDataLoaderErrorDomain code:HippyImageDataLoaderErrorNoPathIncoming userInfo:nil];
-            dataCompletion(nil, path, error);
+            dataCompletion(nil, [Url absoluteString], error);
         }
     }
 }

@@ -29,14 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @optional
 
-- (BOOL)canHandleImageAtPath:(NSString *)path;
+- (BOOL)canHandleImageAtUrl:(NSURL *)Url;
 
 @required
 
-- (void)loadImageAtPath:(NSString *)path progress:(void (^)(NSUInteger, NSUInteger))progress
-        completion:(void (^)(id, NSString *, NSError *))completion;
+- (void)loadImageAtUrl:(NSURL *)Url progress:(void (^)(NSUInteger, NSUInteger))progress
+            completion:(void (^)(id, NSString *, NSError *))completion;
 
-- (void)cancelImageDownloadAtPath:(NSString *)path;
+- (void)cancelImageDownloadAtUrl:(NSURL *)Url;
 
 @end
 

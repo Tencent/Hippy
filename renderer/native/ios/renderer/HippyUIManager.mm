@@ -140,7 +140,7 @@ NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNot
     = @"HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification";
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
-NSString *const HippyUIManagerBridgeKey = @"HippyUIManagerBridgeKey";
+NSString *const HippyUIManagerKey = @"HippyUIManagerKey";
 NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBatchNotification";
 
 @interface HippyUIManager() {
@@ -169,9 +169,10 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
 @implementation HippyUIManager
 
-@synthesize bridge = _bridge;
-
 HIPPY_EXPORT_MODULE()
+
+@synthesize bridge = _bridge;
+@synthesize frameworkProxy = _frameworkProxy;
 
 #pragma mark Life cycle
 
@@ -192,7 +193,6 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)initContext {
-    HippyAssert(_bridge == nil, @"Should not re-use same UIIManager instance");
     _shadowViewRegistry = [NSMutableDictionary new];
     _viewRegistry = [NSMutableDictionary new];
     _listTags = [NSMutableArray new];
@@ -250,7 +250,6 @@ HIPPY_EXPORT_MODULE()
             strongSelf->_rootViewTag = nil;
             strongSelf->_viewRegistry = nil;
             strongSelf->_bridgeTransactionListeners = nil;
-            strongSelf->_bridge = nil;
             strongSelf->_listTags = nil;
             [[NSNotificationCenter defaultCenter] removeObserver:strongSelf];
         }
@@ -395,7 +394,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     });
 
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRegisterRootViewNotification object:self
-                                                      userInfo:@{ HippyUIManagerRootViewKey: rootView , HippyUIManagerBridgeKey: self.bridge}];
+                                                      userInfo:@{ HippyUIManagerRootViewKey: rootView, HippyUIManagerKey: self}];
 }
 
 
@@ -553,7 +552,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (shadowView) {
             shadowView.hippyTag = hippyTag;
             shadowView.rootTag = _rootViewTag;
-            shadowView.bridge = self.bridge;
             shadowView.viewName = viewName;
             shadowView.tagName = tagName;
             shadowView.props = newProps;
@@ -1295,9 +1293,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)setNeedsLayout {
     // If there is an active batch layout will happen when batch finished, so we will wait for that.
     // Otherwise we immidiately trigger layout.
-    if (![_bridge isBatchActive]) {
-        [self layoutAndMount];
-    }
+    [self layoutAndMount];
 }
 
 - (NSDictionary<NSString *, id> *)constantsToExport {

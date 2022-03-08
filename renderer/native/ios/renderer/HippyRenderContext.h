@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "HippyFrameworkProxy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,11 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol HippyRenderContext;
 @class HippyShadowView;
+
 typedef void (^HippyRenderUIBlock)(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
 
 @protocol HippyRenderContext <NSObject>
 
 @property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;
+
+@property(nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
 
 - (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName;
 
@@ -42,6 +46,7 @@ typedef void (^HippyRenderUIBlock)(id<HippyRenderContext> renderContext, NSDicti
 - (__kindof UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
 
 - (void)addUIBlock:(HippyRenderUIBlock)block;
+
 
 @end
 

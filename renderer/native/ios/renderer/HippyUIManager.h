@@ -69,7 +69,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidRegisterRootViewNotification;
 HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 
 //TODO delete it
-HIPPY_EXTERN NSString *const HippyUIManagerBridgeKey;
+HIPPY_EXTERN NSString *const HippyUIManagerKey;
 
 /**
  * Posted whenever endBatch is called

@@ -94,7 +94,6 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property(nonatomic, copy) HippyDirectEventBlock onLayout;
 @property(nonatomic, assign) BOOL isList;
-@property(nonatomic, weak) HippyBridge *bridge;
 @property(nonatomic, assign) HPDirection layoutDirection;
 @property(nonatomic, copy) NSString *visibility;
 @property(nonatomic, assign) BOOL visibilityChanged;

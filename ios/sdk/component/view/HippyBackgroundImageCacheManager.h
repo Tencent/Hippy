@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 
 @class HippyBridge;
-
+//TODO 这个类似乎可以删除了
 @interface HippyBackgroundImageCacheManager : NSObject
 
 @property (nonatomic, weak) HippyBridge *bridge;
