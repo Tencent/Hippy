@@ -1,13 +1,9 @@
+import { HippyWebModule } from '../../base';
 import { BaseModule, ModuleContext } from '../../types';
 import { callbackToHippy } from '../common';
 
-export class ClipboardModule implements BaseModule {
+export class ClipboardModule extends HippyWebModule {
   public static moduleName = 'ClipboardModule'
-  private context!: ModuleContext;
-
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
 
   public destroy() {
   }

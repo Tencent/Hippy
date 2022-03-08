@@ -1,12 +1,9 @@
+import { HippyWebModule } from '../../base';
 import { BaseModule, ModuleContext } from '../../types';
 import { callbackToHippy } from '../common';
 
-export class ImageLoadModule implements BaseModule {
+export class ImageLoadModule extends HippyWebModule {
   public static moduleName = 'ImageLoadModule';
-  private context!: ModuleContext;
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
 
   public getSize(callBackId: number, url: string) {
     if (!url) {

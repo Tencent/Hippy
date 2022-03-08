@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+
+
 declare function hippyBridge (action: string, params: any): void;
 
 export interface UIProps {[key: string]: any}

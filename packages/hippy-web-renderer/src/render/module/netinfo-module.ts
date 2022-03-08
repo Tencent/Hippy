@@ -1,3 +1,4 @@
+import { HippyWebModule } from '../../base';
 import { BaseModule, ModuleContext } from '../../types';
 import { dispatchModuleEventToHippy } from '../common';
 type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKONWN';
@@ -12,12 +13,7 @@ type ConnectionType =
   | 'wifi'
   | 'wimax';
 
-export class NetInfoModule implements BaseModule {
-  private context!: ModuleContext;
-
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
+export class NetInfoModule extends HippyWebModule {
 
   public get connection() {
     return  window.navigator?.connection;

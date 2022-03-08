@@ -18,17 +18,13 @@
  * limitations under the License.
  */
 
+import { HippyWebModule } from '../../base';
 import { BaseModule, BaseView, ModuleContext } from '../../types';
 import { dispatchModuleEventToHippy, setElementStyle } from '../common';
 
-export class AnimationModule implements BaseModule {
+export class AnimationModule extends HippyWebModule {
   public static moduleName = 'AnimationModule';
   private animationPool: {[key: string]: SimpleAnimation|null} = {}
-  private context!: ModuleContext;
-
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
 
   public createAnimation(callBackId: number, animationId: number, params: AnimationOptions, mode?: string) {
     if (this.animationPool[animationId]) {

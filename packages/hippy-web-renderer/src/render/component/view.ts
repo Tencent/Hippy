@@ -18,10 +18,11 @@
  * limitations under the License.
  */
 
+import { HippyWebComponent } from '../../base/base-unit';
 import { BaseView, NodeTag, UIProps } from '../../types';
 import { setElementStyle } from '../common';
 const ViewDictionary: {[key in string|number]: BaseView} = {};
-export class View<T extends HTMLElement> implements BaseView {
+export class View<T extends HTMLElement>  extends HippyWebComponent implements BaseView {
   public tagName!: NodeTag;
   public id!: number;
   public pId!: number;
@@ -30,6 +31,7 @@ export class View<T extends HTMLElement> implements BaseView {
   public props: any = {};
 
   public constructor(id: number, pId: number) {
+    super();
     this.id = id;
     this.pId = pId;
   }
