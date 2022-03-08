@@ -36,6 +36,7 @@
 @implementation HippyDefaultImageProvider
 
 @synthesize imageDataPath;
+@synthesize scale;
 
 + (BOOL)canHandleData:(NSData *)data {
     return YES;
@@ -50,7 +51,7 @@
     self = [super init];
     if (self) {
         [self setImageData:data];
-        _scale = 1.f;
+        self.scale = 1.f;
     }
     return self;
 }
@@ -69,7 +70,7 @@
             CGFloat view_width = _imageViewSize.width;
             CGFloat view_height = _imageViewSize.height;
             if (_downSample && view_width > 0 && view_height > 0) {
-                CGFloat scale = _scale;
+                CGFloat scale = self.scale;
                 NSDictionary *options = @{ (NSString *)kCGImageSourceShouldCache: @(NO) };
                 CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
                 if (ref) {
@@ -104,7 +105,7 @@
         }
     }
     if (!_image) {
-        _image = [UIImage imageWithData:_data scale:_scale];
+        _image = [UIImage imageWithData:_data scale:self.scale];
     }
     return _image;
 }

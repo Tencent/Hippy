@@ -419,7 +419,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             NSError *error = nil;
             UIImage *blurredImage = HippyBlurredImageWithRadiusv(image, br, &error);
             if (error) {
-                NSError *finalError = HippyErrorFromErrorAndModuleName(error, nil);
+                NSError *finalError = HippyErrorFromErrorAndModuleName(error, @"unknown");
                 HippyFatal(finalError);
             }
             HippyExecuteOnMainQueue(^{

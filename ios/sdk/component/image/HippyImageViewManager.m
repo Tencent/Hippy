@@ -72,6 +72,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
                         else if ([result isKindOfClass:[NSData class]]) {
                             Class cls = [self imageProviderClass];
                             id<HippyImageProviderProtocol> imageProvider = [[cls alloc] init];
+                            imageProvider.scale = [[UIScreen mainScreen] scale];
                             imageProvider.imageDataPath = path;
                             [imageProvider setImageData:(NSData *)result];
                             [strongView setImageProvider:imageProvider];
@@ -91,6 +92,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     NSString *source = [HippyConvert NSString:json];
+    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
+        source = [self.renderContext.frameworkProxy standardizeAssetUrlString:source];
+    }
     id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoaderForView:view path:source];
     __weak HippyImageView *weakView = view;
     NSURL *url = HippyURLWithString(source, nil);
@@ -103,6 +107,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
                     if ([result isKindOfClass:[NSData class]]) {
                         Class cls = [self imageProviderClass];
                         id<HippyImageProviderProtocol> imageProvider = [[cls alloc] init];
+                        imageProvider.scale = [UIScreen mainScreen].scale;
                         [imageProvider setImageData:(NSData *)result];
                         strongView.defaultImage = [imageProvider image];
                     }

@@ -88,33 +88,33 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
         NSString *imagePath = [HippyConvert NSString:json];
         if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
             imagePath = [self.renderContext.frameworkProxy standardizeAssetUrlString:imagePath];
-            id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoaderForView:view path:imagePath];
-            __weak HippyView *weakView = view;
-            CGFloat scale = [UIScreen mainScreen].scale;
-            NSURL *url = HippyURLWithString(imagePath, nil);
-            [imageDataLoader loadImageAtUrl:url progress:^(NSUInteger current, NSUInteger total) {
-            } completion:^(id result, NSString *path, NSError *error) {
-                if (!error) {
-                    UIImage *backgroundImage = nil;
-                    if ([result isKindOfClass:[UIImage class]]) {
-                        backgroundImage = result;
-                    }
-                    else if ([result isKindOfClass:[NSData class]]) {
-                        HippyDefaultImageProvider *imageProvider = [[HippyDefaultImageProvider alloc] init];
-                        imageProvider.imageDataPath = imagePath;
-                        [imageProvider setImageData:(NSData *)result];
-                        imageProvider.scale = scale;
-                        backgroundImage = [imageProvider image];
-                    }
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (weakView) {
-                            HippyView *strongView = weakView;
-                            strongView.backgroundImage = backgroundImage;
-                        }
-                    });
-                }
-            }];
         }
+        id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoaderForView:view path:imagePath];
+        __weak HippyView *weakView = view;
+        CGFloat scale = [UIScreen mainScreen].scale;
+        NSURL *url = HippyURLWithString(imagePath, nil);
+        [imageDataLoader loadImageAtUrl:url progress:^(NSUInteger current, NSUInteger total) {
+        } completion:^(id result, NSString *path, NSError *error) {
+            if (!error) {
+                UIImage *backgroundImage = nil;
+                if ([result isKindOfClass:[UIImage class]]) {
+                    backgroundImage = result;
+                }
+                else if ([result isKindOfClass:[NSData class]]) {
+                    HippyDefaultImageProvider *imageProvider = [[HippyDefaultImageProvider alloc] init];
+                    imageProvider.imageDataPath = imagePath;
+                    [imageProvider setImageData:(NSData *)result];
+                    imageProvider.scale = scale;
+                    backgroundImage = [imageProvider image];
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (weakView) {
+                        HippyView *strongView = weakView;
+                        strongView.backgroundImage = backgroundImage;
+                    }
+                });
+            }
+        }];
     }
 }
 
