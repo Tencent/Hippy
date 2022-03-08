@@ -45,14 +45,11 @@ interface PullFooterProps extends LayoutableProps {
 }
 
 class PullFooter extends React.Component<PullFooterProps, {}> {
-  private instance: Element | Fiber | HTMLDivElement | null = null;
-
-  /**
-  * @ignore
-  */
-  private defaultProps = {
+  private static defaultProps = {
     sticky: true,
   };
+
+  private instance: Element | Fiber | HTMLDivElement | null = null;
 
   /**
    * Expand the PullView and display the content
