@@ -53,7 +53,7 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "updateNodeSize",
-             "(IFF)V",
+             "(IIFF)V",
              UpdateNodeSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
@@ -102,9 +102,36 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
   dom_manager->DoLayout();
 }
 
-void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_node_id,
+void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_node_id,
                     jfloat j_width, jfloat j_height) {
+  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
+          static_cast<int32_t>(j_instance_id));
+  if (!render_manager) {
+    TDF_BASE_DLOG(WARNING) << "UpdateNodeSize j_instance_id invalid";
+    return;
+  }
 
+  std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
+  if (dom_manager == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "UpdateNodeSize dom_manager is nullptr";
+    return;
+  }
+  auto node = dom_manager->GetNode(hippy::base::checked_numeric_cast<jlong, uint32_t>(j_node_id));
+  if (node == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "UpdateNodeSize DomNode not found for id: " << j_node_id;
+    return;
+  }
+
+  std::unordered_map<std::string, std::shared_ptr<DomValue>> update_style;
+  std::shared_ptr<DomValue> width =
+    std::make_shared<DomValue>(hippy::base::checked_numeric_cast<jfloat, double>(j_width));
+  std::shared_ptr<DomValue> height =
+    std::make_shared<DomValue>(hippy::base::checked_numeric_cast<jfloat, double>(j_height));
+  update_style.insert({"width", width});
+  update_style.insert({"height", height});
+
+  node->UpdateDomNodeStyle(update_style);
+  node->ParseLayoutStyleInfo();
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,

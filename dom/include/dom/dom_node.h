@@ -136,7 +136,12 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
                         const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);
 
+  void UpdateDomNodeStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
  private:
+  void UpdateDiff(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
+                  const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);
+  void UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);
+  void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
   void UpdateObjectStyle(DomValue& style_map, const DomValue& update_style);
 
  private:
