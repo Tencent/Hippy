@@ -167,6 +167,7 @@ public class NodeProps {
   public static final String VISIBLE = "visible";
   public static final String REPEAT_COUNT = "repeatCount";
   public static final String ATTRIBUTES	= "attributes";
+  public static final String BACKGROUND_RIPPLE	= "nativeBackgroundAndroid";
 
   private static final HashSet<String> JUST_LAYOUT_PROPS = new HashSet<>(
       Arrays.asList(ALIGN_SELF, ALIGN_ITEMS, COLLAPSABLE, FLEX, FLEX_DIRECTION, FLEX_WRAP,
