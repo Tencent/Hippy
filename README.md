@@ -50,11 +50,11 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
 
 1. Run `npm run init` at root directory.
 
-   > This command is combined with `npm install && lerna bootstrap && npm run build`.
+   > This command is combined with `npm install && npx lerna bootstrap && npm run build`.
    >
    > `npm install`: Install the project build scripts dependencies.
    >
-   > `lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
+   > `npx lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
    >
    > `npm run build`: Build each front-end sdk package.  
 
@@ -73,11 +73,11 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 1. Run `npm run init` at root directory.
 
-   > This command is combined with `npm install && lerna bootstrap && npm run build`.
+   > This command is combined with `npm install && npx lerna bootstrap && npm run build`.
    >
    > `npm install`: Install the project build scripts dependencies.
    >
-   > `lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
+   > `npx lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
    >
    > `npm run build`: Build each front-end sdk package.  
 
