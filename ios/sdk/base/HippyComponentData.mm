@@ -324,9 +324,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                 for (NSString *part in parts) {
                     target = [target valueForKey:part];
                 }
-
                 // Set property with json
-                setterBlock(target, HippyNilIfNull(json));
+                if (setterBlock) {
+                    setterBlock(target, HippyNilIfNull(json));
+                }
             };
         }
 

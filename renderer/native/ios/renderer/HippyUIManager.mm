@@ -941,6 +941,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
         if (shadowView) {
             if (isAnimated) {
+                //TODO 动画需要剥离bridge
                 HippyExtAnimationModule *animationModule = self.bridge.animationModule;
                 NSDictionary *styleProps = unorderedMapDomValueToDictionary(props);
                 styleProps = [animationModule bindAnimaiton:styleProps viewTag:hippyTag rootTag:shadowView.rootTag];
