@@ -4,45 +4,45 @@ import { HippyWebEngine } from "./engine";
 export class HippyWebEngineContext {
   engine: HippyWebEngine;
   constructor(engine: HippyWebEngine) {
-      this.engine = engine;
+    this.engine = engine;
   }
   /**
-   * 向上层发送普通事件
+   * send normal event to js side
    */
   sendEvent(type: string, params: any) {
-      hippyBridge('callJsModule', {
-          moduleName: 'EventDispatcher',
-          methodName: 'receiveNativeEvent',
-          params: [type, params],
-      });
+    hippyBridge('callJsModule', {
+      moduleName: 'EventDispatcher',
+      methodName: 'receiveNativeEvent',
+      params: [type, params],
+    });
   }
   /**
-   * 向上层发送 UI 事件
+   * send ui event to js side
    */
   sendUiEvent(nodeId: number, type: string, params: any) {
-      hippyBridge('callJsModule', {
-          moduleName: 'EventDispatcher',
-          methodName: 'receiveUIComponentEvent',
-          params: [nodeId, type, params],
-      });
+    hippyBridge('callJsModule', {
+      moduleName: 'EventDispatcher',
+      methodName: 'receiveUIComponentEvent',
+      params: [nodeId, type, params],
+    });
   }
 
   /**
-   * 向上层发送手势事件
+   * send gesture event to js side
    */
   sendGestureEvent(e: HippyTransferData.NativeGestureEvent) {
-      hippyBridge('callJsModule', {
-          moduleName: 'EventDispatcher',
-          methodName: 'receiveNativeGesture',
-          params: e,
-      });
+    hippyBridge('callJsModule', {
+      moduleName: 'EventDispatcher',
+      methodName: 'receiveNativeGesture',
+      params: e,
+    });
   }
 
   subscribe(evt: string, callback: Function) {
-      this.engine.eventBus.subscribe(evt, callback);
+    this.engine.eventBus.subscribe(evt, callback);
   }
 
-  getModuleByName (moduleName: string) {
+  getModuleByName(moduleName: string) {
     return this.engine.modules[moduleName];
   }
 }

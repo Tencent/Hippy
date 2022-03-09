@@ -3,11 +3,15 @@ import { HippyWebEngine } from './src';
 (async () => {
   const engine = HippyWebEngine.create({
     modules: [
-      // TODO: add business js bundle
+      // TODO: add
+
+    ],
+    components: [
+
     ]
   });
 
-
+  // TODO: add business js bundle
 
   engine.start({
     id: 'test-app',
