@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.5](https://github.com/Tencent/Hippy/compare/2.12.4...2.12.5) (2022-03-09)
+
+
+### Bug Fixes
+
+* **core:** fix multi-context mode exception handling crash ([0851998](https://github.com/Tencent/Hippy/commit/08519980373853076e52d0014c85c7ad7989b459))
+
+
+
+
+
 ## [2.12.4](https://github.com/Tencent/Hippy/compare/2.12.3...2.12.4) (2022-03-07)
 
 
