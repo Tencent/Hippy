@@ -34,7 +34,7 @@ const keys = Object.keys(Components);
 for (const key of keys) {
   registerComponent(key, Components[key]);
 }
-export {
+export const MODULES = [
   AnimationModule,
   ClipboardModule,
   DeviceEventModule,
@@ -44,7 +44,7 @@ export {
   StorageModule,
   UIManagerModule,
   WebSocketModule,
-};
+];
 
 export { registerComponent } from './ui-manager-module';
 

@@ -27,7 +27,7 @@ const HippyEllipsizeModeMap = {
   middle: { 'text-overflow': 'ellipsis' },
   tail: { 'text-overflow': 'ellipsis' },
 };
-export class Text extends HippyView<HTMLSpanElement> {
+export class TextView extends HippyView<HTMLSpanElement> {
   private lines: number | undefined;
   private ellipsis: EllipsizeMode | undefined;
   private content = '';
@@ -56,6 +56,23 @@ export class Text extends HippyView<HTMLSpanElement> {
 
   public set text(value) {
     this.content = value;
+    if (this.dom!.childNodes.length > 0) {
+      let textNode: Text | null = null;
+      this.dom!.childNodes.forEach((item) => {
+        if (item instanceof Text) {
+          textNode = item;
+        }
+      });
+      if (textNode && (textNode as Text).textContent !== value) {
+        (textNode as Text).textContent = value;
+      }
+      return;
+    }
+    const textNode = document.createTextNode(value);
+    if (this.dom!.childNodes.length > 0) {
+      this.dom!.removeChild(this.dom!.childNodes[0]);
+    }
+    this.dom!.appendChild(textNode);
   }
 
   public get text() {

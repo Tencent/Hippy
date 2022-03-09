@@ -1,8 +1,8 @@
-import { HippyWebEngineContext } from "./context";
+import { HippyWebEngineContext } from './context';
 
 export class HippyWebUnit {
   context?: HippyWebEngineContext;
-  name: string = '';
+  name = '';
   constructor() {
   }
 }
@@ -14,7 +14,6 @@ export class HippyWebModule extends HippyWebUnit {
     this.context = context;
   }
   init?: () => void;
-
 }
 
 export class HippyWebComponent extends HippyWebUnit {

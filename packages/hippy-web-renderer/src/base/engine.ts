@@ -1,9 +1,9 @@
-import { HippyWebComponent, HippyWebModule } from "./base-unit";
-import { HippyWebEngineContext } from "./context";
-import { createCallNatives } from "./create-call-natives";
-import { HippyWebEventBus } from "./event-bus";
-import { scriptLoader } from "./script-loader";
 import global from '../get-global';
+import { HippyWebComponent, HippyWebModule } from './base-unit';
+import { HippyWebEngineContext } from './context';
+import { createCallNatives } from './create-call-natives';
+import { HippyWebEventBus } from './event-bus';
+import { scriptLoader } from './script-loader';
 
 export interface HippyWebEngineCreatorOptions {
   modules?: (typeof HippyWebModule)[];
@@ -17,7 +17,6 @@ export interface HippyWebEngineStartOptions {
 }
 
 export class HippyWebEngine {
-
   static create(options?: HippyWebEngineCreatorOptions) {
     // load core modules
     if (Hippy.web.engine == null) {
@@ -41,12 +40,12 @@ export class HippyWebEngine {
     }
     const { modules, components } = options;
 
-    modules?.forEach(moduleCtor => {
+    modules?.forEach((moduleCtor) => {
       const mod = new moduleCtor(this.context);
       this.modules[mod.name] = mod;
     });
 
-    components?.forEach(cmpCtor => {
+    components?.forEach((cmpCtor) => {
       const cmp = new cmpCtor();
       this.components[cmp.name] = cmp;
     });
@@ -59,13 +58,12 @@ export class HippyWebEngine {
   }
 
 
-
   start(options: HippyWebEngineStartOptions) {
     this.instance = options;
     hippyBridge('loadInstance', options);
 
     Object.keys(this.modules).forEach((key) => {
-      this.modules[key].init!();
+      this.modules[key].init?.();
     });
     this.eventBus.publish('loaded');
   }

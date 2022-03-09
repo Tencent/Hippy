@@ -1,7 +1,3 @@
-
-
-
-
 const Localization = { country: '', language: '', direction: 0 };
 export const platform = () => {
   return {

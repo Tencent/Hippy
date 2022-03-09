@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { BaseView, InnerNodeTag, UIProps } from '../../types';
 export class HippyView<T extends HTMLElement> implements BaseView {
   public tagName!: InnerNodeTag;

@@ -17,10 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-declare function hippyBridge(action: string, params: any): void;
-
 export enum EllipsizeMode {
   HEAD = 'head',
   clip = 'clip',

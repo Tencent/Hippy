@@ -28,7 +28,9 @@ import {
 import { callBackMeasureInWindowToHippy, setElementStyle } from '../common';
 
 export class UIManagerModule extends HippyWebModule {
-  public static moduleName = '';
+  public static moduleName = 'UIManagerModule';
+  public name = 'UIManagerModule';
+
   private viewDictionary: {[key in string|number]: BaseView} = {};
   private rootDom: HTMLElement|undefined;
   private contentDom: HTMLElement|undefined;
@@ -45,13 +47,15 @@ export class UIManagerModule extends HippyWebModule {
 
   }
 
-  public async createNode(rootViewId: string, data: Array<NodeData>) {
+  public async createNode(rootViewId: any, data: Array<NodeData>) {
     if (!this.rootDom) {
       this.rootDom = document.getElementsByTagName('body')[0];
     }
     if (!window.document.getElementById(rootViewId)) {
       this.contentDom = this.createRoot(rootViewId);
       this.rootDom?.appendChild(this.contentDom);
+      this.viewDictionary[rootViewId] = { id: rootViewId as number, pId: -1, index: this.rootDom.childNodes.length,
+        props: {}, dom: this.contentDom, tagName: 'View' };
     }
     for (let c = 0; c < data.length; c++) {
       const nodeItemData = data[c];
@@ -64,7 +68,7 @@ export class UIManagerModule extends HippyWebModule {
       if (!component) {
         throw `create component failed, can't find ${tagName}' constructor`;
       }
-      this.componentInitProcess(component, props, index);
+      await this.componentInitProcess(component, props, index);
     }
   }
 
@@ -166,7 +170,7 @@ export class UIManagerModule extends HippyWebModule {
 
   private updateComponentProps(component: BaseView, props: any) {
     if (component.updateProps) {
-      component.updateProps(props, this.defaultUpdateComponentProps);
+      component.updateProps(props, this.defaultUpdateComponentProps.bind(this));
     } else {
       this.defaultUpdateComponentProps(component, props);
     }
@@ -188,10 +192,10 @@ export class UIManagerModule extends HippyWebModule {
         if (key === 'style') {
           continue;
         }
-        if (typeof this[key] === 'function' && key.indexOf('on') === 0) {
+        if (typeof component[key] === 'function' && key.indexOf('on') === 0) {
           continue;
         }
-        component.props[key] = props[key];
+        component[key] = props[key];
       }
     }
   }
@@ -230,7 +234,7 @@ export class UIManagerModule extends HippyWebModule {
 
   private async componentInitProcess(component: BaseView, props: any, index: number) {
     this.updateComponentProps(component, props);
-    const parent = this.findViewById(component.id);
+    const parent = this.findViewById(component.pId);
     if (!parent) {
       return;
     }
@@ -242,9 +246,11 @@ export class UIManagerModule extends HippyWebModule {
     await parent.beforeChildMount?.(component, realIndex);
     if (parent.insertChild) {
       parent.insertChild(component, index);
+      this.viewDictionary[component.id] = component;
     } else {
       this.appendChild(parent, component, realIndex);
     }
+    component.dom!.id = String(component.id);
     component.mounted?.();
   }
 
