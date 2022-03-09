@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.3](https://github.com/Tencent/Hippy/compare/2.13.2...2.13.3) (2022-03-09)
+
+
+### Bug Fixes
+
+* **android:** onScroll of HippyRecyclerView ([eb2bead](https://github.com/Tencent/Hippy/commit/eb2bead347cc6bbc1371ba663afc82715e40ca31))
+* **core:** fix multi-context mode exception handling crash ([659f7a9](https://github.com/Tencent/Hippy/commit/659f7a9bb8a3fe09c3be4adf0f021bc4e8909c33))
+
+
+### Features
+
+* **android:** support multi instance to debug elements ([1884d0e](https://github.com/Tencent/Hippy/commit/1884d0e93b98ad097f175fefa853516f5e05602d))
+* **core:** refactor NAPI and rename macros ([f6f037f](https://github.com/Tencent/Hippy/commit/f6f037f49d23f5646ad922a32ee61d95a4d6ffb8))
+
+
+
+
+
 ## [2.13.2](https://github.com/Tencent/Hippy/compare/2.13.1...2.13.2) (2022-03-08)
 
 

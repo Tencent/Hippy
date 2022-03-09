@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   puts 'hippy.podspec read begins'
   s.name             = 'hippy'
-  s.version          = '2.13.2'
+  s.version          = '2.13.3'
   s.summary          = 'Hippy library for iOS'
 
 # This description is used to generate tags and improve search results.
