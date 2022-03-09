@@ -256,7 +256,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                        context:(__unused void *)context {
     if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
-            [self hippyBridgeDidFinishTransaction];
+            [self hippyComponentDidFinishTransaction];
             if ([self needsLayoutForRTL]) {
                 _contentView.transform = CGAffineTransformMakeRotation(M_PI);
             }
@@ -749,7 +749,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
 }
 
-- (void)hippyBridgeDidFinishTransaction {
+- (void)hippyComponentDidFinishTransaction {
     CGSize contentSize = self.contentSize;
     if (!CGSizeEqualToSize(_scrollView.contentSize, contentSize)) {
         // When contentSize is set manually, ScrollView internals will reset

@@ -74,14 +74,3 @@
 - (NSTimeInterval)delayTimeAtFrame:(NSUInteger)frame;
 
 @end
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-//TODO delete HippyBridge
-//Class<HippyImageProviderProtocol> imageProviderClassFromBridge(NSData *data, HippyBridge *bridge);
-
-#ifdef __cplusplus
-}
-#endif

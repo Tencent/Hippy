@@ -70,8 +70,7 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
  */
 - (void)didUpdateHippySubviews;
 
-//TODO 这个要删除，以后component不再持有bridge
-- (void)hippyBridgeDidFinishTransaction;
+- (void)hippyComponentDidFinishTransaction;
 
 @end
 

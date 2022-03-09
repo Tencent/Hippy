@@ -155,7 +155,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     // Keyed by viewName
     NSMutableDictionary<NSString *, HippyComponentData *> *_componentDataByName;
 
-    NSMutableSet<id<HippyComponent>> *_bridgeTransactionListeners;
+    NSMutableSet<id<HippyComponent>> *_componentTransactionListeners;
 
     NSMutableArray<HippyViewUpdateCompletedBlock> *_completeBlocks;
 
@@ -198,7 +198,7 @@ HIPPY_EXPORT_MODULE()
     _listTags = [NSMutableArray new];
     // Internal resources
     _pendingUIBlocks = [NSMutableArray new];
-    _bridgeTransactionListeners = [NSMutableSet new];
+    _componentTransactionListeners = [NSMutableSet new];
     _viewsToBeDeleted = [NSMutableSet new];
     _componentDataByName = [NSMutableDictionary dictionaryWithCapacity:64];
 }
@@ -249,7 +249,7 @@ HIPPY_EXPORT_MODULE()
 
             strongSelf->_rootViewTag = nil;
             strongSelf->_viewRegistry = nil;
-            strongSelf->_bridgeTransactionListeners = nil;
+            strongSelf->_componentTransactionListeners = nil;
             strongSelf->_listTags = nil;
             [[NSNotificationCenter defaultCenter] removeObserver:strongSelf];
         }
@@ -398,8 +398,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 
-- (void)setFrame:(CGRect)frame forView:(UIView *)view
-{
+- (void)setFrame:(CGRect)frame forView:(UIView *)view {
     HippyAssertMainQueue();
 
     // The following variable has no meaning if the view is not a hippy root view
@@ -473,7 +472,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             }
             [registry removeObjectForKey:subview.hippyTag];
             if (registry == (NSMutableDictionary<NSNumber *, id<HippyComponent>> *)self->_viewRegistry) {
-                [self->_bridgeTransactionListeners removeObject:subview];
+                [self->_componentTransactionListeners removeObject:subview];
             }
         });
     }
@@ -594,8 +593,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         view.renderContext = self;
         [componentData setProps:props forView:view];  // Must be done before bgColor to prevent wrong default
 
-        if ([view respondsToSelector:@selector(hippyBridgeDidFinishTransaction)]) {
-            [self->_bridgeTransactionListeners addObject:view];
+        if ([view respondsToSelector:@selector(hippyComponentDidFinishTransaction)]) {
+            [self->_componentTransactionListeners addObject:view];
         }
         self->_viewRegistry[hippyTag] = view;
     }
@@ -1282,8 +1281,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
     [self addUIBlock:^(id<HippyRenderContext> renderContext, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyUIManager *uiManager = (HippyUIManager *)renderContext;
-        for (id<HippyComponent> node in uiManager->_bridgeTransactionListeners) {
-            [node hippyBridgeDidFinishTransaction];
+        for (id<HippyComponent> node in uiManager->_componentTransactionListeners) {
+            [node hippyComponentDidFinishTransaction];
         }
     }];
     [self flushUIBlocks];
