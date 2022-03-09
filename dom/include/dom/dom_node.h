@@ -34,17 +34,11 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   DomNode(uint32_t id, uint32_t pid, int32_t index);
   ~DomNode();
 
-  // 记录RenderNode相关信息
+  // 层级优化后的RenderNode信息
   struct RenderInfo {
+    uint32_t id = kInvalidId; // RenderNode的id
     uint32_t pid = kInvalidId; // 父RenderNode的id
-    int32_t index = kInvalidIndex;  // 在父RenderNode上的索引值
-    bool created = false;  // RenderNode是否已经创建
-
-    void Reset() {
-      pid = kInvalidId;
-      index = kInvalidIndex;
-      created = false;
-    }
+    int32_t index = kInvalidIndex;  // 本节点在父RenderNode上的索引
   };
 
   struct EventListenerInfo {
@@ -52,13 +46,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
     EventCallback cb;
 
     EventListenerInfo(uint32_t id, EventCallback cb) : id(id), cb(std::move(cb)) {}
-  };
-
-  struct RenderListenerInfo {
-    uint32_t id;
-    RenderCallback cb;
-
-    RenderListenerInfo(uint32_t id, RenderCallback cb) : id(id), cb(std::move(cb)) {}
   };
 
   inline std::shared_ptr<DomNode> GetParent() { return parent_.lock(); }
@@ -74,17 +61,17 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline uint32_t GetId() const { return id_; }
   inline void SetPid(uint32_t pid) { pid_ = pid; }
   inline uint32_t GetPid() const { return pid_; }
-  inline RenderInfo GetRenderInfo() const { return render_info_; }
-  inline void SetRenderInfo(RenderInfo render_info) { render_info_ = render_info; }
-  inline bool IsJustLayout() const { return is_just_layout_; }
-  inline void SetIsJustLayout(bool is_just_layout) { is_just_layout_ = is_just_layout; }
+  inline const RenderInfo& GetRenderInfo() const { return render_info_; }
+  inline void SetRenderInfo(const RenderInfo& render_info) { render_info_ = render_info; }
+  inline bool IsLayoutOnly() const { return layout_only_; }
+  inline void SetLayoutOnly(bool layout_only) { layout_only_ = layout_only; }
   inline bool IsVirtual() { return is_virtual_; }
   inline void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
   inline void SetIndex(int32_t index) { index_ = index; }
   inline int32_t GetIndex() const { return index_; }
 
   int32_t IndexOf(const std::shared_ptr<DomNode> &child);
-  std::shared_ptr<DomNode> GetChildAt(int32_t index);
+  std::shared_ptr<DomNode> GetChildAt(size_t index);
   const std::vector<std::shared_ptr<DomNode>> &GetChildren() { return children_; }
   void AddChildAt(const std::shared_ptr<DomNode> &dom_node, int32_t index);
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
@@ -98,7 +85,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void TransferLayoutOutputsRecursive();
   std::tuple<float, float> GetLayoutSize();
   void SetLayoutSize(float width, float height);
-  const LayoutResult &GetLayoutResult() { return layout_; }
+  const LayoutResult &GetLayoutResult() const { return layout_; }
+  const LayoutResult &GetRenderLayoutResult() const { return render_layout_; }
 
   void AddEventListener(const std::string &name, bool use_capture, const EventCallback &cb,
                         const CallFunctionCallback& callback);
@@ -131,7 +119,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void SetDeleteProps(std::shared_ptr<std::vector<std::string>> delete_props) { delete_props_ = delete_props; }
 
   CallFunctionCallback GetCallback(const std::string &name, uint32_t id);
-  bool HasTouchEventListeners();
+  bool HasEventListeners();
 
   void UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
                         const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);
@@ -160,8 +148,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
 
   std::shared_ptr<LayoutNode> layout_node_;
   LayoutResult layout_;  // Layout 结果
-  bool is_just_layout_;
+  LayoutResult render_layout_;  // 层级优化后的Layout 结果
   bool is_virtual_;
+  bool layout_only_ = false;
 
   std::weak_ptr<DomNode> parent_;
   std::vector<std::shared_ptr<DomNode>> children_;

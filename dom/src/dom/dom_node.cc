@@ -30,7 +30,6 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name,
       view_name_(std::move(view_name)),
       style_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(style_map))),
       dom_ext_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(dom_ext_map))),
-      is_just_layout_(false),
       is_virtual_(false),
       dom_manager_(dom_manager),
       current_callback_id_(0),
@@ -43,7 +42,6 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
     : id_(id),
       pid_(pid),
       index_(index),
-      is_just_layout_(false),
       is_virtual_(false),
       current_callback_id_(0),
       func_cb_map_(nullptr),
@@ -62,13 +60,11 @@ int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
   return kInvalidIndex;
 }
 
-std::shared_ptr<DomNode> DomNode::GetChildAt(int32_t index) {
-  for (auto& i : children_) {
-    if (i->index_ == index) {
-      return i;
-    }
+std::shared_ptr<DomNode> DomNode::GetChildAt(size_t index) {
+  if (index >= children_.size()) {
+    return nullptr;
   }
-  return nullptr;
+  return children_[index];
 }
 
 void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index) {
@@ -246,6 +242,19 @@ void DomNode::TransferLayoutOutputsRecursive() {
   layout_.paddingRight = layout_node_->GetPadding(Edge::EdgeRight);
   layout_.paddingBottom = layout_node_->GetPadding(Edge::EdgeBottom);
 
+  render_layout_ = layout_;
+
+  if (render_info_.pid != pid_) {
+    // 调整层级优化后的最终坐标
+    auto parent = GetParent();
+    while (parent != nullptr && parent->GetId() != render_info_.pid) {
+      render_layout_.left += parent->layout_.left;
+      render_layout_.top += parent->layout_.top;
+      parent = parent->GetParent();
+    }
+    changed |= true;
+  }
+
   layout_node_->SetHasNewLayout(false);
   if (changed) {
     auto dom_manager = dom_manager_.lock();
@@ -302,17 +311,8 @@ CallFunctionCallback DomNode::GetCallback(const std::string& name, uint32_t id) 
   return nullptr;
 }
 
-bool DomNode::HasTouchEventListeners() {
-  if (!event_listener_map_) {
-    return false;
-  }
-  if (event_listener_map_->find(kTouchStartEvent) != event_listener_map_->end() ||
-      event_listener_map_->find(kTouchMoveEvent) != event_listener_map_->end() ||
-      event_listener_map_->find(kTouchEndEvent) != event_listener_map_->end() ||
-      event_listener_map_->find(kTouchCancelEvent) != event_listener_map_->end()) {
-    return true;
-  }
-  return false;
+bool DomNode::HasEventListeners() {
+  return event_listener_map_ != nullptr && !event_listener_map_->empty();
 }
 
 void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,

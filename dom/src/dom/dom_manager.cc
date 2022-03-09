@@ -1,3 +1,5 @@
+#define ENABLE_LAYER_OPTIMIZATION
+
 #include "dom/dom_manager.h"
 
 #include <mutex>
@@ -7,6 +9,7 @@
 #include "dom/diff_utils.h"
 #include "dom/dom_event.h"
 #include "dom/dom_node.h"
+#include "dom/layer_optimized_render_manager.h"
 #include "dom/macro.h"
 #include "dom/render_manager.h"
 
@@ -57,6 +60,15 @@ bool DomManager::Erase(int32_t id) {
 
 bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
+void DomManager::SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
+#ifdef ENABLE_LAYER_OPTIMIZATION
+  optimized_render_manager_ = std::make_shared<LayerOptimizedRenderManager>(render_manager);
+  render_manager_ = optimized_render_manager_;
+#else
+  render_manager_ = render_manager;
+#endif
+}
+
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes = std::move(nodes)]() {
     DEFINE_AND_CHECK_SELF(DomManager)
@@ -67,7 +79,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
         // it = nodes.erase(it);
         continue;
       }
-      node->SetRenderInfo({node->GetPid(), node->GetIndex(), true});
+      node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetIndex()});
       // 解析布局属性
       node->ParseLayoutStyleInfo();
       parent_node->AddChildAt(node, node->GetIndex());
