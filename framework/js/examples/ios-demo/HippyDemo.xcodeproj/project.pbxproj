@@ -190,6 +190,7 @@
 		0960C6E827D201C100A7AD0F /* stream_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0960C0A827D201BA00A7AD0F /* stream_handler.cpp */; };
 		0960C6E927D201C100A7AD0F /* tcp_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0960C0A927D201BA00A7AD0F /* tcp_server.cpp */; };
 		0960C6F827D8A9A000A7AD0F /* update_dom_node_metas.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0960C6F727D8A9A000A7AD0F /* update_dom_node_metas.cc */; };
+		09AB328027D8AAFA00509B7A /* dom_devtools_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = 09AB327F27D8AAFA00509B7A /* dom_devtools_utils.cc */; };
 		781580042795449A006E92D4 /* HippyDevInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 7815800327954499006E92D4 /* HippyDevInfo.m */; };
 		787C199C2726A1020062EBFF /* HippyPageModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 787C198F2726A1020062EBFF /* HippyPageModel.mm */; };
 		787C199D2726A1020062EBFF /* HippyCSSModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 787C19902726A1020062EBFF /* HippyCSSModel.mm */; };
@@ -716,6 +717,8 @@
 		0960C0A927D201BA00A7AD0F /* tcp_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_server.cpp; sourceTree = "<group>"; };
 		0960C6F627D8A99700A7AD0F /* update_dom_node_metas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = update_dom_node_metas.h; sourceTree = "<group>"; };
 		0960C6F727D8A9A000A7AD0F /* update_dom_node_metas.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = update_dom_node_metas.cc; sourceTree = "<group>"; };
+		09AB327F27D8AAFA00509B7A /* dom_devtools_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_devtools_utils.cc; sourceTree = "<group>"; };
+		09AB328227D8AB0B00509B7A /* dom_devtools_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_devtools_utils.h; sourceTree = "<group>"; };
 		7815800227954499006E92D4 /* HippyDevInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDevInfo.h; sourceTree = "<group>"; };
 		7815800327954499006E92D4 /* HippyDevInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyDevInfo.m; sourceTree = "<group>"; };
 		787C198A2726A1020062EBFF /* HippyInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyInspector.h; sourceTree = "<group>"; };
@@ -2036,6 +2039,22 @@
 			path = tcp;
 			sourceTree = "<group>";
 		};
+		09AB327E27D8AAFA00509B7A /* devtools */ = {
+			isa = PBXGroup;
+			children = (
+				09AB327F27D8AAFA00509B7A /* dom_devtools_utils.cc */,
+			);
+			path = devtools;
+			sourceTree = "<group>";
+		};
+		09AB328127D8AB0B00509B7A /* devtools */ = {
+			isa = PBXGroup;
+			children = (
+				09AB328227D8AB0B00509B7A /* dom_devtools_utils.h */,
+			);
+			path = devtools;
+			sourceTree = "<group>";
+		};
 		787C19892726A1020062EBFF /* inspector */ = {
 			isa = PBXGroup;
 			children = (
@@ -2127,6 +2146,7 @@
 		D84AB8D9273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				09AB328127D8AB0B00509B7A /* devtools */,
 				F4810952277062A1005C221B /* layer_optimized_render_manager.h */,
 				F4E7B435276C61DC00F17139 /* deserializer.h */,
 				F4E7B437276C61DC00F17139 /* diff_utils.h */,
@@ -2156,6 +2176,7 @@
 		D84AB8E4273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				09AB327E27D8AAFA00509B7A /* devtools */,
 				F4810953277062AD005C221B /* layer_optimized_render_manager.cc */,
 				F4E7B43B276C61EB00F17139 /* deserializer.cc */,
 				F4E7B439276C61EA00F17139 /* dom_argument.cc */,
@@ -2602,6 +2623,7 @@
 				787C19A02726A1020062EBFF /* HippyDomDomain.mm in Sources */,
 				0960C56B27D201BF00A7AD0F /* thread.cc in Sources */,
 				064C5A4E23AB1A51001E80DD /* HippyBatchedBridge.mm in Sources */,
+				09AB328027D8AAFA00509B7A /* dom_devtools_utils.cc in Sources */,
 				0960C6F827D8A9A000A7AD0F /* update_dom_node_metas.cc in Sources */,
 				D84AB9AE273A618B00987D03 /* logging.cc in Sources */,
 				064C59FE23AB1A51001E80DD /* HippyDevMenu.mm in Sources */,
