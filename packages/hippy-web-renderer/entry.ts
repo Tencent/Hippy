@@ -11,7 +11,13 @@ import { HippyWebEngine } from './src';
     ]
   });
 
-  // TODO: add business js bundle
+  await engine.load([
+                      'https://camp.qq.com/test/hippy/vendor.android.js',
+                    ]);
+
+  await engine.load([
+                      'https://camp.qq.com/test/hippy/index.android.js',
+                    ]);
 
   engine.start({
     id: 'test-app',

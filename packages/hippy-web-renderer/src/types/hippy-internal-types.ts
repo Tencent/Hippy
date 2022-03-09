@@ -1,7 +1,5 @@
 
-export interface HippyNativeBridge {
-  (action: string, callObj?: { moduleName: string, methodName: string, params: any } | any): void;
-}
+export type HippyNativeBridge = (action: string, callObj?: { moduleName: string, methodName: string, params: any } | any) => void;
 
 export interface HippyJsBridge {
   callNative(moduleName: string, methodName: string, ...args: any[]): void;
@@ -10,9 +8,7 @@ export interface HippyJsBridge {
   removeNativeCallback(callbackId: number): void;
 }
 
-export interface HippyJsCallNatives {
-  (moduleName: string, moduleFunc: string, callId: number, params?: any[]): void;
-}
+export type HippyJsCallNatives = (moduleName: string, moduleFunc: string, callId: number, params?: any[]) => void;
 
 export namespace HippyTransferData {
   export type NativeUIEvent = [nodeId: string, eventName: string, eventParams: any];
@@ -24,10 +20,7 @@ export namespace HippyTransferData {
     id: number;
     page_x?: number;
     page_y: number;
-  }
+  };
 }
-
-
-
 
 

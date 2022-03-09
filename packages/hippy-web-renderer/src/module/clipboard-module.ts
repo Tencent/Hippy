@@ -18,16 +18,12 @@
  * limitations under the License.
  */
 
-import { BaseModule, ModuleContext } from '../../types';
 import { callbackToHippy } from '../common';
+import { HippyWebModule } from '../base';
 
-export class ClipboardModule implements BaseModule {
-  public static moduleName = 'ClipboardModule'
-  private context!: ModuleContext;
+export class ClipboardModule extends HippyWebModule {
+  public static moduleName = 'ClipboardModule';
 
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
 
   public destroy() {
   }

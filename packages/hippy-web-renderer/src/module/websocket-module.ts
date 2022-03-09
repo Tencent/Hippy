@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-import { HippyWebModule } from '../../base';
-import { BaseModule, ModuleContext } from '../../types';
+import { HippyWebModule } from '../base';
 import { callbackToHippy, dispatchModuleEventToHippy } from '../common';
 const enum EventType {
   ON_OPEN='onOpen',

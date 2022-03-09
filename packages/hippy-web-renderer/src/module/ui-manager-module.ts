@@ -18,12 +18,10 @@
  * limitations under the License.
  */
 
-import { HippyWebModule } from '../../base';
+import { HippyWebModule } from '../base';
 import {
-  BaseModule,
   BaseView,
   BaseViewConstructor,
-  ModuleContext,
   NodeData,
   UIProps,
 } from '../../types';
@@ -145,7 +143,7 @@ export class UIManagerModule extends HippyWebModule {
 
   public removeChild(parent: BaseView, childId: number) {
     const childView = this.findViewById(childId);
-    if (childView && childView.dom) {
+    if (childView?.dom) {
       parent.dom?.removeChild(childView.dom);
     }
     delete this.viewDictionary[childId];
@@ -199,7 +197,7 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   private animationProcess(key: string, value: any,  component: BaseView) {
-    const animationModule = this.context.getModuleByName('AnimationModule');
+    const animationModule = this.context.getModuleByName('AnimationModule') as any;
     if (!animationModule) {
       return;
     }
@@ -274,7 +272,7 @@ export class UIManagerModule extends HippyWebModule {
     component: BaseView|undefined|null, callName: string,
     params: Array<any>, callBackId: number,
   ) {
-    if (component && component[callName]) {
+    if (component?.[callName]) {
       component[callName].call(component, callBackId, params);
       return;
     }

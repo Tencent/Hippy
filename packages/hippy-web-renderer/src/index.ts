@@ -17,13 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import './global';
-import './render';
-import './core/entry/hippy';
-import { registerComponent, registerModule } from './module';
-
-export default {
-  registerComponent,
-  registerModule,
-};
+// import { registerComponent, registerModule } from './module';
+//
+// export default {
+//   registerComponent,
+//   registerModule,
+// };
+export * from './base';
 

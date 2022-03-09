@@ -17,8 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { HippyWebModule } from '../../base';
-import { BaseModule, ModuleContext } from '../../types';
+import { HippyWebModule } from '../base';
 import { dispatchModuleEventToHippy } from '../common';
 type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKONWN';
 type ConnectionType =
@@ -33,7 +32,6 @@ type ConnectionType =
   | 'wimax';
 
 export class NetInfoModule extends HippyWebModule {
-
   public get connection() {
     return  window.navigator?.connection;
   }
