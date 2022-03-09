@@ -189,6 +189,7 @@
 		0960C6E727D201C100A7AD0F /* socket.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0960C0A727D201BA00A7AD0F /* socket.cc */; };
 		0960C6E827D201C100A7AD0F /* stream_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0960C0A827D201BA00A7AD0F /* stream_handler.cpp */; };
 		0960C6E927D201C100A7AD0F /* tcp_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0960C0A927D201BA00A7AD0F /* tcp_server.cpp */; };
+		0960C6F827D8A9A000A7AD0F /* update_dom_node_metas.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0960C6F727D8A9A000A7AD0F /* update_dom_node_metas.cc */; };
 		781580042795449A006E92D4 /* HippyDevInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 7815800327954499006E92D4 /* HippyDevInfo.m */; };
 		787C199C2726A1020062EBFF /* HippyPageModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 787C198F2726A1020062EBFF /* HippyPageModel.mm */; };
 		787C199D2726A1020062EBFF /* HippyCSSModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 787C19902726A1020062EBFF /* HippyCSSModel.mm */; };
@@ -713,6 +714,8 @@
 		0960C0A727D201BA00A7AD0F /* socket.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = socket.cc; sourceTree = "<group>"; };
 		0960C0A827D201BA00A7AD0F /* stream_handler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stream_handler.cpp; sourceTree = "<group>"; };
 		0960C0A927D201BA00A7AD0F /* tcp_server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tcp_server.cpp; sourceTree = "<group>"; };
+		0960C6F627D8A99700A7AD0F /* update_dom_node_metas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = update_dom_node_metas.h; sourceTree = "<group>"; };
+		0960C6F727D8A9A000A7AD0F /* update_dom_node_metas.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = update_dom_node_metas.cc; sourceTree = "<group>"; };
 		7815800227954499006E92D4 /* HippyDevInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDevInfo.h; sourceTree = "<group>"; };
 		7815800327954499006E92D4 /* HippyDevInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyDevInfo.m; sourceTree = "<group>"; };
 		787C198A2726A1020062EBFF /* HippyInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyInspector.h; sourceTree = "<group>"; };
@@ -1743,6 +1746,7 @@
 		0960B86527D201B600A7AD0F /* data */ = {
 			isa = PBXGroup;
 			children = (
+				0960C6F627D8A99700A7AD0F /* update_dom_node_metas.h */,
 				0960B86627D201B600A7AD0F /* render_node_metas.h */,
 				0960B86727D201B600A7AD0F /* frame_timing_metas.h */,
 				0960B86827D201B600A7AD0F /* memory_metas.h */,
@@ -1989,6 +1993,7 @@
 		0960C09627D201BA00A7AD0F /* data */ = {
 			isa = PBXGroup;
 			children = (
+				0960C6F727D8A9A000A7AD0F /* update_dom_node_metas.cc */,
 				0960C09727D201BA00A7AD0F /* domain_metas.cc */,
 				0960C09827D201BA00A7AD0F /* dom_node_location.cc */,
 				0960C09927D201BA00A7AD0F /* dom_node_metas.cc */,
@@ -2576,7 +2581,6 @@
 				064C5A1823AB1A51001E80DD /* HippySimpleWebView.m in Sources */,
 				0960C6D627D201C100A7AD0F /* default_v8_response_adapter.cc in Sources */,
 				0960C6D427D201C100A7AD0F /* page_domain.cc in Sources */,
-				F419C38A27464047003E242A /* NativeRenderManager.mm in Sources */,
 				06FF8EEF2511C20900C03900 /* NSData+DataType.m in Sources */,
 				064C5A4923AB1A51001E80DD /* HippyEventDispatcher.mm in Sources */,
 				F400C2E1274F41EC008BD74B /* ios_loader.cc in Sources */,
@@ -2598,6 +2602,7 @@
 				787C19A02726A1020062EBFF /* HippyDomDomain.mm in Sources */,
 				0960C56B27D201BF00A7AD0F /* thread.cc in Sources */,
 				064C5A4E23AB1A51001E80DD /* HippyBatchedBridge.mm in Sources */,
+				0960C6F827D8A9A000A7AD0F /* update_dom_node_metas.cc in Sources */,
 				D84AB9AE273A618B00987D03 /* logging.cc in Sources */,
 				064C59FE23AB1A51001E80DD /* HippyDevMenu.mm in Sources */,
 				064C5A2F23AB1A51001E80DD /* HippyNavigationControllerAnimator.m in Sources */,
