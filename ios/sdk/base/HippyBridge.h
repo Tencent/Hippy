@@ -27,7 +27,6 @@
 #import "HippyDefines.h"
 #import "HippyFrameUpdate.h"
 #import "HippyInvalidating.h"
-#import "HippyImageViewCustomLoader.h"
 #import "HippyImageProviderProtocol.h"
 #import "HippyFrameworkProxy.h"
 
@@ -203,8 +202,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
 @property (nonatomic, weak, readonly) HippyExtAnimationModule *animationModule;
-
-@property (nonatomic, strong) id<HippyImageViewCustomLoader> imageLoader;
 
 @property (nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
 

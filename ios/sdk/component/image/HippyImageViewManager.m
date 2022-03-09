@@ -62,7 +62,6 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
         id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
         __weak HippyImageView *weakView = view;
         NSURL *url = HippyURLWithString(path, nil);
-        //TODO sequence should set to View
         NSUInteger sequence = _sequence++;
         weakView.sequence = sequence;
         [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {

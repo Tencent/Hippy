@@ -28,7 +28,6 @@
 #import "HippyLog.h"
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
-#import "HippyBackgroundImageCacheManager.h"
 #import "HippyGradientObject.h"
 #import "HippyBridge.h"
 

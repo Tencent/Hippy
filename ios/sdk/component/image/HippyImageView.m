@@ -23,10 +23,7 @@
 #import "HippyImageView.h"
 #import <objc/runtime.h>
 #import "HippyUtils.h"
-#import "HippyImageViewCustomLoader.h"
-#import "HippyBridge+LocalFileSource.h"
 #import "HippyAnimatedImage.h"
-#import "HippyDefaultImageProvider.h"
 #import <Accelerate/Accelerate.h>
 
 NSString *const HippyImageErrorDomain = @"HippyImageErrorDomain";
@@ -180,10 +177,6 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
 NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     return [NSError errorWithDomain:HippyImageErrorDomain code:errorCode userInfo:@ { NSLocalizedDescriptionKey: errorDescription ?: @"" }];
 }
-
-@interface UIImage (Hippy)
-@property (nonatomic, copy) CAKeyframeAnimation *hippyKeyframeAnimation;
-@end
 
 @interface HippyImageView () {
     __weak CALayer *_borderWidthLayer;
@@ -395,13 +388,8 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     void (^setImageBlock)(UIImage *) = ^(UIImage *image) {
         weakSelf.pendingImageSourceUri = nil;
         weakSelf.imageSourceUri = url;
-        if (image.hippyKeyframeAnimation) {
-            [weakSelf.layer addAnimation:image.hippyKeyframeAnimation forKey:@"contents"];
-        } else {
-            [weakSelf.layer removeAnimationForKey:@"contents"];
-            [weakSelf updateImage:image];
-        }
-
+        [weakSelf.layer removeAnimationForKey:@"contents"];
+        [weakSelf updateImage:image];
         if (weakSelf.onLoad)
             weakSelf.onLoad(@{ @"width": @(image.size.width), @"height": @(image.size.height), @"url": url ?: @"" });
         if (weakSelf.onLoadEnd)
@@ -594,18 +582,6 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     radius.bottomLeftRadius = MIN(bottomLeftRadius, halfSide);
     radius.bottomRightRadius = MIN(bottomRightRadius, halfSide);
     return radius;
-}
-
-@end
-
-@implementation UIImage (Hippy)
-
-- (CAKeyframeAnimation *)hippyKeyframeAnimation {
-    return objc_getAssociatedObject(self, _cmd);
-}
-
-- (void)setHippyKeyframeAnimation:(CAKeyframeAnimation *)hippyKeyframeAnimation {
-    objc_setAssociatedObject(self, @selector(hippyKeyframeAnimation), hippyKeyframeAnimation, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 @end

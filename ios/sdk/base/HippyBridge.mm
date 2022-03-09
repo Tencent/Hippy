@@ -143,7 +143,6 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 
 @interface HippyBridge() {
     NSURL *_delegateBundleURL;
-    id<HippyImageViewCustomLoader> _imageLoader;
     NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
 }
@@ -269,17 +268,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (HippyExtAnimationModule *)animationModule {
     return [self moduleForName:@"AnimationModule"];
-}
-
-- (id<HippyImageViewCustomLoader>)imageLoader {
-    if (!_isInitImageLoader) {
-        _imageLoader = [[self modulesConformingToProtocol:@protocol(HippyImageViewCustomLoader)] lastObject];
-
-        if (_imageLoader) {
-            _isInitImageLoader = YES;
-        }
-    }
-    return _imageLoader;
 }
 
 - (NSSet<Class<HippyImageProviderProtocol>> *)imageProviders {
