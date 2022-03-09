@@ -20,23 +20,18 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import "HippyInvalidating.h"
-@class HippyBridge;
-NS_ASSUME_NONNULL_BEGIN
-@protocol NavigatorHostViewDelegate <NSObject>
-@end
+#import "UIView+Sequence.h"
+#import "objc/runtime.h"
 
-@interface HippyNavigatorHostView : UIView <HippyInvalidating, UINavigationControllerDelegate>
+@implementation UIView (Sequence)
 
-@property (nonatomic, weak) id<NavigatorHostViewDelegate> delegate;
+- (void)setSequence:(NSUInteger)sequence {
+    objc_setAssociatedObject(self, @selector(sequence), @(sequence), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 
-- (instancetype)initWithProps:(nonnull NSDictionary *)props;
-
-- (void)push:(NSDictionary *)params;
-
-- (void)pop:(NSDictionary *)params;
+- (NSUInteger)sequence {
+    NSNumber *num = objc_getAssociatedObject(self, _cmd);
+    return [num unsignedIntegerValue];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

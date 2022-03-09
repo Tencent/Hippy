@@ -143,7 +143,6 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 
 @interface HippyBridge() {
     NSURL *_delegateBundleURL;
-    id<HippyImageViewCustomLoader> _imageLoader;
     NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
 }
@@ -271,17 +270,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [self moduleForName:@"AnimationModule"];
 }
 
-- (id<HippyImageViewCustomLoader>)imageLoader {
-    if (!_isInitImageLoader) {
-        _imageLoader = [[self modulesConformingToProtocol:@protocol(HippyImageViewCustomLoader)] lastObject];
-
-        if (_imageLoader) {
-            _isInitImageLoader = YES;
-        }
-    }
-    return _imageLoader;
-}
-
 - (NSSet<Class<HippyImageProviderProtocol>> *)imageProviders {
     if (!_imageProviders) {
         NSMutableSet *set = [NSMutableSet setWithCapacity:8];
@@ -293,6 +281,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         _imageProviders = [NSSet setWithSet:set];
     }
     return _imageProviders;
+}
+
+- (id<HippyFrameworkProxy>)frameworkProxy {
+    return _frameworkProxy ?: self;
 }
 
 - (NSArray *)modulesConformingToProtocol:(Protocol *)protocol {
@@ -358,6 +350,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
+    self.uiManager.frameworkProxy = self;
 }
 
 - (void)setUpDevClientWithName:(NSString *)name {
@@ -422,6 +415,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #endif  // HIPPY_DEBUG
 }
 
+#pragma mark HippyFrameworkProxy Delegate Implementation
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString {
+    if ([HippyBridge isHippyLocalFileURLString:UrlString]) {
+        return [self absoluteStringFromHippyLocalFileURLString:UrlString];
+    }
+    return UrlString;
+}
+
 @end
 
 NSString *const HippySecondaryBundleDidStartLoadNotification = @"HippySecondaryBundleDidStartLoadNotification";
@@ -481,7 +482,7 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
         return;
     }
     __weak HippyBatchedBridge *batchedBridge = (HippyBatchedBridge *)[self batchedBridge];
-    NSString *secondaryBundleURLString = secondaryBundleURL.absoluteString;
+    NSString *secondaryBundleURLString = [secondaryBundleURL path];
     batchedBridge.sandboxDirectory = [secondaryBundleURLString stringByDeletingLastPathComponent];
     BOOL loaded;
     @synchronized(self) {
@@ -629,27 +630,6 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
                              completion:bundle.completion];
         }
     }
-}
-
-@end
-
-
-@implementation UIView(Bridge)
-
-#define kBridgeKey @"bridgeKey"
-
-- (void)setBridge:(HippyBridge *)bridge {
-    NSHashTable *hashTable = nil;
-    if (bridge) {
-        hashTable = [NSHashTable weakObjectsHashTable];
-        [hashTable addObject:bridge];
-    }
-    objc_setAssociatedObject(self, @selector(bridge), hashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (HippyBridge *)bridge {
-    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
-    return [hashTable anyObject];
 }
 
 @end

@@ -182,9 +182,9 @@ HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
 HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
     [_lock lock];
     NSArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
-    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-            UIView *view = [self.bridge.uiManager viewForHippyTag:param.hippyTag];
+            UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
             [view.layer pauseLayerAnimation];
         }];
     }];
@@ -196,9 +196,9 @@ HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
 HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
     [_lock lock];
     NSArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
-    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-            UIView *view = [self.bridge.uiManager viewForHippyTag:param.hippyTag];
+            UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
             [view.layer resumeLayerAnimation];
         }];
     }];
@@ -286,9 +286,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     [_lock lock];
     [_animationById removeObjectForKey: animationId];
     NSMutableArray <HippyExtAnimationViewParams *> *params = _paramsByAnimationId[animationId];
-    [self.bridge.uiManager addUIBlock:^(HippyUIManager *uiManager, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.bridge.uiManager addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-            UIView *view = [self.bridge.uiManager viewForHippyTag:param.hippyTag];
+            UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
             [view.layer removeAnimationForKey: [NSString stringWithFormat: @"%@", animationId]];
         }];
     }];

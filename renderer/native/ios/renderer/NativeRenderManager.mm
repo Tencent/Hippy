@@ -122,3 +122,11 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
         EndBatch();
     }
 }
+
+void NativeRenderManager::SetFrameworkProxy(id<HippyFrameworkProxy> proxy) {
+    uiManager_.frameworkProxy = proxy;
+}
+
+id<HippyFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
+    return uiManager_.frameworkProxy;
+}

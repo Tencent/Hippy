@@ -21,22 +21,32 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "HippyFrameworkProxy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol HippyImageDataLoaderProtocol <NSObject>
+@class HippyViewManager;
 
-@optional
+@protocol HippyRenderContext;
+@class HippyShadowView;
 
-- (BOOL)canHandleImageAtPath:(NSString *)path;
+typedef void (^HippyRenderUIBlock)(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
 
-@required
+@protocol HippyRenderContext <NSObject>
 
-- (void)loadImageAtPath:(NSString *)path progress:(void (^)(NSUInteger, NSUInteger))progress
-        completion:(void (^)(id, NSString *, NSError *))completion;
+@property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;
 
-- (void)cancelImageDownloadAtPath:(NSString *)path;
+@property(nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
+
+- (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName;
+
+- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)hippyTag;
+
+//TODO Use a render view protocol instead of HippyShadowView in the future
+- (__kindof UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
+
+- (void)addUIBlock:(HippyRenderUIBlock)block;
+
 
 @end
 

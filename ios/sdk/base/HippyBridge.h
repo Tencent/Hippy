@@ -27,8 +27,8 @@
 #import "HippyDefines.h"
 #import "HippyFrameUpdate.h"
 #import "HippyInvalidating.h"
-#import "HippyImageViewCustomLoader.h"
 #import "HippyImageProviderProtocol.h"
+#import "HippyFrameworkProxy.h"
 
 @class JSValue;
 @class HippyBridge;
@@ -91,7 +91,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /**
  * Async batched bridge used to communicate with the JavaScript application.
  */
-@interface HippyBridge : NSObject <HippyInvalidating>
+@interface HippyBridge : NSObject <HippyInvalidating, HippyFrameworkProxy>
 
 - (instancetype)initWithmoduleProviderWithoutRuntime:(HippyBridgeModuleProviderBlock)block;
 
@@ -203,8 +203,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, weak, readonly) HippyExtAnimationModule *animationModule;
 
-@property (nonatomic, strong, readonly) id<HippyImageViewCustomLoader> imageLoader;
-@property (nonatomic, strong, readonly) NSSet<Class<HippyImageProviderProtocol>> *imageProviders;
+@property (nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
 
 /**
  * The launch options that were used to initialize the bridge.
@@ -279,11 +278,5 @@ typedef void (^SecondaryBundleCompletion)(BOOL);
        loadBundleCompletion:(SecondaryBundleLoadingCompletion)loadBundleCompletion
     enqueueScriptCompletion:(SecondaryBundleLoadingCompletion)enqueueScriptCompletion
                  completion:(SecondaryBundleCompletion)completion;
-
-@end
-
-@interface UIView(Bridge)
-
-@property(nonatomic, weak) HippyBridge *bridge;
 
 @end

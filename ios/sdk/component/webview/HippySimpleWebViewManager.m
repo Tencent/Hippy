@@ -23,7 +23,6 @@
 #import "HippySimpleWebViewManager.h"
 
 @implementation HippySimpleWebViewManager
-HIPPY_EXPORT_MODULE(WebView)
 
 HIPPY_EXPORT_VIEW_PROPERTY(source, NSDictionary)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)

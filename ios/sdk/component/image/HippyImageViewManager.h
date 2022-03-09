@@ -21,13 +21,7 @@
  */
 
 #import "HippyViewManager.h"
-#import "HippyImageDataLoaderProtocol.h"
-#import "HippyImageProviderProtocol.h"
 
 @interface HippyImageViewManager : HippyViewManager
-
-@property(nonatomic, strong)Class<HippyImageDataLoaderProtocol> imageDataLoaderClass;
-
-@property(nonatomic, strong)Class<HippyImageProviderProtocol> imageProviderClass;
 
 @end

@@ -32,8 +32,11 @@
 #include "dom/dom_value.h"
 #import "DemoConfigs.h"
 #import "UIView+RootViewRegister.h"
+#import "HippyFrameworkProxy.h"
+#import "HippyImageDataLoader.h"
+#import "HippyDefaultImageProvider.h"
 
-@interface ViewController ()<HippyBridgeDelegate> {
+@interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
     HippyBridge *_bridge;
@@ -115,6 +118,7 @@
     //step4: create dom manager, assign to uimanager
     //you need hold dom mananger
     HippyUIManager *uiManager = [_bridge moduleForName:@"UIManager"];
+    uiManager.frameworkProxy = self;
     _domManager = std::make_shared<hippy::DomManager>(rootTag);
     _domManager->StartTaskRunner();
     [uiManager setDomManager:_domManager];
@@ -225,6 +229,25 @@
 
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
     return bridge.bundleURL;
+}
+
+#pragma mark HippyFrameworkProxy Delegate Implementation
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString {
+    //这里将对应的URL转换为标准URL
+    //比如将相对地址根据沙盒路径为转换绝对地址
+    return UrlString;
+}
+
+- (id<HippyImageDataLoaderProtocol>)imageDataLoader {
+    //设置自定义的图片加载实例，负责图片加载。默认使用HippyImageDataLoader
+    return [HippyImageDataLoader new];
+}
+
+- (Class<HippyImageProviderProtocol>)imageProviderClass {
+    //设置HippyImageProviderProtocol类。
+    //HippyImageProviderProtocol负责将NSData转换为UIImage，用于处理ios系统无法处理的图片格式数据
+    //默认使用HippyDefaultImageProvider
+    return [HippyDefaultImageProvider class];
 }
 
 @end

@@ -25,8 +25,6 @@
 
 @implementation HippyViewPagerManager
 
-HIPPY_EXPORT_MODULE(ViewPager)
-
 - (UIView *)view {
     return [HippyViewPager new];
 }
@@ -43,7 +41,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 // clang-format off
 HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
 
         if (view == nil || ![view isKindOfClass:[HippyViewPager class]]) {
@@ -59,7 +57,7 @@ HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
 // clang-format off
 HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil || ![view isKindOfClass:[HippyViewPager class]]) {
             HippyLogError(@"tried to setPage: on an error viewPager %@ "

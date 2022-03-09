@@ -25,8 +25,6 @@
 
 @implementation HippyBaseListViewManager
 
-HIPPY_EXPORT_MODULE(ListView)
-
 HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
 HIPPY_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
 HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
@@ -46,7 +44,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 
 - (UIView *)view {
-    return [[HippyBaseListView alloc] initWithBridge:self.bridge];
+    return [[HippyBaseListView alloc] init];
 }
 
 - (HippyShadowView *)shadowView {
@@ -58,8 +56,8 @@ HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 									xIndex:(__unused NSNumber *)xIndex
 									yIndex:(__unused NSNumber *)yIndex
 									animation:(nonnull NSNumber *)animation) {
-	[self.bridge.uiManager addUIBlock:
-	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+	[self.renderContext addUIBlock:
+	 ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 HippyBaseListView *view = (HippyBaseListView *)viewRegistry[hippyTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[HippyBaseListView class]]) {
@@ -75,8 +73,8 @@ HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
 									x:(nonnull NSNumber *)x
 									y:(nonnull NSNumber *)y
 									animation:(nonnull NSNumber *)animation) {
-	[self.bridge.uiManager addUIBlock:
-	 ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+	[self.renderContext addUIBlock:
+	 ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 HippyBaseListView *view = (HippyBaseListView *)viewRegistry[hippyTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[HippyBaseListView class]]) {

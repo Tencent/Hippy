@@ -43,8 +43,6 @@
 @property(nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
 @property(nonatomic, copy) HippyDirectEventBlock onDelete;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge;
-
 /**
  * Indication initial content offset when HippyBaseListView finish loading data
  *

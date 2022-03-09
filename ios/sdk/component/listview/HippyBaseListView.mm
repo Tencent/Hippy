@@ -30,6 +30,7 @@
 #import "HippyBaseListViewCell.h"
 #import "HippyBaseListViewDataSource.h"
 #import "UIView+RootViewRegister.h"
+#import "UIView+Render.h"
 #import "objc/runtime.h"
 
 #define kCellZIndexConst 10000.f
@@ -39,7 +40,6 @@ static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
 
 @interface HippyBaseListView () <HippyRefreshDelegate> {
-    __weak HippyBridge *_bridge;
     __weak UIView *_rootView;
     BOOL _isInitialListReady;
     NSTimeInterval _lastScrollDispatchTime;
@@ -54,9 +54,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 @implementation HippyBaseListView
 
 #pragma mark Life Cycle
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    if (self = [super initWithBridge:bridge]) {
-        _bridge = bridge;
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         _isInitialListReady = NO;
         self.preloadItemNumber = 1;
         _dataSource = [[HippyBaseListViewDataSource alloc] init];
@@ -245,9 +244,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     HippyShadowView *headerShadowView = [self.dataSource headerForSection:section];
     if (headerShadowView && [headerShadowView isKindOfClass:[HippyShadowView class]]) {
-        UIView *headerView = [_bridge.uiManager viewForHippyTag:headerShadowView.hippyTag];
+        UIView *headerView = [self.renderContext viewFromRenderViewTag:headerShadowView.hippyTag];
         if (!headerView) {
-            headerView = [_bridge.uiManager createViewRecursivelyFromShadowView:headerShadowView];
+            headerView = [self.renderContext createViewRecursivelyFromShadowView:headerShadowView];
         }
         CGRect frame = headerView.frame;
         frame.origin = CGPointZero;
@@ -293,9 +292,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
     HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    UIView *cellView = [_bridge.uiManager viewForHippyTag:cellShadowView.hippyTag];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag];
     if (!cellView) {
-        cellView = [_bridge.uiManager createViewRecursivelyFromShadowView:cellShadowView];
+        cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
     }
     HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");

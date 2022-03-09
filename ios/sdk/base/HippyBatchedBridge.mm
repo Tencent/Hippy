@@ -761,9 +761,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)didReceiveCreationOfRootView:(NSNotification *)notification {
-    HippyBridge *bridge = [[notification userInfo] objectForKey:HippyUIManagerBridgeKey];
-    if (self == bridge && self.isValid) {
-        HippyUIManager *uiManager = [self moduleForName:@"UIManager"];
+    id manager = [[notification userInfo] objectForKey:HippyUIManagerKey];
+    HippyUIManager *uiManager = self.uiManager;
+    if (self.isValid && manager == uiManager) {
         UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
         int32_t rootTag = [[rootView hippyTag] intValue];
         _domManager = std::make_shared<hippy::DomManager>(rootTag);

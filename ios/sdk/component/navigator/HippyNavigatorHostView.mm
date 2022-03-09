@@ -33,7 +33,6 @@
 @interface HippyNavigatorHostView () {
     NSDictionary *_initProps;
     NSString *_appName;
-    HippyBridge *_bridge;
     HippyNavigatorRootViewController *_navigatorRootViewController;
     BOOL _isPresented;
 }
@@ -41,12 +40,12 @@
 @end
 
 @implementation HippyNavigatorHostView
-- (instancetype)initWithBridge:(HippyBridge *)bridge props:(nonnull NSDictionary *)props {
+
+- (instancetype)initWithProps:(nonnull NSDictionary *)props {
     self = [super init];
     if (self) {
         _initProps = props[@"initialRoute"][@"initProps"];
         _appName = props[@"initialRoute"][@"routeName"];
-        _bridge = bridge;
         _isPresented = NO;
         _nowDirection = HippyNavigatorDirectionTypeRight;
     }
@@ -57,23 +56,24 @@
     [self presentRootView];
 }
 
-- (HippyRootView *)createRootViewForModuleName:(NSString *)moduleName initProperties:(NSDictionary *)props {
-    HippyBridge *tempBridge = _bridge;
-    if ([tempBridge isKindOfClass:[HippyBatchedBridge class]]) {
-        tempBridge = [(HippyBatchedBridge *)tempBridge parentBridge];
-    }
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:tempBridge moduleName:moduleName
-                                                  initialProperties:props
-                                                           delegate:nil];
-    rootView.backgroundColor = [UIColor whiteColor];
-    [rootView bundleFinishedLoading:tempBridge];
-    return rootView;
+- (UIView *)createRootViewForModuleName:(NSString *)moduleName initProperties:(NSDictionary *)props {
+    //TODO need create root view
+//    HippyBridge *tempBridge = _bridge;
+//    if ([tempBridge isKindOfClass:[HippyBatchedBridge class]]) {
+//        tempBridge = [(HippyBatchedBridge *)tempBridge parentBridge];
+//    }
+//    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:tempBridge moduleName:moduleName
+//                                                  initialProperties:props
+//                                                           delegate:nil];
+//    rootView.backgroundColor = [UIColor whiteColor];
+//    [rootView bundleFinishedLoading:tempBridge];
+    return [[UIView alloc] init];
 }
 
 - (void)presentRootView {
     if (!_isPresented && self.window) {
         _isPresented = YES;
-        HippyRootView *rootView = [self createRootViewForModuleName:_appName initProperties:_initProps];
+        UIView *rootView = [self createRootViewForModuleName:_appName initProperties:_initProps];
         HippyNavigatorItemViewController *itemViewController = [[HippyNavigatorItemViewController alloc] initWithView:rootView];
         UIViewController *presentingViewController = [self hippyViewController];
         HippyAssert(presentingViewController, @"no presenting view controller for navigator module");

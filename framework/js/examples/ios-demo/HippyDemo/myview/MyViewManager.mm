@@ -26,13 +26,13 @@
 #import "HippyUIManager.h"
 
 @implementation MyViewManager
-HIPPY_EXPORT_MODULE(MyView)
+
 HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
 
 HIPPY_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
                     color:(__unused NSString *)color)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[reactTag];
         if (view == nil || ![view isKindOfClass:[MyView class]]) {
             HippyLogError(@"tried to setPage: on an error viewPager %@ "

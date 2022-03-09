@@ -36,8 +36,7 @@
 @implementation HippyDefaultImageProvider
 
 @synthesize imageDataPath;
-
-HIPPY_EXPORT_MODULE(defaultImageProvider)
+@synthesize scale;
 
 + (BOOL)canHandleData:(NSData *)data {
     return YES;
@@ -52,6 +51,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
     self = [super init];
     if (self) {
         [self setImageData:data];
+        self.scale = 1.f;
     }
     return self;
 }
@@ -70,7 +70,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
             CGFloat view_width = _imageViewSize.width;
             CGFloat view_height = _imageViewSize.height;
             if (_downSample && view_width > 0 && view_height > 0) {
-                CGFloat scale = [UIScreen mainScreen].scale;
+                CGFloat scale = self.scale;
                 NSDictionary *options = @{ (NSString *)kCGImageSourceShouldCache: @(NO) };
                 CGImageSourceRef ref = CGImageSourceCreateWithData((__bridge CFDataRef)_data, (__bridge CFDictionaryRef)options);
                 if (ref) {
@@ -105,7 +105,7 @@ HIPPY_EXPORT_MODULE(defaultImageProvider)
         }
     }
     if (!_image) {
-        _image = [UIImage imageWithData:_data];
+        _image = [UIImage imageWithData:_data scale:self.scale];
     }
     return _image;
 }

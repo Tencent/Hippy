@@ -30,6 +30,7 @@
 #import "HippyShadowView.h"
 #import "HippyUIManager.h"
 #import "UIView+RootViewRegister.h"
+#import "UIView+Render.h"
 
 #define CELL_TAG 10089
 
@@ -81,10 +82,9 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 @synthesize contentSize;
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    if (self = [super initWithFrame:CGRectZero]) {
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         self.backgroundColor = [UIColor clearColor];
-        self.bridge = bridge;
         _scrollListeners = [NSHashTable weakObjectsHashTable];
         _scrollEventThrottle = 100.f;
         _dataSource = [[HippyWaterfallViewDataSource alloc] init];
@@ -309,9 +309,9 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
     //TODO use reusable view here
-    UIView *view = [self.bridge.uiManager viewForHippyTag:shadowView.hippyTag];
+    UIView *view = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
     if (!view) {
-        view = [self.bridge.uiManager createViewRecursivelyFromShadowView:shadowView];
+        view = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
     }
     hpCell.cellView = view;
 }

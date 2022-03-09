@@ -34,8 +34,6 @@
 
 @implementation HippyTextViewManager
 
-HIPPY_EXPORT_MODULE(TextInput)
-
 - (UIView *)view {
     NSNumber *mutiline = self.props[@"multiline"];
     NSString *keyboardType = self.props[@"keyboardType"];
@@ -77,8 +75,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
-    [self.bridge.uiManager addUIBlock:
-     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:
+     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[HippyBaseTextInput class]]) {
@@ -91,8 +89,8 @@ HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
 
 // clang-format off
 HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
-    [self.bridge.uiManager addUIBlock:
-     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:
+     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[HippyBaseTextInput class]]) {
@@ -105,7 +103,7 @@ HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
 
 // clang-format off
 HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
@@ -119,7 +117,7 @@ HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
 // clang-format off
 HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
                   text:(NSString *)text ) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
@@ -133,7 +131,7 @@ HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
 // clang-format off
 HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
                   callback:(HippyResponseSenderBlock)callback ) {
-    [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
@@ -208,10 +206,10 @@ HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, HippyBaseTextInput) {
     view.font = [HippyFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
 }
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)shadowView {
+- (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)shadowView {
     NSNumber *hippyTag = shadowView.hippyTag;
     UIEdgeInsets padding = shadowView.paddingAsInsets;
-    return ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, HippyBaseTextInput *> *viewRegistry) {
+    return ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, HippyBaseTextInput *> *viewRegistry) {
         viewRegistry[hippyTag].contentInset = padding;
     };
 }

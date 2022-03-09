@@ -35,6 +35,7 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 #import "HippyDomNodeUtils.h"
+#import "HippyRenderContext.h"
 
 @class HippyExtAnimationViewParams, HippyShadowView;
 
@@ -68,7 +69,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidRegisterRootViewNotification;
 HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 
 //TODO delete it
-HIPPY_EXTERN NSString *const HippyUIManagerBridgeKey;
+HIPPY_EXTERN NSString *const HippyUIManagerKey;
 
 /**
  * Posted whenever endBatch is called
@@ -78,7 +79,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /**
  * The HippyUIManager is the module responsible for updating the view hierarchy.
  */
-@interface HippyUIManager : NSObject <HippyBridgeModule, HippyInvalidating>
+@interface HippyUIManager : NSObject <HippyBridgeModule, HippyInvalidating, HippyRenderContext>
 
 
 /**
@@ -113,7 +114,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * Schedule a block to be executed on the UI thread. Useful if you need to execute
  * view logic after all currently queued view updates have completed.
  */
-- (void)addUIBlock:(HippyViewManagerUIBlock)block;
+- (void)addUIBlock:(HippyRenderUIBlock)block;
 
 /**
  * Schedule a block to be executed on the UIManager queue.
@@ -247,11 +248,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
 @end
 
-/**
- * This category makes the current HippyUIManager instance available via the
- * HippyBridge, which is useful for HippyBridgeModules or HippyViewManagers that
- * need to access the HippyUIManager.
- */
+//TODO This can be removed
 @interface HippyBridge (HippyUIManager)
 
 @property (nonatomic, readonly) HippyUIManager *uiManager;

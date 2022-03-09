@@ -25,8 +25,6 @@
 
 @implementation HippyWaterfallItemViewManager
 
-HIPPY_EXPORT_MODULE(WaterfallItem)
-
 - (UIView *)view {
     return [HippyWaterfallItemView new];
 }

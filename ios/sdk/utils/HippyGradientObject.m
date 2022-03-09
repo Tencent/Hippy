@@ -283,7 +283,7 @@ static LinearGradientPoints pointsFromDirection(HippyGradientObject *object, CGS
             self.locations = [locationParser computeLocations];
         } @catch (NSException *exception) {
             NSString *errorString = [NSString stringWithFormat:@"gradient parse error:%@", [exception reason]];
-            NSError *error = HippyErrorWithMessageAndModuleName(errorString, object[@"moduleName"]);
+            NSError *error = HippyErrorWithMessageAndModuleName(errorString, nil);
             HippyFatal(error);
             return self;
         }

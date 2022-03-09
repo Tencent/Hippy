@@ -355,7 +355,7 @@
     [super setContentOffset:contentOffset animated:animated];
 }
 
-- (void)hippyBridgeDidFinishTransaction {
+- (void)hippyComponentDidFinishTransaction {
     BOOL isFrameEqual = CGRectEqualToRect(self.frame, self.previousFrame);
     BOOL isContentSizeEqual = CGSizeEqualToSize(self.contentSize, self.previousSize);
 

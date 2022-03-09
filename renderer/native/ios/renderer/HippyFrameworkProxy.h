@@ -20,22 +20,22 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import "HippyInvalidating.h"
-@class HippyBridge;
+#import <Foundation/Foundation.h>
+#import "HippyImageDataLoaderProtocol.h"
+#import "HippyImageProviderProtocol.h"
+
 NS_ASSUME_NONNULL_BEGIN
-@protocol NavigatorHostViewDelegate <NSObject>
-@end
 
-@interface HippyNavigatorHostView : UIView <HippyInvalidating, UINavigationControllerDelegate>
+/**
+ * HippyFrameworkDelegate is used to pass necessary data or implementation to render or ui object
+ */
+@protocol HippyFrameworkProxy <NSObject>
 
-@property (nonatomic, weak) id<NavigatorHostViewDelegate> delegate;
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString;
 
-- (instancetype)initWithProps:(nonnull NSDictionary *)props;
+- (id<HippyImageDataLoaderProtocol>)imageDataLoader;
 
-- (void)push:(NSDictionary *)params;
-
-- (void)pop:(NSDictionary *)params;
+- (Class<HippyImageProviderProtocol>)imageProviderClass;
 
 @end
 

@@ -70,7 +70,7 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
  */
 - (void)didUpdateHippySubviews;
 
-- (void)hippyBridgeDidFinishTransaction;
+- (void)hippyComponentDidFinishTransaction;
 
 @end
 

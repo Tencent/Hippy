@@ -45,8 +45,6 @@
 
 @implementation HippyModalHostViewManager
 
-HIPPY_EXPORT_MODULE(Modal)
-
 HIPPY_EXPORT_VIEW_PROPERTY(animationType, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(transparent, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(darkStatusBarText, BOOL)
@@ -58,7 +56,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(primaryKey, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
 
 - (UIView *)view {
-    HippyModalHostView *view = [[HippyModalHostView alloc] initWithBridge:self.bridge];
+    HippyModalHostView *view = [[HippyModalHostView alloc] init];
     view.delegate = self.transitioningDelegate;
     if (!_hostViews) {
         _hostViews = [NSHashTable weakObjectsHashTable];

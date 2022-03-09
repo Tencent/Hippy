@@ -125,8 +125,8 @@
     }
 }
 
-- (instancetype)init {
-    if ((self = [super initWithFrame:CGRectZero])) {
+- (instancetype)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
         [self setContentInset:UIEdgeInsetsZero];
         _textView = [[HippyUITextField alloc] initWithFrame:CGRectZero];
         _textView.responderDelegate = self;
@@ -146,7 +146,6 @@
     [_textView removeObserver:self forKeyPath:@"selectedTextRange"];
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 // This method is overridden for `onKeyPress`. The manager

@@ -20,22 +20,23 @@
  * limitations under the License.
  */
 
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "HippyInvalidating.h"
-@class HippyBridge;
+
 NS_ASSUME_NONNULL_BEGIN
-@protocol NavigatorHostViewDelegate <NSObject>
-@end
 
-@interface HippyNavigatorHostView : UIView <HippyInvalidating, UINavigationControllerDelegate>
+@protocol HippyImageDataLoaderProtocol <NSObject>
 
-@property (nonatomic, weak) id<NavigatorHostViewDelegate> delegate;
+@optional
 
-- (instancetype)initWithProps:(nonnull NSDictionary *)props;
+- (BOOL)canHandleImageAtUrl:(NSURL *)Url;
 
-- (void)push:(NSDictionary *)params;
+@required
 
-- (void)pop:(NSDictionary *)params;
+- (void)loadImageAtUrl:(NSURL *)Url sequence:(NSUInteger)sequence progress:(void (^)(NSUInteger, NSUInteger))progress
+            completion:(void (^)(NSUInteger, id, NSURL *, NSError *))completion;
+
+- (void)cancelImageDownloadAtUrl:(NSURL *)Url;
 
 @end
 

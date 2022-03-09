@@ -34,10 +34,6 @@
 
 @interface HippyView : HippyTouchesView
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge;
-
-@property (nonatomic, weak) HippyBridge *bridge;
-
 /**
  * Used to control how touch events are processed.
  */
@@ -118,7 +114,8 @@
 /**
  * BackgroundImage styles.
  */
-@property (nonatomic, strong) NSString *backgroundImageUrl;
+//@property (nonatomic, strong) NSString *backgroundImageUrl;
+@property(nonatomic, strong) UIImage *backgroundImage;
 @property (nonatomic, strong) NSString *backgroundSize;
 @property (nonatomic, assign) CGFloat backgroundPositionX;
 @property (nonatomic, assign) CGFloat backgroundPositionY;

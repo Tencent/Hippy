@@ -21,11 +21,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyBridgeModule.h"
 
-@class UIImage, HippyBridge;
+@class UIImage;
 
-@protocol HippyImageProviderProtocol <NSObject, HippyBridgeModule>
+@protocol HippyImageProviderProtocol <NSObject>
 
 @required
 
@@ -38,6 +37,11 @@
 + (BOOL)isAnimatedImage:(NSData *)data;
 
 @property(nonatomic, copy)NSString *imageDataPath;
+
+/**
+ * Image scale
+ */
+@property(nonatomic, assign)CGFloat scale;
 
 /**
  * Set image data for provider
@@ -70,13 +74,3 @@
 - (NSTimeInterval)delayTimeAtFrame:(NSUInteger)frame;
 
 @end
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-Class<HippyImageProviderProtocol> imageProviderClassFromBridge(NSData *data, HippyBridge *bridge);
-
-#ifdef __cplusplus
-}
-#endif

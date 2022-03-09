@@ -21,12 +21,10 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "HippyComponent.h"
 #import "HippyDefines.h"
 #import "HippyViewManager.h"
 
-@class HippyBridge;
 @class HippyShadowView;
 @class UIView;
 
@@ -36,7 +34,7 @@
 @property (nonatomic, copy, readonly) NSString *name;
 @property (nonatomic, weak, readonly) HippyViewManager *manager;
 
-- (instancetype)initWithManagerClass:(Class)managerClass bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithViewManager:(HippyViewManager *)viewManager viewName:(NSString *)viewName NS_DESIGNATED_INITIALIZER;
 
 - (UIView *)createViewWithTag:(NSNumber *)tag;
 
@@ -48,6 +46,6 @@
 
 - (NSDictionary<NSString *, NSString *> *)eventNameMap;
 
-- (HippyViewManagerUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
+- (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
 
 @end

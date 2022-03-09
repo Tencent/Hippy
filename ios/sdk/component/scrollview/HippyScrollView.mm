@@ -176,10 +176,8 @@
     __weak HippyRootView *_rootView;
 }
 
-- (instancetype)initWithEventDispatcher:(HippyEventDispatcher *)eventDispatcher {
-    HippyAssertParam(eventDispatcher);
-
-    if ((self = [super initWithFrame:CGRectZero])) {
+- (instancetype)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
         _scrollView = [[HippyCustomScrollView alloc] initWithFrame:CGRectZero];
         _scrollView.delegate = self;
         _scrollView.delaysContentTouches = NO;
@@ -210,7 +208,6 @@
     [_scrollListeners removeAllObjects];
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)setRemoveClippedSubviews:(__unused BOOL)removeClippedSubviews {
@@ -259,7 +256,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                        context:(__unused void *)context {
     if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
-            [self hippyBridgeDidFinishTransaction];
+            [self hippyComponentDidFinishTransaction];
             if ([self needsLayoutForRTL]) {
                 _contentView.transform = CGAffineTransformMakeRotation(M_PI);
             }
@@ -752,7 +749,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
 }
 
-- (void)hippyBridgeDidFinishTransaction {
+- (void)hippyComponentDidFinishTransaction {
     CGSize contentSize = self.contentSize;
     if (!CGSizeEqualToSize(_scrollView.contentSize, contentSize)) {
         // When contentSize is set manually, ScrollView internals will reset

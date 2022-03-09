@@ -26,8 +26,6 @@
 
 @implementation HippyBaseListItemViewManager
 
-HIPPY_EXPORT_MODULE(ListViewItem)
-
 HIPPY_EXPORT_VIEW_PROPERTY(type, id)
 HIPPY_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)

@@ -22,16 +22,12 @@
 
 #import <UIKit/UIKit.h>
 
-@class HippyBridge;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyBackgroundImageCacheManager : NSObject
+@interface UIView (Sequence)
 
-@property (nonatomic, weak) HippyBridge *bridge;
-
-typedef void (^HippyBackgroundImageCompletionHandler)(UIImage *decodedImage, NSError *error);
-
-- (void)imageWithUrl:(NSString *)uri completionHandler:(HippyBackgroundImageCompletionHandler)completionHandler;
-
-- (BOOL)canHandleImageURL:(NSString *)URLString;
+@property(nonatomic, assign) NSUInteger sequence;
 
 @end
+
+NS_ASSUME_NONNULL_END

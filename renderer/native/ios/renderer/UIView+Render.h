@@ -20,25 +20,15 @@
  * limitations under the License.
  */
 
-#import "HippyBridgeModule.h"
-@class HippyImageView;
+#import <UIKit/UIKit.h>
+#import "HippyRenderContext.h"
 
-@protocol HippyImageViewCustomLoader <HippyBridgeModule>
+NS_ASSUME_NONNULL_BEGIN
 
-@optional
+@interface UIView (Render)
 
-- (BOOL)canHandleImageURL:(NSURL *)url;
+@property(nonatomic, weak)id<HippyRenderContext> renderContext;
 
-@required
-
-- (void)imageView:(HippyImageView *)imageView
-           loadAtUrl:(NSURL *)url
-    placeholderImage:(UIImage *)placeholderImage
-             context:(void *)context
-            progress:(void (^)(long long, long long))progressBlock
-           completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock;
-
-- (void)cancelImageDownload:(UIImageView *)imageView withUrl:(NSURL *)url;
-
-- (void)loadImage:(NSURL *)url completed:(void (^)(NSData *, NSURL *, NSError *, BOOL cached))completedBlock;
 @end
+
+NS_ASSUME_NONNULL_END

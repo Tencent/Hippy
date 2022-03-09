@@ -28,7 +28,6 @@
 #import "HippyLog.h"
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
-#import "HippyBackgroundImageCacheManager.h"
 #import "HippyGradientObject.h"
 #import "HippyBridge.h"
 
@@ -162,19 +161,9 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
 
 @implementation HippyView {
     UIColor *_backgroundColor;
-
-    HippyBackgroundImageCacheManager *_backgroundCachemanager;
 }
 
 @synthesize hippyZIndex = _hippyZIndex;
-
-- (instancetype)initWithBridge:(HippyBridge *)bridge {
-    self = [super init];
-    if (self) {
-        _bridge = bridge;
-    }
-    return self;
-}
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -434,11 +423,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     [self.layer setNeedsDisplay];
 }
 
-- (void)setBackgroundImageUrl:(NSString *)backgroundImageUrl {
-    if (![_backgroundImageUrl isEqualToString:backgroundImageUrl]) {
-        _backgroundImageUrl = [backgroundImageUrl copy];
-        [self.layer setNeedsDisplay];
-    }
+- (void)setBackgroundImage:(UIImage *)backgroundImage {
+    _backgroundImage = backgroundImage;
+    [self.layer setNeedsDisplay];
 }
 
 - (UIEdgeInsets)bordersAsInsets {
@@ -564,8 +551,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     // solve this, we'll need to add a container view inside the main view to
     // correctly clip the subviews.
 
-    BOOL canHandleBackgroundImageURL = [[self backgroundCachemanager] canHandleImageURL:_backgroundImageUrl] || self.gradientObject;
-    if (useIOSBorderRendering && !canHandleBackgroundImageURL) {
+    if (useIOSBorderRendering && !self.backgroundImage) {
         layer.cornerRadius = cornerRadii.topLeft;
         layer.borderColor = borderColors.left;
         layer.borderWidth = borderInsets.left;
@@ -628,38 +614,35 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return YES;
     }
 
-    if (!self.backgroundImageUrl && !self.gradientObject) {
+    if (!self.backgroundImage && !self.gradientObject) {
         contentBlock(image);
         return YES;
     }
-    else if (self.backgroundImageUrl) {
+    else if (self.backgroundImage) {
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
-        HippyBackgroundImageCacheManager *weakBackgroundCacheManager = [self backgroundCachemanager];
-        [weakBackgroundCacheManager imageWithUrl:self.backgroundImageUrl completionHandler:^(UIImage *decodedImage, NSError *error) {
-            if (error) {
-                HippyLogError(@"weakBackgroundCacheManagerLog %@", error);
-                return;
-            }
-            if (!decodedImage) {
-                contentBlock(nil);
-            }
+        UIImage *decodedImage = self.backgroundImage;
+        if (!decodedImage) {
+            contentBlock(nil);
+        }
 
-            UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-            CGSize size = theFrame.size;
+        UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
+        //160,80
+        CGSize size = theFrame.size;
 
-            [image drawInRect:(CGRect) { CGPointZero, size }];
-            CGSize imageSize = decodedImage.size;
-            CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
+        [image drawInRect:(CGRect) { CGPointZero, size }];
+        //180,121.33333333
+        CGSize imageSize = decodedImage.size;
+        //160,80
+        CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
+        //180,121.33333333
+        CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
 
-            CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-
-            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
-                                         drawSize.height)];
-            UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            contentBlock(resultingImage);
-        }];
+        [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
+                                     drawSize.height)];
+        UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        contentBlock(resultingImage);
         return NO;
     }
     else if (self.gradientObject) {
@@ -675,14 +658,6 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         contentBlock(resultingImage);
     }
     return YES;
-}
-
-- (HippyBackgroundImageCacheManager *)backgroundCachemanager {
-    if (!_backgroundCachemanager) {
-        _backgroundCachemanager = [[HippyBackgroundImageCacheManager alloc] init];
-        _backgroundCachemanager.bridge = [self bridge];
-    }
-    return _backgroundCachemanager;
 }
 
 static BOOL HippyLayerHasShadow(CALayer *layer) {

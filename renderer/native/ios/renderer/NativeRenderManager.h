@@ -28,6 +28,7 @@
 #include "dom/render_manager.h"
 #include "dom/dom_event.h"
 #import "HippyUIManager.h"
+#import "HippyFrameworkProxy.h"
 
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
@@ -121,7 +122,10 @@ public:
     void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
                       const DomArgument& param,
                       uint32_t cb) override;
-
+    
+    void SetFrameworkProxy(id<HippyFrameworkProxy> proxy);
+    
+    id<HippyFrameworkProxy> GetFrameworkProxy();
 private:
     HippyUIManager *uiManager_;
 };
