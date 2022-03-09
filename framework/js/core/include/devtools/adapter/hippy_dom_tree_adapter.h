@@ -6,6 +6,7 @@
 #pragma once
 
 #include <string>
+
 #include "devtools_backend/provider/devtools_dom_tree_adapter.h"
 
 namespace hippy {
@@ -14,7 +15,7 @@ class HippyDomTreeAdapter : public tdf::devtools::DomTreeAdapter {
  public:
   explicit HippyDomTreeAdapter(int32_t dom_id) : dom_id_(dom_id) {}
 
-  void UpdateDomTree(std::string tree_data, UpdateDomTreeCallback callback) override;
+  void UpdateDomTree(tdf::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
   void GetDomTree(DumpDomTreeCallback callback) override;
 
  private:
