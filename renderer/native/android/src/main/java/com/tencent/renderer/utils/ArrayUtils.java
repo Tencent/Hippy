@@ -36,6 +36,17 @@ public class ArrayUtils {
         return DEFAULT_NUMBER_VALUE;
     }
 
+    public static float getFloatValue(@NonNull List<?> params, int index) {
+        if (index >= params.size()) {
+            return DEFAULT_NUMBER_VALUE;
+        }
+        Object element = params.get(index);
+        if (element instanceof Number) {
+            return ((Number) element).floatValue();
+        }
+        return DEFAULT_NUMBER_VALUE;
+    }
+
     public static double getDoubleValue(@NonNull List<?> params, int index) {
         if (index >= params.size()) {
             return DEFAULT_NUMBER_VALUE;

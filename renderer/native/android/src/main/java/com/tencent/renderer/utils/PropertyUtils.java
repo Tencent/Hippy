@@ -75,7 +75,7 @@ public class PropertyUtils {
             return result;
         }
         if (paramCls == boolean.class || paramCls == Boolean.class || paramCls == HashMap.class
-                || paramCls == ArrayList.class) {
+                || paramCls == ArrayList.class || paramCls == Map.class || paramCls == List.class) {
             return value;
         }
         // Although HippyMap and HippyArray has been deprecated, we need to be compatible with
