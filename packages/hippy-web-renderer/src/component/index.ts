@@ -27,7 +27,7 @@ import { TextInput } from './text-input';
 import { View } from './view';
 import { ViewPager, ViewPagerItem } from './view-pager';
 import { WebView } from './web-view';
-import { Text } from './text';
+import { TextView } from './textView';
 
 export {
   Image,
@@ -39,6 +39,7 @@ export {
   View,
   ViewPager,
   WebView,
-  Text,
+  TextView as Text,
+  ListViewItem,
   ViewPagerItem,
 };

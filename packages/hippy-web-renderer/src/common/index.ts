@@ -20,7 +20,6 @@
 
 
 import {
-  hippyBridge,
   STYLE_MARGIN_H,
   STYLE_MARGIN_V,
   STYLE_PADDING_H,

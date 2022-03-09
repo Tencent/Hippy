@@ -1,5 +1,4 @@
 export function scriptLoader(scripts: string[]) {
-
   return new Promise<void>((resolve, reject) => {
     let count = scripts.length;
 
@@ -20,8 +19,8 @@ export function scriptLoader(scripts: string[]) {
       document.body.appendChild(s);
     }
 
-    for (let script of scripts) {
+    for (const script of scripts) {
       loadScript(script);
     }
   });
-};
+}

@@ -17,11 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// import { registerComponent, registerModule } from './module';
-//
-// export default {
-//   registerComponent,
-//   registerModule,
-// };
+
+import './env';
+
 export * from './base';
 
