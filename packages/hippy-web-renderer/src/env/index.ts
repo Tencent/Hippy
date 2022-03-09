@@ -92,8 +92,11 @@ global.__GLOBAL__.jsModuleList = {
 };
 global.__HIPPYNATIVEGLOBAL__ = nativeGlobal;
 global.HippyDealloc = dealloc;
+global.__Headers = global.Headers;
 global.Headers = Headers as any;
+global.__Response = global.Response;
 global.Response = Response as any;
+global.__fetch = global.fetch;
 global.fetch = fetch as any;
 // TODO:
 // global.dynamicLoad
@@ -128,7 +131,7 @@ Hippy.document = document;
 Hippy.device.platform = platform();
 
 
-
+global.__localStorage = global.localStorage;
 global.localStorage = Hippy.asyncStorage as any;
 global.turboPromise = Hippy.turboPromise;
 
