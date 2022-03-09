@@ -21,6 +21,7 @@ inline namespace dom {
 
 class DomNode;
 class RenderManager;
+class LayerOptimizedRenderManager;
 
 class DomManager : public std::enable_shared_from_this<DomManager> {
  public:
@@ -33,7 +34,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   int32_t GetId() { return id_; }
 
   inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
-  inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) { render_manager_ = render_manager; }
+  void SetRenderManager(std::shared_ptr<RenderManager> render_manager);
   inline void SetDelegateTaskRunner(std::shared_ptr<TaskRunner> runner) { delegate_task_runner_ = runner; }
   inline uint32_t GetRootId() { return root_id_; }
   inline std::shared_ptr<DomNode> GetNode(uint32_t id) {
@@ -67,6 +68,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   int32_t id_;
   uint32_t root_id_;
   std::shared_ptr<DomNode> root_node_;
+  std::shared_ptr<LayerOptimizedRenderManager> optimized_render_manager_;
   std::weak_ptr<RenderManager> render_manager_;
   std::weak_ptr<TaskRunner> delegate_task_runner_;
   std::shared_ptr<TaskRunner> dom_task_runner_;

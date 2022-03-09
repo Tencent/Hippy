@@ -94,10 +94,11 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
   tdf::base::DomValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
+    const auto& render_info = nodes[i]->GetRenderInfo();
     tdf::base::DomValue::DomValueObjectType dom_node;
-    dom_node[kId] = tdf::base::DomValue(nodes[i]->GetId());
-    dom_node[kPid] = tdf::base::DomValue(nodes[i]->GetPid());
-    dom_node[kIndex] = tdf::base::DomValue(nodes[i]->GetIndex());
+    dom_node[kId] = tdf::base::DomValue(render_info.id);
+    dom_node[kPid] = tdf::base::DomValue(render_info.pid);
+    dom_node[kIndex] = tdf::base::DomValue(render_info.index);
     dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
 
     if (nodes[i]->GetViewName() == kMeasureNode) {
@@ -236,7 +237,7 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
   for (uint32_t i = 0; i < len; i++) {
     tdf::base::DomValue::DomValueObjectType dom_node;
     dom_node[kId] = tdf::base::DomValue(nodes[i]->GetId());
-    auto result = nodes[i]->GetLayoutResult();
+    const auto& result = nodes[i]->GetRenderLayoutResult();
     dom_node[kWidth] = tdf::base::DomValue(DpToPx(result.width));
     dom_node[kHeight] = tdf::base::DomValue(DpToPx(result.height));
     dom_node[kLeft] = tdf::base::DomValue(DpToPx(result.left));
@@ -277,7 +278,7 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
     return;
   }
 
-  j_env->CallVoidMethod(j_object, j_method_id, j_int_array, from_pid, to_pid);
+  j_env->CallVoidMethod(j_object, j_method_id, j_int_array, to_pid, from_pid);
   j_env->DeleteLocalRef(j_int_array);
 }
 

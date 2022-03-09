@@ -27,9 +27,9 @@ class LayerOptimizedRenderManager : public RenderManager {
                         uint32_t cb_Id) override;
 
  protected:
-  bool ComputeIsLayoutOnly(const std::shared_ptr<DomNode>& node) const;
+  bool ComputeLayoutOnly(const std::shared_ptr<DomNode>& node) const;
 
-  virtual bool CheckStyleJustLayout(std::shared_ptr<DomNode> node) const;
+  virtual bool CheckStyleJustLayout(const std::shared_ptr<DomNode>& node) const;
 
   virtual bool IsJustLayoutProp(const char *prop_name) const;
 
@@ -41,16 +41,16 @@ class LayerOptimizedRenderManager : public RenderManager {
  private:
   std::shared_ptr<RenderManager> render_manager_;
 
-  bool UpdateRenderInfo(const std::shared_ptr<DomNode>& node);
+  static bool CanBeEliminated(const std::shared_ptr<DomNode>& node);
+
+  void UpdateRenderInfo(const std::shared_ptr<DomNode>& node);
 
   std::pair<bool, int32_t>
   CalculateRenderNodeIndex(const std::shared_ptr<DomNode>& parent,
                            const std::shared_ptr<DomNode>& node, int32_t index);
 
-  void FindMoveChildren(const std::shared_ptr<DomNode>& node,
-                        std::vector<int32_t> &removes);
-
-  void ApplyLayoutRecursive(const std::shared_ptr<DomNode>& node);
+  void FindValidChildren(const std::shared_ptr<DomNode>& node,
+                         std::vector<std::shared_ptr<DomNode>>& valid_children_nodes);
 };
 
 }  // namespace dom
