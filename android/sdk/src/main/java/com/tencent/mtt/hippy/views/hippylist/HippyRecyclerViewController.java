@@ -77,12 +77,17 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
       HippyRecyclerView recyclerView) {
     LinearLayoutManager layoutManager = new EasyLinearLayoutManager(context);
     recyclerView.setItemAnimator(null);
-    if (iniProps != null && iniProps.containsKey("horizontal")) {
-      layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+    boolean enableScrollEvent = false;
+    if (iniProps != null) {
+      if (iniProps.containsKey("horizontal")) {
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+      }
+      enableScrollEvent = iniProps.getBoolean("onScroll");
     }
     recyclerView.setLayoutManager(layoutManager);
     recyclerView.setHippyEngineContext(((HippyInstanceContext) context).getEngineContext());
     recyclerView.initRecyclerView();
+    recyclerView.getRecyclerViewEventHelper().setOnScrollEventEnable(enableScrollEvent);
     return recyclerView;
   }
 
@@ -117,11 +122,6 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
   @HippyControllerProps(name = "onMomentumScrollEnd", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
   public void setMomentumScrollEndEventEnable(HRW view, boolean flag) {
     view.getRecyclerViewEventHelper().setMomentumScrollEndEventEnable(flag);
-  }
-
-  @HippyControllerProps(name = "onScrollEnable", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-  public void setOnScrollEventEnable(HRW view, boolean flag) {
-    view.getRecyclerViewEventHelper().setOnScrollEventEnable(flag);
   }
 
   @HippyControllerProps(name = "exposureEventEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
