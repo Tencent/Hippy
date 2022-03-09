@@ -11,11 +11,7 @@ import { bridge, HippyJsBridge } from './js2native';
 import { nativeBridge } from './native2js';
 import { device } from './device';
 
-console.log(nativeBridge);
-
 const global = getGlobal();
-
-
 declare global {
   interface HippyModule {
     bridge: HippyJsBridge,

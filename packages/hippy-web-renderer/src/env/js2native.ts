@@ -9,7 +9,6 @@ export interface HippyJsBridge {
 
 
 const callNative = (...callArguments) => {
-  console.log('callNatives:', callArguments);
   if (typeof hippyCallNatives === 'undefined') {
     throw new ReferenceError('hippyCallNatives not defined');
   }
