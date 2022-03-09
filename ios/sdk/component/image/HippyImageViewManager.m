@@ -33,6 +33,7 @@
 
 @interface HippyImageViewManager () {
     id<HippyImageDataLoaderProtocol> _imageDataLoader;
+    Class<HippyImageProviderProtocol> _imageProviderClass;
     NSUInteger _sequence;
 }
 
@@ -146,8 +147,12 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 - (Class<HippyImageProviderProtocol>)imageProviderClass {
     if (!_imageProviderClass) {
-        //TODO HippyImageProviderProtocol instance should be fetched from proxy
-        _imageProviderClass = [HippyDefaultImageProvider class];
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageProviderClass)]) {
+            _imageProviderClass = [self.renderContext.frameworkProxy imageProviderClass];
+        }
+        else {
+            _imageProviderClass = [HippyDefaultImageProvider class];
+        }
     }
     return _imageProviderClass;
 }
