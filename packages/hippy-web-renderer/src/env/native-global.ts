@@ -32,17 +32,17 @@ export function checkUpdateDimension() {
 export const nativeGlobal = {
   OS: 'web',
   Platform: {
-    OS: "web",
+    OS: 'android',
     Localization: undefined,
   },
   Dimensions: {
     window: {
       scale: window.devicePixelRatio || 1,
       height: window.innerHeight,
-      width: window.innerWidth
+      width: window.innerWidth,
     },
-    ...checkUpdateDimension()
+    ...checkUpdateDimension(),
   },
-}
+};
 
 

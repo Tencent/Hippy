@@ -21,11 +21,11 @@
 import { HippyWebModule } from '../base';
 import {
   BaseView,
-  BaseViewConstructor,
+  BaseViewConstructor, ComponentContext, HippyCallBack,
   NodeData,
   UIProps,
 } from '../../types';
-import { callBackMeasureInWindowToHippy, setElementStyle } from '../common';
+import { setElementStyle } from '../common';
 
 export class UIManagerModule extends HippyWebModule {
   public static moduleName = 'UIManagerModule';
@@ -64,7 +64,7 @@ export class UIManagerModule extends HippyWebModule {
       const { index } = nodeItemData;
       const tagName = nodeItemData.name;
       const { props } = nodeItemData;
-      const component = mapComponent(tagName, id, pId);
+      const component = mapComponent(this.context, tagName, id, pId);
       if (!component) {
         throw `create component failed, can't find ${tagName}' constructor`;
       }
@@ -96,7 +96,7 @@ export class UIManagerModule extends HippyWebModule {
 
   }
 
-  public callUIFunction(rootViewId: string, params: Array<any>, callBackId: number) {
+  public callUIFunction(rootViewId: string, params: Array<any>, callBack: HippyCallBack) {
     const realParams = params[0];
     if (!realParams || realParams.length < 3) {
       return;
@@ -108,10 +108,10 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
 
-    this.componentFunctionCallProcess(this.findViewById(nodeId), functionName, paramList, callBackId);
+    this.componentFunctionCallProcess(this.findViewById(nodeId), functionName, paramList, callBack);
   }
 
-  public measureInWindow(rootViewId: string, params: Array<any>, callBackId: number) {
+  public measureInWindow(rootViewId: string, params: Array<any>, callBack: HippyCallBack) {
     const nodeId = params[0];
     if (nodeId! || !this.findViewById(nodeId)) {
       return;
@@ -119,17 +119,13 @@ export class UIManagerModule extends HippyWebModule {
     const component = this.findViewById(nodeId);
     if (component!.dom) {
       const rect = component!.dom.getBoundingClientRect();
-      callBackMeasureInWindowToHippy(
-        callBackId,
-        {
-          x: rect.x,
-          y: rect.y,
-          width: rect.width,
-          height: rect.height,
-          statusBarHeight: 0,
-        },
-        true,
-      );
+      callBack.resolve({
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+        statusBarHeight: 0,
+      });
     }
   }
 
@@ -189,7 +185,7 @@ export class UIManagerModule extends HippyWebModule {
         });
       }
       for (const key of keys) {
-        if (key === 'style') {
+        if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
           continue;
         }
         if (typeof component[key] === 'function' && key.indexOf('on') === 0) {
@@ -276,17 +272,19 @@ export class UIManagerModule extends HippyWebModule {
 
   private componentFunctionCallProcess(
     component: BaseView|undefined|null, callName: string,
-    params: Array<any>, callBackId: number,
+    params: Array<any>, callBack: HippyCallBack,
   ) {
     if (component?.[callName]) {
-      component[callName].call(component, callBackId, params);
+      component[callName](...params, callBack);
       return;
     }
     throw `call ui function failed,${component?.tagName} component not implement ${callName}()`;
   }
 }
 
-export const componentDictionary = {};
+export const componentDictionary: {
+  [key: string]: BaseViewConstructor
+} = {};
 
 export function registerComponent(name: string, viewConstructor: BaseViewConstructor) {
   if (componentDictionary[name]) {
@@ -294,8 +292,8 @@ export function registerComponent(name: string, viewConstructor: BaseViewConstru
   }
   componentDictionary[name] = viewConstructor;
 }
-function mapComponent(tagName: string, id: number, pId: number): BaseView|undefined {
+function mapComponent(context: ComponentContext, tagName: string, id: number, pId: number): BaseView|undefined {
   if (componentDictionary[tagName]) {
-    return new componentDictionary[tagName](id, pId);
+    return new componentDictionary[tagName](context, id, pId);
   }
 }

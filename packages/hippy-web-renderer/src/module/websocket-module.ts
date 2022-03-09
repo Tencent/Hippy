@@ -19,7 +19,7 @@
  */
 
 import { HippyWebModule } from '../base';
-import { callbackToHippy, dispatchModuleEventToHippy } from '../common';
+import { HippyCallBack } from '../../types';
 const enum EventType {
   ON_OPEN='onOpen',
   ON_CLOSE='onClose',
@@ -28,34 +28,37 @@ const enum EventType {
 }
 export class WebSocketModule extends HippyWebModule {
   public static moduleName = 'WebSocketModule';
+  public name = 'WebSocketModule';
+
+
   private webSocketConnections: {[key: string]: WebsocketObject} = {};
 
 
-  public connect(callBackId: number, data: {url?: string, headers?: {[key: string]: any} }) {
+  public connect(data: {url?: string, headers?: {[key: string]: any} }, callBack: HippyCallBack) {
     const response = {
       code: -1,
       reason: '',
     };
     if (!data) {
       response.reason = 'invalid connect param';
-      callbackToHippy(callBackId, response, true, 'connect', WebSocketModule.moduleName);
+      callBack.resolve(response);
       return;
     }
     if (!data.url) {
       response.reason = 'no valid url for websocket';
-      callbackToHippy(callBackId, response, true, 'connect', WebSocketModule.moduleName);
+      callBack.resolve(response);
       return;
     }
     let protocols = [];
-    if (data.headers && data.headers['Sec-WebSocket-Protocol']) {
-      protocols =  data.headers['Sec-WebSocket-Protocol'].split(',');
+    if (data.headers?.['Sec-WebSocket-Protocol']) {
+      protocols =  data?.headers['Sec-WebSocket-Protocol'].split(',');
     }
     const id = `websocket-key-${Object.keys(this.webSocketConnections).length}`;
     this.webSocketConnections[id] = new WebsocketObject(id, data.url, protocols);
     this.webSocketConnections[id].connect(this.dispatchEvent);
   }
 
-  public send(callBackId: number, data: {id: string, data: any}) {
+  public send(callBack: HippyCallBack, data: {id: string, data: any}) {
     if (!data || !data.id) {
       console.log('hippy', 'send: ERROR: request is null or no socket id specified');
       return;
@@ -70,7 +73,7 @@ export class WebSocketModule extends HippyWebModule {
     this.webSocketConnections[data.id]!.send(data.data);
   }
 
-  public close(callBackId: number, data: { id: string, code: number, reason: string}) {
+  public close(callBack: HippyCallBack, data: { id: string, code: number, reason: string}) {
     if (!data || !data.id) {
       console.log('hippy', 'close: ERROR: request is null');
       return;
@@ -83,7 +86,7 @@ export class WebSocketModule extends HippyWebModule {
   }
 
   public dispatchEvent(id: string, eventType: EventType, data: any) {
-    dispatchModuleEventToHippy(['hippyWebsocketEvents', { ...data, id, type: eventType }]);
+    this.context.sendEvent('hippyWebsocketEvents', { ...data, id, type: eventType });
   }
 
   public initialize() {

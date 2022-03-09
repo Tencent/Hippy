@@ -34,8 +34,8 @@ const PullOverStage = [
 
 export class RefreshWrapper extends HippyView<HTMLDivElement> {
   private pullRefresh!: PullRefresh;
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.REFRESH;
     this.dom = document.createElement('div');
     this.init();
@@ -69,7 +69,7 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     await super.beforeChildMount(child, childPosition);
     if (child.tagName === InnerNodeTag.LIST) {
       setElementStyle(child.dom!, { position: 'relative', zIndex: 2 });
-      const refreshHeader = new PullRefresh(child.dom!, this.dom!, this.handlePull);
+      const refreshHeader = new PullRefresh(child.dom!, this.dom!, this.handlePull.bind(this));
       refreshHeader.init();
     }
   }
@@ -86,6 +86,13 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     setTimeout(() => {
       this.pullRefresh?.finish();
     }, 500);
+  }
+}
+export class RefreshWrapperItemView extends HippyView<HTMLDivElement> {
+  public constructor(context, id, pId) {
+    super(context, id, pId);
+    this.tagName = InnerNodeTag.REFRESH_ITEM;
+    this.dom = document.createElement('div');
   }
 }
 class PullRefresh {

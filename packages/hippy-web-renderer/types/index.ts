@@ -1,3 +1,5 @@
+import { HippyTransferData } from '../src/types/hippy-internal-types';
+
 export interface UIProps {
   [key: string]: any
 }
@@ -7,7 +9,7 @@ export interface BaseView {
   id: number;
   pId: number;
   index: number;
-  props: {[key: string]: any};
+  props: UIProps;
   dom: HTMLElement|null;
   onAttachedToWindow?: () => void;
   onLayout?: () => void;
@@ -22,7 +24,9 @@ export interface BaseView {
   mounted?: () => void;
 }
 
-export type BaseViewConstructor = new (id: number, pId: number) => BaseView;
+export type BaseViewConstructor = new (context: Componentcontext, id, pId) => BaseView;
+
+export type HippyCallBack={resolve: (params: any) => void, reject: (params: any) => void };
 
 export interface NodeData {
   id: number,
@@ -40,6 +44,14 @@ export interface ModuleContext {
 export interface BaseModule {
   initialize?: () => void;
   destroy?: () => void;
+}
+
+export interface ComponentContext {
+  sendEvent: (type: string, params: any) => void;
+  sendUiEvent: (nodeId: number, type: string, params: any) => void;
+  sendGestureEvent: (e: HippyTransferData.NativeGestureEvent) => void;
+  subscribe: (evt: string, callback: Function) => void;
+  getModuleByName: (moduleName: string) => void;
 }
 
 export type BaseModuleConstructor = new (context: ModuleContext) => BaseModule;
