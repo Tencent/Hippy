@@ -907,8 +907,10 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetId();
         HippyShadowView *shadowView = _shadowViewRegistry[@(tag)];
-        [shadowView removeFromHippySuperview];
-        [self purgeChildren:@[shadowView] fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)_shadowViewRegistry];
+        if (shadowView) {
+            [shadowView removeFromHippySuperview];
+            [self purgeChildren:@[shadowView] fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)_shadowViewRegistry];
+        }
         __weak auto weakSelf = self;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = viewRegistry[@(tag)];
