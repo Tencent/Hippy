@@ -3,7 +3,7 @@ import { HippyWebEngine } from './src';
 (async () => {
   const engine = HippyWebEngine.create({
     modules: [
-      UIMana
+      // TODO: add business js bundle
     ]
   });
 

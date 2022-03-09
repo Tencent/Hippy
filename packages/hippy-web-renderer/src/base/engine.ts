@@ -1,7 +1,9 @@
 import { HippyWebComponent, HippyWebModule } from "./base-unit";
 import { HippyWebEngineContext } from "./context";
+import { createCallNatives } from "./create-call-natives";
 import { HippyWebEventBus } from "./event-bus";
 import { scriptLoader } from "./script-loader";
+import global from '../get-global';
 
 export interface HippyWebEngineCreatorOptions {
   modules?: (typeof HippyWebModule)[];
@@ -18,7 +20,7 @@ export class HippyWebEngine {
 
   static create(options?: HippyWebEngineCreatorOptions) {
     // load core modules
-    if(Hippy.web.engine == null) {
+    if (Hippy.web.engine == null) {
       const engine = new HippyWebEngine(options);
 
       Hippy.web.engine = engine;
@@ -49,7 +51,10 @@ export class HippyWebEngine {
       this.components[cmp.name] = cmp;
     });
 
-    // 引擎准备完毕
+    // bind global methods
+    global.hippyCallNatives = createCallNatives(this);
+
+    // engine is ready
     this.eventBus.publish('ready');
   }
 

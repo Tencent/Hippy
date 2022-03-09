@@ -12,3 +12,5 @@ export const getGlobal = (): typeof globalThis => {
   }
   return win;
 }
+
+export default getGlobal();
