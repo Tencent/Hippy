@@ -22,6 +22,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyImageDataLoaderProtocol.h"
+#import "HippyImageProviderProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)standardizeAssetUrlString:(NSString *)UrlString;
 
 - (id<HippyImageDataLoaderProtocol>)imageDataLoader;
+
+- (Class<HippyImageProviderProtocol>)imageProviderClass;
 
 @end
 

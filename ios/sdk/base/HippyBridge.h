@@ -204,8 +204,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, weak, readonly) HippyExtAnimationModule *animationModule;
 
-@property (nonatomic, strong, readonly) id<HippyImageViewCustomLoader> imageLoader;
-@property (nonatomic, strong, readonly) NSSet<Class<HippyImageProviderProtocol>> *imageProviders;
+@property (nonatomic, strong) id<HippyImageViewCustomLoader> imageLoader;
+
 @property (nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
 
 /**

@@ -30,8 +30,13 @@
 #import "HippyUtils.h"
 #import "HippyDefaultImageProvider.h"
 
+static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
+static NSUInteger const ImageLoaderErrorParseError = 2;
+static NSUInteger const ImageLoaderErrorRequestError = 3;
+
 @interface HippyImageLoaderModule () {
     id<HippyImageDataLoaderProtocol> _imageDataLoader;
+    Class<HippyImageProviderProtocol> _imageProviderClass;
     NSUInteger _sequence;
 }
 
@@ -45,7 +50,6 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-    //TODO complete this method
     id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
     NSURL *url = HippyURLWithString(urlString, nil);
     NSUInteger sequence = _sequence++;
@@ -58,25 +62,29 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
                 retImage = result;
             }
             else if ([result isKindOfClass:[NSData class]]) {
-                //TODO use custome image provider instead of HippyDefaultImageProvider
-                id<HippyImageProviderProtocol> imageProvider = [[HippyDefaultImageProvider alloc] init];
-                imageProvider.scale = [[UIScreen mainScreen] scale];
-                imageProvider.imageDataPath = [retURL absoluteString];
-                [imageProvider setImageData:(NSData *)result];
-                retImage = [imageProvider image];
+                Class<HippyImageProviderProtocol> imageProviderClass = [self imageProviderClass];
+                if ([imageProviderClass canHandleData:(NSData *)result]) {
+                    id<HippyImageProviderProtocol> imageProvider = [[(Class)imageProviderClass alloc] init];
+                    imageProvider.scale = [[UIScreen mainScreen] scale];
+                    imageProvider.imageDataPath = [retURL absoluteString];
+                    [imageProvider setImageData:(NSData *)result];
+                    retImage = [imageProvider image];
+                }
             }
             if (retImage) {
                 NSDictionary *dic = @{@"width": @(retImage.size.width), @"height": @(retImage.size.height)};
                 resolve(dic);
             }
             else {
-                //TOOD standardize error
-               NSError *error = [NSError errorWithDomain:@"ImageLoaderModuleDomain" code:2 userInfo:@{@"reason": @"image parse error"}];
-               reject(@"2", @"image parse error", error);
+                NSError *error = [NSError errorWithDomain:kImageLoaderModuleErrorDomain
+                                                    code:ImageLoaderErrorParseError userInfo:@{@"reason": @"image parse error"}];
+                NSString *errorKey = [NSString stringWithFormat:@"%lu", ImageLoaderErrorParseError];
+                reject(errorKey, @"image parse error", error);
             }
         }
         else {
-            reject(@"2", @"image request error", error);
+            NSString *errorKey = [NSString stringWithFormat:@"%lu", ImageLoaderErrorRequestError];
+            reject(errorKey, @"image request error", error);
         }
     }];
 }
@@ -84,38 +92,14 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
 
 // clang-format off
 HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
-    NSData *uriData = [urlString dataUsingEncoding:NSUTF8StringEncoding];
-    if (nil == uriData) {
-        return;
-    }
-    
-    if([[HippyImageCacheManager sharedInstance] imageCacheDataForURLString: urlString]) {
-        return;
-    }
-    
-    CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
-    NSURL *source_url = CFBridgingRelease(urlRef);
-    
-    if (source_url) {
+    id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
+    NSURL *url = HippyURLWithString(urlString, nil);
+    NSUInteger sequence = _sequence++;
+    [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
         
-        typedef void (^HandleCompletedBlock)(BOOL, NSData *);
-        HandleCompletedBlock completedBlock = ^void(BOOL cached, NSData *data) {
-            if (data && !cached) {
-               [[HippyImageCacheManager sharedInstance] setImageCacheData:data forURLString:urlString];
-            }
-        };
+    } completion:^(NSUInteger seq, id ret, NSURL *url, NSError *error) {
         
-        if (_bridge.imageLoader && [_bridge.imageLoader respondsToSelector: @selector(loadImage:completed:)]) {
-            [_bridge.imageLoader loadImage: source_url completed:^(NSData *data, NSURL *url, NSError *error, BOOL cached) {
-                completedBlock(cached, data);
-            }];
-        } else {
-            [[[NSURLSession sharedSession] dataTaskWithURL:source_url completionHandler:^(NSData * _Nullable data, __unused NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                completedBlock(NO, data);
-            }] resume];
-        }
-        
-    }
+    }];
 }
 // clang-format on
 
@@ -129,6 +113,18 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
         }
     }
     return _imageDataLoader;
+}
+
+- (Class<HippyImageProviderProtocol>)imageProviderClass {
+    if (!_imageProviderClass) {
+        if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageProviderClass)]) {
+            _imageProviderClass = [self.bridge.frameworkProxy imageProviderClass];
+        }
+        if (!_imageProviderClass) {
+            _imageProviderClass = [HippyDefaultImageProvider class];
+        }
+    }
+    return _imageProviderClass;
 }
 
 @end
