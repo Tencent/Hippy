@@ -1,5 +1,5 @@
-import { HippyTransferData } from "../types/hippy-internal-types";
-import { HippyWebEngine } from "./engine";
+import { HippyTransferData } from '../types/hippy-internal-types';
+import { HippyWebEngine } from './engine';
 
 export class HippyWebEngineContext {
   engine: HippyWebEngine;

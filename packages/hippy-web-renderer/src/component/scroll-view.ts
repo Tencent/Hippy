@@ -20,8 +20,7 @@
 
 import { NodeProps  } from '../types';
 import { BaseView, InnerNodeTag, UIProps } from '../../types';
-
-import { dispatchEventToHippy, setElementStyle } from '../common';
+import { setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
 import {
   GESTURE_CAPTURE_THRESHOLD,
@@ -50,8 +49,8 @@ export class ScrollView extends HippyView<HTMLDivElement> {
   private lastPosition = [0, 0];
   private lastTimestamp = 0;
   private scrollableCache = false;
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.SCROLL_VIEW;
     this.dom = document.createElement('div');
     this.init();
@@ -73,16 +72,16 @@ export class ScrollView extends HippyView<HTMLDivElement> {
   }
 
   public scrollStyle(horizontal: boolean) {
-    const defaultStyle = this.defaultStyle();
+    let defaultStyle = this.defaultStyle();
     if (horizontal) {
-      defaultStyle.style = {
+      defaultStyle = {
         display: 'flex',
         flexDirection: 'row',
         overflowX: 'scroll',
         overflowY: 'hidden',
       };
     }
-    return defaultStyle.style;
+    return defaultStyle;
   }
   public get bounces() {
     return this.props[NodeProps.BOUNCES];
@@ -146,23 +145,23 @@ export class ScrollView extends HippyView<HTMLDivElement> {
   }
 
   public onMomentumScrollBegin(event) {
-    dispatchEventToHippy(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
+    this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
   }
 
   public onMomentumScrollEnd(event) {
-    dispatchEventToHippy(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
+    this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
   }
 
   public onScroll(event: HippyScrollEvent) {
-    dispatchEventToHippy(this.id, NodeProps.ON_SCROLL, event);
+    this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL, event);
   }
 
   public onScrollBeginDrag(event: HippyScrollDragEvent) {
-    dispatchEventToHippy(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
+    this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
   }
 
   public onScrollEndDrag(event: HippyScrollDragEvent) {
-    dispatchEventToHippy(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
+    this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
   }
 
   private init() {
@@ -171,12 +170,12 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     mountTouchListener(this.dom!, {
       recordPosition: this.lastPosition,
       needSimulatedScrolling: this.pagingEnabled,
-      scrollEnable: this.checkScrollEnable,
-      onBeginDrag: this.handleBeginDrag,
-      onEndDrag: this.handleEndDrag,
-      onScroll: this.handleScroll,
-      onBeginSliding: this.handleBeginSliding,
-      onEndSliding: this.handleEndSliding,
+      scrollEnable: this.checkScrollEnable.bind(this),
+      onBeginDrag: this.handleBeginDrag.bind(this),
+      onEndDrag: this.handleEndDrag.bind(this),
+      onScroll: this.handleScroll.bind(this),
+      onBeginSliding: this.handleBeginSliding.bind(this),
+      onEndSliding: this.handleEndSliding.bind(this),
     });
   }
 

@@ -18,16 +18,18 @@
  * limitations under the License.
  */
 
-import {  BaseView } from '../../types';
-import { dispatchModuleEventToHippy, setElementStyle } from '../common';
+import { BaseView, HippyCallBack } from '../../types';
+import { setElementStyle } from '../common';
 import { HippyWebModule } from '../base';
 
 export class AnimationModule extends HippyWebModule {
   public static moduleName = 'AnimationModule';
+  public name = 'AnimationModule';
+
   private animationPool: {[key: string]: SimpleAnimation|null} = {};
 
 
-  public createAnimation(callBackId: number, animationId: number, params: AnimationOptions, mode?: string) {
+  public createAnimation(animationId: number, params: AnimationOptions, mode?: string) {
     if (this.animationPool[animationId]) {
       return;
     }
@@ -39,7 +41,7 @@ export class AnimationModule extends HippyWebModule {
     }
   }
 
-  public updateAnimation(callBackId: number, animationId: number, param: AnimationOptions) {
+  public updateAnimation(callBack: HippyCallBack, animationId: number, param: AnimationOptions) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation update failed, animationId not find animation object');
       return;
@@ -47,7 +49,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.update(param);
   }
 
-  public startAnimation(callBackId: number, animationId: number) {
+  public startAnimation(callBack: HippyCallBack, animationId: number) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation start failed, animationId not find animation object');
       return;
@@ -55,7 +57,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.start();
   }
 
-  public stopAnimation(callBackId: number, animationId: number) {
+  public stopAnimation(callBack: HippyCallBack, animationId: number) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation stop failed, animationId not find animation object');
       return;
@@ -63,7 +65,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.stop();
   }
 
-  public resumeAnimation(callBackId: number, animationId: number) {
+  public resumeAnimation(callBack: HippyCallBack, animationId: number) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation resume failed, animationId not find animation object');
       return;
@@ -71,7 +73,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.resume();
   }
 
-  public destroyAnimation(callBackId: number, animationId: number) {
+  public destroyAnimation(callBack: HippyCallBack, animationId: number) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation destroy failed, animationId not find animation object');
       return;
@@ -146,18 +148,6 @@ interface AnimationOptions {
   outputRange?: any[];
 }
 class SimpleAnimation {
-  public id: string | number;
-  public refNodeId: string | number | undefined;
-  public animationInfo: AnimationOptions;
-  public timeMode: string | undefined;
-  public transformName: string | null = null;
-
-  public constructor(animationId: string | number, options: AnimationOptions, mode?: string) {
-    this.animationInfo = options;
-    this.timeMode = mode;
-    this.id = animationId;
-  }
-
   public static buildTransformSingleValue(value: string) {
     return `${value} `;
   }
@@ -173,6 +163,19 @@ class SimpleAnimation {
     }
     return formatValue;
   }
+
+  public id: string | number;
+  public refNodeId: string | number | undefined;
+  public animationInfo: AnimationOptions;
+  public timeMode: string | undefined;
+  public transformName: string | null = null;
+
+  public constructor(animationId: string | number, options: AnimationOptions, mode?: string) {
+    this.animationInfo = options;
+    this.timeMode = mode;
+    this.id = animationId;
+  }
+
 
   public set nodeId(nodeId: string | number) {
     this.refNodeId = nodeId;
@@ -247,7 +250,8 @@ class SimpleAnimation {
   public destroy() {}
 
   private dispatchEvent(eventName: HippyAnimationEvent) {
-    dispatchModuleEventToHippy([eventName, this.id]);
+    // dispatchModuleEventToHippy([eventName, this.id]);
+
   }
 
   private buildCssValue(value: string) {
@@ -332,18 +336,6 @@ function updateKeyFrame() {
 
 
 class SimpleAnimation2 {
-  public id: string | number;
-  public refNodeId: string | number | undefined;
-  public animationInfo: AnimationOptions;
-  public timeMode: string | undefined;
-  public transformName: string | null = null;
-
-  public constructor(animationId: string | number, options: AnimationOptions, mode?: string) {
-    this.animationInfo = options;
-    this.timeMode = mode;
-    this.id = animationId;
-  }
-
   public static buildTransformSingleValue(value: string) {
     return `${value} `;
   }
@@ -359,6 +351,18 @@ class SimpleAnimation2 {
     }
     return formatValue;
   }
+  public id: string | number;
+  public refNodeId: string | number | undefined;
+  public animationInfo: AnimationOptions;
+  public timeMode: string | undefined;
+  public transformName: string | null = null;
+
+  public constructor(animationId: string | number, options: AnimationOptions, mode?: string) {
+    this.animationInfo = options;
+    this.timeMode = mode;
+    this.id = animationId;
+  }
+
 
   public set nodeId(nodeId: string | number) {
     this.refNodeId = nodeId;

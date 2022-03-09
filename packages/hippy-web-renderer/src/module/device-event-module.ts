@@ -22,13 +22,15 @@ import { BaseModule, ModuleContext } from '../../types';
 
 export class DeviceEventModule implements BaseModule {
   public static moduleName = 'DeviceEventModule';
+  public name = 'DeviceEventModule';
+
   private context!: ModuleContext;
   private listen=false;
   public constructor(context: ModuleContext) {
     this.context = context;
   }
 
-  public setListenBackPress(callBackId: number, listen: boolean) {
+  public setListenBackPress(listen: boolean) {
     this.listen = listen;
   }
 

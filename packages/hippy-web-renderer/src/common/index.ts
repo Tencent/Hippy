@@ -37,7 +37,7 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
       return;
     }
     if (isColor(key)) {
-      const newValue = convertArgbToRgb(object[key]);
+      const newValue = convertHexToRgba(object[key]);
       styleUpdateWithCheck(element, key, newValue);
       continue;
     }
@@ -73,48 +73,7 @@ function styleUpdateWithCheck(element: HTMLElement, key: string, newValue: any) 
     element.style[key] = newValue;
   }
 }
-
-export function dispatchEventToHippy(nodeId: number, type: string, params: any) {
-  hippyBridge('callJsModule', {
-    moduleName: 'EventDispatcher',
-    methodName: 'receiveUIComponentEvent',
-    params: [nodeId, type, params],
-  });
-}
-
-export function dispatchModuleEventToHippy(params: any) {
-  hippyBridge('callJsModule', {
-    moduleName: 'EventDispatcher',
-    methodName: 'receiveNativeEvent',
-    params,
-  });
-}
-
-export function callBackUIFunctionToHippy(callBackId: number, params: any, success: boolean) {
-  callbackToHippy(callBackId, params, success, 'callUIFunction', 'UIManagerModule');
-}
-
-export function callBackMeasureInWindowToHippy(callBackId: number, params: any, success: boolean) {
-  callbackToHippy(callBackId, params, success, 'measureInWindow', 'UIManagerModule');
-}
-
-export function callbackToHippy(
-  callBackId: number,
-  params: any,
-  success: boolean,
-  moduleFunc: string,
-  moduleName: string,
-) {
-  hippyBridge('callBack', {
-    callId: callBackId,
-    moduleFunc,
-    moduleName,
-    params,
-    result: success ? 0 : -1,
-  });
-}
-
-export function convertArgbToRgb(number) {
+export function convertHexToRgba(number) {
   const alpha = (number >> 24) & 0xff;
   const red = (number >> 16) & 0xff;
   const green = (number >> 8) & 0xff;

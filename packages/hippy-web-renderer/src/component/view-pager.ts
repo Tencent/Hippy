@@ -19,8 +19,8 @@
  */
 
 import { NodeProps, SCROLL_STATE } from '../types';
-import { dispatchEventToHippy, setElementStyle } from '../common';
-import { BaseView, InnerNodeTag } from '../../types';
+import { setElementStyle } from '../common';
+import { BaseView, InnerNodeTag, UIProps } from '../../types';
 import { HippyView } from './hippy-view';
 import { mountTouchListener } from './scrollable';
 
@@ -31,8 +31,8 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   private scrollableCache = false;
   private lastPosition = [0, 0];
 
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.VIEW_PAGER;
     this.dom = document.createElement('div');
   }
@@ -65,15 +65,15 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   }
 
   public onPageSelected(event: {position: number}) {
-    dispatchEventToHippy(this.id, NodeProps.ON_PAGE_SELECTED, event);
+    this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SELECTED, event);
   }
 
   public onPageScroll(event: {position: number, offset: number}) {
-    dispatchEventToHippy(this.id, NodeProps.ON_PAGE_SCROLL, event);
+    this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SCROLL, event);
   }
 
   public onPageScrollStateChanged(event: {pageScrollState: SCROLL_STATE}) {
-    dispatchEventToHippy(this.id, NodeProps.ON_PAGE_SCROLL_STATE_CHANGED, event);
+    this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SCROLL_STATE_CHANGED, event);
   }
 
   public setPage(index: number) {
@@ -270,8 +270,8 @@ function buildPageScrollEvent(
 }
 
 export class ViewPagerItem extends HippyView<HTMLDivElement> {
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.VIEW_PAGER_ITEM;
     this.dom = document.createElement('div');
   }
@@ -279,7 +279,14 @@ export class ViewPagerItem extends HippyView<HTMLDivElement> {
   public defaultStyle(): { [p: string]: any } {
     return { flexShrink: 0, display: 'flex', boxSizing: 'border-box', position: 'static' };
   }
-
+  public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
+    const newData = { ...data };
+    if (data.style && data.style.position === 'absolute') {
+      delete newData.style.position;
+    }
+    Object.assign(newData.style, this.defaultStyle());
+    defaultProcess(this, newData);
+  }
   public async beforeMount(parent: BaseView, position: number) {
     await super.beforeMount(parent, position);
     setElementStyle(this.dom!, { width: `${parent.dom!.clientWidth}px` });

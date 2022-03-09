@@ -20,7 +20,8 @@
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-import { BaseView, InnerNodeTag, UIProps } from '../../types';
+import { BaseView, ComponentContext, InnerNodeTag, UIProps } from '../../types';
+import { NodeProps } from '../types';
 export class HippyView<T extends HTMLElement> implements BaseView {
   public tagName!: InnerNodeTag;
   public id!: number;
@@ -29,17 +30,31 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   public dom!: T|null;
   public props: any = {};
   public firstUpdateStyle = true;
-
-  public constructor(id: number, pId: number) {
+  public context!: ComponentContext;
+  public constructor(context, id, pId) {
     this.id = id;
     this.pId = pId;
+    this.context = context;
   }
+
+  public set onClick(value: boolean) {
+    this.props[NodeProps.ON_CLICK] = value;
+    if (value) {
+      this.dom?.addEventListener('click', this.handleOnClick.bind(this));
+    }
+  }
+
+  public get onClick() {
+    return !!this.props[NodeProps.ON_CLICK];
+  }
+
   public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }
     defaultProcess(this, data);
   }
+
   public defaultStyle(): {[key: string]: any} {
     return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box' };
   }
@@ -70,5 +85,10 @@ export class HippyView<T extends HTMLElement> implements BaseView {
 
   public destroy() {
     this.dom = null;
+  }
+
+  private handleOnClick(event) {
+    this.context.sendUiEvent(this.id, NodeProps.ON_CLICK, event);
+    event.stopPropagation();
   }
 }

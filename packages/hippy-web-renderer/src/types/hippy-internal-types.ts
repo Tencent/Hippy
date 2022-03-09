@@ -5,7 +5,7 @@ export interface HippyJsBridge {
   callNative(moduleName: string, methodName: string, ...args: any[]): void;
   callNativeWithCallbackId(moduleName: string, methodName: string, ...args: any[]): number;
   callNativeWithPromise<T>(moduleName: string, methodName: string, ...args: any[]): Promise<T>;
-  removeNativeCallback(callbackId: number): void;
+  removeNativeCallback(callBack: HippyCallBack): void;
 }
 
 export type HippyJsCallNatives = (moduleName: string, moduleFunc: string, callId: number, params?: any[]) => void;
