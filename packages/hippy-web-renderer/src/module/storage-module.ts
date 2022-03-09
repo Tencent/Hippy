@@ -18,14 +18,11 @@
  * limitations under the License.
  */
 
-import { HippyWebModule } from '../../base';
-import { BaseModule, ModuleContext } from '../../types';
+import { HippyWebModule } from '../base';
 import { callbackToHippy } from '../common';
 
 export class StorageModule extends HippyWebModule {
   public static moduleName = 'StorageModule';
-  private readonly STORE_PRX_KEY = 'hippy-storage-';
-
   public static preCheck() {
     if (!window.localStorage) {
       console.warn('not support localStorage');
@@ -33,6 +30,8 @@ export class StorageModule extends HippyWebModule {
     }
     return true;
   }
+
+  private readonly STORE_PRX_KEY = 'hippy-storage-';
 
   public getAllKeys(callBackId: number) {
     if (!StorageModule.preCheck()) {

@@ -21,7 +21,7 @@
 import { BaseModule, ModuleContext } from '../../types';
 
 export class DeviceEventModule implements BaseModule {
-  public static moduleName = 'DeviceEventModule'
+  public static moduleName = 'DeviceEventModule';
   private context!: ModuleContext;
   private listen=false;
   public constructor(context: ModuleContext) {

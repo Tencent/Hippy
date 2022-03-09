@@ -18,15 +18,12 @@
  * limitations under the License.
  */
 
-import { BaseModule, ModuleContext } from '../../types';
 import { callbackToHippy } from '../common';
+import { HippyWebModule } from '../base';
 
-export class ImageLoadModule implements BaseModule {
+export class ImageLoadModule extends HippyWebModule {
   public static moduleName = 'ImageLoadModule';
-  private context!: ModuleContext;
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
+
 
   public getSize(callBackId: number, url: string) {
     if (!url) {

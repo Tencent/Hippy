@@ -19,8 +19,7 @@
  */
 
 
-
-declare function hippyBridge (action: string, params: any): void;
+declare function hippyBridge(action: string, params: any): void;
 
 export enum EllipsizeMode {
   HEAD = 'head',

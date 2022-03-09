@@ -1,7 +1,8 @@
-export interface UIProps {[key: string]: any}
+export interface UIProps {
+  [key: string]: any
+}
 
-export interface BaseView
-{
+export interface BaseView {
   tagName: InnerNodeTag|string;
   id: number;
   pId: number;
@@ -23,8 +24,7 @@ export interface BaseView
 
 export type BaseViewConstructor = new (id: number, pId: number) => BaseView;
 
-export interface NodeData
-{
+export interface NodeData {
   id: number,
   pId: number,
   props: any,
@@ -32,14 +32,12 @@ export interface NodeData
   name: string,
 }
 
-export interface ModuleContext
-{
+export interface ModuleContext {
   receiveNativeEvent: (eventName: string, params: any) => void
   getModuleByName: (moduleName: string) => any|null
 }
 
-export interface BaseModule
-{
+export interface BaseModule {
   initialize?: () => void;
   destroy?: () => void;
 }
