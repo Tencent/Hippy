@@ -128,7 +128,7 @@ public class NodeProps {
   public static final String ON_LONG_CLICK = "longclick";
   public static final String ON_PRESS_IN = "pressin";
   public static final String ON_PRESS_OUT = "pressout";
-  public static final String ON_TOUCH_DOWN = "touchdown";
+  public static final String ON_TOUCH_DOWN = "touchstart";
   public static final String ON_TOUCH_MOVE = "touchmove";
   public static final String ON_TOUCH_END = "touchend";
   public static final String ON_TOUCH_CANCEL = "touchcancel";
@@ -171,6 +171,7 @@ public class NodeProps {
   public static final String VISIBLE = "visible";
   public static final String REPEAT_COUNT = "repeatCount";
   public static final String ATTRIBUTES	= "attributes";
+  public static final String BACKGROUND_RIPPLE	= "nativeBackgroundAndroid";
 
   private static final HashSet<String> JUST_LAYOUT_PROPS = new HashSet<>(
       Arrays.asList(ALIGN_SELF, ALIGN_ITEMS, COLLAPSABLE, FLEX, FLEX_DIRECTION, FLEX_WRAP,

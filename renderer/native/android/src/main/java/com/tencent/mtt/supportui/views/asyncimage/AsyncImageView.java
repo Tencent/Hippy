@@ -30,9 +30,14 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 
@@ -64,6 +69,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
     protected int mTintColor;
     protected ScaleType mScaleType;
     protected Drawable mContentDrawable;
+    protected Drawable mRippleDrawable;
 
     private boolean mIsAttached;
     protected ImageLoaderAdapter mImageAdapter;
@@ -375,27 +381,9 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
             if (!shouldSetContent()) {
                 return;
             }
-
             onSetContent(mUrl);
             updateContentDrawableProperty(sourceType);
-
-            if (mBGDrawable != null) {
-                if (mContentDrawable instanceof ContentDrawable) {
-                    ((ContentDrawable) mContentDrawable)
-                            .setBorder(mBGDrawable.getBorderRadiusArray(),
-                                    mBGDrawable.getBorderWidthArray());
-                    ((ContentDrawable) mContentDrawable)
-                            .setShadowOffsetX(mBGDrawable.getShadowOffsetX());
-                    ((ContentDrawable) mContentDrawable)
-                            .setShadowOffsetY(mBGDrawable.getShadowOffsetY());
-                    ((ContentDrawable) mContentDrawable)
-                            .setShadowRadius(mBGDrawable.getShadowRadius());
-                }
-                setBackgroundDrawable(
-                        new LayerDrawable(new Drawable[]{mBGDrawable, mContentDrawable}));
-            } else {
-                setBackgroundDrawable(mContentDrawable);
-            }
+            resetBackgroundDrawable();
             afterSetContent(mUrl);
         }
     }
@@ -404,13 +392,11 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
         if (!(mContentDrawable instanceof ContentDrawable)) {
             return;
         }
-
         Bitmap bitmap = getBitmap();
         if (sourceType == SOURCE_TYPE_DEFAULT_SRC && mDefaultSourceDrawable != null
                 && (mUrlFetchState != IMAGE_LOADED || mSourceDrawable == null)) {
             bitmap = mDefaultSourceDrawable.getBitmap();
         }
-
         if (bitmap != null) {
             ((ContentDrawable) mContentDrawable).setSourceType(sourceType);
             ((ContentDrawable) mContentDrawable).setBitmap(bitmap);
@@ -418,6 +404,17 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
             ((ContentDrawable) mContentDrawable).setScaleType(mScaleType);
             ((ContentDrawable) mContentDrawable).setImagePositionX(mImagePositionX);
             ((ContentDrawable) mContentDrawable).setImagePositionY(mImagePositionY);
+        }
+        if (mBGDrawable != null) {
+            ((ContentDrawable) mContentDrawable)
+                    .setBorder(mBGDrawable.getBorderRadiusArray(),
+                            mBGDrawable.getBorderWidthArray());
+            ((ContentDrawable) mContentDrawable)
+                    .setShadowOffsetX(mBGDrawable.getShadowOffsetX());
+            ((ContentDrawable) mContentDrawable)
+                    .setShadowOffsetY(mBGDrawable.getShadowOffsetY());
+            ((ContentDrawable) mContentDrawable)
+                    .setShadowRadius(mBGDrawable.getShadowRadius());
         }
     }
 
@@ -586,5 +583,35 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
             }
         }
         return mBGDrawable;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void setRippleDrawable(@NonNull Drawable rippleDrawable) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mRippleDrawable = rippleDrawable;
+            resetBackgroundDrawable();
+        }
+    }
+
+    private void resetBackgroundDrawable() {
+        ArrayList<Drawable> drawableList = new ArrayList<>();
+        if (mBGDrawable != null) {
+            drawableList.add(mBGDrawable);
+        }
+        if (mContentDrawable != null) {
+            drawableList.add(mContentDrawable);
+        }
+        if (mRippleDrawable != null) {
+            drawableList.add(mRippleDrawable);
+        }
+        if (drawableList.size() > 0) {
+            super.setBackground(null);
+            Drawable[] drawables = new Drawable[drawableList.size()];
+            for (int i = 0; i < drawableList.size(); i++) {
+                drawables[i] = drawableList.get(i);
+            }
+            LayerDrawable layerDrawable = new LayerDrawable(drawables);
+            super.setBackground(layerDrawable);
+        }
     }
 }
