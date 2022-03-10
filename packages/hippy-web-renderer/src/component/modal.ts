@@ -18,16 +18,17 @@
  * limitations under the License.
  */
 
-import {  InnerNodeTag, BaseView } from '../../types';
-import { NodeProps, ModalAnimationType, ModalOrientations  } from '../types';
+import { InnerNodeTag, BaseView } from '../../types';
+import { NodeProps, ModalAnimationType, ModalOrientations } from '../types';
 
-import { dispatchEventToHippy, setElementStyle } from '../common';
+import {  setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
 
 export const ANIMATION_TIME = 200;
-interface ModalAnimationData {animation?: { [key: string]: any }, newState?: { [key: string]: any }}
-enum ModalAnimationModel
-  {
+interface ModalAnimationData {
+  animation?: { [key: string]: any }, newState?: { [key: string]: any }
+}
+enum ModalAnimationModel {
   ENTRY,
   LEAVE,
 }
@@ -79,13 +80,6 @@ const DefaultLeaveAnimationMap = {
   },
 };
 export class Modal extends HippyView<HTMLDivElement> {
-  public constructor(id: number, pId: number) {
-    super(id, pId);
-    this.tagName = InnerNodeTag.MODAL;
-    this.dom = document.createElement('div');
-  }
-
-
   public static buildModalEntryAnimation(animationType: ModalAnimationType): ModalAnimationData {
     return DefaultEntryAnimationMap[animationType];
   }
@@ -93,6 +87,12 @@ export class Modal extends HippyView<HTMLDivElement> {
   public static buildModalLeaveAnimation(animationType: ModalAnimationType): ModalAnimationData {
     return DefaultLeaveAnimationMap[animationType];
   }
+  public constructor(context, id, pId) {
+    super(context, id, pId);
+    this.tagName = InnerNodeTag.MODAL;
+    this.dom = document.createElement('div');
+  }
+
 
   public defaultStyle(): {[key: string]: any} {
     return  {
@@ -161,15 +161,17 @@ export class Modal extends HippyView<HTMLDivElement> {
   }
 
   public onShow(value?) {
-    dispatchEventToHippy(this.id, NodeProps.ON_SHOW, value);
+    this.props[NodeProps.ON_SHOW] && this.context.sendUiEvent(this.id, NodeProps.ON_SHOW, value);
   }
 
   public onOrientationChange(event) {
-    dispatchEventToHippy(this.id, NodeProps.ON_ORIENTATION_CHANGE, event);
+    this.props[NodeProps.ON_ORIENTATION_CHANGE]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_ORIENTATION_CHANGE, event);
   }
 
   public onRequestClose(value?) {
-    dispatchEventToHippy(this.id, NodeProps.ON_REQUEST_CLOSE, value);
+    this.props[NodeProps.ON_ORIENTATION_CHANGE]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_REQUEST_CLOSE, value);
     // TODO to implement
   }
 

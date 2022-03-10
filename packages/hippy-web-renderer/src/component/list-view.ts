@@ -19,7 +19,6 @@
  */
 
 import { BaseView, InnerNodeTag } from '../../types';
-import { dispatchEventToHippy } from '../common';
 import { NodeProps } from '../types';
 import { HippyView } from './hippy-view';
 import {
@@ -30,19 +29,6 @@ import {
 } from './scrollable';
 
 export class ListView extends HippyView<HTMLDivElement> {
-  private lastPosition = [0, 0];
-  private lastTimestamp = 0;
-  private scrollableCache = false;
-  private childIntersectionObserver;
-  private selfIntersectionObserver;
-  private rootElement;
-  public constructor(id: number, pId: number) {
-    super(id, pId);
-    this.tagName = InnerNodeTag.LIST;
-    this.dom = document.createElement('div');
-    this.init();
-  }
-
   public static intersectionObserverElement(
     parentElement: Element,
     callBack: (entries: Array<IntersectionObserverEntry>) => void,
@@ -52,6 +38,21 @@ export class ListView extends HippyView<HTMLDivElement> {
       threshold: 0,
     });
   }
+
+  private lastPosition: [number, number] = [0, 0];
+  private lastTimestamp = 0;
+  private scrollableCache = false;
+  private childIntersectionObserver;
+  private selfIntersectionObserver;
+  private rootElement;
+
+  public constructor(context, id, pId) {
+    super(context, id, pId);
+    this.tagName = InnerNodeTag.LIST;
+    this.dom = document.createElement('div');
+    this.init();
+  }
+
 
   public get root() {
     if (!this.rootElement) {
@@ -73,7 +74,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public get initialListSize() {
-    return this.props[NodeProps.INITIAL_LIST_SIZE];
+    return this.props[NodeProps.INITIAL_LIST_SIZE] ?? 10;
   }
 
   public set initialListSize(value: number) {
@@ -136,47 +137,57 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public onMomentumScrollBegin(event: { contentOffset: { x: number, y: number } }) {
-    dispatchEventToHippy(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
+    this.props[NodeProps.ON_MOMENTUM_SCROLL_BEGIN]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
   }
 
   public onMomentumScrollEnd(event: { contentOffset: { x: number, y: number } }) {
-    dispatchEventToHippy(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
+    this.props[NodeProps.ON_MOMENTUM_SCROLL_END]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
   }
 
   public onScroll(event: { contentOffset: { x: number, y: number } }) {
-    dispatchEventToHippy(this.id, NodeProps.ON_SCROLL, event);
+    this.props[NodeProps.ON_SCROLL]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL, event);
   }
 
   public onScrollBeginDrag(event: { contentOffset: { x: number, y: number } }) {
-    dispatchEventToHippy(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
+    this.props[NodeProps.ON_SCROLL_BEGIN_DRAG]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
   }
 
   public onScrollEndDrag(event: { contentOffset: { x: number, y: number } }) {
-    dispatchEventToHippy(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
+    this.props[NodeProps.ON_SCROLL_END_DRAG]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
   }
 
   public onInitialListReady() {
-    dispatchEventToHippy(this.id, NodeProps.INITIAL_LIST_READY, null);
+    this.context.sendUiEvent(this.id, NodeProps.INITIAL_LIST_READY, null);
   }
 
   public onAppear(event) {
-    dispatchEventToHippy(this.id, NodeProps.ON_APPEAR, event);
+    this.props[NodeProps.ON_APPEAR]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_APPEAR, event);
   }
 
   public onDisappear(event) {
-    dispatchEventToHippy(this.id, NodeProps.ON_DISAPPEAR, event);
+    this.props[NodeProps.ON_DISAPPEAR]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_DISAPPEAR, event);
   }
 
   public onWillAppear(event) {
-    dispatchEventToHippy(this.id, NodeProps.ON_WILL_APPEAR, event);
+    this.props[NodeProps.ON_WILL_APPEAR]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_WILL_APPEAR, event);
   }
 
   public onWillDisappear(event) {
-    dispatchEventToHippy(this.id, NodeProps.ON_WILL_DISAPPEAR, event);
+    this.props[NodeProps.ON_WILL_DISAPPEAR]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_WILL_DISAPPEAR, event);
   }
 
   public onEndReached() {
-    dispatchEventToHippy(this.id, NodeProps.ON_END_REACHED, null);
+    this.props[NodeProps.ON_END_REACHED]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_END_REACHED, null);
   }
 
   public scrollToContentOffset(xOffset: number, yOffset: number, animated: boolean) {
@@ -191,7 +202,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     await super.beforeChildMount(child, childPosition);
     if (child.dom) this.childIntersectionObserver.observe(child.dom);
     if (
-      childPosition >= this.props[NodeProps.INITIAL_LIST_SIZE] - 1
+      childPosition >= this.initialListSize - 1
       && this.isFirstMount()
     ) {
       setTimeout(() => {
@@ -228,15 +239,19 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.props[NodeProps.SCROLL_EVENT_THROTTLE] = 30;
     this.webInitIO(this.root);
     mountTouchListener(this.dom!, {
-      recordPosition: this.lastPosition,
-      scrollEnable: this.checkScrollEnable,
-      onBeginDrag: this.handleBeginDrag,
-      onEndDrag: this.handleEndDrag,
-      onScroll: this.handleScroll,
-      onBeginSliding: this.handleBeginSliding,
-      onEndSliding: this.handleEndSliding,
-
+      getPosition: () => this.lastPosition,
+      updatePosition: this.updatePositionInfo.bind(this),
+      scrollEnable: this.checkScrollEnable.bind(this),
+      onBeginDrag: this.handleBeginDrag.bind(this),
+      onEndDrag: this.handleEndDrag.bind(this),
+      onScroll: this.handleScroll.bind(this),
+      onBeginSliding: this.handleBeginSliding.bind(this),
+      onEndSliding: this.handleEndSliding.bind(this),
     });
+  }
+
+  private updatePositionInfo(newPosition: [number, number])  {
+    this.lastPosition = newPosition;
   }
 
   private isFirstMount() {
@@ -246,9 +261,9 @@ export class ListView extends HippyView<HTMLDivElement> {
   private webInitIO(root: HTMLElement) {
     this.childIntersectionObserver = ListView.intersectionObserverElement(
       this.dom!,
-      this.handleChildExposure,
+      this.handleChildExposure.bind(this),
     );
-    this.selfIntersectionObserver = ListView.intersectionObserverElement(root, this.handleSelfExposure);
+    this.selfIntersectionObserver = ListView.intersectionObserverElement(root, this.handleSelfExposure.bind(this));
     this.selfIntersectionObserver.observe(this.dom!);
   }
 
@@ -285,18 +300,14 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   private handleScroll() {
-    if (this.dom) {
-      const isTrigger = eventThrottle(
-        this.lastTimestamp,
-        this.scrollEventThrottle,
-        () => {
-          this.onScroll(buildScrollEvent(this.dom!));
-        },
-      );
-      if (isTrigger) {
+    this.dom && eventThrottle(
+      this.lastTimestamp,
+      this.scrollEventThrottle,
+      () => {
+        this.onScroll(buildScrollEvent(this.dom!));
         this.lastTimestamp = Date.now();
-      }
-    }
+      },
+    );
   }
 
 
@@ -374,8 +385,8 @@ export class ListView extends HippyView<HTMLDivElement> {
 }
 
 export class ListViewItem extends HippyView<HTMLDivElement> {
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.LIST_ITEM;
     this.dom = document.createElement('div');
   }

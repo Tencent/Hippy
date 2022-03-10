@@ -19,11 +19,11 @@
  */
 
 
+import { getGlobal } from '../get-global';
 import { Dimensions } from './dimensions';
 import { dealloc } from './event';
 import { nativeGlobal } from './native-global';
 import { Headers, Response, fetch } from './network';
-import { getGlobal } from '../get-global';
 import { emitter, hippyRegister } from './others';
 import { asyncStorage } from './storage';
 import { document } from './ui-manager-module';
@@ -62,6 +62,7 @@ declare global {
     requestAnimationFrameId: number;
     nodeParamCache: any;
   }
+  var __fetch: (url: string, option: any) => Promise<any>;
 
   var Hippy: HippyModule;
 

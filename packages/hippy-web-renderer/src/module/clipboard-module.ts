@@ -18,11 +18,12 @@
  * limitations under the License.
  */
 
-import { callbackToHippy } from '../common';
 import { HippyWebModule } from '../base';
+import { HippyCallBack } from '../../types';
 
 export class ClipboardModule extends HippyWebModule {
   public static moduleName = 'ClipboardModule';
+  public name = 'ClipboardModule';
 
 
   public destroy() {
@@ -31,7 +32,7 @@ export class ClipboardModule extends HippyWebModule {
   public initialize() {
   }
 
-  public getString(callBackId: number) {
+  public getString(callBack: HippyCallBack) {
     let data = '';
     if (!!(window?.navigator?.clipboard)) {
       window.navigator.clipboard.readText().then((text) => {
@@ -40,16 +41,17 @@ export class ClipboardModule extends HippyWebModule {
         console.warn('get clipboard failed');
       })
         .finally(() => {
-          callbackToHippy(callBackId, data, true, 'getString', ClipboardModule.moduleName);
+          callBack.resolve(data);
         });
     }
   }
 
-  public setString(callBackId: number, value: string) {
+  public setString(value: string) {
     if (!!(window?.navigator?.clipboard)) {
       window.navigator.clipboard.writeText(value).then(null, () => {
         console.warn('set clipboard failed');
       });
+      return;
     }
     if (!!(document?.queryCommandSupported && document?.queryCommandSupported('copy'))) {
       const textarea = document.createElement('textarea');

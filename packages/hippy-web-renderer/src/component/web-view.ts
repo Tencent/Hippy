@@ -18,17 +18,16 @@
  * limitations under the License.
  */
 import {  NodeProps  } from '../types';
-import { dispatchEventToHippy } from '../common';
 import { BaseView, InnerNodeTag } from '../../types';
 import { HippyView } from './hippy-view';
 
 export class WebView extends HippyView<HTMLIFrameElement> {
   private isMounted = false;
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.dom = document.createElement('iframe');
     this.tagName = InnerNodeTag.WEB_VIEW;
-    this.dom!.onload = this.onLoadEnd;
+    this.dom!.onload = this.onLoadEnd.bind(this);
   }
 
   public set source(value: { uri: string }) {
@@ -61,15 +60,18 @@ export class WebView extends HippyView<HTMLIFrameElement> {
   }
 
   public  onLoadStart(value: { uri: string }) {
-    dispatchEventToHippy(this.id, NodeProps.ON_LOAD_START, value);
+    this.props[NodeProps.ON_LOAD_START] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_START, value);
   }
 
   public  onLoad(value: { uri: string }) {
-    dispatchEventToHippy(this.id, NodeProps.ON_LOAD, value);
+    this.props[NodeProps.ON_LOAD] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD, value);
   }
 
   public  onLoadEnd() {
-    dispatchEventToHippy(this.id, NodeProps.ON_LOAD_END, this.props[NodeProps.SOURCE]);
+    this.props[NodeProps.ON_LOAD_END] && this.context.sendUiEvent(
+      this.id,
+      NodeProps.ON_LOAD_END, this.props[NodeProps.SOURCE],
+    );
   }
 
   public async beforeMount(parent: BaseView, position: number) {

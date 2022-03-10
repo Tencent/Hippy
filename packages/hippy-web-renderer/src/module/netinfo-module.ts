@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { HippyWebModule } from '../base';
-import { dispatchModuleEventToHippy } from '../common';
+import { HippyCallBack } from '../../types';
 type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKONWN';
 type ConnectionType =
   | 'bluetooth'
@@ -32,40 +32,34 @@ type ConnectionType =
   | 'wimax';
 
 export class NetInfoModule extends HippyWebModule {
-  public get connection() {
-    return  window.navigator?.connection;
-  }
+  public name = 'NetInfo';
+
 
   public get state() {
     const isConnected = navigator.onLine;
-    let networkState: NetInfoType = 'UNKONWN';
-    if (!this.connection && !isConnected) {
+    let networkState: NetInfoType = 'WIFI';
+    if (!isConnected) {
       networkState = 'NONE';
     }
-    if (this.connection) {
-      const networkWifi: ConnectionType = 'wifi';
-      const networkCell: ConnectionType = 'cellular';
-      if (this.connection.type === networkWifi) {
-        networkState = 'WIFI';
-      }
-      if (this.connection.type === networkCell) {
-        networkState = 'CELL';
-      }
-    }
+
     return networkState;
   }
 
+  public getCurrentConnectivity(callBack: HippyCallBack) {
+    callBack.resolve(this.state);
+  }
+
   public addListener(name: string) {
-    if (name === 'change') {
-      window.addEventListener('online', this.handleOnlineChange);
-      window.addEventListener('offline', this.handleOnlineChange);
+    if (name === 'networkStatusDidChange') {
+      window.addEventListener('online', this.handleOnlineChange.bind(this));
+      window.addEventListener('offline', this.handleOnlineChange.bind(this));
     }
   }
 
   public removeListener(name: string) {
-    if (name === 'change') {
-      window.removeEventListener('online', this.handleOnlineChange);
-      window.removeEventListener('offline', this.handleOnlineChange);
+    if (name === 'networkStatusDidChange') {
+      window.removeEventListener('online', this.handleOnlineChange.bind(this));
+      window.removeEventListener('offline', this.handleOnlineChange.bind(this));
     }
   }
 
@@ -79,6 +73,6 @@ export class NetInfoModule extends HippyWebModule {
   }
 
   private handleOnlineChange() {
-    dispatchModuleEventToHippy(['networkStatusDidChange', { network_info: this.state }]);
+    this.context.sendEvent('networkStatusDidChange', { network_info: this.state });
   }
 }

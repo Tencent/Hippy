@@ -19,30 +19,37 @@
  */
 
 import { NodeProps, SCROLL_STATE } from '../types';
-import { dispatchEventToHippy, setElementStyle } from '../common';
-import { BaseView, InnerNodeTag } from '../../types';
+import { setElementStyle } from '../common';
+import { BaseView, InnerNodeTag, UIProps } from '../../types';
 import { HippyView } from './hippy-view';
-import { mountTouchListener } from './scrollable';
+import {
+  GESTURE_CAPTURE_THRESHOLD,
+  mountTouchListener,
+  touchMoveCalculate,
+  scrollEndPagePosition,
+  virtualSmoothScroll,
+} from './scrollable';
 
 const ANIMATION_TIME = 200;
 
 export class ViewPager extends HippyView<HTMLDivElement> {
   private pageIndex =0;
   private scrollableCache = false;
-  private lastPosition = [0, 0];
+  private lastPosition: [number, number] = [0, 0];
 
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.VIEW_PAGER;
     this.dom = document.createElement('div');
+    this.init();
   }
 
   public defaultStyle(): { [p: string]: any } {
     return {
       display: 'flex',
       flexDirection: 'row',
-      overflowX: 'scroll',
-      overflowY: 'hidden',
+      overflowX: 'visible',
+      overflowY: 'visible',
       maxHeight: '100%',
       boxSizing: 'border-box',
     };
@@ -65,15 +72,18 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   }
 
   public onPageSelected(event: {position: number}) {
-    dispatchEventToHippy(this.id, NodeProps.ON_PAGE_SELECTED, event);
+    this.props[NodeProps.ON_PAGE_SELECTED]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SELECTED, event);
   }
 
   public onPageScroll(event: {position: number, offset: number}) {
-    dispatchEventToHippy(this.id, NodeProps.ON_PAGE_SCROLL, event);
+    this.props[NodeProps.ON_PAGE_SCROLL]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SCROLL, event);
   }
 
   public onPageScrollStateChanged(event: {pageScrollState: SCROLL_STATE}) {
-    dispatchEventToHippy(this.id, NodeProps.ON_PAGE_SCROLL_STATE_CHANGED, event);
+    this.props[NodeProps.ON_PAGE_SCROLL_STATE_CHANGED]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_PAGE_SCROLL_STATE_CHANGED, event);
   }
 
   public setPage(index: number) {
@@ -88,13 +98,96 @@ export class ViewPager extends HippyView<HTMLDivElement> {
     this.props[NodeProps.INITIAL_PAGE] = 0;
     this.props[NodeProps.SCROLL_ENABLED] = true;
     mountTouchListener(this.dom!, {
-      recordPosition: this.lastPosition,
-      scrollEnable: () => true,
-      onScroll: this.handleScroll,
-      onBeginDrag: this.handleBeginDrag,
-      onEndDrag: this.handleEndDrag,
+      onTouchMove: this.handleScroll.bind(this),
+      onBeginDrag: this.handleBeginDrag.bind(this),
+      onEndDrag: this.handleEndDrag.bind(this),
+      updatePosition: this.updatePositionInfo.bind(this),
+      getPosition: () => this.lastPosition,
+      scrollEnable: this.checkScrollEnable.bind(this),
+      needSimulatedScrolling: true,
     });
   }
+
+  private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) {
+    if (!touchEvent) {
+      // 隐式含义，在touchEnd/Cancel时的回调
+      console.log('viewpager end', this.scrollableCache);
+      return this.scrollableCache;
+    }
+
+    if (this.scrollableCache && touchEvent) {
+      touchEvent.preventDefault();
+      touchEvent.stopPropagation();
+      return this.scrollableCache;
+    }
+
+    const moveDistance = touchMoveCalculate(touchEvent, lastTouchEvent);
+    if (
+      Math.abs(moveDistance[0]) > GESTURE_CAPTURE_THRESHOLD
+      && this.scrollEnabled
+    ) {
+      console.log('viewpager get true');
+      this.scrollableCache = true;
+      touchEvent.preventDefault();
+      touchEvent.stopPropagation();
+    }
+    return this.scrollableCache;
+  }
+
+  private handleScroll() {
+    if (this.dom) {
+      this.onPageScroll(buildPageScrollEvent(this.dom.clientWidth, this.pageIndex, this.lastPosition));
+    }
+  }
+
+  private handleBeginDrag() {
+    this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.DRAG));
+  }
+
+  private async handleEndDrag(position: [number, number]) {
+    this.scrollableCache = false;
+    this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
+    const { toOffset, newPageIndex } = scrollEndPagePosition(this.dom!.clientWidth, this.dom!.scrollWidth, position[0]);
+    const toPosition: [number, number] = [toOffset, position[1]];
+    const scrollCallBack = (position, index) => {
+      this.updatePositionInfo(position, index);
+      this.handleScroll();
+    };
+    await virtualSmoothScroll(
+      this.dom!, scrollCallBack, position, toPosition,
+      ANIMATION_TIME, this.pageIndex, newPageIndex,
+    );
+    this.onPageSelected({ position: newPageIndex });
+    this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.IDLE));
+  }
+
+  private updatePositionInfo(newPosition: [number, number], newIndex?: number)  {
+    if (newIndex !== undefined) this.pageIndex = newIndex;
+    this.lastPosition = newPosition;
+  }
+
+  private async scrollToPageByIndex(
+    fromIndex: number,
+    toIndex: number,
+    needAnimation: boolean,
+  ) {
+    const pageWidth = this.dom!.clientWidth;
+    const tmpPosition: [number, number]  = [fromIndex * pageWidth * -1, this.lastPosition[1]];
+    const toPosition: [number, number] = [toIndex * pageWidth * -1, this.lastPosition[1]];
+    this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
+    const scrollCallBack = (position, index) => {
+      this.updatePositionInfo(position, index);
+      this.handleScroll();
+    };
+    await virtualSmoothScroll(
+      this.dom!, scrollCallBack, tmpPosition, toPosition,
+      needAnimation ? ANIMATION_TIME : 0, this.pageIndex, toIndex,
+    );
+    this.onPageSelected({ position: toIndex });
+    this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.IDLE));
+  }
+
+
   private scrollPage(index: number, withAnimation: boolean) {
     if (!this.dom) {
       return;
@@ -105,148 +198,8 @@ export class ViewPager extends HippyView<HTMLDivElement> {
       withAnimation,
     );
   }
-
-  private handleScroll() {
-    if (this.dom) {
-      this.updateInfo(scrollEventPreProcess(this.dom).position, this.pageIndex);
-      this.onPageScroll(buildPageScrollEvent(this.dom.clientWidth, this.pageIndex, this.lastPosition));
-    }
-  }
-
-  private handleBeginDrag() {
-    this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.DRAG));
-  }
-
-  private handleEndDrag(position: Array<number>) {
-    if (!this.dom) {
-      return;
-    }
-    this.scrollableCache = false;
-    this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
-    const tmpPosition = [position[0], position[1]];
-    const scrollResult = this.scrollEndCalculate(position);
-    const scrollWait = this.beginSmoothScroll(
-      ANIMATION_TIME,
-      this.pageIndex,
-      tmpPosition,
-      scrollResult.fromOffset,
-      scrollResult.toOffset,
-    );
-    this.endSmoothScroll(scrollWait, [scrollResult.toOffset, tmpPosition[1]], scrollResult.newPageIndex);
-  }
-
-  private updateInfo(newPosition: Array<number>, newIndex: number)  {
-    this.pageIndex = newIndex;
-    this.lastPosition = newPosition;
-  }
-
-  private async beginSmoothScroll(
-    time: number,
-    pageIndex: number,
-    position: Array<number>,
-    fromOffset: number,
-    toOffset: number,
-  ) {
-    let animationTime = time;
-    return new Promise((resolve) => {
-      if (time <= 0) {
-        animationTime = 1;
-      }
-      const moveDistance = fromOffset - toOffset;
-      const beginTime = Date.now();
-      let recordMoveOffset = [0, 0];
-      const scrollCallback = () => {
-        const overTime = Date.now() - beginTime;
-        if (overTime > animationTime || !this.dom) {
-          resolve(recordMoveOffset[0]);
-          return;
-        }
-        window.requestAnimationFrame(scrollCallback);
-        const realOffset = moveDistance * (overTime / animationTime);
-        const tmpPosition = [position[0] - realOffset, position[1]];
-        recordMoveOffset = tmpPosition;
-        this.dom!.scrollTo(parseInt(String(tmpPosition[0]), 10), parseInt(String(tmpPosition[1]), 10));
-        this.onPageScroll(buildPageScrollEvent(this.dom!.clientWidth, pageIndex, tmpPosition));
-        this.lastPosition = tmpPosition;
-      };
-      window.requestAnimationFrame(scrollCallback);
-    });
-  }
-  private endSmoothScroll(scrollResult: Promise<any>, willToPosition: Array<number>, willToIndex: number) {
-    scrollResult.then((lasMoveOffset: number) => {
-      if (!this.dom) {
-        return;
-      }
-      if (lasMoveOffset !== willToPosition[0]) {
-        this.dom!.scrollTo(willToPosition[0], 0);
-        this.onPageScroll(buildPageScrollEvent(this.dom!.clientWidth, willToIndex, willToPosition));
-      }
-      this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.IDLE));
-      if (this.pageIndex !== willToIndex) {
-        this.onPageSelected({ position: willToIndex });
-      }
-    }).catch((error) => {
-      throw error;
-    })
-      .finally(() => {
-        this.updateInfo(willToPosition, willToIndex);
-      });
-  }
-
-  private scrollEndCalculate(lastPosition: Array<number>) {
-    const xScroll = Number(this.dom!.scrollLeft.toFixed(2));
-    const pageUnitSize = this.dom!.clientWidth;
-    const scrollSize = this.dom!.scrollWidth;
-    const originOffset = lastPosition[0];
-    return scrollCalculate(pageUnitSize, scrollSize, originOffset, xScroll);
-  }
-
-  private scrollToPageByIndex(
-    fromIndex: number,
-    toIndex: number,
-    needAnimation: boolean,
-  ) {
-    const pageWidth = this.dom!.clientWidth;
-    const tmpPosition = [fromIndex * pageWidth, this.lastPosition[1]];
-    const toPosition = [toIndex * pageWidth, this.lastPosition[1]];
-
-    this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
-    const scrollWait = this.beginSmoothScroll(
-      needAnimation ? ANIMATION_TIME : 0,
-      fromIndex,
-      tmpPosition,
-      tmpPosition[0],
-      toPosition[0],
-    );
-    this.endSmoothScroll(scrollWait, toPosition, toIndex);
-  }
 }
 
-function scrollCalculate(pageUnitSize, scrollSize, originOffset, currentScrollSize) {
-  const pageIndex = Math.round(currentScrollSize / pageUnitSize);
-  const maxValue = scrollSize - pageUnitSize;
-  const maxPageIndex = Math.ceil(scrollSize / pageUnitSize);
-  const lastPageSize = scrollSize - parseInt(String(scrollSize / pageUnitSize), 10) * pageUnitSize;
-  const isOverLastPageHalf = Math.abs(currentScrollSize) + pageUnitSize
-    > (maxPageIndex - 1) * pageUnitSize + lastPageSize / 2;
-  let newScrollSize = pageIndex * pageUnitSize;
-  if (newScrollSize > maxValue || currentScrollSize === maxValue || isOverLastPageHalf) {
-    newScrollSize = maxValue;
-  }
-  return {
-    newPageIndex: Math.abs(Math.round(newScrollSize / pageUnitSize)),
-    fromOffset: originOffset,
-    toOffset: newScrollSize,
-  };
-}
-
-function scrollEventPreProcess(scrollContainer: HTMLElement) {
-  const xScroll = scrollContainer.scrollLeft;
-  const yScroll = scrollContainer.scrollTop;
-  return {
-    position: [xScroll, yScroll],
-  };
-}
 
 function buildScrollStateEvent(state: SCROLL_STATE) {
   return { pageScrollState: state };
@@ -270,8 +223,8 @@ function buildPageScrollEvent(
 }
 
 export class ViewPagerItem extends HippyView<HTMLDivElement> {
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.VIEW_PAGER_ITEM;
     this.dom = document.createElement('div');
   }
@@ -279,7 +232,14 @@ export class ViewPagerItem extends HippyView<HTMLDivElement> {
   public defaultStyle(): { [p: string]: any } {
     return { flexShrink: 0, display: 'flex', boxSizing: 'border-box', position: 'static' };
   }
-
+  public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
+    const newData = { ...data };
+    if (data.style && data.style.position === 'absolute') {
+      delete newData.style.position;
+    }
+    Object.assign(newData.style, this.defaultStyle());
+    defaultProcess(this, newData);
+  }
   public async beforeMount(parent: BaseView, position: number) {
     await super.beforeMount(parent, position);
     setElementStyle(this.dom!, { width: `${parent.dom!.clientWidth}px` });

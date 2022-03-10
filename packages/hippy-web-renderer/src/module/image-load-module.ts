@@ -18,27 +18,27 @@
  * limitations under the License.
  */
 
-import { callbackToHippy } from '../common';
 import { HippyWebModule } from '../base';
+import { HippyCallBack } from '../../types';
 
 export class ImageLoadModule extends HippyWebModule {
   public static moduleName = 'ImageLoadModule';
+  public name = 'ImageLoadModule';
 
-
-  public getSize(callBackId: number, url: string) {
+  public getSize(url: string, callBack: HippyCallBack) {
     if (!url) {
-      callbackToHippy(callBackId, `image url not support ${url}`, false, 'getSize', ImageLoadModule.moduleName);
+      callBack.reject(`image url not support ${url}`);
       return;
     }
 
     const img = new Image();
     img.onload = () => {
-      callbackToHippy(callBackId, { width: img.width, height: img.height }, false, 'getSize', ImageLoadModule.moduleName);
+      callBack.resolve({ width: img.width, height: img.height });
     };
     img.src = url;
   }
 
-  public prefetch(callBackId: number, url: string) {
+  public prefetch(url: string) {
     if (!url) {
       return;
     }

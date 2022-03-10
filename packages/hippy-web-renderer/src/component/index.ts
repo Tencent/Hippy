@@ -21,7 +21,7 @@
 import { Image } from './image';
 import { ListView, ListViewItem } from './list-view';
 import { Modal } from './modal';
-import { RefreshWrapper } from './refresh-wrapper';
+import { RefreshWrapper, RefreshWrapperItemView } from './refresh-wrapper';
 import { ScrollView } from './scroll-view';
 import { TextInput } from './text-input';
 import { View } from './view';
@@ -42,4 +42,5 @@ export {
   TextView as Text,
   ListViewItem,
   ViewPagerItem,
+  RefreshWrapperItemView,
 };

@@ -17,14 +17,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {  KeyboardType, NodeProps, ReturnKeyType } from '../types';
-import { callBackUIFunctionToHippy, convertArgbToRgb, dispatchEventToHippy } from '../common';
-import { BaseView, InnerNodeTag, UIProps } from '../../types';
+import { KeyboardType, NodeProps, ReturnKeyType } from '../types';
+import { convertHexToRgba  } from '../common';
+import { BaseView, HippyCallBack, InnerNodeTag, UIProps } from '../../types';
 import { HippyView } from './hippy-view';
 
 export  class TextInput extends HippyView<HTMLInputElement> {
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  private placeholderTextColorStyle;
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.TEXT_INPUT;
     this.dom = document.createElement('input');
     this.init();
@@ -36,7 +37,7 @@ export  class TextInput extends HippyView<HTMLInputElement> {
     }
     const newData = { ...data };
     if (data.style && data.style.placeholderTextColor) {
-      newData.placeholderTextColor = convertArgbToRgb(newData.style.placeholderTextColor);
+      newData.placeholderTextColor = convertHexToRgba(newData.style.placeholderTextColor);
       delete newData.style.placeholderTextColor;
     }
     if (data.style) {
@@ -145,14 +146,13 @@ export  class TextInput extends HippyView<HTMLInputElement> {
   }
 
   public set placeholderTextColor(value: string) {
-    this.props[NodeProps.PLACEHOLDER_TEXT_COLOR] = value;
-    if (!this.props[NodeProps.PLACEHOLDER_TEXT_COLOR]) {
-      this.props[NodeProps.PLACEHOLDER_TEXT_COLOR] = { value, style: buildStyleSheet() };
+    if (!this.placeholderTextColorStyle) {
+      this.placeholderTextColorStyle = buildStyleSheet();
       this.dom?.setAttribute('class', `k${this.id}`);
     }
-    this.props[NodeProps.PLACEHOLDER_TEXT_COLOR].value = value;
+    this.props[NodeProps.PLACEHOLDER_TEXT_COLOR] = value;
 
-    const sheet = this.props[NodeProps.PLACEHOLDER_TEXT_COLOR].style;
+    const sheet = this.placeholderTextColorStyle;
     setStyleCode(`.k${this.id}::placeholder { color: ${value} }`, sheet);
   }
 
@@ -189,19 +189,23 @@ export  class TextInput extends HippyView<HTMLInputElement> {
   }
 
   public onBlur(event) {
-    dispatchEventToHippy(this.id, NodeProps.ON_BLUR, event);
+    this.props[NodeProps.ON_BLUR]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_BLUR, event);
   }
 
   public onChangeText(value) {
-    dispatchEventToHippy(this.id, NodeProps.ON_CHANGE_TEXT, value);
+    this.props[NodeProps.ON_CHANGE_TEXT]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_CHANGE_TEXT, value);
   }
 
   public onEndEditing(value) {
-    dispatchEventToHippy(this.id, NodeProps.ON_END_EDITING, value);
+    this.props[NodeProps.ON_END_EDITING]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_END_EDITING, value);
   }
 
   public onSelectionChange(value) {
-    dispatchEventToHippy(this.id, NodeProps.ON_SELECTION_CHANGE, value);
+    this.props[NodeProps.ON_SELECTION_CHANGE]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_SELECTION_CHANGE, value);
   }
 
   public blur() {
@@ -219,8 +223,8 @@ export  class TextInput extends HippyView<HTMLInputElement> {
     this.dom.value = '';
   }
 
-  public getValue(callBackId) {
-    callBackUIFunctionToHippy(callBackId, { text: this.dom?.value ?? '' }, true);
+  public getValue(callBack: HippyCallBack) {
+    callBack.resolve({ text: this.dom?.value ?? '' });
   }
 
   public hideInputMethod() {

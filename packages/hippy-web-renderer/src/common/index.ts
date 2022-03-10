@@ -29,15 +29,26 @@ import {
 function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return Object.prototype.hasOwnProperty.call(obj, name);
 }
+
 export function setElementStyle(element: HTMLElement, object: any, animationProcess?:
 (key: string, value: any, element: HTMLElement) => void) {
   if (object === null) return;
+  const shadowData: any = {};
+  const shadowTextData: any = {};
   for (const key of Object.keys(object)) {
     if (! hasOwnProperty(object, key)) {
       return;
     }
+    if (key.indexOf('shadow') !== -1) {
+      shadowData[key] = object[key];
+      continue;
+    }
+    if (key.indexOf('textShadow') !== -1) {
+      shadowTextData[key] = object[key];
+      continue;
+    }
     if (isColor(key)) {
-      const newValue = convertArgbToRgb(object[key]);
+      const newValue = convertHexToRgba(object[key]);
       styleUpdateWithCheck(element, key, newValue);
       continue;
     }
@@ -53,7 +64,26 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
     styleUpdateWithCheck(element, key, object[key]);
   }
   borderStyleProcess(element, object);
+  if (shadowData.shadowRadius) {
+    styleUpdateWithCheck(element, 'box-shadow', shadowProcess(shadowData));
+  }
+
+  if (shadowTextData.textShadowColor || shadowTextData.textShadowOffset
+    || shadowTextData.textShadowOffsetX || shadowTextData.textShadowOffsetY) {
+    styleUpdateWithCheck(element, 'text-shadow', textShadowProcess(shadowTextData));
+  }
 }
+
+function shadowProcess(shadow: {shadowOpacity?: number, shadowRadius?: number,
+  shadowOffsetX?: number, shadowOffsetY?: number, shadowColor?: number}) {
+  return `${shadow.shadowOffsetX ?? 0}px ${shadow.shadowOffsetY ?? 0}px ${shadow.shadowRadius ?? 0}px ${convertHexToRgba(shadow.shadowColor)}`;
+}
+function textShadowProcess(shadow: {textShadowColor?: number, textShadowOffset: {width: number, height: number},
+  textShadowRadius: number, textShadowOffsetX: number, textShadowOffsetY: number}) {
+  return `${shadow.textShadowOffsetX ?? shadow.textShadowOffset.width ?? 0}px ${shadow.textShadowOffsetY ?? shadow.textShadowOffset.height ?? 0}px
+  ${shadow.textShadowRadius ?? 0}px ${convertHexToRgba(shadow.textShadowColor)}`;
+}
+
 function isAnimationProps(key: string, value: any) {
   if (hasOwnProperty(value, 'animationId')) {
     return true;
@@ -73,48 +103,7 @@ function styleUpdateWithCheck(element: HTMLElement, key: string, newValue: any) 
     element.style[key] = newValue;
   }
 }
-
-export function dispatchEventToHippy(nodeId: number, type: string, params: any) {
-  hippyBridge('callJsModule', {
-    moduleName: 'EventDispatcher',
-    methodName: 'receiveUIComponentEvent',
-    params: [nodeId, type, params],
-  });
-}
-
-export function dispatchModuleEventToHippy(params: any) {
-  hippyBridge('callJsModule', {
-    moduleName: 'EventDispatcher',
-    methodName: 'receiveNativeEvent',
-    params,
-  });
-}
-
-export function callBackUIFunctionToHippy(callBackId: number, params: any, success: boolean) {
-  callbackToHippy(callBackId, params, success, 'callUIFunction', 'UIManagerModule');
-}
-
-export function callBackMeasureInWindowToHippy(callBackId: number, params: any, success: boolean) {
-  callbackToHippy(callBackId, params, success, 'measureInWindow', 'UIManagerModule');
-}
-
-export function callbackToHippy(
-  callBackId: number,
-  params: any,
-  success: boolean,
-  moduleFunc: string,
-  moduleName: string,
-) {
-  hippyBridge('callBack', {
-    callId: callBackId,
-    moduleFunc,
-    moduleName,
-    params,
-    result: success ? 0 : -1,
-  });
-}
-
-export function convertArgbToRgb(number) {
+export function convertHexToRgba(number) {
   const alpha = (number >> 24) & 0xff;
   const red = (number >> 16) & 0xff;
   const green = (number >> 8) & 0xff;
@@ -159,20 +148,20 @@ function borderStyleProcess(el: HTMLElement, style: { [key: string]: any }) {
     styleUpdateWithCheck(el, 'borderStyle', 'solid');
   }
   if (style[STYLE_MARGIN_V] !== undefined) {
-    styleUpdateWithCheck(el, 'marginTop', style[STYLE_MARGIN_V]);
-    styleUpdateWithCheck(el, 'marginBottom', style[STYLE_MARGIN_V]);
+    styleUpdateWithCheck(el, 'marginTop', transformForSize(style[STYLE_MARGIN_V]));
+    styleUpdateWithCheck(el, 'marginBottom', transformForSize(style[STYLE_MARGIN_V]));
   }
   if (style[STYLE_MARGIN_H] !== undefined) {
-    styleUpdateWithCheck(el, 'marginLeft', style[STYLE_MARGIN_H]);
-    styleUpdateWithCheck(el, 'marginRight', style[STYLE_MARGIN_H]);
-  }
-  if (style[STYLE_PADDING_H] !== undefined) {
-    styleUpdateWithCheck(el, 'paddingTop', style[STYLE_PADDING_H]);
-    styleUpdateWithCheck(el, 'paddingBottom', style[STYLE_PADDING_H]);
+    styleUpdateWithCheck(el, 'marginLeft', transformForSize(style[STYLE_MARGIN_H]));
+    styleUpdateWithCheck(el, 'marginRight', transformForSize(style[STYLE_MARGIN_H]));
   }
   if (style[STYLE_PADDING_V] !== undefined) {
-    styleUpdateWithCheck(el, 'paddingLeft', style[STYLE_PADDING_V]);
-    styleUpdateWithCheck(el, 'paddingRight', style[STYLE_PADDING_V]);
+    styleUpdateWithCheck(el, 'paddingTop', transformForSize(style[STYLE_PADDING_V]));
+    styleUpdateWithCheck(el, 'paddingBottom',  transformForSize(style[STYLE_PADDING_V]));
+  }
+  if (style[STYLE_PADDING_H] !== undefined) {
+    styleUpdateWithCheck(el, 'paddingLeft',  transformForSize(style[STYLE_PADDING_H]));
+    styleUpdateWithCheck(el, 'paddingRight', transformForSize(style[STYLE_PADDING_H]));
   }
 }
 

@@ -19,10 +19,13 @@
  */
 
 import { HippyWebModule } from '../base';
-import { callbackToHippy } from '../common';
+import { HippyCallBack } from '../../types';
 
 export class StorageModule extends HippyWebModule {
   public static moduleName = 'StorageModule';
+  public moduleName = 'StorageModule';
+
+
   public static preCheck() {
     if (!window.localStorage) {
       console.warn('not support localStorage');
@@ -33,9 +36,9 @@ export class StorageModule extends HippyWebModule {
 
   private readonly STORE_PRX_KEY = 'hippy-storage-';
 
-  public getAllKeys(callBackId: number) {
+  public getAllKeys(callBack: HippyCallBack) {
     if (!StorageModule.preCheck()) {
-      callbackToHippy(callBackId, 'not support', false, 'getAllKeys', StorageModule.moduleName);
+      callBack.resolve('not support');
       return;
     }
     let data = window.localStorage.getItem(`${this.STORE_PRX_KEY}ALL-KEY`);
@@ -44,16 +47,16 @@ export class StorageModule extends HippyWebModule {
     } catch (e) {
       throw 'deserialize failed , getAllKeys()';
     }
-    callbackToHippy(callBackId, data, true, 'getAllKeys', StorageModule.moduleName);
+    callBack.resolve(data);
   }
 
-  public multiGet(callBackId: number, keys: Array<string>) {
+  public multiGet(callBack: HippyCallBack, keys: Array<string>) {
     if (!StorageModule.preCheck()) {
-      callbackToHippy(callBackId, 'not support', false, 'multiGet', StorageModule.moduleName);
+      callBack.reject('not support');
       return;
     }
     if (!keys || keys.length <= 0) {
-      callbackToHippy(callBackId, 'Invalid Key', false, 'multiGet', StorageModule.moduleName);
+      callBack.reject('Invalid Key');
       return;
     }
     const data: Array<Array<any>> = [];
@@ -68,47 +71,47 @@ export class StorageModule extends HippyWebModule {
         data.push([key, dataItem]);
       }
     });
-    callbackToHippy(callBackId, data, true, 'multiGet', StorageModule.moduleName);
+    callBack.resolve(data);
   }
 
-  public multiSet(callBackId: number, keyValues: Array<[string, any]>) {
+  public multiSet(keyValues: Array<[string, any]>, callBack: HippyCallBack) {
     if (!StorageModule.preCheck()) {
-      callbackToHippy(callBackId, 'not support', false, 'multiGet', StorageModule.moduleName);
+      callBack.reject('not support');
       return;
     }
     if (!keyValues || keyValues.length <= 0) {
-      callbackToHippy(callBackId, 'Invalid Key', false, 'multiGet', StorageModule.moduleName);
+      callBack.reject('Invalid Key');
       return;
     }
     for (let i = 0;i < keyValues.length;i++) {
       const dataItem = keyValues[i];
       if (!dataItem || dataItem.length !== 2 || !dataItem[0] || !dataItem[1]) {
-        callbackToHippy(callBackId, 'Invalid key or value', false, 'multiSet', StorageModule.moduleName);
+        callBack.reject('Invalid key or value');
         return;
       }
       try {
         localStorage.setItem(dataItem[0], JSON.stringify(dataItem[1]));
       } catch (e) {
-        callbackToHippy(callBackId, `cant storage for key ${dataItem[0]} `, false, 'multiSet', StorageModule.moduleName);
+        callBack.reject('cant storage for key ${dataItem[0]} ');
         return;
       }
     }
-    callbackToHippy(callBackId, 'success', true, 'multiSet', StorageModule.moduleName);
+    callBack.resolve('success');
   }
 
-  public multiRemove(callBackId: number, keys: Array<string>) {
+  public multiRemove(callBack: HippyCallBack, keys: Array<string>) {
     if (!StorageModule.preCheck()) {
-      callbackToHippy(callBackId, 'not support', false, 'multiRemove', StorageModule.moduleName);
+      callBack.reject('not support');
       return;
     }
     if (!keys || keys.length <= 0) {
-      callbackToHippy(callBackId, 'Invalid Key', false, 'multiRemove', StorageModule.moduleName);
+      callBack.reject('Invalid Key');
       return;
     }
     for (let i = 0;i < keys.length;i++) {
       window.localStorage.removeItem(keys[i]);
     }
-    callbackToHippy(callBackId, 'success', true, 'multiRemove', StorageModule.moduleName);
+    callBack.resolve('success');
   }
 
   public initialize() {

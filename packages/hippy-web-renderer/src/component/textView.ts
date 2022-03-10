@@ -31,10 +31,13 @@ export class TextView extends HippyView<HTMLSpanElement> {
   private lines: number | undefined;
   private ellipsis: EllipsizeMode | undefined;
   private content = '';
-  public constructor(id: number, pId: number) {
-    super(id, pId);
+  public constructor(context, id, pId) {
+    super(context, id, pId);
     this.tagName = InnerNodeTag.TEXT;
     this.dom = document.createElement('span');
+  }
+  public defaultStyle(): { [p: string]: any } {
+    return { boxSizing: 'border-box', zIndex: 0 };
   }
 
   public set numberOfLines(value: number|undefined) {
