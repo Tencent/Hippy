@@ -33,6 +33,10 @@ export class HippyWebEngine {
   instance?: HippyWebEngineStartOptions;
   eventBus = new HippyWebEventBus();
 
+  pendingQueue: any[] = [];
+
+  pendingModules = {};
+
   constructor(options?: HippyWebEngineCreatorOptions) {
     this.context = new HippyWebEngineContext(this);
     if (options == null) {
@@ -86,4 +90,60 @@ export class HippyWebEngine {
   load(urls: string[]) {
     return scriptLoader(urls);
   }
+
+  async invokeModuleMethod(moduleName: string, methodName: string, callId: string, params: any[] = []) {
+    const mod = this.modules[moduleName];
+    if (mod != null && mod[methodName] != null) {
+      const method = mod[methodName];
+      const para = [...params, callId != null ? createPromise(moduleName, methodName, callId) : undefined];
+      if (mod.mode === 'sequential') {
+        if (this.pendingModules[moduleName] === true) {
+          this.pendingQueue.push([moduleName, methodName, callId, params]);
+        }
+        this.pendingModules[moduleName] = true;
+        try {
+          await method.apply(mod, para);
+          this.flushPendingQueue(moduleName);
+        } catch (err) {
+          this.flushPendingQueue(moduleName);
+        }
+      } else {
+        method.apply(mod, para);
+      }
+    }
+  }
+
+  flushPendingQueue(moduleName: string) {
+    this.pendingModules[moduleName] = false;
+    const queue = this.pendingQueue.filter(para => para[0] === moduleName);
+    while (queue.length > 0) {
+      const para = queue.shift();
+      // resend commands
+      global.hippyCallNatives(para[0], para[1], para[2], para[3]);
+    }
+  }
 }
+
+
+// Util
+
+const createPromise = (moduleName: string, methodName: string, callId: string) => ({
+  resolve: (params) => {
+    hippyBridge('callBack', {
+      callId,
+      methodName,
+      moduleName,
+      params,
+      result: 0,
+    });
+  },
+  reject: (params) => {
+    hippyBridge('callBack', {
+      callId,
+      methodName,
+      moduleName,
+      params,
+      result: -1,
+    });
+  },
+});
