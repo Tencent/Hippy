@@ -139,7 +139,9 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       int32_t id = hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetId());
       self->layout_operations_.emplace_back([self, id]() {
         auto node = self->dom_node_registry_.GetNode(id);
-        node->ParseLayoutStyleInfo();
+        if (node) {
+          node->ParseLayoutStyleInfo();
+        }
       });
     }
 
