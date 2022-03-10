@@ -25,21 +25,10 @@ import android.view.WindowManager;
 public class PixelUtil {
   private static DisplayMetrics sDisplayMetrics = null;
 
-  public static void initDisplayMetrics(Context appContext) {
-    if (appContext == null) {
-      return;
-    }
-
+  private static DisplayMetrics getMetrics() {
     if (sDisplayMetrics == null) {
-      sDisplayMetrics = new DisplayMetrics();
-      WindowManager windowManager = (WindowManager) appContext
-              .getSystemService(Context.WINDOW_SERVICE);
-      Display defaultDisplay = windowManager.getDefaultDisplay();
-      defaultDisplay.getRealMetrics(sDisplayMetrics);
+      sDisplayMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
     }
-  }
-
-  public static DisplayMetrics getMetrics() {
     return sDisplayMetrics;
   }
 
@@ -51,10 +40,7 @@ public class PixelUtil {
 
   /** Convert from dp to px impl */
   public static float dp2px(float value) {
-    if (sDisplayMetrics == null) {
-      return value;
-    }
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, sDisplayMetrics);
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getMetrics());
   }
 
   /** Convert from dp to px */
@@ -67,10 +53,15 @@ public class PixelUtil {
     return value / getDensity();
   }
 
+  public static float sp2px(float value) {
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, getMetrics());
+  }
+
+  public static float px2sp(float value) {
+    return value / getMetrics().scaledDensity;
+  }
+
   public static float getDensity() {
-    if (sDisplayMetrics == null) {
-      return 1.0f;
-    }
-    return sDisplayMetrics.density;
+    return getMetrics().density;
   }
 }
