@@ -411,6 +411,11 @@ public class RenderNode {
     return mIsDelete;
   }
 
+  public void batchStart() {
+    if (!mIsLazyLoad && !mIsDelete) {
+      mComponentManager.onBatchStart(mClassName, mId);
+    }
+  }
   public void batchComplete() {
     if (!mIsLazyLoad && !mIsDelete) {
       mComponentManager.onBatchComplete(mClassName, mId);

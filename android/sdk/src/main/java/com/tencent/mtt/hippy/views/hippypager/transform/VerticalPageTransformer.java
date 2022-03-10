@@ -13,15 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.recyclerview.widget;
 
-import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
+package com.tencent.mtt.hippy.views.hippypager.transform;
+
+import android.view.View;
+import androidx.viewpager.widget.ViewPager;
 
 /**
- * Created  on 2021/1/12.
- * Description
+ * Created  on 2021/7/23.
  */
-public interface IHippyViewAboundListener {
+public class VerticalPageTransformer implements ViewPager.PageTransformer {
 
-    void onViewAbound(HippyRecyclerViewHolder viewHolder);
+    @Override
+    public void transformPage(View view, float position) {
+        if (position >= -1 && position <= 1) {
+            view.setTranslationX(view.getWidth() * -position);
+            float yPosition = position * view.getHeight();
+            view.setTranslationY(yPosition);
+        }
+    }
+
 }
