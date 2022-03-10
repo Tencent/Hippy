@@ -60,15 +60,18 @@ export class WebView extends HippyView<HTMLIFrameElement> {
   }
 
   public  onLoadStart(value: { uri: string }) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_START, value);
+    this.props[NodeProps.ON_LOAD_START] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_START, value);
   }
 
   public  onLoad(value: { uri: string }) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_LOAD, value);
+    this.props[NodeProps.ON_LOAD] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD, value);
   }
 
   public  onLoadEnd() {
-    this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_END, this.props[NodeProps.SOURCE]);
+    this.props[NodeProps.ON_LOAD_END] && this.context.sendUiEvent(
+      this.id,
+      NodeProps.ON_LOAD_END, this.props[NodeProps.SOURCE],
+    );
   }
 
   public async beforeMount(parent: BaseView, position: number) {

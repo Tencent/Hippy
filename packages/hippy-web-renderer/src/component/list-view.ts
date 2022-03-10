@@ -39,7 +39,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     });
   }
 
-  private lastPosition = [0, 0];
+  private lastPosition: [number, number] = [0, 0];
   private lastTimestamp = 0;
   private scrollableCache = false;
   private childIntersectionObserver;
@@ -136,56 +136,56 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.props[NodeProps.INITIAL_LIST_READY] = value;
   }
 
-  public callOnMomentumScrollBegin(event: { contentOffset: { x: number, y: number } }) {
+  public onMomentumScrollBegin(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_MOMENTUM_SCROLL_BEGIN]
     && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
   }
 
-  public callOnMomentumScrollEnd(event: { contentOffset: { x: number, y: number } }) {
+  public onMomentumScrollEnd(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_MOMENTUM_SCROLL_END]
     && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
   }
 
-  public callOnScroll(event: { contentOffset: { x: number, y: number } }) {
+  public onScroll(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_SCROLL]
     && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL, event);
   }
 
-  public callOnScrollBeginDrag(event: { contentOffset: { x: number, y: number } }) {
+  public onScrollBeginDrag(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_SCROLL_BEGIN_DRAG]
     && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
   }
 
-  public callOnScrollEndDrag(event: { contentOffset: { x: number, y: number } }) {
+  public onScrollEndDrag(event: { contentOffset: { x: number, y: number } }) {
     this.props[NodeProps.ON_SCROLL_END_DRAG]
     && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
   }
 
-  public callOnInitialListReady() {
+  public onInitialListReady() {
     this.context.sendUiEvent(this.id, NodeProps.INITIAL_LIST_READY, null);
   }
 
-  public callOnAppear(event) {
+  public onAppear(event) {
     this.props[NodeProps.ON_APPEAR]
     && this.context.sendUiEvent(this.id, NodeProps.ON_APPEAR, event);
   }
 
-  public callOnDisappear(event) {
+  public onDisappear(event) {
     this.props[NodeProps.ON_DISAPPEAR]
     && this.context.sendUiEvent(this.id, NodeProps.ON_DISAPPEAR, event);
   }
 
-  public callOnWillAppear(event) {
+  public onWillAppear(event) {
     this.props[NodeProps.ON_WILL_APPEAR]
     && this.context.sendUiEvent(this.id, NodeProps.ON_WILL_APPEAR, event);
   }
 
-  public callOnWillDisappear(event) {
+  public onWillDisappear(event) {
     this.props[NodeProps.ON_WILL_DISAPPEAR]
     && this.context.sendUiEvent(this.id, NodeProps.ON_WILL_DISAPPEAR, event);
   }
 
-  public callOnEndReached() {
+  public onEndReached() {
     this.props[NodeProps.ON_END_REACHED]
     && this.context.sendUiEvent(this.id, NodeProps.ON_END_REACHED, null);
   }
@@ -206,7 +206,7 @@ export class ListView extends HippyView<HTMLDivElement> {
       && this.isFirstMount()
     ) {
       setTimeout(() => {
-        this.callOnInitialListReady();
+        this.onInitialListReady();
       }, 16);
     }
   }
@@ -239,15 +239,19 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.props[NodeProps.SCROLL_EVENT_THROTTLE] = 30;
     this.webInitIO(this.root);
     mountTouchListener(this.dom!, {
-      recordPosition: this.lastPosition,
+      getPosition: () => this.lastPosition,
+      updatePosition: this.updatePositionInfo.bind(this),
       scrollEnable: this.checkScrollEnable.bind(this),
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
       onScroll: this.handleScroll.bind(this),
       onBeginSliding: this.handleBeginSliding.bind(this),
       onEndSliding: this.handleEndSliding.bind(this),
-
     });
+  }
+
+  private updatePositionInfo(newPosition: [number, number])  {
+    this.lastPosition = newPosition;
   }
 
   private isFirstMount() {
@@ -284,41 +288,37 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   private handleBeginDrag() {
     if (this.dom) {
-      this.callOnScrollBeginDrag(buildScrollEvent(this.dom));
+      this.onScrollBeginDrag(buildScrollEvent(this.dom));
     }
   }
 
   private handleEndDrag() {
     this.scrollableCache = false;
     if (this.dom) {
-      this.callOnScrollEndDrag(buildScrollEvent(this.dom));
+      this.onScrollEndDrag(buildScrollEvent(this.dom));
     }
   }
 
   private handleScroll() {
-    if (this.dom) {
-      const isTrigger = eventThrottle(
-        this.lastTimestamp,
-        this.scrollEventThrottle,
-        () => {
-          this.callOnScroll(buildScrollEvent(this.dom!));
-        },
-      );
-      if (isTrigger) {
+    this.dom && eventThrottle(
+      this.lastTimestamp,
+      this.scrollEventThrottle,
+      () => {
+        this.onScroll(buildScrollEvent(this.dom!));
         this.lastTimestamp = Date.now();
-      }
-    }
+      },
+    );
   }
 
 
   private handleBeginSliding() {
     if (this.dom) {
-      this.callOnMomentumScrollBegin(buildScrollEvent(this.dom));
+      this.onMomentumScrollBegin(buildScrollEvent(this.dom));
     }
   }
   private handleEndSliding() {
     if (this.dom) {
-      this.callOnMomentumScrollEnd(buildScrollEvent(this.dom));
+      this.onMomentumScrollEnd(buildScrollEvent(this.dom));
     }
   }
 
@@ -353,11 +353,11 @@ export class ListView extends HippyView<HTMLDivElement> {
     brotherElementSize: number,
   ) {
     if (isVisible) {
-      this.callOnAppear(sortIndex);
+      this.onAppear(sortIndex);
       this.handleEndReached(sortIndex, brotherElementSize);
     }
     if (!isVisible) {
-      this.callOnDisappear(sortIndex);
+      this.onDisappear(sortIndex);
     }
   }
 
@@ -379,7 +379,7 @@ export class ListView extends HippyView<HTMLDivElement> {
         && index >= childLength - this.preloadItemNumber)
       || index === childLength - 1
     ) {
-      this.callOnEndReached();
+      this.onEndReached();
     }
   }
 }

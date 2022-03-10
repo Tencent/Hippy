@@ -54,7 +54,8 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
   }
 
   public onRefresh() {
-
+    this.props[NodeProps.ON_REFRESH]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_REFRESH, null);
   }
 
   public refreshCompleted() {
