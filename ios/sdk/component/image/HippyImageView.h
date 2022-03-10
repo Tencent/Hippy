@@ -50,6 +50,11 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
     HippyResizeModeRepeat = -1,  // Use negative values to avoid conflicts with iOS enum values.
 };
 
+typedef NS_ENUM(NSInteger, HippyShapeMode) {
+    HippyResizeModeDefalt = 0,
+    HippyResizeModeCircle,
+};
+
 @interface HippyImageView : HippyAnimatedImageView <NSURLSessionDelegate, HippyMemoryOpt>
 
 @property (nonatomic, assign) CGFloat blurRadius;
@@ -64,6 +69,7 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 @property (nonatomic, assign) CGFloat borderBottomLeftRadius;
 @property (nonatomic, assign) CGFloat borderBottomRightRadius;
 @property (nonatomic, assign) CGFloat borderRadius;
+@property (nonatomic, assign) HippyShapeMode shape;
 
 @property (nonatomic, copy) HippyDirectEventBlock onLoadStart;
 @property (nonatomic, copy) HippyDirectEventBlock onProgress;
@@ -85,5 +91,6 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 @interface HippyConvert (HippyResizeMode)
 
 + (HippyResizeMode)HippyResizeMode:(id)json;
++ (HippyShapeMode)HippyShapeMode:(id)json;
 
 @end

@@ -51,6 +51,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onPartialLoad, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(downSample, BOOL)
+HIPPY_EXPORT_VIEW_PROPERTY(shape, HippyShapeMode)
 
 HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
     NSArray *pathSources = [HippyConvert NSArray:json];

@@ -283,6 +283,15 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     [self updateCornerRadius];
 }
 
+- (void)setShape:(HippyShapeMode)shape {
+    if (shape != _shape) {
+        _shape = shape;
+        if (shape == HippyResizeModeCircle) {
+            self.contentMode = UIViewContentModeScaleAspectFit;
+        }
+    }
+}
+
 - (void)setResizeMode:(HippyResizeMode)resizeMode {
     if (_resizeMode != resizeMode) {
         _resizeMode = resizeMode;
@@ -445,6 +454,10 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         // Applying capInsets of 0 will switch the "resizingMode" of the image to "tile" which is undesired
         image = [image resizableImageWithCapInsets:_capInsets resizingMode:UIImageResizingModeStretch];
     }
+    
+    if (_shape == HippyResizeModeCircle) {
+        image = [self circleImage:image];
+    }
 
     // Apply trilinear filtering to smooth out mis-sized images
     //    self.layer.minificationFilter = kCAFilterTrilinear;
@@ -455,6 +468,27 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     } else {
         self.image = image;
     }
+}
+
+/// 生成一个圆形图
+/// @param oldImage UIImage
+- (UIImage *)circleImage:(UIImage *)oldImage {
+    CGSize oldImageSize = CGSizeMake(oldImage.size.width * 3, oldImage.size.height * 3);
+    CGFloat minLength = MIN(oldImageSize.width, oldImageSize.height);
+    CGFloat centerX = minLength * 0.5;
+    CGFloat centerY = minLength * 0.5;
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(minLength, minLength), NO, 0.0);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    // 画小圆
+    CGFloat smallRadius = minLength * 0.5;
+    CGContextAddArc(ctx, centerX, centerY, smallRadius, 0, M_PI * 2, 0);
+    CGContextClip(ctx);
+    CGFloat imageX = centerX - oldImageSize.width * 0.5;
+    CGFloat imageY = centerY - oldImageSize.height * 0.5;
+    [oldImage drawInRect:CGRectMake(imageX, imageY, oldImageSize.width, oldImageSize.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 - (void)updateCornerRadius {
@@ -596,6 +630,11 @@ HIPPY_ENUM_CONVERTER(HippyResizeMode, (@{
     @"repeat": @(HippyResizeModeRepeat),
 }),
     HippyResizeModeStretch, integerValue)
+
+HIPPY_ENUM_CONVERTER(HippyShapeMode, (@{
+    @"normal": @(HippyResizeModeDefalt),
+    @"circle": @(HippyResizeModeCircle)
+}), HippyResizeModeDefalt, integerValue)
 
 @end
 
