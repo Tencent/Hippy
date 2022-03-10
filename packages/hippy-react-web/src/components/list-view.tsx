@@ -130,7 +130,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     onHeaderReleased = () => { }, onHeaderPulling = () => { }, renderPullHeader = () => null,
     onDisappear = () => { }, onAppear = () => { },
   } = props;
-  const isShowPullHeader = useRef(isFunc(renderPullHeader));
+  const isShowPullHeader = useRef(isFunc(renderPullHeader) && renderPullHeader());
   const pullHeaderRef = useRef<null | HTMLDivElement>(null);
   const pullHeaderOffset = useRef(0);
   const pullHeaderHeight = useRef(0);
