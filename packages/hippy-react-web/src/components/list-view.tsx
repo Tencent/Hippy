@@ -70,6 +70,9 @@ const styles = StyleSheet.create({
     overflowY: 'hidden',
     touchAction: 'none',
   },
+  listDefault: {
+    flex: 1,
+  },
 });
 let didWarn = !canUseDOM;
 const setIntersectionObserve = (obserCallback: (entries: any[]) => void) => {
@@ -128,7 +131,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     onHeaderReleased = () => { }, onHeaderPulling = () => { }, renderPullHeader = () => null,
     getPullHeaderHeight = () => 0, onDisappear = () => { }, onAppear = () => { },
   } = props;
-  const isShowPullHeader = useRef(getPullHeaderHeight() && getPullHeaderHeight());
+  const isShowPullHeader = useRef(getPullHeaderHeight() && renderPullHeader());
   const pullHeaderRef = useRef<null | HTMLDivElement>(null);
   const pullHeaderOffset = useRef(0);
   const pullHeaderHeight = useRef((isShowPullHeader.current && getPullHeaderHeight()) || 0);
@@ -231,8 +234,9 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   }));
 
   const listViewProps = { ...props };
+  listViewProps.style = StyleSheet.compose(styles.listDefault, props.style);
   if (!scrollEnabled) {
-    listViewProps.style = StyleSheet.compose(props.style, styles.scrollDisable);
+    listViewProps.style = StyleSheet.compose(listViewProps.style, styles.scrollDisable);
   }
 
   // delete ListView unsupported prop
@@ -263,16 +267,11 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     }
   };
 
-  const PullHeader = useCallback(() => {
-    if (!isFunc(renderPullHeader)) {
-      return (<div></div>);
-    }
-    return (
+  const PullHeader = useCallback(() => (
       <div ref={pullHeaderRef}>
         {renderPullHeader()}
       </div>
-    );
-  }, [props.renderPullHeader]);
+  ), [props.renderPullHeader]);
   const pullIndicator = {
     get activate() {
       let currentOffset = 0;

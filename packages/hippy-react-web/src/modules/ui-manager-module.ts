@@ -64,6 +64,12 @@ const UIManager = {
       }, 0);
     }
   },
+  measureInWindow(node: HTMLElement) {
+    const relativeNode = node.parentNode as HTMLElement;
+    if (node && relativeNode) {
+      return getRect(node);
+    }
+  },
 };
 
 export default UIManager;

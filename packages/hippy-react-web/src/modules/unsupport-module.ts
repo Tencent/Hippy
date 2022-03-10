@@ -56,6 +56,7 @@ const callNative = () => {
 };
 const callNativeWithPromise = () => {
   warn('callNativeWithPromise is not suported in the web');
+  return Promise.resolve('{}');
 };
 
 export {
