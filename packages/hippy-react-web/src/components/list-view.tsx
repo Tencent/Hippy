@@ -57,7 +57,6 @@ interface ListViewProps extends ListViewItemProp {
   onHeaderPulling?: (evt: { contentOffset: number }) => void;
   renderPullHeader?: () => JSX.Element | JSX.Element | null;
   pullToRefresh?: JSX.Element;
-  getPullHeaderHeight?: () => number;
   onWillAppear?: Function; // unsupported yet
   onWillDisappear?: Function; // unsupported yet
   onMomentumScrollBegin?: Function; // unsupported yet
@@ -129,12 +128,12 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const {
     getRowStyle = () => {}, rowShouldSticky, scrollEnabled = true, showScrollIndicator = true,
     onHeaderReleased = () => { }, onHeaderPulling = () => { }, renderPullHeader = () => null,
-    getPullHeaderHeight = () => 0, onDisappear = () => { }, onAppear = () => { },
+    onDisappear = () => { }, onAppear = () => { },
   } = props;
-  const isShowPullHeader = useRef(getPullHeaderHeight() && renderPullHeader());
+  const isShowPullHeader = useRef(isFunc(renderPullHeader));
   const pullHeaderRef = useRef<null | HTMLDivElement>(null);
   const pullHeaderOffset = useRef(0);
-  const pullHeaderHeight = useRef((isShowPullHeader.current && getPullHeaderHeight()) || 0);
+  const pullHeaderHeight = useRef(0);
   const listRef = useRef<null | {
     ListViewRef: any
   }>(null);
@@ -267,11 +266,26 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     }
   };
 
-  const PullHeader = useCallback(() => (
-      <div ref={pullHeaderRef}>
+  const PullHeader = useCallback(() => {
+    const headerVisibility = React.useRef<'hidden' | 'visible'>('hidden');
+    if (!isShowPullHeader.current) {
+      return null;
+    }
+    React.useEffect(() => {
+      if (pullHeaderRef.current) {
+        const headerRect = pullHeaderRef.current.getBoundingClientRect();
+        pullHeaderHeight.current = headerRect.height;
+        if (pullHeaderHeight.current > 0) {
+          headerVisibility.current = 'visible';
+        }
+      }
+    }, [pullHeaderRef]);
+    return (
+      <div ref={pullHeaderRef} style={{ visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
         {renderPullHeader()}
       </div>
-  ), [props.renderPullHeader]);
+    );
+  }, [props.renderPullHeader]);
   const pullIndicator = {
     get activate() {
       let currentOffset = 0;
@@ -316,7 +330,6 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       <MListView
         {...listViewProps}
         ref={listRef}
-        contentContainerStyle={isShowPullHeader.current ?  { marginTop: `-${pullHeaderHeight.current}px` } : {}}
         className={(!showScrollIndicator && HIDE_SCROLLBAR_CLASS) || ''}
         dataSource={getDataSource()}
         renderRow={renderRow}

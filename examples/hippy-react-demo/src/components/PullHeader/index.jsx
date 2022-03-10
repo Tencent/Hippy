@@ -72,7 +72,6 @@ export default class PullHeaderExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.onHeaderReleased = this.onHeaderReleased.bind(this);
     this.onHeaderPulling = this.onHeaderPulling.bind(this);
-    this.getPullHeaderHeight = this.getPullHeaderHeight.bind(this);
   }
 
   async componentDidMount() {
@@ -80,10 +79,6 @@ export default class PullHeaderExample extends React.Component {
     this.setState({ dataSource });
     // 结束时需主动调用collapsePullHeader
     this.listView.collapsePullHeader();
-  }
-
-  getPullHeaderHeight() {
-    return 60;
   }
 
   /**
@@ -280,7 +275,6 @@ export default class PullHeaderExample extends React.Component {
         getRowType={this.getRowType}
         getRowKey={this.getRowKey}
         renderRow={this.renderRow}
-        getPullHeaderHeight={this.getPullHeaderHeight}
         renderPullHeader={this.renderPullHeader}
         onEndReached={this.onEndReached}
         onHeaderReleased={this.onHeaderReleased}
