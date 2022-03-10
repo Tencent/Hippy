@@ -187,6 +187,10 @@ public class RenderManager {
     //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"do batch size " + mShouldUpdateNodes.size());
 
     for (int i = 0; i < mUIUpdateNodes.size(); i++) {
+      RenderNode uiNode = mUIUpdateNodes.get(i);
+      uiNode.batchStart();
+    }
+    for (int i = 0; i < mUIUpdateNodes.size(); i++) {
       mUIUpdateNodes.get(i).createView();
     }
 

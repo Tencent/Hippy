@@ -18,7 +18,11 @@ package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
 
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
+/**
+ * Created by on 2021/1/6.
+ * Description
+ */
 public interface IHeaderViewFactory {
 
-  ViewHolder getHeaderForPosition(int position);
+    ViewHolder getHeaderForPosition(int position);
 }
