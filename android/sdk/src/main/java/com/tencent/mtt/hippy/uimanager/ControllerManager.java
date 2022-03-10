@@ -279,7 +279,13 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       hippyViewController.onBatchComplete(view);
     }
   }
-
+	public void onBatchStart(String className, int id) {
+		HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
+		View view = mControllerRegistry.getView(id);
+		if (view != null) {
+			hippyViewController.onBatchStart(view);
+		}
+	}
   public void deleteChildRecursive(ViewGroup viewParent, View child, int childIndex) {
     if (viewParent == null || child == null) {
       return;

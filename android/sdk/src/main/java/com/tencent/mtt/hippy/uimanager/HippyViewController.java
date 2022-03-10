@@ -670,7 +670,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
   public void dispatchFunction(T view, String functionName, HippyArray params, Promise promise) {
   }
+  public  void onBatchStart(T view){
 
+  }
   public void onBatchComplete(T view) {
 
   }

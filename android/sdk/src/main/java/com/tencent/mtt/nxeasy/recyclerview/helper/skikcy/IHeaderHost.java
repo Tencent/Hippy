@@ -19,11 +19,16 @@ import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout.LayoutParams;
 
+/**
+ * Created by on 2021/1/12.
+ * Description
+ * HeaderView的宿主，用于HeaderView的挂载，监听挂载的回调
+ */
 public interface IHeaderHost {
 
-  void attachHeader(View headerView, LayoutParams layoutParams);
+    void attachHeader(View headerView, LayoutParams layoutParams);
 
-  void addOnLayoutListener(OnGlobalLayoutListener listener);
+    void addOnLayoutListener(OnGlobalLayoutListener listener);
 
-  void removeOnLayoutListener(OnGlobalLayoutListener listener);
+    void removeOnLayoutListener(OnGlobalLayoutListener listener);
 }

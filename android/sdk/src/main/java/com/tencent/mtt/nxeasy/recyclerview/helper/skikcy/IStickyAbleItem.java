@@ -16,7 +16,11 @@
 
 package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
 
+/**
+ * Created by on 2020/12/29.
+ * Description
+ */
 public interface IStickyAbleItem {
 
-  boolean isStickyItem();
+    boolean isStickyItem();
 }
