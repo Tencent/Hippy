@@ -108,9 +108,8 @@ export class UIManagerModule extends HippyWebModule {
     this.componentFunctionCallProcess(this.findViewById(nodeId), functionName, paramList, callBack);
   }
 
-  public measureInWindow(rootViewId: string, params: Array<any>, callBack: HippyCallBack) {
-    const nodeId = params[0];
-    if (nodeId! || !this.findViewById(nodeId)) {
+  public measureInWindow(nodeId, callBack: HippyCallBack) {
+    if (!nodeId || !this.findViewById(nodeId)) {
       return;
     }
     const component = this.findViewById(nodeId);
@@ -271,8 +270,9 @@ export class UIManagerModule extends HippyWebModule {
     component: BaseView|undefined|null, callName: string,
     params: Array<any>, callBack: HippyCallBack,
   ) {
-    if (component?.[callName]) {
-      component[callName](...params, callBack);
+    const executeParam = params ?? [];
+    if (callName && component?.[callName]) {
+      component?.[callName](...executeParam, callBack);
       return;
     }
     throw `call ui function failed,${component?.tagName} component not implement ${callName}()`;

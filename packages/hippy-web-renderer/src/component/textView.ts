@@ -36,6 +36,9 @@ export class TextView extends HippyView<HTMLSpanElement> {
     this.tagName = InnerNodeTag.TEXT;
     this.dom = document.createElement('span');
   }
+  public defaultStyle(): { [p: string]: any } {
+    return { boxSizing: 'border-box', zIndex: 0 };
+  }
 
   public set numberOfLines(value: number|undefined) {
     this.lines = value;

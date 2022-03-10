@@ -24,7 +24,7 @@ export interface BaseView {
   mounted?: () => void;
 }
 
-export type BaseViewConstructor = new (context: Componentcontext, id, pId) => BaseView;
+export type BaseViewConstructor = new (context: ComponentContext, id, pId) => BaseView;
 
 export type HippyCallBack={resolve: (params: any) => void, reject: (params: any) => void };
 

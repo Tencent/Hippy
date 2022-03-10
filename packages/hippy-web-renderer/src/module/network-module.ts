@@ -20,6 +20,7 @@
 
 import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../../types';
+
 interface NetResponse {
   status: number, statusLine: string, body: string, respHeaders: any
 }
@@ -45,7 +46,7 @@ export class NetworkModule extends HippyWebModule {
     if (method.toLowerCase() !== 'get') {
       requestOption.body = body;
     }
-    global.originFetch(url, requestOption).then(async (response) => {
+    global.__fetch(url, requestOption).then(async (response) => {
       if (response) {
         const dataString = await response.text();
         const respHeaders: any = {};
@@ -75,9 +76,7 @@ export class NetworkModule extends HippyWebModule {
   public setCookie(callBack: HippyCallBack, url: string, keyValue: string, expires: string): void {
     const cookieList = keyValue.split(';');
     cookieList.forEach((cookie) => {
-      let expireStr: string;
-      expireStr = expires;
-      document.cookie = `${cookie}; expires=${expireStr};domain=${url}`;
+      document.cookie = `${cookie}; expires=${expires};domain=${url}`;
     });
   }
 

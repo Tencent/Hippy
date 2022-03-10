@@ -29,12 +29,23 @@ import {
 function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return Object.prototype.hasOwnProperty.call(obj, name);
 }
+
 export function setElementStyle(element: HTMLElement, object: any, animationProcess?:
 (key: string, value: any, element: HTMLElement) => void) {
   if (object === null) return;
+  const shadowData: any = {};
+  const shadowTextData: any = {};
   for (const key of Object.keys(object)) {
     if (! hasOwnProperty(object, key)) {
       return;
+    }
+    if (key.indexOf('shadow') !== -1) {
+      shadowData[key] = object[key];
+      continue;
+    }
+    if (key.indexOf('textShadow') !== -1) {
+      shadowTextData[key] = object[key];
+      continue;
     }
     if (isColor(key)) {
       const newValue = convertHexToRgba(object[key]);
@@ -53,7 +64,26 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
     styleUpdateWithCheck(element, key, object[key]);
   }
   borderStyleProcess(element, object);
+  if (shadowData.shadowRadius) {
+    styleUpdateWithCheck(element, 'box-shadow', shadowProcess(shadowData));
+  }
+
+  if (shadowTextData.textShadowColor || shadowTextData.textShadowOffset
+    || shadowTextData.textShadowOffsetX || shadowTextData.textShadowOffsetY) {
+    styleUpdateWithCheck(element, 'text-shadow', textShadowProcess(shadowTextData));
+  }
 }
+
+function shadowProcess(shadow: {shadowOpacity?: number, shadowRadius?: number,
+  shadowOffsetX?: number, shadowOffsetY?: number, shadowColor?: number}) {
+  return `${shadow.shadowOffsetX ?? 0}px ${shadow.shadowOffsetY ?? 0}px ${shadow.shadowRadius ?? 0}px ${convertHexToRgba(shadow.shadowColor)}`;
+}
+function textShadowProcess(shadow: {textShadowColor?: number, textShadowOffset: {width: number, height: number},
+  textShadowRadius: number, textShadowOffsetX: number, textShadowOffsetY: number}) {
+  return `${shadow.textShadowOffsetX ?? shadow.textShadowOffset.width ?? 0}px ${shadow.textShadowOffsetY ?? shadow.textShadowOffset.height ?? 0}px
+  ${shadow.textShadowRadius ?? 0}px ${convertHexToRgba(shadow.textShadowColor)}`;
+}
+
 function isAnimationProps(key: string, value: any) {
   if (hasOwnProperty(value, 'animationId')) {
     return true;
