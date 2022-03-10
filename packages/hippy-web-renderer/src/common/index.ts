@@ -148,20 +148,20 @@ function borderStyleProcess(el: HTMLElement, style: { [key: string]: any }) {
     styleUpdateWithCheck(el, 'borderStyle', 'solid');
   }
   if (style[STYLE_MARGIN_V] !== undefined) {
-    styleUpdateWithCheck(el, 'marginTop', style[STYLE_MARGIN_V]);
-    styleUpdateWithCheck(el, 'marginBottom', style[STYLE_MARGIN_V]);
+    styleUpdateWithCheck(el, 'marginTop', transformForSize(style[STYLE_MARGIN_V]));
+    styleUpdateWithCheck(el, 'marginBottom', transformForSize(style[STYLE_MARGIN_V]));
   }
   if (style[STYLE_MARGIN_H] !== undefined) {
-    styleUpdateWithCheck(el, 'marginLeft', style[STYLE_MARGIN_H]);
-    styleUpdateWithCheck(el, 'marginRight', style[STYLE_MARGIN_H]);
-  }
-  if (style[STYLE_PADDING_H] !== undefined) {
-    styleUpdateWithCheck(el, 'paddingTop', style[STYLE_PADDING_H]);
-    styleUpdateWithCheck(el, 'paddingBottom', style[STYLE_PADDING_H]);
+    styleUpdateWithCheck(el, 'marginLeft', transformForSize(style[STYLE_MARGIN_H]));
+    styleUpdateWithCheck(el, 'marginRight', transformForSize(style[STYLE_MARGIN_H]));
   }
   if (style[STYLE_PADDING_V] !== undefined) {
-    styleUpdateWithCheck(el, 'paddingLeft', style[STYLE_PADDING_V]);
-    styleUpdateWithCheck(el, 'paddingRight', style[STYLE_PADDING_V]);
+    styleUpdateWithCheck(el, 'paddingTop', transformForSize(style[STYLE_PADDING_V]));
+    styleUpdateWithCheck(el, 'paddingBottom',  transformForSize(style[STYLE_PADDING_V]));
+  }
+  if (style[STYLE_PADDING_H] !== undefined) {
+    styleUpdateWithCheck(el, 'paddingLeft',  transformForSize(style[STYLE_PADDING_H]));
+    styleUpdateWithCheck(el, 'paddingRight', transformForSize(style[STYLE_PADDING_H]));
   }
 }
 
