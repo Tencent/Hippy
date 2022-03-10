@@ -728,7 +728,7 @@ public abstract class BaseLayoutManager extends RecyclerViewBase.LayoutManager
 			}
 			else
 			{
-				//niuniuyang:如果内容小于屏幕高度了，如果mOffset不是原点，必须把list的offset重新回到原点
+				//如果内容小于屏幕高度了，如果mOffset不是原点，必须把list的offset重新回到原点
 				int gap = mRecyclerView.mOffsetY - mOrientationHelper.getStartAfterPadding();
 				if (gap != 0)
 				{

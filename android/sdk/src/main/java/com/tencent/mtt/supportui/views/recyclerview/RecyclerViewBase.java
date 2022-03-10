@@ -2215,7 +2215,7 @@ public abstract class RecyclerViewBase extends ViewGroup
 		}
 		// mCount = mAdapter.getItemCount() + mAdapter.getHeaderViewCount() +
 		// mAdapter.getFooterViewCount();
-		//niuniuyang: 对于itemchanged，选中的item移动到屏幕外时，此时执行删除操作，item是不会做动画的。
+		//对于itemchanged，选中的item移动到屏幕外时，此时执行删除操作，item是不会做动画的。
 		//也就无法通过onAnimationsFinished退出编辑态，这里需要加一个事件，通知出去，退出编辑态
 		if (animateChangesSimple && !mPostedAnimatorRunner)
 		{
