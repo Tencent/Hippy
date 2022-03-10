@@ -58,11 +58,11 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     && this.context.sendUiEvent(this.id, NodeProps.ON_REFRESH, null);
   }
 
-  public refreshCompleted() {
+  public refreshComplected() {
     this.pullRefresh?.finish();
   }
 
-  public startRefrsh() {
+  public startRefresh() {
     this.pullRefresh?.start();
   }
 
@@ -70,8 +70,8 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     await super.beforeChildMount(child, childPosition);
     if (child.tagName === InnerNodeTag.LIST) {
       setElementStyle(child.dom!, { position: 'relative', zIndex: 2 });
-      const refreshHeader = new PullRefresh(child.dom!, this.dom!, this.handlePull.bind(this));
-      refreshHeader.init();
+      this.pullRefresh = new PullRefresh(child.dom!, this.dom!, this.handlePull.bind(this));
+      this.pullRefresh.init();
     }
   }
 
