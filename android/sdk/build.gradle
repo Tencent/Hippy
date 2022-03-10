@@ -86,7 +86,7 @@ android {
       if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi/*'
       }
-      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean() && !INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi-v7a/*'
       }
       if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
