@@ -64,8 +64,8 @@ const Device: DeviceInfo = {
     statusBarHeight: 0,
   },
   screen: {
-    height: globalThis.screen.height,
-    width: globalThis.screen.width,
+    height: globalThis.innerHeight,
+    width: globalThis.innerWidth,
     scale: 1,
     statusBarHeight: 0,
   },
