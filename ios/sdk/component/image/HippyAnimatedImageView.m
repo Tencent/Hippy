@@ -402,8 +402,13 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b) {
 #pragma mark Providing the Layer's Content
 
 - (void)displayLayer:(CALayer *)layer {
-    UIImage *image = self.image;
-    layer.contents = (__bridge id)image.CGImage;
+    if (self.animatedImage) {
+        UIImage *image = self.image;
+        layer.contents = (__bridge id)image.CGImage;
+    }
+    else {
+        [super displayLayer:layer];
+    }
 }
 
 @end
