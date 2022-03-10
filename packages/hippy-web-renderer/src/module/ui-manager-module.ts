@@ -96,14 +96,11 @@ export class UIManagerModule extends HippyWebModule {
 
   }
 
-  public callUIFunction(rootViewId: string, params: Array<any>, callBack: HippyCallBack) {
-    const realParams = params[0];
-    if (!realParams || realParams.length < 3) {
+  public callUIFunction(params: Array<any>, callBack: HippyCallBack) {
+    if (!params || params.length < 3) {
       return;
     }
-    const nodeId = realParams[0];
-    const functionName = realParams[1];
-    const paramList = realParams[2];
+    const [nodeId, functionName, paramList] = params;
     if (!nodeId ||  !this.findViewById(nodeId)) {
       return;
     }

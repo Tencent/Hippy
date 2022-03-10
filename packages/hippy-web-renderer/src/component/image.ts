@@ -99,23 +99,23 @@ export class Image extends HippyView<HTMLImageElement> {
   }
 
   public onLoad(event) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_LOAD, event);
+    this.props[NodeProps.ON_LOAD] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD, event);
   }
 
   public onLoadStart(event) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_START, event);
+    this.props[NodeProps.ON_LOAD_START] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_START, event);
   }
 
   public onLoadEnd(event) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_END, event);
+    this.props[NodeProps.ON_LOAD_END] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_END, event);
   }
 
   public onError(event) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_ERROR, event);
+    this.props[NodeProps.ON_ERROR] && this.context.sendUiEvent(this.id, NodeProps.ON_ERROR, event);
   }
 
   public onProgress(event) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_PROGRESS, event);
+    this.props[NodeProps.ON_PROGRESS] && this.context.sendUiEvent(this.id, NodeProps.ON_PROGRESS, event);
   }
   private handleLoad(event: Event, loadUrl?: string) {
     this.isLoadSuccess = false;

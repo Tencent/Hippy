@@ -18,15 +18,15 @@
  * limitations under the License.
  */
 
-import { NodeProps  } from '../types';
+import { NodeProps } from '../types';
 import { BaseView, InnerNodeTag, UIProps } from '../../types';
 import { setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
 import {
+  eventThrottle,
   GESTURE_CAPTURE_THRESHOLD,
-  mountTouchListener,
-  scrollToIntegerSize,
-  touchMoveCalculate,
+  mountTouchListener, scrollEndPagePosition,
+  touchMoveCalculate, virtualSmoothScroll,
 } from './scrollable';
 
 
@@ -38,23 +38,22 @@ interface HippyScrollEvent {
   zoomScale: number;
 }
 
-interface HippyScrollDragEvent extends HippyScrollEvent {
-  velocity: { x: number; y: number };
-  targetContentOffset: { x: number; y: number };
-}
 
 const ANIMATION_TIME = 100;
 
 export class ScrollView extends HippyView<HTMLDivElement> {
-  private lastPosition = [0, 0];
+  private lastPosition: [number, number] = [0, 0];
   private lastTimestamp = 0;
   private scrollableCache = false;
+
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.SCROLL_VIEW;
     this.dom = document.createElement('div');
-    this.init();
+    this[NodeProps.SCROLL_EVENT_THROTTLE] = 30;
+    this[NodeProps.SCROLL_ENABLED] = true;
   }
+
   public defaultStyle(): { [p: string]: any } {
     return { display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'scroll' };
   }
@@ -63,26 +62,30 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }
+    const newData = { ...data };
     if (data.style && data.style.flexShrink === 1 && data.style.flexGrow === 1 && !data.style.flexBasis) {
-      const newData = { ...data };
       delete newData.style.flexShrink;
       delete newData.style.flexGrow;
-      defaultProcess(this, newData);
     }
+    defaultProcess(this, newData);
   }
 
-  public scrollStyle(horizontal: boolean) {
-    let defaultStyle = this.defaultStyle();
-    if (horizontal) {
-      defaultStyle = {
-        display: 'flex',
-        flexDirection: 'row',
-        overflowX: 'scroll',
-        overflowY: 'hidden',
-      };
+  public scrollStyle() {
+    const defaultStyle = this.defaultStyle();
+    const pageEnableValue = this.pagingEnabled ? 'visible' : 'scroll';
+    if (this.horizontal) {
+      defaultStyle.flexDirection = 'row';
+      Object.assign(defaultStyle, { flexDirection: 'row', overflowX: pageEnableValue, overflowY: 'hidden' });
+    }
+    if (this.pagingEnabled) {
+      Object.assign(defaultStyle, { overflowY: pageEnableValue, overflowX: pageEnableValue });
+    }
+    if (!this.scrollEnabled) {
+      Object.assign(defaultStyle, { overflowY: 'hidden', overflowX: 'hidden' });
     }
     return defaultStyle;
   }
+
   public get bounces() {
     return this.props[NodeProps.BOUNCES];
   }
@@ -98,19 +101,20 @@ export class ScrollView extends HippyView<HTMLDivElement> {
 
   public set horizontal(value: boolean) {
     this.props[NodeProps.HORIZONTAL] = value;
-    setElementStyle(this.dom!, this.scrollStyle(this.horizontal));
+    setElementStyle(this.dom!, this.scrollStyle());
   }
 
   public get pagingEnabled() {
-    return this.props[NodeProps.PAGING_ENABLED];
+    return this.props[NodeProps.PAGING_ENABLED] && this.horizontal;
   }
 
   public set pagingEnabled(value: boolean) {
     this.props[NodeProps.PAGING_ENABLED] = value;
+    setElementStyle(this.dom!, this.scrollStyle());
   }
 
   public get scrollEventThrottle() {
-    return this.props[NodeProps.SCROLL_EVENT_THROTTLE];
+    return this.props[NodeProps.SCROLL_EVENT_THROTTLE] ?? 30;
   }
 
   public set scrollEventThrottle(value: number) {
@@ -132,50 +136,51 @@ export class ScrollView extends HippyView<HTMLDivElement> {
 
   public set scrollEnabled(value) {
     this.props[NodeProps.CONTENT_CONTAINER_STYLE] = value;
-    const scrollStyle = this.scrollStyle(this.horizontal);
-    if (!this.scrollEnabled) {
-      scrollStyle.overflowX = 'hidden';
-      scrollStyle.overflowY = 'hidden';
-    }
-    if (this.pagingEnabled) {
-      scrollStyle.overflowX = 'visible';
-      scrollStyle.overflowY = 'visible';
-    }
-    setElementStyle(this.dom!, scrollStyle);
+    setElementStyle(this.dom!, this.scrollStyle());
   }
 
   public onMomentumScrollBegin(event) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
+    this.props[NodeProps.ON_MOMENTUM_SCROLL_BEGIN]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_BEGIN, event);
   }
 
   public onMomentumScrollEnd(event) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
+    this.props[NodeProps.ON_MOMENTUM_SCROLL_END]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_MOMENTUM_SCROLL_END, event);
   }
 
   public onScroll(event: HippyScrollEvent) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL, event);
+    this.props[NodeProps.ON_SCROLL]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL, event);
   }
 
-  public onScrollBeginDrag(event: HippyScrollDragEvent) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
+  public onScrollBeginDrag(event: HippyScrollEvent) {
+    this.props[NodeProps.ON_SCROLL_BEGIN_DRAG]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_BEGIN_DRAG, event);
   }
 
-  public onScrollEndDrag(event: HippyScrollDragEvent) {
-    this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
+  public onScrollEndDrag(event: HippyScrollEvent) {
+    this.props[NodeProps.ON_SCROLL_END_DRAG]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
+  }
+
+  public async beforeMount(parent: BaseView, position: number): Promise<void> {
+    await super.beforeMount(parent, position);
+    this.init();
   }
 
   private init() {
-    this[NodeProps.SCROLL_EVENT_THROTTLE] = 30;
-    this[NodeProps.SCROLL_ENABLED] = true;
     mountTouchListener(this.dom!, {
-      recordPosition: this.lastPosition,
-      needSimulatedScrolling: this.pagingEnabled,
-      scrollEnable: this.checkScrollEnable.bind(this),
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
       onScroll: this.handleScroll.bind(this),
+      onTouchMove: this.handleScroll.bind(this),
       onBeginSliding: this.handleBeginSliding.bind(this),
       onEndSliding: this.handleEndSliding.bind(this),
+      updatePosition: this.updatePositionInfo.bind(this),
+      getPosition: () => this.lastPosition,
+      needSimulatedScrolling: this.pagingEnabled,
+      scrollEnable: this.checkScrollEnable.bind(this),
     });
   }
 
@@ -184,7 +189,6 @@ export class ScrollView extends HippyView<HTMLDivElement> {
       // 隐式含义，在touchEnd/Cancel时的回调
       return this.scrollableCache;
     }
-
     if (this.scrollableCache && touchEvent) {
       touchEvent.stopPropagation();
       if (this.pagingEnabled) touchEvent.preventDefault();
@@ -206,58 +210,74 @@ export class ScrollView extends HippyView<HTMLDivElement> {
   }
 
   private handleBeginDrag() {
-    this.onScrollBeginDrag(buildScrollDragEvent(this.dom!));
+    this.onScrollBeginDrag(this.buildScrollEvent(this.dom!));
   }
 
-  private handleEndDrag(position: Array<number>) {
+  private async handleEndDrag(position:  [number, number]) {
     this.scrollableCache = false;
-    this.onScrollEndDrag(buildScrollDragEvent(this.dom!));
+    this.onScrollEndDrag(this.buildScrollEvent(this.dom!));
+
     if (this.pagingEnabled) {
-      scrollToIntegerSize(this.dom!, position, ANIMATION_TIME);
+      this.onMomentumScrollBegin(this.buildScrollEvent(this.dom!));
+      const { toOffset } = this.scrollEndCalculate(position);
+      const toPosition: [number, number] = [toOffset, position[1]];
+      const scrollCallBack = (position) => {
+        this.updatePositionInfo(position);
+        this.onScroll(this.buildScrollEvent(this.dom!));
+      };
+      await virtualSmoothScroll(
+        this.dom!, scrollCallBack, position, toPosition,
+        ANIMATION_TIME,
+      );
+      this.onMomentumScrollEnd(this.buildScrollEvent(this.dom!));
     }
   }
 
+  private updatePositionInfo(newPosition: [number, number])  {
+    this.lastPosition = newPosition;
+  }
+
+  private scrollEndCalculate(lastPosition: Array<number>) {
+    const pageUnitSize = this.dom!.clientWidth;
+    const scrollSize = this.dom!.scrollWidth;
+    const originOffset = lastPosition[0];
+    return scrollEndPagePosition(pageUnitSize, scrollSize, originOffset);
+  }
+
   private handleScroll() {
-    eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
-      console.log('scroll', buildScrollDragEvent(this.dom!));
-      this.onScroll(buildScrollEvent(this.dom!));
+    this.dom && eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
+      console.log('scroll', this.buildScrollEvent(this.dom!));
+      this.onScroll(this.buildScrollEvent(this.dom!));
       this.lastTimestamp = Date.now();
     });
   }
 
   private handleBeginSliding() {
-    this.onMomentumScrollBegin(buildScrollEvent(this.dom!));
+    this.onMomentumScrollBegin(this.buildScrollEvent(this.dom!));
   }
 
   private handleEndSliding() {
-    this.onMomentumScrollEnd(buildScrollEvent(this.dom!));
+    if (this.pagingEnabled) {
+      return;
+    }
+    this.onMomentumScrollEnd(this.buildScrollEvent(this.dom!));
+  }
+
+  private buildScrollEvent(scrollContainer: HTMLElement): HippyScrollEvent {
+    const event = {
+      contentInset: { right: 0, top: 0, left: 0, bottom: 0 },
+      contentOffset: { x: scrollContainer?.scrollLeft, y: scrollContainer?.scrollTop },
+      contentSize: { width: scrollContainer?.clientWidth, height: scrollContainer?.clientHeight },
+      layoutMeasurement: {
+        width: scrollContainer?.clientWidth,
+        height: scrollContainer?.clientHeight,
+      },
+      zoomScale: 1,
+    };
+    if (this.pagingEnabled) {
+      event.contentOffset = { x: Math.abs(this.lastPosition[0]), y: Math.abs(this.lastPosition[1]) };
+    }
+    return event;
   }
 }
 
-function buildScrollEvent(scrollContainer: HTMLElement): HippyScrollEvent {
-  return {
-    contentInset: { right: 0, top: 0, left: 0, bottom: 0 },
-    contentOffset: { x: scrollContainer?.scrollLeft, y: scrollContainer?.scrollTop },
-    contentSize: { width: scrollContainer?.clientWidth, height: scrollContainer?.clientHeight },
-    layoutMeasurement: {
-      width: scrollContainer?.clientWidth,
-      height: scrollContainer?.clientHeight,
-    },
-    zoomScale: 1,
-  };
-}
-
-function buildScrollDragEvent(scrollContainer: HTMLElement): HippyScrollDragEvent {
-  return {
-    velocity: { x: 0, y: 0 },
-    targetContentOffset: { x: scrollContainer?.scrollLeft, y: scrollContainer?.scrollTop },
-    ...buildScrollEvent(scrollContainer),
-  };
-}
-
-function eventThrottle(lastExecuteTime: number, throttle: number, action: Function) {
-  const timeStamp = 1 / throttle;
-  if (Date.now() - lastExecuteTime > timeStamp) {
-    action?.();
-  }
-}

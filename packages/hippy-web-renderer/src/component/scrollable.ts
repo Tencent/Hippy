@@ -23,24 +23,23 @@ import { setElementStyle } from '../common';
 const TIME_CHECK_LONG = 100;
 export const GESTURE_CAPTURE_THRESHOLD = 5;
 export interface TouchMoveListenerConfig {
-  onBeginDrag?: (position: Array<number>) => void;
-  onEndDrag?: (position: Array<number>) => void;
+  onBeginDrag?: (position: [number, number]) => void;
+  onEndDrag?: (position: [number, number]) => void;
   onScroll?: () => void;
   onBeginSliding?: () => void;
   onEndSliding?: () => void;
   onTouchMove?: (event: Touch, lastEvent: Touch) => void;
-  recordPosition: Array<number>;
+  getPosition: () => [number, number];
+  updatePosition: (newPosition: [number, number]) => void;
   scrollEnable: (lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) => boolean;
   needSimulatedScrolling?: boolean;
 }
-let TouchMoveCapture;
+let touchMoveCaptureElement;
 export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerConfig) {
   let isScroll = false;
   let isTouchIn = false;
   let scrollStopCheckTimer = -1;
-  let lastScrollTime = 0;
   let lastTouchEvent: TouchEvent | null = null;
-  const lastPosition = config.recordPosition;
   const scrollOverTimeCheck = () => {
     if (isScroll && !isTouchIn) {
       config?.onEndSliding?.();
@@ -54,59 +53,59 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
       isScroll,
       scrollStopCheckTimer,
       scrollOverTimeCheck,
-      lastPosition,
+      config.getPosition(),
       config?.onBeginDrag,
       config?.onScroll,
     );
     isScroll = true;
-    lastScrollTime = Date.now();
   });
   el.addEventListener('touchstart', (event) => {
     isTouchIn = true;
     lastTouchEvent = event;
   });
   el.addEventListener('touchmove', (event) => {
-    if (TouchMoveCapture && TouchMoveCapture !== el) {
+    if (touchMoveCaptureElement && touchMoveCaptureElement !== el) {
       return;
     }
     const isEnableScroll = config.scrollEnable(lastTouchEvent!, event);
     if (isEnableScroll
       && config.needSimulatedScrolling) {
-      touchMoveDeal(el, event, lastTouchEvent!, lastPosition, config?.onTouchMove);
+      config.updatePosition(touchMoveDeal(el, event, lastTouchEvent!, config.getPosition(), config?.onTouchMove));
     }
 
     if (isEnableScroll) {
-      TouchMoveCapture = el;
+      touchMoveCaptureElement = el;
       lastTouchEvent = event;
     }
   });
   el.addEventListener('touchcancel', () => {
-    TouchMoveCapture = null;
-    touchEndDeal(el, isTouchIn, isScroll, config.scrollEnable(lastTouchEvent!, null), lastPosition);
+    touchMoveCaptureElement = null;
+    touchEndDeal(el, isTouchIn, isScroll, config.scrollEnable(lastTouchEvent!, null), config.getPosition());
     isTouchIn = false;
   });
   el.addEventListener('touchend', () => {
-    TouchMoveCapture = null;
+    touchMoveCaptureElement = null;
     touchEndDeal(
       el,
       isTouchIn,
       isScroll,
       config.scrollEnable(lastTouchEvent!, null),
-      lastPosition,
+      config.getPosition(),
       config?.onEndDrag,
       config?.onBeginSliding,
     );
     isTouchIn = false;
   });
 }
+
 function scrollDeal(
   el: HTMLElement,
   isTouchIn: boolean,
   isScroll: boolean,
   scrollStopCheckTimer: number,
   timeCheck: Function,
-  position: Array<number>,
-  beginDragCallBack?: (position: Array<number>) => void,
+  position: [number, number],
+  beginDragCallBack?: (position: [number, number]) => void,
   scrollCallBack?: () => void,
 ) {
   clearTimeout(scrollStopCheckTimer);
@@ -117,13 +116,14 @@ function scrollDeal(
 
   return setTimeout(timeCheck, TIME_CHECK_LONG);
 }
+
 function touchEndDeal(
   el: HTMLElement,
   isTouchIn: boolean,
   isScroll: boolean,
   enableScroll: boolean,
-  lastPosition: Array<number>,
-  endDragCallBack?: (lastPosition: Array<number>) => void,
+  lastPosition: [number, number],
+  endDragCallBack?: (lastPosition: [number, number]) => void,
   slidingBeginCallBack?: () => void,
 ) {
   if (isTouchIn) {
@@ -135,12 +135,13 @@ function touchEndDeal(
     }
   }
 }
+
 function touchMoveDeal(
   el: HTMLElement,
   event: TouchEvent,
   lastEvent: TouchEvent,
-  lastPosition: Array<number>,
-  touchMoveCallBack?: (touch: Touch, lastTouch: Touch) => void,
+  lastPosition: [number, number],
+  touchMoveCallBack?: (touch: Touch, lastTouch: Touch,) => void,
 ) {
   const currentTouch = event.changedTouches[0];
   const lastTouch = lastEvent.changedTouches[0];
@@ -156,26 +157,29 @@ function touchMoveDeal(
       < 0.6
     && Math.abs(tempOriginPosition[1] - (lastPosition[1] + currentTouch.pageY - lastTouch.pageY)) < 0.6
   ) {
-    return;
+    return lastPosition;
   }
+  const newPosition: [number, number] = [...lastPosition];
 
-  lastPosition[0] += currentTouch.pageX - lastTouch.pageX;
-  lastPosition[1] += currentTouch.pageY - lastTouch.pageY;
-  if (lastPosition[0] > maxHValue) {
-    lastPosition[0] = maxHValue;
+  newPosition[0] += currentTouch.pageX - lastTouch.pageX;
+  newPosition[1] += currentTouch.pageY - lastTouch.pageY;
+  if (newPosition[0] > maxHValue) {
+    newPosition[0] = maxHValue;
   }
-  if (lastPosition[0] < minHValue) {
-    lastPosition[0] = minHValue;
+  if (newPosition[0] < minHValue) {
+    newPosition[0] = minHValue;
   }
-  if (lastPosition[1] > maxVValue) {
-    lastPosition[1] = maxVValue;
+  if (newPosition[1] > maxVValue) {
+    newPosition[1] = maxVValue;
   }
-  if (lastPosition[1] < minVValue) {
-    lastPosition[1] = minVValue;
+  if (newPosition[1] < minVValue) {
+    newPosition[1] = minVValue;
   }
-  updateTransform(el, lastPosition);
+  updateTransform(el, newPosition);
   touchMoveCallBack?.(currentTouch, lastTouch);
+  return newPosition;
 }
+
 export function touchMoveCalculate(event: TouchEvent, lastEvent: TouchEvent) {
   const currentTouch = event.changedTouches[0];
   const lastTouch = lastEvent.changedTouches[0];
@@ -184,33 +188,36 @@ export function touchMoveCalculate(event: TouchEvent, lastEvent: TouchEvent) {
   position[1] += currentTouch.pageY - lastTouch.pageY;
   return position;
 }
+
 export function scrollToIntegerSize(
   scrollContainer: HTMLElement,
   lastPosition: Array<number>,
   animationTime = 100,
 ) {
   const pageWidth = scrollContainer.clientWidth;
-  const innerWidth = scrollContainer.scrollWidth;
+  const { scrollWidth } = scrollContainer;
   const currentScrollSize = lastPosition[0];
   const pageIndex = Math.round(currentScrollSize / pageWidth);
-  const minValue = scrollContainer.clientWidth - innerWidth;
-  const maxPageIndex = Math.ceil(innerWidth / pageWidth);
-  let lastPageWidth = innerWidth - parseInt(String(innerWidth / pageWidth)) * pageWidth;
+  const minValue = pageWidth - scrollWidth;
+  const maxPageIndex = Math.ceil(scrollWidth / pageWidth);
+  let lastPageWidth = scrollWidth - parseInt(String(scrollWidth / pageWidth), 10) * pageWidth;
   lastPageWidth = lastPageWidth !== 0 ? lastPageWidth : pageWidth;
   const isOverLastPageHalf = Math.abs(currentScrollSize) + pageWidth > (maxPageIndex - 1)
     * pageWidth + lastPageWidth / 2;
   const originOffsetX = lastPosition[0];
-  lastPosition[0] = pageIndex * pageWidth;
-  if (lastPosition[0] < minValue || currentScrollSize === minValue || isOverLastPageHalf) {
-    lastPosition[0] = minValue;
+  const newPosition = [...lastPosition];
+  newPosition[0] = pageIndex * pageWidth;
+  if (newPosition[0] < minValue || currentScrollSize === minValue || isOverLastPageHalf) {
+    newPosition[0] = minValue;
   }
-  scrollTo(scrollContainer, lastPosition, animationTime);
+  scrollTo(scrollContainer, newPosition, animationTime);
   return {
-    newPageIndex: Math.abs(Math.round(lastPosition[0] / pageWidth)),
+    newPageIndex: Math.abs(Math.round(newPosition[0] / pageWidth)),
     fromOffsetX: originOffsetX,
-    toOffsetX: lastPosition[0],
+    toOffsetX: newPosition[0],
   };
 }
+
 export function scrollTo(
   scrollContainer: HTMLElement,
   position: Array<number>,
@@ -232,11 +239,13 @@ export function clearTransition(el: HTMLElement) {
     transition: '',
   });
 }
+
 export function updateTransform(el: HTMLElement, position: Array<number>) {
   setElementStyle(el, {
     transform: `translate(${position[0]}px,${position[1]}px)`,
   });
 }
+
 export function eventThrottle(lastExecuteTime: number, throttle: number, action: Function) {
   const timeStamp = 1 / throttle;
   const overThreshold = Date.now() - lastExecuteTime > timeStamp;
@@ -244,4 +253,93 @@ export function eventThrottle(lastExecuteTime: number, throttle: number, action:
     action?.();
   }
   return overThreshold;
+}
+
+export function scrollEndPagePosition(pageUnitSize: number, scrollSize: number, endScrollOffset: number) {
+  const pageIndex = Math.round(endScrollOffset / pageUnitSize);
+  const minValue = pageUnitSize - scrollSize;
+  const maxPageIndex = Math.ceil(scrollSize / pageUnitSize);
+  let lastPageWidth = scrollSize - parseInt(String(scrollSize / pageUnitSize), 10) * pageUnitSize;
+  lastPageWidth = lastPageWidth !== 0 ? lastPageWidth : pageUnitSize;
+  const isOverLastPageHalf = Math.abs(endScrollOffset) + pageUnitSize
+    > (maxPageIndex - 1) * pageUnitSize + lastPageWidth / 2;
+  let newPosition = pageIndex * pageUnitSize;
+  if (newPosition < minValue || endScrollOffset === minValue || isOverLastPageHalf) {
+    newPosition = minValue;
+  }
+  return {
+    newPageIndex: Math.abs(Math.round(newPosition / pageUnitSize)),
+    fromOffset: endScrollOffset,
+    toOffset: newPosition,
+  };
+}
+
+export function virtualScrollEventDispatchBegin(
+  dom: HTMLDivElement,
+  scrollCallBack: (position: [number, number], index?: number) => void,
+  position: [number, number],
+  toPosition: [number, number],
+  pageIndex?: number,
+  time?: number,
+) {
+  let animationTime = time;
+  return new Promise((resolve) => {
+    if (!time || time <= 0) {
+      animationTime = 1;
+    }
+    const moveDistance = position[0] - toPosition[0];
+    const beginTime = Date.now();
+    let recordMoveOffset = [...position];
+
+    scrollTo(dom,  [toPosition[0], 0], animationTime);
+    const loop = () => {
+      const overTime = Date.now() - beginTime;
+      if (overTime > animationTime!) {
+        resolve(recordMoveOffset[0]);
+        return;
+      }
+      window.requestAnimationFrame(loop);
+      const realOffset = moveDistance * (overTime / animationTime!);
+      const tmpPosition: [number, number] = [position[0] - realOffset, position[1]];
+      recordMoveOffset = tmpPosition;
+      scrollCallBack(tmpPosition, pageIndex);
+    };
+    window.requestAnimationFrame(loop);
+  });
+}
+
+export function virtualScrollEventDispatchEnd(
+  dom: HTMLDivElement, scrollCallBack: (position: [number, number], index?: number) => void,
+  scrollResult: Promise<any>, willToPosition: [number, number], willToIndex?: number,
+) {
+  return new Promise((resolve) => {
+    scrollResult.then((lasMoveOffset: number) => {
+      if (!dom) {
+        return;
+      }
+      if (lasMoveOffset !== willToPosition[0]) {
+        scrollTo(dom!,  willToPosition, 0);
+      }
+      scrollCallBack(willToPosition, willToIndex);
+      resolve(null);
+    }).catch((error) => {
+      throw error;
+    });
+  });
+}
+
+export function virtualSmoothScroll(
+  dom: HTMLDivElement,
+  scrollCallBack: (position: [number, number], index?: number) => void,
+  position: [number, number],
+  toPosition: [number, number],
+  time?: number,
+  pageIndex?: number,
+  toPageIndex?: number,
+) {
+  return virtualScrollEventDispatchEnd(
+    dom, scrollCallBack,
+    virtualScrollEventDispatchBegin(dom, scrollCallBack, position, toPosition, pageIndex, time),
+    toPosition, toPageIndex,
+  );
 }
