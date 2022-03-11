@@ -18,42 +18,212 @@
  * limitations under the License.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, createElement } from 'react';
+import ReactDOM from 'react-dom';
+import { canUseDOM } from '../utils/execution-environment';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';
-import View from './view';
 
-const side = 'left';
+const ANIMATION_DURATION = 300;
 const styles = StyleSheet.create({
   modal: {
     position: 'absolute',
     width: '100%',
   },
   container: {
-    position: 'absolute',
-    [side]: '25%',
+    position: 'fixed',
     top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    zIndex: 9999,
+  },
+  darkText: {
+    color: '#fff',
+    background: '#000',
+  },
+  lightText: {
+    color: '#000',
+    background: '#fff',
+  },
+  animatedIn: {
+    animationDuration: `${ANIMATION_DURATION}ms`,
+    animationTimingFunction: 'ease-in',
+  },
+  animatedOut: {
+    pointerEvents: 'none',
+    animationDuration: `${ANIMATION_DURATION}ms`,
+    animationTimingFunction: 'ease-out',
+  },
+  fadeIn: {
+    opacity: 1,
+    animationName: 'fadein',
+  },
+  fadeOut: {
+    opacity: 0,
+    animationName: 'fadeout',
+  },
+  slideIn: {
+    transform: 'translateY(0%)',
+    animationName: 'slidein',
+  },
+  slideOut: {
+    transform: 'translateY(100%)',
+    animationName: 'slideout',
+  },
+  hidden: {
+    opacity: 0,
   },
 });
+const fadeIn = '@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }';
+const fadeOut = '@keyframes fadeout { from { opacity: 1; } to { opacity: 0; } }';
+const slideIn = '@keyframes slidein { from { transform: translateY(100%); } to { transform: translateY(0%); } }';
+const slideOut = '@keyframes slideout { from { transform: translateY(0%); } to { transform: translateY(100%); } }';
+
+const setModalAnimationKeyFrame = () => {
+  const sheets = document.styleSheets;
+  const lastSheet = sheets[sheets.length - 1] as CSSStyleSheet;
+  lastSheet.insertRule(fadeIn);
+  lastSheet.insertRule(fadeOut);
+  lastSheet.insertRule(slideIn);
+  lastSheet.insertRule(slideOut);
+};
+
+const animatedSlideInStyles = formatWebStyle([styles.container, styles.animatedIn, styles.slideIn]);
+const animatedSlideOutStyles = formatWebStyle([styles.container, styles.animatedOut, styles.slideOut]);
+const animatedFadeInStyles = formatWebStyle([styles.container, styles.animatedIn, styles.fadeIn]);
+const animatedFadeOutStyles = formatWebStyle([styles.container, styles.animatedOut, styles.fadeOut]);
+
+export type AnimationType = 'none' | 'slide' | 'fade' | 'slide_fade';
+export interface ModalProps {
+  animated?: boolean;
+  animationType?: AnimationType;
+  supportedOrientations?: 'portrait' | 'portrait-upside-down' | 'landscape' | 'landscape-left' | 'landscape-right';
+  immersionStatusBar?: boolean;
+  darkStatusBarText?: boolean;
+  onShow?: Function;
+  onOrientationChange?: Function;
+  onRequestClose?: Function;
+  primaryKey?: string;
+  onDismiss?: Function;
+  transparent?: boolean;
+  visible?: boolean;
+};
+type AnimationModalProp = Pick<ModalProps, 'animationType' | 'onDismiss' | 'visible' | 'onShow' | 'transparent' | 'darkStatusBarText'> & { children: any };
+
+const getAnimationStyle = (animationType: AnimationType, visible: boolean) => {
+  if (animationType === 'slide' || animationType === 'slide_fade') {
+    return visible ? animatedSlideInStyles : animatedSlideOutStyles;
+  }
+  if (animationType === 'fade') {
+    return visible ? animatedFadeInStyles : animatedFadeOutStyles;
+  }
+  return visible ? styles.container : styles.hidden;
+};
+export type ModalPortalProps = {
+  children: any
+};
+
+function ModalPortal(props: ModalPortalProps) {
+  const { children } = props;
+  const elementRef = React.useRef<HTMLDivElement | null>(null);
+
+  if (canUseDOM && !elementRef.current) {
+    const element = document.createElement('div');
+
+    if (element && document.body) {
+      document.body.appendChild(element);
+      elementRef.current = element;
+    }
+  }
+
+  React.useEffect(() => {
+    if (canUseDOM) {
+      return () => {
+        if (document.body && elementRef.current) {
+          document.body.removeChild(elementRef.current);
+          elementRef.current = null;
+        }
+      };
+    }
+  }, []);
+
+  return elementRef.current && canUseDOM
+    ? ReactDOM.createPortal(children, elementRef.current)
+    : null;
+}
+const AnimationModal = (props: AnimationModalProp) => {
+  const { animationType = 'none', onDismiss, onShow, visible = false, children, transparent, darkStatusBarText } = props;
+
+  const [isRendering, setIsRendering] = React.useState(false);
+  const wasVisible = React.useRef(false);
+
+  const isAnimated = animationType && animationType !== 'none';
+
+  let containerStyle: Record<string, any> = styles.lightText;
+  if (transparent) {
+    containerStyle.backgroundColor = 'transparent';
+  }
+  if (darkStatusBarText) {
+    containerStyle = { ...containerStyle, ...styles.darkText };
+  }
+  console.log('containerStyle', formatWebStyle(containerStyle));
+
+  const animationEndCallBack = React.useCallback((e: any) => {
+    if (e && e.currentTarget !== e.target) {
+      return;
+    }
+
+    if (visible) {
+      if (onShow) {
+        onShow();
+      }
+    } else {
+      setIsRendering(false);
+      if (onDismiss) {
+        onDismiss();
+      }
+    }
+  }, [onDismiss, onShow, visible]);
+
+  React.useEffect(() => {
+    if (visible) {
+      setIsRendering(true);
+    }
+    if (visible !== wasVisible.current && !isAnimated) {
+      animationEndCallBack(null);
+    }
+    wasVisible.current = visible;
+  }, [isAnimated, visible, animationEndCallBack]);
+  const animationStyle = getAnimationStyle(animationType, visible);
+  // eslint-disable-next-line react/no-children-prop
+  return isRendering || visible ? createElement('div', {
+    style: isRendering ? formatWebStyle([animationStyle, containerStyle]) : formatWebStyle(styles.hidden),
+    onAnimationEnd: animationEndCallBack,
+    children,
+  }) : null;
+};
+
 
 /**
  * The Modal component is a basic way to present content above an enclosing view.
  * @noInheritDoc
  */
-function Modal(props) {
+const Modal: React.FC<ModalProps> = (props) => {
   const {
-    visible,
+    visible = false,
+    darkStatusBarText = false,
     transparent,
     children,
     onRequestClose,
     onShow,
-    supportedOrientations,
-    onOrientationChange,
+    onDismiss,
+    animationType,
   } = props;
 
-  if (visible === false) {
-    return <View />;
-  }
+  useEffect(() => {
+    setModalAnimationKeyFrame();
+  }, []);
 
   useEffect(() => {
     if (visible) {
@@ -62,7 +232,6 @@ function Modal(props) {
       }
     }
   }, [visible]);
-
   useEffect(() => {
     const closeOnEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -76,29 +245,22 @@ function Modal(props) {
     return () => document.removeEventListener('keyup', closeOnEscape, false);
   }, [onRequestClose]);
 
-  const containerStyles = {
-    backgroundColor: transparent ? 'transparent' : 'white',
-  };
-
-  const newStyle = formatWebStyle(styles.modal);
-
   return (
-    <div
-      transparent={transparent}
-      onRequestClose={onRequestClose}
-      onShow={onShow}
-      style={newStyle}
-      supportedOrientations={supportedOrientations}
-      onOrientationChange={onOrientationChange}
-    >
-      <View style={[styles.container, containerStyles]}>
+    <ModalPortal>
+      <AnimationModal
+        transparent={transparent}
+        darkStatusBarText={darkStatusBarText}
+        animationType={animationType}
+        onDismiss={onDismiss}
+        onShow={onShow}
+        visible={visible}
+      >
         {children}
-      </View>
-    </div>
+      </AnimationModal>
+    </ModalPortal>
   );
-}
-Modal.defaultProps = {
-  visible: true,
 };
+
+Modal.displayName = 'Modal';
 
 export default Modal;

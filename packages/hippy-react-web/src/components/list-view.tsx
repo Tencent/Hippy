@@ -61,6 +61,12 @@ interface ListViewProps extends ListViewItemProp {
   onWillDisappear?: Function; // unsupported yet
   onMomentumScrollBegin?: Function; // unsupported yet
   onMomentumScrollEnd?: Function; // unsupported yet
+  onScrollBeginDrag?: Function; // unsupported yet
+  onScrollEndDrag?: Function; // unsupported yet
+  preloadItemNumber?: number; // unsupported yet
+  editable?: boolean;
+  delText?: string;
+  onDelete?: Function;
 }
 
 const styles = StyleSheet.create({
@@ -92,8 +98,8 @@ const setIntersectionObserve = (obserCallback: (entries: any[]) => void) => {
 
 function ListViewItem(props: ListViewItemProp) {
   const { observer, style, height, getRowKey = () => { }, rowShouldSticky = () => false } = props;
-  const ref = useRef(null);
-  const itemStyle: any = {};
+  const listItemRef = useRef(null);
+  const itemStyle: Record<string, any> = {};
   if (height) {
     itemStyle.height = height;
   }
@@ -107,10 +113,10 @@ function ListViewItem(props: ListViewItemProp) {
   }
 
   useEffect(() => {
-    if (ref.current !== null && observer) {
-      observer.observe(ref.current);
+    if (listItemRef.current !== null && observer) {
+      observer.observe(listItemRef.current);
     }
-  }, [ref]);
+  }, [listItemRef]);
 
   const liElementProps = { ...props, style: { ...formatWebStyle(style), ...itemStyle } };
   delete liElementProps.observer;
@@ -120,7 +126,7 @@ function ListViewItem(props: ListViewItemProp) {
   delete liElementProps.rowShouldSticky;
 
   return (
-    <li {...liElementProps} ref={ref} rowid={getRowKey()} />
+    <li {...liElementProps} ref={listItemRef} rowid={getRowKey()} />
   );
 }
 
@@ -134,9 +140,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const pullHeaderRef = useRef<null | HTMLDivElement>(null);
   const pullHeaderOffset = useRef(0);
   const pullHeaderHeight = useRef(0);
-  const listRef = useRef<null | {
-    ListViewRef: any
-  }>(null);
+  const listRef = useRef<null | { ListViewRef: any }>(null);
   const isPullHeaderInit = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
   const itemShowMap = useRef(new Map<any, boolean>());
@@ -174,7 +178,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
 
   const renderRow = (rowData, sectionId, rowId) => {
     const convertRowId = Number(rowId);
-    const { renderRow = () => {}, getRowStyle = () => ({}), getRowKey = () => '', getRowType = () => '0', getRowHeight = () => 0 } = props;
+    const { renderRow = () => null, getRowStyle = () => ({}), getRowKey = () => '', getRowType = () => '0', getRowHeight = () => 0 } = props;
     const itemStyle = isFunc(getRowStyle) ? getRowStyle(convertRowId) : {};
     const key = isFunc(getRowKey) ? getRowKey(convertRowId) : '';
     const height = isFunc(getRowHeight) ? getRowHeight(convertRowId) : '';
@@ -249,7 +253,14 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   delete listViewProps.onDisappear;
   delete listViewProps.onWillAppear;
   delete listViewProps.onWillDisappear;
-
+  delete listViewProps.onMomentumScrollBegin;
+  delete listViewProps.onMomentumScrollEnd;
+  delete listViewProps.onScrollBeginDrag;
+  delete listViewProps.onScrollEndDrag;
+  delete listViewProps.preloadItemNumber;
+  delete listViewProps.editable;
+  delete listViewProps.delText;
+  delete listViewProps.onDelete;
 
   useEffect(() => {
     // rmc-list-view pullRefresh bug

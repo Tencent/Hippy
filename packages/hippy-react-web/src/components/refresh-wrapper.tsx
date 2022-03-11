@@ -44,7 +44,7 @@ const RefreshWrapper: React.FC<RefreshWrapperProp> = React.forwardRef((props, re
   const pullHeaderRef = React.useRef<null | HTMLDivElement>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const offsetY = React.useRef(0);
+  const pullHeaderHeight = React.useRef(0);
   const PullHeader = React.useCallback(() => {
     const headerVisibility = React.useRef<'hidden' | 'visible'>('hidden');
     if (!isFunc(getRefresh) || !getRefresh) {
@@ -53,14 +53,14 @@ const RefreshWrapper: React.FC<RefreshWrapperProp> = React.forwardRef((props, re
     React.useEffect(() => {
       if (pullHeaderRef.current) {
         const headerRect = pullHeaderRef.current.getBoundingClientRect();
-        offsetY.current = headerRect.height;
-        if (offsetY.current > 0) {
+        pullHeaderHeight.current = headerRect.height;
+        if (pullHeaderHeight.current > 0) {
           headerVisibility.current = 'visible';
         }
       }
     }, [pullHeaderRef]);
     return (
-      <div ref={pullHeaderRef} style={{ visibility: headerVisibility.current, marginTop: `-${offsetY.current}px` }}>
+      <div ref={pullHeaderRef} style={{ visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
         {getRefresh()}
       </div>
     );
@@ -108,7 +108,7 @@ const RefreshWrapper: React.FC<RefreshWrapperProp> = React.forwardRef((props, re
       refreshing={refreshing}
       onRefresh={handleOnRefresh}
       indicator={pullIndicator}
-      distanceToRefresh={offsetY.current || 100}
+      distanceToRefresh={pullHeaderHeight.current || 100}
     />,
   });
 

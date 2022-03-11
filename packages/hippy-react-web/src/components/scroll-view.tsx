@@ -71,8 +71,8 @@ export interface ScrollViewProps extends ViewProps {
   bounces?: boolean; // unsupported yet
   contentContainerStyle?: any;
   horizontal?: boolean;
-  onMomentumScrollBegin?: Function; // unsupported yet
-  onMomentumScrollEnd?: Function; // unsupported yet
+  onMomentumScrollBegin?: Function;
+  onMomentumScrollEnd?: Function;
   onScroll?: (e: any) => void;
   onScrollBeginDrag?: Function;
   onScrollEndDrag?: Function;
@@ -85,7 +85,7 @@ export interface ScrollViewProps extends ViewProps {
     right: number;
   }; // unsupported yet
   scrollEnabled?: boolean;
-  showScrollIndicator?: boolean; // unsupported yet
+  showScrollIndicator?: boolean;
   showsHorizontalScrollIndicator?: boolean; // unsupported yet
   showsVerticalScrollIndicator?: boolean; // unsupported yet
 }
@@ -151,7 +151,7 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
     contentContainerStyle,
     ...rest
   } = copyProps;
-  shouldHideScrollBar(!showsVerticalScrollIndicator);
+  shouldHideScrollBar(!showScrollIndicator);
   const scrollState = React.useRef({ isScrolling: false, scrollLastTick: 0 });
   const scrollTimeout = React.useRef<null | number>(null);
   const scrollRef = React.useRef<any>(null);

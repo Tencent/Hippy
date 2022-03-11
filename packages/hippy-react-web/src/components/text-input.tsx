@@ -89,15 +89,11 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
   // set keyboard type
   let inputType = 'text';
   if (keyboardType) {
-    if (keyboardType) {
-      if (keyboardType === 'numeric' || keyboardType === 'phone-pad') {
-        inputType = 'tel';
-      } else if (keyboardType === 'password') {
-        inputType = 'password';
-      } else if (keyboardType === 'email') {
-        inputType = 'email';
-      }
-    }
+    if (['numeric', 'phone-pad'].includes(keyboardType)) {
+      inputType = 'tel';
+    } else if (['password', 'email'].includes(keyboardType)) {
+      inputType = keyboardType;
+    };
   }
 
   // set component method

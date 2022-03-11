@@ -39,7 +39,7 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 | 参数          | 描述                                                         | 类型                                                         | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
 | capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `web 暂不支持`    |
-| onProgress    | 在加载过程中不断调用，参数为 `{ nativeEvent: { loaded, total } }` | `Function`                                                   |      `web 暂不支持`     |
+| onProgress    | 在加载过程中不断调用，参数为 `{ nativeEvent: { loaded, total } }` | `Function`         |   `web 暂不支持`  |
 
 ### 方法
 
@@ -91,7 +91,6 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                             | `web 暂不支持` |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                                                          | `web 暂不支持` |
 | onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `( nativeEvent: { index: number} ) => void`                                              | `web 暂不支持` |
-| getPullHeaderHeight   | 返回列表下拉头部高度，超过这个高度松手触发刷新, web 端使用 renderPullHeader 时该 prop 必传。 | `() => number`                    | `web`   |
 
 ---
 
@@ -105,15 +104,11 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
-| animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `web 暂不支持`    |
-| animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `web 暂不支持`    |
 | supportedOrientations | 支持屏幕翻转方向                                                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `web 暂不支持`    |
 | immersionStatusBar    | 是否是沉浸式状态栏。                                         | `boolean`                                                    | `web 暂不支持`    |
-| darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `web 暂不支持`    |
 | onOrientationChange   | 屏幕旋转方向改变时执行会回调                       | `Function`                                                   | `web 暂不支持`    |
 | onRequestClose        | 在`Modal`请求关闭时会执行此回调函数，web 在按下 esc 键触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `ALL`    |
 | primaryKey            | -                                                            | `string`                                                     | `web 暂不支持`    |
-| onDismiss             | -                                                            | `Function`                                                   | `web 暂不支持`    |
 
 ---
 
