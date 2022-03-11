@@ -34,7 +34,6 @@ import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
-import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.renderer.component.text.TextRenderSupplier;
@@ -234,8 +233,8 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
     }
 
     @Override
-    public void onSizeChanged(int nodeId, int width, int height) {
-        mRenderProvider.onSizeChanged(nodeId, width, height);
+    public void onSizeChanged(int nodeId, int width, int height, boolean isSync) {
+        mRenderProvider.onSizeChanged(nodeId, width, height, isSync);
     }
 
     @Override
@@ -674,7 +673,8 @@ public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRe
         if (className.equals(HippyModalHostManager.CLASS_NAME)) {
             DisplayMetrics metrics = DisplayUtils.getMetrics(false);
             if (metrics != null) {
-                mRenderProvider.onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels);
+                mRenderProvider
+                        .onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels, true);
             }
         }
         if (checkJSFrameworkProxy()) {

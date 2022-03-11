@@ -53,7 +53,7 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "updateNodeSize",
-             "(IIFF)V",
+             "(IIFFZ)V",
              UpdateNodeSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
@@ -103,7 +103,7 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
 }
 
 void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_node_id,
-                    jfloat j_width, jfloat j_height) {
+                    jfloat j_width, jfloat j_height, jboolean j_is_sync) {
   std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
           static_cast<int32_t>(j_instance_id));
   if (!render_manager) {

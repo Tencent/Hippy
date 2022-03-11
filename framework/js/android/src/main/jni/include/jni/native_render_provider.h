@@ -43,7 +43,7 @@ void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id,
                     jfloat width, jfloat height);
 
 void UpdateNodeSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id, jint j_node_id,
-                    jfloat width, jfloat height);
+                    jfloat width, jfloat height, jboolean j_is_sync);
 
 void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
                      jint j_instance_id, jint j_dom_id, jstring j_event_name,
