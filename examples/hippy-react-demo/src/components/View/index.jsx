@@ -4,6 +4,7 @@ import {
   Text,
   View,
   StyleSheet,
+  Platform,
 } from '@hippy/react';
 import imageUrl from './defaultSource.jpg';
 
@@ -59,7 +60,8 @@ export default function ViewExpo() {
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
-        backgroundImage: imageUrl,
+        backgroundSize: 'cover',
+        backgroundImage: `${Platform.OS === 'web' ? `url(${imageUrl})` : imageUrl}`,
       }]}
         accessible={true}
         accessibilityLabel={'背景图'}
