@@ -237,13 +237,13 @@ std::shared_ptr <CtxValue> ObjcTurboEnv::CreateFunction(const std::shared_ptr <C
     hostFunctionClass = JSClassCreate(&functionClass);
   });
 
-  auto jscName = std::static_pointer_cast<JSCCtxValue>(name);
-  JSStringRef nameRef = (JSStringRef)(jscName->value_);
-
   std::shared_ptr <JSCCtx> context = std::static_pointer_cast<JSCCtx>(context_);
+  auto jscName = std::static_pointer_cast<JSCCtxValue>(name);
+  JSStringRef nameRef = JSValueToStringCopy(context->context_, jscName->value_, nullptr);
   JSObjectRef funcRef = JSObjectMake(context->context_,
                                      hostFunctionClass,
                                      new HostFunctionProxy(*this, func, paramCount, nameRef));
+  JSStringRelease(nameRef);
 
   auto jscValue = std::make_shared<JSCCtxValue>(context->context_, funcRef);
   return jscValue;
