@@ -79,7 +79,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
                 }
             }
             view.setId(id);
-            Map<String, Object> tagMap = NativeViewTag.createViewTag(NodeProps.ROOT_NODE);
+            Map<String, Object> tagMap = NativeViewTag.createViewTag(className);
             view.setTag(tagMap);
         }
         return view;
@@ -126,7 +126,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
      * transform
      **/
     @HippyControllerProps(name = NodeProps.TRANSFORM, defaultType = HippyControllerProps.ARRAY)
-    public void setTransform(T view, ArrayList<Object> transformArray) {
+    public void setTransform(T view, ArrayList transformArray) {
         if (transformArray == null) {
             resetTransform(view);
         } else {

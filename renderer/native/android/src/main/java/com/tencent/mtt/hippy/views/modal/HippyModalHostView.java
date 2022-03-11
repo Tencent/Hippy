@@ -439,7 +439,7 @@ public class HippyModalHostView extends HippyViewGroup implements
                 NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
                 if (nativeRenderer != null) {
                     final int id = getChildAt(0).getId();
-                    nativeRenderer.onSizeChanged(id, w, h);
+                    nativeRenderer.onSizeChanged(id, w, h, false);
                 }
             }
         }

@@ -78,7 +78,7 @@ public interface NativeRender extends NativeRenderExceptionHandler {
 
     void onSizeChanged(int width, int height);
 
-    void onSizeChanged(int nodeId, int width, int height);
+    void onSizeChanged(int nodeId, int width, int height, boolean isSync);
 
     void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
             boolean systemUiVisibilityChanged);
