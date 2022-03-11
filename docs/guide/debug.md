@@ -41,6 +41,11 @@ Hippy中运行的 JS 代码可以来源于本地文件(local file)，或者远�
          // 调试服务端口
          port: 38989,
        },
+       // 默认为 false，设为 true 调试服务支持多个工程同时调试，彼此之间不会干扰
+       multiple: false,
+       // 默认 hot, liveReload 都为 true，如果只想使用 live-reload 功能，请将 hot 设为 false，liveReload 设为 true
+       hot: true,
+       liveReload: true,
        client: {
          overlay: false,
        },
@@ -180,9 +185,6 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
       // 默认 hot, liveReload 都为 true，如果只想使用 live-reload 功能，请将 hot 设为 false，liveReload 设为 true
       hot: true,
       liveReload: true,
-      devMiddleware: {
-        writeToDisk: true,
-      },
       client: {
         // 暂不支持错误提示蒙层
         overlay: false,
@@ -252,9 +254,6 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
        // 默认 hot, liveReload 都为 true，如果只想使用 live-reload 功能，请将 hot 设为 false，liveReload 设为 true
        hot: true,
        liveReload: true,
-       devMiddleware: {
-         writeToDisk: true,
-       },
        client: {
          // 暂不支持错误提示蒙层
          overlay: false,
