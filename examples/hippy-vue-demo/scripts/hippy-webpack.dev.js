@@ -39,13 +39,12 @@ module.exports = {
       host: '127.0.0.1',
       port: 38989,
     },
+    // support debug multiple project with only one debug server, by default is set false.
+    multiple: false,
     // by default hot and liveReload option are true, you could set only liveReload to true
     // to use live reload
     hot: true,
     liveReload: true,
-    devMiddleware: {
-      writeToDisk: true,
-    },
     client: {
       overlay: false,
     },
