@@ -99,7 +99,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 3. Run `npm run debugexample -- [hippy-react-demo|hippy-vue-demo] dev` at root directory.
 4. Run `npm run debugexample -- [hippy-react-demo|hippy-vue-demo] debug` at root directory.
 
-> Or you can `cd` to `framework/js/examples/hippy-react-demo` or `framework/js/examples/hippy-vue-demo` to run `npm run hippy:dev` and `npm run hippy:debug` instead. (`npm run hippy:local-debug` and `npm run hippy:local-dev` will link to source code in packages).
+> Or you can `cd` to `framework/js/examples/hippy-react-demo` or `framework/js/examples/hippy-vue-demo` to run `npm run hippy:dev` and `npm run hippy:debug` instead.
 >
 > On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `framework/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
 >
