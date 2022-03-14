@@ -197,30 +197,26 @@ export class UIManagerModule extends HippyWebModule {
     if (!animationModule) {
       return;
     }
-    const style: any = {};
     if (value.animationId) {
       animationModule.linkAnimation2Element(value.animationId, component, key);
-      const animationStartValue = animationModule.getAnimationStartValue(value.animationId);
-      if (animationStartValue !== null) {
-        style[key] = animationStartValue;
-      }
-    } else if (key === 'transform') {
-      let valueString = '';
-      for (const item of value) {
-        for (const itemKey of Object.keys(item)) {
-          if (item[itemKey].animationId) {
-            animationModule.linkAnimation2Element(item[itemKey].animationId, component, itemKey);
-            const animationStartValue = animationModule.getAnimationStartValue(value.animationId);
-            if (animationStartValue !== null) {
-              valueString += `${animationStartValue} `;
-            }
-            continue;
-          }
-          valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey]) || itemKey === 'scale' ? '' : 'px'}) `;
-        }
-      }
-      style.transform = valueString;
+      return;
     }
+    if (key !== 'transform') {
+      return;
+    }
+
+    const style: any = {};
+    let valueString = '';
+    for (const item of value) {
+      for (const itemKey of Object.keys(item)) {
+        if (item[itemKey].animationId) {
+          animationModule.linkAnimation2Element(item[itemKey].animationId, component, itemKey);
+          continue;
+        }
+        valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey]) || itemKey === 'scale' ? '' : 'px'}) `;
+      }
+    }
+    style.transform = valueString;
     setElementStyle(component.dom!, style);
   }
 
