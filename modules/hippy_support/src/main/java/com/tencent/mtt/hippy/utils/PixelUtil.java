@@ -13,29 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.utils;
 
-import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.Display;
-import android.view.WindowManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class PixelUtil {
 
-    @Nullable
     private static DisplayMetrics sDisplayMetrics = null;
 
-    public static void initDisplayMetrics(@NonNull Context appContext) {
+    private static DisplayMetrics getMetrics() {
         if (sDisplayMetrics == null) {
-            sDisplayMetrics = new DisplayMetrics();
-            WindowManager windowManager = (WindowManager) appContext
-                    .getSystemService(Context.WINDOW_SERVICE);
-            Display defaultDisplay = windowManager.getDefaultDisplay();
-            defaultDisplay.getRealMetrics(sDisplayMetrics);
+            sDisplayMetrics = ContextHolder.getAppContext().getResources().getDisplayMetrics();
         }
+        return sDisplayMetrics;
     }
 
     /**
@@ -50,10 +42,7 @@ public class PixelUtil {
      * Convert from dp to px impl
      */
     public static float dp2px(float value) {
-        if (sDisplayMetrics == null) {
-            return value;
-        }
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, sDisplayMetrics);
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getMetrics());
     }
 
     /**
@@ -70,10 +59,15 @@ public class PixelUtil {
         return value / getDensity();
     }
 
+    public static float sp2px(float value) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, getMetrics());
+    }
+
+    public static float px2sp(float value) {
+        return value / getMetrics().scaledDensity;
+    }
+
     public static float getDensity() {
-        if (sDisplayMetrics == null) {
-            return 1.0f;
-        }
-        return sDisplayMetrics.density;
+        return getMetrics().density;
     }
 }

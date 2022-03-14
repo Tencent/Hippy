@@ -24,7 +24,6 @@ public class ContextHolder {
   public static void setContext(Context context) {
     if (context != null && applicationContext == null) {
       applicationContext = context.getApplicationContext();
-      PixelUtil.initDisplayMetrics(applicationContext);
     }
   }
 

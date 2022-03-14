@@ -13,25 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter;
 
-@SuppressWarnings({"unused"})
+import androidx.annotation.NonNull;
+
+import com.tencent.mtt.hippy.utils.LogUtils;
+
 public class DefaultLogAdapter implements HippyLogAdapter {
 
-  @Override
-  public void log(String tag, String msg) {
-
-  }
-
-  @Override
-  public void init(int rootId, String module) {
-
-  }
-
-  @Override
-  public void upload(callBack callBack) {
-    callBack.onSuccess();
-  }
-
-
+    @Override
+    public void onReceiveLogMessage(int level, @NonNull String tag, @NonNull String msg) {
+        switch (level) {
+            case LOG_SEVERITY_INFO:
+                LogUtils.i(tag, msg);
+                break;
+            case LOG_SEVERITY_WARNING:
+                LogUtils.w(tag, msg);
+                break;
+            case LOG_SEVERITY_ERROR:
+                // fall through
+            case LOG_SEVERITY_FATAL:
+                LogUtils.e(tag, msg);
+                break;
+            case LOG_SEVERITY_DEBUG:
+                // fall through
+            default:
+                LogUtils.d(tag, msg);
+        }
+    }
 }

@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter;
 
-@SuppressWarnings({"EmptyMethod", "unused"})
+import androidx.annotation.NonNull;
+
 public interface HippyLogAdapter {
 
-  void log(String tag, String msg);
+    int LOG_SEVERITY_DEBUG = -1;
+    int LOG_SEVERITY_INFO = 0;
+    int LOG_SEVERITY_WARNING = 1;
+    int LOG_SEVERITY_ERROR = 2;
+    int LOG_SEVERITY_FATAL = 3;
 
-  void init(int rootId, String module);
-
-  void upload(callBack callBack);
-
-  interface callBack {
-
-    void onSuccess();
-  }
+    void onReceiveLogMessage(int level, @NonNull String tag, @NonNull String msg);
 }
