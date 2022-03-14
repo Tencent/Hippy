@@ -18,9 +18,13 @@
  * limitations under the License.
  */
 
-import { BaseView, HippyCallBack } from '../../types';
+import { Property } from 'csstype';
+import { BaseView, ComponentContext } from '../../types';
 import { setElementStyle } from '../common';
 import { HippyWebModule } from '../base';
+import AnimationFillMode = Property.AnimationFillMode;
+import AnimationIterationCount = Property.AnimationIterationCount;
+import AnimationPlayState = Property.AnimationPlayState;
 
 export class AnimationModule extends HippyWebModule {
   public static moduleName = 'AnimationModule';
@@ -29,7 +33,7 @@ export class AnimationModule extends HippyWebModule {
   private animationPool: {[key: string]: SimpleAnimation|null} = {};
 
 
-  public createAnimation(animationId: number, params: AnimationOptions, mode?: string) {
+  public createAnimation(animationId: number, mode = 'timing', params: AnimationOptions) {
     if (this.animationPool[animationId]) {
       return;
     }
@@ -37,11 +41,14 @@ export class AnimationModule extends HippyWebModule {
       this.animationPool[animationId] = null;
     }
     if (mode === 'timing') {
-      this.animationPool[animationId] = new SimpleAnimation(animationId, params as AnimationOptions, mode);
+      this.animationPool[animationId] = new SimpleAnimation(
+        this.context,
+        animationId, params as AnimationOptions, mode,
+      );
     }
   }
 
-  public updateAnimation(callBack: HippyCallBack, animationId: number, param: AnimationOptions) {
+  public updateAnimation(animationId: number, param: AnimationOptions) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation update failed, animationId not find animation object');
       return;
@@ -49,7 +56,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.update(param);
   }
 
-  public startAnimation(callBack: HippyCallBack, animationId: number) {
+  public startAnimation(animationId: number) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation start failed, animationId not find animation object');
       return;
@@ -57,7 +64,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.start();
   }
 
-  public stopAnimation(callBack: HippyCallBack, animationId: number) {
+  public pauseAnimation(animationId: number) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation stop failed, animationId not find animation object');
       return;
@@ -65,7 +72,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.stop();
   }
 
-  public resumeAnimation(callBack: HippyCallBack, animationId: number) {
+  public resumeAnimation(animationId: number) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation resume failed, animationId not find animation object');
       return;
@@ -73,7 +80,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.resume();
   }
 
-  public destroyAnimation(callBack: HippyCallBack, animationId: number) {
+  public destroyAnimation(animationId: number) {
     if (!this.animationPool[animationId]) {
       console.log('hippy', 'animation destroy failed, animationId not find animation object');
       return;
@@ -81,19 +88,13 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.destroy();
   }
 
-  public initialize() {
-
-  }
-
-  public destroy() {
-  }
-
-  public linkAnimation2Element(animationId: number, component: BaseView, animationProperty: string) {
+  public linkAnimation2Element(animationId: number, component: BaseView, animationProperty: string|object) {
     if (!this.animationPool[animationId]) {
       return;
     }
     this.animationPool[animationId]!.refNodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
+    this.animationPool[animationId]!.initAnimation(component.dom!);
   }
 
   public getAnimationStartValue(animationId: number) {
@@ -111,6 +112,7 @@ enum HippyAnimationEvent {
   CANCEL = 'onHippyAnimationCancel',
   REPAET = 'onHippyAnimationRepeat',
 }
+
 const TransformList = {
   perspective: 1,
   rotate: 1,
@@ -124,7 +126,9 @@ const TransformList = {
   translateY: 1,
   skewX: 1,
 };
+
 type AnimationDirection = 'left' | 'right' | 'top' | 'bottom' | 'center';
+
 interface AnimationOptions {
   startValue: HippyAnimationValue;
   toValue: HippyAnimationValue;
@@ -147,247 +151,28 @@ interface AnimationOptions {
   inputRange?: any[];
   outputRange?: any[];
 }
+
 class SimpleAnimation {
-  public static buildTransformSingleValue(value: string) {
-    return `${value} `;
-  }
-
-  public static buildTransitionSingleValue(value: string) {
-    return `${value},`;
-  }
-
-  public static transitionStringFormat(value: string) {
-    let formatValue = value;
-    if (value.length > 0 && value.charAt(value.length - 1) === ',') {
-      formatValue = value.substring(0, value.length - 1);
-    }
-    return formatValue;
-  }
-
   public id: string | number;
-  public refNodeId: string | number | undefined;
-  public animationInfo: AnimationOptions;
+  public context: ComponentContext;
   public timeMode: string | undefined;
-  public transformName: string | null = null;
+  public animationInfo: AnimationOptions;
+  public refCssProperty: string | null = null;
+  public refNodeId: string | number | undefined;
+  public dom: HTMLElement | null = null;
 
-  public constructor(animationId: string | number, options: AnimationOptions, mode?: string) {
+  public constructor(
+    context: ComponentContext, animationId: string | number,
+    options: AnimationOptions, mode?: string,
+  ) {
     this.animationInfo = options;
     this.timeMode = mode;
     this.id = animationId;
+    this.context = context;
   }
-
 
   public set nodeId(nodeId: string | number) {
     this.refNodeId = nodeId;
-  }
-
-  public set animationProperty(name: string) {
-    this.transformName = name;
-  }
-
-  public get realAnimationPropertyName() {
-    if (this.transformName && TransformList[this.transformName]) {
-      return 'transform';
-    }
-    return this.transformName;
-  }
-
-  public get transitionPropertyName() {
-    if (this.transformName && TransformList[this.transformName]) {
-      return 'transform';
-    }
-    return Camel2Kebab(this.transformName);
-  }
-
-  public get transitionValue() {
-    return `${this.transitionPropertyName} ${this.animationTime},`;
-  }
-
-  public get animationBeginValue() {
-    return this.buildAnimationValue(this.animationInfo.startValue);
-  }
-
-  public get animationEndValue() {
-    return this.buildAnimationValue(this.animationInfo.toValue);
-  }
-
-  public get animationTime() {
-    return `${this.animationInfo.duration / 1000}s`;
-  }
-
-  // TODO optimization
-  public get initStartValue() {
-    return `${this.transformName}(${this.animationBeginValue})`;
-  }
-
-  public start() {
-    if (!this.refNodeId) {
-      return;
-    }
-    const element = document.getElementById(String(this.refNodeId));
-    if (!element) {
-      return;
-    }
-    const animationCssEndValue = this.buildCssValue(this.animationEndValue);
-    this.updateElementTransition(element, this.transitionValue);
-    setTimeout(() => {
-      this.dispatchEvent(HippyAnimationEvent.START);
-      this.updateElementAnimationValue(element, animationCssEndValue);
-      setTimeout(() => {
-        this.dispatchEvent(HippyAnimationEvent.END);
-      }, this.animationInfo.duration);
-    }, 16);
-  }
-
-  public stop() {}
-
-  public update(param: AnimationOptions) {
-    this.animationInfo = param;
-  }
-
-  public resume() {}
-
-  public destroy() {}
-
-  private dispatchEvent(eventName: HippyAnimationEvent) {
-    // dispatchModuleEventToHippy([eventName, this.id]);
-
-  }
-
-  private buildCssValue(value: string) {
-    if (this.realAnimationPropertyName === 'transform') {
-      return `${this.transformName}(${value})`;
-    }
-    return value;
-  }
-
-  private buildAnimationValue(value: any) {
-    let unit = 'px';
-    if (this.animationInfo.valueType) {
-      unit = this.animationInfo.valueType;
-    }
-    if (this.transformName === 'scale') {
-      unit = '';
-    }
-    return `${value}${unit}`;
-  }
-
-  private updateElementAnimationValue(element: HTMLElement, animationCssValue: string) {
-    if (!this.realAnimationPropertyName) {
-      return;
-    }
-    const oldAnimationValue = element.style[this.realAnimationPropertyName];
-    let newAnimationValue = animationCssValue;
-    if (
-      oldAnimationValue
-      && this.realAnimationPropertyName === 'transform'
-      && oldAnimationValue.indexOf(this.transformName) !== -1
-    ) {
-      newAnimationValue = '';
-      const oldAnimationKey = oldAnimationValue.split(' ');
-      for (const value of oldAnimationKey) {
-        if (!value || value.trim().length === 0) {
-          return;
-        }
-        let tempValue = SimpleAnimation.buildTransformSingleValue(animationCssValue);
-        if (value.length > 0 && value.indexOf(this.transformName) === -1) {
-          tempValue = SimpleAnimation.buildTransformSingleValue(value);
-        }
-        newAnimationValue += tempValue;
-      }
-    }
-    const style = {};
-    style[this.realAnimationPropertyName] = newAnimationValue;
-    setElementStyle(element, style);
-  }
-
-  private updateElementTransition(element: HTMLElement, transitionValue: string) {
-    const oldTransition = element.style.transition;
-    let newTransition = transitionValue;
-    if (oldTransition && oldTransition.indexOf(this.transitionPropertyName) !== -1) {
-      newTransition = '';
-      oldTransition.split(',').map((value) => {
-        let tempValue = SimpleAnimation.buildTransitionSingleValue(transitionValue);
-        if (value.length > 0 && value.indexOf(this.transitionPropertyName) !== -1) {
-          tempValue = SimpleAnimation.buildTransitionSingleValue(value);
-        }
-        newTransition += tempValue;
-      });
-    }
-    setElementStyle(element, { transition: SimpleAnimation.transitionStringFormat(newTransition) });
-  }
-}
-
-function Camel2Kebab(str) {
-  return str.replace(/[A-Z]/g, item => `-${item.toLowerCase()}`);
-}
-
-function Kebab2Camel(str) {
-  return str.replace(/-([a-z])/g, (_keb, item) => item.toUpperCase());
-}
-
-function createKeyFrame() {
-
-}
-
-function updateKeyFrame() {
-
-}
-
-
-class SimpleAnimation2 {
-  public static buildTransformSingleValue(value: string) {
-    return `${value} `;
-  }
-
-  public static buildTransitionSingleValue(value: string) {
-    return `${value},`;
-  }
-
-  public static transitionStringFormat(value: string) {
-    let formatValue = value;
-    if (value.length > 0 && value.charAt(value.length - 1) === ',') {
-      formatValue = value.substring(0, value.length - 1);
-    }
-    return formatValue;
-  }
-  public id: string | number;
-  public refNodeId: string | number | undefined;
-  public animationInfo: AnimationOptions;
-  public timeMode: string | undefined;
-  public transformName: string | null = null;
-
-  public constructor(animationId: string | number, options: AnimationOptions, mode?: string) {
-    this.animationInfo = options;
-    this.timeMode = mode;
-    this.id = animationId;
-  }
-
-
-  public set nodeId(nodeId: string | number) {
-    this.refNodeId = nodeId;
-  }
-
-  public set animationProperty(name: string) {
-    this.transformName = name;
-  }
-
-  public get realAnimationPropertyName() {
-    if (this.transformName && TransformList[this.transformName]) {
-      return 'transform';
-    }
-    return this.transformName;
-  }
-
-  public get transitionPropertyName() {
-    if (this.transformName && TransformList[this.transformName]) {
-      return 'transform';
-    }
-    return Camel2Kebab(this.transformName);
-  }
-
-  public get transitionValue() {
-    return `${this.transitionPropertyName} ${this.animationTime},`;
   }
 
   public get animationBeginValue() {
@@ -406,29 +191,56 @@ class SimpleAnimation2 {
     return this.animationInfo.delay ? `${this.animationInfo.delay / 1000}s` : '0s';
   }
 
-  // TODO optimization
-  public get initStartValue() {
-    return `${this.transformName}(${this.animationBeginValue})`;
+  public get animationDom() {
+    if (this.dom) {
+      return this.dom;
+    }
+    if (this.refNodeId) {
+      this.dom = document.getElementById(String(this.refNodeId));
+    }
+    return this.dom;
   }
 
   public get animationName() {
     return `hippy-keyframe-${this.id}`;
   }
 
-  public start() {
-    if (!this.refNodeId) {
+  public get iteration() {
+    if (this.animationInfo.repeatCount !== undefined && this.animationInfo.repeatCount < 0) {
+      return 'infinite';
+    }
+    if (!this.animationInfo || !this.animationInfo.repeatCount) {
+      return String(1);
+    }
+    return String(this.animationInfo.repeatCount);
+  }
+
+  public set animationProperty(name: string| { [key: string]: any}) {
+    if (typeof name === 'string') {
+      this.refCssProperty = name;
       return;
     }
-    const element = document.getElementById(String(this.refNodeId));
-    if (!element) {
-      return;
+    const [item] = Object.keys(name);
+    if (TransformList[item]) {
+      this.refCssProperty = item;
     }
+  }
+
+  public get useForSetProperty() {
+    if (this.refCssProperty && TransformList[this.refCssProperty]) {
+      return 'transform';
+    }
+    return this.refCssProperty;
+  }
+
+  public initAnimation(element: HTMLElement) {
+    this.dom = element;
     const animationCssBeginValue = this.buildCssValue(this.animationBeginValue);
     const animationCssEndValue = this.buildCssValue(this.animationEndValue);
     const beginFrame = {};
     const endFrame = {};
-    beginFrame[this.animationProperty] = animationCssBeginValue;
-    endFrame[this.animationProperty] = animationCssEndValue;
+    beginFrame[this.useForSetProperty!] = animationCssBeginValue;
+    endFrame[this.useForSetProperty!] = animationCssEndValue;
     const keyFrameData = createAnimationKeyFrame(beginFrame, endFrame, this.animationName);
     const keyFrame = getKeyFrame(this.animationName);
     if (!keyFrame.cssRule) {
@@ -438,17 +250,36 @@ class SimpleAnimation2 {
     }
     const animation = createCssAnimation(
       this.animationTime, this.animationName,
-      this.animationInfo.timingFunction, this.delayTime,
+      this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
     );
     this.animationUpdate2Css(animation);
     element.addEventListener('animationstart', this.handleAnimationStart.bind(this));
+    element.addEventListener('animationend', this.handleAnimationEnd.bind(this));
+  }
+
+  public start() {
+    this.changeAnimationStatus('running');
   }
 
   public stop() {
-    if (!this.refNodeId) {
-      return;
-    }
-    const element = document.getElementById(String(this.refNodeId));
+    this.changeAnimationStatus('paused');
+  }
+
+  public resume() {
+    this.changeAnimationStatus('running');
+  }
+
+  public destroy() {
+    this.changeAnimationStatus('paused');
+    this.animationUpdate2Css(null);
+  }
+
+  public update(param: AnimationOptions) {
+    this.animationInfo = param;
+  }
+
+  private changeAnimationStatus(status: AnimationPlayState) {
+    const element = this.dom;
     if (!element) {
       return;
     }
@@ -458,46 +289,42 @@ class SimpleAnimation2 {
     }
     const pauseAnimation = createCssAnimation(
       this.animationTime, this.animationName,
-      this.animationInfo.timingFunction, this.delayTime, 'paused',
+      this.animationInfo.timingFunction, this.delayTime, status, this.iteration, 'both',
     );
     this.animationUpdate2Css(pauseAnimation);
   }
 
-  public update(param: AnimationOptions) {
-    this.animationInfo = param;
-  }
-
-  public animationUpdate2Css(animation: string) {
-    const element = document.getElementById(String(this.refNodeId));
+  private animationUpdate2Css(animation: string|null) {
+    const element = this.dom;
     if (!element) {
       return;
     }
     let oldAnimationList = element.style.animation ? element.style.animation.split(',') : [];
-    if (!oldAnimationList) {
+    if (!oldAnimationList && animation !== null) {
       oldAnimationList = [];
       oldAnimationList.push(animation);
     } else {
       const index = oldAnimationList.findIndex((value: string) => value.indexOf(this.animationName) !== -1) ?? -1;
-      if (index !== -1) {
-        oldAnimationList[index] = animation;
-      } else {
+      if (index === -1 && animation) {
         oldAnimationList.push(animation);
+      }
+      if (index !== -1 && animation !== null) {
+        oldAnimationList[index] = animation;
+      }
+      if (index !== -1 && animation === null) {
+        oldAnimationList.splice(index, 1);
       }
     }
     setElementStyle(element, { animation: oldAnimationList.join(',') });
   }
 
-  public resume() {}
-
-  public destroy() {}
-
   private dispatchEvent(eventName: HippyAnimationEvent) {
-    dispatchModuleEventToHippy([eventName, this.id]);
+    this.context.sendUiEvent(this.id as number, eventName, null);
   }
 
   private buildCssValue(value: string) {
-    if (this.realAnimationPropertyName === 'transform') {
-      return `${this.transformName}(${value})`;
+    if (this.useForSetProperty === 'transform') {
+      return `${this.refCssProperty}(${value})`;
     }
     return value;
   }
@@ -507,67 +334,24 @@ class SimpleAnimation2 {
     if (this.animationInfo.valueType) {
       unit = this.animationInfo.valueType;
     }
-    if (this.transformName === 'scale') {
+    if (this.refCssProperty === 'scale') {
       unit = '';
     }
     return `${value}${unit}`;
-  }
-
-  private updateElementAnimationValue(element: HTMLElement, animationCssValue: string) {
-    if (!this.realAnimationPropertyName) {
-      return;
-    }
-    const oldAnimationValue = element.style[this.realAnimationPropertyName];
-    let newAnimationValue = animationCssValue;
-    if (
-      oldAnimationValue
-      && this.realAnimationPropertyName === 'transform'
-      && oldAnimationValue.indexOf(this.transformName) !== -1
-    ) {
-      newAnimationValue = '';
-      const oldAnimationKey = oldAnimationValue.split(' ');
-      for (const value of oldAnimationKey) {
-        if (!value || value.trim().length === 0) {
-          return;
-        }
-        let tempValue = SimpleAnimation.buildTransformSingleValue(animationCssValue);
-        if (value.length > 0 && value.indexOf(this.transformName) === -1) {
-          tempValue = SimpleAnimation.buildTransformSingleValue(value);
-        }
-        newAnimationValue += tempValue;
-      }
-    }
-    const style = {};
-    style[this.realAnimationPropertyName] = newAnimationValue;
-    setElementStyle(element, style);
-  }
-
-  private updateElementTransition(element: HTMLElement, transitionValue: string) {
-    const oldTransition = element.style.transition;
-    let newTransition = transitionValue;
-    if (oldTransition && oldTransition.indexOf(this.transitionPropertyName) !== -1) {
-      newTransition = '';
-      oldTransition.split(',').map((value) => {
-        let tempValue = SimpleAnimation.buildTransitionSingleValue(transitionValue);
-        if (value.length > 0 && value.indexOf(this.transitionPropertyName) !== -1) {
-          tempValue = SimpleAnimation.buildTransitionSingleValue(value);
-        }
-        newTransition += tempValue;
-      });
-    }
-    setElementStyle(element, { transition: SimpleAnimation.transitionStringFormat(newTransition) });
   }
 
   private handleAnimationStart(event: AnimationEvent) {
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.START);
     }
+    event.stopPropagation();
   }
 
   private handleAnimationEnd(event: AnimationEvent) {
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.END);
     }
+    event.stopPropagation();
   }
 }
 function object2Style(object: {[key: string]: string}) {
@@ -584,8 +368,8 @@ function createAnimationKeyFrame(
   endKeyFrame: {[key: string]: string}, keyFrameName: string,
 ) {
   return ` @keyframes ${keyFrameName}{
-    from:${object2Style(beginKeyFrame)},
-    to:${object2Style(endKeyFrame)}
+    from {${object2Style(beginKeyFrame)}}
+    to {${object2Style(endKeyFrame)}}
   }`;
 }
 
@@ -609,8 +393,7 @@ function getKeyFrame(name) {
   const ss = document.styleSheets;
   for (let i = 0; i < ss.length; ++i) {
     const item = ss[i];
-    if (item.cssRules[0] && (item.cssRules[0] as CSSKeyframesRule).name
-      && (item.cssRules[0] as CSSKeyframesRule).name === name) {
+    if ((item.cssRules[0] as CSSKeyframesRule)?.name === name) {
       keyFrameStyle.cssRule = item.cssRules[0];
       keyFrameStyle.styleSheet = ss[i];
       keyFrameStyle.index = 0;
@@ -619,6 +402,9 @@ function getKeyFrame(name) {
   return keyFrameStyle;
 }
 
-function createCssAnimation(duration: string, name: string, timeFunction = 'linear', delay = '0s', state = 'paused', repeat = '0', fillMode = 'forwards') {
+function createCssAnimation(
+  duration: string, name: string, timeFunction = 'linear', delay = '0s', state: AnimationPlayState = 'running',
+  repeat: AnimationIterationCount = '1', fillMode: AnimationFillMode = 'forwards',
+) {
   return `${duration} ${timeFunction} ${delay} ${repeat} normal ${fillMode} ${state} ${name}`;
 }
