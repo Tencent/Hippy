@@ -127,7 +127,7 @@ const resolveAssetUri = (source: string | { uri: string }) => {
  * static resources, temporary local images, and images from local disk, such as the camera roll.
  * @noInheritDoc
  */
-const Image: React.FC<ImageProp> & { resizeMode: Record<string, string> } = (props: ImageProp) => {
+const Image: React.FC<ImageProp> = React.forwardRef((props: ImageProp, ref) => {
   const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd, resizeMode, children, style } = props;
   warnWhenUseUnsupportedProp({
     moduleProps: props,
@@ -181,6 +181,11 @@ const Image: React.FC<ImageProp> & { resizeMode: Record<string, string> } = (pro
     }
   }, [source]);
 
+  React.useImperativeHandle(ref, () => ({
+    getSize: ImageLoader.getSize,
+    prefetch: ImageLoader.prefetch,
+  }));
+
 
   const finalResizeMode = resizeMode || copyProps.style?.resizeMode || ImageResizeMode.cover;
 
@@ -209,7 +214,10 @@ const Image: React.FC<ImageProp> & { resizeMode: Record<string, string> } = (pro
       {children}
     </View>
   );
-};
+});
+
+Image.displayName = 'Image';
+// @ts-ignore
 Image.resizeMode = ImageResizeMode;
 
 export default Image;

@@ -47,7 +47,7 @@ import NetInfo from './modules/net-info';
 import WebSocket from './modules/websocket';
 import AsyncStorage from './modules/async-storage';
 import * as NetworkModule from './modules/cookie-module';
-import ImageLoaderModule from './adapters/image-loader';
+import { ImageLoaderModule } from './adapters/image-loader';
 
 const Hippy = HippyReact;
 const ConsoleModule = console;

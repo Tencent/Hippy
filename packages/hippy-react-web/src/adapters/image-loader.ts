@@ -14,11 +14,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { isFunc } from '../utils/validation';
+
+interface Requests {
+  [key: string]: any;
+}
+type SizeSucces = (width: number, height: number) => void;
+type SizeFailure = () => void;
 type LoadSuccess = (ev: Event) => void;
 export type LoadError = (event: { nativeEvent: { error: string } }) => void;
 
+let id = 0;
+const requests: Requests = {};
+
 const ImageLoader = {
   load(url: string, onLoad: LoadSuccess, onError: LoadError) {
+    id += 1;
     const image = new window.Image();
     image.setAttribute('crossOrigin', 'Anonymous');
     image.src = url;
@@ -38,13 +49,50 @@ const ImageLoader = {
         setTimeout(onDecode, 0);
       }
     };
+    requests[`${id}`] = image;
+    return id;
   },
   prefetch(url: string) {
-    return new Promise((resolve, reject) => {
-      ImageLoader.load(url, resolve, reject);
-    });
+    if (typeof url !== 'string') {
+      throw new TypeError('Image.prefetch first argument must be a string url');
+    }
+    ImageLoader.load(url, () => {}, () => {});
   },
+  abort(requestId: number) {
+    let image = requests[`${requestId}`];
+    if (image) {
+      image.onerror = null;
+      image.onload = null;
+      image = null;
+      delete requests[`${requestId}`];
+    }
+  },
+  getSize(url: string, success: SizeSucces, failure: SizeFailure) {
+    if (typeof url !== 'string') {
+      throw new TypeError('Image.getSize first argument must be a string url');
+    }
+    const image = new window.Image();
+    image.setAttribute('crossOrigin', 'Anonymous');
+    image.src = url;
+
+    image.onload = () => {
+      if (isFunc(success)) {
+        success(image.width, image.height);
+      }
+    };
+    image.onerror = () => {
+      if (isFunc(failure)) {
+        failure();
+      }
+    };
+  },
+};
+export const ImageLoaderModule = {
+  prefetch: ImageLoader.prefetch,
   getSize(url: string) {
+    if (typeof url !== 'string') {
+      throw new TypeError('ImageLoaderModule.getSize first argument must be a string url');
+    }
     return new Promise((resolve, reject) => {
       const image = new window.Image();
       image.setAttribute('crossOrigin', 'Anonymous');
@@ -58,5 +106,4 @@ const ImageLoader = {
     });
   },
 };
-
 export default ImageLoader;
