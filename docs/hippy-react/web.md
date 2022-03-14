@@ -236,6 +236,16 @@ WebView组件。
 | onLoadStart  | 网页开始加载时触发 | `(object: { url:string }) => void`   | `web 暂不支持`  |
 | onLoad  | 网页加载时触发  | `(object: { url:string }) => void`   | `web 暂不支持`  |
 
+# 模块支持
+
+## AnimationSet
+
+### 不支持设置的组件样式
+
+1. background-color
+
+
+
 # 编译时依赖
 
 以官方提供的 [范例工程](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 范例工程为例，需要使用 `npm i -D` 准备好以下依赖，当然开发者可以根据需要自行选择：
