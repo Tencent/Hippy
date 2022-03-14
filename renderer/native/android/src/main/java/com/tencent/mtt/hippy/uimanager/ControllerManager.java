@@ -36,7 +36,6 @@ import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
-import com.tencent.mtt.hippy.views.list.HippyListViewController;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
@@ -95,7 +94,7 @@ public class ControllerManager {
         controllers.add(HippyTextViewController.class);
         controllers.add(HippyViewGroupController.class);
         controllers.add(HippyImageViewController.class);
-        controllers.add(HippyListViewController.class);
+        //controllers.add(HippyListViewController.class);
         controllers.add(HippyRecyclerViewController.class);
         controllers.add(HippyListItemViewController.class);
         controllers.add(HippyTextInputController.class);
@@ -307,7 +306,7 @@ public class ControllerManager {
     public void onBatchStart(String className, int id) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(id);
-        if (view != null) {
+        if (view != null && controller != null) {
             controller.onBatchStart(view);
         }
     }
@@ -315,7 +314,7 @@ public class ControllerManager {
     public void onBatchComplete(String className, int id) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(id);
-        if (view != null) {
+        if (view != null && controller != null) {
             controller.onBatchComplete(view);
         }
     }

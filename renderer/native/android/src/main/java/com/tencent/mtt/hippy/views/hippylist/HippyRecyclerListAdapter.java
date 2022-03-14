@@ -186,7 +186,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         oldNode.setLazy(true);
         newNode.setLazy(false);
         NativeRender nativeRender = NativeRendererManager.getNativeRenderer(hippyRecyclerView.getContext());
-        if (nativeRender != null) {
+        if (nativeRender != null && oldNode != newNode) {
             DiffUtils.doDiffAndPatch(nativeRender.getRenderManager().getControllerManager(),
                     oldNode, newNode);
         }

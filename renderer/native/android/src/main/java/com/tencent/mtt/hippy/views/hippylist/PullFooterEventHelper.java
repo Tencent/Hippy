@@ -20,6 +20,7 @@ import android.view.View;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.nxeasy.recyclerview.helper.footer.FooterExposureHelper;
 import com.tencent.mtt.nxeasy.recyclerview.helper.footer.IFooterLoadMoreListener;
+import com.tencent.renderer.utils.EventUtils;
 
 /**
  * Created  on 2021/1/7.
@@ -28,10 +29,8 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.footer.IFooterLoadMoreListener
  */
 class PullFooterEventHelper implements IFooterLoadMoreListener {
 
-    public static final String EVENT_ON_END_REACHED = "onLoadMore";
     private final HippyRecyclerView recyclerView;
     private FooterExposureHelper footerExposureHelper;
-    private HippyViewEvent onEndReachedEvent;
 
     PullFooterEventHelper(HippyRecyclerView recyclerView) {
         this.recyclerView = recyclerView;
@@ -52,15 +51,8 @@ class PullFooterEventHelper implements IFooterLoadMoreListener {
         }
     }
 
-    protected HippyViewEvent getOnEndReachedEvent() {
-        if (onEndReachedEvent == null) {
-            onEndReachedEvent = new HippyViewEvent(EVENT_ON_END_REACHED);
-        }
-        return onEndReachedEvent;
-    }
-
     @Override
     public void onFooterLoadMore() {
-        getOnEndReachedEvent().send((View) recyclerView.getParent(), null);
+        EventUtils.send((View) recyclerView.getParent(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
     }
 }

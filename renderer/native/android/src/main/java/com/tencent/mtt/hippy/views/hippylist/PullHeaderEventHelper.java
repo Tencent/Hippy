@@ -28,12 +28,14 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.header.HeaderRefreshHelper;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshListener;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshView;
 import com.tencent.mtt.nxeasy.recyclerview.helper.header.ILayoutRequester;
+import com.tencent.renderer.utils.EventUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRefreshView,
         ILayoutRequester {
 
-    public static final String EVENT_TYPE_HEADER_PULLING = "onHeaderPulling";
-    public static final String EVENT_TYPE_HEADER_RELEASED = "onHeaderReleased";
     private final PullHeaderRenderNode renderNode;
     private HippyRecyclerView recyclerView;
     private View renderNodeView;
@@ -74,9 +76,9 @@ public class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRef
 
     @Override
     public void onHeaderHeightChanged(int sumOffset) {
-        HippyMap params = new HippyMap();
-        params.pushDouble("contentOffset", PixelUtil.px2dp(sumOffset));
-        sendPullHeaderEvent(EVENT_TYPE_HEADER_PULLING, params);
+        Map<String, Object> params = new HashMap<>();
+        params.put("contentOffset", PixelUtil.px2dp(sumOffset));
+        EventUtils.send(renderNodeView, EventUtils.EVENT_LIST_HEADER_PULLING, params);
     }
 
     @Override
@@ -94,16 +96,12 @@ public class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRef
      */
     @Override
     public void onHeaderRefreshing(int refreshWay) {
-        sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
+        EventUtils.send(renderNodeView, EventUtils.EVENT_LIST_HEADER_RELEASED, null);
     }
 
     @Override
     public int getContentHeight() {
         return renderNode.getHeight();
-    }
-
-    protected void sendPullHeaderEvent(String eventName, HippyMap param) {
-        new HippyViewEvent(eventName).send(renderNodeView, param);
     }
 
     /**

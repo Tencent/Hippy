@@ -47,7 +47,6 @@ import com.tencent.renderer.utils.EventUtils;
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
         OnAttachStateChangeListener, OverPullListener {
 
-    public static final String INITIAL_LIST_READY = "initialListReady";
     protected final HippyRecyclerView hippyRecyclerView;
     private boolean scrollBeginDragEventEnable;
     private boolean scrollEndDragEventEnable;
@@ -92,7 +91,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
             hippyRecyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    new HippyViewEvent(INITIAL_LIST_READY).send(getParentView(), null);
+                    EventUtils.send(getParentView(), EventUtils.EVENT_RECYCLER_LIST_READY, null);
                 }
             });
         }
@@ -225,7 +224,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     protected void sendOnReachedEvent() {
-        new HippyViewEvent(EventUtils.EVENT_ON_END_REACHED).send(getParentView(), null);
+        EventUtils.send(getParentView(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
     }
 
     protected void checkSendOnScrollEvent() {

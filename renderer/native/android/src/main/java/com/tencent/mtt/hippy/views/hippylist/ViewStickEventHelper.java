@@ -12,7 +12,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickViewListener;
  */
 public class ViewStickEventHelper implements StickViewListener {
 
-    public static final String ON_VIEW_SUSPEND_LISTENER = "onViewSuspendListener";
+    public static final String ON_VIEW_SUSPEND_LISTENER = "viewSuspendListener";
     public static final String IS_SHOW = "isShow";
     private View view;
 

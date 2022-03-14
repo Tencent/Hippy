@@ -154,7 +154,7 @@ public class RenderNode {
 
     public View createViewRecursive() {
         View view = createView();
-        setNodeFlag(FLAG_UPDATE_LAYOUT);
+        setNodeFlag(FLAG_UPDATE_LAYOUT | FLAG_UPDATE_EVENT | FLAG_UPDATE_EXTRA);
         for (RenderNode renderNode : mChildren) {
             renderNode.createViewRecursive();
         }
