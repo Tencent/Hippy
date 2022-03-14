@@ -244,6 +244,10 @@ WebView组件。
 
 1. background-color
 
+## BackAndroid
+
+web 不支持
+
 
 
 # 编译时依赖

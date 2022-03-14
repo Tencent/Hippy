@@ -14,63 +14,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-/* eslint no-use-before-define: ["error", { "functions": false }] */
-// @ts-nocheck
-interface Requests {
-  [key: string]: any;
-}
-
-type SizeSucces = (width: number, height: number) => void;
-type SizeFailure = () => void;
 type LoadSuccess = (ev: Event) => void;
 export type LoadError = (event: { nativeEvent: { error: string } }) => void;
 
-let id = 0;
-const requests: Requests = {};
-
 const ImageLoader = {
-  abort(requestId: number) {
-    let image = requests[`${requestId}`];
-    if (image) {
-      image.onerror = null;
-      image.onload = null;
-      image = null;
-      delete requests[`${requestId}`];
-    }
-  },
-  getSize(uri: string, success: SizeSucces, failure: SizeFailure) {
-    let complete = false;
-    const interval = setInterval(callback, 16);
-    const requestId = ImageLoader.load(uri, callback, errorCallback);
-
-    function callback() {
-      const image = requests[`${requestId}`];
-      if (image) {
-        const { naturalHeight, naturalWidth } = image;
-        if (naturalHeight && naturalWidth) {
-          success(naturalWidth, naturalHeight);
-          complete = true;
-        }
-      }
-      if (complete) {
-        ImageLoader.abort(requestId);
-        clearInterval(interval);
-      }
-    }
-
-    function errorCallback() {
-      if (typeof failure === 'function') {
-        failure();
-      }
-      ImageLoader.abort(requestId);
-      clearInterval(interval);
-    }
-  },
-  load(uri: string, onLoad: LoadSuccess, onError: LoadError) {
-    id += 1;
+  load(url: string, onLoad: LoadSuccess, onError: LoadError) {
     const image = new window.Image();
-    image.onerror = () => {
-      onError();
+    image.setAttribute('crossOrigin', 'Anonymous');
+    image.src = url;
+    image.onerror = (e) => {
+      onError(e);
     };
     image.onload = (e) => {
       // avoid blocking the main thread
@@ -85,13 +38,23 @@ const ImageLoader = {
         setTimeout(onDecode, 0);
       }
     };
-    image.src = uri;
-    requests[`${id}`] = image;
-    return id;
   },
-  prefetch(uri: string) {
+  prefetch(url: string) {
     return new Promise((resolve, reject) => {
-      ImageLoader.load(uri, resolve, reject);
+      ImageLoader.load(url, resolve, reject);
+    });
+  },
+  getSize(url: string) {
+    return new Promise((resolve, reject) => {
+      const image = new window.Image();
+      image.setAttribute('crossOrigin', 'Anonymous');
+      image.src = url;
+      image.onload = () => {
+        resolve({ width: image.width, height: image.height });
+      };
+      image.onerror = () => {
+        reject({ width: null, height: null });
+      };
     });
   },
 };
