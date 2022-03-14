@@ -17,25 +17,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// @ts-nocheck
 import React from 'react';
+import { warnWhenUseUnsupportedProp } from '../utils';
 import { formatWebStyle } from '../adapters/transfer';
+import { UNSUPPORTED_PROPS_MAP } from '../constants';
+
+interface WebViewProps {
+  source: { uri: string };
+  userAgent: string;
+  method: string;
+  onLoadStart: ({ url: string }) => void;
+  onLoad: ({ url: string }) => void;
+  onLoadEnd: ({ url: string }) => void;
+  style: HippyTypes.Style;
+};
 
 /**
  * System built-in WebView
  *
  * For iOS it uses WKWebView, for Android it uses Webkit built-in.
  */
-function WebView(props) {
-  const { source, style, onLoadEnd, ...otherProps } = props;
+const WebView = (props: WebViewProps) => {
+  const { source, style, onLoadEnd } = props;
+  warnWhenUseUnsupportedProp({
+    moduleProps: props,
+    moduleName: 'WebView',
+    unsupportedProps: UNSUPPORTED_PROPS_MAP.webview,
+  });
+
   const src = source?.uri;
   const newStyle = formatWebStyle(style);
+
   return (
-    <iframe title="WebView" src={src} style={newStyle} {...otherProps} onLoad={() => {
+    <iframe title="WebView" src={src} style={newStyle} onLoad={() => {
       onLoadEnd({ url: src });
     }} />
   );
-}
+};
 
 export default WebView;

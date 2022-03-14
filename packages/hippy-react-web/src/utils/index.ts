@@ -32,6 +32,19 @@ function warn(...context: any[]) {
   console.warn(...context);
 }
 
+export const warnWhenUseUnsupportedProp = (param: {
+  moduleProps: Record<string, any>,
+  unsupportedProps: string[],
+  moduleName: string,
+}) => {
+  const { moduleProps, moduleName, unsupportedProps } = param;
+  unsupportedProps.forEach((unsupportedProp) => {
+    if (moduleProps[unsupportedProp] !== undefined) {
+      warn(`prop ${unsupportedProp} does not support in ${moduleName}`);
+    }
+  });
+};
+
 const useStable = <T>(getInitialValue: () => T): T => {
   const ref = React.useRef<T | null>(null);
   if (ref.current === null) {

@@ -28,6 +28,8 @@ import { isFunc } from '../utils/validation';
 import { canUseDOM } from '../utils/execution-environment';
 import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
 import { LayoutEvent } from '../types';
+import { warnWhenUseUnsupportedProp } from '../utils';
+import { UNSUPPORTED_PROPS_MAP } from '../constants';
 import View from './view';
 
 interface ListViewItemProp {
@@ -136,6 +138,12 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     onHeaderReleased = () => { }, onHeaderPulling = () => { }, renderPullHeader = () => null,
     onDisappear = () => { }, onAppear = () => { },
   } = props;
+  warnWhenUseUnsupportedProp({
+    moduleProps: props,
+    moduleName: 'ListView',
+    unsupportedProps: UNSUPPORTED_PROPS_MAP.listview,
+  });
+
   const isShowPullHeader = useRef(isFunc(renderPullHeader) && renderPullHeader());
   const pullHeaderRef = useRef<null | HTMLDivElement>(null);
   const pullHeaderOffset = useRef(0);

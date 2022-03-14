@@ -22,6 +22,8 @@
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { SwiperOptions } from 'swiper/types';
+import { warnWhenUseUnsupportedProp } from '../utils';
+import { UNSUPPORTED_PROPS_MAP } from '../constants';
 import 'swiper/swiper.min.css';
 
 interface Props extends SwiperOptions {
@@ -50,6 +52,11 @@ export const ViewPager: React.FC<Props> = React.forwardRef((props, ref) => {
     loop = false,
     direction = 'horizontal',
   } = props;
+  warnWhenUseUnsupportedProp({
+    moduleProps: props,
+    moduleName: 'ViewPager',
+    unsupportedProps: UNSUPPORTED_PROPS_MAP.viewpager,
+  });
 
   const swiperRef = React.useRef<null | Swiper>(null);
 

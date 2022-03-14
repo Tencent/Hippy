@@ -23,6 +23,8 @@ import animateScrollTo from 'animated-scroll-to';
 import StyleSheet from '../modules/stylesheet';
 import { isFunc } from '../utils/validation';
 import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
+import { warnWhenUseUnsupportedProp } from '../utils';
+import { UNSUPPORTED_PROPS_MAP } from '../constants';
 import { View, ViewProps } from './view';
 
 const styles = StyleSheet.create({
@@ -151,6 +153,12 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
     contentContainerStyle,
     ...rest
   } = copyProps;
+  warnWhenUseUnsupportedProp({
+    moduleProps: props,
+    moduleName: 'ScrollView',
+    unsupportedProps: UNSUPPORTED_PROPS_MAP.scrollview,
+  });
+
   shouldHideScrollBar(!showScrollIndicator);
   const scrollState = React.useRef({ isScrolling: false, scrollLastTick: 0 });
   const scrollTimeout = React.useRef<null | number>(null);
