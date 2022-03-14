@@ -225,9 +225,6 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 }
 
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-  // 更新布局信息前处理事件监听
-  HandleListenerOps(event_listener_ops_, "updateEventListener");
-
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -286,7 +283,10 @@ void HippyRenderManager::EndBatch() { CallNativeMethod("endBatch"); }
 
 void HippyRenderManager::BeforeLayout(){}
 
-void HippyRenderManager::AfterLayout(){}
+void HippyRenderManager::AfterLayout() {
+  // 更新布局信息前处理事件监听
+  HandleListenerOps(event_listener_ops_, "updateEventListener");
+}
 
 void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
   event_listener_ops_.emplace_back(ListenerOp(true, dom_node, name));
@@ -442,9 +442,9 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const s
         index++;
         break;
       }
-      if (node->GetId() == current_id && ops[index].add == current_add) {
+      if (node->GetId() == current_id) {
         // batch add or remove operations with the same nodes together.
-        events[ops[index].name] = tdf::base::DomValue(current_add);
+        events[ops[index].name] = tdf::base::DomValue(ops[index].add);
         index++;
       } else {
         break;

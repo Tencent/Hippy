@@ -266,8 +266,15 @@ void DomManager::CallFunction(uint32_t id, const std::string& name, const DomArg
 }
 
 void DomManager::AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
-  listener_operations_.emplace_back([this, node, name]() {
-    auto render_manager = render_manager_.lock();
+  uint32_t node_id = node->GetId();
+  listener_operations_.emplace_back([WEAK_THIS, node_id, name]() {
+    DEFINE_AND_CHECK_SELF(DomManager)
+    auto node = self->dom_node_registry_.GetNode(
+            hippy::base::checked_numeric_cast<uint32_t, int32_t>(node_id));
+    if (!node) {
+      return;
+    }
+    auto render_manager = self->render_manager_.lock();
     TDF_BASE_DCHECK(render_manager);
     if (render_manager) {
       render_manager->AddEventListener(node, name);
@@ -276,8 +283,15 @@ void DomManager::AddEventListenerOperation(const std::shared_ptr<DomNode>& node,
 }
 
 void DomManager::RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
-  listener_operations_.emplace_back([this, node, name]() {
-    auto render_manager = render_manager_.lock();
+  uint32_t node_id = node->GetId();
+  listener_operations_.emplace_back([WEAK_THIS, node_id, name]() {
+    DEFINE_AND_CHECK_SELF(DomManager)
+    auto node = self->dom_node_registry_.GetNode(
+            hippy::base::checked_numeric_cast<uint32_t, int32_t>(node_id));
+    if (!node) {
+      return;
+    }
+    auto render_manager = self->render_manager_.lock();
     TDF_BASE_DCHECK(render_manager);
     if (render_manager) {
       render_manager->RemoveEventListener(node, name);
