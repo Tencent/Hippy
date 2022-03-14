@@ -23,60 +23,53 @@ import java.util.List;
 
 public class ArrayUtils {
 
-    private static final int DEFAULT_NUMBER_VALUE = 0;
-
     public static int getIntValue(@NonNull List<?> params, int index) {
-        if (index >= params.size()) {
-            return DEFAULT_NUMBER_VALUE;
+        if (index < params.size()) {
+            Object element = params.get(index);
+            if (element instanceof Number) {
+                return ((Number) element).intValue();
+            }
         }
-        Object element = params.get(index);
-        if (element instanceof Number) {
-            return ((Number) element).intValue();
-        }
-        return DEFAULT_NUMBER_VALUE;
+        return 0;
     }
 
     public static float getFloatValue(@NonNull List<?> params, int index) {
-        if (index >= params.size()) {
-            return DEFAULT_NUMBER_VALUE;
+        if (index < params.size()) {
+            Object element = params.get(index);
+            if (element instanceof Number) {
+                return ((Number) element).floatValue();
+            }
         }
-        Object element = params.get(index);
-        if (element instanceof Number) {
-            return ((Number) element).floatValue();
-        }
-        return DEFAULT_NUMBER_VALUE;
+        return 0;
     }
 
     public static double getDoubleValue(@NonNull List<?> params, int index) {
-        if (index >= params.size()) {
-            return DEFAULT_NUMBER_VALUE;
+        if (index < params.size()) {
+            Object element = params.get(index);
+            if (element instanceof Number) {
+                return ((Number) element).doubleValue();
+            }
         }
-        Object element = params.get(index);
-        if (element instanceof Number) {
-            return ((Number) element).doubleValue();
-        }
-        return DEFAULT_NUMBER_VALUE;
+        return 0;
     }
 
     @Nullable
     public static String getStringValue(@NonNull List<?> params, int index) {
-        if (index >= params.size()) {
-            return null;
-        }
-        Object element = params.get(index);
-        if (element instanceof String) {
-            return ((String) element);
+        if (index < params.size()) {
+            Object element = params.get(index);
+            if (element instanceof String) {
+                return ((String) element);
+            }
         }
         return null;
     }
 
     public static boolean getBooleanValue(@NonNull List<?> params, int index) {
-        if (index >= params.size()) {
-            return false;
-        }
-        Object element = params.get(index);
-        if (element instanceof Boolean) {
-            return ((boolean) element);
+        if (index < params.size()) {
+            Object element = params.get(index);
+            if (element instanceof Boolean) {
+                return ((boolean) element);
+            }
         }
         return false;
     }

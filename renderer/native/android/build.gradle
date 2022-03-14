@@ -58,5 +58,6 @@ dependencies {
     //noinspection GradleDependency
     implementation 'androidx.annotation:annotation:1.0.0'
     //noinspection GradleDependency
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    api 'androidx.recyclerview:recyclerview:1.1.0'
+    api 'androidx.viewpager:viewpager:1.0.0'
 }

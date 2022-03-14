@@ -304,6 +304,14 @@ public class ControllerManager {
         }
     }
 
+    public void onBatchStart(String className, int id) {
+        HippyViewController controller = mControllerRegistry.getViewController(className);
+        View view = mControllerRegistry.getView(id);
+        if (view != null) {
+            controller.onBatchStart(view);
+        }
+    }
+
     public void onBatchComplete(String className, int id) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(id);

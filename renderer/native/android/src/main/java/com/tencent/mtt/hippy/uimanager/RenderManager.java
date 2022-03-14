@@ -179,6 +179,7 @@ public class RenderManager {
     public void batch() {
         // Should create all views at first
         for (RenderNode node : mUIUpdateNodes) {
+            node.batchStart();
             node.createView();
         }
         // Should do update after all views created

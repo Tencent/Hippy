@@ -348,6 +348,12 @@ public class RenderNode {
         return checkNodeFlag(FLAG_ALREADY_DELETED);
     }
 
+    protected void batchStart() {
+        if (!checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD)) {
+            mComponentManager.onBatchStart(mClassName, mId);
+        }
+    }
+
     protected void batchComplete() {
         if (!checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD)) {
             mComponentManager.onBatchComplete(mClassName, mId);

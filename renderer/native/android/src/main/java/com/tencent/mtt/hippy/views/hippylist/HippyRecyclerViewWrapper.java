@@ -27,113 +27,117 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
-import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRenderContext;
-import com.tencent.renderer.NativeRendererManager;
 
-public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements
-    HippyViewBase,
-    IHeaderHost {
+/**
+ * Description
+ * 这里搞一个RecyclerViewWrapper
+ * 其实是一个普通的FrameLayout，并不是RecyclerView，主要为吸顶的Header功能考虑，
+ * 系统RecyclerView做吸顶功能最简单的实现的是在RecyclerView的父亲覆盖一个View，
+ * 这样不会影响RecyclerView的Layout的排版，否则就需要重写LayoutManager，重新layoutManager也是后面要考虑的。
+ */
+public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends FrameLayout implements HippyViewBase,
+        IHeaderHost {
 
-  protected NativeRender hpContext = null;
-  protected HRCV recyclerView;
-  private NativeGestureDispatcher nativeGestureDispatcher;
+    protected HRCV recyclerView;
+    private NativeGestureDispatcher nativeGestureDispatcher;
 
-  public HippyRecyclerViewWrapper(@NonNull Context context, HRCV recyclerView) {
-    super(context);
-    this.recyclerView = recyclerView;
-    addView(recyclerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-    if (context instanceof NativeRenderContext) {
-      int instanceId = ((NativeRenderContext)context).getInstanceId();
-      hpContext = NativeRendererManager.getNativeRenderer(instanceId);
+    public HippyRecyclerViewWrapper(@NonNull Context context, HRCV recyclerView) {
+        super(context);
+        this.recyclerView = recyclerView;
+        addView(recyclerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView,
+                recyclerView.getNodePositionHelper());
+        recyclerView.setViewCacheExtension(cacheExtension);
+        recyclerView.setHeaderHost(this);
+        HippyRecyclerPool pool = new HippyRecyclerPool(this, cacheExtension,
+                recyclerView.getNodePositionHelper());
+        pool.setViewAboundListener(recyclerView);
+        recyclerView.setRecycledViewPool(pool);
+
     }
-    HippyRecyclerExtension cacheExtension = new HippyRecyclerExtension(recyclerView, hpContext,
-        recyclerView.getNodePositionHelper());
-    recyclerView.setViewCacheExtension(cacheExtension);
-    recyclerView.setHeaderHost(this);
-    HippyRecyclerPool pool = new HippyRecyclerPool(hpContext, this, cacheExtension,
-        recyclerView.getNodePositionHelper());
-    pool.setViewAboundListener(recyclerView);
-    recyclerView.setRecycledViewPool(pool);
 
-  }
+    @Override
+    public int computeVerticalScrollOffset() {
+        return recyclerView.computeVerticalScrollOffset();
+    }
 
-  @Override
-  public int computeVerticalScrollOffset() {
-    return recyclerView.computeVerticalScrollOffset();
-  }
+    @Override
+    public NativeGestureDispatcher getGestureDispatcher() {
+        return nativeGestureDispatcher;
+    }
 
-  @Override
-  public NativeGestureDispatcher getGestureDispatcher() {
-    return nativeGestureDispatcher;
-  }
+    @Override
+    public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
+        nativeGestureDispatcher = dispatcher;
+    }
 
-  @Override
-  public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
-    nativeGestureDispatcher = dispatcher;
-  }
+    public int getChildCountWithCaches() {
+        return recyclerView.getChildCountWithCaches();
+    }
 
-  public int getChildCountWithCaches() {
-    return recyclerView.getChildCountWithCaches();
-  }
+    public View getChildAtWithCaches(int index) {
+        return recyclerView.getChildAtWithCaches(index);
+    }
 
-  public View getChildAtWithCaches(int index) {
-    return recyclerView.getChildAtWithCaches(index);
-  }
+    public void setListData() {
+        recyclerView.setListData();
+    }
 
-  public void setListData() {
-    recyclerView.setListData();
-  }
+    public RecyclerViewEventHelper getRecyclerViewEventHelper() {
+        return recyclerView.getRecyclerViewEventHelper();
+    }
 
-  public RecyclerViewEventHelper getRecyclerViewEventHelper() {
-    return recyclerView.getRecyclerViewEventHelper();
-  }
+    public void setScrollEnable(boolean flag) {
+        recyclerView.setScrollEnable(flag);
+    }
 
-  public void setScrollEnable(boolean flag) {
-    recyclerView.setScrollEnable(flag);
-  }
+    public void scrollToIndex(int xIndex, int yIndex, boolean animated, int duration) {
+        recyclerView.scrollToIndex(xIndex, yIndex, animated, duration);
+    }
 
-  public void scrollToIndex(int xIndex, int yIndex, boolean animated, int duration) {
-    recyclerView.scrollToIndex(xIndex, yIndex, animated, duration);
-  }
+    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated, int duration) {
+        recyclerView.scrollToContentOffset(xOffset, yOffset, animated, duration);
+    }
 
-  public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,
-      int duration) {
-    recyclerView.scrollToContentOffset(xOffset, yOffset, animated, duration);
-  }
+    public void scrollToTop() {
+        recyclerView.scrollToTop();
+    }
 
-  public void scrollToTop() {
-    recyclerView.scrollToTop();
-  }
+    public void setRowShouldSticky(boolean enable) {
+        recyclerView.setRowShouldSticky(enable);
+    }
 
-  public void setRowShouldSticky(boolean enable) {
-    recyclerView.setRowShouldSticky(enable);
-  }
+    public HRCV getRecyclerView() {
+        return recyclerView;
+    }
 
-  public HRCV getRecyclerView() {
-    return recyclerView;
-  }
+    /**
+     * 将HeaderView放到RecyclerView到父亲View上面
+     */
+    @Override
+    public void attachHeader(View headerView, LayoutParams layoutParams) {
+        addView(headerView, layoutParams);
+        layout(getLeft(), getTop(), getRight(), getBottom());
+        getViewTreeObserver().dispatchOnGlobalLayout();
+    }
 
-  /**
-   * 将HeaderView放到RecyclerView到父亲View上面
-   */
-  @Override
-  public void attachHeader(View headerView, LayoutParams layoutParams) {
-    addView(headerView, layoutParams);
-    layout(getLeft(), getTop(), getRight(), getBottom());
-    getViewTreeObserver().dispatchOnGlobalLayout();
-  }
+    @Override
+    public void addOnLayoutListener(OnGlobalLayoutListener listener) {
+        getViewTreeObserver().addOnGlobalLayoutListener(listener);
+    }
 
-  @Override
-  public void addOnLayoutListener(OnGlobalLayoutListener listener) {
-    getViewTreeObserver().addOnGlobalLayoutListener(listener);
-  }
+    @RequiresApi(api = VERSION_CODES.JELLY_BEAN)
+    @Override
+    public void removeOnLayoutListener(OnGlobalLayoutListener listener) {
+        getViewTreeObserver().removeOnGlobalLayoutListener(listener);
+    }
 
-  @RequiresApi(api = VERSION_CODES.JELLY_BEAN)
-  @Override
-  public void removeOnLayoutListener(OnGlobalLayoutListener listener) {
-    getViewTreeObserver().removeOnGlobalLayoutListener(listener);
-  }
+    public void onBatchStart() {
+        recyclerView.onBatchStart();
+    }
+
+    public void onBatchComplete() {
+        recyclerView.onBatchComplete();
+    }
 }
