@@ -108,7 +108,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         recyclerView.setItemAnimator(null);
         boolean enableScrollEvent = false;
         if (props != null) {
-            if (props.containsKey(HORIZONTAL)) {
+            if (MapUtils.getBooleanValue(props, HORIZONTAL)) {
                 layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             }
             enableScrollEvent = MapUtils.getBooleanValue(props, "onScroll");

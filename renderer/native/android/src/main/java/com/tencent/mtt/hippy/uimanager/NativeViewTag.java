@@ -19,6 +19,7 @@ package com.tencent.mtt.hippy.uimanager;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class NativeViewTag {
     }
 
     @SuppressWarnings("rawtypes")
-    @NonNull
+    @Nullable
     public static String getClassName(@NonNull View view) {
         Object tagObj = view.getTag();
         if (tagObj instanceof Map) {
@@ -45,6 +46,6 @@ public class NativeViewTag {
                 return value.toString();
             }
         }
-        return "";
+        return null;
     }
 }

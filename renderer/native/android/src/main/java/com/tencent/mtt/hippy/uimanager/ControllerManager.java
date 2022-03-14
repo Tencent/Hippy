@@ -235,7 +235,10 @@ public class ControllerManager {
         ViewGroup newParent = (ViewGroup) mControllerRegistry.getView(newPid);
         if (newParent != null) {
             String className = NativeViewTag.getClassName(newParent);
-            HippyViewController controller = mControllerRegistry.getViewController(className);
+            HippyViewController controller = null;
+            if (className != null) {
+                controller = mControllerRegistry.getViewController(className);
+            }
             if (controller != null) {
                 controller.addView(newParent, view, index);
             }
@@ -325,7 +328,7 @@ public class ControllerManager {
         }
         HippyViewController childController = null;
         String childTag = NativeViewTag.getClassName(child);
-        if (!TextUtils.isEmpty(childTag)) {
+        if (childTag != null) {
             childController = mControllerRegistry.getViewController(childTag);
             if (childController != null) {
                 childController.onViewDestroy(child);
@@ -413,7 +416,10 @@ public class ControllerManager {
         View parent = mControllerRegistry.getView(pid);
         if (child != null && parent instanceof ViewGroup && child.getParent() == null) {
             String parentClassName = NativeViewTag.getClassName(parent);
-            HippyViewController controller = mControllerRegistry.getViewController(parentClassName);
+            HippyViewController controller = null;
+            if (parentClassName != null) {
+                controller = mControllerRegistry.getViewController(parentClassName);
+            }
             if (controller != null) {
                 controller.addView((ViewGroup) parent, child, index);
             }
