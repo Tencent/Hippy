@@ -98,7 +98,7 @@ Windows 用户者需要以下软件:
 3. 根目录执行 `npm run debugexample -- [hippy-react-demo|hippy-vue-demo] dev`。
 4. 根目录执行 `npm run debugexample -- [hippy-react-demo|hippy-vue-demo] debug`。
 
-> 你也可以 `cd` 到 `framework/js/examples/hippy-react-demo` 或者 `framework/js/examples/hippy-vue-demo` 目录去分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`（`npm run hippy:local-debug` 和 `npm run hippy:local-dev` 会调用 packages 下的源码）开启 Debug 模式`。
+> 你也可以 `cd` 到 `framework/js/examples/hippy-react-demo` 或者 `framework/js/examples/hippy-vue-demo` 目录去分别执行 `npm run hippy:dev` 和 `npm run hippy:debug` 开启 Debug 模式`。
 >
 > 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `framework/js/packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
 >
