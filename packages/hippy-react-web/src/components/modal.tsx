@@ -109,7 +109,7 @@ export interface ModalProps {
   transparent?: boolean;
   visible?: boolean;
 };
-type AnimationModalProp = Pick<ModalProps, 'animationType' | 'onDismiss' | 'visible' | 'onShow' | 'transparent' | 'darkStatusBarText'> & { children: any };
+type AnimationModalProp = Pick<ModalProps, 'animationType' | 'onDismiss' | 'visible' | 'onShow' | 'transparent' | 'darkStatusBarText' | 'animated'> & { children: any };
 
 const getAnimationStyle = (animationType: AnimationType, visible: boolean) => {
   if (animationType === 'slide' || animationType === 'slide_fade') {
@@ -153,21 +153,20 @@ function ModalPortal(props: ModalPortalProps) {
     : null;
 }
 const AnimationModal = (props: AnimationModalProp) => {
-  const { animationType = 'none', onDismiss, onShow, visible = false, children, transparent, darkStatusBarText } = props;
+  const { animationType = 'none', animated = false, onDismiss, onShow, visible = false, children, transparent, darkStatusBarText } = props;
 
   const [isRendering, setIsRendering] = React.useState(false);
   const wasVisible = React.useRef(false);
 
-  const isAnimated = animationType && animationType !== 'none';
+  const isAnimated = animated && animationType && animationType !== 'none';
 
-  let containerStyle: Record<string, any> = styles.lightText;
+  let styleOfProps: Record<string, any> = styles.lightText;
   if (transparent) {
-    containerStyle.backgroundColor = 'transparent';
+    styleOfProps.backgroundColor = 'transparent';
   }
   if (darkStatusBarText) {
-    containerStyle = { ...containerStyle, ...styles.darkText };
+    styleOfProps = { ...styleOfProps, ...styles.darkText };
   }
-  console.log('containerStyle', formatWebStyle(containerStyle));
 
   const animationEndCallBack = React.useCallback((e: any) => {
     if (e && e.currentTarget !== e.target) {
@@ -195,10 +194,10 @@ const AnimationModal = (props: AnimationModalProp) => {
     }
     wasVisible.current = visible;
   }, [isAnimated, visible, animationEndCallBack]);
-  const animationStyle = getAnimationStyle(animationType, visible);
+  const animationStyle = isAnimated ? getAnimationStyle(animationType, visible) : styles.container;
   // eslint-disable-next-line react/no-children-prop
   return isRendering || visible ? createElement('div', {
-    style: isRendering ? formatWebStyle([animationStyle, containerStyle]) : formatWebStyle(styles.hidden),
+    style: isRendering ? formatWebStyle([styleOfProps, animationStyle]) : formatWebStyle(styles.hidden),
     onAnimationEnd: animationEndCallBack,
     children,
   }) : null;
@@ -218,6 +217,7 @@ const Modal: React.FC<ModalProps> = (props) => {
     onRequestClose,
     onShow,
     onDismiss,
+    animated,
     animationType,
   } = props;
 
@@ -249,6 +249,7 @@ const Modal: React.FC<ModalProps> = (props) => {
     <ModalPortal>
       <AnimationModal
         transparent={transparent}
+        animated={animated}
         darkStatusBarText={darkStatusBarText}
         animationType={animationType}
         onDismiss={onDismiss}
