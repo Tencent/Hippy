@@ -27,7 +27,7 @@ import {
 } from '../types';
 
 function hasOwnProperty(obj: Object, name: string | number | symbol) {
-  return Object.prototype.hasOwnProperty.call(obj, name);
+  return obj && Object.prototype.hasOwnProperty.call(obj, name);
 }
 
 export function setElementStyle(element: HTMLElement, object: any, animationProcess?:

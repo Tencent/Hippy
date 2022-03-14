@@ -42,14 +42,14 @@ const DefaultEntryAnimationMap = {
   },
   slide: {
     animation: {
-      opacity: 1,
+      transform: 'translate(0vw,0vh)',
     },
     newState: {
       transform: 'translate(0vw,100vh)',
       transition: `transform ${ANIMATION_TIME / 1000}s`,
     },
   },
-  slideFade: {
+  slide_fade: {
     animation: {
       transform: 'translate(0vw,0vh)',
       opacity: 1,
@@ -59,6 +59,10 @@ const DefaultEntryAnimationMap = {
       opacity: 0,
       transition: `transform ${ANIMATION_TIME / 1000}s, opacity ${ANIMATION_TIME / 1000}s`,
     },
+  },
+  none: {
+    animation: {},
+    newState: {},
   },
 };
 const DefaultLeaveAnimationMap = {
@@ -72,11 +76,15 @@ const DefaultLeaveAnimationMap = {
       transform: 'translate(0vw,100vh)',
     },
   },
-  slideFade: {
+  slide_fade: {
     animation: {
       transform: 'translate(0vw,100vh)',
       opacity: 0,
     },
+  },
+  none: {
+    animation: {},
+    newState: {},
   },
 };
 export class Modal extends HippyView<HTMLDivElement> {
@@ -87,10 +95,17 @@ export class Modal extends HippyView<HTMLDivElement> {
   public static buildModalLeaveAnimation(animationType: ModalAnimationType): ModalAnimationData {
     return DefaultLeaveAnimationMap[animationType];
   }
+  public entryAnimationAction: Function|undefined;
+  public leaveAnimationAction: Function|undefined;
+  public onBackListener;
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.MODAL;
     this.dom = document.createElement('div');
+    this.props[NodeProps.ANIMATED] = true;
+    this.onBackListener = () => {
+      this.onOrientationChange(null);
+    };
   }
 
 
@@ -181,47 +196,56 @@ export class Modal extends HippyView<HTMLDivElement> {
       setElementStyle(child.dom, { flex: '1', position: 'static' });
       // eslint-disable-next-line no-param-reassign
       // @ts-ignore
+      // eslint-disable-next-line no-param-reassign
       delete child.dom.style.top;
       // eslint-disable-next-line no-param-reassign
       // @ts-ignore
+      // eslint-disable-next-line no-param-reassign
       delete child.dom.style.left;
     }
   }
 
   public async beforeMount(parent: BaseView, position: number) {
     await super.beforeMount(parent, position);
-    await this.runAnimation(position, ModalAnimationModel.ENTRY);
+    this.entryAnimationAction = this.runAnimation(ModalAnimationModel.ENTRY, position);
+    (this.context.getModuleByName('DeviceEventModule') as any).setModuleListener(this.onBackListener);
   }
 
   public mounted(): void {
     super.mounted();
+    this.entryAnimationAction?.();
     this.onShow();
   }
 
   public async beforeRemove() {
     await super.beforeRemove();
-    await this.runAnimation(ModalAnimationModel.LEAVE);
+    this.leaveAnimationAction = this.runAnimation(ModalAnimationModel.LEAVE, this.index);
+    if (!this.leaveAnimationAction) {
+      return;
+    }
+    await new Promise((resolve) => {
+      this.leaveAnimationAction?.();
+      setTimeout(() => {
+        resolve(null);
+      }, ANIMATION_TIME);
+    });
+    (this.context.getModuleByName('DeviceEventModule') as any).removeModuleListener(this.onBackListener);
   }
 
-  private runAnimation(animationModel: ModalAnimationModel, position?: number) {
-    return new Promise<void>((resolve) => {
-      if (
-        this.animated
+  private runAnimation(animationModel: ModalAnimationModel, position?: number): Function | undefined {
+    if (
+      this.animated
         && this.animationType !== ModalAnimationType.None && this.dom
-      ) {
-        const { animation, newState } = animationModel === ModalAnimationModel.ENTRY
-          ? Modal.buildModalEntryAnimation(this.animationType) : Modal.buildModalLeaveAnimation(this.animationType);
-        setElementStyle(this.dom, { zIndex: position, ...newState });
-        setTimeout(() => {
-          if (this.dom) {
-            setElementStyle(this.dom, animation);
-          }
-          resolve();
-        }, 16);
-        return;
-      }
-      resolve();
-    });
+    ) {
+      const { animation, newState } = animationModel === ModalAnimationModel.ENTRY
+        ? Modal.buildModalEntryAnimation(this.animationType) : Modal.buildModalLeaveAnimation(this.animationType);
+      setElementStyle(this.dom, { zIndex: position, ...newState });
+      return () => {
+        if (this.dom) {
+          setElementStyle(this.dom, animation);
+        }
+      };
+    }
   }
 }
 

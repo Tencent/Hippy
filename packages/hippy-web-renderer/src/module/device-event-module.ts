@@ -18,69 +18,85 @@
  * limitations under the License.
  */
 
-import { BaseModule, ModuleContext } from '../../types';
+import { HippyWebModule } from '../base';
 
-export class DeviceEventModule implements BaseModule {
+export class DeviceEventModule extends HippyWebModule {
   public static moduleName = 'DeviceEventModule';
   public name = 'DeviceEventModule';
-
-  private context!: ModuleContext;
   private listen=false;
-  public constructor(context: ModuleContext) {
-    this.context = context;
-  }
-
-  public setListenBackPress(listen: boolean) {
-    this.listen = listen;
-  }
+  private moduleListener: Array<() => void>=[];
 
   public invokeDefaultBackPressHandler() {
-    if (history.state && history.state.target === 'MeanSure') {
-      back();
-    }
+    this.listen = false;
+    back();
   }
 
-  public initialize() {
+  // @ts-ignore
+  public init() {
     addCacheHistoryState();
-    listenHistory(this.handleBack);
+    listenHistory(this.handleBack.bind(this));
   }
 
   public destroy() {
 
   }
 
+  public setListenBackPress(listen: boolean) {
+    if (this.moduleListener.length > 0 && !listen) {
+      return;
+    }
+    this.listen = listen;
+  }
+
+  public setModuleListener(listener: () => void) {
+    this.moduleListener.push(listener);
+    this.listen = true;
+  }
+
+  public removeModuleListener(listener) {
+    this.moduleListener = this.moduleListener.filter(item => item !== listener);
+  }
+
   private handleBack() {
-    return this.listen;
+    if (!this.listen) {
+      return false;
+    }
+    if (this.moduleListener.length > 0) {
+      this.moduleListener.reverse()[0]();
+    } else {
+      this.context.sendEvent('hardwareBackPress', null);
+    }
+    return true;
   }
 }
-
-function jumpUrl(url) {
-  window.history.pushState({ target: 'Final' }, '', location.href);
-  location.href = url;
-}
+const WAIT_FLAG = 'wait';
+const PUPPET_FLAG = 'puppet';
 
 function addCacheHistoryState() {
-  if (!(history.state && history.state.target === 'Final')) {
-    window.history.pushState({ target: 'MeanSure', random: Math.random() }, '', location.href);
-    window.history.pushState({ target: 'Final', random: Math.random() }, '', location.href);
+  if (!(history.state && history.state.target === PUPPET_FLAG)) {
+    window.history.pushState({ target: WAIT_FLAG, random: Math.random() }, '', location.href);
+    window.history.pushState({ target: PUPPET_FLAG, random: Math.random() }, '', location.href);
   }
 }
 
 function back() {
-  const backCount = history.state.target === 'Final' ? -3 : -2;
+  const backCount = history?.state?.target === PUPPET_FLAG ? -3 : -2;
   history.go(backCount);
 }
 
 function wait() {
-  history.forward();
+  window.history.pushState({ target: PUPPET_FLAG, random: Math.random() }, '', location.href);
 }
 
 function listenHistory(onIntercept: () => boolean) {
   window.addEventListener('popstate', (e) => {
-    if (!(e.state && e.state.target === 'MeanSure') || !onIntercept()) {
-      back();
+    if (!(e.state && e?.state?.target === WAIT_FLAG)) {
       return;
     }
-    wait();
+    if (onIntercept()) {
+      wait();
+    } else {
+      back();
+    }
   }, false);
 }
