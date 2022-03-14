@@ -116,7 +116,8 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 
 [[RefreshWrapper 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RefreshWrapper)
 
-包裹住 `ListView` 提供下滑刷新功能的组件.(web 暂不支持，可以使用 ListView 的 renderPullHeader)
+包裹住 `ListView` 提供下滑刷新功能的组件.
+| bounceTime    |  指定刷新条收回动画的时长，单位 ms | `string`  | `web 暂不支持`    |
 
 ---
 
@@ -151,10 +152,10 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台  |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
-| onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260}`。 | `Function`            | `web 暂不支持` |
-| onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`               | `web 暂不支持` |
-| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum(done, go, next, search, send)`                            | `web 暂不支持` |
-| underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为'transparent'来去掉下底线。 | `string`                                                      | `web 暂不支持` |
+| onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260}`。 | `Function`    | `web 暂不支持` |
+| onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`    | `web 暂不支持` |
+| returnKeyType         | 指定软键盘的回车键显示的样式。    | `enum(done, go, next, search, send)`   | `web 暂不支持` |
+| underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为'transparent'来去掉下底线。 | `string`    | `web 暂不支持` |
 
 ### 方法
 
@@ -179,7 +180,7 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum(head, middle, tail, clip)` | ，web 支持 ellipsis 和 clip` |
+| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum(head, middle, tail, clip)` | web 支持 ellipsis 和 clip` |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；
