@@ -623,15 +623,20 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     }
 
+    public void onBatchStart(@NonNull T view){
+
+    }
+
+    public void onViewDestroy(T t) {
+        
+    }
+
     protected void deleteChild(ViewGroup parentView, View childView) {
         parentView.removeView(childView);
     }
 
     protected void deleteChild(ViewGroup parentView, View childView, int childIndex) {
         deleteChild(parentView, childView);
-    }
-
-    public void onViewDestroy(T t) {
     }
 
     protected void addView(ViewGroup parentView, View view, int index) {

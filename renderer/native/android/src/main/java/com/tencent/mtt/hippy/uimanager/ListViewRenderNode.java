@@ -27,8 +27,7 @@ import java.util.Map;
 public class ListViewRenderNode extends RenderNode {
 
   public ListViewRenderNode(int mId, @Nullable Map<String, Object> props, String className,
-          ViewGroup mRootView, ControllerManager componentManager,
-      boolean isLazyLoad) {
+          ViewGroup mRootView, ControllerManager componentManager, boolean isLazyLoad) {
     super(mId, props, className, mRootView, componentManager, isLazyLoad);
   }
 

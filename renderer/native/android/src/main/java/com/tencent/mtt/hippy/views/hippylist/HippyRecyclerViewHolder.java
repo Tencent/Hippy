@@ -21,19 +21,22 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 
+/**
+ * Created  on 2020/12/22. Description
+ */
 public class HippyRecyclerViewHolder extends ViewHolder {
 
-  public ListItemRenderNode bindNode;
+    public ListItemRenderNode bindNode;
 
-  public HippyRecyclerViewHolder(@NonNull View itemView, ListItemRenderNode renderNode) {
-    super(itemView);
-    bindNode = renderNode;
-  }
-
-  public boolean isRenderDeleted() {
-    if (bindNode != null) {
-      return bindNode.isDeleted();
+    public HippyRecyclerViewHolder(@NonNull View itemView, ListItemRenderNode renderNode) {
+        super(itemView);
+        bindNode = renderNode;
     }
-    return false;
-  }
+
+    public boolean isRenderDeleted() {
+        if (bindNode != null) {
+            return bindNode.isDeleted();
+        }
+        return false;
+    }
 }

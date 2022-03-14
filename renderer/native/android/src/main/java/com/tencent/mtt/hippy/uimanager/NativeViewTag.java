@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class NativeViewTag {
 
-    private final static String TAG_CLASS_NAME = "className";
+    public static final String TAG_CLASS_NAME = "className";
 
     @NonNull
     public static Map<String, Object> createViewTag(@NonNull String className) {
@@ -34,6 +34,7 @@ public class NativeViewTag {
         return tagMap;
     }
 
+    @SuppressWarnings("rawtypes")
     @NonNull
     public static String getClassName(@NonNull View view) {
         Object tagObj = view.getTag();
