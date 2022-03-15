@@ -19,7 +19,8 @@
     "start": "parcel"
   },
   "dependencies": {
-    "whatwg-fetch": "^3.6.2"
+    "whatwg-fetch": "^3.6.2",
+    "morphdom": "^2.3.1"
   },
   "devDependencies": {
     "parcel": "^2.3.2"
