@@ -30,6 +30,8 @@
 #import "HippyUIManager.h"
 #import "HippyFrameworkProxy.h"
 
+@class UIView;
+
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
  */
@@ -126,6 +128,12 @@ public:
     void SetFrameworkProxy(id<HippyFrameworkProxy> proxy);
     
     id<HippyFrameworkProxy> GetFrameworkProxy();
+    
+    void SetUICreationLazilyEnabled(bool enabled);
+    
+    UIView *CreateViewHierarchyFromDomNode(std::shared_ptr<DomNode> dom_node);
+    
+    UIView *CreateViewHierarchyFromId(int32_t id);
 private:
     HippyUIManager *uiManager_;
 };

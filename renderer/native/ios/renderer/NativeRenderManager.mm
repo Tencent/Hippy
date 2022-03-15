@@ -130,3 +130,15 @@ void NativeRenderManager::SetFrameworkProxy(id<HippyFrameworkProxy> proxy) {
 id<HippyFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
     return uiManager_.frameworkProxy;
 }
+
+void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
+    uiManager_.uiCreationLazilyEnabled = enabled;
+}
+
+UIView *NativeRenderManager::CreateViewHierarchyFromDomNode(std::shared_ptr<DomNode> dom_node) {
+    return CreateViewHierarchyFromId(dom_node->GetId());
+}
+
+UIView *NativeRenderManager::CreateViewHierarchyFromId(int32_t id) {
+    return [uiManager_ createViewRecursivelyFromHippyTag:@(id)];
+}

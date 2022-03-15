@@ -484,6 +484,10 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
 }
 
+- (UIView *)createViewRecursivelyFromHippyTag:(NSNumber *)hippyTag {
+    return [self createViewRecursivelyFromShadowView:_shadowViewRegistry[hippyTag]];
+}
+
 - (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView {
     HippyAssertMainQueue();
     HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName];
@@ -514,6 +518,9 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [view insertSubview:subview atIndex:index];
         index++;
     }
+    view.hippyShadowView = shadowView;
+    view.renderContext = self;
+    [view didUpdateHippySubviews];
     NSMutableSet<HippyApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
     [shadowView collectUpdatedProperties:applierBlocks parentProperties:@{}];
     if (applierBlocks.count) {
@@ -859,7 +866,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
         HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
-        if (HippyCreationTypeInstantly == [shadowView creationType]) {
+        if (HippyCreationTypeInstantly == [shadowView creationType] && !_uiCreationLazilyEnabled) {
             NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
             NSDictionary *props = [dicProps objectForKey:@(node->GetId())];
             HippyComponentData *componentData = [self componentDataForViewName:viewName];
@@ -876,7 +883,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         auto subViewTags_ = subviewTags;
         auto subViewIndices_ = subviewIndices;
         HippyShadowView *shadowView = self->_shadowViewRegistry[@(tag)];
-        if (HippyCreationTypeInstantly == [shadowView creationType]) {
+        if (HippyCreationTypeInstantly == [shadowView creationType] && !self->_uiCreationLazilyEnabled) {
             [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *superView = viewRegistry[@(tag)];
                 for (NSUInteger index = 0; index < subViewTags_.size(); index++) {
@@ -1119,10 +1126,11 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
+        std::string block_type = type;
         [view addViewEvent:eventType eventListener:^(CGPoint) {
             [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
                 if (node) {
-                    node->HandleEvent(std::make_shared<hippy::DomEvent>(type, node,
+                    node->HandleEvent(std::make_shared<hippy::DomEvent>(block_type, node,
                                                                         canBePreventedInCapturing, canBePreventedInBubbling,
                                                                         static_cast<std::shared_ptr<DomValue>>(nullptr)));
                 }

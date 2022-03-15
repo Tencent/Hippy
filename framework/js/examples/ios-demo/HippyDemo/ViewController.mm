@@ -118,7 +118,6 @@
     //step4: create dom manager, assign to uimanager
     //you need hold dom mananger
     HippyUIManager *uiManager = [_bridge moduleForName:@"UIManager"];
-    uiManager.frameworkProxy = self;
     _domManager = std::make_shared<hippy::DomManager>(rootTag);
     _domManager->StartTaskRunner();
     [uiManager setDomManager:_domManager];
@@ -129,7 +128,8 @@
     //step6: create render manager, assign uimanager for it
     //you need hold render manager
     _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
-    
+    _nativeRenderManager->SetFrameworkProxy(self);
+    _nativeRenderManager->SetUICreationLazilyEnabled(true);
     //setp7: set render manager for dom manager
     _domManager->SetRenderManager(_nativeRenderManager);
 

@@ -81,7 +81,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  */
 @interface HippyUIManager : NSObject <HippyBridgeModule, HippyInvalidating, HippyRenderContext>
 
-
+@property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 /**
  * Register a root view with the HippyUIManager.
  */
@@ -147,6 +147,14 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  *  @param props New properties for view
  */
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)props;
+
+/**
+ * Manully create views recursively from hippy tag
+ *
+ * @param hippyTag hippy tag corresponding to UIView
+ * @return view created by hippy tag
+ */
+- (UIView *)createViewRecursivelyFromHippyTag:(NSNumber *)hippyTag;
 
 /**
  * Manully create views recursively from shadowView
