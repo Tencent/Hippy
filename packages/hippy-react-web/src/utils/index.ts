@@ -32,6 +32,13 @@ function warn(...context: any[]) {
   console.warn(...context);
 }
 
+export const error = (...context: any[]) => {
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+  console.error(...context);
+};
+
 export const warnWhenUseUnsupportedProp = (param: {
   moduleProps: Record<string, any>,
   unsupportedProps: string[],

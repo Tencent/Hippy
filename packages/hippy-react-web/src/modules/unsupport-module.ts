@@ -51,9 +51,6 @@ class HippyEventEmitter {
   }
 }
 
-const callNative = () => {
-  warn('callNative is not suported in the web');
-};
 const callNativeWithPromise = () => {
   warn('callNativeWithPromise is not suported in the web');
   return Promise.resolve('{}');
@@ -62,7 +59,6 @@ const callNativeWithPromise = () => {
 export {
   BackAndroid,
   Focusable,
-  callNative,
   callNativeWithPromise,
   HippyEventEmitter,
 };
