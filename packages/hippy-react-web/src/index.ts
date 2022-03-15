@@ -75,7 +75,7 @@ const Dimensions = {
 
 const PixelRatio = {
   get() {
-    return Device.screen.scale;
+    return window.devicePixelRatio;
   },
 };
 

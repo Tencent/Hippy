@@ -41,31 +41,6 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 | capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `web 暂不支持`    |
 | onProgress    | 在加载过程中不断调用，参数为 `{ nativeEvent: { loaded, total } }` | `Function`         |   `web 暂不支持`  |
 
-### 方法
-
-#### getSize
-
-`web 暂不支持`
-
-`(uri: string, success: (width: number, height: number) => void, failure?: ErrorFunction) => void` 在显示图片前获取图片的宽高(以像素为单位)。如果图片地址不正确或下载失败, 此方法也会失败。
-
-要获取图片的尺寸, 首先需要加载或下载图片(同时会被缓存起来)。这意味着理论上你可以用这个方法来预加载图片，虽然此方法并没有针对这一用法进行优化，而且将来可能会换一些实现方案使得并不需要完整下载图片即可获取尺寸。所以更好的预加载方案是使用下面那个专门的预加载方法。
-
-*不适用于静态图片资源。*
-
-> * `uri`: string - 图片的地址
-> * `success`: (width: number, height: number) => void - 此函数会在获取图片与其宽高成功后被回调
-> * `failure`: ErrorFunction - 此函数会在如获取图片失败等异常情况被回调
-
-#### prefetch
-
-
-`web 暂不支持`
-
-`(url: string) => void` 预加载一个远程图片，将其下载到本地磁盘缓存。
-
-> * `uri`: string - 图片的地址
-
 ---
 
 ## ListView
@@ -248,6 +223,17 @@ WebView组件。
 
 web 不支持
 
+## NetInfo
+
+NetInfo 使用了实验属性 NetworkInformation，详情参考 https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation
+
+## NetWorkModule
+
+NetWorkModule 的 setCookie 使用 document.cookie，设置 domain 时对 url 有限制，具体参考 https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#define_where_cookies_are_sent.
+
+## Localization
+
+Localization 不包括 country 信息。
 
 
 # 编译时依赖
