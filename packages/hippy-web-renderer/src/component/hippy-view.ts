@@ -105,10 +105,16 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   }
 
   public onAttachedToWindow() {
+    if (!this.props[NodeProps.ON_ATTACHED_TO_WINDOW]) {
+      return;
+    }
     this.context.sendUiEvent(this.id, 'onAttachedToWindow', null);
   }
 
   public onLayout() {
+    if (!this.props[NodeProps.ON_LAYOUT]) {
+      return;
+    }
     const rect = this.dom!.getBoundingClientRect();
     this.context.sendUiEvent(this.id, 'onLayout', { layout: {
       x: rect.x,

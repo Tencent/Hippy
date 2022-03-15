@@ -21,7 +21,10 @@
 import { HippyWebModule } from '../base';
 import {
   BaseView,
-  BaseViewConstructor, ComponentContext, HippyCallBack,
+  BaseViewConstructor,
+  ComponentContext,
+  HippyCallBack,
+  InnerNodeTag,
   NodeData,
   UIProps,
 } from '../../types';
@@ -57,6 +60,7 @@ export class UIManagerModule extends HippyWebModule {
       this.viewDictionary[rootViewId] = { id: rootViewId as number, pId: -1, index: this.rootDom.childNodes.length,
         props: {}, dom: this.contentDom, tagName: 'View' };
     }
+    const theUpdateComponentIdSet = new Set;
     for (let c = 0; c < data.length; c++) {
       const nodeItemData = data[c];
       const { id } = nodeItemData;
@@ -68,7 +72,22 @@ export class UIManagerModule extends HippyWebModule {
       if (!component) {
         throw `create component failed, can't find ${tagName}' constructor`;
       }
+      if (theUpdateComponentIdSet.has(id)) {
+        continue;
+      }
+      if (tagName === InnerNodeTag.LIST) {
+        theUpdateComponentIdSet.add(id);
+      }
+      if (this.findViewById(pId)?.tagName === InnerNodeTag.LIST) {
+        theUpdateComponentIdSet.add(pId);
+      }
       await this.componentInitProcess(component, props, index);
+    }
+    for (const id of theUpdateComponentIdSet) {
+      const component = this.findViewById(id as number);
+      if (component) {
+        (component as any)?.endBatch();
+      }
     }
   }
 
@@ -227,7 +246,7 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     let realIndex = index;
-    if (parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
+    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
       realIndex = parent.dom?.childNodes?.length;
     }
     await component.beforeMount?.(parent, realIndex);
