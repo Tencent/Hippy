@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @HippyNativeModule(name = "AnimationModule", thread = HippyNativeModule.Thread.DOM)
 public class AnimationModule extends HippyNativeModuleBase implements RenderProcessInterceptor,
@@ -436,19 +437,11 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
 
     private void removeAnimationFromNode(int nodeId, boolean deleteNode) {
         AnimationNode node = mAnimationNodes.get(nodeId);
-        if (node == null) {
-            return;
-        }
-        Iterator<Animation> iterator = node.getAnimations().iterator();
-        while (iterator.hasNext()) {
-            Animation animation = iterator.next();
-            if (animation != null) {
-                animation.removeAnimationNode(nodeId);
-                iterator.remove();
+        if (node != null) {
+            node.clearAnimation();
+            if (deleteNode) {
+                mAnimationNodes.remove(nodeId);
             }
-        }
-        if (deleteNode) {
-            mAnimationNodes.remove(nodeId);
         }
     }
 

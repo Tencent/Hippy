@@ -15,12 +15,15 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.animation;
 
-import java.util.HashMap;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AnimationNode {
 
     private final int mNodeId;
+    @NonNull
     private final CopyOnWriteArrayList<Animation> mAnimations;
 
     public AnimationNode(int nodeId) {
@@ -36,6 +39,15 @@ public class AnimationNode {
         if (!mAnimations.contains(animation)) {
             mAnimations.add(animation);
         }
+    }
+
+    public void clearAnimation() {
+        for (Animation animation : mAnimations) {
+            if (animation != null) {
+                animation.removeAnimationNode(mNodeId);
+            }
+        }
+        mAnimations.clear();
     }
 
     public CopyOnWriteArrayList<Animation> getAnimations() {
