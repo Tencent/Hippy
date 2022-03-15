@@ -46,6 +46,8 @@
 
 - (NSDictionary<NSString *, NSString *> *)eventNameMap;
 
+- (NSDictionary<NSString *, id<HippyBridgeMethod>> *)methodsByName;
+
 - (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry;
 
 @end

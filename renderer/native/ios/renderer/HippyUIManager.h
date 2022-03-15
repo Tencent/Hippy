@@ -217,8 +217,10 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param hippyTag id of target view whose function invokes
  * @param params parameters of function to be invoked
  * @param cb A callback for the return value of function
+ *
+ * @result Function return result
  */
-- (void)dispatchFunction:(const std::string &)functionName viewName:(const std::string &)viewName viewTag:(int32_t)hippyTag
+- (id)dispatchFunction:(const std::string &)functionName viewName:(const std::string &)viewName viewTag:(int32_t)hippyTag
                   params:(const tdf::base::DomValue &)params callback:(hippy::CallFunctionCallback)cb;
 
 /**
