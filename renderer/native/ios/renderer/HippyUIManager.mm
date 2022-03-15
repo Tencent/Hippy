@@ -985,7 +985,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                                                         object:self];
 }
 
-- (void)dispatchFunction:(const std::string &)functionName viewName:(const std::string &)viewName viewTag:(int32_t)hippyTag
+- (id)dispatchFunction:(const std::string &)functionName viewName:(const std::string &)viewName viewTag:(int32_t)hippyTag
                   params:(const DomValue &)params callback:(CallFunctionCallback)cb {
     NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
     DomValueType type = params.GetType();
@@ -1011,7 +1011,25 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [finalParams addObject:senderBlock];
     }
     NSString *nativeModuleName = [NSString stringWithUTF8String:viewName.c_str()];
-    [self.bridge callNativeModuleName:nativeModuleName methodName:name params:finalParams];
+
+    HippyViewManager *viewManager = [self renderViewManagerForViewName:nativeModuleName];
+    HippyComponentData *componentData = [self componentDataForViewName:nativeModuleName];
+    id<HippyBridgeMethod> method = componentData.methodsByName[name];
+    if (!method) {
+        return nil;
+    }
+    @try {
+        return [method invokeWithBridge:nil module:viewManager arguments:finalParams];
+    } @catch (NSException *exception) {
+        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
+            @throw exception;
+        }
+
+        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, method.JSMethodName, nativeModuleName, finalParams];
+        NSError *error = HippyErrorWithMessage(message);
+        HippyFatal(error);
+        return nil;
+    }
 }
 
 #pragma mark -

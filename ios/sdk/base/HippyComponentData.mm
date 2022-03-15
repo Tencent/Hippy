@@ -29,11 +29,12 @@
 #import "HippyShadowView.h"
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
-#import "HippyBridgeModule.h"
+#import "HippyModuleMethod.h"
 
 typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
 
-@interface HippyComponentProp : NSObject
+@interface HippyComponentProp : NSObject {
+}
 
 @property (nonatomic, copy, readonly) NSString *type;
 @property (nonatomic, copy) HippyPropBlock propBlock;
@@ -51,14 +52,19 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
 
 @end
 
-@implementation HippyComponentData {
+@interface HippyComponentData () {
     id<HippyComponent> _defaultView;  // Only needed for HIPPY_CUSTOM_VIEW_PROPERTY
     NSMutableDictionary<NSString *, HippyPropBlock> *_viewPropBlocks;
     NSMutableDictionary<NSString *, HippyPropBlock> *_shadowPropBlocks;
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
     BOOL _implementsUIBlockToAmendWithShadowViewRegistry;
     __weak HippyViewManager *_manager;
+    NSDictionary<NSString *, id<HippyBridgeMethod>> *_methodsByName;
 }
+
+@end
+
+@implementation HippyComponentData
 
 - (instancetype)initWithViewManager:(HippyViewManager *)viewManager viewName:(NSString *)viewName {
     self = [super init];
@@ -407,6 +413,41 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         }
     }
     return [_eventNameMap copy];
+}
+
+- (NSDictionary<NSString *, id<HippyBridgeMethod>> *)methodsByName {
+    if (!_methodsByName) {
+        [self methods];
+    }
+    return [_methodsByName copy];
+}
+
+- (void)methods {
+    if (!_methodsByName) {
+        NSMutableDictionary<NSString *, id<HippyBridgeMethod>> *methodsDic = [NSMutableDictionary dictionary];
+        unsigned int methodCount;
+        Class cls = _managerClass;
+        while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
+            Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
+            for (unsigned int i = 0; i < methodCount; i++) {
+                Method method = methods[i];
+                SEL selector = method_getName(method);
+                if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export__"]) {
+                    IMP imp = method_getImplementation(method);
+                    NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(_managerClass, selector);
+                    id<HippyBridgeMethod> moduleMethod =
+                        [[HippyModuleMethod alloc] initWithMethodSignature:entries[1]
+                                                              JSMethodName:entries[0]
+                                                               moduleClass:_managerClass];
+                    [methodsDic setObject:moduleMethod forKey:moduleMethod.JSMethodName];
+                }
+            }
+
+            free(methods);
+            cls = class_getSuperclass(cls);
+        }
+        _methodsByName = [methodsDic copy];
+    }
 }
 
 - (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
