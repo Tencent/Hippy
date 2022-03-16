@@ -120,8 +120,10 @@ public class ImageDataHolder implements ImageDataSupplier {
         try {
             inputStream = new FileInputStream(path);
             byte[] rawData = new byte[inputStream.available()];
-            inputStream.read(rawData);
-            setData(rawData);
+            int total = inputStream.read(rawData);
+            if (total > 0) {
+                setData(rawData);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -166,8 +168,10 @@ public class ImageDataHolder implements ImageDataSupplier {
             String fileName = source.substring(PREFIX_IMAGE_SOURCE_ASSETS.length());
             inputStream = ContextHolder.getAppContext().getAssets().open(fileName);
             byte[] rawData = new byte[inputStream.available()];
-            inputStream.read(rawData);
-            setData(rawData);
+            int total = inputStream.read(rawData);
+            if (total > 0) {
+                setData(rawData);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }  finally {

@@ -17,20 +17,18 @@
 package com.tencent.mtt.hippy.views.hippypager.transform;
 
 import android.view.View;
+
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
 
-/**
- * Created  on 2021/7/23.
- */
 public class VerticalPageTransformer implements ViewPager.PageTransformer {
 
     @Override
-    public void transformPage(View view, float position) {
+    public void transformPage(@NonNull View view, float position) {
         if (position >= -1 && position <= 1) {
             view.setTranslationX(view.getWidth() * -position);
             float yPosition = position * view.getHeight();
             view.setTranslationY(yPosition);
         }
     }
-
 }

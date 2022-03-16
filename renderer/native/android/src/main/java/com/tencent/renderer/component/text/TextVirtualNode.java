@@ -68,38 +68,38 @@ public class TextVirtualNode extends VirtualNode {
     private static final String TEXT_ALIGN_CENTER = "center";
     private static final String ELLIPSIS = "...";
 
-    private int mColor = Color.BLACK;
-    private int mNumberOfLines;
-    private int mFontStyle = Typeface.NORMAL;
-    private int mFontWeight = Typeface.NORMAL;
-    private int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
-    private int mShadowColor = TEXT_SHADOW_COLOR_DEFAULT;
-    private float mShadowOffsetDx = 0.0f;
-    private float mShadowOffsetDy = 0.0f;
-    private float mShadowRadius = 1.0f;
-    private float mLineHeight;
-    private float mLineSpacingMultiplier = 1.0f;
-    private float mLineSpacingExtra;
-    private float mLetterSpacing;
-    private float mLastLayoutWidth = 0.0f;
-    private boolean mHasUnderlineTextDecoration = false;
-    private boolean mHasLineThroughTextDecoration = false;
-    private boolean mEnableScale = false;
+    protected int mColor = Color.BLACK;
+    protected int mNumberOfLines;
+    protected int mFontStyle = Typeface.NORMAL;
+    protected int mFontWeight = Typeface.NORMAL;
+    protected int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
+    protected int mShadowColor = TEXT_SHADOW_COLOR_DEFAULT;
+    protected float mShadowOffsetDx = 0.0f;
+    protected float mShadowOffsetDy = 0.0f;
+    protected float mShadowRadius = 1.0f;
+    protected float mLineHeight;
+    protected float mLineSpacingMultiplier = 1.0f;
+    protected float mLineSpacingExtra;
+    protected float mLetterSpacing;
+    protected float mLastLayoutWidth = 0.0f;
+    protected boolean mHasUnderlineTextDecoration = false;
+    protected boolean mHasLineThroughTextDecoration = false;
+    protected boolean mEnableScale = false;
     @Nullable
-    private String mFontFamily;
+    protected String mFontFamily;
     @Nullable
-    private SpannableStringBuilder mSpanned;
+    protected SpannableStringBuilder mSpanned;
     @Nullable
-    private CharSequence mText;
-    private Layout.Alignment mAlignment = Layout.Alignment.ALIGN_NORMAL;
+    protected CharSequence mText;
+    protected Layout.Alignment mAlignment = Layout.Alignment.ALIGN_NORMAL;
     @Nullable
-    private TextPaint mTextPaint;
+    protected TextPaint mTextPaint;
     @Nullable
-    private final FontAdapter mFontAdapter;
+    protected final FontAdapter mFontAdapter;
     @Nullable
-    private Layout mLayout;
+    protected Layout mLayout;
     @Nullable
-    private Map<String, Object> mUnusedProps;
+    protected Map<String, Object> mUnusedProps;
 
     public TextVirtualNode(int id, int pid, int index, @NonNull NativeRender nativeRender) {
         super(id, pid, index);
