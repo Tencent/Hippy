@@ -131,10 +131,7 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 
 Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome DevTools 上进行 Elements 的可视化检查。
 
-<video width="80%" controls>
-  <source src="../assets/img/elements-inspect.webm" type="video/webm">
-  Elements可视化审查示例(您的浏览器不支持webm视频格式)
-</video>
+<img src="../assets/img/elements-inspect.gif" alt="Elements 可视化审查示例" width="80%"/>
 
 <br />
 <br />
@@ -353,10 +350,7 @@ startDebugServer();
 
 那么这些场景我们可以考虑使用远程调试，效果预览：
 
-<video width="80%" controls>
-  <source src="../assets/img/remote-debug-demo.webm" type="video/webm">
-  远程调试实例(您的浏览器不支持webm视频格式)
-</video>
+<img src="../assets/img/remote-debug-demo.gif" alt="远程调试实例" width="80%"/>
 
 
 ## 前端接入配置
