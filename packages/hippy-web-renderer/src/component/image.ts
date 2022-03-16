@@ -35,7 +35,7 @@ export class Image extends HippyView<HTMLImageElement> {
     return { boxSizing: 'border-box', zIndex: 0 };
   }
 
-  public set capInsets(value: ImageResizeMode) {
+  public set capInsets(value) {
     this.props[NodeProps.CAP_INSETS] = value;
     // TODO to implement
   }
@@ -68,9 +68,12 @@ export class Image extends HippyView<HTMLImageElement> {
   }
 
   public set src(value: string) {
+    this.props[NodeProps.SOURCE] = value ?? '';
+
     if (value && value !== this.props[NodeProps.DEFAULT_SOURCE]) {
       this.isLoadSuccess = false;
     }
+
     if (this.dom && !this.defaultSource) {
       this.dom.src = value ?? '';
       this.dom.addEventListener('load', this.handleLoad.bind(this));
@@ -84,7 +87,10 @@ export class Image extends HippyView<HTMLImageElement> {
       });
       img.src = value;
     }
-    this.props[NodeProps.SOURCE] = value ?? '';
+    if (!value) {
+      return;
+    }
+    this.onLoadStart(null);
   }
 
   public get defaultSource() {
@@ -117,15 +123,17 @@ export class Image extends HippyView<HTMLImageElement> {
   public onProgress(event) {
     this.props[NodeProps.ON_PROGRESS] && this.context.sendUiEvent(this.id, NodeProps.ON_PROGRESS, event);
   }
-  private handleLoad(event: Event, loadUrl?: string) {
+
+  private handleLoad(_event: Event, loadUrl?: string) {
     this.isLoadSuccess = false;
 
     if ((!loadUrl && this.dom!.src === this.src) || loadUrl === this.src) {
-      this.onLoad(event);
+      this.onLoad(null);
       if (this.dom!.src !== this.src) {
         this.dom!.src = this.src;
       }
     }
+    this.onLoadEnd(null);
   }
 }
 export const ImageResizeModeToObjectFit = (function () {

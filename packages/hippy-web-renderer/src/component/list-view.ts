@@ -45,7 +45,7 @@ export class ListView extends HippyView<HTMLDivElement> {
       threshold: 0,
     });
   }
-
+  private initialListReadyFlag = false;
   private lastPosition: [number, number] = [0, 0];
   private renderChildrenTuple: [number, number] = [0, 0];
   private lastTimestamp = 0;
@@ -305,12 +305,9 @@ export class ListView extends HippyView<HTMLDivElement> {
     if (startIndex !== this.renderChildrenTuple[0] || stopIndex !== this.renderChildrenTuple[1]) {
       this.notifyVisibleChildrenChange(this.renderChildrenTuple, [startIndex, stopIndex]);
     }
-    if (
-      stopIndex >= this.initialListSize - 1
-      && this.isFirstMount()
-    ) {
-      this.lastTimestamp = 1;
+    if (!this.initialListReadyFlag && stopIndex >= this.initialListSize - 1) {
       this.onInitialListReady();
+      this.initialListReadyFlag = true;
     }
     this.renderChildrenTuple = [startIndex, stopIndex];
   }
