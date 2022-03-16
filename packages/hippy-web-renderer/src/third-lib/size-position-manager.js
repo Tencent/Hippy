@@ -120,7 +120,7 @@ export default class SizePositionManager {
     const totalSize = this.getTotalSize();
 
     if (totalSize === 0) {
-      return {};
+      return {start:0,stop:0};
     }
 
     const maxOffset = offset + containerSize;

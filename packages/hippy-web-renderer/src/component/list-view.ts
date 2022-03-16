@@ -32,6 +32,7 @@ import {
 interface VirtualItemData {
   component: ListViewItem,
   height?: number
+  isDirty?: boolean
 }
 
 export class ListView extends HippyView<HTMLDivElement> {
@@ -51,7 +52,8 @@ export class ListView extends HippyView<HTMLDivElement> {
   private scrollableCache = false;
   private rootElement;
   private virtualList;
-  private childData: {[key: string]: VirtualItemData} = {};
+  private childData: VirtualItemData[] = [];
+  private dataDirtyFlag = false;
 
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -200,10 +202,11 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public scrollToContentOffset(xOffset: number, yOffset: number, animated: boolean) {
     // TODO to implement
+    this.virtualList.scrollTo(yOffset, animated);
   }
 
   public scrollToIndex(xIndex: number, yIndex: number, animated: boolean) {
-    // TODO to implement
+    this.virtualList.scrollToIndex(xIndex, animated);
   }
 
   public async beforeRemove(): Promise<any> {
@@ -214,8 +217,9 @@ export class ListView extends HippyView<HTMLDivElement> {
     super.destroy();
   }
 
-  public insertChild(component: ListViewItem, index: number) {
-    this.childData[index] = { component };
+  public insertChild(component: ListViewItem) {
+    this.childData.push({ component });
+    component.addDirtyListener(this.handleListItemDirty.bind(this));
   }
 
   public removeChild(component: ListViewItem) {
@@ -227,7 +231,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     super.mounted();
     this.virtualList = new VirtualizedList(this.dom!, {
       height: this.dom?.clientHeight,
-      rowCount: Object.keys(this.childData).length,
+      rowCount: this.childData.length,
       rowHeight: this.getChildHeight.bind(this),
       renderRow: this.getChildDom.bind(this),
       onRowsRendered: this.handleOnRowsRendered.bind(this),
@@ -236,7 +240,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public endBatch() {
-    this.needCheckChildHeight({ startIndex: 0, stopIndex: Object.keys(this.childData).length - 1 });
+    this.needCheckAllDataHeight();
     this.notifyDataSetChange();
   }
 
@@ -251,14 +255,18 @@ export class ListView extends HippyView<HTMLDivElement> {
     return this.childData[index]?.component?.dom ?? null;
   }
 
+  private handleListItemDirty(id: number) {
+    const [dirtyData] = this.childData.filter(data => data.component.id === id);
+    if (!dirtyData.isDirty) {
+      dirtyData.isDirty = true;
+      this.dataDirtyFlag = true;
+    }
+  }
+
   private handleOnRowsRendered({
     startIndex,
     stopIndex,
   }) {
-    this.needCheckChildHeight({
-      startIndex,
-      stopIndex,
-    });
     this.needCheckChildVisible({
       startIndex,
       stopIndex,
@@ -266,7 +274,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   private notifyDataSetChange() {
-    this.virtualList.setRowCount(Object.keys(this.childData).length);
+    this.virtualList.setRowCount(this.childData.length);
   }
 
   private init() {
@@ -292,7 +300,6 @@ export class ListView extends HippyView<HTMLDivElement> {
     startIndex,
     stopIndex,
   }) {
-    console.log('visible', this.renderChildrenTuple, [startIndex, stopIndex]);
     if (startIndex !== this.renderChildrenTuple[0] || stopIndex !== this.renderChildrenTuple[1]) {
       this.notifyVisibleChildrenChange(this.renderChildrenTuple, [startIndex, stopIndex]);
     }
@@ -306,30 +313,48 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.renderChildrenTuple = [startIndex, stopIndex];
   }
 
-  private needCheckChildHeight({
-    startIndex,
-    stopIndex,
-  }) {
-    for (let i = startIndex;i <= stopIndex;i++) {
-      if (this.childData[i].height) {
+  private needCheckAllDataHeight() {
+    for (let i = 0;i < this.childData.length;i++) {
+      const data = this.childData[i];
+      if (data.height) {
         continue;
       }
-      if (!this.childData[i].component.dom!.parentNode) {
-        this.childData[i].height = this.measureListViewItemSize(this.childData[i].component);
-      } else {
-        this.childData[i].height = this.childData[i].component.getItemHeight();
-      }
+      data.height = this.getListItemNewHeight(data.component);
     }
   }
+
+  private needCheckDirtyChild() {
+    const dirtyList = this.childData.filter(item => item.isDirty === true);
+    let isNeedRefreshVirtualList = false;
+    for (let i = 0;i < dirtyList.length;i++) {
+      const item = dirtyList[i];
+      const newHeight = this.getListItemNewHeight(item.component);
+      if (newHeight !== item.height) {
+        isNeedRefreshVirtualList = true;
+      }
+      item.isDirty = false;
+    }
+    isNeedRefreshVirtualList && window.requestAnimationFrame(() => {
+      this.notifyDataSetChange();
+    });
+  }
+
+  private getListItemNewHeight(component: ListViewItem) {
+    if (!component.dom!.parentNode) {
+      return this.measureListViewItemSize(component);
+    }
+    return component.getItemHeight();
+  }
+
 
   private notifyVisibleChildrenChange(origin: [number, number], now: [number, number]) {
     const originShowIndexList = new Array(origin[1] - origin[0] + 1);
     const nowShowIndexList = new Array(now[1] - now[0] + 1);
     for (let i = origin[0];i <= origin[1] && origin[1] !== 0;i++) {
-      originShowIndexList[i] = origin[0] + i;
+      originShowIndexList[i] =  i;
     }
     for (let i = now[0];i <= now[1];i++) {
-      nowShowIndexList[i] = now[0] + i;
+      nowShowIndexList[i] = i;
     }
     const intersection = originShowIndexList.filter(v => nowShowIndexList.indexOf(v) > -1);
     const disappearIndexList =  originShowIndexList.filter(v => intersection.indexOf(v) === -1);
@@ -351,7 +376,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null)  {
-    if (!touchEvent) {
+    if (!touchEvent || !lastTouchEvent) {
       // 隐式含义，在touchEnd/Cancel时的回调
       return this.scrollableCache;
     }
@@ -394,6 +419,10 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   private handleEndSliding() {
+    this.dataDirtyFlag && requestAnimationFrame(() => {
+      this.needCheckDirtyChild();
+      this.dataDirtyFlag = false;
+    });
     this.dom && this.onMomentumScrollEnd(this.buildScrollEvent());
   }
 
@@ -420,6 +449,7 @@ export class ListView extends HippyView<HTMLDivElement> {
       this.onEndReached();
     }
   }
+
   private measureListViewItemSize(child: ListViewItem) {
     setElementStyle(child.dom!, { visibility: 'hidden', position: 'absolute', zIndex: -99999 });
     this.dom?.insertBefore(child.dom!, null);
@@ -434,14 +464,46 @@ export class ListView extends HippyView<HTMLDivElement> {
 }
 
 export class ListViewItem extends HippyView<HTMLDivElement> {
+  private mutationObserver: MutationObserver;
+  private dirtyListener: ((id: number) => void) | null = null;
+
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.LIST_ITEM;
     this.dom = document.createElement('div');
+    this.mutationObserver = new MutationObserver(this.handlerListItemChange.bind(this));
+  }
+
+  public addDirtyListener(callBack: ((index: number) => void) | null) {
+    this.dirtyListener = callBack;
+  }
+
+  mounted(): void {
+    super.mounted();
+    this.mutationObserver.observe(this.dom!, { attributes: true, attributeFilter: ['style'],  childList: true, subtree: true });
+  }
+
+  async beforeRemove(): Promise<any> {
+    await super.beforeRemove();
+    this.mutationObserver.disconnect();
   }
 
   public getItemHeight() {
     return this.dom?.clientHeight;
+  }
+
+  private handlerListItemChange(records: MutationRecord[]) {
+    let isRealDirty = false;
+    for (let i = 0;i < records.length;i++) {
+      if (records[i].type === 'attributes' && (records[i].target as HTMLDivElement).id === String(this.id)) {
+        continue;
+      }
+      isRealDirty = true;
+    }
+    if (!isRealDirty) {
+      return;
+    }
+    this.dirtyListener?.(this.id);
   }
 }
 
