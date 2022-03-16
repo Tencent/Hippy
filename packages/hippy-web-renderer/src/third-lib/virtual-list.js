@@ -109,15 +109,20 @@ export  class VirtualizedList {
     return this.state.offset??0;
   }
 
-  scrollToIndex(index, alignment) {
+  scrollToIndex(index ,animation , alignment) {
     const {height} = this.state;
     const offset = this._sizeAndPositionManager.getUpdatedOffsetForIndex({
       align: alignment,
       containerSize: height,
       targetIndex: index,
     });
-
-    this.container.scrollTop = offset;
+    this.container.scrollTo({top:offset,behavior:animation?'smooth':'none'});
+  }
+  scrollTo( offset,animation){
+    if(offset<0 || offset>this._sizeAndPositionManager.getTotalSize()){
+      return;
+    }
+    this.container.scrollTo({top:offset,behavior:animation?'smooth':'none'});
   }
 
   setRowCount(count) {
