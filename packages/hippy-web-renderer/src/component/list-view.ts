@@ -229,17 +229,19 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public mounted(): void {
     super.mounted();
-    this.virtualList = new VirtualizedList(this.dom!, {
-      height: this.dom?.clientHeight,
-      rowCount: this.childData.length,
-      rowHeight: this.getChildHeight.bind(this),
-      renderRow: this.getChildDom.bind(this),
-      onRowsRendered: this.handleOnRowsRendered.bind(this),
-      initialIndex: 0,
-    });
   }
 
   public endBatch() {
+    if (this.isFirstMount()) {
+      this.virtualList = new VirtualizedList(this.dom!, {
+        height: this.dom?.clientHeight,
+        rowCount: this.childData.length,
+        rowHeight: this.getChildHeight.bind(this),
+        renderRow: this.getChildDom.bind(this),
+        onRowsRendered: this.handleOnRowsRendered.bind(this),
+        initialScrollTop: this.initialContentOffset ?? 0,
+      });
+    }
     this.needCheckAllDataHeight();
     this.notifyDataSetChange();
   }
