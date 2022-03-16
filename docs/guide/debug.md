@@ -2,9 +2,9 @@
 
 # Hippy 调试原理
 
-Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSocket 通过 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 与电脑上的 Chrome 进行通讯调试，而 iOS 上使用内置 的 [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) 与 [Safari](//www.apple.com.cn/cn/safari/) 连接进行调试。
+Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSocket 通过 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 与电脑上的 Chrome 进行通讯调试，而 iOS 上使用内置 的 [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) 与 [Safari](//www.apple.com.cn/cn/safari/) 连接进行调试，在较新的 Hippy 版本 iOS 也可以使用 Chrome DevTools 进行调试。
 
-Hippy中运行的 JS 代码可以来源于本地文件(local file)，或者远程服务地址(server)。
+Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远程服务地址(server)。
 
 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 就是为了解决调试模式下终端模式获取调试用 JS 文件，以及将 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 传输回调试器而诞生。
 
@@ -12,7 +12,7 @@ Hippy中运行的 JS 代码可以来源于本地文件(local file)，或者远�
 
 1. 运行 `git clone https://github.com/Tencent/Hippy.git`
 
-   !> Hippy 仓库使用 [git-lfs](https://git-lfs.github.com/) 来管理 so,gz,otf,png,jpg 文件, 请确保你已经安装 [git-lfs](https://git-lfs.github.com/)。
+   !> Hippy 仓库使用 [git-lfs](https://git-lfs.github.com/) 来管理 so, gz, otf, png, jpg 文件, 请确保你已经安装 [git-lfs](https://git-lfs.github.com/)。
 
 2. 项目根目录运行命令 `npm install` 安装前端依赖。
 3. 项目根目录运行命令 `npx lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
@@ -55,7 +55,7 @@ Hippy中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    ```
 
 3. 运行 `npm run hippy:debug` 开启调试服务
-4. 运行 `npm run hippy:dev` 启动编译，编译结束后打印出 bundleUrl 和调试首页地址
+4. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
 
    <img src="../assets/img/hippy-dev-output.png" alt="hippy dev 输出" width="50%" alt="编译输出">
 
@@ -64,13 +64,17 @@ Hippy中运行的 JS 代码可以来源于本地文件(local file)，或者远�
     <img src="../assets/img/ios-remote-debug-config.png" alt="iOS 远程调试配置" width="40%">
 
 6. 使用调试器开始调试
-   - Safari DevTools：在 Mac 上打开 Safari 的开发菜单（`预置` -> `高级` -> `显示开发菜单`），然后按下图指引开始调试。Safari 调试器支持 iOS 设备，支持 HMR & Live-Reload, Log, Sources, Memory 等能力。
+   - Safari DevTools：在 Mac 上打开 Safari 的开发菜单（`预置` -> `高级` -> `显示开发菜单`），然后按下图指引开始调试。Safari 调试器支持 iOS 设备，支持 `HMR & Live-Reload, Log, Sources, Memory` 等能力。
    
       <img src="../assets/img/safari-dev-process.png" alt="Safari 调试器" width="80%"/>
    
-   - Chrome DevTools：访问第 4 步打印的调试首页地址开始调试。Chrome 调试器支持 Android & iOS 设备，支持 HMR & Live-Reload, Elements, Log, Sources, Memory 等能力。
+   - Chrome DevTools：访问第 4 步打印的调试首页地址开始调试。Chrome 调试器支持 Android & iOS 设备，支持 `HMR & Live-Reload, Elements, Log, Sources, Memory` 等能力。
       
       <img src="../assets/img/chrome-inspect.png" alt="Chrome 调试器" width="60%"/>
+   
+      如果不使用我们的调试主页，也可以主动在 `chrome://inspect` 打开 DevTools，首先确保 `Discover USB devices` 的复选框呈`未选中状态`，然后确保 `Discover network targets` 选中，并在右侧 `Configure` 按钮的弹窗中包含了 `localhost:38989` 调试服务地址，下方的 `Remote Target` 中应该会出现 `Hippy debug tools for V8` 字样，点击下方的 `inspect` 链接即可打开 Chrome 调试器。
+
+   ![Chrome inspect](../assets/img/chrome-inspect-process.png)
 
 > `@hippy/debug-server-next` 包含 `@hippy/debug-server` 的所有能力，是面向 Hippy 3.0 的调试工具，完全向下兼容。
 
@@ -131,18 +135,10 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 
 Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome DevTools 上进行 Elements 的可视化检查。
 
-<img src="../assets/img/elements-inspect.gif" alt="Elements 可视化审查示例" width="80%"/>
-
-<br />
-<br />
-
-# 框架日志输出
-
-无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
-
-如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
-
-<img src="../assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
+<video width="80%" controls>
+  <source src="../assets/img/elements-inspect.webm" type="video/webm">
+  Elements 可视化审查示例(您的浏览器不支持webm视频格式)
+</video>
 
 <br />
 <br />
@@ -220,7 +216,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 
 5. **如果安卓设备断连，需要手动用 adb 转发端口：**`adb reverse tcp:38989 tcp:38989`。
 
-6. iOS的热更新：iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。Webpack 配置修改如下所示，对于模拟器，本就和开发机处于同一网段，IP 写 `localhost` 就能访问到。
+6. iOS 的热更新：iOS 设备需要代理到开发机上，或处于同一网段，才能使用 HMR 能力。Webpack 配置修改如下所示，对于模拟器，本就和开发机处于同一网段，IP 写 `localhost` 就能访问到。
  
     ```javascript
     module.exports = {
@@ -350,7 +346,10 @@ startDebugServer();
 
 那么这些场景我们可以考虑使用远程调试，效果预览：
 
-<img src="../assets/img/remote-debug-demo.gif" alt="远程调试实例" width="80%"/>
+<video width="80%" controls>
+  <source src="../assets/img/remote-debug-demo.webm" type="video/webm">
+  远程调试实例(您的浏览器不支持webm视频格式)
+</video>
 
 
 ## 前端接入配置
@@ -434,3 +433,14 @@ startDebugServer();
 |:-------:|:---:|:-------:|:---:|:------:|:------:|
 | Android |  ✅  |    ✅    |  ✅  |   ✅    |   ✅    |
 |   iOS   |  ✅  |    ✅    |  ❌  |   ❌    |   ❌    |
+
+<br />
+<br />
+
+# 框架日志输出
+
+无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
+
+如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+
+<img src="../assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
