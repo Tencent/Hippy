@@ -25,8 +25,10 @@ import { HippyView } from './hippy-view';
 import {
   eventThrottle,
   GESTURE_CAPTURE_THRESHOLD,
-  mountTouchListener, scrollEndPagePosition,
-  touchMoveCalculate, virtualSmoothScroll,
+  mountTouchListener,
+  scrollEndPagePosition,
+  touchMoveCalculate,
+  virtualSmoothScroll,
 } from './scrollable';
 
 
@@ -169,6 +171,42 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     this.init();
   }
 
+  public async scrollTo(x: number, y: number, animated: boolean) {
+    if (!this.pagingEnabled) {
+      this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? x : 0, behavior: animated ? 'smooth' : 'auto' });
+    } else {
+      this.pagingModeScroll(x, animated ? ANIMATION_TIME : 1);
+    }
+  }
+
+  public scrollToWithDuration(x: number, y: number, duration: number) {
+    if (!this.pagingEnabled) {
+      const beginTimeStamp = Date.now();
+      const endTimeStamp = beginTimeStamp + duration + 1;
+      let lastDistance = this.horizontal ? x : y - (this.horizontal ? this.dom!.scrollLeft : this.dom!.scrollTop) ;
+      if (lastDistance === 0) {
+        return;
+      }
+      const scrollCallBack = () => {
+        if (Date.now() > endTimeStamp - 16) {
+          if (lastDistance !== 0) {
+            this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? y : 0, behavior: 'smooth' });
+          }
+          return;
+        }
+        const lastTime = endTimeStamp - Date.now();
+        const slice = lastTime / 16;
+        const freScroll = lastDistance / slice < 1 ? 1 : slice;
+        this.dom?.scrollBy({ top: this.horizontal ? 0 : freScroll, left: this.horizontal ? freScroll : 0 });
+        lastDistance -= freScroll;
+        requestAnimationFrame(scrollCallBack);
+      };
+      requestAnimationFrame(scrollCallBack);
+    } else {
+      this.pagingModeScroll(x, duration);
+    }
+  }
+
   private init() {
     mountTouchListener(this.dom!, {
       onBeginDrag: this.handleBeginDrag.bind(this),
@@ -182,6 +220,20 @@ export class ScrollView extends HippyView<HTMLDivElement> {
       needSimulatedScrolling: this.pagingEnabled,
       scrollEnable: this.checkScrollEnable.bind(this),
     });
+  }
+
+  private async pagingModeScroll(offset: number, animationTime = ANIMATION_TIME) {
+    this.onMomentumScrollBegin(this.buildScrollEvent(this.dom!));
+    const toPosition: [number, number] = [offset * -1, 0];
+    const scrollCallBack = (position) => {
+      this.updatePositionInfo(position);
+      this.onScroll(this.buildScrollEvent(this.dom!));
+    };
+    await virtualSmoothScroll(
+      this.dom!, scrollCallBack, this.lastPosition, toPosition,
+      animationTime,
+    );
+    this.onMomentumScrollEnd(this.buildScrollEvent(this.dom!));
   }
 
   private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) {
