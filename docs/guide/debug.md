@@ -379,7 +379,10 @@ startDebugServer();
 
 那么这些场景我们可以考虑使用远程调试，效果预览：
 
-<img src="../assets/img/remote-debug-demo.gif" alt="远程调试实例" width="80%"/>
+<video width="80%" controls>
+  <source src="../assets/img/remote-debug-demo.webm" type="video/webm">
+  远程调试实例(您的浏览器不支持webm视频格式)
+</video>
 
 
 ## 前端接入配置
