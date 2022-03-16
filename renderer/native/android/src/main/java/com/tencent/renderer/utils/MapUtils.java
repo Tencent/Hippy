@@ -19,7 +19,6 @@ package com.tencent.renderer.utils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.List;
 import java.util.Map;
 
 public class MapUtils {

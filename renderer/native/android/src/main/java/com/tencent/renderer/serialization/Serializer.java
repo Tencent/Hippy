@@ -39,7 +39,6 @@ import java.util.Map;
  * for compatible with old versions, temporary support {@link HippyMap} and {@link HippyArray}
  * but will removed in the future
  */
-@SuppressWarnings("deprecation")
 public class Serializer extends PrimitiveValueSerializer {
 
     private static final String TAG = "Serializer";

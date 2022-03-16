@@ -24,10 +24,6 @@ import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItem;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created  on 2021/7/23.
- */
-
 public class HippyPagerAdapter extends PagerAdapter {
 
     protected final List<View> views = new ArrayList<>();

@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.renderer.component.text;
 
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.TextUtils;
+
 import androidx.annotation.Nullable;
+
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 

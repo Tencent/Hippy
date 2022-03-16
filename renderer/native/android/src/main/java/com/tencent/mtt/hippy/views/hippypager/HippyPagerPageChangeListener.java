@@ -26,10 +26,6 @@ import com.tencent.mtt.hippy.views.viewpager.event.HippyPageScrollEvent;
 import com.tencent.mtt.hippy.views.viewpager.event.HippyPageScrollStateChangedEvent;
 import com.tencent.mtt.hippy.views.viewpager.event.HippyPageSelectedEvent;
 
-/**
- * Created  on 2021/7/23.
- */
-
 public class HippyPagerPageChangeListener implements ViewPager.OnPageChangeListener {
 
     public static final String IDLE = "idle";

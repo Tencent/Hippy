@@ -25,24 +25,17 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.views.viewpager.HippyViewPager;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItem;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * Created  on 2021/7/23.
- */
 @HippyController(name = HippyPagerController.CLASS_NAME)
 public class HippyPagerController extends HippyViewController<HippyPager> {
 

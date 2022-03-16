@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.uimanager;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
 
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -34,6 +33,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
+import com.tencent.mtt.hippy.views.hippypager.HippyPagerController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
@@ -48,7 +48,6 @@ import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
-import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
@@ -62,6 +61,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 public class ControllerManager {
 
     private static final String TAG = "ControllerManager";
@@ -94,12 +94,11 @@ public class ControllerManager {
         controllers.add(HippyTextViewController.class);
         controllers.add(HippyViewGroupController.class);
         controllers.add(HippyImageViewController.class);
-        //controllers.add(HippyListViewController.class);
         controllers.add(HippyRecyclerViewController.class);
         controllers.add(HippyListItemViewController.class);
         controllers.add(HippyTextInputController.class);
         controllers.add(HippyScrollViewController.class);
-        controllers.add(HippyViewPagerController.class);
+        controllers.add(HippyPagerController.class);
         controllers.add(HippyViewPagerItemController.class);
         controllers.add(HippyModalHostManager.class);
         controllers.add(RefreshWrapperController.class);
@@ -217,10 +216,12 @@ public class ControllerManager {
         mControllerRegistry.addRootView(rootView);
     }
 
-    public void updateExtra(int id, String name, Object extra) {
+    public void updateExtra(int id, String name, @Nullable Object extra) {
         HippyViewController controller = mControllerRegistry.getViewController(name);
-        View view = mControllerRegistry.getView(id);
-        controller.updateExtra(view, extra);
+        if (controller != null) {
+            View view = mControllerRegistry.getView(id);
+            controller.updateExtra(view, extra);
+        }
     }
 
     public void moveView(int id, int newPid, int index) {
@@ -340,7 +341,7 @@ public class ControllerManager {
             if (childController != null) {
                 count = childController.getChildCount(child);
                 for (int i = count - 1; i >= 0; i--) {
-                    grandson = childController.getChildAt((ViewGroup) child, i);
+                    grandson = childController.getChildAt(child, i);
                     deleteChildRecursive((ViewGroup) child, grandson, -1);
                 }
             } else {
