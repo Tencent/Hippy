@@ -311,7 +311,7 @@ import icon from './qb_icon_new.png';
 | keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum(default, numeric, password, email, phone-pad)` | `ALL`     |
 | maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `number`                                                    | `ALL`     |
 | multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `ALL`     |
-| numberOfLines         | 设置 `TextInput` 的最大行数，在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `ALL`     |
+| numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android`     |
 | onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `ALL`     |
 | onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `ALL`     |
 | onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260}`。仅在 `iOS` 可用，`Android` 输入法不会遮挡App画面 | `Function`                                                   | `iOS`     |
