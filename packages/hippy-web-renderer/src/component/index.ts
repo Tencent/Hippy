@@ -29,6 +29,9 @@ import { ViewPager, ViewPagerItem } from './view-pager';
 import { WebView } from './web-view';
 import { TextView } from './textView';
 
+class CampPageView extends View {
+
+}
 export {
   Image,
   ListView,
@@ -43,4 +46,5 @@ export {
   ListViewItem,
   ViewPagerItem,
   RefreshWrapperItemView,
+  CampPageView,
 };
