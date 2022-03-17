@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/* eslint-disable @typescript-eslint/no-unused-vars*/
 
 import { BaseView, ComponentContext, InnerNodeTag, UIProps } from '../../types';
 import { NodeProps } from '../types';
@@ -96,12 +96,13 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
+      this.firstUpdateStyle = false;
     }
     defaultProcess(this, data);
   }
 
   public defaultStyle(): {[key: string]: any} {
-    return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box' };
+    return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box', outline: 'none', fontFamily: '' };
   }
 
   public onAttachedToWindow() {

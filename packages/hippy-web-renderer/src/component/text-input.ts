@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 import { KeyboardType, NodeProps, ReturnKeyType } from '../types';
-import { convertHexToRgba  } from '../common';
+import { convertHexToRgba } from '../common';
 import { BaseView, HippyCallBack, InnerNodeTag, UIProps } from '../../types';
 import { HippyView } from './hippy-view';
 
-export  class TextInput extends HippyView<HTMLInputElement> {
+export  class TextInput extends HippyView<HTMLInputElement|HTMLTextAreaElement> {
   private placeholderTextColorStyle;
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -36,7 +36,7 @@ export  class TextInput extends HippyView<HTMLInputElement> {
       defaultProcess(this, { style: this.defaultStyle() });
     }
     const newData = { ...data };
-    if (data.style && data.style.placeholderTextColor) {
+    if (data?.style?.placeholderTextColor) {
       newData.placeholderTextColor = convertHexToRgba(newData.style.placeholderTextColor);
       delete newData.style.placeholderTextColor;
     }
@@ -61,10 +61,13 @@ export  class TextInput extends HippyView<HTMLInputElement> {
   public set defaultValue(value: string) {
     this.props[NodeProps.DEFAULT_VALUE] = value;
     // TODO to implement js logic
+    if (!this.value || this.value.length === 0) {
+      this.dom?.setAttribute('value', value);
+    }
   }
 
   public get defaultValue() {
-    return this.props[NodeProps.DEFAULT_VALUE];
+    return this.props[NodeProps.DEFAULT_VALUE] ?? '';
   }
 
   public set editable(value: boolean) {
@@ -96,9 +99,6 @@ export  class TextInput extends HippyView<HTMLInputElement> {
       case KeyboardType.phonePad:
         type = 'tel';
         break;
-      case KeyboardType.search:
-        type = 'search';
-        break;
       default:
         type = 'text';
     }
@@ -119,8 +119,11 @@ export  class TextInput extends HippyView<HTMLInputElement> {
   }
 
   public set multiline(value: boolean) {
+    if ((value && this.dom?.tagName === 'TEXTAREA') || (!value && this.dom?.tagName === 'INPUT')) {
+      return;
+    }
     this.props[NodeProps.MULTILINE] = value;
-    // TODO to implement
+    this.changeToDomMode(value);
   }
 
   public get multiline() {
@@ -129,7 +132,7 @@ export  class TextInput extends HippyView<HTMLInputElement> {
 
   public set numberOfLines(value: number) {
     this.props[NodeProps.NUMBER_OF_LINES] = value;
-    // TODO to implement
+    this.dom?.setAttribute('rows', String(value));
   }
 
   public get numberOfLines() {
@@ -162,7 +165,7 @@ export  class TextInput extends HippyView<HTMLInputElement> {
 
   public set returnKeyType(value: ReturnKeyType) {
     this.props[NodeProps.RETURN_KEY_TYPE] = value;
-    this.dom?.setAttribute('entrykeyhit', value);
+    this.dom?.setAttribute('enterkeyhint', value);
   }
 
   public get returnKeyType() {
@@ -208,11 +211,11 @@ export  class TextInput extends HippyView<HTMLInputElement> {
     && this.context.sendUiEvent(this.id, NodeProps.ON_SELECTION_CHANGE, value);
   }
 
-  public blur() {
+  public blurTextInput() {
     this.dom?.blur();
   }
 
-  public focus() {
+  public focusTextInput() {
     this.dom?.focus();
   }
 
@@ -243,18 +246,40 @@ export  class TextInput extends HippyView<HTMLInputElement> {
     this.dom?.focus();
   }
 
-  public async beforeRemove() {
-    await super.beforeRemove();
-    document.removeEventListener('selectionchange', this.handleSelection);
-    this.dom?.removeEventListener('input', this.handleInput);
-    this.dom?.removeEventListener('blur', this.handleBlur);
+  private init() {
+    document.addEventListener('selectionchange', this.handleSelection.bind(this));
+    this.dom!.addEventListener('input', this.handleInput.bind(this));
+    this.dom!.addEventListener('blur', this.handleBlur.bind(this));
+    this.dom!.addEventListener('keypress', this.handleKeyPress.bind(this));
   }
 
-  private init() {
-    document.addEventListener('selectionchange', this.handleSelection);
-    this.dom!.addEventListener('input', this.handleInput);
-    this.dom!.addEventListener('blur', this.handleBlur);
+  private changeToDomMode(isMultiline: boolean) {
+    let isMounted = false;
+    if (this.dom?.parentNode) {
+      isMounted = true;
+    }
+    if (isMounted) {
+      (this.context.getModuleByName('UIManagerModule') as any).componentDeleteProcess(this);
+    }
+    if (isMultiline) {
+      this.dom = document.createElement('textarea');
+    } else {
+      this.dom = document.createElement('input');
+    }
+    this.init();
+    if (isMounted) {
+      (this.context.getModuleByName('UIManagerModule') as any).componentInitProcess(this, this.props, this.index);
+    } else {
+      (this.context.getModuleByName('UIManagerModule') as any).updateComponentProps(this, this.props);
+    }
   }
+
+  private handleKeyPress(event) {
+    if (event.code === 'Enter' && !this.multiline) {
+      this.onEndEditing(null);
+    }
+  }
+
   private handleSelection() {
     const cacheLastSelection = [0, 0];
     const selectionObj = window.getSelection();
@@ -270,7 +295,14 @@ export  class TextInput extends HippyView<HTMLInputElement> {
       this.onSelectionChange(buildSelectEvent(index, index + selectionObj.toString().length));
     }
   }
+
   private handleInput() {
+    if (this.value.length === 0 && this.defaultValue) {
+      this.onChangeText({
+        text: this.dom?.value,
+      });
+      this.setValue(this.defaultValue);
+    }
     this.onChangeText({
       text: this.dom?.value,
     });
