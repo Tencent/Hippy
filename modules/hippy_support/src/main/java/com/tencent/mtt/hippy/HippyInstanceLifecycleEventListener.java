@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy;
 
+
+
 @SuppressWarnings({"unused"})
 public interface HippyInstanceLifecycleEventListener {
 
