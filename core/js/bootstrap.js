@@ -17,7 +17,7 @@
   class NativeModule {
     constructor(filename) {
       this.filename = filename;
-      this.exports = {};
+      this.exports = {}
     }
 
     static require(filePath) {
