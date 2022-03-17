@@ -8,4 +8,41 @@
 #  https://help.github.com/en/articles/about-code-owners
 #
 
-* @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy
+* @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
+
+*.js @zoomchan-cxj
+*.java @siguangli
+*.cc @churchill-zhang @medns @ilikethese
+*.h @ozonelmy
+*.m @ozonelmy
+*.mm @ozonelmy
+
+/.github/ @zoomchan-cxj
+/.husky/ @zoomchan-cxj
+/docker/ @medns
+/docs/ @zoomchan-cxj
+/dom/ @churchill-zhang @ilikethese
+
+/framework/js/core/ @churchill-zhang @zoomchan-cxj
+/framework/js/core/js/ @zoomchan-cxj
+
+/framework/js/android/ @siguangli @churchill-zhang
+/framework/js/ios/ @ozonelmy @churchill-zhang
+/ios/ @ozonelmy @churchill-zhang
+
+/framework/js/examples/android-demo/ @siguangli
+/framework/js/examples/android-demo/res/ @zoomchan-cxj
+/framework/js/examples/ios-demo/ @ozonelmy
+/framework/js/examples/ios-demo/res/ @zoomchan-cxj
+/framework/js/examples/hippy-react-demo/ @zoomchan-cxj
+/framework/js/examples/hippy-vue-demo/ @zoomchan-cxj
+
+/framework/js/packages/ @zoomchan-cxj
+
+/gradle/ @siguangli @medns
+/layout/ @ilikethese
+
+/renderer/native/android/ @siguangli
+/renderer/native/ios/ @ozonelmy
+
+/scripts/ @zoomchan-cxj
