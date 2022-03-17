@@ -179,7 +179,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     }
   }
 
-  public scrollToWithDuration(x: number, y: number, duration: number) {
+  public scrollToWithOptions(x: number, y: number, duration: number) {
     if (!this.pagingEnabled) {
       const beginTimeStamp = Date.now();
       const endTimeStamp = beginTimeStamp + duration + 1;
