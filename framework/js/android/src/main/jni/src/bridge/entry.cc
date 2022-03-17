@@ -41,7 +41,6 @@
 #include "dom/dom_manager.h"
 #include "render/hippy_render_manager.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
-#include "jni/native_render_provider.h"
 #include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
 #include "jni/java_turbo_module.h"
@@ -50,6 +49,7 @@
 #include "jni/uri.h"
 #include "loader/adr_loader.h"
 #include "bridge/bridge.h"
+#include "render/native_render_manager.h"
 
 namespace hippy::bridge {
 
@@ -360,7 +360,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Init();
   ConvertUtils::Init();
   TurboModuleManager::Init();
-  NativeRenderProvider::Init();
+  NativeRenderManager::Init();
 
   return JNI_VERSION_1_4;
 }
@@ -372,7 +372,7 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Destroy();
   ConvertUtils::Destroy();
   TurboModuleManager::Destroy();
-  NativeRenderProvider::Destroy();
+  NativeRenderManager::Destroy();
 
   JNIEnvironment::DestroyInstance();
 }
