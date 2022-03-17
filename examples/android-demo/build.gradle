@@ -11,7 +11,7 @@ buildscript {
         // in the individual module build.gradle files
     }
     configurations.all {
-        resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
+        resolutionStrategy.cacheChangingModulesFor 2, 'seconds'
         resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
     }
 }
