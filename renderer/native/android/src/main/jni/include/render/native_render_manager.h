@@ -24,7 +24,7 @@
 
 #include <jni.h>
 
-class NativeRenderProvider {
+class NativeRenderManager {
  public:
   static void Init();
 

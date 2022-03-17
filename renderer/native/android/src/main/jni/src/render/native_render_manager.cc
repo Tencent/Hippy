@@ -20,9 +20,8 @@
  *
  */
 
-#include "jni/native_render_provider.h"
+#include "render/native_render_manager.h"
 
-#include "core/runtime/v8/runtime.h"
 #include "dom/deserializer.h"
 #include "dom/dom_value.h"
 #include "dom/render_manager.h"
@@ -66,10 +65,10 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "(IILjava/lang/String;IJ[BII)V",
              DoCallBack)
 
-void NativeRenderProvider::Init() {
+void NativeRenderManager::Init() {
 }
 
-void NativeRenderProvider::Destroy() {
+void NativeRenderManager::Destroy() {
 }
 
 jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_density) {
