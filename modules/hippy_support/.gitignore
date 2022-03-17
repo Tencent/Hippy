@@ -2,4 +2,4 @@
 local.properties
 .idea/
 .gradle/
-build/
+build
