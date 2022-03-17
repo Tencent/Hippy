@@ -140,7 +140,6 @@ export enum KeyboardType {
   password = 'password',
   email = 'email',
   phonePad = 'phone-pad',
-  search = 'search',
 }
 export enum ReturnKeyType {
   done = 'done',

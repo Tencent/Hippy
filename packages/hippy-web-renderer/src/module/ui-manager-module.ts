@@ -164,6 +164,30 @@ export class UIManagerModule extends HippyWebModule {
     delete this.viewDictionary[childId];
   }
 
+  public defaultUpdateComponentProps(component: BaseView, props: any) {
+    if (props) {
+      mergeDeep(component.props, props);
+      if (!props) {
+        return;
+      }
+      const keys = Object.keys(props);
+      if (props.style) {
+        setElementStyle(component.dom!, props.style, (key: string, value: any) => {
+          this.animationProcess(key, value, component);
+        });
+      }
+      for (const key of keys) {
+        if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
+          continue;
+        }
+        if (typeof component[key] === 'function' && key.indexOf('on') === 0) {
+          continue;
+        }
+        component[key] = props[key];
+      }
+    }
+  }
+
   private createRoot(id: string) {
     const root = window.document.createElement('div');
     root.setAttribute('id', id);
@@ -184,30 +208,6 @@ export class UIManagerModule extends HippyWebModule {
       component.updateProps(props, this.defaultUpdateComponentProps.bind(this));
     } else {
       this.defaultUpdateComponentProps(component, props);
-    }
-  }
-
-  private defaultUpdateComponentProps(component: BaseView, props: any) {
-    if (props) {
-      Object.assign(component.props, props);
-      if (!props) {
-        return;
-      }
-      const keys = Object.keys(props);
-      if (props.style) {
-        setElementStyle(component.dom!, props.style, (key: string, value: any) => {
-          this.animationProcess(key, value, component);
-        });
-      }
-      for (const key of keys) {
-        if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
-          continue;
-        }
-        if (typeof component[key] === 'function' && key.indexOf('on') === 0) {
-          continue;
-        }
-        component[key] = props[key];
-      }
     }
   }
 
@@ -308,4 +308,25 @@ function mapComponent(context: ComponentContext, tagName: string, id: number, pI
   if (componentDictionary[tagName]) {
     return new componentDictionary[tagName](context, id, pId);
   }
+}
+export function isObject(item) {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+export function mergeDeep(target, ...sources) {
+  if (!sources.length) return target;
+  const source = sources.shift();
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} });
+        mergeDeep(target[key], source[key]);
+      } else {
+        Object.assign(target, { [key]: source[key] });
+      }
+    }
+  }
+
+  return mergeDeep(target, ...sources);
 }
