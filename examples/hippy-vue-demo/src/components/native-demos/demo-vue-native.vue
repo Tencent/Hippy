@@ -327,12 +327,10 @@ export default {
     async onLayout() {
       if (!this.hasLayout) {
         this.hasLayout = true;
-        // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
         const rect = await Vue.Native.measureInAppWindow(this.$refs.rect);
         this.rect = `Container rect: ${JSON.stringify(rect)}`;
       }
     },
-    // 通过界面，触发经过 app 中转的事件，其实就是个假的终端事件。
     triggerAppEvent() {
       this.app.$emit(TEST_EVENT_NAME);
     },
@@ -380,7 +378,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
   #demo-vue-native {
     flex: 1;
     padding: 12px;
