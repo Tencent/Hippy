@@ -94,22 +94,32 @@ export class HippyWebEngine {
   async invokeModuleMethod(moduleName: string, methodName: string, callId: string, params: any[] = []) {
     const mod = this.modules[moduleName];
     if (mod != null && mod[methodName] != null) {
-      const method = mod[methodName];
-      const para = [...params, callId != null ? createPromise(moduleName, methodName, callId) : undefined];
       if (mod.mode === 'sequential') {
-        if (this.pendingModules[moduleName] === true) {
-          this.pendingQueue.push([moduleName, methodName, callId, params]);
+        this.pendingQueue.push([moduleName, methodName, callId, params]);
+        const queue = this.pendingQueue.filter(para => para[0] === moduleName);
+
+        while (queue.length > 0 && queue.length < 500) {
+          // this.pendingModules[moduleName] = true;
+          const para = queue.shift();
+
+          await this.invokeModuleMethodImmediately(para[0], para[1], para[2], para[3]);
         }
-        this.pendingModules[moduleName] = true;
-        try {
-          await method.apply(mod, para);
-          this.flushPendingQueue(moduleName);
-        } catch (err) {
-          this.flushPendingQueue(moduleName);
-        }
+
       } else {
-        method.apply(mod, para);
+        await this.invokeModuleMethodImmediately(moduleName, methodName, callId, params);
       }
+    }
+  }
+
+  async invokeModuleMethodImmediately(moduleName: string, methodName: string, callId: string, params: any[] = []) {
+    console.log('invoke: ', moduleName, methodName, callId, params);
+    const mod = this.modules[moduleName];
+    const para = [...params, callId != null ? createPromise(moduleName, methodName, callId) : undefined];
+    const method = mod[methodName];
+    try {
+      await method.apply(mod, para);
+    } catch (e) {
+      console.error(e);
     }
   }
 

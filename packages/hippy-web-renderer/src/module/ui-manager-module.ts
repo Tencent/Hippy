@@ -33,6 +33,7 @@ import { setElementStyle } from '../common';
 export class UIManagerModule extends HippyWebModule {
   public static moduleName = 'UIManagerModule';
   public name = 'UIManagerModule';
+  public mode = 'normal';
 
   private viewDictionary: {[key in string|number]: BaseView} = {};
   private rootDom: HTMLElement|undefined;
@@ -70,6 +71,7 @@ export class UIManagerModule extends HippyWebModule {
       const { props } = nodeItemData;
       const component = mapComponent(this.context, tagName, id, pId);
       if (!component) {
+        debugger;
         throw `create component failed, can't find ${tagName}' constructor`;
       }
       if (theUpdateComponentIdSet.has(id)) {
