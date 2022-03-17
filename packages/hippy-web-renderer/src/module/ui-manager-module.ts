@@ -33,7 +33,7 @@ import { setElementStyle } from '../common';
 export class UIManagerModule extends HippyWebModule {
   public static moduleName = 'UIManagerModule';
   public name = 'UIManagerModule';
-  public mode = 'normal';
+  public mode = 'sequential';
 
   private viewDictionary: {[key in string|number]: BaseView} = {};
   private rootDom: HTMLElement|undefined;

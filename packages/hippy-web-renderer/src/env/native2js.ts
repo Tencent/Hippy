@@ -24,8 +24,6 @@ export const nativeBridge: HippyNativeBridge = (_action, _callObj) => {
     };
   }
 
-  console.log('nativeCallJs: ---', action, callObj);
-
   switch (action) {
     case 'loadInstance': {
       if (__GLOBAL__.appRegister[callObj.name]) {

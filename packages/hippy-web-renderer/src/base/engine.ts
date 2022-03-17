@@ -33,7 +33,7 @@ export class HippyWebEngine {
   instance?: HippyWebEngineStartOptions;
   eventBus = new HippyWebEventBus();
 
-  pendingQueue: any[] = [];
+  pendingQueue: { [key: string]: any[] } = {};
 
   pendingModules = {};
 
@@ -95,16 +95,22 @@ export class HippyWebEngine {
     const mod = this.modules[moduleName];
     if (mod != null && mod[methodName] != null) {
       if (mod.mode === 'sequential') {
-        this.pendingQueue.push([moduleName, methodName, callId, params]);
-        const queue = this.pendingQueue.filter(para => para[0] === moduleName);
 
-        while (queue.length > 0 && queue.length < 500) {
-          // this.pendingModules[moduleName] = true;
-          const para = queue.shift();
-
-          await this.invokeModuleMethodImmediately(para[0], para[1], para[2], para[3]);
+        if (this.pendingQueue[moduleName] == null) {
+          this.pendingQueue[moduleName] = [];
         }
-
+        const queue = this.pendingQueue[moduleName];
+        queue.push([moduleName, methodName, callId, params]);
+        if (this.pendingModules[moduleName] === true) {
+          return;
+        }
+        while (queue.length > 0) {
+          this.pendingModules[moduleName] = true;
+          const para = queue[0];
+          await this.invokeModuleMethodImmediately(para[0], para[1], para[2], para[3]);
+          queue.shift();
+        }
+        this.pendingModules[moduleName] = false;
       } else {
         await this.invokeModuleMethodImmediately(moduleName, methodName, callId, params);
       }
@@ -112,7 +118,6 @@ export class HippyWebEngine {
   }
 
   async invokeModuleMethodImmediately(moduleName: string, methodName: string, callId: string, params: any[] = []) {
-    console.log('invoke: ', moduleName, methodName, callId, params);
     const mod = this.modules[moduleName];
     const para = [...params, callId != null ? createPromise(moduleName, methodName, callId) : undefined];
     const method = mod[methodName];
@@ -123,15 +128,15 @@ export class HippyWebEngine {
     }
   }
 
-  flushPendingQueue(moduleName: string) {
-    this.pendingModules[moduleName] = false;
-    const queue = this.pendingQueue.filter(para => para[0] === moduleName);
-    while (queue.length > 0) {
-      const para = queue.shift();
-      // resend commands
-      global.hippyCallNatives(para[0], para[1], para[2], para[3]);
-    }
-  }
+  // flushPendingQueue(moduleName: string) {
+  //   this.pendingModules[moduleName] = false;
+  //   const queue = this.pendingQueue.filter(para => para[0] === moduleName);
+  //   while (queue.length > 0) {
+  //     const para = queue.shift();
+  //     // resend commands
+  //     global.hippyCallNatives(para[0], para[1], para[2], para[3]);
+  //   }
+  // }
 }
 
 
