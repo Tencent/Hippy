@@ -107,8 +107,14 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
         buffer1.rowBytes = buffer2.rowBytes = CGImageGetBytesPerRow(imageRef);
         size_t bytes = buffer1.rowBytes * buffer1.height;
         buffer1.data = malloc(bytes);
+        if (NULL == buffer1.data) {
+            return inputImage;
+        }
         buffer2.data = malloc(bytes);
-
+        if (NULL == buffer2.data) {
+            free(buffer1.data);
+            return inputImage;
+        }
         // A description of how to compute the box kernel width from the Gaussian
         // radius (aka standard deviation) appears in the SVG spec:
         // http://www.w3.org/TR/SVG/filters.html#feGaussianBlurElement
@@ -126,9 +132,19 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
         dataSource = NULL;
 
         // perform blur
-        vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
-        vImageBoxConvolve_ARGB8888(&buffer2, &buffer1, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
-        vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
+        vImage_Error error;
+        error = vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
+        if (error) {
+            return inputImage;
+        }
+        error = vImageBoxConvolve_ARGB8888(&buffer2, &buffer1, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
+        if (error) {
+            return inputImage;
+        }
+        error = vImageBoxConvolve_ARGB8888(&buffer1, &buffer2, tempBuffer, 0, 0, boxSize, boxSize, NULL, kvImageEdgeExtend);
+        if (error) {
+            return inputImage;
+        }
 
         // free buffers
         free(buffer2.data);
@@ -137,7 +153,8 @@ UIImage *HippyBlurredImageWithRadiusv(UIImage *inputImage, CGFloat radius, NSErr
         tempBuffer = NULL;
 
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+        CGBitmapInfo bitmapInfoMasked = CGImageGetBitmapInfo(imageRef);
+        CGBitmapInfo bitmapInfo = bitmapInfoMasked & kCGBitmapByteOrderMask;
         CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(imageRef);
         if (alphaInfo == kCGImageAlphaNone || alphaInfo == kCGImageAlphaOnly) {
             alphaInfo = kCGImageAlphaNoneSkipFirst;
