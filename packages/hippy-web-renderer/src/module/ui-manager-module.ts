@@ -39,8 +39,8 @@ export class UIManagerModule extends HippyWebModule {
   private rootDom: HTMLElement|undefined;
   private contentDom: HTMLElement|undefined;
 
-  public initialize() {
-
+  public init() {
+    this.stylePolyfill();
   }
 
   public destroy() {
@@ -296,6 +296,16 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     throw `call ui function failed,${component?.tagName} component not implement ${callName}()`;
+  }
+
+  private stylePolyfill() {
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = '*::-webkit-scrollbar {\n'
+      + '  display: none;\n'
+      + '}';
+
+    document.getElementsByTagName('head')[0].appendChild(style);
   }
 }
 
