@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import * as Hammer from 'hammerjs';
 import { NodeProps, SCROLL_STATE } from '../types';
 import { setElementStyle } from '../common';
 import { BaseView, InnerNodeTag, UIProps } from '../../types';
@@ -36,6 +36,8 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   private pageIndex =0;
   private scrollableCache = false;
   private lastPosition: [number, number] = [0, 0];
+  private childViewItem: ViewPagerItem[] = [];
+  private swipeRecginaze: any = null;
 
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -94,6 +96,20 @@ export class ViewPager extends HippyView<HTMLDivElement> {
     this.scrollPage(index, false);
   }
 
+  public async beforeChildMount(child: BaseView, childPosition: number): Promise<any> {
+    await super.beforeChildMount(child, childPosition);
+    if (child instanceof ViewPagerItem) {
+      this.childViewItem.push(child);
+    }
+  }
+
+  public beforeChildRemove(child: BaseView): void {
+    super.beforeChildRemove(child);
+    if (child instanceof ViewPagerItem) {
+      this.childViewItem = this.childViewItem.filter(item => item !== child);
+    }
+  }
+
   public init() {
     this.props[NodeProps.INITIAL_PAGE] = 0;
     this.props[NodeProps.SCROLL_ENABLED] = true;
@@ -106,11 +122,18 @@ export class ViewPager extends HippyView<HTMLDivElement> {
       scrollEnable: this.checkScrollEnable.bind(this),
       needSimulatedScrolling: true,
     });
+    const hammer =  new Hammer.Manager(this.dom, { inputClass: Hammer.TouchInput });
+    const swipe = new Hammer.Swipe();
+    hammer.add(swipe);
+    hammer.on('swipe', (e) => {
+      console.log('swipe', this.id, e);
+      this.swipeRecginaze = e;
+      e.srcEvent.stopPropagation();
+    });
   }
 
   private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) {
     if (!touchEvent) {
-      // 隐式含义，在touchEnd/Cancel时的回调
       // console.log('viewpager end', this.scrollableCache);
       return this.scrollableCache;
     }
@@ -141,12 +164,26 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   }
 
   private handleBeginDrag() {
+    this.swipeRecginaze = null;
     this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.DRAG));
   }
 
   private async handleEndDrag(position: [number, number]) {
     this.scrollableCache = false;
     this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
+    if (this.swipeRecginaze) {
+      let nextPage = this.pageIndex;
+      if (this.swipeRecginaze.offsetDirection === Hammer.DIRECTION_RIGHT && this.pageIndex > 0) {
+        nextPage -= 1;
+      } else if (this.swipeRecginaze.offsetDirection === Hammer.DIRECTION_LEFT
+        && this.pageIndex < this.childViewItem.length - 1) {
+        nextPage += 1;
+      }
+      this.scrollPage(nextPage, true);
+      this.swipeRecginaze = null;
+      return;
+    }
+
     const { toOffset, newPageIndex } = scrollEndPagePosition(this.dom!.clientWidth, this.dom!.scrollWidth, position[0]);
     const toPosition: [number, number] = [toOffset, position[1]];
     const scrollCallBack = (position, index) => {
@@ -167,12 +204,11 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   }
 
   private async scrollToPageByIndex(
-    fromIndex: number,
     toIndex: number,
     needAnimation: boolean,
   ) {
     const pageWidth = this.dom!.clientWidth;
-    const tmpPosition: [number, number]  = [fromIndex * pageWidth * -1, this.lastPosition[1]];
+    const tmpPosition: [number, number]  = [...this.lastPosition];
     const toPosition: [number, number] = [toIndex * pageWidth * -1, this.lastPosition[1]];
     this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
     const scrollCallBack = (position, index) => {
@@ -193,7 +229,6 @@ export class ViewPager extends HippyView<HTMLDivElement> {
       return;
     }
     this.scrollToPageByIndex(
-      this.pageIndex,
       index,
       withAnimation,
     );
@@ -232,6 +267,7 @@ export class ViewPagerItem extends HippyView<HTMLDivElement> {
   public defaultStyle(): { [p: string]: any } {
     return { flexShrink: 0, display: 'flex', boxSizing: 'border-box', position: 'static' };
   }
+
   public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
     const newData = { ...data };
     if (data.style && data.style.position === 'absolute') {
@@ -240,6 +276,7 @@ export class ViewPagerItem extends HippyView<HTMLDivElement> {
     Object.assign(newData.style, this.defaultStyle());
     defaultProcess(this, newData);
   }
+
   public async beforeMount(parent: BaseView, position: number) {
     await super.beforeMount(parent, position);
     setElementStyle(this.dom!, { width: `${parent.dom!.clientWidth}px` });

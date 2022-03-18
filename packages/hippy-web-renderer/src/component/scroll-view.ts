@@ -179,26 +179,27 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     }
   }
 
-  public scrollToWithOptions(x: number, y: number, duration: number) {
+  public scrollToWithOptions({ x, y, duration }) {
     if (!this.pagingEnabled) {
       const beginTimeStamp = Date.now();
       const endTimeStamp = beginTimeStamp + duration + 1;
-      let lastDistance = this.horizontal ? x : y - (this.horizontal ? this.dom!.scrollLeft : this.dom!.scrollTop) ;
+      let lastDistance = (this.horizontal ? x : y) - (this.horizontal ? this.dom!.scrollLeft : this.dom!.scrollTop) ;
       if (lastDistance === 0) {
         return;
       }
       const scrollCallBack = () => {
         if (Date.now() > endTimeStamp - 16) {
           if (lastDistance !== 0) {
-            this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? y : 0, behavior: 'smooth' });
+            this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? x : 0, behavior: 'smooth' });
           }
           return;
         }
-        const lastTime = endTimeStamp - Date.now();
-        const slice = lastTime / 16;
-        const freScroll = lastDistance / slice < 1 ? 1 : slice;
-        this.dom?.scrollBy({ top: this.horizontal ? 0 : freScroll, left: this.horizontal ? freScroll : 0 });
-        lastDistance -= freScroll;
+        const freScroll = lastDistance / 5;
+        this.dom?.scrollTo(
+          this.horizontal ? (freScroll + this.dom!.scrollLeft) : 0,
+          this.horizontal ? 0 : (freScroll + this.dom!.scrollTop),
+        );
+        lastDistance -= (lastDistance / 5) ;
         requestAnimationFrame(scrollCallBack);
       };
       requestAnimationFrame(scrollCallBack);

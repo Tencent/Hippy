@@ -71,6 +71,7 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
     if (isEnableScroll
       && config.needSimulatedScrolling) {
       config.updatePosition(touchMoveDeal(el, event, lastTouchEvent!, config.getPosition(), config?.onTouchMove));
+      event.stopPropagation();
     }
 
     if (isEnableScroll) {
