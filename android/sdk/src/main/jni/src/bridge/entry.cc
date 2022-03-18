@@ -417,8 +417,7 @@ jlong InitInstance(JNIEnv* j_env,
   unicode_string_view global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
   TDF_BASE_LOG(DEBUG) << "global_config = " << global_config;
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  std::shared_ptr<JavaRef> save_object =
-      std::make_shared<JavaRef>(j_env, j_callback);
+  std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_callback);
 
   RegisterFunction context_cb = [runtime, global_config,
                                  runtime_id](void* scopeWrapper) {
@@ -545,7 +544,8 @@ void DestroyInstance(__unused JNIEnv* j_env,
   }
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [runtime, runtime_id] {
+  std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
+  task->callback = [runtime, runtime_id, cb] {
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
 #ifdef ENABLE_INSPECTOR
     if (runtime->IsDebug()) {
@@ -561,6 +561,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
     TDF_BASE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
     TDF_BASE_LOG(INFO) << "js destroy end";
+    hippy::bridge::CallJavaMethod(cb->GetObj(), INIT_CB_STATE::SUCCESS);
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerEngineId) {
@@ -588,7 +589,6 @@ void DestroyInstance(__unused JNIEnv* j_env,
       TDF_BASE_DLOG(FATAL) << "engine not find";
     }
   }
-  hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   TDF_BASE_DLOG(INFO) << "destroy end";
 }
 
