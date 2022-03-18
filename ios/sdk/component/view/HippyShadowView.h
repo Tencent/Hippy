@@ -94,11 +94,9 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property(nonatomic, copy) HippyDirectEventBlock onLayout;
 @property(nonatomic, assign) BOOL isList;
-@property(nonatomic, assign) HPDirection layoutDirection;
 @property(nonatomic, copy) NSString *visibility;
 @property(nonatomic, assign) BOOL visibilityChanged;
 @property(nonatomic, assign) BOOL hasNewLayout;
-@property(nonatomic, assign) hippy::LayoutResult nodeLayoutResult;
 
 /**
  * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is
@@ -233,5 +231,12 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  * clear all event names
  */
 - (void)clearEventNames;
+
+@property(nonatomic, assign) hippy::LayoutResult nodeLayoutResult;
+
+@property(nonatomic, assign) HPDirection layoutDirection;
+@property(nonatomic, assign) HPDirection confirmedLayoutDirection;
+
+- (BOOL)isLayoutSubviewsRTL;
 
 @end

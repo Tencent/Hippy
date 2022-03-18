@@ -30,7 +30,7 @@
 #import "UIView+Private.h"
 #import "UIView+Hippy.h"
 #import "HippyInvalidating.h"
-#import "HippyI18nUtils.h"
+#import "UIView+DirectionalLayout.h"
 #import "objc/runtime.h"
 
 @interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
@@ -769,7 +769,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (BOOL)needsLayoutForRTL {
-    return NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage] && _horizontal;
+    return [self isLayoutSubviewsRTL] && _horizontal;
 }
 
 // Note: setting several properties of UIScrollView has the effect of

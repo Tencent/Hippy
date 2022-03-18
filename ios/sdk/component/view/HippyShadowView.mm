@@ -439,5 +439,42 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     _eventNames.clear();
 }
 
+- (void)setLayoutDirection:(HPDirection)direction {
+    _layoutDirection = direction;
+    self.confirmedLayoutDirection = direction;
+}
+
+- (BOOL)isLayoutSubviewsRTL {
+    if (DirectionInherit == self.confirmedLayoutDirection) {
+        NSMutableSet<HippyShadowView *> *viewsSet = [NSMutableSet setWithCapacity:32];
+        HPDirection direction;
+        [self checkLayoutDirection:viewsSet direction:&direction];
+        self.confirmedLayoutDirection = direction;
+        [viewsSet enumerateObjectsUsingBlock:^(HippyShadowView *view, BOOL *stop) {
+            view.confirmedLayoutDirection = direction;
+        }];
+    }
+    BOOL layoutRTL = DirectionRTL == self.confirmedLayoutDirection;
+    return layoutRTL;
+}
+
+- (void)checkLayoutDirection:(NSMutableSet<HippyShadowView *> *)viewsSet direction:(HPDirection *)direction{
+    if (DirectionInherit == self.confirmedLayoutDirection) {
+        [viewsSet addObject:self];
+        [[self hippySuperview] checkLayoutDirection:viewsSet direction:direction];
+    }
+    else if (direction) {
+        *direction = self.confirmedLayoutDirection;
+    }
+}
+
+- (void)superviewLayoutDirectionChangedTo:(HPDirection)direction {
+    if (DirectionInherit == self.layoutDirection) {
+        self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
+        for (HippyShadowView *subview in self.hippySubviews) {
+            [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
+        }
+    }
+}
 
 @end

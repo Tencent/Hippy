@@ -24,8 +24,8 @@
 #import "HippyLog.h"
 #import "float.h"
 #import "HippyViewPagerItem.h"
-#import "HippyI18nUtils.h"
 #import "UIView+Hippy.h"
+#import "UIView+DirectionalLayout.h"
 
 @interface HippyViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;
@@ -64,7 +64,7 @@
         if (@available(iOS 11.0, *)) {
             self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
-        if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
+        if ([self isLayoutSubviewsRTL]) {
             self.transform = CGAffineTransformMakeRotation(M_PI);
         }
     }
@@ -82,7 +82,7 @@
         UIView *viewAtIndex = [self.viewPagerItems objectAtIndex:atIndex];
         view.frame = viewAtIndex.frame;
     }
-    if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
+    if ([self isLayoutSubviewsRTL]) {
         view.transform = CGAffineTransformMakeRotation(M_PI);
     }
     [super insertHippySubview:view atIndex:(NSInteger)atIndex];
