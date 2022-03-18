@@ -177,6 +177,9 @@ export class UIManagerModule extends HippyWebModule {
         setElementStyle(component.dom!, props.style, (key: string, value: any) => {
           this.animationProcess(key, value, component);
         });
+        if (props.style.position === 'absolute' && !this.findViewById(component.pId)?.props?.style?.position) {
+          setElementStyle(this.findViewById(component.pId)!.dom!, { position: 'relative' });
+        }
       }
       for (const key of keys) {
         if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {

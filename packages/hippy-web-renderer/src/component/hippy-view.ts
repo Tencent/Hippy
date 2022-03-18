@@ -20,9 +20,12 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 
+import ResizeObserver from 'resize-observer-polyfill';
 import { BaseView, ComponentContext, InnerNodeTag, UIProps } from '../../types';
 import { NodeProps } from '../types';
 import { HippyTransferData } from '../types/hippy-internal-types';
+import { throttle, debounce } from '../third-lib/loadsh.js';
+
 export class HippyView<T extends HTMLElement> implements BaseView {
   public tagName!: InnerNodeTag;
   public id!: number;
@@ -32,6 +35,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   public props: any = {};
   public firstUpdateStyle = true;
   public context!: ComponentContext;
+  public resizeObserver: ResizeObserver|undefined;
   public constructor(context, id, pId) {
     this.id = id;
     this.pId = pId;
@@ -93,6 +97,22 @@ export class HippyView<T extends HTMLElement> implements BaseView {
     }
   }
 
+  public set onLayout(value: boolean) {
+    this.props[NodeProps.ON_LAYOUT] = value;
+    if (value) {
+      if (!this.resizeObserver) {
+        this.resizeObserver = new ResizeObserver(this.handleReLayout.bind(this));
+      }
+      this.resizeObserver.observe(this.dom!);
+    } else {
+      this.resizeObserver?.disconnect();
+    }
+  }
+
+  public get onLayout() {
+    return this.props[NodeProps.ON_LAYOUT];
+  }
+
   public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
@@ -112,20 +132,6 @@ export class HippyView<T extends HTMLElement> implements BaseView {
     this.context.sendUiEvent(this.id, 'onAttachedToWindow', null);
   }
 
-  public onLayout() {
-    if (!this.props[NodeProps.ON_LAYOUT]) {
-      return;
-    }
-    const rect = this.dom!.getBoundingClientRect();
-    this.context.sendUiEvent(this.id, 'onLayout', { layout: {
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height,
-    },
-    target: this.id });
-  }
-
   public async beforeMount(parent: BaseView, position: number) {
     this.index = position;
   }
@@ -134,18 +140,46 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   }
 
   public mounted(): void {
-    this.onLayout();
     this.onAttachedToWindow();
+    if (this.onLayout) {
+      const rect = this.dom!.getBoundingClientRect();
+      this.context.sendUiEvent(this.id, 'onLayout', { layout: {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      },
+      target: this.id });
+    }
   }
 
   public beforeChildRemove(child: BaseView): void {
   }
 
   public async beforeRemove() {
+    this.resizeObserver?.disconnect();
   }
 
   public destroy() {
     this.dom = null;
+  }
+
+  public handleReLayout(entries: ResizeObserverEntry[]) {
+    throttle(debounce(() => {
+      const [entry] = entries;
+      if (!entry) {
+        return;
+      }
+      const { left, top, width, height } = entry.contentRect;
+
+      this.context.sendUiEvent(this.id, 'onLayout', { layout: {
+        x: left,
+        y: top,
+        width,
+        height,
+      },
+      target: this.id });
+    }, 100, false), 100)();
   }
 
   private handleOnClick(event) {
@@ -187,6 +221,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
     event.stopPropagation();
   }
 }
+
 function buildHippyTouchEvent(event: TouchEvent, name: HippyTransferData.NativeGestureEventTypes, id: number) {
   const touch = event.touches[0]; // 获取第一个触点
   const x = Number(touch.pageX); // 页面触点X坐标
@@ -195,3 +230,4 @@ function buildHippyTouchEvent(event: TouchEvent, name: HippyTransferData.NativeG
     name, id, page_x: x, page_y: y,
   };
 }
+

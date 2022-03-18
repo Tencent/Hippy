@@ -30,8 +30,11 @@ export default class SizePositionManager {
    * It just-in-time calculates (or used cached values) for items leading up to the index.
    */
   getSizeAndPositionForIndex(index) {
-    if (index < 0 || index >= this._itemCount) {
-      throw Error(`Requested index ${index} is outside of range 0..${this._itemCount}`);
+    if (index < 0 || index >= this._itemCount&& this._itemCount!==0) {
+      console.log( Error(`Requested index ${index} is outside of range 0..${this._itemCount}`));
+    }
+    if(index === 0 && this._itemCount===0){
+      return 0;
     }
 
     if (index > this._lastMeasuredIndex) {
