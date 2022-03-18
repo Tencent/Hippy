@@ -47,6 +47,8 @@ export class ScrollView extends HippyView<HTMLDivElement> {
   private lastPosition: [number, number] = [0, 0];
   private lastTimestamp = 0;
   private scrollableCache = false;
+  private touchListenerRelease;
+
 
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -171,6 +173,11 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     this.init();
   }
 
+  public async beforeRemove(): Promise<void> {
+    await super.beforeRemove();
+    this.touchListenerRelease?.();
+  }
+
   public async scrollTo(x: number, y: number, animated: boolean) {
     if (!this.pagingEnabled) {
       this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? x : 0, behavior: animated ? 'smooth' : 'auto' });
@@ -209,7 +216,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
   }
 
   private init() {
-    mountTouchListener(this.dom!, {
+    this.touchListenerRelease = mountTouchListener(this.dom!, {
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
       onScroll: this.handleScroll.bind(this),

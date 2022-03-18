@@ -37,7 +37,9 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   private scrollableCache = false;
   private lastPosition: [number, number] = [0, 0];
   private childViewItem: ViewPagerItem[] = [];
-  private swipeRecginaze: any = null;
+  private swipeRecognize: any = null;
+  private touchListenerRelease;
+  private hammer ;
 
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -110,10 +112,16 @@ export class ViewPager extends HippyView<HTMLDivElement> {
     }
   }
 
+  public async beforeRemove(): Promise<void> {
+    await super.beforeRemove();
+    this.hammer.destroy();
+    this.touchListenerRelease?.();
+  }
+
   public init() {
     this.props[NodeProps.INITIAL_PAGE] = 0;
     this.props[NodeProps.SCROLL_ENABLED] = true;
-    mountTouchListener(this.dom!, {
+    this.touchListenerRelease = mountTouchListener(this.dom!, {
       onTouchMove: this.handleScroll.bind(this),
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
@@ -122,19 +130,17 @@ export class ViewPager extends HippyView<HTMLDivElement> {
       scrollEnable: this.checkScrollEnable.bind(this),
       needSimulatedScrolling: true,
     });
-    const hammer =  new Hammer.Manager(this.dom, { inputClass: Hammer.TouchInput });
+    this.hammer =  new Hammer.Manager(this.dom, { inputClass: Hammer.TouchInput });
     const swipe = new Hammer.Swipe();
-    hammer.add(swipe);
-    hammer.on('swipe', (e) => {
-      console.log('swipe', this.id, e);
-      this.swipeRecginaze = e;
+    this.hammer.add(swipe);
+    this.hammer.on('swipe', (e) => {
+      this.swipeRecognize = e;
       e.srcEvent.stopPropagation();
     });
   }
 
   private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) {
     if (!touchEvent) {
-      // console.log('viewpager end', this.scrollableCache);
       return this.scrollableCache;
     }
 
@@ -149,7 +155,6 @@ export class ViewPager extends HippyView<HTMLDivElement> {
       Math.abs(moveDistance[0]) > GESTURE_CAPTURE_THRESHOLD
       && this.scrollEnabled
     ) {
-      console.log('viewpager get true');
       this.scrollableCache = true;
       touchEvent.preventDefault();
       touchEvent.stopPropagation();
@@ -164,23 +169,23 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   }
 
   private handleBeginDrag() {
-    this.swipeRecginaze = null;
+    this.swipeRecognize = null;
     this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.DRAG));
   }
 
   private async handleEndDrag(position: [number, number]) {
     this.scrollableCache = false;
     this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
-    if (this.swipeRecginaze) {
+    if (this.swipeRecognize) {
       let nextPage = this.pageIndex;
-      if (this.swipeRecginaze.offsetDirection === Hammer.DIRECTION_RIGHT && this.pageIndex > 0) {
+      if (this.swipeRecognize.offsetDirection === Hammer.DIRECTION_RIGHT && this.pageIndex > 0) {
         nextPage -= 1;
-      } else if (this.swipeRecginaze.offsetDirection === Hammer.DIRECTION_LEFT
+      } else if (this.swipeRecognize.offsetDirection === Hammer.DIRECTION_LEFT
         && this.pageIndex < this.childViewItem.length - 1) {
         nextPage += 1;
       }
       this.scrollPage(nextPage, true);
-      this.swipeRecginaze = null;
+      this.swipeRecognize = null;
       return;
     }
 

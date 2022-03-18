@@ -54,6 +54,8 @@ export class ListView extends HippyView<HTMLDivElement> {
   private virtualList;
   private childData: VirtualItemData[] = [];
   private dataDirtyFlag = false;
+  private touchListenerRelease;
+
 
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -213,6 +215,7 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public async beforeRemove(): Promise<any> {
     await super.beforeRemove();
+    this.touchListenerRelease?.();
   }
 
   public destroy() {
@@ -290,7 +293,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.props[NodeProps.SCROLL_EVENT_THROTTLE] = 30;
     this.props[NodeProps.ON_LOAD_MORE] = true;
 
-    mountTouchListener(this.dom!, {
+    this.touchListenerRelease = mountTouchListener(this.dom!, {
       getPosition: () => this.lastPosition,
       updatePosition: this.updatePositionInfo.bind(this),
       scrollEnable: this.checkScrollEnable.bind(this),
