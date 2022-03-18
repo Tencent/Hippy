@@ -46,7 +46,7 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
       isScroll = false;
     }
   };
-  el.addEventListener('scroll', () => {
+  const handleScroll = () => {
     scrollStopCheckTimer = scrollDeal(
       el,
       isTouchIn,
@@ -58,12 +58,12 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
       config?.onScroll,
     );
     isScroll = true;
-  });
-  el.addEventListener('touchstart', (event) => {
+  };
+  const handleTouchStart = (event) => {
     isTouchIn = true;
     lastTouchEvent = event;
-  });
-  el.addEventListener('touchmove', (event) => {
+  };
+  const  handleTouchMove = (event) => {
     if (touchMoveCaptureElement && touchMoveCaptureElement !== el) {
       return;
     }
@@ -78,13 +78,13 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
       touchMoveCaptureElement = el;
       lastTouchEvent = event;
     }
-  });
-  el.addEventListener('touchcancel', () => {
+  };
+  const handleTouchCancel = () => {
     touchMoveCaptureElement = null;
     touchEndDeal(el, isTouchIn, isScroll, config.scrollEnable(lastTouchEvent!, null), config.getPosition());
     isTouchIn = false;
-  });
-  el.addEventListener('touchend', () => {
+  };
+  const handleTouchEnd = () => {
     touchMoveCaptureElement = null;
     touchEndDeal(
       el,
@@ -96,7 +96,21 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
       config?.onBeginSliding,
     );
     isTouchIn = false;
-  });
+  };
+
+  el.addEventListener('scroll', handleScroll);
+  el.addEventListener('touchstart', handleTouchStart);
+  el.addEventListener('touchmove', handleTouchMove);
+  el.addEventListener('touchcancel', handleTouchCancel);
+  el.addEventListener('touchend', handleTouchEnd);
+
+  return () => {
+    el.removeEventListener('scroll', handleScroll);
+    el.removeEventListener('touchstart', handleTouchStart);
+    el.removeEventListener('touchmove', handleTouchMove);
+    el.removeEventListener('touchcancel', handleTouchCancel);
+    el.removeEventListener('touchend', handleTouchEnd);
+  };
 }
 
 function scrollDeal(
