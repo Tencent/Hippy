@@ -397,7 +397,7 @@ void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf:
     SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDouble()));
   }
   if (style_map.find(kDirection) != style_map.end()) {
-    SetDirection(GetDirection(kDirection));
+    SetDirection(GetDirection(style_map.find(kDirection)->second->ToString()));
   }
   if (style_map.find(kFlexDirection) != style_map.end()) {
     SetFlexDirection(GetFlexDirection(style_map.find(kFlexDirection)->second->ToString()));
