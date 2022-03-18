@@ -111,7 +111,7 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) {
     if (!touchEvent) {
       // 隐式含义，在touchEnd/Cancel时的回调
-      console.log('viewpager end', this.scrollableCache);
+      // console.log('viewpager end', this.scrollableCache);
       return this.scrollableCache;
     }
 

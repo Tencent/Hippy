@@ -195,8 +195,10 @@ export class ListView extends HippyView<HTMLDivElement> {
     && this.context.sendUiEvent(this.id, NodeProps.ON_WILL_DISAPPEAR, event);
   }
 
-  public onEndReached() {
-    this.props[NodeProps.ON_END_REACHED]
+  public onLoadMore() {
+    this.props[NodeProps.ON_LOAD_MORE]
+    && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_MORE, null);
+    this.props[NodeProps.ON_LOAD_MORE]
     && this.context.sendUiEvent(this.id, NodeProps.ON_END_REACHED, null);
   }
 
@@ -232,7 +234,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public endBatch() {
-    if (this.isFirstMount()) {
+    if (!this.virtualList) {
       this.virtualList = new VirtualizedList(this.dom!, {
         height: this.dom?.clientHeight,
         rowCount: this.childData.length,
@@ -257,10 +259,11 @@ export class ListView extends HippyView<HTMLDivElement> {
     return this.childData[index]?.component?.dom ?? null;
   }
 
-  private handleListItemDirty(id: number) {
+  private handleListItemDirty(id: number, height: number) {
     const [dirtyData] = this.childData.filter(data => data.component.id === id);
-    if (!dirtyData.isDirty) {
+    if (!dirtyData.isDirty && dirtyData.height !== undefined && dirtyData.height !== height) {
       dirtyData.isDirty = true;
+      dirtyData.height = height;
       this.dataDirtyFlag = true;
     }
   }
@@ -285,6 +288,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.props[NodeProps.INITIAL_LIST_READY] = true;
     this.props[NodeProps.PRELOAD_ITEM_NUMBER] = 1;
     this.props[NodeProps.SCROLL_EVENT_THROTTLE] = 30;
+    this.props[NodeProps.ON_LOAD_MORE] = true;
 
     mountTouchListener(this.dom!, {
       getPosition: () => this.lastPosition,
@@ -324,18 +328,11 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   private needCheckDirtyChild() {
     const dirtyList = this.childData.filter(item => item.isDirty === true);
-    let isNeedRefreshVirtualList = false;
     for (let i = 0;i < dirtyList.length;i++) {
       const item = dirtyList[i];
-      const newHeight = this.getListItemNewHeight(item.component);
-      if (newHeight !== item.height) {
-        isNeedRefreshVirtualList = true;
-      }
       item.isDirty = false;
     }
-    isNeedRefreshVirtualList && window.requestAnimationFrame(() => {
-      this.notifyDataSetChange();
-    });
+    this.notifyDataSetChange();
   }
 
   private getListItemNewHeight(component: ListViewItem) {
@@ -445,7 +442,7 @@ export class ListView extends HippyView<HTMLDivElement> {
         && index >= childLength - this.preloadItemNumber)
       || index === childLength - 1
     ) {
-      this.onEndReached();
+      this.onLoadMore();
     }
   }
 
@@ -458,51 +455,36 @@ export class ListView extends HippyView<HTMLDivElement> {
     return height;
   }
   private buildScrollEvent() {
-    return { contentOffset: { x: this.virtualList.getOffset(), y: 0 } };
+    return { contentOffset: { x: 0, y: this.virtualList.getOffset() } };
   }
 }
 
 export class ListViewItem extends HippyView<HTMLDivElement> {
-  private mutationObserver: MutationObserver;
-  private dirtyListener: ((id: number) => void) | null = null;
+  private dirtyListener: ((id: number, height: number) => void) | null = null;
 
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.LIST_ITEM;
     this.dom = document.createElement('div');
-    this.mutationObserver = new MutationObserver(this.handlerListItemChange.bind(this));
+    this.onLayout = true;
   }
 
-  public addDirtyListener(callBack: ((index: number) => void) | null) {
+  public addDirtyListener(callBack: ((index: number, height: number) => void) | null) {
     this.dirtyListener = callBack;
   }
 
   mounted(): void {
     super.mounted();
-    this.mutationObserver.observe(this.dom!, { attributes: true, attributeFilter: ['style'],  childList: true, subtree: true });
-  }
-
-  async beforeRemove(): Promise<any> {
-    await super.beforeRemove();
-    this.mutationObserver.disconnect();
   }
 
   public getItemHeight() {
     return this.dom?.clientHeight;
   }
 
-  private handlerListItemChange(records: MutationRecord[]) {
-    let isRealDirty = false;
-    for (let i = 0;i < records.length;i++) {
-      if (records[i].type === 'attributes' && (records[i].target as HTMLDivElement).id === String(this.id)) {
-        continue;
-      }
-      isRealDirty = true;
-    }
-    if (!isRealDirty) {
-      return;
-    }
-    this.dirtyListener?.(this.id);
+  public handleReLayout(entrys: ResizeObserverEntry[]) {
+    const [entry] = entrys;
+    const { height } = entry.contentRect;
+    this.dirtyListener?.(this.id, height);
   }
 }
 
