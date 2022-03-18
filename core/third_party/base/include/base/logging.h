@@ -3,6 +3,7 @@
 #include <cassert>
 #include <codecvt>
 #include <sstream>
+#include <mutex>
 
 #include "log_level.h"
 #include "macros.h"
@@ -63,15 +64,20 @@ class LogMessage {
 
   inline static void SetDelegate(
       std::function<void(const std::ostringstream&, LogSeverity)> delegate) {
+    std::lock_guard<std::mutex> lock(mutex_);
     delegate_ = delegate;
   }
 
-  inline static auto GetDelegate() { return delegate_; }
+  inline static auto GetDelegate() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return delegate_;
+  }
 
   std::ostringstream& stream() { return stream_; }
 
  private:
   static std::function<void(const std::ostringstream&, LogSeverity)> delegate_;
+  static std::mutex mutex_;
 
   std::ostringstream stream_;
   const LogSeverity severity_;

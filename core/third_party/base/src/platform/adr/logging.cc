@@ -58,7 +58,7 @@ std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage:
       }
       __android_log_write(priority, "tdf", stream.str().c_str());
     };
-
+std::mutex LogMessage::mutex_;
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
     : severity_(severity), file_(file), line_(line) {
   stream_ << "[";
@@ -79,8 +79,9 @@ LogMessage::~LogMessage() {
     abort();
   }
 
-  if (delegate_) {
-    delegate_(stream_, severity_);
+  auto delegate = GetDelegate();
+  if (delegate) {
+    delegate(stream_, severity_);
   }
 }
 

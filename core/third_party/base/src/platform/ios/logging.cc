@@ -59,9 +59,13 @@ LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const c
 LogMessage::~LogMessage() {
   stream_ << std::endl;
 
-  if (delegate_) {
-    delegate_(stream_, severity_);
-    return;
+  if (severity_ >= TDF_LOG_FATAL) {
+    abort();
+  }
+
+  auto delegate = GetDelegate();
+  if (delegate) {
+    delegate(stream_, severity_);
   }
 }
 
