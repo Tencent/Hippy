@@ -306,6 +306,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                                         foregroundColor:(UIColor *)foregroundColor
                                         backgroundColor:(UIColor *)backgroundColor
                                                 opacity:(CGFloat)opacity {
+    if ([self isLayoutSubviewsRTL]) {
+        self.textAlign = NSTextAlignmentRight;
+    }
+
     if (![self isTextDirty] && _cachedAttributedString) {
         return _cachedAttributedString;
     }

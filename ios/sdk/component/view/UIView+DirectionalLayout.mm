@@ -49,7 +49,7 @@
 - (BOOL)isLayoutSubviewsRTL {
     if (DirectionInherit == self.confirmedLayoutDirection) {
         NSMutableSet<UIView *> *viewsSet = [NSMutableSet setWithCapacity:32];
-        HPDirection direction;
+        HPDirection direction = DirectionInherit;
         [self checkLayoutDirection:viewsSet direction:&direction];
         self.confirmedLayoutDirection = direction;
         [viewsSet enumerateObjectsUsingBlock:^(UIView *view, BOOL *stop) {

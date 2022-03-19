@@ -148,6 +148,8 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
         _textLifecycle = HippyUpdateLifecycleUninitialized;
         _hasNewLayout = YES;
         _hippySubviews = [NSMutableArray array];
+        _confirmedLayoutDirection = DirectionInherit;
+        _layoutDirection = DirectionInherit;
     }
     return self;
 }
@@ -447,7 +449,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 - (BOOL)isLayoutSubviewsRTL {
     if (DirectionInherit == self.confirmedLayoutDirection) {
         NSMutableSet<HippyShadowView *> *viewsSet = [NSMutableSet setWithCapacity:32];
-        HPDirection direction;
+        HPDirection direction = DirectionInherit;
         [self checkLayoutDirection:viewsSet direction:&direction];
         self.confirmedLayoutDirection = direction;
         [viewsSet enumerateObjectsUsingBlock:^(HippyShadowView *view, BOOL *stop) {
