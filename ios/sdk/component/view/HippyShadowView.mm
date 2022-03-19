@@ -463,7 +463,17 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 - (void)checkLayoutDirection:(NSMutableSet<HippyShadowView *> *)viewsSet direction:(HPDirection *)direction{
     if (DirectionInherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
-        [[self hippySuperview] checkLayoutDirection:viewsSet direction:direction];
+        HippyShadowView *shadowSuperview = [self hippySuperview];
+        if (!shadowSuperview) {
+            if (direction) {
+                NSWritingDirection writingDirection =
+                    [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+                *direction = NSWritingDirectionRightToLeft == writingDirection ? DirectionRTL : DirectionLTR;
+            }
+        }
+        else {
+            [shadowSuperview checkLayoutDirection:viewsSet direction:direction];
+        }
     }
     else if (direction) {
         *direction = self.confirmedLayoutDirection;
