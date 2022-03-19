@@ -219,6 +219,23 @@ public class HippyPager extends ViewPager implements HippyViewBase {
         }
     }
 
+
+    @Override
+    public boolean canScrollHorizontally(int direction) {
+        if (!scrollEnabled) {
+            return false;
+        }
+        return super.canScrollHorizontally(direction);
+    }
+
+    @Override
+    public boolean canScrollVertically(int direction) {
+        if (!scrollEnabled) {
+            return false;
+        }
+        return super.canScrollVertically(direction);
+    }
+
     /**
      * 如果仍然在滑动中，重置一下状态，abortAnimation ,getScrollX 会处于mFinalX的状态，直接scrollTo到mFinalX
      */
