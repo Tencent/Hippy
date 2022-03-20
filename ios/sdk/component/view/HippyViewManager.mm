@@ -38,6 +38,7 @@
 #import "HippyImageDataLoader.h"
 #import "HippyDefaultImageProvider.h"
 #import "objc/runtime.h"
+#import "UIView+DirectionalLayout.h"
 
 @interface HippyViewManager () {
     id<HippyImageDataLoaderProtocol> _imageDataLoader;
@@ -367,12 +368,19 @@ HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 
-HIPPY_CUSTOM_VIEW_PROPERTY(direction, HPDirection, HippyShadowView) {
-    if (json) {
-        HPDirection dir = (HPDirection)[HippyConvert int:json];
-        view.layoutDirection = dir;
-    }
-}
+//HIPPY_CUSTOM_VIEW_PROPERTY(direction, HPDirection, UIView) {
+//    if (json) {
+//        HPDirection dir = (HPDirection)[HippyConvert int:json];
+//        view.layoutDirection = dir;
+//    }
+//}
+
+//HIPPY_CUSTOM_SHADOW_PROPERTY(direction, HPDirection, HippyShadowView) {
+//    if (json) {
+//        HPDirection dir = (HPDirection)[HippyConvert int:json];
+//        view.layoutDirection = dir;
+//    }
+//}
 
 @end
 
