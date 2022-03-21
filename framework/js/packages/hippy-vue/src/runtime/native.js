@@ -306,13 +306,7 @@ const Native = {
    */
   get Dimensions() {
     const { screen } = Dimensions;
-    // Convert statusBarHeight to dp unit for android platform
-    // Here's a base issue: statusBarHeight for iOS is dp, but for statusBarHeight is pixel.
-    // So make them be same to hippy-vue.
-    let { statusBarHeight } = screen;
-    if (Native.Platform === 'android') {
-      statusBarHeight /= Native.PixelRatio;
-    }
+    const { statusBarHeight } = screen;
     return {
       window: Dimensions.window,
       screen: {

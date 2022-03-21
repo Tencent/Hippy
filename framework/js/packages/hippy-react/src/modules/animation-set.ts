@@ -19,7 +19,7 @@
  */
 
 import { HippyEventEmitter, HippyEventRevoker } from '../event';
-import { Bridge, Device } from '../native';
+import { Bridge } from '../native';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
 import { Animation, AnimationCallback } from './animation';
@@ -115,11 +115,7 @@ class AnimationSet implements AnimationSet {
     this.removeEventListener();
 
     // Set as iOS default
-    let animationEventName = 'onAnimation';
-    // If running in Android, change it.
-    if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
-      animationEventName = 'onHippyAnimation';
-    }
+    const animationEventName = 'onAnimation';
 
     if (typeof this.onAnimationStartCallback === 'function') {
       this.animationStartListener = AnimationEventEmitter.addListener(`${animationEventName}Start`, (animationId) => {

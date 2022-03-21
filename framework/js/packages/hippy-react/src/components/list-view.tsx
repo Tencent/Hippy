@@ -24,7 +24,6 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
-import { Device } from '../native';
 import ListViewItem, { ListViewItemProps } from './list-view-item';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
@@ -226,17 +225,6 @@ interface ListViewState {
   initialListReady: boolean;
 }
 
-interface AttrMap {
-  [propName: string]: string;
-}
-
-const androidAttrMap: AttrMap = {
-  onDisappear: 'onDisAppear',
-};
-const iosAttrMap: AttrMap = {
-  onDisappear: 'onDisappear',
-};
-
 /**
  * Recyclable list for better performance, and lower memory usage.
  * @noInheritDoc
@@ -245,17 +233,6 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   private static defaultProps = {
     numberOfRows: 0,
   };
-  /**
-   * change key
-   */
-  private static convertName(functionName: string): string {
-    if (Device.platform.OS === 'android' && androidAttrMap[functionName]) {
-      return androidAttrMap[functionName];
-    } if (Device.platform.OS === 'ios' && iosAttrMap[functionName]) {
-      return iosAttrMap[functionName];
-    }
-    return functionName;
-  }
   private instance: HTMLUListElement | Fiber | null = null;
   private pullHeader: PullHeader | null = null;
   private pullFooter: PullFooter | null = null;
@@ -399,7 +376,7 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
           { func: onWillDisappear, name: 'onWillDisappear' },
         ].forEach(({ func, name }) => {
           if (typeof func === 'function') {
-            itemProps[ListView.convertName(name)] = () => {
+            itemProps[name] = () => {
               func(index);
             };
           }

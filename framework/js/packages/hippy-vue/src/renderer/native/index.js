@@ -25,7 +25,7 @@
  * Virtual DOM to Native DOM
  */
 
-import Native, { UIManagerModule } from '../../runtime/native';
+import { UIManagerModule } from '../../runtime/native';
 import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '../../runtime/constants';
 import {
   getApp,
@@ -211,14 +211,6 @@ function getNativeProps(node) {
   // Get the force props from meta, it's can't be override
   if (node.meta.component.nativeProps) {
     Object.assign(props, node.meta.component.nativeProps);
-  }
-
-  // FIXME: Workaround for Image src props, should unify to use src.
-  if (node.tagName === 'img' && (__PLATFORM__ === 'ios' || Native.Platform === 'ios')) {
-    props.source = [{
-      uri: props.src,
-    }];
-    props.src = undefined;
   }
 
   return props;
