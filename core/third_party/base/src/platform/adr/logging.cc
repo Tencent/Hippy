@@ -37,7 +37,8 @@ const char* StripPath(const char* path) {
 
 }  // namespace
 
-std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::delegate_ =
+std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::delegate_ = nullptr;
+std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::default_delegate_ =
     [](const std::ostringstream& stream, LogSeverity severity) {
       android_LogPriority priority = (severity < 0) ? ANDROID_LOG_VERBOSE : ANDROID_LOG_UNKNOWN;
       switch (severity) {
@@ -58,7 +59,7 @@ std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage:
       }
       __android_log_write(priority, "tdf", stream.str().c_str());
     };
-std::mutex LogMessage::mutex_;
+
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
     : severity_(severity), file_(file), line_(line) {
   stream_ << "[";
@@ -79,9 +80,10 @@ LogMessage::~LogMessage() {
     abort();
   }
 
-  auto delegate = GetDelegate();
-  if (delegate) {
-    delegate(stream_, severity_);
+  if (delegate_) {
+    delegate_(stream_, severity_);
+  } else {
+    default_delegate_(stream_, severity_);
   }
 }
 

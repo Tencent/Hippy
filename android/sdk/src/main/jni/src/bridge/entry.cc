@@ -117,7 +117,7 @@ void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_log
     return;
   }
   std::shared_ptr<JavaRef> logger = std::make_shared<JavaRef>(j_env, j_logger);
-  tdf::base::LogMessage::SetDelegate([logger, j_method](
+  tdf::base::LogMessage::InitializeDelegate([logger, j_method](
                                          const std::ostringstream& stream,
                                          tdf::base::LogSeverity severity) {
     std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
