@@ -31,4 +31,6 @@ public @interface HippyMethod {
   String name() default "";
 
   boolean isSync() default false;
+
+  boolean useJSValueType() default false;
 }
