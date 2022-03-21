@@ -8,8 +8,10 @@
     <input
       ref="input"
       v-model="text"
-      caret-color="yellow"
       placeholder="Text"
+      caret-color="yellow"
+      underline-color-android="grey"
+      placeholder-text-color="#40b883"
       class="input"
       @click="stopPropagation"
       @keyboardWillShow="onKeyboardWillShow"
@@ -39,6 +41,9 @@
     <label>数字:</label>
     <input
       type="number"
+      caret-color="yellow"
+      underline-color-android="grey"
+      placeholder-text-color="#40b883"
       placeholder="Number"
       class="input"
       @change="textChange"
@@ -47,6 +52,9 @@
     <label>密码:</label>
     <input
       type="password"
+      caret-color="yellow"
+      underline-color-android="grey"
+      placeholder-text-color="#40b883"
       placeholder="Password"
       class="input"
       @change="textChange"
@@ -55,6 +63,9 @@
     <label>文本（限制5个字符）:</label>
     <input
       :maxlength="5"
+      caret-color="yellow"
+      underline-color-android="grey"
+      placeholder-text-color="#40b883"
       placeholder="5 个字符"
       class="input"
       @change="textChange"
@@ -135,7 +146,6 @@ export default {
   border-color: #ccc;
   font-size: 16px;
   margin: 20px;
-  placeholder-text-color: #aaa;
 }
 .demo-input .input-button {
   border-color: #4c9afa;

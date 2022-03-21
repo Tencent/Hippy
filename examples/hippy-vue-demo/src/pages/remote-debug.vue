@@ -18,6 +18,7 @@
       ref="input"
       v-model="bundleUrl"
       caret-color="yellow"
+
       placeholder="please input bundleUrl"
       :multiple="true"
       numberOfLines="4"
