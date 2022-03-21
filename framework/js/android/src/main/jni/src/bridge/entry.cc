@@ -39,6 +39,8 @@
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "dom/dom_manager.h"
+#include "dom/deserializer.h"
+#include "dom/dom_value.h"
 #include "render/hippy_render_manager.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
 #include "jni/native_render_provider.h"
@@ -79,6 +81,11 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "doBind",
              "(III)V",
              DoBind)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "updateAnimationNode",
+             "(I[BII)V",
+             UpdateAnimationNode)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "createDomInstance",
@@ -262,6 +269,91 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   runner->PostTask(task);
 
   return true;
+}
+
+void UpdateAnimationNode(JNIEnv* j_env,
+                         __unused jobject j_obj,
+                         jint j_dom_manager_id,
+                         jbyteArray j_params,
+                         jint j_offset,
+                         jint j_length) {
+  TDF_BASE_LOG(INFO) << "UpdateAnimationNode begin, j_dom_manager_id = "
+                     << static_cast<uint32_t>(j_dom_manager_id)
+                     << ", j_offset = " << static_cast<uint32_t>(j_offset)
+                     << ", j_length = " << static_cast<uint32_t>(j_length);
+  std::shared_ptr<DomManager> dom_manager =
+      DomManager::Find(static_cast<int32_t>(j_dom_manager_id));
+
+  tdf::base::DomValue params;
+  if (j_params != nullptr && j_length > 0) {
+    jbyte params_buffer[j_length];
+    j_env->GetByteArrayRegion(j_params, j_offset, j_length, params_buffer);
+    tdf::base::Deserializer deserializer(
+        (const uint8_t*)params_buffer,
+        hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
+    deserializer.ReadHeader();
+    deserializer.ReadObject(params);
+  }
+
+  TDF_BASE_DCHECK(params.IsArray());
+  tdf::base::DomValue::DomValueArrayType array = params.ToArray();
+  std::unordered_map<
+      int32_t,
+      std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>
+      node_style_map;
+  for (size_t i = 0; i < array.size(); i++) {
+    TDF_BASE_DCHECK(array[i].IsObject());
+    auto node = array[i].ToObject();
+    int32_t node_id = node["nodeId"].ToInt32();
+    // int32_t animation_id = node["animationId"].ToInt32();
+    std::string animation_key = node["animationKey"].ToString();
+    tdf::base::DomValue animation_value = node["animationValue"];
+
+    auto iter = node_style_map.find(node_id);
+    if (iter == node_style_map.end()) {
+      std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>
+          style_map;
+      style_map.insert({animation_key, std::make_shared<tdf::base::DomValue>(
+                                           animation_value)});
+      node_style_map.insert({node_id, style_map});
+    } else {
+      std::pair<std::string, std::shared_ptr<tdf::base::DomValue>> pair = {
+          animation_key,
+          std::make_shared<tdf::base::DomValue>(animation_value)};
+      iter->second.insert(pair);
+    }
+  }
+
+  std::vector<std::shared_ptr<DomNode>> update_nodes;
+  for (auto& update_style_map : node_style_map) {
+    auto dom_node =
+        dom_manager->GetNode(static_cast<uint32_t>(update_style_map.first));
+    if (dom_node == nullptr) {
+      TDF_BASE_DLOG(WARNING) << "UpdateAnimationNode DomNode not found for id: "
+                             << dom_node->GetId();
+      return;
+    }
+    std::string tag_name = dom_node->GetTagName();
+    std::string view_name = dom_node->GetViewName();
+    auto style_map = dom_node->GetStyleMap();
+    auto dom_ext = dom_node->GetExtStyle();
+    std::shared_ptr<DomNode> upate_dom_node = std::make_shared<DomNode>(
+        dom_node->GetId(), dom_node->GetPid(), dom_node->GetIndex(),
+        std::move(tag_name), std::move(view_name),
+        std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>(
+            *style_map),
+        std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>(
+            *dom_ext),
+        dom_manager);
+    for (auto& style : update_style_map.second) {
+      upate_dom_node->EmplaceStyleMap(style.first, *style.second);
+    }
+
+    update_nodes.push_back(upate_dom_node);
+  }
+
+  dom_manager->UpdateDomNodes(std::move(update_nodes));
+  dom_manager->EndBatch();
 }
 
 jlong InitInstance(JNIEnv* j_env,

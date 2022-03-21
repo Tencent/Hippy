@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <utility>
 #include "base/logging.h"
+#include "dom/diff_utils.h"
 #include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
-#include "dom/diff_utils.h"
 
 namespace hippy {
 inline namespace dom {
@@ -278,8 +278,8 @@ void DomNode::TransferLayoutOutputsRecursive() {
 
 void DomNode::CallFunction(const std::string& name, const DomArgument& param, const CallFunctionCallback& cb) {
   if (!func_cb_map_) {
-    func_cb_map_ = std::make_shared<std::unordered_map<std::string,
-      std::unordered_map<uint32_t, CallFunctionCallback>>>();
+    func_cb_map_ =
+        std::make_shared<std::unordered_map<std::string, std::unordered_map<uint32_t, CallFunctionCallback>>>();
   }
   auto cb_id = kInvalidId;
   if (cb) {
@@ -315,6 +315,20 @@ bool DomNode::HasEventListeners() {
   return event_listener_map_ != nullptr && !event_listener_map_->empty();
 }
 
+void DomNode::EmplaceStyleMap(const std::string key, const DomValue& value) {
+  auto iter = style_map_->find(key);
+  if (iter != style_map_->end()) {
+    iter->second = std::make_shared<DomValue>(value);
+  } else {
+    bool replaced = false;
+    for (auto& style : *style_map_) {
+      replaced = ReplaceStyle(*style.second, key, value);
+      if (replaced) return;
+    }
+    style_map_->insert({key, std::make_shared<DomValue>(value)});
+  }
+}
+
 void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
                                const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
   auto dom_manager = dom_manager_.lock();
@@ -330,10 +344,9 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
       // update Render Node
       auto dom_manager = self->dom_manager_.lock();
       TDF_BASE_DCHECK(dom_manager);
-      if(dom_manager) {
+      if (dom_manager) {
         dom_manager->UpdateRenderNode(self->shared_from_this());
       }
-
     });
   }
 }
@@ -430,5 +443,33 @@ void DomNode::UpdateObjectStyle(DomValue& style_map, const DomValue& update_styl
   }
 }
 
+bool DomNode::ReplaceStyle(DomValue& style, const std::string& key, const DomValue& value) {
+  if (style.IsObject()) {
+    auto& object = style.ToObject();
+    if (object.find(key) != object.end()) {
+      object.at(key) = value;
+      return true;
+    }
+
+    bool replaced = false;
+    for (auto& o : object) {
+      replaced = ReplaceStyle(o.second, key, value);
+      if (replaced) break;
+    }
+    return replaced;
+  }
+
+  if (style.IsArray()) {
+    auto& array = style.ToArray();
+    bool replaced = false;
+    for (auto& a : array) {
+      replaced = ReplaceStyle(a, key, value);
+      if (replaced) break;
+    }
+    return replaced;
+  }
+
+  return false;
+}
 }  // namespace dom
 }  // namespace hippy

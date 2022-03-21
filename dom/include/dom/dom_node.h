@@ -121,6 +121,14 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   CallFunctionCallback GetCallback(const std::string &name, uint32_t id);
   bool HasEventListeners();
 
+  /**
+   * @brief 递归替换或插入属性到 style_map
+   * @param key 插入的 key
+   * @param value 插入的 value
+   * @example {a: 1, b: {b1: 2}} -> emplace(b1, 3) -> {a: 1, b: {b1: 3}} -> emplcace(c, 3) -> {a: 1, b: {b1: 3}, c: 3}
+   */
+  void EmplaceStyleMap(const std::string key, const DomValue& value);
+
   void UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
                         const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);
 
@@ -131,6 +139,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);
   void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
   void UpdateObjectStyle(DomValue& style_map, const DomValue& update_style);
+  bool ReplaceStyle(DomValue& object, const std::string&key, const DomValue& value);
 
  private:
   uint32_t id_;             // 节点唯一id

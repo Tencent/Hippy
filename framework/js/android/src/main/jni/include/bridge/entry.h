@@ -62,6 +62,13 @@ void DoBind(JNIEnv* j_env,
             jint j_render_id,
             jint j_framework_id);
 
+void UpdateAnimationNode(JNIEnv* j_env,
+                         __unused jobject j_obj,
+                         jint j_dom_manager_id,
+                         jbyteArray j_params,
+                         jint j_offset,
+                         jint j_length);
+
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id);
 
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
