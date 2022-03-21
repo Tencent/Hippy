@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules;
 
+import androidx.annotation.NonNull;
 
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
 import com.tencent.mtt.hippy.common.Provider;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
+import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
 
-/**
- * FileName: HippyModuleManager Description： History：
- */
 public interface HippyModuleManager {
 
-  void callNatives(HippyCallNativeParams params);
+    void callNatives(HippyCallNativeParams params);
 
-  void destroy();
+    void destroy();
 
-  <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
+    HippyNativeModuleInfo getModuleInfo(@NonNull String moduleName);
 
-  <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
+    <T extends HippyJavaScriptModule> T getJavaScriptModule(Class<T> cls);
 
-  <T extends HippyNativeModuleBase> void addNativeModule(Class<T> cls, Provider<T> provider);
+    <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
+
+    <T extends HippyNativeModuleBase> void addNativeModule(Class<T> cls, Provider<T> provider);
 }
