@@ -105,11 +105,11 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   }
 
   protected void writeTag(ArrayBufferViewTag tag) {
-    writer.putByte(tag.getTag());
+    writer.putVarint(tag.getTag());
   }
 
   protected void writeTag(ErrorTag tag) {
-    writer.putByte(tag.getTag());
+    writer.putVarint(tag.getTag());
   }
 
   /**
