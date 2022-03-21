@@ -24,7 +24,6 @@ import ResizeObserver from 'resize-observer-polyfill';
 import { BaseView, ComponentContext, InnerNodeTag, UIProps } from '../../types';
 import { NodeProps } from '../types';
 import { HippyTransferData } from '../types/hippy-internal-types';
-import { throttle, debounce } from '../third-lib/loadsh.js';
 
 export class HippyView<T extends HTMLElement> implements BaseView {
   public tagName!: InnerNodeTag;
@@ -36,6 +35,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   public firstUpdateStyle = true;
   public context!: ComponentContext;
   public resizeObserver: ResizeObserver|undefined;
+  public layoutCache: {x: number, y: number, height: number, width: number}|null = null;
   public constructor(context, id, pId) {
     this.id = id;
     this.pId = pId;
@@ -165,21 +165,28 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   }
 
   public handleReLayout(entries: ResizeObserverEntry[]) {
-    throttle(debounce(() => {
-      const [entry] = entries;
-      if (!entry) {
-        return;
-      }
-      const { left, top, width, height } = entry.contentRect;
+    const [entry] = entries;
+    if (!entry) {
+      return;
+    }
+    const { left, top, width, height } = entry.contentRect;
+    if ((this.layoutCache && this.layoutCache.width === width && this.layoutCache.height === height)
+        || (!this.dom || !this.dom.parentNode || !(this.id && document.getElementById(String(this.id)))
+        )) {
+      return;
+    }
+    if (height == 0) {
+      debugger;
+    }
+    this.layoutCache =  {
+      x: left,
+      y: top,
+      width,
+      height,
+    };
 
-      this.context.sendUiEvent(this.id, 'onLayout', { layout: {
-        x: left,
-        y: top,
-        width,
-        height,
-      },
+    this.context.sendUiEvent(this.id, 'onLayout', { layout: this.layoutCache,
       target: this.id });
-    }, 100, false), 100)();
   }
 
   private handleOnClick(event) {

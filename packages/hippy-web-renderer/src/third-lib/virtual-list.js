@@ -144,12 +144,12 @@ export  class VirtualizedList {
   }
 
   render() {
-    const {overscanCount, renderRow} = this.options;
+    const {overScanCount, renderRow} = this.options;
     const {height, offset = 0} = this.state;
     const {start, stop} = this._sizeAndPositionManager.getVisibleRange({
       containerSize: height,
       offset,
-      overscanCount,
+      overScanCount,
     });
     const fragment = document.createDocumentFragment();
 

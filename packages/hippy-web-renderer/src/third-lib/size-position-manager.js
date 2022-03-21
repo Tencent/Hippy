@@ -42,7 +42,7 @@ export default class SizePositionManager {
       let offset = lastMeasuredSizeAndPosition.offset +
         lastMeasuredSizeAndPosition.size;
 
-      for (var i = this._lastMeasuredIndex + 1; i <= index; i++) {
+      for (let i = this._lastMeasuredIndex + 1; i <= index; i++) {
         let size = this._itemSizeGetter({index: i});
 
         if (size == null || isNaN(size)) {
@@ -119,7 +119,7 @@ export default class SizePositionManager {
     return Math.max(0, Math.min(totalSize - containerSize, idealOffset));
   }
 
-  getVisibleRange({containerSize, offset, overscanCount}) {
+  getVisibleRange({containerSize, offset, overScanCount}) {
     const totalSize = this.getTotalSize();
 
     if (totalSize === 0) {
@@ -138,9 +138,9 @@ export default class SizePositionManager {
       offset += this.getSizeAndPositionForIndex(stop).size;
     }
 
-    if (overscanCount) {
-      start = Math.max(0, start - overscanCount);
-      stop = Math.min(stop + overscanCount, this._itemCount);
+    if (overScanCount) {
+      start = Math.max(0, start - overScanCount);
+      stop = Math.min(stop + overScanCount, this._itemCount-1);
     }
 
     return {

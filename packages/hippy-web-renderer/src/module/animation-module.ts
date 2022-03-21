@@ -160,6 +160,7 @@ class SimpleAnimation {
   public refCssProperty: string | null = null;
   public refNodeId: string | number | undefined;
   public dom: HTMLElement | null = null;
+  public animationStamp = Date.now();
 
   public constructor(
     context: ComponentContext, animationId: string | number,
@@ -202,6 +203,10 @@ class SimpleAnimation {
   }
 
   public get animationName() {
+    return `${this.animationNamePrefix}-${this.animationStamp}`;
+  }
+
+  public get animationNamePrefix() {
     return `hippy-keyframe-${this.id}`;
   }
 
@@ -235,19 +240,8 @@ class SimpleAnimation {
 
   public initAnimation(element: HTMLElement) {
     this.dom = element;
-    const animationCssBeginValue = this.buildCssValue(this.animationBeginValue);
-    const animationCssEndValue = this.buildCssValue(this.animationEndValue);
-    const beginFrame = {};
-    const endFrame = {};
-    beginFrame[this.useForSetProperty!] = animationCssBeginValue;
-    endFrame[this.useForSetProperty!] = animationCssEndValue;
-    const keyFrameData = createAnimationKeyFrame(beginFrame, endFrame, this.animationName);
-    const keyFrame = getKeyFrame(this.animationName);
-    if (!keyFrame.cssRule) {
-      appendAnimationKeyFrame(keyFrameData);
-    } else {
-      updateAnimationKeyFrame(this.animationName, keyFrameData);
-    }
+    const data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
+    this.updateAnimationInfoToPageStyle(data);
     const animation = createCssAnimation(
       this.animationTime, this.animationName,
       this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
@@ -276,6 +270,37 @@ class SimpleAnimation {
 
   public update(param: AnimationOptions) {
     this.animationInfo = param;
+    this.animationStamp = Date.now();
+    this.updateAnimationInfoToPageStyle(this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue()));
+    const animation = createCssAnimation(
+      this.animationTime, this.animationName,
+      this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
+    );
+    this.animationUpdate2Css(animation);
+  }
+
+  private createAnimationBeginAndEndValue() {
+    const animationCssBeginValue = this.buildCssValue(this.animationBeginValue);
+    const animationCssEndValue = this.buildCssValue(this.animationEndValue);
+    const beginFrame = {};
+    const endFrame = {};
+    beginFrame[this.useForSetProperty!] = animationCssBeginValue;
+    endFrame[this.useForSetProperty!] = animationCssEndValue;
+    return { beginFrame, endFrame };
+  }
+
+  private createAnimationKeyFrame({ beginFrame, endFrame }) {
+    const keyFrameData = createAnimationKeyFrame(beginFrame, endFrame, this.animationName);
+    const keyFrame = getKeyFrameFromCssStyle(this.animationName);
+    return { keyFrame, keyFrameData };
+  }
+
+  private updateAnimationInfoToPageStyle({ keyFrame, keyFrameData }) {
+    if (!keyFrame.cssRule) {
+      appendAnimationKeyFrame(keyFrameData);
+    } else {
+      updateAnimationKeyFrame(this.animationName, keyFrameData);
+    }
   }
 
   private changeAnimationStatus(status: AnimationPlayState) {
@@ -283,7 +308,7 @@ class SimpleAnimation {
     if (!element) {
       return;
     }
-    const keyFrame = getKeyFrame(this.animationName);
+    const keyFrame = getKeyFrameFromCssStyle(this.animationName);
     if (!keyFrame.cssRule) {
       return;
     }
@@ -304,7 +329,7 @@ class SimpleAnimation {
       oldAnimationList = [];
       oldAnimationList.push(animation);
     } else {
-      const index = oldAnimationList.findIndex((value: string) => value.indexOf(this.animationName) !== -1) ?? -1;
+      const index = oldAnimationList.findIndex((value: string) => value.indexOf(this.animationNamePrefix) !== -1) ?? -1;
       if (index === -1 && animation) {
         oldAnimationList.push(animation);
       }
@@ -352,6 +377,7 @@ class SimpleAnimation {
       this.dispatchEvent(HippyAnimationEvent.END);
     }
     event.stopPropagation();
+    this.changeAnimationStatus('paused');
   }
 }
 function object2Style(object: {[key: string]: string}) {
@@ -381,14 +407,15 @@ function appendAnimationKeyFrame(keyFrame: string) {
 }
 
 function updateAnimationKeyFrame(keyFrameName: string, newKeyFrame: string) {
-  const oldKeyFrameStyle = getKeyFrame(keyFrameName);
-  if (oldKeyFrameStyle.cssRule && oldKeyFrameStyle.styleSheet) {
-    oldKeyFrameStyle.styleSheet.deleteRule(oldKeyFrameStyle.index);
-  }
-  oldKeyFrameStyle.styleSheet.insertRule(newKeyFrame, oldKeyFrameStyle.index);
+  const oldKeyFrameStyle = getKeyFrameFromCssStyle(keyFrameName);
+  // if (oldKeyFrameStyle.cssRule && oldKeyFrameStyle.styleSheet) {
+  //   console.log(oldKeyFrameStyle, newKeyFrame);
+  //   oldKeyFrameStyle.styleSheet.deleteRule(oldKeyFrameStyle.index);
+  // }
+  oldKeyFrameStyle.styleSheet.insertRule(newKeyFrame, oldKeyFrameStyle.index + 1);
 }
 
-function getKeyFrame(name) {
+function getKeyFrameFromCssStyle(name) {
   const keyFrameStyle: any = {};
   const ss = document.styleSheets;
   for (let i = 0; i < ss.length; ++i) {

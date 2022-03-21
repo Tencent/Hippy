@@ -49,7 +49,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   private lastPosition: [number, number] = [0, 0];
   private renderChildrenTuple: [number, number] = [0, 0];
   private lastTimestamp = 0;
-  private scrollableCache = false;
+  private scrollCaptureState = false;
   private rootElement;
   private virtualList;
   private childData: VirtualItemData[] = [];
@@ -245,6 +245,7 @@ export class ListView extends HippyView<HTMLDivElement> {
         renderRow: this.getChildDom.bind(this),
         onRowsRendered: this.handleOnRowsRendered.bind(this),
         initialScrollTop: this.initialContentOffset ?? 0,
+        overScanCount: 2,
       });
     }
     this.needCheckAllDataHeight();
@@ -253,7 +254,7 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public getChildHeight(index) {
     if (this.childData[index] && !this.childData[index]?.height) {
-      this.childData[index].height = this.childData[index].component.getItemHeight();
+      this.childData[index].height = this.getListItemNewHeight(this.childData[index].component);
     }
     return this.childData[index]?.height ?? 0;
   }
@@ -264,7 +265,7 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   private handleListItemDirty(id: number, height: number) {
     const [dirtyData] = this.childData.filter(data => data.component.id === id);
-    if (!dirtyData.isDirty && dirtyData.height !== undefined && dirtyData.height !== height) {
+    if (!dirtyData.isDirty && dirtyData.height !== undefined && dirtyData.height !== Math.round(height)) {
       dirtyData.isDirty = true;
       dirtyData.height = height;
       this.dataDirtyFlag = true;
@@ -345,7 +346,6 @@ export class ListView extends HippyView<HTMLDivElement> {
     return component.getItemHeight();
   }
 
-
   private notifyVisibleChildrenChange(origin: [number, number], now: [number, number]) {
     const originShowIndexList = new Array(origin[1] - origin[0] + 1);
     const nowShowIndexList = new Array(now[1] - now[0] + 1);
@@ -358,6 +358,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     const intersection = originShowIndexList.filter(v => nowShowIndexList.indexOf(v) > -1);
     const disappearIndexList =  originShowIndexList.filter(v => intersection.indexOf(v) === -1);
     const appearIndexList =  nowShowIndexList.filter(v => intersection.indexOf(v) === -1);
+
     disappearIndexList.forEach((item) => {
       this.childVisibleChange(item, false);
     });
@@ -370,27 +371,21 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.lastPosition = newPosition;
   }
 
-  private isFirstMount() {
-    return !this.lastTimestamp;
+  private checkScrollEnable(lastTouchEvent: TouchEvent, newTouchEvent?: TouchEvent)  {
+    if (!newTouchEvent || !lastTouchEvent) {
+      return this.scrollCaptureState;
+    }
+
+    if (this.scrollCaptureState && newTouchEvent) {
+      return this.scrollCaptureState;
+    }
+    this.scrollCaptureState = this.needCaptureTouch(lastTouchEvent, newTouchEvent);
+    return this.scrollCaptureState;
   }
 
-  private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null)  {
-    if (!touchEvent || !lastTouchEvent) {
-      // 隐式含义，在touchEnd/Cancel时的回调
-      return this.scrollableCache;
-    }
-
-    if (this.scrollableCache && touchEvent) {
-      touchEvent.stopPropagation();
-      return this.scrollableCache;
-    }
-
-    const moveDistance = touchMoveCalculate(touchEvent, lastTouchEvent);
-    if (Math.abs(moveDistance[1]) > GESTURE_CAPTURE_THRESHOLD) {
-      this.scrollableCache = true;
-      touchEvent.stopPropagation();
-    }
-    return this.scrollableCache;
+  private needCaptureTouch(lastTouchEvent: TouchEvent, newTouchEvent: TouchEvent) {
+    const moveDistance = touchMoveCalculate(newTouchEvent, lastTouchEvent);
+    return (Math.abs(moveDistance[1]) > GESTURE_CAPTURE_THRESHOLD);
   }
 
   private handleBeginDrag() {
@@ -398,7 +393,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   private handleEndDrag() {
-    this.scrollableCache = false;
+    this.scrollCaptureState = false;
     this.dom && this.onScrollEndDrag(this.buildScrollEvent());
   }
 
@@ -484,9 +479,12 @@ export class ListViewItem extends HippyView<HTMLDivElement> {
     return this.dom?.clientHeight;
   }
 
-  public handleReLayout(entrys: ResizeObserverEntry[]) {
-    const [entry] = entrys;
+  public handleReLayout(entries: ResizeObserverEntry[]) {
+    const [entry] = entries;
     const { height } = entry.contentRect;
+    if (height === 0) {
+      return;
+    }
     this.dirtyListener?.(this.id, height);
   }
 }
