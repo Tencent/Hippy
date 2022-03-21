@@ -23,7 +23,6 @@
 import React from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
-import { Device } from '../native';
 import Element from '../dom/element-node';
 import { isRTL } from '../utils/i18n';
 
@@ -339,12 +338,8 @@ class TextInput extends React.Component<TextInputProps, {}> {
     this._lastNativeText = e.text;
   }
 
-  private onKeyboardWillShow(originEvt: KeyboardWillShowEvent) {
+  private onKeyboardWillShow(evt: KeyboardWillShowEvent) {
     const { onKeyboardWillShow } = this.props;
-    const evt = originEvt;
-    if (Device.platform.OS === 'android') {
-      evt.keyboardHeight /= Device.screen.scale;
-    }
     if (typeof onKeyboardWillShow === 'function') {
       onKeyboardWillShow(evt);
     }

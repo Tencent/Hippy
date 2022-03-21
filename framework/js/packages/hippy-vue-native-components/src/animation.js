@@ -189,11 +189,7 @@ function registerAnimation(Vue) {
       },
     },
     created() {
-      let animationEventName = 'onAnimation';
-      // If running in Android, change it.
-      if (Vue.Native.Platform === 'android') {
-        animationEventName = 'onHippyAnimation';
-      }
+      const animationEventName = 'onAnimation';
       this.childAnimationIdList = [];
       this.animationEventMap = {
         start: `${animationEventName}Start`,

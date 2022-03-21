@@ -23,7 +23,6 @@
 import { arrayCount, warn, convertImageLocalPath } from '../util';
 import { HIPPY_DEBUG_ADDRESS } from '../runtime/constants';
 import NATIVE_COMPONENT_NAME_MAP, * as components from '../renderer/native/components';
-import Native from '../runtime/native';
 
 function mapEvent(...args) {
   const map = {};
@@ -223,7 +222,7 @@ const li = {
     },
   },
   eventNamesMap: mapEvent([
-    ['disappear', (__PLATFORM__ === 'android' || Native.Platform === 'android') ? 'onDisAppear' : 'onDisappear'],
+    ['disappear', 'onDisappear'],
   ]),
 };
 
@@ -322,9 +321,6 @@ const input = {
           break;
         case 'onKeyboardWillShow':
           event.keyboardHeight = nativeEventParams.keyboardHeight;
-          if (__PLATFORM__ === 'android' || Native.Platform === 'android') {
-            event.keyboardHeight /= Native.PixelRatio;
-          }
           break;
         case 'onContentSizeChange':
           event.width = nativeEventParams.contentSize.width;

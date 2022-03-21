@@ -21,7 +21,6 @@
 import React, { LegacyRef } from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { prefetch, getSize } from '../modules/image-loader-module';
-import { Device } from '../native';
 import { colorParse, colorArrayParse } from '../color';
 import { warn, convertImgUrl } from '../utils';
 import View from './view';
@@ -183,18 +182,10 @@ class Image extends React.Component<ImageProps, {}> {
      */
     // Define the image source url array.
     const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
-
-    // Set sources props by platform specification
-    if (Device.platform.OS === 'ios') {
-      if (imageUrls.length) {
-        (nativeProps as ImageProps).source = imageUrls.map(uri => ({ uri }));
-      }
-    } else if (Device.platform.OS === 'android') {
-      if (imageUrls.length === 1) {
-        [(nativeProps as ImageProps).src] = imageUrls;
-      } else if (imageUrls.length > 1) {
-        (nativeProps as ImageProps).srcs = imageUrls;
-      }
+    if (imageUrls.length === 1) {
+      [(nativeProps as ImageProps).src] = imageUrls;
+    } else if (imageUrls.length > 1) {
+      (nativeProps as ImageProps).srcs = imageUrls;
     }
 
     /**
