@@ -70,6 +70,7 @@ public abstract class HippyEngine {
   protected int mGroupId;
   ModuleListener mModuleListener;
 
+  private static HippyLogAdapter sLogAdapter = null;
   @SuppressWarnings("JavaJniMissingFunction")
   private static native void setNativeLogHandler(HippyLogAdapter handler);
 
@@ -81,18 +82,18 @@ public abstract class HippyEngine {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
     LibraryLoader.loadLibraryIfNeed(params.soLoader);
+    if (sLogAdapter == null && params.logAdapter != null) {
+      setNativeLogHandler(params.logAdapter);
+    }
+    ContextHolder.initAppContext(params.context);
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
-    setNativeLogHandler(params.logAdapter);
-    ContextHolder.initAppContext(params.context);
-
     HippyEngine hippyEngine;
     if (params.groupId == -1) {
       hippyEngine = new HippyNormalEngineManager(params, null);
     } else {
       hippyEngine = new HippySingleThreadEngineManager(params, null);
     }
-
     return hippyEngine;
   }
 
