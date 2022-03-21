@@ -31,6 +31,7 @@
 #import "HippyUIManager.h"
 #import "UIView+RootViewRegister.h"
 #import "UIView+Render.h"
+#import "HippyListTableView.h"
 
 #define CELL_TAG 10089
 
@@ -58,7 +59,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 @end
 
-@interface HippyWaterfallView () <HippyInvalidating, HippyRefreshDelegate> {
+@interface HippyWaterfallView () <HippyInvalidating, HippyRefreshDelegate, HippyListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     HippyHeaderRefresh *_headerRefreshView;
@@ -102,12 +103,14 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _layout = [self collectionViewLayout];
     }
     if (_collectionView == nil) {
-        _collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:_layout];
-        _collectionView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        _collectionView.dataSource = self;
-        _collectionView.delegate = self;
-        _collectionView.alwaysBounceVertical = YES;
-        _collectionView.backgroundColor = [UIColor clearColor];
+        HippyListTableView *collectionView = [[HippyListTableView alloc] initWithFrame:self.bounds collectionViewLayout:_layout];
+        collectionView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        collectionView.dataSource = self;
+        collectionView.delegate = self;
+        collectionView.layoutDelegate = self;
+        collectionView.alwaysBounceVertical = YES;
+        collectionView.backgroundColor = [UIColor clearColor];
+        _collectionView = collectionView;
         [self registerCells];
         [self registerSupplementaryViews];
         [self addSubview:_collectionView];
@@ -499,6 +502,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView {
+}
+
+- (void)tableViewDidLayoutSubviews:(HippyListTableView *)tableView {
+    
 }
 
 - (void)refreshCompleted:(NSInteger)status text:(NSString *)text {
