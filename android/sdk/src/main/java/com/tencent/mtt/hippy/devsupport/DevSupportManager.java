@@ -25,6 +25,7 @@ public class DevSupportManager {
   final DevServerInterface mDevImp;
   final boolean mSupportDev;
   private final Inspector mInspector;
+  private String mDebugComponentName;
 
   public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
       String bundleName, String remoteServerUrl) {
@@ -54,7 +55,7 @@ public class DevSupportManager {
   }
 
   public String createDebugUrl(String host) {
-    return mDevImp.createDebugUrl(host);
+    return mDevImp.createDebugUrl(host, mDebugComponentName);
   }
 
   public void handleException(Throwable throwable) {
@@ -67,6 +68,10 @@ public class DevSupportManager {
 
   public boolean isSupportDev() {
 	  return mSupportDev;
+  }
+
+  public void setDebugComponentName(String debugComponentName) {
+    mDebugComponentName = debugComponentName;
   }
 
   public Inspector getInspector() {
