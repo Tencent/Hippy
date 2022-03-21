@@ -749,6 +749,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                           @"Image": Init(HippyImageViewManager),
                           @"ListViewItem": Init(HippyBaseListItemViewManager),
                           @"ListView": Init(HippyBaseListViewManager),
+                          @"SmartViewPager": Init(HippySmartViewPagerViewManager),
                           @"Navigator": Init(HippyNavigatorViewManager),
                           @"Text": Init(HippyTextManager),
                           @"Modal": Init(HippyModalHostViewManager)
