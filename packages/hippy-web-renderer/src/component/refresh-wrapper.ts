@@ -38,7 +38,6 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     super(context, id, pId);
     this.tagName = InnerNodeTag.REFRESH;
     this.dom = document.createElement('div');
-    this.init();
   }
 
   public defaultStyle() {
@@ -75,8 +74,9 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     }
   }
 
-  private init() {
-
+  public async beforeRemove(): Promise<void> {
+    await super.beforeRemove();
+    this.pullRefresh.destroy();
   }
 
   private handlePull() {
@@ -115,6 +115,9 @@ class PullRefresh {
     this.contentStyleCache = scrollContent.style;
     this.refreshStatus = false;
     this.handleCallBack = pullCallback;
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handlerTouchMove = this.handlerTouchMove.bind(this);
+    this.handlerTouchEnd = this.handlerTouchEnd.bind(this);
   }
 
   public get overScrollThreshold() {
@@ -123,9 +126,9 @@ class PullRefresh {
 
   public init() {
     this.contentStyleCache = this.scrollContent.style;
-    this.scrollContent.addEventListener('touchstart', this.handleTouchStart.bind(this));
-    this.scrollContent.addEventListener('touchmove', this.handlerTouchMove.bind(this));
-    this.scrollContent.addEventListener('touchend', this.handlerTouchEnd.bind(this));
+    this.scrollContent.addEventListener('touchstart', this.handleTouchStart);
+    this.scrollContent.addEventListener('touchmove', this.handlerTouchMove);
+    this.scrollContent.addEventListener('touchend', this.handlerTouchEnd);
   }
 
   public finish() {
@@ -154,6 +157,12 @@ class PullRefresh {
     setTimeout(() => {
       this.handleCallBack?.();
     }, BounceBackTime);
+  }
+
+  public destroy() {
+    this.scrollContent.removeEventListener('touchstart', this.handleTouchStart);
+    this.scrollContent.removeEventListener('touchmove', this.handlerTouchMove);
+    this.scrollContent.removeEventListener('touchend', this.handlerTouchEnd);
   }
 
   private handlePull(moveLen) {

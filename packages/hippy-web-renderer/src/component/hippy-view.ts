@@ -40,12 +40,17 @@ export class HippyView<T extends HTMLElement> implements BaseView {
     this.id = id;
     this.pId = pId;
     this.context = context;
+    this.handleOnTouchStart = this.handleOnTouchStart.bind(this);
+    this.handleOnClick = this.handleOnClick.bind(this);
+    this.handleOnTouchCancel = this.handleOnTouchCancel.bind(this);
+    this.handleOnTouchEnd = this.handleOnTouchEnd.bind(this);
+    this.handleOnTouchMove = this.handleOnTouchMove.bind(this);
   }
 
   public set onClick(value: boolean) {
     this.props[NodeProps.ON_CLICK] = value;
     if (value) {
-      this.dom?.addEventListener('click', this.handleOnClick.bind(this));
+      this.dom?.addEventListener('click', this.handleOnClick);
     }
   }
 
@@ -56,7 +61,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   public set onTouchDown(value: boolean) {
     this.props[NodeProps.ON_TOUCH_DOWN] = value;
     if (value) {
-      this.dom?.addEventListener('touchstart', this.handleOnTouchStart.bind(this));
+      this.dom?.addEventListener('touchstart', this.handleOnTouchStart);
     }
   }
 
@@ -71,7 +76,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   public set onTouchMove(value: boolean) {
     this.props[NodeProps.ON_TOUCH_MOVE] = value;
     if (value) {
-      this.dom?.addEventListener('touchmove', this.handleOnTouchMove.bind(this));
+      this.dom?.addEventListener('touchmove', this.handleOnTouchMove);
     }
   }
 
@@ -82,7 +87,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   public set onTouchEnd(value: boolean) {
     this.props[NodeProps.ON_TOUCH_END] = value;
     if (value) {
-      this.dom?.addEventListener('touchend', this.handleOnTouchEnd.bind(this));
+      this.dom?.addEventListener('touchend', this.handleOnTouchEnd);
     }
   }
 
@@ -93,7 +98,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
   public set onTouchCancel(value: boolean) {
     this.props[NodeProps.ON_TOUCH_CANCEL] = value;
     if (value) {
-      this.dom?.addEventListener('touchcancel', this.handleOnTouchCancel.bind(this));
+      this.dom?.addEventListener('touchcancel', this.handleOnTouchCancel);
     }
   }
 

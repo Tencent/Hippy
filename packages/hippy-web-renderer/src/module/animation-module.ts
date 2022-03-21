@@ -170,6 +170,8 @@ class SimpleAnimation {
     this.timeMode = mode;
     this.id = animationId;
     this.context = context;
+    this.handleAnimationEnd = this.handleAnimationEnd.bind(this);
+    this.handleAnimationStart = this.handleAnimationStart.bind(this);
   }
 
   public set nodeId(nodeId: string | number) {
@@ -247,8 +249,8 @@ class SimpleAnimation {
       this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
     );
     this.animationUpdate2Css(animation);
-    element.addEventListener('animationstart', this.handleAnimationStart.bind(this));
-    element.addEventListener('animationend', this.handleAnimationEnd.bind(this));
+    element.addEventListener('animationstart', this.handleAnimationStart);
+    element.addEventListener('animationend', this.handleAnimationEnd);
   }
 
   public start() {
@@ -266,6 +268,8 @@ class SimpleAnimation {
   public destroy() {
     this.changeAnimationStatus('paused');
     this.animationUpdate2Css(null);
+    this.dom?.removeEventListener?.('animationstart', this.handleAnimationStart);
+    this.dom?.removeEventListener?.('animationend', this.handleAnimationEnd);
   }
 
   public update(param: AnimationOptions) {

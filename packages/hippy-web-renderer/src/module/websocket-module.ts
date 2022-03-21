@@ -113,6 +113,10 @@ class WebsocketObject {
   public constructor(id: string, url: string, protocols: string|string[]|undefined) {
     this.connection = new WebSocket(url, protocols);
     this.id = id;
+    this.handleSocketOpen = this.handleSocketOpen.bind(this);
+    this.handleSocketMessage = this.handleSocketMessage.bind(this);
+    this.handleSocketClose = this.handleSocketClose.bind(this);
+    this.handleSocketError = this.handleSocketError.bind(this);
   }
 
   public get disconnected() {
@@ -152,8 +156,17 @@ class WebsocketObject {
   public send(data: string) {
     this.connection?.send(data);
   }
+
   public close(code?: number, reason?: string) {
     this.connection?.close(code, reason);
     this.state = WebSocketReadyState.CLOSING;
+    this.destroy();
+  }
+
+  public destroy() {
+    this.connection?.removeEventListener('open', this.handleSocketOpen);
+    this.connection?.removeEventListener('message', this.handleSocketMessage);
+    this.connection?.removeEventListener('close', this.handleSocketClose);
+    this.connection?.removeEventListener('error', this.handleSocketError);
   }
 }

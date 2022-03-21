@@ -33,11 +33,14 @@ import { setElementStyle } from '../common';
 export class UIManagerModule extends HippyWebModule {
   public static moduleName = 'UIManagerModule';
   public name = 'UIManagerModule';
-  public mode = 'sequential';
 
   private viewDictionary: {[key in string|number]: BaseView} = {};
   private rootDom: HTMLElement|undefined;
   private contentDom: HTMLElement|undefined;
+  constructor(context) {
+    super(context);
+    this.mode = 'sequential';
+  }
 
   public init() {
     this.stylePolyfill();

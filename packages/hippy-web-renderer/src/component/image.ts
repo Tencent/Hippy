@@ -29,6 +29,8 @@ export class Image extends HippyView<HTMLImageElement> {
     super(context, id, pId);
     this.tagName = InnerNodeTag.VIEW;
     this.dom = document.createElement('img');
+    this.handleLoad = this.handleLoad.bind(this);
+    this.init();
   }
 
   public defaultStyle(): {[key: string]: any} {
@@ -76,7 +78,6 @@ export class Image extends HippyView<HTMLImageElement> {
 
     if (this.dom && !this.defaultSource) {
       this.dom.src = value ?? '';
-      this.dom.addEventListener('load', this.handleLoad.bind(this));
     } else {
       const img = document.createElement('img');
       img.addEventListener('load', (event) => {
@@ -122,6 +123,10 @@ export class Image extends HippyView<HTMLImageElement> {
 
   public onProgress(event) {
     this.props[NodeProps.ON_PROGRESS] && this.context.sendUiEvent(this.id, NodeProps.ON_PROGRESS, event);
+  }
+
+  private init() {
+    this.dom!.addEventListener('load', this.handleLoad);
   }
 
   private handleLoad(_event: Event, loadUrl?: string) {
