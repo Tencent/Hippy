@@ -33,12 +33,10 @@
 
 @implementation HippyModalHostShadowView
 
-- (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSInteger)atIndex {
-    [super insertHippySubview:subview atIndex:atIndex];
-    if ([subview isKindOfClass:[HippyShadowView class]]) {
-        CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
-        [(HippyShadowView *)subview setLayoutFrame:frame];
-    }
+- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
+    [super setDomManager:domManager];
+    CGRect frame = { .origin = CGPointZero, .size = HippyScreenSize() };
+    [self setLayoutFrame:frame];
 }
 
 @end

@@ -33,7 +33,6 @@
 @implementation HippyModalHostView {
     BOOL _isPresented;
     HippyModalHostViewController *_modalViewController;
-    UIView *_hippySubview;
     UIStatusBarStyle originStyle;
     UIInterfaceOrientation _lastKnownOrientation;
 }
@@ -43,9 +42,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         _modalViewController = [HippyModalHostViewController new];
-        UIView *containerView = [UIView new];
-        containerView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        _modalViewController.view = containerView;
         _isPresented = NO;
         __weak __typeof(self) weakSelf = self;
         _modalViewController.boundsDidChangeBlock = ^(CGRect newBounds) {
@@ -57,8 +53,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 }
 
 - (void)notifyForBoundsChange:(CGRect)newBounds {
-    if (_hippySubview && _isPresented) {
-        [_bridge.uiManager setFrame:newBounds forView:_hippySubview];
+    if (_isPresented) {
         [self notifyForOrientationChange];
     }
 }
@@ -82,19 +77,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    HippyAssert(_hippySubview == nil, @"Modal view can only have one subview");
     [super insertHippySubview:subview atIndex:atIndex];
-    subview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-
-    [_modalViewController.view insertSubview:subview atIndex:0];
+    [_modalViewController.view insertSubview:subview atIndex:atIndex];
     [subview sendAttachedToWindowEvent];
-    _hippySubview = subview;
-}
-
-- (void)removeHippySubview:(UIView *)subview {
-    HippyAssert(subview == _hippySubview, @"Cannot remove view other than modal view");
-    [super removeHippySubview:subview];
-    _hippySubview = nil;
 }
 
 - (void)didUpdateHippySubviews {
