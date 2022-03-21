@@ -26,7 +26,7 @@ import {
   eventThrottle,
   GESTURE_CAPTURE_THRESHOLD,
   mountTouchListener,
-  scrollEndPagePosition,
+  calculateScrollEndPagePosition,
   touchMoveCalculate,
   virtualSmoothScroll,
 } from './scrollable';
@@ -46,7 +46,7 @@ const ANIMATION_TIME = 100;
 export class ScrollView extends HippyView<HTMLDivElement> {
   private lastPosition: [number, number] = [0, 0];
   private lastTimestamp = 0;
-  private scrollableCache = false;
+  private scrollCaptureState = false;
   private touchListenerRelease;
 
 
@@ -188,28 +188,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
 
   public scrollToWithOptions({ x, y, duration }) {
     if (!this.pagingEnabled) {
-      const beginTimeStamp = Date.now();
-      const endTimeStamp = beginTimeStamp + duration + 1;
-      let lastDistance = (this.horizontal ? x : y) - (this.horizontal ? this.dom!.scrollLeft : this.dom!.scrollTop) ;
-      if (lastDistance === 0) {
-        return;
-      }
-      const scrollCallBack = () => {
-        if (Date.now() > endTimeStamp - 16) {
-          if (lastDistance !== 0) {
-            this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? x : 0, behavior: 'smooth' });
-          }
-          return;
-        }
-        const freScroll = lastDistance / 5;
-        this.dom?.scrollTo(
-          this.horizontal ? (freScroll + this.dom!.scrollLeft) : 0,
-          this.horizontal ? 0 : (freScroll + this.dom!.scrollTop),
-        );
-        lastDistance -= (lastDistance / 5) ;
-        requestAnimationFrame(scrollCallBack);
-      };
-      requestAnimationFrame(scrollCallBack);
+      this.scrollTo(x, y, true);
     } else {
       this.pagingModeScroll(x, duration);
     }
@@ -244,29 +223,24 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     this.onMomentumScrollEnd(this.buildScrollEvent(this.dom!));
   }
 
-  private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) {
-    if (!touchEvent) {
-      // 隐式含义，在touchEnd/Cancel时的回调
-      return this.scrollableCache;
+  private checkScrollEnable(lastTouchEvent: TouchEvent, newTouchEvent?: TouchEvent) {
+    if (!newTouchEvent) {
+      return this.scrollCaptureState;
     }
-    if (this.scrollableCache && touchEvent) {
-      touchEvent.stopPropagation();
-      if (this.pagingEnabled) touchEvent.preventDefault();
-      return this.scrollableCache;
+    if (this.scrollCaptureState && newTouchEvent) {
+      this.pagingEnabled && newTouchEvent.preventDefault();
+      return this.scrollCaptureState;
     }
+    this.scrollCaptureState = this.needCaptureTouch(lastTouchEvent, newTouchEvent);
+    this.scrollCaptureState && this.pagingEnabled && newTouchEvent.preventDefault();
+    return this.scrollCaptureState;
+  }
 
-    const moveDistance = touchMoveCalculate(touchEvent, lastTouchEvent);
-    if (((Math.abs(moveDistance[0]) > GESTURE_CAPTURE_THRESHOLD && this.horizontal)
-        || (Math.abs(moveDistance[1]) > GESTURE_CAPTURE_THRESHOLD && !this.horizontal))
-      && this.scrollEnabled
-    ) {
-      this.scrollableCache = true;
-      touchEvent.stopPropagation();
-      if (this.pagingEnabled) {
-        touchEvent.preventDefault();
-      }
-    }
-    return this.scrollableCache;
+  private needCaptureTouch(lastTouchEvent: TouchEvent, newTouchEvent: TouchEvent) {
+    const moveDistance = touchMoveCalculate(newTouchEvent, lastTouchEvent);
+    return !!(((Math.abs(moveDistance[0]) > GESTURE_CAPTURE_THRESHOLD && this.horizontal)
+      || (Math.abs(moveDistance[1]) > GESTURE_CAPTURE_THRESHOLD && !this.horizontal))
+      && this.scrollEnabled);
   }
 
   private handleBeginDrag() {
@@ -274,7 +248,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
   }
 
   private async handleEndDrag(position:  [number, number]) {
-    this.scrollableCache = false;
+    this.scrollCaptureState = false;
     this.onScrollEndDrag(this.buildScrollEvent(this.dom!));
 
     if (this.pagingEnabled) {
@@ -301,12 +275,11 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     const pageUnitSize = this.dom!.clientWidth;
     const scrollSize = this.dom!.scrollWidth;
     const originOffset = lastPosition[0];
-    return scrollEndPagePosition(pageUnitSize, scrollSize, originOffset);
+    return calculateScrollEndPagePosition(pageUnitSize, scrollSize, originOffset);
   }
 
   private handleScroll() {
     this.dom && eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
-      console.log('scroll', this.buildScrollEvent(this.dom!));
       this.onScroll(this.buildScrollEvent(this.dom!));
       this.lastTimestamp = Date.now();
     });

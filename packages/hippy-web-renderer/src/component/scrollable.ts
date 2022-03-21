@@ -31,7 +31,7 @@ export interface TouchMoveListenerConfig {
   onTouchMove?: (event: Touch, lastEvent: Touch) => void;
   getPosition: () => [number, number];
   updatePosition: (newPosition: [number, number]) => void;
-  scrollEnable: (lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) => boolean;
+  scrollEnable: (lastTouchEvent: TouchEvent, touchEvent?: TouchEvent) => boolean;
   needSimulatedScrolling?: boolean;
 }
 let touchMoveCaptureElement;
@@ -40,10 +40,13 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
   let isTouchIn = false;
   let scrollStopCheckTimer = -1;
   let lastTouchEvent: TouchEvent | null = null;
+  const closeScrollState = () => {
+    isScroll = false;
+  };
   const scrollOverTimeCheck = () => {
     if (isScroll && !isTouchIn) {
       config?.onEndSliding?.();
-      isScroll = false;
+      closeScrollState();
     }
   };
   const handleScroll = () => {
@@ -68,21 +71,26 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
       return;
     }
     const isEnableScroll = config.scrollEnable(lastTouchEvent!, event);
-    if (isEnableScroll
-      && config.needSimulatedScrolling) {
-      config.updatePosition(touchMoveDeal(el, event, lastTouchEvent!, config.getPosition(), config?.onTouchMove));
-      event.stopPropagation();
+    if (isEnableScroll && config.needSimulatedScrolling) {
+      const newPosition = touchMoveDeal(el, event, lastTouchEvent!, config.getPosition(), config?.onTouchMove);
+      config.updatePosition(newPosition);
+      if (!isScroll) {
+        isScroll = true;
+        config.onBeginDrag?.(newPosition);
+      }
     }
 
     if (isEnableScroll) {
+      event.stopPropagation();
       touchMoveCaptureElement = el;
       lastTouchEvent = event;
     }
   };
   const handleTouchCancel = () => {
     touchMoveCaptureElement = null;
-    touchEndDeal(el, isTouchIn, isScroll, config.scrollEnable(lastTouchEvent!, null), config.getPosition());
+    touchEndDeal(el, isTouchIn, isScroll, config.scrollEnable(lastTouchEvent!), config.getPosition());
     isTouchIn = false;
+    config.needSimulatedScrolling && closeScrollState();
   };
   const handleTouchEnd = () => {
     touchMoveCaptureElement = null;
@@ -90,12 +98,13 @@ export function mountTouchListener(el: HTMLElement, config: TouchMoveListenerCon
       el,
       isTouchIn,
       isScroll,
-      config.scrollEnable(lastTouchEvent!, null),
+      config.scrollEnable(lastTouchEvent!),
       config.getPosition(),
       config?.onEndDrag,
       config?.onBeginSliding,
     );
     isTouchIn = false;
+    config.needSimulatedScrolling && closeScrollState();
   };
 
   el.addEventListener('scroll', handleScroll);
@@ -141,13 +150,11 @@ function touchEndDeal(
   endDragCallBack?: (lastPosition: [number, number]) => void,
   slidingBeginCallBack?: () => void,
 ) {
-  if (isTouchIn) {
-    if (enableScroll) {
-      endDragCallBack?.(lastPosition);
-    }
-    if (isScroll && enableScroll) {
-      slidingBeginCallBack?.();
-    }
+  if (isTouchIn && enableScroll) {
+    endDragCallBack?.(lastPosition);
+  }
+  if (isTouchIn && isScroll && enableScroll) {
+    slidingBeginCallBack?.();
   }
 }
 
@@ -270,7 +277,7 @@ export function eventThrottle(lastExecuteTime: number, throttle: number, action:
   return overThreshold;
 }
 
-export function scrollEndPagePosition(pageUnitSize: number, scrollSize: number, endScrollOffset: number) {
+export function calculateScrollEndPagePosition(pageUnitSize: number, scrollSize: number, endScrollOffset: number) {
   const pageIndex = Math.round(endScrollOffset / pageUnitSize);
   const minValue = pageUnitSize - scrollSize;
   const maxPageIndex = Math.ceil(scrollSize / pageUnitSize);

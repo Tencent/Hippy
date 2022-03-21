@@ -24,9 +24,9 @@ import { BaseView, InnerNodeTag, UIProps } from '../../types';
 import { HippyView } from './hippy-view';
 import {
   GESTURE_CAPTURE_THRESHOLD,
-  mountTouchListener,
+  mountTouchListener, calculateScrollEndPagePosition,
   touchMoveCalculate,
-  scrollEndPagePosition,
+  // calculateScrollEndPagePosition,
   virtualSmoothScroll,
 } from './scrollable';
 
@@ -34,7 +34,7 @@ const ANIMATION_TIME = 200;
 
 export class ViewPager extends HippyView<HTMLDivElement> {
   private pageIndex =0;
-  private scrollableCache = false;
+  private scrollCaptureState = false;
   private lastPosition: [number, number] = [0, 0];
   private childViewItem: ViewPagerItem[] = [];
   private swipeRecognize: any = null;
@@ -121,6 +121,13 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   public init() {
     this.props[NodeProps.INITIAL_PAGE] = 0;
     this.props[NodeProps.SCROLL_ENABLED] = true;
+    this.hammer =  new Hammer.Manager(this.dom, { inputClass: Hammer.TouchInput });
+    const swipe = new Hammer.Swipe();
+    this.hammer.add(swipe);
+    this.hammer.on('swipe', (e) => {
+      this.swipeRecognize = e;
+      e.srcEvent.stopPropagation();
+    });
     this.touchListenerRelease = mountTouchListener(this.dom!, {
       onTouchMove: this.handleScroll.bind(this),
       onBeginDrag: this.handleBeginDrag.bind(this),
@@ -130,36 +137,27 @@ export class ViewPager extends HippyView<HTMLDivElement> {
       scrollEnable: this.checkScrollEnable.bind(this),
       needSimulatedScrolling: true,
     });
-    this.hammer =  new Hammer.Manager(this.dom, { inputClass: Hammer.TouchInput });
-    const swipe = new Hammer.Swipe();
-    this.hammer.add(swipe);
-    this.hammer.on('swipe', (e) => {
-      this.swipeRecognize = e;
-      e.srcEvent.stopPropagation();
-    });
   }
 
-  private checkScrollEnable(lastTouchEvent: TouchEvent, touchEvent: TouchEvent|null) {
-    if (!touchEvent) {
-      return this.scrollableCache;
+  private checkScrollEnable(lastTouchEvent: TouchEvent, newTouchEvent?: TouchEvent) {
+    if (!newTouchEvent) {
+      return this.scrollCaptureState;
     }
 
-    if (this.scrollableCache && touchEvent) {
-      touchEvent.preventDefault();
-      touchEvent.stopPropagation();
-      return this.scrollableCache;
+    if (this.scrollCaptureState && newTouchEvent) {
+      newTouchEvent.preventDefault();
+      return this.scrollCaptureState;
     }
 
-    const moveDistance = touchMoveCalculate(touchEvent, lastTouchEvent);
-    if (
-      Math.abs(moveDistance[0]) > GESTURE_CAPTURE_THRESHOLD
-      && this.scrollEnabled
-    ) {
-      this.scrollableCache = true;
-      touchEvent.preventDefault();
-      touchEvent.stopPropagation();
-    }
-    return this.scrollableCache;
+    this.scrollCaptureState = this.needCaptureTouch(lastTouchEvent, newTouchEvent);
+    this.scrollCaptureState && newTouchEvent.preventDefault();
+    return this.scrollCaptureState;
+  }
+
+  private needCaptureTouch(lastTouchEvent: TouchEvent, newTouchEvent: TouchEvent) {
+    const moveDistance = touchMoveCalculate(newTouchEvent, lastTouchEvent);
+    return !!(Math.abs(moveDistance[0]) > GESTURE_CAPTURE_THRESHOLD
+      && this.scrollEnabled);
   }
 
   private handleScroll() {
@@ -174,7 +172,7 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   }
 
   private async handleEndDrag(position: [number, number]) {
-    this.scrollableCache = false;
+    this.scrollCaptureState = false;
     this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
     if (this.swipeRecognize) {
       let nextPage = this.pageIndex;
@@ -189,7 +187,10 @@ export class ViewPager extends HippyView<HTMLDivElement> {
       return;
     }
 
-    const { toOffset, newPageIndex } = scrollEndPagePosition(this.dom!.clientWidth, this.dom!.scrollWidth, position[0]);
+    const { toOffset, newPageIndex } = calculateScrollEndPagePosition(
+      this.dom!.clientWidth,
+      this.dom!.scrollWidth, position[0],
+    );
     const toPosition: [number, number] = [toOffset, position[1]];
     const scrollCallBack = (position, index) => {
       this.updatePositionInfo(position, index);
