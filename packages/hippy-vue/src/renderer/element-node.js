@@ -288,8 +288,6 @@ class ElementNode extends ViewNode {
           this.attributes[key] = unicodeToChar(value);
           break;
         }
-        // FIXME: UpdateNode numberOfRows will makes Image flicker on Android.
-        //        So make it working on iOS only.
         case 'numberOfRows':
           this.attributes[key] = value;
           if (Native.Platform !== 'ios') {
@@ -299,6 +297,14 @@ class ElementNode extends ViewNode {
         case 'caretColor':
         case 'caret-color':
           this.attributes['caret-color'] = Native.parseColor(value);
+          break;
+        case 'placeholderTextColor':
+        case 'placeholder-text-color':
+          this.attributes.placeholderTextColor = Native.parseColor(value);
+          break;
+        case 'underlineColorAndroid':
+        case 'underline-color-android':
+          this.attributes.underlineColorAndroid = Native.parseColor(value);
           break;
         case 'nativeBackgroundAndroid': {
           const nativeBackgroundAndroid = value;
@@ -343,9 +349,6 @@ class ElementNode extends ViewNode {
         if (typeof v !== 'string') {
           v = v.toString();
         }
-        break;
-      case 'caretColor':
-        this.attributes['caret-color'] = colorParser(v);
         break;
       case 'backgroundImage': {
         [p, v] = parseBackgroundImage(p, v);
