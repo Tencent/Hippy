@@ -14,7 +14,6 @@ export class HippyWebModule extends HippyWebUnit {
     super();
     this.context = context;
   }
-  init?: () => void;
 }
 
 export class HippyWebComponent extends HippyWebUnit {

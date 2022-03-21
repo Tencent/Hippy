@@ -20,20 +20,15 @@
 import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../../types';
 type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKONWN';
-type ConnectionType =
-  | 'bluetooth'
-  | 'cellular'
-  | 'ethernet'
-  | 'mixed'
-  | 'none'
-  | 'other'
-  | 'unknown'
-  | 'wifi'
-  | 'wimax';
+
 
 export class NetInfoModule extends HippyWebModule {
   public name = 'NetInfo';
 
+  constructor(context) {
+    super(context);
+    this.handleOnlineChange = this.handleOnlineChange.bind(this);
+  }
 
   public get state() {
     const isConnected = navigator.onLine;
@@ -51,15 +46,15 @@ export class NetInfoModule extends HippyWebModule {
 
   public addListener(name: string) {
     if (name === 'networkStatusDidChange') {
-      window.addEventListener('online', this.handleOnlineChange.bind(this));
-      window.addEventListener('offline', this.handleOnlineChange.bind(this));
+      window.addEventListener('online', this.handleOnlineChange);
+      window.addEventListener('offline', this.handleOnlineChange);
     }
   }
 
   public removeListener(name: string) {
     if (name === 'networkStatusDidChange') {
-      window.removeEventListener('online', this.handleOnlineChange.bind(this));
-      window.removeEventListener('offline', this.handleOnlineChange.bind(this));
+      window.removeEventListener('online', this.handleOnlineChange);
+      window.removeEventListener('offline', this.handleOnlineChange);
     }
   }
 
