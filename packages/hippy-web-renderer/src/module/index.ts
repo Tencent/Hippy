@@ -34,7 +34,7 @@ const keys = Object.keys(Components);
 for (const key of keys) {
   registerComponent(key, Components[key]);
 }
-export const MODULES = [
+export const CORE_MODULES = [
   AnimationModule,
   ClipboardModule,
   DeviceEventModule,

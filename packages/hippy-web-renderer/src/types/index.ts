@@ -170,3 +170,6 @@ export const STYLE_MARGIN_V = 'marginVertical';
 export const STYLE_MARGIN_H = 'marginHorizontal';
 export const STYLE_PADDING_V = 'paddingVertical';
 export const STYLE_PADDING_H = 'paddingHorizontal';
+
+export * from './exports';
+export * from './hippy-internal-types';
