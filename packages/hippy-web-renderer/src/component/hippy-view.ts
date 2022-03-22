@@ -21,11 +21,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 
 import ResizeObserver from 'resize-observer-polyfill';
-import { BaseView, ComponentContext, InnerNodeTag, UIProps } from '../../types';
-import { NodeProps } from '../types';
+import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps } from '../types';
 import { HippyTransferData } from '../types/hippy-internal-types';
 
-export class HippyView<T extends HTMLElement> implements BaseView {
+export class HippyView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
   public id!: number;
   public pId!: number;
@@ -118,7 +117,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
     return this.props[NodeProps.ON_LAYOUT];
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
       this.firstUpdateStyle = false;
@@ -137,11 +136,11 @@ export class HippyView<T extends HTMLElement> implements BaseView {
     this.context.sendUiEvent(this.id, 'onAttachedToWindow', null);
   }
 
-  public async beforeMount(parent: BaseView, position: number) {
+  public async beforeMount(parent: HippyBaseView, position: number) {
     this.index = position;
   }
 
-  public async beforeChildMount(child: BaseView, childPosition: number) {
+  public async beforeChildMount(child: HippyBaseView, childPosition: number) {
   }
 
   public mounted(): void {
@@ -158,7 +157,7 @@ export class HippyView<T extends HTMLElement> implements BaseView {
     }
   }
 
-  public beforeChildRemove(child: BaseView): void {
+  public beforeChildRemove(child: HippyBaseView): void {
   }
 
   public async beforeRemove() {

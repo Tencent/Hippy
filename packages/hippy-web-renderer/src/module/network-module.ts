@@ -19,7 +19,7 @@
  */
 
 import { HippyWebModule } from '../base';
-import { HippyCallBack } from '../../types';
+import { HippyCallBack } from '../types';
 
 interface NetResponse {
   status: number, statusLine: string, body: string, respHeaders: any

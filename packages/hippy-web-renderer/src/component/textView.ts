@@ -17,9 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EllipsizeMode } from '../types';
+import { EllipsizeMode, InnerNodeTag } from '../types';
 import { setElementStyle } from '../common';
-import { InnerNodeTag } from '../../types';
 import { HippyView } from './hippy-view';
 const HippyEllipsizeModeMap = {
   head: { 'text-overflow': 'ellipsis', direction: 'rtl' },

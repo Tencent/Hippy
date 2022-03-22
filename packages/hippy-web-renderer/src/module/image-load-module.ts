@@ -19,7 +19,7 @@
  */
 
 import { HippyWebModule } from '../base';
-import { HippyCallBack } from '../../types';
+import { HippyCallBack } from '../types';
 
 export class ImageLoadModule extends HippyWebModule {
   public static moduleName = 'ImageLoadModule';

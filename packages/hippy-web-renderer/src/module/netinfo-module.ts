@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { HippyWebModule } from '../base';
-import { HippyCallBack } from '../../types';
+import { HippyCallBack } from '../types';
 type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKONWN';
 
 

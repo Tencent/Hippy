@@ -79,6 +79,14 @@ declare global {
   var hippyBridge: (action: string, payload?: any) => void;
 
   var hippyCallNatives: (moduleName: string, methodName: string, callId: string, params?: any[]) => void;
+
+  var __Headers: typeof global.Headers;
+
+  var __Response: typeof global.Response;
+
+  var __localStorage: typeof global.localStorage;
+
+  var turboPromise: typeof global.Promise;
 }
 
 

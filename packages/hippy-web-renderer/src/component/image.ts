@@ -18,9 +18,8 @@
  * limitations under the License.
  */
 
-import { ImageResizeMode, NodeProps } from '../types';
+import { ImageResizeMode, NodeProps, InnerNodeTag } from '../types';
 import { setElementStyle } from '../common';
-import { InnerNodeTag } from '../../types';
 import { HippyView } from './hippy-view';
 
 export class Image extends HippyView<HTMLImageElement> {

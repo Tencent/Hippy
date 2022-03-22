@@ -1,5 +1,7 @@
+import { HippyCallBack } from './exports';
 
-export type HippyNativeBridge = (action: string, callObj?: { moduleName: string, methodName: string, params: any } | any) => void;
+export type HippyNativeBridge =
+  (action: string, callObj?: { moduleName: string, methodName: string, params: any } | any) => void;
 
 export interface HippyJsBridge {
   callNative(moduleName: string, methodName: string, ...args: any[]): void;
@@ -10,6 +12,7 @@ export interface HippyJsBridge {
 
 export type HippyJsCallNatives = (moduleName: string, moduleFunc: string, callId: number, params?: any[]) => void;
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace HippyTransferData {
   export type NativeUIEvent = [nodeId: string, eventName: string, eventParams: any];
   export type NativeEvent = [eventName: string, eventParams: any];
