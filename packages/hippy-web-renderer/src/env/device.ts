@@ -8,4 +8,4 @@ declare global {
 export const device: Partial<HippyDeviceInfo> = {
   vibrate: () => {},
   cancelVibrate: () => {},
-}
+};
