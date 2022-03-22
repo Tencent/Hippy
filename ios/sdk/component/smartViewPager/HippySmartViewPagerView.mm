@@ -79,6 +79,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     _circular = NO;
     _autoplay = NO;
     _pageGap = 0;
+    _adjustChildren = NO;
     _itemWidth = self.hippyShadowView.frame.size.width;
     _autoplayTimeInterval = 3;
     __weak __typeof(self) weakSelf = self;
@@ -216,7 +217,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    if (_circular && _adjustChildren) {
+    if (_circular && !_adjustChildren) {
         _adjustChildren = YES;
         if (self.hippyShadowView.hippySubviews.count <=2) {
             _circular = NO;
@@ -358,44 +359,46 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
 }
 
+- (NSInteger)adjustWillEndDraggingCurrentPage:(NSInteger)currentPage {
+    NSInteger adjustCurrentPage = currentPage;
+    if (_circular) {
+        if (currentPage < 1) {
+            adjustCurrentPage = 1;
+        }
+        
+        if (currentPage >= self.hippyShadowView.hippySubviews.count - 2) {
+            adjustCurrentPage = self.hippyShadowView.hippySubviews.count - 2;
+        }
+    } else {
+        if (currentPage <= 0) {
+            adjustCurrentPage = 0;
+        }
+        if (currentPage >= self.hippyShadowView.hippySubviews.count - 1) {
+            adjustCurrentPage = self.hippyShadowView.hippySubviews.count - 1;
+        }
+    }
+    return adjustCurrentPage;
+}
+
+- (CGFloat)adjustScrollContentOffsetX:(NSInteger)currentPage {
+    CGFloat contentOffsetX = 0.0f;
+    if (currentPage <= 0) {
+        contentOffsetX = - _pageGap - _previousMargin;
+    } else {
+        contentOffsetX = (_itemWidth * currentPage)+ (currentPage - 1) * _pageGap - _previousMargin;
+    }
+    return contentOffsetX;
+}
+
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
     if (velocity.x > 0) {
         ++_currentPage;
     } else {
         --_currentPage;
     }
-
-    CGFloat contentoffsetX = 0.0f;
-
-    if (_circular) {
-        if (_currentPage < 1) {
-            _currentPage = 1;
-        }
-        if (_currentPage >= self.hippyShadowView.hippySubviews.count - 2) {
-            _currentPage = self.hippyShadowView.hippySubviews.count - 2;
-        }
-
-        if (_currentPage == 0) {
-            contentoffsetX = - _pageGap - _previousMargin;
-        } else {
-            contentoffsetX = (_itemWidth * _currentPage)+ (_currentPage - 1) * _pageGap - _previousMargin;
-        }
-
-        targetContentOffset->x = contentoffsetX;
-    } else {
-        if (_currentPage <= 0) {
-            _currentPage = 0;
-        }
-        if (_currentPage >= self.hippyShadowView.hippySubviews.count - 1) {
-            _currentPage = self.hippyShadowView.hippySubviews.count - 1;
-        }
-        if (_currentPage <= 0) {
-            contentoffsetX = - _previousMargin - _pageGap;
-        } else {
-            contentoffsetX = (_itemWidth * _currentPage)+ (_currentPage - 1) * _pageGap - _previousMargin;
-        }
-        targetContentOffset->x = contentoffsetX;
-    }
+    _currentPage = [self adjustWillEndDraggingCurrentPage:_currentPage];
+    CGFloat contentoffsetX = [self adjustScrollContentOffsetX:_currentPage];
+    targetContentOffset->x = contentoffsetX;
     targetContentOffset->y = 0;
     
     if (velocity.y == 0 && velocity.x == 0) {
@@ -416,21 +419,30 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
 }
 
-// 手动拖拽结束
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    
+- (void)adjustDidEndDeceleratingCurrentPage{
+    BOOL isAdjust = NO;
     if (_circular) {
         NSArray *children = self.hippyShadowView.hippySubviews;
         if (_currentPage == 1) {
             _currentPage = children.count - 3;
-            [self.collectionView setContentOffset:CGPointMake((_itemWidth * _currentPage)+ (_currentPage - 1) * _pageGap - _previousMargin, 0) animated:NO];
-        } else if (_currentPage == children.count - 2) {
+            isAdjust = YES;
+        }
+        if (_currentPage == children.count - 2) {
             _currentPage = 2;
-            [self.collectionView setContentOffset:CGPointMake((_itemWidth * _currentPage)+ (_currentPage - 1) * _pageGap - _previousMargin, 0) animated:NO];
+            isAdjust = YES;
         }
-        if (_autoplay) {
-            _timer.fireDate = [NSDate dateWithTimeIntervalSinceNow:_autoplayTimeInterval];
-        }
+    }
+    if (isAdjust) {
+        [self.collectionView setContentOffset:CGPointMake([self adjustScrollContentOffsetX:_currentPage], 0) animated:NO];
+    }
+}
+
+// 手动拖拽结束
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self adjustDidEndDeceleratingCurrentPage];
+    
+    if (_autoplay) {
+        _timer.fireDate = [NSDate dateWithTimeIntervalSinceNow:_autoplayTimeInterval];
     }
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -474,16 +486,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 // 自动轮播结束
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
-    if (_circular) {
-        NSArray *children = self.hippyShadowView.hippySubviews;
-        if (_currentPage == 1) {
-            _currentPage = children.count - 3;
-            [self.collectionView setContentOffset:CGPointMake((_itemWidth * _currentPage)+ (_currentPage - 1) * _pageGap - _previousMargin, 0) animated:NO];
-        } else if (_currentPage == children.count - 2) {
-            _currentPage = 2;
-            [self.collectionView setContentOffset:CGPointMake((_itemWidth * _currentPage)+ (_currentPage - 1) * _pageGap - _previousMargin, 0) animated:NO];
-        }
-    }
+    [self adjustDidEndDeceleratingCurrentPage];
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
             [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
@@ -524,11 +527,6 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (NSInteger)collectionView:(UICollectionView *)collectionView
                      layout:(UICollectionViewLayout *)collectionViewLayout columnCountForSection:(NSInteger)section {
     return 1;
-}
-
-- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView
-                        layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
-    return UIEdgeInsetsZero;
 }
 
 - (void)setHorizontal:(BOOL)horizontal {

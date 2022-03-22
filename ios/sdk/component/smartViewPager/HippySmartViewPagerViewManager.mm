@@ -18,8 +18,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(pageGap, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(previousMargin, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(nextMargin, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(autoplayTimeInterval, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(circular, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
+//HIPPY_EXPORT_VIEW_PROPERTY(circular, BOOL)
+//HIPPY_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
 
 - (UIView *)view {
     return [[HippySmartViewPagerView alloc] init];
