@@ -11,8 +11,6 @@ export interface BaseView {
   index: number;
   props: UIProps;
   dom: HTMLElement|null;
-  onAttachedToWindow?: () => void;
-  onLayout?: () => void;
   updateProps?: (data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) => void;
   beforeMount?: (parent: BaseView, position: number) => Promise<void>;
   beforeChildMount?: (child: BaseView, childPosition: number) => Promise<void>;
@@ -22,6 +20,11 @@ export interface BaseView {
   removeChild?: (child: BaseView) => void;
   destroy?: () => void;
   mounted?: () => void;
+}
+
+export interface HippyView extends BaseView {
+  context: ComponentContext;
+  defaultStyle: () => {[key: string]: any}
 }
 
 export type BaseViewConstructor = new (context: ComponentContext, id, pId) => BaseView;

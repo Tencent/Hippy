@@ -28,10 +28,8 @@ import { View } from './view';
 import { ViewPager, ViewPagerItem } from './view-pager';
 import { WebView } from './web-view';
 import { TextView } from './textView';
+import { HippyView } from './hippy-view';
 
-class CampPageView extends View {
-
-}
 export {
   Image,
   ListView,
@@ -46,5 +44,5 @@ export {
   ListViewItem,
   ViewPagerItem,
   RefreshWrapperItemView,
-  CampPageView,
+  HippyView,
 };
