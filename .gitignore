@@ -79,3 +79,6 @@ build/
 core/ARM
 framework/js/core/ARM
 .vs/
+
+# web
+.parcel-cache
