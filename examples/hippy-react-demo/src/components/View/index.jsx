@@ -46,13 +46,8 @@ export default function ViewExpo() {
       <Text>{title}</Text>
     </View>
   );
-  const onLayout = (e) => {
-    console.log('layoutemit', e);
-  };
   return (
-    <ScrollView showScrollIndicator={false} style={{ padding: 10 }}>
-      {renderTitle('onLayout')}
-      <View onLayout={onLayout} style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
+    <ScrollView style={{ padding: 10 }}>
       {renderTitle('backgroundColor')}
       <View style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
       {renderTitle('backgroundImage')}
@@ -60,7 +55,6 @@ export default function ViewExpo() {
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
-        backgroundSize: 'cover',
         backgroundImage: `${Platform.OS === 'web' ? `url(${imageUrl})` : imageUrl}`,
       }]}
         accessible={true}

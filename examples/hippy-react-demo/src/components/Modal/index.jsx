@@ -67,11 +67,6 @@ export default class ModalExpo extends React.Component {
     });
   }
 
-  onModalShow() {
-    console.log('modal show');
-  }
-
-
   render() {
     const { press, visible } = this.state;
     return (

@@ -1,6 +1,5 @@
 import React from 'react';
-import Text from './text';
 
-const WaterfallView: React.FC<any> = () => (<Text>web暂不支持</Text>);
+const WaterfallView: React.FC<any> = () => null;
 WaterfallView.displayName = 'WaterfallView';
 export default WaterfallView;

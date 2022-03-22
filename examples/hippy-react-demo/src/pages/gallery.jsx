@@ -99,6 +99,8 @@ export class Gallery extends Component {
     return (
       <View style={styles.rowContainer}>
         <View
+          onPressIn={() => this.feedback(rowData.path)}
+          onPressOut={() => this.feedback()}
           onClick={() => this.clickTo(rowData.path)}
           style={[styles.buttonView, {
             borderColor: (styleType === 1 ? SKIN_COLOR.mainLight : SKIN_COLOR.otherLight),

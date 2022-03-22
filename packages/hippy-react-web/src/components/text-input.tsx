@@ -47,7 +47,7 @@ export interface TextInputProps {
   placeholderTextColor?: string;
   placeholderTextColors?: string;
   returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
-  underlineColorAndroid?: string;
+  underlineColorAndroid?: string; // unsupported
   value?: string;
   autoFocus?: boolean;
   onBlur?: any;
@@ -59,9 +59,8 @@ export interface TextInputProps {
 };
 const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps>((props, ref) => {
   const {
-    style = {}, underlineColorAndroid, placeholderTextColor, placeholderTextColors, caretColor,
-    editable = true, keyboardType, multiline, onLayout, onChangeText, defaultValue, onEndEditing, onBlur,
-    numberOfLines = 2, autoFocus,
+    style = {}, caretColor, editable = true, keyboardType, multiline = false, onLayout,
+    onChangeText, defaultValue, onEndEditing, onBlur, numberOfLines = 2, autoFocus,
   } = props;
   warnWhenUseUnsupportedProp({
     moduleProps: props,
@@ -79,18 +78,9 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
       style[property] = value;
     }
   };
-  // set style prop
-  if (underlineColorAndroid) {
-    setStyle('underlineColorAndroid', underlineColorAndroid);
-    delete copyProps.underlineColorAndroid;
-  }
-  if (placeholderTextColor || placeholderTextColors) {
-    setStyle('placeholderTextColor', placeholderTextColor ? placeholderTextColor : placeholderTextColors);
-    delete copyProps.placeholderTextColor;
-    delete copyProps.placeholderTextColors;
-  }
+
   if (caretColor) {
-    setStyle('caret-color', caretColor);
+    setStyle('caretColor', caretColor);
     delete copyProps.caretColor;
   }
 
@@ -152,14 +142,16 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
   }));
 
   useEffect(() => {
-    if (defaultValue) {
-      setValue(defaultValue);
-    }
     if (autoFocus) {
       focus();
     }
   }, []);
 
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(defaultValue);
+    }
+  }, [defaultValue]);
 
   const onInputBlur = () => {
     if (typeof onEndEditing === 'function') {
@@ -196,6 +188,10 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
   delete inputProps.onSelectionChange;
   delete inputProps.onKeyboardWillShow;
   delete inputProps.returnKeyType;
+  delete inputProps.underlineColorAndroid;
+  delete inputProps.multiline;
+  delete copyProps.placeholderTextColor;
+  delete copyProps.placeholderTextColors;
 
   return (
     multiline

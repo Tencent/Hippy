@@ -49,7 +49,7 @@ export default class ClipboardDemo extends React.Component {
     this.state = {
       hasCopied: false,
       text: 'Winter is coming',
-      clipboardText: '快点上面的按钮啊',
+      clipboardText: '快点上面的按钮',
     };
   }
 

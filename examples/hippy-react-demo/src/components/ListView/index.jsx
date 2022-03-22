@@ -60,17 +60,6 @@ const styles = StyleSheet.create({
     color: '#aaaaaa',
     alignSelf: 'center',
   },
-  pullContainer: {
-    height: 60,
-    backgroundColor: 'green',
-
-  },
-  pullContent: {
-    lineHeight: 60,
-    color: 'white',
-    height: 60,
-    textAlign: 'center',
-  },
 });
 
 
@@ -139,7 +128,6 @@ export default class ListExample extends React.Component {
     this.onWillAppear = this.onWillAppear.bind(this);
     this.onWillDisappear = this.onWillDisappear.bind(this);
     this.rowShouldSticky = this.rowShouldSticky.bind(this);
-    this.listRef = React.createRef(null);
   }
 
   onDelete({ index }) {
@@ -181,6 +169,9 @@ export default class ListExample extends React.Component {
   // item至少一个像素隐藏
   onWillDisappear(index) {
     console.log('onWillDisappear', index);
+  }
+  rowShouldSticky(index) {
+    return index === 2;
   }
   getRowType(index) {
     const self = this;
@@ -258,11 +249,6 @@ export default class ListExample extends React.Component {
     });
   }
 
-  rowShouldSticky(rowIndex) {
-    return [10, 20, 30].includes(rowIndex);
-  }
-
-
   render() {
     const { dataSource } = this.state;
     return (
@@ -282,8 +268,6 @@ export default class ListExample extends React.Component {
           return true;
         }}
         bounces={true}
-        scrollEnabled={true}
-        showScrollIndicator={false}
         overScrollEnabled={true}
         // horizontal ListView  flag（only Android support）
         horizontal={undefined}

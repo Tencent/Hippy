@@ -34,7 +34,7 @@ export default function WebViewExample() {
       </View>
       <WebView
         source={{
-          uri: 'https://hippyjs.org/#/',
+          uri: 'https://hippyjs.org',
         }}
         method={'get'}
         userAgent={'Mozilla/5.0 (Linux; U; Android 5.1.1; '

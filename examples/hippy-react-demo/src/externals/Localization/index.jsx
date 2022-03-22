@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   Platform,
-  Dimensions,
 } from '@hippy/react';
 
 const styleObj = StyleSheet.create({
@@ -24,7 +23,6 @@ export default class Localization extends React.Component {
     return (
       <View style={styleObj.LocalizationDemo}>
         <View style={{
-          width: Dimensions.get('screen').width,
           height: 40,
           textAlign: 'center',
           backgroundColor: '#4c9afa',
@@ -33,7 +31,7 @@ export default class Localization extends React.Component {
         >
           <Text style={{
             color: 'white',
-            marginHorizontal: 10,
+            marginHorizontal: 30,
             height: 40,
             lineHeight: 40,
             textAlign: 'center',

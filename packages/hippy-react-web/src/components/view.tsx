@@ -118,6 +118,8 @@ const View: React.FC<ViewProps> = React.forwardRef((props, ref) => {
   delete newProps.opacity;
   delete newProps.ref;
   delete newProps.onLayout;
+  delete newProps.onPressIn;
+  delete newProps.onPressOut;
 
   return (
     <div {...newProps} ref={hostRef} aria-label={accessibilityLabelValue} />

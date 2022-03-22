@@ -37,6 +37,7 @@ import ScrollView from './components/scroll-view';
 import Modal from './components/modal';
 import WebView from './components/web-view';
 import WaterfallView from './components/waterfall-view';
+import RippleViewAndroid from './components/ripple-view-android';
 import SafeAreaView  from './components/safe-area';
 import { UIManager as UIManagerModule } from './modules/ui-manager-module';
 import VideoPlayer from './components/video-player';
@@ -96,6 +97,7 @@ export {
   ScrollView,
   Modal,
   WebView,
+  RippleViewAndroid,
   SafeAreaView,
   VideoPlayer,
   Animation,

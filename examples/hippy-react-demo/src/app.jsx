@@ -52,7 +52,7 @@ export default class App extends Component {
         case 1:
           return <RemoteDebug instanceId={instanceId} />;
         default:
-          return <View className="test" style={styles.blankPage} />;
+          return <View style={styles.blankPage} />;
       }
     };
 

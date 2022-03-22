@@ -117,6 +117,9 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 
 ## TextInput
 
+| underlineColorAndroid   | TextInput 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性）| `color` | `web 暂不支持`    |
+| placeholderTextColor   | 占位字符串显示的文字颜色。（也可设置为 Style 属性）| `color` | `web 暂不支持`    |
+
 [[TextInput 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/TextInput)
 
 输入文本的基本组件。
@@ -193,6 +196,12 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 [[WaterfallView 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/WaterfallView)
 
 瀑布流组件。(web 暂不支持)
+
+---
+
+## RippleViewAndroid
+
+web 暂不支持
 
 ---
 
