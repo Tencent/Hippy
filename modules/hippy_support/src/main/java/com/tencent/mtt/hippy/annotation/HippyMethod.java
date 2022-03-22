@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.annotation;
 
 import java.lang.annotation.ElementType;
@@ -21,14 +22,13 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * FileName: HippyMethod Description： History：
- */
 @Retention(RUNTIME)
 @Target(ElementType.METHOD)
 public @interface HippyMethod {
 
-  String name() default "";
+    String name() default "";
 
-  boolean isSync() default false;
+    boolean isSync() default false;
+
+    boolean useJSValueType() default false;
 }

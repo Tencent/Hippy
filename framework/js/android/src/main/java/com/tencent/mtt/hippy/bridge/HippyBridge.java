@@ -13,41 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
 
 import com.tencent.mtt.hippy.common.HippyArray;
+
 import java.nio.ByteBuffer;
 
 public interface HippyBridge {
 
-  String URI_SCHEME_ASSETS = "asset:";
-  String URI_SCHEME_FILE = "file:";
+    String URI_SCHEME_ASSETS = "asset:";
+    String URI_SCHEME_FILE = "file:";
 
-  void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+    void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-  boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
-      String codeCacheTag, NativeCallback callback);
+    boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+            String codeCacheTag, NativeCallback callback);
 
-  void onDestroy();
+    void onDestroy();
 
-  void destroy(NativeCallback callback);
+    void destroy(NativeCallback callback);
 
-  void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
+    void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 
-  void callFunction(String action, NativeCallback callback, byte[] buffer);
+    void callFunction(String action, NativeCallback callback, byte[] buffer);
 
-  void callFunction(String action, NativeCallback callback, byte[] buffer, int offset, int length);
+    void callFunction(String action, NativeCallback callback, byte[] buffer, int offset,
+            int length);
 
-  long getV8RuntimeId();
+    long getV8RuntimeId();
 
-  interface BridgeCallback {
+    interface BridgeCallback {
 
-    void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+        void callNatives(String moduleName, String moduleFunc, String callId, ByteBuffer params);
 
-    void reportException(String message, String stackTrace);
+        void reportException(String message, String stackTrace);
 
-    void reportException(Throwable e);
-  }
+        void reportException(Throwable e);
+    }
 }
