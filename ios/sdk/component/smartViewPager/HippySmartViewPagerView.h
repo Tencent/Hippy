@@ -40,10 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) HippyDirectEventBlock initialListReady;
 @property(nonatomic, copy) HippyDirectEventBlock onScrollBeginDrag;
 @property(nonatomic, copy) HippyDirectEventBlock onScrollEndDrag;
-@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollBegin;
-@property(nonatomic, copy) HippyDirectEventBlock onMomentumScrollEnd;
-@property(nonatomic, copy) HippyDirectEventBlock onRowWillDisplay;
-@property(nonatomic, copy) HippyDirectEventBlock onDelete;
+@property(nonatomic, strong) HippyDirectEventBlock onPageSelected;
+@property(nonatomic, strong) HippyDirectEventBlock onPageScrollStateChanged;
 
 /**
  * Indication initial content offset when HippyBaseListView finish loading data
@@ -87,7 +85,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign) CGFloat nextMargin;
 
+@property(nonatomic, assign) NSInteger initialPage;
+
 - (void)setPreviousMargin:(CGFloat)previousMargin nextMargin:(CGFloat)nextMargin pageGap:(CGFloat)pageGap;
+
+- (void)setPage:(NSInteger)page animated:(BOOL)animated;
+
+- (NSInteger)getCurrentPage;
 
 /**
  * Reload data
