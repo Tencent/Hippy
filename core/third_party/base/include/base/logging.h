@@ -64,7 +64,12 @@ class LogMessage {
 
   inline static void InitializeDelegate(
       std::function<void(const std::ostringstream&, LogSeverity)> delegate) {
-    if (delegate_ || !delegate) {
+    if (!delegate) {
+      return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (delegate_) {
       abort(); // delegate can only be initialized once
     }
     delegate_ = delegate;
