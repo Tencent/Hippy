@@ -8,12 +8,14 @@ export class HippyWebUnit {
 }
 
 export class HippyWebModule extends HippyWebUnit {
-  context: HippyWebEngineContext;
-  mode: 'sequential' | 'normal' = 'normal';
   constructor(context: HippyWebEngineContext) {
     super();
     this.context = context;
   }
+
+  context: HippyWebEngineContext;
+  mode: 'sequential' | 'normal' = 'normal';
+  init() {};
 }
 
 export class HippyWebComponent extends HippyWebUnit {
