@@ -17,8 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {  NodeProps  } from '../types';
-import { BaseView, InnerNodeTag } from '../../types';
+import {  NodeProps, HippyBaseView, InnerNodeTag  } from '../types';
 import { HippyView } from './hippy-view';
 
 export class WebView extends HippyView<HTMLIFrameElement> {
@@ -74,7 +73,7 @@ export class WebView extends HippyView<HTMLIFrameElement> {
     );
   }
 
-  public async beforeMount(parent: BaseView, position: number) {
+  public async beforeMount(parent: HippyBaseView, position: number) {
     await super.beforeMount(parent, position);
     if (this.props[NodeProps.SOURCE].uri) this.dom!.src = this.props[NodeProps.SOURCE].uri ?? '';
     if (this.dom!.src) {

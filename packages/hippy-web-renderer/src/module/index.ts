@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Components from '../component';
 import { AnimationModule } from './animation-module';
 import { ClipboardModule } from './clipboard-module';
 import { DeviceEventModule } from './device-event-module';
@@ -25,14 +24,10 @@ import { ImageLoadModule } from './image-load-module';
 import { NetInfoModule } from './netinfo-module';
 import { NetworkModule } from './network-module';
 import { StorageModule } from './storage-module';
-import { UIManagerModule, registerComponent } from './ui-manager-module';
+import { UIManagerModule } from './ui-manager-module';
 import { WebSocketModule } from './websocket-module';
 
 
-const keys = Object.keys(Components);
-for (const key of keys) {
-  registerComponent(key, Components[key]);
-}
 export const CORE_MODULES = [
   AnimationModule,
   ClipboardModule,

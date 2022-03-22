@@ -19,13 +19,12 @@
  */
 
 import { Property } from 'csstype';
-import { BaseView, ComponentContext } from '../../types';
+import { HippyBaseView, ComponentContext } from '../types';
 import { setElementStyle } from '../common';
-import { HippyWebModule } from '../base';
+import { HippyWebModule } from '../base/base-unit';
 import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
 import AnimationPlayState = Property.AnimationPlayState;
-
 export class AnimationModule extends HippyWebModule {
   public static moduleName = 'AnimationModule';
   public name = 'AnimationModule';
@@ -88,7 +87,7 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.destroy();
   }
 
-  public linkAnimation2Element(animationId: number, component: BaseView, animationProperty: string|object) {
+  public linkAnimation2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
     if (!this.animationPool[animationId]) {
       return;
     }

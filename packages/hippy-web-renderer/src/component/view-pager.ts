@@ -18,9 +18,8 @@
  * limitations under the License.
  */
 import * as Hammer from 'hammerjs';
-import { NodeProps, SCROLL_STATE } from '../types';
+import { NodeProps, SCROLL_STATE, HippyBaseView, InnerNodeTag, UIProps } from '../types';
 import { setElementStyle } from '../common';
-import { BaseView, InnerNodeTag, UIProps } from '../../types';
 import { HippyView } from './hippy-view';
 import {
   GESTURE_CAPTURE_THRESHOLD,
@@ -97,14 +96,14 @@ export class ViewPager extends HippyView<HTMLDivElement> {
     this.scrollPage(index, false);
   }
 
-  public async beforeChildMount(child: BaseView, childPosition: number): Promise<any> {
+  public async beforeChildMount(child: HippyBaseView, childPosition: number): Promise<any> {
     await super.beforeChildMount(child, childPosition);
     if (child instanceof ViewPagerItem) {
       this.childViewItem.push(child);
     }
   }
 
-  public beforeChildRemove(child: BaseView): void {
+  public beforeChildRemove(child: HippyBaseView): void {
     super.beforeChildRemove(child);
     if (child instanceof ViewPagerItem) {
       this.childViewItem = this.childViewItem.filter(item => item !== child);
@@ -273,7 +272,7 @@ export class ViewPagerItem extends HippyView<HTMLDivElement> {
     return { flexShrink: 0, display: 'flex', boxSizing: 'border-box', position: 'static' };
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
     const newData = { ...data };
     if (data.style && data.style.position === 'absolute') {
       delete newData.style.position;
@@ -282,7 +281,7 @@ export class ViewPagerItem extends HippyView<HTMLDivElement> {
     defaultProcess(this, newData);
   }
 
-  public async beforeMount(parent: BaseView, position: number) {
+  public async beforeMount(parent: HippyBaseView, position: number) {
     await super.beforeMount(parent, position);
     setElementStyle(this.dom!, { width: `${parent.dom!.clientWidth}px` });
   }

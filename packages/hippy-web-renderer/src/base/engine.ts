@@ -1,15 +1,15 @@
 import global from '../get-global';
-import { CORE_MODULES, registerComponent } from '../module';
-import { HippyWebComponent, HippyWebModule } from './base-unit';
+import { HippyBaseViewConstructor } from '../types';
+import { HippyWebModule } from './base-unit';
 import { HippyWebEngineContext } from './context';
 import { createCallNatives } from './create-call-natives';
 import { HippyWebEventBus } from './event-bus';
 import { scriptLoader } from './script-loader';
-import { BaseView } from '../types';
+
 
 export interface HippyWebEngineCreatorOptions {
   modules?: (typeof HippyWebModule)[];
-  components?: (new () => HippyWebComponent)[];
+  components?: HippyBaseViewConstructor[];
 }
 
 export interface HippyWebEngineStartOptions {
@@ -19,9 +19,11 @@ export interface HippyWebEngineStartOptions {
 }
 
 export class HippyWebEngine {
+  static coreModules: (typeof HippyWebModule)[] = [];
+  static coreComponents: { [key: string]: HippyBaseViewConstructor };
   static create(options?: HippyWebEngineCreatorOptions) {
     // load core modules
-    if (Hippy.web.engine == null) {
+    if (Hippy.web.engine === undefined) {
       const engine = new HippyWebEngine(options);
 
       Hippy.web.engine = engine;
@@ -30,7 +32,7 @@ export class HippyWebEngine {
   };
 
   modules: { [key: string]: HippyWebModule } = {};
-  components: { [key: string]: HippyWebComponent } = {};
+  components: { [key: string]: HippyBaseViewConstructor } = {};
   context: HippyWebEngineContext;
   instance?: HippyWebEngineStartOptions;
   eventBus = new HippyWebEventBus();
@@ -41,18 +43,15 @@ export class HippyWebEngine {
 
   constructor(options?: HippyWebEngineCreatorOptions) {
     this.context = new HippyWebEngineContext(this);
-    if (options == null) {
+    if (options === undefined) {
       return;
     }
     const { modules, components } = options;
 
-    // add core modules and components
-    const coreModules = CORE_MODULES;
-
-    this.registerModules(coreModules);
+    this.registerCore();
 
     this.registerModules(modules);
-    // this.registerComponents(components);
+    this.registerComponents(components);
 
     // bind global methods
     global.hippyCallNatives = createCallNatives(this);
@@ -61,20 +60,36 @@ export class HippyWebEngine {
     this.eventBus.publish('ready');
   }
 
+  registerCore() {
+    this.registerModules(HippyWebEngine.coreModules);
+    this.registerComponents(HippyWebEngine.coreComponents);
+  }
+
   registerModules(modules?: (typeof HippyWebModule)[]) {
-    modules?.forEach((moduleCtor) => {
-      const mod = new moduleCtor(this.context);
+    modules?.forEach((ModuleCtor) => {
+      const mod = new ModuleCtor(this.context);
       this.modules[mod.name] = mod;
     });
   }
 
-  registerComponents(components?) {
-    components?.forEach((cmpCtor) => {
-      const cmp = new cmpCtor();
-      this.components[cmp.name] = cmp;
+  registerComponents(components?: HippyBaseViewConstructor[] | { [key: string]: HippyBaseViewConstructor }) {
+    if (components === undefined) {
+      return;
+    }
+    if (Array.isArray(components)) {
+      components.forEach((cmpCtor) => {
+        this.components[cmpCtor.name] = cmpCtor;
+      });
+    } else {
+      const keys = Object.keys(components as { [key: string]: HippyBaseViewConstructor });
+      for (const key of keys) {
+        this.registerComponent(key, (components as { [key: string]: HippyBaseViewConstructor })[key]);
+      }
+    }
+  }
 
-      registerComponent(cmp.name, cmpCtor);
-    });
+  registerComponent(name: string, componentCtor: HippyBaseViewConstructor) {
+    this.components[name] = componentCtor;
   }
 
 
@@ -109,10 +124,9 @@ export class HippyWebEngine {
 
   async invokeModuleMethod(moduleName: string, methodName: string, callId: string, params: any[] = []) {
     const mod = this.modules[moduleName];
-    if (mod != null && mod[methodName] != null) {
+    if (mod?.[methodName]) {
       if (mod.mode === 'sequential') {
-
-        if (this.pendingQueue[moduleName] == null) {
+        if (!this.pendingQueue[moduleName]) {
           this.pendingQueue[moduleName] = [];
         }
         const queue = this.pendingQueue[moduleName];
@@ -135,7 +149,10 @@ export class HippyWebEngine {
 
   async invokeModuleMethodImmediately(moduleName: string, methodName: string, callId: string, params: any[] = []) {
     const mod = this.modules[moduleName];
-    const para = [...params, callId != null ? createPromise(moduleName, methodName, callId) : undefined];
+    const addonPara = (callId !== null && callId !== undefined)
+      ? createPromise(moduleName, methodName, callId)
+      : undefined;
+    const para = [...params, addonPara];
     const method = mod[methodName];
     try {
       await method.apply(mod, para);

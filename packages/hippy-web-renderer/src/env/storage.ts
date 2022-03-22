@@ -3,7 +3,7 @@ const convertError = (error) => {
     return null;
   }
 
-  const out = new Error(error.message);
+  const out: any = new Error(error.message);
   out.key = error.key;
 
   return out;
@@ -46,7 +46,7 @@ export const asyncStorage = {
   },
   getItem(key) {
     return Hippy.bridge.callNativeWithPromise('StorageModule', 'multiGet', [key])
-      .then((r) => {
+      .then((r: any) => {
         if (!r || !r[0] || !r[0][1]) {
           return null;
         }

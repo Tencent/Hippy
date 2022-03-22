@@ -19,7 +19,7 @@
  */
 
 import { HippyWebModule } from '../base';
-import { HippyCallBack } from '../../types';
+import { HippyCallBack } from '../types';
 const enum EventType {
   ON_OPEN='onOpen',
   ON_CLOSE='onClose',

@@ -4,7 +4,7 @@ export interface UIProps {
   [key: string]: any
 }
 
-export interface BaseView {
+export interface HippyBaseView {
   tagName: InnerNodeTag|string;
   id: number;
   pId: number;
@@ -12,19 +12,19 @@ export interface BaseView {
   props: UIProps;
   dom: HTMLElement|null;
   onAttachedToWindow?: () => void;
-  onLayout?: () => void;
-  updateProps?: (data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) => void;
-  beforeMount?: (parent: BaseView, position: number) => Promise<void>;
-  beforeChildMount?: (child: BaseView, childPosition: number) => Promise<void>;
+  onLayout?: (value: boolean) => void;
+  updateProps?: (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) => void;
+  beforeMount?: (parent: HippyBaseView, position: number) => Promise<void>;
+  beforeChildMount?: (child: HippyBaseView, childPosition: number) => Promise<void>;
   beforeRemove?: () => Promise<void>;
-  beforeChildRemove?: (child: BaseView) => void;
-  insertChild?: (child: BaseView, childPosition: number) => void;
-  removeChild?: (child: BaseView) => void;
+  beforeChildRemove?: (child: HippyBaseView) => void;
+  insertChild?: (child: HippyBaseView, childPosition: number) => void;
+  removeChild?: (child: HippyBaseView) => void;
   destroy?: () => void;
   mounted?: () => void;
 }
 
-export type BaseViewConstructor = new (context: ComponentContext, id, pId) => BaseView;
+export type HippyBaseViewConstructor = new (context: ComponentContext, id, pId) => HippyBaseView;
 
 export type HippyCallBack={resolve: (params: any) => void, reject: (params: any) => void };
 

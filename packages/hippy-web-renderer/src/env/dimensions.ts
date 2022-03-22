@@ -11,7 +11,7 @@ declare global {
 
 
 export const Dimensions = {
-  get(key) {
+  get(key: keyof HippyDeviceInfo) {
     const device = Hippy.device || {};
     return device[key];
   },

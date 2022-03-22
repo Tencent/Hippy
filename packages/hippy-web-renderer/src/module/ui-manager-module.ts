@@ -18,25 +18,25 @@
  * limitations under the License.
  */
 
-import { HippyWebModule } from '../base';
+import { HippyWebEngineContext, HippyWebModule } from '../base';
 import {
-  BaseView,
-  BaseViewConstructor,
+  HippyBaseView,
+  HippyBaseViewConstructor,
   ComponentContext,
   HippyCallBack,
   InnerNodeTag,
   NodeData,
   UIProps,
-} from '../../types';
+} from '../types';
 import { setElementStyle } from '../common';
 
 export class UIManagerModule extends HippyWebModule {
   public static moduleName = 'UIManagerModule';
   public name = 'UIManagerModule';
 
-  private viewDictionary: {[key in string|number]: BaseView} = {};
-  private rootDom: HTMLElement|undefined;
-  private contentDom: HTMLElement|undefined;
+  private viewDictionary: { [key in string | number]: HippyBaseView } = {};
+  private rootDom: HTMLElement | undefined;
+  private contentDom: HTMLElement | undefined;
   constructor(context) {
     super(context);
     this.mode = 'sequential';
@@ -61,8 +61,10 @@ export class UIManagerModule extends HippyWebModule {
     if (!window.document.getElementById(rootViewId)) {
       this.contentDom = this.createRoot(rootViewId);
       this.rootDom?.appendChild(this.contentDom);
-      this.viewDictionary[rootViewId] = { id: rootViewId as number, pId: -1, index: this.rootDom.childNodes.length,
-        props: {}, dom: this.contentDom, tagName: 'View' };
+      this.viewDictionary[rootViewId] = {
+        id: rootViewId as number, pId: -1, index: this.rootDom.childNodes.length,
+        props: {}, dom: this.contentDom, tagName: 'View'
+      };
     }
     const theUpdateComponentIdSet = new Set;
     for (let c = 0; c < data.length; c++) {
@@ -96,7 +98,7 @@ export class UIManagerModule extends HippyWebModule {
     }
   }
 
-  public async deleteNode(rootViewId: string, data: Array<{id: number}>) {
+  public async deleteNode(rootViewId: string, data: Array<{ id: number }>) {
     for (let i = 0; i < data.length; i++) {
       const deleteItem = data[i];
       const deleteComponent = this.findViewById(deleteItem.id);
@@ -104,7 +106,7 @@ export class UIManagerModule extends HippyWebModule {
     }
   }
 
-  public updateNode(rootViewId: string, data: Array<{id: number, props: UIProps}>) {
+  public updateNode(rootViewId: string, data: Array<{ id: number, props: UIProps }>) {
     for (let i = 0; i < data.length; i++) {
       const updateItem = data[i];
       const updateComponent = this.findViewById(updateItem.id);
@@ -125,7 +127,7 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     const [nodeId, functionName, paramList] = params;
-    if (!nodeId ||  !this.findViewById(nodeId)) {
+    if (!nodeId || !this.findViewById(nodeId)) {
       return;
     }
 
@@ -149,19 +151,19 @@ export class UIManagerModule extends HippyWebModule {
     }
   }
 
-  public findViewById(id: number): BaseView|null {
+  public findViewById(id: number): HippyBaseView | null {
     if (this.viewDictionary[id]) {
       return this.viewDictionary[id];
     }
     return null;
   }
 
-  public appendChild(parent: BaseView, child: BaseView, index: number) {
+  public appendChild(parent: HippyBaseView, child: HippyBaseView, index: number) {
     if (parent.dom && child.dom) parent.dom.insertBefore(child.dom, parent.dom!.childNodes[index] ?? null);
     this.viewDictionary[child.id] = child;
   }
 
-  public removeChild(parent: BaseView, childId: number) {
+  public removeChild(parent: HippyBaseView, childId: number) {
     const childView = this.findViewById(childId);
     if (childView?.dom) {
       parent.dom?.removeChild(childView.dom);
@@ -169,7 +171,7 @@ export class UIManagerModule extends HippyWebModule {
     delete this.viewDictionary[childId];
   }
 
-  public defaultUpdateComponentProps(component: BaseView, props: any) {
+  public defaultUpdateComponentProps(component: HippyBaseView, props: any) {
     if (props) {
       mergeDeep(component.props, props);
       if (!props) {
@@ -211,7 +213,7 @@ export class UIManagerModule extends HippyWebModule {
     return root;
   }
 
-  private updateComponentProps(component: BaseView, props: any) {
+  private updateComponentProps(component: HippyBaseView, props: any) {
     if (component.updateProps) {
       component.updateProps(props, this.defaultUpdateComponentProps.bind(this));
     } else {
@@ -219,7 +221,7 @@ export class UIManagerModule extends HippyWebModule {
     }
   }
 
-  private animationProcess(key: string, value: any,  component: BaseView) {
+  private animationProcess(key: string, value: any, component: HippyBaseView) {
     const animationModule = this.context.getModuleByName('AnimationModule') as any;
     if (!animationModule) {
       return;
@@ -247,7 +249,7 @@ export class UIManagerModule extends HippyWebModule {
     setElementStyle(component.dom!, style);
   }
 
-  private async componentInitProcess(component: BaseView, props: any, index: number) {
+  private async componentInitProcess(component: HippyBaseView, props: any, index: number) {
     this.updateComponentProps(component, props);
     const parent = this.findViewById(component.pId);
     if (!parent) {
@@ -269,7 +271,7 @@ export class UIManagerModule extends HippyWebModule {
     component.mounted?.();
   }
 
-  private async componentDeleteProcess(component: BaseView|undefined|null) {
+  private async componentDeleteProcess(component: HippyBaseView | undefined | null) {
     const parentComponent = component ? this.findViewById(component.pId) : null;
     if (parentComponent) {
       await component!.beforeRemove?.();
@@ -283,14 +285,14 @@ export class UIManagerModule extends HippyWebModule {
     }
   }
 
-  private componentUpdateProcess(component: BaseView|undefined|null, props: UIProps) {
+  private componentUpdateProcess(component: HippyBaseView | undefined | null, props: UIProps) {
     if (component) {
       this.updateComponentProps(component, props);
     }
   }
 
   private componentFunctionCallProcess(
-    component: BaseView|undefined|null, callName: string,
+    component: HippyBaseView | undefined | null, callName: string,
     params: Array<any>, callBack: HippyCallBack,
   ) {
     const executeParam = params ?? [];
@@ -312,19 +314,9 @@ export class UIManagerModule extends HippyWebModule {
   }
 }
 
-export const componentDictionary: {
-  [key: string]: BaseViewConstructor
-} = {};
-
-export function registerComponent(name: string, viewConstructor: BaseViewConstructor) {
-  if (componentDictionary[name]) {
-    throw `register component error, the name has registered ${name}`;
-  }
-  componentDictionary[name] = viewConstructor;
-}
-function mapComponent(context: ComponentContext, tagName: string, id: number, pId: number): BaseView|undefined {
-  if (componentDictionary[tagName]) {
-    return new componentDictionary[tagName](context, id, pId);
+function mapComponent(context: HippyWebEngineContext, tagName: string, id: number, pId: number): HippyBaseView | undefined {
+  if (context.engine.components[tagName]) {
+    return new context.engine.components[tagName](context, id, pId);
   }
 }
 export function isObject(item) {

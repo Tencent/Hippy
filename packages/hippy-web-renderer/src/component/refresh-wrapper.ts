@@ -17,8 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NodeProps } from '../types';
-import { BaseView, InnerNodeTag } from '../../types';
+import { NodeProps, HippyBaseView, InnerNodeTag } from '../types';
 
 import { setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
@@ -65,7 +64,7 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     this.pullRefresh?.start();
   }
 
-  public async beforeChildMount(child: BaseView, childPosition: number) {
+  public async beforeChildMount(child: HippyBaseView, childPosition: number) {
     await super.beforeChildMount(child, childPosition);
     if (child.tagName === InnerNodeTag.LIST) {
       setElementStyle(child.dom!, { position: 'relative', zIndex: 2 });

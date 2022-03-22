@@ -17,9 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import { InnerNodeTag, BaseView } from '../../types';
-import { NodeProps, ModalAnimationType, ModalOrientations } from '../types';
+import { NodeProps, ModalAnimationType, ModalOrientations, InnerNodeTag, HippyBaseView } from '../types';
 
 import {  setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
@@ -190,7 +188,7 @@ export class Modal extends HippyView<HTMLDivElement> {
     // TODO to implement
   }
 
-  public async beforeChildMount(child: BaseView, childPosition: number) {
+  public async beforeChildMount(child: HippyBaseView, childPosition: number) {
     await super.beforeChildMount(child, childPosition);
     if (childPosition === 0 && child.dom) {
       setElementStyle(child.dom, { flex: '1', position: 'static' });
@@ -205,7 +203,7 @@ export class Modal extends HippyView<HTMLDivElement> {
     }
   }
 
-  public async beforeMount(parent: BaseView, position: number) {
+  public async beforeMount(parent: HippyBaseView, position: number) {
     await super.beforeMount(parent, position);
     this.entryAnimationAction = this.runAnimation(ModalAnimationModel.ENTRY, position);
     (this.context.getModuleByName('DeviceEventModule') as any).setModuleListener(this.onBackListener);

@@ -19,6 +19,12 @@
  */
 
 import './env';
+import { CORE_MODULES } from './module';
+import * as Components from './component';
+import { HippyWebEngine } from './base/engine';
+
+HippyWebEngine.coreModules = CORE_MODULES;
+HippyWebEngine.coreComponents = Components;
 
 export * from './base';
-
+export * from './types';

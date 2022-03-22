@@ -133,16 +133,17 @@ function borderStyleProcess(el: HTMLElement, style: { [key: string]: any }) {
       styleUpdateWithCheck(el, 'borderTopStyle', 'solid');
     }
     if (style.borderLeftWidth) {
-      styleUpdateWithCheck(el, 'borderLeftWidth', 'solid');
+      styleUpdateWithCheck(el, 'borderLeftStyle', 'solid');
     }
     if (style.borderRightWidth) {
-      styleUpdateWithCheck(el, 'borderRightWidth', 'solid');
+      styleUpdateWithCheck(el, 'borderRightStyle', 'solid');
     }
     if (style.borderBottomWidth) {
-      styleUpdateWithCheck(el, 'borderBottomWidth', 'solid');
+      styleUpdateWithCheck(el, 'borderBottomStyle', 'solid');
     }
   }
-  if (style.borderStyle && !style.borderWidth) {
+  if (style.borderStyle && !style.borderWidth && !style.borderTopWidth && !style.borderLeftWidth
+    && !style.borderRightWidth && !style.borderBottomWidth) {
     styleUpdateWithCheck(el, 'borderStyle', 'none');
   } else if (!style.borderStyle && style.borderWidth) {
     styleUpdateWithCheck(el, 'borderStyle', 'solid');

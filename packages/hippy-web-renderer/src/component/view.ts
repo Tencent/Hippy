@@ -1,4 +1,4 @@
-import { InnerNodeTag } from '../../types';
+import { InnerNodeTag } from '../types';
 import { HippyView } from './hippy-view';
 
 export class View extends HippyView<HTMLDivElement> {

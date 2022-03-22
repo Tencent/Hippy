@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 import { VirtualizedList } from '../third-lib/virtual-list.js';
-import {  InnerNodeTag } from '../../types';
-import { NodeProps } from '../types';
+import { NodeProps, InnerNodeTag } from '../types';
 import { setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
 import {

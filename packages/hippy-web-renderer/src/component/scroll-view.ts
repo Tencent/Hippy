@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-import { NodeProps } from '../types';
-import { BaseView, InnerNodeTag, UIProps } from '../../types';
+import { NodeProps, HippyBaseView, InnerNodeTag, UIProps } from '../types';
 import { setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
 import {
@@ -62,7 +61,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     return { display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'scroll' };
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }
@@ -168,7 +167,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     && this.context.sendUiEvent(this.id, NodeProps.ON_SCROLL_END_DRAG, event);
   }
 
-  public async beforeMount(parent: BaseView, position: number): Promise<void> {
+  public async beforeMount(parent: HippyBaseView, position: number): Promise<void> {
     await super.beforeMount(parent, position);
     this.init();
   }

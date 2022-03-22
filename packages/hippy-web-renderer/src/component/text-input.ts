@@ -17,12 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { KeyboardType, NodeProps, ReturnKeyType } from '../types';
+import { KeyboardType, NodeProps, ReturnKeyType, HippyBaseView, HippyCallBack, InnerNodeTag, UIProps } from '../types';
 import { convertHexToRgba } from '../common';
-import { BaseView, HippyCallBack, InnerNodeTag, UIProps } from '../../types';
 import { HippyView } from './hippy-view';
 
-export  class TextInput extends HippyView<HTMLInputElement|HTMLTextAreaElement> {
+export class TextInput extends HippyView<HTMLInputElement | HTMLTextAreaElement> {
   private placeholderTextColorStyle;
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -31,7 +30,7 @@ export  class TextInput extends HippyView<HTMLInputElement|HTMLTextAreaElement> 
     this.init();
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: BaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }
@@ -48,7 +47,7 @@ export  class TextInput extends HippyView<HTMLInputElement|HTMLTextAreaElement> 
 
   public borderStyleSupport(style: any) {
     let newBorderStyle = {};
-    if (!style.borderTopWidth && !style.borderBottomWidth && !style.borderLeftWidth  && !style.borderRightWidth) {
+    if (!style.borderTopWidth && !style.borderBottomWidth && !style.borderLeftWidth && !style.borderRightWidth) {
       newBorderStyle = {
         backgroundColor: '#ffffff00',
         border: '0px solid #000000',
@@ -136,7 +135,7 @@ export  class TextInput extends HippyView<HTMLInputElement|HTMLTextAreaElement> 
   }
 
   public get numberOfLines() {
-    return this.props[NodeProps.NUMBER_OF_LINES] ;
+    return this.props[NodeProps.NUMBER_OF_LINES];
   }
 
   public set placeholder(value: string) {
@@ -183,8 +182,8 @@ export  class TextInput extends HippyView<HTMLInputElement|HTMLTextAreaElement> 
 
   public set autoFocus(value: boolean) {
     this.props[NodeProps.AUTO_FOCUS] = value;
-    if (this.props[NodeProps.AUTO_FOCUS])  this.dom?.setAttribute('autofocus', 'true');
-    if (!!this.props[NodeProps.AUTO_FOCUS])  this.dom?.removeAttribute('autofocus');
+    if (this.props[NodeProps.AUTO_FOCUS]) this.dom?.setAttribute('autofocus', 'true');
+    if (!!this.props[NodeProps.AUTO_FOCUS]) this.dom?.removeAttribute('autofocus');
   }
 
   public get autoFocus() {
@@ -193,22 +192,22 @@ export  class TextInput extends HippyView<HTMLInputElement|HTMLTextAreaElement> 
 
   public onBlur(event) {
     this.props[NodeProps.ON_BLUR]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_BLUR, event);
+      && this.context.sendUiEvent(this.id, NodeProps.ON_BLUR, event);
   }
 
   public onChangeText(value) {
     this.props[NodeProps.ON_CHANGE_TEXT]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_CHANGE_TEXT, value);
+      && this.context.sendUiEvent(this.id, NodeProps.ON_CHANGE_TEXT, value);
   }
 
   public onEndEditing(value) {
     this.props[NodeProps.ON_END_EDITING]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_END_EDITING, value);
+      && this.context.sendUiEvent(this.id, NodeProps.ON_END_EDITING, value);
   }
 
   public onSelectionChange(value) {
     this.props[NodeProps.ON_SELECTION_CHANGE]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_SELECTION_CHANGE, value);
+      && this.context.sendUiEvent(this.id, NodeProps.ON_SELECTION_CHANGE, value);
   }
 
   public blurTextInput() {
