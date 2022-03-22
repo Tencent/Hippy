@@ -42,6 +42,7 @@ std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::delegate
     abort();
   }
 };
+std::mutex LogMessage::mutex_;
 
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
     : severity_(severity), file_(file), line_(line) {

@@ -1,7 +1,9 @@
 // Copyright 2020 Tencent
 #pragma once
+#include <cassert>
 #include <codecvt>
 #include <sstream>
+#include <mutex>
 
 #include "log_level.h"
 #include "macros.h"
@@ -9,6 +11,10 @@
 
 namespace tdf {
 namespace base {
+
+constexpr char kCharConversionFailedPrompt[] = "<string conversion failed>";
+constexpr char16_t kU16CharConversionFailedPrompt[] = u"<u16string conversion failed>";
+constexpr char32_t kU32CharConversionFailedPrompt[] = U"<u32string conversion failed>";
 
 inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view& str_view) {
   unicode_string_view::Encoding encoding = str_view.encoding();
@@ -20,13 +26,15 @@ inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view&
     }
     case unicode_string_view::Encoding::Utf16: {
       const std::u16string& str = str_view.utf16_value();
-      std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+      std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(
+          kCharConversionFailedPrompt, kU16CharConversionFailedPrompt);
       stream << convert.to_bytes(str);
       break;
     }
     case unicode_string_view::Encoding::Utf32: {
       const std::u32string& str = str_view.utf32_value();
-      std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
+      std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert(
+          kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
       stream << convert.to_bytes(str);
       break;
     }
@@ -54,17 +62,25 @@ class LogMessage {
   LogMessage(LogSeverity severity, const char* file, int line, const char* condition);
   ~LogMessage();
 
-  inline static void SetDelegate(
+  inline static void InitializeDelegate(
       std::function<void(const std::ostringstream&, LogSeverity)> delegate) {
+    if (!delegate) {
+      return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (delegate_) {
+      abort(); // delegate can only be initialized once
+    }
     delegate_ = delegate;
   }
-
-  inline static auto GetDelegate() { return delegate_; }
 
   std::ostringstream& stream() { return stream_; }
 
  private:
   static std::function<void(const std::ostringstream&, LogSeverity)> delegate_;
+  static std::function<void(const std::ostringstream&, LogSeverity)> default_delegate_;
+  static std::mutex mutex_;
 
   std::ostringstream stream_;
   const LogSeverity severity_;
