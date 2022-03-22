@@ -852,7 +852,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     HippyViewsRelation *manager = [[HippyViewsRelation alloc] init];
     NSMutableDictionary *dicProps = [NSMutableDictionary dictionaryWithCapacity:nodes.size()];
     for (const std::shared_ptr<DomNode> &node : nodes) {
-        [manager addViewTag:node->GetId() forSuperViewTag:node->GetPid() atIndex:node->GetIndex()];
+        const auto& render_info = node->GetRenderInfo();
+        [manager addViewTag:render_info.id forSuperViewTag:render_info.pid atIndex:render_info.index];
         [dicProps setObject:[self createShadowViewFromNode:node] forKey:@(node->GetId())];
     }
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {

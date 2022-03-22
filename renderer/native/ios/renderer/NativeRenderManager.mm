@@ -54,7 +54,7 @@ void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode
         nodes_infos.resize(nodes.size());
         for (auto node : nodes) {
             int32_t tag = node->GetId();
-            hippy::LayoutResult layoutResult = node->GetLayoutResult();
+            hippy::LayoutResult layoutResult = node->GetRenderLayoutResult();
             auto extStyle = node->GetExtStyle();
             auto it = extStyle->find("useAnimation");
             bool useAnimation = false;
