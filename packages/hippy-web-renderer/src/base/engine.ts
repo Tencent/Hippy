@@ -1,9 +1,11 @@
 import global from '../get-global';
+import { CORE_MODULES, registerComponent } from '../module';
 import { HippyWebComponent, HippyWebModule } from './base-unit';
 import { HippyWebEngineContext } from './context';
 import { createCallNatives } from './create-call-natives';
 import { HippyWebEventBus } from './event-bus';
 import { scriptLoader } from './script-loader';
+import { BaseView } from '../types';
 
 export interface HippyWebEngineCreatorOptions {
   modules?: (typeof HippyWebModule)[];
@@ -44,15 +46,13 @@ export class HippyWebEngine {
     }
     const { modules, components } = options;
 
-    modules?.forEach((moduleCtor) => {
-      const mod = new moduleCtor(this.context);
-      this.modules[mod.name] = mod;
-    });
+    // add core modules and components
+    const coreModules = CORE_MODULES;
 
-    components?.forEach((cmpCtor) => {
-      const cmp = new cmpCtor();
-      this.components[cmp.name] = cmp;
-    });
+    this.registerModules(coreModules);
+
+    this.registerModules(modules);
+    // this.registerComponents(components);
 
     // bind global methods
     global.hippyCallNatives = createCallNatives(this);
@@ -61,13 +61,29 @@ export class HippyWebEngine {
     this.eventBus.publish('ready');
   }
 
+  registerModules(modules?: (typeof HippyWebModule)[]) {
+    modules?.forEach((moduleCtor) => {
+      const mod = new moduleCtor(this.context);
+      this.modules[mod.name] = mod;
+    });
+  }
+
+  registerComponents(components?) {
+    components?.forEach((cmpCtor) => {
+      const cmp = new cmpCtor();
+      this.components[cmp.name] = cmp;
+
+      registerComponent(cmp.name, cmpCtor);
+    });
+  }
+
 
   start(options: HippyWebEngineStartOptions) {
     this.instance = options;
     hippyBridge('loadInstance', options);
 
     Object.keys(this.modules).forEach((key) => {
-      this.modules[key].init?.();
+      this.modules[key]?.init();
     });
     this.eventBus.publish('loaded');
   }
