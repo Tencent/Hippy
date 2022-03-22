@@ -26,7 +26,6 @@ import {
   GESTURE_CAPTURE_THRESHOLD,
   mountTouchListener, calculateScrollEndPagePosition,
   touchMoveCalculate,
-  // calculateScrollEndPagePosition,
   virtualSmoothScroll,
 } from './scrollable';
 

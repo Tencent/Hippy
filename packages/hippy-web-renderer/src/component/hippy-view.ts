@@ -180,9 +180,6 @@ export class HippyView<T extends HTMLElement> implements BaseView {
         )) {
       return;
     }
-    if (height == 0) {
-      debugger;
-    }
     this.layoutCache =  {
       x: left,
       y: top,
@@ -235,8 +232,8 @@ export class HippyView<T extends HTMLElement> implements BaseView {
 }
 
 function buildHippyTouchEvent(event: TouchEvent, name: HippyTransferData.NativeGestureEventTypes, id: number) {
-  const touch = event.touches[0]; // 获取第一个触点
-  const x = Number(touch.pageX); // 页面触点X坐标
+  const touch = event.touches[0];
+  const x = Number(touch.pageX);
   const y = Number(touch.pageY);
   return {
     name, id, page_x: x, page_y: y,

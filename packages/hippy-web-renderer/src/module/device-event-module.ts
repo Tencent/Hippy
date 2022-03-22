@@ -31,7 +31,6 @@ export class DeviceEventModule extends HippyWebModule {
     back();
   }
 
-  // @ts-ignore
   public init() {
     addCacheHistoryState();
     listenHistory(this.handleBack.bind(this));

@@ -412,10 +412,6 @@ function appendAnimationKeyFrame(keyFrame: string) {
 
 function updateAnimationKeyFrame(keyFrameName: string, newKeyFrame: string) {
   const oldKeyFrameStyle = getKeyFrameFromCssStyle(keyFrameName);
-  // if (oldKeyFrameStyle.cssRule && oldKeyFrameStyle.styleSheet) {
-  //   console.log(oldKeyFrameStyle, newKeyFrame);
-  //   oldKeyFrameStyle.styleSheet.deleteRule(oldKeyFrameStyle.index);
-  // }
   oldKeyFrameStyle.styleSheet.insertRule(newKeyFrame, oldKeyFrameStyle.index + 1);
 }
 
