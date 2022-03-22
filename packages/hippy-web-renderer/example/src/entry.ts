@@ -1,4 +1,4 @@
-import { HippyCallBack, HippyView, HippyWebEngine, HippyWebModule } from '../../src';
+import { HippyCallBack, View, HippyWebEngine, HippyWebModule } from '../../src';
 import { SocialMockData } from './mockData';
 
 class CampCommonModule extends HippyWebModule {
@@ -22,7 +22,7 @@ class CampHippyNet extends HippyWebModule {
   }
 }
 
-class CampPageView extends HippyView<HTMLDivElement> {
+class CampPageView extends View {
 
 }
 
