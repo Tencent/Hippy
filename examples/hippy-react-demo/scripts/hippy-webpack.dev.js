@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
-const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
 const ReactRefreshWebpackPlugin = require('@hippy/hippy-react-refresh-webpack-plugin');
 const pkg = require('../package.json');
 
@@ -14,14 +13,18 @@ module.exports = {
     aggregateTimeout: 1500,
   },
   devServer: {
-    port: 38988,
+    // remote debug server address
+    remote: {
+      protocol: 'http',
+      host: '127.0.0.1',
+      port: 38989,
+    },
+    // support debug multiple project with only one debug server, by default is set false.
+    multiple: false,
     // by default hot and liveReload option are true, you could set only liveReload to true
     // to use live reload
     hot: true,
     liveReload: true,
-    devMiddleware: {
-      writeToDisk: true,
-    },
     client: {
       overlay: false,
     },
@@ -34,8 +37,6 @@ module.exports = {
     strictModuleExceptionHandling: true,
     path: path.resolve('./dist/dev/'),
     globalObject: '(0, eval)("this")',
-    // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'https://xxx/hippy/hippyReactDemo/',
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -52,10 +53,6 @@ module.exports = {
     //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
     //   filename: '[file].map',
     // }),
-    new HippyHMRPlugin({
-      // HMR [hash].hot-update.json will fetch from this path
-      hotManifestPublicPath: 'http://localhost:38989/',
-    }),
     new ReactRefreshWebpackPlugin({
       overlay: false,
     }),

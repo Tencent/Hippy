@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
   input_style: {
     width: 300,
     marginVertical: 10,
-    placeholderTextColor: '#aaaaaa',
     fontSize: 16,
     color: '#242424',
     height: 30,
@@ -80,6 +79,9 @@ export default class TextInputExpo extends Component {
             this.input = ref;
           }}
           style={styles.input_style}
+          caretColor='yellow'
+          underlineColorAndroid='grey'
+          placeholderTextColor='#4c9afa'
           placeholder="text"
           defaultValue={textContent}
         />

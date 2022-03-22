@@ -43,7 +43,6 @@ function hippyVueCSSLoader(source) {
     selectors: n.selectors,
     declarations: n.declarations.map((dec) => {
       let { value } = dec;
-      // FIXME: Should have a strict property with colors map.
       if (dec.property && dec.property.toLowerCase().indexOf('color') > -1) {
         value = translateColor(value, options);
       }

@@ -16,12 +16,16 @@
 
 package androidx.recyclerview.widget;
 
+/**
+ * Created on 2021/3/15.
+ * Description
+ */
 public interface OverPullListener {
 
-  /**
-   * @param newState {@link OverPullHelper#OVER_PULL_DOWN_ING}
-   * @param offset
-   */
+    /**
+     * @param newState {@link OverPullHelper#OVER_PULL_DOWN_ING}
+     * @param offset
+     */
 
-  void onOverPullStateChanged(int oldState, int newState, int offset);
+    void onOverPullStateChanged(int oldState, int newState, int offset);
 }

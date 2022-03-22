@@ -37,7 +37,8 @@ const char* StripPath(const char* path) {
 
 }  // namespace
 
-std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::delegate_ =
+std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::delegate_ = nullptr;
+std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::default_delegate_ =
     [](const std::ostringstream& stream, LogSeverity severity) {
       android_LogPriority priority = (severity < 0) ? ANDROID_LOG_VERBOSE : ANDROID_LOG_UNKNOWN;
       switch (severity) {
@@ -81,6 +82,8 @@ LogMessage::~LogMessage() {
 
   if (delegate_) {
     delegate_(stream_, severity_);
+  } else {
+    default_delegate_(stream_, severity_);
   }
 }
 

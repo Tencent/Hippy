@@ -70,6 +70,7 @@ public abstract class HippyEngine {
   protected int mGroupId;
   ModuleListener mModuleListener;
 
+  private static HippyLogAdapter sLogAdapter = null;
   @SuppressWarnings("JavaJniMissingFunction")
   private static native void setNativeLogHandler(HippyLogAdapter handler);
 
@@ -81,18 +82,18 @@ public abstract class HippyEngine {
       throw new RuntimeException("Hippy: initParams must no be null");
     }
     LibraryLoader.loadLibraryIfNeed(params.soLoader);
+    if (sLogAdapter == null && params.logAdapter != null) {
+      setNativeLogHandler(params.logAdapter);
+    }
+    ContextHolder.initAppContext(params.context);
     params.check();
     LogUtils.enableDebugLog(params.enableLog);
-    setNativeLogHandler(params.logAdapter);
-    ContextHolder.initAppContext(params.context);
-
     HippyEngine hippyEngine;
     if (params.groupId == -1) {
       hippyEngine = new HippyNormalEngineManager(params, null);
     } else {
       hippyEngine = new HippySingleThreadEngineManager(params, null);
     }
-
     return hippyEngine;
   }
 
@@ -242,7 +243,7 @@ public abstract class HippyEngine {
     public boolean debugMode = false;
     // 可选参数 是否开启调试模式，默认为false，不开启
     // 可选参数 Hippy Server的jsbundle名字，默认为"index.bundle"。debugMode = true时有效
-    public final String debugBundleName = "index.bundle";
+    public String debugBundleName = "index.bundle";
     // 可选参数 Hippy Server的Host。默认为"localhost:38989"。debugMode = true时有效
     public String debugServerHost = "localhost:38989";
     // optional args, Hippy Server url using remote debug in no usb (if not empty will replace debugServerHost and debugBundleName). debugMode = true take effect
@@ -307,7 +308,8 @@ public abstract class HippyEngine {
         executorSupplier = new DefaultExecutorSupplierAdapter();
       }
       if (storageAdapter == null) {
-        storageAdapter = new DefaultStorageAdapter(context, executorSupplier.getDBExecutor());
+        storageAdapter = new DefaultStorageAdapter(context.getApplicationContext(),
+          executorSupplier.getDBExecutor());
       }
       if (engineMonitor == null) {
         engineMonitor = new DefaultEngineMonitorAdapter();

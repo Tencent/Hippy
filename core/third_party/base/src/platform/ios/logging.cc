@@ -35,12 +35,10 @@ const char* StripPath(const char* path) {
 
 }  // namespace
 
-std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::delegate_ = [](const std::ostringstream& stream, LogSeverity severity) {
+std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::delegate_ = nullptr;
+std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::default_delegate_ = [](
+    const std::ostringstream& stream, LogSeverity severity) {
   syslog(LOG_ALERT, "tdf: %s", stream.str().c_str());
-
-  if (severity >= TDF_LOG_FATAL) {
-    abort();
-  }
 };
 
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
@@ -59,9 +57,14 @@ LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const c
 LogMessage::~LogMessage() {
   stream_ << std::endl;
 
+  if (severity_ >= TDF_LOG_FATAL) {
+    abort();
+  }
+
   if (delegate_) {
     delegate_(stream_, severity_);
-    return;
+  } else {
+    default_delegate_(stream_, severity_);
   }
 }
 

@@ -40,4 +40,4 @@ if (!fs.existsSync(path.resolve(DEMO_PATH, 'node_modules'))) {
 }
 
 console.log(`Start to start ${example} with cmd 'npm run hippy:${cmd}'.`);
-exec(`npm run hippy:local-${cmd}`, execOptions); // start to build dev js
+exec(`npm run hippy:${cmd}`, execOptions); // start to build dev js

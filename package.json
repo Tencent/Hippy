@@ -16,11 +16,11 @@
     "codecov": "cat ./coverage/lcov.info | codecov",
     "lint": "eslint --fix \"packages/**/*.@(js|ts|tsx|vue)\" \"examples/hippy-react-demo/**/*.@(js|jsx)\" \"examples/hippy-vue-demo/**/*.@(js|vue)\" \"./scripts/**/*.js\" \"./core/js/**/*.js\"",
     "clean": "rimraf ./packages/*/node_modules ./examples/hippy-react-demo/node_modules ./examples/hippy-vue-demo/node_modules",
-    "init": "npm install && lerna bootstrap && npm run build",
+    "init": "npm install && npx lerna bootstrap && npm run build",
     "init:example": "node ./scripts/init-example.js",
     "test": "ava",
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
-    "publish": "lerna version patch --conventional-commits --sign-git-commit",
+    "publish": "npx lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs",
     "prepare": "is-ci || husky install"
   },
@@ -61,6 +61,7 @@
     "flow-remove-types": "^1.2.3",
     "husky": "^7.0.4",
     "is-ci": "^2.0.0",
+    "lerna": "^4.0.0",
     "lint-staged": "^12.1.7",
     "markdown-it": "^12.3.2",
     "markdownlint-cli": "^0.31.1",
@@ -81,9 +82,6 @@
     "typescript": "^4.5.4",
     "vue": "^2.6.14",
     "watch": "^0.13.0"
-  },
-  "dependencies": {
-    "lerna": "^4.0.0"
   },
   "_moduleAliases": {
     "vue": "node_modules/vue/src/core/index",

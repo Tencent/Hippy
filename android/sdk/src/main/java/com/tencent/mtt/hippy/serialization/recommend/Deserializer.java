@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.serialization.recommend;
 
 import androidx.annotation.NonNull;
 
+import com.tencent.mtt.hippy.serialization.ArrayBufferViewTag;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfValueException;
 import com.tencent.mtt.hippy.exception.UnexpectedException;
@@ -323,16 +324,13 @@ public class Deserializer extends PrimitiveValueDeserializer {
     if (arrayBufferViewTag != SerializationTag.ARRAY_BUFFER_VIEW) {
       throw new AssertionError("ArrayBufferViewTag: " + arrayBufferViewTag);
     }
-    int offset = (int) reader.getVarint();
-    if (offset < 0) {
-      throw new DataCloneOutOfValueException(offset);
-    }
-    int byteLength = (int) reader.getVarint();
-    if (byteLength < 0) {
-      throw new DataCloneOutOfValueException(byteLength);
-    }
+
+    ArrayBufferViewTag tag = readArrayBufferViewTag();
     JSDataView.DataViewKind kind;
-    switch (readArrayBufferViewTag()) {
+    if (tag == null) {
+      tag = ArrayBufferViewTag.INT8_ARRAY;
+    }
+    switch (tag) {
       case DATA_VIEW: {
         kind = JSDataView.DataViewKind.DATA_VIEW;
         break;
@@ -377,6 +375,16 @@ public class Deserializer extends PrimitiveValueDeserializer {
         throw new UnreachableCodeException();
       }
     }
+
+    int offset = (int) reader.getVarint();
+    if (offset < 0) {
+      throw new DataCloneOutOfValueException(offset);
+    }
+    int byteLength = (int) reader.getVarint();
+    if (byteLength < 0) {
+      throw new DataCloneOutOfValueException(byteLength);
+    }
+
     JSDataView<JSArrayBuffer> view = new JSDataView<>(arrayBuffer, kind, offset, byteLength);
     assignId(view);
     return view;
