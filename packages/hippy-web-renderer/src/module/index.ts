@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 import * as Components from '../component';
-import { BaseModuleConstructor } from '../../types';
 import { AnimationModule } from './animation-module';
 import { ClipboardModule } from './clipboard-module';
 import { DeviceEventModule } from './device-event-module';
@@ -45,9 +44,3 @@ export const CORE_MODULES = [
   UIManagerModule,
   WebSocketModule,
 ];
-
-export { registerComponent } from './ui-manager-module';
-
-export function registerModule(module: BaseModuleConstructor) {
-
-}
