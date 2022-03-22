@@ -58,11 +58,6 @@ export class NetInfoModule extends HippyWebModule {
     }
   }
 
-
-  public initialize() {
-
-  }
-
   public destroy() {
     this.removeListener('change');
   }

@@ -20,10 +20,7 @@
 
 import { HippyWebEngineContext, HippyWebModule } from '../base';
 import {
-  HippyBaseView,
-  HippyBaseViewConstructor,
-  ComponentContext,
-  HippyCallBack,
+  HippyBaseView, HippyCallBack,
   InnerNodeTag,
   NodeData,
   UIProps,
@@ -31,7 +28,6 @@ import {
 import { setElementStyle } from '../common';
 
 export class UIManagerModule extends HippyWebModule {
-  public static moduleName = 'UIManagerModule';
   public name = 'UIManagerModule';
 
   private viewDictionary: { [key in string | number]: HippyBaseView } = {};
@@ -63,7 +59,7 @@ export class UIManagerModule extends HippyWebModule {
       this.rootDom?.appendChild(this.contentDom);
       this.viewDictionary[rootViewId] = {
         id: rootViewId as number, pId: -1, index: this.rootDom.childNodes.length,
-        props: {}, dom: this.contentDom, tagName: 'View'
+        props: {}, dom: this.contentDom, tagName: 'View',
       };
     }
     const theUpdateComponentIdSet = new Set;
@@ -314,7 +310,8 @@ export class UIManagerModule extends HippyWebModule {
   }
 }
 
-function mapComponent(context: HippyWebEngineContext, tagName: string, id: number, pId: number): HippyBaseView | undefined {
+function mapComponent(context: HippyWebEngineContext, tagName: string, id: number, pId: number):
+HippyBaseView | undefined {
   if (context.engine.components[tagName]) {
     return new context.engine.components[tagName](context, id, pId);
   }

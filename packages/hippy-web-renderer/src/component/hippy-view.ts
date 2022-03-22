@@ -21,8 +21,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 
 import ResizeObserver from 'resize-observer-polyfill';
-import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps } from '../types';
-import { HippyTransferData } from '../types/hippy-internal-types';
+import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps, HippyTransferData } from '../types';
 
 export class HippyView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;

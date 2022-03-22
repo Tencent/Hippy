@@ -27,12 +27,8 @@ const enum EventType {
   ON_MESSAGE='text',
 }
 export class WebSocketModule extends HippyWebModule {
-  public static moduleName = 'WebSocketModule';
   public name = 'WebSocketModule';
-
-
   private webSocketConnections: {[key: string]: WebsocketObject} = {};
-
 
   public connect(data: {url?: string, headers?: {[key: string]: any} }, callBack: HippyCallBack) {
     const response = {

@@ -22,15 +22,7 @@ import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
 
 export class ClipboardModule extends HippyWebModule {
-  public static moduleName = 'ClipboardModule';
   public name = 'ClipboardModule';
-
-
-  public destroy() {
-  }
-
-  public initialize() {
-  }
 
   public getString(callBack: HippyCallBack) {
     let data = '';
