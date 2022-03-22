@@ -25,7 +25,6 @@ interface NetResponse {
   status: number, statusLine: string, body: string, respHeaders: any
 }
 export class NetworkModule extends HippyWebModule {
-  public static moduleName = 'NetworkModule';
   public name = 'network';
 
   public fetch(data: any, callBack: HippyCallBack) {

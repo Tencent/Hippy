@@ -21,7 +21,7 @@
 import { Property } from 'csstype';
 import { HippyBaseView, ComponentContext } from '../types';
 import { setElementStyle } from '../common';
-import { HippyWebModule } from '../base/base-unit';
+import { HippyWebModule } from '../base';
 import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
 import AnimationPlayState = Property.AnimationPlayState;

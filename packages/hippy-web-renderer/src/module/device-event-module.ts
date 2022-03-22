@@ -21,7 +21,6 @@
 import { HippyWebModule } from '../base';
 
 export class DeviceEventModule extends HippyWebModule {
-  public static moduleName = 'DeviceEventModule';
   public name = 'DeviceEventModule';
   private listen=false;
   private moduleListener: Array<() => void>=[];
@@ -34,10 +33,6 @@ export class DeviceEventModule extends HippyWebModule {
   public init() {
     addCacheHistoryState();
     listenHistory(this.handleBack.bind(this));
-  }
-
-  public destroy() {
-
   }
 
   public setListenBackPress(listen: boolean) {

@@ -22,10 +22,6 @@ import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
 
 export class StorageModule extends HippyWebModule {
-  public static moduleName = 'StorageModule';
-  public moduleName = 'StorageModule';
-
-
   public static preCheck() {
     if (!window.localStorage) {
       console.warn('not support localStorage');
@@ -33,6 +29,8 @@ export class StorageModule extends HippyWebModule {
     }
     return true;
   }
+
+  public moduleName = 'StorageModule';
 
   private readonly STORE_PRX_KEY = 'hippy-storage-';
 

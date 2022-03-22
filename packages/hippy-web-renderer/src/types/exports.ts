@@ -12,7 +12,7 @@ export interface HippyBaseView {
   props: UIProps;
   dom: HTMLElement|null;
   onAttachedToWindow?: () => void;
-  onLayout?: (value: boolean) => void;
+  onLayout?: boolean;
   updateProps?: (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) => void;
   beforeMount?: (parent: HippyBaseView, position: number) => Promise<void>;
   beforeChildMount?: (child: HippyBaseView, childPosition: number) => Promise<void>;
