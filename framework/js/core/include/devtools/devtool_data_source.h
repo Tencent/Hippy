@@ -16,7 +16,7 @@
 #include "core/task/worker_task_runner.h"
 #include "devtools/adapter/hippy_runtime_adapter.h"
 #include "devtools/adapter/hippy_v8_request_adapter.h"
-#include "devtools_backend/devtools_backend_service.h"
+#include "api/devtools_backend_service.h"
 #include "module/record_logger.h"
 
 namespace hippy {
@@ -27,7 +27,10 @@ namespace devtools {
  */
 class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
  public:
-  DevtoolDataSource() { tdf::devtools::DevtoolsBackendService::GetInstance(); }
+  DevtoolDataSource() {
+    devtools_service_ = std::make_shared<tdf::devtools::DevtoolsBackendService>();
+    all_services.push_back(devtools_service_);
+  }
   ~DevtoolDataSource() = default;
 
   void Bind(int32_t dom_id, int32_t runtime_id);
@@ -35,29 +38,19 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
 
 #ifdef OS_ANDROID
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
+  static void SetFileCacheDir(std::string file_dir);
 #endif
 
   void SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler);
 
   static void SendV8Response(std::string data);
 
-  /**
-   * @brief 设置是否通知 batch 事件
-   * @param need_notify_batch_event
-   */
-  void SetNeedNotifyBatchEvent(bool need_notify_batch_event);
-  void NotifyDocumentUpdate();
-
-  /**
-   * @brief 获取当前 runtime_id 的 JSDelegate 实现
-   * @return JSDelegate 可能为空
-   */
-  static std::shared_ptr<DevtoolDataSource> GetDevToolsJSDelegate();
-
  private:
   int32_t dom_id_;
   int32_t runtime_id_;
   std::shared_ptr<HippyRuntimeAdapter> runtime_adapter_;
+  std::shared_ptr<tdf::devtools::DevtoolsBackendService> devtools_service_;
+  static std::vector<std::weak_ptr<tdf::devtools::DevtoolsBackendService>> all_services;
 };
 
 }  // namespace devtools

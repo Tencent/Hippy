@@ -19,47 +19,45 @@
 
 namespace hippy {
 namespace devtools {
-
+std::vector<std::weak_ptr<tdf::devtools::DevtoolsBackendService>> DevtoolDataSource::all_services{};
 using tdf::devtools::DevtoolsBackendService;
+
 void DevtoolDataSource::SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler) {
-  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
-  data_channel->GetProvider()->SetV8RequestAdapter(std::make_shared<HippyV8RequestAdapter>(request_handler));
+  devtools_service_->GetDataProvider()->SetV8RequestAdapter(std::make_shared<HippyV8RequestAdapter>(request_handler));
 }
 
 void DevtoolDataSource::SendV8Response(std::string data) {
-  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
-  data_channel->GetResponse()->GetV8ResponseAdapter()->SendResponseFromV8(data);
-}
-
-void DevtoolDataSource::SetNeedNotifyBatchEvent(bool need_notify_batch_event) {
-  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
-  data_channel->GetResponse()->GetElementsResponseAdapter()->SetNeedNotifyBatchEvent(need_notify_batch_event);
-}
-
-void DevtoolDataSource::NotifyDocumentUpdate() {
-  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
-  data_channel->GetResponse()->GetElementsResponseAdapter()->NotifyDocumentUpdate();
+  for (auto& devtools_service : all_services) {
+    auto service = devtools_service.lock();
+    if (service) {
+      service->GetNotificationCenter()->GetV8ResponseAdapter()->SendResponseFromV8(data);
+    }
+  }
 }
 
 #ifdef OS_ANDROID
 void DevtoolDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController *tracingControl) {
   TraceControl::GetInstance().SetGlobalTracingController(tracingControl);
 }
+
+void DevtoolDataSource::SetFileCacheDir(std::string file_dir) {
+  DevtoolsBackendService::SetFileCacheDir(file_dir);
+}
 #endif
 
 void DevtoolDataSource::Bind(int32_t dom_id, int32_t runtime_id) {
   dom_id_ = dom_id;
   runtime_id_ = runtime_id;
-  auto data_channel = DevtoolsBackendService::GetInstance().GetDataChannel();
+  auto data_provider = devtools_service_->GetDataProvider();
   std::shared_ptr<HippyDomTreeAdapter> domTreeAdapter = std::make_shared<HippyDomTreeAdapter>(dom_id_);
-  data_channel->GetProvider()->SetDomTreeAdapter(domTreeAdapter);
-  data_channel->GetProvider()->SetElementsRequestAdapter(std::make_shared<HippyElementsRequestAdapter>(dom_id_));
-  data_channel->GetProvider()->SetTracingAdapter(std::make_shared<HippyTracingAdapter>());
+  data_provider->SetDomTreeAdapter(domTreeAdapter);
+  data_provider->SetElementsRequestAdapter(std::make_shared<HippyElementsRequestAdapter>(dom_id_));
+  data_provider->SetTracingAdapter(std::make_shared<HippyTracingAdapter>());
   runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>(runtime_id_);
-  data_channel->GetProvider()->SetRuntimeAdapter(runtime_adapter_);
-  data_channel->GetProvider()->SetScreenAdapter(std::make_shared<HippyScreenAdapter>(dom_id_));
-  DevtoolsBackendService::GetInstance().EnableService();
-  TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_channel:%p" << &data_channel;
+  data_provider->SetRuntimeAdapter(runtime_adapter_);
+  data_provider->SetScreenAdapter(std::make_shared<HippyScreenAdapter>(dom_id_));
+  devtools_service_->EnableService();
+  TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_provider:%p" << &devtools_service_;
 }
 
 void DevtoolDataSource::SetRuntimeAdapterDebugMode(bool debug_mode) {

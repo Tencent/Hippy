@@ -6,8 +6,7 @@
 #pragma once
 
 #include <string>
-
-#include "devtools_backend/provider/devtools_runtime_adapter.h"
+#include "api/adapter/devtools_runtime_adapter.h"
 
 namespace hippy {
 namespace devtools {

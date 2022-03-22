@@ -7,7 +7,7 @@
 
 #include <string>
 #include "devtools/devtool_data_source.h"
-#include "devtools_backend/provider/devtools_elements_request_adapter.h"
+#include "api/adapter/devtools_elements_request_adapter.h"
 
 namespace hippy {
 namespace devtools {

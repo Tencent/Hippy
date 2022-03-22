@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "devtools_backend/provider/devtools_dom_tree_adapter.h"
+#include "api/adapter/devtools_dom_tree_adapter.h"
 
 namespace hippy {
 namespace devtools {

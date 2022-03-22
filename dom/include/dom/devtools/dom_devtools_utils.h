@@ -7,9 +7,9 @@
 #if TDF_SERVICE_ENABLED
 
 #include <memory>
-#include "devtools_backend/data/dom_node_location.h"
-#include "devtools_backend/data/dom_node_metas.h"
-#include "devtools_backend/data/domain_metas.h"
+#include "api/adapter/data/dom_node_location.h"
+#include "api/adapter/data/dom_node_metas.h"
+#include "api/adapter/data/domain_metas.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 #include "dom/dom_value.h"

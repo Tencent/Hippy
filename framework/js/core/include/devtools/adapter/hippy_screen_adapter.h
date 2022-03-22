@@ -8,7 +8,7 @@
 #include <string>
 
 #include "devtools/devtool_utils.h"
-#include "devtools_backend/provider/devtools_screen_adapter.h"
+#include "api/adapter/devtools_screen_adapter.h"
 
 namespace hippy {
 namespace devtools {
