@@ -40,6 +40,7 @@ std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::default_
     const std::ostringstream& stream, LogSeverity severity) {
   syslog(LOG_ALERT, "tdf: %s", stream.str().c_str());
 };
+std::mutex LogMessage::mutex_;
 
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
     : severity_(severity), file_(file), line_(line) {
