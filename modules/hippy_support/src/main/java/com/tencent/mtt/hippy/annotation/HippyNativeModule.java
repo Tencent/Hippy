@@ -30,8 +30,7 @@ public @interface HippyNativeModule {
 
   enum Thread {
     BRIDGE,
-    MAIN,
-    DOM
+    MAIN
   }
 
   String name();

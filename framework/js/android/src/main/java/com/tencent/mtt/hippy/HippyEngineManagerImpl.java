@@ -770,7 +770,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
-            mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders);
+            mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders, enableV8Serialization);
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);

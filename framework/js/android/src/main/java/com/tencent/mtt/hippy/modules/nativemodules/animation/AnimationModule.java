@@ -44,7 +44,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@HippyNativeModule(name = "AnimationModule", thread = HippyNativeModule.Thread.DOM)
+@HippyNativeModule(name = "AnimationModule")
 public class AnimationModule extends HippyNativeModuleBase implements RenderProcessInterceptor,
         Animation.AnimationListener, Handler.Callback, HippyEngineLifecycleEventListener {
 
@@ -85,7 +85,7 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
     public void initialize() {
         super.initialize();
         mRecommendSerializer = new Serializer();
-        mHandler = new Handler(mContext.getThreadExecutor().getDomThread().getLooper(), this);
+        mHandler = new Handler(mContext.getThreadExecutor().getModuleThread().getLooper(), this);
         mAnimations = new ConcurrentHashMap<>();
         mAnimationNodes = new ConcurrentHashMap<>();
         mContext.addRenderProcessInterceptor(this);
