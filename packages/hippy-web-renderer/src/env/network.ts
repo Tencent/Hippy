@@ -1,6 +1,5 @@
 
 export class Headers {
-
   _headers: any;
   constructor(initValues) {
     this._headers = {};
@@ -76,7 +75,6 @@ export class Headers {
 };
 
 export class Response {
-
   status: number;
   statusText: string;
   headers: object;
@@ -149,6 +147,5 @@ export const fetch = (url, options) => {
     });
   });
 };
-
 
 

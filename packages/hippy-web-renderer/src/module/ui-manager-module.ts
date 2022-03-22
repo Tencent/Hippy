@@ -26,6 +26,7 @@ import {
   UIProps,
 } from '../types';
 import { setElementStyle } from '../common';
+import { mergeDeep } from '../third-lib/loadsh.js';
 
 export class UIManagerModule extends HippyWebModule {
   public name = 'UIManagerModule';
@@ -39,7 +40,7 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   public init() {
-    this.stylePolyfill();
+    stylePolyfill();
   }
 
   public destroy() {
@@ -52,10 +53,11 @@ export class UIManagerModule extends HippyWebModule {
 
   public async createNode(rootViewId: any, data: Array<NodeData>) {
     if (!this.rootDom) {
-      this.rootDom = document.getElementsByTagName('body')[0];
+      const [root] = document.getElementsByTagName('body');
+      this.rootDom = root;
     }
     if (!window.document.getElementById(rootViewId)) {
-      this.contentDom = this.createRoot(rootViewId);
+      this.contentDom = createRoot(rootViewId);
       this.rootDom?.appendChild(this.contentDom);
       this.viewDictionary[rootViewId] = {
         id: rootViewId as number, pId: -1, index: this.rootDom.childNodes.length,
@@ -131,7 +133,7 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   public measureInWindow(nodeId, callBack: HippyCallBack) {
-    if (!nodeId || !this.findViewById(nodeId)) {
+    if (!nodeId || !this.findViewById(nodeId)?.dom) {
       return;
     }
     const component = this.findViewById(nodeId);
@@ -161,52 +163,42 @@ export class UIManagerModule extends HippyWebModule {
 
   public removeChild(parent: HippyBaseView, childId: number) {
     const childView = this.findViewById(childId);
-    if (childView?.dom) {
+    if (childView?.dom && parent.dom) {
       parent.dom?.removeChild(childView.dom);
     }
     delete this.viewDictionary[childId];
   }
 
   public defaultUpdateComponentProps(component: HippyBaseView, props: any) {
-    if (props) {
-      mergeDeep(component.props, props);
-      if (!props) {
-        return;
-      }
-      const keys = Object.keys(props);
-      if (props.style) {
-        setElementStyle(component.dom!, props.style, (key: string, value: any) => {
-          this.animationProcess(key, value, component);
-        });
-        if (props.style.position === 'absolute' && !this.findViewById(component.pId)?.props?.style?.position) {
-          setElementStyle(this.findViewById(component.pId)!.dom!, { position: 'relative' });
-        }
-      }
-      for (const key of keys) {
-        if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
-          continue;
-        }
-        if (typeof component[key] === 'function' && key.indexOf('on') === 0) {
-          continue;
-        }
-        component[key] = props[key];
+    if (!component.dom) {
+      throw Error(`component update props process failed ,component's dom must be exit ${component.tagName ?? ''}`);
+    }
+
+    if (!props) {
+      return;
+    }
+    mergeDeep(component.props, props);
+    if (!props) {
+      return;
+    }
+    const keys = Object.keys(props);
+    if (props.style) {
+      setElementStyle(component.dom!, props.style, (key: string, value: any) => {
+        this.animationProcess(key, value, component);
+      });
+      if (props.style.position === 'absolute' && !this.findViewById(component.pId)?.props?.style?.position) {
+        setElementStyle(this.findViewById(component.pId)!.dom!, { position: 'relative' });
       }
     }
-  }
-
-  private createRoot(id: string) {
-    const root = window.document.createElement('div');
-    root.setAttribute('id', id);
-    root.id = id;
-    setElementStyle(root, {
-      height: '100vh',
-      overflow: 'hidden',
-      display: 'flex',
-      width: '100vw',
-      flexDirection: 'column',
-      position: 'relative',
-    });
-    return root;
+    for (const key of keys) {
+      if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
+        continue;
+      }
+      if (typeof component[key] === 'function' && key.indexOf('on') === 0) {
+        continue;
+      }
+      component[key] = props[key];
+    }
   }
 
   private updateComponentProps(component: HippyBaseView, props: any) {
@@ -246,14 +238,17 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   private async componentInitProcess(component: HippyBaseView, props: any, index: number) {
+    if (!component.dom) {
+      throw Error(`component init process failed ,component's dom must be exit after component create ${component.tagName ?? ''}`);
+    }
     this.updateComponentProps(component, props);
     const parent = this.findViewById(component.pId);
-    if (!parent) {
-      return;
+    if (!parent || !parent.dom) {
+      throw Error(`component init process failed ,component's parent not exist or dom not exist, pid: ${component.pId}`);
     }
     let realIndex = index;
     if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
-      realIndex = parent.dom?.childNodes?.length;
+      realIndex = parent.dom?.childNodes?.length ?? index;
     }
     await component.beforeMount?.(parent, realIndex);
     await parent.beforeChildMount?.(component, realIndex);
@@ -263,7 +258,8 @@ export class UIManagerModule extends HippyWebModule {
     } else {
       this.appendChild(parent, component, realIndex);
     }
-    component.dom!.id = String(component.id);
+    const { dom } = component;
+    dom.id = String(component.id);
     component.mounted?.();
   }
 
@@ -298,16 +294,6 @@ export class UIManagerModule extends HippyWebModule {
     }
     throw `call ui function failed,${component?.tagName} component not implement ${callName}()`;
   }
-
-  private stylePolyfill() {
-    const style = document.createElement('style');
-    style.type = 'text/css';
-    style.innerHTML = '*::-webkit-scrollbar {\n'
-      + '  display: none;\n'
-      + '}';
-
-    document.getElementsByTagName('head')[0].appendChild(style);
-  }
 }
 
 function mapComponent(context: HippyWebEngineContext, tagName: string, id: number, pId: number):
@@ -316,24 +302,27 @@ HippyBaseView | undefined {
     return new context.engine.components[tagName](context, id, pId);
   }
 }
-export function isObject(item) {
-  return (item && typeof item === 'object' && !Array.isArray(item));
+
+function createRoot(id: string) {
+  const root = window.document.createElement('div');
+  root.setAttribute('id', id);
+  root.id = id;
+  setElementStyle(root, {
+    height: '100vh',
+    overflow: 'hidden',
+    display: 'flex',
+    width: '100vw',
+    flexDirection: 'column',
+    position: 'relative',
+  });
+  return root;
 }
+function stylePolyfill() {
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.innerHTML = '*::-webkit-scrollbar {\n'
+    + '  display: none;\n'
+    + '}';
 
-export function mergeDeep(target, ...sources) {
-  if (!sources.length) return target;
-  const source = sources.shift();
-
-  if (isObject(target) && isObject(source)) {
-    for (const key in source) {
-      if (isObject(source[key])) {
-        if (!target[key]) Object.assign(target, { [key]: {} });
-        mergeDeep(target[key], source[key]);
-      } else {
-        Object.assign(target, { [key]: source[key] });
-      }
-    }
-  }
-
-  return mergeDeep(target, ...sources);
+  document.getElementsByTagName('head')[0].appendChild(style);
 }

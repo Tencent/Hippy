@@ -97,7 +97,7 @@ function emit(eventName, ...args) {
 export const emitter = {
   on,
   off,
-  emit
-}
+  emit,
+};
 
 

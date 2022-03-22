@@ -100,7 +100,8 @@ function styleUpdateWithCheck(element: HTMLElement, key: string, newValue: any) 
     || element.style[key] === ''
     || element.style[key] !== newValue
   ) {
-    element.style[key] = newValue;
+    const { style } = element;
+    style[key] = newValue;
   }
 }
 export function convertHexToRgba(number) {
