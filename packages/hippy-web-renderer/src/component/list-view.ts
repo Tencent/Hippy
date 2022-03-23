@@ -28,12 +28,6 @@ import {
   touchMoveCalculate,
 } from './scrollable';
 
-interface VirtualItemData {
-  component: ListViewItem,
-  height?: number
-  isDirty?: boolean
-}
-
 export class ListView extends HippyView<HTMLDivElement> {
   public static intersectionObserverElement(
     parentElement: Element,
@@ -44,15 +38,16 @@ export class ListView extends HippyView<HTMLDivElement> {
       threshold: 0,
     });
   }
+  private destroying = false;
   private initialListReadyFlag = false;
+  private dirtyListItems: ListViewItem[] = [];
   private lastPosition: [number, number] = [0, 0];
   private renderChildrenTuple: [number, number] = [0, 0];
   private lastTimestamp = 0;
   private scrollCaptureState = false;
   private rootElement;
   private virtualList;
-  private childData: VirtualItemData[] = [];
-  private dataDirtyFlag = false;
+  private childData: Array<ListViewItem> = [];
   private touchListenerRelease;
 
 
@@ -214,7 +209,16 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public async beforeRemove(): Promise<any> {
     await super.beforeRemove();
+    this.destroying = true;
     this.touchListenerRelease?.();
+    const uiManagerModule = this.context.getModuleByName('UIManagerModule');
+    const needRemoveData = [...this.childData];
+    for (const itemData of needRemoveData) {
+      if (!uiManagerModule.findViewById(itemData.id)) {
+        continue;
+      }
+      await uiManagerModule.componentDeleteProcess(itemData);
+    }
   }
 
   public destroy() {
@@ -222,13 +226,20 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public insertChild(component: ListViewItem) {
-    this.childData.push({ component });
+    this.childData.push(component);
     component.addDirtyListener(this.handleListItemDirty.bind(this));
   }
 
-  public removeChild(component: ListViewItem) {
-    delete this.childData[component.index];
-    this.notifyDataSetChange();
+  public async removeChild(component: ListViewItem) {
+    const deleteIndex = this.childData.findIndex(item => item === component);
+    const uiManagerModule = this.context.getModuleByName('UIManagerModule');
+    await uiManagerModule.removeChild(this, component.id);
+    this.childData.splice(deleteIndex, 1);
+    if (!this.destroying) {
+      requestAnimationFrame(() => {
+        this.notifyDataSetChange();
+      });
+    }
   }
 
   public mounted(): void {
@@ -255,22 +266,17 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public getChildHeight(index) {
     if (this.childData[index] && !this.childData[index]?.height) {
-      this.childData[index].height = this.getListItemNewHeight(this.childData[index].component);
+      this.childData[index].height = this.getListItemNewHeight(this.childData[index]);
     }
     return this.childData[index]?.height ?? 0;
   }
 
   public getChildDom(index: number) {
-    return this.childData[index]?.component?.dom ?? null;
+    return this.childData[index]?.dom ?? null;
   }
 
-  private handleListItemDirty(id: number, height: number) {
-    const [dirtyData] = this.childData.filter(data => data.component.id === id);
-    if (!dirtyData.isDirty && dirtyData.height !== undefined && dirtyData.height !== Math.round(height)) {
-      dirtyData.isDirty = true;
-      dirtyData.height = height;
-      this.dataDirtyFlag = true;
-    }
+  private handleListItemDirty(item: ListViewItem) {
+    this.dirtyListItems.push(item);
   }
 
   private handleOnRowsRendered({
@@ -327,16 +333,16 @@ export class ListView extends HippyView<HTMLDivElement> {
       if (data.height) {
         continue;
       }
-      data.height = this.getListItemNewHeight(data.component);
+      data.height = this.getListItemNewHeight(data);
     }
   }
 
   private needCheckDirtyChild() {
-    const dirtyList = this.childData.filter(item => item.isDirty === true);
-    for (let i = 0;i < dirtyList.length;i++) {
-      const item = dirtyList[i];
+    for (let i = 0;i < this.dirtyListItems.length;i++) {
+      const item = this.dirtyListItems[i];
       item.isDirty = false;
     }
+    this.dirtyListItems = [];
     this.notifyDataSetChange();
   }
 
@@ -414,9 +420,8 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   private handleEndSliding() {
-    this.dataDirtyFlag && requestAnimationFrame(() => {
+    this.dirtyListItems.length > 0 && requestAnimationFrame(() => {
       this.needCheckDirtyChild();
-      this.dataDirtyFlag = false;
     });
     this.dom && this.onMomentumScrollEnd(this.buildScrollEvent());
   }
@@ -448,7 +453,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   private measureListViewItemSize(child: ListViewItem) {
     setElementStyle(child.dom!, { visibility: 'hidden', position: 'absolute', zIndex: -99999 });
     this.dom?.insertBefore(child.dom!, null);
-    const height = child.getItemHeight();
+    const height = child.getItemHeight() ?? 0;
     this.dom?.removeChild(child.dom!);
     setElementStyle(child.dom!, { visibility: 'visible', position: 'static', zIndex: 0 });
     return height;
@@ -459,7 +464,9 @@ export class ListView extends HippyView<HTMLDivElement> {
 }
 
 export class ListViewItem extends HippyView<HTMLDivElement> {
-  private dirtyListener: ((id: number, height: number) => void) | null = null;
+  public height = 0;
+  public isDirty = false;
+  private dirtyListener: ((component: ListViewItem) => void) | null = null;
 
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -468,7 +475,7 @@ export class ListViewItem extends HippyView<HTMLDivElement> {
     this.onLayout = true;
   }
 
-  public addDirtyListener(callBack: ((index: number, height: number) => void) | null) {
+  public addDirtyListener(callBack: ((component: ListViewItem) => void) | null) {
     this.dirtyListener = callBack;
   }
 
@@ -477,16 +484,18 @@ export class ListViewItem extends HippyView<HTMLDivElement> {
   }
 
   public getItemHeight() {
-    return this.dom?.clientHeight;
+    return this.dom?.clientHeight ?? 0;
   }
 
   public handleReLayout(entries: ResizeObserverEntry[]) {
     const [entry] = entries;
     const { height } = entry.contentRect;
-    if (height === 0) {
+    if (height === 0 && Math.round(height) !== this.height) {
       return;
     }
-    this.dirtyListener?.(this.id, height);
+    this.height = Math.round(height);
+    this.isDirty = true;
+    this.dirtyListener?.(this);
   }
 }
 

@@ -97,11 +97,14 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   public async deleteNode(rootViewId: string, data: Array<{ id: number }>) {
+    console.log('delete begin', Object.keys(this.viewDictionary).length);
+
     for (let i = 0; i < data.length; i++) {
       const deleteItem = data[i];
       const deleteComponent = this.findViewById(deleteItem.id);
       await this.componentDeleteProcess(deleteComponent);
     }
+    console.log('delete finish', Object.keys(this.viewDictionary).length);
   }
 
   public updateNode(rootViewId: string, data: Array<{ id: number, props: UIProps }>) {
@@ -161,10 +164,38 @@ export class UIManagerModule extends HippyWebModule {
     this.viewDictionary[child.id] = child;
   }
 
-  public removeChild(parent: HippyBaseView, childId: number) {
-    const childView = this.findViewById(childId);
-    if (childView?.dom && parent.dom) {
-      parent.dom?.removeChild(childView.dom);
+  public async removeChild(parent: HippyBaseView, childId: number) {
+    const child = this.findViewById(childId);
+    const nodeList: string[] = [];
+    let currentNode: any;
+    currentNode = child!.dom;
+    const treeWalker = document.createTreeWalker(
+      child!.dom as Node,
+      NodeFilter.SHOW_ALL,
+      null,
+    );
+
+    while (currentNode) {
+      currentNode.id && nodeList.push(currentNode.id);
+      currentNode = treeWalker.nextNode();
+    }
+
+    for (const id of nodeList.reverse()) {
+      if (isNaN(Number(id)) || parseInt(id, 10) === childId) {
+        continue;
+      }
+      const willRemoveComponent = this.findViewById(parseInt(id, 10));
+      if (!willRemoveComponent) {
+        continue;
+      }
+      await willRemoveComponent.beforeRemove?.();
+      this.findViewById(willRemoveComponent.pId)?.beforeChildRemove?.(willRemoveComponent);
+      willRemoveComponent.destroy?.();
+      delete this.viewDictionary[willRemoveComponent.id];
+    }
+
+    if (child?.dom && parent.dom && !parent.removeChild) {
+      parent.dom?.removeChild(child.dom);
     }
     delete this.viewDictionary[childId];
   }
@@ -265,16 +296,18 @@ export class UIManagerModule extends HippyWebModule {
 
   private async componentDeleteProcess(component: HippyBaseView | undefined | null) {
     const parentComponent = component ? this.findViewById(component.pId) : null;
-    if (parentComponent) {
-      await component!.beforeRemove?.();
-      await parentComponent.beforeChildRemove?.(component!);
-      if (parentComponent.removeChild) {
-        parentComponent.removeChild(component!);
-      } else {
-        this.removeChild(parentComponent, component!.id);
-      }
-      component!.destroy?.();
+    if (!parentComponent) {
+      return;
     }
+    await component!.beforeRemove?.();
+    await parentComponent.beforeChildRemove?.(component!);
+    if (parentComponent.removeChild) {
+      await parentComponent.removeChild(component!);
+    } else {
+      await this.removeChild(parentComponent, component!.id);
+    }
+    component!.destroy?.();
+    delete this.viewDictionary[component!.id];
   }
 
   private componentUpdateProcess(component: HippyBaseView | undefined | null, props: UIProps) {
