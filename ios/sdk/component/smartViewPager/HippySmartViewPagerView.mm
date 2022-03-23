@@ -195,7 +195,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     NSInteger defaultPage = 0;
     if (_circular) {
         initialPage = initialPage + kInfiniteLoopBegin;
-        if (initialPage >= 2 && initialPage <= children.count - 2) {
+        if (initialPage >= kInfiniteLoopBegin && initialPage <= children.count - kInfiniteLoopBegin) {
             defaultPage = initialPage;
         } else {
             defaultPage = kInfiniteLoopBegin;
@@ -459,7 +459,6 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
 }
 
-// 手动拖拽结束
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     if (self.onPageScrollStateChanged) {
         self.onPageScrollStateChanged(@{ @"pageScrollState": @"idle" });
@@ -506,7 +505,6 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
 }
 
-// 自动轮播结束
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     [self adjustDidEndDeceleratingCurrentPage];
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
