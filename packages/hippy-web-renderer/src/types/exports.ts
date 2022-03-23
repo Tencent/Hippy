@@ -48,7 +48,7 @@ export interface BaseModule {
 
 export interface ComponentContext {
   sendEvent: (type: string, params: any) => void;
-  sendUiEvent: (nodeId: number, type: string, params: any) => void;
+  sendUiEvent: (id: number, type: string, params: any) => void;
   sendGestureEvent: (e: HippyTransferData.NativeGestureEvent) => void;
   subscribe: (evt: string, callback: Function) => void;
   getModuleByName: (moduleName: string) => any;
