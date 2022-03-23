@@ -50,7 +50,7 @@ export class NetworkModule extends HippyWebModule {
         const dataString = await response.text();
         const respHeaders: any = {};
         for (const key of response.headers.keys()) {
-          respHeaders[key] = respHeaders.headers.get(key);
+          respHeaders[key] = response.headers.get(key);
         }
         const data: NetResponse = {
           status: response.status,
