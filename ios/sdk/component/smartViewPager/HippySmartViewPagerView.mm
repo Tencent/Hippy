@@ -52,6 +52,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     BOOL _adjustChildren;
 }
 
+- (void)setPreviousMargin:(CGFloat)previousMargin nextMargin:(CGFloat)nextMargin pageGap:(CGFloat)pageGap;
+
 @end
 
 @implementation HippySmartViewPagerView
