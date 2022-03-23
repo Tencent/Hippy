@@ -573,10 +573,10 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 - (void)URLSession:(__unused NSURLSession *)session dataTask:(__unused NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
     if (_task == dataTask) {
-        if (_onProgress && NSURLResponseUnknownLength != _totalLength) {
-            _onProgress(@{ @"loaded": @((double)data.length), @"total": @((double)_totalLength) });
-        }
         [_data appendData:data];
+        if (_onProgress && NSURLResponseUnknownLength != _totalLength) {
+            _onProgress(@{ @"loaded": @((double)_data.length), @"total": @((double)_totalLength) });
+        }
     }
 }
 
