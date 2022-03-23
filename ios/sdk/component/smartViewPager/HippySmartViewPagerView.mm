@@ -33,7 +33,6 @@
 #import "UIView+Render.h"
 #import "objc/runtime.h"
 
-#define kCellZIndexConst 10000.f
 #define kInfiniteLoopBegin 2
 
 static NSString *const kCellIdentifier = @"cellIdentifier";
