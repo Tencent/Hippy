@@ -225,7 +225,7 @@ export class UIManagerModule extends HippyWebModule {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
         continue;
       }
-      if (typeof component[key] === 'function' && key.indexOf('on') === 0) {
+      if (typeof component[key] === 'function' || component[key] === undefined) {
         continue;
       }
       component[key] = props[key];
