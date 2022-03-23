@@ -19,7 +19,7 @@ export interface HippyBaseView {
   beforeRemove?: () => Promise<void>;
   beforeChildRemove?: (child: HippyBaseView) => void;
   insertChild?: (child: HippyBaseView, childPosition: number) => void;
-  removeChild?: (child: HippyBaseView) => void;
+  removeChild?: (child: HippyBaseView) => Promise<void>;
   destroy?: () => void;
   mounted?: () => void;
 }
@@ -51,7 +51,7 @@ export interface ComponentContext {
   sendUiEvent: (nodeId: number, type: string, params: any) => void;
   sendGestureEvent: (e: HippyTransferData.NativeGestureEvent) => void;
   subscribe: (evt: string, callback: Function) => void;
-  getModuleByName: (moduleName: string) => void;
+  getModuleByName: (moduleName: string) => any;
 }
 
 export type BaseModuleConstructor = new (context: ModuleContext) => BaseModule;
