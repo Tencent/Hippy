@@ -55,6 +55,15 @@ void Engine::TerminateRunner() {
   }
 }
 
+std::shared_ptr<WorkerTaskRunner> Engine::GetWorkerTaskRunner() {
+  std::lock_guard<std::mutex> lock(runner_mutex_);
+  if (worker_task_runner_ == nullptr) {
+    TDF_BASE_DLOG(INFO) << "Engine Create WorkerTaskRunner";
+    worker_task_runner_ = std::make_shared<WorkerTaskRunner>(kDefaultWorkerPoolSize);
+  }
+  return worker_task_runner_;
+}
+
 std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
                                            std::unique_ptr<RegisterMap> map) {
   TDF_BASE_DLOG(INFO) << "Engine CreateScope";
@@ -78,9 +87,6 @@ void Engine::SetupThreads() {
   TDF_BASE_DLOG(INFO) << "Engine SetupThreads";
   js_runner_ = std::make_shared<JavaScriptTaskRunner>();
   js_runner_->Start();
-
-  worker_task_runner_ =
-          std::make_shared<WorkerTaskRunner>(kDefaultWorkerPoolSize);
 }
 
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {

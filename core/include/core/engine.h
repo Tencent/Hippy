@@ -57,9 +57,7 @@ class Engine {
   inline std::shared_ptr<JavaScriptTaskRunner> GetJSRunner() {
     return js_runner_;
   }
-  inline std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner() {
-    return worker_task_runner_;
-  }
+  std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner();
 
  private:
   void SetupThreads();
