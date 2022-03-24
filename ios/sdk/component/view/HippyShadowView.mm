@@ -29,6 +29,7 @@
 #import "UIView+Private.h"
 #import "HPNode.h"
 #import "HippyI18nUtils.h"
+#import "UIView+DirectionalLayout.h"
 #include "dom/layout_node.h"
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
@@ -77,7 +78,14 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
             [view didUpdateHippySubviews];
         }];
     }
-
+    if (_confirmedLayoutDirectionDidUpdated) {
+        HPDirection direction = [self confirmedLayoutDirection];
+        [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+            UIView *view = viewRegistry[self->_hippyTag];
+            [view applyLayoutDirectionFromParent:direction];
+        }];
+        _confirmedLayoutDirectionDidUpdated = NO;
+    }
     if (!_backgroundColor) {
         UIColor *parentBackgroundColor = parentProperties[HippyBackgroundColorProp];
         if (parentBackgroundColor) {
@@ -446,16 +454,22 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     self.confirmedLayoutDirection = direction;
 }
 
-- (BOOL)isLayoutSubviewsRTL {
-    if (DirectionInherit == self.confirmedLayoutDirection) {
-        NSMutableSet<HippyShadowView *> *viewsSet = [NSMutableSet setWithCapacity:32];
-        HPDirection direction = DirectionInherit;
-        [self checkLayoutDirection:viewsSet direction:&direction];
-        self.confirmedLayoutDirection = direction;
-        [viewsSet enumerateObjectsUsingBlock:^(HippyShadowView *view, BOOL *stop) {
-            view.confirmedLayoutDirection = direction;
-        }];
+- (void)setConfirmedLayoutDirection:(HPDirection)confirmedLayoutDirection {
+    if (_confirmedLayoutDirection != confirmedLayoutDirection) {
+        _confirmedLayoutDirection = confirmedLayoutDirection;
+        _confirmedLayoutDirectionDidUpdated = YES;
+        [self applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
     }
+}
+
+- (void)applyConfirmedLayoutDirectionToSubviews:(HPDirection)confirmedLayoutDirection {
+    _confirmedLayoutDirection = confirmedLayoutDirection;
+    for (HippyShadowView *subviews in self.hippySubviews) {
+        [subviews applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
+    }
+}
+
+- (BOOL)isLayoutSubviewsRTL {
     BOOL layoutRTL = DirectionRTL == self.confirmedLayoutDirection;
     return layoutRTL;
 }

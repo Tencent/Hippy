@@ -97,6 +97,7 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 @property(nonatomic, copy) NSString *visibility;
 @property(nonatomic, assign) BOOL visibilityChanged;
 @property(nonatomic, assign) BOOL hasNewLayout;
+@property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
 
 /**
  * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is
@@ -236,7 +237,7 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 
 @property(nonatomic, assign) HPDirection layoutDirection;
 @property(nonatomic, assign) HPDirection confirmedLayoutDirection;
-
+- (void)applyConfirmedLayoutDirectionToSubviews:(HPDirection)confirmedLayoutDirection;
 - (BOOL)isLayoutSubviewsRTL;
 
 @end

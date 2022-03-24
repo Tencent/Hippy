@@ -99,22 +99,20 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)initCollectionView {
-    if (_layout == nil) {
-        _layout = [self collectionViewLayout];
-    }
-    if (_collectionView == nil) {
-        HippyListTableView *collectionView = [[HippyListTableView alloc] initWithFrame:self.bounds collectionViewLayout:_layout];
-        collectionView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        collectionView.dataSource = self;
-        collectionView.delegate = self;
-        collectionView.layoutDelegate = self;
-        collectionView.alwaysBounceVertical = YES;
-        collectionView.backgroundColor = [UIColor clearColor];
-        _collectionView = collectionView;
-        [self registerCells];
-        [self registerSupplementaryViews];
-        [self addSubview:_collectionView];
-    }
+    _layout = [self collectionViewLayout];
+    HippyListTableView *collectionView = [[HippyListTableView alloc] initWithFrame:self.bounds collectionViewLayout:_layout];
+    collectionView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    collectionView.dataSource = self;
+    collectionView.delegate = self;
+    collectionView.layoutDelegate = self;
+    collectionView.alwaysBounceVertical = YES;
+    collectionView.backgroundColor = [UIColor clearColor];
+    collectionView.alwaysBounceVertical = YES;
+    collectionView.alwaysBounceHorizontal = NO;
+    _collectionView = collectionView;
+    [self registerCells];
+    [self registerSupplementaryViews];
+    [self addSubview:_collectionView];
 }
 
 - (void)registerCells {

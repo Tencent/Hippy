@@ -21,18 +21,22 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "Flex.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIView (DirectionalLayout)
+@interface HippyCollectionViewFlowLayoutRTLStack : NSObject
 
-@property(nonatomic, assign) HPDirection layoutDirection;
-@property(nonatomic, assign) HPDirection confirmedLayoutDirection;
++ (HippyCollectionViewFlowLayoutRTLStack *)sharedInstance;
 
-- (BOOL)isLayoutSubviewsRTL;
+- (void)pushRTLConfig:(BOOL)isRTL;
+- (BOOL)popRTLConfig;
 
-- (void)applyLayoutDirectionFromParent:(HPDirection)direction;
+@end
+
+@interface HippyCollectionViewFlowLayout : UICollectionViewFlowLayout
+
+@property(nonatomic, assign) BOOL layoutDirectionRTL;
+@property(nonatomic, assign) BOOL flipsHorizontallyInOppositeLayoutDirection;
 
 @end
 

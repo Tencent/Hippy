@@ -33,6 +33,8 @@
 #import "UIView+DirectionalLayout.h"
 #import "objc/runtime.h"
 
+const CGFloat gDoubleMinDiff = .000001f;
+
 @interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
 
 @property (nonatomic, assign) BOOL centerContent;
@@ -51,6 +53,10 @@
         }
     }
     return self;
+}
+
+- (void)setTransform:(CGAffineTransform)transform {
+    [super setTransform:transform];
 }
 
 - (UIView *)contentView {
@@ -193,9 +199,7 @@
         _contentOffsetCache = [NSMutableDictionary dictionaryWithCapacity:32];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self addSubview:_scrollView];
-        if ([self needsLayoutForRTL]) {
-            _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
-        }
+        [self applyLayoutDirectionIfNeeded];
     }
     return self;
 }
@@ -257,9 +261,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
             [self hippyComponentDidFinishTransaction];
-            if ([self needsLayoutForRTL]) {
-                _contentView.transform = CGAffineTransformMakeRotation(M_PI);
+            CGRect frame = _contentView.frame;
+            if (fabs(frame.origin.x) > gDoubleMinDiff || fabs(frame.origin.y) > gDoubleMinDiff) {
+                frame.origin = CGPointZero;
+                _contentView.frame = frame;
             }
+            [self applyLayoutDirectionIfNeeded];
         }
     }
 }
@@ -677,9 +684,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)setHorizontal:(BOOL)horizontal {
     _horizontal = horizontal;
-    if ([self needsLayoutForRTL]) {
-        _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
-    }
+    [self applyLayoutDirectionIfNeeded];
 }
 
 - (CGSize)_calculateViewportSize {
@@ -768,8 +773,20 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
 }
 
-- (BOOL)needsLayoutForRTL {
-    return [self isLayoutSubviewsRTL] && _horizontal;
+- (void)applyLayoutDirectionIfNeeded {
+    if ([self isLayoutSubviewsRTL]) {
+        _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
+        _contentView.transform = CGAffineTransformMakeRotation(M_PI);
+    }
+    else {
+        _scrollView.transform = CGAffineTransformIdentity;
+        _contentView.transform = CGAffineTransformIdentity;
+    }
+}
+
+- (void)setConfirmedLayoutDirection:(HPDirection)confirmedLayoutDirection {
+    [super setConfirmedLayoutDirection:confirmedLayoutDirection];
+    [self applyLayoutDirectionIfNeeded];
 }
 
 // Note: setting several properties of UIScrollView has the effect of
