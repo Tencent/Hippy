@@ -262,12 +262,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
             [self hippyComponentDidFinishTransaction];
-            CGRect frame = _contentView.frame;
-            if (fabs(frame.origin.x) > gDoubleMinDiff || fabs(frame.origin.y) > gDoubleMinDiff) {
-                frame.origin = CGPointZero;
-                _contentView.frame = frame;
-            }
-            [self applyLayoutDirectionIfNeeded];
         }
     }
 }
@@ -789,11 +783,26 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         _scrollView.showsVerticalScrollIndicator = _showScrollIndicator[1];
         _contentView.transform = CGAffineTransformIdentity;
     }
+    [self applyContentViewFrame];
 }
 
 - (void)setConfirmedLayoutDirection:(HPDirection)confirmedLayoutDirection {
     [super setConfirmedLayoutDirection:confirmedLayoutDirection];
     [self applyLayoutDirectionIfNeeded];
+}
+
+- (void)applyContentViewFrame {
+    CGRect frame = _contentView.frame;
+    CGFloat paddingLeft = 0.f;
+    if ([self isLayoutSubviewsRTL]) {
+        CGFloat contentViewMaxX = CGRectGetMaxX(frame);
+        paddingLeft = self.frame.size.width - contentViewMaxX;
+    }
+    else {
+        paddingLeft = frame.origin.x;
+    }
+    frame.origin = CGPointMake(paddingLeft, frame.origin.y);
+    _contentView.frame = frame;
 }
 
 // Note: setting several properties of UIScrollView has the effect of
