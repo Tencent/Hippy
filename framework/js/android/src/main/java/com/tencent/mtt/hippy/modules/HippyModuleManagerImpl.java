@@ -303,7 +303,6 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
                 doErrorCallBack(params, "module can not be found");
                 return;
             }
-            moduleInfo.initialize();
             HippyNativeModuleInfo.HippyNativeMethod method = moduleInfo
                     .findMethod(params.moduleFunc);
             if (method == null || method.isSync()) {
@@ -328,6 +327,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
                 doErrorCallBack(params, "module can not be found");
                 return;
             }
+            moduleInfo.initialize();
             HippyNativeModuleInfo.HippyNativeMethod method = moduleInfo
                     .findMethod(params.moduleFunc);
             if (method != null) {

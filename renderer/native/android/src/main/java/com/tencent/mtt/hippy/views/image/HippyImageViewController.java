@@ -135,25 +135,32 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "onLoad", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnLoad(HippyImageView hippyImageView, boolean enable) {
-        hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ONLOAD.ordinal(), enable);
+        hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD.ordinal(), enable);
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "onLoadEnd", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnLoadEnd(HippyImageView hippyImageView, boolean enable) {
-        hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ONLOAD_END.ordinal(), enable);
+        hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD_END.ordinal(), enable);
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "onLoadStart", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnLoadStart(HippyImageView hippyImageView, boolean enable) {
         hippyImageView
-                .setImageEventEnable(HippyImageView.ImageEvent.ONLOAD_START.ordinal(), enable);
+                .setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD_START.ordinal(), enable);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = "onProgress", defaultType = HippyControllerProps.BOOLEAN)
+    public void setOnLoadProgress(HippyImageView hippyImageView, boolean enable) {
+        hippyImageView
+                .setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD_PROGRESS.ordinal(), enable);
     }
 
     @SuppressWarnings("unused")
     @HippyControllerProps(name = "onError", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnError(HippyImageView hippyImageView, boolean enable) {
-        hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ONERROR.ordinal(), enable);
+        hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD_ERROR.ordinal(), enable);
     }
 }

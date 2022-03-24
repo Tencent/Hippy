@@ -290,6 +290,10 @@ public class TextImageSpan extends ImageSpan {
             }
 
             @Override
+            public void onRequestProgress(float total, float loaded) {
+            }
+
+            @Override
             public void onRequestSuccess(final ImageDataSupplier supplier) {
                 if (UIThreadUtils.isOnUiThread()) {
                     handleFetchImageResult(supplier);

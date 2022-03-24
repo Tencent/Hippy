@@ -75,6 +75,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         hippyRecyclerView.addOnScrollListener(this);
         hippyRecyclerView.addOnAttachStateChangeListener(this);
         hippyRecyclerView.addOnLayoutChangeListener(this);
+        hippyRecyclerView.setOverPullListener(this);
         preDrawListener = new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {

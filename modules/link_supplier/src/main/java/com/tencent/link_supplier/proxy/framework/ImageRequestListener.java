@@ -32,4 +32,9 @@ public interface ImageRequestListener {
      * Notify image request failed
      */
     void onRequestFail(Throwable cause, String source);
+
+    /**
+     * Notify image request on progress
+     */
+    void onRequestProgress(float total, float loaded);
 }

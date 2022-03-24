@@ -55,10 +55,10 @@ public class AnimationModule extends HippyNativeModuleBase implements RenderProc
     private static final String TIMING = "timing";
     private static final String USE_ANIMATION = "useAnimation";
     private static final String FOLLOW = "follow";
-    private static final String EVENT_NAME_ANIMATION_START = "onHippyAnimationStart";
-    private static final String EVENT_NAME_ANIMATION_END = "onHippyAnimationEnd";
-    private static final String EVENT_NAME_ANIMATION_CANCEL = "onHippyAnimationCancel";
-    private static final String EVENT_NAME_ANIMATION_REPEAT = "onHippyAnimationRepeat";
+    private static final String EVENT_NAME_ANIMATION_START = "onAnimationStart";
+    private static final String EVENT_NAME_ANIMATION_END = "onAnimationEnd";
+    private static final String EVENT_NAME_ANIMATION_CANCEL = "onAnimationCancel";
+    private static final String EVENT_NAME_ANIMATION_REPEAT = "onAnimationRepeat";
     private static final int ANIMATION_DELAY_TIME = 16;
     private static final int MSG_UPDATE_ANIMATION_NODE = 101;
     private Handler mHandler;

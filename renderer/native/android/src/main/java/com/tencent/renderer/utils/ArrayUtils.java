@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
 public class ArrayUtils {
 
@@ -72,5 +73,17 @@ public class ArrayUtils {
             }
         }
         return false;
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Nullable
+    public static Map<String, Object> getMapValue(@NonNull List<?> params, int index) {
+        if (index < params.size()) {
+            Object element = params.get(index);
+            if (element instanceof Map) {
+                return ((Map) element);
+            }
+        }
+        return null;
     }
 }

@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.image;
 
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_END;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_ERROR;
+import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_PROGRESS;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_LOAD_START;
 import static com.tencent.renderer.utils.EventUtils.EVENT_IMAGE_ON_LOAD;
 
@@ -110,10 +111,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
 
     public enum ImageEvent {
-        ONLOAD,
-        ONLOAD_START,
-        ONLOAD_END,
-        ONERROR
+        ON_LOAD,
+        ON_LOAD_START,
+        ON_LOAD_PROGRESS,
+        ON_LOAD_END,
+        ON_LOAD_ERROR,
     }
 
     protected NativeGestureDispatcher mGestureDispatcher;
@@ -212,6 +214,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
                 }
 
                 @Override
+                public void onRequestProgress(float total, float loaded) {
+                    handleGetImageProgress(total, loaded);
+                }
+
+                @Override
                 public void onRequestSuccess(ImageDataSupplier supplier) {
                     if (sourceType == SOURCE_TYPE_SRC) {
                         if (!TextUtils.equals(url, mUrl)) {
@@ -265,7 +272,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
         resetContent();
 
         if (url != null && (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url))) {
-            int defaultBackgroundColor = Color.LTGRAY;
+            int defaultBackgroundColor = Color.TRANSPARENT;
             if (mUserHasSetBackgroudnColor) {
                 defaultBackgroundColor = mUserSetBackgroundColor;
             }
@@ -346,19 +353,30 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     @Override
     protected void handleGetImageStart() {
         // send onLoadStart event
-        if (mShouldSendImageEvent[ImageEvent.ONLOAD_START.ordinal()]) {
+        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_START.ordinal()]) {
             EventUtils.send(this, EVENT_IMAGE_LOAD_START, null);
+        }
+    }
+
+    @Override
+    protected void handleGetImageProgress(float total, float loaded) {
+        // send onLoadStart event
+        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_PROGRESS.ordinal()]) {
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("loaded", loaded);
+            params.put("total", total);
+            EventUtils.send(this, EVENT_IMAGE_LOAD_PROGRESS, params);
         }
     }
 
     @Override
     protected void handleGetImageSuccess() {
         // send onLoad event
-        if (mShouldSendImageEvent[ImageEvent.ONLOAD.ordinal()]) {
+        if (mShouldSendImageEvent[ImageEvent.ON_LOAD.ordinal()]) {
             EventUtils.send(this, EVENT_IMAGE_ON_LOAD, null);
         }
         // send onLoadEnd event
-        if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {
+        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_END.ordinal()]) {
             HashMap<String, Object> params = new HashMap<>();
             params.put("success", 1);
             if (mSourceDrawable != null) {
@@ -377,11 +395,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     @Override
     protected void handleGetImageFail(Throwable throwable) {
         // send onError event
-        if (mShouldSendImageEvent[ImageEvent.ONERROR.ordinal()]) {
+        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_ERROR.ordinal()]) {
             EventUtils.send(this, EVENT_IMAGE_LOAD_ERROR, null);
         }
         // send onLoadEnd event
-        if (mShouldSendImageEvent[ImageEvent.ONLOAD_END.ordinal()]) {
+        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_END.ordinal()]) {
             HashMap<String, Object> params = new HashMap<>();
             params.put("success", 0);
             EventUtils.send(this, EVENT_IMAGE_LOAD_END, params);
