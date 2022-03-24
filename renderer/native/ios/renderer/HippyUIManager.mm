@@ -901,7 +901,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)updateRenderNodes:(std::vector<std::shared_ptr<DomNode>>&&)nodes {
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (const auto &node : nodes) {
-        NSNumber *hippyTag = @(node->GetId());
+        NSNumber *hippyTag = @(node->GetRenderInfo().id);
         NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
         NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
         NSDictionary *extProps = unorderedMapDomValueToDictionary(node->GetExtStyle());

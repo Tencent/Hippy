@@ -161,10 +161,11 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   tdf::base::DomValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
+    const auto& render_info = nodes[i]->GetRenderInfo();
     tdf::base::DomValue::DomValueObjectType dom_node;
-    dom_node[kId] = tdf::base::DomValue(nodes[i]->GetId());
-    dom_node[kPid] = tdf::base::DomValue(nodes[i]->GetPid());
-    dom_node[kIndex] = tdf::base::DomValue(nodes[i]->GetIndex());
+    dom_node[kId] = tdf::base::DomValue(render_info.id);
+    dom_node[kPid] = tdf::base::DomValue(render_info.pid);
+    dom_node[kIndex] = tdf::base::DomValue(render_info.index);
     dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
 
     tdf::base::DomValue::DomValueObjectType props;
