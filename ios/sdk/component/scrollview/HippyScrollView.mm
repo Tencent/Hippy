@@ -180,6 +180,7 @@ const CGFloat gDoubleMinDiff = .000001f;
     NSMutableDictionary *_contentOffsetCache;
     BOOL _didSetContentOffset;
     __weak HippyRootView *_rootView;
+    BOOL _showScrollIndicator[2];
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -776,10 +777,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 - (void)applyLayoutDirectionIfNeeded {
     if ([self isLayoutSubviewsRTL]) {
         _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
+        _showScrollIndicator[0] = _scrollView.showsHorizontalScrollIndicator;
+        _showScrollIndicator[1] = _scrollView.showsVerticalScrollIndicator;
+        _scrollView.showsVerticalScrollIndicator = NO;
+        _scrollView.showsHorizontalScrollIndicator = NO;
         _contentView.transform = CGAffineTransformMakeRotation(M_PI);
     }
     else {
         _scrollView.transform = CGAffineTransformIdentity;
+        _scrollView.showsHorizontalScrollIndicator = _showScrollIndicator[0];
+        _scrollView.showsVerticalScrollIndicator = _showScrollIndicator[1];
         _contentView.transform = CGAffineTransformIdentity;
     }
 }

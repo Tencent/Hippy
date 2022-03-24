@@ -105,10 +105,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     collectionView.dataSource = self;
     collectionView.delegate = self;
     collectionView.layoutDelegate = self;
-    collectionView.alwaysBounceVertical = YES;
     collectionView.backgroundColor = [UIColor clearColor];
-    collectionView.alwaysBounceVertical = YES;
-    collectionView.alwaysBounceHorizontal = NO;
     _collectionView = collectionView;
     [self registerCells];
     [self registerSupplementaryViews];

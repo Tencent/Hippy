@@ -62,8 +62,6 @@ static NSString *const kListViewItem = @"ListViewItem";
         self.preloadItemNumber = 1;
         _dataSource = [[HippyBaseListViewDataSource alloc] init];
         self.dataSource.itemViewName = [self compoentItemName];
-        self.collectionView.alwaysBounceVertical = YES;
-        self.collectionView.alwaysBounceHorizontal = NO;
     }
 
     return self;
@@ -517,8 +515,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (void)setHorizontal:(BOOL)horizontal {
     if (_horizontal != horizontal) {
         _horizontal = horizontal;
-        self.collectionView.alwaysBounceVertical = !_horizontal;
-        self.collectionView.alwaysBounceHorizontal = _horizontal;
         UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         layout.scrollDirection = horizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical;
         [self.collectionView.collectionViewLayout invalidateLayout];
