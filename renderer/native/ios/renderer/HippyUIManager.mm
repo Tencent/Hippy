@@ -914,7 +914,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)deleteRenderNodesIds:(std::vector<std::shared_ptr<hippy::DomNode>> &&)nodes {
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (auto dom_node : nodes) {
-        int32_t tag = dom_node->GetId();
+        int32_t tag = dom_node->GetRenderInfo().id;
         HippyShadowView *shadowView = _shadowViewRegistry[@(tag)];
         if (shadowView) {
             [shadowView removeFromHippySuperview];

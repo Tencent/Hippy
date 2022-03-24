@@ -110,12 +110,14 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes]() {
     DEFINE_AND_CHECK_SELF(DomManager)
+    std::vector<std::shared_ptr<DomNode>> nodes_to_update;
     for (const auto& it : nodes) {
       std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode(
           hippy::base::checked_numeric_cast<uint32_t , int32_t>(it->GetId()));
       if (node == nullptr) {
         continue;
       }
+      nodes_to_update.push_back(node);
       // diff props
       auto style_diff_value = DiffUtils::DiffProps(*node->GetStyleMap(), *it->GetStyleMap());
       auto ext_diff_value = DiffUtils::DiffProps(*node->GetExtStyle(), *it->GetExtStyle());
@@ -143,7 +145,6 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       node->SetDeleteProps(delete_value);
       it->SetDiffStyle(diff_value);
       it->SetDeleteProps(delete_value);
-      it->SetRenderInfo(node->GetRenderInfo());
       // node->ParseLayoutStyleInfo();
       self->HandleEvent(std::make_shared<DomEvent>(kOnDomUpdated, node, nullptr));
 
@@ -157,8 +158,8 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
       });
     }
 
-    if (!nodes.empty()) {
-      self->batched_operations_.emplace_back([self, moved_nodes = nodes]() mutable {
+    if (!nodes_to_update.empty()) {
+      self->batched_operations_.emplace_back([self, moved_nodes = nodes_to_update]() mutable {
         auto render_manager = self->render_manager_.lock();
         TDF_BASE_DCHECK(render_manager);
         if (render_manager) {
@@ -172,12 +173,14 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes] {
     DEFINE_AND_CHECK_SELF(DomManager)
+    std::vector<std::shared_ptr<DomNode>> nodes_to_delete;
     for (const auto & it : nodes) {
       std::shared_ptr<DomNode> node = self->dom_node_registry_.GetNode(
           hippy::base::checked_numeric_cast<uint32_t, int32_t>(it->GetId()));
       if (node == nullptr) {
         continue;
       }
+      nodes_to_delete.push_back(node);
       std::shared_ptr<DomNode> parent_node = node->GetParent();
       if (parent_node != nullptr) {
         parent_node->RemoveChildAt(parent_node->IndexOf(node));
@@ -192,8 +195,8 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
           [layout_node, parent_layout_node]() { parent_layout_node->RemoveChild(layout_node); });
     }
 
-    if (!nodes.empty()) {
-      self->batched_operations_.emplace_back([self, moved_nodes = nodes]() mutable {
+    if (!nodes_to_delete.empty()) {
+      self->batched_operations_.emplace_back([self, moved_nodes = nodes_to_delete]() mutable {
         auto render_manager = self->render_manager_.lock();
         TDF_BASE_DCHECK(render_manager);
         if (render_manager) {
