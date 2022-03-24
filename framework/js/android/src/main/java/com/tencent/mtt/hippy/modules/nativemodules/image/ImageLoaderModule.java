@@ -32,53 +32,61 @@ import java.util.Map;
 @HippyNativeModule(name = "ImageLoaderModule")
 public class ImageLoaderModule extends HippyNativeModuleBase {
 
-  final ImageLoaderAdapter mImageAdapter;
+    final ImageLoaderAdapter mImageAdapter;
 
-  public ImageLoaderModule(HippyEngineContext context) {
-    super(context);
-    mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
-  }
+    public ImageLoaderModule(HippyEngineContext context) {
+        super(context);
+        mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
+    }
 
-  @HippyMethod(name = "getSize")
-  public void getSize(final String url, final Promise promise) {
-    mImageAdapter.fetchImage(url, new ImageRequestListener() {
-      @Override
-      public void onRequestStart(ImageDataSupplier supplier) {
-      }
+    @HippyMethod(name = "getSize")
+    public void getSize(final String url, final Promise promise) {
+        mImageAdapter.fetchImage(url, new ImageRequestListener() {
+            @Override
+            public void onRequestStart(ImageDataSupplier supplier) {
+            }
 
-      @Override
-      public void onRequestSuccess(ImageDataSupplier supplier) {
-        if (supplier != null) {
-          HippyMap resultMap = new HippyMap();
-          resultMap.pushInt("width", supplier.getImageWidth());
-          resultMap.pushInt("height", supplier.getImageWidth());
-          promise.resolve(resultMap);
-        } else {
-          promise.reject("Fetch image failed, source=" + url);
-        }
-      }
+            @Override
+            public void onRequestProgress(float total, float loaded) {
+            }
 
-      @Override
-      public void onRequestFail(Throwable throwable, String source) {
-        promise.reject("Fetch image failed, source=" + source);
-      }
-    }, null);
-  }
+            @Override
+            public void onRequestSuccess(ImageDataSupplier supplier) {
+                if (supplier != null) {
+                    HippyMap resultMap = new HippyMap();
+                    resultMap.pushInt("width", supplier.getImageWidth());
+                    resultMap.pushInt("height", supplier.getImageWidth());
+                    promise.resolve(resultMap);
+                } else {
+                    promise.reject("Fetch image failed, source=" + url);
+                }
+            }
 
-  @HippyMethod(name = "prefetch")
-  public void prefetch(String url) {
-    mImageAdapter.fetchImage(url, new ImageRequestListener() {
-      @Override
-      public void onRequestStart(ImageDataSupplier supplier) {
-      }
+            @Override
+            public void onRequestFail(Throwable throwable, String source) {
+                promise.reject("Fetch image failed, source=" + source);
+            }
+        }, null);
+    }
 
-      @Override
-      public void onRequestSuccess(ImageDataSupplier supplier) {
-      }
+    @HippyMethod(name = "prefetch")
+    public void prefetch(String url) {
+        mImageAdapter.fetchImage(url, new ImageRequestListener() {
+            @Override
+            public void onRequestStart(ImageDataSupplier supplier) {
+            }
 
-      @Override
-      public void onRequestFail(Throwable throwable, String source) {
-      }
-    }, null);
-  }
+            @Override
+            public void onRequestProgress(float total, float loaded) {
+            }
+
+            @Override
+            public void onRequestSuccess(ImageDataSupplier supplier) {
+            }
+
+            @Override
+            public void onRequestFail(Throwable throwable, String source) {
+            }
+        }, null);
+    }
 }

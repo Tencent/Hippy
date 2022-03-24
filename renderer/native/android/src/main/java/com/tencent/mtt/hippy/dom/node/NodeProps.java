@@ -41,8 +41,6 @@ public class NodeProps {
   public static final String JUSTIFY_CONTENT = "justifyContent";
   public static final String LEFT = "left";
   public static final String DISPLAY = "display";
-
-
   public static final String MARGIN = "margin";
   public static final String MARGIN_VERTICAL = "marginVertical";
   public static final String MARGIN_HORIZONTAL = "marginHorizontal";
@@ -50,7 +48,6 @@ public class NodeProps {
   public static final String MARGIN_RIGHT = "marginRight";
   public static final String MARGIN_TOP = "marginTop";
   public static final String MARGIN_BOTTOM = "marginBottom";
-
   public static final String PADDING = "padding";
   public static final String PADDING_VERTICAL = "paddingVertical";
   public static final String PADDING_HORIZONTAL = "paddingHorizontal";
@@ -58,30 +55,25 @@ public class NodeProps {
   public static final String PADDING_RIGHT = "paddingRight";
   public static final String PADDING_TOP = "paddingTop";
   public static final String PADDING_BOTTOM = "paddingBottom";
-
   public static final String POSITION = "position";
   public static final String RIGHT = "right";
   public static final String TOP = "top";
   public static final String WIDTH = "width";
-
   public static final String MIN_WIDTH = "minWidth";
   public static final String MAX_WIDTH = "maxWidth";
   public static final String MIN_HEIGHT = "minHeight";
   public static final String MAX_HEIGHT = "maxHeight";
-
   public static final String BORDER_WIDTH = "borderWidth";
   public static final String BORDER_LEFT_WIDTH = "borderLeftWidth";
   public static final String BORDER_TOP_WIDTH = "borderTopWidth";
   public static final String BORDER_RIGHT_WIDTH = "borderRightWidth";
   public static final String BORDER_BOTTOM_WIDTH = "borderBottomWidth";
-
   public static final String BORDER_COLOR = "borderColor";
   public static final String BORDER_LEFT_COLOR = "borderLeftColor";
   public static final String BORDER_TOP_COLOR = "borderTopColor";
   public static final String BORDER_RIGHT_COLOR = "borderRightColor";
   public static final String BORDER_BOTTOM_COLOR = "borderBottomColor";
   public static final String BORDER_STYLES = "borderStyle";
-
   public static final String SHADOW_COLOR = "shadowColor";
   public static final String SHADOW_OFFSET = "shadowOffset";
   public static final String SHADOW_OFFSET_X = "shadowOffsetX";
@@ -89,11 +81,7 @@ public class NodeProps {
   public static final String SHADOW_OPACITY = "shadowOpacity";
   public static final String SHADOW_RADIUS = "shadowRadius";
   public static final String SHADOW_SPREAD = "shadowSpread";
-
   public static final String LINEAR_GRADIENT = "linearGradient";
-
-  //View props
-
   public static final String ENABLED = "enabled";
   public static final String OPACITY = "opacity";
   public static final String BACKGROUND_COLOR = "backgroundColor";
@@ -172,6 +160,7 @@ public class NodeProps {
   public static final String REPEAT_COUNT = "repeatCount";
   public static final String ATTRIBUTES	= "attributes";
   public static final String BACKGROUND_RIPPLE	= "nativeBackgroundAndroid";
+  public static final String OVER_PULL	= "bounces";
 
   private static final HashSet<String> JUST_LAYOUT_PROPS = new HashSet<>(
       Arrays.asList(ALIGN_SELF, ALIGN_ITEMS, COLLAPSABLE, FLEX, FLEX_DIRECTION, FLEX_WRAP,

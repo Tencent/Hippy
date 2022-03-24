@@ -24,11 +24,13 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.EasyLinearLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.View;
+import androidx.recyclerview.widget.RecyclerView;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
@@ -51,6 +53,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
     public static final String SCROLL_TO_TOP = "scrollToTop";
     public static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
+    public static final String COLLAPSE_PULL_HEADER_WITH_OPTIONS = "collapsePullHeaderWithOptions";
     public static final String EXPAND_PULL_HEADER = "expandPullHeader";
     public static final String HORIZONTAL = "horizontal";
 
@@ -107,15 +110,22 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         LinearLayoutManager layoutManager = new EasyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
         boolean enableScrollEvent = false;
+        boolean enableOverPull = true;
         if (props != null) {
             if (MapUtils.getBooleanValue(props, HORIZONTAL)) {
                 layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             }
             enableScrollEvent = MapUtils.getBooleanValue(props, "onScroll");
+            if (props.containsKey(NodeProps.OVER_PULL)) {
+                enableOverPull = MapUtils.getBooleanValue(props, NodeProps.OVER_PULL);
+            }
         }
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.initRecyclerView();
         recyclerView.getRecyclerViewEventHelper().setOnScrollEventEnable(enableScrollEvent);
+        if (HippyListUtils.isVerticalLayout(recyclerView)) {
+            recyclerView.setEnableOverPull(enableOverPull);
+        }
         return recyclerView;
     }
 
@@ -165,8 +175,25 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         view.setScrollEnable(flag);
     }
 
+    @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
+    public void setOverScrollEnable(HRW view, boolean flag) {
+        if (flag) {
+            view.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+        } else {
+            view.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        }
+    }
+
+    @HippyControllerProps(name = NodeProps.OVER_PULL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+    public void setBounces(HRW viewWrapper, boolean flag) {
+        HippyRecyclerView recyclerView = viewWrapper.getRecyclerView();
+        if (recyclerView != null && HippyListUtils.isVerticalLayout(recyclerView)) {
+            recyclerView.setEnableOverPull(flag);
+        }
+    }
+
     @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
-    public void setscrollEventThrottle(HRW view, int scrollEventThrottle) {
+    public void setScrollEventThrottle(HRW view, int scrollEventThrottle) {
         view.getRecyclerViewEventHelper().setScrollEventThrottle(scrollEventThrottle);
     }
 
@@ -217,10 +244,33 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                 getAdapter(view).getHeaderEventHelper().onHeaderRefreshFinish();
                 break;
             }
+            case COLLAPSE_PULL_HEADER_WITH_OPTIONS: {
+                Map<String, Object> valueMap = ArrayUtils.getMapValue(params, 0);
+                if (valueMap == null) {
+                    return;
+                }
+                final int time = MapUtils.getIntValue(valueMap, "time");
+                final HippyRecyclerListAdapter adapter = getAdapter(view);
+                if (adapter == null) {
+                    return;
+                }
+                if (time > 0) {
+                    view.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.getHeaderEventHelper().onHeaderRefreshFinish();
+                        }
+                    }, time);
+                } else {
+                    adapter.getHeaderEventHelper().onHeaderRefreshFinish();
+                }
+            }
             case EXPAND_PULL_HEADER: {
                 getAdapter(view).getHeaderEventHelper().onHeaderRefresh();
                 break;
             }
+            default:
+                break;
         }
     }
 

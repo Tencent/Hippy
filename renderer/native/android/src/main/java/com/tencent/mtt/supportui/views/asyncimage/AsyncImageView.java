@@ -243,6 +243,11 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
                     }
 
                     @Override
+                    public void onRequestProgress(float total, float loaded) {
+
+                    }
+
+                    @Override
                     public void onRequestSuccess(ImageDataSupplier imageDataSupplier) {
                         handleImageRequest(imageDataSupplier, sourceType, null);
                     }
@@ -267,6 +272,11 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
                 @Override
                 public void onRequestStart(ImageDataSupplier supplier) {
                     mSourceDrawable = supplier;
+                }
+
+                @Override
+                public void onRequestProgress(float total, float loaded) {
+                    handleGetImageProgress(total, loaded);
                 }
 
                 @Override
@@ -425,6 +435,9 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
     }
 
     protected void handleGetImageFail(Throwable throwable) {
+    }
+
+    protected void handleGetImageProgress(float total, float loaded) {
     }
 
     @Override

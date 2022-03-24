@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 
@@ -327,13 +328,12 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                     mIsKeyBoardShow = false; //键盘没有显示
                 } else {
                     if (!mIsKeyBoardShow) {
-                        HippyMap hippyMap = new HippyMap();
-                        hippyMap.pushInt("keyboardHeight", Math.abs(
-                                screenHeight
-                                        - rootViewVisibleHeight)); //TODO 首次输入这里需要减去一个statusbar的高度,但是又要当心全屏模式
+                        Map<String, Object> keyboardHeightMap = new HashMap<>();
+                        int height = Math.abs(screenHeight - rootViewVisibleHeight);
+                        keyboardHeightMap.put("keyboardHeight", Math.round(PixelUtil.px2dp(height)));
                         if (nativeRenderer != null) {
                             nativeRenderer.dispatchUIComponentEvent(getId(),
-                                    "onKeyboardWillShow", hippyMap);
+                                    "onKeyboardWillShow", keyboardHeightMap);
                         }
                     }
                     mIsKeyBoardShow = true; //键盘显示 ----s首次需要通知
@@ -342,10 +342,9 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                 //假设输入键盘的高度位屏幕高度20%
                 if (rootViewVisibleHeight > screenHeight * 0.8f) {
                     if (mIsKeyBoardShow) {
-                        HippyMap hippyMap = new HippyMap();
                         if (nativeRenderer != null) {
                             nativeRenderer.dispatchUIComponentEvent(getId(),
-                                    "onKeyboardWillHide", hippyMap);
+                                    "onKeyboardWillHide", null);
                         }
                     }
                     mIsKeyBoardShow = false; //键盘没有显示

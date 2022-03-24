@@ -783,11 +783,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mLinkHelper.setFrameworkProxy(HippyEngineManagerImpl.this);
             if (mLinkHelper.getRenderer() instanceof NativeRenderProxy) {
                 List<Class<?>> controllers = null;
-                for (ControllerProvider provider : mControllerProviders) {
-                    if (controllers == null) {
-                        controllers = provider.getControllers();
-                    } else {
-                        controllers.addAll(provider.getControllers());
+                if (mControllerProviders != null) {
+                    for (ControllerProvider provider : mControllerProviders) {
+                        if (controllers == null) {
+                            controllers = provider.getControllers();
+                        } else {
+                            controllers.addAll(provider.getControllers());
+                        }
                     }
                 }
                 ((NativeRenderProxy) mLinkHelper.getRenderer())

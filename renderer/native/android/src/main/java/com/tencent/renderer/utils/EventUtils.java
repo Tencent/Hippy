@@ -34,6 +34,8 @@ public class EventUtils {
     public static final String EVENT_IMAGE_LOAD_END = "loadEnd";
     // On image load start.
     public static final String EVENT_IMAGE_LOAD_START = "loadStart";
+    // On image load progress.
+    public static final String EVENT_IMAGE_LOAD_PROGRESS = "progress";
 
     // On list view header released.
     public static final String EVENT_LIST_HEADER_RELEASED = "headerReleased";
