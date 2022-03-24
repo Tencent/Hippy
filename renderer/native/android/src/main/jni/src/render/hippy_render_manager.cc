@@ -204,7 +204,7 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
   std::vector<jint> id;
   id.resize(nodes.size());
   for (size_t i = 0; i < nodes.size(); i++) {
-    id[i] = hippy::base::checked_numeric_cast<uint32_t, jint>(nodes[i]->GetId());
+    id[i] = hippy::base::checked_numeric_cast<uint32_t, jint>(nodes[i]->GetRenderInfo().id);
   }
   j_env->SetIntArrayRegion(j_int_array, 0, size, &id[0]);
 
