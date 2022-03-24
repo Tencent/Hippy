@@ -175,7 +175,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             [(HippyTextView *)parentView performTextUpdate];
         }
     }];
-
     return parentProperties;
 }
 
@@ -215,6 +214,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     @catch (NSException *exception) {
         [super amendLayoutBeforeMount];
     }
+}
+
+- (void)applyConfirmedLayoutDirectionToSubviews:(HPDirection)confirmedLayoutDirection {
+    [super applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
+    [self dirtyText];
 }
 
 - (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(hippy::LayoutMeasureMode)widthMode {
@@ -346,8 +350,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
-    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
-    if (NSWritingDirectionRightToLeft == direction) {
+    if ([self isLayoutSubviewsRTL]) {
         NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding)]};
         [attributedString addAttributes:dic range:NSMakeRange(0, [self.text length])];
     }

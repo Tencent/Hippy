@@ -368,19 +368,29 @@ HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 
-//HIPPY_CUSTOM_VIEW_PROPERTY(direction, HPDirection, UIView) {
+- (HPDirection)convertDirection:(NSString *)direction {
+    if ([direction isEqualToString:@"rtl"]) {
+        return DirectionRTL;
+    }
+    else if ([direction isEqualToString:@"ltr"]) {
+        return DirectionLTR;
+    }
+    else {
+        return DirectionInherit;
+    }
+}
+
+//HIPPY_CUSTOM_VIEW_PROPERTY(direction, id, UIView) {
 //    if (json) {
-//        HPDirection dir = (HPDirection)[HippyConvert int:json];
-//        view.layoutDirection = dir;
+//        view.layoutDirection = [self convertDirection:json];
 //    }
 //}
 
-//HIPPY_CUSTOM_SHADOW_PROPERTY(direction, HPDirection, HippyShadowView) {
-//    if (json) {
-//        HPDirection dir = (HPDirection)[HippyConvert int:json];
-//        view.layoutDirection = dir;
-//    }
-//}
+HIPPY_CUSTOM_SHADOW_PROPERTY(direction, id, HippyShadowView) {
+    if (json) {
+        view.layoutDirection = [self convertDirection:json];
+    }
+}
 
 @end
 

@@ -285,6 +285,26 @@
 }
 
 #pragma mark other methods
+- (void)applyLayoutDirectionIfNeeded {
+    if ([self isLayoutSubviewsRTL]) {
+        self.transform = CGAffineTransformMakeRotation(M_PI);
+        for (UIView *itemView in self.viewPagerItems) {
+            itemView.transform = CGAffineTransformMakeRotation(M_PI);
+        }
+    }
+    else {
+        self.transform = CGAffineTransformIdentity;
+        for (UIView *itemView in self.viewPagerItems) {
+            itemView.transform = CGAffineTransformIdentity;
+        }
+    }
+}
+
+- (void)setConfirmedLayoutDirection:(HPDirection)confirmedLayoutDirection {
+    [super setConfirmedLayoutDirection:confirmedLayoutDirection];
+    [self applyLayoutDirectionIfNeeded];
+}
+
 - (NSUInteger)currentPageIndex {
     return [self pageIndexForContentOffset:self.contentOffset.x];
 }

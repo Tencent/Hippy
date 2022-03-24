@@ -31,6 +31,8 @@
 #import "HippyBaseListViewDataSource.h"
 #import "UIView+RootViewRegister.h"
 #import "UIView+Render.h"
+#import "HippyCollectionViewFlowLayout.h"
+#import "UIView+DirectionalLayout.h"
 #import "objc/runtime.h"
 
 #define kCellZIndexConst 10000.f
@@ -60,8 +62,6 @@ static NSString *const kListViewItem = @"ListViewItem";
         self.preloadItemNumber = 1;
         _dataSource = [[HippyBaseListViewDataSource alloc] init];
         self.dataSource.itemViewName = [self compoentItemName];
-        self.collectionView.alwaysBounceVertical = YES;
-        self.collectionView.alwaysBounceHorizontal = NO;
     }
 
     return self;
@@ -87,12 +87,20 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (__kindof UICollectionViewLayout *)collectionViewLayout {
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    BOOL layoutDirectionRTL = [self isLayoutSubviewsRTL];
+    [[HippyCollectionViewFlowLayoutRTLStack sharedInstance] pushRTLConfig:layoutDirectionRTL];
+    HippyCollectionViewFlowLayout *layout = [[HippyCollectionViewFlowLayout alloc] init];
     layout.minimumLineSpacing = .0f;
     layout.minimumInteritemSpacing = .0f;
     layout.sectionHeadersPinToVisibleBounds = YES;
     layout.scrollDirection = _horizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical;
     return layout;
+}
+
+- (void)applyLayoutDirectionFromParent:(HPDirection)direction {
+    [super applyLayoutDirectionFromParent:direction];
+    [self.collectionView removeFromSuperview];
+    [self initCollectionView];
 }
 
 - (void)registerCells {
@@ -507,8 +515,6 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (void)setHorizontal:(BOOL)horizontal {
     if (_horizontal != horizontal) {
         _horizontal = horizontal;
-        self.collectionView.alwaysBounceVertical = !_horizontal;
-        self.collectionView.alwaysBounceHorizontal = _horizontal;
         UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
         layout.scrollDirection = horizontal ? UICollectionViewScrollDirectionHorizontal : UICollectionViewScrollDirectionVertical;
         [self.collectionView.collectionViewLayout invalidateLayout];

@@ -108,6 +108,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
 
 /**
+ * Initial collection view
+ */
+- (void)initCollectionView;
+
+/**
  * Indicate class for item
  *
  * @return Class for item

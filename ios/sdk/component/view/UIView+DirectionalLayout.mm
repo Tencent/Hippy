@@ -47,15 +47,6 @@
 }
 
 - (BOOL)isLayoutSubviewsRTL {
-    if (DirectionInherit == self.confirmedLayoutDirection) {
-        NSMutableSet<UIView *> *viewsSet = [NSMutableSet setWithCapacity:32];
-        HPDirection direction = DirectionInherit;
-        [self checkLayoutDirection:viewsSet direction:&direction];
-        self.confirmedLayoutDirection = direction;
-        [viewsSet enumerateObjectsUsingBlock:^(UIView *view, BOOL *stop) {
-            view.confirmedLayoutDirection = direction;
-        }];
-    }
     BOOL layoutRTL = DirectionRTL == self.confirmedLayoutDirection;
     return layoutRTL;
 }
@@ -77,6 +68,13 @@
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }
     }
+}
+
+- (void)applyLayoutDirectionFromParent:(HPDirection)direction {
+    for (UIView *subview in self.subviews) {
+        [subview applyLayoutDirectionFromParent:direction];
+    }
+    self.confirmedLayoutDirection = direction;
 }
 
 @end
