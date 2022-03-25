@@ -1,7 +1,7 @@
 import { HippyWebEngine } from './engine';
 
 declare global {
-  interface HippyModule {
+  interface HippyGlobalObject {
     web: {
       Engine: typeof HippyWebEngine,
       engine: HippyWebEngine

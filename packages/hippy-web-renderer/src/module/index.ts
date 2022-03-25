@@ -28,7 +28,7 @@ import { UIManagerModule } from './ui-manager-module';
 import { WebSocketModule } from './websocket-module';
 
 
-export const CORE_MODULES = [
+export const CORE_MODULES = {
   AnimationModule,
   ClipboardModule,
   DeviceEventModule,
@@ -38,4 +38,4 @@ export const CORE_MODULES = [
   StorageModule,
   UIManagerModule,
   WebSocketModule,
-];
+};

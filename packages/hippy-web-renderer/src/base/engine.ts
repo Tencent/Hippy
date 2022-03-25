@@ -6,10 +6,9 @@ import { createCallNatives } from './create-call-natives';
 import { HippyWebEventBus } from './event-bus';
 import { scriptLoader } from './script-loader';
 
-
 export interface HippyWebEngineCreatorOptions {
-  modules?: (typeof HippyWebModule)[];
-  components?: HippyBaseViewConstructor[];
+  modules?: { [key: string]: (typeof HippyWebModule) };
+  components?: { [key: string]: HippyBaseViewConstructor };
 }
 
 export interface HippyWebEngineStartOptions {
@@ -19,7 +18,7 @@ export interface HippyWebEngineStartOptions {
 }
 
 export class HippyWebEngine {
-  static coreModules: (typeof HippyWebModule)[] = [];
+  static coreModules: { [key: string]: typeof HippyWebModule } = {};
   static coreComponents: { [key: string]: HippyBaseViewConstructor };
   static create(options?: HippyWebEngineCreatorOptions) {
     // load core modules
@@ -49,7 +48,6 @@ export class HippyWebEngine {
     const { modules, components } = options;
 
     this.registerCore();
-
     this.registerModules(modules);
     this.registerComponents(components);
 
@@ -65,8 +63,9 @@ export class HippyWebEngine {
     this.registerComponents(HippyWebEngine.coreComponents);
   }
 
-  registerModules(modules?: (typeof HippyWebModule)[]) {
-    modules?.forEach((ModuleCtor) => {
+  registerModules(modules?: { [key: string]: typeof HippyWebModule }) {
+    Object.keys(modules || {}).forEach((key) => {
+      const ModuleCtor = modules![key];
       const mod = new ModuleCtor(this.context);
       this.modules[mod.name] = mod;
     });
