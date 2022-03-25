@@ -1,7 +1,7 @@
 package com.tencent.mtt.hippy.views.waterfalllist;
 
 import android.view.View;
-import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallView.HippyWaterfallEvent;
+import com.tencent.renderer.utils.EventUtils;
 
 /**
  * @author hengyangji
@@ -13,7 +13,7 @@ public class WaterfallEndChecker {
   public void onScroll(HippyWaterfallView waterfallView, int y) {
     boolean currentVerticalEnd = checkVerticalEnd(waterfallView, y);
     if (!isVerticalEnd && currentVerticalEnd) {
-      new HippyWaterfallEvent("onEndReached").send(waterfallView, null);
+      EventUtils.send(waterfallView, EventUtils.EVENT_WATERFALL_END_REACHED, null);
     }
     isVerticalEnd = currentVerticalEnd;
   }

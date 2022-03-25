@@ -33,6 +33,7 @@ import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.list.HippyListView;
+import com.tencent.mtt.hippy.views.modal.HippyModalHostView;
 import com.tencent.mtt.hippy.views.refresh.FooterUtil;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.IFooterContainer;
@@ -46,7 +47,9 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import com.tencent.renderer.utils.EventUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -418,17 +421,12 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
   public class HippyWaterfallAdapter extends RecyclerAdapter implements
     HippyWaterfallItemRenderNode.IRecycleItemTypeChange {
 
-    private HippyWaterfallEvent mOnFooterAppearedEvent;
-    private HippyWaterfallEvent mOnRefreshEvent;
-    private HippyWaterfallEvent mOnScrollForReportEvent;
     private int mPreloadItemNum;
     private boolean mShouldUpdatePreloadDistance;
     private int mPreloadDistanceWithItemNumber;
     private boolean mOnPreloadCalled;
     private boolean mEnableScrollForReport;
     private boolean mEnableExposureReport;
-    private HippyMap mScrollReportResultMap;
-    private HippyMap mExposureReportResultMap;
     private OnListScrollListener mOnListScrollListener;
 
     private boolean mHasOnScrollForReport = false;
@@ -626,16 +624,14 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     @Override
     public void startRefreshData() {
       mHasOnRefresh = true;
-
-      //sendEvent("OnRefreshEvent");
-      getOnRefreshEvent().send(mParentRecyclerView, null);
+      EventUtils.send(mParentRecyclerView, EventUtils.EVENT_WATERFALL_REFRESH, null);
     }
 
     public void startRefreshData(boolean fromPull) {
       mHasOnRefresh = true;
-      HippyMap params = new HippyMap();
-      params.pushString("refreshFrom", fromPull ? "pull" : "command");
-      getOnRefreshEvent().send(mParentRecyclerView, params);
+      Map<String, Object> params = new HashMap<>();
+      params.put("refreshFrom", fromPull ? "pull" : "command");
+      EventUtils.send(mParentRecyclerView, EventUtils.EVENT_WATERFALL_REFRESH, params);
     }
 
     @Override
@@ -649,8 +645,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
       if (mLoadingStatus == IRecyclerViewFooter.LOADING_STATUS_LOADING) {
         mHasOnFooterAppeared = true;
-
-        getOnFooterAppearedEvent().send(mParentRecyclerView, null);
+        EventUtils.send(mParentRecyclerView, EventUtils.EVENT_WATERFALL_FOOTER_APPEARED, null);
       }
     }
 
@@ -759,17 +754,14 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       int currentScrollState, HippyArray visibleItemArray) {
       mHasOnScrollForReport = true;
 
-      if (mScrollReportResultMap == null) {
-        mScrollReportResultMap = new HippyMap();
-      }
-      mScrollReportResultMap.clear();
-      mScrollReportResultMap.pushInt("startEdgePos", startEdgePos);
-      mScrollReportResultMap.pushInt("endEdgePos", endEdgePos);
-      mScrollReportResultMap.pushInt("firstVisibleRowIndex", firstVisiblePos);
-      mScrollReportResultMap.pushInt("lastVisibleRowIndex", lastVisiblePos);
-      mScrollReportResultMap.pushInt("scrollState", currentScrollState);
-      mScrollReportResultMap.pushArray("visibleRowFrames", visibleItemArray);
-      getOnScrollForReportEvent().send(mParentRecyclerView, mScrollReportResultMap);
+      HippyMap scrollReport = new HippyMap();
+      scrollReport.pushInt("startEdgePos", startEdgePos);
+      scrollReport.pushInt("endEdgePos", endEdgePos);
+      scrollReport.pushInt("firstVisibleRowIndex", firstVisiblePos);
+      scrollReport.pushInt("lastVisibleRowIndex", lastVisiblePos);
+      scrollReport.pushInt("scrollState", currentScrollState);
+      scrollReport.pushArray("visibleRowFrames", visibleItemArray);
+      EventUtils.send(mParentRecyclerView, EventUtils.EVENT_WATERFALL_SCROLL_REPORT, scrollReport);
     }
 
     protected void checkExposureForReport(int oldState, int newState) {
@@ -782,20 +774,16 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
         return;
       }
       if (checkNeedToReport(exposureForReport.mVelocity, newState)) {
-        if (mExposureReportResultMap == null) {
-          mExposureReportResultMap = new HippyMap();
-        }
-        mExposureReportResultMap.clear();
-        mExposureReportResultMap.pushInt("startEdgePos", exposureForReport.mStartEdgePos);
-        mExposureReportResultMap.pushInt("endEdgePos", exposureForReport.mEndEdgePos);
-        mExposureReportResultMap
+        HippyMap exposureReport = new HippyMap();
+        exposureReport.pushInt("startEdgePos", exposureForReport.mStartEdgePos);
+        exposureReport.pushInt("endEdgePos", exposureForReport.mEndEdgePos);
+        exposureReport
           .pushInt("firstVisibleRowIndex", exposureForReport.mFirstVisibleRowIndex);
-        mExposureReportResultMap
+        exposureReport
           .pushInt("lastVisibleRowIndex", exposureForReport.mLastVisibleRowIndex);
-        mExposureReportResultMap.pushInt("scrollState", exposureForReport.mScrollState);
-        mExposureReportResultMap.pushArray("visibleRowFrames", exposureForReport.mVisibleRowFrames);
-
-        exposureForReport.send(mParentRecyclerView, mExposureReportResultMap);
+        exposureReport.pushInt("scrollState", exposureForReport.mScrollState);
+        exposureReport.pushArray("visibleRowFrames", exposureForReport.mVisibleRowFrames);
+        exposureForReport.send(mParentRecyclerView, exposureReport);
       }
     }
 
@@ -1057,31 +1045,10 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       checkScrollForReport();
     }
 
-    private HippyWaterfallEvent getOnFooterAppearedEvent() {
-      if (mOnFooterAppearedEvent == null) {
-        mOnFooterAppearedEvent = new HippyWaterfallEvent("onFooterAppeared");
-      }
-      return mOnFooterAppearedEvent;
-    }
-
     @Override
     public void onRecycleItemTypeChanged(int oldType, int newType,
       HippyWaterfallItemRenderNode listItemNode) {
       checkHolderType(oldType, newType, listItemNode);
-    }
-
-    private HippyWaterfallEvent getOnRefreshEvent() {
-      if (mOnRefreshEvent == null) {
-        mOnRefreshEvent = new HippyWaterfallEvent("onRefresh");
-      }
-      return mOnRefreshEvent;
-    }
-
-    private HippyWaterfallEvent getOnScrollForReportEvent() {
-      if (mOnScrollForReportEvent == null) {
-        mOnScrollForReportEvent = new HippyWaterfallEvent("onScrollForReport");
-      }
-      return mOnScrollForReportEvent;
     }
 
     public OnListScrollListener getOnListScrollListener() {
@@ -1169,7 +1136,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
     public ExposureForReport(int tag, int startEdgePos, int endEdgePos, int firstVisiblePos,
       int lastVisiblePos, int velocity, int scrollState, HippyArray visibleItemArray) {
-      super("onExposureReport");
+      super(EventUtils.EVENT_WATERFALL_EXPOSURE_REPORT);
       mStartEdgePos = startEdgePos;
       mEndEdgePos = endEdgePos;
       mFirstVisibleRowIndex = firstVisiblePos;
@@ -1191,21 +1158,6 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
     public OnInitialListReadyEvent(String eventName) {
       super(eventName);
-    }
-  }
-
-  static class HippyWaterfallEvent extends HippyViewEvent {
-
-    String eventName;
-
-    public HippyWaterfallEvent(String name) {
-      super(name);
-      eventName = name;
-    }
-
-    @Override
-    public void send(View view, Object param) {
-      super.send(view, param);
     }
   }
 }
