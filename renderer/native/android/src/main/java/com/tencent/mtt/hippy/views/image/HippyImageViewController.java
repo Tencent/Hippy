@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.views.image;
 
+import android.graphics.PorterDuff.Mode;
 import androidx.annotation.NonNull;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
@@ -73,6 +74,12 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
             defaultNumber = Color.TRANSPARENT)
     public void setTintColor(HippyImageView hippyImageView, int tintColor) {
         hippyImageView.setTintColor(tintColor);
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = "tintColorBlendMode", defaultType = HippyControllerProps.NUMBER)
+    public void setTintColorBlendMode(HippyImageView imageView, int tintColorBlendMode) {
+        imageView.setTintColorBlendMode(tintColorBlendMode);
     }
 
     @SuppressWarnings("unused")

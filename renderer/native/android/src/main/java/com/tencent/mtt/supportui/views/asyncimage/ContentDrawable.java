@@ -16,6 +16,7 @@ package com.tencent.mtt.supportui.views.asyncimage;
 
 import static com.tencent.mtt.supportui.views.asyncimage.AsyncImageView.SOURCE_TYPE_SRC;
 
+import android.graphics.PorterDuff.Mode;
 import com.tencent.mtt.supportui.utils.CommonTool;
 
 import android.graphics.Bitmap;
@@ -48,6 +49,7 @@ public class ContentDrawable extends BaseDrawable
 	protected Paint						mPaint;
 
 	protected int						mTintColor;
+	protected PorterDuff.Mode			mTintColorBlendMode = Mode.SRC_ATOP;
 	protected int						mAlpha;
 	protected AsyncImageView.ScaleType	mScaleType;
 
@@ -92,6 +94,36 @@ public class ContentDrawable extends BaseDrawable
 	public void setTintColor(int tintColor)
 	{
 		mTintColor = tintColor;
+	}
+
+	private Mode intToMode(int val) {
+		switch (val) {
+			case  0: return Mode.CLEAR;
+			case  1: return Mode.SRC;
+			case  2: return Mode.DST;
+			case  3: return Mode.SRC_OVER;
+			case  4: return Mode.DST_OVER;
+			case  5: return Mode.SRC_IN;
+			case  6: return Mode.DST_IN;
+			case  7: return Mode.SRC_OUT;
+			case  8: return Mode.DST_OUT;
+			case 10: return Mode.DST_ATOP;
+			case 11: return Mode.XOR;
+			case 16: return Mode.DARKEN;
+			case 17: return Mode.LIGHTEN;
+			case 13: return Mode.MULTIPLY;
+			case 14: return Mode.SCREEN;
+			case 12: return Mode.ADD;
+			case 15: return Mode.OVERLAY;
+			case  9:
+				// fall through
+			default:
+				return Mode.SRC_ATOP;
+		}
+	}
+
+	public void setTintColorBlendMode(int tintColorBlendMode) {
+		mTintColorBlendMode = intToMode(tintColorBlendMode);
 	}
 
 	public void setScaleType(AsyncImageView.ScaleType scaleType)
@@ -354,7 +386,7 @@ public class ContentDrawable extends BaseDrawable
 			mPaint.setAlpha(mAlpha);
 			if (mTintColor != Color.TRANSPARENT)
 			{
-				mPaint.setColorFilter(new PorterDuffColorFilter(mTintColor, PorterDuff.Mode.SRC_ATOP));
+				mPaint.setColorFilter(new PorterDuffColorFilter(mTintColor, mTintColorBlendMode));
 			}
 
 			drawBitmap(canvas, matrix);

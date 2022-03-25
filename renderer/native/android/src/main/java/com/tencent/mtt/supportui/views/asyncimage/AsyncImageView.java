@@ -176,18 +176,17 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 
     public void setTintColor(int tintColor) {
         mTintColor = tintColor;
-        applyTintColor(mTintColor);
-    }
-
-    protected void applyTintColor(int tintColor) {
         if (mContentDrawable instanceof ContentDrawable) {
             ((ContentDrawable) mContentDrawable).setTintColor(tintColor);
             invalidate();
         }
     }
 
-    protected int getTintColor() {
-        return mTintColor;
+    public void setTintColorBlendMode(int tintColorBlendMode) {
+        if (mContentDrawable instanceof ContentDrawable) {
+            ((ContentDrawable) mContentDrawable).setTintColorBlendMode(tintColorBlendMode);
+            invalidate();
+        }
     }
 
     public void setScaleType(ScaleType scaleType) {
@@ -410,7 +409,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
         if (bitmap != null) {
             ((ContentDrawable) mContentDrawable).setSourceType(sourceType);
             ((ContentDrawable) mContentDrawable).setBitmap(bitmap);
-            ((ContentDrawable) mContentDrawable).setTintColor(getTintColor());
+            ((ContentDrawable) mContentDrawable).setTintColor(mTintColor);
             ((ContentDrawable) mContentDrawable).setScaleType(mScaleType);
             ((ContentDrawable) mContentDrawable).setImagePositionX(mImagePositionX);
             ((ContentDrawable) mContentDrawable).setImagePositionY(mImagePositionY);
