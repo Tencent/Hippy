@@ -62,7 +62,23 @@ public class EventUtils {
     // On modal view request close.
     public static final String EVENT_MODAL_REQUEST_CLOSE = "requestClose";
     // On modal view show.
-    public static final String EVENT_MODAL_SHOW = "onShow";
+    public static final String EVENT_MODAL_SHOW = "show";
+
+    // On refresh wrapper view refresh.
+    public static final String EVENT_REFRESH_WRAPPER_REFRESH = "refresh";
+    // On refresh wrapper view scroll.
+    public static final String EVENT_REFRESH_WRAPPER_SCROLL = "scroll";
+
+    // On waterfall view footer appeared.
+    public static final String EVENT_WATERFALL_FOOTER_APPEARED = "footerAppeared";
+    // On waterfall view refresh.
+    public static final String EVENT_WATERFALL_REFRESH = "refresh";
+    // On waterfall view scroll report.
+    public static final String EVENT_WATERFALL_SCROLL_REPORT = "scrollForReport";
+    // On waterfall view exposure report.
+    public static final String EVENT_WATERFALL_EXPOSURE_REPORT = "exposureReport";
+    // On waterfall view end reached.
+    public static final String EVENT_WATERFALL_END_REACHED = "endReached";
 
     @MainThread
     public static void send(@NonNull View view, @NonNull String eventName,

@@ -41,7 +41,7 @@ public class HippyViewEvent {
 
     public void send(int id, @Nullable NativeRender nativeRenderer, @Nullable Object params) {
         if (nativeRenderer != null) {
-            nativeRenderer.dispatchUIComponentEvent(id, mEventName, params);
+            nativeRenderer.dispatchUIComponentEvent(id, mEventName.toLowerCase(), params);
         }
     }
 }
