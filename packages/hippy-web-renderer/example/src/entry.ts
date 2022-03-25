@@ -26,25 +26,12 @@ class CampPageView extends View {
 
 }
 
-(async () => {
-  const engine = HippyWebEngine.create({
-    modules: [
-      CampCommonModule,
-      CampHippyNet
-    ],
-    components: [
-      CampPageView
-    ]
-  });
-
-  await engine.load([
-    'http://localhost:38989/index.bundle?platform=android&dev=1&hot=1&minify=0',
-  ]);
-
-  engine.start({
-    id: 'test-app',
-    name: 'social',
-    params: { path: '/gallery' }
-  });
-
-})();
+HippyWebEngine.create({
+  modules: {
+    CampCommonModule,
+    CampHippyNet
+  },
+  components: {
+    CampPageView
+  }
+});

@@ -25,8 +25,5 @@
     "morphdom": "^2.3.1",
     "resize-observer-polyfill": "^1.5.1",
     "whatwg-fetch": "^3.6.2"
-  },
-  "devDependencies": {
-    "parcel": "^2.3.2"
   }
 }
