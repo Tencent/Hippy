@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-
 import { getGlobal } from '../get-global';
 import { Dimensions } from './dimensions';
 import { dealloc } from './event';
@@ -28,67 +27,12 @@ import { emitter, hippyRegister } from './others';
 import { asyncStorage } from './storage';
 import { document } from './ui-manager-module';
 import { platform } from './platform';
-import { bridge, HippyJsBridge } from './js2native';
+import { bridge } from './js2native';
 import { nativeBridge } from './native2js';
 import { device } from './device';
+import './global';
 
 const global = getGlobal();
-declare global {
-  interface HippyModule {
-    bridge: HippyJsBridge,
-    on: typeof emitter.on,
-    off: typeof emitter.off,
-    emit: typeof emitter.emit,
-    asyncStorage: typeof asyncStorage,
-    turboPromise: typeof Promise,
-    register: {
-      regist: typeof hippyRegister,
-    }
-    device: HippyDeviceInfo,
-    document: typeof document,
-  }
-
-  interface HippyInternalGlobal {
-    moduleCallId: number;
-    moduleCallList: any;
-    jsModuleList: any;
-    appRegister: any;
-    canRequestAnimationFrame: boolean;
-    requestAnimationFrameQueue: any;
-    nodeIdCache: any;
-    nodeTreeCache: any;
-    destroyInstanceList: any;
-    globalEventHandle: any;
-    requestAnimationFrameId: number;
-    nodeParamCache: any;
-  }
-  var __fetch: (url: string, option: any) => Promise<any>;
-
-  var Hippy: HippyModule;
-
-  var __ISHIPPY__: boolean;
-
-  var __GLOBAL__: HippyInternalGlobal;
-
-  var __HIPPYNATIVEGLOBAL__: typeof nativeGlobal;
-
-  var flushQueueImmediate: any;
-
-  var HippyDealloc: typeof dealloc;
-
-  var hippyBridge: (action: string, payload?: any) => void;
-
-  var hippyCallNatives: (moduleName: string, methodName: string, callId: string, params?: any[]) => void;
-
-  var __Headers: typeof global.Headers;
-
-  var __Response: typeof global.Response;
-
-  var __localStorage: typeof global.localStorage;
-
-  var turboPromise: typeof global.Promise;
-}
-
 
 // global
 global.Hippy = {} as any;
@@ -141,7 +85,9 @@ Hippy.device.platform = platform();
 
 
 global.__localStorage = global.localStorage;
-global.localStorage = Hippy.asyncStorage as any;
+Object.defineProperty(global, 'localStorage', {
+  value: Hippy.asyncStorage as any,
+});
 global.turboPromise = Hippy.turboPromise;
 
 // init
