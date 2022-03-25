@@ -22,7 +22,7 @@ import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
 
 interface NetResponse {
-  status: number, statusLine: string, body: string, respHeaders: any
+  statusCode: number, statusLine: string, respBody: string, respHeaders: any
 }
 export class NetworkModule extends HippyWebModule {
   public name = 'network';
@@ -53,12 +53,12 @@ export class NetworkModule extends HippyWebModule {
           respHeaders[key] = response.headers.get(key);
         }
         const data: NetResponse = {
-          status: response.status,
+          statusCode: response.status,
           statusLine: response.statusText,
-          body: dataString,
+          respBody: dataString,
           respHeaders,
         };
-        data.status = response.status;
+        data.statusCode = response.status;
 
         callBack.resolve(data);
         return;
