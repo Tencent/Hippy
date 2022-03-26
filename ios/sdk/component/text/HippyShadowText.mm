@@ -310,8 +310,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                                         foregroundColor:(UIColor *)foregroundColor
                                         backgroundColor:(UIColor *)backgroundColor
                                                 opacity:(CGFloat)opacity {
-    if ([self isLayoutSubviewsRTL]) {
-        self.textAlign = NSTextAlignmentRight;
+    if (!_textAlignSet) {
+        if ([self isLayoutSubviewsRTL]) {
+            self.textAlign = NSTextAlignmentRight;
+        }
+        else {
+            self.textAlign = NSTextAlignmentLeft;
+        }
     }
 
     if (![self isTextDirty] && _cachedAttributedString) {
@@ -530,6 +535,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 }
 
+- (void)didSetProps:(NSArray<NSString *> *)changedProps {
+    [super didSetProps:changedProps];
+    if ([changedProps containsObject:@"textAlign"]) {
+        _textAlignSet = YES;
+    }
+}
+
 #pragma mark Autosizing
 
 - (CGRect)calculateTextFrame:(NSTextStorage *)textStorage {
@@ -678,7 +690,6 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 
 - (void)setTextAlign:(NSTextAlignment)textAlign {
     _textAlign = textAlign;
-    _textAlignSet = YES;
     [self dirtyText];
 }
 

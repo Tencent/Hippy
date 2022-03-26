@@ -412,7 +412,7 @@ bool JSCCtx::DeleteProperty(const std::shared_ptr<CtxValue>& obj,
       std::static_pointer_cast<JSCCtxValue>(obj);
   JSValueRef value_ref = ctx_value->value_;
   if (!JSValueIsObject(context_, value_ref)) {
-    return nullptr;
+    return false;
   }
   JSValueRef js_error = nullptr;
   JSObjectRef obj_ref = JSValueToObject(context_, value_ref, &js_error);
