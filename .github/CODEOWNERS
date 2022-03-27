@@ -20,7 +20,18 @@
 /.github/ @zoomchan-cxj
 /.husky/ @zoomchan-cxj
 /docker/ @medns
+/package.json @zoomchan-cxj
+/package-lock.json @zoomchan-cxj
+/.nycrc @zoomchan-cxj
+/.npmignore @zoomchan-cxj
+/.editorconfig @zoomchan-cxj
+/.eslintignore @zoomchan-cxj
+/.npmignore @zoomchan-cxj
+/lerna.json @zoomchan-cxj
+/tsconfig.json @zoomchan-cxj
+
 /docs/ @zoomchan-cxj
+
 /dom/ @churchill-zhang @ilikethese
 
 /framework/js/core/ @churchill-zhang @zoomchan-cxj

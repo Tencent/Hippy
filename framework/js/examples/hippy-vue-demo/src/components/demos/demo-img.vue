@@ -84,6 +84,7 @@ export default {
 #demo-img {
   overflow-y: scroll;
   flex: 1;
+  margin: 7px;
 }
 
 #demo-img #demo-img-container {

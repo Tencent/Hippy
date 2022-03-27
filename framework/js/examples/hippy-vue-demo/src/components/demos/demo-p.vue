@@ -100,6 +100,9 @@ export default {
 </script>
 
 <style scoped>
+.p-demo {
+  margin: 7px;
+}
 .p-demo .p-demo-content {
   margin: 20px;
 }
