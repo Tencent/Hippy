@@ -244,7 +244,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
   }
 
   /**
-   * Make the `TextInput` blured.
+   * Make the `TextInput` blurred.
    */
   public blur() {
     callUIFunction(this.instance as Element, 'blurTextInput', []);
@@ -252,16 +252,18 @@ class TextInput extends React.Component<TextInputProps, {}> {
 
   /**
    * Show input method selection dialog.
+   * @deprecated
    */
   public showInputMethod() {
-    callUIFunction(this.instance as Element, 'showInputMethod', []);
+    // noop
   }
 
   /**
    * Hide the input method selection dialog.
+   * @deprecated
    */
   public hideInputMethod() {
-    callUIFunction(this.instance as Element, 'hideInputMethod', []);
+    // noop
   }
 
   /**
