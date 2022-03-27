@@ -118,6 +118,7 @@ export default {
   align-items: center;
   flex-direction: column;
   flex: 1;
+  margin: 7px;
 }
 
 .dialog-demo-button-1 {
