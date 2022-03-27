@@ -14,10 +14,7 @@
         <span>翻到下一页</span>
       </button>
       <p class="toolbar-text">
-        当前第 {{ currentSlideNum + 1 }} 页，
-      </p>
-      <p class="toolbar-text">
-        滚屏状态：{{ state }}
+        当前第 {{ currentSlideNum + 1 }} 页
       </p>
     </div>
     <!--

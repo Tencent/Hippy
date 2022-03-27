@@ -101,12 +101,13 @@ export default {
   #back-btn {
     height: 24px;
     width: 24px;
-    margin: 18px;
+    marginTop: 18px;
+    margin-bottom: 18px;
+    margin-left: 18px;
     margin-right: 0;
   }
   .body-container {
     flex: 1;
-    margin: 7px;
   }
   .row {
     flex-direction: row;
