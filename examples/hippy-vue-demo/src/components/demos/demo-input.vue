@@ -142,6 +142,7 @@ export default {
   flex: 1;
   align-items: center;
   flex-direction: column;
+  margin: 7px;
 }
 .demo-input .input {
   width: 300px;

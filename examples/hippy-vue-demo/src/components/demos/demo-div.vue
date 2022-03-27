@@ -228,6 +228,7 @@ export default {
   #div-demo {
     flex: 1;
     overflow-y: scroll;
+    margin: 7px;
   }
 
   .display-flex {
