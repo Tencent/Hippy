@@ -22,11 +22,8 @@ import React, { LegacyRef } from 'react';
 import { LayoutableProps, ClickableProps } from '../types';
 import { prefetch, getSize } from '../modules/image-loader-module';
 import { Device } from '../native';
-import { colorParse, colorArrayParse } from '../color';
 import { warn, convertImgUrl } from '../utils';
 import View from './view';
-
-type Color = string | number;
 
 interface Size {
   width: number;
@@ -55,13 +52,13 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * Image placeholder when image is loading.
    * Support base64 image only.
    */
-  defaultSource?: string;
+  defaultSource?: string | undefined;
 
   /**
    * Fill color to the image
    */
-  tintColor?: number | string;
-  tintColors?: (number | string)[];
+  tintColor?: HippyTypes.tintColor;
+  tintColors?: HippyTypes.tintColors;
 
   /**
    * Image style when `Image` have other children.
@@ -111,18 +108,18 @@ interface ImageProps extends LayoutableProps, ClickableProps {
    * Invoke on loading of `Image` get error.
    *
    * @param {Object} evt - Loading error data.
-   * @param {string} evt.nativeEvent.error - Loading error message.
+   * @param {string} evt.error - Loading error message.
    */
-  onError?: (evt: { nativeEvent: { error: string }}) => void;
+  onError?: (evt: { error: string }) => void;
 
   /**
    * Invoke on Image is loading.
    *
    * @param {Object} evt - Image loading progress data.
-   * @param {number} evt.nativeEvent.loaded - The image is loaded.
-   * @param {number} evt.nativeEvent.total - The loadded progress.
+   * @param {number} evt.loaded - The image is loaded.
+   * @param {number} evt.total - The loaded progress.
    */
-  onProgress?: (evt: { nativeEvent: { loaded: number; total: number }}) => void;
+  onProgress?: (evt: { loaded: number; total: number }) => void;
 }
 
 /**
@@ -178,9 +175,6 @@ class Image extends React.Component<ImageProps, {}> {
       ...nativeProps
     } = this.props;
 
-    /**
-     * Image source prop
-     */
     // Define the image source url array.
     const imageUrls: string[] = this.getImageUrls({ src, srcs, source, sources });
 
@@ -210,8 +204,8 @@ class Image extends React.Component<ImageProps, {}> {
     /**
      * tintColor(s)
      */
-    const nativeStyle = { ...style } as { tintColor?: number, tintColors?: number[] };
-    this.handleTintColor(nativeStyle, tintColor as Color, tintColors as Color[]);
+    const nativeStyle = { ...style } as { tintColor?: HippyTypes.tintColor, tintColors?: HippyTypes.tintColors };
+    this.handleTintColor(nativeStyle, tintColor as HippyTypes.tintColor, tintColors as HippyTypes.tintColors);
     (nativeProps as ImageProps).style = nativeStyle;
 
     if (children) {
@@ -291,16 +285,18 @@ class Image extends React.Component<ImageProps, {}> {
   }
 
   private handleTintColor(
-    nativeStyle: { tintColor?: number, tintColors?: number[] },
-    tintColor: Color, tintColors: Color[],
+    nativeStyle: { tintColor?: HippyTypes.tintColor, tintColors?: HippyTypes.tintColors },
+    tintColor: HippyTypes.tintColor, tintColors: HippyTypes.tintColors,
   ) {
     if (tintColor) {
-      // eslint-disable-next-line no-param-reassign
-      nativeStyle.tintColor = colorParse(tintColor) as number;
+      Object.assign(nativeStyle, {
+        tintColor,
+      });
     }
     if (Array.isArray(tintColors)) {
-      // eslint-disable-next-line no-param-reassign
-      nativeStyle.tintColors = colorArrayParse(tintColors) as number[];
+      Object.assign(nativeStyle, {
+        tintColors,
+      });
     }
   }
 }

@@ -84,11 +84,11 @@
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `ALL`    |
 | animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `ALL`    |
-| supportedOrientations | 支持屏幕翻转方向                                                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `ALL`    |
-| immersionStatusBar    | 是否是沉浸式状态栏。                                         | `boolean`                                                    | `ALL`    |
+| supportedOrientations | 支持屏幕翻转方向                                                       | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
+| immersionStatusBar    | 是否是沉浸式状态栏。`default: true`                                         | `boolean`                                                    | `Android`    |
 | darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `ALL`    |
+| transparent | 背景是否是透明的。`default: true` | `boolean`                                                    | `ALL`    |
 
 ## 事件
 
@@ -96,7 +96,7 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | show                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `ALL`    |
 | orientationChange   | 屏幕旋转方向改变                                           | `Function`                                                   | `ALL`    |
-| requestClose        | 在`Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
+| requestClose        | 在 `Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
 
 ---
 
