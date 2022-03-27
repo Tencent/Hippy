@@ -71,11 +71,11 @@ export default function ImageExpo() {
         source={{ uri: imageUrl }}
         resizeMode={Image.resizeMode.center}
       />
-      <Text style={styles.info_style}>CapInsets</Text>
+      <Text style={styles.info_style}>CapInsets:</Text>
       <Image
         style={[styles.image_style]}
         defaultSource={defaultSource}
-        source={{ uri: HippyLogoImg }}
+        source={{ uri: imageUrl }}
         capInsets={{
           top: 50,
           left: 50,
@@ -84,11 +84,11 @@ export default function ImageExpo() {
         }}
         resizeMode={Image.resizeMode.cover}
       />
-      <Text style={styles.info_style}>TintColor</Text>
+      <Text style={styles.info_style}>TintColor:</Text>
       <Image
         style={[styles.image_style, { tintColor: '#4c9afa99' }]}
         defaultSource={defaultSource}
-        source={{ uri: imageUrl }}
+        source={{ uri: HippyLogoImg }}
         resizeMode={Image.resizeMode.center}
       />
       <Text style={styles.info_style}>Cover GIF:</Text>
