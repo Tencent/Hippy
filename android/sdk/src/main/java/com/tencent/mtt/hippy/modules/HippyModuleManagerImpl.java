@@ -58,43 +58,40 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
         mANRMonitor = new HippyModuleANRMonitor(mContext);
         mNativeModuleInfo = new ConcurrentHashMap<>();
         mJsModules = new HashMap<>();
-        for (HippyAPIProvider pckg : packages) {
-            Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> nativeModules = pckg
-                    .getNativeModules(context);
+        addModules(packages);
+    }
+
+    /**
+    * Add native modules and java script modules defined in {@link HippyAPIProvider}.
+    *
+    * @param apiProviders API providers need to be added.
+    */
+    public synchronized void addModules(List<HippyAPIProvider> apiProviders) {
+        if (apiProviders == null) {
+            return;
+        }
+        for (HippyAPIProvider provider : apiProviders) {
+            Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>>
+                nativeModules = provider.getNativeModules(mContext);
             if (nativeModules != null && nativeModules.size() > 0) {
                 Set<Class<? extends HippyNativeModuleBase>> keys = nativeModules.keySet();
                 for (Class cls : keys) {
-                    HippyNativeModuleInfo moduleInfo = new HippyNativeModuleInfo(cls,
-                            nativeModules.get(cls));
-                    String[] names = moduleInfo.getNames();
-                    if (names != null && names.length > 0) {
-                        for (String name : names) {
-                            if (!mNativeModuleInfo.containsKey(name)) {
-                                mNativeModuleInfo.put(name, moduleInfo);
-                            }
-                        }
-                    }
-
-                    if (!mNativeModuleInfo.containsKey(moduleInfo.getName())) {
-                        mNativeModuleInfo.put(moduleInfo.getName(), moduleInfo);
-                        //throw new RuntimeException("There is already a native module named : " + moduleInfo.getName());
-                    }
+                    addNativeModule(cls, nativeModules.get(cls));
                 }
             }
 
-            List<Class<? extends HippyJavaScriptModule>> jsModules = pckg.getJavaScriptModules();
+            List<Class<? extends HippyJavaScriptModule>> jsModules = provider.getJavaScriptModules();
             if (jsModules != null && jsModules.size() > 0) {
                 for (Class cls : jsModules) {
                     String name = getJavaScriptModuleName(cls);
-                    //noinspection SuspiciousMethodCalls
+                    // noinspection SuspiciousMethodCalls
                     if (mJsModules.containsKey(name)) {
                         throw new RuntimeException(
-                                "There is already a javascript module named : " + name);
+                            "There is already a javascript module named : " + name);
                     }
                     mJsModules.put(cls, null);
                 }
             }
-
         }
     }
 
