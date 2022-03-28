@@ -33,8 +33,7 @@
 #import "UIView+Render.h"
 #import "objc/runtime.h"
 
-#define kInfiniteLoopBegin 2
-
+static NSInteger kInfiniteLoopBegin = 2;
 static NSString *const kCellIdentifier = @"cellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
 static NSString *const kListViewItem = @"ListViewItem";
@@ -49,7 +48,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     CGFloat _itemWidth;
     NSInteger _currentPage;
     UICollectionViewFlowLayout *_viewPagerLayout;
-    BOOL _adjustChildren;
+    NSArray<NSNumber *> *_itemIndexArray;
 }
 
 - (void)setPreviousMargin:(CGFloat)previousMargin nextMargin:(CGFloat)nextMargin pageGap:(CGFloat)pageGap;
@@ -79,22 +78,22 @@ static NSString *const kListViewItem = @"ListViewItem";
 {
     _circular = NO;
     _autoplay = NO;
-    _adjustChildren = NO;
     _itemWidth = self.hippyShadowView.frame.size.width;
+    _previousMargin = 0.0f;
+    _nextMargin = 0.0f;
     _pageGap = 0;
     _initialPage = 0;
-    _autoplayTimeInterval = 3;
+    _autoplayTimeInterval = 3000;
 }
 
 - (NSInteger)adjustAutoPlayCurrentPage:(NSInteger)currentPage {
     NSInteger adjustCurrentPage = currentPage;
-    NSArray *children = self.hippyShadowView.hippySubviews;
     if (_circular) {
-        if (currentPage >= children.count - kInfiniteLoopBegin) {
-            adjustCurrentPage = children.count - kInfiniteLoopBegin;
+        if (currentPage >= _itemIndexArray.count - kInfiniteLoopBegin) {
+            adjustCurrentPage = _itemIndexArray.count - kInfiniteLoopBegin;
         }
     } else {
-        if (currentPage >= children.count) {
+        if (currentPage >= _itemIndexArray.count) {
             adjustCurrentPage = 0;
         }
     }
@@ -120,18 +119,17 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (NSInteger)adjustWillEndDraggingCurrentPage:(NSInteger)currentPage {
     NSInteger adjustCurrentPage = currentPage;
-    NSArray *children = self.hippyShadowView.hippySubviews;
     if (_circular) {
         if (currentPage < 1) {
             adjustCurrentPage = 1;
-        } else if (currentPage >= children.count - kInfiniteLoopBegin) {
-            adjustCurrentPage = children.count - kInfiniteLoopBegin;
+        } else if (currentPage >= _itemIndexArray.count - kInfiniteLoopBegin) {
+            adjustCurrentPage = _itemIndexArray.count - kInfiniteLoopBegin;
         }
     } else {
         if (currentPage <= 0) {
             adjustCurrentPage = 0;
-        } else if (currentPage >= children.count - 1) {
-            adjustCurrentPage = children.count - 1;
+        } else if (currentPage >= _itemIndexArray.count - 1) {
+            adjustCurrentPage = _itemIndexArray.count - 1;
         }
     }
     return adjustCurrentPage;
@@ -150,11 +148,10 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (void)adjustDidEndDeceleratingCurrentPage{
     BOOL isAdjust = NO;
     if (_circular) {
-        NSArray *children = self.hippyShadowView.hippySubviews;
         if (_currentPage == 1) {
-            _currentPage = children.count - kInfiniteLoopBegin - 1;
+            _currentPage = _itemIndexArray.count - kInfiniteLoopBegin - 1;
             isAdjust = YES;
-        } else if (_currentPage == children.count - kInfiniteLoopBegin) {
+        } else if (_currentPage == _itemIndexArray.count - kInfiniteLoopBegin) {
             _currentPage = kInfiniteLoopBegin;
             isAdjust = YES;
         }
@@ -162,14 +159,14 @@ static NSString *const kListViewItem = @"ListViewItem";
     if (isAdjust) {
         [self.collectionView setContentOffset:CGPointMake([self adjustScrollContentOffsetX:_currentPage], 0) animated:NO];
     }
-    
+
     if (self.onPageSelected) {
         self.onPageSelected(@{ @"position": @([self getCurrentPage]) });
     }
 }
 
 - (void)setAutoplayTimeInterval:(CGFloat)autoplayTimeInterval {
-    if (autoplayTimeInterval > 0 && _autoplayTimeInterval != autoplayTimeInterval) {
+    if (autoplayTimeInterval > 1000 && _autoplayTimeInterval != autoplayTimeInterval) {
         _autoplayTimeInterval = autoplayTimeInterval;
     }
 }
@@ -191,17 +188,16 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (NSInteger)adjustInitialPage:(NSInteger)initialPage {
-    NSArray *children = self.hippyShadowView.hippySubviews;
     NSInteger defaultPage = 0;
     if (_circular) {
         initialPage = initialPage + kInfiniteLoopBegin;
-        if (initialPage >= kInfiniteLoopBegin && initialPage <= children.count - kInfiniteLoopBegin) {
+        if (initialPage >= kInfiniteLoopBegin && initialPage <= _itemIndexArray.count - kInfiniteLoopBegin) {
             defaultPage = initialPage;
         } else {
             defaultPage = kInfiniteLoopBegin;
         }
     } else {
-        if (initialPage >= 0 && initialPage < children.count) {
+        if (initialPage >= 0 && initialPage < _itemIndexArray.count) {
             defaultPage = initialPage;
         }
     }
@@ -215,6 +211,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     _itemWidth = self.hippyShadowView.frame.size.width - (previousMargin + nextMargin + pageGap * 2);
     _viewPagerLayout.itemSize = CGSizeMake(_itemWidth, self.hippyShadowView.frame.size.height);
     _viewPagerLayout.minimumLineSpacing = pageGap;
+    _viewPagerLayout.minimumInteritemSpacing = pageGap;
     _currentPage = [self adjustInitialPage:_initialPage];
     self.collectionView.contentOffset = CGPointMake([self adjustScrollContentOffsetX:_currentPage], 0);
     if (!_circular) {
@@ -222,7 +219,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
     if (_autoplay && _autoplayTimeInterval > 0 && _timer == nil) {
         __weak __typeof(self) weakSelf = self;
-        _timer = [NSTimer scheduledTimerWithTimeInterval:_autoplayTimeInterval repeats:YES block:^(NSTimer * _Nonnull timer) {
+        _timer = [NSTimer scheduledTimerWithTimeInterval:_autoplayTimeInterval / 1000.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
             __typeof(self) strongSelf = weakSelf;
             [strongSelf showNext];
         }];
@@ -270,7 +267,6 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
-    [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 
 - (void)hippySetFrame:(CGRect)frame {
@@ -303,21 +299,29 @@ static NSString *const kListViewItem = @"ListViewItem";
     [self reloadData];
 }
 
-- (void)refreshItemNodes {
-    if (_circular && !_adjustChildren) {
-        _adjustChildren = YES;
-        if (self.hippyShadowView.hippySubviews.count <=2) {
-            _circular = NO;
-            _currentPage = 0;
-        } else {
-            NSArray *originalSubViews = [NSArray arrayWithArray:self.hippyShadowView.hippySubviews];
-            [self.hippyShadowView insertHippySubview:originalSubViews.firstObject atIndex:self.hippyShadowView.hippySubviews.count];
-            [self.hippyShadowView insertHippySubview:originalSubViews[1] atIndex:self.hippyShadowView.hippySubviews.count];
-            [self.hippyShadowView insertHippySubview:originalSubViews.lastObject atIndex:0];
-            [self.hippyShadowView insertHippySubview:originalSubViews[originalSubViews.count - 2] atIndex:0];
-        }
+- (NSArray *)refreshItemIndexArrayWithOldArrayLength:(NSInteger)length {
+    NSMutableArray *tempMutableArray = @[].mutableCopy;
+    for (NSInteger i = 0; i < length; i++) {
+        [tempMutableArray addObject:@(i)];
     }
+    if (_circular && length >= 2) {
+        for (NSInteger i = 0; i < kInfiniteLoopBegin; i++) {
+            [tempMutableArray addObject:@(i)];
+        }
+        for (NSInteger i = 0; i < kInfiniteLoopBegin; i++) {
+            [tempMutableArray insertObject:@(length - i - 1) atIndex:0];
+        }
+    } else {
+        _circular = NO;
+        _currentPage = 0;
+    }
+    return tempMutableArray;
+}
+
+- (void)refreshItemNodes {
     [self.dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:NO];
+    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.hippyShadowView.hippySubviews.count];
+    [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 
 #pragma mark -Scrollable
@@ -333,13 +337,14 @@ static NSString *const kListViewItem = @"ListViewItem";
 #pragma mark - Delegate & Datasource
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    NSInteger number = [self.dataSource numberOfCellForSection:section];
-    return number;
+    return _itemIndexArray.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
-    HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
+    NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
+    HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:adjustIndexPath];
+    HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:adjustIndexPath];
     UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag];
     if (!cellView) {
         cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
@@ -350,9 +355,31 @@ static NSString *const kListViewItem = @"ListViewItem";
     return cell;
 }
 
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    return cell;
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout *)collectionViewLayout
+    sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
+    NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
+    return shadowView.frame.size;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView
+       willDisplayCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
+    NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
+    HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
+    //TODO use reusable view here
+    UIView *view = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
+    if (!view) {
+        view = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
+    }
+    hpCell.cellView = view;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
 }
 
 - (void)tableViewDidLayoutSubviews:(HippyListTableView *)tableView {
@@ -467,7 +494,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     [self adjustDidEndDeceleratingCurrentPage];
     
     if (_autoplay) {
-        _timer.fireDate = [NSDate dateWithTimeIntervalSinceNow:_autoplayTimeInterval];
+        _timer.fireDate = [NSDate dateWithTimeIntervalSinceNow:_autoplayTimeInterval / 1000];
     }
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
