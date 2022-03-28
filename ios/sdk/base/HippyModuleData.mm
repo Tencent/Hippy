@@ -345,8 +345,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
 }
 
 - (dispatch_queue_t)methodQueue {
+    [self instance];
     @synchronized(self) {
-        [self instance];
         return _methodQueue;
     }
 }
