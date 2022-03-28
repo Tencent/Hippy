@@ -19,11 +19,16 @@ class TraceControl {
     static TraceControl trace_control;
     return trace_control;
   }
-  void StartTracing(const std::string& trace_file);
+  void StartTracing();
   void StopTracing();
 #ifdef OS_ANDROID
   void SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control);
 #endif
+  /**
+   * @brief 设置 Tracing 保存路径
+   * @param file_cache_dir 路径
+   */
+  void SetFileCacheDir(std::string file_cache_dir);
   std::string GetTracingContent();
   static void GlobalInit(const std::string& trace_dir);
   static char *trace_dir_;
@@ -41,6 +46,8 @@ class TraceControl {
   v8::platform::tracing::TraceBuffer *trace_buffer_;
   v8::platform::tracing::TraceWriter *trace_writer_;
   std::ofstream trace_file_;
+  std::string file_cache_dir_;
+  std::string GetFileCacheDir();
   void OpenCacheFile();
 #endif
   std::string cache_file_path_;

@@ -128,7 +128,7 @@ android {
                   "-DANDROID_PLATFORM=android-21",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
-//                  "-DTDF_SERVICE_ENABLED=1",
+                  "-DTDF_SERVICE_ENABLED=1",
                   "-DV8_COMPONENT=$V8_COMPONENT_DEBUG",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
@@ -178,7 +178,6 @@ dependencies {
   compileOnly project(path: ':renderer-native')
   compileOnly project(path: ':serialization')
   compileOnly project(path: ':link_supplier')
-  compileOnly project(path: ':devtools-backend')
   //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {

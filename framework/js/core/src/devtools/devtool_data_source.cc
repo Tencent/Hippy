@@ -41,7 +41,7 @@ void DevtoolDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::Tr
 }
 
 void DevtoolDataSource::SetFileCacheDir(std::string file_dir) {
-  DevtoolsBackendService::SetFileCacheDir(file_dir);
+  TraceControl::GetInstance().SetFileCacheDir(file_dir);
 }
 #endif
 
@@ -56,7 +56,6 @@ void DevtoolDataSource::Bind(int32_t dom_id, int32_t runtime_id) {
   runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>(runtime_id_);
   data_provider->SetRuntimeAdapter(runtime_adapter_);
   data_provider->SetScreenAdapter(std::make_shared<HippyScreenAdapter>(dom_id_));
-  devtools_service_->EnableService();
   TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_provider:%p" << &devtools_service_;
 }
 

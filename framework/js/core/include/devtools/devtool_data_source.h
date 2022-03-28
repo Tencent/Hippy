@@ -16,6 +16,7 @@
 #include "core/task/worker_task_runner.h"
 #include "devtools/adapter/hippy_runtime_adapter.h"
 #include "devtools/adapter/hippy_v8_request_adapter.h"
+#include "api/devtools_config.h"
 #include "api/devtools_backend_service.h"
 #include "module/record_logger.h"
 
@@ -28,7 +29,10 @@ namespace devtools {
 class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
  public:
   DevtoolDataSource() {
-    devtools_service_ = std::make_shared<tdf::devtools::DevtoolsBackendService>();
+    tdf::devtools::DevtoolsConfig devtools_config;
+    devtools_config.framework = tdf::devtools::Framework::kHippy;
+    devtools_config.tunnel = tdf::devtools::Tunnel::kTcp;
+    devtools_service_ = std::make_shared<tdf::devtools::DevtoolsBackendService>(devtools_config);
     all_services.push_back(devtools_service_);
   }
   ~DevtoolDataSource() = default;

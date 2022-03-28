@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <utility>
 
 #include "devtools/trace_control.h"
 #include "base/logging.h"
@@ -25,7 +26,15 @@ void TraceControl::SetGlobalTracingController(v8::platform::tracing::TracingCont
 }
 #endif
 
-void TraceControl::StartTracing(const std::string& trace_file) {
+void TraceControl::SetFileCacheDir(std::string file_cache_dir) {
+  file_cache_dir_ = std::move(file_cache_dir);
+}
+
+std::string TraceControl::GetFileCacheDir() {
+  return file_cache_dir_;
+}
+
+void TraceControl::StartTracing() {
   std::lock_guard<std::mutex> lock(devtools_tracing_mutex_);
 #ifdef OS_ANDROID
 //  if (!v8_trace_control_) {
@@ -33,7 +42,7 @@ void TraceControl::StartTracing(const std::string& trace_file) {
 //                            ->GetGlobalTracingControl();
 //    TDF_BASE_LOG(INFO)<<"TraceControl StartTracing tracingControl is nullptr, get it";
 //  }
-  GlobalInit(trace_file);
+  GlobalInit(GetFileCacheDir());
   if (v8_trace_control_) {
     if (tracing_has_start_) {
       StopTracing();

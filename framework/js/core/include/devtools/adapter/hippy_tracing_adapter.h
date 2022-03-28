@@ -11,7 +11,7 @@
 namespace hippy {
 namespace devtools {
 class HippyTracingAdapter : public tdf::devtools::TracingAdapter {
-  void StartTracing(const std::string &trace_file) override;
+  void StartTracing() override;
   void StopTracing(TracingDataCallback callback) override;
 };
 }  // namespace devtools

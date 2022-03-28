@@ -9,8 +9,8 @@
 
 namespace hippy {
 namespace devtools {
-void HippyTracingAdapter::StartTracing(const std::string &trace_file) {
-  TraceControl::GetInstance().StartTracing(trace_file);
+void HippyTracingAdapter::StartTracing() {
+  TraceControl::GetInstance().StartTracing();
 }
 
 void HippyTracingAdapter::StopTracing(TracingDataCallback callback) {
