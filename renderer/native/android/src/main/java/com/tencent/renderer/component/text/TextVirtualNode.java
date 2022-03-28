@@ -27,7 +27,6 @@ import android.text.BidiFormatter;
 import android.text.BoringLayout;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -440,7 +439,7 @@ public class TextVirtualNode extends VirtualNode {
             int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
             int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
             if (lastLineStart < lastLineEnd) {
-                layout = createLayoutWithNumberOfLine(lastLineStart, layout.getWidth());
+                layout = createLayoutWithNumberOfLine(lastLineEnd, layout.getWidth());
             }
         }
         layout.getPaint().setTextSize(mFontSize);
@@ -463,42 +462,19 @@ public class TextVirtualNode extends VirtualNode {
     }
 
     @NonNull
-    private StaticLayout createLayoutWithNumberOfLine(int lastLineStart, int width) {
+    private StaticLayout createLayoutWithNumberOfLine(int lastLineEnd, int width) {
         String text = (mSpanned == null) ? "" : mSpanned.toString();
         SpannableStringBuilder builder = (SpannableStringBuilder) mSpanned
                 .subSequence(0, text.length());
-        String ellipsizeStr = (String) TextUtils
-                .ellipsize(text.substring(lastLineStart), mTextPaint, width,
-                        TextUtils.TruncateAt.END);
-        String tempStr =
-                text.subSequence(0, lastLineStart) + truncate(ellipsizeStr, width);
-        int start = Math.max(tempStr.length() - 1, 0);
-        CharacterStyle[] spans = builder.getSpans(start, text.length(), CharacterStyle.class);
+        int last = lastLineEnd > ELLIPSIS.length() ? (lastLineEnd - ELLIPSIS.length()) : lastLineEnd;
+        CharacterStyle[] spans = builder.getSpans(last, text.length(), CharacterStyle.class);
         if (spans != null && spans.length > 0) {
             for (CharacterStyle span : spans) {
-                if (builder.getSpanStart(span) >= start) {
+                if (builder.getSpanStart(span) >= last) {
                     builder.removeSpan(span);
                 }
             }
         }
-        return buildStaticLayout(builder.replace(start, text.length(), ELLIPSIS), width);
-    }
-
-    protected String truncate(@Nullable String source, int width) {
-        String result = "";
-        if (source == null) {
-            return result;
-        }
-        for (int i = source.length(); i > 0; i--) {
-            int endIndex = i > 1 ? i - 1 : i;
-            String builder = source.substring(0, endIndex) + ELLIPSIS;
-            Spanned spanned = createSpan(builder, false);
-            StaticLayout layout = buildStaticLayout(spanned, width);
-            if (layout.getLineCount() <= 1) {
-                result = spanned.toString();
-                break;
-            }
-        }
-        return result;
+        return buildStaticLayout(builder.replace(last, text.length(), ELLIPSIS), width);
     }
 }
