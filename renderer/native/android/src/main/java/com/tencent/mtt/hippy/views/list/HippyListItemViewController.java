@@ -32,7 +32,7 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 
 import java.util.Map;
 
-@HippyController(name = HippyListItemViewController.CLASS_NAME, isLazyLoad = true)
+@HippyController(name = HippyListItemViewController.CLASS_NAME, isLazyLoad = true, useSystemStandardType = true)
 public class HippyListItemViewController extends HippyViewController<HippyListItemView> {
 
     public static final String CLASS_NAME = "ListViewItem";

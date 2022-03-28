@@ -18,12 +18,14 @@ package com.tencent.mtt.hippy.views.list;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.mtt.supportui.views.recyclerview.BaseLayoutManager;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
@@ -39,7 +41,7 @@ import androidx.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-@HippyController(name = HippyListViewController.CLASS_NAME)
+@HippyController(name = HippyListViewController.CLASS_NAME, useSystemStandardType = true)
 public class HippyListViewController extends HippyViewController<HippyListView> {
 
     public static final String CLASS_NAME = "ListView";
@@ -192,6 +194,12 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
         boolean animated = ArrayUtils.getBooleanValue(params, 2);
         int duration = ArrayUtils.getIntValue(params, 3);
         listView.scrollToContentOffset(xOffset, yOffset, animated, duration);
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyListView listView, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(listView, functionName, params.getInternalArray());
     }
 
     @Override

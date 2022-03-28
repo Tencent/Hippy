@@ -36,13 +36,16 @@ import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
 
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
@@ -53,7 +56,7 @@ import java.util.List;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CALL_UI_FUNCTION_ERR;
 
-@HippyController(name = HippyTextInputController.CLASS_NAME)
+@HippyController(name = HippyTextInputController.CLASS_NAME, useSystemStandardType = true)
 public class HippyTextInputController extends HippyViewController<HippyTextInput> {
 
     public static final String CLASS_NAME = "TextInput";
@@ -444,11 +447,23 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @Override
+    public void dispatchFunction(@NonNull HippyTextInput textInput, @NonNull String functionName,
+            @NonNull HippyArray params, @Nullable Promise promise) {
+        dispatchFunction(textInput, functionName, params.getInternalArray(), promise);
+    }
+
+    @Override
     public void dispatchFunction(@NonNull final HippyTextInput textInput,
             @NonNull String functionName, @NonNull List params, Promise promise) {
         if (FUNC_GET_VALUE.equals(functionName) && promise != null) {
             promise.resolve(textInput.jsGetValue());
         }
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyTextInput textInput, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(textInput, functionName, params.getInternalArray());
     }
 
     @Override

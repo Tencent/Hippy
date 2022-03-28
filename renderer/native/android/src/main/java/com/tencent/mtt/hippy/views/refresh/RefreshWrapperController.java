@@ -23,12 +23,14 @@ import androidx.annotation.NonNull;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 
+import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import java.util.List;
 
 @SuppressWarnings({"unused"})
-@HippyController(name = "RefreshWrapper")
+@HippyController(name = "RefreshWrapper", useSystemStandardType = true)
 public class RefreshWrapperController extends HippyGroupController<RefreshWrapper> {
 
     private static final String REFRESH_COMPLECTED = "refreshComplected";
@@ -52,6 +54,12 @@ public class RefreshWrapperController extends HippyGroupController<RefreshWrappe
     @HippyControllerProps(name = "scrollEventThrottle", defaultType = HippyControllerProps.NUMBER, defaultNumber = 30.0D)
     public void setscrollEventThrottle(RefreshWrapper wrapper, int scrollEventThrottle) {
         wrapper.setScrollEventThrottle(scrollEventThrottle);
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull RefreshWrapper refreshWrapper, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(refreshWrapper, functionName, params.getInternalArray());
     }
 
     @Override

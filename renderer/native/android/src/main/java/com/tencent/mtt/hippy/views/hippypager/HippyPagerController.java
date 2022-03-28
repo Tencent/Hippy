@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
@@ -36,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@HippyController(name = HippyPagerController.CLASS_NAME)
+@HippyController(name = HippyPagerController.CLASS_NAME, useSystemStandardType = true)
 public class HippyPagerController extends HippyViewController<HippyPager> {
 
     public static final String CLASS_NAME = "ViewPager";
@@ -151,6 +152,12 @@ public class HippyPagerController extends HippyViewController<HippyPager> {
 
     @Override
     public void dispatchFunction(@NonNull HippyPager viewPager, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(viewPager, functionName, params.getInternalArray());
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyPager viewPager, @NonNull String functionName,
             @NonNull List params) {
         super.dispatchFunction(viewPager, functionName, params);
         int currentItem = viewPager.getCurrentItem();
@@ -185,6 +192,12 @@ public class HippyPagerController extends HippyViewController<HippyPager> {
             default:
                 LogUtils.e(TAG, "Unknown function name: " + functionName);
         }
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyPager viewPager, @NonNull String functionName,
+            @NonNull HippyArray params, @Nullable Promise promise) {
+        dispatchFunction(viewPager, functionName, params.getInternalArray(), promise);
     }
 
     @Override

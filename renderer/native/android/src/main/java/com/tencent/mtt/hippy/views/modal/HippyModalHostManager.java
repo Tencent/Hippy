@@ -28,7 +28,7 @@ import com.tencent.renderer.utils.EventUtils;
 import static com.tencent.renderer.utils.EventUtils.EVENT_MODAL_REQUEST_CLOSE;
 import static com.tencent.renderer.utils.EventUtils.EVENT_MODAL_SHOW;
 
-@HippyController(name = HippyModalHostManager.CLASS_NAME)
+@HippyController(name = HippyModalHostManager.CLASS_NAME, useSystemStandardType = true)
 public class HippyModalHostManager extends HippyGroupController<HippyModalHostView> {
 
     public static final String CLASS_NAME = "Modal";

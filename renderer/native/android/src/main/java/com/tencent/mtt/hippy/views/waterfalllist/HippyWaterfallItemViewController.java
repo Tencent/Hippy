@@ -33,7 +33,7 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
 
 import java.util.Map;
 
-@HippyController(name = WaterFallComponentName.ITEM, isLazyLoad = true)
+@HippyController(name = WaterFallComponentName.ITEM, isLazyLoad = true, useSystemStandardType = true)
 public class HippyWaterfallItemViewController extends
   HippyViewController<HippyWaterfallItemView> {
 

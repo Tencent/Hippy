@@ -28,7 +28,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 
-@HippyController(name = HippyTextViewController.CLASS_NAME)
+@HippyController(name = HippyTextViewController.CLASS_NAME, useSystemStandardType = true)
 public class HippyTextViewController extends HippyViewController<HippyTextView> {
 
     public static final String CLASS_NAME = "Text";

@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.viewpager;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
@@ -31,12 +32,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-@HippyController(name = HippyViewPagerController.CLASS_NAME)
+@HippyController(name = HippyViewPagerController.CLASS_NAME, useSystemStandardType = true)
 public class HippyViewPagerController extends HippyViewController<HippyViewPager> {
 
     public static final String CLASS_NAME = "ViewPager";
@@ -152,6 +154,12 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 
     @Override
     public void dispatchFunction(@NonNull HippyViewPager viewPager, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(viewPager, functionName, params.getInternalArray());
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyViewPager viewPager, @NonNull String functionName,
             @NonNull List params) {
         super.dispatchFunction(viewPager, functionName, params);
         int currentItem = viewPager.getCurrentItem();
@@ -186,6 +194,12 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
             default:
                 LogUtils.e(TAG, "Unknown function name: " + functionName);
         }
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyViewPager viewPager, @NonNull String functionName,
+            @NonNull HippyArray params, @Nullable Promise promise) {
+        dispatchFunction(viewPager, functionName, params.getInternalArray(), promise);
     }
 
     @Override
