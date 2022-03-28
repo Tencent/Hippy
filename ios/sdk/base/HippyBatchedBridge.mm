@@ -1155,13 +1155,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
             return nil;
         }
     }
-    if (methodID >= [moduleData.methods count]) {
+    NSArray<id<HippyBridgeMethod>> *methods = [moduleData.methods copy];
+    if (methodID >= [methods count]) {
         if (_valid) {
-            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [moduleData.methods count], (long)_valid);
+            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)_valid);
         }
         return nil;
     }
-    id<HippyBridgeMethod> method = moduleData.methods[methodID];
+    id<HippyBridgeMethod> method = methods[methodID];
     if (HIPPY_DEBUG && !method) {
         if (_valid) {
             HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
