@@ -23,6 +23,8 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
+import java.util.List;
+
 @SuppressWarnings("unused")
 public interface HippyEngineContext {
 
@@ -57,4 +59,15 @@ public interface HippyEngineContext {
   TimeMonitor getStartTimeMonitor();
 
   int getEngineId();
+
+  /**
+   * Add API providers after initializing hippy engine.<rb/>
+   *
+   * @apiNote This method should be used before
+   * {@link HippyEngine#loadModule(HippyEngine.ModuleLoadParams)}, otherwise APIs or views
+   * defined in this providers maybe registered after use.
+   *
+   * @param apiProviders The Api providers need to be registered.
+   */
+  void addApiProviders(List<HippyAPIProvider> apiProviders);
 }
