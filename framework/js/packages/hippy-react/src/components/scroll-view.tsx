@@ -190,7 +190,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
    * Scrolls to a given x, y offset, with specific duration of animation.
    *
    * @param {number} x - Scroll to horizon position X.
-   * @param {number} y - Scroll To veritical position Y.
+   * @param {number} y - Scroll To vertical position Y.
    * @param {number} duration - Duration of animation execution time, with ms unit.
    *                            By default is 1000ms.
    */
