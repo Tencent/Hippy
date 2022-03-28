@@ -25,9 +25,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(ElementType.TYPE)
 public @interface HippyController {
 
-  String name();
+    String name();
 
-  String[] names() default {};
+    String[] names() default {};
 
-  boolean isLazyLoad() default false;
+    boolean isLazyLoad() default false;
+
+    boolean useSystemStandardType() default false;
 }

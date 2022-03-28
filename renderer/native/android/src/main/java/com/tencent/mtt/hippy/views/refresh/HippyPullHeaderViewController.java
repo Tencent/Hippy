@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
@@ -37,7 +38,7 @@ import com.tencent.mtt.hippy.views.list.HippyListView;
 import java.util.List;
 import java.util.Map;
 
-@HippyController(name = HippyPullHeaderViewController.CLASS_NAME, isLazyLoad = true)
+@HippyController(name = HippyPullHeaderViewController.CLASS_NAME, isLazyLoad = true, useSystemStandardType = true)
 public class HippyPullHeaderViewController extends HippyViewController<HippyPullHeaderView> {
 
     private static final String TAG = "HippyPullHeaderViewController";
@@ -96,6 +97,12 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
                 LogUtils.e(TAG, "Unknown function name: " + functionName);
             }
         }
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyPullHeaderView pullHeaderView,
+            @NonNull String functionName, @NonNull HippyArray params) {
+        dispatchFunction(pullHeaderView, functionName, params.getInternalArray());
     }
 
     @Override

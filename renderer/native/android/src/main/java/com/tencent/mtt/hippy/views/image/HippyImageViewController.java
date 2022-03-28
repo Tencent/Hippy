@@ -36,7 +36,7 @@ import com.tencent.renderer.NativeRenderContext;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
-@HippyController(name = HippyImageViewController.CLASS_NAME)
+@HippyController(name = HippyImageViewController.CLASS_NAME, useSystemStandardType = true)
 public class HippyImageViewController extends HippyViewController<HippyImageView> {
 
     public static final String CLASS_NAME = "Image";

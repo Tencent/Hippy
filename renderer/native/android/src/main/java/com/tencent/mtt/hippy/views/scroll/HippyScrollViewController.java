@@ -9,17 +9,19 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused", "rawtypes"})
-@HippyController(name = HippyScrollViewController.CLASS_NAME)
+@HippyController(name = HippyScrollViewController.CLASS_NAME, useSystemStandardType = true)
 public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> extends
         HippyGroupController {
 
@@ -167,6 +169,12 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
         } else {
             view.scrollTo(destX, destY);
         }
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull View view, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(view, functionName, params.getInternalArray());
     }
 
     @Override

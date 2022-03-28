@@ -33,7 +33,7 @@ public class HippyArray {
     private final List<Object> mDatas;
 
     public HippyArray() {
-        mDatas = new ArrayList();
+        mDatas = new ArrayList<>();
     }
 
     public HippyArray(List<Object> arrList) {

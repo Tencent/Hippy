@@ -32,6 +32,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.viewpager.HippyViewPager;
 import com.tencent.mtt.supportui.views.recyclerview.IRecyclerViewFooter;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
@@ -43,7 +44,7 @@ import java.util.Map;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CALL_UI_FUNCTION_ERR;
 
-@HippyController(name = WaterFallComponentName.CONTAINER)
+@HippyController(name = WaterFallComponentName.CONTAINER, useSystemStandardType = true)
 public class HippyWaterfallViewController extends HippyViewController<HippyWaterfallView> {
 
     private static final String TAG = "HippyWaterfallViewController";
@@ -184,6 +185,12 @@ public class HippyWaterfallViewController extends HippyViewController<HippyWater
     @HippyControllerProps(name = "enableExposureReport")
     public void setOnExposureReport(HippyWaterfallView listView, boolean enable) {
         listView.setEnableExposureReport(enable);
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyWaterfallView waterfallView, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(waterfallView, functionName, params.getInternalArray());
     }
 
     @Override

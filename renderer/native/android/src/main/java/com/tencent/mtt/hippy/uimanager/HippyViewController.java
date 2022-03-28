@@ -36,6 +36,7 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
+import com.tencent.mtt.hippy.views.list.HippyListAdapter;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
@@ -58,7 +59,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
-    private boolean bUserChageFocus = false;
+    private boolean bUserChangeFocus = false;
 
     @SuppressWarnings("deprecation")
     public View createView(@Nullable ViewGroup rootView, int id,
@@ -185,7 +186,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-
     @HippyControllerProps(name = NodeProps.BORDER_TOP_RIGHT_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setTopRightBorderRadius(T view, float topRightBorderRadius) {
         if (view instanceof CommonBorder) {
@@ -193,7 +193,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
                     CommonBorder.BorderRadiusDirection.TOP_RIGHT.ordinal());
         }
     }
-
 
     @HippyControllerProps(name = NodeProps.BORDER_BOTTOM_RIGHT_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setBottomRightBorderRadius(T view, float bottomRightBorderRadius) {
@@ -203,7 +202,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-
     @HippyControllerProps(name = NodeProps.BORDER_BOTTOM_LEFT_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setBottomLeftBorderRadius(T view, float bottomLeftBorderRadius) {
         if (view instanceof CommonBorder) {
@@ -211,7 +209,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
                     CommonBorder.BorderRadiusDirection.BOTTOM_LEFT.ordinal());
         }
     }
-
 
     @HippyControllerProps(name = NodeProps.BORDER_WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setBorderWidth(T view, float borderWidth) {
@@ -241,7 +238,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setNextFocusRightId(id);
     }
 
-
     @HippyControllerProps(name = NodeProps.FOCUSABLE, defaultType = HippyControllerProps.BOOLEAN)
     public void setFocusable(T view, boolean focusable) {
         view.setFocusable(focusable);
@@ -259,14 +255,14 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             Looper.getMainLooper().myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
                 @Override
                 public boolean queueIdle() {
-                    bUserChageFocus = true;
+                    bUserChangeFocus = true;
                     boolean result = view.requestFocusFromTouch();
 
                     if (!result) {
                         result = view.requestFocus();
                         LogUtils.d("requestFocus", "requestFocus result:" + result);
                     }
-                    bUserChageFocus = false;
+                    bUserChangeFocus = false;
                     return false;
                 }
             });
@@ -276,7 +272,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        if (bUserChageFocus) {
+        if (bUserChangeFocus) {
             HippyMap hippyMap = new HippyMap();
             hippyMap.pushBoolean("focus", hasFocus);
             new HippyViewEvent("onFocus").send(v, hippyMap);
@@ -392,7 +388,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-
     @HippyControllerProps(name = NodeProps.BORDER_RIGHT_WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setRightBorderWidth(T view, float borderRightWidth) {
         if (view instanceof CommonBorder) {
@@ -402,7 +397,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-
     @HippyControllerProps(name = NodeProps.BORDER_BOTTOM_WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setBottomBorderWidth(T view, float borderBottomWidth) {
         if (view instanceof CommonBorder) {
@@ -411,7 +405,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
                             CommonBorder.BorderWidthDirection.BOTTOM.ordinal());
         }
     }
-
 
     @HippyControllerProps(name = NodeProps.BORDER_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
     public void setBorderColor(T view, int borderColor) {
@@ -609,6 +602,16 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setRotationY(0);
         view.setScaleX(1);
         view.setScaleY(1);
+    }
+
+    @Deprecated
+    public void dispatchFunction(@NonNull T view, @NonNull String functionName,
+            @NonNull HippyArray params) {
+    }
+
+    @Deprecated
+    public void dispatchFunction(@NonNull T view, @NonNull String functionName,
+            @NonNull HippyArray params, @Nullable Promise promise) {
     }
 
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,

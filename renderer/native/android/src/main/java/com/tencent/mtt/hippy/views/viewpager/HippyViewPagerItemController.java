@@ -22,7 +22,7 @@ import android.content.Context;
 import android.view.View;
 
 @SuppressWarnings({"unused"})
-@HippyController(name = HippyViewPagerItemController.CLASS_NAME)
+@HippyController(name = HippyViewPagerItemController.CLASS_NAME, useSystemStandardType = true)
 public class HippyViewPagerItemController extends HippyViewController<HippyViewPagerItem> {
 
   public static final String CLASS_NAME = "ViewPagerItem";

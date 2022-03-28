@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
@@ -123,12 +124,11 @@ public class ControllerManager {
             if (!HippyViewController.class.isAssignableFrom(cls)) {
                 continue;
             }
-            HippyController hippyNativeModule = (HippyController) cls
+            HippyController controllerAnnotation = (HippyController) cls
                     .getAnnotation(HippyController.class);
-            assert hippyNativeModule != null;
-            String name = hippyNativeModule.name();
-            String[] names = hippyNativeModule.names();
-            boolean lazy = hippyNativeModule.isLazyLoad();
+            String name = controllerAnnotation.name();
+            String[] names = controllerAnnotation.names();
+            boolean lazy = controllerAnnotation.isLazyLoad();
             try {
                 ControllerHolder holder = new ControllerHolder(
                         (HippyViewController) cls.newInstance(), lazy);
@@ -300,10 +300,22 @@ public class ControllerManager {
         if (view == null || controller == null) {
             return;
         }
+        HippyController controllerAnnotation = (HippyController) controller.getClass()
+                .getAnnotation(HippyController.class);
+        boolean useSystemStandardType =
+                controllerAnnotation != null ? controllerAnnotation.useSystemStandardType() : false;
         if (promise == null) {
-            controller.dispatchFunction(view, functionName, params);
+            if (useSystemStandardType) {
+                controller.dispatchFunction(view, functionName, params);
+            } else {
+                controller.dispatchFunction(view, functionName, new HippyArray(params));
+            }
         } else {
-            controller.dispatchFunction(view, functionName, params, promise);
+            if (useSystemStandardType) {
+                controller.dispatchFunction(view, functionName, params, promise);
+            } else {
+                controller.dispatchFunction(view, functionName, new HippyArray(params), promise);
+            }
         }
     }
 

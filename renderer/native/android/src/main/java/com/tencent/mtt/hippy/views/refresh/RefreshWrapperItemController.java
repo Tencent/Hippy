@@ -22,7 +22,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerRegistry;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
 @SuppressWarnings({"unused"})
-@HippyController(name = "RefreshWrapperItemView")
+@HippyController(name = "RefreshWrapperItemView", useSystemStandardType = true)
 public class RefreshWrapperItemController extends HippyViewGroupController {
 
   @Override

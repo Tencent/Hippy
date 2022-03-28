@@ -27,12 +27,13 @@ import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
+import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.List;
 
 @SuppressWarnings({"deprecation", "unused"})
-@HippyController(name = HippyWebViewController.CLASS_NAME)
+@HippyController(name = HippyWebViewController.CLASS_NAME, useSystemStandardType = true)
 public class HippyWebViewController extends HippyViewController<HippyWebView> {
 
     public static final String CLASS_NAME = "WebView";
@@ -43,6 +44,12 @@ public class HippyWebViewController extends HippyViewController<HippyWebView> {
         if (!TextUtils.isEmpty(url)) {
             view.mWebView.loadUrl(url);
         }
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyWebView webView, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(webView, functionName, params.getInternalArray());
     }
 
     @Override

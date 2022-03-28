@@ -27,11 +27,13 @@ import androidx.annotation.NonNull;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
 
+import com.tencent.mtt.hippy.views.textinput.HippyTextInput;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.component.drawable.DrawableFactory;
 import com.tencent.renderer.utils.ArrayUtils;
@@ -41,7 +43,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 @SuppressWarnings({"unused"})
-@HippyController(name = HippyViewGroupController.CLASS_NAME)
+@HippyController(name = HippyViewGroupController.CLASS_NAME, useSystemStandardType = true)
 public class HippyViewGroupController extends HippyGroupController<HippyViewGroup> {
 
     public static final String CLASS_NAME = "View";
@@ -120,6 +122,12 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
                 hippyViewGroup.setRippleDrawable(drawable);
             }
         }
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyViewGroup viewGroup, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(viewGroup, functionName, params.getInternalArray());
     }
 
     @SuppressWarnings("rawtypes")

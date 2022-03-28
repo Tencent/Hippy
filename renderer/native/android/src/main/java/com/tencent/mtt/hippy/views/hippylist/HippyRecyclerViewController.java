@@ -45,7 +45,7 @@ import java.util.Map;
  * Created  on 2020/12/22.
  */
 
-@HippyController(name = HippyRecyclerViewController.CLASS_NAME)
+@HippyController(name = HippyRecyclerViewController.CLASS_NAME, useSystemStandardType = true)
 public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> extends HippyViewController<HRW> {
 
     public static final String CLASS_NAME = "ListView";
@@ -211,6 +211,12 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public void onAfterUpdateProps(HRW viewWrapper) {
         super.onAfterUpdateProps(viewWrapper);
         viewWrapper.getRecyclerView().onAfterUpdateProps();
+    }
+
+    @Override
+    public void dispatchFunction(HRW view, @NonNull String functionName,
+            @NonNull HippyArray params) {
+        dispatchFunction(view, functionName, params.getInternalArray());
     }
 
     @Override

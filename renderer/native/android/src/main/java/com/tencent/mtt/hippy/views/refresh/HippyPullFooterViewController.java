@@ -26,16 +26,18 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
 import java.util.List;
 import java.util.Map;
 
-@HippyController(name = HippyPullFooterViewController.CLASS_NAME, isLazyLoad = true)
+@HippyController(name = HippyPullFooterViewController.CLASS_NAME, isLazyLoad = true, useSystemStandardType = true)
 public class HippyPullFooterViewController extends HippyViewController<HippyPullFooterView> {
 
     public static final String CLASS_NAME = "PullFooterView";
@@ -61,8 +63,13 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
 
     @Override
     public void dispatchFunction(@NonNull HippyPullFooterView pullFooterView,
-            @NonNull String functionName,
-            @NonNull List params) {
+            @NonNull String functionName, @NonNull HippyArray params) {
+        dispatchFunction(pullFooterView, functionName, params.getInternalArray());
+    }
+
+    @Override
+    public void dispatchFunction(@NonNull HippyPullFooterView pullFooterView,
+            @NonNull String functionName, @NonNull List params) {
         super.dispatchFunction(pullFooterView, functionName, params);
         View parent = pullFooterView.getParentView();
         if (COLLAPSE_PULL_FOOTER.equals(functionName)) {
