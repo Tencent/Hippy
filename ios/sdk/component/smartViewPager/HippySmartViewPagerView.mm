@@ -144,19 +144,19 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)adjustDidEndDeceleratingCurrentPage{
-    BOOL isAdjust = NO;
-    if (_circular) {
-        if (_currentPage == 1) {
-            _currentPage = _itemIndexArray.count - kInfiniteLoopBegin - 1;
-            isAdjust = YES;
-        } else if (_currentPage == _itemIndexArray.count - kInfiniteLoopBegin) {
-            _currentPage = kInfiniteLoopBegin;
-            isAdjust = YES;
-        }
-    }
-    if (isAdjust) {
-        [self.collectionView setContentOffset:CGPointMake([self adjustScrollContentOffsetX:_currentPage], 0) animated:NO];
-    }
+//    BOOL isAdjust = NO;
+//    if (_circular) {
+//        if (_currentPage == 1) {
+//            _currentPage = _itemIndexArray.count - kInfiniteLoopBegin - 1;
+//            isAdjust = YES;
+//        } else if (_currentPage == _itemIndexArray.count - kInfiniteLoopBegin) {
+//            _currentPage = kInfiniteLoopBegin;
+//            isAdjust = YES;
+//        }
+//    }
+//    if (isAdjust) {
+//        [self.collectionView setContentOffset:CGPointMake([self adjustScrollContentOffsetX:_currentPage], 0) animated:NO];
+//    }
 
     if (self.onPageSelected) {
         self.onPageSelected(@{ @"position": @([self getCurrentPage]) });
@@ -434,15 +434,15 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-    if (velocity.x > 0) {
-        ++_currentPage;
-    } else {
-        --_currentPage;
-    }
-    _currentPage = [self adjustWillEndDraggingCurrentPage:_currentPage];
-    CGFloat contentoffsetX = [self adjustScrollContentOffsetX:_currentPage];
-    targetContentOffset->x = contentoffsetX;
-    targetContentOffset->y = 0;
+//    if (velocity.x > 0) {
+//        ++_currentPage;
+//    } else {
+//        --_currentPage;
+//    }
+//    _currentPage = [self adjustWillEndDraggingCurrentPage:_currentPage];
+//    CGFloat contentoffsetX = [self adjustScrollContentOffsetX:_currentPage];
+//    targetContentOffset->x = contentoffsetX;
+//    targetContentOffset->y = 0;
     
     if (velocity.y == 0 && velocity.x == 0) {
         dispatch_after(
