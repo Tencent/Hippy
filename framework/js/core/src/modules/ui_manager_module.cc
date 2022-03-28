@@ -38,6 +38,11 @@ REGISTER_MODULE(UIManagerModule, UpdateNodes)
 REGISTER_MODULE(UIManagerModule, DeleteNodes)
 REGISTER_MODULE(UIManagerModule, EndBatch)
 REGISTER_MODULE(UIManagerModule, CallUIFunction)
+REGISTER_MODULE(UIManagerModule, AddEventListener)
+REGISTER_MODULE(UIManagerModule, AddEventListeners)
+REGISTER_MODULE(UIManagerModule, RemoveEventListener)
+REGISTER_MODULE(UIManagerModule, RemoveEventListeners)
+
 
 constexpr char kNodePropertyPid[] = "pId";
 constexpr char kNodePropertyIndex[] = "index";
@@ -229,67 +234,6 @@ GetNodeProps(const std::shared_ptr<Ctx> &context, const std::shared_ptr<CtxValue
   return std::make_tuple(true, "", std::move(style_map), std::move(dom_ext_map));
 }
 
-void HandleEventListeners(const std::shared_ptr<Ctx> &context,
-                          const std::shared_ptr<CtxValue> &node,
-                          const std::shared_ptr<DomNode> &dom_node,
-                          const std::shared_ptr<Scope> &scope) {
-  auto events = context->GetProperty(node, kEventListsKey);
-  if (events && context->IsArray(events)) {
-    auto len = context->GetArrayLength(events);
-    for (uint32_t i = 0; i < len; ++i) {
-      auto event = context->CopyArrayElement(events, i);
-      auto name_prop = context->GetProperty(event, kEventNameKey);
-      auto cb = context->GetProperty(event, kEventCBKey);
-      unicode_string_view name;
-      auto flag = context->GetValueString(name_prop, &name);
-      TDF_BASE_DCHECK(flag) << "get event name failed";
-      TDF_BASE_DCHECK(context->IsFunction(cb)) << "get event cb failed";
-      if (flag) { // 线上有问题的时候可以兼容，debug包会命中上面DCHECK
-        std::string name_str = StringViewUtils::ToU8StdStr(name);
-        std::weak_ptr<Ctx> weak_context = context;
-        std::weak_ptr<JavaScriptTaskRunner> weak_runner = scope->GetTaskRunner();
-        auto dom_id = dom_node->GetId();
-        if (context->IsNullOrUndefined(cb) || context->IsFunction(cb)) {
-          // cb null 代表移除
-          auto listener_id = scope->GetListenerId(dom_id, name_str);
-          if (listener_id != kInvalidListenerId) {
-            // 目前hippy上层还不支持绑定多个回调，有更新时先移除老的监听，再绑定新的
-            TDF_BASE_CHECK(!scope->GetDomManager().expired());
-            scope->GetDomManager().lock()->RemoveEventListener(dom_id, name_str, listener_id);
-          }
-        }
-        if (context->IsFunction(cb)) {
-          std::weak_ptr<Scope> weak_scope = scope;
-          // dom_node 持有 cb
-          dom_node->AddEventListener(
-              name_str, true,
-              [weak_context, cb](const std::shared_ptr<DomEvent> &event) {
-                auto context = weak_context.lock();
-                if (!context) {
-                  return;
-                }
-                auto param = context->CreateCtxValue(event->GetValue());
-                if (param) {
-                  const std::shared_ptr<CtxValue> argus[] = {param};
-                  context->CallFunction(cb, 1, argus);
-                } else {
-                  const std::shared_ptr<CtxValue> argus[] = {};
-                  context->CallFunction(cb, 0, argus);
-                }
-              },
-              [weak_scope, dom_id, name_str](const std::shared_ptr<DomArgument>& arg) {
-                DomValue dom_value;
-                std::shared_ptr<Scope> scope = weak_scope.lock();
-                if (scope && arg->ToObject(dom_value) && dom_value.IsUInt32()) {
-                  scope->AddListener(dom_id, name_str, dom_value.ToUint32());
-                }
-              });
-        }
-      }
-    }
-  }
-}
-
 std::tuple<bool, std::string, std::shared_ptr<DomNode>>
 CreateNode(const std::shared_ptr<Ctx> &context,
            const std::shared_ptr<CtxValue> &node,
@@ -335,7 +279,6 @@ CreateNode(const std::shared_ptr<Ctx> &context,
                                        std::move(std::get<2>(props_tuple)),
                                        std::move(std::get<3>(props_tuple)),
                                        scope->GetDomManager().lock());
-  HandleEventListeners(context, node, dom_node, scope);
   return std::make_tuple(true, "", dom_node);
 }
 
@@ -497,4 +440,144 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
   }
   TDF_BASE_CHECK(!scope->GetDomManager().expired());
   scope->GetDomManager().lock()->CallFunction(static_cast<uint32_t>(id), name, param_value, cb);
+}
+
+void AddDomNodeEventListener(const std::shared_ptr<Scope> &scope,
+                             const std::shared_ptr<Ctx> &context,
+                             const std::shared_ptr<CtxValue> node,
+                             const std::shared_ptr<CtxValue> event,
+                             const std::shared_ptr<CtxValue> callback) {
+  // get dom node id
+  int32_t dom_id;
+  bool flag = context->GetValueNumber(node, &dom_id);
+  TDF_BASE_DCHECK(flag) << "get dom id failed";
+
+  // get event name
+  unicode_string_view name;
+  flag = context->GetValueString(event, &name);
+  TDF_BASE_DCHECK(flag) << "get event name failed";
+
+  // check callback function
+  TDF_BASE_DCHECK(context->IsFunction(callback)) << "get event callback failed";
+
+  if (flag) {  // 线上有问题的时候可以兼容，debug包会命中上面DCHECK
+    TDF_BASE_CHECK(!scope->GetDomManager().expired());
+    auto dom_manager = scope->GetDomManager().lock();
+    std::string name_str = StringViewUtils::ToU8StdStr(name);
+    auto listener_id = scope->GetListenerId(static_cast<uint32_t>(dom_id), name_str);
+    if (listener_id != kInvalidListenerId) {
+      // 目前hippy上层还不支持绑定多个回调，有更新时先移除老的监听，再绑定新的
+      dom_manager->RemoveEventListener(static_cast<uint32_t>(dom_id), name_str, listener_id);
+    }
+
+    TDF_BASE_DLOG(INFO) << "UIManagerModule::AddEventListener id = " << dom_id;
+
+    std::weak_ptr<Ctx> weak_context = context;
+    std::weak_ptr<Scope> weak_scope = scope;
+    dom_manager->AddEventListener(
+        dom_id, name_str, true,
+        [weak_context, callback](const std::shared_ptr<DomEvent> &event) {
+          auto context = weak_context.lock();
+          if (!context) {
+            return;
+          }
+          auto param = context->CreateCtxValue(event->GetValue());
+          if (param) {
+            const std::shared_ptr<CtxValue> argus[] = {param};
+            context->CallFunction(callback, 1, argus);
+          } else {
+            const std::shared_ptr<CtxValue> argus[] = {};
+            context->CallFunction(callback, 0, argus);
+          }
+        },
+        [weak_scope, dom_id, name_str](const std::shared_ptr<DomArgument> &arg) {
+          DomValue dom_value;
+          std::shared_ptr<Scope> scope = weak_scope.lock();
+          if (scope && arg->ToObject(dom_value) && dom_value.IsUInt32()) {
+            scope->AddListener(dom_id, name_str, dom_value.ToUint32());
+          }
+        });
+  }
+}
+
+void UIManagerModule::AddEventListener(const hippy::napi::CallbackInfo &info) {
+  std::shared_ptr<Scope> scope = info.GetScope();
+  std::shared_ptr<Ctx> context = scope->GetContext();
+  TDF_BASE_CHECK(context);
+  TDF_BASE_CHECK(info.Length() == 3) << "add event listener parameter size error";
+
+  std::shared_ptr<CtxValue> node = info[0];
+  std::shared_ptr<CtxValue> event_name = info[1];
+  std::shared_ptr<CtxValue> callback = info[2];
+
+  AddDomNodeEventListener(scope, context, node, event_name, callback);
+}
+
+void UIManagerModule::AddEventListeners(const hippy::napi::CallbackInfo &info) {
+  std::shared_ptr<Scope> scope = info.GetScope();
+  std::shared_ptr<Ctx> context = scope->GetContext();
+  TDF_BASE_CHECK(context);
+
+  uint32_t len = context->GetArrayLength(info[0]);
+  for (uint32_t i = 0; i < len; i++) {
+    std::shared_ptr<CtxValue> event = context->CopyArrayElement(info[0], i);
+    TDF_BASE_DCHECK(context->IsArray(event));
+    auto node = context->CopyArrayElement(event, 0);
+    auto event_name = context->CopyArrayElement(event, 1);
+    auto callback = context->CopyArrayElement(event, 2);
+    AddDomNodeEventListener(scope, context, node, event_name, callback);
+  }
+}
+
+void RemoveDomNodeEventListener(const std::shared_ptr<Scope> &scope,
+                                const std::shared_ptr<Ctx> &context,
+                                const std::shared_ptr<CtxValue> node,
+                                const std::shared_ptr<CtxValue> event_name) {
+  // get dom node id
+  int32_t dom_id;
+  bool flag = context->GetValueNumber(node, &dom_id);
+  TDF_BASE_DCHECK(flag) << "get dom id failed";
+
+  // get event name
+  unicode_string_view name;
+  flag = context->GetValueString(event_name, &name);
+  TDF_BASE_DCHECK(flag) << "get event name failed";
+
+  if (flag) {  // 线上有问题的时候可以兼容，debug包会命中上面DCHECK
+    TDF_BASE_CHECK(!scope->GetDomManager().expired());
+    auto dom_manager = scope->GetDomManager().lock();
+    std::string name_str = StringViewUtils::ToU8StdStr(name);
+    auto listener_id = scope->GetListenerId(static_cast<uint32_t>(dom_id), name_str);
+    if (listener_id != kInvalidListenerId) {
+      // 目前hippy上层还不支持绑定多个回调，有更新时先移除老的监听，再绑定新的
+      dom_manager->RemoveEventListener(static_cast<uint32_t>(dom_id), name_str, listener_id);
+    }
+  }
+}
+
+void UIManagerModule::RemoveEventListener(const hippy::napi::CallbackInfo &info) {
+  std::shared_ptr<Scope> scope = info.GetScope();
+  std::shared_ptr<Ctx> context = scope->GetContext();
+  TDF_BASE_CHECK(context);
+  TDF_BASE_CHECK(info.Length() == 2) << "remove event listener parameter size error";
+
+  std::shared_ptr<CtxValue> node = info[0];
+  std::shared_ptr<CtxValue> event_name = info[1];
+
+  RemoveDomNodeEventListener(scope, context, node, event_name);
+}
+
+void UIManagerModule::RemoveEventListeners(const hippy::napi::CallbackInfo &info) {
+  std::shared_ptr<Scope> scope = info.GetScope();
+  std::shared_ptr<Ctx> context = scope->GetContext();
+  TDF_BASE_CHECK(context);
+
+  uint32_t len = context->GetArrayLength(info[0]);
+  for (uint32_t i = 0; i < len; i++) {
+    std::shared_ptr<CtxValue> event = context->CopyArrayElement(info[0], i);
+    TDF_BASE_DCHECK(context->IsArray(event));
+    auto node = context->CopyArrayElement(event, 0);
+    auto event_name = context->CopyArrayElement(event, 1);
+    RemoveDomNodeEventListener(scope, context, node, event_name);
+  }
 }

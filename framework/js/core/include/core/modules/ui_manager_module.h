@@ -50,6 +50,10 @@ class UIManagerModule : public ModuleBase {
   void StartBatch(const CallbackInfo& info);
   void EndBatch(const CallbackInfo& info);
   void CallUIFunction(const CallbackInfo& info);
+  void AddEventListener(const CallbackInfo& info);
+  void AddEventListeners(const CallbackInfo &info);
+  void RemoveEventListener(const CallbackInfo &info);
+  void RemoveEventListeners(const CallbackInfo &info);
 
  private:
 };
