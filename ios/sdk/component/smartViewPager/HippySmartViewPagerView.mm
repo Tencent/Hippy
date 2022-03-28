@@ -79,9 +79,11 @@ static NSString *const kListViewItem = @"ListViewItem";
     _circular = NO;
     _autoplay = NO;
     _itemWidth = self.hippyShadowView.frame.size.width;
+    _previousMargin = 0.0f;
+    _nextMargin = 0.0f;
     _pageGap = 0;
     _initialPage = 0;
-    _autoplayTimeInterval = 3;
+    _autoplayTimeInterval = 3000;
 }
 
 - (NSInteger)adjustAutoPlayCurrentPage:(NSInteger)currentPage {
@@ -144,19 +146,19 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)adjustDidEndDeceleratingCurrentPage{
-//    BOOL isAdjust = NO;
-//    if (_circular) {
-//        if (_currentPage == 1) {
-//            _currentPage = _itemIndexArray.count - kInfiniteLoopBegin - 1;
-//            isAdjust = YES;
-//        } else if (_currentPage == _itemIndexArray.count - kInfiniteLoopBegin) {
-//            _currentPage = kInfiniteLoopBegin;
-//            isAdjust = YES;
-//        }
-//    }
-//    if (isAdjust) {
-//        [self.collectionView setContentOffset:CGPointMake([self adjustScrollContentOffsetX:_currentPage], 0) animated:NO];
-//    }
+    BOOL isAdjust = NO;
+    if (_circular) {
+        if (_currentPage == 1) {
+            _currentPage = _itemIndexArray.count - kInfiniteLoopBegin - 1;
+            isAdjust = YES;
+        } else if (_currentPage == _itemIndexArray.count - kInfiniteLoopBegin) {
+            _currentPage = kInfiniteLoopBegin;
+            isAdjust = YES;
+        }
+    }
+    if (isAdjust) {
+        [self.collectionView setContentOffset:CGPointMake([self adjustScrollContentOffsetX:_currentPage], 0) animated:NO];
+    }
 
     if (self.onPageSelected) {
         self.onPageSelected(@{ @"position": @([self getCurrentPage]) });
@@ -164,7 +166,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)setAutoplayTimeInterval:(CGFloat)autoplayTimeInterval {
-    if (autoplayTimeInterval > 0 && _autoplayTimeInterval != autoplayTimeInterval) {
+    if (autoplayTimeInterval > 1000 && _autoplayTimeInterval != autoplayTimeInterval) {
         _autoplayTimeInterval = autoplayTimeInterval;
     }
 }
@@ -209,6 +211,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     _itemWidth = self.hippyShadowView.frame.size.width - (previousMargin + nextMargin + pageGap * 2);
     _viewPagerLayout.itemSize = CGSizeMake(_itemWidth, self.hippyShadowView.frame.size.height);
     _viewPagerLayout.minimumLineSpacing = pageGap;
+    _viewPagerLayout.minimumInteritemSpacing = pageGap;
     _currentPage = [self adjustInitialPage:_initialPage];
     self.collectionView.contentOffset = CGPointMake([self adjustScrollContentOffsetX:_currentPage], 0);
     if (!_circular) {
@@ -216,7 +219,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     }
     if (_autoplay && _autoplayTimeInterval > 0 && _timer == nil) {
         __weak __typeof(self) weakSelf = self;
-        _timer = [NSTimer scheduledTimerWithTimeInterval:_autoplayTimeInterval repeats:YES block:^(NSTimer * _Nonnull timer) {
+        _timer = [NSTimer scheduledTimerWithTimeInterval:_autoplayTimeInterval / 1000.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
             __typeof(self) strongSelf = weakSelf;
             [strongSelf showNext];
         }];
@@ -264,7 +267,6 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
-    [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 
 - (void)hippySetFrame:(CGRect)frame {
@@ -353,9 +355,31 @@ static NSString *const kListViewItem = @"ListViewItem";
     return cell;
 }
 
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    return cell;
+- (CGSize)collectionView:(UICollectionView *)collectionView
+                  layout:(UICollectionViewLayout *)collectionViewLayout
+    sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
+    NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
+    return shadowView.frame.size;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView
+       willDisplayCell:(UICollectionViewCell *)cell
+    forItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
+    NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
+    HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
+    HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
+    //TODO use reusable view here
+    UIView *view = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
+    if (!view) {
+        view = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
+    }
+    hpCell.cellView = view;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
 }
 
 - (void)tableViewDidLayoutSubviews:(HippyListTableView *)tableView {
@@ -434,15 +458,15 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
-//    if (velocity.x > 0) {
-//        ++_currentPage;
-//    } else {
-//        --_currentPage;
-//    }
-//    _currentPage = [self adjustWillEndDraggingCurrentPage:_currentPage];
-//    CGFloat contentoffsetX = [self adjustScrollContentOffsetX:_currentPage];
-//    targetContentOffset->x = contentoffsetX;
-//    targetContentOffset->y = 0;
+    if (velocity.x > 0) {
+        ++_currentPage;
+    } else {
+        --_currentPage;
+    }
+    _currentPage = [self adjustWillEndDraggingCurrentPage:_currentPage];
+    CGFloat contentoffsetX = [self adjustScrollContentOffsetX:_currentPage];
+    targetContentOffset->x = contentoffsetX;
+    targetContentOffset->y = 0;
     
     if (velocity.y == 0 && velocity.x == 0) {
         dispatch_after(
@@ -470,7 +494,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     [self adjustDidEndDeceleratingCurrentPage];
     
     if (_autoplay) {
-        _timer.fireDate = [NSDate dateWithTimeIntervalSinceNow:_autoplayTimeInterval];
+        _timer.fireDate = [NSDate dateWithTimeIntervalSinceNow:_autoplayTimeInterval / 1000];
     }
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
