@@ -46,20 +46,20 @@ import icon from './qb_icon_new.png';
 
 | 参数          | 描述                                                         | 类型                                                         | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
-| onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                                   | `ALL`    |
+| onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `ALL`    |
 | onLoad        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `ALL`    |
 | onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}` | `Function`                                                   | `ALL`    |
 | onLoadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `ALL`    |
-| resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `enum(cover, contain, stretch, repeat, center)` | `ALL`    |
-| source        | uri是一个表示图片的资源标识的字符串，需要用http路径。  现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。 | `{ uri: string }`                                            | `ALL`    |
-| defaultSource | 指定当 `Image` 组件还没加载出来 `source` 属性指定的图片的占位符图片，当 `source` 属性指定的图片加载失败时， `Image` 组件会显示 `defaultSource` 属性指定的图片 | `string`:图片 base64 字符串                                     | `ALL`    |
-| onError       | 当加载错误的时候调用此回调函数，参数为 `{ nativeEvent: { error } }` | `Function`                                                   | `ALL`    |
+| resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `enum (cover, contain, stretch, repeat, center)` | `ALL`    |
+| source        | uri 是一个表示图片的资源标识的字符串。 现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。 | `{ uri: string }`                                            | `ALL`    |
+| defaultSource | 指定当 `Image` 组件还没加载出来 `source` 属性指定的图片的占位符图片，当 `source` 属性指定的图片加载失败时， `Image` 组件会显示 `defaultSource` 属性指定的图片 | `string`: 图片 base64 字符串                                     | `ALL`    |
+| onError       | 当加载错误的时候调用此回调函数，参数为 `nativeEvent: { error }` | `Function`                                                   | `ALL`    |
 | capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `ALL`    |
-| onProgress    | 在加载过程中不断调用，参数为 `{ nativeEvent: { loaded, total } }` | `Function`                                                   |      `ALL`     |
-| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onProgress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded, total }` | `Function`                                                   |      `iOS`     |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function` | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
 
 ## 方法
 
@@ -67,7 +67,7 @@ import icon from './qb_icon_new.png';
 
 `(uri: string, success: (width: number, height: number) => void, failure?: ErrorFunction) => void` 在显示图片前获取图片的宽高(以像素为单位)。如果图片地址不正确或下载失败, 此方法也会失败。
 
-要获取图片的尺寸, 首先需要加载或下载图片(同时会被缓存起来)。这意味着理论上你可以用这个方法来预加载图片，虽然此方法并没有针对这一用法进行优化，而且将来可能会换一些实现方案使得并不需要完整下载图片即可获取尺寸。所以更好的预加载方案是使用下面那个专门的预加载方法。
+要获取图片的尺寸, 首先需要加载或下载图片(同时会被缓存起来)。这意味着理论上可以用这个方法来预加载图片，但是更好的预加载方案是使用下面 `prefetch` 预加载方法。
 
 *不适用于静态图片资源。*
 
@@ -77,7 +77,7 @@ import icon from './qb_icon_new.png';
 
 ### prefetch
 
-`(url: string) => void` 预加载一个远程图片，将其下载到本地磁盘缓存。
+`(url: string) => void` 预加载一张远程图片，将其下载到本地磁盘缓存。
 
 > * `uri`: string - 图片的地址
 
@@ -98,31 +98,31 @@ import icon from './qb_icon_new.png';
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `ALL`    |
 | getRowStyle           | 设置`ListViewItem`容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `ALL`    |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `ALL`    |
-| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` | `any`   | `Android`    |
+| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局 | `boolean \| undefined`   | `Android`    |
 | initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `ALL`    |
-| initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `ALL`    |
-| onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => any` | `ALL` |
-| onDisappear     | 当有`ListViewItem`滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 | `(index) => any` | `ALL` |
-| onWillAppear     | 当有`ListViewItem`至少一个像素进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 `最低支持版本2.3.0` | `(index) => any` | `ALL` |
-| onWillDisappear     | 当有`ListViewItem`至少一个像素滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 `最低支持版本2.3.0`| `(index) => any` | `ALL` |
+| initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `ALL`    |
+| onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => void` | `ALL` |
+| onDisappear     | 当有`ListViewItem`滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 | `(index) => void` | `ALL` |
+| onWillAppear     | 当有`ListViewItem`至少一个像素进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 `最低支持版本2.3.0` | `(index) => void` | `ALL` |
+| onWillDisappear     | 当有`ListViewItem`至少一个像素滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 `最低支持版本2.3.0`| `(index) => void` | `ALL` |
 | onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `ALL`    |
-| onMomentumScrollBegin | 在 `ListView` 开始滑动的时候调起                           | `Function`                                                  | `ALL`    |
-| onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候调起                           | `Function`                                                  | `ALL`    |
-| onScroll              | 当触发 `ListView` 的滑动事件时回调，在 `ListView` 滑动时回调，因此调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向ListView时，Android在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
+| onMomentumScrollBegin | 在 `ListView` 开始滑动的时候触发。                          | `Function`                                                  | `ALL`    |
+| onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候触发。                          | `Function`                                                  | `ALL`    |
+| onScroll              | 在 `ListView` 滑动时回调。调用频率可能较高，可使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向 ListView 时，Android 在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
 | onScrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `Function`                                                  | `ALL`    |
-| onScrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用 | `Function`                                                  | `ALL`    |
+| onScrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动时调用 | `Function`                                                  | `ALL`    |
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
-| renderRow             | 这里的入参是当前row 的index，在这里可以凭借index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `ALL`    |
-| rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回true或false指定对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕）。 | `(index: number) => boolean`                                | `ALL`    |
-| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件 | `number`                                                    | `ALL`    |
+| renderRow             | 这里的入参是当前行的索引 index，需返回 Node 节点。在这里可以凭借 index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `ALL`    |
+| rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回 true 或 false 指定对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕）。 | `(index: number) => boolean`                                | `ALL`    |
+| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 事件 | `number`                                                    | `ALL`    |
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `All` |
-| showScrollIndicator   | 是否显示滚动条。 | `boolean`  | `ALL`    |
+| showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`  | `iOS`    |
 | renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeader/index.jsx)。 | `() => View`                                                   | `ALL`    |
 | onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `ALL`    |
 | onHeaderReleased   | 下拉超过内容高度，松手后触发。 | `() => any`                                                   | `ALL`    |
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
-| onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `( nativeEvent: { index: number} ) => void`                                                   | `iOS`    |
+| onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                                   | `iOS`    |
 
 ## 方法
 
@@ -159,17 +159,15 @@ import icon from './qb_icon_new.png';
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
 | animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `ALL`    |
-| animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `ALL`    |
-| supportedOrientations | 支持屏幕翻转方向                                                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `ALL`    |
-| immersionStatusBar    | 是否是沉浸式状态栏。                                         | `boolean`                                                    | `ALL`    |
+| animationType         | 动画效果                                                            | `enum (none, slide, fade, slide_fade)` | `ALL`    |
+| supportedOrientations | 支持屏幕翻转方向                                                            | `enum (portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
+| immersionStatusBar    | 是否是沉浸式状态栏。`default: true`                                        | `boolean`                                                    | `Android`    |
 | darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `ALL`    |
 | onShow                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `ALL`    |
 | onOrientationChange   | 屏幕旋转方向改变时执行会回调                       | `Function`                                                   | `ALL`    |
-| onRequestClose        | 在`Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `ALL`    |
-| primaryKey            | -                                                            | `string`                                                     | `iOS`    |
-| onDismiss             | -                                                            | `Function`                                                   | `iOS`    |
-| transparent           | 背景是否是透明的                      | `boolean`                                                    | `ALL`    |
-| visible               | 是否显示                                                       | `boolean`                                                    | `ALL`    |
+| onRequestClose        | 在 `Modal` 请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
+| transparent           | 背景是否是透明的。`default: true`                    | `boolean`                                                    | `ALL`    |
+| visible               | 是否显示。`default: true`                                                    | `boolean`                                                    | `ALL`    |
 
 ---
 
@@ -307,20 +305,21 @@ import icon from './qb_icon_new.png';
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | caretColor          | 输入光标颜色。（也可设置为 Style 属性） `最低支持版本2.11.5` | [`color`](style/color.md)    | `Android`     |
 | defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `ALL`     |
-| editable              | 如果为 false，文本框是不可编辑的。                           | `boolean`                                                    | `ALL`     |
-| keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum(default, numeric, password, email, phone-pad)` | `ALL`     |
+| editable              | 如果为 false，文本框是不可编辑的。 `default: true`                          | `boolean`                                                    | `ALL`     |
+| keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum (default, numeric, password, email, phone-pad)` | `ALL`     |
 | maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `number`                                                    | `ALL`     |
 | multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `ALL`     |
 | numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android`     |
 | onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `ALL`     |
 | onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `ALL`     |
-| onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260}`。仅在 `iOS` 可用，`Android` 输入法不会遮挡App画面 | `Function`                                                   | `iOS`     |
+| onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `ALL`     |
+| onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
 | onEndEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `ALL`     |
-| onLayout              | 当组件挂载或者布局变化的时候调用，参数为`{ x, y, width, height }`。 | `Function`                                                   | `ALL`     |
-| onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `ALL`     |
+| onLayout              | 当组件挂载或者布局变化的时候调用，参数为`nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `ALL`     |
+| onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `nativeEvent: { selection: { start, end } }`。 | `Function`                                                   | `ALL`     |
 | placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `ALL`     |
 | placeholderTextColor  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）`最低支持版本2.13.4`                | [`color`](style/color.md)                                | `ALL`     |
-| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum(done, go, next, search, send)`              | `ALL`     |
+| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum (done, go, next, search, send)`              | `ALL`     |
 | underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性） | [`color`](style/color.md)                                                      | `Android` |
 | value                 | 指定 `TextInput` 组件的值。                                  | `string`                                                     | `ALL`     |
 | autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `ALL`     |
@@ -343,19 +342,11 @@ import icon from './qb_icon_new.png';
 
 `() => Promise<string>` 获得文本框中的内容。
 
-### hideInputMethod
-
-`() => void` 隐藏软键盘。
-
 ### setValue
 
 `(value: string) => void` 设置文本框内容。
 
 > * value: string - 文本框内容
-
-### showInputMethod
-
-`() => void` 显示软键盘。
 
 ---
 
@@ -387,13 +378,13 @@ import icon from './qb_icon_new.png';
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `ALL`    |
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `ALL`    |
-| onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                | `ALL`    |
+| onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `ALL`    |
 | onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `ALL`    |
 | ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum(head, middle, tail, clip)` | `Android 仅支持 tail 属性，iOS 全支持`    |
-| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（仅iOS支持）
@@ -418,12 +409,12 @@ import icon from './qb_icon_new.png';
 | style              | -                                                            | [`View Styles`](style/layout.md) | `ALL`     |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `ALL`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `ALL`     |
-| onLayout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
+| onLayout           | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                           | `ALL`     |
 | onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
-| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
-| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden），此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `{ nativeEvent: { name, page_x, page_y, id } }` | `Function`                                | `ALL`    |
+| onTouchDown  | 当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }` | `Function`                                | `ALL`    |
 | nativeBackgroundAndroid    | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认 false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/index.jsx) | `Object`| `Android`    |
 
 ## style 样式内特殊属性
@@ -516,7 +507,7 @@ import icon from './qb_icon_new.png';
 | renderPullHeader | 如何渲染 `PullHeader`，此时 `containPullHeader` 默认设置成 `true` |  `() => React.ReactElement` | `iOS`    |
 | containPullFooter | 是否包含`PullFooter`组件，默认 `false`  | `boolean`  | `ALL`    |
 | renderPullFooter | 如何渲染 `PullFooter`，此时 `containPullFooter` 默认设置成 `true` |  `() => React.ReactElement` | `ALL` |
-| onScroll              | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `ALL`
+| onScroll              | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] }` | `ALL`
 
 ## 方法
 

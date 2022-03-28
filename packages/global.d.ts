@@ -22,17 +22,6 @@ declare namespace HippyTypes {
 
   export type __PLATFORM__ = 'ios' | 'android' | null;
 
-  export interface LayoutContent {
-    // The position X of component
-    x: number;
-    // The position Y of component
-    y: number;
-    // The width of component
-    width: number;
-    // The height of component
-    height: number;
-  }
-
   export interface TouchEvent {
     // Touch coordinate X
     // eslint-disable-next-line camelcase
@@ -61,7 +50,14 @@ declare namespace HippyTypes {
 
   export interface LayoutEvent {
     // The event data of layout event
-    nativeEvent: LayoutContent;
+    // The position X of component
+    x: number;
+    // The position Y of component
+    y: number;
+    // The width of component
+    width: number;
+    // The height of component
+    height: number;
   }
 
   export interface Transform {
