@@ -46,10 +46,10 @@ class TraceControl {
   v8::platform::tracing::TraceBuffer *trace_buffer_;
   v8::platform::tracing::TraceWriter *trace_writer_;
   std::ofstream trace_file_;
-  std::string file_cache_dir_;
-  std::string GetFileCacheDir();
   void OpenCacheFile();
 #endif
+  std::string file_cache_dir_;
+  std::string GetFileCacheDir();
   std::string cache_file_path_;
   bool tracing_has_start_;
   std::mutex devtools_tracing_mutex_;

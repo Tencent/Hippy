@@ -93,7 +93,7 @@ CMAKE_FIND_ROOT_PATH_MODE_PACKAGE:STRING=BOTH
 CMAKE_FIND_ROOT_PATH_MODE_PROGRAM:STRING=BOTH
 
 //Frameworks search paths
-CMAKE_FRAMEWORK_PATH:STRING=/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks
+CMAKE_FRAMEWORK_PATH:STRING=/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks;/Library/PrivateFrameworks;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.4.sdk/System/Library/Frameworks
 
 CMAKE_INSTALL_NAME_TOOL:STRING=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool
 
@@ -220,10 +220,10 @@ ENABLE_ARC:UNINITIALIZED=YES
 ENABLE_ARC_INT:BOOL=YES
 
 //No help, variable specified on the command line.
-ENABLE_BITCODE:UNINITIALIZED=NO
+ENABLE_BITCODE:UNINITIALIZED=YES
 
 //Whether or not to enable bitcode
-ENABLE_BITCODE_INT:BOOL=NO
+ENABLE_BITCODE_INT:BOOL=YES
 
 //Whether or not to use strict compiler checks
 ENABLE_STRICT_TRY_COMPILE_INT:BOOL=FALSE
@@ -392,9 +392,10 @@ CMAKE_SYSTEM_VERSION:INTERNAL=15.4
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+CMAKE_XCODE_ATTRIBUTE_BITCODE_GENERATION_MODE:INTERNAL=bitcode
 CMAKE_XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC:INTERNAL=YES
 CMAKE_XCODE_ATTRIBUTE_DEVELOPMENT_TEAM:INTERNAL=123456789A
-CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE:INTERNAL=NO
+CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE:INTERNAL=YES
 CMAKE_XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN:INTERNAL=YES
 CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH:INTERNAL=NO
 //Stored Xcode object GUID

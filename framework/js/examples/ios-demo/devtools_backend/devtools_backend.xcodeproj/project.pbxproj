@@ -9,9 +9,9 @@
 /* Begin PBXAggregateTarget section */
 		199DCB12BCE4471D8FB2B14E /* ZERO_CHECK */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 511A3F6BA3A0413DBBC4B338 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildConfigurationList = D170B3308A074ACDB6F3701A /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
 			buildPhases = (
-				2B22F39ED43A4E399C57F820 /* Generate CMakeFiles/ZERO_CHECK */,
+				4EECF9A3D0424E61BB15E93F /* Generate CMakeFiles/ZERO_CHECK */,
 			);
 			dependencies = (
 			);
@@ -20,13 +20,13 @@
 		};
 		C291A3B1F381445CBA7DBE4D /* ALL_BUILD */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 22AFD59098E64AB58EE18F30 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildConfigurationList = B88DDAC34DDD4F04A094AECD /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
 			buildPhases = (
-				2B697C13BD2F4670B08A2BB9 /* Generate CMakeFiles/ALL_BUILD */,
+				EC77D1CE946742989E346C45 /* Generate CMakeFiles/ALL_BUILD */,
 			);
 			dependencies = (
-				AD353E196543406D9F04A344 /* PBXTargetDependency */,
-				BAC4B0E9E03440B0809BBA37 /* PBXTargetDependency */,
+				B1597C8179944DD486E59C24 /* PBXTargetDependency */,
+				3E27F136EF284DCC834FCF97 /* PBXTargetDependency */,
 			);
 			name = ALL_BUILD;
 			productName = ALL_BUILD;
@@ -34,218 +34,218 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		01F564D2ACE942A5B535E568 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */ = {isa = PBXBuildFile; fileRef = E627FD79CA4D44F7B23D1B28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */; };
-		030DAFE9355E48A985C7DB6A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */ = {isa = PBXBuildFile; fileRef = 695257644C2A487AB272D69A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */; };
-		06CD9A17298941718E30BE82 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */ = {isa = PBXBuildFile; fileRef = 1C4CDFFB675A4818AF388DC8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */; };
-		0B599F1EF18C4AD6A27E7205 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 447222AE6B5A46EF97581534 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/CMakeLists.txt */; };
-		118E3364C5A6425FAAB29DE4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */ = {isa = PBXBuildFile; fileRef = A8A5F35D2672420A81126972 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */; };
-		13597E7437FC4592ABD57204 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */ = {isa = PBXBuildFile; fileRef = 2572DA9F280A457CA80099A1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */; };
-		1596BB3BA75C426891750DBF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = D70C6BA9E9734633A5FE9958 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/CMakeLists.txt */; };
-		17E636428B1148A397589CAF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */ = {isa = PBXBuildFile; fileRef = 04A93459611A4F7BB24370F0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */; };
-		1C93509BE9A34B4DB05CD41B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */ = {isa = PBXBuildFile; fileRef = FCBD9BF44A0F4E79BE1DF771 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */; };
-		1E254B1CEF174E55BD69B502 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */ = {isa = PBXBuildFile; fileRef = A903A71491994E59874C5525 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */; };
-		1EBC64FD92D9431995FD17D6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */ = {isa = PBXBuildFile; fileRef = B8CCA1A032DB47559833D375 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */; };
-		22700582BA6F415A86B07A9E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */ = {isa = PBXBuildFile; fileRef = 80FBA7FF8A2C4A2F8A8662ED /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */; };
-		24C1061F689247019BFB7522 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */ = {isa = PBXBuildFile; fileRef = 6A5BA69681584BE0B8924F37 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */; };
-		2A4DB4D9144348D390AC13B7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */ = {isa = PBXBuildFile; fileRef = E5C809C2637740289402EB5B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */; };
-		2C2BD24985E442DBB2F01E24 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */ = {isa = PBXBuildFile; fileRef = 3938663CEF884EC398BB1842 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */; };
-		2C39E1F45F414AEF89E384AE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */ = {isa = PBXBuildFile; fileRef = 5C52141A5AB24A6D97E5F5A6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */; };
-		30D0DC68405F453D9D7CDE04 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */ = {isa = PBXBuildFile; fileRef = 8E481A710D2247EFB2F246E0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */; };
-		3510218778C64D4AB705D989 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */ = {isa = PBXBuildFile; fileRef = 39D4E2F7AF5748E5A86257F1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */; };
-		35607DBEB7414B14AD48DDA9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 2421F56343FE42E3AFF1A238 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/CMakeLists.txt */; };
-		3F20196E3B5A43E1BE56B454 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/CPPLINT.cfg */ = {isa = PBXBuildFile; fileRef = A3A32049448A4D7B917D1871 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/CPPLINT.cfg */; };
-		50960124F8FB43B28F2FDF54 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */ = {isa = PBXBuildFile; fileRef = 85A78088E3AF44F8AA322464 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */; };
-		51028AB6AC4645FE80AE91AE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */ = {isa = PBXBuildFile; fileRef = C4FD366086414E389BBB0B32 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */; };
-		5241E1C6518F4917BD090D0C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */ = {isa = PBXBuildFile; fileRef = 72A7FD62C98F477DAEE259F2 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */; };
-		5507DBEC51C242B48282EEB4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */ = {isa = PBXBuildFile; fileRef = 2728E275B1E547379610A596 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */; };
-		5ABE7321A95440CAB5D6A329 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */ = {isa = PBXBuildFile; fileRef = 36997109263C40D6BE934490 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */; };
-		5D9FE489A9DF4C5291E27028 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 3C41DC9672CC405098D688AC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/CMakeLists.txt */; };
-		60C82209F417451A8DDBD7F4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */ = {isa = PBXBuildFile; fileRef = 1D7248B41611420285168F6E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */; };
-		61A525B80E5B4053911B0E10 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */ = {isa = PBXBuildFile; fileRef = B577F14958DA4C82B09F7EC3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */; };
-		67B4FB4CBFCF4D328033F140 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */ = {isa = PBXBuildFile; fileRef = 84997C8A61A24419B00A1A5D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */; };
-		68983D5AD9E7410C81A21571 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */ = {isa = PBXBuildFile; fileRef = 7C8DBB9C22164CA185FEF1DA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */; };
-		6AE343576A024B96BF04F013 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */ = {isa = PBXBuildFile; fileRef = 0A2CECD6774E435A972715EA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */; };
-		6C535340D5E149E78D0ADC0F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_backend/.DS_Store */ = {isa = PBXBuildFile; fileRef = D8839AAA14B24286BEF10533 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_backend/.DS_Store */; };
-		6CCCE25DB8B14D89A8C7A878 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */ = {isa = PBXBuildFile; fileRef = 3ECE1B71DEA84A97B6FA4792 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */; };
-		7329E1C85E804F8F82860023 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */ = {isa = PBXBuildFile; fileRef = F308AEFA350349D897E4322A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */; };
-		77CEDBBA324C460492D4570B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */ = {isa = PBXBuildFile; fileRef = 9E6F2D2B6F0F4184A3D2D911 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */; };
-		7E129200C4E7457AB10EAECE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */ = {isa = PBXBuildFile; fileRef = A394DD6AC1A14CE3A795D60A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */; };
-		815B19FE490A4DEF8C09097B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */ = {isa = PBXBuildFile; fileRef = 0FB3D354AD9E43AAAEE8C517 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */; };
-		8ABEF2E27C394B059F430AE4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */ = {isa = PBXBuildFile; fileRef = 8C93173FCEA348DDBD66E831 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */; };
-		8B527107BCDD45838915BF28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */ = {isa = PBXBuildFile; fileRef = 01BC7A4A2087480E80634217 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */; };
-		8C127FC1B0B844488A9E66E8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */ = {isa = PBXBuildFile; fileRef = 8B976EAED4C647F9840187C9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */; };
-		8FE5484485094C118D5E66C2 /* /Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist */ = {isa = PBXBuildFile; fileRef = 01A2461CFB754E1E85650C2A /* /Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist */; };
-		928F95F23F9A47A9956D882D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */ = {isa = PBXBuildFile; fileRef = 1CBB60B79B8945F3BEB5C579 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */; };
-		96961EF68FD0429587CDF2ED /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */ = {isa = PBXBuildFile; fileRef = E1BEB403E85741A586CED603 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */; };
-		97F1D741379B4783BF9EEE26 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 6201B777C3C745AEB3993C52 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/CMakeLists.txt */; };
-		990E5D48E69A46518F32E393 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */ = {isa = PBXBuildFile; fileRef = 0FDA0CDAC606466E94093AF8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */; };
-		9B2B5135725846498B85AA28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */ = {isa = PBXBuildFile; fileRef = 28E6EDCBDFB74DBFBC19E2F7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */; };
-		9E449BD1BFC646F0A4F389D3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */ = {isa = PBXBuildFile; fileRef = C7A2E5F79DFE4244AD53E726 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */; };
-		9E597BA6DEB443E0BAE21717 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */ = {isa = PBXBuildFile; fileRef = E22E5CD82CF64ABFB9A8442A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */; };
-		A9D2379B9AFA42F7B30C0127 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */ = {isa = PBXBuildFile; fileRef = E9460052D71D48F6B77140EB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */; };
-		AAE0A97115E94F4CA1E484C3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */ = {isa = PBXBuildFile; fileRef = 8F917BDD81594115B984C7AA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */; };
-		AC9CD4062C514A61A1172592 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */ = {isa = PBXBuildFile; fileRef = B13DCA498C894A428D6B4EA4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */; };
-		AF866D3A9B7845BF95B0B087 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */ = {isa = PBXBuildFile; fileRef = 15094C6658D344B5A040F906 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */; };
-		B640BBA50ED54CAAA1B7BAAF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */ = {isa = PBXBuildFile; fileRef = 02721AB02FCC45D78FAFDD38 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */; };
-		B682ADE7EB914D068E797ABB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */ = {isa = PBXBuildFile; fileRef = 139E0C0162764F4EB81C2D2B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */; };
-		B8F8410CB7F941E39F6C2C1D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */ = {isa = PBXBuildFile; fileRef = FCB7BB4219114991AAA210CB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */; };
-		BA0A90A8DAC34363A85B61BC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */ = {isa = PBXBuildFile; fileRef = 09CB3800EA6746988FE267B3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */; };
-		BEB15CF67488480F86E8D997 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 15039BCDC4DE4599862F3E54 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/CMakeLists.txt */; };
-		BF7BF72615B547A59862BF90 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */ = {isa = PBXBuildFile; fileRef = CA15FA204A8F48BF83623A27 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */; };
-		CCC6AA60B7724D3D86DEB051 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */ = {isa = PBXBuildFile; fileRef = 9ECCF5F56BCC42DEA0EB01C3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */; };
-		CD6C4965E3224F968290C85D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */ = {isa = PBXBuildFile; fileRef = 286EFD2395414401A660D118 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */; };
-		CE418F56376B4375AAD8897E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */ = {isa = PBXBuildFile; fileRef = CB2417C7274A4087A691CFEF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */; };
-		D2873607D80E4A05BD251EDC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */ = {isa = PBXBuildFile; fileRef = 9307E87BAB89488CB13CD556 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */; };
-		DB928C69E30E42FCA7111B49 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */ = {isa = PBXBuildFile; fileRef = C91D4B61381245FCAFA9811C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */; };
-		E23B695AAF214190B7B5A01C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */ = {isa = PBXBuildFile; fileRef = F15D9FB31EDD474788E771F6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */; };
-		E30B0E17EE294D5FACA7443C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */ = {isa = PBXBuildFile; fileRef = 178F61006A2540FCAB91A687 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */; };
-		E44DBE6A6FC44533BE15BE4B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */ = {isa = PBXBuildFile; fileRef = CCACD95C94504C8B9D53D205 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */; };
-		EC57573A3B4D4EC88553691D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */ = {isa = PBXBuildFile; fileRef = 70EB9ED989184F07948FE603 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */; };
-		ED0A2E5379CE4813B580EA3B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */ = {isa = PBXBuildFile; fileRef = E36D39234C3B4B019F1DB93E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */; };
-		EF7F83852535403290AFDBB3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */ = {isa = PBXBuildFile; fileRef = DD6FD263F3604E8EB60E081B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */; };
-		F59E6A853A034D878D4E4F99 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */ = {isa = PBXBuildFile; fileRef = A77B1EF9FA54421E8B2238A5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */; };
-		F90E26C9A51D48CFBF7153F5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */ = {isa = PBXBuildFile; fileRef = 9EE5010419DC41768D481DE1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */; };
-		F9AE083EEA4D4773A9581619 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */ = {isa = PBXBuildFile; fileRef = 4EB6362C417541ADA8DDDA38 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */; };
-		FA8BCD5BC7DA477DBAA3E4AC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */ = {isa = PBXBuildFile; fileRef = EF34A317D22540EA991C667C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */; };
-		FCEDF0F82F9D4DCE9057B11B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */ = {isa = PBXBuildFile; fileRef = 3444738DEF3C431BB13AAB98 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */; };
+		0283B8F6665E44F485F415D4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */ = {isa = PBXBuildFile; fileRef = DED82B42621F4D7D83A99FBC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */; };
+		0571E02CA0DD42F5ACE88D12 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */ = {isa = PBXBuildFile; fileRef = 86FB3D42F9A349FE9E2E80BD /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */; };
+		08E8B1E41952480FBC8A3A80 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */ = {isa = PBXBuildFile; fileRef = 3BE4894F3AFA4DBD977B9697 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */; };
+		0A463DCA583643B78777804C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */ = {isa = PBXBuildFile; fileRef = 6DC2E8C23369485EAD1EB66C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */; };
+		0D80BB04C34440C99479CBFB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */ = {isa = PBXBuildFile; fileRef = 5416FE3E0D2A4B319CAA830D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */; };
+		0FE0F19F6BAC4E8496B0EBAB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */ = {isa = PBXBuildFile; fileRef = A45F7B0650224EC5A53B3FA4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */; };
+		1101B0F3BD5A455680552D69 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */ = {isa = PBXBuildFile; fileRef = 4E22087EFD5643FCA7DF3A26 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */; };
+		1382F4FB30AF415BA94D8913 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */ = {isa = PBXBuildFile; fileRef = 8998FA0977AF49D08768E8CE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */; };
+		13DB28E0D8374C4B84666A59 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */ = {isa = PBXBuildFile; fileRef = 5C942D4A16DF4DEEA3087841 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */; };
+		14E9418CE3DC4251A1836DD6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */ = {isa = PBXBuildFile; fileRef = F2854B0303344020AC937131 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */; };
+		17E4A942E34247538AF15965 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */ = {isa = PBXBuildFile; fileRef = A85E3A86B2D8415399641184 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */; };
+		19915B8B47CC4E4A8274FD87 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */ = {isa = PBXBuildFile; fileRef = 2C93B773C3254A3699C68B1A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */; };
+		25208A3048244E30BC73115A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */ = {isa = PBXBuildFile; fileRef = D1FF6494FD9648B1A02D2421 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */; };
+		4473FFDC33784B678ADF0577 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */ = {isa = PBXBuildFile; fileRef = BDD93B16DF38462EB6F1E7F8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */; };
+		450BCB55E8BA4BD88C344947 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */ = {isa = PBXBuildFile; fileRef = 9D16A26C1950401E92BCFDDB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */; };
+		4580E0F2F7774F539F91D51E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */ = {isa = PBXBuildFile; fileRef = A8A8BEFA7700430EB1E01D78 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */; };
+		45A23ADF925A4CC9A53E1310 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */ = {isa = PBXBuildFile; fileRef = 3B41939E54D44FDA9A1A061D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */; };
+		4FD80F86EEA942FBA6010935 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/CPPLINT.cfg */ = {isa = PBXBuildFile; fileRef = 9B920D58469E4944A50B6545 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/CPPLINT.cfg */; };
+		5195F3F026D047D38361F787 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */ = {isa = PBXBuildFile; fileRef = 7279B29BB9A44B81B7A6E3DE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */; };
+		52C0C53E06854FC09EC80DCE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */ = {isa = PBXBuildFile; fileRef = 6A690C0396144066B857979D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */; };
+		57A8A1356049499684E65D27 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */ = {isa = PBXBuildFile; fileRef = 6F749C6E3B4E4EBB9DF467EF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */; };
+		5CAE6CEBFD5C40F1887A11F9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */ = {isa = PBXBuildFile; fileRef = 3D0EAFC78B5F4C2B83192E27 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */; };
+		5F55E741B21249F38403AED9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 4037AEA96B38409EB5DC07F6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/CMakeLists.txt */; };
+		6404F4EA206B474FA9DB00AF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */ = {isa = PBXBuildFile; fileRef = 30D7C8248C664D578C27CB58 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */; };
+		66E0D997AA7E4D178178047A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */ = {isa = PBXBuildFile; fileRef = CE135859630D4C64AA707E47 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */; };
+		67F95B7F82AD4C40919E8C7D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */ = {isa = PBXBuildFile; fileRef = 71B55469E7164DE69B6668BC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */; };
+		68155E706C4C4059984C712D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */ = {isa = PBXBuildFile; fileRef = 24E6D2E79CB04BE2B7A910DE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */; };
+		6B81AD3589B24E1E9D38025D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */ = {isa = PBXBuildFile; fileRef = 8F227B35736F4A8BB6C9F14E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */; };
+		6DDA642B51344F91A22E87B4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */ = {isa = PBXBuildFile; fileRef = B3A50147B4DB44EF8E46FAB0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */; };
+		6F83E107ABBD4BEA81DE3D36 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */ = {isa = PBXBuildFile; fileRef = 2A8B4593EFB844259FDFB1C5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */; };
+		71C4C2E0C5A84B6C9BE6A35F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */ = {isa = PBXBuildFile; fileRef = 75880A1BFD2F4CD89483F0B1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */; };
+		7355F01DFC39488C97B9B6E4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */ = {isa = PBXBuildFile; fileRef = 733C14646FD24BBB8C438702 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */; };
+		80C6A9D4C037443CB09E2581 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */ = {isa = PBXBuildFile; fileRef = 72BC4662F98A409A8E300ED1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */; };
+		819957FC0FF54DFBAACA34CF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */ = {isa = PBXBuildFile; fileRef = E560466A8D6F464EBCA8F89A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */; };
+		8247624158E841F2901019CA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */ = {isa = PBXBuildFile; fileRef = EAE70C161E294F83810F0CED /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */; };
+		82B2017E02B7492A8B65AD71 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */ = {isa = PBXBuildFile; fileRef = 6B5D7F0E066346449F5B7E08 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */; };
+		864966A50F6248A09066B5A7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */ = {isa = PBXBuildFile; fileRef = FB7765F1F702427789F152B5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */; };
+		89B5B25722C14B37B722779D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */ = {isa = PBXBuildFile; fileRef = 5274254EF7584D899284CC78 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */; };
+		8CAB1478E6C44532AAA11F35 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_backend/.DS_Store */ = {isa = PBXBuildFile; fileRef = D037A6924D6B466F870E767F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_backend/.DS_Store */; };
+		8E158BDAB76544F09EECAFCB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */ = {isa = PBXBuildFile; fileRef = 83E97341B29D4FB7BD3020B8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */; };
+		9071E1D8C0E343AE9269F7E2 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */ = {isa = PBXBuildFile; fileRef = 6CB05B3B84D3416ABA864CC9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */; };
+		90ED915E18D241F6BAF40BDD /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */ = {isa = PBXBuildFile; fileRef = 2759C374910541159B98A457 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */; };
+		9182A9A24F7542F0B8938866 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */ = {isa = PBXBuildFile; fileRef = 8F559C37C6CF49639AA0ED36 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */; };
+		937DBE5B8448431983558BAD /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */ = {isa = PBXBuildFile; fileRef = B00AFE7C7A98407E850593B5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */; };
+		9517861842FD4758A5FA848B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */ = {isa = PBXBuildFile; fileRef = 97CD8B4120A64D32B941AB9D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */; };
+		96E83416CABC4FDCB29D1F13 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 61E04F8500F543988ABFA79D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/CMakeLists.txt */; };
+		9791E51A98674EDBBF4EA48D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */ = {isa = PBXBuildFile; fileRef = FEE151F632D74F8381A4C63B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */; };
+		98F21A5A752E4F51B1A22782 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */ = {isa = PBXBuildFile; fileRef = 59D3F9089DAE483297C86677 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */; };
+		9D187F02242140BA811FB962 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */ = {isa = PBXBuildFile; fileRef = C34FE68ED70C4401918BDC9C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */; };
+		9D3BBE31362A4711AA4208A2 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */ = {isa = PBXBuildFile; fileRef = F146D144A29048CC8160447D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */; };
+		9F417FF6A87A4AA3A4D15243 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */ = {isa = PBXBuildFile; fileRef = C755C98B7FD24FA6BE436B8B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */; };
+		A40B6733F2A0487690D62CF8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */ = {isa = PBXBuildFile; fileRef = C2C3FA04BAF84818BBAED10B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */; };
+		A51D85326D5A4B6A8B0D4FE0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = D335CC9382944C9082115E49 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/CMakeLists.txt */; };
+		ADA3919C8CB04551B0B02DA0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 77AB2D41F73E4C9DB0826B30 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/CMakeLists.txt */; };
+		B081A8F8342745269C6B9030 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */ = {isa = PBXBuildFile; fileRef = 7577A22C44FD43F2AD39FC0A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */; };
+		B0B21D0E3EAB47439042CFA1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */ = {isa = PBXBuildFile; fileRef = 363BFBEDD0E64AB38CF356EB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */; };
+		B139CA398D4A41FE8200A391 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */ = {isa = PBXBuildFile; fileRef = 0E0E4FBF5D4048939A1E942A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */; };
+		B3F8887224254925B6DF80F8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */ = {isa = PBXBuildFile; fileRef = 2D45303D695D459E8B0C0661 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */; };
+		BE3AB037FC9F44378D6B78C7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */ = {isa = PBXBuildFile; fileRef = 67487BBF7C774635A032969F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */; };
+		C844A8BBD0104C959F13ED7B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = BD41D61A744640ADB74C390C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/CMakeLists.txt */; };
+		D3358E0206114E3781E6C2B3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */ = {isa = PBXBuildFile; fileRef = C4513FB6843948648CD8FAB5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */; };
+		D396B484A9F940178D5FFB81 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */ = {isa = PBXBuildFile; fileRef = 1C7606C9C5D94B25A6FD3099 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */; };
+		D9FE25D57ADF4E59864B00C1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */ = {isa = PBXBuildFile; fileRef = 9BF219F5658A447790179B2B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */; };
+		E0F309867A4244F0836CB282 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */ = {isa = PBXBuildFile; fileRef = F9DDE9CA7C4B4A1BA197C6A4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */; };
+		E68488FCA5FC4A35A9384513 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */ = {isa = PBXBuildFile; fileRef = BE8257FF5A374017A8D4F73B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */; };
+		E851B6571ABB4F99AC6E3AFB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 2D37584D0E0D4E66B76D2F28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/CMakeLists.txt */; };
+		E8AC16C3E0C64A148E649DE5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */ = {isa = PBXBuildFile; fileRef = 2EDB0336CD764DD68330954F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */; };
+		EBFBF4442946437B9CAB24C7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */ = {isa = PBXBuildFile; fileRef = C15BA778C475412EB5FAE672 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */; };
+		ECD965A5019F47C8A5BEEB4D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */ = {isa = PBXBuildFile; fileRef = 6C3A8B86BB9F41AE90211DD0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */; };
+		EE38D16A4DEA4C02A34188FA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */ = {isa = PBXBuildFile; fileRef = 6A1C5E9FA4DC4FC1A0428C1D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */; };
+		F4B39D6DCDD3408698554D25 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */ = {isa = PBXBuildFile; fileRef = 92C4EC31444F48C2B01D1923 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */; };
+		FB920ACF15584C66925B9B8E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */ = {isa = PBXBuildFile; fileRef = 905A242F014A48DA900E342A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */; };
+		FC01CD383919409CA3F17B3C /* /Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist */ = {isa = PBXBuildFile; fileRef = 6A118D679B43451AA4618AEF /* /Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist */; };
+		FD1E46277F04405688B71170 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */ = {isa = PBXBuildFile; fileRef = 0E36EFDC048E4E29AEB3FAE6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildStyle section */
-		108F63D4B65F4D34BD9D6134 /* Debug */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = Debug;
-		};
-		6D7F935A0173471DB7FEC2CC /* Release */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-			};
-			name = Release;
-		};
-		A69C8E7BD9C845D29742817D /* RelWithDebInfo */ = {
+		27AA2380A04649C89BE503BC /* RelWithDebInfo */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = RelWithDebInfo;
 		};
-		B44810AEE73443389B73634D /* MinSizeRel */ = {
+		4C49279460AA4A729703344D /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		98C9FFDE1D4A47548E1ED3D7 /* MinSizeRel */ = {
 			isa = PBXBuildStyle;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 			};
 			name = MinSizeRel;
 		};
+		F80E50501AC943E8B315610D /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
 /* End PBXBuildStyle section */
 
 /* Begin PBXContainerItemProxy section */
-		18ECC7F8D5CA450C9197A826 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 053B6BCEE56242B89D6E1049 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 199DCB12BCE4471D8FB2B14E;
-			remoteInfo = ZERO_CHECK;
-		};
-		9928D5E2C84B470B8B323FE3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 053B6BCEE56242B89D6E1049 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 199DCB12BCE4471D8FB2B14E;
-			remoteInfo = ZERO_CHECK;
-		};
-		E5830FF920124A7CA750F6D1 /* PBXContainerItemProxy */ = {
+		1B6FE066C15642598D334583 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 053B6BCEE56242B89D6E1049 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A402C81774D14B83B0F46587;
 			remoteInfo = devtools_backend;
 		};
+		6596286EF0C84FC28F926005 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 053B6BCEE56242B89D6E1049 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 199DCB12BCE4471D8FB2B14E;
+			remoteInfo = ZERO_CHECK;
+		};
+		BEA4F3629EAA46588664FFEA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 053B6BCEE56242B89D6E1049 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 199DCB12BCE4471D8FB2B14E;
+			remoteInfo = ZERO_CHECK;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		01A2461CFB754E1E85650C2A /* /Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.text.plist; fileEncoding = 4; name = Info.plist; path = "../../framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist"; sourceTree = SOURCE_ROOT; };
-		01BC7A4A2087480E80634217 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_performance_domain.cc; path = src/module/domain/tdf_performance_domain.cc; sourceTree = SOURCE_ROOT; };
-		02721AB02FCC45D78FAFDD38 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = selected_render_object_request.cc; path = src/module/request/selected_render_object_request.cc; sourceTree = SOURCE_ROOT; };
-		04A93459611A4F7BB24370F0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = trace_event_metas.cc; path = src/api/adapter/data/trace_event_metas.cc; sourceTree = SOURCE_ROOT; };
-		09CB3800EA6746988FE267B3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = domain_dispatch.cc; path = src/module/domain_dispatch.cc; sourceTree = SOURCE_ROOT; };
-		0A2CECD6774E435A972715EA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_model.cc; path = src/module/model/screen_shot_model.cc; sourceTree = SOURCE_ROOT; };
-		0FB3D354AD9E43AAAEE8C517 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = timer.cc; path = src/tunnel/timer.cc; sourceTree = SOURCE_ROOT; };
-		0FDA0CDAC606466E94093AF8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = worker_pool.cc; path = src/devtools_base/common/worker_pool.cc; sourceTree = SOURCE_ROOT; };
-		139E0C0162764F4EB81C2D2B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_edit_style_texts_request.cc; path = src/module/request/css_edit_style_texts_request.cc; sourceTree = SOURCE_ROOT; };
-		15039BCDC4DE4599862F3E54 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/adr/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		15094C6658D344B5A040F906 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_common_protocol_domain.cc; path = src/module/domain/tdf_common_protocol_domain.cc; sourceTree = SOURCE_ROOT; };
-		178F61006A2540FCAB91A687 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_location.cc; path = src/api/adapter/data/dom_node_location.cc; sourceTree = SOURCE_ROOT; };
-		1C4CDFFB675A4818AF388DC8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = log_settings.cc; path = src/devtools_base/common/log_settings.cc; sourceTree = SOURCE_ROOT; };
-		1CBB60B79B8945F3BEB5C579 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = render_node_metas.cc; path = src/api/adapter/data/render_node_metas.cc; sourceTree = SOURCE_ROOT; };
-		1D7248B41611420285168F6E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_base_util.cc; path = src/devtools_base/tdf_base_util.cc; sourceTree = SOURCE_ROOT; };
-		2421F56343FE42E3AFF1A238 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = cmake/ios/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		2572DA9F280A457CA80099A1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_model.cc; path = src/module/model/css_model.cc; sourceTree = SOURCE_ROOT; };
-		2728E275B1E547379610A596 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = task.cc; path = src/devtools_base/common/task.cc; sourceTree = SOURCE_ROOT; };
-		286EFD2395414401A660D118 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_response.cc; path = src/module/model/screen_shot_response.cc; sourceTree = SOURCE_ROOT; };
-		28E6EDCBDFB74DBFBC19E2F7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_inspector_model.cc; path = src/module/model/tdf_inspector_model.cc; sourceTree = SOURCE_ROOT; };
-		3444738DEF3C431BB13AAB98 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = record_logger.cc; path = src/module/record_logger.cc; sourceTree = SOURCE_ROOT; };
-		36997109263C40D6BE934490 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = devtools_backend_service.cc; path = src/api/devtools_backend_service.cc; sourceTree = SOURCE_ROOT; };
-		3938663CEF884EC398BB1842 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = base_domain.cc; path = src/module/domain/base_domain.cc; sourceTree = SOURCE_ROOT; };
-		39D4E2F7AF5748E5A86257F1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_node_data_request.cc; path = src/module/request/css_node_data_request.cc; sourceTree = SOURCE_ROOT; };
-		3C41DC9672CC405098D688AC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/win/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		3ECE1B71DEA84A97B6FA4792 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/ios/logging.cc; sourceTree = SOURCE_ROOT; };
-		447222AE6B5A46EF97581534 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/ios/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		4EB6362C417541ADA8DDDA38 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_data_request.cc; path = src/module/request/dom_node_data_request.cc; sourceTree = SOURCE_ROOT; };
-		57A2D7B5C6A24FB1BF61C465 /* devtools_backend */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libdevtools_backend.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		5C52141A5AB24A6D97E5F5A6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/mac/logging.cc; sourceTree = SOURCE_ROOT; };
-		6201B777C3C745AEB3993C52 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/linux/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		695257644C2A487AB272D69A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tcp_channel.cpp; path = src/tunnel/tcp/tcp_channel.cpp; sourceTree = SOURCE_ROOT; };
-		6A5BA69681584BE0B8924F37 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/win/thread.cc; sourceTree = SOURCE_ROOT; };
-		70EB9ED989184F07948FE603 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = stream_handler.cpp; path = src/tunnel/tcp/stream_handler.cpp; sourceTree = SOURCE_ROOT; };
-		72A7FD62C98F477DAEE259F2 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/adr/logging.cc; sourceTree = SOURCE_ROOT; };
-		7C8DBB9C22164CA185FEF1DA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/linux/thread.cc; sourceTree = SOURCE_ROOT; };
-		80FBA7FF8A2C4A2F8A8662ED /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tunnel_service.cc; path = src/tunnel/tunnel_service.cc; sourceTree = SOURCE_ROOT; };
-		84997C8A61A24419B00A1A5D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = memory_metas.cc; path = src/api/adapter/data/memory_metas.cc; sourceTree = SOURCE_ROOT; };
-		85A78088E3AF44F8AA322464 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = update_dom_node_metas.cc; path = src/api/adapter/data/update_dom_node_metas.cc; sourceTree = SOURCE_ROOT; };
-		8B5F8D2ACB6F4908B96D543A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		8B976EAED4C647F9840187C9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/win/logging.cc; sourceTree = SOURCE_ROOT; };
-		8C93173FCEA348DDBD66E831 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_domain.cc; path = src/module/domain/css_domain.cc; sourceTree = SOURCE_ROOT; };
-		8E481A710D2247EFB2F246E0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = base64.cc; path = src/devtools_base/common/base64.cc; sourceTree = SOURCE_ROOT; };
-		8F917BDD81594115B984C7AA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = unicode_string_view.cc; path = src/devtools_base/common/unicode_string_view.cc; sourceTree = SOURCE_ROOT; };
-		9307E87BAB89488CB13CD556 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_request.cc; path = src/module/request/screen_shot_request.cc; sourceTree = SOURCE_ROOT; };
-		9E6F2D2B6F0F4184A3D2D911 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_inspector_domain.cc; path = src/module/domain/tdf_inspector_domain.cc; sourceTree = SOURCE_ROOT; };
-		9ECCF5F56BCC42DEA0EB01C3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/ios/thread.cc; sourceTree = SOURCE_ROOT; };
-		9EE5010419DC41768D481DE1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_memory_domain.cc; path = src/module/domain/tdf_memory_domain.cc; sourceTree = SOURCE_ROOT; };
-		A394DD6AC1A14CE3A795D60A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = frame_poll_model.cc; path = src/module/model/frame_poll_model.cc; sourceTree = SOURCE_ROOT; };
-		A3A32049448A4D7B917D1871 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/CPPLINT.cfg */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = CPPLINT.cfg; path = src/tunnel/tcp/CPPLINT.cfg; sourceTree = SOURCE_ROOT; };
-		A77B1EF9FA54421E8B2238A5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/mac/thread.cc; sourceTree = SOURCE_ROOT; };
-		A8A5F35D2672420A81126972 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/adr/thread.cc; sourceTree = SOURCE_ROOT; };
-		A903A71491994E59874C5525 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_runtime_domain.cc; path = src/module/domain/tdf_runtime_domain.cc; sourceTree = SOURCE_ROOT; };
-		B13DCA498C894A428D6B4EA4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = page_domain.cc; path = src/module/domain/page_domain.cc; sourceTree = SOURCE_ROOT; };
-		B577F14958DA4C82B09F7EC3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_string_util.cc; path = src/devtools_base/tdf_string_util.cc; sourceTree = SOURCE_ROOT; };
-		B8CCA1A032DB47559833D375 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_metas.cc; path = src/api/adapter/data/dom_node_metas.cc; sourceTree = SOURCE_ROOT; };
-		C4FD366086414E389BBB0B32 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/linux/logging.cc; sourceTree = SOURCE_ROOT; };
-		C7A2E5F79DFE4244AD53E726 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_for_location_request.cc; path = src/module/request/dom_node_for_location_request.cc; sourceTree = SOURCE_ROOT; };
-		C91D4B61381245FCAFA9811C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = log_settings_state.cc; path = src/devtools_base/common/log_settings_state.cc; sourceTree = SOURCE_ROOT; };
-		CA15FA204A8F48BF83623A27 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_model.cc; path = src/module/model/dom_model.cc; sourceTree = SOURCE_ROOT; };
-		CB2417C7274A4087A691CFEF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = web_socket_channel.cc; path = src/tunnel/ws/web_socket_channel.cc; sourceTree = SOURCE_ROOT; };
-		CCACD95C94504C8B9D53D205 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_domain.cc; path = src/module/domain/dom_domain.cc; sourceTree = SOURCE_ROOT; };
-		D70C6BA9E9734633A5FE9958 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/mac/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
-		D8839AAA14B24286BEF10533 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_backend/.DS_Store */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = .DS_Store; path = src/devtools_backend/.DS_Store; sourceTree = SOURCE_ROOT; };
-		DD6FD263F3604E8EB60E081B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_v8_response_notification.cc; path = src/api/notification/default/default_v8_response_notification.cc; sourceTree = SOURCE_ROOT; };
-		E1BEB403E85741A586CED603 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = domain_base_request.cc; path = src/module/request/domain_base_request.cc; sourceTree = SOURCE_ROOT; };
-		E22E5CD82CF64ABFB9A8442A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = frame_timing_metas.cc; path = src/api/adapter/data/frame_timing_metas.cc; sourceTree = SOURCE_ROOT; };
-		E36D39234C3B4B019F1DB93E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_elements_response_notification.cc; path = src/api/notification/default/default_elements_response_notification.cc; sourceTree = SOURCE_ROOT; };
-		E5C809C2637740289402EB5B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_log_notification.cc; path = src/api/notification/default/default_log_notification.cc; sourceTree = SOURCE_ROOT; };
-		E627FD79CA4D44F7B23D1B28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = worker.cc; path = src/devtools_base/common/worker.cc; sourceTree = SOURCE_ROOT; };
-		E9460052D71D48F6B77140EB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = render_diagnostic_metas.cc; path = src/api/adapter/data/render_diagnostic_metas.cc; sourceTree = SOURCE_ROOT; };
-		EF34A317D22540EA991C667C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/logging.cc; sourceTree = SOURCE_ROOT; };
-		F15D9FB31EDD474788E771F6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = task_runner.cc; path = src/devtools_base/common/task_runner.cc; sourceTree = SOURCE_ROOT; };
-		F308AEFA350349D897E4322A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = socket.cc; path = src/tunnel/tcp/socket.cc; sourceTree = SOURCE_ROOT; };
-		FCB7BB4219114991AAA210CB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = channel_factory.cc; path = src/tunnel/channel_factory.cc; sourceTree = SOURCE_ROOT; };
-		FCBD9BF44A0F4E79BE1DF771 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = domain_metas.cc; path = src/api/adapter/data/domain_metas.cc; sourceTree = SOURCE_ROOT; };
+		0E0E4FBF5D4048939A1E942A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_performance_domain.cc; path = src/module/domain/tdf_performance_domain.cc; sourceTree = SOURCE_ROOT; };
+		0E36EFDC048E4E29AEB3FAE6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/win/logging.cc; sourceTree = SOURCE_ROOT; };
+		1C7606C9C5D94B25A6FD3099 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_location.cc; path = src/api/adapter/data/dom_node_location.cc; sourceTree = SOURCE_ROOT; };
+		24E6D2E79CB04BE2B7A910DE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_for_location_request.cc; path = src/module/request/dom_node_for_location_request.cc; sourceTree = SOURCE_ROOT; };
+		2759C374910541159B98A457 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_response.cc; path = src/module/model/screen_shot_response.cc; sourceTree = SOURCE_ROOT; };
+		2A8B4593EFB844259FDFB1C5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_edit_style_texts_request.cc; path = src/module/request/css_edit_style_texts_request.cc; sourceTree = SOURCE_ROOT; };
+		2C93B773C3254A3699C68B1A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tunnel_service.cc; path = src/tunnel/tunnel_service.cc; sourceTree = SOURCE_ROOT; };
+		2D37584D0E0D4E66B76D2F28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/adr/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		2D45303D695D459E8B0C0661 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/ios/logging.cc; sourceTree = SOURCE_ROOT; };
+		2EDB0336CD764DD68330954F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = log_settings.cc; path = src/devtools_base/common/log_settings.cc; sourceTree = SOURCE_ROOT; };
+		30D7C8248C664D578C27CB58 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_memory_domain.cc; path = src/module/domain/tdf_memory_domain.cc; sourceTree = SOURCE_ROOT; };
+		363BFBEDD0E64AB38CF356EB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = domain_metas.cc; path = src/api/adapter/data/domain_metas.cc; sourceTree = SOURCE_ROOT; };
+		3B41939E54D44FDA9A1A061D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = task_runner.cc; path = src/devtools_base/common/task_runner.cc; sourceTree = SOURCE_ROOT; };
+		3BE4894F3AFA4DBD977B9697 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_model.cc; path = src/module/model/dom_model.cc; sourceTree = SOURCE_ROOT; };
+		3D0EAFC78B5F4C2B83192E27 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_domain.cc; path = src/module/domain/dom_domain.cc; sourceTree = SOURCE_ROOT; };
+		4037AEA96B38409EB5DC07F6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/mac/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		4E22087EFD5643FCA7DF3A26 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = web_socket_channel.cc; path = src/tunnel/ws/web_socket_channel.cc; sourceTree = SOURCE_ROOT; };
+		5274254EF7584D899284CC78 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_domain.cc; path = src/module/domain/css_domain.cc; sourceTree = SOURCE_ROOT; };
+		5416FE3E0D2A4B319CAA830D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = domain_dispatch.cc; path = src/module/domain_dispatch.cc; sourceTree = SOURCE_ROOT; };
+		59D3F9089DAE483297C86677 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = worker_pool.cc; path = src/devtools_base/common/worker_pool.cc; sourceTree = SOURCE_ROOT; };
+		5C942D4A16DF4DEEA3087841 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = memory_metas.cc; path = src/api/adapter/data/memory_metas.cc; sourceTree = SOURCE_ROOT; };
+		61E04F8500F543988ABFA79D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = cmake/ios/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		67487BBF7C774635A032969F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_inspector_domain.cc; path = src/module/domain/tdf_inspector_domain.cc; sourceTree = SOURCE_ROOT; };
+		6A118D679B43451AA4618AEF /* /Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.text.plist; fileEncoding = 4; name = Info.plist; path = "../../framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist"; sourceTree = SOURCE_ROOT; };
+		6A1C5E9FA4DC4FC1A0428C1D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tcp_channel.cpp; path = src/tunnel/tcp/tcp_channel.cpp; sourceTree = SOURCE_ROOT; };
+		6A690C0396144066B857979D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = base64.cc; path = src/devtools_base/common/base64.cc; sourceTree = SOURCE_ROOT; };
+		6B5D7F0E066346449F5B7E08 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/linux/logging.cc; sourceTree = SOURCE_ROOT; };
+		6C3A8B86BB9F41AE90211DD0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = devtools_backend_service.cc; path = src/api/devtools_backend_service.cc; sourceTree = SOURCE_ROOT; };
+		6CB05B3B84D3416ABA864CC9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = selected_render_object_request.cc; path = src/module/request/selected_render_object_request.cc; sourceTree = SOURCE_ROOT; };
+		6DC2E8C23369485EAD1EB66C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_v8_response_notification.cc; path = src/api/notification/default/default_v8_response_notification.cc; sourceTree = SOURCE_ROOT; };
+		6F749C6E3B4E4EBB9DF467EF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_common_protocol_domain.cc; path = src/module/domain/tdf_common_protocol_domain.cc; sourceTree = SOURCE_ROOT; };
+		71B55469E7164DE69B6668BC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = stream_handler.cpp; path = src/tunnel/tcp/stream_handler.cpp; sourceTree = SOURCE_ROOT; };
+		7279B29BB9A44B81B7A6E3DE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/adr/logging.cc; sourceTree = SOURCE_ROOT; };
+		72BC4662F98A409A8E300ED1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_log_notification.cc; path = src/api/notification/default/default_log_notification.cc; sourceTree = SOURCE_ROOT; };
+		733C14646FD24BBB8C438702 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_request.cc; path = src/module/request/screen_shot_request.cc; sourceTree = SOURCE_ROOT; };
+		7577A22C44FD43F2AD39FC0A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = trace_event_metas.cc; path = src/api/adapter/data/trace_event_metas.cc; sourceTree = SOURCE_ROOT; };
+		75880A1BFD2F4CD89483F0B1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = unicode_string_view.cc; path = src/devtools_base/common/unicode_string_view.cc; sourceTree = SOURCE_ROOT; };
+		77AB2D41F73E4C9DB0826B30 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/win/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		7EF6B1986C10452FAA74FCBA /* devtools_backend */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libdevtools_backend.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		83E97341B29D4FB7BD3020B8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/ios/thread.cc; sourceTree = SOURCE_ROOT; };
+		86FB3D42F9A349FE9E2E80BD /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_model.cc; path = src/module/model/screen_shot_model.cc; sourceTree = SOURCE_ROOT; };
+		8998FA0977AF49D08768E8CE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_base_util.cc; path = src/devtools_base/tdf_base_util.cc; sourceTree = SOURCE_ROOT; };
+		8F227B35736F4A8BB6C9F14E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/win/thread.cc; sourceTree = SOURCE_ROOT; };
+		8F559C37C6CF49639AA0ED36 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_inspector_model.cc; path = src/module/model/tdf_inspector_model.cc; sourceTree = SOURCE_ROOT; };
+		905A242F014A48DA900E342A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = page_domain.cc; path = src/module/domain/page_domain.cc; sourceTree = SOURCE_ROOT; };
+		92C4EC31444F48C2B01D1923 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = log_settings_state.cc; path = src/devtools_base/common/log_settings_state.cc; sourceTree = SOURCE_ROOT; };
+		97CD8B4120A64D32B941AB9D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_node_data_request.cc; path = src/module/request/css_node_data_request.cc; sourceTree = SOURCE_ROOT; };
+		9B920D58469E4944A50B6545 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/CPPLINT.cfg */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = CPPLINT.cfg; path = src/tunnel/tcp/CPPLINT.cfg; sourceTree = SOURCE_ROOT; };
+		9BF219F5658A447790179B2B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/linux/thread.cc; sourceTree = SOURCE_ROOT; };
+		9D16A26C1950401E92BCFDDB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/adr/thread.cc; sourceTree = SOURCE_ROOT; };
+		A45F7B0650224EC5A53B3FA4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_runtime_domain.cc; path = src/module/domain/tdf_runtime_domain.cc; sourceTree = SOURCE_ROOT; };
+		A85E3A86B2D8415399641184 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = base_domain.cc; path = src/module/domain/base_domain.cc; sourceTree = SOURCE_ROOT; };
+		A8A8BEFA7700430EB1E01D78 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = frame_timing_metas.cc; path = src/api/adapter/data/frame_timing_metas.cc; sourceTree = SOURCE_ROOT; };
+		B00AFE7C7A98407E850593B5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_elements_response_notification.cc; path = src/api/notification/default/default_elements_response_notification.cc; sourceTree = SOURCE_ROOT; };
+		B3A50147B4DB44EF8E46FAB0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = frame_poll_model.cc; path = src/module/model/frame_poll_model.cc; sourceTree = SOURCE_ROOT; };
+		BD41D61A744640ADB74C390C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/ios/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		BDD93B16DF38462EB6F1E7F8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/common/platform/mac/logging.cc; sourceTree = SOURCE_ROOT; };
+		BE8257FF5A374017A8D4F73B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = update_dom_node_metas.cc; path = src/api/adapter/data/update_dom_node_metas.cc; sourceTree = SOURCE_ROOT; };
+		C15BA778C475412EB5FAE672 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_string_util.cc; path = src/devtools_base/tdf_string_util.cc; sourceTree = SOURCE_ROOT; };
+		C2C3FA04BAF84818BBAED10B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_metas.cc; path = src/api/adapter/data/dom_node_metas.cc; sourceTree = SOURCE_ROOT; };
+		C34FE68ED70C4401918BDC9C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = worker.cc; path = src/devtools_base/common/worker.cc; sourceTree = SOURCE_ROOT; };
+		C4513FB6843948648CD8FAB5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = render_node_metas.cc; path = src/api/adapter/data/render_node_metas.cc; sourceTree = SOURCE_ROOT; };
+		C755C98B7FD24FA6BE436B8B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = src/devtools_base/logging.cc; sourceTree = SOURCE_ROOT; };
+		CE135859630D4C64AA707E47 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_data_request.cc; path = src/module/request/dom_node_data_request.cc; sourceTree = SOURCE_ROOT; };
+		D037A6924D6B466F870E767F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_backend/.DS_Store */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; name = .DS_Store; path = src/devtools_backend/.DS_Store; sourceTree = SOURCE_ROOT; };
+		D1FF6494FD9648B1A02D2421 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = thread.cc; path = src/devtools_base/common/platform/mac/thread.cc; sourceTree = SOURCE_ROOT; };
+		D335CC9382944C9082115E49 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = src/devtools_base/common/platform/linux/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		DED82B42621F4D7D83A99FBC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = task.cc; path = src/devtools_base/common/task.cc; sourceTree = SOURCE_ROOT; };
+		E2311093CB8A4F789A36FDE5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		E560466A8D6F464EBCA8F89A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = timer.cc; path = src/tunnel/timer.cc; sourceTree = SOURCE_ROOT; };
+		EAE70C161E294F83810F0CED /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = render_diagnostic_metas.cc; path = src/api/adapter/data/render_diagnostic_metas.cc; sourceTree = SOURCE_ROOT; };
+		F146D144A29048CC8160447D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_model.cc; path = src/module/model/css_model.cc; sourceTree = SOURCE_ROOT; };
+		F2854B0303344020AC937131 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = record_logger.cc; path = src/module/record_logger.cc; sourceTree = SOURCE_ROOT; };
+		F9DDE9CA7C4B4A1BA197C6A4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = socket.cc; path = src/tunnel/tcp/socket.cc; sourceTree = SOURCE_ROOT; };
+		FB7765F1F702427789F152B5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = channel_factory.cc; path = src/tunnel/channel_factory.cc; sourceTree = SOURCE_ROOT; };
+		FEE151F632D74F8381A4C63B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = domain_base_request.cc; path = src/module/request/domain_base_request.cc; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		CB02AA8832ED4590AE81E230 /* Frameworks */ = {
+		5EDC4EB6771144DB922B476C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -255,142 +255,142 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		04C898BEA1664C60A82CC8BD = {
+		1CB4752D5A0D42378FC8373F /* Source Files */ = {
 			isa = PBXGroup;
 			children = (
-				E78EE2E1C7344904B69C2D81 /* ALL_BUILD */,
-				E6F09B7A88F2448BBE4B97BD /* devtools_backend */,
-				AADC866441424712B58A021A /* Products */,
-				E4488334BECD4562B3D3109B /* Frameworks */,
-			);
-			sourceTree = "<group>";
-		};
-		5175C6E055A844C7986FA349 /* Source Files */ = {
-			isa = PBXGroup;
-			children = (
-				178F61006A2540FCAB91A687 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */,
-				B8CCA1A032DB47559833D375 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */,
-				FCBD9BF44A0F4E79BE1DF771 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */,
-				E22E5CD82CF64ABFB9A8442A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */,
-				84997C8A61A24419B00A1A5D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */,
-				E9460052D71D48F6B77140EB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */,
-				1CBB60B79B8945F3BEB5C579 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */,
-				04A93459611A4F7BB24370F0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */,
-				85A78088E3AF44F8AA322464 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */,
-				36997109263C40D6BE934490 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */,
-				E36D39234C3B4B019F1DB93E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */,
-				E5C809C2637740289402EB5B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */,
-				DD6FD263F3604E8EB60E081B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */,
-				8E481A710D2247EFB2F246E0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */,
-				1C4CDFFB675A4818AF388DC8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */,
-				C91D4B61381245FCAFA9811C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */,
-				72A7FD62C98F477DAEE259F2 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */,
-				A8A5F35D2672420A81126972 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */,
-				3ECE1B71DEA84A97B6FA4792 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */,
-				9ECCF5F56BCC42DEA0EB01C3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */,
-				C4FD366086414E389BBB0B32 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */,
-				7C8DBB9C22164CA185FEF1DA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */,
-				5C52141A5AB24A6D97E5F5A6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */,
-				A77B1EF9FA54421E8B2238A5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */,
-				8B976EAED4C647F9840187C9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */,
-				6A5BA69681584BE0B8924F37 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */,
-				2728E275B1E547379610A596 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */,
-				F15D9FB31EDD474788E771F6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */,
-				8F917BDD81594115B984C7AA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */,
-				E627FD79CA4D44F7B23D1B28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */,
-				0FDA0CDAC606466E94093AF8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */,
-				EF34A317D22540EA991C667C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */,
-				1D7248B41611420285168F6E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */,
-				B577F14958DA4C82B09F7EC3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */,
-				3938663CEF884EC398BB1842 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */,
-				8C93173FCEA348DDBD66E831 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */,
-				CCACD95C94504C8B9D53D205 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */,
-				B13DCA498C894A428D6B4EA4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */,
-				15094C6658D344B5A040F906 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */,
-				9E6F2D2B6F0F4184A3D2D911 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */,
-				9EE5010419DC41768D481DE1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */,
-				01BC7A4A2087480E80634217 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */,
-				A903A71491994E59874C5525 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */,
-				09CB3800EA6746988FE267B3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */,
-				2572DA9F280A457CA80099A1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */,
-				CA15FA204A8F48BF83623A27 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */,
-				A394DD6AC1A14CE3A795D60A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */,
-				0A2CECD6774E435A972715EA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */,
-				286EFD2395414401A660D118 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */,
-				28E6EDCBDFB74DBFBC19E2F7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */,
-				3444738DEF3C431BB13AAB98 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */,
-				139E0C0162764F4EB81C2D2B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */,
-				39D4E2F7AF5748E5A86257F1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */,
-				4EB6362C417541ADA8DDDA38 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */,
-				C7A2E5F79DFE4244AD53E726 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */,
-				E1BEB403E85741A586CED603 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */,
-				9307E87BAB89488CB13CD556 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */,
-				02721AB02FCC45D78FAFDD38 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */,
-				FCB7BB4219114991AAA210CB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */,
-				F308AEFA350349D897E4322A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */,
-				70EB9ED989184F07948FE603 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */,
-				695257644C2A487AB272D69A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */,
-				0FB3D354AD9E43AAAEE8C517 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */,
-				80FBA7FF8A2C4A2F8A8662ED /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */,
-				CB2417C7274A4087A691CFEF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */,
+				1C7606C9C5D94B25A6FD3099 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */,
+				C2C3FA04BAF84818BBAED10B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */,
+				363BFBEDD0E64AB38CF356EB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */,
+				A8A8BEFA7700430EB1E01D78 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */,
+				5C942D4A16DF4DEEA3087841 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */,
+				EAE70C161E294F83810F0CED /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */,
+				C4513FB6843948648CD8FAB5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */,
+				7577A22C44FD43F2AD39FC0A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */,
+				BE8257FF5A374017A8D4F73B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */,
+				6C3A8B86BB9F41AE90211DD0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */,
+				B00AFE7C7A98407E850593B5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */,
+				72BC4662F98A409A8E300ED1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */,
+				6DC2E8C23369485EAD1EB66C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */,
+				6A690C0396144066B857979D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */,
+				2EDB0336CD764DD68330954F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */,
+				92C4EC31444F48C2B01D1923 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */,
+				7279B29BB9A44B81B7A6E3DE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */,
+				9D16A26C1950401E92BCFDDB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */,
+				2D45303D695D459E8B0C0661 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */,
+				83E97341B29D4FB7BD3020B8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */,
+				6B5D7F0E066346449F5B7E08 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */,
+				9BF219F5658A447790179B2B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */,
+				BDD93B16DF38462EB6F1E7F8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */,
+				D1FF6494FD9648B1A02D2421 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */,
+				0E36EFDC048E4E29AEB3FAE6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */,
+				8F227B35736F4A8BB6C9F14E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */,
+				DED82B42621F4D7D83A99FBC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */,
+				3B41939E54D44FDA9A1A061D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */,
+				75880A1BFD2F4CD89483F0B1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */,
+				C34FE68ED70C4401918BDC9C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */,
+				59D3F9089DAE483297C86677 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */,
+				C755C98B7FD24FA6BE436B8B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */,
+				8998FA0977AF49D08768E8CE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */,
+				C15BA778C475412EB5FAE672 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */,
+				A85E3A86B2D8415399641184 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */,
+				5274254EF7584D899284CC78 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */,
+				3D0EAFC78B5F4C2B83192E27 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */,
+				905A242F014A48DA900E342A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */,
+				6F749C6E3B4E4EBB9DF467EF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */,
+				67487BBF7C774635A032969F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */,
+				30D7C8248C664D578C27CB58 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */,
+				0E0E4FBF5D4048939A1E942A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */,
+				A45F7B0650224EC5A53B3FA4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */,
+				5416FE3E0D2A4B319CAA830D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */,
+				F146D144A29048CC8160447D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */,
+				3BE4894F3AFA4DBD977B9697 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */,
+				B3A50147B4DB44EF8E46FAB0 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */,
+				86FB3D42F9A349FE9E2E80BD /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */,
+				2759C374910541159B98A457 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */,
+				8F559C37C6CF49639AA0ED36 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */,
+				F2854B0303344020AC937131 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */,
+				2A8B4593EFB844259FDFB1C5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */,
+				97CD8B4120A64D32B941AB9D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */,
+				CE135859630D4C64AA707E47 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */,
+				24E6D2E79CB04BE2B7A910DE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */,
+				FEE151F632D74F8381A4C63B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */,
+				733C14646FD24BBB8C438702 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */,
+				6CB05B3B84D3416ABA864CC9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */,
+				FB7765F1F702427789F152B5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */,
+				F9DDE9CA7C4B4A1BA197C6A4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */,
+				71B55469E7164DE69B6668BC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */,
+				6A1C5E9FA4DC4FC1A0428C1D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */,
+				E560466A8D6F464EBCA8F89A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */,
+				2C93B773C3254A3699C68B1A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */,
+				4E22087EFD5643FCA7DF3A26 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */,
 			);
 			name = "Source Files";
 			sourceTree = "<group>";
 		};
-		AADC866441424712B58A021A /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				57A2D7B5C6A24FB1BF61C465 /* devtools_backend */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		B50E600D3C224BD7B4A76463 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				01A2461CFB754E1E85650C2A /* /Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
-		B866675EDF0142FDA4212C60 /* CMake Rules */ = {
+		72538962E4664819B03F84A4 /* CMake Rules */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = "CMake Rules";
 			sourceTree = "<group>";
 		};
-		E4488334BECD4562B3D3109B /* Frameworks */ = {
+		893FE7AFE82143779C9BB757 /* devtools_backend */ = {
+			isa = PBXGroup;
+			children = (
+				1CB4752D5A0D42378FC8373F /* Source Files */,
+				FC470C92E77B481889FA5A6A /* Resources */,
+				61E04F8500F543988ABFA79D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/CMakeLists.txt */,
+				D037A6924D6B466F870E767F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_backend/.DS_Store */,
+				2D37584D0E0D4E66B76D2F28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/CMakeLists.txt */,
+				BD41D61A744640ADB74C390C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/CMakeLists.txt */,
+				D335CC9382944C9082115E49 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/CMakeLists.txt */,
+				4037AEA96B38409EB5DC07F6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/CMakeLists.txt */,
+				77AB2D41F73E4C9DB0826B30 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/CMakeLists.txt */,
+				9B920D58469E4944A50B6545 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/CPPLINT.cfg */,
+			);
+			name = devtools_backend;
+			sourceTree = "<group>";
+		};
+		A7748A767CEA46709C7872F2 = {
+			isa = PBXGroup;
+			children = (
+				EE188F6B0DDD47BEADE3E19C /* ALL_BUILD */,
+				893FE7AFE82143779C9BB757 /* devtools_backend */,
+				D8D5E1BCC62B4358B568D193 /* Products */,
+				B8CC677656F7451286E055DE /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		B8CC677656F7451286E055DE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		E6F09B7A88F2448BBE4B97BD /* devtools_backend */ = {
+		D8D5E1BCC62B4358B568D193 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5175C6E055A844C7986FA349 /* Source Files */,
-				B50E600D3C224BD7B4A76463 /* Resources */,
-				2421F56343FE42E3AFF1A238 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/CMakeLists.txt */,
-				D8839AAA14B24286BEF10533 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_backend/.DS_Store */,
-				15039BCDC4DE4599862F3E54 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/CMakeLists.txt */,
-				447222AE6B5A46EF97581534 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/CMakeLists.txt */,
-				6201B777C3C745AEB3993C52 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/CMakeLists.txt */,
-				D70C6BA9E9734633A5FE9958 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/CMakeLists.txt */,
-				3C41DC9672CC405098D688AC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/CMakeLists.txt */,
-				A3A32049448A4D7B917D1871 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/CPPLINT.cfg */,
+				7EF6B1986C10452FAA74FCBA /* devtools_backend */,
 			);
-			name = devtools_backend;
+			name = Products;
 			sourceTree = "<group>";
 		};
-		E78EE2E1C7344904B69C2D81 /* ALL_BUILD */ = {
+		EE188F6B0DDD47BEADE3E19C /* ALL_BUILD */ = {
 			isa = PBXGroup;
 			children = (
-				B866675EDF0142FDA4212C60 /* CMake Rules */,
-				8B5F8D2ACB6F4908B96D543A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/CMakeLists.txt */,
+				72538962E4664819B03F84A4 /* CMake Rules */,
+				E2311093CB8A4F789A36FDE5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/CMakeLists.txt */,
 			);
 			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		FC470C92E77B481889FA5A6A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6A118D679B43451AA4618AEF /* /Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios/CMakeFiles/devtools_backend.dir/Info.plist */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -398,19 +398,19 @@
 /* Begin PBXNativeTarget section */
 		A402C81774D14B83B0F46587 /* devtools_backend */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4179424BF7714AD48113E511 /* Build configuration list for PBXNativeTarget "devtools_backend" */;
+			buildConfigurationList = F5387D0D8C6B40C68187AAA6 /* Build configuration list for PBXNativeTarget "devtools_backend" */;
 			buildPhases = (
-				D9A09EDF6B4B4E8CAA7D13CA /* Sources */,
-				CB02AA8832ED4590AE81E230 /* Frameworks */,
+				78BCC8A6C4F54FD4A1F107A1 /* Sources */,
+				5EDC4EB6771144DB922B476C /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				8DA69AE8F2C845BEB66F8253 /* PBXTargetDependency */,
+				FCB3400ACAB84183802825F6 /* PBXTargetDependency */,
 			);
 			name = devtools_backend;
 			productName = devtools_backend;
-			productReference = 57A2D7B5C6A24FB1BF61C465 /* devtools_backend */;
+			productReference = 7EF6B1986C10452FAA74FCBA /* devtools_backend */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -422,18 +422,18 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1330;
 			};
-			buildConfigurationList = 94968AE4B4C54A0C9B938D8E /* Build configuration list for PBXProject "devtools_backend" */;
+			buildConfigurationList = C263383969B5482C9E0C3F7A /* Build configuration list for PBXProject "devtools_backend" */;
 			buildSettings = {
 			};
 			buildStyles = (
-				108F63D4B65F4D34BD9D6134 /* Debug */,
-				6D7F935A0173471DB7FEC2CC /* Release */,
-				B44810AEE73443389B73634D /* MinSizeRel */,
-				A69C8E7BD9C845D29742817D /* RelWithDebInfo */,
+				4C49279460AA4A729703344D /* Debug */,
+				F80E50501AC943E8B315610D /* Release */,
+				98C9FFDE1D4A47548E1ED3D7 /* MinSizeRel */,
+				27AA2380A04649C89BE503BC /* RelWithDebInfo */,
 			);
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 0;
-			mainGroup = 04C898BEA1664C60A82CC8BD;
+			mainGroup = A7748A767CEA46709C7872F2;
 			projectDirPath = "/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend";
 			projectRoot = "";
 			targets = (
@@ -445,7 +445,22 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2B22F39ED43A4E399C57F820 /* Generate CMakeFiles/ZERO_CHECK */ = {
+		2C196B58B05B471793AC1D8C = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		4EECF9A3D0424E61BB15E93F /* Generate CMakeFiles/ZERO_CHECK */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -478,7 +493,22 @@ fi
 ";
 			showEnvVarsInLog = 0;
 		};
-		2B697C13BD2F4670B08A2BB9 /* Generate CMakeFiles/ALL_BUILD */ = {
+		BF53E953C240447E941072DE = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		EC77D1CE946742989E346C45 /* Generate CMakeFiles/ALL_BUILD */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -511,133 +541,123 @@ fi
 ";
 			showEnvVarsInLog = 0;
 		};
-		A3A19E259C954E29BBBA49C6 = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here
-exit 0";
-			showEnvVarsInLog = 0;
-		};
-		FD8BD77A214F4B99A30AF15A = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# shell script goes here
-exit 0";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		D9A09EDF6B4B4E8CAA7D13CA /* Sources */ = {
+		78BCC8A6C4F54FD4A1F107A1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E30B0E17EE294D5FACA7443C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */,
-				1EBC64FD92D9431995FD17D6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */,
-				1C93509BE9A34B4DB05CD41B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */,
-				9E597BA6DEB443E0BAE21717 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */,
-				67B4FB4CBFCF4D328033F140 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */,
-				A9D2379B9AFA42F7B30C0127 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */,
-				928F95F23F9A47A9956D882D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */,
-				17E636428B1148A397589CAF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */,
-				50960124F8FB43B28F2FDF54 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */,
-				5ABE7321A95440CAB5D6A329 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */,
-				ED0A2E5379CE4813B580EA3B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */,
-				2A4DB4D9144348D390AC13B7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */,
-				EF7F83852535403290AFDBB3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */,
-				30D0DC68405F453D9D7CDE04 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */,
-				06CD9A17298941718E30BE82 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */,
-				DB928C69E30E42FCA7111B49 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */,
-				5241E1C6518F4917BD090D0C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */,
-				118E3364C5A6425FAAB29DE4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */,
-				6CCCE25DB8B14D89A8C7A878 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */,
-				CCC6AA60B7724D3D86DEB051 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */,
-				51028AB6AC4645FE80AE91AE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */,
-				68983D5AD9E7410C81A21571 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */,
-				2C39E1F45F414AEF89E384AE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */,
-				F59E6A853A034D878D4E4F99 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */,
-				8C127FC1B0B844488A9E66E8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */,
-				24C1061F689247019BFB7522 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */,
-				5507DBEC51C242B48282EEB4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */,
-				E23B695AAF214190B7B5A01C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */,
-				AAE0A97115E94F4CA1E484C3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */,
-				01F564D2ACE942A5B535E568 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */,
-				990E5D48E69A46518F32E393 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */,
-				FA8BCD5BC7DA477DBAA3E4AC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */,
-				60C82209F417451A8DDBD7F4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */,
-				61A525B80E5B4053911B0E10 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */,
-				2C2BD24985E442DBB2F01E24 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */,
-				8ABEF2E27C394B059F430AE4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */,
-				E44DBE6A6FC44533BE15BE4B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */,
-				AC9CD4062C514A61A1172592 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */,
-				AF866D3A9B7845BF95B0B087 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */,
-				77CEDBBA324C460492D4570B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */,
-				F90E26C9A51D48CFBF7153F5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */,
-				8B527107BCDD45838915BF28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */,
-				1E254B1CEF174E55BD69B502 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */,
-				BA0A90A8DAC34363A85B61BC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */,
-				13597E7437FC4592ABD57204 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */,
-				BF7BF72615B547A59862BF90 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */,
-				7E129200C4E7457AB10EAECE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */,
-				6AE343576A024B96BF04F013 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */,
-				CD6C4965E3224F968290C85D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */,
-				9B2B5135725846498B85AA28 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */,
-				FCEDF0F82F9D4DCE9057B11B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */,
-				B682ADE7EB914D068E797ABB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */,
-				3510218778C64D4AB705D989 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */,
-				F9AE083EEA4D4773A9581619 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */,
-				9E449BD1BFC646F0A4F389D3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */,
-				96961EF68FD0429587CDF2ED /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */,
-				D2873607D80E4A05BD251EDC /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */,
-				B640BBA50ED54CAAA1B7BAAF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */,
-				B8F8410CB7F941E39F6C2C1D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */,
-				7329E1C85E804F8F82860023 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */,
-				EC57573A3B4D4EC88553691D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */,
-				030DAFE9355E48A985C7DB6A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */,
-				815B19FE490A4DEF8C09097B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */,
-				22700582BA6F415A86B07A9E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */,
-				CE418F56376B4375AAD8897E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */,
+				D396B484A9F940178D5FFB81 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_location.cc */,
+				A40B6733F2A0487690D62CF8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/dom_node_metas.cc */,
+				B0B21D0E3EAB47439042CFA1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/domain_metas.cc */,
+				4580E0F2F7774F539F91D51E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */,
+				13DB28E0D8374C4B84666A59 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/memory_metas.cc */,
+				8247624158E841F2901019CA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */,
+				D3358E0206114E3781E6C2B3 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/render_node_metas.cc */,
+				B081A8F8342745269C6B9030 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/trace_event_metas.cc */,
+				E68488FCA5FC4A35A9384513 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/adapter/data/update_dom_node_metas.cc */,
+				ECD965A5019F47C8A5BEEB4D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/devtools_backend_service.cc */,
+				937DBE5B8448431983558BAD /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_elements_response_notification.cc */,
+				80C6A9D4C037443CB09E2581 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_log_notification.cc */,
+				0A463DCA583643B78777804C /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/api/notification/default/default_v8_response_notification.cc */,
+				52C0C53E06854FC09EC80DCE /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/base64.cc */,
+				E8AC16C3E0C64A148E649DE5 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings.cc */,
+				F4B39D6DCDD3408698554D25 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/log_settings_state.cc */,
+				5195F3F026D047D38361F787 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/logging.cc */,
+				450BCB55E8BA4BD88C344947 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/adr/thread.cc */,
+				B3F8887224254925B6DF80F8 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/logging.cc */,
+				8E158BDAB76544F09EECAFCB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/ios/thread.cc */,
+				82B2017E02B7492A8B65AD71 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/logging.cc */,
+				D9FE25D57ADF4E59864B00C1 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/linux/thread.cc */,
+				4473FFDC33784B678ADF0577 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/logging.cc */,
+				25208A3048244E30BC73115A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/mac/thread.cc */,
+				FD1E46277F04405688B71170 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/logging.cc */,
+				6B81AD3589B24E1E9D38025D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/platform/win/thread.cc */,
+				0283B8F6665E44F485F415D4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task.cc */,
+				45A23ADF925A4CC9A53E1310 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/task_runner.cc */,
+				71C4C2E0C5A84B6C9BE6A35F /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/unicode_string_view.cc */,
+				9D187F02242140BA811FB962 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker.cc */,
+				98F21A5A752E4F51B1A22782 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/common/worker_pool.cc */,
+				9F417FF6A87A4AA3A4D15243 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/logging.cc */,
+				1382F4FB30AF415BA94D8913 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_base_util.cc */,
+				EBFBF4442946437B9CAB24C7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/devtools_base/tdf_string_util.cc */,
+				17E4A942E34247538AF15965 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/base_domain.cc */,
+				89B5B25722C14B37B722779D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/css_domain.cc */,
+				5CAE6CEBFD5C40F1887A11F9 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/dom_domain.cc */,
+				FB920ACF15584C66925B9B8E /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/page_domain.cc */,
+				57A8A1356049499684E65D27 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */,
+				BE3AB037FC9F44378D6B78C7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_inspector_domain.cc */,
+				6404F4EA206B474FA9DB00AF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_memory_domain.cc */,
+				B139CA398D4A41FE8200A391 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_performance_domain.cc */,
+				0FE0F19F6BAC4E8496B0EBAB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain/tdf_runtime_domain.cc */,
+				0D80BB04C34440C99479CBFB /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/domain_dispatch.cc */,
+				9D3BBE31362A4711AA4208A2 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/css_model.cc */,
+				08E8B1E41952480FBC8A3A80 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/dom_model.cc */,
+				6DDA642B51344F91A22E87B4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/frame_poll_model.cc */,
+				0571E02CA0DD42F5ACE88D12 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_model.cc */,
+				90ED915E18D241F6BAF40BDD /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/screen_shot_response.cc */,
+				9182A9A24F7542F0B8938866 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/model/tdf_inspector_model.cc */,
+				14E9418CE3DC4251A1836DD6 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/record_logger.cc */,
+				6F83E107ABBD4BEA81DE3D36 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_edit_style_texts_request.cc */,
+				9517861842FD4758A5FA848B /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/css_node_data_request.cc */,
+				66E0D997AA7E4D178178047A /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_data_request.cc */,
+				68155E706C4C4059984C712D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/dom_node_for_location_request.cc */,
+				9791E51A98674EDBBF4EA48D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/domain_base_request.cc */,
+				7355F01DFC39488C97B9B6E4 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/screen_shot_request.cc */,
+				9071E1D8C0E343AE9269F7E2 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/module/request/selected_render_object_request.cc */,
+				864966A50F6248A09066B5A7 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/channel_factory.cc */,
+				E0F309867A4244F0836CB282 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/socket.cc */,
+				67F95B7F82AD4C40919E8C7D /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/stream_handler.cpp */,
+				EE38D16A4DEA4C02A34188FA /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tcp/tcp_channel.cpp */,
+				819957FC0FF54DFBAACA34CF /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/timer.cc */,
+				19915B8B47CC4E4A8274FD87 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/tunnel_service.cc */,
+				1101B0F3BD5A455680552D69 /* /Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/src/tunnel/ws/web_socket_channel.cc */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		8DA69AE8F2C845BEB66F8253 /* PBXTargetDependency */ = {
+		3E27F136EF284DCC834FCF97 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 199DCB12BCE4471D8FB2B14E /* ZERO_CHECK */;
-			targetProxy = 18ECC7F8D5CA450C9197A826 /* PBXContainerItemProxy */;
+			targetProxy = 6596286EF0C84FC28F926005 /* PBXContainerItemProxy */;
 		};
-		AD353E196543406D9F04A344 /* PBXTargetDependency */ = {
+		B1597C8179944DD486E59C24 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A402C81774D14B83B0F46587 /* devtools_backend */;
-			targetProxy = E5830FF920124A7CA750F6D1 /* PBXContainerItemProxy */;
+			targetProxy = 1B6FE066C15642598D334583 /* PBXContainerItemProxy */;
 		};
-		BAC4B0E9E03440B0809BBA37 /* PBXTargetDependency */ = {
+		FCB3400ACAB84183802825F6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 199DCB12BCE4471D8FB2B14E /* ZERO_CHECK */;
-			targetProxy = 9928D5E2C84B470B8B323FE3 /* PBXContainerItemProxy */;
+			targetProxy = BEA4F3629EAA46588664FFEA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		101CC26D9E8B499B985734AD /* Release */ = {
+		02A8D3571BE0425FB52EF758 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		065344AEAD92478EAAB1E095 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -657,7 +677,44 @@ exit 0";
 			};
 			name = Release;
 		};
-		2B1ECEDC0D414CB7BFDA1F91 /* Release */ = {
+		0C07EBFF88BA45918C4C4896 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		22D8404951A64949980010F8 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "arm64 x86_64";
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				DEVELOPMENT_TEAM = 123456789A;
+				ENABLE_BITCODE = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/build";
+			};
+			name = MinSizeRel;
+		};
+		2FBCACB265FD4BB7BED1FD00 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -677,54 +734,7 @@ exit 0";
 			};
 			name = Release;
 		};
-		2BEACC5B723047A688AA5AD5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = (arm64,x86_64);
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
-				EXECUTABLE_SUFFIX = .a;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",OS_IOS);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/websocketpp","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/asio/include","/usr/local/opt/openssl@1.1/include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/../../include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/nlohmann");
-				INSTALL_PATH = "";
-				LIBRARY_STYLE = STATIC;
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG -frtti '-std=gnu++17' ";
-				OTHER_LIBTOOLFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = devtools_backend;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Release;
-		};
-		2E60C8F5E295440A879CB708 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = RelWithDebInfo;
-		};
-		2FA1A6E5131E489A8267F128 /* MinSizeRel */ = {
+		3B655A998ED44A05A04F727F /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -744,7 +754,71 @@ exit 0";
 			};
 			name = MinSizeRel;
 		};
-		3B1C24AD9B764766A4EFBA54 /* Debug */ = {
+		613535508FC6411CBD35FA0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (arm64,x86_64);
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",OS_IOS);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/websocketpp","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/asio/include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/../../include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/nlohmann");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG -frtti '-std=gnu++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = devtools_backend;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/cmake/ios";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		7118078B861148C281595CE5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "arm64 x86_64";
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				DEVELOPMENT_TEAM = 123456789A;
+				ENABLE_BITCODE = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/build";
+			};
+			name = Release;
+		};
+		798681857091438CB9BF7BDB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		813123B4D38F415889793CEB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (arm64,x86_64);
@@ -756,7 +830,7 @@ exit 0";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",OS_IOS);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/websocketpp","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/asio/include","/usr/local/opt/openssl@1.1/include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/../../include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/nlohmann");
+				HEADER_SEARCH_PATHS = ("/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/websocketpp","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/asio/include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/../../include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/nlohmann");
 				INSTALL_PATH = "";
 				LIBRARY_STYLE = STATIC;
 				ONLY_ACTIVE_ARCH = NO;
@@ -771,39 +845,27 @@ exit 0";
 			};
 			name = Debug;
 		};
-		46B3AC093116467989AAA7ED /* Release */ = {
+		859309FD2E0C421880A83813 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "arm64 x86_64";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGNING_REQUIRED = NO;
-				DEVELOPMENT_TEAM = 123456789A;
-				ENABLE_BITCODE = NO;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				ONLY_ACTIVE_ARCH = NO;
-				SDKROOT = iphoneos;
-				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/build";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
 			};
-			name = Release;
+			name = MinSizeRel;
 		};
-		5C055759573B453084180E9C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "arm64 x86_64";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGNING_REQUIRED = NO;
-				DEVELOPMENT_TEAM = 123456789A;
-				ENABLE_BITCODE = NO;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				ONLY_ACTIVE_ARCH = NO;
-				SDKROOT = iphoneos;
-				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/build";
-			};
-			name = Debug;
-		};
-		77B0F847F17D45FC8BAA89C6 /* MinSizeRel */ = {
+		8AE8E97BF69C446BBA2F9480 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (arm64,x86_64);
@@ -815,7 +877,7 @@ exit 0";
 				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",OS_IOS);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/websocketpp","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/asio/include","/usr/local/opt/openssl@1.1/include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/../../include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/nlohmann");
+				HEADER_SEARCH_PATHS = ("/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/websocketpp","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/asio/include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/../../include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/nlohmann");
 				INSTALL_PATH = "";
 				LIBRARY_STYLE = STATIC;
 				ONLY_ACTIVE_ARCH = NO;
@@ -830,23 +892,7 @@ exit 0";
 			};
 			name = MinSizeRel;
 		};
-		811DA0105DBE41F5B1B845BE /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "arm64 x86_64";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGNING_REQUIRED = NO;
-				DEVELOPMENT_TEAM = 123456789A;
-				ENABLE_BITCODE = NO;
-				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				ONLY_ACTIVE_ARCH = NO;
-				SDKROOT = iphoneos;
-				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/build";
-			};
-			name = MinSizeRel;
-		};
-		8164EBC4290B4FA58AE2D6F8 /* RelWithDebInfo */ = {
+		9E46B25DD72342FAA277902B /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
@@ -858,7 +904,7 @@ exit 0";
 				INSTALL_PATH = "";
 				OTHER_LDFLAGS = ("");
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
+				PRODUCT_NAME = ALL_BUILD;
 				SECTORDER_FLAGS = "";
 				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
 				USE_HEADERMAP = NO;
@@ -866,34 +912,15 @@ exit 0";
 			};
 			name = RelWithDebInfo;
 		};
-		89AD57552FB547E4B539CD01 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = Debug;
-		};
-		8DE78315BEC24FA682AF8ECC /* RelWithDebInfo */ = {
+		C0DC878BF8934005A10D2E83 /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "arm64 x86_64";
+				BITCODE_GENERATION_MODE = bitcode;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				DEVELOPMENT_TEAM = 123456789A;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -902,7 +929,7 @@ exit 0";
 			};
 			name = RelWithDebInfo;
 		};
-		9B43EB3023D54C3D81C9AD6C /* RelWithDebInfo */ = {
+		E1A1E062EF714B548CBC6E48 /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (arm64,x86_64);
@@ -914,7 +941,7 @@ exit 0";
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",OS_IOS);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ("/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/websocketpp","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/asio/include","/usr/local/opt/openssl@1.1/include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/../../include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/nlohmann");
+				HEADER_SEARCH_PATHS = ("/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/websocketpp","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/asio/include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/cmake/ios/../../include","/Users/tangtang/Developer/ThomasHippy/Hippy/third_party/devtools-backend/third_party/nlohmann");
 				INSTALL_PATH = "";
 				LIBRARY_STYLE = STATIC;
 				ONLY_ACTIVE_ARCH = NO;
@@ -929,89 +956,66 @@ exit 0";
 			};
 			name = RelWithDebInfo;
 		};
-		C2B0C5B54AE74388A0CF45F7 /* Debug */ = {
+		F7B2B14D6C83425C9ECA5672 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
+				ARCHS = "arm64 x86_64";
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				DEVELOPMENT_TEAM = 123456789A;
+				ENABLE_BITCODE = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend/build";
 			};
 			name = Debug;
-		};
-		EFE47C838A37489D9B383B14 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = ("");
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = "/Users/tangtang/Developer/ThomasHippy/Hippy/framework/js/examples/ios-demo/devtools_backend";
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = ("$(inherited)");
-			};
-			name = MinSizeRel;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		22AFD59098E64AB58EE18F30 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+		B88DDAC34DDD4F04A094AECD /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C2B0C5B54AE74388A0CF45F7 /* Debug */,
-				101CC26D9E8B499B985734AD /* Release */,
-				EFE47C838A37489D9B383B14 /* MinSizeRel */,
-				2E60C8F5E295440A879CB708 /* RelWithDebInfo */,
+				0C07EBFF88BA45918C4C4896 /* Debug */,
+				065344AEAD92478EAAB1E095 /* Release */,
+				859309FD2E0C421880A83813 /* MinSizeRel */,
+				9E46B25DD72342FAA277902B /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		4179424BF7714AD48113E511 /* Build configuration list for PBXNativeTarget "devtools_backend" */ = {
+		C263383969B5482C9E0C3F7A /* Build configuration list for PBXProject "devtools_backend" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				3B1C24AD9B764766A4EFBA54 /* Debug */,
-				2BEACC5B723047A688AA5AD5 /* Release */,
-				77B0F847F17D45FC8BAA89C6 /* MinSizeRel */,
-				9B43EB3023D54C3D81C9AD6C /* RelWithDebInfo */,
+				F7B2B14D6C83425C9ECA5672 /* Debug */,
+				7118078B861148C281595CE5 /* Release */,
+				22D8404951A64949980010F8 /* MinSizeRel */,
+				C0DC878BF8934005A10D2E83 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		511A3F6BA3A0413DBBC4B338 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+		D170B3308A074ACDB6F3701A /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				89AD57552FB547E4B539CD01 /* Debug */,
-				2B1ECEDC0D414CB7BFDA1F91 /* Release */,
-				2FA1A6E5131E489A8267F128 /* MinSizeRel */,
-				8164EBC4290B4FA58AE2D6F8 /* RelWithDebInfo */,
+				798681857091438CB9BF7BDB /* Debug */,
+				2FBCACB265FD4BB7BED1FD00 /* Release */,
+				3B655A998ED44A05A04F727F /* MinSizeRel */,
+				02A8D3571BE0425FB52EF758 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		94968AE4B4C54A0C9B938D8E /* Build configuration list for PBXProject "devtools_backend" */ = {
+		F5387D0D8C6B40C68187AAA6 /* Build configuration list for PBXNativeTarget "devtools_backend" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				5C055759573B453084180E9C /* Debug */,
-				46B3AC093116467989AAA7ED /* Release */,
-				811DA0105DBE41F5B1B845BE /* MinSizeRel */,
-				8DE78315BEC24FA682AF8ECC /* RelWithDebInfo */,
+				813123B4D38F415889793CEB /* Debug */,
+				613535508FC6411CBD35FA0C /* Release */,
+				8AE8E97BF69C446BBA2F9480 /* MinSizeRel */,
+				E1A1E062EF714B548CBC6E48 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
