@@ -320,7 +320,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
         }
         if (mEngineContext.getModuleManager() != null) {
-            mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class).set(dimensionMap);
+            mEngineContext.getModuleManager().getJavaScriptModule(Dimensions.class)
+                    .set(dimensionMap);
         }
     }
 
@@ -462,32 +463,26 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     @Override
-    public void onEngineResume() {
+    public void onEnginePause() {
         if (mEngineContext.mEngineLifecycleEventListeners != null) {
-            Iterator<HippyEngineLifecycleEventListener> iterator = mEngineContext.mEngineLifecycleEventListeners
-                    .iterator();
-            HippyEngineLifecycleEventListener listener;
-            while (iterator.hasNext()) {
-                listener = iterator.next();
-                listener.onEnginePause();
+            for (HippyEngineLifecycleEventListener listener : mEngineContext.mEngineLifecycleEventListeners) {
+                if (listener != null) {
+                    listener.onEnginePause();
+                }
             }
         }
-
         mEngineContext.onInstancePause();
     }
 
     @Override
-    public void onEnginePause() {
+    public void onEngineResume() {
         if (mEngineContext.mEngineLifecycleEventListeners != null) {
-            Iterator<HippyEngineLifecycleEventListener> iterator = mEngineContext.mEngineLifecycleEventListeners
-                    .iterator();
-            HippyEngineLifecycleEventListener listener;
-            while (iterator.hasNext()) {
-                listener = iterator.next();
-                listener.onEngineResume();
+            for (HippyEngineLifecycleEventListener listener : mEngineContext.mEngineLifecycleEventListeners) {
+                if (listener != null) {
+                    listener.onEngineResume();
+                }
             }
         }
-
         mEngineContext.onInstanceResume();
     }
 
@@ -770,7 +765,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
-            mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders, enableV8Serialization);
+            mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders,
+                    enableV8Serialization);
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
