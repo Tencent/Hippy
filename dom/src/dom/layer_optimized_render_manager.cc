@@ -150,7 +150,7 @@ bool LayerOptimizedRenderManager::CheckStyleJustLayout(const std::shared_ptr<Dom
       const auto &background_color = style_map->find(kBackgroundColor);
       if (background_color != style_map->end() &&
           (*background_color).second->IsNumber() &&
-          (*background_color).second->ToInt32() != 0) {
+          (*background_color).second->ToDouble() != 0) {
         return false;
       }
       const auto &border_width = style_map->find(kBorderWidth);
@@ -160,19 +160,19 @@ bool LayerOptimizedRenderManager::CheckStyleJustLayout(const std::shared_ptr<Dom
         return false;
       }
     } else if (key == kBorderLeftColor) {
-      if (value->IsNumber() && value->ToInt32() == 0) {
+      if (value->IsNumber() && value->ToDouble() == 0) {
         continue;
       }
     } else if (key == kBorderRightColor) {
-      if (value->IsNumber() && value->ToInt32() == 0) {
+      if (value->IsNumber() && value->ToDouble() == 0) {
         continue;
       }
     } else if (key == kBorderTopColor) {
-      if (value->IsNumber() && value->ToInt32() == 0) {
+      if (value->IsNumber() && value->ToDouble() == 0) {
         continue;
       }
     } else if (key == kBorderBottomColor) {
-      if (value->IsNumber() && value->ToInt32() == 0) {
+      if (value->IsNumber() && value->ToDouble() == 0) {
         continue;
       }
     } else if (key == kBorderWidth) {
