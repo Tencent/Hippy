@@ -27,7 +27,7 @@ import { TextInput } from './text-input';
 import { View } from './view';
 import { ViewPager, ViewPagerItem } from './view-pager';
 import { WebView } from './web-view';
-import { TextView } from './textView';
+import { TextView } from './text-view';
 import { HippyView } from './hippy-view';
 
 export {
