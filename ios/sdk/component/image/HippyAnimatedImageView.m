@@ -407,7 +407,10 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b) {
         layer.contents = (__bridge id)image.CGImage;
     }
     else {
-        [super displayLayer:layer];
+        // Only iOS 14+ UIImageView use this delegate method for rendering.
+        if ([UIImageView instancesRespondToSelector:@selector(displayLayer:)]) {
+            [super displayLayer:layer];
+        }
     }
 }
 
