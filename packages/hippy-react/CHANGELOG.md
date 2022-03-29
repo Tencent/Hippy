@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.4](https://github.com/Tencent/Hippy/compare/2.13.3...2.13.4) (2022-03-29)
+
+
+### Bug Fixes
+
+* **react,vue:** add TextInput color parser ([f9f0e2b](https://github.com/Tencent/Hippy/commit/f9f0e2b9637efc1fa82db293bbeeb3124df0eb61))
+
+
+
+
+
 ## [2.13.3](https://github.com/Tencent/Hippy/compare/2.13.2...2.13.3) (2022-03-09)
 
 **Note:** Version bump only for package @hippy/react

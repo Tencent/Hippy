@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.4](https://github.com/Tencent/Hippy/compare/2.13.3...2.13.4) (2022-03-29)
+
+
+### Bug Fixes
+
+* **android:** fix nested sub-tag serialization issue ([7fe73ca](https://github.com/Tencent/Hippy/commit/7fe73ca9598c85fab81f932ce9ba126935915097))
+* **android:** merge recyclerview to master ([8e2038c](https://github.com/Tencent/Hippy/commit/8e2038c4900c847b2b1ed559a2dd9697a2b61cb2))
+* **android:** packagingOptions of ARMEABI ([f051421](https://github.com/Tencent/Hippy/commit/f051421c48e1befba986bb832a73baf30d56f3c4))
+* **android:** remove final of bundleName ([d284fa1](https://github.com/Tencent/Hippy/commit/d284fa1448c525da0a43b6f317650b04c9aaf31f))
+* **android:** use getResources DisplayMetrics ([ad455b3](https://github.com/Tencent/Hippy/commit/ad455b3458abca2a7251215f17106ecb1314f152))
+* **core:** fix jni local ref bug ([83348e2](https://github.com/Tencent/Hippy/commit/83348e2bd739144e77cbc9f51e513b05862d9b67))
+* **core:** fix log delegate crash ([249f9e4](https://github.com/Tencent/Hippy/commit/249f9e43bcfc059b20d0e26a876ddc03eb0e38a4))
+* **hippy-react-demo:** fix backAndroid routes error ([d11fd9a](https://github.com/Tencent/Hippy/commit/d11fd9ab259a0e7193163c110f22b8f4b0119dd7))
+* **ios:** fix crash caused by multi-thread race ([513c9d6](https://github.com/Tencent/Hippy/commit/513c9d63217507d6f9b2a55b1a822cb8045fbe97))
+* **ios:** fix image blurry error ([83281ca](https://github.com/Tencent/Hippy/commit/83281ca75cf18b5d1d0110c9ca08ec1aa8ee36b1))
+* **ios:** fix image load progress error ([618eeda](https://github.com/Tencent/Hippy/commit/618eedabef74cd767f4e834d96a4c6fcc6db8eb4))
+* **ios:** fix image tint color bug ([3884b0d](https://github.com/Tencent/Hippy/commit/3884b0d7f5c8e47f793f093470d4b5b3e5ce55db))
+* **ios:** fix jsi crash on some devices ([e8fb942](https://github.com/Tencent/Hippy/commit/e8fb942d28047c413a62758f7e9982e8f60e17f7))
+* **ios:** fix some issues ([#1679](https://github.com/Tencent/Hippy/issues/1679)) ([8a88f0a](https://github.com/Tencent/Hippy/commit/8a88f0a090b45a2a71c8ef760c3c29f7165b4d1a))
+* **react,vue:** add TextInput color parser ([f9f0e2b](https://github.com/Tencent/Hippy/commit/f9f0e2b9637efc1fa82db293bbeeb3124df0eb61))
+* **vue:** update vulerable packages ([3e15f5c](https://github.com/Tencent/Hippy/commit/3e15f5c26ff9b7d875791a3cac4520ba22d99524))
+
+
+### Features
+
+* **android:** js -> native support use js value ([fddfaae](https://github.com/Tencent/Hippy/commit/fddfaae83d2b2ced081ea62ba9f3eb0a47b9223a))
+* **android:** support debug context name display ([e134723](https://github.com/Tencent/Hippy/commit/e13472344b89db39c1bec9525db0d9c459ed9c0d))
+* **devtools:** support debug multiple project at the same time ([8213ff6](https://github.com/Tencent/Hippy/commit/8213ff6c72db75daedc83b2046650512252b99b7))
+* **vue-demo, react-demo:** remote debug, load remote bundle ([1b12953](https://github.com/Tencent/Hippy/commit/1b129538d92fe14119b1c29418ae52def03951b5))
+
+
+
+
+
 ## [2.13.3](https://github.com/Tencent/Hippy/compare/2.13.2...2.13.3) (2022-03-09)
 
 
