@@ -8,6 +8,7 @@ import {
 
 // Import the image to base64 for defaultSource props.
 import defaultSource from './defaultSource.jpg';
+import HippyLogoImg from './hippyLogoWhite.png';
 
 const imageUrl = 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png';
 
@@ -37,9 +38,12 @@ export default function ImageExpo() {
       <Text style={styles.info_style}>Contain:</Text>
       <Image
         style={[styles.image_style]}
-        resizeMode={Image.resizeMode.contain}
+        resizeMode={Image.resizeMode.cover}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
+        onProgress={(e) => {
+          console.log('onProgress', e);
+        }}
         onLoadStart={() => {
           console.log('image onloadStart');
         }}
@@ -67,9 +71,22 @@ export default function ImageExpo() {
         source={{ uri: imageUrl }}
         resizeMode={Image.resizeMode.center}
       />
-      <Text style={styles.info_style}>TintColor(iOS染色暂不支持透明度)</Text>
+      <Text style={styles.info_style}>CapInsets</Text>
       <Image
-        style={[styles.image_style, { tintColor: '#99999955' }]}
+        style={[styles.image_style]}
+        defaultSource={defaultSource}
+        source={{ uri: HippyLogoImg }}
+        capInsets={{
+          top: 50,
+          left: 50,
+          bottom: 50,
+          right: 50,
+        }}
+        resizeMode={Image.resizeMode.cover}
+      />
+      <Text style={styles.info_style}>TintColor</Text>
+      <Image
+        style={[styles.image_style, { tintColor: '#4c9afa99' }]}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
         resizeMode={Image.resizeMode.center}

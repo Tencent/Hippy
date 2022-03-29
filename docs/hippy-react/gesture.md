@@ -45,7 +45,7 @@ render()
 1. onTouchDown(event)：当用户开始触屏控件时（即用户在该控件上按下手指时），将回调此函数，并将触屏点信息作为参数传递进来；
 2. onTouchMove(event)：当用户在控件移动手指时，此函数会持续收到回调，并通过 event 参数告知控件的触屏点信息；
 3. onTouchEnd(event)：当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event 参数也会通知当前的触屏点信息；
-4. onTouchCancel(event)：当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为 hidden），此函数会收到回调，触屏点信息也会通过 event 参数告知前端；
+4. onTouchCancel(event)：当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为 hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过 event 参数告知前端；
 
 注意：若 onTouchCancel 被触发，则 onTouchEnd 不会被触发
 

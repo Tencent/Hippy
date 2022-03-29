@@ -63,16 +63,18 @@ class InputNode extends ElementNode {
 
   /**
    * Show input method selection dialog.
+   * @deprecated
    */
   showInputMethod() {
-    Native.callUIFunction(this, 'showInputMethod', []);
+    // noop
   }
 
   /**
    * hideInputMethod
+   * @deprecated
    */
   hideInputMethod() {
-    Native.callUIFunction(this, 'hideInputMethod', []);
+    // noop
   }
 }
 

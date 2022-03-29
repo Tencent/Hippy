@@ -17,7 +17,7 @@
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
-| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 ---
 
@@ -36,7 +36,7 @@
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
-| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 ---
 
@@ -77,7 +77,7 @@
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| layout           | 这个事件会在布局计算完成后立即调用一次，不过收到此事件时新的布局可能还没有在屏幕上呈现，尤其是一个布局动画正在进行中的时候。 | `Function`                           | `ALL`     |
+| layout           | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                           | `ALL`     |
 | attachedToWindow   | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `ALL`     |
 | focus            | 该事件在 `focusable` 置为 true 时触发，通过遥控方向键可以移动活动组件位置，事件回调带有 `isFocused` 参数用于标记激活和非激活状态 | `Function`  | `Android` |
 | momentumScrollBegin  | 在 ScrollView 滑动开始的时候调起。（仅在 overflow-y/x: scroll 时适用） | `Function`                                | `ALL`    |
@@ -88,7 +88,7 @@
 | touchstart  | 触屏开始事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 | touchmove   | 触屏移动事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
-| touchcancel | 触屏取消事件，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 1.3.3 | `Function`                                | `ALL`    |
 
 ## 方法
 
@@ -167,29 +167,30 @@
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| src        | 图片地址 | string                                | `ALL`    |
+| src        | 图片地址。现在支持的图片格式有 png , jpg , jpeg , bmp , gif 。 | string                                | `ALL`    |
+| capInsets | 当调整 img 大小的时候，由 capInsets 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 |  `{ top: number, left: number, bottom: number, right: number }` | `ALL` | 
 > `2.8.1` 版本后支持终端本地图片能力，可通过 webpack `file-loader` 加载。
 
 ## 样式内特殊属性
 
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| resize-mode        |  决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `string`(cover, contain, stretch, repeat, center) | `ALL`    |
+| resize-mode        |  决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `enum (cover, contain, stretch, repeat, center)` | `ALL`    |
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| layout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                                   | `ALL`    |
+| layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `ALL`    |
 | load        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `ALL`    |
 | loadStart   | 加载开始时调用。 | `Function`                                                   | `ALL`    |
 | loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `ALL`    |
 | error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `ALL`    |
-| progress       | 当加载错误的时候调用此回调函数。 | `Function`                                                   | `ALL`    |
+| progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded, total }` | `Function`                                                   | `iOS`    |
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
-| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 ---
 
@@ -248,10 +249,10 @@
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | caret-color           | 输入光标颜色。(也可设置为 Style 属性) `最低支持版本2.11.5` | [`color`](style/color.md)        | `Android`     |
 | defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `ALL`     |
-| disabled              | 如果为 true                           | `boolean`                                                    | `ALL`     |
+| editable              | 如果为 false，文本框是不可编辑的。`default: true`                        | `boolean`                                                    | `ALL`     |
 | type          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum(default, numeric, password, email, phone-pad)` | `ALL`     |
 | maxlength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `numbers`                                                    | `ALL`     |
-| numberOfLines         | 设置 input 最大显示行数，如果 TextInput 没有显式设置高度，会根据 numberOfLines 来计算高度撑开。在使用的时候必需同时设置 multiline 参数为 true。 | `number`                                                     | `Android`     |
+| numberOfLines         | 设置 `input` 最大显示行数，如果 `input` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android`     |
 | placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `ALL`     |
 | placeholder-text-color  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）  `最低支持版本2.13.4`                                   | [`color`](style/color.md)                                | `ALL`     |
 | underline-color-android  | `input` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性）  `最低支持版本2.13.4`      | [`color`](style/color.md)                                                      | `Android` |
@@ -264,9 +265,10 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `ALL`     |
 | change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `ALL`     |
-| keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260}`。                                     | `Function`                                                   | `ALL`     |
+| keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `ALL`     |
+| keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
 | endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `ALL`     |
-| layout              | 当组件挂载或者布局变化的时候调用，参数为`{ x, y, width, height }`。 | `Function`                                                   | `ALL`     |
+| layout              | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `ALL`     |
 | selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `ALL`     |
 
 ## 方法
@@ -287,19 +289,11 @@
 
 `() => Promise<string>` 获得文本框中的内容。
 
-### hideInputMethod
-
-`() => void` 隐藏软键盘。
-
 ### setValue
 
 `(value: string) => void` 设置文本框内容。
 
 > * value: string - 文本框内容
-
-### showInputMethod
-
-`() => void` 显示软键盘。
 
 ---
 
@@ -316,7 +310,7 @@
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
-| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 ---
 
@@ -331,15 +325,15 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` | `any`   | `Android`    |
-| initialContentOffset  | 初始位移值 -- 在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `ALL` |
+| initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `ALL` |
 | bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
 | overScrollEnabled | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `Android`    |
-| rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用   | `boolean`                                                    | `ALL`
+| rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用。 `default: false` | `boolean`  | `ALL`
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `All` |
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `ALL`    |
-| showScrollIndicator   | 是否显示垂直滚动条。 因为目前 ListView 其实仅有垂直滚动一种方向，水平滚动会导致 `onEndReached` 等一堆问题暂不建议使用，所以 `showScrollIndicator` 也仅用来控制是否显示垂直滚动条。 | `boolean`                                                   | `ALL`    |
-| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `ALL` |
-| exposureEventEnabled | Android曝光能力启用开关，如果要使用`appear`、`disappear`相关事件，Android需要设置（iOS无需设置）| `boolean` | `Android`
+| showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`                                                   | `iOS`    |
+| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `endReached` 回调。 | `number` | `ALL` |
+| exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）| `boolean` | `Android`
 | endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `ALL`    |
 | editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
 | delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |
@@ -354,8 +348,8 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | scroll              | 当触发 `ListView` 的滑动事件时回调。由于在 `ListView` 滑动时回调，调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向ListView时，Android在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `ALL`    |
 | scrollBeginDrag     | 当用户开始拖拽 `ScrollView` 时调用。                         | `Function`                                                  | `ALL`    |
 | scrollEndDrag       | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用 | `Function`                                                  | `ALL`    |
-| layout      | 当元素挂载或者布局改变的时候调用，参数为： `{ nativeEvent: { layout: { x, y, width, height } } }`。 | `Function`                                | `ALL`    |
-| delete      | 在列表项侧滑删除时调起，参数为： `{ nativeEvent: { index } }`。`最低支持版本2.9.0` | `Function`                                | `iOS`    |
+| layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `ALL`    |
+| delete      | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                | `iOS`    |
 
 ## 方法
 
@@ -391,7 +385,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `ALL`    |
 | key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `ALL`    |
-| sticky       | 对应的item是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕） | `boolean`                                | `ALL`
+| sticky       | 对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在 ListView 顶部，不会滚出屏幕） | `boolean`                                | `ALL`
 | appear       | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `ALL` |
 | disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `ALL` |
 | willAppear       | 当有`li`节点至少一个像素滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。`最低支持版本2.3.0` | `(index) => any` | `ALL` |
@@ -412,7 +406,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
-| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 ## 参数
 
@@ -443,7 +437,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | touchstart  | 触屏开始事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchmove   | 触屏移动事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 | touchend    | 触屏结束事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
-| touchcancel | 触屏取消事件，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
+| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2 | `Function`                                | `ALL`    |
 
 ---
 
