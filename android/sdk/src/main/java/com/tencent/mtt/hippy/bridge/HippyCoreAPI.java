@@ -44,7 +44,6 @@ import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
-import com.tencent.mtt.hippy.views.list.HippyListViewController;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.mtt.hippy.views.navigator.NavigatorController;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
@@ -186,7 +185,6 @@ public class HippyCoreAPI implements HippyAPIProvider {
     components.add(HippyTextViewController.class);
     components.add(HippyViewGroupController.class);
     components.add(HippyImageViewController.class);
-    components.add(HippyListViewController.class);
     components.add(HippyRecyclerViewController.class);
     components.add(HippyListItemViewController.class);
     components.add(HippyTextInputController.class);
