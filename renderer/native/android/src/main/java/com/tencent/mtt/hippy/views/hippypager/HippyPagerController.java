@@ -196,13 +196,13 @@ public class HippyPagerController extends HippyViewController<HippyPager> {
 
     @Override
     public void dispatchFunction(@NonNull HippyPager viewPager, @NonNull String functionName,
-            @NonNull HippyArray params, @Nullable Promise promise) {
+            @NonNull HippyArray params, @NonNull Promise promise) {
         dispatchFunction(viewPager, functionName, params.getInternalArray(), promise);
     }
 
     @Override
     public void dispatchFunction(@NonNull HippyPager viewPager, @NonNull String functionName,
-            @NonNull List params, @Nullable Promise promise) {
+            @NonNull List params, @NonNull Promise promise) {
         super.dispatchFunction(viewPager, functionName, params, promise);
         if (FUNC_SET_INDEX.equals(functionName)) {
             Object element = (params.isEmpty()) ? null : params.get(0);

@@ -293,8 +293,8 @@ public class ControllerManager {
         return null;
     }
 
-    public void dispatchUIFunction(int id, String className, String functionName,
-            List<Object> params, Promise promise) {
+    public void dispatchUIFunction(int id, @NonNull String className, @NonNull String functionName,
+            @NonNull List<Object> params, @Nullable Promise promise) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(id);
         if (view == null || controller == null) {
