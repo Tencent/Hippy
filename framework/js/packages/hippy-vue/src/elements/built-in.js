@@ -20,7 +20,7 @@
 
 /* eslint-disable no-param-reassign */
 
-import { arrayCount, warn, convertImageLocalPath } from '../util';
+import { warn, convertImageLocalPath } from '../util';
 import { HIPPY_DEBUG_ADDRESS } from '../runtime/constants';
 import NATIVE_COMPONENT_NAME_MAP, * as components from '../renderer/native/components';
 
@@ -187,11 +187,6 @@ const ul = {
     name: NATIVE_COMPONENT_NAME_MAP[components.ListView],
     defaultNativeStyle: {
       flex: 1, // Necessary by iOS
-    },
-    defaultNativeProps: {
-      numberOfRows(node) {
-        return arrayCount(node.childNodes, childNode => !childNode.meta.skipAddToDom);
-      },
     },
     attributeMaps: {
       ...accessibilityAttrMaps,

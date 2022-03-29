@@ -24,7 +24,6 @@ import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
 import { updateChild, updateWithChildren, endBatch } from '../renderer/render';
-import { Device } from '../native';
 import {
   unicodeToChar,
   tryConvertNumber,
@@ -405,13 +404,6 @@ class ElementNode extends ViewNode {
           action: () => {
             this.attributes[key] = value;
             return false;
-          },
-        },
-        {
-          match: () => ['numberOfRows'].indexOf(key) >= 0,
-          action: () => {
-            this.attributes[key] = value;
-            return Device.platform.OS !== 'ios';
           },
         },
         {

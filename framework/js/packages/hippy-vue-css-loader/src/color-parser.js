@@ -345,15 +345,12 @@ function baseColor(color) {
 /**
  * Translate the color to make sure native understood.
  */
-function translateColor(color, options = {}) {
+function translateColor(color) {
   let int32Color = baseColor(color);
   if (int32Color === null) {
     throw new Error(`Bad color value: ${color}`);
   }
   int32Color = (int32Color << 24 | int32Color >>> 8) >>> 0;
-  if (options && options.platform === 'android') {
-    int32Color |= 0;
-  }
   return int32Color;
 }
 

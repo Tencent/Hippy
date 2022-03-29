@@ -288,12 +288,6 @@ class ElementNode extends ViewNode {
           this.attributes[key] = unicodeToChar(value);
           break;
         }
-        case 'numberOfRows':
-          this.attributes[key] = value;
-          if (Native.Platform !== 'ios') {
-            return;
-          }
-          break;
         case 'caretColor':
         case 'caret-color':
           this.attributes['caret-color'] = Native.parseColor(value);
