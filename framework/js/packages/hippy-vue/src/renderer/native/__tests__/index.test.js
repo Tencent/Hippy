@@ -373,20 +373,6 @@ test('renderToNative test with children --production mode', (t) => {
   ]);
 });
 
-test('ul numberOfRows test', (t) => {
-  const parentNode = DocumentNode.createElement('ul');
-  const childNode1 = DocumentNode.createElement('li');
-  parentNode.appendChild(childNode1);
-  const nativeLanguage1 = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
-  t.is(nativeLanguage1[0].props.numberOfRows, 1);
-  const childNode2 = DocumentNode.createElement('li');
-  parentNode.appendChild(childNode2);
-  const nativeLanguage2 = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
-  t.is(nativeLanguage2[0].props.numberOfRows, 2);
-  parentNode.setAttribute('numberOfRows', 10);
-  const nativeLanguage3 = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
-  t.is(nativeLanguage3[0].props.numberOfRows, 10);
-});
 
 test('img attributeMaps test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
@@ -395,7 +381,7 @@ test('img attributeMaps test --debug mode', (t) => {
   node.setAttribute('alt', 'Test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 24,
+    id: 21,
     index: 0,
     name: 'Image',
     pId: ROOT_VIEW_ID,
@@ -423,7 +409,7 @@ test('img attributeMaps test --production mode', (t) => {
   node.setAttribute('alt', 'Test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 25,
+    id: 22,
     index: 0,
     name: 'Image',
     pId: ROOT_VIEW_ID,
@@ -443,7 +429,7 @@ test('span attributeMaps test --debug mode', (t) => {
   node.setAttribute('text', 'Test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 26,
+    id: 23,
     index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
@@ -467,7 +453,7 @@ test('span attributeMaps test --production mode', (t) => {
   node.setAttribute('text', 'Test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 27,
+    id: 24,
     index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
@@ -487,7 +473,7 @@ test('a href attribute test --debug mode', (t) => {
   node.setAttribute('href', '/test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 28,
+    id: 25,
     index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
@@ -514,7 +500,7 @@ test('a href attribute test --production mode', (t) => {
   node.setAttribute('href', '/test');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 29,
+    id: 26,
     index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
@@ -535,7 +521,7 @@ test('a href attribute with http prefix test --debug mode', (t) => {
   node.setAttribute('href', 'https://hippyjs.org');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 31,
+    id: 27,
     index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
@@ -562,7 +548,7 @@ test('a href attribute with http prefix test --production mode', (t) => {
   node.setAttribute('href', 'https://hippyjs.org');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 32,
+    id: 28,
     index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
@@ -583,7 +569,7 @@ test('div with overflow-X scroll test --debug mode', (t) => {
   node.setStyle('overflowX', 'scroll');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 33,
+    id: 29,
     index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
@@ -603,7 +589,7 @@ test('div with overflow-X scroll test --debug mode', (t) => {
   Native.Localization = { direction: 1 };
   const nativeLanguage2 = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage2, {
-    id: 33,
+    id: 29,
     index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
@@ -629,7 +615,7 @@ test('div with overflow-X scroll test --production mode', (t) => {
   node.setStyle('overflowX', 'scroll');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 34,
+    id: 31,
     index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
@@ -644,7 +630,7 @@ test('div with overflow-X scroll test --production mode', (t) => {
   Native.Localization = { direction: 1 };
   const nativeLanguage2 = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage2, {
-    id: 34,
+    id: 31,
     index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
@@ -664,7 +650,7 @@ test('div with overflowY scroll test --debug mode', (t) => {
   node.setStyle('overflowY', 'scroll');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 35,
+    id: 32,
     index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
@@ -687,7 +673,7 @@ test('div with overflowY scroll test --production mode', (t) => {
   node.setStyle('overflowY', 'scroll');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 36,
+    id: 33,
     index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
@@ -706,7 +692,7 @@ test('div with overflowX and overflowY scroll test --debug mode', (t) => {
   node.setStyle('overflowY', 'scroll');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 37,
+    id: 34,
     index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
@@ -731,7 +717,7 @@ test('div with overflowX and overflowY scroll test --production mode', (t) => {
   node.setStyle('overflowY', 'scroll');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 38,
+    id: 35,
     index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
@@ -753,7 +739,7 @@ test('div with child node and overflowX scroll test --debug mode', (t) => {
   const nativeLanguage = renderToNativeWithChildren(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, [
     {
-      id: 39,
+      id: 36,
       index: 0,
       name: 'ScrollView',
       pId: ROOT_VIEW_ID,
@@ -769,10 +755,10 @@ test('div with child node and overflowX scroll test --debug mode', (t) => {
       tagName: 'div',
     },
     {
-      id: 41,
+      id: 37,
       index: 0,
       name: 'View',
-      pId: 39,
+      pId: 36,
       props: {
         attributes: {
           class: '',
@@ -796,7 +782,7 @@ test('div with child node and overflowX scroll test --production mode', (t) => {
   const nativeLanguage = renderToNativeWithChildren(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, [
     {
-      id: 42,
+      id: 38,
       index: 0,
       name: 'ScrollView',
       pId: ROOT_VIEW_ID,
@@ -807,10 +793,10 @@ test('div with child node and overflowX scroll test --production mode', (t) => {
       },
     },
     {
-      id: 43,
+      id: 39,
       index: 0,
       name: 'View',
-      pId: 42,
+      pId: 38,
       props: {
         style: {
           collapsable: false,
@@ -863,7 +849,7 @@ test('Image.setStyle(background-color) test --debug mode', (t) => {
   const imgWithoutBg = DocumentNode.createElement('img');
   const withoutBg = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
   t.deepEqual(withoutBg, {
-    id: 52,
+    id: 48,
     index: 0,
     pId: 10,
     name: 'Image',
@@ -882,7 +868,7 @@ test('Image.setStyle(background-color) test --debug mode', (t) => {
   imgWithBg.setStyle('backgroundColor', '#abcdef');
   const withBg = renderToNative(ROOT_VIEW_ID, imgWithBg);
   t.deepEqual(withBg, {
-    id: 53,
+    id: 49,
     index: 0,
     pId: 10,
     name: 'Image',
@@ -904,7 +890,7 @@ test('Image.setStyle(background-color) test --production mode', (t) => {
   const imgWithoutBg = DocumentNode.createElement('img');
   const withoutBg = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
   t.deepEqual(withoutBg, {
-    id: 54,
+    id: 51,
     index: 0,
     pId: 10,
     name: 'Image',
@@ -918,7 +904,7 @@ test('Image.setStyle(background-color) test --production mode', (t) => {
   imgWithBg.setStyle('backgroundColor', '#abcdef');
   const withBg = renderToNative(ROOT_VIEW_ID, imgWithBg);
   t.deepEqual(withBg, {
-    id: 55,
+    id: 52,
     index: 0,
     pId: 10,
     name: 'Image',
@@ -946,7 +932,7 @@ test('img with accessibility test --debug mode', (t) => {
   node.setAttribute('aria-valuetext', 'high');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 56,
+    id: 53,
     index: 0,
     name: 'Image',
     pId: 10,
@@ -1005,7 +991,7 @@ test('img with accessibility test --production mode', (t) => {
   node.setAttribute('aria-valuetext', 'high');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 57,
+    id: 54,
     index: 0,
     name: 'Image',
     pId: 10,
@@ -1039,7 +1025,7 @@ test('div with backgroundImage local path test --debug mode', (t) => {
   node.setStyle('backgroundImage', originalPath);
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 58,
+    id: 55,
     index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
@@ -1063,7 +1049,7 @@ test('div with backgroundImage local path test --production mode', (t) => {
   node.setStyle('backgroundImage', originalPath);
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 59,
+    id: 56,
     index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
@@ -1091,7 +1077,7 @@ test('div with accessibility test --debug mode', (t) => {
   node.setAttribute('aria-valuetext', 'high');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 61,
+    id: 57,
     index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
@@ -1148,7 +1134,7 @@ test('div with accessibility test --production mode', (t) => {
   node.setAttribute('aria-valuetext', 'high');
   const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguage, {
-    id: 62,
+    id: 58,
     index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
