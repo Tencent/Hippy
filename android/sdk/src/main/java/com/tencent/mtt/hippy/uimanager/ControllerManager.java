@@ -75,6 +75,9 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
    * @param hippyPackages API providers need to be added.
    */
   public void addControllers(List<HippyAPIProvider> hippyPackages) {
+    if (hippyPackages == null) {
+      return;
+    }
     for (HippyAPIProvider hippyPackage : hippyPackages) {
       List<Class<? extends HippyViewController>> components = hippyPackage.getControllers();
       if (components != null) {
