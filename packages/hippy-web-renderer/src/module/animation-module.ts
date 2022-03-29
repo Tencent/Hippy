@@ -26,12 +26,8 @@ import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
 import AnimationPlayState = Property.AnimationPlayState;
 export class AnimationModule extends HippyWebModule {
-  public static moduleName = 'AnimationModule';
   public name = 'AnimationModule';
-
   private animationPool: {[key: string]: SimpleAnimation|null} = {};
-
-
   public createAnimation(animationId: number, mode = 'timing', params: AnimationOptions) {
     if (this.animationPool[animationId]) {
       return;
