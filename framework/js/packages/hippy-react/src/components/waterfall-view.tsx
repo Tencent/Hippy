@@ -112,10 +112,10 @@ interface WaterfallViewProps {
    *  Called when the row first layout or layout changed.
    *
    * @param {Object} evt - Layout event data
-   * @param {number} evt.nativeEvent.x - The position X of component
-   * @param {number} evt.nativeEvent.y - The position Y of component
-   * @param {number} evt.nativeEvent.width - The width of component
-   * @param {number} evt.nativeEvent.hegiht - The height of component
+   * @param {number} evt.x - The position X of component
+   * @param {number} evt.y - The position Y of component
+   * @param {number} evt.width - The width of component
+   * @param {number} evt.height - The height of component
    * @param {number} index - Index of data.
    */
   onItemLayout?: (evt: HippyTypes.LayoutEvent, index: number) => void;

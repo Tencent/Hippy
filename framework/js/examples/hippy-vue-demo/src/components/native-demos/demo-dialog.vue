@@ -7,24 +7,22 @@
     >
       <span class="button-text">显示对话框</span>
     </button>
-    <!-- dialog 无法支持 v-show，只能使用 v-if 进行显示切换 -->
+    <!-- dialog 无法支持 v-show，只能使用 v-if 进行显式切换 -->
     <dialog
       v-if="dialogIsVisible"
       animationType="slide"
+      :transparent="true"
       class="dialog-demo"
       :supportedOrientations="supportedOrientations"
       @show="onShow"
       @requestClose="onClose"
     >
       <!-- iOS 平台上 dialog 必须只有一个子节点 -->
-      <!-- dialog 里的布局比较奇怪，碰到问题请联系终端同学 -->
       <div class="dialog-demo-wrapper">
-        <!-- 空白区域点击关闭 -->
         <div
           class="fullscreen center row"
           @click="clickView"
         >
-          <!-- 内容区域阻止点击事件冒泡导致关闭 -->
           <div
             class="dialog-demo-close-btn center column"
             @click="stopPropagation"
@@ -33,7 +31,7 @@
               点击空白区域关闭
             </p>
             <button
-              class="dialog-demo-button-1"
+              class="dialog-demo-button-2"
               @click="clickOpenSecond"
             >
               <span class="button-text">点击打开二级全屏弹窗</span>
@@ -42,13 +40,19 @@
           <dialog
             v-if="dialog2IsVisible"
             animationType="slide"
+            :transparent="true"
             @requestClose="onClose"
           >
             <div
-              class="dialog-2-demo-wrapper"
+              class="dialog-2-demo-wrapper center column row"
               @click="clickOpenSecond"
             >
-              <p>Hello 我是二级全屏弹窗，点击任意位置关闭。</p>
+              <p
+                class="dialog-demo-close-btn-text"
+                style="color: white"
+              >
+                Hello 我是二级全屏弹窗，点击任意位置关闭。
+              </p>
             </div>
           </dialog>
         </div>
@@ -124,6 +128,7 @@ export default {
   border-width: 2px;
   border-radius: 10px;
   align-items: center;
+  margin-top: 10px;
 }
 
 .dialog-demo-button-1 .button-text {
@@ -131,31 +136,49 @@ export default {
   text-align: center;
 }
 
+.dialog-demo-button-2 {
+  height: 64px;
+  width: 200px;
+  border-style: solid;
+  border-color: white;
+  border-width: 2px;
+  border-radius: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.dialog-demo-button-2 .button-text {
+  line-height: 56px;
+  text-align: center;
+}
+
 .dialog-demo {
   position: absolute;
-  background-color: transparent;
 }
 
 .dialog-demo-wrapper {
-  background-color: transparent;
+  background-color: #40b88377;
   position: absolute;
   top: 0;
   left: 0;
 }
 
 .dialog-2-demo-wrapper {
-  background-color: white;
+  background-color: #444444ee;
   position: absolute;
   top: 0;
   left: 0;
+  justify-content: center;
+  align-items: center;
 }
 
 .dialog-demo-close-btn {
-  width: 200px;
+  width: 210px;
   height: 200px;
   margin-top: 300px;
-  background-color: red;
-  border-radius: 8px;
+  background-color: #40b883;
+  justify-content: center;
+  align-items: center;
 }
 
 .dialog-demo-close-btn-text {
