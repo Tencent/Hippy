@@ -55,7 +55,8 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const std::shared_ptr<V8VMInitParam>& param,
                                     std::shared_ptr<Bridge> bridge,
                                     const RegisterFunction& scope_cb,
-                                    const RegisterFunction& call_native_cb) {
+                                    const RegisterFunction& call_native_cb,
+                                    const unicode_string_view& ws_url) {
   std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(enable_v8_serialization,
                                                                is_dev_module);
   runtime->SetBridge(std::move(bridge));
@@ -161,6 +162,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
 
 #if TDF_SERVICE_ENABLED
+  scope->CreateDevtools(StringViewUtils::ToU8StdStr(ws_url));
   scope->GetDevtoolsDataSource()->SetV8RequestHandler([runtime_id](std::string data) {
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (!runtime || !runtime->IsDebug()) {
@@ -327,7 +329,7 @@ void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
-bool V8BridgeUtils::DestroyInstance(int64_t runtime_id) {
+bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, bool is_reload) {
   TDF_BASE_DLOG(INFO) << "DestroyInstance begin, runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(
       hippy::base::checked_numeric_cast<jlong, int32_t>(runtime_id));
@@ -337,7 +339,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id) {
   }
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [runtime, runtime_id] {
+  task->callback = [runtime, runtime_id, is_reload] {
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
 #ifdef ENABLE_INSPECTOR
     if (runtime->IsDebug()) {
@@ -348,6 +350,9 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id) {
     }
 #else
     runtime->GetScope()->WillExit();
+#endif
+#if TDF_SERVICE_ENABLED
+    runtime->GetScope()->DestroyDevtools(is_reload);
 #endif
     TDF_BASE_LOG(INFO) << "SetScope nullptr";
     runtime->SetScope(nullptr);

@@ -107,27 +107,22 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     if (this.mIsDevModule) {
       mDebugWebSocketClient = new DebugWebSocketClient();
       mDebugWebSocketClient.setOnReceiveDataCallback(this);
-      if (TextUtils.isEmpty(mDebugServerHost)) {
-        mDebugServerHost = "localhost:38989";
-      }
-      String clientId = mContext.getDevSupportManager().getDevInstanceUUID();  // 方便区分不同的 Hippy 调试页面
-      mDebugWebSocketClient.connect(
-          String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client&clientId=%s", mDebugServerHost, clientId),
-          new DebugWebSocketClient.JSDebuggerCallback() {
-            @SuppressWarnings("unused")
-            @Override
-            public void onSuccess(String response) {
-              LogUtils.d("hippyCore", "js debug socket connect success");
-              initJSEngine(groupId);
-            }
 
-            @SuppressWarnings("unused")
-            @Override
-            public void onFailure(final Throwable cause) {
-              LogUtils.e("hippyCore", "js debug socket connect failed");
-              initJSEngine(groupId);
-            }
-          });
+      mDebugWebSocketClient.connect(getDebugWsUrl(), new DebugWebSocketClient.JSDebuggerCallback() {
+        @SuppressWarnings("unused")
+        @Override
+        public void onSuccess(String response) {
+          LogUtils.d("hippyCore", "js debug socket connect success");
+          initJSEngine(groupId);
+        }
+
+        @SuppressWarnings("unused")
+        @Override
+        public void onFailure(final Throwable cause) {
+          LogUtils.e("hippyCore", "js debug socket connect failed");
+          initJSEngine(groupId);
+        }
+      });
     } else {
       initJSEngine(groupId);
     }
@@ -138,7 +133,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       try {
         byte[] globalConfig = mDebugGlobalConfig.getBytes(StandardCharsets.UTF_16LE);
         mV8RuntimeId = initJSFramework(globalConfig, mSingleThreadMode, enableV8Serialization,
-          mIsDevModule, mDebugInitJSFrameworkCallback, groupId, v8InitParams, mContext.getGlobalConfigs().getContext().getFilesDir().getAbsolutePath());
+          mIsDevModule, mDebugInitJSFrameworkCallback, groupId, v8InitParams, mContext.getGlobalConfigs().getContext().getFilesDir().getAbsolutePath(), getDebugWsUrl());
         mInit = true;
       } catch (Throwable e) {
         if (mBridgeCallback != null) {
@@ -147,6 +142,14 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
       }
 		}
 	}
+
+	private String getDebugWsUrl() {
+    if (TextUtils.isEmpty(mDebugServerHost)) {
+      mDebugServerHost = "localhost:38989";
+    }
+    String clientId = mContext.getDevSupportManager().getDevInstanceUUID();  // 方便区分不同的 Hippy 调试页面
+    return String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client&clientId=%s", mDebugServerHost, clientId);
+  }
 
   @Override
   public long getV8RuntimeId() {
@@ -256,18 +259,18 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
   }
 
   @Override
-  public void destroy(NativeCallback callback) {
-    destroy(mV8RuntimeId, mSingleThreadMode, callback);
+  public void destroy(NativeCallback callback, boolean isReload) {
+    destroy(mV8RuntimeId, mSingleThreadMode, isReload, callback);
   }
 
   public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
       boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
-      long groupId, V8InitParams v8InitParams, String dataDir);
+      long groupId, V8InitParams v8InitParams, String dataDir, String wsUrl);
 
   public native boolean runScriptFromUri(String uri, AssetManager assetManager,
       boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
 
-  public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
+  public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload, NativeCallback callback);
 
   public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
       ByteBuffer buffer, int offset, int length);

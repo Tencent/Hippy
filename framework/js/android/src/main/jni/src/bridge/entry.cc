@@ -62,7 +62,7 @@ REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cp
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-             "JLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;Ljava/lang/String;)J",
+             "JLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;Ljava/lang/String;Ljava/lang/String;)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -73,7 +73,7 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "destroy",
-             "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
+             "(JZZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
@@ -132,7 +132,7 @@ void DoBind(JNIEnv* j_env,
   render_manager->SetDomManager(dom_manager);
 
 #if TDF_SERVICE_ENABLED
-  scope->BindDevtool(j_dom_id, j_framework_id);
+  scope->BindDevtool(j_framework_id, j_dom_id, j_render_id);
 #endif
 }
 
@@ -278,7 +278,8 @@ jlong InitInstance(JNIEnv* j_env,
                    jobject j_callback,
                    jlong j_group_id,
                    jobject j_vm_init_param,
-                   jstring j_data_dir) {
+                   jstring j_data_dir,
+                   jstring j_ws_url) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
                      << ", j_bridge_param_json = "
@@ -322,6 +323,7 @@ jlong InitInstance(JNIEnv* j_env,
     ExceptionHandler::ReportJsException(runtime, desc, stack);
   });
   std::shared_ptr<ADRBridge> bridge = std::make_shared<ADRBridge>(j_env, j_object);
+  const unicode_string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
   auto runtime_id = V8BridgeUtils::InitInstance(
       static_cast<bool>(j_enable_v8_serialization),
       static_cast<bool>(j_is_dev_module),
@@ -330,7 +332,8 @@ jlong InitInstance(JNIEnv* j_env,
       param,
       bridge,
       scope_cb,
-      call_native_cb);
+      call_native_cb,
+      ws_url);
   return static_cast<jlong>(runtime_id);
 }
 
@@ -338,9 +341,10 @@ void DestroyInstance(__unused JNIEnv* j_env,
                      __unused jobject j_object,
                      jlong j_runtime_id,
                      __unused jboolean j_single_thread_mode,
+                     jboolean j_is_reload,
                      jobject j_callback) {
   auto ret = V8BridgeUtils::DestroyInstance(
-      hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+      hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id), static_cast<bool>(j_is_reload));
   if (ret) {
     hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   } else {

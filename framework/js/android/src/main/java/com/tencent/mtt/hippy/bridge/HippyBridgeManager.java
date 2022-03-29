@@ -42,7 +42,7 @@ public interface HippyBridgeManager {
 
   void execCallback(Object params, BridgeTransferType transferType);
 
-  void destroyBridge(Callback<Boolean> callback);
+  void destroyBridge(Callback<Boolean> callback, boolean isReload);
 
   void destroy();
 

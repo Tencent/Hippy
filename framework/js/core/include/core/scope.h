@@ -140,17 +140,17 @@ class Scope {
   }
 
 #if TDF_SERVICE_ENABLED
-  void BindDevtool(int32_t dom_id, int32_t runtime_id) {
-    if (!devtool_data_source_) {
-      devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>();
-    }
-    devtool_data_source_->Bind(dom_id, runtime_id);
+  void CreateDevtools(std::string ws_url) {
+    devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>(std::move(ws_url));
+  }
+  void DestroyDevtools(bool is_reload) {
+    devtool_data_source_->Destroy(is_reload);
   }
   std::shared_ptr<hippy::devtools::DevtoolDataSource> GetDevtoolsDataSource() {
-    if (!devtool_data_source_) {
-      devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>();
-    }
     return devtool_data_source_;
+  }
+  void BindDevtool(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
+    devtool_data_source_->Bind(runtime_id, dom_id, render_id);
   }
 #endif
 

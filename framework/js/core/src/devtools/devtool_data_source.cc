@@ -6,6 +6,8 @@
 #if TDF_SERVICE_ENABLED
 
 #include "devtools/devtool_data_source.h"
+
+#include <utility>
 #ifdef OS_ANDROID
 #include "core/runtime/v8/runtime.h"
 #endif
@@ -22,16 +24,16 @@ namespace devtools {
 std::vector<std::weak_ptr<tdf::devtools::DevtoolsBackendService>> DevtoolDataSource::all_services{};
 using tdf::devtools::DevtoolsBackendService;
 
-DevtoolDataSource::DevtoolDataSource() {
+DevtoolDataSource::DevtoolDataSource(std::string ws_url) {
   tdf::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = tdf::devtools::Framework::kHippy;
   devtools_config.tunnel = tdf::devtools::Tunnel::kWebSocket;
-  devtools_config.ws_url ="ws://localhost:38989/debugger-proxy?role=android_client&clientId=1&contextName=Demo";
+  devtools_config.ws_url = std::move(ws_url); //"ws://localhost:38989/debugger-proxy?role=android_client&clientId=1&contextName=Demo";
   devtools_service_ = std::make_shared<tdf::devtools::DevtoolsBackendService>(devtools_config);
   all_services.push_back(devtools_service_);
 }
 
-void DevtoolDataSource::Bind(int32_t dom_id, int32_t runtime_id) {
+void DevtoolDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
   dom_id_ = dom_id;
   runtime_id_ = runtime_id;
   auto data_provider = devtools_service_->GetDataProvider();
@@ -45,8 +47,8 @@ void DevtoolDataSource::Bind(int32_t dom_id, int32_t runtime_id) {
   TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_provider:%p" << &devtools_service_;
 }
 
-void DevtoolDataSource::Destroy() {
-  devtools_service_->Destroy();
+void DevtoolDataSource::Destroy(bool is_reload) {
+  devtools_service_->Destroy(is_reload);
 }
 
 void DevtoolDataSource::SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler) {

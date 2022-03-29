@@ -24,24 +24,26 @@ namespace hippy {
 namespace devtools {
 
 /**
- * @brief Devtools JSDelegate 的 Hippy 实现
+ * @brief Devtools Hippy 实现
  */
 class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
  public:
-  explicit DevtoolDataSource();
+  explicit DevtoolDataSource(std::string ws_url);
   ~DevtoolDataSource() = default;
 
   /**
    * @brief 绑定调试的 DOM/Render
+   * @param runtime_id Runtime id
    * @param dom_id DOM Manager id
-   * @param runtime_id Render Manager id
+   * @param render_id Render Manager id
    */
-  void Bind(int32_t dom_id, int32_t runtime_id);
+  void Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id);
 
   /**
    * @brief 销毁调试实例
+   * @param is_reload 是否 reload
    */
-  void Destroy();
+  void Destroy(bool is_reload);
 
   void SetRuntimeAdapterDebugMode(bool debug_mode);
 

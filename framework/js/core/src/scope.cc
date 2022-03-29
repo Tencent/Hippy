@@ -86,10 +86,6 @@ void Scope::WillExit() {
     task->callback = cb;
     runner->PostTask(task);
   }
-  if (devtool_data_source_) {
-    devtool_data_source_->Destroy();
-  }
-
   future.get();
   TDF_BASE_DLOG(INFO) << "ExitCtx end";
 }

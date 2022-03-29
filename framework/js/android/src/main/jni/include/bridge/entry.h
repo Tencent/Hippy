@@ -40,12 +40,14 @@ jlong InitInstance(JNIEnv* j_env,
                    jobject j_callback,
                    jlong j_group_id,
                    jobject j_vm_init_param,
-                   jstring j_data_dir);
+                   jstring j_data_dir,
+                   jstring j_ws_url);
 
 void DestroyInstance(JNIEnv* j_env,
                      jobject j_object,
                      jlong j_runtime_id,
                      jboolean j_single_thread_mode,
+                     jboolean j_is_reload,
                      jobject j_callback);
 
 jboolean RunScriptFromUri(JNIEnv* j_env,
