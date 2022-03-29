@@ -439,7 +439,11 @@ public class TextVirtualNode extends VirtualNode {
             int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
             int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
             if (lastLineStart < lastLineEnd) {
-                layout = createLayoutWithNumberOfLine(lastLineEnd, layout.getWidth());
+                try {
+                    layout = createLayoutWithNumberOfLine(lastLineEnd, layout.getWidth());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         layout.getPaint().setTextSize(mFontSize);

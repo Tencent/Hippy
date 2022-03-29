@@ -611,7 +611,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     @Deprecated
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
-            @NonNull HippyArray params, @Nullable Promise promise) {
+            @NonNull HippyArray params, @NonNull Promise promise) {
     }
 
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
@@ -619,7 +619,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
 
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
-            @NonNull List params, @Nullable Promise promise) {
+            @NonNull List params, @NonNull Promise promise) {
     }
 
     public void onBatchComplete(@NonNull T view) {

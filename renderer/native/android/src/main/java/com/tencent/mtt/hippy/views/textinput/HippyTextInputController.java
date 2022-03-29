@@ -448,13 +448,13 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
     @Override
     public void dispatchFunction(@NonNull HippyTextInput textInput, @NonNull String functionName,
-            @NonNull HippyArray params, @Nullable Promise promise) {
+            @NonNull HippyArray params, @NonNull Promise promise) {
         dispatchFunction(textInput, functionName, params.getInternalArray(), promise);
     }
 
     @Override
     public void dispatchFunction(@NonNull final HippyTextInput textInput,
-            @NonNull String functionName, @NonNull List params, Promise promise) {
+            @NonNull String functionName, @NonNull List params, @NonNull Promise promise) {
         if (FUNC_GET_VALUE.equals(functionName) && promise != null) {
             promise.resolve(textInput.jsGetValue());
         }
