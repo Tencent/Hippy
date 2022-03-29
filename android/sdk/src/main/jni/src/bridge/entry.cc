@@ -89,6 +89,8 @@ constexpr char kLogTag[] = "native";
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
     reuse_engine_map;
 static std::mutex engine_mutex;
+static std::mutex log_mutex;
+static bool is_inited = false;
 
 constexpr int64_t kDefaultEngineId = -1;
 constexpr int64_t kDebuggerEngineId = -9999;
@@ -117,20 +119,26 @@ void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_log
     return;
   }
   std::shared_ptr<JavaRef> logger = std::make_shared<JavaRef>(j_env, j_logger);
-  tdf::base::LogMessage::InitializeDelegate([logger, j_method](
-                                         const std::ostringstream& stream,
-                                         tdf::base::LogSeverity severity) {
-    std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-    JNIEnv* j_env = instance->AttachCurrentThread();
+  {
+    std::lock_guard<std::mutex> lock(log_mutex);
+    if (!is_inited) {
+      tdf::base::LogMessage::InitializeDelegate([logger, j_method](
+          const std::ostringstream& stream,
+          tdf::base::LogSeverity severity) {
+        std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+        JNIEnv* j_env = instance->AttachCurrentThread();
 
-    std::string str = stream.str();
-    jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
-    jstring j_tag_str = j_env->NewStringUTF(kLogTag);
-    jint j_level = static_cast<jint>(severity);
-    j_env->CallVoidMethod(logger->GetObj(), j_method, j_level, j_tag_str, j_logger_str);
-    j_env->DeleteLocalRef(j_tag_str);
-    j_env->DeleteLocalRef(j_logger_str);
-  });
+        std::string str = stream.str();
+        jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
+        jstring j_tag_str = j_env->NewStringUTF(kLogTag);
+        jint j_level = static_cast<jint>(severity);
+        j_env->CallVoidMethod(logger->GetObj(), j_method, j_level, j_tag_str, j_logger_str);
+        j_env->DeleteLocalRef(j_tag_str);
+        j_env->DeleteLocalRef(j_logger_str);
+      });
+      is_inited = true;
+    }
+  }
 }
 
 bool RunScript(const std::shared_ptr<Runtime>& runtime,

@@ -58,19 +58,19 @@ public class DevServerHelper {
     return String.format(Locale.US, BUNDLE_URL_FORMAT, DEFAULT_BUNDLE_SCHEME, host, bundleName, devMode, hmr, jsMinify);
   }
 
-  public String createDebugURL(String host, String bundleName, String clientId) {
+  public String createDebugURL(String host, String componentName, String clientId) {
     String debugUrl = DEBUG_URL_PREFIX + "?" + DEBUG_URL_APPEND;
     if (mRemoteServerData.isValid()) {
       // remote debugging in non usb
       if (!TextUtils.isEmpty(mRemoteServerData.getWsUrl())) {
         // use the remoteServer ws url first
         debugUrl = mRemoteServerData.getWsUrl() + (mRemoteServerData.getWsUrl().contains("?") ? "&" : "?") + DEBUG_URL_APPEND;
-        return String.format(Locale.US, debugUrl, clientId, mRemoteServerData.getVersionId(), bundleName);
+        return String.format(Locale.US, debugUrl, clientId, mRemoteServerData.getVersionId(), componentName);
       }
       return String.format(Locale.US, debugUrl, mRemoteServerData.getHost(), clientId,
-        mRemoteServerData.getVersionId(), bundleName);
+        mRemoteServerData.getVersionId(), componentName);
     }
-    return String.format(Locale.US, debugUrl, host, clientId, "", bundleName);
+    return String.format(Locale.US, debugUrl, host, clientId, "", componentName);
   }
 
   public String getLiveReloadURL() {

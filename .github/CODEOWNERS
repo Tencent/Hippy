@@ -21,6 +21,15 @@
 /.husky/ @zoomchan-cxj
 /docker/ @medns
 /docs/ @zoomchan-cxj
+/package.json @zoomchan-cxj
+/package-lock.json @zoomchan-cxj
+/.nycrc @zoomchan-cxj
+/.npmignore @zoomchan-cxj
+/.editorconfig @zoomchan-cxj
+/.eslintignore @zoomchan-cxj
+/.npmignore @zoomchan-cxj
+/lerna.json @zoomchan-cxj
+/tsconfig.json @zoomchan-cxj
 
 /core/ @churchill-zhang @zoomchan-cxj
 /core/js/ @zoomchan-cxj

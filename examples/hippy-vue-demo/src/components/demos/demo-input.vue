@@ -12,9 +12,11 @@
       caret-color="yellow"
       underline-color-android="grey"
       placeholder-text-color="#40b883"
+      :editable="true"
       class="input"
       @click="stopPropagation"
       @keyboardWillShow="onKeyboardWillShow"
+      @keyboardWillHide="onKeyboardWillHide"
     >
     <div>
       <span>文本内容为：</span>
@@ -113,8 +115,11 @@ export default {
     clearTextContent() {
       this.text = '';
     },
+    onKeyboardWillHide() {
+      console.log('onKeyboardWillHide');
+    },
     onKeyboardWillShow(evt) {
-      console.log(evt);
+      console.log('onKeyboardWillShow', evt);
     },
     getChildNodes(childNodes) {
       return !Vue.Native ? Array.from(childNodes) : childNodes;
@@ -137,6 +142,7 @@ export default {
   flex: 1;
   align-items: center;
   flex-direction: column;
+  margin: 7px;
 }
 .demo-input .input {
   width: 300px;
