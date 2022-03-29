@@ -176,11 +176,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     }
 
     @HippyControllerProps(name = "overScrollEnabled", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = false)
-    public void setOverScrollEnable(HRW view, boolean flag) {
+    public void setOverScrollEnable(HRW viewWrapper, boolean flag) {
         if (flag) {
-            view.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+            viewWrapper.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
         } else {
-            view.setOverScrollMode(View.OVER_SCROLL_NEVER);
+            viewWrapper.setOverScrollMode(View.OVER_SCROLL_NEVER);
         }
     }
 
@@ -264,7 +264,10 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                     view.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            adapter.getHeaderEventHelper().onHeaderRefreshFinish();
+                            PullHeaderEventHelper helper = adapter.getHeaderEventHelper();
+                            if (helper != null) {
+                                helper.onHeaderRefreshFinish();
+                            }
                         }
                     }, time);
                 } else {
