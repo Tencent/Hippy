@@ -28,16 +28,21 @@ namespace devtools {
  */
 class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
  public:
-  DevtoolDataSource() {
-    tdf::devtools::DevtoolsConfig devtools_config;
-    devtools_config.framework = tdf::devtools::Framework::kHippy;
-    devtools_config.tunnel = tdf::devtools::Tunnel::kTcp;
-    devtools_service_ = std::make_shared<tdf::devtools::DevtoolsBackendService>(devtools_config);
-    all_services.push_back(devtools_service_);
-  }
+  explicit DevtoolDataSource();
   ~DevtoolDataSource() = default;
 
+  /**
+   * @brief 绑定调试的 DOM/Render
+   * @param dom_id DOM Manager id
+   * @param runtime_id Render Manager id
+   */
   void Bind(int32_t dom_id, int32_t runtime_id);
+
+  /**
+   * @brief 销毁调试实例
+   */
+  void Destroy();
+
   void SetRuntimeAdapterDebugMode(bool debug_mode);
 
 #ifdef OS_ANDROID
