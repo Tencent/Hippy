@@ -296,6 +296,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
         if (resultDrawable == null) {
             if (sourceType == SOURCE_TYPE_SRC) {
                 mSourceDrawable = null;
+                mUrlFetchState = IMAGE_UNLOAD;
                 if (mDefaultSourceDrawable != null) {
                     if (mContentDrawable == null) {
                         mContentDrawable = generateContentDrawable();
@@ -313,6 +314,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
             mContentDrawable = generateContentDrawable();
             if (sourceType == SOURCE_TYPE_SRC) {
                 mSourceDrawable = resultDrawable;
+                mUrlFetchState = IMAGE_LOADED;
                 handleGetImageSuccess();
             } else if (sourceType == SOURCE_TYPE_DEFAULT_SRC) {
                 mDefaultSourceDrawable = resultDrawable;
