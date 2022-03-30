@@ -159,10 +159,10 @@ public class RenderManager {
             return;
         }
         if (node.mParent != null && mControllerManager.hasView(id)) {
-            node.mParent.deleteView(node);
+            node.mParent.addDeleteChild(node);
             addUpdateNodeIfNeeded(node.mParent);
         } else if (TextUtils.equals(NodeProps.ROOT_NODE, node.getClassName())) {
-            node.deleteView(null);
+            addUpdateNodeIfNeeded(node);
         }
         deleteSelfFromParent(node);
     }
