@@ -1,4 +1,5 @@
 *.log
+renderer/flutter/example/ios/.symlinks/*
 .DS_Store
 .nyc_output
 .vscode
@@ -64,6 +65,7 @@ android/cmake-build-debug/*
 android/src/main/jni/cmake-build-debug/*
 
 dom/lib/*
+renderer/flutter/core/lib/*
 
 renderer/native/android/src/main/jni/lib/*
 

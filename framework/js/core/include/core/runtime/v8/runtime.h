@@ -22,12 +22,15 @@
 
 #pragma once
 
-#include <jni.h>
 #include <cstdint>
 
 #include <memory>
+
+#ifdef ANDROID_NATIVE_RENDER
 #include "jni/turbo_module_runtime.h"
 #include "jni/scoped_java_ref.h"
+#endif
+
 #ifdef ENABLE_INSPECTOR
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
@@ -87,6 +90,9 @@ class Runtime {
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<CtxValue> bridge_func_;
   int32_t id_;
+#ifdef ANDROID_NATIVE_RENDER
   std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
+#endif
+
   std::shared_ptr<Bridge> bridge_;
 };

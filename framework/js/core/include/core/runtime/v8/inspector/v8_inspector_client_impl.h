@@ -26,7 +26,6 @@
 
 #include "base/unicode_string_view.h"
 #include "core/core.h"
-#include "jni/scoped_java_ref.h"
 #include "v8_channel_impl.h"
 
 namespace hippy {

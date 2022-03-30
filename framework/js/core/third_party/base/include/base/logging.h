@@ -3,6 +3,7 @@
 #include <codecvt>
 #include <cassert>
 #include <sstream>
+#include <cassert>
 
 
 #include "log_level.h"

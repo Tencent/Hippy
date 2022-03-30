@@ -24,8 +24,6 @@
 
 #include <string>
 
-#include "jni/jni_env.h"
-
 namespace hippy::inspector {
 
 V8ChannelImpl::V8ChannelImpl(std::shared_ptr<Bridge> bridge)
