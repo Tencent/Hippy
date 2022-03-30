@@ -346,7 +346,6 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     >
       <MListView
         {...listViewProps}
-        scrollRenderAheadDistance={100}
         ref={listRef}
         className={(!showScrollIndicator && HIDE_SCROLLBAR_CLASS) || ''}
         dataSource={getDataSource()}
