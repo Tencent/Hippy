@@ -37,7 +37,7 @@
 #import "HippyDomNodeUtils.h"
 #import "HippyRenderContext.h"
 
-@class HippyExtAnimationViewParams, HippyShadowView;
+@class HippyAnimationViewParams, HippyShadowView;
 
 typedef void (^HippyViewUpdateCompletedBlock)(HippyUIManager *uiManager);
 
@@ -138,7 +138,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param params Animation params
  * @param block Completion block
  */
-- (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
+- (void)updateViewsFromParams:(NSArray<HippyAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 
 /**
  *  Manually update view props ,then flush block

@@ -20,10 +20,10 @@
  * limitations under the License.
  */
 
-#import "HippyExtAnimation.h"
+#import <Foundation/Foundation.h>
+#import "HippyAnimation.h"
 
-@interface HippyExtAnimationGroup : HippyExtAnimation
-
-@property (nonatomic, strong) NSArray<HippyExtAnimation *> *animations;
-@property (nonatomic, assign) BOOL virtualAnimation;
+@interface HippyAnimation (Group)
+@property (nonatomic, assign) BOOL bFollow;
+@property (nonatomic, assign) CFTimeInterval beginTime;
 @end

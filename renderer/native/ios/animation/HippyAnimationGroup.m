@@ -20,34 +20,34 @@
  * limitations under the License.
  */
 
-#import "HippyExtAnimationGroup.h"
+#import "HippyAnimationGroup.h"
 #import "HippyLog.h"
 #import <objc/runtime.h>
-#import "HippyExtAnimation+Group.h"
-#import "HippyExtAnimation+Value.h"
+#import "HippyAnimation+Group.h"
+#import "HippyAnimation+Value.h"
 
-@implementation HippyExtAnimationGroup
+@implementation HippyAnimationGroup
 
-- (void)setAnimations:(NSArray<HippyExtAnimation *> *)animations {
+- (void)setAnimations:(NSArray<HippyAnimation *> *)animations {
     _animations = animations;
     [self setupAnimation:animations];
 }
 
 - (double)startValue {
-    HippyExtAnimation *fist = [_animations firstObject];
+    HippyAnimation *fist = [_animations firstObject];
     return fist.startValue;
 }
 
 - (double)endValue {
-    HippyExtAnimation *last = [_animations lastObject];
+    HippyAnimation *last = [_animations lastObject];
     return last.endValue;
 }
 
-- (void)setupAnimation:(NSArray<HippyExtAnimation *> *)animations {
-    __block HippyExtAnimation *lastAnimation = nil;
+- (void)setupAnimation:(NSArray<HippyAnimation *> *)animations {
+    __block HippyAnimation *lastAnimation = nil;
     __block NSTimeInterval duration = 0;
 
-    [animations enumerateObjectsUsingBlock:^(HippyExtAnimation *ani, __unused NSUInteger idx, __unused BOOL *stop) {
+    [animations enumerateObjectsUsingBlock:^(HippyAnimation *ani, __unused NSUInteger idx, __unused BOOL *stop) {
         if (lastAnimation) {
             if (ani.bFollow) {
                 duration += ani.duration + ani.delay;
@@ -73,8 +73,8 @@
 
 - (CAAnimation *)animationOfView:(UIView *)view forProp:(NSString *)prop {
     NSMutableArray *ca_animations = [NSMutableArray arrayWithCapacity:_animations.count];
-    __block HippyExtAnimation *firstAnimaiton = nil;
-    [_animations enumerateObjectsUsingBlock:^(HippyExtAnimation *ani, __unused NSUInteger idx, __unused BOOL *_Nonnull stop) {
+    __block HippyAnimation *firstAnimaiton = nil;
+    [_animations enumerateObjectsUsingBlock:^(HippyAnimation *ani, __unused NSUInteger idx, __unused BOOL *_Nonnull stop) {
         CABasicAnimation *ca_ani = (CABasicAnimation *)[ani animationOfView:view forProp:prop];
         if (ca_ani) {
             [ca_ani setValue:ani.animationId forKey:@"animationID"];
@@ -116,7 +116,7 @@
 
 @end
 
-@implementation HippyExtAnimation (Group)
+@implementation HippyAnimation (Group)
 
 - (void)setBeginTime:(NSTimeInterval)beginTime {
     objc_setAssociatedObject(self, @selector(beginTime), @(beginTime), OBJC_ASSOCIATION_RETAIN_NONATOMIC);

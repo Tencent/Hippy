@@ -21,24 +21,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyExtAnimation.h"
+#import "HippyInvalidating.h"
+#import "HippyBridgeModule.h"
 
-@class HippyBridge;
-
-@interface HippyExtAnimationViewParams : NSObject
-@property (nonatomic, strong) NSDictionary *originParams;
-@property (nonatomic, readonly) NSDictionary *updateParams;
-@property (nonatomic, readonly) NSNumber *hippyTag;
-@property (nonatomic, readonly) NSNumber *rootTag;
-@property (nonatomic, assign) HippyExtAnimationValueType valueType;
-
-@property (nonatomic, readonly) NSDictionary<NSString *, NSNumber *> *animationIdWithPropDictionary;
-
-- (void)parse;
-
-- (instancetype)initWithParams:(NSDictionary *)params bridge:(HippyBridge *)animation viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag;
-
-- (void)setValue:(id)value forProp:(NSString *)prop;
-- (id)valueForProp:(NSString *)prop;
-
+@interface HippyAnimationModule : NSObject <HippyBridgeModule, HippyInvalidating>
 @end

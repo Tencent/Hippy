@@ -20,10 +20,10 @@
  * limitations under the License.
  */
 
-#import "HippyExtAnimation+Value.h"
+#import "HippyAnimation+Value.h"
 #import <objc/runtime.h>
 
-@implementation HippyExtAnimation (Value)
+@implementation HippyAnimation (Value)
 
 - (void)setFromValue:(id)fromValue {
     objc_setAssociatedObject(self, @selector(fromValue), fromValue, OBJC_ASSOCIATION_RETAIN_NONATOMIC);

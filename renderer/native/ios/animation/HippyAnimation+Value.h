@@ -20,13 +20,15 @@
  * limitations under the License.
  */
 
-#import "UIView+HippyAnimationProtocol.h"
+#import <Foundation/Foundation.h>
 #import "HippyAnimation.h"
+#import <UIKit/UIKit.h>
 
-@implementation UIView (HippyAnimationProtocol)
+@interface HippyAnimation (Value)
 
-- (CAAnimation *)animation:(HippyAnimation *)animation keyPath:(NSString *)keyPath {
-    return nil;
-}
+@property (nonatomic, strong) id fromValue;
+@property (nonatomic, strong) id toValue;
+@property (nonatomic, strong) id byValue;
 
+- (void)calcValueWithCenter:(CGPoint)center forProp:(NSString *)prop;
 @end

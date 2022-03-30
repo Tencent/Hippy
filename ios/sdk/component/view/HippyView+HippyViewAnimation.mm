@@ -22,12 +22,12 @@
 
 
 #import "HippyView+HippyViewAnimation.h"
-#import "HippyExtAnimation.h"
+#import "HippyAnimation.h"
 #import "HippyConvert.h"
 
 @implementation HippyView (HippyViewAnimation)
 
-- (CAAnimation *)animation:(HippyExtAnimation *)animation keyPath:(NSString *)keyPath {
+- (CAAnimation *)animation:(HippyAnimation *)animation keyPath:(NSString *)keyPath {
     if ([keyPath isEqualToString:@"backgroundColor"]) {
         __block id fromValue = nil;
         __block id toValue = nil;

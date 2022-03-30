@@ -41,8 +41,8 @@
 #import "HippyView.h"
 #import "HippyViewManager.h"
 #import "UIView+Hippy.h"
-#import "HippyExtAnimationViewParams.h"
-#import "HippyExtAnimationModule.h"
+#import "HippyAnimationViewParams.h"
+#import "HippyAnimator.h"
 #import "UIView+Private.h"
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
@@ -536,7 +536,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
         id isAnimated = props[@"useAnimation"];
         if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
-            HippyExtAnimationModule *animationModule = self.bridge.animationModule;
+            HippyAnimator *animationModule = self.bridge.animationModule;
             props = [animationModule bindAnimaiton:props viewTag: hippyTag rootTag: _rootViewTag];
             shadowView.animated = [(NSNumber *)isAnimated boolValue];
         } else {
@@ -600,8 +600,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     return view;
 }
 
-- (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block {
-    for (HippyExtAnimationViewParams *param in params) {
+- (void)updateViewsFromParams:(NSArray<HippyAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block {
+    for (HippyAnimationViewParams *param in params) {
         [self updateView:param.hippyTag viewName:nil props:param.updateParams];
         if (block) {
             [[self completeBlocks] addObject:block];
@@ -620,7 +620,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName ? : viewName];
     id isAnimated = props[@"useAnimation"];
     if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
-        HippyExtAnimationModule *animationModule = self.bridge.animationModule;
+        HippyAnimator *animationModule = self.bridge.animationModule;
         props = [animationModule bindAnimaiton:props viewTag:hippyTag rootTag: shadowView.rootTag];
         shadowView.animated = [(NSNumber *)isAnimated boolValue];;
     } else {
@@ -945,7 +945,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (shadowView) {
             if (isAnimated) {
                 //TODO 动画需要剥离bridge
-                HippyExtAnimationModule *animationModule = self.bridge.animationModule;
+                HippyAnimator *animationModule = self.bridge.animationModule;
                 NSDictionary *styleProps = unorderedMapDomValueToDictionary(props);
                 styleProps = [animationModule bindAnimaiton:styleProps viewTag:hippyTag rootTag:shadowView.rootTag];
                 shadowView.animated = isAnimated;

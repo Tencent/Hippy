@@ -23,30 +23,30 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
-@class HippyExtAnimation;
+@class HippyAnimation;
 
-typedef NS_ENUM(NSInteger, HippyExtAnimationValueType) {
-    HippyExtAnimationValueTypeNone,
-    HippyExtAnimationValueTypeRad,
-    HippyExtAnimationValueTypeDeg,
-    HippyExtAnimationValueTypeColor,
+typedef NS_ENUM(NSInteger, HippyAnimationValueType) {
+    HippyAnimationValueTypeNone,
+    HippyAnimationValueTypeRad,
+    HippyAnimationValueTypeDeg,
+    HippyAnimationValueTypeColor,
 };
 
-typedef NS_ENUM(NSInteger, HippyExtAnimationDirection) {
-    HippyExtAnimationDirectionCenter,
-    HippyExtAnimationDirectionLeft,
-    HippyExtAnimationDirectionTop,
-    HippyExtAnimationDirectionBottom,
-    HippyExtAnimationDirectionRight
+typedef NS_ENUM(NSInteger, HippyAnimationDirection) {
+    HippyAnimationDirectionCenter,
+    HippyAnimationDirectionLeft,
+    HippyAnimationDirectionTop,
+    HippyAnimationDirectionBottom,
+    HippyAnimationDirectionRight
 };
-typedef NS_ENUM(NSInteger, HippyExtAnimationState) {
-    HippyExtAnimationInitState,
-    HippyExtAnimationReadyState,
-    HippyExtAnimationStartedState,
-    HippyExtAnimationFinishState
+typedef NS_ENUM(NSInteger, HippyAnimationState) {
+    HippyAnimationInitState,
+    HippyAnimationReadyState,
+    HippyAnimationStartedState,
+    HippyAnimationFinishState
 };
 
-@interface HippyExtAnimation : NSObject <CAAnimationDelegate>
+@interface HippyAnimation : NSObject <CAAnimationDelegate>
 
 @property (nonatomic, assign) double startValue;
 @property (nonatomic, assign) double endValue;
@@ -55,10 +55,10 @@ typedef NS_ENUM(NSInteger, HippyExtAnimationState) {
 @property (nonatomic, strong, readonly) NSNumber *animationId;
 @property (nonatomic, assign) NSTimeInterval duration;
 @property (nonatomic, strong, readonly) CAMediaTimingFunction *timingFunction;
-@property (nonatomic, assign, readonly) HippyExtAnimationValueType valueType;
-@property (nonatomic, assign, readonly) HippyExtAnimationDirection directionType;
+@property (nonatomic, assign, readonly) HippyAnimationValueType valueType;
+@property (nonatomic, assign, readonly) HippyAnimationDirection directionType;
 @property (nonatomic, copy) NSNumber *parentAnimationId;
-@property (nonatomic, assign) HippyExtAnimationState state;
+@property (nonatomic, assign) HippyAnimationState state;
 
 - (void)updateAnimation:(NSDictionary *)config;
 

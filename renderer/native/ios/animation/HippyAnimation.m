@@ -20,13 +20,13 @@
  * limitations under the License.
  */
 
-#import "HippyExtAnimation.h"
-#import "HippyExtAnimation+Group.h"
-#import "HippyExtAnimation+Value.h"
+#import "HippyAnimation.h"
+#import "HippyAnimation+Group.h"
+#import "HippyAnimation+Value.h"
 #import "HippyAssert.h"
 #import "UIView+HippyAnimationProtocol.h"
 
-@implementation HippyExtAnimation
+@implementation HippyAnimation
 
 + (NSDictionary *)animationKeyMap {
     static NSDictionary *animationMap = nil;
@@ -69,7 +69,7 @@
 
 - (instancetype)initWithMode:(NSString *)mode animationId:(NSNumber *)animationID config:(NSDictionary *)config {
     if (self = [super init]) {
-        _state = HippyExtAnimationInitState;
+        _state = HippyAnimationInitState;
         _animationId = animationID;
         _duration = [config[@"duration"] doubleValue] / 1000;
         _delay = [config[@"delay"] doubleValue] / 1000;
@@ -80,23 +80,23 @@
 
         NSString *valueTypeStr = config[@"valueType"];
         // value type
-        _valueType = HippyExtAnimationValueTypeNone;
+        _valueType = HippyAnimationValueTypeNone;
         if ([valueTypeStr isEqualToString:@"deg"]) {
-            _valueType = HippyExtAnimationValueTypeDeg;
+            _valueType = HippyAnimationValueTypeDeg;
         } else if ([valueTypeStr isEqualToString:@"rad"]) {
-            _valueType = HippyExtAnimationValueTypeRad;
+            _valueType = HippyAnimationValueTypeRad;
         }
 
         NSString *directionTypeStr = config[@"direction"];
-        _directionType = HippyExtAnimationDirectionCenter;
+        _directionType = HippyAnimationDirectionCenter;
         if ([directionTypeStr isEqualToString:@"left"]) {
-            _directionType = HippyExtAnimationDirectionLeft;
+            _directionType = HippyAnimationDirectionLeft;
         } else if ([directionTypeStr isEqualToString:@"right"]) {
-            _directionType = HippyExtAnimationDirectionRight;
+            _directionType = HippyAnimationDirectionRight;
         } else if ([directionTypeStr isEqualToString:@"bottom"]) {
-            _directionType = HippyExtAnimationDirectionBottom;
+            _directionType = HippyAnimationDirectionBottom;
         } else if ([directionTypeStr isEqualToString:@"top"]) {
-            _directionType = HippyExtAnimationDirectionTop;
+            _directionType = HippyAnimationDirectionTop;
         }
 
         // timing function
@@ -116,25 +116,25 @@
     NSString *valueTypeStr = config[@"valueType"];
     // value type
     if (valueTypeStr) {
-        _valueType = HippyExtAnimationValueTypeNone;
+        _valueType = HippyAnimationValueTypeNone;
         if ([valueTypeStr isEqualToString:@"deg"]) {
-            _valueType = HippyExtAnimationValueTypeDeg;
+            _valueType = HippyAnimationValueTypeDeg;
         } else if ([valueTypeStr isEqualToString:@"rad"]) {
-            _valueType = HippyExtAnimationValueTypeRad;
+            _valueType = HippyAnimationValueTypeRad;
         }
     }
 
     if (config[@"direction"]) {
         NSString *directionTypeStr = config[@"direction"];
-        _directionType = HippyExtAnimationDirectionCenter;
+        _directionType = HippyAnimationDirectionCenter;
         if ([directionTypeStr isEqualToString:@"left"]) {
-            _directionType = HippyExtAnimationDirectionLeft;
+            _directionType = HippyAnimationDirectionLeft;
         } else if ([directionTypeStr isEqualToString:@"right"]) {
-            _directionType = HippyExtAnimationDirectionRight;
+            _directionType = HippyAnimationDirectionRight;
         } else if ([directionTypeStr isEqualToString:@"bottom"]) {
-            _directionType = HippyExtAnimationDirectionBottom;
+            _directionType = HippyAnimationDirectionBottom;
         } else if ([directionTypeStr isEqualToString:@"top"]) {
-            _directionType = HippyExtAnimationDirectionTop;
+            _directionType = HippyAnimationDirectionTop;
         }
     }
 
@@ -186,7 +186,7 @@
     CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:animationKey];
 
     if ([animationKey hasPrefix:@"transform"]) {
-        if (_valueType == HippyExtAnimationValueTypeDeg) {
+        if (_valueType == HippyAnimationValueTypeDeg) {
             self.fromValue = @(_startValue * M_PI / 180);
             self.toValue = @(_endValue * M_PI / 180);
         } else {
@@ -197,10 +197,10 @@
         [self calcValueWithCenter:view.center forProp:prop];
     } else if ([animationKey isEqualToString:@"bounds.size.width"]) {
         CGPoint position = view.layer.position;
-        if (_directionType == HippyExtAnimationDirectionLeft) {
+        if (_directionType == HippyAnimationDirectionLeft) {
             view.layer.anchorPoint = CGPointMake(0, .5);
             view.layer.position = CGPointMake(position.x - CGRectGetWidth(view.frame) / 2, position.y);
-        } else if (_directionType == HippyExtAnimationDirectionRight) {
+        } else if (_directionType == HippyAnimationDirectionRight) {
             view.layer.anchorPoint = CGPointMake(1, .5);
             view.layer.position = CGPointMake(position.x + CGRectGetWidth(view.frame) / 2, position.y);
         } else {
@@ -210,10 +210,10 @@
         self.toValue = @(_endValue);
     } else if ([animationKey isEqualToString:@"bounds.size.height"]) {
         CGPoint position = view.layer.position;
-        if (_directionType == HippyExtAnimationDirectionTop) {
+        if (_directionType == HippyAnimationDirectionTop) {
             view.layer.position = CGPointMake(position.x, position.y - CGRectGetHeight(view.frame) / 2);
             view.layer.anchorPoint = CGPointMake(0.5, 0);
-        } else if (_directionType == HippyExtAnimationDirectionBottom) {
+        } else if (_directionType == HippyAnimationDirectionBottom) {
             view.layer.position = CGPointMake(position.x, position.y + CGRectGetHeight(view.frame) / 2);
             view.layer.anchorPoint = CGPointMake(.5, 1);
         } else
