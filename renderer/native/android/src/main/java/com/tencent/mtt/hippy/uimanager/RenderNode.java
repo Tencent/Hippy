@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -68,7 +69,9 @@ public class RenderNode {
     @Nullable
     protected Object mExtra;
     @Nullable
-    protected List<RenderNode> mMoveNodes = null;
+    protected List<RenderNode> mMoveNodes;
+    @Nullable
+    protected SparseArray<Integer> mDeletedChildren;
 
     public RenderNode(int id, @NonNull String className,
             @NonNull ControllerManager componentManager) {
@@ -143,15 +146,6 @@ public class RenderNode {
         return 0;
     }
 
-    public void deleteView(@Nullable RenderNode child) {
-        if (mClassName.equals(NodeProps.ROOT_NODE)) {
-            mComponentManager.deleteRootView(mId);
-        } else if (child != null && child.hasView()) {
-            mComponentManager
-                    .deleteChild(mId, child.getId(), mChildren.indexOf(child));
-        }
-    }
-
     public View createViewRecursive() {
         View view = createView();
         setNodeFlag(FLAG_UPDATE_LAYOUT | FLAG_UPDATE_EVENT | FLAG_UPDATE_EXTRA);
@@ -203,6 +197,18 @@ public class RenderNode {
         }
     }
 
+    public void addDeleteChild(@NonNull RenderNode node) {
+        if (node.hasView()) {
+            if (mDeletedChildren == null) {
+                mDeletedChildren = new SparseArray<>();
+            }
+            int index = mChildren.indexOf(node);
+            if (index >= 0) {
+                mDeletedChildren.put(node.getId(), mChildren.indexOf(node));
+            }
+        }
+    }
+
     @Nullable
     public RenderNode getChildAt(int index) {
         try {
@@ -217,8 +223,25 @@ public class RenderNode {
         return mChildren.size();
     }
 
+    public void deleteSubviewIfNeeded() {
+        if (mClassName.equals(NodeProps.ROOT_NODE) && checkNodeFlag(FLAG_ALREADY_DELETED)) {
+            mComponentManager.deleteRootView(mId);
+            return;
+        }
+        if (mDeletedChildren == null) {
+            return;
+        }
+        for (int i = 0; i < mDeletedChildren.size(); i++) {
+            int key = mDeletedChildren.keyAt(i);
+            mComponentManager
+                    .deleteChild(mId, mDeletedChildren.keyAt(i), mDeletedChildren.get(key));
+        }
+        mDeletedChildren.clear();
+    }
+
     @Nullable
     public View createView() {
+        deleteSubviewIfNeeded();
         if (shouldCreateView() && !TextUtils.equals(NodeProps.ROOT_NODE, mClassName)
                 && mParent != null) {
             mPropsToUpdate = getProps();
