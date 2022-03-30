@@ -1,0 +1,41 @@
+name: tencent_voltron_render
+description: A flutter plugin project to render hippy page.
+homepage:
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.0.5
+  benchmark_harness: ^2.0.0
+  dio: ^4.0.0
+  sqflite: ^2.0.0+3
+  dio_cookie_manager: ^2.0.0
+  cookie_jar: ^3.0.1
+  pull_to_refresh: ^2.0.0
+  web_socket_channel: ^2.0.0
+  system_proxy: ^0.1.0
+  voltron_renderer:
+    path: ../../../renderer/flutter/
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.tencent.flutter_render
+        pluginClass: FlutterRenderPlugin
+      ios:
+        pluginClass: FlutterRenderPlugin
+      macos:
+        pluginClass: TencentVoltronRenderPlugin
+      windows:
+        pluginClass: TencentVoltronRenderPlugin
+

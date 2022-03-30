@@ -1,0 +1,1379 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3EFB2B0525ABF1B4001995EF /* libc++.1.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EFB2B0425ABF1AD001995EF /* libc++.1.tbd */; };
+		3EFB2B0D25ABF32D001995EF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EFB2B0C25ABF32D001995EF /* CoreFoundation.framework */; };
+		3EFB2B0F25ABF333001995EF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EFB2B0E25ABF333001995EF /* Foundation.framework */; };
+		3EFE7C4625AD7EB400BAC367 /* RenderCoreInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 3EFE7C4425AD7EB400BAC367 /* RenderCoreInterface.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3EFE7C4725AD7EB400BAC367 /* RenderCoreInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EFE7C4525AD7EB400BAC367 /* RenderCoreInterface.m */; };
+		4CA09B7925A9D83000D6DBBF /* RenderCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CA09B7725A9D83000D6DBBF /* RenderCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		ADC1311A26DCF39600442DD5 /* code-cache-runnable.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1310326DCF39600442DD5 /* code-cache-runnable.h */; };
+		ADC1311B26DCF39600442DD5 /* bridge_runtime.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1310526DCF39600442DD5 /* bridge_runtime.h */; };
+		ADC1311C26DCF39600442DD5 /* code-cache-runnable.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1310626DCF39600442DD5 /* code-cache-runnable.h */; };
+		ADC1311D26DCF39600442DD5 /* string_util.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1310726DCF39600442DD5 /* string_util.h */; };
+		ADC1311E26DCF39600442DD5 /* bridge_extension.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1310826DCF39600442DD5 /* bridge_extension.h */; };
+		ADC1311F26DCF39600442DD5 /* common_header.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1310926DCF39600442DD5 /* common_header.h */; };
+		ADC1312626DCF39600442DD5 /* logging-impl.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1311226DCF39600442DD5 /* logging-impl.h */; };
+		ADC1312726DCF39600442DD5 /* bridge_ffi_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1311326DCF39600442DD5 /* bridge_ffi_impl.h */; };
+		ADC1312826DCF39600442DD5 /* common_header.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1311426DCF39600442DD5 /* common_header.h */; };
+		ADC1312926DCF39600442DD5 /* logging.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1311526DCF39600442DD5 /* logging.h */; };
+		ADC1312A26DCF39600442DD5 /* callback_manager.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1311626DCF39600442DD5 /* callback_manager.h */; };
+		ADC1312B26DCF39600442DD5 /* bridge_define.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1311726DCF39600442DD5 /* bridge_define.h */; };
+		ADC1312C26DCF39600442DD5 /* ffi_platform_runtime.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1311826DCF39600442DD5 /* ffi_platform_runtime.h */; };
+		ADC1315C26DCF3A300442DD5 /* bridge_extension.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1313226DCF3A300442DD5 /* bridge_extension.cc */; };
+		ADC1315D26DCF3A300442DD5 /* VoltronDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1313426DCF3A300442DD5 /* VoltronDefines.h */; };
+		ADC1315E26DCF3A300442DD5 /* VoltronInvalidating.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1313526DCF3A300442DD5 /* VoltronInvalidating.h */; };
+		ADC1315F26DCF3A300442DD5 /* bridge_impl_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADC1313626DCF3A300442DD5 /* bridge_impl_ios.mm */; };
+		ADC1316026DCF3A300442DD5 /* VoltronFlutterBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1313726DCF3A300442DD5 /* VoltronFlutterBridge.h */; };
+		ADC1316126DCF3A300442DD5 /* VoltronFlutterBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADC1313826DCF3A300442DD5 /* VoltronFlutterBridge.mm */; };
+		ADC1316226DCF3A300442DD5 /* VoltronJSCWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1313926DCF3A300442DD5 /* VoltronJSCWrapper.h */; };
+		ADC1316326DCF3A300442DD5 /* VoltronJSCWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADC1313A26DCF3A300442DD5 /* VoltronJSCWrapper.mm */; };
+		ADC1316426DCF3A300442DD5 /* bridge_impl_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1313B26DCF3A300442DD5 /* bridge_impl_ios.h */; };
+		ADC1316526DCF3A300442DD5 /* VoltronJSCExecutor.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1313C26DCF3A300442DD5 /* VoltronJSCExecutor.h */; };
+		ADC1316626DCF3A300442DD5 /* VoltronUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = ADC1313E26DCF3A300442DD5 /* VoltronUtils.m */; };
+		ADC1316726DCF3A300442DD5 /* VoltronLog.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1313F26DCF3A300442DD5 /* VoltronLog.h */; };
+		ADC1316826DCF3A300442DD5 /* VoltronLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADC1314026DCF3A300442DD5 /* VoltronLog.mm */; };
+		ADC1316926DCF3A300442DD5 /* VoltronJSStackFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1314126DCF3A300442DD5 /* VoltronJSStackFrame.h */; };
+		ADC1316A26DCF3A300442DD5 /* VoltronPerformanceLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = ADC1314226DCF3A300442DD5 /* VoltronPerformanceLogger.m */; };
+		ADC1316B26DCF3A300442DD5 /* VoltronUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1314326DCF3A300442DD5 /* VoltronUtils.h */; };
+		ADC1316C26DCF3A300442DD5 /* VoltronJSStackFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = ADC1314426DCF3A300442DD5 /* VoltronJSStackFrame.m */; };
+		ADC1316D26DCF3A300442DD5 /* VoltronPerformanceLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1314526DCF3A300442DD5 /* VoltronPerformanceLogger.h */; };
+		ADC1316E26DCF3A300442DD5 /* VoltronJSCExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADC1314626DCF3A300442DD5 /* VoltronJSCExecutor.mm */; };
+		ADC1316F26DCF3A300442DD5 /* VoltronJSEnginesMapper.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1314726DCF3A300442DD5 /* VoltronJSEnginesMapper.h */; };
+		ADC1317026DCF3A300442DD5 /* VoltronJSEnginesMapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = ADC1314826DCF3A300442DD5 /* VoltronJSEnginesMapper.mm */; };
+		ADC1317126DCF3A300442DD5 /* VoltronJavaScriptExecutor.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1314926DCF3A300442DD5 /* VoltronJavaScriptExecutor.h */; };
+		ADC1317226DCF3A300442DD5 /* code-cache-runnable.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1314A26DCF3A300442DD5 /* code-cache-runnable.cc */; };
+		ADC1317926DCF3A300442DD5 /* string_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1315226DCF3A300442DD5 /* string_util.cc */; };
+		ADC1317A26DCF3A300442DD5 /* bridge_runtime.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1315326DCF3A300442DD5 /* bridge_runtime.cc */; };
+		ADC1317B26DCF3A300442DD5 /* logging-impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1315526DCF3A300442DD5 /* logging-impl.cc */; };
+		ADC1317C26DCF3A300442DD5 /* bridge_define.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1315626DCF3A300442DD5 /* bridge_define.cc */; };
+		ADC1317D26DCF3A300442DD5 /* ffi_platform_runtime.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1315726DCF3A300442DD5 /* ffi_platform_runtime.cc */; };
+		ADC1317E26DCF3A300442DD5 /* bridge_ffi_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1315826DCF3A300442DD5 /* bridge_ffi_impl.cc */; };
+		ADC1317F26DCF3A300442DD5 /* callback_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1315926DCF3A300442DD5 /* callback_manager.cc */; };
+		ADC1318126DCF3A300442DD5 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1315B26DCF3A300442DD5 /* logging.cc */; };
+		ADC1323426DCF3B000442DD5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = ADC1318A26DCF3AF00442DD5 /* README.md */; };
+		ADC1323626DCF3B000442DD5 /* flexbox.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1318E26DCF3AF00442DD5 /* flexbox.h */; };
+		ADC1324126DCF3B000442DD5 /* FlexNodeStyleFfiBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131A526DCF3AF00442DD5 /* FlexNodeStyleFfiBridge.h */; };
+		ADC1324226DCF3B000442DD5 /* FlexNodeFfi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131A626DCF3AF00442DD5 /* FlexNodeFfi.cpp */; };
+		ADC1324326DCF3B000442DD5 /* TaitankNodeFfi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131A726DCF3AF00442DD5 /* TaitankNodeFfi.cpp */; };
+		ADC1324426DCF3B000442DD5 /* FlexStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131A826DCF3AF00442DD5 /* FlexStyle.h */; };
+		ADC1324526DCF3B000442DD5 /* FlexNodeStyleFfiBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131A926DCF3AF00442DD5 /* FlexNodeStyleFfiBridge.cpp */; };
+		ADC1324626DCF3B000442DD5 /* FlexNodeFfiBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131AA26DCF3AF00442DD5 /* FlexNodeFfiBridge.h */; };
+		ADC1324726DCF3B000442DD5 /* TaitankNodeStyleFfi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131AB26DCF3AF00442DD5 /* TaitankNodeStyleFfi.cpp */; };
+		ADC1324826DCF3B000442DD5 /* FlexNodeFfi.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131AC26DCF3AF00442DD5 /* FlexNodeFfi.h */; };
+		ADC1324926DCF3B000442DD5 /* TaitankNodeStyleFfi.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131AD26DCF3AF00442DD5 /* TaitankNodeStyleFfi.h */; };
+		ADC1324A26DCF3B000442DD5 /* FlexNodeStyleFfi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131AE26DCF3AF00442DD5 /* FlexNodeStyleFfi.cpp */; };
+		ADC1324B26DCF3B000442DD5 /* FlexNode.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131AF26DCF3AF00442DD5 /* FlexNode.h */; };
+		ADC1324C26DCF3B000442DD5 /* FlexNodeFfiBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131B026DCF3AF00442DD5 /* FlexNodeFfiBridge.cpp */; };
+		ADC1324D26DCF3B000442DD5 /* FlexNodeStyleFfi.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131B126DCF3AF00442DD5 /* FlexNodeStyleFfi.h */; };
+		ADC1324E26DCF3B000442DD5 /* FlexNodeFfiUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131B226DCF3AF00442DD5 /* FlexNodeFfiUtil.h */; };
+		ADC1324F26DCF3B000442DD5 /* TaitankNodeFfi.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131B326DCF3AF00442DD5 /* TaitankNodeFfi.h */; };
+		ADC1325026DCF3B000442DD5 /* HPStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131B526DCF3AF00442DD5 /* HPStyle.cpp */; };
+		ADC1325126DCF3B000442DD5 /* FlexLine.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131B626DCF3AF00442DD5 /* FlexLine.h */; };
+		ADC1325226DCF3B000442DD5 /* HPUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131B726DCF3AF00442DD5 /* HPUtil.cpp */; };
+		ADC1325326DCF3B000442DD5 /* HPNode.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131B826DCF3AF00442DD5 /* HPNode.h */; };
+		ADC1325426DCF3B000442DD5 /* Flex.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131B926DCF3AF00442DD5 /* Flex.h */; };
+		ADC1325526DCF3B000442DD5 /* HPNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131BA26DCF3AF00442DD5 /* HPNode.cpp */; };
+		ADC1325626DCF3B000442DD5 /* Hippy.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131BB26DCF3AF00442DD5 /* Hippy.h */; };
+		ADC1325726DCF3B000442DD5 /* FlexLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131BC26DCF3AF00442DD5 /* FlexLine.cpp */; };
+		ADC1325826DCF3B000442DD5 /* Hippy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131BD26DCF3AF00442DD5 /* Hippy.cpp */; };
+		ADC1325926DCF3B000442DD5 /* HPLayoutCache.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131BE26DCF3AF00442DD5 /* HPLayoutCache.h */; };
+		ADC1325A26DCF3B000442DD5 /* HPLayoutCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ADC131BF26DCF3AF00442DD5 /* HPLayoutCache.cpp */; };
+		ADC1325B26DCF3B000442DD5 /* HPUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131C026DCF3AF00442DD5 /* HPUtil.h */; };
+		ADC1325C26DCF3B000442DD5 /* HPStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131C126DCF3AF00442DD5 /* HPStyle.h */; };
+		ADC1325D26DCF3B000442DD5 /* taitank_style.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131C326DCF3AF00442DD5 /* taitank_style.h */; };
+		ADC1325E26DCF3B000442DD5 /* taitank_flexline.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131C426DCF3AF00442DD5 /* taitank_flexline.h */; };
+		ADC1325F26DCF3B000442DD5 /* taitank_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131C526DCF3AF00442DD5 /* taitank_node.cc */; };
+		ADC1326026DCF3B000442DD5 /* taitank_util.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131C626DCF3AF00442DD5 /* taitank_util.h */; };
+		ADC1326126DCF3B000442DD5 /* taitank.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131C726DCF3AF00442DD5 /* taitank.h */; };
+		ADC1326226DCF3B000442DD5 /* taitank_cache.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131C826DCF3AF00442DD5 /* taitank_cache.h */; };
+		ADC1326326DCF3B000442DD5 /* taitank_node.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131C926DCF3AF00442DD5 /* taitank_node.h */; };
+		ADC1326426DCF3B000442DD5 /* taitank_style.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131CA26DCF3AF00442DD5 /* taitank_style.cc */; };
+		ADC1326526DCF3B000442DD5 /* taitank_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131CB26DCF3AF00442DD5 /* taitank_util.cc */; };
+		ADC1326626DCF3B000442DD5 /* taitank_cache.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131CC26DCF3AF00442DD5 /* taitank_cache.cc */; };
+		ADC1326726DCF3B000442DD5 /* taitank_flex.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131CD26DCF3AF00442DD5 /* taitank_flex.h */; };
+		ADC1326826DCF3B000442DD5 /* taitank_flexline.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131CE26DCF3AF00442DD5 /* taitank_flexline.cc */; };
+		ADC1326926DCF3B000442DD5 /* taitank.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131CF26DCF3AF00442DD5 /* taitank.cc */; };
+		ADC1326A26DCF3B000442DD5 /* engine.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131D326DCF3AF00442DD5 /* engine.h */; };
+		ADC1326B26DCF3B000442DD5 /* core.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131D426DCF3AF00442DD5 /* core.h */; };
+		ADC1326C26DCF3B000442DD5 /* javascript_task.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131D626DCF3AF00442DD5 /* javascript_task.h */; };
+		ADC1326D26DCF3B000442DD5 /* worker_task_runner.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131D726DCF3AF00442DD5 /* worker_task_runner.h */; };
+		ADC1326E26DCF3B000442DD5 /* common_task.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131D826DCF3AF00442DD5 /* common_task.h */; };
+		ADC1326F26DCF3B000442DD5 /* javascript_task_runner.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131D926DCF3AF00442DD5 /* javascript_task_runner.h */; };
+		ADC1327026DCF3B000442DD5 /* module_register.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131DB26DCF3AF00442DD5 /* module_register.h */; };
+		ADC1327126DCF3B000442DD5 /* console_module.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131DC26DCF3AF00442DD5 /* console_module.h */; };
+		ADC1327226DCF3B000442DD5 /* timer_module.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131DD26DCF3AF00442DD5 /* timer_module.h */; };
+		ADC1327326DCF3B000442DD5 /* module_base.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131DE26DCF3AF00442DD5 /* module_base.h */; };
+		ADC1327426DCF3B000442DD5 /* contextify_module.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131DF26DCF3AF00442DD5 /* contextify_module.h */; };
+		ADC1327526DCF3B000442DD5 /* scope.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E026DCF3AF00442DD5 /* scope.h */; };
+		ADC1327626DCF3B000442DD5 /* js_value_wrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E226DCF3AF00442DD5 /* js_value_wrapper.h */; };
+		ADC1327726DCF3B000442DD5 /* uri_loader.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E326DCF3AF00442DD5 /* uri_loader.h */; };
+		ADC1327826DCF3B000442DD5 /* task.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E426DCF3AF00442DD5 /* task.h */; };
+		ADC1327926DCF3B000442DD5 /* string_view_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E526DCF3AF00442DD5 /* string_view_utils.h */; };
+		ADC1327A26DCF3B000442DD5 /* file.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E626DCF3AF00442DD5 /* file.h */; };
+		ADC1327B26DCF3B000442DD5 /* task_runner.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E726DCF3AF00442DD5 /* task_runner.h */; };
+		ADC1327C26DCF3B000442DD5 /* thread.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E826DCF3AF00442DD5 /* thread.h */; };
+		ADC1327D26DCF3B000442DD5 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131E926DCF3AF00442DD5 /* common.h */; };
+		ADC1327E26DCF3B000442DD5 /* macros.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131EA26DCF3AF00442DD5 /* macros.h */; };
+		ADC1327F26DCF3B000442DD5 /* thread_id.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131EB26DCF3AF00442DD5 /* thread_id.h */; };
+		ADC1328026DCF3B000442DD5 /* base_time.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131EC26DCF3AF00442DD5 /* base_time.h */; };
+		ADC1328126DCF3B000442DD5 /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131ED26DCF3AF00442DD5 /* hash.h */; };
+		ADC1328326DCF3B000442DD5 /* callback_info.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131F126DCF3AF00442DD5 /* callback_info.h */; };
+		ADC1328426DCF3B000442DD5 /* js_native_api_types.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131F226DCF3AF00442DD5 /* js_native_api_types.h */; };
+		ADC1328526DCF3B000442DD5 /* js_native_api.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131F326DCF3AF00442DD5 /* js_native_api.h */; };
+		ADC1328626DCF3B000442DD5 /* native_source_code.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131F426DCF3AF00442DD5 /* native_source_code.h */; };
+		ADC1328726DCF3B000442DD5 /* js_native_jsc_helper.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131F626DCF3AF00442DD5 /* js_native_jsc_helper.h */; };
+		ADC1328826DCF3B000442DD5 /* js_native_api_jsc.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC131F726DCF3AF00442DD5 /* js_native_api_jsc.h */; };
+		ADC1328926DCF3B000442DD5 /* scope.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131F926DCF3AF00442DD5 /* scope.cc */; };
+		ADC1328A26DCF3B000442DD5 /* engine.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131FA26DCF3AF00442DD5 /* engine.cc */; };
+		ADC1328B26DCF3B000442DD5 /* javascript_task_runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131FC26DCF3AF00442DD5 /* javascript_task_runner.cc */; };
+		ADC1328C26DCF3B000442DD5 /* javascript_task.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131FD26DCF3AF00442DD5 /* javascript_task.cc */; };
+		ADC1328D26DCF3B000442DD5 /* worker_task_runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131FE26DCF3AF00442DD5 /* worker_task_runner.cc */; };
+		ADC1328E26DCF3B000442DD5 /* common_task.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC131FF26DCF3AF00442DD5 /* common_task.cc */; };
+		ADC1328F26DCF3B000442DD5 /* module_register.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320126DCF3AF00442DD5 /* module_register.cc */; };
+		ADC1329026DCF3B000442DD5 /* console_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320226DCF3AF00442DD5 /* console_module.cc */; };
+		ADC1329126DCF3B000442DD5 /* timer_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320326DCF3AF00442DD5 /* timer_module.cc */; };
+		ADC1329226DCF3B000442DD5 /* contextify_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320426DCF3AF00442DD5 /* contextify_module.cc */; };
+		ADC1329326DCF3B000442DD5 /* js_value_wrapper.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320626DCF3AF00442DD5 /* js_value_wrapper.cc */; };
+		ADC1329426DCF3B000442DD5 /* file.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320726DCF3AF00442DD5 /* file.cc */; };
+		ADC1329526DCF3B000442DD5 /* thread_id.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320826DCF3AF00442DD5 /* thread_id.cc */; };
+		ADC1329626DCF3B000442DD5 /* task_runner.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320926DCF3AF00442DD5 /* task_runner.cc */; };
+		ADC1329726DCF3B000442DD5 /* task.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320A26DCF3AF00442DD5 /* task.cc */; };
+		ADC1329826DCF3B000442DD5 /* thread.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1320B26DCF3AF00442DD5 /* thread.cc */; };
+		ADC1329B26DCF3B000442DD5 /* callback_info.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1321026DCF3AF00442DD5 /* callback_info.cc */; };
+		ADC1329C26DCF3B000442DD5 /* js_native_jsc_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1321226DCF3AF00442DD5 /* js_native_jsc_helper.cc */; };
+		ADC1329D26DCF3B000442DD5 /* native_source_code_ios.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1321326DCF3AF00442DD5 /* native_source_code_ios.cc */; };
+		ADC1329E26DCF3B000442DD5 /* js_native_api_value_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1321426DCF3AF00442DD5 /* js_native_api_value_jsc.cc */; };
+		ADC1329F26DCF3B000442DD5 /* js_native_api_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1321526DCF3AF00442DD5 /* js_native_api_jsc.cc */; };
+		ADC132A126DCF3B000442DD5 /* logging.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321A26DCF3AF00442DD5 /* logging.h */; };
+		ADC132A226DCF3B000442DD5 /* log_level.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321B26DCF3AF00442DD5 /* log_level.h */; };
+		ADC132A326DCF3B000442DD5 /* macros.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321C26DCF3AF00442DD5 /* macros.h */; };
+		ADC132A426DCF3B000442DD5 /* log_settings.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321D26DCF3AF00442DD5 /* log_settings.h */; };
+		ADC132A526DCF3B000442DD5 /* unicode_string_view.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321E26DCF3AF00442DD5 /* unicode_string_view.h */; };
+		ADC132A726DCF3B000442DD5 /* .clang-format in Resources */ = {isa = PBXBuildFile; fileRef = ADC1322026DCF3AF00442DD5 /* .clang-format */; };
+		ADC132AC26DCF3B000442DD5 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322926DCF3B000442DD5 /* logging.cc */; };
+		ADC132AD26DCF3B000442DD5 /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322B26DCF3B000442DD5 /* log_settings_state.cc */; };
+		ADC132AF26DCF3B000442DD5 /* log_settings.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322D26DCF3B000442DD5 /* log_settings.cc */; };
+		ADC132B026DCF3B000442DD5 /* unicode_string_view.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322E26DCF3B000442DD5 /* unicode_string_view.cc */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		ADC1323026DCF3B000442DD5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = ADC1319026DCF3AF00442DD5 /* flexbox.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3EFE7C6525AD86FF00BAC367;
+			remoteInfo = flexbox;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		3E2935FA25B074DD00155FE1 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		3EFB2AFF25ABF0BE001995EF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libc++.tbd"; sourceTree = DEVELOPER_DIR; };
+		3EFB2B0425ABF1AD001995EF /* libc++.1.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.1.tbd"; path = "Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/lib/libc++.1.tbd"; sourceTree = DEVELOPER_DIR; };
+		3EFB2B0C25ABF32D001995EF /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		3EFB2B0E25ABF333001995EF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		3EFE7C4425AD7EB400BAC367 /* RenderCoreInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderCoreInterface.h; sourceTree = "<group>"; };
+		3EFE7C4525AD7EB400BAC367 /* RenderCoreInterface.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RenderCoreInterface.m; sourceTree = "<group>"; };
+		4CA09B7425A9D83000D6DBBF /* rendercore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = rendercore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4CA09B7725A9D83000D6DBBF /* RenderCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderCore.h; sourceTree = "<group>"; };
+		4CA09B7825A9D83000D6DBBF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADC1310326DCF39600442DD5 /* code-cache-runnable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "code-cache-runnable.h"; sourceTree = "<group>"; };
+		ADC1310526DCF39600442DD5 /* bridge_runtime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge_runtime.h; sourceTree = "<group>"; };
+		ADC1310626DCF39600442DD5 /* code-cache-runnable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "code-cache-runnable.h"; sourceTree = "<group>"; };
+		ADC1310726DCF39600442DD5 /* string_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_util.h; sourceTree = "<group>"; };
+		ADC1310826DCF39600442DD5 /* bridge_extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge_extension.h; sourceTree = "<group>"; };
+		ADC1310926DCF39600442DD5 /* common_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common_header.h; sourceTree = "<group>"; };
+		ADC1311226DCF39600442DD5 /* logging-impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "logging-impl.h"; sourceTree = "<group>"; };
+		ADC1311326DCF39600442DD5 /* bridge_ffi_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge_ffi_impl.h; sourceTree = "<group>"; };
+		ADC1311426DCF39600442DD5 /* common_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common_header.h; sourceTree = "<group>"; };
+		ADC1311526DCF39600442DD5 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
+		ADC1311626DCF39600442DD5 /* callback_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = callback_manager.h; sourceTree = "<group>"; };
+		ADC1311726DCF39600442DD5 /* bridge_define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge_define.h; sourceTree = "<group>"; };
+		ADC1311826DCF39600442DD5 /* ffi_platform_runtime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffi_platform_runtime.h; sourceTree = "<group>"; };
+		ADC1311926DCF39600442DD5 /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = callback.h; sourceTree = "<group>"; };
+		ADC1313226DCF3A300442DD5 /* bridge_extension.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bridge_extension.cc; sourceTree = "<group>"; };
+		ADC1313426DCF3A300442DD5 /* VoltronDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronDefines.h; sourceTree = "<group>"; };
+		ADC1313526DCF3A300442DD5 /* VoltronInvalidating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronInvalidating.h; sourceTree = "<group>"; };
+		ADC1313626DCF3A300442DD5 /* bridge_impl_ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = bridge_impl_ios.mm; sourceTree = "<group>"; };
+		ADC1313726DCF3A300442DD5 /* VoltronFlutterBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronFlutterBridge.h; sourceTree = "<group>"; };
+		ADC1313826DCF3A300442DD5 /* VoltronFlutterBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VoltronFlutterBridge.mm; sourceTree = "<group>"; };
+		ADC1313926DCF3A300442DD5 /* VoltronJSCWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronJSCWrapper.h; sourceTree = "<group>"; };
+		ADC1313A26DCF3A300442DD5 /* VoltronJSCWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VoltronJSCWrapper.mm; sourceTree = "<group>"; };
+		ADC1313B26DCF3A300442DD5 /* bridge_impl_ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge_impl_ios.h; sourceTree = "<group>"; };
+		ADC1313C26DCF3A300442DD5 /* VoltronJSCExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronJSCExecutor.h; sourceTree = "<group>"; };
+		ADC1313E26DCF3A300442DD5 /* VoltronUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VoltronUtils.m; sourceTree = "<group>"; };
+		ADC1313F26DCF3A300442DD5 /* VoltronLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronLog.h; sourceTree = "<group>"; };
+		ADC1314026DCF3A300442DD5 /* VoltronLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VoltronLog.mm; sourceTree = "<group>"; };
+		ADC1314126DCF3A300442DD5 /* VoltronJSStackFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronJSStackFrame.h; sourceTree = "<group>"; };
+		ADC1314226DCF3A300442DD5 /* VoltronPerformanceLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VoltronPerformanceLogger.m; sourceTree = "<group>"; };
+		ADC1314326DCF3A300442DD5 /* VoltronUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronUtils.h; sourceTree = "<group>"; };
+		ADC1314426DCF3A300442DD5 /* VoltronJSStackFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VoltronJSStackFrame.m; sourceTree = "<group>"; };
+		ADC1314526DCF3A300442DD5 /* VoltronPerformanceLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronPerformanceLogger.h; sourceTree = "<group>"; };
+		ADC1314626DCF3A300442DD5 /* VoltronJSCExecutor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VoltronJSCExecutor.mm; sourceTree = "<group>"; };
+		ADC1314726DCF3A300442DD5 /* VoltronJSEnginesMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronJSEnginesMapper.h; sourceTree = "<group>"; };
+		ADC1314826DCF3A300442DD5 /* VoltronJSEnginesMapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VoltronJSEnginesMapper.mm; sourceTree = "<group>"; };
+		ADC1314926DCF3A300442DD5 /* VoltronJavaScriptExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoltronJavaScriptExecutor.h; sourceTree = "<group>"; };
+		ADC1314A26DCF3A300442DD5 /* code-cache-runnable.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "code-cache-runnable.cc"; sourceTree = "<group>"; };
+		ADC1315226DCF3A300442DD5 /* string_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_util.cc; sourceTree = "<group>"; };
+		ADC1315326DCF3A300442DD5 /* bridge_runtime.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bridge_runtime.cc; sourceTree = "<group>"; };
+		ADC1315526DCF3A300442DD5 /* logging-impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "logging-impl.cc"; sourceTree = "<group>"; };
+		ADC1315626DCF3A300442DD5 /* bridge_define.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bridge_define.cc; sourceTree = "<group>"; };
+		ADC1315726DCF3A300442DD5 /* ffi_platform_runtime.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ffi_platform_runtime.cc; sourceTree = "<group>"; };
+		ADC1315826DCF3A300442DD5 /* bridge_ffi_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bridge_ffi_impl.cc; sourceTree = "<group>"; };
+		ADC1315926DCF3A300442DD5 /* callback_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callback_manager.cc; sourceTree = "<group>"; };
+		ADC1315A26DCF3A300442DD5 /* callback.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callback.cc; sourceTree = "<group>"; };
+		ADC1315B26DCF3A300442DD5 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
+		ADC1318626DCF3AF00442DD5 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		ADC1318926DCF3AF00442DD5 /* CMakeList.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeList.txt; sourceTree = "<group>"; };
+		ADC1318A26DCF3AF00442DD5 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		ADC1318C26DCF3AF00442DD5 /* build_flexbox.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_flexbox.sh; sourceTree = "<group>"; };
+		ADC1318E26DCF3AF00442DD5 /* flexbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = flexbox.h; sourceTree = "<group>"; };
+		ADC1318F26DCF3AF00442DD5 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ADC1319026DCF3AF00442DD5 /* flexbox.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = flexbox.xcodeproj; sourceTree = "<group>"; };
+		ADC1319526DCF3AF00442DD5 /* flexbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = flexbox.framework; sourceTree = "<group>"; };
+		ADC1319626DCF3AF00442DD5 /* flexbox.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = flexbox.framework.dSYM; sourceTree = "<group>"; };
+		ADC1319726DCF3AF00442DD5 /* flexbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = flexbox.framework; sourceTree = "<group>"; };
+		ADC131A326DCF3AF00442DD5 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		ADC131A526DCF3AF00442DD5 /* FlexNodeStyleFfiBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexNodeStyleFfiBridge.h; sourceTree = "<group>"; };
+		ADC131A626DCF3AF00442DD5 /* FlexNodeFfi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlexNodeFfi.cpp; sourceTree = "<group>"; };
+		ADC131A726DCF3AF00442DD5 /* TaitankNodeFfi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaitankNodeFfi.cpp; sourceTree = "<group>"; };
+		ADC131A826DCF3AF00442DD5 /* FlexStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexStyle.h; sourceTree = "<group>"; };
+		ADC131A926DCF3AF00442DD5 /* FlexNodeStyleFfiBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlexNodeStyleFfiBridge.cpp; sourceTree = "<group>"; };
+		ADC131AA26DCF3AF00442DD5 /* FlexNodeFfiBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexNodeFfiBridge.h; sourceTree = "<group>"; };
+		ADC131AB26DCF3AF00442DD5 /* TaitankNodeStyleFfi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaitankNodeStyleFfi.cpp; sourceTree = "<group>"; };
+		ADC131AC26DCF3AF00442DD5 /* FlexNodeFfi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexNodeFfi.h; sourceTree = "<group>"; };
+		ADC131AD26DCF3AF00442DD5 /* TaitankNodeStyleFfi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaitankNodeStyleFfi.h; sourceTree = "<group>"; };
+		ADC131AE26DCF3AF00442DD5 /* FlexNodeStyleFfi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlexNodeStyleFfi.cpp; sourceTree = "<group>"; };
+		ADC131AF26DCF3AF00442DD5 /* FlexNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexNode.h; sourceTree = "<group>"; };
+		ADC131B026DCF3AF00442DD5 /* FlexNodeFfiBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlexNodeFfiBridge.cpp; sourceTree = "<group>"; };
+		ADC131B126DCF3AF00442DD5 /* FlexNodeStyleFfi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexNodeStyleFfi.h; sourceTree = "<group>"; };
+		ADC131B226DCF3AF00442DD5 /* FlexNodeFfiUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexNodeFfiUtil.h; sourceTree = "<group>"; };
+		ADC131B326DCF3AF00442DD5 /* TaitankNodeFfi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaitankNodeFfi.h; sourceTree = "<group>"; };
+		ADC131B526DCF3AF00442DD5 /* HPStyle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPStyle.cpp; sourceTree = "<group>"; };
+		ADC131B626DCF3AF00442DD5 /* FlexLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlexLine.h; sourceTree = "<group>"; };
+		ADC131B726DCF3AF00442DD5 /* HPUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPUtil.cpp; sourceTree = "<group>"; };
+		ADC131B826DCF3AF00442DD5 /* HPNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPNode.h; sourceTree = "<group>"; };
+		ADC131B926DCF3AF00442DD5 /* Flex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Flex.h; sourceTree = "<group>"; };
+		ADC131BA26DCF3AF00442DD5 /* HPNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPNode.cpp; sourceTree = "<group>"; };
+		ADC131BB26DCF3AF00442DD5 /* Hippy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hippy.h; sourceTree = "<group>"; };
+		ADC131BC26DCF3AF00442DD5 /* FlexLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlexLine.cpp; sourceTree = "<group>"; };
+		ADC131BD26DCF3AF00442DD5 /* Hippy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hippy.cpp; sourceTree = "<group>"; };
+		ADC131BE26DCF3AF00442DD5 /* HPLayoutCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPLayoutCache.h; sourceTree = "<group>"; };
+		ADC131BF26DCF3AF00442DD5 /* HPLayoutCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPLayoutCache.cpp; sourceTree = "<group>"; };
+		ADC131C026DCF3AF00442DD5 /* HPUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPUtil.h; sourceTree = "<group>"; };
+		ADC131C126DCF3AF00442DD5 /* HPStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPStyle.h; sourceTree = "<group>"; };
+		ADC131C326DCF3AF00442DD5 /* taitank_style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_style.h; sourceTree = "<group>"; };
+		ADC131C426DCF3AF00442DD5 /* taitank_flexline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_flexline.h; sourceTree = "<group>"; };
+		ADC131C526DCF3AF00442DD5 /* taitank_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_node.cc; sourceTree = "<group>"; };
+		ADC131C626DCF3AF00442DD5 /* taitank_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_util.h; sourceTree = "<group>"; };
+		ADC131C726DCF3AF00442DD5 /* taitank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank.h; sourceTree = "<group>"; };
+		ADC131C826DCF3AF00442DD5 /* taitank_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_cache.h; sourceTree = "<group>"; };
+		ADC131C926DCF3AF00442DD5 /* taitank_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_node.h; sourceTree = "<group>"; };
+		ADC131CA26DCF3AF00442DD5 /* taitank_style.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_style.cc; sourceTree = "<group>"; };
+		ADC131CB26DCF3AF00442DD5 /* taitank_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_util.cc; sourceTree = "<group>"; };
+		ADC131CC26DCF3AF00442DD5 /* taitank_cache.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_cache.cc; sourceTree = "<group>"; };
+		ADC131CD26DCF3AF00442DD5 /* taitank_flex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_flex.h; sourceTree = "<group>"; };
+		ADC131CE26DCF3AF00442DD5 /* taitank_flexline.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_flexline.cc; sourceTree = "<group>"; };
+		ADC131CF26DCF3AF00442DD5 /* taitank.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = taitank.cc; sourceTree = "<group>"; };
+		ADC131D326DCF3AF00442DD5 /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
+		ADC131D426DCF3AF00442DD5 /* core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
+		ADC131D626DCF3AF00442DD5 /* javascript_task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = javascript_task.h; sourceTree = "<group>"; };
+		ADC131D726DCF3AF00442DD5 /* worker_task_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worker_task_runner.h; sourceTree = "<group>"; };
+		ADC131D826DCF3AF00442DD5 /* common_task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common_task.h; sourceTree = "<group>"; };
+		ADC131D926DCF3AF00442DD5 /* javascript_task_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = javascript_task_runner.h; sourceTree = "<group>"; };
+		ADC131DB26DCF3AF00442DD5 /* module_register.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = module_register.h; sourceTree = "<group>"; };
+		ADC131DC26DCF3AF00442DD5 /* console_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = console_module.h; sourceTree = "<group>"; };
+		ADC131DD26DCF3AF00442DD5 /* timer_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timer_module.h; sourceTree = "<group>"; };
+		ADC131DE26DCF3AF00442DD5 /* module_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = module_base.h; sourceTree = "<group>"; };
+		ADC131DF26DCF3AF00442DD5 /* contextify_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contextify_module.h; sourceTree = "<group>"; };
+		ADC131E026DCF3AF00442DD5 /* scope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scope.h; sourceTree = "<group>"; };
+		ADC131E226DCF3AF00442DD5 /* js_value_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_value_wrapper.h; sourceTree = "<group>"; };
+		ADC131E326DCF3AF00442DD5 /* uri_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uri_loader.h; sourceTree = "<group>"; };
+		ADC131E426DCF3AF00442DD5 /* task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task.h; sourceTree = "<group>"; };
+		ADC131E526DCF3AF00442DD5 /* string_view_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_view_utils.h; sourceTree = "<group>"; };
+		ADC131E626DCF3AF00442DD5 /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file.h; sourceTree = "<group>"; };
+		ADC131E726DCF3AF00442DD5 /* task_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task_runner.h; sourceTree = "<group>"; };
+		ADC131E826DCF3AF00442DD5 /* thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread.h; sourceTree = "<group>"; };
+		ADC131E926DCF3AF00442DD5 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		ADC131EA26DCF3AF00442DD5 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
+		ADC131EB26DCF3AF00442DD5 /* thread_id.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread_id.h; sourceTree = "<group>"; };
+		ADC131EC26DCF3AF00442DD5 /* base_time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_time.h; sourceTree = "<group>"; };
+		ADC131ED26DCF3AF00442DD5 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
+		ADC131F126DCF3AF00442DD5 /* callback_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = callback_info.h; sourceTree = "<group>"; };
+		ADC131F226DCF3AF00442DD5 /* js_native_api_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api_types.h; sourceTree = "<group>"; };
+		ADC131F326DCF3AF00442DD5 /* js_native_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api.h; sourceTree = "<group>"; };
+		ADC131F426DCF3AF00442DD5 /* native_source_code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_source_code.h; sourceTree = "<group>"; };
+		ADC131F626DCF3AF00442DD5 /* js_native_jsc_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_jsc_helper.h; sourceTree = "<group>"; };
+		ADC131F726DCF3AF00442DD5 /* js_native_api_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api_jsc.h; sourceTree = "<group>"; };
+		ADC131F926DCF3AF00442DD5 /* scope.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scope.cc; sourceTree = "<group>"; };
+		ADC131FA26DCF3AF00442DD5 /* engine.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cc; sourceTree = "<group>"; };
+		ADC131FC26DCF3AF00442DD5 /* javascript_task_runner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = javascript_task_runner.cc; sourceTree = "<group>"; };
+		ADC131FD26DCF3AF00442DD5 /* javascript_task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = javascript_task.cc; sourceTree = "<group>"; };
+		ADC131FE26DCF3AF00442DD5 /* worker_task_runner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_task_runner.cc; sourceTree = "<group>"; };
+		ADC131FF26DCF3AF00442DD5 /* common_task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = common_task.cc; sourceTree = "<group>"; };
+		ADC1320126DCF3AF00442DD5 /* module_register.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = module_register.cc; sourceTree = "<group>"; };
+		ADC1320226DCF3AF00442DD5 /* console_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console_module.cc; sourceTree = "<group>"; };
+		ADC1320326DCF3AF00442DD5 /* timer_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timer_module.cc; sourceTree = "<group>"; };
+		ADC1320426DCF3AF00442DD5 /* contextify_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = contextify_module.cc; sourceTree = "<group>"; };
+		ADC1320626DCF3AF00442DD5 /* js_value_wrapper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_value_wrapper.cc; sourceTree = "<group>"; };
+		ADC1320726DCF3AF00442DD5 /* file.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file.cc; sourceTree = "<group>"; };
+		ADC1320826DCF3AF00442DD5 /* thread_id.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_id.cc; sourceTree = "<group>"; };
+		ADC1320926DCF3AF00442DD5 /* task_runner.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task_runner.cc; sourceTree = "<group>"; };
+		ADC1320A26DCF3AF00442DD5 /* task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task.cc; sourceTree = "<group>"; };
+		ADC1320B26DCF3AF00442DD5 /* thread.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread.cc; sourceTree = "<group>"; };
+		ADC1321026DCF3AF00442DD5 /* callback_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callback_info.cc; sourceTree = "<group>"; };
+		ADC1321226DCF3AF00442DD5 /* js_native_jsc_helper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_jsc_helper.cc; sourceTree = "<group>"; };
+		ADC1321326DCF3AF00442DD5 /* native_source_code_ios.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native_source_code_ios.cc; sourceTree = "<group>"; };
+		ADC1321426DCF3AF00442DD5 /* js_native_api_value_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_value_jsc.cc; sourceTree = "<group>"; };
+		ADC1321526DCF3AF00442DD5 /* js_native_api_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_jsc.cc; sourceTree = "<group>"; };
+		ADC1321726DCF3AF00442DD5 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		ADC1321A26DCF3AF00442DD5 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
+		ADC1321B26DCF3AF00442DD5 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
+		ADC1321C26DCF3AF00442DD5 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
+		ADC1321D26DCF3AF00442DD5 /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
+		ADC1321E26DCF3AF00442DD5 /* unicode_string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicode_string_view.h; sourceTree = "<group>"; };
+		ADC1321F26DCF3AF00442DD5 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		ADC1322026DCF3AF00442DD5 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
+		ADC1322226DCF3AF00442DD5 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		ADC1322826DCF3AF00442DD5 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		ADC1322926DCF3B000442DD5 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
+		ADC1322B26DCF3B000442DD5 /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
+		ADC1322C26DCF3B000442DD5 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		ADC1322D26DCF3B000442DD5 /* log_settings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings.cc; sourceTree = "<group>"; };
+		ADC1322E26DCF3B000442DD5 /* unicode_string_view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unicode_string_view.cc; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4CA09B7125A9D83000D6DBBF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3EFB2B0D25ABF32D001995EF /* CoreFoundation.framework in Frameworks */,
+				3EFB2B0F25ABF333001995EF /* Foundation.framework in Frameworks */,
+				3EFB2B0525ABF1B4001995EF /* libc++.1.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3EFB2AFE25ABF0BE001995EF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3EFB2B0E25ABF333001995EF /* Foundation.framework */,
+				3EFB2B0C25ABF32D001995EF /* CoreFoundation.framework */,
+				3EFB2B0425ABF1AD001995EF /* libc++.1.tbd */,
+				3EFB2AFF25ABF0BE001995EF /* libc++.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4CA09B6A25A9D83000D6DBBF = {
+			isa = PBXGroup;
+			children = (
+				4CA09B7625A9D83000D6DBBF /* RenderCore */,
+				4CA09B7525A9D83000D6DBBF /* Products */,
+				3EFB2AFE25ABF0BE001995EF /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		4CA09B7525A9D83000D6DBBF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4CA09B7425A9D83000D6DBBF /* rendercore.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4CA09B7625A9D83000D6DBBF /* RenderCore */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1318426DCF3AF00442DD5 /* third_party */,
+				ADC1313026DCF3A300442DD5 /* src */,
+				ADC1310226DCF39600442DD5 /* include */,
+				4CA09B7725A9D83000D6DBBF /* RenderCore.h */,
+				3EFE7C4425AD7EB400BAC367 /* RenderCoreInterface.h */,
+				3EFE7C4525AD7EB400BAC367 /* RenderCoreInterface.m */,
+				3E2935FA25B074DD00155FE1 /* PrefixHeader.pch */,
+				4CA09B7825A9D83000D6DBBF /* Info.plist */,
+			);
+			path = RenderCore;
+			sourceTree = "<group>";
+		};
+		ADC1310226DCF39600442DD5 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1310326DCF39600442DD5 /* code-cache-runnable.h */,
+				ADC1310426DCF39600442DD5 /* bridge */,
+				ADC1311126DCF39600442DD5 /* ffi */,
+			);
+			name = include;
+			path = ../../core/include;
+			sourceTree = "<group>";
+		};
+		ADC1310426DCF39600442DD5 /* bridge */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1310526DCF39600442DD5 /* bridge_runtime.h */,
+				ADC1310626DCF39600442DD5 /* code-cache-runnable.h */,
+				ADC1310726DCF39600442DD5 /* string_util.h */,
+				ADC1310826DCF39600442DD5 /* bridge_extension.h */,
+				ADC1310926DCF39600442DD5 /* common_header.h */,
+			);
+			path = bridge;
+			sourceTree = "<group>";
+		};
+		ADC1311126DCF39600442DD5 /* ffi */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1311226DCF39600442DD5 /* logging-impl.h */,
+				ADC1311326DCF39600442DD5 /* bridge_ffi_impl.h */,
+				ADC1311426DCF39600442DD5 /* common_header.h */,
+				ADC1311526DCF39600442DD5 /* logging.h */,
+				ADC1311626DCF39600442DD5 /* callback_manager.h */,
+				ADC1311726DCF39600442DD5 /* bridge_define.h */,
+				ADC1311826DCF39600442DD5 /* ffi_platform_runtime.h */,
+				ADC1311926DCF39600442DD5 /* callback.h */,
+			);
+			path = ffi;
+			sourceTree = "<group>";
+		};
+		ADC1313026DCF3A300442DD5 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1313126DCF3A300442DD5 /* bridge */,
+				ADC1315426DCF3A300442DD5 /* ffi */,
+			);
+			name = src;
+			path = ../../core/src;
+			sourceTree = "<group>";
+		};
+		ADC1313126DCF3A300442DD5 /* bridge */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1313226DCF3A300442DD5 /* bridge_extension.cc */,
+				ADC1313326DCF3A300442DD5 /* ios */,
+				ADC1314A26DCF3A300442DD5 /* code-cache-runnable.cc */,
+				ADC1315226DCF3A300442DD5 /* string_util.cc */,
+				ADC1315326DCF3A300442DD5 /* bridge_runtime.cc */,
+			);
+			path = bridge;
+			sourceTree = "<group>";
+		};
+		ADC1313326DCF3A300442DD5 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1313426DCF3A300442DD5 /* VoltronDefines.h */,
+				ADC1313526DCF3A300442DD5 /* VoltronInvalidating.h */,
+				ADC1313626DCF3A300442DD5 /* bridge_impl_ios.mm */,
+				ADC1313726DCF3A300442DD5 /* VoltronFlutterBridge.h */,
+				ADC1313826DCF3A300442DD5 /* VoltronFlutterBridge.mm */,
+				ADC1313926DCF3A300442DD5 /* VoltronJSCWrapper.h */,
+				ADC1313A26DCF3A300442DD5 /* VoltronJSCWrapper.mm */,
+				ADC1313B26DCF3A300442DD5 /* bridge_impl_ios.h */,
+				ADC1313C26DCF3A300442DD5 /* VoltronJSCExecutor.h */,
+				ADC1313D26DCF3A300442DD5 /* utils */,
+				ADC1314626DCF3A300442DD5 /* VoltronJSCExecutor.mm */,
+				ADC1314726DCF3A300442DD5 /* VoltronJSEnginesMapper.h */,
+				ADC1314826DCF3A300442DD5 /* VoltronJSEnginesMapper.mm */,
+				ADC1314926DCF3A300442DD5 /* VoltronJavaScriptExecutor.h */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		ADC1313D26DCF3A300442DD5 /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1313E26DCF3A300442DD5 /* VoltronUtils.m */,
+				ADC1313F26DCF3A300442DD5 /* VoltronLog.h */,
+				ADC1314026DCF3A300442DD5 /* VoltronLog.mm */,
+				ADC1314126DCF3A300442DD5 /* VoltronJSStackFrame.h */,
+				ADC1314226DCF3A300442DD5 /* VoltronPerformanceLogger.m */,
+				ADC1314326DCF3A300442DD5 /* VoltronUtils.h */,
+				ADC1314426DCF3A300442DD5 /* VoltronJSStackFrame.m */,
+				ADC1314526DCF3A300442DD5 /* VoltronPerformanceLogger.h */,
+			);
+			path = utils;
+			sourceTree = "<group>";
+		};
+		ADC1315426DCF3A300442DD5 /* ffi */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1315526DCF3A300442DD5 /* logging-impl.cc */,
+				ADC1315626DCF3A300442DD5 /* bridge_define.cc */,
+				ADC1315726DCF3A300442DD5 /* ffi_platform_runtime.cc */,
+				ADC1315826DCF3A300442DD5 /* bridge_ffi_impl.cc */,
+				ADC1315926DCF3A300442DD5 /* callback_manager.cc */,
+				ADC1315A26DCF3A300442DD5 /* callback.cc */,
+				ADC1315B26DCF3A300442DD5 /* logging.cc */,
+			);
+			path = ffi;
+			sourceTree = "<group>";
+		};
+		ADC1318426DCF3AF00442DD5 /* third_party */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1318526DCF3AF00442DD5 /* layout */,
+				ADC131D026DCF3AF00442DD5 /* hippy_core */,
+				ADC1321626DCF3AF00442DD5 /* tdf */,
+			);
+			name = third_party;
+			path = ../../core/third_party;
+			sourceTree = "<group>";
+		};
+		ADC1318526DCF3AF00442DD5 /* layout */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1318626DCF3AF00442DD5 /* CMakeLists.txt */,
+				ADC1318726DCF3AF00442DD5 /* platform */,
+				ADC131A326DCF3AF00442DD5 /* README.md */,
+				ADC131A426DCF3AF00442DD5 /* ffi */,
+				ADC131B426DCF3AF00442DD5 /* engine */,
+				ADC131C226DCF3AF00442DD5 /* taitank */,
+			);
+			path = layout;
+			sourceTree = "<group>";
+		};
+		ADC1318726DCF3AF00442DD5 /* platform */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1318826DCF3AF00442DD5 /* ios */,
+			);
+			path = platform;
+			sourceTree = "<group>";
+		};
+		ADC1318826DCF3AF00442DD5 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1318926DCF3AF00442DD5 /* CMakeList.txt */,
+				ADC1318A26DCF3AF00442DD5 /* README.md */,
+				ADC1318B26DCF3AF00442DD5 /* flexbox */,
+				ADC1319726DCF3AF00442DD5 /* flexbox.framework */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		ADC1318B26DCF3AF00442DD5 /* flexbox */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1318C26DCF3AF00442DD5 /* build_flexbox.sh */,
+				ADC1318D26DCF3AF00442DD5 /* flexbox */,
+				ADC1319026DCF3AF00442DD5 /* flexbox.xcodeproj */,
+				ADC1319326DCF3AF00442DD5 /* Build */,
+			);
+			path = flexbox;
+			sourceTree = "<group>";
+		};
+		ADC1318D26DCF3AF00442DD5 /* flexbox */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1318E26DCF3AF00442DD5 /* flexbox.h */,
+				ADC1318F26DCF3AF00442DD5 /* Info.plist */,
+			);
+			path = flexbox;
+			sourceTree = "<group>";
+		};
+		ADC1319126DCF3AF00442DD5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1323126DCF3B000442DD5 /* flexbox.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		ADC1319326DCF3AF00442DD5 /* Build */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1319426DCF3AF00442DD5 /* Release */,
+			);
+			path = Build;
+			sourceTree = "<group>";
+		};
+		ADC1319426DCF3AF00442DD5 /* Release */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1319526DCF3AF00442DD5 /* flexbox.framework */,
+				ADC1319626DCF3AF00442DD5 /* flexbox.framework.dSYM */,
+			);
+			path = Release;
+			sourceTree = "<group>";
+		};
+		ADC131A426DCF3AF00442DD5 /* ffi */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131A526DCF3AF00442DD5 /* FlexNodeStyleFfiBridge.h */,
+				ADC131A626DCF3AF00442DD5 /* FlexNodeFfi.cpp */,
+				ADC131A726DCF3AF00442DD5 /* TaitankNodeFfi.cpp */,
+				ADC131A826DCF3AF00442DD5 /* FlexStyle.h */,
+				ADC131A926DCF3AF00442DD5 /* FlexNodeStyleFfiBridge.cpp */,
+				ADC131AA26DCF3AF00442DD5 /* FlexNodeFfiBridge.h */,
+				ADC131AB26DCF3AF00442DD5 /* TaitankNodeStyleFfi.cpp */,
+				ADC131AC26DCF3AF00442DD5 /* FlexNodeFfi.h */,
+				ADC131AD26DCF3AF00442DD5 /* TaitankNodeStyleFfi.h */,
+				ADC131AE26DCF3AF00442DD5 /* FlexNodeStyleFfi.cpp */,
+				ADC131AF26DCF3AF00442DD5 /* FlexNode.h */,
+				ADC131B026DCF3AF00442DD5 /* FlexNodeFfiBridge.cpp */,
+				ADC131B126DCF3AF00442DD5 /* FlexNodeStyleFfi.h */,
+				ADC131B226DCF3AF00442DD5 /* FlexNodeFfiUtil.h */,
+				ADC131B326DCF3AF00442DD5 /* TaitankNodeFfi.h */,
+			);
+			path = ffi;
+			sourceTree = "<group>";
+		};
+		ADC131B426DCF3AF00442DD5 /* engine */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131B526DCF3AF00442DD5 /* HPStyle.cpp */,
+				ADC131B626DCF3AF00442DD5 /* FlexLine.h */,
+				ADC131B726DCF3AF00442DD5 /* HPUtil.cpp */,
+				ADC131B826DCF3AF00442DD5 /* HPNode.h */,
+				ADC131B926DCF3AF00442DD5 /* Flex.h */,
+				ADC131BA26DCF3AF00442DD5 /* HPNode.cpp */,
+				ADC131BB26DCF3AF00442DD5 /* Hippy.h */,
+				ADC131BC26DCF3AF00442DD5 /* FlexLine.cpp */,
+				ADC131BD26DCF3AF00442DD5 /* Hippy.cpp */,
+				ADC131BE26DCF3AF00442DD5 /* HPLayoutCache.h */,
+				ADC131BF26DCF3AF00442DD5 /* HPLayoutCache.cpp */,
+				ADC131C026DCF3AF00442DD5 /* HPUtil.h */,
+				ADC131C126DCF3AF00442DD5 /* HPStyle.h */,
+			);
+			path = engine;
+			sourceTree = "<group>";
+		};
+		ADC131C226DCF3AF00442DD5 /* taitank */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131C326DCF3AF00442DD5 /* taitank_style.h */,
+				ADC131C426DCF3AF00442DD5 /* taitank_flexline.h */,
+				ADC131C526DCF3AF00442DD5 /* taitank_node.cc */,
+				ADC131C626DCF3AF00442DD5 /* taitank_util.h */,
+				ADC131C726DCF3AF00442DD5 /* taitank.h */,
+				ADC131C826DCF3AF00442DD5 /* taitank_cache.h */,
+				ADC131C926DCF3AF00442DD5 /* taitank_node.h */,
+				ADC131CA26DCF3AF00442DD5 /* taitank_style.cc */,
+				ADC131CB26DCF3AF00442DD5 /* taitank_util.cc */,
+				ADC131CC26DCF3AF00442DD5 /* taitank_cache.cc */,
+				ADC131CD26DCF3AF00442DD5 /* taitank_flex.h */,
+				ADC131CE26DCF3AF00442DD5 /* taitank_flexline.cc */,
+				ADC131CF26DCF3AF00442DD5 /* taitank.cc */,
+			);
+			path = taitank;
+			sourceTree = "<group>";
+		};
+		ADC131D026DCF3AF00442DD5 /* hippy_core */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131D126DCF3AF00442DD5 /* include */,
+				ADC131F826DCF3AF00442DD5 /* src */,
+			);
+			path = hippy_core;
+			sourceTree = "<group>";
+		};
+		ADC131D126DCF3AF00442DD5 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131D226DCF3AF00442DD5 /* core */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		ADC131D226DCF3AF00442DD5 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131D326DCF3AF00442DD5 /* engine.h */,
+				ADC131D426DCF3AF00442DD5 /* core.h */,
+				ADC131D526DCF3AF00442DD5 /* task */,
+				ADC131DA26DCF3AF00442DD5 /* modules */,
+				ADC131E026DCF3AF00442DD5 /* scope.h */,
+				ADC131E126DCF3AF00442DD5 /* base */,
+				ADC131EE26DCF3AF00442DD5 /* napi */,
+			);
+			path = core;
+			sourceTree = "<group>";
+		};
+		ADC131D526DCF3AF00442DD5 /* task */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131D626DCF3AF00442DD5 /* javascript_task.h */,
+				ADC131D726DCF3AF00442DD5 /* worker_task_runner.h */,
+				ADC131D826DCF3AF00442DD5 /* common_task.h */,
+				ADC131D926DCF3AF00442DD5 /* javascript_task_runner.h */,
+			);
+			path = task;
+			sourceTree = "<group>";
+		};
+		ADC131DA26DCF3AF00442DD5 /* modules */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131DB26DCF3AF00442DD5 /* module_register.h */,
+				ADC131DC26DCF3AF00442DD5 /* console_module.h */,
+				ADC131DD26DCF3AF00442DD5 /* timer_module.h */,
+				ADC131DE26DCF3AF00442DD5 /* module_base.h */,
+				ADC131DF26DCF3AF00442DD5 /* contextify_module.h */,
+			);
+			path = modules;
+			sourceTree = "<group>";
+		};
+		ADC131E126DCF3AF00442DD5 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131E226DCF3AF00442DD5 /* js_value_wrapper.h */,
+				ADC131E326DCF3AF00442DD5 /* uri_loader.h */,
+				ADC131E426DCF3AF00442DD5 /* task.h */,
+				ADC131E526DCF3AF00442DD5 /* string_view_utils.h */,
+				ADC131E626DCF3AF00442DD5 /* file.h */,
+				ADC131E726DCF3AF00442DD5 /* task_runner.h */,
+				ADC131E826DCF3AF00442DD5 /* thread.h */,
+				ADC131E926DCF3AF00442DD5 /* common.h */,
+				ADC131EA26DCF3AF00442DD5 /* macros.h */,
+				ADC131EB26DCF3AF00442DD5 /* thread_id.h */,
+				ADC131EC26DCF3AF00442DD5 /* base_time.h */,
+				ADC131ED26DCF3AF00442DD5 /* hash.h */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		ADC131EE26DCF3AF00442DD5 /* napi */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131F126DCF3AF00442DD5 /* callback_info.h */,
+				ADC131F226DCF3AF00442DD5 /* js_native_api_types.h */,
+				ADC131F326DCF3AF00442DD5 /* js_native_api.h */,
+				ADC131F426DCF3AF00442DD5 /* native_source_code.h */,
+				ADC131F526DCF3AF00442DD5 /* jsc */,
+			);
+			path = napi;
+			sourceTree = "<group>";
+		};
+		ADC131F526DCF3AF00442DD5 /* jsc */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131F626DCF3AF00442DD5 /* js_native_jsc_helper.h */,
+				ADC131F726DCF3AF00442DD5 /* js_native_api_jsc.h */,
+			);
+			path = jsc;
+			sourceTree = "<group>";
+		};
+		ADC131F826DCF3AF00442DD5 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131F926DCF3AF00442DD5 /* scope.cc */,
+				ADC131FA26DCF3AF00442DD5 /* engine.cc */,
+				ADC131FB26DCF3AF00442DD5 /* task */,
+				ADC1320026DCF3AF00442DD5 /* modules */,
+				ADC1320526DCF3AF00442DD5 /* base */,
+				ADC1320C26DCF3AF00442DD5 /* napi */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		ADC131FB26DCF3AF00442DD5 /* task */ = {
+			isa = PBXGroup;
+			children = (
+				ADC131FC26DCF3AF00442DD5 /* javascript_task_runner.cc */,
+				ADC131FD26DCF3AF00442DD5 /* javascript_task.cc */,
+				ADC131FE26DCF3AF00442DD5 /* worker_task_runner.cc */,
+				ADC131FF26DCF3AF00442DD5 /* common_task.cc */,
+			);
+			path = task;
+			sourceTree = "<group>";
+		};
+		ADC1320026DCF3AF00442DD5 /* modules */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1320126DCF3AF00442DD5 /* module_register.cc */,
+				ADC1320226DCF3AF00442DD5 /* console_module.cc */,
+				ADC1320326DCF3AF00442DD5 /* timer_module.cc */,
+				ADC1320426DCF3AF00442DD5 /* contextify_module.cc */,
+			);
+			path = modules;
+			sourceTree = "<group>";
+		};
+		ADC1320526DCF3AF00442DD5 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1320626DCF3AF00442DD5 /* js_value_wrapper.cc */,
+				ADC1320726DCF3AF00442DD5 /* file.cc */,
+				ADC1320826DCF3AF00442DD5 /* thread_id.cc */,
+				ADC1320926DCF3AF00442DD5 /* task_runner.cc */,
+				ADC1320A26DCF3AF00442DD5 /* task.cc */,
+				ADC1320B26DCF3AF00442DD5 /* thread.cc */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		ADC1320C26DCF3AF00442DD5 /* napi */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1321026DCF3AF00442DD5 /* callback_info.cc */,
+				ADC1321126DCF3AF00442DD5 /* jsc */,
+			);
+			path = napi;
+			sourceTree = "<group>";
+		};
+		ADC1321126DCF3AF00442DD5 /* jsc */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1321226DCF3AF00442DD5 /* js_native_jsc_helper.cc */,
+				ADC1321326DCF3AF00442DD5 /* native_source_code_ios.cc */,
+				ADC1321426DCF3AF00442DD5 /* js_native_api_value_jsc.cc */,
+				ADC1321526DCF3AF00442DD5 /* js_native_api_jsc.cc */,
+			);
+			path = jsc;
+			sourceTree = "<group>";
+		};
+		ADC1321626DCF3AF00442DD5 /* tdf */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1321726DCF3AF00442DD5 /* CMakeLists.txt */,
+				ADC1321826DCF3AF00442DD5 /* include */,
+				ADC1321F26DCF3AF00442DD5 /* .gitignore */,
+				ADC1322026DCF3AF00442DD5 /* .clang-format */,
+				ADC1322126DCF3AF00442DD5 /* src */,
+			);
+			path = tdf;
+			sourceTree = "<group>";
+		};
+		ADC1321826DCF3AF00442DD5 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1321926DCF3AF00442DD5 /* base */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		ADC1321926DCF3AF00442DD5 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1321A26DCF3AF00442DD5 /* logging.h */,
+				ADC1321B26DCF3AF00442DD5 /* log_level.h */,
+				ADC1321C26DCF3AF00442DD5 /* macros.h */,
+				ADC1321D26DCF3AF00442DD5 /* log_settings.h */,
+				ADC1321E26DCF3AF00442DD5 /* unicode_string_view.h */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		ADC1322126DCF3AF00442DD5 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1322226DCF3AF00442DD5 /* CMakeLists.txt */,
+				ADC1322326DCF3AF00442DD5 /* platform */,
+				ADC1322A26DCF3B000442DD5 /* base */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		ADC1322326DCF3AF00442DD5 /* platform */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1322726DCF3AF00442DD5 /* ios */,
+			);
+			path = platform;
+			sourceTree = "<group>";
+		};
+		ADC1322726DCF3AF00442DD5 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1322826DCF3AF00442DD5 /* CMakeLists.txt */,
+				ADC1322926DCF3B000442DD5 /* logging.cc */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		ADC1322A26DCF3B000442DD5 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				ADC1322B26DCF3B000442DD5 /* log_settings_state.cc */,
+				ADC1322C26DCF3B000442DD5 /* CMakeLists.txt */,
+				ADC1322D26DCF3B000442DD5 /* log_settings.cc */,
+				ADC1322E26DCF3B000442DD5 /* unicode_string_view.cc */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4CA09B6F25A9D83000D6DBBF /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADC1311D26DCF39600442DD5 /* string_util.h in Headers */,
+				ADC1328526DCF3B000442DD5 /* js_native_api.h in Headers */,
+				ADC1327026DCF3B000442DD5 /* module_register.h in Headers */,
+				ADC1325D26DCF3B000442DD5 /* taitank_style.h in Headers */,
+				ADC1327426DCF3B000442DD5 /* contextify_module.h in Headers */,
+				ADC1311E26DCF39600442DD5 /* bridge_extension.h in Headers */,
+				ADC1315D26DCF3A300442DD5 /* VoltronDefines.h in Headers */,
+				ADC132A326DCF3B000442DD5 /* macros.h in Headers */,
+				ADC1324926DCF3B000442DD5 /* TaitankNodeStyleFfi.h in Headers */,
+				ADC1316926DCF3A300442DD5 /* VoltronJSStackFrame.h in Headers */,
+				ADC1327C26DCF3B000442DD5 /* thread.h in Headers */,
+				ADC1326326DCF3B000442DD5 /* taitank_node.h in Headers */,
+				ADC1326D26DCF3B000442DD5 /* worker_task_runner.h in Headers */,
+				ADC1325926DCF3B000442DD5 /* HPLayoutCache.h in Headers */,
+				ADC1311A26DCF39600442DD5 /* code-cache-runnable.h in Headers */,
+				ADC1325126DCF3B000442DD5 /* FlexLine.h in Headers */,
+				ADC1325B26DCF3B000442DD5 /* HPUtil.h in Headers */,
+				ADC1326E26DCF3B000442DD5 /* common_task.h in Headers */,
+				ADC132A526DCF3B000442DD5 /* unicode_string_view.h in Headers */,
+				ADC1326126DCF3B000442DD5 /* taitank.h in Headers */,
+				ADC1317126DCF3A300442DD5 /* VoltronJavaScriptExecutor.h in Headers */,
+				ADC1316226DCF3A300442DD5 /* VoltronJSCWrapper.h in Headers */,
+				ADC1324426DCF3B000442DD5 /* FlexStyle.h in Headers */,
+				ADC1326A26DCF3B000442DD5 /* engine.h in Headers */,
+				ADC1325326DCF3B000442DD5 /* HPNode.h in Headers */,
+				ADC1316B26DCF3A300442DD5 /* VoltronUtils.h in Headers */,
+				ADC1311F26DCF39600442DD5 /* common_header.h in Headers */,
+				ADC1312926DCF39600442DD5 /* logging.h in Headers */,
+				ADC1327E26DCF3B000442DD5 /* macros.h in Headers */,
+				ADC1328726DCF3B000442DD5 /* js_native_jsc_helper.h in Headers */,
+				ADC1316D26DCF3A300442DD5 /* VoltronPerformanceLogger.h in Headers */,
+				ADC1324626DCF3B000442DD5 /* FlexNodeFfiBridge.h in Headers */,
+				ADC1328426DCF3B000442DD5 /* js_native_api_types.h in Headers */,
+				ADC1326026DCF3B000442DD5 /* taitank_util.h in Headers */,
+				ADC1312726DCF39600442DD5 /* bridge_ffi_impl.h in Headers */,
+				ADC1327D26DCF3B000442DD5 /* common.h in Headers */,
+				ADC1328326DCF3B000442DD5 /* callback_info.h in Headers */,
+				ADC1316026DCF3A300442DD5 /* VoltronFlutterBridge.h in Headers */,
+				3EFE7C4625AD7EB400BAC367 /* RenderCoreInterface.h in Headers */,
+				ADC1326726DCF3B000442DD5 /* taitank_flex.h in Headers */,
+				ADC1327F26DCF3B000442DD5 /* thread_id.h in Headers */,
+				ADC132A426DCF3B000442DD5 /* log_settings.h in Headers */,
+				ADC1316426DCF3A300442DD5 /* bridge_impl_ios.h in Headers */,
+				ADC1327526DCF3B000442DD5 /* scope.h in Headers */,
+				ADC1327126DCF3B000442DD5 /* console_module.h in Headers */,
+				ADC1324B26DCF3B000442DD5 /* FlexNode.h in Headers */,
+				ADC1326C26DCF3B000442DD5 /* javascript_task.h in Headers */,
+				ADC1325E26DCF3B000442DD5 /* taitank_flexline.h in Headers */,
+				ADC1324826DCF3B000442DD5 /* FlexNodeFfi.h in Headers */,
+				ADC1316F26DCF3A300442DD5 /* VoltronJSEnginesMapper.h in Headers */,
+				ADC1311B26DCF39600442DD5 /* bridge_runtime.h in Headers */,
+				ADC132A226DCF3B000442DD5 /* log_level.h in Headers */,
+				ADC1312B26DCF39600442DD5 /* bridge_define.h in Headers */,
+				ADC1327A26DCF3B000442DD5 /* file.h in Headers */,
+				ADC1312C26DCF39600442DD5 /* ffi_platform_runtime.h in Headers */,
+				ADC1315E26DCF3A300442DD5 /* VoltronInvalidating.h in Headers */,
+				4CA09B7925A9D83000D6DBBF /* RenderCore.h in Headers */,
+				ADC1327726DCF3B000442DD5 /* uri_loader.h in Headers */,
+				ADC132A126DCF3B000442DD5 /* logging.h in Headers */,
+				ADC1323626DCF3B000442DD5 /* flexbox.h in Headers */,
+				ADC1327326DCF3B000442DD5 /* module_base.h in Headers */,
+				ADC1312A26DCF39600442DD5 /* callback_manager.h in Headers */,
+				ADC1327626DCF3B000442DD5 /* js_value_wrapper.h in Headers */,
+				ADC1325C26DCF3B000442DD5 /* HPStyle.h in Headers */,
+				ADC1312626DCF39600442DD5 /* logging-impl.h in Headers */,
+				ADC1328026DCF3B000442DD5 /* base_time.h in Headers */,
+				ADC1326F26DCF3B000442DD5 /* javascript_task_runner.h in Headers */,
+				ADC1328826DCF3B000442DD5 /* js_native_api_jsc.h in Headers */,
+				ADC1327926DCF3B000442DD5 /* string_view_utils.h in Headers */,
+				ADC1328626DCF3B000442DD5 /* native_source_code.h in Headers */,
+				ADC1326B26DCF3B000442DD5 /* core.h in Headers */,
+				ADC1327B26DCF3B000442DD5 /* task_runner.h in Headers */,
+				ADC1324F26DCF3B000442DD5 /* TaitankNodeFfi.h in Headers */,
+				ADC1312826DCF39600442DD5 /* common_header.h in Headers */,
+				ADC1316726DCF3A300442DD5 /* VoltronLog.h in Headers */,
+				ADC1324126DCF3B000442DD5 /* FlexNodeStyleFfiBridge.h in Headers */,
+				ADC1325626DCF3B000442DD5 /* Hippy.h in Headers */,
+				ADC1327226DCF3B000442DD5 /* timer_module.h in Headers */,
+				ADC1311C26DCF39600442DD5 /* code-cache-runnable.h in Headers */,
+				ADC1327826DCF3B000442DD5 /* task.h in Headers */,
+				ADC1324E26DCF3B000442DD5 /* FlexNodeFfiUtil.h in Headers */,
+				ADC1325426DCF3B000442DD5 /* Flex.h in Headers */,
+				ADC1326226DCF3B000442DD5 /* taitank_cache.h in Headers */,
+				ADC1328126DCF3B000442DD5 /* hash.h in Headers */,
+				ADC1324D26DCF3B000442DD5 /* FlexNodeStyleFfi.h in Headers */,
+				ADC1316526DCF3A300442DD5 /* VoltronJSCExecutor.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		4CA09B7325A9D83000D6DBBF /* RenderCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4CA09B7C25A9D83000D6DBBF /* Build configuration list for PBXNativeTarget "RenderCore" */;
+			buildPhases = (
+				4CA09B6F25A9D83000D6DBBF /* Headers */,
+				4CA09B7025A9D83000D6DBBF /* Sources */,
+				4CA09B7125A9D83000D6DBBF /* Frameworks */,
+				4CA09B7225A9D83000D6DBBF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RenderCore;
+			productName = RenderCore;
+			productReference = 4CA09B7425A9D83000D6DBBF /* rendercore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4CA09B6B25A9D83000D6DBBF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1210;
+				TargetAttributes = {
+					4CA09B7325A9D83000D6DBBF = {
+						CreatedOnToolsVersion = 12.1;
+					};
+				};
+			};
+			buildConfigurationList = 4CA09B6E25A9D83000D6DBBF /* Build configuration list for PBXProject "RenderCore" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 4CA09B6A25A9D83000D6DBBF;
+			productRefGroup = 4CA09B7525A9D83000D6DBBF /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = ADC1319126DCF3AF00442DD5 /* Products */;
+					ProjectRef = ADC1319026DCF3AF00442DD5 /* flexbox.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				4CA09B7325A9D83000D6DBBF /* RenderCore */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		ADC1323126DCF3B000442DD5 /* flexbox.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = flexbox.framework;
+			remoteRef = ADC1323026DCF3B000442DD5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4CA09B7225A9D83000D6DBBF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADC132A726DCF3B000442DD5 /* .clang-format in Resources */,
+				ADC1323426DCF3B000442DD5 /* README.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4CA09B7025A9D83000D6DBBF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADC1326526DCF3B000442DD5 /* taitank_util.cc in Sources */,
+				ADC1326826DCF3B000442DD5 /* taitank_flexline.cc in Sources */,
+				ADC1324A26DCF3B000442DD5 /* FlexNodeStyleFfi.cpp in Sources */,
+				ADC1324526DCF3B000442DD5 /* FlexNodeStyleFfiBridge.cpp in Sources */,
+				ADC1326626DCF3B000442DD5 /* taitank_cache.cc in Sources */,
+				ADC1329D26DCF3B000442DD5 /* native_source_code_ios.cc in Sources */,
+				ADC1317B26DCF3A300442DD5 /* logging-impl.cc in Sources */,
+				ADC1324C26DCF3B000442DD5 /* FlexNodeFfiBridge.cpp in Sources */,
+				ADC1329326DCF3B000442DD5 /* js_value_wrapper.cc in Sources */,
+				ADC132B026DCF3B000442DD5 /* unicode_string_view.cc in Sources */,
+				ADC1325226DCF3B000442DD5 /* HPUtil.cpp in Sources */,
+				ADC1316C26DCF3A300442DD5 /* VoltronJSStackFrame.m in Sources */,
+				ADC1316126DCF3A300442DD5 /* VoltronFlutterBridge.mm in Sources */,
+				ADC1317F26DCF3A300442DD5 /* callback_manager.cc in Sources */,
+				ADC1325726DCF3B000442DD5 /* FlexLine.cpp in Sources */,
+				ADC1326426DCF3B000442DD5 /* taitank_style.cc in Sources */,
+				ADC1325526DCF3B000442DD5 /* HPNode.cpp in Sources */,
+				ADC1317A26DCF3A300442DD5 /* bridge_runtime.cc in Sources */,
+				ADC1329826DCF3B000442DD5 /* thread.cc in Sources */,
+				ADC1317026DCF3A300442DD5 /* VoltronJSEnginesMapper.mm in Sources */,
+				ADC1316326DCF3A300442DD5 /* VoltronJSCWrapper.mm in Sources */,
+				ADC132AF26DCF3B000442DD5 /* log_settings.cc in Sources */,
+				ADC1329C26DCF3B000442DD5 /* js_native_jsc_helper.cc in Sources */,
+				ADC1316A26DCF3A300442DD5 /* VoltronPerformanceLogger.m in Sources */,
+				ADC1328926DCF3B000442DD5 /* scope.cc in Sources */,
+				ADC1329526DCF3B000442DD5 /* thread_id.cc in Sources */,
+				ADC1329226DCF3B000442DD5 /* contextify_module.cc in Sources */,
+				ADC1329F26DCF3B000442DD5 /* js_native_api_jsc.cc in Sources */,
+				ADC1324326DCF3B000442DD5 /* TaitankNodeFfi.cpp in Sources */,
+				ADC1328D26DCF3B000442DD5 /* worker_task_runner.cc in Sources */,
+				ADC1315C26DCF3A300442DD5 /* bridge_extension.cc in Sources */,
+				ADC1329026DCF3B000442DD5 /* console_module.cc in Sources */,
+				ADC1328A26DCF3B000442DD5 /* engine.cc in Sources */,
+				ADC1316826DCF3A300442DD5 /* VoltronLog.mm in Sources */,
+				ADC1329726DCF3B000442DD5 /* task.cc in Sources */,
+				ADC1324726DCF3B000442DD5 /* TaitankNodeStyleFfi.cpp in Sources */,
+				ADC1325A26DCF3B000442DD5 /* HPLayoutCache.cpp in Sources */,
+				ADC1329E26DCF3B000442DD5 /* js_native_api_value_jsc.cc in Sources */,
+				ADC1328B26DCF3B000442DD5 /* javascript_task_runner.cc in Sources */,
+				ADC1325826DCF3B000442DD5 /* Hippy.cpp in Sources */,
+				ADC1316626DCF3A300442DD5 /* VoltronUtils.m in Sources */,
+				ADC1317226DCF3A300442DD5 /* code-cache-runnable.cc in Sources */,
+				ADC1329626DCF3B000442DD5 /* task_runner.cc in Sources */,
+				ADC1329126DCF3B000442DD5 /* timer_module.cc in Sources */,
+				ADC1328F26DCF3B000442DD5 /* module_register.cc in Sources */,
+				ADC1316E26DCF3A300442DD5 /* VoltronJSCExecutor.mm in Sources */,
+				ADC1329426DCF3B000442DD5 /* file.cc in Sources */,
+				ADC1318126DCF3A300442DD5 /* logging.cc in Sources */,
+				ADC1326926DCF3B000442DD5 /* taitank.cc in Sources */,
+				ADC1328E26DCF3B000442DD5 /* common_task.cc in Sources */,
+				ADC1317E26DCF3A300442DD5 /* bridge_ffi_impl.cc in Sources */,
+				ADC1328C26DCF3B000442DD5 /* javascript_task.cc in Sources */,
+				ADC1317D26DCF3A300442DD5 /* ffi_platform_runtime.cc in Sources */,
+				ADC1315F26DCF3A300442DD5 /* bridge_impl_ios.mm in Sources */,
+				ADC1325026DCF3B000442DD5 /* HPStyle.cpp in Sources */,
+				ADC1317926DCF3A300442DD5 /* string_util.cc in Sources */,
+				ADC1325F26DCF3B000442DD5 /* taitank_node.cc in Sources */,
+				ADC132AD26DCF3B000442DD5 /* log_settings_state.cc in Sources */,
+				ADC1329B26DCF3B000442DD5 /* callback_info.cc in Sources */,
+				ADC1317C26DCF3A300442DD5 /* bridge_define.cc in Sources */,
+				ADC132AC26DCF3B000442DD5 /* logging.cc in Sources */,
+				ADC1324226DCF3B000442DD5 /* FlexNodeFfi.cpp in Sources */,
+				3EFE7C4725AD7EB400BAC367 /* RenderCoreInterface.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4CA09B7A25A9D83000D6DBBF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		4CA09B7B25A9D83000D6DBBF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		4CA09B7D25A9D83000D6DBBF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=macosx*]" = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/RenderCore/dependancy",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = RenderCore/PrefixHeader.pch;
+				HEADER_SEARCH_PATHS = (
+					"${SRCROOT}/../core/src/bridge/ios",
+					"${SRCROOT}/../core/include",
+					"${SRCROOT}/../core/third_party/hippy_core/include",
+					"${SRCROOT}/../core/third_party/tdf/include",
+				);
+				INFOPLIST_FILE = RenderCore/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = mh_dylib;
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.RenderCore;
+				PRODUCT_NAME = rendercore;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4CA09B7E25A9D83000D6DBBF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=macosx*]" = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/RenderCore/dependancy",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = RenderCore/PrefixHeader.pch;
+				HEADER_SEARCH_PATHS = (
+					"${SRCROOT}/../core/include",
+					"${SRCROOT}/../core/third_party/hippy_core/include",
+					"${SRCROOT}/../core/third_party/tdf/include",
+					"${SRCROOT}/../core/src/bridge/ios",
+				);
+				INFOPLIST_FILE = RenderCore/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = mh_dylib;
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.RenderCore;
+				PRODUCT_NAME = rendercore;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos macosx";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4CA09B6E25A9D83000D6DBBF /* Build configuration list for PBXProject "RenderCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CA09B7A25A9D83000D6DBBF /* Debug */,
+				4CA09B7B25A9D83000D6DBBF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4CA09B7C25A9D83000D6DBBF /* Build configuration list for PBXNativeTarget "RenderCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CA09B7D25A9D83000D6DBBF /* Debug */,
+				4CA09B7E25A9D83000D6DBBF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4CA09B6B25A9D83000D6DBBF /* Project object */;
+}
