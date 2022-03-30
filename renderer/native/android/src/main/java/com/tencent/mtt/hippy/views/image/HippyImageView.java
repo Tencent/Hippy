@@ -220,35 +220,25 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
                 @Override
                 public void onRequestSuccess(ImageDataSupplier supplier) {
-                    if (sourceType == SOURCE_TYPE_SRC) {
-                        if (!TextUtils.equals(url, mUrl)) {
-                            return;
-                        }
-                        mUrlFetchState = IMAGE_LOADED;
+                    if (sourceType == SOURCE_TYPE_SRC && !TextUtils.equals(url, mUrl)) {
+                        return;
                     }
-
                     if (sourceType == SOURCE_TYPE_DEFAULT_SRC && !TextUtils
                             .equals(url, mDefaultSourceUrl)) {
                         return;
                     }
-
                     handleImageRequest(supplier, sourceType, null);
                 }
 
                 @Override
                 public void onRequestFail(Throwable throwable, String source) {
-                    if (sourceType == SOURCE_TYPE_SRC) {
-                        if (!TextUtils.equals(url, mUrl)) {
-                            return;
-                        }
-                        mUrlFetchState = IMAGE_UNLOAD;
+                    if (sourceType == SOURCE_TYPE_SRC && !TextUtils.equals(url, mUrl)) {
+                        return;
                     }
-
                     if (sourceType == SOURCE_TYPE_DEFAULT_SRC && !TextUtils
                             .equals(url, mDefaultSourceUrl)) {
                         return;
                     }
-
                     handleImageRequest(null, sourceType, throwable);
                 }
             }, param);
