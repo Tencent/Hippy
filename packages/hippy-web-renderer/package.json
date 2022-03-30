@@ -2,7 +2,7 @@
   "name": "@hippy/web-renderer",
   "version": "0.0.1",
   "description": "hippy web renderer",
-  "source": "src/index.html",
+  "source": "example/index.html",
   "main": "dist/index.js",
   "homepage": "http://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-web-render",
@@ -16,7 +16,7 @@
     "Web"
   ],
   "scripts": {
-    "watch": "parcel watch",
+    "watch": "parcel",
     "build": "parcel build"
   },
   "dependencies": {
