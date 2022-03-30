@@ -993,6 +993,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       return HippyEngineManagerImpl.this.getId();
     }
 
+    @Override
+    public void addApiProviders(List<HippyAPIProvider> apiProviders) {
+      mModuleManager.addModules(apiProviders);
+      mRenderManager.getControllerManager().addControllers(apiProviders);
+    }
+
     public void destroyBridge(Callback<Boolean> callback) {
       mBridgeManager.destroyBridge(callback);
     }

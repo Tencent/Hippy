@@ -18,11 +18,14 @@ package com.tencent.mtt.hippy.modules;
 
 import androidx.annotation.NonNull;
 
+import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
 import com.tencent.mtt.hippy.common.Provider;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
+
+import java.util.List;
 
 public interface HippyModuleManager {
 
@@ -37,4 +40,11 @@ public interface HippyModuleManager {
     <T extends HippyNativeModuleBase> T getNativeModule(Class<T> cls);
 
     <T extends HippyNativeModuleBase> void addNativeModule(Class<T> cls, Provider<T> provider);
+
+    /**
+    * Add native modules and java script modules defined in {@link HippyAPIProvider}.
+    *
+    * @param apiProviders API providers need to be added.
+    */
+    void addModules(List<HippyAPIProvider> apiProviders);
 }
