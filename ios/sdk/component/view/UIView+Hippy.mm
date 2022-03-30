@@ -159,13 +159,12 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
         objc_setAssociatedObject(self, @selector(hippySubviews), subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
-#if !HIPPY_DEV
-    if ((NSInteger)subviews.count >= atIndex) {
-#endif
+    if (atIndex <= [subviews count]) {
         [subviews insertObject:subview atIndex:atIndex];
-#if !HIPPY_DEV
     }
-#endif
+    else {
+        [subviews addObject:subview];
+    }
 }
 
 - (void)removeHippySubview:(UIView *)subview {
