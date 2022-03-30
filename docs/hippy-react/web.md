@@ -20,31 +20,6 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 | rmc-pull-to-refresh | ListView PullHeader 需要      |
 
 
-# 模块支持
-
-## AnimationSet
-
-### 不支持设置的组件样式
-
-1. background-color
-
-## BackAndroid
-
-web 不支持
-
-## NetInfo
-
-NetInfo 使用了实验属性 NetworkInformation，详情参考 https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation
-
-## NetWorkModule
-
-NetWorkModule 的 setCookie 使用 document.cookie，设置 domain 时对 url 有限制，具体参考 https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#define_where_cookies_are_sent.
-
-## Localization
-
-Localization 不包括 country 信息。
-
-
 # 编译时依赖
 
 以官方提供的 [范例工程](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 范例工程为例，需要使用 `npm i -D` 准备好以下依赖，当然开发者可以根据需要自行选择：
