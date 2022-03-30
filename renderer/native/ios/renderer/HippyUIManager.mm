@@ -1173,6 +1173,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
+        const std::string type_ = type;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
             [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
                 if (node) {
@@ -1181,7 +1182,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                     domValue["page_y"] = tdf::base::DomValue(point.y);
                     std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
                     if (node) {
-                       node->HandleEvent(std::make_shared<DomEvent>(type, node, canBePreventedInCapturing,
+                       node->HandleEvent(std::make_shared<DomEvent>(type_, node, canBePreventedInCapturing,
                                                                     canBePreventedInBubbling,value));
                     }
                 }
