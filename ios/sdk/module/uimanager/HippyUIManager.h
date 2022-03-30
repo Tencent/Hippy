@@ -44,12 +44,6 @@ HIPPY_EXTERN dispatch_queue_t HippyGetUIManagerQueue(void);
 HIPPY_EXTERN const char *HippyUIManagerQueueName;
 
 /**
- * Posted right before re-render happens. This is a chance for views to invalidate their state so
- * next render cycle will pick up updated views and layout appropriately.
- */
-HIPPY_EXTERN NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification;
-
-/**
  * Posted whenever a new root view is registered with HippyUIManager. The userInfo property
  * will contain a HippyUIManagerRootViewKey with the registered root view.
  */

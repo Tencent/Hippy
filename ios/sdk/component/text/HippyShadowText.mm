@@ -121,15 +121,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         // MTTlayout
         MTTNodeSetMeasureFunc(self.nodeRef, x5MeasureFunc);
         MTTNodeSetContext(self.nodeRef, (__bridge void *)self);
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contentSizeMultiplierDidChange:)
-                                                     name:HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
-                                                   object:nil];
     }
     return self;
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (NSString *)description {
@@ -139,12 +132,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (BOOL)isCSSLeafNode {
     return YES;
-}
-
-- (void)contentSizeMultiplierDidChange:(__unused NSNotification *)note {
-    // MTTlayout
-    MTTNodeMarkDirty(self.nodeRef);
-    [self dirtyText];
 }
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks

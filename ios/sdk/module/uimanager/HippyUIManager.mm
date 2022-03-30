@@ -65,8 +65,6 @@ static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<Hip
 }
 
 const char *HippyUIManagerQueueName = "com.tencent.hippy.ShadowQueue";
-NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
-    = @"HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification";
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerDidRemoveRootViewNotification = @"HippyUIManagerDidRemoveRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
@@ -133,14 +131,6 @@ HIPPY_EXPORT_MODULE()
             [(id<HippyMemoryOpt>)view appWillEnterForeground];
         }
     }
-}
-
-- (void)didReceiveNewContentSizeMultiplier {
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
-                                                            object:self];
-        [self setNeedsLayout];
-    });
 }
 
 - (NSMutableArray *)completeBlocks {
