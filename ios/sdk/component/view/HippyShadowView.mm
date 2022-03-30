@@ -264,7 +264,12 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 }
 
 - (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
-    [_hippySubviews insertObject:subview atIndex:atIndex];
+    if (atIndex <= [_hippySubviews count]) {
+        [_hippySubviews insertObject:subview atIndex:atIndex];
+    }
+    else {
+        [_hippySubviews addObject:subview];
+    }
     subview->_superview = self;
     _didUpdateSubviews = YES;
     [self dirtyText];
