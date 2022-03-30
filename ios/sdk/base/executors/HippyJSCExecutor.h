@@ -46,23 +46,6 @@ HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotification;
 HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey;
 
 /**
- * A key to a reference to a JSContext class, held in the the current thread's
- *  dictionary. The reference would point to the JSContext class in the JS VM
- *  used in Hippy (or ComponenetScript). It is recommended not to access it
- *  through the thread's dictionary, but rather to use the `FBJSCurrentContext()`
- *  accessor, which will return the current JSContext in the currently used VM.
- */
-HIPPY_EXTERN NSString *const HippyFBJSContextClassKey;
-
-/**
- * A key to a reference to a JSValue class, held in the the current thread's
- *  dictionary. The reference would point to the JSValue class in the JS VM
- *  used in Hippy (or ComponenetScript). It is recommended not to access it
- *  through the thread's dictionary, but rather to use the `FBJSValue()` accessor.
- */
-HIPPY_EXTERN NSString *const HippyFBJSValueClassKey;
-
-/**
  * Uses a JavaScriptCore context as the execution engine.
  */
 @interface HippyJSCExecutor : NSObject <HippyJavaScriptExecutor>
