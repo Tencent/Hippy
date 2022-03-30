@@ -18,13 +18,12 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useImperativeHandle } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
 import { TouchEvent } from '../modules/use-responder-events/types';
 import { LayoutEvent } from '../types';
-import { warn } from '../utils';
 
 const styles = {
   root: {
@@ -103,18 +102,6 @@ const View: React.FC<ViewProps> = React.forwardRef((props, ref) => {
   const { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onScroll } = props;
   useResponderEvents(hostRef, { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onScroll });
   useElementLayout(hostRef, props.onLayout);
-
-  // set unsupported methods
-  const setPressed = () => {
-    warn('View.setPressed is not supported');
-  };
-  const setHotspot = () => {
-    warn('View.setHotspot is not supported');
-  };
-  useImperativeHandle(ref, () => ({
-    setPressed,
-    setHotspot,
-  }));
 
   const accessibilityLabelValue = newProps.accessibilityLabel;
   // delete unsupported props

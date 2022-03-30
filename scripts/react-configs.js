@@ -65,7 +65,6 @@ const builds = {
         'react',
         'react-dom',
         'animated-scroll-to',
-        'bezier-easing',
         'swiper',
         'rmc-list-view',
         'rmc-pull-to-refresh',
