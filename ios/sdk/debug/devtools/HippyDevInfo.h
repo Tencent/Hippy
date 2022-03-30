@@ -34,4 +34,6 @@
 
 - (void)parseWsURLWithURLQuery:(NSString *)query;
 
+- (NSString *)completeWSURLWithContextName:(NSString *)contextName;
+
 @end

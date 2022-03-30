@@ -506,7 +506,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                 devInfo.versionId = bundleURLProvider.versionId;
                 devInfo.wsURL = bundleURLProvider.wsURL;
             }
-            _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devInfo:devInfo contextName:name];
+//            _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devInfo:devInfo contextName:name];
         }
     }
 }
@@ -776,11 +776,42 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         self.javaScriptExecutor.pScope->SetDomManager(_domManager);
 #if TDF_SERVICE_ENABLED
         hippy::dom::DomManager::Insert(_domManager);
-        self.javaScriptExecutor.pScope->BindDevtool(_domManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+        NSString *wsURL = [self completeWSURLWithBridge:bridge contextName:@""];
+        self.javaScriptExecutor.pScope->CreateDevtools([wsURL UTF8String]);
+        self.javaScriptExecutor.pScope->BindDevtool(0, _domManager->GetId(), 0); // runtime_id for iOS is useless, set 0
         self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->SetRuntimeAdapterDebugMode(self.debugMode);
 #endif
     }
 }
+
+#if TDF_SERVICE_ENABLED
+- (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge contextName:(NSString *)contextName {
+    if (![bridge.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
+        return @"";
+    }
+    if (![bridge isKindOfClass:[HippyBatchedBridge class]] ||
+        ![bridge.delegate shouldStartInspector:[(HippyBatchedBridge *)bridge parentBridge]]) {
+        return @"";
+    }
+    HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
+    if ([bridge.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
+        NSURL *url = [bridge.delegate inspectorSourceURLForBridge:[(HippyBatchedBridge *)bridge parentBridge]];
+        devInfo.scheme = [url scheme];
+        devInfo.ipAddress = [url host];
+        devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
+        devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
+        [devInfo parseWsURLWithURLQuery:[url query]];
+    } else {
+        HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
+        devInfo.scheme = bundleURLProvider.scheme;
+        devInfo.ipAddress = bundleURLProvider.localhostIP;
+        devInfo.port = bundleURLProvider.localhostPort;
+        devInfo.versionId = bundleURLProvider.versionId;
+        devInfo.wsURL = bundleURLProvider.wsURL;
+    }
+    return [devInfo completeWSURLWithContextName:contextName];
+}
+#endif
 
 #pragma mark - HippyInvalidating
 
@@ -806,6 +837,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         }
         [_devManager closeWebSocket:closeType];
     }
+    
+#if TDF_SERVICE_ENABLED
+    bool reload = self.invalidateReason == HippyInvalidateReasonReload ? true : false;
+    self.javaScriptExecutor.pScope->DestroyDevtools(reload);
+#endif
 
     // Invalidate modules
     dispatch_group_t group = dispatch_group_create();
