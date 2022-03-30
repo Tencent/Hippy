@@ -507,9 +507,9 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     for (HippyShadowView *subShadowView in shadowView.hippySubviews) {
         UIView *subview = [self createViewRecursiveFromShadowViewWithNOLock:subShadowView];
         [view insertHippySubview:subview atIndex:index];
-        [view insertSubview:subview atIndex:index];
         index++;
     }
+    [view didUpdateHippySubviews];
     view.hippyShadowView = shadowView;
     view.renderContext = self;
     [view didUpdateHippySubviews];
