@@ -88,7 +88,7 @@ export default class ModalExpo extends React.Component {
           transparent={true}
           animationType="slide_fade"
           visible={visible}
-          onShow={this.onModalShow}
+          onRequestClose={() => { /* Trigger when hardware back pressed */ }}
           supportedOrientations={['portrait']}
           immersionStatusBar={true}
         >

@@ -15,9 +15,6 @@ module.exports = {
     port: 38988,
     hot: true,
     liveReload: true,
-    static: {
-      directory: path.join(__dirname, '../src/public'),
-    },
   },
   entry: {
     index: ['regenerator-runtime', path.resolve(pkg.main)],

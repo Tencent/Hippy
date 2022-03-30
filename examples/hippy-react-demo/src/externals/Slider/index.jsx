@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text, StyleSheet, Dimensions } from '@hippy/react';
+import { ScrollView, Text, StyleSheet } from '@hippy/react';
 import Slider from './Slider';
 
 const IMAGE_URLS = [
@@ -8,10 +8,9 @@ const IMAGE_URLS = [
   'https://user-images.githubusercontent.com/12878546/148736685-a4c226ad-f64a-4fe0-b3df-ce0d8fcd7a01.jpg',
 ];
 
-const Screen = Dimensions.get('screen');
 const styles = StyleSheet.create({
   sliderStyle: {
-    width: Screen.width,
+    width: 400,
     height: 180,
   },
   infoStyle: {

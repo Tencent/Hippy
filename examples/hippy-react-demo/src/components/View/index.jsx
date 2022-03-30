@@ -4,8 +4,8 @@ import {
   Text,
   View,
   StyleSheet,
-  Platform,
 } from '@hippy/react';
+
 import imageUrl from './defaultSource.jpg';
 
 const styles = StyleSheet.create({
@@ -55,25 +55,25 @@ export default function ViewExpo() {
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
-        backgroundImage: `${Platform.OS === 'web' ? `url(${imageUrl})` : imageUrl}`,
+        backgroundImage: imageUrl,
       }]}
-        accessible={true}
-        accessibilityLabel={'背景图'}
-        accessibilityRole={'image'}
-        accessibilityState={{
-          disabled: false,
-          selected: true,
-          checked: false,
-          expanded: false,
-          busy: true,
-        }}
-        accessibilityValue={{
-          min: 1,
-          max: 10,
-          now: 5,
-          text: 'middle',
-        }}
-      ><Text style={{ color: 'white' }}>背景图</Text></View>
+      accessible={true}
+      accessibilityLabel={'背景图'}
+      accessibilityRole={'image'}
+      accessibilityState={{
+        disabled: false,
+        selected: true,
+        checked: false,
+        expanded: false,
+        busy: true,
+      }}
+      accessibilityValue={{
+        min: 1,
+        max: 10,
+        now: 5,
+        text: 'middle',
+      }}
+    ><Text style={{ color: 'white' }}>背景图</Text></View>
       {renderTitle('backgroundImage linear-gradient')}
       <View style={[styles.rectangle, {
         alignItems: 'center',
@@ -82,7 +82,7 @@ export default function ViewExpo() {
         borderWidth: 2,
         borderColor: 'black',
         borderRadius: 2,
-        backgroundImage: 'linear-gradient(30deg, blue 10%, yellow 40%, red 50%)',
+        backgroundImage: 'linear-gradient(30deg, blue 10%, yellow 40%, red 50%);',
       }]} ><Text style={{ color: 'white' }}>渐变色</Text></View>
       {renderTitle('border props')}
       <View style={[styles.rectangle, { borderColor: '#242424', borderRadius: 4, borderWidth: 1 }]} />
@@ -97,6 +97,6 @@ export default function ViewExpo() {
         <View style={[styles.smallRectangle, { backgroundColor: 'blue' }]} />
         <View style={[styles.smallRectangle, { backgroundColor: 'green' }]} />
       </View>
-    </ScrollView >
+    </ScrollView>
   );
 }

@@ -77,7 +77,7 @@ export default class App extends Component {
     };
 
     return (
-      <SafeAreaView style={{ flex: 1 }} statusBarColor="#4c9afa">
+      <SafeAreaView statusBarColor="#4c9afa">
         {renderPage()}
         <View style={styles.buttonContainer}>
           {renderButton()}

@@ -23,8 +23,6 @@ import ReactDOM from 'react-dom';
 import { canUseDOM } from '../utils/execution-environment';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';
-import { warnWhenUseUnsupportedProp } from '../utils';
-import { UNSUPPORTED_PROPS_MAP } from '../constants';
 
 const ANIMATION_DURATION = 300;
 const styles = StyleSheet.create({
@@ -222,11 +220,6 @@ const Modal: React.FC<ModalProps> = (props) => {
     animated,
     animationType,
   } = props;
-  warnWhenUseUnsupportedProp({
-    moduleProps: props,
-    moduleName: 'Modal',
-    unsupportedProps: UNSUPPORTED_PROPS_MAP.modal,
-  });
 
   useEffect(() => {
     setModalAnimationKeyFrame();

@@ -66,21 +66,21 @@ const styles = StyleSheet.create({
 function Style1({ index }) {
   return (
     <View style={styles.container}
-      onClickCapture={(event) => {
-        console.log('onClickCapture style1', event.target.nodeId, event.currentTarget.nodeId);
-      }}
-      onTouchDown={(event) => {
-        // if stopPropagation && return false called at the same time, stopPropagation has higher priority
-        event.stopPropagation();
-        console.log('onTouchDown style1', event);
-        return false;
-      }}
-      onClick={(event) => {
-        console.log('click style1', event.target.nodeId, event.currentTarget.nodeId);
-        return false;
-      }}
+          onClickCapture={(event) => {
+            console.log('onClickCapture style1', event.target.nodeId, event.currentTarget.nodeId);
+          }}
+          onTouchDown={(event) => {
+            // if stopPropagation && return false called at the same time, stopPropagation has higher priority
+            event.stopPropagation();
+            console.log('onTouchDown style1', event.target.nodeId, event.currentTarget.nodeId);
+            return false;
+          }}
+          onClick={(event) => {
+            console.log('click style1', event.target.nodeId, event.currentTarget.nodeId);
+            return false;
+          }}
     >
-      <Text numberOfLines={1}>{`${index}: Style 1 UI`}</Text>
+      <Text numberOfLines={1}>{ `${index}: Style 1 UI` }</Text>
     </View>
   );
 }
@@ -88,7 +88,7 @@ function Style1({ index }) {
 function Style2({ index }) {
   return (
     <View style={styles.container}>
-      <Text numberOfLines={1}>{`${index}: Style 2 UI`}</Text>
+      <Text numberOfLines={1}>{ `${index}: Style 2 UI` }</Text>
     </View>
   );
 }
@@ -96,7 +96,7 @@ function Style2({ index }) {
 function Style5({ index }) {
   return (
     <View style={styles.container}>
-      <Text numberOfLines={1}>{`${index}: Style 5 UI`}</Text>
+      <Text numberOfLines={1}>{ `${index}: Style 5 UI` }</Text>
     </View>
   );
 }
@@ -104,15 +104,9 @@ function Style5({ index }) {
 export default class ListExample extends React.Component {
   constructor(props) {
     super(props);
-    this.pullingText = {
-      pull: '继续下拉触发刷新',
-      release: '松手，即可触发刷新',
-      loading: '刷新数据中，请稍等，1秒后自动收起',
-    };
     this.state = {
       dataSource: mockDataArray,
       fetchingDataFlag: false,
-      pullingText: this.pullingText.pull,
     };
     this.fetchTimes = 0;
     this.delText = 'Delete';
@@ -209,27 +203,27 @@ export default class ListExample extends React.Component {
         styleUI = <Text style={styles.loading}>Loading now...</Text>;
         break;
       default:
-      // pass
+        // pass
     }
     return (
       <View style={styles.container}
-        onClickCapture={(event) => {
-          console.log('onClickCapture style outer', event, event.target.nodeId, event.currentTarget.nodeId);
-        }}
-        onTouchDown={(event) => {
-          // outer onTouchDown would not be called, because style1 invoked event.stopPropagation();
-          console.log('onTouchDown style outer', event.target.nodeId, event.currentTarget.nodeId);
-          return false;
-        }}
-        onClick={(event) => {
-          console.log('click style outer', event.target.nodeId, event.currentTarget.nodeId);
-          // return false means trigger bubble
-          return false;
-        }}>
+            onClickCapture={(event) => {
+              console.log('onClickCapture style outer', event.target.nodeId, event.currentTarget.nodeId);
+            }}
+            onTouchDown={(event) => {
+              // outer onTouchDown would not be called, because style1 invoked event.stopPropagation();
+              console.log('onTouchDown style outer', event.target.nodeId, event.currentTarget.nodeId);
+              return false;
+            }}
+            onClick={(event) => {
+              console.log('click style outer', event.target.nodeId, event.currentTarget.nodeId);
+              // return false means trigger bubble
+              return false;
+            }}>
         <View style={styles.itemContainer}>
           {styleUI}
         </View>
-        {!isLastItem ? <View style={styles.separatorLine} /> : null}
+        {!isLastItem ? <View style={styles.separatorLine} /> : null }
       </View>
     );
   }
@@ -253,20 +247,20 @@ export default class ListExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
-        onTouchDown={(event) => {
-          console.log('onTouchDown ListView', event.target.nodeId, event.currentTarget.nodeId);
-        }}
-        onClickCapture={(event) => {
-          // if calling capture event stopPropagation function in one of node,
-          // all capture phase left, target phase and bubbling phase would stop.
-          // event.stopPropagation();
-          console.log('onClickCapture listview', event.target.nodeId, event.currentTarget.nodeId);
-        }}
-        onClick={(event) => {
-          console.log('click listview', event.target.nodeId, event.currentTarget.nodeId);
-          // return false means trigger bubble
-          return true;
-        }}
+          onTouchDown={(event) => {
+            console.log('onTouchDown ListView', event.target.nodeId, event.currentTarget.nodeId);
+          }}
+          onClickCapture={(event) => {
+            // if calling capture event stopPropagation function in one of node,
+            // all capture phase left, target phase and bubbling phase would stop.
+            // event.stopPropagation();
+            console.log('onClickCapture listview', event.target.nodeId, event.currentTarget.nodeId);
+          }}
+          onClick={(event) => {
+            console.log('click listview', event.target.nodeId, event.currentTarget.nodeId);
+            // return false means trigger bubble
+            return true;
+          }}
         bounces={true}
         overScrollEnabled={true}
         // horizontal ListView  flag（only Android support）
@@ -282,8 +276,9 @@ export default class ListExample extends React.Component {
         // configure listItem style if horizontal listview is set
         // getRowStyle={this.getRowStyle}
         getRowKey={this.getRowKey}
-        rowShouldSticky={this.rowShouldSticky}
         initialListSize={15}
+        initialContentOffset={100}
+        rowShouldSticky={this.rowShouldSticky}
         onAppear={this.onAppear}
         onDisappear={this.onDisappear}
         onWillAppear={this.onWillAppear}
@@ -292,3 +287,4 @@ export default class ListExample extends React.Component {
     );
   }
 }
+

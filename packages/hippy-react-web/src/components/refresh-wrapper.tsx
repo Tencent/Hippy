@@ -24,8 +24,6 @@ import React, { useState } from 'react';
 import MPullToRefresh from 'rmc-pull-to-refresh';
 import { formatWebStyle } from '../adapters/transfer';
 import { isFunc } from '../utils/validation';
-import { warnWhenUseUnsupportedProp } from '../utils';
-import { UNSUPPORTED_PROPS_MAP } from '../constants';
 
 export interface RefreshWrapperProp {
   ref?: any;
@@ -41,11 +39,6 @@ export interface RefreshWrapperProp {
  */
 const RefreshWrapper: React.FC<RefreshWrapperProp> = React.forwardRef((props, ref) => {
   const { getRefresh, style, children, onRefresh } = props;
-  warnWhenUseUnsupportedProp({
-    moduleProps: props,
-    moduleName: 'RefreshWrapper',
-    unsupportedProps: UNSUPPORTED_PROPS_MAP.refreshWrapper,
-  });
 
   const newProps = { ...props, style: formatWebStyle(style) };
   const wrapperRef = React.useRef(null);

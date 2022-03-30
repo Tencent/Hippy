@@ -58,9 +58,6 @@ export default class PullHeaderExample extends React.Component {
     this.state = {
       dataSource: [],
       pullingText: '继续下拉触发刷新',
-      loadingText: '刷新数据中，请稍等，2秒后自动收起',
-      releaseText: '松手，即可触发刷新',
-      continueText: '继续下拉触发刷新',
       loadingState: '正在加载...',
     };
     this.fetchTimes = 0;
@@ -101,7 +98,7 @@ export default class PullHeaderExample extends React.Component {
     let newData = [];
     try {
       newData = await this.mockFetchData();
-    } catch (err) { }
+    } catch (err) {}
     const lastLineItem = dataSource[dataSource.length - 1];
     if (lastLineItem && lastLineItem.style === STYLE_LOADING) {
       dataSource.pop();
@@ -119,20 +116,18 @@ export default class PullHeaderExample extends React.Component {
       return;
     }
     this.fetchingDataFlag = true;
+    console.log('onHeaderReleased');
     this.setState({
-      pullingText: this.state.loadingText,
+      pullingText: '刷新数据中，请稍等，2秒后自动收起',
     });
     let dataSource = [];
     try {
       dataSource = await this.mockFetchData();
-    } catch (err) { }
+    } catch (err) {}
     this.fetchingDataFlag = false;
     this.setState({ dataSource }, () => {
       // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致onHeaderReleased事件不能再次触发
       this.listView.collapsePullHeader();
-      this.setState({
-        pullingText: this.state.continueText,
-      });
       this.fetchTimes = 0;
     });
   }
@@ -149,13 +144,14 @@ export default class PullHeaderExample extends React.Component {
     if (this.fetchingDataFlag) {
       return;
     }
+    console.log('onHeaderPulling', evt.contentOffset);
     if (evt.contentOffset > styles.pullContent.height) {
       this.setState({
-        pullingText: this.state.releaseText,
+        pullingText: '松手，即可触发刷新',
       });
     } else {
       this.setState({
-        pullingText: this.state.continueText,
+        pullingText: '继续下拉，触发刷新',
       });
     }
   }
@@ -215,7 +211,7 @@ export default class PullHeaderExample extends React.Component {
     const { pullingText } = this.state;
     return (
       <View style={styles.pullContainer}>
-        <Text style={styles.pullContent}>{pullingText}</Text>
+        <Text style={styles.pullContent}>{ pullingText }</Text>
       </View>
     );
   }
@@ -266,10 +262,10 @@ export default class PullHeaderExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
-        onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
-        ref={(ref) => {
-          this.listView = ref;
-        }}
+         onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
+          ref={(ref) => {
+            this.listView = ref;
+          }}
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         getRowType={this.getRowType}

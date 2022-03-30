@@ -46,10 +46,10 @@ export default function ScrollExpo() {
       </View>
       <View>
         <ScrollView
-          horizontal={true}
-          bounces={true}
-          showsHorizontalScrollIndicator={false} // only iOS support
-          showScrollIndicator={false} // only Android support
+            horizontal={true}
+            bounces={true}
+            showsHorizontalScrollIndicator={false} // only iOS support
+            showScrollIndicator={false} // only Android support
         >
           <Text style={styles.itemStyle}>A</Text>
           <Text style={styles.itemStyle}>B</Text>

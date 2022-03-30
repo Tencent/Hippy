@@ -25,8 +25,6 @@ import React, { useImperativeHandle, useEffect, useRef } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import useElementLayout from '../modules/use-element-layout';
 import { isFunc } from '../utils/validation';
-import { warnWhenUseUnsupportedProp } from '../utils';
-import { UNSUPPORTED_PROPS_MAP } from '../constants';
 
 /**
  * A foundational component for inputting text into the app via a keyboard. Props provide
@@ -62,11 +60,6 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
     style = {}, caretColor, editable = true, keyboardType, multiline = false, onLayout,
     onChangeText, defaultValue, onEndEditing, onBlur, numberOfLines = 2, autoFocus,
   } = props;
-  warnWhenUseUnsupportedProp({
-    moduleProps: props,
-    moduleName: 'TextInput',
-    unsupportedProps: UNSUPPORTED_PROPS_MAP.textinput,
-  });
 
   const hostRef: React.MutableRefObject<null | any> = useRef(null);
   useElementLayout(hostRef, onLayout);

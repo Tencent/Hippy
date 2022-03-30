@@ -114,15 +114,15 @@ export default class TextExpo extends React.Component {
             textShadowOffset,
           });
         }}>
-          <Text style={[styles.normalText, {
-            color: '#242424',
-            textShadowOffset,
-            // support declaring textShadowOffsetX & textShadowOffsetY separately
-            // textShadowOffsetX: 1,
-            // textShadowOffsetY: 1,
-            textShadowRadius: 3,
-            textShadowColor,
-          }]}>Text shadow is grey with radius 3 and offset 1</Text>
+          <Text style={[styles.normalText,
+            { color: '#242424',
+              textShadowOffset,
+              // support declaring textShadowOffsetX & textShadowOffsetY separately
+              // textShadowOffsetX: 1,
+              // textShadowOffsetY: 1,
+              textShadowRadius: 3,
+              textShadowColor,
+            }]}>Text shadow is grey with radius 3 and offset 1</Text>
         </View>
         {renderTitle('color')}
         <View style={[styles.itemContent]}>
@@ -133,7 +133,7 @@ export default class TextExpo extends React.Component {
         {renderTitle('fontSize')}
         <View style={styles.itemContent}>
           <Text style={[styles.normalText, { fontSize }]}>
-            {`Text fontSize is ${fontSize}`}
+            { `Text fontSize is ${fontSize}` }
           </Text>
           <View style={styles.button} onClick={this.incrementFontSize}>
             <Text style={styles.buttonText}>放大字体</Text>

@@ -28,8 +28,6 @@ import { isFunc } from '../utils/validation';
 import { canUseDOM } from '../utils/execution-environment';
 import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
 import { LayoutEvent } from '../types';
-import { warnWhenUseUnsupportedProp } from '../utils';
-import { UNSUPPORTED_PROPS_MAP } from '../constants';
 import View from './view';
 
 interface ListViewItemProp {
@@ -43,10 +41,12 @@ interface ListViewItemProp {
 }
 
 interface ListViewProps extends ListViewItemProp {
+  horizontal?: undefined | boolean;
   numberOfRows?: number;
   scrollEventThrottle?: number;
   scrollEnabled?: boolean;
   showScrollIndicator?: boolean;
+  initialContentOffset?: number;
   renderRow?: Function;
   getRowStyle?: Function;
   getRowHeight?: Function;
@@ -138,11 +138,6 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     onHeaderReleased = () => { }, onHeaderPulling = () => { }, renderPullHeader = () => null,
     onDisappear = () => { }, onAppear = () => { },
   } = props;
-  warnWhenUseUnsupportedProp({
-    moduleProps: props,
-    moduleName: 'ListView',
-    unsupportedProps: UNSUPPORTED_PROPS_MAP.listview,
-  });
 
   const isShowPullHeader = useRef(isFunc(renderPullHeader) && renderPullHeader());
   const pullHeaderRef = useRef<null | HTMLDivElement>(null);
@@ -270,13 +265,16 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   delete listViewProps.delText;
   delete listViewProps.onDelete;
 
-  useEffect(() => {
+  const fixRmcListViewBug = () => {
     // rmc-list-view pullRefresh bug
     if (isShowPullHeader.current && !isPullHeaderInit.current) {
       scrollToContentOffset(0, 1);
       scrollToContentOffset(0, 0);
       isPullHeaderInit.current = true;
     }
+  };
+  useEffect(() => {
+    fixRmcListViewBug();
   }, [listRef.current]);
   const refresh = () => {
     if (isFunc(onHeaderReleased)) {
@@ -348,6 +346,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     >
       <MListView
         {...listViewProps}
+        scrollRenderAheadDistance={100}
         ref={listRef}
         className={(!showScrollIndicator && HIDE_SCROLLBAR_CLASS) || ''}
         dataSource={getDataSource()}

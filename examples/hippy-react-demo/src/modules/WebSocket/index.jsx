@@ -5,7 +5,6 @@ import {
   Text,
   View,
   TextInput,
-  WebSocket,
 } from '@hippy/react';
 
 const styles = StyleSheet.create({
@@ -110,7 +109,7 @@ function WebSocketDemo() {
       <View>
         <Text style={styles.title}>Log:</Text>
         <ScrollView style={styles.fullScreen}>
-          {output.map((line, index) => <Text key={index} style={styles.output}>{line}</Text>)}
+          { output.map((line, index) => <Text key={index} style={styles.output}>{line}</Text>)}
         </ScrollView>
       </View>
     </View>

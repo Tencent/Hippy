@@ -22,8 +22,6 @@ import React, { useState, useEffect } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import ImageLoader, { LoadError } from '../adapters/image-loader';
 import { LayoutEvent } from '../types';
-import { warnWhenUseUnsupportedProp } from '../utils';
-import { UNSUPPORTED_PROPS_MAP } from '../constants';
 import { View, ViewProps } from './view';
 
 
@@ -129,11 +127,6 @@ const resolveAssetUri = (source: string | { uri: string }) => {
  */
 const Image: React.FC<ImageProp> = React.forwardRef((props: ImageProp, ref) => {
   const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd, resizeMode, children, style } = props;
-  warnWhenUseUnsupportedProp({
-    moduleProps: props,
-    moduleName: 'Image',
-    unsupportedProps: UNSUPPORTED_PROPS_MAP.image,
-  });
 
   const initImageUrl = source.uri ? source.uri : defaultSource;
   const [imageUrl, setImageUrl] = useState(initImageUrl);
@@ -185,7 +178,6 @@ const Image: React.FC<ImageProp> = React.forwardRef((props: ImageProp, ref) => {
     getSize: ImageLoader.getSize,
     prefetch: ImageLoader.prefetch,
   }));
-
 
   const finalResizeMode = resizeMode || copyProps.style?.resizeMode || ImageResizeMode.cover;
 
