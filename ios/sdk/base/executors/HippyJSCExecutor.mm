@@ -58,9 +58,6 @@ NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
 NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey = @"HippyJavaScriptContextCreatedNotificationBridgeKey";
 
-HIPPY_EXTERN NSString *const HippyFBJSContextClassKey = @"_HippyFBJSContextClassKey";
-HIPPY_EXTERN NSString *const HippyFBJSValueClassKey = @"_HippyFBJSValueClassKey";
-
 struct __attribute__((packed)) ModuleData {
     uint32_t offset;
     uint32_t size;
@@ -369,16 +366,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
 }
 
 - (void)setUp {
-    [self executeBlockOnJavaScriptQueue:^{
-        if (!self.valid) {
-            return;
-        }
-        NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
-        if (!threadDictionary[HippyFBJSContextClassKey] || !threadDictionary[HippyFBJSValueClassKey]) {
-            threadDictionary[HippyFBJSContextClassKey] = [JSContext class];
-            threadDictionary[HippyFBJSValueClassKey] = [JSValue class];
-        }
-    }];
 }
 
 /** Installs synchronous hooks that don't require a weak reference back to the HippyJSCExecutor. */

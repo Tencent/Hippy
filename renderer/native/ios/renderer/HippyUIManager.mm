@@ -146,8 +146,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 @interface HippyUIManager() {
     NSNumber *_rootViewTag;
     NSMutableArray<HippyRenderUIBlock> *_pendingUIBlocks;
-    NSMutableArray<NSNumber *> *_listTags;
-    NSMutableSet<UIView *> *_viewsToBeDeleted;  // Main thread only
 
     NSMutableDictionary<NSNumber *, HippyShadowView *> *_shadowViewRegistry;  // Hippy thread only
     NSMutableDictionary<NSNumber *, UIView *> *_viewRegistry;                 // Main thread only
@@ -195,11 +193,9 @@ HIPPY_EXPORT_MODULE()
 - (void)initContext {
     _shadowViewRegistry = [NSMutableDictionary new];
     _viewRegistry = [NSMutableDictionary new];
-    _listTags = [NSMutableArray new];
     // Internal resources
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSMutableSet new];
-    _viewsToBeDeleted = [NSMutableSet new];
     _componentDataByName = [NSMutableDictionary dictionaryWithCapacity:64];
 }
 
@@ -236,7 +232,6 @@ HIPPY_EXPORT_MODULE()
     dispatch_async(dispatch_get_main_queue(), ^{
         HippyUIManager *strongSelf = weakSelf;
         if (strongSelf) {
-            strongSelf->_shadowViewRegistry = nil;
             [(id<HippyInvalidating>)strongSelf->_viewRegistry[strongSelf->_rootViewTag] invalidate];
             [strongSelf->_viewRegistry removeObjectForKey:strongSelf->_rootViewTag];
 
@@ -246,11 +241,8 @@ HIPPY_EXPORT_MODULE()
                     [(id<HippyInvalidating>)subview invalidate];
                 }
             }
-
-            strongSelf->_rootViewTag = nil;
             strongSelf->_viewRegistry = nil;
             strongSelf->_componentTransactionListeners = nil;
-            strongSelf->_listTags = nil;
             [[NSNotificationCenter defaultCenter] removeObserver:strongSelf];
         }
     });
