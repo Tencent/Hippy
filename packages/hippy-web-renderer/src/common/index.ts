@@ -26,7 +26,7 @@ import {
   STYLE_PADDING_V,
 } from '../types';
 
-function hasOwnProperty(obj: Object, name: string | number | symbol) {
+export function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return obj && Object.prototype.hasOwnProperty.call(obj, name);
 }
 
@@ -104,6 +104,7 @@ function styleUpdateWithCheck(element: HTMLElement, key: string, newValue: any) 
     style[key] = newValue;
   }
 }
+
 export function convertHexToRgba(number) {
   const alpha = (number >> 24) & 0xff;
   const red = (number >> 16) & 0xff;
@@ -111,6 +112,15 @@ export function convertHexToRgba(number) {
   const blue = number & 0xff;
   return `rgba(${red}, ${green}, ${blue}, ${(alpha / 256).toFixed(3)})`;
 }
+
+export function convertHexToRgbaArray(number) {
+  const alpha = (number >> 24) & 0xff;
+  const red = (number >> 16) & 0xff;
+  const green = (number >> 8) & 0xff;
+  const blue = number & 0xff;
+  return [red, green, blue, alpha];
+}
+
 function isColor(key: string) {
   return key.endsWith('Color') || key.endsWith('color');
 }

@@ -18,22 +18,55 @@
  * limitations under the License.
  */
 
-import { ImageResizeMode, NodeProps, InnerNodeTag } from '../types';
-import { setElementStyle } from '../common';
+import { ImageResizeMode, NodeProps, InnerNodeTag, UIProps, HippyBaseView } from '../types';
+import { convertHexToRgbaArray, setElementStyle } from '../common';
+import { Color, Solver } from '../third-lib/color-transform.js';
 import { HippyView } from './hippy-view';
 
 export class Image extends HippyView<HTMLImageElement> {
   private isLoadSuccess = false;
   public constructor(context, id, pId) {
     super(context, id, pId);
-    this.tagName = InnerNodeTag.VIEW;
+    this.tagName = InnerNodeTag.IMAGE;
     this.dom = document.createElement('img');
     this.handleLoad = this.handleLoad.bind(this);
     this.init();
   }
 
+  public updateProps(
+    data: UIProps,
+    defaultProcess: (component: HippyBaseView, data: UIProps) => void,
+  ) {
+    if (data.style.tintColor !== undefined) {
+      const newData = { ...data };
+      newData.tintColor = data.style.tintColor;
+      delete newData.style.tintColor;
+      defaultProcess(this, newData);
+      return;
+    }
+    defaultProcess(this, data);
+  }
+
   public defaultStyle(): {[key: string]: any} {
     return { boxSizing: 'border-box', zIndex: 0 };
+  }
+
+  public set tintColor(value) {
+    this.props[NodeProps.TINY_COLOR] = value;
+    if (value !== undefined && value !== 0) {
+      const [red, blue, green] = convertHexToRgbaArray(value);
+      const color = new Color(red, blue, green);
+      const solver = new Solver(color);
+      const filter = solver.solve();
+      // console.log(filter, color);
+      setElementStyle(this.dom!, { filter: filter.filter });
+    } else {
+      setElementStyle(this.dom!, { filter: '' });
+    }
+  }
+
+  public get tintColor() {
+    return this.props[NodeProps.TINY_COLOR];
   }
 
   public set capInsets(value) {
@@ -65,7 +98,7 @@ export class Image extends HippyView<HTMLImageElement> {
       return value.replace('hpfile://./', '');
     }
 
-    return value;
+    return value ?? '';
   }
 
   public set src(value: string) {
@@ -149,3 +182,5 @@ export const ImageResizeModeToObjectFit = (function () {
   map[ImageResizeMode.COVER] = 'cover';
   return map;
 }());
+
+
