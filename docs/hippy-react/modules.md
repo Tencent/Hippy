@@ -15,7 +15,7 @@
 - 在 render 时，将动画设置到需要产生动画效果的控件属性上；
 - 通过 Animation 的 start 接口启动动画，或是通过 destroy 停止并销毁动画。
 
-> 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画
+> 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画，hippy-react-web 不支持颜色渐变动画。
 
 ## 构造参数
 

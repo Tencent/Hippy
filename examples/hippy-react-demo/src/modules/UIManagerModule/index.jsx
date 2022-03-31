@@ -135,6 +135,7 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
        * Demo:
        * UIManagerModule.measureInWindow(box.current, (response) => setMeasuredPosition(response))
        */
+      // console.log('box.current', box.current);
       const response = await UIManagerModule.measureInWindow(box.current);
       setMeasuredPosition(response);
     } catch (err) {

@@ -23,6 +23,7 @@ import animateScrollTo from 'animated-scroll-to';
 import StyleSheet from '../modules/stylesheet';
 import { isFunc } from '../utils/validation';
 import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
+import { getViewRefNode } from '../utils';
 import { View, ViewProps } from './view';
 
 const styles = StyleSheet.create({
@@ -208,7 +209,8 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
   };
   const handleScroll = (e: any) => {
     e.stopPropagation();
-    if (e.target === scrollRef.current) {
+    const scrollElement = getViewRefNode(scrollRef);
+    if (e.target === scrollElement) {
       if (scrollTimeout.current !== null) {
         clearTimeout(scrollTimeout.current);
       }
@@ -235,19 +237,21 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     scrollTo: (param: { x: number, y: number, animated: boolean }) => {
       const { x, y, animated } = param;
+      const scrollElement = getViewRefNode(scrollRef);
       if (animated) {
         animateScrollTo([x, y], {
-          elementToScroll: scrollRef.current,
+          elementToScroll: scrollElement || undefined,
         });
       } else {
-        scrollRef.current?.scrollTo(x, y);
+        scrollElement?.scrollTo(x, y);
       }
     },
     scrollToWithDuration: (param: { x: number, y: number, duration: number }) => {
       const { x, y, duration } = param;
+      const scrollElement = getViewRefNode(scrollRef);
       // minDuration 250, maxDuration 3000
       animateScrollTo([x, y], {
-        elementToScroll: scrollRef.current,
+        elementToScroll: scrollElement || undefined,
         minDuration: duration,
         maxDuration: duration,
       });

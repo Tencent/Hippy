@@ -18,9 +18,7 @@
  * limitations under the License.
  */
 import React from 'react';
-import { warnWhenUseUnsupportedProp } from '../utils';
 import { formatWebStyle } from '../adapters/transfer';
-import { UNSUPPORTED_PROPS_MAP } from '../constants';
 
 interface WebViewProps {
   source: { uri: string };
@@ -39,12 +37,6 @@ interface WebViewProps {
  */
 const WebView = (props: WebViewProps) => {
   const { source, style, onLoadEnd } = props;
-  warnWhenUseUnsupportedProp({
-    moduleProps: props,
-    moduleName: 'WebView',
-    unsupportedProps: UNSUPPORTED_PROPS_MAP.webview,
-  });
-
   const src = source?.uri;
   const newStyle = formatWebStyle(style);
 

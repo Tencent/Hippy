@@ -277,7 +277,6 @@ export default class ListExample extends React.Component {
         // getRowStyle={this.getRowStyle}
         getRowKey={this.getRowKey}
         initialListSize={15}
-        initialContentOffset={100}
         rowShouldSticky={this.rowShouldSticky}
         onAppear={this.onAppear}
         onDisappear={this.onDisappear}

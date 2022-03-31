@@ -60,8 +60,19 @@ const useStable = <T>(getInitialValue: () => T): T => {
   return ref.current;
 };
 
+const getViewRefNode = (ref: any) => {
+  if (ref?.current?.node) {
+    return ref.current.node as HTMLElement;
+  }
+  if (ref?.node) {
+    return ref.node as HTMLElement;
+  }
+  return ref;
+};
+
 
 export {
   warn,
   useStable,
+  getViewRefNode,
 };

@@ -57,7 +57,7 @@ export const ViewPager: React.FC<Props> = React.forwardRef((props, ref) => {
     if (!children || (children as React.ReactNodeArray).length === 0) return null;
     return children.map((item: any, index: number) => {
       const keyParam = index;
-      return <SwiperSlide nativeName="ListViewItem" key={`ViewPager-${keyParam}`}>{item}</SwiperSlide>;
+      return <SwiperSlide key={`ViewPager-${keyParam}`}>{item}</SwiperSlide>;
     });
   };
 
