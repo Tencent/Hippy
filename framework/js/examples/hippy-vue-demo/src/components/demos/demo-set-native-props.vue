@@ -86,29 +86,29 @@ export default {
   }
   .native-demo-1-drag {
     height: 80px;
-    background-color: #4c9afa;
+    background-color: #40b883;
     position: relative;
     marginTop: 10px
   }
   .native-demo-1-point {
     height: 80px;
     width: 80px;
-    color: #ff0000;
-    background-color: #ff0000;
+    color: #40ee94;
+    background-color: #40ee94;
     position: absolute;
     left: 0;
   }
   .native-demo-2-drag {
     height: 80px;
-    background-color: #4c9afa;
+    background-color: #40b883;
     position: relative;
     marginTop: 10px;
   }
   .native-demo-2-point {
     height: 80px;
     width: 80px;
-    color: #ff0000;
-    background-color: #ff0000;
+    color: #40ee94;
+    background-color: #40ee94;
     position: absolute;
     left: 0;
   }
