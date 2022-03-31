@@ -214,7 +214,7 @@ export default {
 }
 
 #demo-pull-header .ul-refresh {
-  background-color: green;
+  background-color: #40b883;
 }
 
 #demo-pull-header .ul-refresh-text {

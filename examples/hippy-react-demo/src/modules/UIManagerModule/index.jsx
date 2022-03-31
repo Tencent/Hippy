@@ -22,35 +22,45 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 100,
     height: 100,
-    backgroundColor: 'green',
+    backgroundColor: '#4c9afa',
+    justifyContent: 'center',
+    alignItem: 'center',
+    borderRadius: 5,
   },
   text: {
-    width: 100,
-    height: 100,
-    lineHeight: 100,
     color: 'white',
     textAlign: 'center',
     textAlignVertical: 'middle',
   },
   buttonContainer: {
-    alignItem: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 5,
   },
   button: {
-    width: 250,
     height: 50,
     borderColor: '#4c9afa',
     borderWidth: 2,
     borderRadius: 8,
+    justifyContent: 'center',
+    alignItem: 'center',
+    flexShrink: 1,
+    paddingHorizontal: 2,
   },
   buttonText: {
     height: 50,
-    fontSize: 20,
+    lineHeight: 50,
+    fontSize: 15,
     color: '#4c9afa',
     textAlign: 'center',
     textAlignVertical: 'center',
   },
   row: {
+    alignItems: 'center',
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 5,
   },
   black: {
     color: 'black',
@@ -80,8 +90,8 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
 
   // Get the window size after component attached to DOM
   useEffect(() => {
-    const window = Dimensions.get('window');
-    ({ width: windowWidth, height: windowHeight } = window);
+    const screen = Dimensions.get('screen');
+    ({ width: windowWidth, height: windowHeight } = screen);
   });
 
   // Initial the states
@@ -102,9 +112,9 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
    * Set a random position to box
    */
   const setRandomPosition = () => {
-    const left = getRandomInt(0, windowWidth);
-    const top = getRandomInt(0, windowHeight - 300);
-    const size = getRandomInt(50, 120);
+    const left = getRandomInt(0, windowWidth - 100);
+    const top = getRandomInt(0, windowHeight - 450);
+    const size = getRandomInt(80, 120);
     setPosition({
       left,
       top,
@@ -142,7 +152,7 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
     <View style={styles.full}>
       <View style={styles.demoContent}>
         <View ref={box} style={boxStyle}>
-          <Text style={styles.text}>I am the box</Text>
+          <Text style={styles.text} numberOfLines={2}>I am the box</Text>
         </View>
       </View>
       <View style={styles.buttonContainer}>
@@ -154,14 +164,14 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
         </View>
       </View>
       <View style={styles.row}>
-        <View style={styles.full}>
+        <View>
           <Text>Box style:</Text>
           <Text style={styles.black}>{`Width: ${boxStyle.width}`}</Text>
           <Text style={styles.black}>{`Height: ${boxStyle.height}`}</Text>
           <Text style={styles.black}>{`Left: ${boxStyle.left}`}</Text>
           <Text style={styles.black}>{`Top: ${boxStyle.top}`}</Text>
         </View>
-        <View style={styles.full}>
+        <View>
           <Text>measureInWindow output:</Text>
           <Text style={styles.black}>{`Width: ${measuredPosition.width}`}</Text>
           <Text style={styles.black}>{`Height: ${measuredPosition.height}`}</Text>

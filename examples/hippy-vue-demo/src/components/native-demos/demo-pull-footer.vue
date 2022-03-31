@@ -201,7 +201,7 @@ export default {
 }
 
 #demo-pull-footer .pull-footer {
-  background-color: green;
+  background-color: #40b883;
 }
 
 #demo-pull-footer .pull-footer-text {

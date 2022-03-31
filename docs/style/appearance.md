@@ -276,7 +276,7 @@
 
 [Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
 
-对图片进行染色（iOS暂不支持透明度）
+对图片进行染色(对非纯色图片进行有透明度的染色时，Android 和 iOS 的 `blendMode` 默认值有差异)
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
