@@ -50,6 +50,7 @@ class UIManagerModule : public ModuleBase {
   void StartBatch(const CallbackInfo& info);
   void EndBatch(const CallbackInfo& info);
   void CallUIFunction(const CallbackInfo& info);
+  void SetContextName(const hippy::napi::CallbackInfo &info);
 
  private:
 };
