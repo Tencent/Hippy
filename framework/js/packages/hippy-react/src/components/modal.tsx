@@ -24,6 +24,7 @@ import React from 'react';
 import * as StyleSheet from '../modules/stylesheet';
 import { HippyEventListener } from '../event';
 import { Device } from '../native';
+import View from './view';
 
 type ModalOrientation = 'portrait' | 'portrait-upside-down' | 'landscape' | 'landscape-left' | 'landscape-right';
 
@@ -116,7 +117,11 @@ interface ModalProps {
 const styles = StyleSheet.create({
   modal: {
     position: 'absolute',
-    collapsable: false,
+  },
+  container: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
   },
 });
 
@@ -196,10 +201,12 @@ class Modal extends React.Component<ModalProps, {}> {
         animationType={animationType}
         transparent={transparent}
         // @ts-ignore
-        style={[styles.modal, containerStyles]}
+        style={styles.modal}
         {...this.props}
       >
-        {children}
+        <View style={[styles.container, containerStyles]}>
+          {children}
+        </View>
       </div>
     );
   }
