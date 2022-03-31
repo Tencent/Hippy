@@ -46,15 +46,16 @@ import icon from './qb_icon_new.png';
 
 | 参数          | 描述                                                         | 类型                                                         | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
+| capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
+| defaultSource | 指定当 `Image` 组件还没加载出来 `source` 属性指定的图片的占位符图片，当 `source` 属性指定的图片加载失败时， `Image` 组件会显示 `defaultSource` 属性指定的图片 | `string`: 图片 base64 字符串                                     | `Android、iOS`    |
+| source        | uri 是一个表示图片的资源标识的字符串。 现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。 | `{ uri: string }`                                            | `Android、iOS`    |
+| tintColor     | 对图片进行染色(对非纯色图片进行有透明度的染色时，Android 和 iOS 的 `blendMode` 默认值有差异)。 | [color](style/color.md) | `Android、iOS`
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `Android、iOS`    |
 | onLoad        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS`    |
 | onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}` | `Function`                                                   | `Android、iOS`    |
 | onLoadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `Android、iOS`    |
 | resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS`    |
-| source        | uri 是一个表示图片的资源标识的字符串。 现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。 | `{ uri: string }`                                            | `Android、iOS`    |
-| defaultSource | 指定当 `Image` 组件还没加载出来 `source` 属性指定的图片的占位符图片，当 `source` 属性指定的图片加载失败时， `Image` 组件会显示 `defaultSource` 属性指定的图片 | `string`: 图片 base64 字符串                                     | `Android、iOS`    |
 | onError       | 当加载错误的时候调用此回调函数，参数为 `nativeEvent: { error }` | `Function`                                                   | `Android、iOS`    |
-| capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
 | onProgress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   |      `iOS`     |
 | onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS`    |
 | onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS`    |
@@ -161,7 +162,7 @@ import icon from './qb_icon_new.png';
 | animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `Android、iOS`    |
 | animationType         | 动画效果                                                            | `enum (none, slide, fade, slide_fade)` | `Android、iOS`    |
 | supportedOrientations | 支持屏幕翻转方向                                                            | `enum (portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
-| immersionStatusBar    | 是否是沉浸式状态栏。`default: true`                                        | `boolean`                                                    | `Android`    |
+| immersionStatusBar    | 是否是沉浸式状态栏。`default: false`                                        | `boolean`                                                    | `Android`    |
 | darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `Android、iOS`    |
 | onShow                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `Android、iOS`    |
 | onOrientationChange   | 屏幕旋转方向改变时执行会回调                       | `Function`                                                   | `Android、iOS`    |
