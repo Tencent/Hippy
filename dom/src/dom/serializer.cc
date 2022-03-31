@@ -180,9 +180,9 @@ void Serializer::WriteObject(const DomValue& dom_value) {
       Oddball ball = Oddball::kUndefined;
       if (type == DomValue::Type::kNull) {
         ball = Oddball::kNull;
-      } else if (type == DomValue::Type::kBoolean && dom_value.ToBoolean()) {
+      } else if (type == DomValue::Type::kBoolean && dom_value.ToBooleanChecked()) {
         ball = Oddball::kTrue;
-      } else if (type == DomValue::Type::kBoolean && !dom_value.ToBoolean()) {
+      } else if (type == DomValue::Type::kBoolean && !dom_value.ToBooleanChecked()) {
         ball = Oddball::kFalse;
       }
       WriteOddball(ball);
@@ -192,15 +192,15 @@ void Serializer::WriteObject(const DomValue& dom_value) {
       DomValue::NumberType number_type = dom_value.GetNumberType();
       switch (number_type) {
         case DomValue::NumberType::kInt32: {
-          WriteInt32(dom_value.ToInt32());
+          WriteInt32(dom_value.ToInt32Checked());
           break;
         }
         case DomValue::NumberType::kUInt32: {
-          WriteUint32(dom_value.ToUint32());
+          WriteUint32(dom_value.ToUint32Checked());
           break;
         }
         case DomValue::NumberType::kDouble: {
-          WriteDouble(dom_value.ToDouble());
+          WriteDouble(dom_value.ToDoubleChecked());
           break;
         }
         default: {
@@ -210,15 +210,15 @@ void Serializer::WriteObject(const DomValue& dom_value) {
       break;
     }
     case DomValue::Type::kString: {
-      WriteString(dom_value.ToString());
+      WriteString(dom_value.ToStringChecked());
       break;
     }
     case DomValue::Type::kObject: {
-      WriteJSObject(dom_value.ToObject());
+      WriteJSObject(dom_value.ToObjectChecked());
       break;
     }
     case DomValue::Type::kArray: {
-      WriteDenseJSArray(dom_value.ToArray());
+      WriteDenseJSArray(dom_value.ToArrayChecked());
       break;
     }
     default:

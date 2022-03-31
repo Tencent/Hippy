@@ -318,17 +318,37 @@ bool DomValue::IsUInt32() const noexcept { return type_ == Type::kNumber && numb
 
 bool DomValue::IsDouble() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kDouble; }
 
-int32_t DomValue::ToInt32() const {
+bool DomValue::ToInt32(int32_t& i32) const {
+  bool is_int32 = IsInt32();
+  if (is_int32) i32 = num_.i32_;
+  return is_int32;
+}
+
+int32_t DomValue::ToInt32Checked() const {
   TDF_BASE_CHECK(IsInt32());
   return num_.i32_;
 }
 
-uint32_t DomValue::ToUint32() const {
+bool DomValue::ToUint32(uint32_t& u32) const {
+  bool is_uint32 = IsUInt32();
+  if (is_uint32) u32 = num_.u32_;
+  return is_uint32;
+}
+
+uint32_t DomValue::ToUint32Checked() const {
   TDF_BASE_CHECK(IsUInt32());
   return num_.u32_;
 }
 
-double DomValue::ToDouble() const {
+bool DomValue::ToDouble(double& d) const {
+  bool is_number = IsNumber();
+  if (number_type_ == DomValue::NumberType::kDouble) d = num_.d_;
+  if (number_type_ == DomValue::NumberType::kInt32) d = num_.i32_;
+  if (number_type_ == DomValue::NumberType::kUInt32) d = num_.u32_;
+  return is_number;
+}
+
+double DomValue::ToDoubleChecked() const {
   TDF_BASE_CHECK(IsNumber());
   if (number_type_ == DomValue::NumberType::kDouble) return num_.d_;
   if (number_type_ == DomValue::NumberType::kInt32) return num_.i32_;
@@ -336,37 +356,61 @@ double DomValue::ToDouble() const {
   TDF_BASE_UNREACHABLE();
 }
 
-bool DomValue::ToBoolean() const {
+bool DomValue::ToBoolean(bool& b) const {
+  bool is_bool = IsBoolean();
+  b = b_;
+  return is_bool;
+}
+
+bool DomValue::ToBooleanChecked() const {
   TDF_BASE_CHECK(IsBoolean());
   return b_;
 }
 
-const std::string& DomValue::ToString() const {
+bool DomValue::ToString(std::string& str) const {
+  bool is_string = IsString();
+  str = str_;
+  return is_string;
+}
+
+const std::string& DomValue::ToStringChecked() const {
   TDF_BASE_CHECK(IsString());
   return str_;
 }
 
-std::string& DomValue::ToString() {
+std::string& DomValue::ToStringChecked() {
   TDF_BASE_CHECK(IsString());
   return str_;
 }
 
-const DomValue::DomValueObjectType& DomValue::ToObject() const {
+bool DomValue::ToObject(DomValue::DomValueObjectType& obj) const{
+  bool is_object = IsObject();
+  obj = obj_;
+  return is_object;
+}
+
+const DomValue::DomValueObjectType& DomValue::ToObjectChecked() const {
   TDF_BASE_CHECK(IsObject());
   return obj_;
 }
 
-DomValue::DomValueObjectType& DomValue::ToObject() {
+DomValue::DomValueObjectType& DomValue::ToObjectChecked() {
   TDF_BASE_CHECK(IsObject());
   return obj_;
 }
 
-const DomValue::DomValueArrayType& DomValue::ToArray() const {
+bool DomValue::ToArray(DomValue::DomValueArrayType& arr) const {
+  bool is_array = IsArray();
+  arr = arr_;
+  return is_array;
+}
+
+const DomValue::DomValueArrayType& DomValue::ToArrayChecked() const {
   TDF_BASE_CHECK(IsArray());
   return arr_;
 }
 
-DomValue::DomValueArrayType& DomValue::ToArray() {
+DomValue::DomValueArrayType& DomValue::ToArrayChecked() {
   TDF_BASE_CHECK(IsArray());
   return arr_;
 }

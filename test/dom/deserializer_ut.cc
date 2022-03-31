@@ -26,7 +26,7 @@ void CheckUint32(uint32_t value) {
   deserializer.ReadObject(dom_value);
   EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kNumber);
   EXPECT_TRUE(dom_value.GetNumberType() == tdf::base::DomValue::NumberType::kUInt32);
-  EXPECT_TRUE(dom_value.ToUint32() == value);
+  EXPECT_TRUE(dom_value.ToUint32Checked() == value);
 }
 
 void CheckInt32(int32_t value) {
@@ -42,7 +42,7 @@ void CheckInt32(int32_t value) {
   deserializer.ReadObject(dom_value);
   EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kNumber);
   EXPECT_TRUE(dom_value.GetNumberType() == tdf::base::DomValue::NumberType::kInt32);
-  EXPECT_TRUE(dom_value.ToInt32() == value);
+  EXPECT_TRUE(dom_value.ToInt32Checked() == value);
 }
 
 void CheckDouble(double value) {
@@ -58,7 +58,7 @@ void CheckDouble(double value) {
   deserializer.ReadObject(dom_value);
   EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kNumber);
   EXPECT_TRUE(dom_value.GetNumberType() == tdf::base::DomValue::NumberType::kDouble);
-  EXPECT_TRUE(dom_value.ToDouble() == value);
+  EXPECT_TRUE(dom_value.ToDoubleChecked() == value);
 }
 
 void CheckString(std::string value) {
@@ -73,8 +73,8 @@ void CheckString(std::string value) {
   tdf::base::DomValue dom_value;
   deserializer.ReadObject(dom_value);
   EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kString);
-  EXPECT_TRUE(dom_value.ToString() == value);
-  EXPECT_TRUE(dom_value.ToString().length() == value.length());
+  EXPECT_TRUE(dom_value.ToStringChecked() == value);
+  EXPECT_TRUE(dom_value.ToStringChecked().length() == value.length());
 }
 
 void CheckMap(tdf::base::DomValue::DomValueObjectType value) {
@@ -90,16 +90,16 @@ void CheckMap(tdf::base::DomValue::DomValueObjectType value) {
   deserializer.ReadObject(dom_value);
   EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kObject);
   EXPECT_TRUE(dom_value.IsObject());
-  EXPECT_TRUE(dom_value.ToObject().size() == value.size());
+  EXPECT_TRUE(dom_value.ToObjectChecked().size() == value.size());
 
-  for (auto& v : dom_value.ToObject()) {
+  for (auto& v : dom_value.ToObjectChecked()) {
     EXPECT_TRUE(value.find(v.first) != value.end());
     auto c = value.find(v.first);
-    if (v.second.IsUInt32()) EXPECT_TRUE(v.second.ToUint32() == c->second.ToUint32());
-    if (v.second.IsInt32()) EXPECT_TRUE(v.second.ToInt32() == c->second.ToInt32());
-    if (v.second.IsDouble()) EXPECT_TRUE(v.second.ToDouble() == c->second.ToDouble());
-    if (v.second.IsString()) EXPECT_TRUE(v.second.ToString() == c->second.ToString());
-    if (v.second.IsObject()) CheckMap(c->second.ToObject());
+    if (v.second.IsUInt32()) EXPECT_TRUE(v.second.ToUint32Checked() == c->second.ToUint32Checked());
+    if (v.second.IsInt32()) EXPECT_TRUE(v.second.ToInt32Checked() == c->second.ToInt32Checked());
+    if (v.second.IsDouble()) EXPECT_TRUE(v.second.ToDoubleChecked() == c->second.ToDoubleChecked());
+    if (v.second.IsString()) EXPECT_TRUE(v.second.ToStringChecked() == c->second.ToStringChecked());
+    if (v.second.IsObject()) CheckMap(c->second.ToObjectChecked());
   }
 }
 
@@ -116,16 +116,16 @@ void CheckArray(tdf::base::DomValue::DomValueArrayType value) {
   deserializer.ReadObject(dom_value);
   EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kArray);
   EXPECT_TRUE(dom_value.IsArray());
-  EXPECT_TRUE(dom_value.ToArray().size() == value.size());
+  EXPECT_TRUE(dom_value.ToArrayChecked().size() == value.size());
 
-  for (size_t i = 0; i < dom_value.ToArray().size(); i++) {
-    auto v = dom_value.ToArray()[i];
+  for (size_t i = 0; i < dom_value.ToArrayChecked().size(); i++) {
+    auto v = dom_value.ToArrayChecked()[i];
     auto c = value[i];
-    if (v.IsUInt32()) EXPECT_TRUE(v.ToUint32() == c.ToUint32());
-    if (v.IsInt32()) EXPECT_TRUE(v.ToInt32() == c.ToInt32());
-    if (v.IsDouble()) EXPECT_TRUE(v.ToDouble() == c.ToDouble());
-    if (v.IsString()) EXPECT_TRUE(v.ToString() == c.ToString());
-    if (v.IsArray()) CheckArray(c.ToArray());
+    if (v.IsUInt32()) EXPECT_TRUE(v.ToUint32Checked() == c.ToUint32Checked());
+    if (v.IsInt32()) EXPECT_TRUE(v.ToInt32Checked() == c.ToInt32Checked());
+    if (v.IsDouble()) EXPECT_TRUE(v.ToDoubleChecked() == c.ToDoubleChecked());
+    if (v.IsString()) EXPECT_TRUE(v.ToStringChecked() == c.ToStringChecked());
+    if (v.IsArray()) CheckArray(c.ToArrayChecked());
   }
 }
 

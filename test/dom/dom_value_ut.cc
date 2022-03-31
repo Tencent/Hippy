@@ -45,21 +45,21 @@ TEST(DomValueTest, Int32) {
       << "Int32 Value GetNumberType() return is not DomValue::NumberType::kInt32.";
   EXPECT_EQ(i32.IsNumber(), true) << "Int32 Value IsNumber() return is not true.";
   EXPECT_EQ(i32.IsInt32(), true) << "Int32 Value IsInt32() return is not true.";
-  EXPECT_EQ(i32.ToInt32(), 0) << "Int32 Value ToInt32() is not equal to 0.";
+  EXPECT_EQ(i32.ToInt32Checked(), 0) << "Int32 Value ToInt32Checked() is not equal to 0.";
 
   i32 = DomValue(-1);
-  EXPECT_EQ(i32.ToInt32(), -1) << "Int32 Value ToInt32() is not equal to -1.";
+  EXPECT_EQ(i32.ToInt32Checked(), -1) << "Int32 Value ToInt32Checked() is not equal to -1.";
 
   i32 = DomValue(1);
-  EXPECT_EQ(i32.ToInt32(), 1) << "Int32 Value ToInt32() is not equal to 1.";
+  EXPECT_EQ(i32.ToInt32Checked(), 1) << "Int32 Value ToInt32Checked() is not equal to 1.";
 
   i32 = DomValue(std::numeric_limits<int32_t>::max());
-  EXPECT_EQ(i32.ToInt32() == std::numeric_limits<int32_t>::max(), true)
-      << "Int32 Value ToInt32() is not equal to " << std::numeric_limits<int32_t>::max() << ".";
+  EXPECT_EQ(i32.ToInt32Checked() == std::numeric_limits<int32_t>::max(), true)
+      << "Int32 Value ToInt32Checked() is not equal to " << std::numeric_limits<int32_t>::max() << ".";
 
   i32 = DomValue(std::numeric_limits<int32_t>::min());
-  EXPECT_EQ(i32.ToInt32() == std::numeric_limits<int32_t>::min(), true)
-      << "Int32 Value ToInt32() is not equal to " << std::numeric_limits<int32_t>::min() << ".";
+  EXPECT_EQ(i32.ToInt32Checked() == std::numeric_limits<int32_t>::min(), true)
+      << "Int32 Value ToInt32Checked() is not equal to " << std::numeric_limits<int32_t>::min() << ".";
 
   std::random_device random_device;
   std::mt19937 mt19937(random_device());
@@ -68,7 +68,7 @@ TEST(DomValueTest, Int32) {
   for (int i = 0; i < 300; i++) {
     int32_t r = distribution(mt19937);
     i32 = DomValue(r);
-    EXPECT_EQ(i32.ToInt32() == r, true) << "Int32 Value ToInt32() is not equal to random value " << r << ".";
+    EXPECT_EQ(i32.ToInt32Checked() == r, true) << "Int32 Value ToInt32Checked() is not equal to random value " << r << ".";
   }
 
   DomValue copy_i32 = DomValue(i32);
@@ -77,8 +77,8 @@ TEST(DomValueTest, Int32) {
   EXPECT_EQ(copy_i32.GetNumberType() == DomValue::NumberType::kInt32, true)
       << "Copy constructor Int32 Value GetNumberType() is return not DomValue::NumberType::kInt32.";
   EXPECT_EQ(copy_i32.IsNumber(), true) << "Copy constructor Int32 Value IsNumber() return is not true.";
-  EXPECT_EQ(copy_i32.ToInt32(), i32.ToInt32())
-      << "Copy constructor Int32 Value ToInt32() is not equal to Int32 Value ToInt32().";
+  EXPECT_EQ(copy_i32.ToInt32Checked(), i32.ToInt32Checked())
+      << "Copy constructor Int32 Value ToInt32Checked() is not equal to Int32 Value ToInt32Checked().";
 }
 
 TEST(DomValueTest, UInt32) {
@@ -90,14 +90,14 @@ TEST(DomValueTest, UInt32) {
       << "Uint32 Value GetNumberType() return is not DomValue::NumberType::kUInt32.";
   EXPECT_EQ(u32.IsNumber(), true) << "Uint32 Value IsNumber() return is not true.";
   EXPECT_EQ(u32.IsUInt32(), true) << "Uint32 Value IsUInt32() return is not true.";
-  EXPECT_EQ(u32.ToUint32(), 0) << "Uint32 Value ToUInt32() is not equal to 0.";
+  EXPECT_EQ(u32.ToUint32Checked(), 0) << "Uint32 Value ToUInt32() is not equal to 0.";
 
   uint32_t one = 1;
   u32 = DomValue(one);
-  EXPECT_EQ(u32.ToUint32(), one) << "Uint32 Value ToUInt32() is not equal to 1.";
+  EXPECT_EQ(u32.ToUint32Checked(), one) << "Uint32 Value ToUInt32() is not equal to 1.";
 
   u32 = DomValue(std::numeric_limits<uint32_t>::max());
-  EXPECT_EQ(u32.ToUint32() == std::numeric_limits<uint32_t>::max(), true)
+  EXPECT_EQ(u32.ToUint32Checked() == std::numeric_limits<uint32_t>::max(), true)
       << "Uint32 Value ToUint32() is not equal to " << std::numeric_limits<uint32_t>::max() << ".";
 
   std::random_device random_device;
@@ -106,7 +106,7 @@ TEST(DomValueTest, UInt32) {
   for (int i = 0; i < 300; i++) {
     uint32_t r = distribution(mt19937);
     u32 = DomValue(r);
-    EXPECT_EQ(u32.ToUint32() == r, true) << "Uint32 Value ToUint32() is not equal to random value " << r << ".";
+    EXPECT_EQ(u32.ToUint32Checked() == r, true) << "Uint32 Value ToUint32() is not equal to random value " << r << ".";
   }
 
   DomValue copy_u32 = DomValue(u32);
@@ -115,7 +115,7 @@ TEST(DomValueTest, UInt32) {
   EXPECT_EQ(copy_u32.GetNumberType() == DomValue::NumberType::kUInt32, true)
       << "Copy constructor Uint32 Value GetNumberType() return is not DomValue::NumberType::kUInt32.";
   EXPECT_EQ(copy_u32.IsNumber(), true) << "Copy constructor Uint32 Value IsNumber() return is not true.";
-  EXPECT_EQ(copy_u32.ToUint32(), u32.ToUint32())
+  EXPECT_EQ(copy_u32.ToUint32Checked(), u32.ToUint32Checked())
       << "Copy constructor Uint32 Value ToUint32() is not equal to Uint32 Value ToUint32().";
 }
 
@@ -127,14 +127,14 @@ TEST(DomValueTest, Double) {
       << "Double Value GetNumberType() return is not DomValue::NumberType::kDouble.";
   EXPECT_EQ(d.IsNumber(), true) << "Double Value IsNumber() return is not true.";
   EXPECT_EQ(d.IsDouble(), true) << "Double Value IsDouble() return is not true.";
-  EXPECT_DOUBLE_EQ(d.ToDouble(), 0) << "Double Value ToDouble() is not equal to 0.";
+  EXPECT_DOUBLE_EQ(d.ToDoubleChecked(), 0) << "Double Value ToDoubleChecked() is not equal to 0.";
 
   d = DomValue(1.0f);
-  EXPECT_EQ(d.ToDouble(), 1.0f) << "Double Value ToDouble() is not equal to 1.";
+  EXPECT_EQ(d.ToDoubleChecked(), 1.0f) << "Double Value ToDoubleChecked() is not equal to 1.";
 
   d = DomValue(std::numeric_limits<double>::max());
-  EXPECT_EQ(d.ToDouble(), std::numeric_limits<double>::max())
-      << "Double Value ToDouble() is not equal to " << std::numeric_limits<double>::max() << ".";
+  EXPECT_EQ(d.ToDoubleChecked(), std::numeric_limits<double>::max())
+      << "Double Value ToDoubleChecked() is not equal to " << std::numeric_limits<double>::max() << ".";
 
   std::random_device random_device;
   std::mt19937 mt19937(random_device());
@@ -142,7 +142,7 @@ TEST(DomValueTest, Double) {
   for (int i = 0; i < 300; i++) {
     double r = distribution(mt19937);
     d = DomValue(r);
-    EXPECT_EQ(d.ToDouble() == r, true) << "Double Value ToDouble() is not equal to random value " << r << ".";
+    EXPECT_EQ(d.ToDoubleChecked() == r, true) << "Double Value ToDoubleChecked() is not equal to random value " << r << ".";
   }
 
   DomValue copy_d = DomValue(d);
@@ -151,8 +151,8 @@ TEST(DomValueTest, Double) {
   EXPECT_EQ(copy_d.GetNumberType() == DomValue::NumberType::kDouble, true)
       << "Copy constructor Double Value GetNumberType() return is not DomValue::NumberType::kDouble.";
   EXPECT_EQ(copy_d.IsNumber(), true) << "Copy constructor Double Value IsNumber() return is not true.";
-  EXPECT_EQ(copy_d.ToDouble(), d.ToDouble())
-      << "Copy constructor Double Value ToDouble() is not equal to Double Value ToDouble().";
+  EXPECT_EQ(copy_d.ToDoubleChecked(), d.ToDoubleChecked())
+      << "Copy constructor Double Value ToDoubleChecked() is not equal to Double Value ToDoubleChecked().";
 }
 
 TEST(DomValueTest, String) {
@@ -161,43 +161,43 @@ TEST(DomValueTest, String) {
   EXPECT_EQ(dom_value.GetType() == DomValue::Type::kString, true)
       << "String Value GetType() return is not DomValue::Type::kString.";
   EXPECT_EQ(dom_value.IsString(), true) << "String Value IsString() return is not true.";
-  EXPECT_EQ(dom_value.ToString() == str, true) << "String Value ToString() is not equal to " << str << ".";
+  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
 
   str = "~!@#$%^&*()-=";
   dom_value = DomValue(str);
-  EXPECT_EQ(dom_value.ToString() == str, true) << "String Value ToString() is not equal to " << str << ".";
+  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
 
   str = "1234567890";
   dom_value = DomValue(str);
-  EXPECT_EQ(dom_value.ToString() == str, true) << "String Value ToString() is not equal to " << str << ".";
+  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
 
   str = "腾讯";
   dom_value = DomValue(str);
-  EXPECT_EQ(dom_value.ToString() == str, true) << "String Value ToString() is not equal to " << str << ".";
+  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to " << str << ".";
 
   str = "";
   dom_value = DomValue(str);
-  EXPECT_EQ(dom_value.ToString() == str, true) << "String Value ToString() is not equal to ''.";
+  EXPECT_EQ(dom_value.ToStringChecked() == str, true) << "String Value ToStringChecked() is not equal to ''.";
 
   const char* cstr = "abcdefghijklmnopqrstuvwxyz";
   dom_value = DomValue(cstr);
-  EXPECT_STREQ(dom_value.ToString().c_str(), cstr) << "String Value ToString() is not equal to " << cstr << ".";
+  EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 
   cstr = "~!@#$%^&*()-=";
   dom_value = DomValue(cstr);
-  EXPECT_STREQ(dom_value.ToString().c_str(), cstr) << "String Value ToString() is not equal to " << cstr << ".";
+  EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 
   cstr = "1234567890";
   dom_value = DomValue(cstr);
-  EXPECT_STREQ(dom_value.ToString().c_str(), cstr) << "String Value ToString() is not equal to " << cstr << ".";
+  EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 
   cstr = "腾讯";
   dom_value = DomValue(cstr);
-  EXPECT_STREQ(dom_value.ToString().c_str(), cstr) << "String Value ToString() is not equal to " << cstr << ".";
+  EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 
 //   cstr = nullptr;
 //   dom_value = DomValue(cstr);
-//   EXPECT_STREQ(dom_value.ToString().c_str(), cstr) << "String Value ToString() is not equal to " << cstr << ".";
+//   EXPECT_STREQ(dom_value.ToStringChecked().c_str(), cstr) << "String Value ToStringChecked() is not equal to " << cstr << ".";
 }
 
 TEST(DomValueTest, kObject) {
@@ -215,7 +215,7 @@ TEST(DomValueTest, kObject) {
   EXPECT_EQ(dom_value.GetType() == DomValue::Type::kObject, true)
       << "Object Value GetType() return is not DomValue::Type::kObject.";
   EXPECT_EQ(dom_value.IsObject(), true) << "Object Value IsObject() return is not true.";
-  EXPECT_EQ(dom_value.ToObject().size() == 8, true) << "Object Value size() is not equal to 8.";
+  EXPECT_EQ(dom_value.ToObjectChecked().size() == 8, true) << "Object Value size() is not equal to 8.";
 }
 
 TEST(DomValueTest, kArray) {
@@ -233,7 +233,7 @@ TEST(DomValueTest, kArray) {
   EXPECT_EQ(dom_value.GetType() == DomValue::Type::kArray, true)
       << "Array Value GetType() return is not DomValue::Type::kArray.";
   EXPECT_EQ(dom_value.IsArray(), true) << "Array Value IsArray() return is not true.";
-  EXPECT_EQ(dom_value.ToArray().size() == 8, true) << "Array Value size() is not equal to 8.";
+  EXPECT_EQ(dom_value.ToArrayChecked().size() == 8, true) << "Array Value size() is not equal to 8.";
 }
 
 }  // namespace testing

@@ -18,16 +18,16 @@ class DomValue final {
     int32_t i32_;
     uint32_t u32_;
     double d_;
-    Number(int32_t i32) : i32_(i32){}
-    Number(uint32_t u32) : u32_(u32){}
-    Number(float f) : d_(f){}
-    Number(double d) : d_(d){}
+    Number(int32_t i32) : i32_(i32) {}
+    Number(uint32_t u32) : u32_(u32) {}
+    Number(float f) : d_(f) {}
+    Number(double d) : d_(d) {}
   };
 
   static const DomValue Undefined();
   static const DomValue Null();
 
-  DomValue(){}
+  DomValue() {}
   DomValue(const DomValue& source);
 
   /**
@@ -201,53 +201,112 @@ class DomValue final {
 
   /**
    * @brief 转化成 int32_t
+   * @param i32 get int32_t value
+   * @return return true if success else return false
    */
-  int32_t ToInt32() const;
+  bool ToInt32(int32_t& i32) const;
+
+  /**
+   * @brief 转化成 int32_t, crash if failed
+   * @return return int32_t value
+   */
+  int32_t ToInt32Checked() const;
 
   /**
    * @brief 转化成 uint32_t
+   * @param u32 get value
+   * @return return true if success else return false
    */
-  uint32_t ToUint32() const;
+  bool ToUint32(uint32_t& u32) const;
+
+  /**
+   * @brief 转化成 uint32_t, crash if failed
+   * @return return uint32_t value
+   */
+  uint32_t ToUint32Checked() const;
 
   /**
    * @brief 转化成 double 类型， int32_t\uint32_t\double 可以无损转化
+   * @param d get double value
+   * @return return true if success else return false
    */
-  double ToDouble() const;
+  bool ToDouble(double& d) const;
+
+  /**
+   * @brief 转化成 double 类型， int32_t\uint32_t\double 可以无损转化, crash if failed
+   * @return return double value
+   */
+  double ToDoubleChecked() const;
 
   /**
    * @brief 转化成 bool 类型
+   * @param b get bool value
+   * @return return true if success else return false
    */
-  bool ToBoolean() const;
+  bool ToBoolean(bool& b) const;
+
+  /**
+   * @brief 转化成 bool 类型, crash if failed
+   * @return return bool value
+   */
+  bool ToBooleanChecked() const;
 
   /**
    * @brief 转化成 string 类型
+   * @param str get string value
+   * @return return true if success else return false
    */
-  const std::string& ToString() const;
+  bool ToString(std::string& str) const;
 
   /**
-   * @brief 转化成 string 类型
+   * @brief 转化成 string 类型, crash if failed
+   * @return return string value
    */
-  std::string& ToString();
+  const std::string& ToStringChecked() const;
 
   /**
-   * @brief 转化成 DomValueObjectType 类型
+   * @brief 转化成 string 类型, crash if failed
+   * @return return string value
    */
-  const DomValueObjectType& ToObject() const;
+  std::string& ToStringChecked();
 
   /**
-   * @brief 转化成 DomValueObjectType 类型
+   * @brief 转化成 DomValueObjectType 类型, crash if failed
+   * @param obj get DomValueObjectType value
+   * @return return true if success else return false
    */
-  DomValueObjectType& ToObject();
+  bool ToObject(DomValueObjectType& obj) const;
 
   /**
-   * @brief 转化成 DomValueArrayType 类型
+   * @brief 转化成 DomValueObjectType 类型, crash if failed
+   * @return return DomValueObjectType value
    */
-  const DomValueArrayType& ToArray() const;
+  const DomValueObjectType& ToObjectChecked() const;
 
   /**
-   * @brief 转化成 DomValueArrayType 类型
+   * @brief 转化成 DomValueObjectType 类型, crash if failed
+   * @return return DomValueObjectType value
    */
-  DomValueArrayType& ToArray();
+  DomValueObjectType& ToObjectChecked();
+
+  /**
+   * @brief 转化成 DomValueArrayType 类型, crash if failed
+   * @param arr get DomValueArrayType value
+   * @return return true if success else return false
+   */
+  bool ToArray(DomValueArrayType& arr) const;
+
+  /**
+   * @brief 转化成 DomValueArrayType 类型, crash if failed
+   * @return return DomValueArrayType value
+   */
+  const DomValueArrayType& ToArrayChecked() const;
+
+  /**
+   * @brief 转化成 DomValueArrayType 类型, crash if failed
+   * @return return DomValueArrayType value
+   */
+  DomValueArrayType& ToArrayChecked();
 
  private:
   inline void Deallocate();

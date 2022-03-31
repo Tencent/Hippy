@@ -332,7 +332,7 @@ uint32_t Deserializer::ReadObjectProperties(DomValue& property, SerializationTag
       ReadObject(key);
       DomValue value;
       ReadObject(value);
-      object.insert(std::pair<std::string, DomValue>(key.ToString(), value));
+      object.insert(std::pair<std::string, DomValue>(key.ToStringChecked(), value));
       property = object;
     }
   }

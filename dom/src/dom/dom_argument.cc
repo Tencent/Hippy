@@ -49,9 +49,9 @@ bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std:
       tdf::base::Oddball oddball = tdf::base::Oddball::kUndefined;
       if (type == tdf::base::DomValue::Type::kNull) {
         oddball = tdf::base::Oddball::kNull;
-      } else if (type == tdf::base::DomValue::Type::kBoolean && dom_value.ToBoolean()) {
+      } else if (type == tdf::base::DomValue::Type::kBoolean && dom_value.ToBooleanChecked()) {
         oddball = tdf::base::Oddball::kTrue;
-      } else if (type == tdf::base::DomValue::Type::kBoolean && !dom_value.ToBoolean()) {
+      } else if (type == tdf::base::DomValue::Type::kBoolean && !dom_value.ToBooleanChecked()) {
         oddball = tdf::base::Oddball::kFalse;
       }
       serializer.WriteOddball(oddball);
@@ -60,26 +60,26 @@ bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std:
     case tdf::base::DomValue::Type::kNumber: {
       tdf::base::DomValue::NumberType number_type = dom_value.GetNumberType();
       if (number_type == tdf::base::DomValue::NumberType::kInt32) {
-        serializer.WriteInt32(dom_value.ToInt32());
+        serializer.WriteInt32(dom_value.ToInt32Checked());
       } else if (number_type == tdf::base::DomValue::NumberType::kUInt32) {
-        serializer.WriteUint32(dom_value.ToUint32());
+        serializer.WriteUint32(dom_value.ToUint32Checked());
       } else if (number_type == tdf::base::DomValue::NumberType::kDouble) {
-        serializer.WriteDouble(dom_value.ToDouble());
+        serializer.WriteDouble(dom_value.ToDoubleChecked());
       } else {
         ret = false;
       }
       return ret;
     }
     case tdf::base::DomValue::Type::kString: {
-      serializer.WriteString(dom_value.ToString());
+      serializer.WriteString(dom_value.ToStringChecked());
       break;
     }
     case tdf::base::DomValue::Type::kArray: {
-      serializer.WriteDenseJSArray(dom_value.ToArray());
+      serializer.WriteDenseJSArray(dom_value.ToArrayChecked());
       break;
     }
     case tdf::base::DomValue::Type::kObject: {
-      serializer.WriteJSObject(dom_value.ToObject());
+      serializer.WriteJSObject(dom_value.ToObjectChecked());
       break;
     }
     default: {

@@ -168,7 +168,7 @@
                 auto style_props = all_props["style"];
                 if (style_props) {
                     if (tdf::base::DomValue::Type::kObject == style_props->GetType()) {
-                        auto style_object = style_props->ToObject();
+                        auto style_object = style_props->ToObjectChecked();
                         for (auto iter = style_object.begin(); iter != style_object.end(); iter++) {
                             const std::string &iter_key = iter->first;
                             auto &iter_value = iter->second;

@@ -1303,16 +1303,16 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
   } else if (value->IsNull()) {
     return CreateNull();
   } else if (value->IsString()) {
-    std::string str = value->ToString();
+    std::string str = value->ToStringChecked();
     unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()),
                                  str.length());
     return CreateString(str_view);
   } else if (value->IsNumber()) {
-    return CreateNumber(value->ToDouble());
+    return CreateNumber(value->ToDoubleChecked());
   } else if (value->IsBoolean()) {
-    return CreateBoolean(value->ToBoolean());
+    return CreateBoolean(value->ToBooleanChecked());
   } else if (value->IsArray()) {
-    auto arr = value->ToArray();
+    auto arr = value->ToArrayChecked();
     auto len = arr.size();
     std::shared_ptr<CtxValue> args[len];
     for (size_t i = 0; i < len; ++i) {
@@ -1320,7 +1320,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     }
     return CreateArray(arr.size(), args);
   } else if (value->IsObject()) {
-    auto obj = value->ToObject();
+    auto obj = value->ToObjectChecked();
 
     v8::HandleScope handle_scope(isolate_);
     v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
