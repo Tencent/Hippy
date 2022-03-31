@@ -21,6 +21,8 @@
  */
 
 #include "jni/java_turbo_module.h"
+#include "jni/jni_env.h"
+#include "jni/jni_utils.h"
 
 using namespace hippy::napi;
 using unicode_string_view = tdf::base::unicode_string_view;

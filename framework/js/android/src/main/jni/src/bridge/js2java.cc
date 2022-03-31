@@ -30,6 +30,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/napi/v8/serializer.h"
 #include "jni/jni_env.h"
+#include "jni/jni_utils.h"
 #include "bridge/bridge.h"
 
 namespace hippy::bridge {

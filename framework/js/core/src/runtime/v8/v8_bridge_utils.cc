@@ -10,6 +10,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/serializer.h"
+#include "jni/jni_utils.h"
 
 namespace hippy::runtime {
 
@@ -200,7 +201,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
                      << ", uri = " << uri
                      << ", is_local_file = " << is_local_file;
   unicode_string_view script_content;
-  bool read_script_flag;
+  bool read_script_flag = false;
   unicode_string_view code_cache_content;
   uint64_t modify_time = 0;
 
