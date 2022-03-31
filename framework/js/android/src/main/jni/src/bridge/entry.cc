@@ -49,6 +49,7 @@
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/uri.h"
+#include "jni/jni_utils.h"
 #include "loader/adr_loader.h"
 #include "bridge/bridge.h"
 #include "render/native_render_manager.h"
@@ -405,7 +406,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
                      __unused jboolean j_single_thread_mode,
                      jobject j_callback) {
   auto ret = V8BridgeUtils::DestroyInstance(
-      hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+      hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id), nullptr);
   if (ret) {
     hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   } else {
