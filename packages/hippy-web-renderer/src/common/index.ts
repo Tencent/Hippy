@@ -131,6 +131,7 @@ function isLayout(key: string, value: number) {
     || key.startsWith('flex')
     || key.startsWith('zIndex')
     || key.startsWith('z-index')
+    || key.startsWith('opacity')
   );
 }
 
