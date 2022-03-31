@@ -167,7 +167,7 @@ GetNodeStyle(const std::shared_ptr<Ctx> &context,
   auto style_it = props.find(kNodePropertyStyle);
   if (style_it != props.end()) {
     if (style_it->second.IsObject()) {
-      std::unordered_map<std::string, DomValue> style_obj = style_it->second.ToObject();
+      std::unordered_map<std::string, DomValue> style_obj = style_it->second.ToObjectChecked();
       for (const auto &p : style_obj) {
         ret[p.first] = std::make_shared<DomValue>(p.second);
       }
@@ -215,7 +215,7 @@ GetNodeProps(const std::shared_ptr<Ctx> &context, const std::shared_ptr<CtxValue
                            std::move(dom_ext_map));
   }
 
-  std::unordered_map<std::string, DomValue> props_map = props_obj->ToObject();
+  std::unordered_map<std::string, DomValue> props_map = props_obj->ToObjectChecked();
   auto style_tuple = GetNodeStyle(context, props_map);
   if (!std::get<2>(style_tuple).empty()) {
     style_map = std::move(std::get<2>(style_tuple));
@@ -281,7 +281,7 @@ void HandleEventListeners(const std::shared_ptr<Ctx> &context,
                 DomValue dom_value;
                 std::shared_ptr<Scope> scope = weak_scope.lock();
                 if (scope && arg->ToObject(dom_value) && dom_value.IsUInt32()) {
-                  scope->AddListener(dom_id, name_str, dom_value.ToUint32());
+                  scope->AddListener(dom_id, name_str, dom_value.ToUint32Checked());
                 }
               });
         }
@@ -441,13 +441,13 @@ void UIManagerModule::CallUIFunction(const hippy::napi::CallbackInfo &info) {
   int32_t id = 0;
   auto id_value = context->ToDomValue(info[0]);
   if (id_value->IsNumber()) {
-    id = static_cast<int32_t>(id_value->ToDouble());
+    id = static_cast<int32_t>(id_value->ToDoubleChecked());
   }
 
   std::string name;
   auto name_value = context->ToDomValue(info[1]);
   if (name_value->IsString()) {
-    name = name_value->ToString();
+    name = name_value->ToStringChecked();
   }
 
   std::unordered_map<std::string, std::shared_ptr<DomValue>> param;

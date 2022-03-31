@@ -294,14 +294,14 @@ void UpdateAnimationNode(JNIEnv* j_env,
   }
 
   TDF_BASE_DCHECK(params.IsArray());
-  tdf::base::DomValue::DomValueArrayType array = params.ToArray();
+  tdf::base::DomValue::DomValueArrayType array = params.ToArrayChecked();
   std::unordered_map<int32_t, std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> node_style_map;
   for (size_t i = 0; i < array.size(); i++) {
     TDF_BASE_DCHECK(array[i].IsObject());
-    auto node = array[i].ToObject();
-    int32_t node_id = node["nodeId"].ToInt32();
+    auto node = array[i].ToObjectChecked();
+    int32_t node_id = node["nodeId"].ToInt32Checked();
     // int32_t animation_id = node["animationId"].ToInt32();
-    std::string animation_key = node["animationKey"].ToString();
+    std::string animation_key = node["animationKey"].ToStringChecked();
     tdf::base::DomValue animation_value = node["animationValue"];
 
     auto iter = node_style_map.find(node_id);

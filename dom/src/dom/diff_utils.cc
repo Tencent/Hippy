@@ -26,20 +26,20 @@ DiffValue DiffUtils::DiffProps(
       continue;
     }
     if (from_value->second->IsBoolean()) {
-      if (!to_value->second || (to_value->second->ToBoolean() != from_value->second->ToBoolean())) {
+      if (!to_value->second || (to_value->second->ToBooleanChecked() != from_value->second->ToBooleanChecked())) {
         (*update_props)[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsNumber()) {
-      if (!to_value->second || (to_value->second->ToDouble() != from_value->second->ToDouble())) {
+      if (!to_value->second || (to_value->second->ToDoubleChecked() != from_value->second->ToDoubleChecked())) {
         (*update_props)[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsString()) {
-      if (!to_value->second || (to_value->second->ToString() != from_value->second->ToString())) {
+      if (!to_value->second || (to_value->second->ToStringChecked() != from_value->second->ToStringChecked())) {
         (*update_props)[kv.first] = to_value->second;
       }
     } else if (from_value->second->IsArray()) {
       if (to_value->second && to_value->second->IsArray()) {
-        DomValueArray result = DiffArray(from_value->second->ToArray(), to_value->second->ToArray());
+        DomValueArray result = DiffArray(from_value->second->ToArrayChecked(), to_value->second->ToArrayChecked());
         if (!result.empty()) {
           (*update_props)[kv.first] = std::make_shared<DomValue>(result);
         }
@@ -48,7 +48,7 @@ DiffValue DiffUtils::DiffProps(
       }
     } else if (from_value->second->IsObject()) {
       if (to_value->second && to_value->second->IsObject()) {
-        DomValueObject result = DiffObject(to_value->second->ToObject(), to_value->second->ToObject());
+        DomValueObject result = DiffObject(to_value->second->ToObjectChecked(), to_value->second->ToObjectChecked());
         if (!result.empty()) {
           (*update_props)[kv.first] = to_value->second;
         }
@@ -92,23 +92,23 @@ DomValueArray DiffUtils::DiffArray(const DomValueArray& from, const DomValueArra
     auto from_value = from[i];
     auto to_value = to[i];
     if (from_value.IsBoolean()) {
-      if (from_value.ToBoolean() != to_value.ToBoolean()) {
+      if (from_value.ToBooleanChecked() != to_value.ToBooleanChecked()) {
         return to;
       }
     } else if (from_value.IsNumber()) {
-      if (from_value.ToDouble() != from_value.ToDouble()) {
+      if (from_value.ToDoubleChecked() != from_value.ToDoubleChecked()) {
         return to;
       }
     } else if (from_value.IsString()) {
-      if (from_value.ToString() != from_value.ToString()) {
+      if (from_value.ToStringChecked() != from_value.ToStringChecked()) {
         return to;
       }
     } else if (from_value.IsArray()) {
-      if (!to_value.IsArray() || DiffArray(from_value.ToArray(), to_value.ToArray()).empty()) {
+      if (!to_value.IsArray() || DiffArray(from_value.ToArrayChecked(), to_value.ToArrayChecked()).empty()) {
         return to;
       }
     } else if (from_value.IsObject()) {
-      if (!to_value.IsObject() || DiffObject(from_value.ToObject(), to_value.ToObject()).empty()) {
+      if (!to_value.IsObject() || DiffObject(from_value.ToObjectChecked(), to_value.ToObjectChecked()).empty()) {
         return to;
       }
     } else if (from_value.IsNull()) {
@@ -132,20 +132,20 @@ DomValueObject DiffUtils::DiffObject(const DomValueObject& from, const DomValueO
     auto from_value = from.find(kv.first);  // old
     auto to_value = to.find(kv.first);      // new
     if (from_value->second.IsBoolean()) {
-      if (to_value != to.end() && to_value->second.ToBoolean() != from_value->second.ToBoolean()) {
+      if (to_value != to.end() && to_value->second.ToBooleanChecked() != from_value->second.ToBooleanChecked()) {
         diff_props[kv.first] = to_value->second;
       }
     } else if (from_value->second.IsNumber()) {
-      if (to_value != to.end() && to_value->second.ToDouble() != from_value->second.ToDouble()) {
+      if (to_value != to.end() && to_value->second.ToDoubleChecked() != from_value->second.ToDoubleChecked()) {
         diff_props[kv.first] = to_value->second;
       }
     } else if (from_value->second.IsString()) {
-      if (to_value != to.end() && to_value->second.ToString() != from_value->second.ToString()) {
+      if (to_value != to.end() && to_value->second.ToStringChecked() != from_value->second.ToStringChecked()) {
         diff_props[kv.first] = to_value->second;
       }
     } else if (from_value->second.IsArray()) {
       if (to_value != to.end() && to_value->second.IsArray()) {
-        DomValueArray result = DiffArray(from_value->second.ToArray(), to_value->second.ToArray());
+        DomValueArray result = DiffArray(from_value->second.ToArrayChecked(), to_value->second.ToArrayChecked());
         if (!result.empty()) {
           diff_props[kv.first] = result;
         }
@@ -154,7 +154,7 @@ DomValueObject DiffUtils::DiffObject(const DomValueObject& from, const DomValueO
       }
     } else if (from_value->second.IsObject()) {
       if (to_value != to.end() && to_value->second.IsObject()) {
-        DomValueObject result = DiffObject(to_value->second.ToObject(), to_value->second.ToObject());
+        DomValueObject result = DiffObject(to_value->second.ToObjectChecked(), to_value->second.ToObjectChecked());
         if (!result.empty()) {
           diff_props[kv.first] = to_value->second;
         }

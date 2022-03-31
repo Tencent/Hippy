@@ -738,17 +738,17 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>
   } else if (wrapper->IsNull()) {
     return CreateNull();
   } else if (wrapper->IsString()) {
-    std::string str = wrapper->ToString();
+    std::string str = wrapper->ToStringChecked();
     unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()), str.length());
     return CreateString(str_view);
   } else if (wrapper->IsInt32()) {
-    return CreateNumber(wrapper->ToInt32());
+    return CreateNumber(wrapper->ToInt32Checked());
   } else if (wrapper->IsDouble()) {
-    return CreateNumber(wrapper->ToDouble());
+    return CreateNumber(wrapper->ToDoubleChecked());
   } else if (wrapper->IsBoolean()) {
-    return CreateBoolean(wrapper->ToBoolean());
+    return CreateBoolean(wrapper->ToBooleanChecked());
   } else if (wrapper->IsArray()) {
-    auto arr = wrapper->ToArray();
+    auto arr = wrapper->ToArrayChecked();
     std::shared_ptr<CtxValue> args[arr.size()];
     for (auto i = 0; i < arr.size(); ++i) {
       args[i] = CreateCtxValue(std::make_shared<DomValue>(arr[i]));
@@ -760,7 +760,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>
       JSObjectRef obj_ref = JSObjectMake(context_, cls_ref, nullptr);
       JSClassRelease(cls_ref);
 
-      auto obj = wrapper->ToObject();
+      auto obj = wrapper->ToObjectChecked();
       for (const auto& p : obj) {
         auto obj_key = p.first;
         auto obj_value = p.second;

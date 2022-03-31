@@ -36,13 +36,13 @@ id domValueToOCType(const DomValue *const pDomValue) {
     id value = [NSNull null];
     switch (type) {
         case DomValueType::kBoolean:
-            value = @(pDomValue->ToBoolean());
+            value = @(pDomValue->ToBooleanChecked());
             break;
         case DomValueType::kString:
-            value = [NSString stringWithUTF8String:pDomValue->ToString().c_str()];
+            value = [NSString stringWithUTF8String:pDomValue->ToStringChecked().c_str()];
             break;
         case DomValueType::kObject: {
-            DomValue::DomValueObjectType objectType = pDomValue->ToObject();
+            DomValue::DomValueObjectType objectType = pDomValue->ToObjectChecked();
             std::unordered_map<std::string, std::shared_ptr<DomValue>> map(objectType.size());
             for (const auto &pair : objectType) {
                 map[pair.first] = std::make_shared<DomValue>(pair.second);
@@ -53,7 +53,7 @@ id domValueToOCType(const DomValue *const pDomValue) {
         }
             break;
         case DomValueType::kArray: {
-            DomValue::DomValueArrayType domValueArray = pDomValue->ToArray();
+            DomValue::DomValueArrayType domValueArray = pDomValue->ToArrayChecked();
             NSMutableArray *array = [NSMutableArray arrayWithCapacity:domValueArray.size()];
             for (auto it = domValueArray.begin(); it != domValueArray.end(); it++) {
                 const DomValue &v = *it;
@@ -166,13 +166,13 @@ NSNumber *domValueToNumber(const DomValue *const pDomValue) {
     NSNumber *number = nil;
     switch (pDomValue->GetNumberType()) {
         case DomValueNumberType::kInt32:
-            number = @(pDomValue->ToInt32());
+            number = @(pDomValue->ToInt32Checked());
             break;
         case DomValueNumberType::kUInt32:
-            number = @(pDomValue->ToUint32());
+            number = @(pDomValue->ToUint32Checked());
             break;
         case DomValueNumberType::kDouble:
-            number = @(pDomValue->ToDouble());
+            number = @(pDomValue->ToDoubleChecked());
             break;
         case DomValueNumberType::kNaN:
             number = [NSDecimalNumber notANumber];

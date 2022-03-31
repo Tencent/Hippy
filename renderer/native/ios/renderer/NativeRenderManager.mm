@@ -60,7 +60,7 @@ void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode
             bool useAnimation = false;
             if (extStyle->end() != it) {
                 auto dom_value = it->second;
-                useAnimation = dom_value->ToBoolean();
+                useAnimation = dom_value->ToBooleanChecked();
             }
             DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
             nodes_infos.push_back(nodeUpdateInfo);

@@ -428,8 +428,8 @@ void DomNode::UpdateObjectStyle(DomValue& style_map, const DomValue& update_styl
   TDF_BASE_DCHECK(style_map.IsObject());
   TDF_BASE_DCHECK(update_style.IsObject());
 
-  auto style_object = style_map.ToObject();
-  for (auto& v : update_style.ToObject()) {
+  auto style_object = style_map.ToObjectChecked();
+  for (auto& v : update_style.ToObjectChecked()) {
     auto iter = style_object.find(v.first);
     if (iter == style_object.end()) {
       style_object[v.first] = v.second;
@@ -445,7 +445,7 @@ void DomNode::UpdateObjectStyle(DomValue& style_map, const DomValue& update_styl
 
 bool DomNode::ReplaceStyle(DomValue& style, const std::string& key, const DomValue& value) {
   if (style.IsObject()) {
-    auto& object = style.ToObject();
+    auto& object = style.ToObjectChecked();
     if (object.find(key) != object.end()) {
       object.at(key) = value;
       return true;
@@ -460,7 +460,7 @@ bool DomNode::ReplaceStyle(DomValue& style, const std::string& key, const DomVal
   }
 
   if (style.IsArray()) {
-    auto& array = style.ToArray();
+    auto& array = style.ToArrayChecked();
     bool replaced = false;
     for (auto& a : array) {
       replaced = ReplaceStyle(a, key, value);
