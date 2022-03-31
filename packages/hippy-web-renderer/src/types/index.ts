@@ -31,6 +31,7 @@ export enum ImageResizeMode {
   CENTER = 'center',
 }
 export enum NodeProps {
+  TINY_COLOR = 'tinyColor',
   ON_LOAD = 'onLoad',
   ON_LOAD_START = 'onLoadStart',
   ON_LOAD_END = 'onLoadEnd',
