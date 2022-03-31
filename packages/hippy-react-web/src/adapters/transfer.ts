@@ -150,6 +150,7 @@ interface WebStyle {
   borderRightColors?: HippyTypes.colors;
   backgroundColor?: HippyTypes.color;
   backgroundColors?: HippyTypes.colors;
+  backgroundImage?: string;
   boxShadow?: string;
   boxShadowRadius?: number | string;
   boxShadowOffsetX?: number | string;
@@ -230,7 +231,6 @@ function handleBoxShadow(webStyle: WebStyle) {
   } = webStyle;
   const offsetX = toPx(boxShadowOffsetX);
   const offsetY = toPx(boxShadowOffsetY);
-  // TODO: radius 不能小于 0
   const radius = toPx(boxShadowRadius);
   const spread = toPx(boxShadowSpread);
   if (boxShadowColor && offsetX && offsetY) {
@@ -248,6 +248,16 @@ function handleTextShadow(style: WebStyle) {
     style.textShadow = `${offsetX} ${offsetY} ${radius} ${textShadowColor}`;
   }
 }
+
+const handleLinearBackground = (style: WebStyle) => {
+  if (style.backgroundImage) {
+    const { backgroundImage } = style;
+    // remove linear-gradient tail semicolon.
+    if (backgroundImage.startsWith('linear-gradient') && backgroundImage.endsWith(';')) {
+      style.backgroundImage = backgroundImage.substring(0, backgroundImage.length - 1);
+    }
+  }
+};
 
 const handlePropertyColor = (style: WebStyle) => {
   const colorProps = {
@@ -355,6 +365,7 @@ function hackWebStyle(webStyle_: any) {
   // handle shadow
   handleBoxShadow(webStyle);
   handleTextShadow(webStyle);
+  handleLinearBackground(webStyle);
 }
 
 function formatWebStyle(style: any) {

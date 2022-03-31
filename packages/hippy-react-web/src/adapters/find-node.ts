@@ -14,7 +14,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// @ts-nocheck
 import { findDOMNode } from 'react-dom';
 
 const findNodeHandle = (component: Element) => {
