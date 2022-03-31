@@ -17,13 +17,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
 import { TouchEvent } from '../modules/use-responder-events/types';
 import { LayoutEvent } from '../types';
+import { warn } from '../utils';
 
 const styles = {
   root: {
@@ -70,7 +70,7 @@ export interface ViewProps {
  * View is designed to be nested inside other views and can have 0 to many children of any type.
  * @noInheritDoc
  */
-const View: React.FC<ViewProps> = React.forwardRef((props, ref) => {
+const View: React.FC<ViewProps> = React.forwardRef<any, any>((props, ref) => {
   const { style = {}, opacity, overflow, onAttachedToWindow } = props;
   if (Array.isArray(style)) {
     if (opacity) {
@@ -93,7 +93,7 @@ const View: React.FC<ViewProps> = React.forwardRef((props, ref) => {
       onAttachedToWindow();
     }
   }, []);
-  const hostRef: any = ref ? ref : useRef(null);
+  const hostRef: any = useRef(null);
   const newStyle = formatWebStyle(style);
   const finalStyle = Object.assign({}, styles.root, newStyle);
   const newProps: any = Object.assign({}, props, {
@@ -103,8 +103,22 @@ const View: React.FC<ViewProps> = React.forwardRef((props, ref) => {
   useResponderEvents(hostRef, { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onScroll });
   useElementLayout(hostRef, props.onLayout);
 
+  // set unsupported methods
+  const setPressed = () => {
+    warn('View.setPressed is unsupported');
+  };
+  const setHotspot = () => {
+    warn('View.setHotspot is unsupported');
+  };
+
+  useImperativeHandle(ref, () => ({
+    node: hostRef.current,
+    setHotspot,
+    setPressed,
+  }), [hostRef.current]);
+
   const accessibilityLabelValue = newProps.accessibilityLabel;
-  // delete unsupported props
+  // delete div unsupported props
   delete newProps.onAttachedToWindow;
   delete newProps.accessible;
   delete newProps.accessibilityLabel;

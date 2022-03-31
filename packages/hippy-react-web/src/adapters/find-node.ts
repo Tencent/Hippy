@@ -16,10 +16,14 @@
 
 import { findDOMNode } from 'react-dom';
 
-const findNodeHandle = (component: Element) => {
+const findNodeHandle = (component: Element | any) => {
   let node;
-
   try {
+    console.log('component', component);
+    if (component?.node)  {
+      console.log(component.node);
+      return component?.node;
+    }
     /* eslint-disable-next-line react/no-find-dom-node */
     node = findDOMNode(component);
   } catch (e) {

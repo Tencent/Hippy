@@ -288,6 +288,7 @@ export default class AnimationExample extends React.Component {
           <View
             ref={(ref) => {
               this.horizonRef = ref;
+              console.log('ref 1', ref);
             }}
             style={[styles.square, {
               transform: [{
@@ -326,6 +327,7 @@ export default class AnimationExample extends React.Component {
         <View style={styles.showArea}>
           <View
             ref={(ref) => {
+              console.log('ref', ref);
               this.verticalRef = ref;
             }}
             style={[styles.square, {
