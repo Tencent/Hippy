@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "tunnel/net_channel.h"
 
 #define ASIO_STANDALONE
@@ -40,5 +41,6 @@ class WebSocketChannel : public tdf::devtools::NetChannel {
   std::string ws_uri_;
   ReceiveDataHandler data_handler_;
   WSThread ws_thread_;
+  std::vector<std::string> unset_messages_;
 };
 }  // namespace tdf::devtools

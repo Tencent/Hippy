@@ -7,10 +7,13 @@
 
 #ifdef OS_ANDROID
 #include "core/runtime/v8/runtime.h"
-#else
+#endif
+
+#include "api/adapter/data/dom_node_metas.h"
+#include "api/adapter/data/domain_metas.h"
+#include "api/adapter/data/dom_node_location.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
-#endif
 
 namespace hippy {
 namespace devtools {

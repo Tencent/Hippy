@@ -52,7 +52,7 @@ void WebSocketChannel::Connect(ReceiveDataHandler handler) {
 
 void WebSocketChannel::Send(const std::string& rsp_data) {
   if (!connection_hdl_.lock()) {
-    BACKEND_LOGE(TDF_BACKEND, "send message error, handler is null");
+    unset_messages_.emplace_back(rsp_data);
     return;
   }
   ws_client_.send(connection_hdl_, rsp_data, websocketpp::frame::opcode::text);
@@ -90,6 +90,7 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
   auto con = ws_client_.get_con_from_hdl(handle);
   // 链接不成功，handler置空
   data_handler_ = nullptr;
+  unset_messages_.clear();
   BACKEND_LOGE(TDF_BACKEND,
                "websocket connect fail, state: %d, error message: %s, local close code: %d, local close reason: %s, "
                "remote close code: %d, remote close reason: %s",
@@ -101,6 +102,13 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
 void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle) {
   connection_hdl_ = handle.lock();
   BACKEND_LOGI(TDF_BACKEND, "websocket connect open");
+  if (!connection_hdl_.lock() || unset_messages_.empty()) {
+    return;
+  }
+  for (auto& message : unset_messages_) {
+    ws_client_.send(connection_hdl_, message, websocketpp::frame::opcode::text);
+  }
+  unset_messages_.clear();
 }
 
 void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_hdl& handle,
@@ -118,6 +126,7 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
   auto con = ws_client_.get_con_from_hdl(handle);
   // 关闭链接，handler置空
   data_handler_ = nullptr;
+  unset_messages_.clear();
   BACKEND_LOGI(TDF_BACKEND,
                "websocket connect close, state: %d, error message: %s, local close code: %d, local close reason: %s, "
                "remote close code: %d, remote close reason: %s",

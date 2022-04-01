@@ -72,7 +72,7 @@
 HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
     params:(NSDictionary *__nonnull)params
     callback:(HippyResponseSenderBlock)callback) {
-  [self.bridge.uiManager addUIBlock:^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+  [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
     UIView *view = viewRegistry[hippyTag];
     if (view == nil) {
       callback(@[]);
