@@ -392,6 +392,15 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         return false;
     }
 
+    public void resetPullHeaderPositionIfNeeded(int offsetY) {
+        if (offsetY == 0) {
+            ListItemRenderNode renderNode = getChildNodeByAdapterPosition(0);
+            if (renderNode != null && renderNode.isPullHeader()) {
+                headerEventHelper.resetPullHeaderPositionIfNeeded();
+            }
+        }
+    }
+
     /**
      * 获取下拉刷新的事件辅助器
      */
