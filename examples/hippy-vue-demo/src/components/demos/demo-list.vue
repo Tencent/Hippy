@@ -26,24 +26,18 @@
       :delText="delText"
       :editable="true"
       :bounces="true"
+      :rowShouldSticky="true"
       :overScrollEnabled="true"
       @endReached="onEndReached"
       @scroll="onScroll"
       @delete="onDelete"
     >
-      <!--
-        li 有两个参数建议加上。
-        1. :key 是用于标示数据唯一性的，数据不发生改动，key 就不能变，这牵扯到 Vue 的 diff 算法，加上 key 后能避免节点重新渲染，对业务性能会有帮助。
-            这里用 index 做 key 是个坏例子，因为 demo 数据都是重复的，业务开发时不能用 index 做 key。
-            详情：https://cn.vuejs.org/v2/guide/list.html#key
-        2. :type 在终端层有特殊意义，用于表示所使用的 UI 样式类型，终端层会对之前用过的组件进行复用。
-            定义 :type 之后可以从缓存池中将之前已经渲染的终端节点拿出来复用，以达到更高的性能
-      -->
       <li
         v-for="(ui, index) in dataSource"
         :key="index"
         class="item-style"
         :type="ui.style"
+        :sticky="index === 1"
         @appear="onAppear(index)"
         @disappear="onDisappear(index)"
         @willAppear="onWillAppear(index)"
@@ -258,6 +252,7 @@ export default {
     height: 140px;
   }
   .item-style {
+    background-color: white;
     /*width: 100px;*/ /* configure li style if horizontal ul is set*/
   }
 </style>
