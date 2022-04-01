@@ -1,5 +1,0 @@
-/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/rebuild_cache.dir
-/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/edit_cache.dir
-/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/debug/armeabi-v7a/cmake/android/CMakeFiles/rebuild_cache.dir
-/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/debug/armeabi-v7a/cmake/android/CMakeFiles/edit_cache.dir
-/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/debug/armeabi-v7a/cmake/android/CMakeFiles/devtools_backend.dir

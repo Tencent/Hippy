@@ -1,1 +1,0 @@
-/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/build/intermediates/cmake/debug/obj/arm64-v8a
