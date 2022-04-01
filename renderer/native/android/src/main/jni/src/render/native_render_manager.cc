@@ -129,8 +129,7 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
   update_style.insert({"width", width});
   update_style.insert({"height", height});
 
-  node->UpdateDomNodeStyle(update_style);
-  node->ParseLayoutStyleInfo();
+  node->UpdateDomNodeStyleAndParseLayoutInfo(update_style);
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
