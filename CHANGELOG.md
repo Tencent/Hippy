@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.5](https://github.com/Tencent/Hippy/compare/2.13.4...2.13.5) (2022-04-01)
+
+
+### Bug Fixes
+
+* **core:** remove batch call redundant param ([69c8b7e](https://github.com/Tencent/Hippy/commit/69c8b7e9fbb1f3181ffd03181c68ae8b1761231d))
+* **ios:** fix AnimatedImageView displayLayer crash bug ([7a1e0e3](https://github.com/Tencent/Hippy/commit/7a1e0e3cd1df7dccb40eac32cff5f3b7c92f2123))
+* **ios:** fix image display crash ([85de0af](https://github.com/Tencent/Hippy/commit/85de0af705bff371eb41c0b6891139e9773a06c8))
+
+
+
+
+
 ## [2.13.4](https://github.com/Tencent/Hippy/compare/2.13.3...2.13.4) (2022-03-29)
 
 
