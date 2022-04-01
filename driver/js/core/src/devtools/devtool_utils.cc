@@ -138,7 +138,7 @@ std::string DevToolUtils::ParseDomValue(const tdf::base::DomValue& dom_value) {
   }
   std::string node_str = "{";
   bool first_object = true;
-  for (auto iterator : dom_value.ToObject()) {
+  for (auto iterator : dom_value.ToObjectChecked()) {
     if (iterator.first == "uri" || iterator.first == "src") {
       // 这个value是个base64，数据量太大，改成空字符串
       iterator.second = "";
@@ -148,13 +148,13 @@ std::string DevToolUtils::ParseDomValue(const tdf::base::DomValue& dom_value) {
       node_str += first_object ? "\"" : ",\"";
       node_str += key;
       node_str += "\":";
-      node_str += iterator.second.ToBoolean() ? "true" : "false";
+      node_str += iterator.second.ToBooleanChecked() ? "true" : "false";
       first_object = false;
     } else if (iterator.second.IsInt32()) {
       node_str += first_object ? "\"" : ",\"";
       node_str += key;
       node_str += "\":";
-      node_str += std::to_string(iterator.second.ToInt32());
+      node_str += std::to_string(iterator.second.ToInt32Checked());
       first_object = false;
     } else if (iterator.second.IsUInt32()) {
       node_str += first_object ? "\"" : ",\"";
@@ -166,17 +166,17 @@ std::string DevToolUtils::ParseDomValue(const tdf::base::DomValue& dom_value) {
       node_str += first_object ? "\"" : ",\"";
       node_str += key;
       node_str += "\":";
-      node_str += std::to_string(iterator.second.ToDouble());
+      node_str += std::to_string(iterator.second.ToDoubleChecked());
       first_object = false;
     } else if (iterator.second.IsString()) {
       node_str += first_object ? "\"" : ",\"";
       node_str += key;
       node_str += "\":\"";
-      node_str += iterator.second.ToString();
+      node_str += iterator.second.ToStringChecked();
       node_str += "\"";
       first_object = false;
     } else if (iterator.second.IsArray()) {
-      auto props_array = iterator.second.ToArray();
+      auto props_array = iterator.second.ToArrayChecked();
       std::string array = "[";
       for (auto it = props_array.begin(); it != props_array.end(); ++it) {
         if (it->IsNull() || it->IsUndefined()) {
@@ -225,13 +225,13 @@ std::string DevToolUtils::ParseNodeProps(
       node_str += first_object ? "\"" : ",\"";
       node_str += key;
       node_str += "\":";
-      node_str += iterator->second->ToBoolean() ? "true" : "false";
+      node_str += iterator->second->ToBooleanChecked() ? "true" : "false";
       first_object = false;
     } else if (iterator->second->IsInt32()) {
       node_str += first_object ? "\"" : ",\"";
       node_str += key;
       node_str += "\":";
-      node_str += std::to_string(iterator->second->ToInt32());
+      node_str += std::to_string(iterator->second->ToInt32Checked());
       first_object = false;
     } else if (iterator->second->IsUInt32()) {
       node_str += first_object ? "\"" : ",\"";
@@ -243,17 +243,17 @@ std::string DevToolUtils::ParseNodeProps(
       node_str += first_object ? "\"" : ",\"";
       node_str += key;
       node_str += "\":";
-      node_str += std::to_string(iterator->second->ToDouble());
+      node_str += std::to_string(iterator->second->ToDoubleChecked());
       first_object = false;
     } else if (iterator->second->IsString()) {
       node_str += first_object ? "\"" : ",\"";
       node_str += key;
       node_str += "\":\"";
-      node_str += iterator->second->ToString();
+      node_str += iterator->second->ToStringChecked();
       node_str += "\"";
       first_object = false;
     } else if (iterator->second->IsArray()) {
-      auto props_array = iterator->second->ToArray();
+      auto props_array = iterator->second->ToArrayChecked();
       std::string array = "[";
       for (auto it = props_array.begin(); it != props_array.end(); ++it) {
         if (it->IsNull() || it->IsUndefined()) {

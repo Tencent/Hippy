@@ -37,13 +37,13 @@ void HippyScreenAdapter::GetScreenShot(const tdf::devtools::ScreenRequest& reque
             arg->ToObject(result_dom_value);
             tdf::base::DomValue::DomValueObjectType base64_dom_value;
             if (result_dom_value.IsArray()) {
-              base64_dom_value = result_dom_value.ToArray()[0].ToObject();
+              base64_dom_value = result_dom_value.ToArrayChecked()[0].ToObjectChecked();
             } else {
-              base64_dom_value = result_dom_value.ToObject();
+              base64_dom_value = result_dom_value.ToObjectChecked();
             }
-            std::string base64_str = base64_dom_value.find(kScreenShot)->second.ToString();
-            int32_t width = base64_dom_value.find(kScreenWidth)->second.ToInt32();
-            int32_t height = base64_dom_value.find(kScreenHeight)->second.ToInt32();
+            std::string base64_str = base64_dom_value.find(kScreenShot)->second.ToStringChecked();
+            int32_t width = base64_dom_value.find(kScreenWidth)->second.ToInt32Checked();
+            int32_t height = base64_dom_value.find(kScreenHeight)->second.ToInt32Checked();
             TDF_BASE_DLOG(INFO) << "GetScreenShot callback " << base64_str.size();
             callback(base64_str, width, height);
           };
