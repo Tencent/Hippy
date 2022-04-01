@@ -173,6 +173,8 @@ const CGFloat gDoubleMinDiff = .000001f;
     BOOL _allowNextScrollNoMatterWhat;
     CGRect _lastClippedToRect;
     NSHashTable *_scrollListeners;
+    //set by user, not by self
+    CGSize _contentSize;
     // The last non-zero value of translationAlongAxis from scrollViewWillEndDragging.
     // Tells if user was scrolling forward or backward and is used to determine a correct
     // snap index when the user stops scrolling with a tap on the scroll view.
@@ -229,6 +231,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
     _contentView = view;
     [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
+    _scrollView.contentSize = _contentView.frame.size;
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
     
@@ -373,6 +376,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     [HippyView autoAdjustInsetsForView:self withScrollView:_scrollView updateOffset:NO];
 
     _scrollView.contentOffset = contentOffset;
+}
+
+- (void)setContentSize:(CGSize)contentSize {
+    _contentSize = contentSize;
+    _scrollView.contentSize = contentSize;
 }
 
 - (void)scrollToOffset:(CGPoint)offset {
@@ -682,52 +690,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     [self applyLayoutDirectionIfNeeded];
 }
 
-- (CGSize)_calculateViewportSize {
-    CGSize viewportSize = self.bounds.size;
-    if (_automaticallyAdjustContentInsets) {
-        UIEdgeInsets contentInsets = [HippyView contentInsetsForView:self];
-        viewportSize = CGSizeMake(
-            self.bounds.size.width - contentInsets.left - contentInsets.right, self.bounds.size.height - contentInsets.top - contentInsets.bottom);
-    }
-    return viewportSize;
-}
-
 - (CGPoint)calculateOffsetForContentSize:(CGSize)newContentSize {
     CGPoint oldOffset = _scrollView.contentOffset;
-    CGPoint newOffset = oldOffset;
-
-    CGSize oldContentSize = _scrollView.contentSize;
-    CGSize viewportSize = [self _calculateViewportSize];
-
-    BOOL fitsinViewportY = oldContentSize.height <= viewportSize.height && newContentSize.height <= viewportSize.height;
-    if (newContentSize.height < oldContentSize.height && !fitsinViewportY) {
-        CGFloat offsetHeight = oldOffset.y + viewportSize.height;
-        if (oldOffset.y < 0) {
-            // overscrolled on top, leave offset alone
-        } else if (offsetHeight > oldContentSize.height) {
-            // overscrolled on the bottom, preserve overscroll amount
-            newOffset.y = MAX(0, oldOffset.y - (oldContentSize.height - newContentSize.height));
-        } else if (offsetHeight > newContentSize.height) {
-            // offset falls outside of bounds, scroll back to end of list
-            newOffset.y = MAX(0, newContentSize.height - viewportSize.height);
-        }
-    }
-
-    BOOL fitsinViewportX = oldContentSize.width <= viewportSize.width && newContentSize.width <= viewportSize.width;
-    if (newContentSize.width < oldContentSize.width && !fitsinViewportX) {
-        CGFloat offsetHeight = oldOffset.x + viewportSize.width;
-        if (oldOffset.x < 0) {
-            // overscrolled at the beginning, leave offset alone
-        } else if (offsetHeight > oldContentSize.width && newContentSize.width > viewportSize.width) {
-            // overscrolled at the end, preserve overscroll amount as much as possible
-            newOffset.x = MAX(0, oldOffset.x - (oldContentSize.width - newContentSize.width));
-        } else if (offsetHeight > newContentSize.width) {
-            // offset falls outside of bounds, scroll back to end
-            newOffset.x = MAX(0, newContentSize.width - viewportSize.width);
-        }
-    }
-
-    // all other cases, offset doesn't change
+    CGSize size = self.frame.size;
+    CGPoint newOffset = CGPointMake(MIN(oldOffset.x, newContentSize.width - size.width),
+                                    MIN(oldOffset.y, newContentSize.height - size.height));
     return newOffset;
 }
 
@@ -737,15 +704,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
  * unless you manually reset it back to {0, 0}
  */
 - (CGSize)contentSize {
-    if (!CGSizeEqualToSize(_contentSize, CGSizeZero)) {
+    if (CGSizeEqualToSize(_contentSize, CGSizeZero)) {
+        return _contentView.frame.size;
+    }
+    else {
         return _contentSize;
-    } else if (!_contentView) {
-        return CGSizeZero;
-    } else {
-        CGSize singleSubviewSize = _contentView.frame.size;
-//        CGPoint singleSubviewPosition = _contentView.frame.origin;
-//        return (CGSize) { singleSubviewSize.width + singleSubviewPosition.x, singleSubviewSize.height + singleSubviewPosition.y };
-        return singleSubviewSize;
     }
 }
 
