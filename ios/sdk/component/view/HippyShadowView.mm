@@ -184,7 +184,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 - (void)dirtyDescendantPropagation {
     [self dirtySelfPropagation];
     for (HippyShadowView *shadowView in self.hippySubviews) {
-        [shadowView dirtySelfPropagation];
+        [shadowView dirtyDescendantPropagation];
     }
 }
 
