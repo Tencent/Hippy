@@ -67,7 +67,7 @@ std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Runtime> &runtime,
 void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
   TDF_BASE_DLOG(INFO) << "[turbo-perf] enter getTurboModule";
   auto data = info.Data().As<v8::External>();
-  int64_t runtime_key = *(reinterpret_cast<int64_t *>(data->Value()));
+  int64_t runtime_key = (reinterpret_cast<int64_t>(data->Value()));
 
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_key));
   std::shared_ptr<Ctx> ctx =
