@@ -351,13 +351,14 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
   }
 }
 
-void DomNode::UpdateDomNodeStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+void DomNode::UpdateDomNodeStyleAndParseLayoutInfo(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
     dom_manager->PostTask([WEAK_THIS, update_style]() {
       DEFINE_AND_CHECK_SELF(DomNode)
       self->UpdateStyle(update_style);
+      self->ParseLayoutStyleInfo();
     });
   }
 }
