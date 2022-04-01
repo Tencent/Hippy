@@ -1,0 +1,34 @@
+{
+  "buildFiles": [
+    "/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/CMakeLists.txt",
+    "/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/cmake/android/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/thomasyqguo/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+      "-C",
+      "/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/release/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/thomasyqguo/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+    "-C",
+    "/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/release/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "devtools_backend-Debug-arm64-v8a": {
+      "artifactName": "devtools_backend",
+      "buildCommandComponents": [
+        "/Users/thomasyqguo/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja",
+        "-C",
+        "/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/release/arm64-v8a",
+        "devtools_backend"
+      ],
+      "abi": "arm64-v8a",
+      "output": "/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/build/intermediates/cmake/release/obj/arm64-v8a/libdevtools_backend.so",
+      "runtimeFiles": []
+    }
+  }
+}

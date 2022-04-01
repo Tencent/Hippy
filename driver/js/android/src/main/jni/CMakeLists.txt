@@ -32,6 +32,7 @@ if (${ANDROID_STL} STREQUAL "c++_static")
   string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++abi.a")
 endif()
 
+
 # region ABI_COMPILE_OPTIONS
 set(ABI_COMPILE_OPTIONS
         -fomit-frame-pointer
@@ -44,7 +45,7 @@ set(ABI_COMPILE_OPTIONS
         -Wall
         -Wextra
         -Wextra-semi
-        -Wconversion
+        -Wconversionframework/js/core/src/runtime/v8/v8_bridge_utils.cc
         -Wimplicit-fallthrough
         -Wloop-analysis
         -Wmissing-field-initializers
@@ -95,6 +96,7 @@ get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cor
 get_filename_component(RENDER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../renderer" REALPATH)
 get_filename_component(DOM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../dom" REALPATH)
 get_filename_component(LAYOUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../layout" REALPATH)
+get_filename_component(DEVTOOLS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../devtools/devtools-backend" REALPATH)
 # endregion
 
 # region dependencies
@@ -134,7 +136,11 @@ message("CORE_SRC: ${CORE_SRC}")
 message("JNI_SRC: ${JNI_SRC}")
 # endregion
 
-set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
+if (TDF_SERVICE_ENABLED STREQUAL "1")
+  set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom devtools_backend)
+else()
+  set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
+endif()
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
@@ -187,6 +193,16 @@ include_directories(${CORE_SRC_DIR}/third_party/base/include)
 include_directories(${DOM_SRC_DIR}/include)
 include_directories(${LAYOUT_DIR})
 include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
+
+if (TDF_SERVICE_ENABLED STREQUAL "1")
+  add_definitions(-DTDF_SERVICE_ENABLED=1)
+  include_directories(${DEVTOOLS_DIR}/include)
+  add_subdirectory(${DEVTOOLS_DIR} devtools_backend)
+else ()
+  file(GLOB_RECURSE DEVTOOLS_BACKEND_SRC ${CORE_SRC_DIR}/src/devtools/*)
+  message("DEVTOOLS_BACKEND_SRC: ${DEVTOOLS_BACKEND_SRC}")
+  list(REMOVE_ITEM CORE_SRC ${DEVTOOLS_BACKEND_SRC})
+endif ()
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")

@@ -24,6 +24,11 @@
 #include <asl.h>
 #include <string>
 #include <mutex>
+#include "base/logging.h"
+
+#import "HippyAssert.h"
+#import "HippyBridge.h"
+#import "HippyBridge+Private.h"
 #import "HippyDefines.h"
 
 static NSString *const HippyLogFunctionStack = @"HippyLogFunctionStack";

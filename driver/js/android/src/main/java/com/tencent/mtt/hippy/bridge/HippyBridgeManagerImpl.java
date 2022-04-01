@@ -228,7 +228,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     destroyCallback.callback(success, exception);
                 }
             }
-        });
+        },msg.arg1 == 1);
     }
 
     @Override
@@ -477,7 +477,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     @Override
-    public void destroyBridge(Callback<Boolean> callback) {
+    public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
         assert (mHandler != null);
         //noinspection ConstantConditions
         if (mHandler == null) {
@@ -485,6 +485,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
 
         Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
+        message.arg1 = isReload ? 1 : 0;
         mHandler.sendMessage(message);
     }
 

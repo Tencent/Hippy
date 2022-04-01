@@ -1,0 +1,24 @@
+                    Executable : /Users/thomasyqguo/Library/Android/sdk/cmake/3.10.2.4988404/bin/cmake
+arguments : 
+-H/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend
+-DCMAKE_FIND_ROOT_PATH=/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/debug/prefab/arm64-v8a/prefab
+-DCMAKE_TOOLCHAIN_FILE=/Users/thomasyqguo/Library/Android/sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake
+-DANDROID_ABI=arm64-v8a
+-DANDROID_NDK=/Users/thomasyqguo/Library/Android/sdk/ndk/21.4.7075529
+-DCMAKE_ANDROID_ARCH_ABI=arm64-v8a
+-DCMAKE_ANDROID_NDK=/Users/thomasyqguo/Library/Android/sdk/ndk/21.4.7075529
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/build/intermediates/cmake/debug/obj/arm64-v8a
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/build/intermediates/cmake/debug/obj/arm64-v8a
+-DCMAKE_MAKE_PROGRAM=/Users/thomasyqguo/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_SYSTEM_VERSION=16
+-DANDROID_PLATFORM=android-21
+-DCMAKE_BUILD_TYPE=Debug
+-B/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/debug/arm64-v8a
+-GNinja
+jvmArgs : 
+
+
+                    Build command args: []
+                    Version: 1

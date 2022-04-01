@@ -36,6 +36,9 @@
 #include "dom/dom_manager.h"
 #include "dom/render_manager.h"
 #include "dom/scene_builder.h"
+#if TDF_SERVICE_ENABLED
+#include "devtools/devtool_data_source.h"
+#endif
 
 class JavaScriptTaskRunner;
 class ModuleBase;
@@ -139,6 +142,21 @@ class Scope {
     return render_manager_;
   }
 
+#if TDF_SERVICE_ENABLED
+  void CreateDevtools(std::string ws_url) {
+    devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>(std::move(ws_url));
+  }
+  void DestroyDevtools(bool is_reload) {
+    devtool_data_source_->Destroy(is_reload);
+  }
+  std::shared_ptr<hippy::devtools::DevtoolDataSource> GetDevtoolsDataSource() {
+    return devtool_data_source_;
+  }
+  void BindDevtools(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
+    devtool_data_source_->Bind(runtime_id, dom_id, render_id);
+  }
+#endif
+
  private:
   friend class Engine;
   void Initialized();
@@ -161,4 +179,7 @@ class Scope {
   std::shared_ptr<UriLoader> loader_;
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
+#if TDF_SERVICE_ENABLED
+  std::shared_ptr<hippy::devtools::DevtoolDataSource> devtool_data_source_;
+#endif
 };

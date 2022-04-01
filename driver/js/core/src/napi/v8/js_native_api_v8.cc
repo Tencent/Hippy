@@ -28,6 +28,10 @@
 #include "core/base/string_view_utils.h"
 #include "core/base/common.h"
 #include "core/napi/v8/serializer.h"
+#include "core/scope.h"
+#if TDF_SERVICE_ENABLED
+#include "devtools/devtool_helper.h"
+#endif
 #include "v8/libplatform/libplatform.h"
 #include "v8/v8.h"
 #include "core/modules/ui_manager_module.h"
@@ -250,6 +254,10 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
 #endif
       TDF_BASE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
+#if TDF_SERVICE_ENABLED
+      auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform_->GetTracingController());
+      DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace);
+#endif
     }
   }
 

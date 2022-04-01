@@ -1,0 +1,52 @@
+//
+// Copyright (c) 2021 Tencent Corporation. All rights reserved.
+//
+
+#pragma once
+
+#include <netinet/in.h>
+#include <list>
+#include <mutex>
+#include <string>
+
+#include "tunnel/net_channel.h"
+#include "tunnel/tcp/stream_handler.h"
+#include "tunnel/tcp/tcp_defines.h"
+
+namespace tdf::devtools {
+
+#define NULL_SOCKET -1
+#define BUFFSIZ 32768
+class TcpChannel : public tdf::devtools::NetChannel {
+ public:
+  TcpChannel();
+  bool StartListen();
+  void StopListenAndDisConnect();
+  bool IsStarting() { return is_starting_; }
+  void SendResponse(void *buf, int32_t len, int flag);
+  std::function<void(ConnectStatus)> on_server_status_change;
+  std::function<void(ConnectStatus, std::string error)> on_connect_status_change;
+  ReceiveDataHandler data_handler_;
+
+  void Connect(ReceiveDataHandler handler) override;
+  void Send(const std::string &rsp_data) override;
+  void Close(uint32_t code, const std::string &reason) override;
+
+ private:
+  bool StartServer(std::string host, int port);
+  void SetStarting(bool starting);
+  void AcceptClient();
+  void SetConnecting(bool connected, std::string error);
+  void ListenerAndResponse(int client_fd);
+  void SendResponse_(void *buf, int32_t len);
+  std::mutex mutex_;
+  std::mutex connect_mutex_;
+  struct sockaddr_in serv_addr {};
+  bool is_connecting = false;
+  bool is_starting_ = false;
+  int m_socket_fd_;
+  int m_client_fd_;
+  int m_port;
+  tunnel::StreamHandler _streamHandler;
+};
+}  // namespace tdf::devtools

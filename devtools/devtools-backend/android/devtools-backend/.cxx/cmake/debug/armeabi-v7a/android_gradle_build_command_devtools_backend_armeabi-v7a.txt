@@ -1,0 +1,7 @@
+Executable : /Users/thomasyqguo/Library/Android/sdk/cmake/3.10.2.4988404/bin/ninja
+arguments : 
+-C
+/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/android/devtools-backend/.cxx/cmake/debug/armeabi-v7a
+devtools_backend
+jvmArgs : 
+

@@ -17,10 +17,13 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -47,7 +50,9 @@ import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import com.tencent.renderer.component.text.VirtualNode;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +62,10 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         View.OnFocusChangeListener {
 
     private static final String TAG = "HippyViewController";
+    private static final String SCREEN_SHOT = "screenShot";
+    private static final String SCREEN_WIDTH = "width";
+    private static final String SCREEN_HEIGHT = "height";
+    private static final String GET_SCREEN_SHOT = "getScreenShot";
 
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
@@ -618,8 +627,54 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             @NonNull List params) {
     }
 
+    private static String bitmapToBase64Str(Bitmap bitmap) {
+      String result = null;
+      ByteArrayOutputStream baos = null;
+      try {
+        if (bitmap != null) {
+          Bitmap scaleBitmap = Bitmap
+            .createScaledBitmap(bitmap, bitmap.getWidth() / 2, bitmap.getHeight() / 2, false);
+          baos = new ByteArrayOutputStream();
+          int quality = 80;
+          scaleBitmap.compress(CompressFormat.JPEG, quality, baos);
+          baos.flush();
+          baos.close();
+          byte[] bitmapBytes = baos.toByteArray();
+          result = Base64.encodeToString(bitmapBytes, Base64.NO_WRAP);
+        }
+      } catch (IOException e) {
+        LogUtils.e(TAG, "screenFrameAck, exception1=", e);
+      } finally {
+        try {
+          if (baos != null) {
+            baos.flush();
+            baos.close();
+          }
+        } catch (IOException e) {
+          LogUtils.e(TAG, "screenFrameAck, exception2=", e);
+        }
+      }
+      return result;
+    }
+
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull List params, @NonNull Promise promise) {
+      if (GET_SCREEN_SHOT.equals(functionName)) {
+        if (promise != null) {
+          HippyMap resultMap = new HippyMap();
+          boolean isEnableDrawingCache = view.isDrawingCacheEnabled();
+          if (!isEnableDrawingCache) {
+            view.setDrawingCacheEnabled(true);
+          }
+          Bitmap bitmap = view.getDrawingCache();
+          String base64 = bitmapToBase64Str(bitmap);
+          resultMap.pushString(SCREEN_SHOT, base64);
+          resultMap.pushInt(SCREEN_WIDTH, view.getWidth());
+          resultMap.pushInt(SCREEN_HEIGHT, view.getHeight());
+          promise.resolve(resultMap);
+          view.setDrawingCacheEnabled(isEnableDrawingCache);
+        }
+      }
     }
 
     public void onBatchComplete(@NonNull T view) {

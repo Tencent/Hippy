@@ -1,0 +1,2 @@
+/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/CMakeLists.txt
+/Users/thomasyqguo/workspace/github_hippy/Hippy/third_party/devtools-backend/cmake/android/CMakeLists.txt
