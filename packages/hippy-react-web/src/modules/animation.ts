@@ -69,12 +69,8 @@ export class Animation {
   }
 
   public setRef(ref) {
-    // delete ref.setHotspot;
-    // delete ref.setPressed;
-    console.log('set ref', ref);
     if (ref) {
       this.refNode = findNodeHandle(ref);
-      console.log('this refNode', this.refNode);
     }
   }
 
@@ -176,10 +172,8 @@ export class Animation {
    * Start animation execution
    */
   public start() {
-    console.log('start');
     this.clearAnimationInterval();
     if (this.refNode) {
-      console.log('refNode', this.refNode);
       this.resetState();
       if (this.onAnimationStartCallback) {
         this.onAnimationStartCallback();

@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+import { warn } from '../utils';
+
 const enum WebSocketReadyState {
   CONNECTING,
   OPEN,
@@ -45,26 +47,22 @@ class WebSocketWeb implements HippyTypes.WebSocket {
     this.webSocketIns = new WebSocket(url, protocols);
     this.webSocketIns.addEventListener('open', (event) => {
       this.readyState = WebSocketReadyState.OPEN;
-      console.log('open', event);
       if (this.onopen) {
         this.onopen(event);
       }
     });
     this.webSocketIns.addEventListener('message', (event) => {
-      console.log('message', event);
       if (this.onmessage) {
         this.onmessage(event);
       }
     });
     this.webSocketIns.addEventListener('close', (event) => {
       this.readyState = WebSocketReadyState.CLOSED;
-      console.log('close', event);
       if (this.onclose) {
         this.onclose(event);
       }
     });
     this.webSocketIns.addEventListener('error', (event) => {
-      console.log('error', event);
       if (this.onerror) {
         this.onerror(event);
       }
@@ -72,7 +70,7 @@ class WebSocketWeb implements HippyTypes.WebSocket {
   }
   public close(code: number, reason: string) {
     if (this.readyState !== WebSocketReadyState.OPEN) {
-      console.warn('WebSocket is not connected');
+      warn('WebSocket is not connected');
       return;
     }
     this.readyState = WebSocketReadyState.CLOSING;
@@ -80,7 +78,7 @@ class WebSocketWeb implements HippyTypes.WebSocket {
   }
   public send(data: string | undefined) {
     if (this.readyState !== WebSocketReadyState.OPEN) {
-      console.warn('WebSocket is not connected');
+      warn('WebSocket is not connected');
       return;
     }
     if (typeof data !== 'string') {
