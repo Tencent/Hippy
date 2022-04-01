@@ -126,4 +126,9 @@ public class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRef
     public void requestLayout() {
         recyclerView.dispatchLayout();
     }
+
+    @Override
+    public void resetPullHeaderPositionIfNeeded() {
+        headerRefreshHelper.resetHeaderViewPosition();
+    }
 }

@@ -111,6 +111,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
         renderNodeCount = getAdapter().getRenderNodeCount();
         dispatchLayout();
+        if (renderNodeCount > 0) {
+            getAdapter().resetPullHeaderPositionIfNeeded(getContentOffsetY());
+        }
     }
 
     /**
