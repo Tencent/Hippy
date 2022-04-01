@@ -19,8 +19,8 @@
  */
 
 export const UNSUPPORTED_PROPS_MAP = {
-  image: ['capInsets', 'onProgress'],
-  listview: ['bounces', 'overScrollEnabled', 'onWillAppear', 'onWillDisappear', 'onMomentumScrollBegin', 'onMomentumScrollEnd', 'onScrollBeginDrag', 'onScrollEndDrag', 'preloadItemNumber', 'editable', 'delText', 'onDelete'],
+  image: ['capInsets', 'onProgress', 'tintColor'],
+  listview: ['bounces', 'overScrollEnabled', 'onWillAppear', 'onWillDisappear', 'onMomentumScrollBegin', 'onMomentumScrollEnd', 'onScrollBeginDrag', 'onScrollEndDrag', 'preloadItemNumber', 'editable', 'delText', 'onDelete', 'initialListSize'],
   modal: ['supportedOrientations', 'immersionStatusBar', 'onOrientationChange', 'primaryKey'],
   refreshWrapper: ['bounceTime'],
   scrollview: ['bounces', 'onScrollBeginDrag', 'onScrollEndDrag', 'pagingEnabled', 'showsHorizontalScrollIndicator', 'showsVerticalScrollIndicator'],

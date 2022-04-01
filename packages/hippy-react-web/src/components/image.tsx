@@ -27,6 +27,7 @@ import { View, ViewProps } from './view';
 
 interface ImageProp {
   style: HippyTypes.Style;
+  tintColor?: HippyTypes.color;
   children?: any;
   onError?: LoadError;
   defaultSource?: string;
@@ -191,6 +192,7 @@ const Image: React.FC<ImageProp> = React.forwardRef((props: ImageProp, ref) => {
   // unsuported prop in Image
   delete copyProps.onProgress;
   delete copyProps.capInsets;
+  delete copyProps.tintColor;
   const viewProps: ViewProps = { ...copyProps } as ViewProps;
 
 

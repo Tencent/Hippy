@@ -47,6 +47,7 @@ interface ListViewProps extends ListViewItemProp {
   scrollEnabled?: boolean;
   showScrollIndicator?: boolean;
   initialContentOffset?: number;
+  initialListSize?: number;
   renderRow?: Function;
   getRowStyle?: Function;
   getRowHeight?: Function;
@@ -136,7 +137,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const {
     getRowStyle = () => {}, rowShouldSticky, scrollEnabled = true, showScrollIndicator = true,
     onHeaderReleased = () => { }, onHeaderPulling = () => { }, renderPullHeader = () => null,
-    onDisappear = () => { }, onAppear = () => { },
+    onDisappear = () => { }, onAppear = () => { }, numberOfRows = 0,
   } = props;
 
   const isShowPullHeader = useRef(isFunc(renderPullHeader) && renderPullHeader());
@@ -201,7 +202,6 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   };
 
   const getDataSource = () => {
-    const { numberOfRows = 0 } = props;
     const dataSource = new MListView.DataSource({
       getRowData: (dataBlob, sectionID, rowID) => dataBlob[rowID],
       rowHasChanged: (row1, row2) => row1 !== row2,
@@ -264,6 +264,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   delete listViewProps.editable;
   delete listViewProps.delText;
   delete listViewProps.onDelete;
+  delete listViewProps.initialListSize;
 
   const fixRmcListViewBug = () => {
     // rmc-list-view pullRefresh bug
@@ -349,6 +350,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
         ref={listRef}
         className={(!showScrollIndicator && HIDE_SCROLLBAR_CLASS) || ''}
         dataSource={getDataSource()}
+        initialListSize={numberOfRows}
         renderRow={renderRow}
       />
     </View>

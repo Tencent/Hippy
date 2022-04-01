@@ -100,7 +100,7 @@ import icon from './qb_icon_new.png';
 | getRowStyle           | 设置`ListViewItem`容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `Android、iOS、hippy-react-web` |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `(index: number) => number`                                    | `Android、iOS、hippy-react-web` |
 | horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局 | `boolean \| undefined`   | `Android、hippy-react-web` |
-| initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `Android、iOS、hippy-react-web` |
+| initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `Android、iOS` |
 | initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `Android、iOS`    |
 | onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web` |
 | onDisappear     | 当有`ListViewItem`滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web` |
