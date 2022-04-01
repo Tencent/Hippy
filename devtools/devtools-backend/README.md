@@ -18,12 +18,7 @@ DevTools Backend 是调试工具的服务后端，负责分发 DevTools Frontend
 ├── android  // Android 工程目录，可作为子工程给Android工程引入
 ├── ios.toolchain.cmake // iOS cmake工具
 ├── lib // 打包的lib库
-│   ├── android
-│   │   ├── devtools_interface.h  // 对tdf暴露的interface，protocal
-│   │   └── libdevtools_backend.so
-│   └── ios
-│       ├── devtools_interface.h // 对tdf暴露的interface，protocal
-│       └── libdevtools_backend.a
+│   
 ├── README.md
 └── third_party // 第三方目录
 
@@ -34,7 +29,7 @@ DevTools Backend 是调试工具的服务后端，负责分发 DevTools Frontend
 #### 1）Hippy 仓库拉取
 
 ```shell
-git clone https://git.woa.com/TencentDynamicFramework/hippy.git
+git clone http://
 cd hippy
 git submodule update --init --recursive
 
@@ -71,7 +66,7 @@ hippy/hippy/android/sdk/build.gradle 打开 devtools backend 开关：
 
 #### 4、集成epc：
 
-https://iwiki.woa.com/pages/viewpage.action?pageId=194189116
+https://
 
 ##### 1. 代码规范-命令行场景
 
@@ -106,7 +101,7 @@ https://iwiki.woa.com/pages/viewpage.action?pageId=194189116
 
 ##### 2. 代码规范-添翼IDE插件场景
 
-参考 http://tianyi.oa.com/，里面集成了code-style、codeDog、TAPD、工蜂Git和RDM4，提供代码评审、代码扫描、需求管理、持续集成等能力。
+参考 tianyi，里面集成了code-style、codeDog、TAPD、工蜂Git和RDM4，提供代码评审、代码扫描、需求管理、持续集成等能力。
 
 ##### 3. 提交规范
 
@@ -118,7 +113,7 @@ https://iwiki.woa.com/pages/viewpage.action?pageId=194189116
   feat: --issue=12 xxx		   // ID号 位数不限
   ```
 
-+ 详情：https://iwiki.woa.com/pages/viewpage.action?pageId=877903730#TDF工程化集成EPC-3.2提交日志规范
++ 详情：TDF工程化集成EPC-3.2提交日志规范
 
 ##### 4. 分支命名规范检查
 
@@ -129,7 +124,7 @@ https://iwiki.woa.com/pages/viewpage.action?pageId=194189116
   bugfix/${userID}_${bugID}
   ```
 
-+ 详情：https://iwiki.woa.com/pages/viewpage.action?pageId=877903730#TDF工程化集成EPC-3.3分支命名规范
++ 详情：TDF工程化集成EPC-3.3分支命名规范
 
 ##### 5. 屏蔽epc拦截
 
@@ -162,4 +157,4 @@ sh build.sh
 /devtools_backend/test/build/code_coverage_report
 
 ##### 4. 参考文档
-https://iwiki.woa.com/pages/viewpage.action?pageId=1128734264
+https://
