@@ -17,12 +17,35 @@ DevTools Backend 是调试工具的服务后端，负责分发 DevTools Frontend
 ├── src // 源码目录
 ├── android  // Android 工程目录，可作为子工程给Android工程引入
 ├── ios.toolchain.cmake // iOS cmake工具
-├── lib // 打包的lib库
+├── libs // 打包的lib库
 │   
-├── README.md
+├── test  // 单测
 └── third_party // 第三方目录
 
 ```
+##### 架构层次
+整个backend代码目录结构分三层
+---
+tunnel层，处理与frontend的通信，支持tcp和websocket连接，代码在tunnel目录
+1.tcp目录
+  tcp_channel.h: tcp通道连接实现
+2.ws目录
+  websocket_channel.h: ws通道实现
+tunnel_service.h  通道逻辑处理服务，包括通道建立和协议收发等
+---
+domain层，负责cdp协议的分发和实现，代码在module目录下
+1.domain目录，包含已实现的cdp domain， css、page、dom等
+2.model目录, cdp协议域名对应的model处理类
+3.request目录，cdp协议请求体
+
+---
+api层，对接入框架的暴露的接口层，代码在api目录下
+devtools_backend_service.h  接入框架所使用的调试后端服务实例
+1.adapter     
+    1.devtools_data_provider.h devtools调试所需功能数据，由外部框架实现各个功能adapter，并注入
+2.notification 
+    1.devtools_notification_center.h devtools提供的通知接口，接入框架可通过指定的notification发送通知给frontend
+
 
 #### 2、编译构建 - Hippy 集成  
 
