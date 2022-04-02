@@ -20,8 +20,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.tencent.link_supplier.LinkHelper;
 import com.tencent.link_supplier.proxy.LinkProxy;
 import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface RenderProxy extends LinkProxy {
 
@@ -36,6 +40,7 @@ public interface RenderProxy extends LinkProxy {
      * Create root view by renderer
      *
      * @param context {@link Context} the root view container context, such as {@link Activity}
+     * @return the rootView {@link ViewGroup} will attach to host view tree
      */
     @NonNull
     ViewGroup createRootView(@NonNull Context context);
@@ -46,4 +51,23 @@ public interface RenderProxy extends LinkProxy {
      * @param rootId root view id generate by {@link Linker}
      */
     void setRootId(int rootId);
+
+    /**
+     * Notify renderer the host life cycle {@link android.app.Activity} onResume call back
+     */
+    void onResume();
+
+    /**
+     * Notify renderer the host life cycle {@link android.app.Activity} onPause call back
+     */
+    void onPause();
+
+    /**
+     * Initialize the native renderer after call {@link LinkHelper} createRenderer interface.
+     *
+     * @param controllers framework instance id
+     * @param rootView the already exists root view, for example after reload in debug mode, root
+     * view will be reused.
+     */
+    void init(@Nullable List<Class<?>> controllers, @Nullable ViewGroup rootView);
 }

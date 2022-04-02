@@ -19,31 +19,28 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.utils.LogUtils;
 
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
-import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings({"deprecation", "unused", "rawtypes"})
+@SuppressWarnings({"unused", "rawtypes"})
 public class ControllerUpdateManger<T, G> {
 
     private static final Map<Class, Map<String, PropertyMethodHolder>> CLASS_PROPS_METHOD = new HashMap<>();
     @NonNull
-    private final NativeRender mNativeRenderer;
+    private final Renderer mRenderer;
     private T customPropsController;
 
-    public ControllerUpdateManger(@NonNull NativeRender nativeRenderer) {
-        mNativeRenderer = nativeRenderer;
+    public ControllerUpdateManger(@NonNull Renderer renderer) {
+        mRenderer = renderer;
     }
 
     public void setCustomPropsController(T controller) {
@@ -118,13 +115,13 @@ public class ControllerUpdateManger<T, G> {
                 methodHolder.method.invoke(t, g, value);
             }
         } catch (Exception exception) {
-            mNativeRenderer.handleRenderException(
+            mRenderer.handleRenderException(
                     PropertyUtils
                             .makePropertyConvertException(exception, key, methodHolder.method));
         }
     }
 
-    private void handleCustomProps(T t, G g, @Nullable Map<String, Object> props, String key) {
+    private void handleCustomProps(T t, G g, @NonNull Map<String, Object> props, @NonNull String key) {
         boolean hasCustomMethodHolder = false;
         if (!(g instanceof View)) {
             return;

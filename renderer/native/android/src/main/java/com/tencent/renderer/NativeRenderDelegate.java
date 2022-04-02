@@ -18,9 +18,10 @@ package com.tencent.renderer;
 
 import androidx.annotation.NonNull;
 
+import com.tencent.link_supplier.proxy.renderer.RenderExceptionHandler;
 import java.util.List;
 
-public interface NativeRenderDelegate extends NativeRenderExceptionHandler {
+public interface NativeRenderDelegate extends RenderExceptionHandler {
 
     void createNode(@NonNull List<Object> nodeList) throws NativeRenderException;
 
