@@ -34,6 +34,9 @@ V8ChannelImpl::V8ChannelImpl(std::shared_ptr<Bridge> bridge)
     : bridge_(std::move(bridge)) {}
 
 void sendResponseToDevTools(v8_inspector::StringView stringView) {
+  if (stringView.is8Bit()) {
+    return;
+  }
   auto datas = stringView.characters16();
   int length = static_cast<int>(stringView.length());
   std::stringstream stream;
@@ -47,14 +50,20 @@ void sendResponseToDevTools(v8_inspector::StringView stringView) {
 void V8ChannelImpl::sendResponse(
     int callId,
     std::unique_ptr<v8_inspector::StringBuffer> message) {
+#if TDF_SERVICE_ENABLED
   sendResponseToDevTools(message->string());
-  return bridge_->SendResponse(std::move(message));
+#else
+  bridge_->SendResponse(std::move(message));
+#endif
 }
 
 void V8ChannelImpl::sendNotification(
     std::unique_ptr<v8_inspector::StringBuffer> message) {
+#if TDF_SERVICE_ENABLED
   sendResponseToDevTools(message->string());
-  return bridge_->SendNotification(std::move(message));
+#else
+  bridge_->SendNotification(std::move(message));
+#endif
 }
 
 }  // namespace hippy

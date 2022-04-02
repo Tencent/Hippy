@@ -45,7 +45,7 @@ set(ABI_COMPILE_OPTIONS
         -Wall
         -Wextra
         -Wextra-semi
-        -Wconversionframework/js/core/src/runtime/v8/v8_bridge_utils.cc
+        -Wconversion
         -Wimplicit-fallthrough
         -Wloop-analysis
         -Wmissing-field-initializers
