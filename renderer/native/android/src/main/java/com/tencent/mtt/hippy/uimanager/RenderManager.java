@@ -21,6 +21,7 @@ import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
 
 import androidx.annotation.NonNull;
 
+import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.component.text.VirtualNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +45,8 @@ public class RenderManager {
     @NonNull
     private final ControllerManager mControllerManager;
 
-    public RenderManager(NativeRender nativeRenderer) {
-        mControllerManager = new ControllerManager(nativeRenderer);
+    public RenderManager(Renderer renderer) {
+        mControllerManager = new ControllerManager(renderer);
     }
 
     public void init(@Nullable List<Class<?>> controllers) {

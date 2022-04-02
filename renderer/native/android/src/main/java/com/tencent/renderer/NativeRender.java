@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
+import com.tencent.link_supplier.proxy.renderer.RenderExceptionHandler;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 
@@ -31,15 +32,13 @@ import com.tencent.renderer.component.text.VirtualNode;
 
 import java.util.Map;
 
-public interface NativeRender extends NativeRenderExceptionHandler {
+public interface NativeRender extends RenderExceptionHandler {
 
     @NonNull
     RenderManager getRenderManager();
 
     @Nullable
     ViewGroup getRootView();
-
-    Object getCustomViewCreator();
 
     String getBundlePath();
 

@@ -23,7 +23,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.renderer.NativeRender;
+import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.NativeRenderException;
 
 import java.util.HashMap;
@@ -40,10 +40,10 @@ public class ControllerRegistry {
     @NonNull
     private final Map<String, ControllerHolder> mControllers =  new HashMap<>();
     @NonNull
-    private final NativeRender mNativeRenderer;
+    private final Renderer mRenderer;
 
-    public ControllerRegistry(@NonNull NativeRender nativeRenderer) {
-        mNativeRenderer = nativeRenderer;
+    public ControllerRegistry(@NonNull Renderer renderer) {
+        mRenderer = renderer;
     }
 
     public void addControllerHolder(String name, ControllerHolder controllerHolder) {
@@ -61,7 +61,7 @@ public class ControllerRegistry {
         if (holder == null) {
             NativeRenderException exception = new NativeRenderException(
                     GET_VIEW_CONTROLLER_FAILED_ERR, "Unknown class name=" + className);
-            mNativeRenderer.handleRenderException(exception);
+            mRenderer.handleRenderException(exception);
             return null;
         }
         return holder.getViewController();

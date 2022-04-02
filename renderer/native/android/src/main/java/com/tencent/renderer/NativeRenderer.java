@@ -34,6 +34,7 @@ import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
+import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.renderer.component.text.TextRenderSupplier;
@@ -58,7 +59,7 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 
-public class NativeRenderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
+public class NativeRenderer extends Renderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
 
     private static final String TAG = "NativeRenderer";
     private static final String NODE_ID = "id";

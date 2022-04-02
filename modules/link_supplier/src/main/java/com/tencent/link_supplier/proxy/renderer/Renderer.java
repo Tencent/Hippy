@@ -16,10 +16,12 @@
 
 package com.tencent.link_supplier.proxy.renderer;
 
-public interface NativeRenderProxy extends RenderProxy {
+public abstract class Renderer implements RenderProxy, RenderExceptionHandler {
 
     /**
-     * Notify renderer the root view instance delete by framework.
+     * Return the custom view creator of renderer
+     *
+     * @return custom view creator object
      */
-    void onRootDestroy();
+    public abstract Object getCustomViewCreator();
 }

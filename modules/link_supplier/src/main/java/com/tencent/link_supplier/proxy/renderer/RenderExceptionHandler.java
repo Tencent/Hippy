@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer;
+package com.tencent.link_supplier.proxy.renderer;
 
 import androidx.annotation.NonNull;
 
-public interface NativeRenderExceptionHandler {
+public interface RenderExceptionHandler {
     /**
      * Report render exception to host
      *

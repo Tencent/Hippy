@@ -28,6 +28,7 @@ import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -62,13 +63,12 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     private boolean bUserChangeFocus = false;
 
     @SuppressWarnings("deprecation")
-    public View createView(@Nullable ViewGroup rootView, int id,
-            @NonNull NativeRender nativeRenderer, @NonNull String className,
-            @Nullable Map<String, Object> props) {
+    public View createView(@Nullable ViewGroup rootView, int id, @NonNull Renderer renderer,
+            @NonNull String className, @Nullable Map<String, Object> props) {
         View view = null;
         if (rootView != null) {
             Context context = rootView.getContext();
-            Object object = nativeRenderer.getCustomViewCreator();
+            Object object = renderer.getCustomViewCreator();
             if (object instanceof HippyCustomViewCreator) {
                 view = ((HippyCustomViewCreator) object)
                         .createCustomView(className, context, props);
@@ -626,12 +626,12 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     }
 
-    public void onBatchStart(@NonNull T view){
+    public void onBatchStart(@NonNull T view) {
 
     }
 
     public void onViewDestroy(T t) {
-        
+
     }
 
     protected void deleteChild(ViewGroup parentView, View childView) {
