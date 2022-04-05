@@ -26,7 +26,7 @@
 #import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
 
-@interface ViewController ()<HippyBridgeDelegate>
+@interface ViewController ()<HippyBridgeDelegate, HippyMethodInterceptorProtocol>
 
 @end
 
@@ -71,7 +71,7 @@
                                                     executorKey:@"Demo"];
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath] moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)} launchOptions:nil shareOptions:nil debugMode:NO delegate:nil];
 #endif
-    
+    bridge.methodInterceptor = self;
     
     
 //    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:[NSURL URLWithString:@"http://localhost:38989/index.bundle?platform=ios&dev=true&minify=false"] moduleProvider:nil launchOptions:nil executorKey:@"Demo"];
@@ -124,6 +124,18 @@
 
 - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
     return bridge.bundleURL;
+}
+
+- (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue {
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
+    return YES;
+}
+
+- (BOOL)shouldCallbackBeInvokedWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName callbackId:(NSNumber *)cbId arguments:(id)arguments {
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
+    return YES;
 }
 
 @end

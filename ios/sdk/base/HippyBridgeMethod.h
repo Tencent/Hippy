@@ -21,19 +21,30 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "HippyNullability.h"
 
 @class HippyBridge;
 
 typedef NS_ENUM(NSUInteger, HippyFunctionType) {
     HippyFunctionTypeNormal,
+    HippyFunctionTypeCallback,
     HippyFunctionTypePromise,
     HippyFunctionTypeSync,
 };
 
-@protocol HippyBridgeMethod <NSObject>
+@protocol HippyBridgeArgument<NSObject>
+
+@property (nonatomic, copy, readonly) NSString *type;
+@property (nonatomic, readonly) HippyNullability nullability;
+@property (nonatomic, readonly) BOOL unused;
+
+@end
+
+@protocol HippyBridgeMethod<NSObject>
 
 @property (nonatomic, copy, readonly) NSString *JSMethodName;
 @property (nonatomic, readonly) HippyFunctionType functionType;
+@property (nonatomic, readonly, copy) NSArray<id<HippyBridgeArgument>> *arguments;
 
 - (id)invokeWithBridge:(HippyBridge *)bridge module:(id)module arguments:(NSArray *)arguments;
 
