@@ -58,7 +58,7 @@ public class DevServerImplDisable implements DevServerInterface {
   }
 
   @Override
-  public String createDebugUrl(String host) {
+  public String createDebugUrl(String host, String componentName) {
     return null;
   }
 

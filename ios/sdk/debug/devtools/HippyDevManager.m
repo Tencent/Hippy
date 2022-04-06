@@ -79,4 +79,10 @@
     }];
 }
 
+- (void)dealloc {
+    if (_devWSClient && DevWebSocketState_CLOSED != [_devWSClient state]) {
+        [_devWSClient closeWithCode:HippyDevCloseTypeClosePage reason:@"socket was closed because dev manager dealloc"];
+    }
+}
+
 @end

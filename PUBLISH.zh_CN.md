@@ -9,7 +9,7 @@ Hippy版本管理遵循所有模块使用同一版本原则
 更新版本和 CHANGELOG 使用：
 
 ```bash
-lerna version [VERSION] --conventional-commits --tag-version-prefix='' --no-push
+npx lerna version [VERSION] --conventional-commits --tag-version-prefix='' --no-push
 ```
 
 * `[VERSION]` - 要发布的版本号，如2.1.0。
@@ -104,7 +104,7 @@ git push --tags # 提交 tag
 * 前端发布到 npmjs.com
 
   ```bash
-  lerna exec "npm publish"
+  npx lerna exec "npm publish"
   ```
 
   > 如果开启了 npm 二次验证会一直问你一次性密码，正常输入即可。
@@ -160,4 +160,3 @@ git push --tags # 提交 tag
 
   * 验证成功后， 将 `Staging Repositories` 的 repository `Close`，再点击 `Release`。
   * Release 成功后就可以在 Repository 里 搜索到对应版本的aar，Maven主页需要等待2个小时以上才会同步
-  

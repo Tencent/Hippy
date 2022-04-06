@@ -50,15 +50,15 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
 
 1. Run `npm run init` at root directory.
 
-   > This command is combined with `npm install && lerna bootstrap && npm run build`.
+   > This command is combined with `npm install && npx lerna bootstrap && npm run build`.
    >
    > `npm install`: Install the project build scripts dependencies.
    >
-   > `lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
+   > `npx lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
    >
    > `npm run build`: Build each front-end sdk package.  
 
-2. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]` at root directory.
+2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]` at root directory.
 3. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
 
 > If `Step 2` throw error, you can `cd` to `examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
@@ -73,15 +73,15 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 1. Run `npm run init` at root directory.
 
-   > This command is combined with `npm install && lerna bootstrap && npm run build`.
+   > This command is combined with `npm install && npx lerna bootstrap && npm run build`.
    >
    > `npm install`: Install the project build scripts dependencies.
    >
-   > `lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
+   > `npx lerna bootstrap`: Install dependencies of each npm package.（Hippy uses [Lerna](https://lerna.js.org/) to manage multi js packages, if `lerna` command is not found, execute `npm install lerna -g` first.）
    >
    > `npm run build`: Build each front-end sdk package.  
 
-2. Choose a demo to build with `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]` at root directory.
+2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]` at root directory.
 3. Open the `examples/android-demo` with Android Studio.
 4. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
 5. Open the project with Android Studio, run and install the apk.
@@ -95,11 +95,11 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 ### Debug the js demo
 
 1. Follow [Build the iOS simulator with js demo](https://github.com/Tencent/Hippy#build-the-ios-simulator-with-js-demo) or [Build the Android app with js demo](https://github.com/Tencent/Hippy#build-the-android-app-with-js-demo) first to build the App.
-2. Run `npm run init:example -- [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Run `npm run debugexample -- [hippy-react-demo|hippy-vue-demo] dev` at root directory.
-4. Run `npm run debugexample -- [hippy-react-demo|hippy-vue-demo] debug` at root directory.
+2. Run `npm run init:example [hippy-react-demo|hippy-vue-demo]` at root directory.
+3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] debug` at root directory.
+4. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev` at root directory.
 
-> Or you can `cd` to examples `hippy-react-demo` or `hippy-vue-demo` to run `npm run hippy:dev` and `npm run hippy:debug` instead. (`npm run hippy:local-debug` and `npm run hippy:local-dev` will link to source code in packages).
+> Or you can `cd` to `examples/hippy-react-demo` or `examples/hippy-vue-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
 >
 > On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
 >

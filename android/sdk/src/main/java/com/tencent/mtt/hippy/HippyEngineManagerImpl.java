@@ -95,6 +95,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   final String mServerBundleName;
   // Hippy Server的host，调试模式下有效
   private final String mServerHost;
+  // Hippy Debug ws name as the componentName when you need differ engine to debug
+  private final String mDebugComponentName;
   // Hippy Server url using remote debug in no usb，only take effect in debugMode = true
   private final String mRemoteServerUrl;
 
@@ -141,6 +143,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     this.mStartTimeMonitor = new TimeMonitor(!params.debugMode);
     this.enableV8Serialization = params.enableV8Serialization;
     this.mServerHost = params.debugServerHost;
+    this.mDebugComponentName = params.debugComponentName;
     this.mRemoteServerUrl = params.remoteServerUrl;
     this.mGroupId = params.groupId;
     this.mThirdPartyAdapter = params.thirdPartyAdapter;
@@ -173,6 +176,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       mDevSupportManager.setDevCallback(this);
 
       if (mDebugMode) {
+        mDevSupportManager.setDebugComponentName(mDebugComponentName);
         String url = mDevSupportManager.createResourceUrl(mServerBundleName);
         mCoreBundleLoader = new HippyRemoteBundleLoader(url);
         ((HippyRemoteBundleLoader) mCoreBundleLoader).setIsDebugMode(true);
@@ -987,6 +991,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public int getEngineId() {
       return HippyEngineManagerImpl.this.getId();
+    }
+
+    @Override
+    public void addApiProviders(List<HippyAPIProvider> apiProviders) {
+      mModuleManager.addModules(apiProviders);
+      mRenderManager.getControllerManager().addControllers(apiProviders);
     }
 
     public void destroyBridge(Callback<Boolean> callback) {

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <codecvt>
 #include <sstream>
+#include <mutex>
 
 #include "log_level.h"
 #include "macros.h"
@@ -61,17 +62,25 @@ class LogMessage {
   LogMessage(LogSeverity severity, const char* file, int line, const char* condition);
   ~LogMessage();
 
-  inline static void SetDelegate(
+  inline static void InitializeDelegate(
       std::function<void(const std::ostringstream&, LogSeverity)> delegate) {
+    if (!delegate) {
+      return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (delegate_) {
+      abort(); // delegate can only be initialized once
+    }
     delegate_ = delegate;
   }
-
-  inline static auto GetDelegate() { return delegate_; }
 
   std::ostringstream& stream() { return stream_; }
 
  private:
   static std::function<void(const std::ostringstream&, LogSeverity)> delegate_;
+  static std::function<void(const std::ostringstream&, LogSeverity)> default_delegate_;
+  static std::mutex mutex_;
 
   std::ostringstream stream_;
   const LogSeverity severity_;
@@ -131,13 +140,13 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 #define TDF_BASE_DCHECK(condition) TDF_BASE_EAT_STREAM_PARAMETERS(condition)
 #endif
 
-#define TDF_BASE_NOTREACHED() \
+#define TDF_BASE_UNREACHABLE() \
   do {                        \
     TDF_BASE_DCHECK(false);   \
     abort();                  \
   } while (0)
 
-#define TDF_BASE_NOTIMPLEMENTED() \
+#define TDF_BASE_UNIMPLEMENTED() \
   TDF_BASE_LOG(ERROR) << "Not implemented in: " << __PRETTY_FUNCTION__
 
 #define TDF_BASE_USE(expr) \
