@@ -452,7 +452,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
     // check if we have lineHeight set on self
     __block BOOL hasParagraphStyle = NO;
-    if (_lineHeight || _textAlignSet) {
+    if (_lineHeight || _textAlignSet || 1.f != _lineHeightMultiple) {
         hasParagraphStyle = YES;
     }
 
@@ -690,6 +690,15 @@ HIPPY_TEXT_PROPERTY(Opacity, _opacity, CGFloat)
 HIPPY_TEXT_PROPERTY(TextShadowOffset, _textShadowOffset, CGSize);
 HIPPY_TEXT_PROPERTY(TextShadowRadius, _textShadowRadius, CGFloat);
 HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
+
+- (void)setLineSpacingMultiplier:(CGFloat)lineSpacingMultiplier {
+    _lineHeightMultiple = lineSpacingMultiplier;
+    [self dirtyText];
+}
+
+- (CGFloat)lineSpacingMultiplier {
+    return _lineHeightMultiple;
+}
 
 - (void)setTextAlign:(NSTextAlignment)textAlign {
     _textAlign = textAlign;
