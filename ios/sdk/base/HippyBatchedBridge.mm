@@ -1143,12 +1143,15 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 
     @try {
         BOOL shouldInvoked = YES;
-        if ([self.methodInterceptor respondsToSelector:@selector(shouldInvokeWithModuleName:methodName:arguments:argumentsValues:)]) {
-            id arguments = [method arguments];
+        if ([self.methodInterceptor respondsToSelector:@selector(shouldInvokeWithModuleName:methodName:arguments:argumentsValues:containCallback:)]) {
+            HippyFunctionType funcType = [method functionType];
+            BOOL containCallback = (HippyFunctionTypeCallback == funcType|| HippyFunctionTypePromise == funcType);
+            NSArray<id<HippyBridgeArgument>> *arguments = [method arguments];
             shouldInvoked = [self.methodInterceptor shouldInvokeWithModuleName:moduleData.name
                                                                     methodName:method.JSMethodName
                                                                      arguments:arguments
-                                                               argumentsValues:params];
+                                                               argumentsValues:params
+                                                               containCallback:containCallback];
         }
         if (shouldInvoked) {
             return [method invokeWithBridge:self module:moduleData.instance arguments:params];

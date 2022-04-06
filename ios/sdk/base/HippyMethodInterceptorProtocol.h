@@ -41,13 +41,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @param methodName method name
  * @param arguments arguments instances
  * @param argumentsValue arguments value
+ * @param containCallback indicate whether method contains callbacks or promises
  *
  * @return can corresponding method be invoked
  */
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName
                         methodName:(NSString *)methodName
                          arguments:(NSArray<id<HippyBridgeArgument>> *)arguments
-                   argumentsValues:(NSArray *)argumentsValue;
+                   argumentsValues:(NSArray *)argumentsValue
+                   containCallback:(BOOL)containCallback;
 
 /**
  * This method is used to determine whether the corresponding callback can be executed

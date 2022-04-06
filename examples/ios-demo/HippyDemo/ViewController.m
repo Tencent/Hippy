@@ -126,7 +126,7 @@
     return bridge.bundleURL;
 }
 
-- (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue {
+- (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
     HippyAssert(moduleName, @"module name must not be null");
     HippyAssert(methodName, @"method name must not be null");
     return YES;
