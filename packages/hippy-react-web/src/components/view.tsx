@@ -52,6 +52,11 @@ export interface ViewProps {
   opacity?: number;
   overflow?: 'visible' | 'hidden';
   className?: any;
+  nativeBackgroundAndroid?: {
+    borderless: boolean;
+    color: HippyTypes.color;
+    rippleRadius: number;
+  };
   onScroll?: (e: any) => void;
   onLayout?: (e: LayoutEvent) => void;
   onAttachedToWindow?: Function;
@@ -137,6 +142,7 @@ const View: React.FC<ViewProps> = React.forwardRef<any, any>((props, ref) => {
   delete newProps.onPressOut;
   delete newProps.activeOpacity;
   delete newProps.nativeName;
+  delete newProps.nativeBackgroundAndroid;
 
   return (
     <div {...newProps} ref={hostRef} aria-label={accessibilityLabelValue} />

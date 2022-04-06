@@ -19,7 +19,8 @@
  */
 
 // @ts-nocheck
-import { getViewRefNode } from '../utils';
+import { getViewRefNode, warn } from '../utils';
+import { isFunc } from '../utils/validation';
 
 type MeasureReturns = (
   x: number,
@@ -29,6 +30,8 @@ type MeasureReturns = (
   left: number,
   top: number
 ) => void;
+
+type LayoutEvent = (layout: HippyTypes.LayoutEvent) => void;
 
 function getRect(node: HTMLElement) {
   let targetNode = node as any;
@@ -52,6 +55,15 @@ function getRect(node: HTMLElement) {
 }
 
 const UIManager = {
+  callUIFunction(ref: any, method: string, options: any[]) {
+    if (ref.current[method]) {
+      ref.current(...options);
+    } else if (ref[method]) {
+      ref[method](...options);
+    } else {
+      warn(`${method} is not supported in ${ref}`);
+    }
+  },
   measure(node: HTMLElement | { node: HTMLElement }, callback: MeasureReturns) {
     const viewRefNode = getViewRefNode(node);
     const relativeNode = viewRefNode ? viewRefNode.parentNode : node.parentNode;
@@ -82,6 +94,18 @@ const UIManager = {
       return { x, y, height, width };
     }
     return -1;
+  },
+  getElementFromFiberRef() {
+    warn('UIManagerModule.getElementFromFiberRef is not supported');
+  },
+  measureInAppWindow(node: HTMLElement | { node: HTMLElement }, callback?: LayoutEvent | string) {
+    const layout = this.measureInWindow(node);
+    return new Promise((resolve) => {
+      if (callback && isFunc(callback)) {
+        callback(layout);
+      }
+      resolve(layout);
+    });
   },
 };
 

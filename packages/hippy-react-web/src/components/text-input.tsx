@@ -183,8 +183,8 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
   delete inputProps.returnKeyType;
   delete inputProps.underlineColorAndroid;
   delete inputProps.multiline;
-  delete copyProps.placeholderTextColor;
-  delete copyProps.placeholderTextColors;
+  delete inputProps.placeholderTextColor;
+  delete inputProps.placeholderTextColors;
 
   return (
     multiline

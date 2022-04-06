@@ -447,7 +447,7 @@ hippy-react-web 获取 cookie 和 设置 cookie 有域名限制，具体参考 h
 
 ### UIManagerModule.getElementFromFiberRef
 
-获取元素 Ref 对应的 Element(类似DOM)
+获取元素 Ref 对应的 Element(类似DOM)。hippy-react-web 不支持。
 
 `getElementFromFiberRef(instance: ref): ElementNode`
 
