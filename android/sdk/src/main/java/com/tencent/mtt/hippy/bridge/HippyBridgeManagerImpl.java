@@ -645,6 +645,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
         globalParams.pushMap("Platform", platformParams);
 
+        HippyMap debugParams = new HippyMap();
+        debugParams.pushString("debugClientId", mContext.getDevSupportManager().getDebugInstanceId());
+        globalParams.pushMap("Debug", debugParams);
+
         HippyMap tkd = new HippyMap();
         tkd.pushString("url", (pageUrl == null) ? "" : pageUrl);
         tkd.pushString("appName", (packageName == null) ? "" : packageName);
