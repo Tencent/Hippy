@@ -693,8 +693,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 - (CGPoint)calculateOffsetForContentSize:(CGSize)newContentSize {
     CGPoint oldOffset = _scrollView.contentOffset;
     CGSize size = self.frame.size;
-    CGPoint newOffset = CGPointMake(MIN(oldOffset.x, newContentSize.width - size.width),
-                                    MIN(oldOffset.y, newContentSize.height - size.height));
+    CGPoint candidateOffset = CGPointMake(MAX(newContentSize.width - size.width, 0), MAX(newContentSize.height - size.height, 0));
+    CGPoint newOffset = CGPointMake(MIN(oldOffset.x, candidateOffset.x),
+                                    MIN(oldOffset.y, candidateOffset.y));
     return newOffset;
 }
 
