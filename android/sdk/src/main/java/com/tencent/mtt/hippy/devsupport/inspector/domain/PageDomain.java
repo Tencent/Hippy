@@ -28,7 +28,7 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
   private static final int MSG_SCREEN_CAST_ACK = 0x02;
 
   private static final long FRAME_CALLBACK_INTERVAL = 1000L;
-  private static final long DELAY_FOR_FRAME_UPDATE = 100L;
+  private static final long DELAY_FOR_FRAME_UPDATE = 200L;
 
   public static final String BUNDLE_KEY_PARAM = "params";
 
@@ -169,10 +169,12 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
     }
     if (context != null && mHandlerThread != null && mLastSessionId != -1) {
       Handler hander = mHandlerThread.getHandler();
+      if (hander.hasMessages(MSG_SCREEN_CAST_ACK)) {
+        return;
+      }
       Message msg = hander.obtainMessage(MSG_SCREEN_CAST_ACK);
       msg.obj = context;
       msg.arg1 = mLastSessionId;
-      hander.removeMessages(MSG_SCREEN_CAST_ACK);
       hander.sendMessageDelayed(msg, DELAY_FOR_FRAME_UPDATE);
       mIsFrameUpdate = false;
     }
