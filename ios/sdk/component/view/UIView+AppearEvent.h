@@ -21,12 +21,22 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "HippyComponent.h"
 
 @interface UIView (AppearEvent)
+
+@property (nonatomic, copy) HippyDirectEventBlock onAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onDisappear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillAppear;
+@property (nonatomic, copy) HippyDirectEventBlock onWillDisappear;
+@property (nonatomic, copy) HippyDirectEventBlock onDidMount;
+@property (nonatomic, copy) HippyDirectEventBlock onDidUnmount;
 
 - (void)viewAppearEvent;
 - (void)viewDisappearEvent;
 - (void)viewWillAppearEvent;
 - (void)viewWillDisappearEvent;
+- (void)viewDidMountEvent;
+- (void)viewDidUnmoundEvent;
 
 @end

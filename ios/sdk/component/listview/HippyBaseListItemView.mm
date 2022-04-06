@@ -22,36 +22,13 @@
 
 #import "HippyBaseListItemView.h"
 #import "UIView+Hippy.h"
+#import "UIView+AppearEvent.h"
 
 @implementation HippyBaseListItemView
 
 - (void)hippySetFrame:(CGRect)frame {
     [super hippySetFrame:frame];
     self.frame = self.bounds;
-}
-
-- (void)viewAppearEvent {
-    if (self.onAppear) {
-        self.onAppear(@{});
-    }
-}
-
-- (void)viewDisappearEvent {
-    if (self.onDisappear) {
-        self.onDisappear(@{});
-    }
-}
-
-- (void)viewWillAppearEvent {
-    if (self.onWillAppear) {
-        self.onWillAppear(@{});
-    }
-}
-
-- (void)viewWillDisappearEvent {
-    if (self.onWillDisappear) {
-        self.onWillDisappear(@{});
-    }
 }
 
 - (void)cellAppearStateChanged:(CellAppearState)state {

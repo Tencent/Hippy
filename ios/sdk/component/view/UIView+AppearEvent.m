@@ -21,15 +21,58 @@
  */
 
 #import "UIView+AppearEvent.h"
+#import "objc/runtime.h"
 
 @implementation UIView (AppearEvent)
 
+#define LifeCycleEvent(setter, getter)                                                      \
+    - (void)setter:(HippyDirectEventBlock)getter {                                          \
+        objc_setAssociatedObject(self, @selector(getter), getter, OBJC_ASSOCIATION_COPY);   \
+    }                                                                                       \
+                                                                                            \
+    - (HippyDirectEventBlock)getter {                                                       \
+        return objc_getAssociatedObject(self, @selector(getter));                           \
+    }
+
+LifeCycleEvent(setOnAppear, onAppear)
+LifeCycleEvent(setOnDisappear, onDisappear)
+LifeCycleEvent(setOnWillAppear, onWillAppear)
+LifeCycleEvent(setOnWillDisappear, onWillDisappear)
+LifeCycleEvent(setOnDidMount, onDidMount)
+LifeCycleEvent(setOnDidUnmount, onDidUnmount)
+
 - (void)viewAppearEvent {
+    if (self.onAppear) {
+        self.onAppear(@{});
+    }
 }
+
 - (void)viewDisappearEvent {
+    if (self.onDisappear) {
+        self.onDisappear(@{});
+    }
 }
+
 - (void)viewWillAppearEvent {
+    if (self.onWillAppear) {
+        self.onWillAppear(@{});
+    }
 }
+
 - (void)viewWillDisappearEvent {
+    if (self.onWillDisappear) {
+        self.onWillDisappear(@{});
+    }
+}
+
+- (void)viewDidMountEvent {
+    if (self.onDidMount) {
+        self.onDidMount(@{});
+    }
+}
+- (void)viewDidUnmoundEvent {
+    if (self.onDidUnmount) {
+        self.onDidUnmount(@{});
+    }
 }
 @end

@@ -29,6 +29,7 @@
 #import "HippyNavigatorItemViewController.h"
 #import "HippyNavigatorRootViewController.h"
 #import "HippyAssert.h"
+#import "UIView+AppearEvent.h"
 
 @interface HippyNavigatorHostView () {
     NSDictionary *_initProps;
@@ -89,6 +90,16 @@
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     [super insertHippySubview:subview atIndex:0];
+}
+
+- (void)didMoveToSuperview {
+    [super didMoveToSuperview];
+    if (self.superview) {
+        [self viewDidMountEvent];
+    }
+    else {
+        [self viewDidUnmoundEvent];
+    }
 }
 
 - (void)push:(NSDictionary *)params {
