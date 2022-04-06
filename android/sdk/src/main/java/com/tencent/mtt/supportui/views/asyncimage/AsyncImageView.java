@@ -245,7 +245,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 
 	private void fetchImageByUrl(String url, final int sourceType)
 	{
-		if (url == null)
+		if (TextUtils.isEmpty(url))
 		{
 			return;
 		}
