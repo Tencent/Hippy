@@ -16,6 +16,7 @@ package com.tencent.mtt.supportui.views.asyncimage;
 
 import static com.tencent.mtt.supportui.views.asyncimage.AsyncImageView.SOURCE_TYPE_SRC;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.supportui.utils.CommonTool;
 
 import android.graphics.Bitmap;
@@ -263,7 +264,7 @@ public class ContentDrawable extends BaseDrawable
 
 		updateContentRegion();
 		updatePath();
-    
+
 		if (mContentBitmap != null)
 		{
 			Matrix matrix = new Matrix();
@@ -384,7 +385,11 @@ public class ContentDrawable extends BaseDrawable
             if (mBorderPath != null)
             {
                 mPaint.setAntiAlias(true);
-                canvas.drawPath(mBorderPath, mPaint);
+                try {
+                  canvas.drawPath(mBorderPath, mPaint);
+                } catch (Throwable e) {
+                  LogUtils.e("ContentDrawable", e.getMessage());
+                }
             }
             return;
         }
@@ -401,7 +406,11 @@ public class ContentDrawable extends BaseDrawable
             if (mBorderPath != null)
             {
                 mPaint.setAntiAlias(true);
-                canvas.drawPath(mBorderPath, mPaint);
+                try {
+                  canvas.drawPath(mBorderPath, mPaint);
+                } catch (Throwable e) {
+                  LogUtils.e("ContentDrawable", e.getMessage());
+                }
             }
         }
         else
