@@ -96,7 +96,8 @@ public class PromiseImpl implements Promise {
     }
 
     public void doCallback(int code, Object resultObject) {
-        if (TextUtils.equals(CALL_ID_NO_CALLBACK, mCallId) || onInterceptPromiseCallBack(resultObject)) {
+        if (onInterceptPromiseCallBack(resultObject) || TextUtils
+                .equals(CALL_ID_NO_CALLBACK, mCallId)) {
             return;
         }
         if (resultObject instanceof JSValue) {
