@@ -187,7 +187,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 [[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/pages/gallery.jsx#L171)
 
-可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。 hippy-react-web 不支持。
+可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。 `hippy-react-web` 不支持。
 
 > 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
@@ -221,11 +221,11 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### Clipboard.getString
 
-`() => string` 获取剪贴板的内容。 hippy-react-web: `() => Promise<string>`
+`() => string` 获取剪贴板的内容。 `hippy-react-web: () => Promise<string>`
 
 ### Clipboard.setString
 
-`(value: string) => void` 设置剪贴板的内容。 hippy-react-web: `() => Promise<void>`
+`(value: string) => void` 设置剪贴板的内容。 `hippy-react-web: () => Promise<void>`
 
 > - value: string - 需要设置到剪贴板中的内容。
 
@@ -306,7 +306,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
-hippy-react-web 使用了实验属性 NetworkInformation，详情参考 https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation 
+`hippy-react-web` 使用了实验属性 NetworkInformation，详情参考 https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation 
 
 ## 网络状态
 
@@ -343,7 +343,7 @@ hippy-react-web 使用了实验属性 NetworkInformation，详情参考 https://
 
 普通的网络请求请参考: [起步 - 网络请求](guide/network-request.md)
 
-hippy-react-web 获取 cookie 和 设置 cookie 有域名限制，具体参考 https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#define_where_cookies_are_sent
+`hippy-react-web` 获取 cookie 和 设置 cookie 有域名限制，具体参考 https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#define_where_cookies_are_sent
 
 ## 方法
 
@@ -447,7 +447,7 @@ hippy-react-web 获取 cookie 和 设置 cookie 有域名限制，具体参考 h
 
 ### UIManagerModule.getElementFromFiberRef
 
-获取元素 Ref 对应的 Element(类似DOM)。hippy-react-web 不支持。
+获取元素 Ref 对应的 Element(类似DOM)。`hippy-react-web` 不支持。
 
 `getElementFromFiberRef(instance: ref): ElementNode`
 
