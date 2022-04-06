@@ -56,6 +56,7 @@ HIPPY_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasure
 @property (nonatomic, assign) BOOL isHighlighted;
 @property (nonatomic, assign) CGFloat letterSpacing;
 @property (nonatomic, assign) CGFloat lineHeight;
+@property (nonatomic, assign) CGFloat lineHeightMultiple;
 @property (nonatomic, assign) NSUInteger numberOfLines;
 @property (nonatomic, assign) NSLineBreakMode ellipsizeMode;
 @property (nonatomic, assign) CGSize shadowOffset;

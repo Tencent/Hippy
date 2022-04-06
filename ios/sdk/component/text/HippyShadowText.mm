@@ -113,6 +113,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _cachedTextStorageWidth = -1;
         _cachedTextStorageWidthMode = -1;
         _fontSizeMultiplier = 1.0;
+        _lineHeightMultiple = 1.0f;
         _textAlign = NSTextAlignmentLeft;
         if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;
@@ -499,8 +500,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         if (heightOfTallestSubview > lineHeight) {
             maxHeight = ceilf(heightOfTallestSubview);
         }
+        paragraphStyle.lineHeightMultiple = _lineHeightMultiple;
         paragraphStyle.minimumLineHeight = lineHeight;
-        paragraphStyle.maximumLineHeight = maxHeight;
+        paragraphStyle.maximumLineHeight = maxHeight * _lineHeightMultiple;
         [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:(NSRange) { 0, attributedString.length }];
 
         /**
@@ -678,6 +680,7 @@ HIPPY_TEXT_PROPERTY(FontVariant, _fontVariant, NSArray *)
 HIPPY_TEXT_PROPERTY(IsHighlighted, _isHighlighted, BOOL)
 HIPPY_TEXT_PROPERTY(LetterSpacing, _letterSpacing, CGFloat)
 HIPPY_TEXT_PROPERTY(LineHeight, _lineHeight, CGFloat)
+HIPPY_TEXT_PROPERTY(LineHeightMultiple, _lineHeightMultiple, CGFloat)
 HIPPY_TEXT_PROPERTY(NumberOfLines, _numberOfLines, NSUInteger)
 HIPPY_TEXT_PROPERTY(EllipsizeMode, _ellipsizeMode, NSLineBreakMode)
 HIPPY_TEXT_PROPERTY(TextDecorationColor, _textDecorationColor, UIColor *);
