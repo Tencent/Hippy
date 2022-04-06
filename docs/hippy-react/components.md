@@ -54,7 +54,7 @@ import icon from './qb_icon_new.png';
 | onLoad        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}` | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onLoadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS、hippy-react-web` |
+| resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。`注意：hippy-react-web 不支持 repeat`   |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS、hippy-react-web` |
 | onError       | 当加载错误的时候调用此回调函数，参数为 `nativeEvent: { error }` | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onProgress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   |      `iOS`     |
 | onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS、hippy-react-web` |

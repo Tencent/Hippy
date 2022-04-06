@@ -28,7 +28,7 @@ import useElementLayout from '../modules/use-element-layout';
 import { isFunc } from '../utils/validation';
 
 
-type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'repeat' | 'center' | 'none';
+type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center' | 'none';
 interface ImageProp {
   style: HippyTypes.Style;
   tintColor?: HippyTypes.color;
@@ -85,27 +85,18 @@ const styles = {
 
 const resizeModeStyles: Record<ImageResizeMode, any> = {
   center: {
-    backgroundSize: 'auto',
+    objectFit: 'contain',
   },
   contain: {
-    backgroundSize: 'contain',
+    objectFit: 'contain',
   },
   cover: {
-    backgroundSize: 'cover',
-    backgroundPosition: 'center top',
-  },
-  none: {
-    backgroundPosition: '0 0',
-    backgroundSize: 'auto',
-  },
-  repeat: {
-    backgroundPosition: '0 0',
-    backgroundRepeat: 'repeat',
-    backgroundSize: 'auto',
+    objectFit: 'cover',
   },
   stretch: {
-    backgroundSize: '100% 100%',
+    objectFit: 'fill',
   },
+  none: {},
 };
 
 const svgDataUriPattern = /^(data:image\/svg\+xml;utf8,)(.*)/;
@@ -171,6 +162,7 @@ const Image: React.FC<ImageProp> = React.forwardRef((props: ImageProp, ref) => {
     onLoadEnd();
     setLoading(false);
   };
+
 
   const renderImg = () => {
     const baseStyle = formatWebStyle([styles.image, resizeModeStyles[resizeMode]]);
