@@ -64,6 +64,12 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
         }
         break;
       }
+      case "expandPullFooter": {
+        if (parent instanceof HippyListView) {
+          ((HippyListView) parent).onFooterRefresh();
+        }
+        break;
+      }
     }
   }
 }

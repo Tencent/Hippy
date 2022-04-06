@@ -336,10 +336,14 @@ public abstract class RecyclerAdapter extends RecyclerViewBase.Adapter<RecyclerV
 			throw new IllegalStateException("pos less than header count,should not happened");
 		}
 		if (pos >= 0)
-		{
-			calculateOffsetMapIfNeed();
-			sum = mOffsetMap.get(pos);
-		}
+    {
+      calculateOffsetMapIfNeed();
+      if (pos >= mOffsetMap.size()) {
+        sum = mOffsetMap.get(mOffsetMap.size() - 1);
+      } else {
+        sum = mOffsetMap.get(pos);
+      }
+    }
 		else
 		{
 			for (int i = -count; i < pos; i++)
@@ -1370,7 +1374,7 @@ public abstract class RecyclerAdapter extends RecyclerViewBase.Adapter<RecyclerV
 	{
 		return false;
 	}
-	
+
 	public void notifyItemsRemoved(ArrayList<Integer> positions)
 	{
 		mContentHeight = -1;

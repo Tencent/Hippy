@@ -333,6 +333,19 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     }
   }
 
+  public void onFooterRefresh() {
+    if (mHeaderRefreshState == REFRESH_STATE_IDLE) {
+      if (mLayout.canScrollHorizontally()) {
+        // -2 for footer and last item
+        int scrollToXPos = getHeightBefore(mAdapter.getItemCount() - 2) - mOffsetX;
+        smoothScrollBy( scrollToXPos, 0, false, true);
+      } else {
+        int scrollToYPos = getHeightBefore(mAdapter.getItemCount() - 2) - mOffsetY;
+        smoothScrollBy(0, scrollToYPos,  false, true);
+      }
+    }
+  }
+
   protected void onTouchMove(int x, int y) {
     int totalHeight = mAdapter.getTotalHeight();
     HippyMap param = new HippyMap();
@@ -373,7 +386,10 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     if (mOffsetX <= 0 || getWidth() > (totalHeight - mState.mCustomHeaderWidth)) {
       if (mHeaderRefreshState == REFRESH_STATE_IDLE && fromTouch) {
         sendPullHeaderEvent(EVENT_TYPE_HEADER_RELEASED, new HippyMap());
-        mHeaderRefreshState = REFRESH_STATE_LOADING;
+        View headerView = getCustomHeaderView();
+        if (headerView instanceof HippyPullHeaderView) {
+          mHeaderRefreshState = REFRESH_STATE_LOADING;
+        }
       }
 
       if (mOffsetX < 0) {
@@ -639,18 +655,29 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   public void scrollToIndex(int xIndex, int yIndex, boolean animated, int duration) {
     if (animated) {
       int scrollToYPos = getHeightBefore(yIndex) - getOffsetY();
+      int scrollToXpos = 0;
+      if (mLayout.canScrollHorizontally()) {
+        scrollToYPos = 0;
+        scrollToXpos = getHeightBefore(xIndex) - mOffsetX;
+      }
       if (duration != 0) //如果用户设置了duration
       {
         if (scrollToYPos != 0) {
           if (!mState.didStructureChange()) {
-            mViewFlinger.smoothScrollBy(0, scrollToYPos, duration, true);
+            mViewFlinger.smoothScrollBy(scrollToXpos, scrollToYPos, duration, true);
           }
+        } else {
+          smoothScrollBy(scrollToXpos, scrollToYPos);
         }
       } else {
-        smoothScrollBy(0, scrollToYPos);
+        smoothScrollBy(scrollToXpos, scrollToYPos);
       }
     } else {
-      scrollToPosition(yIndex, 0);
+      if (mLayout.canScrollHorizontally()) {
+        scrollToPosition(xIndex, 0);
+      } else {
+        scrollToPosition(yIndex, 0);
+      }
       post(new Runnable() {
         @Override
         public void run() {
