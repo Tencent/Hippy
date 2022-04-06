@@ -68,14 +68,14 @@ const std::map<std::string, YGDirection> kDirectionMap = {
   void YogaLayoutNode::SetYG##NAME(std::shared_ptr<tdf::base::DomValue> dom_value) {               \
     tdf::base::DomValue::Type type = dom_value->GetType();                                         \
     if (type == tdf::base::DomValue::Type::kNumber) {                                              \
-      auto value = static_cast<float>(dom_value->ToDouble());                                      \
+      auto value = static_cast<float>(dom_value->ToDoubleChecked());                               \
       YGNodeStyleSet##NAME(yoga_node_, value);                                                     \
     } else if (type == tdf::base::DomValue::Type::kString) {                                       \
-      std::string value = dom_value->ToString();                                                   \
+      std::string value = dom_value->ToStringChecked();                                            \
       if (value == "auto") {                                                                       \
         YGNodeStyleSet##NAME##Auto(yoga_node_);                                                    \
       } else if (value.at(value.length() - 1) == '%') {                                            \
-        YGNodeStyleSet##NAME##Percent(yoga_node_, std::stod(value.substr(0, value.length() - 1))); \
+        YGNodeStyleSet##NAME##Percent(yoga_node_, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                     \
         TDF_BASE_DCHECK(false);                                                                    \
       }                                                                                            \
@@ -88,12 +88,12 @@ const std::map<std::string, YGDirection> kDirectionMap = {
   void YogaLayoutNode::SetYG##NAME(std::shared_ptr<tdf::base::DomValue> dom_value) {               \
     tdf::base::DomValue::Type type = dom_value->GetType();                                         \
     if (type == tdf::base::DomValue::Type::kNumber) {                                              \
-      auto value = static_cast<float>(dom_value->ToDouble());                                      \
+      auto value = static_cast<float>(dom_value->ToDoubleChecked());                               \
       YGNodeStyleSet##NAME(yoga_node_, value);                                                     \
     } else if (type == tdf::base::DomValue::Type::kString) {                                       \
-      std::string value = dom_value->ToString();                                                   \
+      std::string value = dom_value->ToStringChecked();                                            \
       if (value.at(value.length() - 1) == '%') {                                                   \
-        YGNodeStyleSet##NAME##Percent(yoga_node_, std::stod(value.substr(0, value.length() - 1))); \
+        YGNodeStyleSet##NAME##Percent(yoga_node_, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                     \
         TDF_BASE_DCHECK(false);                                                                    \
       }                                                                                            \
@@ -106,12 +106,12 @@ const std::map<std::string, YGDirection> kDirectionMap = {
   void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) {        \
     tdf::base::DomValue::Type type = dom_value->GetType();                                               \
     if (type == tdf::base::DomValue::Type::kNumber) {                                                    \
-      auto value = static_cast<float>(dom_value->ToDouble());                                            \
+      auto value = static_cast<float>(dom_value->ToDoubleChecked());                                     \
       YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                     \
     } else if (type == tdf::base::DomValue::Type::kString) {                                             \
-      std::string value = dom_value->ToString();                                                         \
+      std::string value = dom_value->ToStringChecked();                                                  \
       if (value.at(value.length() - 1) == '%') {                                                         \
-        YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stod(value.substr(0, value.length() - 1))); \
+        YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                           \
         TDF_BASE_DCHECK(false);                                                                          \
       }                                                                                                  \
@@ -124,14 +124,14 @@ const std::map<std::string, YGDirection> kDirectionMap = {
   void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) {        \
     tdf::base::DomValue::Type type = dom_value->GetType();                                               \
     if (type == tdf::base::DomValue::Type::kNumber) {                                                    \
-      auto value = static_cast<float>(dom_value->ToDouble());                                            \
+      float value = static_cast<float>(dom_value->ToDoubleChecked());                                    \
       YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                     \
     } else if (type == tdf::base::DomValue::Type::kString) {                                             \
-      std::string value = dom_value->ToString();                                                         \
+      std::string value = dom_value->ToStringChecked();                                                  \
       if (value == "auto") {                                                                             \
         YGNodeStyleSet##NAME##Auto(yoga_node_, edge);                                                    \
       } else if (value.at(value.length() - 1) == '%') {                                                  \
-        YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stod(value.substr(0, value.length() - 1))); \
+        YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                           \
         TDF_BASE_DCHECK(false);                                                                          \
       }                                                                                                  \
@@ -144,7 +144,7 @@ const std::map<std::string, YGDirection> kDirectionMap = {
   void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) { \
     tdf::base::DomValue::Type type = dom_value->GetType();                                        \
     if (type == tdf::base::DomValue::Type::kNumber) {                                             \
-      auto value = static_cast<float>(dom_value->ToDouble());                                     \
+      float value = static_cast<float>(dom_value->ToDoubleChecked());                             \
       YGNodeStyleSet##NAME(yoga_node_, edge, value);                                              \
     } else {                                                                                      \
       TDF_BASE_DCHECK(false);                                                                     \
@@ -328,7 +328,7 @@ float YogaLayoutNode::GetBorder(Edge edge) {
 void YogaLayoutNode::SetPosition(Edge edge, float position) {
   YGEdge ygedge = GetYGEdgeFromEdge(edge);
   YGNodeStyleSetPosition(yoga_node_, ygedge, position);
-};
+}
 
 bool YogaLayoutNode::LayoutHadOverflow() { return YGNodeLayoutGetHadOverflow(yoga_node_); }
 
@@ -385,40 +385,40 @@ void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf:
     SetYGMaxHeight(dom_value);
   }
   if (style_map.find(kFlex) != style_map.end()) {
-    SetFlex(style_map.find(kFlex)->second->ToDouble());
+    SetFlex(static_cast<float>(style_map.find(kFlex)->second->ToDoubleChecked()));
   }
   if (style_map.find(kFlexGrow) != style_map.end()) {
-    SetFlexGrow(static_cast<float>(style_map.find(kFlexGrow)->second->ToDouble()));
+    SetFlexGrow(static_cast<float>(style_map.find(kFlexGrow)->second->ToDoubleChecked()));
   }
   if (style_map.find(kFlexShrink) != style_map.end()) {
-    SetFlexShrink(static_cast<float>(style_map.find(kFlexShrink)->second->ToDouble()));
+    SetFlexShrink(static_cast<float>(style_map.find(kFlexShrink)->second->ToDoubleChecked()));
   }
   if (style_map.find(kFlexBasis) != style_map.end()) {
-    SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDouble()));
+    SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDoubleChecked()));
   }
   if (style_map.find(kDirection) != style_map.end()) {
-    SetDirection(GetDirection(style_map.find(kDirection)->second->ToString()));
+    SetDirection(GetDirection(style_map.find(kDirection)->second->ToStringChecked()));
   }
   if (style_map.find(kFlexDirection) != style_map.end()) {
-    SetFlexDirection(GetFlexDirection(style_map.find(kFlexDirection)->second->ToString()));
+    SetFlexDirection(GetFlexDirection(style_map.find(kFlexDirection)->second->ToStringChecked()));
   }
   if (style_map.find(kFlexWrap) != style_map.end()) {
-    SetFlexWrap(GetFlexWrapMode(style_map.find(kFlexWrap)->second->ToString()));
+    SetFlexWrap(GetFlexWrapMode(style_map.find(kFlexWrap)->second->ToStringChecked()));
   }
   if (style_map.find(kAilgnSelf) != style_map.end()) {
-    SetAlignSelf(GetFlexAlign(style_map.find(kAilgnSelf)->second->ToString()));
+    SetAlignSelf(GetFlexAlign(style_map.find(kAilgnSelf)->second->ToStringChecked()));
   }
   if (style_map.find(kAlignItems) != style_map.end()) {
-    SetAlignItems(GetFlexAlign(style_map.find(kAlignItems)->second->ToString()));
+    SetAlignItems(GetFlexAlign(style_map.find(kAlignItems)->second->ToStringChecked()));
   }
   if (style_map.find(kJustifyContent) != style_map.end()) {
-    SetJustifyContent(GetFlexJustify(style_map.find(kJustifyContent)->second->ToString()));
+    SetJustifyContent(GetFlexJustify(style_map.find(kJustifyContent)->second->ToStringChecked()));
   }
   if (style_map.find(kOverflow) != style_map.end()) {
-    SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToString()));
+    SetOverflow(GetFlexOverflow(style_map.find(kOverflow)->second->ToStringChecked()));
   }
   if (style_map.find(kDisplay) != style_map.end()) {
-    SetDisplay(GetDisplayType(style_map.find(kDisplay)->second->ToString()));
+    SetDisplay(GetDisplayType(style_map.find(kDisplay)->second->ToStringChecked()));
   }
   if (style_map.find(kMargin) != style_map.end()) {
     auto dom_value = style_map.find(kMargin)->second;
@@ -513,10 +513,10 @@ void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf:
     SetYGPosition(GetPositionEdge(kBottom), dom_value);
   }
   if (style_map.find(kPosition) != style_map.end()) {
-    SetPositionType(GetPositionType(style_map.find(kPosition)->second->ToString()));
+    SetPositionType(GetPositionType(style_map.find(kPosition)->second->ToStringChecked()));
   }
   if (style_map.find(kAspectRatio) != style_map.end()) {
-    SetAspectRatio(style_map.find(kAspectRatio)->second->ToDouble());
+    SetAspectRatio(static_cast<float>(style_map.find(kAspectRatio)->second->ToDoubleChecked()));
   }
 
   // if (style_map.find(kAlignContent) != style_map.end()) {
