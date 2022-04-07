@@ -23,6 +23,7 @@
 #import "HippyTouchesView.h"
 #import "objc/runtime.h"
 #import "UIView+Hippy.h"
+#import "UIView+AppearEvent.h"
 
 @interface HippyTouchesView () {
     NSMutableDictionary<NSNumber *, OnTouchEventHandler> *_touchesEvents;
@@ -63,6 +64,16 @@
 
 - (void)setDefaultProperties {
     self.backgroundColor = [UIColor clearColor];
+}
+
+- (void)didMoveToSuperview {
+    [super didMoveToSuperview];
+    if (self.superview) {
+        [self viewDidMountEvent];
+    }
+    else {
+        [self viewDidUnmoundEvent];
+    }
 }
 
 #pragma mark Setter & Getter

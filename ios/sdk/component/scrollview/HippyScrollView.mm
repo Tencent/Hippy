@@ -33,8 +33,6 @@
 #import "UIView+DirectionalLayout.h"
 #import "objc/runtime.h"
 
-const CGFloat gDoubleMinDiff = .000001f;
-
 @interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
 
 @property (nonatomic, assign) BOOL centerContent;
@@ -665,6 +663,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)didMoveToSuperview {
+    [super didMoveToSuperview];
     _rootView = nil;
 }
 

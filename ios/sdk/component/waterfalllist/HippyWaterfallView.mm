@@ -556,6 +556,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)didMoveToSuperview {
+    [super didMoveToSuperview];
     _rootView = nil;
 }
 

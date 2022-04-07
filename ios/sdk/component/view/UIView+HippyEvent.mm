@@ -25,6 +25,7 @@
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "dom/dom_listener.h"
+#import "UIView+AppearEvent.h"
 
 @implementation UIView(HippyEvent)
 
@@ -42,9 +43,16 @@
             [invocation setSelector:selector];
             [invocation setArgument:&cb atIndex:2];
             [invocation invoke];
+            [self didAddStatusChangeEvent:name eventCallback:callback];
         }
     } @catch (NSException *exception) {
         
+    }
+}
+
+- (void)didAddStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
+    if (name == "onDidMount") {
+        [self viewDidMountEvent];
     }
 }
 
@@ -62,15 +70,21 @@
             [invocation setSelector:selector];
             [invocation setArgument:&cb atIndex:2];
             [invocation invoke];
+            [self didRemoveStatusChangeEvent:name];
         }
     } @catch (NSException *exception) {
         
     }
 }
 
-#pragma mark HippyTouchesProtocol Methods
-- (void)addViewEvent:(HippyViewEventType)touchEvent eventListener:(OnTouchEventHandler)listener {
+- (void)didRemoveStatusChangeEvent:(const std::string &)name {
+    if (name == "onDidUnmount") {
+        [self viewDidUnmoundEvent];
+    }
 }
+
+#pragma mark HippyTouchesProtocol Methods
+- (void)addViewEvent:(HippyViewEventType)touchEvent eventListener:(OnTouchEventHandler)listener {}
 
 - (OnTouchEventHandler)eventListenerForEventType:(HippyViewEventType)eventType {
     return NULL;

@@ -50,6 +50,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)removeStatusChangeEvent:(const std::string &)name;
 
+/**
+ * notify view event has been added
+ * @param name event name
+ * @param callback event block
+ *
+ * @discussion The default implementation of this method is to trigger onDidMount event if it is onDidMount event
+ */
+- (void)didAddStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+
+/**
+ * notify view event has been removed from view
+ * @param name event name
+ *
+ * @discussion The default implementation of this method is to trigger onDidUnmount event if it is onDidUnmount event
+ */
+- (void)didRemoveStatusChangeEvent:(const std::string &)name;
+
 @end
 
 NS_ASSUME_NONNULL_END

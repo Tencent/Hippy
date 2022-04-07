@@ -25,6 +25,7 @@
 #import "HippyUtils.h"
 #import "HippyAnimatedImage.h"
 #import <Accelerate/Accelerate.h>
+#import "UIView+AppearEvent.h"
 
 NSString *const HippyImageErrorDomain = @"HippyImageErrorDomain";
 
@@ -233,6 +234,16 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     if (!self.window) {
     } else if ([self shouldChangeImageSource]) {
         [self reloadImage];
+    }
+}
+
+- (void)didMoveToSuperview {
+    [super didMoveToSuperview];
+    if (self.superview) {
+        [self viewDidMountEvent];
+    }
+    else {
+        [self viewDidUnmoundEvent];
     }
 }
 
