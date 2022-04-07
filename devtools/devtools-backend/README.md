@@ -2,9 +2,9 @@
 
 DevTools Backend 是调试工具的服务后端，负责分发 DevTools Frontend 的调试协议，访问技术框架的调试数据进行适配返回。
 
-## 快速上手 
+## 快速上手
 
-#### 1、目录结构：
+### 1、目录结构
 
 ```shell
 ├── CMakeLists.txt
@@ -15,159 +15,50 @@ DevTools Backend 是调试工具的服务后端，负责分发 DevTools Frontend
 │       └── CMakeLists.txt // iOS的cmake
 ├── include  // 头文件
 ├── src // 源码目录
-├── android  // Android 工程目录，可作为子工程给Android工程引入
 ├── ios.toolchain.cmake // iOS cmake工具
 ├── libs // 打包的lib库
-│   
 ├── test  // 单测
 └── third_party // 第三方目录
-
 ```
-##### 架构层次
-整个backend代码目录结构分三层
----
-tunnel层，处理与frontend的通信，支持tcp和websocket连接，代码在tunnel目录
-1.tcp目录
-  tcp_channel.h: tcp通道连接实现
-2.ws目录
-  websocket_channel.h: ws通道实现
-tunnel_service.h  通道逻辑处理服务，包括通道建立和协议收发等
----
-domain层，负责cdp协议的分发和实现，代码在module目录下
-1.domain目录，包含已实现的cdp domain， css、page、dom等
-2.model目录, cdp协议域名对应的model处理类
-3.request目录，cdp协议请求体
+### 2、架构层次
 
----
-api层，对接入框架的暴露的接口层，代码在api目录下
-devtools_backend_service.h  接入框架所使用的调试后端服务实例
-1.adapter     
-    1.devtools_data_provider.h devtools调试所需功能数据，由外部框架实现各个功能adapter，并注入
-2.notification 
-    1.devtools_notification_center.h devtools提供的通知接口，接入框架可通过指定的notification发送通知给frontend
+![devtools 架构](http://imgcache.gtimg.cn/mie/act/img/public/202204/1649302251_devtools.png)
 
+1）Tunnel Service
 
-#### 2、编译构建 - Hippy 集成  
+/tunnel 目录，处理与 Frontend 的消息通道，抽象与 Frontend 的收发消息通道，具体实现可以是基于 TCP 的 socket 或 websocket。
 
-#### 1）Hippy 仓库拉取
+2）Domain Dispatch
 
-```shell
-git clone http://
-cd hippy
-git submodule update --init --recursive
+/module 目录，消息协议的分发与实现，以 chrome debug protocol 为基础，扩展自定义的 domain 协议。对于想处理的 domain 协议进行注册监听。
 
-## ios工程
-cd hippy/examples/ios-demo
-pod install
+3）DataProvider
 
-## android 工程
-使用 android studio打开该目录 hippy/examples/android-demo/
-```
+/api 目录，抽象需要采集的调试数据接口，对外提供接口实现的注入。adapter 是外部框架需要实现的数据采集接口，notification 是外部框架的通知接口。
 
-#### 2）iOS集成：
+### 3、编译构建
 
-- 修改podfile，新增：
-
-```
-    system("rm -rf libdevtoolsbackend")
-    system("mkdir libdevtoolsbackend")
-    # 指定到devtools_backend的cmakelist
-    system("cmake ../../../devtools_backend/CMakeLists.txt -B libdevtoolsbackend -G Xcode -DMODULE_TOOLS=YES -DSERVICE_ENABLE=1 -DCMAKE_TOOLCHAIN_FILE=ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DDEPLOYMENT_TARGET=12.0 -DENABLE_BITCODE=NO -DENABLE_ARC=YES")
-```
-
-- 将生成的`devtools_backend.xcodeproj`作为demo的子工程进行集成。
-
-#### 3）Android 集成：
+#### 1）Android 集成
 
 hippy/hippy/android/sdk/build.gradle 打开 devtools backend 开关：
 
 ```shell
-                "-DALLOCATE_WITH_META=1",
                 "-DSERVICE_ENABLE=1"   // DevTools 调试开关
 ```
 
+#### 2）iOS集成
 
-#### 4、集成epc：
+- 运行 js/examples/ios-demo/gen_devtools_proj.sh
 
-https://
+### 4、运行单测
 
-##### 1. 代码规范-命令行场景
-
-+ 安装
-
-  mac/linux：
-
-  ```bash
-  /bin/bash -c "$(curl -fsSL https://mirrors.tencent.com/repository/generic/cli-market/env/unix-like/env-latest.sh)"
-  ```
-
-  windows：
-
-  ```bash
-  iwr https://mirrors.tencent.com/repository/generic/cli-market/env/windows/env-latest.ps1 -useb | iex
-  ```
-
-+ 扫描代码的方式：
-
-  + 主动在仓库下执行命令：
-
-    ```
-    code-style   // fef help code-style 可以查看具体用法
-    						 // 若工程根目录没有.code.yml 局部配置，默认使用 ~/.code-style/code-style.yml 全局配置
-    ```
-
-  + 代码提交时会自动触发
-
-+ 自定义扫描配置
-
-  根据需要，修改工程根目录下的 .code.yml 文件。
-
-##### 2. 代码规范-添翼IDE插件场景
-
-参考 tianyi，里面集成了code-style、codeDog、TAPD、工蜂Git和RDM4，提供代码评审、代码扫描、需求管理、持续集成等能力。
-
-##### 3. 提交规范
-
-+ 示例：
-
-  ```
-  fix: --bug=8767890 XXX     // ID号 7-9位
-  feat: --task=8767890 XXX   // ID号 7-9位
-  feat: --issue=12 xxx		   // ID号 位数不限
-  ```
-
-+ 详情：TDF工程化集成EPC-3.2提交日志规范
-
-##### 4. 分支命名规范检查
-
-+ 示例
-
-  ```
-  feature/${userID}_${storyID}
-  bugfix/${userID}_${bugID}
-  ```
-
-+ 详情：TDF工程化集成EPC-3.3分支命名规范
-
-##### 5. 屏蔽epc拦截
-
-若想暂时屏蔽拦截：
-
-```
-git commit -nm "feat: xx" 
-```
-
-
-
-#### 5、运行单测：
-
-##### 1. 安装覆盖率插件
+#### 1） 安装覆盖率插件
 
 ```
 brew install lcov
 ```
 
-##### 2. Terminal运行
+#### 2）Terminal运行
 
 ```
 cmake .
@@ -175,9 +66,6 @@ cd test
 sh build.sh
 ```
 
-##### 3. 查看覆盖率报告
+#### 3）查看覆盖率报告
 
 /devtools_backend/test/build/code_coverage_report
-
-##### 4. 参考文档
-https://
