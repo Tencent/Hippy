@@ -15,6 +15,7 @@ constexpr const char* kMaxWidth = "maxWidth";
 constexpr const char* kMaxHeight = "maxHeight";
 constexpr const char* kQuality = "quality";
 constexpr const char* kGetScreenShot = "getScreenShot";
+constexpr const char* kScreenScale = "screenScale";
 
 void HippyScreenAdapter::GetScreenShot(const tdf::devtools::ScreenRequest& request, CoreScreenshotCallback callback) {
   if (callback) {
@@ -32,7 +33,7 @@ void HippyScreenAdapter::GetScreenShot(const tdf::devtools::ScreenRequest& reque
           domValueArray.push_back(tdf::base::DomValue(domValueObject));
           tdf::base::DomValue argumentValue(domValueArray);
           hippy::dom::DomArgument argument(argumentValue);
-          std::function screen_shot_callback = [callback](std::shared_ptr<DomArgument> arg) {
+          std::function screen_shot_callback = [callback, this](std::shared_ptr<DomArgument> arg) {
             tdf::base::DomValue result_dom_value;
             arg->ToObject(result_dom_value);
             tdf::base::DomValue::DomValueObjectType base64_dom_value;
@@ -44,6 +45,7 @@ void HippyScreenAdapter::GetScreenShot(const tdf::devtools::ScreenRequest& reque
             std::string base64_str = base64_dom_value.find(kScreenShot)->second.ToStringChecked();
             int32_t width = base64_dom_value.find(kScreenWidth)->second.ToInt32Checked();
             int32_t height = base64_dom_value.find(kScreenHeight)->second.ToInt32Checked();
+            screen_scale_ = base64_dom_value.find(kScreenScale)->second.ToDoubleChecked();
             TDF_BASE_DLOG(INFO) << "GetScreenShot callback " << base64_str.size();
             callback(base64_str, width, height);
           };

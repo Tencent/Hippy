@@ -21,12 +21,13 @@ class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
 
   void RemovePostFrameCallback(uint64_t id) override {}
 
-  double GetScreenScale() override { return 1.0f; }
+  double GetScreenScale() override { return screen_scale_; }
 
  private:
   int32_t dom_id_;
   int32_t width_;
   int32_t height_;
+  double screen_scale_ = 1.0f;
 };
 }  // namespace devtools
 }  // namespace hippy

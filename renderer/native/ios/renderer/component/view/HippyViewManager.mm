@@ -98,9 +98,10 @@ HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
       NSData *imageData = UIImageJPEGRepresentation(resultImage, (quality > 0 ? quality : 80) / 100.f);
       NSString *base64String = [imageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
       NSDictionary *srceenShotDict = @{
-          @"width": @(int(scale * viewWidth)),
-          @"height": @(int(scale * viewHeight)),
-          @"screenShot": base64String.length ? base64String : @""
+          @"width": @(int(resultImage.size.width * resultImage.scale)),
+          @"height": @(int(resultImage.size.height * resultImage.scale)),
+          @"screenShot": base64String.length ? base64String : @"",
+          @"screenScale": @(resultImage.scale)
       };
       callback(@[srceenShotDict]);
     } else {
