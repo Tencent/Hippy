@@ -25,14 +25,14 @@ void HippyScreenAdapter::GetScreenShot(const tdf::devtools::ScreenRequest& reque
         auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
         auto children = root_node->GetChildren();
         if (!children.empty()) {
-          tdf::base::DomValue::DomValueObjectType domValueObject;
-          domValueObject[kMaxWidth] = tdf::base::DomValue(request.req_width);
-          domValueObject[kMaxHeight] = tdf::base::DomValue(request.req_height);
-          domValueObject[kQuality] = tdf::base::DomValue(request.quality);
-          tdf::base::DomValue::DomValueArrayType domValueArray;
-          domValueArray.push_back(tdf::base::DomValue(domValueObject));
-          tdf::base::DomValue argumentValue(domValueArray);
-          hippy::dom::DomArgument argument(argumentValue);
+          tdf::base::DomValue::DomValueObjectType dom_value_object;
+          dom_value_object[kMaxWidth] = tdf::base::DomValue(request.req_width);
+          dom_value_object[kMaxHeight] = tdf::base::DomValue(request.req_height);
+          dom_value_object[kQuality] = tdf::base::DomValue(request.quality);
+          tdf::base::DomValue::DomValueArrayType dom_value_array;
+          dom_value_array.push_back(tdf::base::DomValue(dom_value_object));
+          tdf::base::DomValue argument_dom_value(dom_value_array);
+          hippy::dom::DomArgument argument(argument_dom_value);
           std::function screen_shot_callback = [callback, this](std::shared_ptr<DomArgument> arg) {
             tdf::base::DomValue result_dom_value;
             arg->ToObject(result_dom_value);

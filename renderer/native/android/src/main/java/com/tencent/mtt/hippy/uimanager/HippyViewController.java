@@ -66,6 +66,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     private static final String SCREEN_WIDTH = "width";
     private static final String SCREEN_HEIGHT = "height";
     private static final String GET_SCREEN_SHOT = "getScreenShot";
+    private static final String SCREEN_SCALE = "screenScale";
 
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
@@ -627,13 +628,13 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             @NonNull List params) {
     }
 
-    private static String bitmapToBase64Str(Bitmap bitmap) {
+    private static String bitmapToBase64Str(Bitmap bitmap, float scale) {
       String result = null;
       ByteArrayOutputStream baos = null;
       try {
         if (bitmap != null) {
           Bitmap scaleBitmap = Bitmap
-            .createScaledBitmap(bitmap, bitmap.getWidth() / 2, bitmap.getHeight() / 2, false);
+            .createScaledBitmap(bitmap, (int) (bitmap.getWidth() * scale), (int) (bitmap.getHeight() * scale), false);
           baos = new ByteArrayOutputStream();
           int quality = 80;
           scaleBitmap.compress(CompressFormat.JPEG, quality, baos);
@@ -666,11 +667,13 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
           if (!isEnableDrawingCache) {
             view.setDrawingCacheEnabled(true);
           }
+          float scale = 0.5f;
           Bitmap bitmap = view.getDrawingCache();
-          String base64 = bitmapToBase64Str(bitmap);
+          String base64 = bitmapToBase64Str(bitmap, scale);
           resultMap.pushString(SCREEN_SHOT, base64);
           resultMap.pushInt(SCREEN_WIDTH, view.getWidth());
           resultMap.pushInt(SCREEN_HEIGHT, view.getHeight());
+          resultMap.pushDouble(SCREEN_SCALE, view.getResources().getDisplayMetrics().density * scale);
           promise.resolve(resultMap);
           view.setDrawingCacheEnabled(isEnableDrawingCache);
         }
