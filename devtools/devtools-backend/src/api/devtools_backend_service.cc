@@ -46,6 +46,7 @@ DevtoolsBackendService::~DevtoolsBackendService() {
 }
 
 void DevtoolsBackendService::Destroy(bool is_reload) {
+  BACKEND_LOGI(TDF_BACKEND, "Destroy is_reload: %b", is_reload);
   tunnel_service_->Close(is_reload);
 }
 
