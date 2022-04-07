@@ -101,7 +101,11 @@ static const char *stringFromReadyState(HippySRReadyState state) {
         NSString *encodeName = [contextName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
         NSString *deviceName = [[UIDevice currentDevice] name];
         NSString *encodedDeviceName = [deviceName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
-        NSString *addressPrefix = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy", devInfo.scheme, devInfo.ipAddress, devInfo.port?:@"38989"];
+        NSString *port = devInfo.port;
+        if (port.length <= 0) {
+            port = [devInfo.scheme isEqualToString:@"wss"] ? @"443": @"80";
+        }
+        NSString *addressPrefix = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy", devInfo.scheme, devInfo.ipAddress, port];
         if (devInfo.wsURL.length > 0) {
             // wsURL has a high priority
             addressPrefix = devInfo.wsURL;
