@@ -27,10 +27,12 @@ using tdf::devtools::DevtoolsBackendService;
 DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   tdf::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = tdf::devtools::Framework::kHippy;
-  devtools_config.tunnel = tdf::devtools::Tunnel::kTcp;
+  devtools_config.tunnel = tdf::devtools::Tunnel::kWebSocket;
   devtools_config.ws_url = ws_url;
   devtools_service_ = std::make_shared<tdf::devtools::DevtoolsBackendService>(devtools_config);
   all_services.push_back(devtools_service_);
+  runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>();
+  devtools_service_->GetDataProvider()->SetRuntimeAdapter(runtime_adapter_);
 }
 
 void DevtoolDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
@@ -41,8 +43,6 @@ void DevtoolDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_
   data_provider->SetDomTreeAdapter(domTreeAdapter);
   data_provider->SetElementsRequestAdapter(std::make_shared<HippyElementsRequestAdapter>(dom_id_));
   data_provider->SetTracingAdapter(std::make_shared<HippyTracingAdapter>());
-  runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>(runtime_id_);
-  data_provider->SetRuntimeAdapter(runtime_adapter_);
   data_provider->SetScreenAdapter(std::make_shared<HippyScreenAdapter>(dom_id_));
   TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_provider:%p" << &devtools_service_;
 }
@@ -79,9 +79,7 @@ void DevtoolDataSource::SetFileCacheDir(const std::string& file_dir) {
 #endif
 
 void DevtoolDataSource::SetRuntimeAdapterDebugMode(bool debug_mode) {
-  if (runtime_adapter_) {
-    runtime_adapter_->SetDebugMode(debug_mode);
-  }
+  runtime_adapter_->SetDebugMode(debug_mode);
 }
 
 }  // namespace devtools
