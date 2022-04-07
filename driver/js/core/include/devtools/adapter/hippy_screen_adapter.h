@@ -24,7 +24,7 @@ class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
   double GetScreenScale() override { return 1.0f; }
 
  private:
-  int16_t dom_id_;
+  int32_t dom_id_;
   int32_t width_;
   int32_t height_;
 };

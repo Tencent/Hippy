@@ -26,7 +26,6 @@
 #include <sstream>
 
 #include "devtools/devtool_helper.h"
-#include "jni/jni_env.h"
 
 namespace hippy::inspector {
 

@@ -5,24 +5,10 @@
 
 #include "devtools/adapter/hippy_runtime_adapter.h"
 
-#include <string>
-#ifdef OS_ANDROID
-#include "core/runtime/v8/runtime.h"
-#endif
-
 namespace hippy {
 namespace devtools {
 bool HippyRuntimeAdapter::IsDebug() {
-#ifdef OS_ANDROID
-  auto runtime = Runtime::Find(runtime_id_);
-  if (!runtime) {
-    TDF_BASE_DLOG(INFO) << "IsDebug runtime is null";
-    return false;
-  }
-  return runtime->IsDebug();
-#else
   return debug_mode_;
-#endif
 }
 }  // namespace devtools
 }  // namespace hippy

@@ -143,8 +143,9 @@ class Scope {
   }
 
 #if TDF_SERVICE_ENABLED
-  void CreateDevtools(std::string ws_url) {
-    devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>(std::move(ws_url));
+  void CreateDevtools(const std::string& ws_url, bool is_dev_module) {
+    devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>(ws_url);
+    devtool_data_source_->SetRuntimeAdapterDebugMode(is_dev_module);
   }
   void DestroyDevtools(bool is_reload) {
     devtool_data_source_->Destroy(is_reload);

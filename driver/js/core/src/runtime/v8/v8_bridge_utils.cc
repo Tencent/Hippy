@@ -163,7 +163,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
 
 #if TDF_SERVICE_ENABLED
-  scope->CreateDevtools(StringViewUtils::ToU8StdStr(ws_url));
+  scope->CreateDevtools(StringViewUtils::ToU8StdStr(ws_url), is_dev_module);
   scope->GetDevtoolsDataSource()->SetV8RequestHandler([runtime_id](std::string data) {
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (!runtime || !runtime->IsDebug()) {
