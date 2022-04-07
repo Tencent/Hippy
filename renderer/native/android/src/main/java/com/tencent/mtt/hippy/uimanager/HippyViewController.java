@@ -671,8 +671,8 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
           Bitmap bitmap = view.getDrawingCache();
           String base64 = bitmapToBase64Str(bitmap, scale);
           resultMap.pushString(SCREEN_SHOT, base64);
-          resultMap.pushInt(SCREEN_WIDTH, view.getWidth());
-          resultMap.pushInt(SCREEN_HEIGHT, view.getHeight());
+          resultMap.pushInt(SCREEN_WIDTH, (int) (view.getWidth() * scale));
+          resultMap.pushInt(SCREEN_HEIGHT, (int) (view.getHeight() * scale));
           resultMap.pushDouble(SCREEN_SCALE, view.getResources().getDisplayMetrics().density * scale);
           promise.resolve(resultMap);
           view.setDrawingCacheEnabled(isEnableDrawingCache);
