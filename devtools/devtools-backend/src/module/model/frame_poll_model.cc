@@ -1,15 +1,31 @@
 //
 // Copyright (c) 2021 Tencent Corporation. All rights reserved.
-// Created by ivanfanwu on 2021/7/16.
+// Created by thomasyqguo on 2021/7/16.
 //
 
 #include "module/model/frame_poll_model.h"
 #include "api/devtools_backend_service.h"
+#include "devtools_base/common/worker_pool.h"
 #include "devtools_base/logging.h"
 
 namespace tdf {
 namespace devtools {
-static constexpr const int32_t kRefreshIntervalMilliSeconds = 1000;
+static constexpr const int32_t kRefreshIntervalMilliSeconds = 500;
+
+FramePollModel::FramePollModel() {
+  refresh_task_runner_ = WorkerPool::GetInstance(1)->CreateTaskRunner();
+  refresh_task_ = [this]() {
+    BACKEND_LOGD(TDF_BACKEND, "refresh_task run");
+    if (frame_is_dirty_) {
+      if (response_handler_) {
+        response_handler_();
+      }
+      frame_is_dirty_ = false;
+    }
+    refresh_task_runner_->Clear();
+    refresh_task_runner_->PostDelayedTask(refresh_task_, TimeDelta::FromMilliseconds(kRefreshIntervalMilliSeconds));
+  };
+}
 
 void FramePollModel::StartPoll() {
   AddFrameCallback();
@@ -18,21 +34,8 @@ void FramePollModel::StartPoll() {
 }
 
 void FramePollModel::ScheduleRefreshTimer() {
-  if (refresh_timer_ != nullptr) {
-    refresh_timer_->Stop();
-    refresh_timer_.release();
-  }
-  refresh_timer_ = std::make_unique<Timer>(
-      [this]() {
-        if (frame_is_dirty_) {
-          if (response_handler_) {
-            response_handler_();
-          }
-          frame_is_dirty_ = false;
-        }
-      },
-      std::chrono::milliseconds(kRefreshIntervalMilliSeconds));
-  refresh_timer_->Start();
+  refresh_task_runner_->Clear();
+  refresh_task_runner_->PostDelayedTask(refresh_task_, TimeDelta::FromMilliseconds(kRefreshIntervalMilliSeconds));
 }
 
 void FramePollModel::AddFrameCallback() {
@@ -56,9 +59,7 @@ void FramePollModel::AddFrameCallback() {
 void FramePollModel::StopPoll() {
   RemoveFrameCallback();
   frame_is_dirty_ = true;
-  if (refresh_timer_) {
-    refresh_timer_->Stop();
-  }
+  refresh_task_runner_->Clear();
 }
 
 void FramePollModel::RemoveFrameCallback() {
@@ -74,10 +75,7 @@ void FramePollModel::RemoveFrameCallback() {
 
 FramePollModel::~FramePollModel() {
   RemoveFrameCallback();
-  if (refresh_timer_) {
-    refresh_timer_->Stop();
-  }
+  WorkerPool::GetInstance(0)->RemoveTaskRunner(refresh_task_runner_);
 }
-
 }  // namespace devtools
 }  // namespace tdf

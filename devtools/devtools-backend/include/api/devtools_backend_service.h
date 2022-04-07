@@ -66,7 +66,7 @@ class DevtoolsBackendService: public std::enable_shared_from_this<DevtoolsBacken
   void RegisterLogCallback();
 
   std::shared_ptr<RecordLogger> record_logger_ = std::make_shared<RecordLogger>();
-  std::shared_ptr<WorkerPool> worker_pool_ = std::make_shared<WorkerPool>(0);
+  std::shared_ptr<WorkerPool> worker_pool_ = WorkerPool::GetInstance(1);
   std::shared_ptr<TaskRunner> task_runner_ = nullptr;
   std::shared_ptr<DataChannel> data_channel_;
   std::shared_ptr<TunnelService> tunnel_service_;

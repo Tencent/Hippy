@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <ctime>
 #include <string>
 #include <utility>
 #include "api/adapter/data/serializable.h"
@@ -66,7 +67,7 @@ struct Response : public Serializable {
   /**
    * UTC time in seconds, counted from January 1, 1970.
    */
-  uint64_t response_time = time(0);
+  uint64_t response_time = static_cast<uint64_t>(std::time(0));
   std::string cache_storage_cache_name;
   std::string protocol;
   SecurityState security_state;

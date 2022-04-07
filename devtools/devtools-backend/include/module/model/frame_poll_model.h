@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <string>
-#include "tunnel/timer.h"
+#include "devtools_base/common/task_runner.h"
 #include "module/model/base_model.h"
 
 namespace tdf {
@@ -17,6 +17,7 @@ namespace devtools {
  */
 class FramePollModel : public BaseModel{
  public:
+  FramePollModel();
   using ResponseHandler = std::function<void()>;
   void SetResponseHandler(ResponseHandler handler) { response_handler_ = handler; }
   void StartPoll();
@@ -32,7 +33,8 @@ class FramePollModel : public BaseModel{
   uint64_t frame_callback_handler_;
   ResponseHandler response_handler_;
   bool frame_is_dirty_ = true;
-  std::unique_ptr<Timer> refresh_timer_;
+  std::shared_ptr<TaskRunner> refresh_task_runner_;
+  std::function<void()> refresh_task_;
 };
 
 }  // namespace devtools

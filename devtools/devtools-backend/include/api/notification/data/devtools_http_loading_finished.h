@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <ctime>
 #include <string>
 #include "api/adapter/data/serializable.h"
 
@@ -20,7 +21,7 @@ class DevtoolsLoadingFinished : public Serializable {
   DevtoolsLoadingFinished(std::string request_id, uint32_t length)
       : request_id_(request_id),
         encoded_data_length_(length),
-        timestamp_(time(0)),
+        timestamp_(static_cast<uint64_t>(std::time(nullptr))),
         should_report_corb_blocking_(false) {}
 
   /**

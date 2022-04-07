@@ -17,8 +17,8 @@ class DomainMetas : public Serializable {
  public:
   DomainMetas() = default;
   explicit DomainMetas(uint32_t node_id) : node_id_(node_id) {}
-  void SetParentId(float parent_id) { parent_id_ = parent_id; }
-  void SetRootId(float root_id) { root_id_ = root_id; }
+  void SetParentId(uint32_t parent_id) { parent_id_ = parent_id; }
+  void SetRootId(uint32_t root_id) { root_id_ = root_id; }
   void SetWidth(float width) { width_ = width; }
   void SetHeight(float height) { height_ = height; }
   void SetLayoutX(float layout_x) { layout_x_ = layout_x; }

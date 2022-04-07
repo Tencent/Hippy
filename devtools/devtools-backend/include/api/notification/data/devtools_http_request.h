@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <ctime>
 #include <string>
 #include <utility>
 #include <vector>
@@ -82,8 +83,8 @@ class DevtoolsHttpRequest : public Serializable {
       : request_id_(request_id),
         request_(std::move(request)),
         loader_id_(request_id),
-        timestamp_(time(0)),
-        wall_time_(time(0)),
+        timestamp_(static_cast<uint64_t>(std::time(nullptr))),
+        wall_time_(static_cast<uint64_t>(std::time(nullptr))),
         initiator_({}),
         redirect_has_extra_info_(false),
         type_(ResourceType::kFetch),

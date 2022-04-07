@@ -25,16 +25,16 @@ void HippyDomTreeAdapter::UpdateDomTree(tdf::devtools::UpdateDomNodeMetas metas,
   }
 
   std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map{};
-  for (auto &metas : metas_list) {
-    if (metas.IsDouble()) {
-      style_map.insert({metas.GetKey(), std::make_shared<tdf::base::DomValue>(metas.ToDouble())});
-    } else if (metas.IsString()) {
-      style_map.insert({metas.GetKey(), std::make_shared<tdf::base::DomValue>(metas.ToString())});
+  for (auto &meta : metas_list) {
+    if (meta.IsDouble()) {
+      style_map.insert({meta.GetKey(), std::make_shared<tdf::base::DomValue>(meta.ToDouble())});
+    } else if (meta.IsString()) {
+      style_map.insert({meta.GetKey(), std::make_shared<tdf::base::DomValue>(meta.ToString())});
     }
   }
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
   if (dom_manager) {
-    auto node = dom_manager->GetNode(node_id);
+    auto node = dom_manager->GetNode(static_cast<uint32_t>(node_id));
     node->UpdateProperties(style_map, std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>{});
     is_success = true;
   }

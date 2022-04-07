@@ -19,7 +19,7 @@ class HippyDomTreeAdapter : public tdf::devtools::DomTreeAdapter {
   void GetDomTree(DumpDomTreeCallback callback) override;
 
  private:
-  int16_t dom_id_;
+  int32_t dom_id_;
 };
 }  // namespace devtools
 }  // namespace hippy

@@ -28,7 +28,7 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
       callback(metas);
       return;
     }
-    auto node = dom_manager->GetNode(node_id);
+    auto node = dom_manager->GetNode(static_cast<uint32_t>(node_id));
     assert(node != nullptr);
     tdf::devtools::DomainMetas metas = DevToolUtils::GetDomDomainData(node, depth, dom_manager);
     callback(metas);
