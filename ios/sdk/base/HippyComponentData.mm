@@ -66,6 +66,10 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
 
 @implementation HippyComponentData
 
+//HippyViewManager is base class of all ViewManager class
+//we use a variable to cache HippyViewManager's event name map
+static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
+
 - (instancetype)initWithViewManager:(HippyViewManager *)viewManager viewName:(NSString *)viewName {
     self = [super init];
     if (self) {
@@ -388,28 +392,48 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 - (NSDictionary<NSString *, NSString *> *)eventNameMap {
     if (!_eventNameMap) {
         uint32_t count = 0;
-        Method *methods = class_copyMethodList(object_getClass(_managerClass), &count);
-        _eventNameMap = [NSMutableDictionary dictionaryWithCapacity:count];
-        for (uint32_t i = 0; i < count; i++) {
-            Method method = methods[i];
-            SEL selector = method_getName(method);
-            NSString *methodName = NSStringFromSelector(selector);
-            if ([methodName hasPrefix:@"propConfig"]) {
-                NSRange nameRange = [methodName rangeOfString:@"_"];
-                if (nameRange.length) {
-                    NSString *name = [methodName substringFromIndex:nameRange.location + 1];
-                    NSString *type = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector)[0];
-                    if ([type isEqualToString:@"HippyDirectEventBlock"]) {
-                        //remove 'on' prefix if exists
-                        NSString *nameNoOn = name;
-                        if ([nameNoOn hasPrefix:@"on"]) {
-                            nameNoOn = [name substringFromIndex:2];
+        _eventNameMap = [NSMutableDictionary dictionaryWithCapacity:64];
+        Class metaClass = object_getClass(_managerClass);
+        static dispatch_once_t onceToken;
+        static Class viewManagerMetaClass = nil;
+        dispatch_once(&onceToken, ^{
+            viewManagerMetaClass = object_getClass([HippyViewManager class]);
+        });
+        while ([metaClass isSubclassOfClass:viewManagerMetaClass]) {
+            //if metaclass is HippyViewManager's meta class,we try to get event name map from cache if exists
+            if (metaClass == viewManagerMetaClass && gBaseViewManagerDic) {
+                [_eventNameMap addEntriesFromDictionary:gBaseViewManagerDic];
+            }
+            else {
+                Method *methods = class_copyMethodList(metaClass, &count);
+                for (uint32_t i = 0; i < count; i++) {
+                    Method method = methods[i];
+                    SEL selector = method_getName(method);
+                    NSString *methodName = NSStringFromSelector(selector);
+                    if ([methodName hasPrefix:@"propConfig"]) {
+                        NSRange nameRange = [methodName rangeOfString:@"_"];
+                        if (nameRange.length) {
+                            NSString *name = [methodName substringFromIndex:nameRange.location + 1];
+                            NSString *type = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector)[0];
+                            if ([type isEqualToString:@"HippyDirectEventBlock"]) {
+                                //remove 'on' prefix if exists
+                                NSString *nameNoOn = name;
+                                if ([nameNoOn hasPrefix:@"on"]) {
+                                    nameNoOn = [name substringFromIndex:2];
+                                }
+                                NSString *nameNoOnLowerCase = [nameNoOn lowercaseString];
+                                [_eventNameMap setObject:name forKey:nameNoOnLowerCase];
+                            }
                         }
-                        NSString *nameNoOnLowerCase = [nameNoOn lowercaseString];
-                        [_eventNameMap setObject:name forKey:nameNoOnLowerCase];
                     }
                 }
+                free(methods);
+                if (metaClass == viewManagerMetaClass) {
+                    //if metaclass is HippyViewManager's meta class,we try to save event name map from cache
+                    gBaseViewManagerDic = [_eventNameMap copy];
+                }
             }
+            metaClass = class_getSuperclass(metaClass);
         }
     }
     return [_eventNameMap copy];

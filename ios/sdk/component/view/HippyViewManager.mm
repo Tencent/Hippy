@@ -365,6 +365,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(onTouchDown, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onTouchMove, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onTouchEnd, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onDidMount, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onDidUnmount, HippyDirectEventBlock)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 
