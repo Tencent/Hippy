@@ -12,12 +12,11 @@ namespace devtools {
 
 std::shared_ptr<NetChannel> ChannelFactory::CreateChannel(const DevtoolsConfig& config) {
   auto tunnel_type = config.tunnel;
-  if (Tunnel::kTcp == tunnel_type) {
-    return std::make_shared<TcpChannel>();
-  } else if (Tunnel::kWebSocket == tunnel_type) {
+  if (Tunnel::kWebSocket == tunnel_type) {
     return std::make_shared<WebSocketChannel>(config.ws_url);
   }
-  return nullptr;
+  // default channel use tcp
+  return std::make_shared<TcpChannel>();
 }
 
 }  // namespace devtools

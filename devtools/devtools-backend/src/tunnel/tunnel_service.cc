@@ -15,8 +15,8 @@
 namespace tdf {
 namespace devtools {
 
-const uint32_t kClose = 4003;
-const uint32_t kReload = 4004;
+constexpr uint32_t kClose = 4003;
+constexpr uint32_t kReload = 4004;
 
 TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const DevtoolsConfig &devtools_config) {
   dispatch_ = dispatch;
@@ -46,6 +46,8 @@ void TunnelService::SendDataToFrontend(const std::string &rsp_data_string) { cha
 
 void TunnelService::Close(bool is_reload) {
   channel_->Close(is_reload ? kReload : kClose, "");
+  channel_->Connect(nullptr);
+  dispatch_->SetResponseHandler(nullptr);
 }
 }  // namespace devtools
 }  // namespace tdf
