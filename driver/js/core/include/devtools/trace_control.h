@@ -30,8 +30,6 @@ class TraceControl {
    */
   void SetFileCacheDir(std::string file_cache_dir);
   std::string GetTracingContent();
-  static void GlobalInit(const std::string& trace_dir);
-  static char *trace_dir_;
 
  protected:
   TraceControl(TraceControl &&) = delete;
@@ -46,15 +44,13 @@ class TraceControl {
   v8::platform::tracing::TraceBuffer *trace_buffer_;
   v8::platform::tracing::TraceWriter *trace_writer_;
   std::ofstream trace_file_;
-  void OpenCacheFile();
+  bool OpenCacheFile();
 #endif
-  std::string file_cache_dir_;
-  std::string GetFileCacheDir();
+  std::string cache_file_dir_;
   std::string cache_file_path_;
   bool tracing_has_start_;
   std::mutex devtools_tracing_mutex_;
   bool control_has_init_ = false;
 };
-
 }  // namespace devtools
 }  // namespace hippy

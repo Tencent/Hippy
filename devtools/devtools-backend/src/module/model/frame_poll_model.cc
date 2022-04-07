@@ -15,7 +15,6 @@ static constexpr const int32_t kRefreshIntervalMilliSeconds = 500;
 FramePollModel::FramePollModel() {
   refresh_task_runner_ = WorkerPool::GetInstance(1)->CreateTaskRunner();
   refresh_task_ = [this]() {
-    BACKEND_LOGD(TDF_BACKEND, "refresh_task run");
     if (frame_is_dirty_) {
       if (response_handler_) {
         response_handler_();

@@ -2,17 +2,21 @@
 // Copyright (c) 2021 Tencent Corporation. All rights reserved.
 //
 
-#include <sstream>
+#include "devtools/trace_control.h"
+
 #include <fstream>
+#include <sstream>
 #include <utility>
 
-#include "devtools/trace_control.h"
 #include "base/logging.h"
 
 namespace hippy {
 namespace devtools {
+constexpr const char *kCacheFileName = "/v8_trace.json";
 
-TraceControl::TraceControl() { TDF_BASE_LOG(INFO) <<"TraceControl TraceControl construct"; }
+TraceControl::TraceControl() {
+  TDF_BASE_LOG(INFO) << "TraceControl TraceControl construct";
+}
 
 #ifdef OS_ANDROID
 void TraceControl::SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control) {
@@ -27,17 +31,12 @@ void TraceControl::SetGlobalTracingController(v8::platform::tracing::TracingCont
 #endif
 
 void TraceControl::SetFileCacheDir(std::string file_cache_dir) {
-  file_cache_dir_ = std::move(file_cache_dir);
-}
-
-std::string TraceControl::GetFileCacheDir() {
-  return file_cache_dir_;
+  cache_file_dir_ = std::move(file_cache_dir);
 }
 
 void TraceControl::StartTracing() {
   std::lock_guard<std::mutex> lock(devtools_tracing_mutex_);
 #ifdef OS_ANDROID
-  GlobalInit(GetFileCacheDir());
   if (v8_trace_control_) {
     if (tracing_has_start_) {
       StopTracing();
@@ -60,29 +59,26 @@ void TraceControl::StartTracing() {
 }
 
 #ifdef OS_ANDROID
-void TraceControl::OpenCacheFile() {
+bool TraceControl::OpenCacheFile() {
   struct timeval time;
   gettimeofday(&time, NULL);
-  if (!trace_dir_) {
-    if (!cache_file_path_.empty()) {
-      remove(cache_file_path_.c_str());
-    }
-    cache_file_path_ = "/v8_trace_" + std::to_string(time.tv_usec) + ".json";
-    trace_file_.open(cache_file_path_);
-  } else {
-    if (!cache_file_path_.empty()) {
-      remove(cache_file_path_.c_str());
-    }
-    std::string dir_string = trace_dir_;
-    cache_file_path_ = dir_string + ("/v8_trace_" + std::to_string(time.tv_usec)) + ".json";
-    TDF_BASE_LOG(INFO) << "TraceControl trace_file_ open filepath:" << cache_file_path_.c_str();
-    trace_file_.open(cache_file_path_);
+  if (cache_file_dir_.empty() || std::string::npos != cache_file_dir_.find("..")) {
+    TDF_BASE_LOG(ERROR) << "TraceControl cache_file_dir_ is invalid";
+    return false;
   }
+  if (!cache_file_path_.empty()) {
+    remove(cache_file_path_.c_str());
+  }
+  cache_file_path_ = cache_file_dir_ + kCacheFileName;
+  TDF_BASE_LOG(INFO) << "TraceControl trace_file_ open filepath:" << cache_file_path_.c_str();
+  trace_file_.open(cache_file_path_);
   if (trace_file_.is_open()) {
     TDF_BASE_LOG(INFO) << "TraceControl trace_file_ open success";
+    return true;
   } else {
     TDF_BASE_LOG(INFO) << "TraceControl trace_file_ open fail";
   }
+  return false;
 }
 #endif
 
@@ -133,20 +129,6 @@ void TraceControl::StopTracing() {
     TDF_BASE_LOG(INFO) << "TraceControl StopTracing tracingControl is nullptr";
   }
 #endif
-}
-
-char* TraceControl::trace_dir_;
-
-void TraceControl::GlobalInit(const std::string &trace_dir) {
-  trace_dir_ = new char[trace_dir.length() + 1];
-  trace_dir.copy(trace_dir_, trace_dir.length(), 0);
-  trace_dir_[trace_dir.length()] = '\0';
-  TraceControl::GetInstance();
-  if (trace_dir.empty()) {
-    TDF_BASE_LOG(INFO) << "TraceControl TraceControl init, traceDir is empty";
-  } else {
-    TDF_BASE_LOG(INFO) << "TraceControl TraceControl init, traceDir:%s", trace_dir.c_str();
-  }
 }
 }  // namespace devtools
 }  // namespace hippy
