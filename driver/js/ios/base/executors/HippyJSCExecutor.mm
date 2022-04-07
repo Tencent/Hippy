@@ -164,7 +164,7 @@ HIPPY_EXPORT_MODULE()
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
 #if TDF_SERVICE_ENABLED
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
-        self.pScope->CreateDevtools([wsURL UTF8String]);
+        self.pScope->CreateDevtools([wsURL UTF8String], bridge.debugMode);
 #endif
     }
 
