@@ -35,6 +35,7 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
   if (object === null) return;
   const shadowData: any = {};
   const shadowTextData: any = {};
+  const background: any = {};
   for (const key of Object.keys(object)) {
     if (! hasOwnProperty(object, key)) {
       return;
@@ -61,6 +62,9 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
       styleUpdateWithCheck(element, key, newValue);
       continue;
     }
+    if (isBackground(key)) {
+      background[key] = object[key];
+    }
     styleUpdateWithCheck(element, key, object[key]);
   }
   borderStyleProcess(element, object);
@@ -71,6 +75,16 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
   if (shadowTextData.textShadowColor || shadowTextData.textShadowOffset
     || shadowTextData.textShadowOffsetX || shadowTextData.textShadowOffsetY) {
     styleUpdateWithCheck(element, 'text-shadow', textShadowProcess(shadowTextData));
+  }
+  if (Object.keys(background).length > 0) {
+    for (const key of Object.keys(background)) {
+      if (key === 'backgroundImage') {
+        styleUpdateWithCheck(element, key, `url(${background.backgroundImage})`);
+      }
+      if (key === 'backgroundSize') {
+        styleUpdateWithCheck(element, key, background.backgroundSize);
+      }
+    }
   }
 }
 
@@ -133,6 +147,9 @@ function isLayout(key: string, value: number) {
     || key.startsWith('z-index')
     || key.startsWith('opacity')
   );
+}
+function isBackground(key) {
+  return key.startsWith('background');
 }
 
 function transformForSize(value) {

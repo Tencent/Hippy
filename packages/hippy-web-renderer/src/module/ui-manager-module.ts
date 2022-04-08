@@ -25,7 +25,7 @@ import {
   NodeData,
   UIProps,
 } from '../types';
-import { hasOwnProperty, setElementStyle } from '../common';
+import { setElementStyle } from '../common';
 import { mergeDeep } from '../third-lib/loadsh.js';
 
 export class UIManagerModule extends HippyWebModule {
