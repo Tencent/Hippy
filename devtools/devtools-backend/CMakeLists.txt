@@ -12,17 +12,20 @@ add_compile_options(${ABI_COMPILE_OPTIONS})
 
 get_filename_component(DEVTOOLS_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" REALPATH)
 set(BACKEND_INCLUDE_DIR ${DEVTOOLS_ROOT_PATH}/include)
+set(THIRD_PARTY_INCLUDE ${DEVTOOLS_ROOT_PATH}/third_party/socket/include)
 message("DEVTOOLS_ROOT_PATH : ${DEVTOOLS_ROOT_PATH}")
 
 # add include directories
-include_directories(${BACKEND_INCLUDE_DIR})
+include_directories(${BACKEND_INCLUDE_DIR} ${THIRD_PARTY_INCLUDE})
 
 set(WEBSOCKETPP_PATH ${DEVTOOLS_ROOT_PATH}/third_party/websocketpp)
 set(ASIO_PATH ${DEVTOOLS_ROOT_PATH}/third_party/asio/include)
 include_directories(${WEBSOCKETPP_PATH} ${ASIO_PATH})
 
 # add library
-file(GLOB_RECURSE DEVTOOLS_SRC ${DEVTOOLS_ROOT_PATH}/src/**)
+file(GLOB_RECURSE DEVTOOLS_SRC
+        ${DEVTOOLS_ROOT_PATH}/src/**
+        ${DEVTOOLS_ROOT_PATH}/third_party/socket/src/**)
 
 if(ANDROID)
   add_definitions(-DOS_ANDROID)
