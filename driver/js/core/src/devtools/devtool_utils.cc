@@ -2,8 +2,6 @@
 // Created by thomasyqguo on 2022/3/4.
 //
 
-#pragma once
-
 #include "devtools/devtool_utils.h"
 
 namespace hippy {

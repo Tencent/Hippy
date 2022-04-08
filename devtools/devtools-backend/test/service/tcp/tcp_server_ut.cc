@@ -17,10 +17,10 @@ class TcpServerTest : public ::testing::Test {
   void SetUp() override {
     std::cout << "set up" << std::endl;
     tcp_server_ = std::make_shared<TcpChannel>();
-    tcp_server_->on_server_status_change = [](ConnectStatus status) {
+    tcp_server_->server_status_change_callback_ = [](ConnectStatus status) {
       std::cout << "server status change function, status = " << status << std::endl;
     };
-    tcp_server_->on_connect_status_change = [](ConnectStatus status, std::string error) {
+    tcp_server_->connect_status_change_callback_ = [](ConnectStatus status, std::string error) {
       std::cout << "connect status change function, status = " << status << ", error = " << error << std::endl;
     };
     tcp_server_->data_handler_ = [](void* buf, ssize_t length, int flag) {
