@@ -10,7 +10,7 @@
 #include <string>
 #include "api/devtools_data_channel.h"
 #include "module/domain/base_domain.h"
-#include "module/inspect_event.hpp"
+#include "module/inspect_event.h"
 
 namespace tdf {
 namespace devtools {

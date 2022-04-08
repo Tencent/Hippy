@@ -11,7 +11,7 @@
 #include <string>
 #include "module/domain/tdf_inspector_domain.h"
 #include "module/domain_dispatch.h"
-#include "module/inspect_event.hpp"
+#include "module/inspect_event.h"
 
 namespace tdf {
 namespace devtools {
