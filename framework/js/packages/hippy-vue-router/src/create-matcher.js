@@ -160,9 +160,14 @@ function createMatcher(routes, router) {
     return createRoute(record, location, redirectedFrom, router);
   }
 
+  function getRoutes() {
+    return pathList.map(path => pathMap[path]);
+  }
+
   return {
     match,
     addRoutes,
+    getRoutes,
   };
 }
 
