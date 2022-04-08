@@ -25,7 +25,7 @@ import MPullToRefresh from 'rmc-pull-to-refresh';
 import { formatWebStyle } from '../adapters/transfer';
 import { isFunc } from '../utils/validation';
 
-export interface RefreshWrapperProp {
+export interface RefreshWrapperProps {
   ref?: any;
   style?: HippyTypes.Style;
   getRefresh?: () => null | Element;
@@ -37,7 +37,7 @@ export interface RefreshWrapperProp {
  * Simply to implement the drag down to refresh feature.
  * @noInheritDoc
  */
-const RefreshWrapper: React.FC<RefreshWrapperProp> = React.forwardRef((props, ref) => {
+const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, ref) => {
   const { getRefresh, style, children, onRefresh } = props;
 
   const newProps = { ...props, style: formatWebStyle(style) };

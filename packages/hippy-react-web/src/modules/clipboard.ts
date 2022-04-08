@@ -28,18 +28,18 @@ const Clipboard = {
         window.navigator.clipboard.readText().then((text) => {
           resolve(text);
         }, () => {
-          warn('Clipboard getString is not supported');
+          warn('Clipboard getString is unsupported');
           resolve('');
         });
       } else {
-        warn('Clipboard getString is not supported');
+        warn('Clipboard getString is unsupported');
         resolve('');
       }
     });
   },
   setString(text: string): Promise<void> {
     const setStringNotSupportWarn = () => {
-      warn('Clipboard setString is not supported');
+      warn('Clipboard setString is unsupported');
     };
     return new Promise((resolve) => {
       if (canUseClipboard) {

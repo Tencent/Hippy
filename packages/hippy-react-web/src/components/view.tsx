@@ -43,7 +43,7 @@ const styles = {
   },
 };
 
-export interface ViewProps {
+interface ViewProps {
   [key: string]: any;
   ref?: any;
   accessible?: boolean;
@@ -153,5 +153,6 @@ View.displayName = 'View';
 
 export {
   View,
+  ViewProps,
 };
 export default View;

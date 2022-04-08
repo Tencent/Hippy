@@ -67,10 +67,7 @@ function getResizeObserver(): ResizeObserver | null {
   return resizeObserver;
 }
 
-export default function useElementLayout(
-  ref: any,
-  onLayout?: (e: LayoutEvent) => void,
-) {
+export default function useElementLayout(ref: any, onLayout?: (e: LayoutEvent) => void) {
   const observer = getResizeObserver();
   useLayoutEffect(() => {
     const node = ref.current;

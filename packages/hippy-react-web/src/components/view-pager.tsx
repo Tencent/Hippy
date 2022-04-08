@@ -24,7 +24,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { SwiperOptions } from 'swiper/types';
 import 'swiper/swiper.min.css';
 
-interface Props extends SwiperOptions {
+interface ViewPagerProps extends SwiperOptions {
   style: Object,
   children: [],
   initialPage: number,
@@ -40,7 +40,7 @@ interface Props extends SwiperOptions {
  * and will be stretched to fill the ViewPage.
  * @noInheritDoc
  */
-export const ViewPager: React.FC<Props> = React.forwardRef((props, ref) => {
+export const ViewPager: React.FC<ViewPagerProps> = React.forwardRef((props, ref) => {
   const {
     style = {},
     children,

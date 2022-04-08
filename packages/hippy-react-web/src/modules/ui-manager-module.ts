@@ -96,7 +96,7 @@ const UIManager = {
     return -1;
   },
   getElementFromFiberRef() {
-    warn('UIManagerModule.getElementFromFiberRef is not supported');
+    warn('UIManagerModule.getElementFromFiberRef is unsupported');
   },
   measureInAppWindow(node: HTMLElement | { node: HTMLElement }, callback?: LayoutEvent | string) {
     const layout = this.measureInWindow(node);

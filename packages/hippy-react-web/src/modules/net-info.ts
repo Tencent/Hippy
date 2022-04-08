@@ -19,6 +19,7 @@
  */
 import { NetInfoModule } from '../types';
 import { canUseDOM } from '../utils/execution-environment';
+import {  } from '../utils';
 
 type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKONWN';
 type ConnectionType =

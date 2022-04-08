@@ -30,7 +30,7 @@ import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scro
 import { LayoutEvent } from '../types';
 import View from './view';
 
-interface ListViewItemProp {
+interface ListViewItemProps {
   style?: any;
   height: any;
   children?: any;
@@ -40,7 +40,7 @@ interface ListViewItemProp {
   rowShouldSticky?: (index: number) => boolean;
 }
 
-interface ListViewProps extends ListViewItemProp {
+interface ListViewProps extends ListViewItemProps {
   horizontal?: undefined | boolean;
   numberOfRows?: number;
   scrollEventThrottle?: number;
@@ -99,7 +99,7 @@ const setIntersectionObserve = (obserCallback: (entries: any[]) => void) => {
   return observe;
 };
 
-function ListViewItem(props: ListViewItemProp) {
+function ListViewItem(props: ListViewItemProps) {
   const { observer, style, height, getRowKey = () => { }, rowShouldSticky = () => false } = props;
   const listItemRef = useRef(null);
   const itemStyle: Record<string, any> = {};

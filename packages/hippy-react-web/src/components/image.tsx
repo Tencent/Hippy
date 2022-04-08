@@ -29,7 +29,7 @@ import { isFunc } from '../utils/validation';
 
 
 type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center' | 'none';
-interface ImageProp {
+interface ImageProps {
   style: HippyTypes.Style;
   tintColor?: HippyTypes.color;
   children?: any;
@@ -125,7 +125,7 @@ const resolveAssetUri = (source: string | { uri: string }) => {
  * static resources, temporary local images, and images from local disk, such as the camera roll.
  * @noInheritDoc
  */
-const Image: React.FC<ImageProp> = React.forwardRef((props: ImageProp, ref) => {
+const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) => {
   const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd = () => null, resizeMode = 'none', children, style = {} } = props;
 
   const imgRef = useRef(null);

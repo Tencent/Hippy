@@ -22,7 +22,7 @@ import React from 'react';
 import { canUseDOM } from '../utils/execution-environment';
 import StyleSheet from '../modules/stylesheet';
 import { formatWebStyle } from '../adapters/transfer';
-import View, { ViewProps } from './view';
+import { View, ViewProps } from './view';
 
 
 const cssFunction = (): 'contant' | 'env' => {

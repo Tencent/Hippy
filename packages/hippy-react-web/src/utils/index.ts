@@ -64,13 +64,14 @@ const getViewRefNode = (ref: any) => {
   if (ref?.current?.node) {
     return ref.current.node as HTMLElement;
   }
-  if (ref?.node) {
-    return ref.node as HTMLElement;
+  if (ref?.current) {
+    return ref.current as HTMLElement;
   }
   return ref;
 };
 
-
+export * from './validation';
+export * from './execution-environment';
 export {
   warn,
   useStable,

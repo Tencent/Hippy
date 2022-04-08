@@ -109,7 +109,7 @@ export interface ModalProps {
   transparent?: boolean;
   visible?: boolean;
 };
-type AnimationModalProp = Pick<ModalProps, 'animationType' | 'onDismiss' | 'visible' | 'onShow' | 'transparent' | 'darkStatusBarText'> & { children: any };
+type AnimationModalProps = Pick<ModalProps, 'animationType' | 'onDismiss' | 'visible' | 'onShow' | 'transparent' | 'darkStatusBarText'> & { children: any };
 
 const getAnimationStyle = (animationType: AnimationType, visible: boolean) => {
   if (animationType === 'slide' || animationType === 'slide_fade') {
@@ -152,7 +152,7 @@ function ModalPortal(props: ModalPortalProps) {
     ? ReactDOM.createPortal(children, elementRef.current)
     : null;
 }
-const AnimationModal = (props: AnimationModalProp) => {
+const AnimationModal = (props: AnimationModalProps) => {
   const { animationType = 'none', onDismiss, onShow, visible = false, children, transparent, darkStatusBarText } = props;
 
   const [isRendering, setIsRendering] = React.useState(false);
