@@ -43,6 +43,7 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
 DevtoolsBackendService::~DevtoolsBackendService() {
   // work_pool里面的线程析构之前，必须先要 Terminate
   worker_pool_->Terminate();
+  record_logger_ = nullptr;
 }
 
 void DevtoolsBackendService::Destroy(bool is_reload) {
@@ -53,11 +54,19 @@ void DevtoolsBackendService::Destroy(bool is_reload) {
 void DevtoolsBackendService::RegisterLogCallback() {
   // 设置 Backend 的日志输出到 RecordLogger
   Logger::RegisterCallback([this](LoggerModel logger_model) {
+    if (!record_logger_) {
+      return ;
+    }
     record_logger_->RecordLogData(std::move(logger_model));
   });
   // 设置 Adapter 的日志输出到 RecordLogger
   auto log_handler = [this](const LoggerModel &logger_model) {
-    task_runner_->PostTask([this, logger_model]() { record_logger_->RecordLogData(logger_model); });
+    task_runner_->PostTask([this, logger_model]() {
+        if (!record_logger_) {
+            return ;
+        }
+        record_logger_->RecordLogData(logger_model);
+    });
   };
   data_channel_->GetNotificationCenter()->SetLogNotification(std::make_shared<DefaultLogAdapter>(
       log_handler));

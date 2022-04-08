@@ -70,7 +70,7 @@ class RecordLogger {
   // 重置日志列表(非线程安全)
   void ResetRecordLogs();
 
-  std::mutex devtools_log_mutex_;
+  std::recursive_mutex devtools_log_mutex_;
   std::vector<std::string> record_logs_;
   RecordLogOperateCallback operate_callback_;
   uint32_t max_number_of_logs_ = 10;

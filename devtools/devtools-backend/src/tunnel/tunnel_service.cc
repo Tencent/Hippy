@@ -46,7 +46,6 @@ void TunnelService::SendDataToFrontend(const std::string &rsp_data_string) { cha
 
 void TunnelService::Close(bool is_reload) {
   channel_->Close(is_reload ? kReload : kClose, "");
-  channel_->Connect(nullptr);
   dispatch_->SetResponseHandler(nullptr);
 }
 }  // namespace devtools

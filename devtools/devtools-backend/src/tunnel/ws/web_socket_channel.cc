@@ -77,7 +77,6 @@ void WebSocketChannel::StartConnect(const std::string& ws_uri) {
     return;
   }
 
-  // con->set_proxy("http://humupdates.uchicago.edu:8443");
   BACKEND_LOGI(TDF_BACKEND, "websocket start connect");
   ws_client_.connect(con);
 }
@@ -133,7 +132,6 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
                con->get_state(), con->get_ec().message().c_str(), con->get_local_close_code(),
                con->get_local_close_reason().c_str(), con->get_remote_close_code(),
                con->get_remote_close_reason().c_str());
-  ws_thread_->join();
 }
 
 }  // namespace tdf::devtools

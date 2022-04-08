@@ -62,7 +62,7 @@ std::string ConvertToLogJsonString(LoggerModel logger_model) {
 
 // RecordLogger
 void RecordLogger::RecordLogData(LoggerModel logger_model) {
-  std::lock_guard<std::mutex> lock(devtools_log_mutex_);
+  std::lock_guard<std::recursive_mutex> lock(devtools_log_mutex_);
   std::string log_str = ConvertToLogJsonString(logger_model);
   record_logs_.emplace_back(std::move(log_str));
   if (record_logs_.size() > max_number_of_logs_ && operate_callback_) {
