@@ -217,6 +217,10 @@ static unicode_string_view NSStringToU8(NSString* str) {
                     [deviceInfo addEntriesFromDictionary:customObjects];
                 }
             }
+            NSString *deviceName = [[UIDevice currentDevice] name];
+            NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, strongSelf.bridge]);
+            NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
+            [deviceInfo addEntriesFromDictionary:debugInfo];
             NSError *JSONSerializationError = nil;
             NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:&JSONSerializationError];
             if (JSONSerializationError) {
