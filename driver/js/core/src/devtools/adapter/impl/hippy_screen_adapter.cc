@@ -4,6 +4,7 @@
 //
 
 #include "devtools/adapter/hippy_screen_adapter.h"
+
 #include "devtools/devtool_utils.h"
 
 namespace hippy {
@@ -15,7 +16,48 @@ constexpr const char* kMaxWidth = "maxWidth";
 constexpr const char* kMaxHeight = "maxHeight";
 constexpr const char* kQuality = "quality";
 constexpr const char* kGetScreenShot = "getScreenShot";
+constexpr const char* kAddFrameCallback = "addFrameCallback";
+constexpr const char* kRemoveFrameCallback = "removeFrameCallback";
 constexpr const char* kScreenScale = "screenScale";
+constexpr const char* kFrameCallbackId = "frameCallbackId";
+
+uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback) {
+  frame_callback_id_++;
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  if (dom_manager) {
+    auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
+    auto children = root_node->GetChildren();
+    if (!children.empty()) {
+      tdf::base::DomValue::DomValueObjectType dom_value_object;
+      dom_value_object[kFrameCallbackId] = tdf::base::DomValue(frame_callback_id_);
+      tdf::base::DomValue::DomValueArrayType dom_value_array;
+      dom_value_array.push_back(tdf::base::DomValue(dom_value_object));
+      tdf::base::DomValue argument_dom_value(dom_value_array);
+      hippy::dom::DomArgument argument(argument_dom_value);
+      std::function add_frame_callback = [callback](std::shared_ptr<DomArgument> arg) { callback(); };
+      children[0]->CallFunction(kAddFrameCallback, argument, add_frame_callback);
+    }
+  }
+  return frame_callback_id_;
+}
+
+void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  if (dom_manager) {
+    auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
+    auto children = root_node->GetChildren();
+    if (!children.empty()) {
+      tdf::base::DomValue::DomValueObjectType dom_value_object;
+      dom_value_object[kFrameCallbackId] = tdf::base::DomValue(static_cast<int32_t>(id));
+      tdf::base::DomValue::DomValueArrayType dom_value_array;
+      dom_value_array.push_back(tdf::base::DomValue(dom_value_object));
+      tdf::base::DomValue argument_dom_value(dom_value_array);
+      hippy::dom::DomArgument argument(argument_dom_value);
+      std::function remove_callback = [](std::shared_ptr<DomArgument> arg) {};
+      children[0]->CallFunction(kRemoveFrameCallback, argument, remove_callback);
+    }
+  }
+}
 
 void HippyScreenAdapter::GetScreenShot(const tdf::devtools::ScreenRequest& request, CoreScreenshotCallback callback) {
   if (callback) {

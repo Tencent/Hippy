@@ -17,13 +17,10 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -37,10 +34,10 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.utils.DevtoolsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
-import com.tencent.mtt.hippy.views.list.HippyListAdapter;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
@@ -50,9 +47,7 @@ import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 import com.tencent.renderer.component.text.VirtualNode;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,13 +55,7 @@ import java.util.Map;
 @SuppressWarnings({"deprecation", "unused"})
 public abstract class HippyViewController<T extends View & HippyViewBase> implements
         View.OnFocusChangeListener {
-
     private static final String TAG = "HippyViewController";
-    private static final String SCREEN_SHOT = "screenShot";
-    private static final String SCREEN_WIDTH = "width";
-    private static final String SCREEN_HEIGHT = "height";
-    private static final String GET_SCREEN_SHOT = "getScreenShot";
-    private static final String SCREEN_SCALE = "screenScale";
 
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
@@ -628,55 +617,14 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             @NonNull List params) {
     }
 
-    private static String bitmapToBase64Str(Bitmap bitmap, float scale) {
-      String result = null;
-      ByteArrayOutputStream baos = null;
-      try {
-        if (bitmap != null) {
-          Bitmap scaleBitmap = Bitmap
-            .createScaledBitmap(bitmap, (int) (bitmap.getWidth() * scale), (int) (bitmap.getHeight() * scale), false);
-          baos = new ByteArrayOutputStream();
-          int quality = 80;
-          scaleBitmap.compress(CompressFormat.JPEG, quality, baos);
-          baos.flush();
-          baos.close();
-          byte[] bitmapBytes = baos.toByteArray();
-          result = Base64.encodeToString(bitmapBytes, Base64.NO_WRAP);
-        }
-      } catch (IOException e) {
-        LogUtils.e(TAG, "screenFrameAck, exception1=", e);
-      } finally {
-        try {
-          if (baos != null) {
-            baos.flush();
-            baos.close();
-          }
-        } catch (IOException e) {
-          LogUtils.e(TAG, "screenFrameAck, exception2=", e);
-        }
-      }
-      return result;
-    }
-
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull List params, @NonNull Promise promise) {
-      if (GET_SCREEN_SHOT.equals(functionName)) {
-        if (promise != null) {
-          HippyMap resultMap = new HippyMap();
-          boolean isEnableDrawingCache = view.isDrawingCacheEnabled();
-          if (!isEnableDrawingCache) {
-            view.setDrawingCacheEnabled(true);
-          }
-          float scale = 0.5f;
-          Bitmap bitmap = view.getDrawingCache();
-          String base64 = bitmapToBase64Str(bitmap, scale);
-          resultMap.pushString(SCREEN_SHOT, base64);
-          resultMap.pushInt(SCREEN_WIDTH, (int) (view.getWidth() * scale));
-          resultMap.pushInt(SCREEN_HEIGHT, (int) (view.getHeight() * scale));
-          resultMap.pushDouble(SCREEN_SCALE, view.getResources().getDisplayMetrics().density * scale);
-          promise.resolve(resultMap);
-          view.setDrawingCacheEnabled(isEnableDrawingCache);
-        }
+      if (DevtoolsUtil.GET_SCREEN_SHOT.equals(functionName)) {
+        DevtoolsUtil.getScreenShot(view, promise);
+      } else if (DevtoolsUtil.ADD_FRAME_CALLBACK.equals(functionName)) {
+        DevtoolsUtil.addFrameCallback(params, view, promise);
+      } else if (DevtoolsUtil.REMOVE_FRAME_CALLBACK.equals(functionName)) {
+        DevtoolsUtil.removeFrameCallback(params, view, promise);
       }
     }
 

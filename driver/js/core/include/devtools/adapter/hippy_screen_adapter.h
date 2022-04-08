@@ -17,16 +17,15 @@ class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
 
   void GetScreenShot(const tdf::devtools::ScreenRequest& request, CoreScreenshotCallback callback) override;
 
-  uint64_t AddPostFrameCallback(std::function<void()> callback) override { return 0; }
+  uint64_t AddPostFrameCallback(std::function<void()> callback) override;
 
-  void RemovePostFrameCallback(uint64_t id) override {}
+  void RemovePostFrameCallback(uint64_t id) override;
 
   double GetScreenScale() override { return screen_scale_; }
 
  private:
   int32_t dom_id_;
-  int32_t width_;
-  int32_t height_;
+  int32_t frame_callback_id_;
   double screen_scale_ = 1.0f;
 };
 }  // namespace devtools
