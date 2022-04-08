@@ -31,17 +31,17 @@
     NSMutableDictionary *_animationIdWithPropDictionary;
     NSMutableDictionary<NSString *, NSMutableDictionary *> *_valuesByKey;
     NSNumber *_hippyTag;
-    __weak HippyBridge *_bridge;
+    __weak HippyAnimator *_animator;
 }
 
-- (instancetype)initWithParams:(NSDictionary *)params bridge:(HippyBridge *)bridge viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
+- (instancetype)initWithParams:(NSDictionary *)params animator:(HippyAnimator *)animator viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
     if (self = [super init]) {
         _animationIdWithPropDictionary = [NSMutableDictionary new];
         _valuesByKey = [NSMutableDictionary new];
         _hippyTag = viewTag;
         _rootTag = rootTag;
         _originParams = params;
-        _bridge = bridge;
+        _animator = animator;
         _valueType = HippyAnimationValueTypeRad;
     }
     return self;
@@ -69,7 +69,7 @@
             if ([obj isKindOfClass:[NSDictionary class]]) {
                 if ([(NSDictionary *)obj count] == 1 && obj[@"animationId"]) {
                     NSNumber *animationID = obj[@"animationId"];
-                    HippyAnimation *animation = [_bridge.animationModule animationFromID:animationID];
+                    HippyAnimation *animation = [_animator animationFromID:animationID];
                     HippyAnimationValueType valueType = animation.valueType;
                     self.valueType = valueType;
                     [self->_animationIdWithPropDictionary setValue:animationID forKey:key];

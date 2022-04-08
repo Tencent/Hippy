@@ -37,9 +37,7 @@
 #import "HippyDomNodeUtils.h"
 #import "HippyRenderContext.h"
 
-@class HippyAnimationViewParams, HippyShadowView;
-
-typedef void (^HippyViewUpdateCompletedBlock)(HippyUIManager *uiManager);
+@class HippyAnimationViewParams, HippyShadowView, HippyAnimator;
 
 /**
  * UIManager queue
@@ -255,6 +253,13 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param node_id node id for the event
  */
 - (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id;
+
+/**
+ * get animator
+ *
+ * @return animator held by HippyUIManager
+ */
+- (HippyAnimator *)animator;
 
 @end
 

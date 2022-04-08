@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import "HippyAnimation.h"
 
-@class HippyBridge;
+@class HippyAnimator;
 
 @interface HippyAnimationViewParams : NSObject
 @property (nonatomic, strong) NSDictionary *originParams;
@@ -36,7 +36,7 @@
 
 - (void)parse;
 
-- (instancetype)initWithParams:(NSDictionary *)params bridge:(HippyBridge *)animation viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag;
+- (instancetype)initWithParams:(NSDictionary *)params animator:(HippyAnimator *)animator viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag;
 
 - (void)setValue:(id)value forProp:(NSString *)prop;
 - (id)valueForProp:(NSString *)prop;

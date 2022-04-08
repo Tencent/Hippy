@@ -161,6 +161,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     std::weak_ptr<DomManager> _domManager;
     std::mutex _shadowQueueLock;
     NSMutableDictionary<NSString *, id> *_viewManagers;
+    HippyAnimator *_animator;
 }
 
 @end
@@ -294,6 +295,13 @@ HIPPY_EXPORT_MODULE()
     return [_viewRegistry copy];
 }
 
+- (HippyAnimator *)animator {
+    if (!_animator) {
+        _animator = [[HippyAnimator alloc] initWithRenderContext:self];
+    }
+    return _animator;
+}
+
 - (void)setBridge:(HippyBridge *)bridge {
     //TODO delete all bridge code
     _bridge = bridge;
@@ -337,7 +345,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 #pragma mark -
 #pragma mark View Manager
 - (HippyComponentData *)componentDataForViewName:(NSString *)viewName {
-    HippyAssert(viewName, @"No view name input");
     if (viewName) {
         HippyComponentData *componentData = _componentDataByName[viewName];
         if (!componentData) {
@@ -536,7 +543,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
         id isAnimated = props[@"useAnimation"];
         if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
-            HippyAnimator *animationModule = self.bridge.animationModule;
+            HippyAnimator *animationModule = [self animator];
             props = [animationModule bindAnimaiton:props viewTag: hippyTag rootTag: _rootViewTag];
             shadowView.animated = [(NSNumber *)isAnimated boolValue];
         } else {
@@ -610,6 +617,10 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     [self layoutAndMount];
 }
 
+- (void)updateView:(NSNumber *)hippyTag props:(NSDictionary *)pros {
+    [self updateView:hippyTag viewName:nil props:pros];
+}
+
 - (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros {
     [self updateView:hippyTag viewName:nil props:pros];
     [self layoutAndMount];
@@ -617,10 +628,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)updateView:(nonnull NSNumber *)hippyTag viewName:(NSString *)viewName props:(NSDictionary *)props {
     HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
+    if (!shadowView) {
+        return;
+    }
     HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName ? : viewName];
     id isAnimated = props[@"useAnimation"];
     if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
-        HippyAnimator *animationModule = self.bridge.animationModule;
+        HippyAnimator *animationModule = [self animator];
         props = [animationModule bindAnimaiton:props viewTag:hippyTag rootTag: shadowView.rootTag];
         shadowView.animated = [(NSNumber *)isAnimated boolValue];;
     } else {
@@ -766,6 +780,10 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
 
     [_pendingUIBlocks addObject:block];
+}
+
+- (void)executeBlockOnRenderQueue:(dispatch_block_t)block {
+    [self executeBlockOnUIManagerQueue:block];
 }
 
 - (void)executeBlockOnUIManagerQueue:(dispatch_block_t)block {
@@ -945,7 +963,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (shadowView) {
             if (isAnimated) {
                 //TODO 动画需要剥离bridge
-                HippyAnimator *animationModule = self.bridge.animationModule;
+                HippyAnimator *animationModule = [self animator];
                 NSDictionary *styleProps = unorderedMapDomValueToDictionary(props);
                 styleProps = [animationModule bindAnimaiton:styleProps viewTag:hippyTag rootTag:shadowView.rootTag];
                 shadowView.animated = isAnimated;

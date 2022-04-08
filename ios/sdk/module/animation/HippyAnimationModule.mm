@@ -23,10 +23,11 @@
 #import "HippyAnimationModule.h"
 #import "HippyUIManager.h"
 #import <objc/runtime.h>
-#import <UIKit/UIKit.h>
-#import "UIView+Hippy.h"
+#import "HippyAnimator.h"
 
-@interface HippyAnimationModule () <CAAnimationDelegate>
+@interface HippyAnimationModule () <HippyAnimationTimingProtocol> {
+    HippyAnimator *_animator;
+}
 @end
 
 @implementation HippyAnimationModule
@@ -39,55 +40,66 @@ HIPPY_EXPORT_MODULE(AnimationModule)
     return HippyGetUIManagerQueue();
 }
 
-- (instancetype)init {
-    if (self = [super init]) {
-    }
-    return self;
+- (void)invalidate {
+    [_animator invalidate];
 }
 
-- (void)invalidate {
-
+- (HippyAnimator *)animator  {
+    if (!_animator) {
+        _animator = [self.bridge.uiManager animator];
+        _animator.animationTimingDelegate = self;
+    }
+    return _animator;
 }
 
 // clang-format off
 HIPPY_EXPORT_METHOD(createAnimation:(NSNumber *__nonnull)animationId mode:(NSString *)mode params:(NSDictionary *)params) {
-
+    [[self animator] createAnimation:animationId mode:mode params:params];
 }
 // clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animations:(NSDictionary *)animations) {
-
+    [[self animator] createAnimationSet:animationId animations:animations];
 }
 // clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
-
+    [[self animator] startAnimation:animationId];
 }
 // clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
-
+    [[self animator] pauseAnimation:animationId];
 }
 // clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
-
+    [[self animator] resumeAnimation:animationId];
 }
 // clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSDictionary *)params) {
-
+    [[self animator] updateAnimation:animationId params:params];
 }
 // clang-format on
 
 // clang-format off
 HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
+    [[self animator] destroyAnimation:animationId];
 }
 // clang-format on
+- (void)animationDidStart:(HippyAnimator *)animator animationId:(NSNumber *)animationId {
+    [self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent"
+                                          args:@{ @"eventName": @"onAnimationStart", @"extra": animationId }];
+}
 
+- (void)animationDidStop:(HippyAnimator *)animator animationId:(NSNumber *)animationId finished:(BOOL)finished {
+    [self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent"
+                                          args:@{ @"eventName": @"onAnimationEnd", @"extra": animationId }];
+}
 @end

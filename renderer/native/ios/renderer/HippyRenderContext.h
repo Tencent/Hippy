@@ -25,12 +25,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyViewManager;
 
-@protocol HippyRenderContext;
+@class HippyViewManager;
 @class HippyShadowView;
 
+@protocol HippyRenderContext;
+
 typedef void (^HippyRenderUIBlock)(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
+typedef void (^HippyViewUpdateCompletedBlock)(id<HippyRenderContext> renderContext);
 
 @protocol HippyRenderContext <NSObject>
 
@@ -47,6 +49,11 @@ typedef void (^HippyRenderUIBlock)(id<HippyRenderContext> renderContext, NSDicti
 
 - (void)addUIBlock:(HippyRenderUIBlock)block;
 
+- (void)executeBlockOnRenderQueue:(dispatch_block_t)block;
+
+- (void)updateView:(NSNumber *)hippyTag props:(NSDictionary *)pros;
+
+- (void)setNeedsLayout;
 
 @end
 
