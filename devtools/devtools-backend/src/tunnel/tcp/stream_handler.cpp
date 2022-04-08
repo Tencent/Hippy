@@ -15,7 +15,7 @@ constexpr int32_t kMaxDataSize = 200 * 1024 * 1024;
 
 #pragma mark - send
 void StreamHandler::HandleSendStream(void *data, int32_t len, int flag) {
-  if (!on_send_stream_callback_) {
+  if (!send_stream_callback_) {
     return;
   }
   if (len > kMaxDataSize) {
@@ -35,7 +35,7 @@ void StreamHandler::HandleSendStream(void *data, int32_t len, int flag) {
   free(header);
   memcpy(reinterpret_cast<char *>(frame) + kHeaderSize, data, len);
 
-  on_send_stream_callback_(frame, data_len);
+  send_stream_callback_(frame, data_len);
   free(frame);
 }
 
@@ -75,10 +75,10 @@ void StreamHandler::HandleReceiveStream(void *data, int32_t len) {
     int32_t split_len = total_len - stream_buffer_.size();
     stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data),
                           reinterpret_cast<char *>(data) + split_len);
-    if (on_receive_stream_callback_) {
+    if (receive_stream_callback_) {
       int32_t header_body_size = header->bodySize();
       char *temp = &stream_buffer_[kHeaderSize];
-      on_receive_stream_callback_(temp, header_body_size, header->flag);
+      receive_stream_callback_(temp, header_body_size, header->flag);
     }
     stream_buffer_.clear();
 

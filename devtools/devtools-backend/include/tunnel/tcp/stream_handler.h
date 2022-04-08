@@ -33,8 +33,8 @@ class StreamHandler {
   ~StreamHandler() { stream_buffer_.clear(); }
   void HandleSendStream(void *data, int32_t len, int32_t flag);
   void HandleReceiveStream(void *data, int32_t len);
-  std::function<void(void *, int32_t)> on_send_stream_callback_;
-  std::function<void(void *, int32_t, int32_t)> on_receive_stream_callback_;
+  std::function<void(void *, int32_t)> send_stream_callback_;
+  std::function<void(void *, int32_t, int32_t)> receive_stream_callback_;
 
  private:
   std::vector<char> stream_buffer_ = std::vector<char>();

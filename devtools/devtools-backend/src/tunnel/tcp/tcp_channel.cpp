@@ -19,9 +19,9 @@ TcpChannel::TcpChannel() {
   socket_fd_ = kNullSocket;
   client_fd_ = kNullSocket;
   stream_handler_ = tunnel::StreamHandler();
-  stream_handler_.on_send_stream_callback_ = [this](void *data, int32_t len) { this->SendResponse_(data, len); };
+  stream_handler_.send_stream_callback_ = [this](void *data, int32_t len) { this->SendResponse_(data, len); };
 
-  stream_handler_.on_receive_stream_callback_ = [this](void *data, int32_t len, int32_t task_flag) {
+  stream_handler_.receive_stream_callback_ = [this](void *data, int32_t len, int32_t task_flag) {
     if (this->data_handler_) {
       this->data_handler_(data, len, task_flag);
     }
