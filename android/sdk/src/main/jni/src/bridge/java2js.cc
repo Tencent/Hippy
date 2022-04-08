@@ -70,14 +70,13 @@ void CallFunction(JNIEnv* j_env,
                   jobject j_callback,
                   bytes buffer_data,
                   std::shared_ptr<JavaRef> buffer_owner) {
-  TDF_BASE_DLOG(INFO) << "CallFunction j_runtime_id = " << j_runtime_id;
+  TDF_BASE_DLOG(DEBUG) << "CallFunction j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "CallFunction j_runtime_id invalid";
     return;
   }
-  std::shared_ptr<JavaScriptTaskRunner> runner =
-      runtime->GetEngine()->GetJSRunner();
+  std::shared_ptr<JavaScriptTaskRunner> runner = runtime->GetEngine()->GetJSRunner();
   if (!j_action) {
     TDF_BASE_DLOG(WARNING) << "CallFunction j_action invalid";
     return;
