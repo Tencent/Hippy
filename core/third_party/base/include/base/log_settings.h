@@ -10,7 +10,7 @@
 namespace tdf {
 namespace base {
 struct LogSettings {
-  LogSeverity min_log_level = TDF_LOG_INFO;
+  LogSeverity min_log_level = TDF_LOG_DEBUG;
 };
 
 void SetLogSettings(const LogSettings& settings);

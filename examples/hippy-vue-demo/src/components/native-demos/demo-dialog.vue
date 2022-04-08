@@ -12,7 +12,6 @@
       v-if="dialogIsVisible"
       animationType="slide"
       :transparent="true"
-      class="dialog-demo"
       :supportedOrientations="supportedOrientations"
       @show="onShow"
       @requestClose="onClose"
@@ -153,22 +152,12 @@ export default {
   text-align: center;
 }
 
-.dialog-demo {
-  position: absolute;
-}
-
 .dialog-demo-wrapper {
   background-color: #40b88377;
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 
 .dialog-2-demo-wrapper {
   background-color: #444444ee;
-  position: absolute;
-  top: 0;
-  left: 0;
   justify-content: center;
   align-items: center;
 }

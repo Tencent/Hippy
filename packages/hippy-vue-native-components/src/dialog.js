@@ -25,6 +25,10 @@ function registerDialog(Vue) {
       defaultNativeProps: {
         transparent: true,
         immersionStatusBar: true,
+        collapsable: false,
+      },
+      defaultNativeStyle: {
+        position: 'absolute',
       },
     },
   });
