@@ -165,6 +165,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
         }
       }
       if (intersectionRatio === 0 && itemShowMap.current.has(rowId)) {
+        itemShowMap.current.delete(rowId);
         if (isFunc(onDisappear)) {
           onDisappear(Number(rowId));
         }

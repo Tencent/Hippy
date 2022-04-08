@@ -280,8 +280,6 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
     </View>
   );
 });
-ScrollView.displayName = 'ScrollView';
 
 ScrollView.displayName = 'ScrollView';
-
 export default ScrollView;
