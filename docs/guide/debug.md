@@ -157,6 +157,39 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 
 当开发者修改了前端代码后，我们可以通过 `Hot Module Replacement (HMR)` 保留状态刷新组件视图，或通过 `live-reload` 重载业务实例，步骤如下：
 
+# Vue Devtools
+
+> 最低支持版本 2.14.0
+
+支持调试 Vue 组件树、组件状态、路由、store、以及事件性能等
+
+<video width="80%" controls>
+  <source src="../assets/img/hippy-vue-devtools-x2.mp4" type="video/mp4">
+  Vue Devtools示例(您的浏览器不支持webm视频格式)
+</video>
+
+1. 安装 vue-devtools 依赖：
+
+   ```bash
+   npm i @hippy/vue@^2.14.0 @hippy/vue-router@^2.14.0
+   npm i @hippy/debug-server-next@latest -D
+   ```
+
+2. 开启 vue devtools
+
+   ```js
+   module.exports = {
+    devServer: {
+       remote: {
+         protocol: 'https',
+         host: 'devtools.qq.com',
+         port: 443,
+       },
+      // 默认为 false，开启后将通过 remote 字段指定的远程调试服务分发 vue 调试指令
+      vueDevtools: true
+    },
+   ```
+
 ## Hippy-Vue
 
 1. 安装热更新依赖

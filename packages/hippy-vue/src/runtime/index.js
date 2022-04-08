@@ -31,7 +31,9 @@ import {
   isPlainObject,
   mergeOptions,
   extend,
+  devtools,
 } from 'core/util/index';
+import config from 'core/config';
 import {
   registerBuiltinElements,
   registerElement,
@@ -253,4 +255,19 @@ Vue.getApp = getApp;
 // Register the built-in elements
 Vue.use(registerBuiltinElements);
 
-export default Vue;
+if (config.devtools && devtools) {
+  devtools.emit('init', Vue);
+}
+
+// proxy Vue constructor to add Hippy Vue instance to global.__VUE_ROOT_INSTANCES__
+const ProxyedVue = new Proxy(Vue, {
+  construct(Target, args) {
+    const vm = new Target(...args);
+    if (process.env.NODE_ENV === 'development') {
+      if (!global.__VUE_ROOT_INSTANCES__) global.__VUE_ROOT_INSTANCES__ = [];
+      if (args && args.length && args[0].appName) global.__VUE_ROOT_INSTANCES__.push(vm);
+    }
+    return vm;
+  },
+});
+export default ProxyedVue;
