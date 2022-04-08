@@ -49,6 +49,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   private virtualList;
   private childData: Array<ListViewItem> = [];
   private touchListenerRelease;
+  private checkTimer: any = null;
 
 
   public constructor(context, id, pId) {
@@ -277,6 +278,14 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   private handleListItemDirty(item: ListViewItem) {
     this.dirtyListItems.push(item);
+    this.whenFinishCheckDirtyChild();
+  }
+
+  private whenFinishCheckDirtyChild() {
+    if (this.checkTimer) {
+      clearTimeout(this.checkTimer);
+    }
+    this.checkTimer = setTimeout(this.checkDirtyChild.bind(this), 64);
   }
 
   private handleOnRowsRendered({
@@ -337,13 +346,15 @@ export class ListView extends HippyView<HTMLDivElement> {
     }
   }
 
-  private needCheckDirtyChild() {
+  private checkDirtyChild() {
     for (let i = 0;i < this.dirtyListItems.length;i++) {
       const item = this.dirtyListItems[i];
       item.isDirty = false;
     }
     this.dirtyListItems = [];
     this.notifyDataSetChange();
+    clearTimeout(this.checkTimer);
+    this.checkTimer = null;
   }
 
   private getListItemNewHeight(component: ListViewItem) {
@@ -421,7 +432,7 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   private handleEndSliding() {
     this.dirtyListItems.length > 0 && requestAnimationFrame(() => {
-      this.needCheckDirtyChild();
+      this.checkDirtyChild();
     });
     this.dom && this.onMomentumScrollEnd(this.buildScrollEvent());
   }
