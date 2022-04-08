@@ -35,7 +35,7 @@
 @class HippyEventDispatcher;
 @class HippyPerformanceLogger;
 @class HippyUIManager;
-@class HippyExtAnimationModule;
+@class HippyAnimator;
 
 /**
  * Indicate hippy sdk version
@@ -201,7 +201,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
-@property (nonatomic, weak, readonly) HippyExtAnimationModule *animationModule;
+@property (nonatomic, weak, readonly) HippyAnimator *animationModule;
 
 @property (nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
 

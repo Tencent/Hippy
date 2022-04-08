@@ -24,15 +24,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyExtAnimation;
+@class HippyAnimation;
 
 @interface UIView (HippyAnimationProtocol)
 
 /**
- * some animation should be created by View itself rather than HippyExtAnimation.
+ * some animation should be created by View itself rather than HippyAnimation.
  * for example:backgroundColor, etc.
  */
-- (CAAnimation *)animation:(HippyExtAnimation *)animation keyPath:(NSString *)keyPath;
+- (CAAnimation *)animation:(HippyAnimation *)animation keyPath:(NSString *)keyPath;
 
 @end
 

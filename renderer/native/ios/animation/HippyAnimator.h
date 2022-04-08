@@ -21,18 +21,41 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyInvalidating.h"
 
-@class HippyExtAnimation;
+@class HippyAnimation;
+@protocol HippyRenderContext;
 
-@interface HippyExtAnimationIdCount : NSObject
+@interface HippyAnimationIdCount : NSObject
 - (void)addCountForAnimationId:(NSNumber *)animationID;
 - (BOOL)subtractionCountForAnimationId:(NSNumber *)animationID;
 - (NSUInteger)countForAnimationId:(NSNumber *)animationID;
 @end
 
-@interface HippyExtAnimationModule : NSObject <HippyBridgeModule, HippyInvalidating>
+@class HippyAnimator;
+
+@protocol HippyAnimationTimingProtocol <NSObject>
+
+- (void)animationDidStart:(HippyAnimator *)animator animationId:(NSNumber *)animationId;
+- (void)animationDidStop:(HippyAnimator *)animator animationId:(NSNumber *)animationId finished:(BOOL)finished;
+
+@end
+
+@interface HippyAnimator : NSObject
+
+- (instancetype)initWithRenderContext:(id<HippyRenderContext>)renderContext;
+
+@property(nonatomic, weak) id<HippyAnimationTimingProtocol> animationTimingDelegate;
+
+- (void)createAnimation:(NSNumber *)animationId mode:(NSString *)mode params:(NSDictionary *)params;
+- (void)createAnimationSet:(NSNumber *)animationId animations:(NSDictionary *)animations;
+- (void)startAnimation:(NSNumber *)animationId;
+- (void)pauseAnimation:(NSNumber *)animationId;
+- (void)resumeAnimation:(NSNumber *)animationId;
+- (void)updateAnimation:(NSNumber *)animationId params:(NSDictionary *)params;
+- (void)destroyAnimation:(NSNumber *)animationId;
+
 - (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag;
 - (void)connectAnimationToView:(UIView *)view;
-- (HippyExtAnimation *)animationFromID:(NSNumber *)animationID;
+- (HippyAnimation *)animationFromID:(NSNumber *)animationID;
+- (void)invalidate;
 @end

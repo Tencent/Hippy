@@ -21,14 +21,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyExtAnimation.h"
-#import <UIKit/UIKit.h>
+#import "HippyInvalidating.h"
+#import "HippyBridgeModule.h"
 
-@interface HippyExtAnimation (Value)
-
-@property (nonatomic, strong) id fromValue;
-@property (nonatomic, strong) id toValue;
-@property (nonatomic, strong) id byValue;
-
-- (void)calcValueWithCenter:(CGPoint)center forProp:(NSString *)prop;
+@interface HippyAnimationModule : NSObject <HippyBridgeModule, HippyInvalidating>
 @end

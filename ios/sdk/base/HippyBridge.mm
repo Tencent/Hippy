@@ -33,7 +33,7 @@
 #import "HippyPerformanceLogger.h"
 #import "HippyUtils.h"
 #import "HippyUIManager.h"
-#import "HippyExtAnimationModule.h"
+#import "HippyAnimator.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyBridge+LocalFileSource.h"
@@ -266,7 +266,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [self moduleForName:HippyBridgeModuleNameForClass(moduleClass)];
 }
 
-- (HippyExtAnimationModule *)animationModule {
+- (HippyAnimator *)animationModule {
     return [self moduleForName:@"AnimationModule"];
 }
 

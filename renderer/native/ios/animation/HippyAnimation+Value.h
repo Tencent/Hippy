@@ -20,10 +20,15 @@
  * limitations under the License.
  */
 
-#import "HippyExtAnimation.h"
+#import <Foundation/Foundation.h>
+#import "HippyAnimation.h"
+#import <UIKit/UIKit.h>
 
-@interface HippyExtAnimationGroup : HippyExtAnimation
+@interface HippyAnimation (Value)
 
-@property (nonatomic, strong) NSArray<HippyExtAnimation *> *animations;
-@property (nonatomic, assign) BOOL virtualAnimation;
+@property (nonatomic, strong) id fromValue;
+@property (nonatomic, strong) id toValue;
+@property (nonatomic, strong) id byValue;
+
+- (void)calcValueWithCenter:(CGPoint)center forProp:(NSString *)prop;
 @end

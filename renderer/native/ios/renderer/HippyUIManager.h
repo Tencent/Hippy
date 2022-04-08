@@ -37,9 +37,7 @@
 #import "HippyDomNodeUtils.h"
 #import "HippyRenderContext.h"
 
-@class HippyExtAnimationViewParams, HippyShadowView;
-
-typedef void (^HippyViewUpdateCompletedBlock)(HippyUIManager *uiManager);
+@class HippyAnimationViewParams, HippyShadowView, HippyAnimator;
 
 /**
  * UIManager queue
@@ -138,7 +136,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param params Animation params
  * @param block Completion block
  */
-- (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
+- (void)updateViewsFromParams:(NSArray<HippyAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
 
 /**
  *  Manually update view props ,then flush block
@@ -255,6 +253,13 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param node_id node id for the event
  */
 - (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id;
+
+/**
+ * get animator
+ *
+ * @return animator held by HippyUIManager
+ */
+- (HippyAnimator *)animator;
 
 @end
 

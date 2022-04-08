@@ -21,17 +21,18 @@
  */
 
 #import "HippyUIManager.h"
-#import "HippyExtAnimation.h"
-#import "HippyExtAnimationGroup.h"
-#import "HippyExtAnimation+Group.h"
-#import "HippyExtAnimationModule.h"
-#import "HippyExtAnimationViewParams.h"
+#import "HippyAnimation.h"
+#import "HippyAnimationGroup.h"
+#import "HippyAnimation+Group.h"
+#import "HippyAnimator.h"
+#import "HippyAnimationViewParams.h"
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
 #import "CALayer+HippyAnimation.h"
 #import "UIView+Hippy.h"
+#import "HippyRenderContext.h"
 
-@implementation HippyExtAnimationIdCount {
+@implementation HippyAnimationIdCount {
     NSMutableDictionary *_animationIdDic;
 }
 - (instancetype)init {
@@ -65,32 +66,26 @@
 }
 @end
 
-@interface HippyExtAnimationModule () <CAAnimationDelegate>
+@interface HippyAnimator () <CAAnimationDelegate>
+@property(nonatomic, weak) id<HippyRenderContext> renderContext;
 @end
 
-@implementation HippyExtAnimationModule {
-    NSMutableDictionary<NSNumber *, HippyExtAnimation *> *_animationById;
-    NSMutableDictionary<NSNumber *, NSMutableArray<HippyExtAnimationViewParams *> *> *_paramsByAnimationId;
-    NSMutableDictionary<NSNumber *, HippyExtAnimationViewParams *> *_paramsByHippyTag;
+@implementation HippyAnimator {
+    NSMutableDictionary<NSNumber *, HippyAnimation *> *_animationById;
+    NSMutableDictionary<NSNumber *, NSMutableArray<HippyAnimationViewParams *> *> *_paramsByAnimationId;
+    NSMutableDictionary<NSNumber *, HippyAnimationViewParams *> *_paramsByHippyTag;
     NSLock *_lock;
-    HippyExtAnimationIdCount *_virtualAnimations;
+    HippyAnimationIdCount *_virtualAnimations;
 }
 
-@synthesize bridge = _bridge;
-
-HIPPY_EXPORT_MODULE(AnimationModule)
-
-- (dispatch_queue_t)methodQueue {
-    return HippyGetUIManagerQueue();
-}
-
-- (instancetype)init {
+- (instancetype)initWithRenderContext:(id<HippyRenderContext>)renderContext {
     if (self = [super init]) {
         _animationById = [NSMutableDictionary new];
         _paramsByHippyTag = [NSMutableDictionary new];
         _paramsByAnimationId = [NSMutableDictionary new];
+        _renderContext = renderContext;
         _lock = [[NSLock alloc] init];
-        _virtualAnimations = [[HippyExtAnimationIdCount alloc] init];
+        _virtualAnimations = [[HippyAnimationIdCount alloc] init];
     }
     return self;
 }
@@ -107,27 +102,24 @@ HIPPY_EXPORT_MODULE(AnimationModule)
     return YES;
 }
 
-// clang-format off
-HIPPY_EXPORT_METHOD(createAnimation:(NSNumber *__nonnull)animationId mode:(NSString *)mode params:(NSDictionary *)params) {
+- (void)createAnimation:(NSNumber *)animationId mode:(NSString *)mode params:(NSDictionary *)params {
     [_lock lock];
-    HippyExtAnimation *ani = [[HippyExtAnimation alloc] initWithMode: mode animationId: animationId config: params];
+    HippyAnimation *ani = [[HippyAnimation alloc] initWithMode: mode animationId: animationId config: params];
     [_animationById setObject: ani forKey: animationId];
     [_lock unlock];
     HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_Animation:%@", animationId);
 }
-// clang-format on
 
-// clang-format off
-HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animations:(NSDictionary *)animations) {
+- (void)createAnimationSet:(NSNumber *)animationId animations:(NSDictionary *)animations {
     [_lock lock];
-    HippyExtAnimationGroup *group = [[HippyExtAnimationGroup alloc] initWithMode: @"group" animationId: animationId config: animations];
+    HippyAnimationGroup *group = [[HippyAnimationGroup alloc] initWithMode: @"group" animationId: animationId config: animations];
     group.virtualAnimation = [animations[@"virtual"] boolValue];
     NSArray *children = animations[@"children"];
     NSMutableArray *anis = [NSMutableArray arrayWithCapacity: children.count];
     [children enumerateObjectsUsingBlock:^(NSDictionary * info, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
         NSNumber *subAnimationId = info[@"animationId"];
         BOOL follow = [info[@"follow"] boolValue];
-        HippyExtAnimation *ani = self->_animationById[subAnimationId];
+        HippyAnimation *ani = self->_animationById[subAnimationId];
         if (ani == nil) {
             HippyAssert(ani != nil, @"create group animation but use illege sub animaiton");
             return;
@@ -142,13 +134,12 @@ HIPPY_EXPORT_METHOD(createAnimationSet:(NSNumber *__nonnull)animationId animatio
     
     HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_AnimationSet:%@", animationId);
 }
-// clang-format on
 
-// clang-format off
-HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
+
+- (void)startAnimation:(NSNumber *)animationId {
     [_lock lock];
-    HippyExtAnimation *ani = _animationById[animationId];
-    if (ani.state == HippyExtAnimationStartedState) {
+    HippyAnimation *ani = _animationById[animationId];
+    if (ani.state == HippyAnimationStartedState) {
         [_lock unlock];
         HippyLogInfo(@"[Hippy_OC_Log][Animation],Start_Animation_Failed, Animation Already Started:%@", animationId);
         return;
@@ -156,16 +147,16 @@ HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
     
     HippyLogInfo(@"[Hippy_OC_Log][Animation],Start_Animation, [%@] from [%@] to [%@]", animationId, @(ani.startValue), @(ani.endValue));
 
-    ani.state = HippyExtAnimationReadyState;
+    ani.state = HippyAnimationReadyState;
     
-    if ([ani isKindOfClass:[HippyExtAnimationGroup class]]) {
-        HippyExtAnimationGroup *group = (HippyExtAnimationGroup *)ani;
+    if ([ani isKindOfClass:[HippyAnimationGroup class]]) {
+        HippyAnimationGroup *group = (HippyAnimationGroup *)ani;
         if (group.virtualAnimation) {
-            for (HippyExtAnimation *animation in group.animations) {
+            for (HippyAnimation *animation in group.animations) {
                 [_virtualAnimations addCountForAnimationId:animationId];
                 animation.parentAnimationId = animationId;
                 NSNumber *animationId = animation.animationId;
-                animation.state = HippyExtAnimationReadyState;
+                animation.state = HippyAnimationReadyState;
                 [self paramForAnimationId:animationId];
             }
         } else {
@@ -176,40 +167,36 @@ HIPPY_EXPORT_METHOD(startAnimation:(NSNumber *__nonnull)animationId) {
     }
     [_lock unlock];
 }
-// clang-format on
 
-// clang-format off
-HIPPY_EXPORT_METHOD(pauseAnimation:(NSNumber *__nonnull)animationId) {
+
+- (void)pauseAnimation:(NSNumber *)animationId {
     [_lock lock];
-    NSArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
-    [self.bridge.uiManager addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
+    NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
+    [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
             UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
             [view.layer pauseLayerAnimation];
         }];
     }];
     [_lock unlock];
 }
-// clang-format on
 
-// clang-format off
-HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
+- (void)resumeAnimation:(NSNumber *)animationId {
     [_lock lock];
-    NSArray <HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
-    [self.bridge.uiManager addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
+    NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
+    [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
             UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
             [view.layer resumeLayerAnimation];
         }];
     }];
     [_lock unlock];
 }
-// clang-format on
 
 - (void)paramForAnimationId:(NSNumber *)animationId {
-    NSArray<HippyExtAnimationViewParams *> *params = _paramsByAnimationId[animationId];
+    NSArray<HippyAnimationViewParams *> *params = _paramsByAnimationId[animationId];
     NSMutableArray<NSNumber *> *hippyTags = [NSMutableArray new];
-    [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams *_Nonnull param, NSUInteger __unused idx, BOOL *_Nonnull __unused stop) {
+    [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams *_Nonnull param, NSUInteger __unused idx, BOOL *_Nonnull __unused stop) {
         [hippyTags addObject:param.hippyTag];
     }];
 
@@ -217,10 +204,10 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
         return;
     }
 
-    __weak HippyExtAnimationModule *weakSelf = self;
+    __weak HippyAnimator *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         [hippyTags enumerateObjectsUsingBlock:^(NSNumber *_Nonnull tag, __unused NSUInteger idx, __unused BOOL *stop) {
-            UIView *view = [weakSelf.bridge.uiManager viewForHippyTag:tag];
+            UIView *view = [self.renderContext viewFromRenderViewTag:tag];
             if (!view) {
                 return;
             }
@@ -231,42 +218,43 @@ HIPPY_EXPORT_METHOD(resumeAnimation:(NSNumber *__nonnull)animationId) {
             }
             
             HippyLogInfo(@"[Hippy_OC_Log][Animation],Animation_Not_Add_To_Window, %@", animationId);
-            [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams *p, __unused NSUInteger idx, __unused BOOL *stop) {
+            [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams *p, __unused NSUInteger idx, __unused BOOL *stop) {
                 [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *obj, __unused BOOL *stop1) {
-                    HippyExtAnimation *ani = self->_animationById[obj];
+                    HippyAnimation *ani = self->_animationById[obj];
                     if (![obj isEqual:animationId]) {
                         return;
                     }
 
                     [p setValue:@(ani.endValue) forProp:key];
-                    ani.state = HippyExtAnimationFinishState;
+                    ani.state = HippyAnimationFinishState;
                 }];
             }];
-            [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-                [self.bridge.uiManager updateViewsFromParams:params completion:^(__unused HippyUIManager *uiManager) {
-                }];
+            [self.renderContext executeBlockOnRenderQueue:^{
+                for (HippyAnimationViewParams *param in params) {
+                    [self.renderContext updateView:param.hippyTag props:param.updateParams];
+                }
+                [self.renderContext setNeedsLayout];
             }];
         }];
     });
 }
 
-// clang-format off
-HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSDictionary *)params) {
+- (void)updateAnimation:(NSNumber *__nonnull)animationId params:(NSDictionary *)params {
     if (params == nil) {
         return;
     }
     [_lock lock];
-    HippyExtAnimation *ani = _animationById[animationId];
+    HippyAnimation *ani = _animationById[animationId];
     
-    ani.state = HippyExtAnimationInitState;
+    ani.state = HippyAnimationInitState;
     
     [ani updateAnimation: params];
     
-    NSMutableArray <HippyExtAnimationViewParams *> *viewParams = _paramsByAnimationId[animationId];
+    NSMutableArray <HippyAnimationViewParams *> *viewParams = _paramsByAnimationId[animationId];
     NSMutableArray *updateParams = [NSMutableArray new];
-    [viewParams enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * _Nonnull p,__unused NSUInteger idx,__unused BOOL * stop) {
+    [viewParams enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull p,__unused NSUInteger idx,__unused BOOL * stop) {
         [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString * key, NSNumber * obj,__unused BOOL * istop) {
-            HippyExtAnimation *rcani = self->_animationById[obj];
+            HippyAnimation *rcani = self->_animationById[obj];
             if ([obj isEqual: animationId]) {
                 [p setValue: @(rcani.startValue) forProp: key];
                 [updateParams addObject: p.updateParams];
@@ -274,20 +262,21 @@ HIPPY_EXPORT_METHOD(updateAnimation:(NSNumber *__nonnull)animationId params:(NSD
             }
         }];
     }];
-    [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-        [self.bridge.uiManager updateViewsFromParams:viewParams completion:NULL];
+    [self.renderContext executeBlockOnRenderQueue:^{
+        for (HippyAnimationViewParams *param in params) {
+            [self.renderContext updateView:param.hippyTag props:param.updateParams];
+        }
+        [self.renderContext setNeedsLayout];
     }];
     [_lock unlock];
 }
-// clang-format on
 
-// clang-format off
-HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
+- (void)destroyAnimation:(NSNumber * __nonnull)animationId {
     [_lock lock];
     [_animationById removeObjectForKey: animationId];
-    NSMutableArray <HippyExtAnimationViewParams *> *params = _paramsByAnimationId[animationId];
-    [self.bridge.uiManager addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
+    NSMutableArray <HippyAnimationViewParams *> *params = _paramsByAnimationId[animationId];
+    [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+        [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
             UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
             [view.layer removeAnimationForKey: [NSString stringWithFormat: @"%@", animationId]];
         }];
@@ -301,8 +290,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
 #pragma mark - CAAnimationDelegate
 - (void)animationDidStart:(CAAnimation *)anim {
     NSNumber *animationId = [anim valueForKey:@"animationID"];
-    [self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent"
-                                          args:@{ @"eventName": @"onAnimationStart", @"extra": animationId }];
+    if ([self.animationTimingDelegate respondsToSelector:@selector(animationDidStart:animationId:)]) {
+        [self.animationTimingDelegate animationDidStart:self animationId:animationId];
+    }
 }
 
 - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
@@ -310,26 +300,29 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     NSNumber *animationId = [anim valueForKey:@"animationID"];
     NSNumber *viewId = [anim valueForKey:@"viewID"];
 
-    NSMutableArray<HippyExtAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
-    [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-        [params enumerateObjectsUsingBlock:^(HippyExtAnimationViewParams *p, __unused NSUInteger idx, __unused BOOL *stop) {
+    NSMutableArray<HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
+    [self.renderContext executeBlockOnRenderQueue:^{
+        [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams *p, __unused NSUInteger idx, __unused BOOL *stop) {
             [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *obj, __unused BOOL *stop1) {
-                HippyExtAnimation *ani = self->_animationById[obj];
+                HippyAnimation *ani = self->_animationById[obj];
                 if (![obj isEqual:animationId]) {
                     return;
                 }
 
                 [p setValue:@(ani.endValue) forProp:key];
-                ani.state = HippyExtAnimationFinishState;
+                ani.state = HippyAnimationFinishState;
                 HippyLogInfo(@"[Hippy_OC_Log][Animation],Animation_Did_Stop:%@ finish:%@ prop:%@ value:%@", animationId, @(flag), key, @(ani.endValue));
             }];
         }];
     }];
     [_lock unlock];
 
-    [self.bridge.uiManager executeBlockOnUIManagerQueue:^{
-        [self.bridge.uiManager updateViewsFromParams:params completion:^(HippyUIManager *uiManager) {
-            UIView *view = [uiManager viewForHippyTag:viewId];
+    [self.renderContext executeBlockOnRenderQueue:^{
+        for (HippyAnimationViewParams *param in params) {
+            [self.renderContext updateView:param.hippyTag props:param.updateParams];
+        }
+        [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            UIView *view = [viewRegistry objectForKey:viewId];
             [view.layer removeAnimationForKey:[NSString stringWithFormat:@"%@", animationId]];
             if (!CGPointEqualToPoint(view.layer.anchorPoint, CGPointMake(.5f, .5f))) {
                 CALayer *viewLayer = view.layer;
@@ -339,30 +332,33 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
                 viewLayer.position = expectedPosition;
             }
         }];
+        [self.renderContext setNeedsLayout];
     }];
     NSNumber *animationSetId = [anim valueForKey:@"animationParentID"];
     if (animationSetId) {
         if ([_virtualAnimations subtractionCountForAnimationId:animationSetId]) {
-            [self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent"
-                                                  args:@{ @"eventName": @"onAnimationEnd", @"extra": animationSetId }];
+            if ([self.animationTimingDelegate respondsToSelector:@selector(animationDidStop:animationId:finished:)]) {
+                [self.animationTimingDelegate animationDidStop:self animationId:animationSetId finished:flag];
+            }
         }
     } else {
-        [self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent"
-                                              args:@{ @"eventName": @"onAnimationEnd", @"extra": animationId }];
+        if ([self.animationTimingDelegate respondsToSelector:@selector(animationDidStop:animationId:finished:)]) {
+            [self.animationTimingDelegate animationDidStop:self animationId:animationId finished:flag];
+        }
     }
 }
 #pragma mark -
 - (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
     [_lock lock];
 
-    HippyExtAnimationViewParams *p = [[HippyExtAnimationViewParams alloc] initWithParams:params bridge:self.bridge viewTag:viewTag rootTag:rootTag];
+    HippyAnimationViewParams *p = [[HippyAnimationViewParams alloc] initWithParams:params animator:self viewTag:viewTag rootTag:rootTag];
     [p parse];
 
     BOOL contain = [self alreadyConnectAnimation:p];
     [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *animationId, __unused BOOL *stop) {
-        HippyExtAnimation *ani = self->_animationById[animationId];
+        HippyAnimation *ani = self->_animationById[animationId];
 
-        if (ani.state == HippyExtAnimationFinishState) {
+        if (ani.state == HippyAnimationFinishState) {
             [p setValue:@(ani.endValue) forProp:key];
         } else {
             [p setValue:@(ani.startValue) forProp:key];
@@ -394,16 +390,16 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
 - (void)connectAnimationToView:(UIView *)view {
     [_lock lock];
     NSNumber *hippyTag = view.hippyTag;
-    HippyExtAnimationViewParams *p = _paramsByHippyTag[hippyTag];
+    HippyAnimationViewParams *p = _paramsByHippyTag[hippyTag];
 
     NSMutableArray<CAAnimation *> *animations = [NSMutableArray new];
     [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *prop, NSNumber *animationId, __unused BOOL *stop) {
-        HippyExtAnimation *animation = self->_animationById[animationId];
-        if (animation.state != HippyExtAnimationReadyState) {
+        HippyAnimation *animation = self->_animationById[animationId];
+        if (animation.state != HippyAnimationReadyState) {
             return;
         }
         CAAnimation *ani = [animation animationOfView:view forProp:prop];
-        animation.state = HippyExtAnimationStartedState;
+        animation.state = HippyAnimationStartedState;
         [ani setValue:animationId forKey:@"animationID"];
         if (animation.parentAnimationId) {
             [ani setValue:animation.parentAnimationId forKey:@"animationParentID"];
@@ -423,11 +419,11 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
     [_lock unlock];
 }
 
-- (BOOL)alreadyConnectAnimation:(HippyExtAnimationViewParams *)p {
+- (BOOL)alreadyConnectAnimation:(HippyAnimationViewParams *)p {
     return [[_paramsByHippyTag allValues] containsObject:p];
 }
 
-- (HippyExtAnimation *)animationFromID:(NSNumber *)animationID {
+- (HippyAnimation *)animationFromID:(NSNumber *)animationID {
     return _animationById[animationID];
 }
 

@@ -20,29 +20,29 @@
  * limitations under the License.
  */
 
-#import "HippyExtAnimationViewParams.h"
+#import "HippyAnimationViewParams.h"
 #import "NSDictionary+HippyDictionaryDeepCopy.h"
 #import "HippyBridge.h"
-#import "HippyExtAnimationModule.h"
+#import "HippyAnimator.h"
 #import "HippyConvert+Transform.h"
 
-@implementation HippyExtAnimationViewParams {
+@implementation HippyAnimationViewParams {
     NSMutableDictionary *_styles;
     NSMutableDictionary *_animationIdWithPropDictionary;
     NSMutableDictionary<NSString *, NSMutableDictionary *> *_valuesByKey;
     NSNumber *_hippyTag;
-    __weak HippyBridge *_bridge;
+    __weak HippyAnimator *_animator;
 }
 
-- (instancetype)initWithParams:(NSDictionary *)params bridge:(HippyBridge *)bridge viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
+- (instancetype)initWithParams:(NSDictionary *)params animator:(HippyAnimator *)animator viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
     if (self = [super init]) {
         _animationIdWithPropDictionary = [NSMutableDictionary new];
         _valuesByKey = [NSMutableDictionary new];
         _hippyTag = viewTag;
         _rootTag = rootTag;
         _originParams = params;
-        _bridge = bridge;
-        _valueType = HippyExtAnimationValueTypeRad;
+        _animator = animator;
+        _valueType = HippyAnimationValueTypeRad;
     }
     return self;
 }
@@ -56,7 +56,7 @@
     }
 }
 
-- (BOOL)isEqual:(HippyExtAnimationViewParams *)object {
+- (BOOL)isEqual:(HippyAnimationViewParams *)object {
     if ([self.hippyTag isEqual:[object hippyTag]] && [self.animationIdWithPropDictionary isEqual:object.animationIdWithPropDictionary]) {
         return YES;
     }
@@ -69,8 +69,8 @@
             if ([obj isKindOfClass:[NSDictionary class]]) {
                 if ([(NSDictionary *)obj count] == 1 && obj[@"animationId"]) {
                     NSNumber *animationID = obj[@"animationId"];
-                    HippyExtAnimation *animation = [_bridge.animationModule animationFromID:animationID];
-                    HippyExtAnimationValueType valueType = animation.valueType;
+                    HippyAnimation *animation = [_animator animationFromID:animationID];
+                    HippyAnimationValueType valueType = animation.valueType;
                     self.valueType = valueType;
                     [self->_animationIdWithPropDictionary setValue:animationID forKey:key];
                 }
@@ -126,7 +126,7 @@
 - (void)setValue:(id)value forProp:(NSString *)prop {
     @synchronized(self) {
         if ([prop isEqualToString:@"rotate"] &&
-            HippyExtAnimationValueTypeDeg == self.valueType) {
+            HippyAnimationValueTypeDeg == self.valueType) {
             value = @([HippyConvert convertDegToRadians:[value floatValue]]);
         }
         if ([[_valuesByKey allKeys] containsObject:prop]) {

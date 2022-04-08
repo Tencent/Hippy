@@ -20,13 +20,25 @@
  * limitations under the License.
  */
 
-#import "UIView+HippyAnimationProtocol.h"
+#import <Foundation/Foundation.h>
 #import "HippyAnimation.h"
 
-@implementation UIView (HippyAnimationProtocol)
+@class HippyAnimator;
 
-- (CAAnimation *)animation:(HippyAnimation *)animation keyPath:(NSString *)keyPath {
-    return nil;
-}
+@interface HippyAnimationViewParams : NSObject
+@property (nonatomic, strong) NSDictionary *originParams;
+@property (nonatomic, readonly) NSDictionary *updateParams;
+@property (nonatomic, readonly) NSNumber *hippyTag;
+@property (nonatomic, readonly) NSNumber *rootTag;
+@property (nonatomic, assign) HippyAnimationValueType valueType;
+
+@property (nonatomic, readonly) NSDictionary<NSString *, NSNumber *> *animationIdWithPropDictionary;
+
+- (void)parse;
+
+- (instancetype)initWithParams:(NSDictionary *)params animator:(HippyAnimator *)animator viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag;
+
+- (void)setValue:(id)value forProp:(NSString *)prop;
+- (id)valueForProp:(NSString *)prop;
 
 @end
