@@ -50,6 +50,8 @@ export class ListView extends HippyView<HTMLDivElement> {
   private childData: Array<ListViewItem> = [];
   private touchListenerRelease;
   private checkTimer: any = null;
+  private stickyListViewItem: ListViewItem|null = null;
+  private stickyContainer: HTMLDivElement|null = null;
 
 
   public constructor(context, id, pId) {
@@ -227,6 +229,9 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public insertChild(component: ListViewItem) {
+    if (component?.props.sticky) {
+      this.stickyListViewItem = component;
+    }
     this.childData.push(component);
     component.addDirtyListener(this.handleListItemDirty.bind(this));
   }
@@ -320,6 +325,37 @@ export class ListView extends HippyView<HTMLDivElement> {
       onBeginSliding: this.handleBeginSliding.bind(this),
       onEndSliding: this.handleEndSliding.bind(this),
     });
+  }
+
+  private moveStickyRowToContainer() {
+    if (this.stickyListViewItem!.dom!.childNodes.length === 0) {
+      return;
+    }
+    if (this.stickyContainer === null) {
+      this.stickyContainer = document.createElement('div');
+      const rect = this.dom?.getBoundingClientRect() ?? { y: 0, x: 0, width: 0 };
+      setElementStyle(this.stickyContainer, { position: 'fixed', top: rect.y, left: rect.x, width: rect.width, zIndex: 99999 });
+      this.dom!.append(this.stickyContainer);
+    }
+    const children = this.stickyListViewItem!.dom!.childNodes;
+    setElementStyle(this.stickyListViewItem!.dom!, { height: this.stickyListViewItem?.height });
+    for (const child of children) {
+      this.stickyListViewItem!.dom!.removeChild(child);
+      this.stickyContainer.appendChild(child);
+    }
+  }
+
+  private removeStickyRowToContainer() {
+    if (this.stickyContainer!.childNodes.length === 0) {
+      return;
+    }
+    const children = this.stickyContainer!.childNodes;
+    setElementStyle(this.stickyListViewItem!.dom!, { height: this.stickyListViewItem?.height });
+    for (const child of children) {
+      this.stickyContainer!.removeChild(child);
+      this.stickyListViewItem!.dom!.appendChild(child);
+      setElementStyle(this.stickyListViewItem!.dom!, { height: 'auto' });
+    }
   }
 
   private needCheckChildVisible({
@@ -416,6 +452,19 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   private handleScroll() {
+    window.requestAnimationFrame(() => {
+      if (this.stickyListViewItem) {
+        const stickyIndex = this.childData.findIndex(item => item === this.stickyListViewItem);
+        if (stickyIndex !== -1) {
+          const offset = this.virtualList.getRowOffset(stickyIndex);
+          if (this.virtualList.getOffset() > offset) {
+            this.moveStickyRowToContainer();
+          } else if (this.stickyContainer && this.stickyContainer.childNodes.length > 0) {
+            this.removeStickyRowToContainer();
+          }
+        }
+      }
+    });
     this.dom && eventThrottle(
       this.lastTimestamp,
       this.scrollEventThrottle,
