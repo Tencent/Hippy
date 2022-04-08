@@ -937,13 +937,13 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     }
   }
 
-  TDF_BASE_DLOG(DEBUG) << "v8 CallFunction call begin";
+  TDF_BASE_DLOG(INFO) << "v8 CallFunction call begin";
   v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(
       context, context->Global(), static_cast<int>(argument_count), args);
-  TDF_BASE_DLOG(DEBUG) << "v8 CallFunction call end";
+  TDF_BASE_DLOG(INFO) << "v8 CallFunction call end";
 
   if (maybe_result.IsEmpty()) {
-    TDF_BASE_DLOG(DEBUG) << "maybe_result is empty";
+    TDF_BASE_DLOG(INFO) << "maybe_result is empty";
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate_, maybe_result.ToLocalChecked());
