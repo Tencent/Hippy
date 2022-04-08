@@ -148,10 +148,10 @@ bool RunScript(const std::shared_ptr<Runtime>& runtime,
                const unicode_string_view& uri,
                AAssetManager* asset_manager) {
   TDF_BASE_LOG(INFO) << "RunScript begin, file_name = " << file_name
-                      << ", is_use_code_cache = " << is_use_code_cache
-                      << ", code_cache_dir = " << code_cache_dir
-                      << ", uri = " << uri
-                      << ", asset_manager = " << asset_manager;
+                     << ", is_use_code_cache = " << is_use_code_cache
+                     << ", code_cache_dir = " << code_cache_dir
+                     << ", uri = " << uri
+                     << ", asset_manager = " << asset_manager;
   unicode_string_view script_content;
   bool read_script_flag;
   unicode_string_view code_cache_content;
@@ -423,7 +423,7 @@ jlong InitInstance(JNIEnv* j_env,
   engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
 
   unicode_string_view global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
-  TDF_BASE_LOG(DEBUG) << "global_config = " << global_config;
+  TDF_BASE_DLOG(INFO) << "global_config = " << global_config;
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_callback);
 
