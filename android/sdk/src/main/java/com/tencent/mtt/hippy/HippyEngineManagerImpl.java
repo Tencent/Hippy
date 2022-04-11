@@ -487,38 +487,41 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   public void saveInstanceState() {
-    if (mEngineContext == null || mEngineContext.getDomManager() == null
-        || mThirdPartyAdapter == null) {
+    final DomManager domManager = mEngineContext.getDomManager();
+    if (mEngineContext == null || domManager == null || mThirdPartyAdapter == null) {
       return;
     }
 
-    DomManager domManager = mEngineContext.getDomManager();
-    int rootId = domManager.getRootNodeId();
-    DomNode rootNode = domManager.getNode(rootId);
-    if (rootNode == null) {
-      LogUtils.e(TAG, "saveInstanceState root node is null!");
-      return;
-    }
+    getThreadExecutor().postOnDomThread(new Runnable() {
+      @Override
+      public void run() {
+        int rootId = domManager.getRootNodeId();
+        DomNode rootNode = domManager.getNode(rootId);
+        if (rootNode == null) {
+          LogUtils.e(TAG, "saveInstanceState root node is null!");
+          return;
+        }
 
-    ArrayList<DomNodeRecord> recordList = new ArrayList<>();
-    int count = rootNode.getChildCount();
-    for (int i = 0; i < count; i++) {
-      DomNode child = rootNode.getChildAt(i);
-      if (child == null) {
-        continue;
+        ArrayList<DomNodeRecord> recordList = new ArrayList<>();
+        int count = rootNode.getChildCount();
+        for (int i = 0; i < count; i++) {
+          DomNode child = rootNode.getChildAt(i);
+          if (child == null) {
+            continue;
+          }
+          DomNodeRecord record = new DomNodeRecord();
+          record.rootId = rootId;
+          record.id = child.getId();
+          record.index = i;
+          record.pid = rootId;
+          record.className = child.getViewClass();
+          record.props = child.getTotalProps();
+          recordList.add(record);
+          addNodeRecordOfChild(recordList, child, i, rootId);
+        }
+        mThirdPartyAdapter.saveInstanceState(recordList);
       }
-      DomNodeRecord record = new DomNodeRecord();
-      record.rootId = rootId;
-      record.id = child.getId();
-      record.index = i;
-      record.pid = rootId;
-      record.className = child.getViewClass();
-      record.props = child.getTotalProps();
-      recordList.add(record);
-      addNodeRecordOfChild(recordList, child, i, rootId);
-    }
-
-    mThirdPartyAdapter.saveInstanceState(recordList);
+    });
   }
 
   public HippyRootView restoreInstanceState(final ArrayList<DomNodeRecord> domNodeRecordList,
