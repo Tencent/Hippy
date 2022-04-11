@@ -18,14 +18,64 @@
  * limitations under the License.
  */
 
+const getFirstComponent = (elements) => {
+  if (!elements) return null;
+  if (Array.isArray(elements)) return elements[0];
+  if (elements) return elements;
+};
+
 function registerDialog(Vue) {
-  Vue.registerElement('dialog', {
+  Vue.registerElement('Dialog', {
     component: {
       name: 'Modal',
-      defaultNativeProps: {
-        transparent: true,
-        immersionStatusBar: true,
+    },
+    defaultNativeStyle: {
+      position: 'absolute',
+    },
+  });
+  Vue.component('Dialog', {
+    inheritAttrs: false,
+    props: {
+      collapsable: {
+        type: Boolean,
+        default: false,
       },
+      transparent: {
+        type: Boolean,
+        default: true,
+      },
+      immersionStatusBar: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    render(h) {
+      const firstChild = getFirstComponent(this.$slots.default);
+      if (firstChild) {
+        // __modalFirstChild__  marked to remove absolute position to be compatible with hippy 2.0
+        if (!firstChild.data.attrs) {
+          firstChild.data.attrs = {
+            __modalFirstChild__: true,
+          };
+        } else {
+          Object.assign(firstChild.data.attrs, {
+            __modalFirstChild__: true,
+          });
+        }
+      }
+      const { collapsable, transparent, immersionStatusBar } = this;
+      return h(
+        'Dialog',
+        {
+          on: { ...this.$listeners },
+          attrs: {
+            collapsable,
+            transparent,
+            immersionStatusBar,
+          },
+        },
+        this.$slots.default,
+      );
     },
   });
 }

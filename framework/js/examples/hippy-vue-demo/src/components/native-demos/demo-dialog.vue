@@ -159,16 +159,12 @@ export default {
 
 .dialog-demo-wrapper {
   background-color: #40b88377;
-  position: absolute;
-  top: 0;
-  left: 0;
+  flex: 1;
 }
 
 .dialog-2-demo-wrapper {
   background-color: #444444ee;
-  position: absolute;
-  top: 0;
-  left: 0;
+  flex: 1;
   justify-content: center;
   align-items: center;
 }

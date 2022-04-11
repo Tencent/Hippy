@@ -298,6 +298,22 @@ function getTargetNodeAttributes(targetNode) {
   }
 }
 
+function processModalView(nativeNode) {
+  if (nativeNode.props.__modalFirstChild__) {
+    const nodeStyle = nativeNode.props.style;
+    Object.keys(nodeStyle).some((styleKey) => {
+      if (styleKey === 'position' && nodeStyle[styleKey] === 'absolute') {
+        if (process.env.NODE_ENV !== 'production') {
+          console.error(`it cannot set { position: absolute } for the first child node of <dialog /> , please remove it.
+If you want to make dialog cover fullscreen, please use { flex: 1 } or set height and width to the first child node of <dialog />`);
+        }
+        ['position', 'left', 'right', 'top', 'bottom'].forEach(positionProp => delete nodeStyle[positionProp]);
+        return true;
+      }
+    });
+  }
+}
+
 /**
  * Render Element to native
  */
@@ -357,6 +373,7 @@ function renderToNative(rootViewId, targetNode) {
       style,
     },
   };
+  processModalView(nativeNode);
   // Add nativeNode attributes info for Element debugging
   if (process.env.NODE_ENV !== 'production') {
     nativeNode.tagName = targetNode.tagName;
