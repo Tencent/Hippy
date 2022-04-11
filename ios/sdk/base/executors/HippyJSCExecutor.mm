@@ -34,6 +34,7 @@
 #import "HippyBridge+Private.h"
 #import "HippyDefines.h"
 #import "HippyDevMenu.h"
+#import "HippyDevInfo.h"
 #import "HippyJavaScriptLoader.h"
 #import "HippyLog.h"
 #import "HippyPerformanceLogger.h"
@@ -217,10 +218,12 @@ static unicode_string_view NSStringToU8(NSString* str) {
                     [deviceInfo addEntriesFromDictionary:customObjects];
                 }
             }
-            NSString *deviceName = [[UIDevice currentDevice] name];
-            NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, strongSelf.bridge]);
-            NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
-            [deviceInfo addEntriesFromDictionary:debugInfo];
+            if ([strongSelf.bridge isKindOfClass:[HippyBatchedBridge class]]) {
+                HippyBridge *clientBridge = [(HippyBatchedBridge *)strongSelf.bridge parentBridge];
+                NSString *clientId = [HippyDevInfo debugClientIdWithBridge:clientBridge];
+                NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
+                [deviceInfo addEntriesFromDictionary:debugInfo];
+            }
             NSError *JSONSerializationError = nil;
             NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:&JSONSerializationError];
             if (JSONSerializationError) {
