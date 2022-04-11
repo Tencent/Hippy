@@ -69,6 +69,21 @@ public class EventUtils {
     // On refresh wrapper view scroll.
     public static final String EVENT_REFRESH_WRAPPER_SCROLL = "scroll";
 
+    // On view page item will appear, event of exposure monitor.
+    public static final String EVENT_VIEW_PAGE_ITEM_WILL_APPEAR = "willAppear";
+    // On view page item appear, event of exposure monitor.
+    public static final String EVENT_VIEW_PAGE_ITEM_DID_APPEAR = "didAppear";
+    // On view page item will disappear, event of exposure monitor.
+    public static final String EVENT_VIEW_PAGE_ITEM_WILL_DISAPPEAR = "willDisAppear";
+    // On view page item disappear, event of exposure monitor.
+    public static final String EVENT_VIEW_PAGE_ITEM_DID_DISAPPEAR = "didDisAppear";
+    // On view page scroll.
+    public static final String EVENT_VIEW_PAGE_SCROLL = "pageScroll";
+    // On view page scroll state changed.
+    public static final String EVENT_VIEW_PAGE_SCROLL_STATE_CHANGED = "pageScrollStateChanged";
+    // On view page selected.
+    public static final String EVENT_VIEW_PAGE_SELECTED = "onPageSelected";
+
     // On waterfall view footer appeared.
     public static final String EVENT_WATERFALL_FOOTER_APPEARED = "footerAppeared";
     // On waterfall view refresh.
