@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -65,7 +66,6 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
     private boolean isDestroyed = false;
     private volatile Handler mModuleThreadHandler;
     private volatile Handler mBridgeThreadHandler;
-    private final HippyModuleANRMonitor mANRMonitor;
     private final boolean mEnableV8Serialization;
     private BinaryReader mSafeHeapReader;
     private BinaryReader mSafeDirectReader;
@@ -78,7 +78,6 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             boolean enableV8Serialization) {
         mContext = context;
         mEnableV8Serialization = enableV8Serialization;
-        mANRMonitor = new HippyModuleANRMonitor(mContext);
         mNativeModuleInfo = new ConcurrentHashMap<>();
         mJsModules = new HashMap<>();
         if (enableV8Serialization) {
@@ -165,9 +164,6 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             mBridgeThreadHandler.removeMessages(MSG_CODE_DO_DESERIALIZATION);
             Message msg = mBridgeThreadHandler.obtainMessage(MSG_CODE_ON_DESTROY);
             mBridgeThreadHandler.sendMessage(msg);
-        }
-        if (mANRMonitor != null) {
-            mANRMonitor.checkMonitor();
         }
         Iterator<Entry<String, HippyNativeModuleInfo>> iterator = mNativeModuleInfo.entrySet()
                 .iterator();
@@ -339,8 +335,6 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             doErrorCallBack(params, e.getMessage());
             mContext.getGlobalConfigs().getExceptionHandler()
                     .handleNativeException(new RuntimeException(e), true);
-        } finally {
-            params.onDispose();
         }
     }
 
@@ -377,6 +371,21 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
         return mModuleThreadHandler;
     }
 
+    private boolean onInterceptCallNative(@Nullable HippyCallNativeParams params) {
+        HippyEngineMonitorAdapter adapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
+        if (adapter == null || params == null) {
+            return false;
+        }
+        return adapter.onInterceptCallNative(mContext.getComponentName(), params);
+    }
+
+    private void onCallNativeFinished(@Nullable HippyCallNativeParams params) {
+        HippyEngineMonitorAdapter adapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
+        if (adapter == null || params == null) {
+            return;
+        }
+        adapter.onCallNativeFinished(mContext.getComponentName(), params);
+    }
 
     @Override
     public boolean handleMessage(Message msg) {
@@ -387,19 +396,17 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             }
             case MSG_CODE_DO_CALL_NATIVES: {
                 HippyCallNativeParams params = null;
-                int id = -1;
                 try {
                     params = (HippyCallNativeParams) msg.obj;
-                    id = mANRMonitor.startMonitor(params.moduleName, params.moduleFunc);
-                    doCallNatives(params);
+                    boolean shouldInterceptCallNative = onInterceptCallNative(params);
+                    if (!shouldInterceptCallNative) {
+                        doCallNatives(params);
+                    }
                 } catch (Throwable e) {
                     e.printStackTrace();
                 } finally {
                     if (params != null) {
                         params.onDispose();
-                    }
-                    if (id >= 0) {
-                        mANRMonitor.endMonitor(id);
                     }
                 }
                 return true;
