@@ -54,7 +54,6 @@ public class DevtoolsUtil {
     };
     sDrawListeners.put(callbackId, drawListener);
     rootView.getViewTreeObserver().addOnDrawListener(drawListener);
-    LogUtils.i(TAG, "addFrameCallback callbackId:" + callbackId);
   }
 
   public static void removeFrameCallback(List params, @NonNull View view, @NonNull Promise promise) {
@@ -73,7 +72,6 @@ public class DevtoolsUtil {
     int callbackId = (int) hashMap.get(FRAME_CALLBACK_ID);
     ViewTreeObserver.OnDrawListener drawListener = sDrawListeners.remove(callbackId);
     if (drawListener != null) {
-      LogUtils.i(TAG, "removeFrameCallback callbackId:" + callbackId);
       rootView.getViewTreeObserver().removeOnDrawListener(drawListener);
     }
   }
