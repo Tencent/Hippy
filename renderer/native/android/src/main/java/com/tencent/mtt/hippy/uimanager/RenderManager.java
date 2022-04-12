@@ -211,6 +211,14 @@ public class RenderManager {
         return mNodes.get(id);
     }
 
+    public boolean hasEventRegistered(int id, @NonNull String eventName) {
+        RenderNode node = mNodes.get(id);
+        if (node != null) {
+            return node.hasEventRegistered(eventName);
+        }
+        return false;
+    }
+
     public void replaceID(int oldId, int newId) {
         mControllerManager.replaceID(oldId, newId);
     }

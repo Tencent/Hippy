@@ -371,6 +371,16 @@ public class RenderNode {
         return checkNodeFlag(FLAG_ALREADY_DELETED);
     }
 
+    public boolean hasEventRegistered(@NonNull String eventName) {
+        if (mEvents != null && mEvents.containsKey(eventName)) {
+            Object value = mEvents.get(eventName);
+            if (value instanceof Boolean) {
+                return (boolean) value;
+            }
+        }
+        return false;
+    }
+
     protected void batchStart() {
         if (!checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD)) {
             mComponentManager.onBatchStart(mClassName, mId);
