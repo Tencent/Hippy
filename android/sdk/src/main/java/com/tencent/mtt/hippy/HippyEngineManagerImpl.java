@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
@@ -487,6 +488,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   public void saveInstanceState() {
+    saveInstanceState(null);
+  }
+
+  public void saveInstanceState(final Object params) {
     final DomManager domManager = mEngineContext.getDomManager();
     if (mEngineContext == null || domManager == null || mThirdPartyAdapter == null) {
       return;
@@ -519,7 +524,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           recordList.add(record);
           addNodeRecordOfChild(recordList, child, i, rootId);
         }
-        mThirdPartyAdapter.saveInstanceState(recordList);
+        mThirdPartyAdapter.saveInstanceState(recordList, params);
       }
     });
   }
