@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Indicate interval between onScroll event report
  */
-@property(nonatomic, assign) CFTimeInterval scrollEventThrottle;
+@property(nonatomic, assign) double scrollEventThrottle;
 
 /**
  * Indicate internal collectionview
