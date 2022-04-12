@@ -10,7 +10,6 @@
 #include "core/base/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/serializer.h"
-#include "jni/jni_utils.h"
 
 namespace hippy::runtime {
 
@@ -379,7 +378,6 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id,  const std::function<voi
         auto detach_task = std::make_shared<JavaScriptTask>();
         detach_task->callback = [callback] {
           callback();
-//          JNIEnvironment::GetInstance()->DetachCurrentThread();
         };
         runner->PostTask(detach_task);
         engine->TerminateRunner();
