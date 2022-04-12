@@ -24,7 +24,7 @@ import React, { useImperativeHandle, useEffect, useRef } from 'react';
 
 import { formatWebStyle } from '../adapters/transfer';
 import useElementLayout from '../modules/use-element-layout';
-import { isFunc } from '../utils/validation';
+import { isFunc } from '../utils';
 
 /**
  * A foundational component for inputting text into the app via a keyboard. Props provide
@@ -157,7 +157,7 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
     }
   };
 
-  const onInputChante = (e: any) => {
+  const onInputChange = (e: any) => {
     if (isFunc(onChangeText)) {
       onChangeText(e.target.value);
     }
@@ -168,12 +168,12 @@ const TextInput: React.FC<TextInputProps> = React.forwardRef<any, TextInputProps
       style: formatWebStyle(copyProps.style),
       type: inputType,
       readOnly: !editable,
-      onChange: onInputChante,
+      onChange: onInputChange,
       onBlur: onInputBlur,
       value: props.value,
     },
   };
-  // delete input unspported prop
+  // delete input unsupported prop
   delete inputProps.editable;
   delete inputProps.keyboardType;
   delete inputProps.onChangeText;

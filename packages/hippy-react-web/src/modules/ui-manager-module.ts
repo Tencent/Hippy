@@ -19,8 +19,7 @@
  */
 
 // @ts-nocheck
-import { getViewRefNode, warn } from '../utils';
-import { isFunc } from '../utils/validation';
+import { getViewRefNode, warn, isFunc } from '../utils';
 
 type MeasureReturns = (
   x: number,
@@ -97,6 +96,11 @@ const UIManager = {
   },
   getElementFromFiberRef() {
     warn('UIManagerModule.getElementFromFiberRef is unsupported');
+    return {
+      setNativeProps: () => {
+        warn('setNativeProps is unsupported');
+      },
+    };
   },
   measureInAppWindow(node: HTMLElement | { node: HTMLElement }, callback?: LayoutEvent | string) {
     const layout = this.measureInWindow(node);

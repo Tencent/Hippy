@@ -14,12 +14,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { isFunc } from '../utils/validation';
+import { isFunc } from '../utils';
 
 interface Requests {
   [key: string]: any;
 }
-type SizeSucces = (width: number, height: number) => void;
+type SizeSuccess = (width: number, height: number) => void;
 type SizeFailure = () => void;
 type LoadSuccess = (ev: Event) => void;
 export type LoadError = (event: { nativeEvent: { error: string } }) => void;
@@ -67,7 +67,7 @@ const ImageLoader = {
       delete requests[`${requestId}`];
     }
   },
-  getSize(url: string, success: SizeSucces, failure: SizeFailure) {
+  getSize(url: string, success: SizeSuccess, failure: SizeFailure) {
     if (typeof url !== 'string') {
       throw new TypeError('Image.getSize first argument must be a string url');
     }

@@ -23,7 +23,7 @@
 import React, { useState } from 'react';
 import MPullToRefresh from 'rmc-pull-to-refresh';
 import { formatWebStyle } from '../adapters/transfer';
-import { isFunc } from '../utils/validation';
+import { isFunc } from '../utils';
 
 export interface RefreshWrapperProps {
   ref?: any;

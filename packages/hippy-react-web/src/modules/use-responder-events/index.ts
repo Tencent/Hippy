@@ -38,7 +38,7 @@ const useResponderEvents = (ref: any, config: ResponderConfig = {}) => {
   const isAttachedRef = React.useRef(false);
 
   React.useEffect(() => {
-    ResponderEvent.attachListerers();
+    ResponderEvent.attachListeners();
     return () => ResponderEvent.removeNode(id);
   }, [id]);
 

@@ -19,15 +19,15 @@
  */
 
 import React from 'react';
-import { canUseDOM } from '../utils/execution-environment';
+import { canUseDOM } from '../utils';
 import StyleSheet from '../modules/stylesheet';
 import { formatWebStyle } from '../adapters/transfer';
 import { View, ViewProps } from './view';
 
 
-const cssFunction = (): 'contant' | 'env' => {
+const cssFunction = (): 'constant' | 'env' => {
   if (canUseDOM && window?.CSS?.supports('top: constants(safe-area-inset-top)')) {
-    return 'contant';
+    return 'constant';
   }
   return 'env';
 };

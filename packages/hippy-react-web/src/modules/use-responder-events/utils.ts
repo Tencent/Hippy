@@ -28,7 +28,7 @@ export const SCROLL_EVENT = 'scroll';
 export const isTouchStart = (eventType: string): boolean => eventType === TOUCH_START;
 export const isTouchEnd = (eventType: string): boolean => eventType === TOUCH_END;
 export const isTouchMove = (eventType: string): boolean => eventType === TOUCH_MOVE;
-export const isTouchCacel = (eventType: string): boolean => eventType === TOUCH_CANCEL;
+export const isTouchCancel = (eventType: string): boolean => eventType === TOUCH_CANCEL;
 export const isScrollEvent = (eventType: string): boolean => eventType === SCROLL_EVENT;
 
 const composedPathFallback = (target: any): any[] => {

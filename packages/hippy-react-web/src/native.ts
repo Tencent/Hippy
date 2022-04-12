@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { canUseDOM } from './utils/execution-environment';
+import { canUseDOM } from './utils';
 import { getDirection } from './modules/i18n';
 
 /* eslint-disable import/prefer-default-export */

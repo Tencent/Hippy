@@ -23,25 +23,25 @@ import { warn } from '../utils';
 
 const BackAndroid = (() => ({
   exitApp() {
-    warn('BackAndroid.exitApp is not suported in the web');
+    warn('BackAndroid.exitApp is not supported in the web');
   },
   addListener() {
-    warn('BackAndroid.addListener is not suported in the web');
+    warn('BackAndroid.addListener is not supported in the web');
     return {
       remove() { },
     };
   },
   removeListener() {
-    warn('BackAndroid.removeListener is not suported in the web');
+    warn('BackAndroid.removeListener is not supported in the web');
   },
   initEventListener() {
-    warn('BackAndroid.initEventListener is not suported in the web');
+    warn('BackAndroid.initEventListener is not supported in the web');
   },
 }))();
 
 class Focusable extends React.Component {
   public componentDidMount() {
-    warn('Focusable is not suported in the web');
+    warn('Focusable is not supported in the web');
   }
   public render(): React.ReactNode {
     return '';
@@ -51,7 +51,7 @@ class Focusable extends React.Component {
 class HippyEventEmitter {
   public name: string;
   public constructor(name) {
-    warn('HippyEventEmitter is not suported in the web');
+    warn('HippyEventEmitter is not supported in the web');
     this.name = name;
   }
   public sharedListeners() {
@@ -72,7 +72,7 @@ class HippyEventEmitter {
 }
 
 const callNativeWithPromise = () => {
-  warn('callNativeWithPromise is not suported in the web');
+  warn('callNativeWithPromise is not supported in the web');
   return Promise.resolve('{}');
 };
 

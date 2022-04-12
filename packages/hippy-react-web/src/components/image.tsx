@@ -25,7 +25,7 @@ import { LayoutEvent } from '../types';
 import { TouchEvent } from '../modules/use-responder-events/types';
 import useResponderEvents from '../modules/use-responder-events';
 import useElementLayout from '../modules/use-element-layout';
-import { isFunc } from '../utils/validation';
+import { isFunc, noop } from '../utils';
 
 
 type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center' | 'none';
@@ -126,7 +126,7 @@ const resolveAssetUri = (source: string | { uri: string }) => {
  * @noInheritDoc
  */
 const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) => {
-  const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd = () => null, resizeMode = 'none', children, style = {} } = props;
+  const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd = noop, resizeMode = 'none', children, style = {} } = props;
 
   const imgRef = useRef(null);
   const { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onLayout } = props;
@@ -135,7 +135,7 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
 
   const [loading, setLoading] = useState(true);
   const [isLoadFailed, setIsLoadFailed] = useState(false);
-  const imgstyle = formatWebStyle(style);
+  const imgStyle = formatWebStyle(style);
 
   const onImageLoadError = () => {
     if (onError && isFunc(onError)) {
@@ -166,7 +166,7 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
 
   const renderImg = () => {
     const baseStyle = formatWebStyle([styles.image, resizeModeStyles[resizeMode]]);
-    const style = formatWebStyle([baseStyle, imgstyle]);
+    const style = formatWebStyle([baseStyle, imgStyle]);
     return (
       !isLoadFailed && <img
         src={source.uri}
@@ -179,7 +179,7 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
   };
 
   const renderPlaceholder = () => {
-    const style = formatWebStyle([styles.placeholder, resizeModeStyles[resizeMode], imgstyle, styles.absolute]);
+    const style = formatWebStyle([styles.placeholder, resizeModeStyles[resizeMode], imgStyle, styles.absolute]);
     if (isLoadFailed) {
       style.position = 'relative';
     }

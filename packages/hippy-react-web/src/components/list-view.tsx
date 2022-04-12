@@ -24,8 +24,7 @@ import MListView from 'rmc-list-view';
 import MPullToRefresh from 'rmc-pull-to-refresh';
 import StyleSheet from '../modules/stylesheet';
 import { formatWebStyle } from '../adapters/transfer';
-import { isFunc } from '../utils/validation';
-import { canUseDOM } from '../utils/execution-environment';
+import { canUseDOM, isFunc, noop } from '../utils';
 import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
 import { LayoutEvent } from '../types';
 import View from './view';
@@ -83,10 +82,10 @@ const styles = StyleSheet.create({
   },
 });
 let didWarn = !canUseDOM;
-const setIntersectionObserve = (obserCallback: (entries: any[]) => void) => {
+const setIntersectionObserve = (observeCallback: (entries: any[]) => void) => {
   let observe: null | IntersectionObserver = null;
   if (canUseDOM && typeof window.IntersectionObserver !== 'undefined') {
-    observe = new window.IntersectionObserver(obserCallback, {
+    observe = new window.IntersectionObserver(observeCallback, {
       threshold: [0, 1],
     });
   } else if (!didWarn) {
@@ -100,7 +99,7 @@ const setIntersectionObserve = (obserCallback: (entries: any[]) => void) => {
 };
 
 function ListViewItem(props: ListViewItemProps) {
-  const { observer, style, height, getRowKey = () => { }, rowShouldSticky = () => false } = props;
+  const { observer, style, height, getRowKey = noop, rowShouldSticky = () => false } = props;
   const listItemRef = useRef(null);
   const itemStyle: Record<string, any> = {};
   if (height) {
@@ -135,9 +134,9 @@ function ListViewItem(props: ListViewItemProps) {
 
 const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const {
-    getRowStyle = () => {}, rowShouldSticky, scrollEnabled = true, showScrollIndicator = true,
-    onHeaderReleased = () => { }, onHeaderPulling = () => { }, renderPullHeader = () => null,
-    onDisappear = () => { }, onAppear = () => { }, numberOfRows = 0,
+    getRowStyle = noop, rowShouldSticky, scrollEnabled = true, showScrollIndicator = true,
+    onHeaderReleased = noop, onHeaderPulling = noop, renderPullHeader = () => null,
+    onDisappear = noop, onAppear = noop, numberOfRows = 0,
   } = props;
 
   const isShowPullHeader = useRef(isFunc(renderPullHeader) && renderPullHeader());

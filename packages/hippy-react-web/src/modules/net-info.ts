@@ -18,10 +18,9 @@
  * limitations under the License.
  */
 import { NetInfoModule } from '../types';
-import { canUseDOM } from '../utils/execution-environment';
-import {  } from '../utils';
+import { canUseDOM } from '../utils';
 
-type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKONWN';
+type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKNOWN';
 type ConnectionType =
   | 'bluetooth'
   | 'cellular'
@@ -36,7 +35,7 @@ type ConnectionType =
 const connection = window.navigator?.connection;
 
 let didWarn = !canUseDOM;
-const unsupportWran = () => {
+const unsupportedWarn = () => {
   if (!didWarn) {
     if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
       console.warn('NetInfo is an experimental technology which is not supported by your browser. '
@@ -48,7 +47,7 @@ const unsupportWran = () => {
 
 const getCurrentState = () => {
   const isConnected = navigator.onLine;
-  let networkState: NetInfoType = 'UNKONWN';
+  let networkState: NetInfoType = 'UNKNOWN';
   if (!connection && !isConnected) {
     networkState = 'NONE';
   }
@@ -68,10 +67,10 @@ const eventListenerList: Function[] = [];
 const NetInfo: NetInfoModule = {
   addEventListener(eventName, listener) {
     if (!connection) {
-      unsupportWran();
+      unsupportedWarn();
     }
     if (typeof listener !== 'function') {
-      throw new TypeError('Invalid arguments for addEventLisner');
+      throw new TypeError('Invalid arguments for addEventListener');
     }
     eventListenerList.push(listener);
     if (eventName === 'change') {
@@ -99,7 +98,7 @@ const NetInfo: NetInfoModule = {
   },
   fetch() {
     if (!connection) {
-      unsupportWran();
+      unsupportedWarn();
     }
     return Promise.resolve(getCurrentState());
   },

@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-import { canUseClipboard, canUseDOM, canUseCopyCommand } from '../utils/execution-environment';
-import { warn } from '../utils';
+import { canUseClipboard, canUseDOM, canUseCopyCommand, warn } from '../utils';
 
 const Clipboard = {
   getString() {

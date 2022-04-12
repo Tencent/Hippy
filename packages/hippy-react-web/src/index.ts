@@ -22,7 +22,7 @@ import './global';
 import {
   Device,
 } from './native';
-import { BackAndroid, Focusable, callNativeWithPromise, HippyEventEmitter } from './modules/unsupport-module';
+import { BackAndroid, Focusable, callNativeWithPromise, HippyEventEmitter } from './modules/unsupported-module';
 import callNative from './modules/call-native';
 import HippyReact from './hippy';
 import View from './components/view';

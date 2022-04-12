@@ -21,9 +21,8 @@
 import React, { useImperativeHandle, useState } from 'react';
 import animateScrollTo from 'animated-scroll-to';
 import StyleSheet from '../modules/stylesheet';
-import { isFunc } from '../utils/validation';
+import { isFunc, getViewRefNode, noop } from '../utils';
 import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
-import { getViewRefNode } from '../utils';
 import { View, ViewProps } from './view';
 
 const styles = StyleSheet.create({
@@ -31,7 +30,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     flexDirection: 'column',
-    ovewflowX: 'hidden',
+    overflowX: 'hidden',
     overflowY: 'auto',
   },
   baseHorizontal: {
@@ -143,10 +142,10 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
     scrollEventThrottle = 0,
     pagingEnabled = false,
     showScrollIndicator = false,
-    onScrollBeginDrag = () => {},
-    onScrollEndDrag = () => {},
-    onMomentumScrollBegin = () => {},
-    onMomentumScrollEnd = () => {},
+    onScrollBeginDrag = noop,
+    onScrollEndDrag = noop,
+    onMomentumScrollBegin = noop,
+    onMomentumScrollEnd = noop,
     showsHorizontalScrollIndicator,
     showsVerticalScrollIndicator,
     contentContainerStyle,

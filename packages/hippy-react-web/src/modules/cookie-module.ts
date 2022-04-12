@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { canUseDOM } from '../utils/execution-environment';
+import { canUseDOM } from '../utils';
 
 /**
  * Get cookies from url

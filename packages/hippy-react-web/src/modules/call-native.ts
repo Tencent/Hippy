@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-import { isFunc } from '../utils/validation';
-import { error } from '../utils';
+import { isFunc, error } from '../utils';
 
 let module = {};
 const callNative = (moduleName: string, fName: string, param: string) => {

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { canUseDOM } from '../../utils/execution-environment';
+import { canUseDOM } from '../../utils';
 import {
   getResponderPaths, setResponderId, TOUCH_CANCEL, TOUCH_END, TOUCH_MOVE, TOUCH_START, SCROLL_EVENT,
   isScrollEvent,
@@ -29,11 +29,11 @@ import { ResponderConfig } from './index';
 interface ResponderEvent {
   addNode: (id: number, node: HTMLElement, config: ResponderConfig) => void;
   removeNode: (id: number) => void;
-  attachListerers: () => void;
+  attachListeners: () => void;
 }
 
-const reponderEventKey = '__reactResponderSystemActive';
-const responderListerersMap = new Map<number, ResponderConfig>();
+const responderEventKey = '__reactResponderSystemActive';
+const responderListenersMap = new Map<number, ResponderConfig>();
 
 const touchEvent = [TOUCH_START, TOUCH_MOVE, TOUCH_END, TOUCH_CANCEL];
 const documentEventsBubblePhase = [...touchEvent];
@@ -80,13 +80,13 @@ const handleTouchEvent = (touchEvent: TouchEvent, config: ResponderConfig, event
   }
 };
 
-const eventListerner = (domEvent: any) => {
+const eventListener = (domEvent: any) => {
   const eventType = domEvent?.type;
   const eventPath = getResponderPaths(domEvent);
   const [responderId] = eventPath.idPath;
   if (touchEvent.includes(eventType)) {
     const [touches] = domEvent.changedTouches;
-    if (responderListerersMap.has(responderId)) {
+    if (responderListenersMap.has(responderId)) {
       const touchEvent: TouchEvent = {
         pageX: touches.pageX,
         pageY: touches.pageY,
@@ -96,14 +96,14 @@ const eventListerner = (domEvent: any) => {
         identifier: touches.identifier,
         stopPropagation: () => {},
       };
-      const config = responderListerersMap.get(responderId);
+      const config = responderListenersMap.get(responderId);
       if (config) {
         handleTouchEvent(touchEvent, config, eventType);
       }
     }
   }
   if (isScrollEvent(eventType)) {
-    const config = responderListerersMap.get(responderId);
+    const config = responderListenersMap.get(responderId);
     if (config?.onScroll) {
       config.onScroll(domEvent);
     }
@@ -114,21 +114,21 @@ const eventListerner = (domEvent: any) => {
 const responderEvent: ResponderEvent = {
   addNode(id: number, node: HTMLElement, config: ResponderConfig) {
     setResponderId(node, id);
-    responderListerersMap.set(id, config);
+    responderListenersMap.set(id, config);
   },
   removeNode(id: number) {
-    if (responderListerersMap.has(id)) {
-      responderListerersMap.delete(id);
+    if (responderListenersMap.has(id)) {
+      responderListenersMap.delete(id);
     }
   },
-  attachListerers() {
-    if (canUseDOM && !window[reponderEventKey]) {
-      window[reponderEventKey] = true;
+  attachListeners() {
+    if (canUseDOM && !window[responderEventKey]) {
+      window[responderEventKey] = true;
       documentEventsBubblePhase.forEach((eventType) => {
-        document.addEventListener(eventType, eventListerner);
+        document.addEventListener(eventType, eventListener);
       });
       documentEventsCapturePhase.forEach((eventType) => {
-        document.addEventListener(eventType, eventListerner, true);
+        document.addEventListener(eventType, eventListener, true);
       });
     }
   },

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { canUseDOM } from '../utils/execution-environment';
+import { canUseDOM } from '../utils';
 
 export const HIDE_SCROLLBAR_CLASS = '__hippy-react-hide-scrollbar';
 const hideScrollbarKey = '__hippyReactHideScrollbarActive';

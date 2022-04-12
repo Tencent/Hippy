@@ -20,7 +20,7 @@
 
 import React, { useEffect, createElement } from 'react';
 import ReactDOM from 'react-dom';
-import { canUseDOM } from '../utils/execution-environment';
+import { canUseDOM } from '../utils';
 import { formatWebStyle } from '../adapters/transfer';
 import StyleSheet from '../modules/stylesheet';
 

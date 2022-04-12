@@ -20,7 +20,7 @@
 
 import { useLayoutEffect } from 'react';
 import { LayoutEvent, ResizeObserver } from '../types';
-import { canUseDOM } from '../utils/execution-environment';
+import { canUseDOM } from '../utils';
 import UIManager from './ui-manager-module';
 
 const DOM_LAYOUT_HANDLER_NAME = '__reactLayoutHandler';

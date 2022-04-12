@@ -61,14 +61,20 @@ const useStable = <T>(getInitialValue: () => T): T => {
 };
 
 const getViewRefNode = (ref: any) => {
+  console.log('ref', ref);
   if (ref?.current?.node) {
     return ref.current.node as HTMLElement;
+  }
+  if (ref.node) {
+    return ref.node as HTMLElement;
   }
   if (ref?.current) {
     return ref.current as HTMLElement;
   }
   return ref;
 };
+
+export const noop = () => {};
 
 export * from './validation';
 export * from './execution-environment';

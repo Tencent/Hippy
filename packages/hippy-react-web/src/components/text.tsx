@@ -45,7 +45,6 @@ const styles = {
     fontFamily: 'inherit',
     fontSize: 'inherit',
     whiteSpace: 'inherit',
-    // display: 'inline',
   },
   singleLineStyle: {
     maxWidth: '100%',
