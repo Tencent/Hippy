@@ -72,13 +72,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     public static final String IMAGE_VIEW_OBJ = "viewobj";
 
     private Map<String, Object> initProps = new HashMap<>();
-    private boolean mHasSetTempBackgroundColor = false;
-    private boolean mUserHasSetBackgroudnColor = false;
-    private int mUserSetBackgroundColor = Color.TRANSPARENT;
-
-    /**
-     * 播放GIF动画的关键类
-     */
+    private int mCustomBackgroundColor = Color.TRANSPARENT;
     private Movie mGifMovie;
     private int mGifStartX = 0;
     private int mGifStartY = 0;
@@ -139,18 +133,15 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
         initProps = props;
     }
 
-    /**
-     * 前端传递下来的参数 left 到左边的距离 right 到右边的距离 top 到上边的距离 botttom 到下边的距离 Robinsli
-     */
     public void setNinePatchCoordinate(boolean shouldClearNinePatch, int left, int top, int right,
-            int botttom) {
+            int bottom) {
         if (shouldClearNinePatch) {
             mNinePatchRect = null;
         } else {
             if (mNinePatchRect == null) {
                 mNinePatchRect = new Rect();
             }
-            mNinePatchRect.set(left, top, right, botttom);
+            mNinePatchRect.set(left, top, right, bottom);
         }
         if (mContentDrawable instanceof HippyContentDrawable) {
             ((HippyContentDrawable) mContentDrawable).setNinePatchCoordinate(mNinePatchRect);
@@ -246,8 +237,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
 
     public void setBackgroundColor(int backgroundColor) {
-        mUserHasSetBackgroudnColor = true;
-        mUserSetBackgroundColor = backgroundColor;
+        mCustomBackgroundColor = backgroundColor;
         super.setBackgroundColor(backgroundColor);
     }
 
@@ -262,14 +252,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
         resetContent();
 
         if (url != null && (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url))) {
-            int defaultBackgroundColor = Color.TRANSPARENT;
-            if (mUserHasSetBackgroudnColor) {
-                defaultBackgroundColor = mUserSetBackgroundColor;
-            }
-
             if (oldBGDrawable instanceof CommonBackgroundDrawable) {
                 ((CommonBackgroundDrawable) oldBGDrawable)
-                        .setBackgroundColor(defaultBackgroundColor);
+                        .setBackgroundColor(mCustomBackgroundColor);
                 setCustomBackgroundDrawable((CommonBackgroundDrawable) oldBGDrawable);
             } else if (oldBGDrawable instanceof LayerDrawable) {
                 LayerDrawable layerDrawable = (LayerDrawable) oldBGDrawable;
@@ -279,27 +264,12 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
                     Drawable bgDrawable = layerDrawable.getDrawable(0);
                     if (bgDrawable instanceof CommonBackgroundDrawable) {
                         ((CommonBackgroundDrawable) bgDrawable)
-                                .setBackgroundColor(defaultBackgroundColor);
+                                .setBackgroundColor(mCustomBackgroundColor);
                         setCustomBackgroundDrawable((CommonBackgroundDrawable) bgDrawable);
                     }
                 }
             }
-            super.setBackgroundColor(defaultBackgroundColor);
-            mHasSetTempBackgroundColor = true;
-        }
-    }
-
-    @Override
-    protected void afterSetContent(String url) {
-        restoreBackgroundColorAfterSetContent();
-    }
-
-    @Override
-    protected void restoreBackgroundColorAfterSetContent() {
-        if (mBGDrawable != null && mHasSetTempBackgroundColor) {
-            int defaultBackgroundColor = Color.TRANSPARENT;
-            mBGDrawable.setBackgroundColor(defaultBackgroundColor);
-            mHasSetTempBackgroundColor = false;
+            super.setBackgroundColor(mCustomBackgroundColor);
         }
     }
 
