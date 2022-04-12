@@ -42,7 +42,10 @@
     self = [super init];
     if (self) {
         _bridge = bridge;
-        _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevInfo:devInfo contextName:contextName];
+        NSString *clientId = [HippyDevInfo debugClientIdWithBridge:_bridge];
+        _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevInfo:devInfo
+                                                            contextName:contextName
+                                                               clientId:clientId];
         _devWSClient.delegate = self;
         [HippyInspector sharedInstance].devManager = self;
     }
