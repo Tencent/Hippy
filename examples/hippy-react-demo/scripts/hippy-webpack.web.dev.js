@@ -41,6 +41,11 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
         test: /\.(jsx?)$/,
         use: [
           {
@@ -86,7 +91,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
     modules: [path.resolve(__dirname, '../node_modules')],
     alias: (() => {
       const aliases = {
@@ -94,8 +99,8 @@ module.exports = {
       };
       // If hippy-react-web was built exist then make a alias to @hippy/react
       // Remove the section if you don't use it
-      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react-web');
-      if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
+      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react-web/src/index.ts');
+      if (fs.existsSync(path.resolve(hippyReactPath))) {
         console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
         aliases['@hippy/react'] = hippyReactPath;
       } else {
