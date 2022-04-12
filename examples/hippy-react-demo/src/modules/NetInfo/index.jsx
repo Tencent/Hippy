@@ -47,12 +47,7 @@ export default class NetInfoExample extends React.Component {
       NetInfo.removeEventListener('change', this.listener);
     }
 
-    fetch('https://hippyjs.org', {
-      headers: {
-        Refer: 'https://hippyjs.org',
-        Cookie: ['hippy=cookieTest1', 'hippy=cookieTest2'],
-      },
-    }).then((responseJson) => {
+    fetch('https://hippyjs.org').then((responseJson) => {
       console.log('成功', responseJson);
       self.setState({
         infoText: `成功: ${responseJson.body}`,
