@@ -23,13 +23,32 @@
     end
     ```
 
-3. 在命令行中执行命令
+3. 配置force load选项
+
+    ```text
+    Hippy中大量使用了反射调用。若以静态链接库形式编译Hippy代码，其中未显式调用的代码将会被编译器dead code strip。
+    因此若app使用静态链接库接入hippy，务必设置force load强制加载hippy静态链接库所有符号。
+    ```
+
+    App可使用多种方式达到force load目的
+
+    ```text
+    下列方式自行选择合适的一项进行配置。并要根据实际情况自行适配
+    ```
+    
+    * 直接在主工程对应的target的 Build Settings 中的 Other Linker Flags配置中设置*-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"* 。
+
+    * 在App工程的Podfile配置文件中添加post_install hook，自行给 xcconfig 添加force load。
+
+    * fork一份hippy源码，并修改对应的hippy.podspec配置文件，并给user_target添加如下配置，再引用此源码。
+
+4. 在命令行中执行
 
     ```text
     pod install
     ```
 
-4. 使用 cocoapods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
+5. 使用 cocoapods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
 
 # 使用源码直接集成
 
