@@ -35,7 +35,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
-import com.tencent.mtt.hippy.views.hippypager.HippyPagerController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
@@ -50,6 +49,7 @@ import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInputController;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 
+import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerController;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItemController;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallItemViewController;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallViewController;
@@ -100,7 +100,7 @@ public class ControllerManager {
         controllers.add(HippyListItemViewController.class);
         controllers.add(HippyTextInputController.class);
         controllers.add(HippyScrollViewController.class);
-        controllers.add(HippyPagerController.class);
+        controllers.add(HippyViewPagerController.class);
         controllers.add(HippyViewPagerItemController.class);
         controllers.add(HippyModalHostManager.class);
         controllers.add(RefreshWrapperController.class);

@@ -82,7 +82,7 @@ public class EventUtils {
     // On view page scroll state changed.
     public static final String EVENT_VIEW_PAGE_SCROLL_STATE_CHANGED = "pageScrollStateChanged";
     // On view page selected.
-    public static final String EVENT_VIEW_PAGE_SELECTED = "onPageSelected";
+    public static final String EVENT_VIEW_PAGE_SELECTED = "pageSelected";
 
     // On waterfall view footer appeared.
     public static final String EVENT_WATERFALL_FOOTER_APPEARED = "footerAppeared";
