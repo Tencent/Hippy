@@ -132,7 +132,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     return kWaterfallItemName;
 }
 
-- (void)setScrollEventThrottle:(CFTimeInterval)scrollEventThrottle {
+- (void)setScrollEventThrottle:(double)scrollEventThrottle {
     _scrollEventThrottle = scrollEventThrottle;
 }
 

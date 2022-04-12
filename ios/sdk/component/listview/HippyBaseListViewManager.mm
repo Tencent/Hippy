@@ -25,7 +25,7 @@
 
 @implementation HippyBaseListViewManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
+HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
 HIPPY_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
 HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
