@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.devsupport;
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
+import java.util.UUID;
 
 @SuppressWarnings({"unused"})
 public class DevSupportManager {
@@ -26,6 +27,8 @@ public class DevSupportManager {
   final boolean mSupportDev;
   private final Inspector mInspector;
   private String mDebugComponentName;
+  // to differ hippy page
+  private final UUID mInstanceUUID = UUID.randomUUID();
 
   public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
       String bundleName, String remoteServerUrl) {
@@ -55,7 +58,7 @@ public class DevSupportManager {
   }
 
   public String createDebugUrl(String host) {
-    return mDevImp.createDebugUrl(host, mDebugComponentName);
+    return mDevImp.createDebugUrl(host, mInstanceUUID.toString(), mDebugComponentName);
   }
 
   public void handleException(Throwable throwable) {
@@ -72,6 +75,10 @@ public class DevSupportManager {
 
   public void setDebugComponentName(String debugComponentName) {
     mDebugComponentName = debugComponentName;
+  }
+
+  public String getDebugInstanceId() {
+    return mInstanceUUID.toString();
   }
 
   public Inspector getInspector() {
