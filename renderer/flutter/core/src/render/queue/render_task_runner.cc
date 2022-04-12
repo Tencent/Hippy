@@ -165,18 +165,18 @@ void VoltronRenderTaskRunner::RunLayoutFinish() {
 
 EncodableValue VoltronRenderTaskRunner::DecodeDomValue(const DomValue &value) {
   if (value.IsBoolean()) {
-    return EncodableValue(value.ToBoolean());
+    return EncodableValue(value.ToBooleanChecked());
   } else if (value.IsInt32()) {
-    return EncodableValue(value.ToInt32());
+    return EncodableValue(value.ToInt32Checked());
   } else if (value.IsUInt32()) {
-    return EncodableValue(static_cast<int64_t>(value.ToUint32()));
+    return EncodableValue(static_cast<int64_t>(value.ToUint32Checked()));
   } else if (value.IsDouble()) {
-    return EncodableValue(value.ToDouble());
+    return EncodableValue(value.ToDoubleChecked());
   } else if (value.IsString()) {
-    return EncodableValue(value.ToString());
+    return EncodableValue(value.ToStringChecked());
   } else if (value.IsArray()) {
     auto parse_list = EncodableList();
-    for (const auto &item : value.ToArray()) {
+    for (const auto &item : value.ToArrayChecked()) {
       auto parse_item_value = DecodeDomValue(item);
       if (!parse_item_value.IsNull()) {
         parse_list.emplace_back(parse_item_value);
@@ -185,7 +185,7 @@ EncodableValue VoltronRenderTaskRunner::DecodeDomValue(const DomValue &value) {
     return EncodableValue(std::move(parse_list));
   } else if (value.IsObject()) {
     auto parse_map = EncodableMap();
-    for (const auto &entry : value.ToObject()) {
+    for (const auto &entry : value.ToObjectChecked()) {
       auto encode_entry_value = DecodeDomValue(entry.second);
       if (!encode_entry_value.IsNull()) {
         auto encode_entry_key = EncodableValue(entry.first);
