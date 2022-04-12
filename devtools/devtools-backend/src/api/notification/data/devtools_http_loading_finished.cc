@@ -27,6 +27,9 @@ constexpr char kLoadingFinishedShouldReportCorbBlocking[] = "shouldReportCorbBlo
 
 namespace hippy::devtools {
 std::string DevtoolsLoadingFinished::Serialize() const {
+  if (!content_.empty()) {
+    return content_;
+  }
   std::string result = "{\"";
   result += kLoadingFinishedRequestId;
   result += "\":\"";

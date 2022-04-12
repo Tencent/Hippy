@@ -34,6 +34,7 @@ import 'package:web_socket_channel/io.dart';
 
 import '../adapter.dart';
 import '../channel.dart';
+import '../devtools/network_inspector.dart';
 import '../engine.dart';
 import '../module.dart';
 import 'voltron_api.dart';
@@ -85,7 +86,7 @@ class VoltronBridgeManager implements Destroyable {
         _coreBundleLoader = coreBundleLoader,
         _groupId = groupId,
         _engineId = id,
-        _isDevModule = isDevModule,
+        _isDevModule = true,
         _thirdPartyAdapter = thirdPartyAdapter,
         _isSingleThread = bridgeType == kBridgeTypeSingleThread {
     sBridgeNum++;
@@ -93,8 +94,19 @@ class VoltronBridgeManager implements Destroyable {
     _context.renderContext.bridgeManager.init();
   }
 
+  void _handleVoltronInspectorInit() {
+    if (_isDevModule) {
+      final networkModel = _context.moduleManager.nativeModule[NetworkModule.kNetworkModuleName];
+      if (networkModel is NetworkModule) {
+        networkModel.requestWillBeSentHook = NetworkInspector().onRequestWillBeSent;
+        networkModel.responseReceivedHook = NetworkInspector().onResponseReceived;
+      }
+    }
+  }
+
   Future<dynamic> initBridge(Callback callback) async {
     try {
+      _handleVoltronInspectorInit();
       _context.startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitBridge);
       _v8RuntimeId = await VoltronApi.initJsFrameWork(
           getGlobalConfigs(), _isSingleThread, _isDevModule, _groupId, _engineId, (value) {
@@ -121,7 +133,8 @@ class VoltronBridgeManager implements Destroyable {
           callback(_isFrameWorkInit, null);
           bridgeMap[_engineId] = this;
         }
-      });
+      }, await _context.devSupportManager?.getTracingDataDir() ?? "",
+      _context.devSupportManager?.getDebugUrl() ?? "");
       _sendDebugInfo({'v8RuntimeId': _v8RuntimeId});
       _isBridgeInit = true;
     } catch (e) {
@@ -270,7 +283,7 @@ class VoltronBridgeManager implements Destroyable {
     sBridgeNum--;
     _voltronBuffer.release();
     bridgeMap.remove(_engineId);
-    await VoltronApi.destroy(_engineId, (value) {});
+    await VoltronApi.destroy(_engineId, (value) {}, false);
     _context.renderContext.destroy();
   }
 

@@ -55,7 +55,9 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
                                  const char16_t *char_globalConfig,
                                  size_t initial_heap_size,
                                  size_t maximum_heap_size,
-                                 const std::function<void(int64_t)> &callback) {
+                                 const std::function<void(int64_t)> &callback,
+                                 const char16_t* char_data_dir,
+                                 const char16_t* char_ws_url) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, single_thread_mode = "
                      << single_thread_mode
                      << ", bridge_param_json = "
@@ -85,6 +87,8 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
   });
   std::shared_ptr<VoltronBridge> bridge = std::make_shared<VoltronBridge>(platform_runtime);
   unicode_string_view global_config = unicode_string_view(char_globalConfig);
+  unicode_string_view data_dir = unicode_string_view(char_data_dir);
+  unicode_string_view ws_url = unicode_string_view(char_ws_url);
   runtime_id = V8BridgeUtils::InitInstance(
       true,
       static_cast<bool>(is_dev_module),
@@ -93,7 +97,9 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
       param,
       bridge,
       scope_cb,
-      call_native_cb);
+      call_native_cb,
+      data_dir,
+      ws_url);
   return static_cast<int64_t>(runtime_id);
 }
 
@@ -250,8 +256,8 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, std::s
 }
 
 void BridgeImpl::Destroy(int64_t runtimeId,
-                         const std::function<void(int64_t)>& callback) {
-  V8BridgeUtils::DestroyInstance(runtimeId, []() {});
+                         const std::function<void(int64_t)>& callback, bool is_reload) {
+  V8BridgeUtils::DestroyInstance(runtimeId, []() {}, is_reload);
   callback(1);
 }
 
@@ -264,4 +270,20 @@ void BridgeImpl::BindDomManager(int64_t runtime_id,
   }
   runtime->GetScope()->SetDomManager(dom_manager);
   dom_manager->SetDelegateTaskRunner(runtime->GetScope()->GetTaskRunner());
+}
+
+void BridgeImpl::LoadInstance(int64_t runtime_id,
+                              std::string&& params) {
+  V8BridgeUtils::LoadInstance(hippy::base::checked_numeric_cast<int64_t,
+                                                                int32_t>(
+      runtime_id), std::move(params));
+}
+
+std::shared_ptr<Scope> BridgeImpl::GetScope(int64_t runtime_id) {
+  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "GetScope failed, runtime_id invalid";
+    return nullptr;
+  }
+  return runtime->GetScope();
 }

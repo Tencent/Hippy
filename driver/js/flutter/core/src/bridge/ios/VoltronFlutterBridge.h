@@ -34,7 +34,10 @@ typedef void (^VoltronFlutterCallback)(id _Nullable result, NSError * _Nullable 
 
 @property (nonatomic, assign) std::shared_ptr<voltron::JSBridgeRuntime> platformRuntime;
 
-- (void)initJSFramework:(NSString *)globalConfig completion:(void (^)(BOOL) _Nullable)completion;
+- (void)initJSFramework:(NSString *)globalConfig
+                  wsURL:(NSString *)wsURL
+              debugMode:(BOOL)debugMode
+             completion:(void (^)(BOOL) _Nullable)completion;
 
 - (void)executeScript:(NSData *)script url:(NSURL *)url completion:(void (^)(NSError * _Nullable) _Nullable)completion;
 
