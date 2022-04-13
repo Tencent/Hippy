@@ -132,6 +132,7 @@ class RenderViewModel extends ChangeNotifier {
   late NativeGestureDispatcher _dispatcher;
 
   int get id => _id;
+  String get idDesc => '$name($id)-$_modelId';
   int get rootId => _instanceId;
   String get name => _className;
   ContextWrapper? get contextWrapper => _wrapper;
@@ -497,7 +498,7 @@ class RenderViewModel extends ChangeNotifier {
 
   @override
   String toString() {
-    return "$name($id): (x[$_x], y[$_y], w[$_width], h[$_height])";
+    return "$idDesc: (x[$_x], y[$_y], w[$_width], h[$_height])";
   }
 
   Decoration? getDecoration({Color? backgroundColor}) {
