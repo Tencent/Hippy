@@ -43,7 +43,7 @@ VoltronMap getDimensions(int windowWidth, int windowHeight,
   screenDisplayMetricsMap.push("height", screenHeightPixels);
   screenDisplayMetricsMap.push("scale", screenDensity);
   screenDisplayMetricsMap.push("fontScale", screenFontScale);
-  screenDisplayMetricsMap.push("statusBarHeight", statusBarHeight);
+  screenDisplayMetricsMap.push("statusBarHeight", statusBarHeight * screenDensity);
   screenDisplayMetricsMap.push("bottomBarHeight", bottomBarHeight);
   screenDisplayMetricsMap.push("navigationBarHeight", bottomBarHeight * screenDensity);
 

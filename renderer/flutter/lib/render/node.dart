@@ -488,6 +488,15 @@ class RenderNode extends StyleNode {
       _moveHolders.add(MoveHolder(moveRenders, moveToRender));
     }
   }
+
+  @override
+  bool operator ==(Object other) {
+    return super == other || (other is RenderNode && other._id == _id && other._root == root && other.parent == parent);
+  }
+
+  @override
+  int get hashCode => super.hashCode;
+
 }
 
 class UIFunction {
