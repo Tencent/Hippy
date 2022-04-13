@@ -373,12 +373,14 @@
 #pragma mark - Scroll
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    NSTimeInterval now = CACurrentMediaTime();
-    if ((self.scrollEventThrottle > 0 && self.scrollEventThrottle < (now - _lastScrollDispatchTime))) {
-        if (self.onScroll) {
-            self.onScroll([self scrollBodyData]);
+    if (self.onScroll) {
+        double ti = CACurrentMediaTime();
+        double timeDiff = (ti - _lastScrollDispatchTime) * 1000.f;
+        if (timeDiff > self.scrollEventThrottle) {
+            NSDictionary *eventData = [self scrollBodyData];
+            _lastScrollDispatchTime = ti;
+            self.onScroll(eventData);
         }
-        _lastScrollDispatchTime = now;
     }
 
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
