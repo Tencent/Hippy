@@ -21,8 +21,6 @@
  */
 
 #import "HippyScrollViewManager.h"
-
-#import "HippyBridge.h"
 #import "HippyScrollView.h"
 #import "HippyShadowView.h"
 #import "HippyUIManager.h"
