@@ -29,7 +29,7 @@ class DomainMetas : public Serializable {
   void SetLocalName(std::string local_name) { local_name_ = local_name; }
   void SetClassName(std::string class_name) { class_name_ = class_name; }
   void SetNodeValue(std::string node_value) { node_value_ = node_value; }
-  void SetChildrenCount(uint32_t children_count) { children_count_ = children_count;}
+  void SetChildrenCount(uint64_t children_count) { children_count_ = children_count;}
   void AddChild(const DomainMetas& meta);
   std::string Serialize() const override;
 
@@ -48,7 +48,7 @@ class DomainMetas : public Serializable {
   float layout_x_;
   float layout_y_;
   std::vector<DomainMetas> children_;
-  uint32_t children_count_;  // 用于展开逻辑，必须赋值，不可从children_读取
+  uint64_t children_count_;  // 用于展开逻辑，必须赋值，不可从children_读取
 };
 }  // namespace devtools
 }  // namespace tdf

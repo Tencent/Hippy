@@ -7,7 +7,7 @@
 #include <array>
 #include <atomic>
 
-#include "devtools_base/common/logging.h"
+#include "devtools_base/logging.h"
 #include "devtools_base/common/worker.h"
 
 namespace tdf::devtools {
@@ -52,22 +52,22 @@ void TaskRunner::AddSubTaskRunner(std::shared_ptr<TaskRunner> sub_runner, bool i
     if (is_task_running) {
       worker->SetStackingMode(true);
       while (has_sub_runner_) {
-        TDF_BASE_DLOG(WARNING) << "run task begin, has_sub_runner_ = " << has_sub_runner_;
+        BACKEND_LOGW(TDF_BACKEND, "run task begin, has_sub_runner_ = %b",has_sub_runner_);
         worker->RunTask();
-        TDF_BASE_DLOG(WARNING) << "run task end";
+        BACKEND_LOGW(TDF_BACKEND, "run task end");
       }
-      TDF_BASE_DLOG(WARNING) << "exit";
+      BACKEND_LOGW(TDF_BACKEND, "exit");
     }
   }
 }
 
 void TaskRunner::RemoveSubTaskRunner(std::shared_ptr<TaskRunner> sub_runner) {
   std::shared_ptr<Worker> worker = worker_.lock();
-  TDF_BASE_DLOG(WARNING) << "has_sub_runner_ = " << has_sub_runner_;
+  BACKEND_LOGW(TDF_BACKEND, "has_sub_runner_ = %b", has_sub_runner_);
   if (worker && sub_runner) {
     worker->UnBind(sub_runner);
     if (has_sub_runner_) {
-      TDF_BASE_DLOG(WARNING) << "exit sub";
+      BACKEND_LOGW(TDF_BACKEND, "exit sub");
       has_sub_runner_ = false;
     }
     if (cv_) {  // 通知父Runner执行

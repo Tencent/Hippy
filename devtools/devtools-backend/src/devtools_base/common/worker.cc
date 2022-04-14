@@ -9,7 +9,7 @@
 #include <atomic>
 #include <map>
 
-#include "devtools_base/common/logging.h"
+#include "devtools_base/logging.h"
 #include "devtools_base/common/worker_pool.h"
 
 namespace tdf::devtools {
@@ -71,7 +71,7 @@ void Worker::RunTask() {
 
 void Worker::Run() {
   local_worker_id = global_worker_id.fetch_add(1);
-  TDF_BASE_LOG(ERROR) << "local_worker_id = " << local_worker_id;
+  BACKEND_LOGE(TDF_BACKEND, "local_worker_id = %d", local_worker_id);
   while (!is_terminated_) {
     RunTask();
   }
@@ -80,7 +80,7 @@ void Worker::Run() {
 void Worker::Sort() {
   if (!running_groups_.empty()) {
     running_groups_.sort([](const auto& lhs, const auto& rhs) {
-      TDF_BASE_DCHECK(!lhs.empty() && !rhs.empty());
+//      TDF_BASE_DCHECK(!lhs.empty() && !rhs.empty());
       int64_t left = lhs[0]->GetPriority() * lhs[0]->GetTime().ToNanoseconds();
       int64_t right = rhs[0]->GetPriority() * rhs[0]->GetTime().ToNanoseconds();
       if (left < right) {

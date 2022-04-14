@@ -27,8 +27,8 @@ tdf::devtools::DomNodeMetas DevToolUtils::ToDomNodeMetas(const std::shared_ptr<D
   metas.SetTotalProps(ParseNodeProps(dom_node->GetExtStyle()));
   auto children = dom_node->GetChildren();
   if (!children.empty()) {
-    for (int i = 0; i < children.size(); i++) {
-      metas.AddChild(ToDomNodeMetas(children[i]));
+    for (const auto& node : children) {
+      metas.AddChild(ToDomNodeMetas(node));
     }
   }
   return metas;
@@ -79,7 +79,7 @@ tdf::devtools::DomNodeLocation DevToolUtils::GetNodeIdByDomLocation(const std::s
   if (hit_node == nullptr) {
     hit_node = dom_node;
   }
-  int32_t node_id = hit_node->GetId();
+  uint32_t node_id = hit_node->GetId();
   tdf::devtools::DomNodeLocation node_location(node_id);
   node_location.AddRelationId(node_id);
   auto temp_hit_node = hit_node->GetParent();
