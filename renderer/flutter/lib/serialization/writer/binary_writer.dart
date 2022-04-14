@@ -78,10 +78,11 @@ class BinaryWriter {
       throw ArgumentError(
           "illegal write bytes, put start pos($start) out of bytes length(${bytes.length})");
     }
-    if (length == 0) {
+
+    var realLength = min(insertFullLength, max(length, insertFullLength));
+    if (realLength == 0) {
       return;
     }
-    var realLength = min(insertFullLength, max(length, insertFullLength));
     for (var i = 0; i < realLength; i++) {
       putByte(bytes[i + start]);
     }

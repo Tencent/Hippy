@@ -47,7 +47,7 @@ class _DivWidgetState extends FRState<DivWidget> {
   @override
   Widget build(BuildContext context) {
     LogUtils.dWidget('div',
-        "type: DivWidget id: ${widget.viewModel.id} name: ${widget.viewModel.name}");
+        "type: DivWidget(${widget.viewModel.idDesc})");
     return ChangeNotifierProvider.value(
       value: widget.viewModel,
       child: divChild(),
@@ -171,7 +171,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
 
     if ((width != null && width.isNaN) || (height != null && height.isNaN)) {
       LogUtils.d("BoxWidget",
-          "build box widget error, wrong size:(${widget._viewModel.width}, ${widget._viewModel.height})");
+          "build box widget error, wrong size:(${widget._viewModel.width}, ${widget._viewModel.height}), node:${widget._viewModel.idDesc}");
       if (!kReleaseMode && debugProfileBuildsEnabled) Timeline.finishSync();
       return Container();
     }
@@ -291,7 +291,7 @@ class PositionWidget extends FRBaseStatelessWidget {
           arguments: timelineArgumentsIndicatingLandmarkEvent);
     }
     LogUtils.dWidget("PositionWidget",
-        "build position widget(${_viewModel.layoutX}, ${_viewModel.layoutY})  id: ${_viewModel.id} name: ${_viewModel.name}");
+        "build position widget(${_viewModel.layoutX}, ${_viewModel.layoutY}) , node:${_viewModel.idDesc}");
     Widget result;
     var node = child;
     var parent = _viewModel.parent;
@@ -303,7 +303,7 @@ class PositionWidget extends FRBaseStatelessWidget {
     if (parent != null && !parent.interceptChildPosition()) {
       if (_viewModel.noSize || _viewModel.noPosition) {
         LogUtils.d("PositionWidget",
-            "build box widget error, wrong size:(${_viewModel.layoutX}, ${_viewModel.layoutY})");
+            "build box widget error, wrong size:(${_viewModel.layoutX}, ${_viewModel.layoutY}), node:${_viewModel.idDesc}");
         result = Container();
       } else {
         result = AnimationWidget(node, _viewModel, parentUseStack);

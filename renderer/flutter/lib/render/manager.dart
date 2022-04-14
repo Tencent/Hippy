@@ -426,8 +426,12 @@ class RenderManager
 
       var parent = uiNode.parent;
       if (parent != null) {
-        parent.addDeleteId(id);
-        addUpdateNodeIfNeeded(parent);
+        if (uiNode.shouldCreateView) {
+          _uiUpdateNodes.remove(uiNode);
+        } else {
+          parent.addDeleteId(id);
+          addUpdateNodeIfNeeded(parent);
+        }
       } else if (uiNode.isRoot) {
         addUpdateNodeIfNeeded(uiNode);
       }

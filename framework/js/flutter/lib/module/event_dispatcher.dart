@@ -38,7 +38,7 @@ class EventDispatcher extends JavaScriptModule {
     var array = VoltronArray();
     array.push(tagId);
     array.push(eventName);
-    array.push(param);
+    array.push(param??VoltronMap());
     context.bridgeManager
         .callJavaScriptModule(kModuleName, "receiveUIComponentEvent", array);
   }
@@ -46,7 +46,7 @@ class EventDispatcher extends JavaScriptModule {
   void receiveNativeEvent(String eventName, Object? param) {
     var array = VoltronArray();
     array.push(eventName);
-    array.push(param);
+    array.push(param??VoltronMap());
     context.bridgeManager
         .callJavaScriptModule(kModuleName, "receiveNativeEvent", array);
   }

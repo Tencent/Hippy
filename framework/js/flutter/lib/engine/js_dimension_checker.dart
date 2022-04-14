@@ -29,6 +29,7 @@ class JSDimensionChecker with DimensionChecker {
 
   JSDimensionChecker(this._engineContext);
 
+  @override
   void checkUpdateDimension(
       BuildContext uiContext,
       VoltronMap dimensionMap,

@@ -53,9 +53,15 @@ class RootRenderViewModel extends GroupViewModel {
   }
 }
 
+
+int _kRenderNodeInstanceInc = 1;
+
 class RenderNode extends StyleNode {
   // 唯一标识
   final int _id;
+
+  // 调试时候查看是否是同一个viewModel实例
+  final int _nodeInstanceId = _kRenderNodeInstanceInc++;
 
   /// 布局属性
   double _x = 0;
