@@ -20,20 +20,20 @@
 
 import { isFunc, error } from '../utils';
 
-let module = {};
+let moduleMap = {};
 const callNative = (moduleName: string, fName: string, param: string) => {
-  if (module[moduleName]) {
-    if (isFunc(module[moduleName][fName])) {
-      module[moduleName][fName](param);
+  if (moduleMap[moduleName]) {
+    if (isFunc(moduleMap[moduleName][fName])) {
+      moduleMap[moduleName][fName](param);
     } else {
       error(`${moduleName}.${fName} is not a function`);
     }
   } else {
-    error(`can not find module ${moduleName}`);
+    error(`can not find moduleMap ${moduleName}`);
   }
 };
-callNative.init = (moduleMap: any) => {
-  module = moduleMap;
+callNative.init = (module: any) => {
+  moduleMap = module;
 };
 
 export default callNative;

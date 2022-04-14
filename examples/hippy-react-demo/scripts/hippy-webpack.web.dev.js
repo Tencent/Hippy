@@ -16,6 +16,7 @@ module.exports = {
     hot: true,
     liveReload: true,
   },
+  devtool: 'source-map',
   entry: {
     index: ['regenerator-runtime', path.resolve(pkg.main)],
   },
