@@ -11,7 +11,9 @@ constexpr char kOnDomUpdated[] = "onDomUpdated";
 constexpr char kOnDomDeleted[] = "onDomDeleted";
 
 RootNode::RootNode(uint32_t id)
-        : DomNode(id, 0, 0) {}
+        : DomNode(id, 0, 0) {
+  SetExtStyleMap(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>());
+}
 
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;

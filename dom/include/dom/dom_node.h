@@ -75,6 +75,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   const std::vector<std::shared_ptr<DomNode>> &GetChildren() { return children_; }
   void AddChildAt(const std::shared_ptr<DomNode> &dom_node, int32_t index);
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
+  void DoLayout();
   void DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes);
   void HandleEvent(const std::shared_ptr<DomEvent> &event);
   void ParseLayoutStyleInfo();
