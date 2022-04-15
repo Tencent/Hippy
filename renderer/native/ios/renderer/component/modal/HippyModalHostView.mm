@@ -23,12 +23,10 @@
 #import "HippyModalHostView.h"
 
 #import "HippyAssert.h"
-#import "HippyBridge.h"
 #import "HippyModalHostViewController.h"
 #import "HippyUIManager.h"
 #import "UIView+Hippy.h"
 #import "HippyModalHostViewInteractor.h"
-#import <UIKit/UIKit.h>
 
 @implementation HippyModalHostView {
     BOOL _isPresented;

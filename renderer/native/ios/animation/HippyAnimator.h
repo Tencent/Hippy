@@ -58,4 +58,5 @@
 - (void)connectAnimationToView:(UIView *)view;
 - (HippyAnimation *)animationFromID:(NSNumber *)animationID;
 - (void)invalidate;
+
 @end

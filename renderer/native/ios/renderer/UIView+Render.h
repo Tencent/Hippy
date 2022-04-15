@@ -21,13 +21,16 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyRenderContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol HippyRenderContext;
 
 @interface UIView (Render)
 
 @property(nonatomic, weak)id<HippyRenderContext> renderContext;
+
+- (void)registerAsRootView:(id<HippyRenderContext>) renderContext;
 
 @end
 

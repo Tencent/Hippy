@@ -25,8 +25,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import "HippyAnimationType.h"
 #import "HippyAssert.h"
-#import "HippyBridge.h"
-#import "HippyBridge+Private.h"
 #import "HippyComponent.h"
 #import "HippyComponentData.h"
 #import "HippyConvert.h"
@@ -136,8 +134,6 @@ static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<Hip
 }
 
 const char *HippyUIManagerQueueName = "com.tencent.hippy.ShadowQueue";
-NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
-    = @"HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification";
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
 NSString *const HippyUIManagerKey = @"HippyUIManagerKey";
@@ -168,9 +164,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 
 @implementation HippyUIManager
 
-HIPPY_EXPORT_MODULE()
-
-@synthesize bridge = _bridge;
 @synthesize frameworkProxy = _frameworkProxy;
 
 #pragma mark Life cycle
@@ -302,11 +295,6 @@ HIPPY_EXPORT_MODULE()
     return _animator;
 }
 
-- (void)setBridge:(HippyBridge *)bridge {
-    //TODO delete all bridge code
-    _bridge = bridge;
-}
-
 - (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)hippyTag {
     return [self viewForHippyTag:hippyTag];
 }
@@ -360,7 +348,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     return nil;
 }
 
-- (void)registerRootView:(UIView *)rootView withSizeFlexibility:(HippyRootViewSizeFlexibility)sizeFlexibility {
+- (void)registerRootView:(UIView *)rootView {
     HippyAssertMainQueue();
 
     NSNumber *hippyTag = rootView.hippyTag;
@@ -387,7 +375,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         shadowView.frame = frame;
         shadowView.backgroundColor = backgroundColor;
         shadowView.viewName = NSStringFromClass([rootView class]);
-        shadowView.sizeFlexibility = sizeFlexibility;
         self->_shadowViewRegistry[shadowView.hippyTag] = shadowView;
         self->_rootViewTag = hippyTag;
     });
@@ -399,63 +386,17 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)setFrame:(CGRect)frame forView:(UIView *)view {
     HippyAssertMainQueue();
-
-    // The following variable has no meaning if the view is not a hippy root view
-    HippyRootViewSizeFlexibility sizeFlexibility = HippyRootViewSizeFlexibilityNone;
-    BOOL isRootView = NO;
-    if (HippyIsHippyRootView(view.hippyTag)) {
-        HippyRootView *rootView = (HippyRootView *)[view superview];
-        if (rootView != nil) {
-            sizeFlexibility = rootView.sizeFlexibility;
-            isRootView = YES;
-        }
-    }
-
     NSNumber *hippyTag = view.hippyTag;
     dispatch_async(HippyGetUIManagerQueue(), ^{
         std::lock_guard<std::mutex> lock([self shadowQueueLock]);
         HippyShadowView *shadowView = self->_shadowViewRegistry[hippyTag];
         if (shadowView == nil) {
-            if (isRootView) {
-            }
             return;
         }
-
-        BOOL needsLayout = NO;
         if (!CGRectEqualToRect(frame, shadowView.frame)) {
             shadowView.frame = frame;
-            needsLayout = YES;
-        }
-
-        // Trigger re-layout when size flexibility changes, as the root view might grow or
-        // shrink in the flexible dimensions.
-        if (HippyIsHippyRootView(hippyTag)) {
-            HippyRootShadowView *rootShadowView = (HippyRootShadowView *)shadowView;
-            if (rootShadowView.sizeFlexibility != sizeFlexibility) {
-                rootShadowView.sizeFlexibility = sizeFlexibility;
-                needsLayout = YES;
-            }
-        }
-
-        if (needsLayout) {
             [self setNeedsLayout];
         }
-    });
-}
-
-- (void)setBackgroundColor:(UIColor *)color forView:(UIView *)view {
-    HippyAssertMainQueue();
-    NSNumber *hippyTag = view.hippyTag;
-    if (!self->_viewRegistry) {
-        return;
-    }
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        std::lock_guard<std::mutex> lock([self shadowQueueLock]);
-        HippyShadowView *shadowView = self->_shadowViewRegistry[hippyTag];
-        HippyAssert(shadowView != nil, @"Could not locate root view with tag #%@", hippyTag);
-        shadowView.backgroundColor = color;
-        [self amendPendingUIBlocksWithStylePropagationUpdateForShadowView:shadowView];
-        [self flushUIBlocks];
     });
 }
 
@@ -1349,14 +1290,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
     }];
     return tmpProps;
-}
-
-@end
-
-@implementation HippyBridge (HippyUIManager)
-
-- (HippyUIManager *)uiManager {
-    return [self moduleForClass:[HippyUIManager class]];
 }
 
 @end

@@ -106,7 +106,7 @@ NSString *const HippyDomParamsKeyBackendNodeIds = @"backendNodeIds";
     if (!completion) {
         return NO;
     }
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"DomDomain, getDocument error, manager is nil");
         completion(@{});
@@ -126,7 +126,7 @@ NSString *const HippyDomParamsKeyBackendNodeIds = @"backendNodeIds";
     if (!completion) {
         return NO;
     }
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"DomDomain, getBoxModel error, manager is nil");
         completion(@{});
@@ -153,7 +153,7 @@ NSString *const HippyDomParamsKeyBackendNodeIds = @"backendNodeIds";
     if (!completion) {
         return NO;
     }
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"DomDomain, getNodeForLocation error, manager is nil");
         completion(@{});
@@ -180,7 +180,7 @@ NSString *const HippyDomParamsKeyBackendNodeIds = @"backendNodeIds";
     if (!completion) {
         return NO;
     }
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"DomDomain, pushNodeByPathToFrontend error, manager is nil");
         completion(@{});

@@ -26,7 +26,6 @@
 #import "HippyImageDataLoader.h"
 #import "HippyDefaultImageProvider.h"
 #import "objc/runtime.h"
-#import "HippyFrameworkProxy.h"
 #import "HippyUtils.h"
 #import "UIView+Sequence.h"
 #import <UIKit/UIKit.h>
@@ -67,8 +66,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
 }
 
 - (void)loadImageSource:(NSString *)path forView:(HippyImageView *)view {
-    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
-        path = [self.renderContext.frameworkProxy standardizeAssetUrlString:path];
+    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
+        path = [self.renderContext.frameworkProxy standardizeAssetUrlString:path forRenderContext:self.renderContext];
     }
     id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
     __weak HippyImageView *weakView = view;
@@ -110,8 +109,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     NSString *source = [HippyConvert NSString:json];
-    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
-        source = [self.renderContext.frameworkProxy standardizeAssetUrlString:source];
+    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
+        source = [self.renderContext.frameworkProxy standardizeAssetUrlString:source forRenderContext:self.renderContext];
     }
     id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
     __weak HippyImageView *weakView = view;
@@ -157,8 +156,8 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 - (Class<HippyImageProviderProtocol>)imageProviderClass {
     if (!_imageProviderClass) {
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageProviderClass)]) {
-            _imageProviderClass = [self.renderContext.frameworkProxy imageProviderClass];
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
+            _imageProviderClass = [self.renderContext.frameworkProxy imageProviderClassForRenderContext:self.renderContext];
         }
         else {
             _imageProviderClass = [HippyDefaultImageProvider class];
@@ -174,8 +173,8 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 - (id<HippyImageDataLoaderProtocol>)imageDataLoader {
     if (!_imageDataLoader) {
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoader)]) {
-            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoader];
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
+            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoaderForRenderContext:self.renderContext];
         }
         if (!_imageDataLoader) {
             _imageDataLoader = [[HippyImageDataLoader alloc] init];

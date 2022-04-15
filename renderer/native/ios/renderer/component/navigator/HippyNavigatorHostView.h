@@ -22,8 +22,9 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyInvalidating.h"
-@class HippyBridge;
+
 NS_ASSUME_NONNULL_BEGIN
+
 @protocol NavigatorHostViewDelegate <NSObject>
 @end
 

@@ -21,13 +21,11 @@
  */
 
 #import "HippyViewManager.h"
-#import "HippyBridge.h"
 #import "HippyBorderStyle.h"
 #import "HippyConvert.h"
 #import "HippyEventDispatcher.h"
 #import "HippyLog.h"
 #import "HippyShadowView.h"
-#import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "HippyView.h"
 #import "UIView+Hippy.h"
@@ -50,7 +48,10 @@
 @implementation HippyViewManager
 
 - (dispatch_queue_t)methodQueue {
-    return HippyGetUIManagerQueue();
+//    return HippyGetUIManagerQueue();
+    //TODO
+    HippyAssert(NO, @"return queue");
+    return nil;
 }
 
 - (UIView *)view {
@@ -58,7 +59,7 @@
 }
 
 - (HippyShadowView *)shadowView {
-    return [HippyShadowView new];
+    return [[HippyShadowView alloc] init];
 }
 
 - (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(__unused HippyShadowView *)shadowView {
@@ -94,8 +95,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *imagePath = [HippyConvert NSString:json];
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
-            imagePath = [self.renderContext.frameworkProxy standardizeAssetUrlString:imagePath];
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
+            imagePath = [self.renderContext.frameworkProxy standardizeAssetUrlString:imagePath forRenderContext:self.renderContext];
         }
         id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
         __weak HippyView *weakView = view;
@@ -129,8 +130,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
 
 - (id<HippyImageDataLoaderProtocol>)imageDataLoader {
     if (!_imageDataLoader) {
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoader)]) {
-            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoader];
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
+            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoaderForRenderContext:self.renderContext];
         }
         if (!_imageDataLoader) {
             _imageDataLoader = [[HippyImageDataLoader alloc] init];

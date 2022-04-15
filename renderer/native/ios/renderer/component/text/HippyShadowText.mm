@@ -21,13 +21,11 @@
  */
 
 #import "HippyShadowText.h"
-#import "HippyBridge.h"
 #import "HippyConvert.h"
 #import "HippyFont.h"
 #import "HippyLog.h"
 #import "HippyText.h"
 #import "HippyTextView.h"
-#import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "HippyI18nUtils.h"
 #import "dom/layout_node.h"
@@ -118,9 +116,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         if (NSWritingDirectionRightToLeft ==  [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;
         }
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(contentSizeMultiplierDidChange:)
-                                                     name:HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification
-                                                   object:nil];
     }
     return self;
 }

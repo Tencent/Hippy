@@ -38,6 +38,8 @@
 #import "HippyTurboModule.h"
 #import "HippyBridge+LocalFileSource.h"
 #import "HippyBridge+Private.h"
+#import "HippyImageDataLoader.h"
+#import "HippyDefaultImageProvider.h"
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptWillStartLoadingNotification = @"HippyJavaScriptWillStartLoadingNotification";
@@ -266,10 +268,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [self moduleForName:HippyBridgeModuleNameForClass(moduleClass)];
 }
 
-- (HippyAnimator *)animationModule {
-    return [self moduleForName:@"AnimationModule"];
-}
-
 - (NSSet<Class<HippyImageProviderProtocol>> *)imageProviders {
     if (!_imageProviders) {
         NSMutableSet *set = [NSMutableSet setWithCapacity:8];
@@ -350,7 +348,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
-    self.uiManager.frameworkProxy = self;
+    if (nil == self.renderContext.frameworkProxy) {
+        self.renderContext.frameworkProxy = self;
+    }
+}
+
+- (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
+    [self.batchedBridge setUpDomManager:domManager];
 }
 
 - (void)setUpDevClientWithName:(NSString *)name {
@@ -416,11 +420,25 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 #pragma mark HippyFrameworkProxy Delegate Implementation
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString {
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<HippyRenderContext>)renderContext {
     if ([HippyBridge isHippyLocalFileURLString:UrlString]) {
         return [self absoluteStringFromHippyLocalFileURLString:UrlString];
     }
     return UrlString;
+}
+
+- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<HippyRenderContext>)renderContext {
+    if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
+        return [self.frameworkProxy imageDataLoaderForRenderContext:renderContext];
+    }
+    return [HippyImageDataLoader new];
+}
+
+- (Class<HippyImageProviderProtocol>)imageProviderClassForRenderContext:(id<HippyRenderContext>)renderContext {
+    if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
+        return [self.frameworkProxy imageProviderClassForRenderContext:renderContext];
+    }
+    return [HippyDefaultImageProvider class];
 }
 
 @end

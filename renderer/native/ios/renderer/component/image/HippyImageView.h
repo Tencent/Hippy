@@ -27,7 +27,6 @@
 #import "HippyMemoryOpt.h"
 #import "HippyImageProviderProtocol.h"
 
-@class HippyBridge;
 @class HippyImageView;
 
 @interface HippyAnimatedImageOperation : NSOperation {

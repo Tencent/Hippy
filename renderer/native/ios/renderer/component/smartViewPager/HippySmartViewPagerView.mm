@@ -21,7 +21,6 @@
  */
 
 #import "HippySmartViewPagerView.h"
-#import "HippyBridge.h"
 #import "UIView+Hippy.h"
 #import "HippyScrollProtocol.h"
 #import "HippyHeaderRefresh.h"
@@ -29,9 +28,10 @@
 #import "UIView+AppearEvent.h"
 #import "HippyBaseListViewCell.h"
 #import "HippyBaseListViewDataSource.h"
-#import "UIView+RootViewRegister.h"
 #import "UIView+Render.h"
 #import "objc/runtime.h"
+#import "HippyAssert.h"
+#import "HippyShadowView.h"
 
 static NSInteger kInfiniteLoopBegin = 2;
 static NSString *const kCellIdentifier = @"cellIdentifier";
@@ -229,10 +229,6 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (void)dealloc {
     [_timer invalidate];
     _timer = nil;
-}
-
-- (void)invalidate {
-    [super invalidate];
 }
 
 #pragma mark Setter & Getter

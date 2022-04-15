@@ -24,6 +24,7 @@
 #import "HippyUIManager.h"
 #import <objc/runtime.h>
 #import "HippyAnimator.h"
+#import "HippyEventDispatcher.h"
 
 @interface HippyAnimationModule () <HippyAnimationTimingProtocol> {
     HippyAnimator *_animator;
@@ -46,7 +47,7 @@ HIPPY_EXPORT_MODULE(AnimationModule)
 
 - (HippyAnimator *)animator  {
     if (!_animator) {
-        _animator = [self.bridge.uiManager animator];
+        _animator = [self.bridge.renderContext animator];
         _animator.animationTimingDelegate = self;
     }
     return _animator;

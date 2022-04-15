@@ -22,6 +22,8 @@
 
 #import "HippyBridge.h"
 #import "HippyJSCExecutor.h"
+#include "dom/dom_manager.h"
+
 @class HippyModuleData;
 
 HIPPY_EXTERN NSArray<Class> *HippyGetModuleClasses(void);
@@ -155,6 +157,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 
 - (instancetype)initWithParentBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)start;
+- (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
 - (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
 @end

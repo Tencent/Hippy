@@ -22,8 +22,6 @@
 
 #import "HippyNetInfoIntenal.h"
 #import "HippyAssert.h"
-#import "HippyBridge.h"
-#import "HippyEventDispatcher.h"
 #import "netinet/in.h"
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <CoreTelephony/CTCarrier.h>

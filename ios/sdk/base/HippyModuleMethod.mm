@@ -190,20 +190,23 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 
     __weak HippyModuleMethod *weakSelf = self;
     void (^addBlockArgument)(void) = ^{
-        HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]] && ![json isKindOfClass:NSClassFromString(@"NSBlock")]) {
-            HippyLogArgumentError(weakSelf, index, json, "should be a function");
-            return NO;
-        }
-
-                        Hippy_BLOCK_ARGUMENT(^(NSArray *args) {
-            if ([json isKindOfClass:[NSNumber class]]) {
-                [bridge enqueueCallback:json args:args];
-            }
-            else if ([json isKindOfClass:NSClassFromString(@"NSBlock")]) {
-                HippyResponseSenderBlock jsonBlock = (HippyResponseSenderBlock)json;
-                jsonBlock(args);
-            }
-                        });)
+        HIPPY_ARG_BLOCK(
+                        if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]] && ![json isKindOfClass:NSClassFromString(@"NSBlock")]) {
+                            HippyLogArgumentError(weakSelf, index, json, "should be a function");
+                            return NO;
+                        }
+                        Hippy_BLOCK_ARGUMENT(
+                                             ^(NSArray *args) {
+                                                 if ([json isKindOfClass:[NSNumber class]]) {
+                                                     [bridge enqueueCallback:json args:args];
+                                                 }
+                                                 else if ([json isKindOfClass:NSClassFromString(@"NSBlock")]) {
+                                                     HippyResponseSenderBlock jsonBlock = (HippyResponseSenderBlock)json;
+                                                     jsonBlock(args);
+                                                 }
+                                             }
+                                             );
+                        )
     };
 
     for (NSUInteger i = 2; i < numberOfArguments; i++) {
@@ -286,38 +289,45 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             addBlockArgument();
         } else if ([typeName isEqualToString:@"HippyResponseErrorBlock"]) {
             HIPPY_ARG_BLOCK(
-
-                if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
-                    HippyLogArgumentError(weakSelf, index, json, "should be a function");
-                    return NO;
-                }
-
-                Hippy_BLOCK_ARGUMENT(^(NSError *error) {
-                    [bridge enqueueCallback:json args:@[HippyJSErrorFromNSError(error)]];
-                });)
+                            if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
+                                HippyLogArgumentError(weakSelf, index, json, "should be a function");
+                                return NO;
+                            }
+                            Hippy_BLOCK_ARGUMENT(
+                                                 ^(NSError *error) {
+                                                     [bridge enqueueCallback:json args:@[HippyJSErrorFromNSError(error)]];
+                                                 }
+                                                 );
+                            )
         } else if ([typeName isEqualToString:@"HippyPromiseResolveBlock"]) {
             HippyAssert(i == numberOfArguments - 2, @"The HippyPromiseResolveBlock must be the second to last parameter in -[%@ %@]", _moduleClass,
                 _methodSignature);
-            HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
-                HippyLogArgumentError(weakSelf, index, json, "should be a promise resolver function");
-                return NO;
-            }
-
-                            Hippy_BLOCK_ARGUMENT(^(id result) {
-                                [bridge enqueueCallback:json args:result ? @[result] : @[]];
-                            });)
+            HIPPY_ARG_BLOCK(
+                            if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
+                                HippyLogArgumentError(weakSelf, index, json, "should be a promise resolver function");
+                                return NO;
+                            }
+                            Hippy_BLOCK_ARGUMENT(
+                                                 ^(id result) {
+                                                     [bridge enqueueCallback:json args:result ? @[result] : @[]];
+                                                 }
+                                                 );
+                            )
         } else if ([typeName isEqualToString:@"HippyPromiseRejectBlock"]) {
             HippyAssert(
                 i == numberOfArguments - 1, @"The HippyPromiseRejectBlock must be the last parameter in -[%@ %@]", _moduleClass, _methodSignature);
-            HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
-                HippyLogArgumentError(weakSelf, index, json, "should be a promise rejecter function");
-                return NO;
-            }
-
-                            Hippy_BLOCK_ARGUMENT(^(NSString *code, NSString *message, NSError *error) {
-                                NSDictionary *errorJSON = HippyJSErrorFromCodeMessageAndNSError(code, message, error);
-                                [bridge enqueueCallback:json args:@[errorJSON]];
-                            });)
+            HIPPY_ARG_BLOCK(
+                            if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
+                                HippyLogArgumentError(weakSelf, index, json, "should be a promise rejecter function");
+                                return NO;
+                            }
+                            Hippy_BLOCK_ARGUMENT(
+                                                 ^(NSString *code, NSString *message, NSError *error) {
+                                                     NSDictionary *errorJSON = HippyJSErrorFromCodeMessageAndNSError(code, message, error);
+                                                     [bridge enqueueCallback:json args:@[errorJSON]];
+                                                 }
+                                                 );
+                            )
         } else if ([HippyTurboModuleManager isTurboModule:typeName]) {
             [argumentBlocks addObject:^(__unused HippyBridge * bridge, NSUInteger index, id json) {
                 [invocation setArgument:&json atIndex:(index) + 2];

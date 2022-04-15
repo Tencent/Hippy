@@ -26,16 +26,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol HippyRenderContext;
+
 /**
  * HippyFrameworkDelegate is used to pass necessary data or implementation to render or ui object
  */
 @protocol HippyFrameworkProxy <NSObject>
 
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString;
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(id<HippyRenderContext>)renderContext;
 
-- (id<HippyImageDataLoaderProtocol>)imageDataLoader;
+- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<HippyRenderContext>)renderContext;
 
-- (Class<HippyImageProviderProtocol>)imageProviderClass;
+- (Class<HippyImageProviderProtocol>)imageProviderClassForRenderContext:(id<HippyRenderContext>)renderContext;
 
 @end
 

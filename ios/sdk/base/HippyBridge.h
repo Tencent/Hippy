@@ -29,13 +29,17 @@
 #import "HippyInvalidating.h"
 #import "HippyImageProviderProtocol.h"
 #import "HippyFrameworkProxy.h"
+#import "HippyRenderContext.h"
+#import <memory>
+#import "dom/dom_manager.h"
 
 @class JSValue;
 @class HippyBridge;
 @class HippyEventDispatcher;
 @class HippyPerformanceLogger;
 @class HippyUIManager;
-@class HippyAnimator;
+
+//class DomManager;
 
 /**
  * Indicate hippy sdk version
@@ -124,6 +128,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args;
 - (void)enqueueJSCall:(NSString *)module method:(NSString *)method args:(NSArray *)args completion:(dispatch_block_t)completion;
 
+- (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
+
 /**
  * set up chrome dev tools connection
  */
@@ -201,9 +207,9 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
-@property (nonatomic, weak, readonly) HippyAnimator *animationModule;
-
 @property (nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
+
+@property (nonatomic, weak) id<HippyRenderContext> renderContext;
 
 /**
  * The launch options that were used to initialize the bridge.

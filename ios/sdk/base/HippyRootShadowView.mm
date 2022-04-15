@@ -22,44 +22,11 @@
 
 #import "HippyRootShadowView.h"
 #import "HippyUtils.h"
-#include "Hippy.h"
 #import "HippyI18nUtils.h"
 
 @implementation HippyRootShadowView
 
-/**
- * Init the HippyRootShadowView with RTL status.
- * Returns a RTL CSS layout if isRTL is true (Default is LTR CSS layout).
- */
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-    }
-    return self;
-}
-
-//- (void)setFrame:(CGRect)frame {
-//    if (!CGRectEqualToRect(self.frame, frame)) {
-//        [super setFrame:frame];
-//        self.hasNewLayout = YES;
-//    }
-//}
-
 - (void)applySizeConstraints {
-    switch (_sizeFlexibility) {
-        case HippyRootViewSizeFlexibilityNone:
-            break;
-        case HippyRootViewSizeFlexibilityWidth:
-//            HPNodeStyleSetWidth(self.nodeRef, NAN);
-            break;
-        case HippyRootViewSizeFlexibilityHeight:
-//            HPNodeStyleSetHeight(self.nodeRef, NAN);
-            break;
-        case HippyRootViewSizeFlexibilityWidthAndHeight:
-//            HPNodeStyleSetWidth(self.nodeRef, NAN);
-//            HPNodeStyleSetHeight(self.nodeRef, NAN);
-            break;
-    }
 }
 
 - (void)amendLayoutBeforeMount {

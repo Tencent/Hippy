@@ -91,7 +91,7 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
     if (!completion) {
         return NO;
     }
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"CSSDomain, getMatchedStylesForNode error, manager is nil");
         completion(@{});
@@ -118,7 +118,7 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
     if (!completion) {
         return NO;
     }
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"CSSDomain, getComputedStyleForNode error, manager is nil");
         completion(@{});
@@ -145,7 +145,7 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
     if (!completion) {
         return NO;
     }
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"CSSDomain, getInlineStylesForNode error, manager is nil");
         completion(@{});
@@ -172,7 +172,7 @@ NSString *const HippyCSSRspKeyStyles = @"styles";
     if (!completion) {
         return NO;
     }
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"CSSDomain, setStyleTexts error, manager is nil");
         completion(@{});

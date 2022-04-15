@@ -21,7 +21,6 @@
  */
 
 #import "HippyModalHostViewManager.h"
-#import "HippyBridge.h"
 #import "HippyModalHostViewController.h"
 #import "HippyShadowView.h"
 #import "HippyUtils.h"
