@@ -83,18 +83,21 @@ void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index
     children_.insert(it, dom_node);
   }
   dom_node->SetParent(shared_from_this());
+
+  layout_node_->InsertChild(dom_node->GetLayoutNode(), (uint32_t)(index));
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   auto child = children_[hippy::base::checked_numeric_cast<int32_t, unsigned long>(index)];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
+  layout_node_->RemoveChild(child->GetLayoutNode());
   return child;
 }
 
-void DomNode::DoLayout() {
+void DomNode::DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   layout_node_->CalculateLayout(0, 0);
-  TransferLayoutOutputsRecursive();
+  TransferLayoutOutputsRecursive(changed_nodes);
 }
 
 void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
@@ -226,7 +229,7 @@ LayoutResult DomNode::GetLayoutInfoFromRoot() {
   return result;
 }
 
-void DomNode::TransferLayoutOutputsRecursive() {
+void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   bool changed = layout_.left != layout_node_->GetLeft() || layout_.top != layout_node_->GetTop() ||
                  layout_.width != layout_node_->GetWidth() || layout_.height != layout_node_->GetHeight();
   layout_.left = layout_node_->GetLeft();
@@ -257,22 +260,19 @@ void DomNode::TransferLayoutOutputsRecursive() {
 
   layout_node_->SetHasNewLayout(false);
   if (changed) {
-    auto dom_manager = dom_manager_.lock();
-    if (dom_manager) {
-      dom_manager->AddLayoutChangedNode(shared_from_this());
-      DomValueObjectType layout_param;
-      layout_param[kLayoutXKey] = DomValue(layout_.left);
-      layout_param[kLayoutYKey] = DomValue(layout_.top);
-      layout_param[kLayoutWidthKey] = DomValue(layout_.width);
-      layout_param[kLayoutHeightKey] = DomValue(layout_.height);
-      DomValueObjectType layout_obj;
-      layout_obj[kLayoutLayoutKey] = std::move(layout_param);
-      HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(),
-                                             std::make_shared<DomValue>(std::move(layout_obj))));
-    }
+    changed_nodes.push_back(shared_from_this());
+    DomValueObjectType layout_param;
+    layout_param[kLayoutXKey] = DomValue(layout_.left);
+    layout_param[kLayoutYKey] = DomValue(layout_.top);
+    layout_param[kLayoutWidthKey] = DomValue(layout_.width);
+    layout_param[kLayoutHeightKey] = DomValue(layout_.height);
+    DomValueObjectType layout_obj;
+    layout_obj[kLayoutLayoutKey] = std::move(layout_param);
+    HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(),
+                                           std::make_shared<DomValue>(std::move(layout_obj))));
   }
   for (auto& it : children_) {
-    it->TransferLayoutOutputsRecursive();
+    it->TransferLayoutOutputsRecursive(changed_nodes);
   }
 }
 
