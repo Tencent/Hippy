@@ -21,16 +21,13 @@
  */
 
 #import "HippyTextViewManager.h"
-
-#import "HippyBridge.h"
-#import "HippyConvert.h"
 #import "HippyShadowView.h"
 #import "HippyTextView.h"
 #import "HippyTextField.h"
 #import "HippyBaseTextInput.h"
 #import "HippyShadowTextView.h"
 #import "HippyFont.h"
-#import "HippyUIManager.h"
+#import "HippyRenderContext.h"
 
 @implementation HippyTextViewManager
 
@@ -75,8 +72,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
-    [self.renderContext addUIBlock:
-     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[HippyBaseTextInput class]]) {
@@ -89,8 +85,7 @@ HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
 
 // clang-format off
 HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
-    [self.renderContext addUIBlock:
-     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[HippyBaseTextInput class]]) {

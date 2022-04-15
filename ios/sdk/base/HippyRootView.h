@@ -27,20 +27,6 @@
 @protocol HippyRootViewDelegate;
 
 /**
- * This enum is used to define size flexibility type of the root view.
- * If a dimension is flexible, the view will recalculate that dimension
- * so the content fits. Recalculations are performed when the root's frame,
- * size flexibility mode or content size changes. After a recalculation,
- * rootViewDidChangeIntrinsicSize method of the HippyRootViewDelegate will be called.
- */
-typedef NS_ENUM(NSInteger, HippyRootViewSizeFlexibility) {
-    HippyRootViewSizeFlexibilityNone = 0,
-    HippyRootViewSizeFlexibilityWidth,
-    HippyRootViewSizeFlexibilityHeight,
-    HippyRootViewSizeFlexibilityWidthAndHeight,
-};
-
-/**
  * This notification is sent when the first subviews are added to the root view
  * after the application has loaded. This is used to hide the `loadingView`, and
  * is a good indicator that the application is ready to use.
@@ -105,11 +91,6 @@ extern NSString *const HippyContentDidAppearNotification;
  * Set this property only on the main thread.
  */
 @property (nonatomic, copy, readwrite) NSDictionary *appProperties;
-
-/**
- * The size flexibility mode of the root view.
- */
-@property (nonatomic, assign) HippyRootViewSizeFlexibility sizeFlexibility;
 
 /**
  * The size of the root view's content. This is set right before the

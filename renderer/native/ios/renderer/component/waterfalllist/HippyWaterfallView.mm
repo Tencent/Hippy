@@ -29,7 +29,6 @@
 #import "HippyWaterfallViewDataSource.h"
 #import "HippyShadowView.h"
 #import "HippyUIManager.h"
-#import "UIView+RootViewRegister.h"
 #import "UIView+Render.h"
 #import "HippyListTableView.h"
 

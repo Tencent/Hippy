@@ -22,19 +22,13 @@
 
 #import <UIKit/UIKit.h>
 
-#import "HippyBridgeModule.h"
 #import "HippyConvert.h"
 #import "HippyDefines.h"
-#import "HippyEventDispatcher.h"
 #import "HippyLog.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyRenderContext.h"
 
-@class HippyBridge;
 @class HippyShadowView;
-@class HippyUIManager;
-
-typedef UIView * (^CreateHippyViewWithPropsBlock)(HippyBridge *bridge, NSString *classname, NSDictionary *props);
 
 @interface HippyViewManager : NSObject
 

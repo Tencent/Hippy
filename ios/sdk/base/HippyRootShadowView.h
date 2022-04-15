@@ -25,12 +25,6 @@
 @interface HippyRootShadowView : HippyShadowView
 
 /**
- * Size flexibility type used to find size constraints.
- * Default to HippyRootViewSizeFlexibilityNone
- */
-@property (nonatomic, assign) HippyRootViewSizeFlexibility sizeFlexibility;
-
-/**
  * Calculate all views whose frame needs updating after layout has been calculated.
  */
 - (void)recursivelyAmendSubviewsLayout;

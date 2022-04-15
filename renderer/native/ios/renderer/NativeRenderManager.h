@@ -26,51 +26,45 @@
 #include <vector>
 #include <memory>
 #include "dom/render_manager.h"
-#include "dom/dom_event.h"
-#import "HippyUIManager.h"
 #import "HippyFrameworkProxy.h"
 
-@class UIView;
+@class UIView, HippyUIManager;
 
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
  */
 class NativeRenderManager : public hippy::RenderManager {
-    using DomValue = tdf::base::DomValue;
-    using DomManager = hippy::DomManager;
-    using DomNode = hippy::DomNode;
-    using LayoutResult = hippy::LayoutResult;
-    using DomValueType = tdf::base::DomValue::Type;
-    using DomValueNumberType = tdf::base::DomValue::NumberType;
-    using RenderInfo = hippy::DomNode::RenderInfo;
-    using CallFunctionCallback = hippy::CallFunctionCallback;
+    
 public:
+    NativeRenderManager();
     NativeRenderManager(HippyUIManager *uiManager):uiManager_(uiManager){}
+    
+    ~NativeRenderManager();
 
     /**
      *  create views from dom nodes
      *  @param nodes A set of nodes for creating views
      */
-    void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+    void CreateRenderNode(std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
     
     /**
      *  update views' properties from dom nodes
      *  @param nodes A set of nodes for updating views' properties
      */
-    void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+    void UpdateRenderNode(std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
     
     /**
      *  delete views from dom nodes
      *  @param nodes A set of nodes for deleting views
      */
-    void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+    void DeleteRenderNode(std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
     
     /**
      * update layout for view
      *
      * @param nodes A set of nodes ids for views to update
      */
-    void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
+    void UpdateLayout(const std::vector<std::shared_ptr<hippy::DomNode>>& nodes) override;
     
     /**
      * move views from container to another container
@@ -102,7 +96,7 @@ public:
      * @param dom_node node for the event
      * @param name event name
      */
-    void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+    void AddEventListener(std::weak_ptr<hippy::DomNode> dom_node, const std::string& name) override;
     
     /**
      * unregister event for specific view
@@ -110,7 +104,7 @@ public:
      * @param dom_node node for the event
      * @param name event name
      */
-    void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string &name) override;
+    void RemoveEventListener(std::weak_ptr<hippy::DomNode> dom_node, const std::string &name) override;
 
     /**
      * call function of view
@@ -121,9 +115,13 @@ public:
      * @param cb Callback id
      * @discussion Caller can get callback block from id by DomNode::GetCallback function
      */
-    void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string &name,
+    void CallFunction(std::weak_ptr<hippy::DomNode> dom_node, const std::string &name,
                       const DomArgument& param,
                       uint32_t cb) override;
+    
+    void RegisterRootView(UIView *view);
+    
+    void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);
     
     void SetFrameworkProxy(id<HippyFrameworkProxy> proxy);
     
@@ -131,7 +129,7 @@ public:
     
     void SetUICreationLazilyEnabled(bool enabled);
     
-    UIView *CreateViewHierarchyFromDomNode(std::shared_ptr<DomNode> dom_node);
+    UIView *CreateViewHierarchyFromDomNode(std::shared_ptr<hippy::DomNode> dom_node);
     
     UIView *CreateViewHierarchyFromId(int32_t id);
 private:

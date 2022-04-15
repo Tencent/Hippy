@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyUIManager.h"
-#import "HippyBridgeModule.h"
 
-@interface HippyViewPagerItemManager : HippyViewManager <HippyBridgeModule>
+@interface HippyViewPagerItemManager : HippyViewManager
+
 @end

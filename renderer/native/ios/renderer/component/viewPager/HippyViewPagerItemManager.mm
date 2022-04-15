@@ -28,4 +28,5 @@
 - (UIView *)view {
     return [HippyViewPagerItem new];
 }
+
 @end

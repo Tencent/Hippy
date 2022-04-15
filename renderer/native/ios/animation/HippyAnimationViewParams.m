@@ -22,7 +22,6 @@
 
 #import "HippyAnimationViewParams.h"
 #import "NSDictionary+HippyDictionaryDeepCopy.h"
-#import "HippyBridge.h"
 #import "HippyAnimator.h"
 #import "HippyConvert+Transform.h"
 

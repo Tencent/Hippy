@@ -47,10 +47,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
     return [[HippyBaseListView alloc] init];
 }
 
-- (HippyShadowView *)shadowView {
-    return [[HippyShadowView alloc] init];
-}
-
 // clang-format off
 HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 									xIndex:(__unused NSNumber *)xIndex

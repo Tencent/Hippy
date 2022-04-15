@@ -29,7 +29,6 @@
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "HippyGradientObject.h"
-#import "HippyBridge.h"
 
 static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize, NSString *resizeMode) {
     // width / height

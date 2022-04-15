@@ -40,11 +40,13 @@
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
-@interface HippyUIManager (HippyRootView)
-
-- (NSNumber *)allocateRootTag;
-
-@end
+static NSNumber *AllocRootViewTag() {
+    static NSString * const token = @"allocateRootTag";
+    @synchronized (token) {
+        static NSUInteger rootTag = 0;
+        return @(rootTag += 10);
+    }
+}
 
 @interface HippyRootContentView : HippyView <HippyInvalidating>
 
@@ -53,8 +55,9 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
 
 - (instancetype)initWithFrame:(CGRect)frame
                        bridge:(HippyBridge *)bridge
-                     hippyTag:(NSNumber *)hippyTag
-               sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility NS_DESIGNATED_INITIALIZER;
+                     hippyTag:(NSNumber *)hippyTag NS_DESIGNATED_INITIALIZER;
+
+- (void)removeAllSubviews;
 
 @end
 
@@ -89,8 +92,8 @@ NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotif
         _appProperties = [initialProperties copy];
         _loadingViewFadeDelay = 0.25;
         _loadingViewFadeDuration = 0.25;
-        _sizeFlexibility = HippyRootViewSizeFlexibilityNone;
         _delegate = delegate;
+        _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge hippyTag:self.hippyTag];
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bridgeDidReload) name:HippyJavaScriptWillStartLoadingNotification
@@ -235,14 +238,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 - (NSNumber *)hippyTag {
     HippyAssertMainQueue();
     if (!super.hippyTag) {
-        /**
-         * Every root view that is created must have a unique hippy tag.
-         * Numbering of these tags goes from 1, 11, 21, 31, etc
-         *
-         * NOTE: Since the bridge persists, the RootViews might be reused, so the
-         * hippy tag must be re-assigned every time a new UIManager is created.
-         */
-        self.hippyTag = [_bridge.uiManager allocateRootTag];
+        self.hippyTag = AllocRootViewTag();
     }
     return super.hippyTag;
 }
@@ -314,17 +310,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         return;
     }
 
-    [_contentView removeFromSuperview];
-    _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge hippyTag:self.hippyTag sizeFlexiblity:_sizeFlexibility];
-    
+    [_contentView removeAllSubviews];
+        
     [self runApplication:bridge];
 
     _contentView.backgroundColor = self.backgroundColor;
     [self insertSubview:_contentView atIndex:0];
-
-    if (_sizeFlexibility == HippyRootViewSizeFlexibilityNone) {
-        self.intrinsicSize = self.bounds.size;
-    }
 }
 
 - (void)runApplication:(HippyBridge *)bridge {
@@ -338,11 +329,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, appParameters);
     [bridge enqueueJSCall:@"AppRegistry" method:@"runApplication" args:@[moduleName, appParameters] completion:NULL];
-}
-
-- (void)setSizeFlexibility:(HippyRootViewSizeFlexibility)sizeFlexibility {
-    _sizeFlexibility = sizeFlexibility;
-    [self setNeedsLayout];
 }
 
 - (void)layoutSubviews {
@@ -384,8 +370,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)contentViewInvalidated {
-    [_contentView removeFromSuperview];
-    _contentView = nil;
+    [_contentView removeAllSubviews];
     [self showLoadingView];
 }
 
@@ -401,19 +386,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 @end
 
-@implementation HippyUIManager (HippyRootView)
-
-- (NSNumber *)allocateRootTag
-{
-    static NSString * const token = @"allocateRootTag";
-    @synchronized (token) {
-        static NSUInteger rootTag = 0;
-        return @(rootTag += 10);
-    }
-}
-
-@end
-
 @implementation HippyRootContentView {
     __weak HippyBridge *_bridge;
     UIColor *_backgroundColor;
@@ -421,12 +393,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (instancetype)initWithFrame:(CGRect)frame
                        bridge:(HippyBridge *)bridge
-                     hippyTag:(NSNumber *)hippyTag
-               sizeFlexiblity:(HippyRootViewSizeFlexibility)sizeFlexibility {
+                     hippyTag:(NSNumber *)hippyTag {
     if ((self = [super initWithFrame:frame])) {
         _bridge = bridge;
         self.hippyTag = hippyTag;
-        [_bridge.uiManager registerRootView:self withSizeFlexibility:sizeFlexibility];
         self.layer.backgroundColor = NULL;
         _startTimpStamp = CACurrentMediaTime() * 1000;
     }
@@ -454,15 +424,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
 - (void)setFrame:(CGRect)frame {
     super.frame = frame;
     if (self.hippyTag && _bridge.isValid) {
-        [_bridge.uiManager setFrame:frame forView:self];
+        [_bridge.renderContext setFrame:frame forView:self];
     }
+}
+
+- (void)removeAllSubviews {
+    [[self subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
 }
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
     _backgroundColor = backgroundColor;
-    if (self.hippyTag && _bridge.isValid) {
-        [_bridge.uiManager setBackgroundColor:backgroundColor forView:self];
-    }
 }
 
 - (UIColor *)backgroundColor {

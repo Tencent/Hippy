@@ -26,7 +26,6 @@
 #import "HippyModalHostViewManager.h"
 #import "HippyView.h"
 
-@class HippyBridge;
 @class HippyModalHostViewController;
 
 @protocol HippyModalHostViewInteractor;
@@ -46,7 +45,6 @@
 @property (nonatomic, strong) NSArray<NSString *> *supportedOrientations;
 @property (nonatomic, copy) HippyDirectEventBlock onOrientationChange;
 @property (nonatomic, strong) NSNumber *hideStatusBar;
-@property (nonatomic, readonly) HippyBridge *bridge;
 @property (nonatomic, readonly) BOOL isPresented;
 @property (nonatomic, strong) HippyModalHostViewController *modalViewController;
 

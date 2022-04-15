@@ -21,18 +21,19 @@
  */
 
 #import "HippyBaseListView.h"
-#import "HippyBridge.h"
 #import "UIView+Hippy.h"
+#import "HippyShadowView.h"
 #import "HippyScrollProtocol.h"
 #import "HippyHeaderRefresh.h"
 #import "HippyFooterRefresh.h"
 #import "UIView+AppearEvent.h"
 #import "HippyBaseListViewCell.h"
 #import "HippyBaseListViewDataSource.h"
-#import "UIView+RootViewRegister.h"
 #import "UIView+Render.h"
 #import "HippyCollectionViewFlowLayout.h"
 #import "UIView+DirectionalLayout.h"
+#import "HippyRenderContext.h"
+#import "HippyAssert.h"
 #import "objc/runtime.h"
 
 #define kCellZIndexConst 10000.f
@@ -71,10 +72,6 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (void)dealloc {
     [_headerRefreshView unsetFromScrollView];
     [_footerRefreshView unsetFromScrollView];
-}
-
-- (void)invalidate {
-    [super invalidate];
 }
 
 #pragma mark Setter & Getter
@@ -265,7 +262,8 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return [self.dataSource numberOfCellForSection:section];
+    NSInteger numberOfItemsInSection = [self.dataSource numberOfCellForSection:section];
+    return numberOfItemsInSection;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView

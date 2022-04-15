@@ -81,7 +81,7 @@ double const HippyPageScreenFrameAckDelayTime = 1.5f;
 - (BOOL)handleStartScreencast:(HippyDevCommand *)command
                        bridge:(HippyBridge *)bridge
                    completion:(void (^)(NSDictionary * _Nonnull))completion {
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager || !completion) {
         HippyLogWarn(@"PageDomain, start screencast error, manager or completion block is nil");
         return NO;
@@ -100,7 +100,7 @@ double const HippyPageScreenFrameAckDelayTime = 1.5f;
 - (BOOL)handleStopScreencast:(HippyDevCommand *)command
                       bridge:(HippyBridge *)bridge
                   completion:(void (^)(NSDictionary * _Nonnull))completion{
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"PageDomain, stop screencast error, manager is nil");
         return NO;
@@ -115,7 +115,7 @@ double const HippyPageScreenFrameAckDelayTime = 1.5f;
 - (BOOL)handleScreenFrameAck:(HippyDevCommand *)command
                       bridge:(HippyBridge *)bridge
                   completion:(void (^)(NSDictionary * _Nonnull))completion {
-    HippyUIManager *manager = bridge.uiManager;
+    HippyUIManager *manager = (HippyUIManager *)bridge.renderContext;
     if (!manager) {
         HippyLogWarn(@"PageDomain, screencastFrameAck error, manager is nil");
         return NO;

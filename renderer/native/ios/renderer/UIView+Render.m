@@ -22,6 +22,7 @@
 
 #import "UIView+Render.h"
 #import "objc/runtime.h"
+#import "HippyRenderContext.h"
 
 @implementation UIView (Render)
 
@@ -36,6 +37,10 @@
 - (id<HippyRenderContext>)renderContext {
     NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
     return [hashTable anyObject];
+}
+
+- (void)registerAsRootView:(id<HippyRenderContext>) renderContext {
+    [renderContext registerRootView:self];
 }
 
 @end

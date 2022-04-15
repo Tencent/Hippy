@@ -21,13 +21,21 @@
  */
 #import "NativeRenderManager.h"
 #import "HippyShadowText.h"
+#import "HippyUIManager.h"
 #import "dom/layout_node.h"
+#import "dom/dom_manager.h"
 
+using DomValue = tdf::base::DomValue;
 using RenderManager = hippy::RenderManager;
 using DomNode = hippy::DomNode;
+using DomManager = hippy::DomManager;
 using DomEvent = hippy::DomEvent;
 using LayoutResult = hippy::LayoutResult;
 using CallFunctionCallback = hippy::CallFunctionCallback;
+
+NativeRenderManager::NativeRenderManager() {
+    uiManager_ = [[HippyUIManager alloc] init];
+}
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     @autoreleasepool {
@@ -123,6 +131,18 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
     }
 }
 
+void NativeRenderManager::RegisterRootView(UIView *view) {
+    @autoreleasepool {
+        [uiManager_ registerRootView:view];
+    }
+}
+
+void NativeRenderManager::SetDomManager(std::weak_ptr<DomManager> dom_manager) {
+    @autoreleasepool {
+        [uiManager_ setDomManager:dom_manager];
+    }
+}
+
 void NativeRenderManager::SetFrameworkProxy(id<HippyFrameworkProxy> proxy) {
     uiManager_.frameworkProxy = proxy;
 }
@@ -140,5 +160,12 @@ UIView *NativeRenderManager::CreateViewHierarchyFromDomNode(std::shared_ptr<DomN
 }
 
 UIView *NativeRenderManager::CreateViewHierarchyFromId(int32_t id) {
-    return [uiManager_ createViewRecursivelyFromHippyTag:@(id)];
+    @autoreleasepool {
+        return [uiManager_ createViewRecursivelyFromHippyTag:@(id)];
+    }
+}
+
+NativeRenderManager::~NativeRenderManager() {
+    RenderManager::~RenderManager();
+    uiManager_ = nil;
 }

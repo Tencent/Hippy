@@ -30,7 +30,6 @@
 @protocol HippyAutoInsetsProtocol;
 
 @class HippyGradientObject;
-@class HippyBridge;
 
 @interface HippyView : HippyTouchesView
 

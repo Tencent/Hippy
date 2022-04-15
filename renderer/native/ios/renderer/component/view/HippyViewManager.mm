@@ -21,13 +21,11 @@
  */
 
 #import "HippyViewManager.h"
-#import "HippyBridge.h"
 #import "HippyBorderStyle.h"
 #import "HippyConvert.h"
 #import "HippyEventDispatcher.h"
 #import "HippyLog.h"
 #import "HippyShadowView.h"
-#import "HippyUIManager.h"
 #import "HippyUtils.h"
 #import "HippyView.h"
 #import "UIView+Hippy.h"
@@ -50,7 +48,10 @@
 @implementation HippyViewManager
 
 - (dispatch_queue_t)methodQueue {
-    return HippyGetUIManagerQueue();
+//    return HippyGetUIManagerQueue();
+    //TODO
+    HippyAssert(NO, @"return queue");
+    return nil;
 }
 
 - (UIView *)view {
@@ -58,7 +59,7 @@
 }
 
 - (HippyShadowView *)shadowView {
-    return [HippyShadowView new];
+    return [[HippyShadowView alloc] init];
 }
 
 - (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(__unused HippyShadowView *)shadowView {

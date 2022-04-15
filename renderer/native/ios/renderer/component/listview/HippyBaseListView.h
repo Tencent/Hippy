@@ -22,8 +22,6 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyScrollView.h"
-#import "HippyBridge.h"
-#import "HippyUIManager.h"
 #import "HippyListTableView.h"
 #import "HippyTouchesView.h"
 #import "HippyWaterfallView.h"

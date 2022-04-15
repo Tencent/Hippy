@@ -46,6 +46,8 @@
 #include "NativeRenderManager.h"
 #include "dom/dom_manager.h"
 #import "UIView+Hippy.h"
+#import "HippyUIManager.h"
+
 #define HippyAssertJSThread()
 //
 // #define HippyAssertJSThread() \
@@ -486,6 +488,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     [_javaScriptExecutor setUp];
 }
 
+- (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
+    auto strongDomManager = domManager.lock();
+    if (strongDomManager) {
+        strongDomManager->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
+        self.javaScriptExecutor.pScope->SetDomManager(strongDomManager);
+    }
+}
+
 - (void)setUpDevClientWithName:(NSString *)name {
     if ([self.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
         if ([self.delegate shouldStartInspector:self.parentBridge]) {
@@ -730,6 +740,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     return _valid;
 }
 
+- (id<HippyRenderContext>)renderContext {
+    return self.parentBridge.renderContext;
+}
+
 - (BOOL)isErrorOccured {
     return _errorOccured;
 }
@@ -761,20 +775,20 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)didReceiveCreationOfRootView:(NSNotification *)notification {
-    id manager = [[notification userInfo] objectForKey:HippyUIManagerKey];
-    HippyUIManager *uiManager = self.uiManager;
-    if (self.isValid && manager == uiManager) {
-        UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
-        int32_t rootTag = [[rootView hippyTag] intValue];
-        _domManager = std::make_shared<hippy::DomManager>(rootTag);
-        _domManager->StartTaskRunner();
-        [uiManager setDomManager:_domManager];
-        _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
-        _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
-        _domManager->SetRenderManager(_nativeRenderManager);
-        _domManager->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
-        self.javaScriptExecutor.pScope->SetDomManager(_domManager);
-    }
+//    id manager = [[notification userInfo] objectForKey:HippyUIManagerKey];
+//    HippyUIManager *uiManager = (HippyUIManager *)self.renderContext;
+//    if (self.isValid && manager == uiManager) {
+//        UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
+//        int32_t rootTag = [[rootView hippyTag] intValue];
+//        _domManager = std::make_shared<hippy::DomManager>(rootTag);
+//        _domManager->StartTaskRunner();
+//        [uiManager setDomManager:_domManager];
+//        _domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
+//        _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
+//        _domManager->SetRenderManager(_nativeRenderManager);
+//        _domManager->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
+//        self.javaScriptExecutor.pScope->SetDomManager(_domManager);
+//    }
 }
 
 #pragma mark - HippyInvalidating

@@ -24,6 +24,7 @@
 #import "HippyComponent.h"
 #import "HippyDefines.h"
 #import "HippyViewManager.h"
+#import "HippyBridgeMethod.h"
 
 @class HippyShadowView;
 @class UIView;

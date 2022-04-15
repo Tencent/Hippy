@@ -22,8 +22,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "HippyBridge.h"
-#import "HippyBridgeModule.h"
 #import "HippyInvalidating.h"
 #import "HippyViewManager.h"
 #import "HippyRootView.h"
@@ -50,12 +48,6 @@ HIPPY_EXTERN dispatch_queue_t HippyGetUIManagerQueue(void);
 HIPPY_EXTERN const char *HippyUIManagerQueueName;
 
 /**
- * Posted right before re-render happens. This is a chance for views to invalidate their state so
- * next render cycle will pick up updated views and layout appropriately.
- */
-HIPPY_EXTERN NSString *const HippyUIManagerWillUpdateViewsDueToContentSizeMultiplierChangeNotification;
-
-/**
  * Posted whenever a new root view is registered with HippyUIManager. The userInfo property
  * will contain a HippyUIManagerRootViewKey with the registered root view.
  */
@@ -77,13 +69,9 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /**
  * The HippyUIManager is the module responsible for updating the view hierarchy.
  */
-@interface HippyUIManager : NSObject <HippyBridgeModule, HippyInvalidating, HippyRenderContext>
+@interface HippyUIManager : NSObject <HippyInvalidating, HippyRenderContext>
 
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
-/**
- * Register a root view with the HippyUIManager.
- */
-- (void)registerRootView:(UIView *)rootView withSizeFlexibility:(HippyRootViewSizeFlexibility)sizeFlexibility;
 
 /**
  * Gets the view associated with a hippyTag.
@@ -100,13 +88,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * or some other layout event outside of the Hippy-managed view hierarchy.
  */
 - (void)setFrame:(CGRect)frame forView:(UIView *)view;
-
-/**
- * Update the background color of a view. The source of truth for
- * backgroundColor is the shadow view, so if to update backgroundColor from
- * native code you will need to call this method.
- */
-- (void)setBackgroundColor:(UIColor *)color forView:(UIView *)view;
 
 /**
  * Schedule a block to be executed on the UI thread. Useful if you need to execute
@@ -260,12 +241,5 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @return animator held by HippyUIManager
  */
 - (HippyAnimator *)animator;
-
-@end
-
-//TODO This can be removed
-@interface HippyBridge (HippyUIManager)
-
-@property (nonatomic, readonly) HippyUIManager *uiManager;
 
 @end

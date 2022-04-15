@@ -22,10 +22,6 @@ HIPPY_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
     return [[HippySmartViewPagerView alloc] init];
 }
 
-- (HippyShadowView *)shadowView {
-    return [[HippyShadowView alloc] init];
-}
-
 // clang-format off
 HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
