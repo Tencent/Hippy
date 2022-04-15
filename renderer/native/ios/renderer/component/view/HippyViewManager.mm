@@ -95,8 +95,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *imagePath = [HippyConvert NSString:json];
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:)]) {
-            imagePath = [self.renderContext.frameworkProxy standardizeAssetUrlString:imagePath];
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
+            imagePath = [self.renderContext.frameworkProxy standardizeAssetUrlString:imagePath forRenderContext:self.renderContext];
         }
         id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
         __weak HippyView *weakView = view;
@@ -130,8 +130,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
 
 - (id<HippyImageDataLoaderProtocol>)imageDataLoader {
     if (!_imageDataLoader) {
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoader)]) {
-            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoader];
+        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
+            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoaderForRenderContext:self.renderContext];
         }
         if (!_imageDataLoader) {
             _imageDataLoader = [[HippyImageDataLoader alloc] init];

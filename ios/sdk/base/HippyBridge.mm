@@ -420,18 +420,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 #pragma mark HippyFrameworkProxy Delegate Implementation
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString {
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<HippyRenderContext>)renderContext {
     if ([HippyBridge isHippyLocalFileURLString:UrlString]) {
         return [self absoluteStringFromHippyLocalFileURLString:UrlString];
     }
     return UrlString;
 }
 
-- (id<HippyImageDataLoaderProtocol>)imageDataLoader {
+- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<HippyRenderContext>)renderContext {
+    if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
+        return [self.frameworkProxy imageDataLoaderForRenderContext:renderContext];
+    }
     return [HippyImageDataLoader new];
 }
 
-- (Class<HippyImageProviderProtocol>)imageProviderClass {
+- (Class<HippyImageProviderProtocol>)imageProviderClassForRenderContext:(id<HippyRenderContext>)renderContext {
+    if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
+        return [self.frameworkProxy imageProviderClassForRenderContext:renderContext];
+    }
     return [HippyDefaultImageProvider class];
 }
 

@@ -105,8 +105,8 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
 
 - (id<HippyImageDataLoaderProtocol>)imageDataLoader {
     if (!_imageDataLoader) {
-        if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageDataLoader)]) {
-            _imageDataLoader = [self.bridge.frameworkProxy imageDataLoader];
+        if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
+            _imageDataLoader = [self.bridge.frameworkProxy imageDataLoaderForRenderContext:self.bridge.renderContext];
         }
         if (!_imageDataLoader) {
             _imageDataLoader = [[HippyImageDataLoader alloc] init];
@@ -117,8 +117,8 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
 
 - (Class<HippyImageProviderProtocol>)imageProviderClass {
     if (!_imageProviderClass) {
-        if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageProviderClass)]) {
-            _imageProviderClass = [self.bridge.frameworkProxy imageProviderClass];
+        if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
+            _imageProviderClass = [self.bridge.frameworkProxy imageProviderClassForRenderContext:self.bridge.renderContext];
         }
         if (!_imageProviderClass) {
             _imageProviderClass = [HippyDefaultImageProvider class];

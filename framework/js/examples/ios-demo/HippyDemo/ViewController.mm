@@ -65,7 +65,7 @@
     #endif
 //release macro below if use debug mode
 //#define HIPPYDEBUG
-//    _nativeRenderManager = std::make_shared<NativeRenderManager>(uiManager);
+
 #ifdef HIPPYDEBUG
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
@@ -89,10 +89,20 @@
                                                          moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)}
                                                       launchOptions:nil delegate:nil];
 #endif
-    
     rootView.frame = self.view.bounds;
+    
+    //1.initial render context with root view
     [self initRenderContextWithRootView:rootView];
+    
+    //2.bridge set up dom mananger
     [bridge setUpDomManager:_domManager];
+
+    //3.set native render manager's frameworkProxy to bridge
+    _nativeRenderManager->SetFrameworkProxy(bridge);
+    
+    //4.set frameworkProxy for bridge.If bridge cannot handle frameworkProxy protocol, it will forward to {self}
+    bridge.frameworkProxy = self;
+    
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];
 }
@@ -101,18 +111,26 @@
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
     businessBundlePath = [businessBundlePath stringByDeletingLastPathComponent];
 
+    //1.set up root view
     UIView *view = [[UIView alloc] initWithFrame:self.view.bounds];
     view.backgroundColor = [UIColor whiteColor];
     view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     
+    //2.set root tag for root view. root tag is of the essence
     int32_t rootTag = 10;
     view.hippyTag = @(rootTag);
     [self.view addSubview:view];
 
+    //3.set native render manager's frameworkProxy to bridge
     [self initRenderContextWithRootView:view];
 
+    //4.mock data
     auto nodesData = [self mockNodesData];
+    
+    //5.create dom nodes with datas
     _domManager->CreateDomNodes(std::move(nodesData));
+    
+    //6.end batch
     _domManager->EndBatch();
 }
 
@@ -226,18 +244,18 @@
 }
 
 #pragma mark HippyFrameworkProxy Delegate Implementation
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString {
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<HippyRenderContext>)renderContext {
     //这里将对应的URL转换为标准URL
     //比如将相对地址根据沙盒路径为转换绝对地址
     return UrlString;
 }
 
-- (id<HippyImageDataLoaderProtocol>)imageDataLoader {
+- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<HippyRenderContext>)renderContext {
     //设置自定义的图片加载实例，负责图片加载。默认使用HippyImageDataLoader
     return [HippyImageDataLoader new];
 }
 
-- (Class<HippyImageProviderProtocol>)imageProviderClass {
+- (Class<HippyImageProviderProtocol>)imageProviderClassForRenderContext:(id<HippyRenderContext>)renderContext {
     //设置HippyImageProviderProtocol类。
     //HippyImageProviderProtocol负责将NSData转换为UIImage，用于处理ios系统无法处理的图片格式数据
     //默认使用HippyDefaultImageProvider
