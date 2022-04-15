@@ -90,10 +90,10 @@
                                                       launchOptions:nil delegate:nil];
 #endif
     
+    rootView.frame = self.view.bounds;
     [self initRenderContextWithRootView:rootView];
     [bridge setUpDomManager:_domManager];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    rootView.frame = self.view.bounds;
     [self.view addSubview:rootView];
 }
 

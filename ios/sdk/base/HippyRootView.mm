@@ -94,6 +94,7 @@ static NSNumber *AllocRootViewTag() {
         _loadingViewFadeDuration = 0.25;
         _delegate = delegate;
         _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge hippyTag:self.hippyTag];
+        _contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bridgeDidReload) name:HippyJavaScriptWillStartLoadingNotification
