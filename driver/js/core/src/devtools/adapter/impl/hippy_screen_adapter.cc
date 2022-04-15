@@ -40,7 +40,7 @@ uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback
       children[0]->CallFunction(kAddFrameCallback, argument, add_frame_callback);
     }
   }
-  return frame_callback_id_;
+  return static_cast<uint64_t>(frame_callback_id_);
 }
 
 void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {

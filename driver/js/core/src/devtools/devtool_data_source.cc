@@ -27,7 +27,7 @@ using tdf::devtools::DevtoolsBackendService;
 DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   tdf::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = tdf::devtools::Framework::kHippy;
-  devtools_config.tunnel = tdf::devtools::Tunnel::kTcp;
+  devtools_config.tunnel = tdf::devtools::Tunnel::kWebSocket;
   devtools_config.ws_url = ws_url;
   devtools_service_ = std::make_shared<tdf::devtools::DevtoolsBackendService>(devtools_config);
   all_services.push_back(devtools_service_);

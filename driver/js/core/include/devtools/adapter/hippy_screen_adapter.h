@@ -25,7 +25,7 @@ class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
 
  private:
   int32_t dom_id_;
-  uint32_t frame_callback_id_;
+  int32_t frame_callback_id_;
   static double screen_scale;
 };
 }  // namespace devtools

@@ -135,7 +135,7 @@ void LayerOptimizedRenderManager::CallFunction(
 }
 
 bool LayerOptimizedRenderManager::ComputeLayoutOnly(const std::shared_ptr<DomNode>& node) const {
-  return node->GetTagName() == kTagNameView
+  return node->GetViewName() == kTagNameView
          && CheckStyleJustLayout(node)
          && !node->HasEventListeners();
 }

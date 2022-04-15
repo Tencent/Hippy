@@ -149,7 +149,7 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
 
 void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   for (const auto& n : nodes) {
-    if (n->GetTagName() == "Text") {
+    if (n->GetViewName() == "Text") {
       MarkTextDirty(n->GetId());
     }
   }
