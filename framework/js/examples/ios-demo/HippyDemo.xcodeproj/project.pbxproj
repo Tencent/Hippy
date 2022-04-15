@@ -71,6 +71,7 @@
 		787C19A22726A1020062EBFF /* HippyInspectorDomain.m in Sources */ = {isa = PBXBuildFile; fileRef = 787C199A2726A1020062EBFF /* HippyInspectorDomain.m */; };
 		787C19A32726A1020062EBFF /* HippyInspector.m in Sources */ = {isa = PBXBuildFile; fileRef = 787C199B2726A1020062EBFF /* HippyInspector.m */; };
 		7882DFDC272929D300C12149 /* HippyCSSPropsDefine.m in Sources */ = {isa = PBXBuildFile; fileRef = 7882DFDB272929D300C12149 /* HippyCSSPropsDefine.m */; };
+		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 		D4B09E392750D2C000643CDF /* Flex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4B09E362750D21600643CDF /* Flex.cpp */; };
 		D84AB8EC273A5AAD00987D03 /* dom_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB8E5273A5AAD00987D03 /* dom_manager.cc */; };
@@ -369,6 +370,8 @@
 		787C199B2726A1020062EBFF /* HippyInspector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyInspector.m; sourceTree = "<group>"; };
 		787C19A6272801BF0062EBFF /* HippyCSSPropsDefine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyCSSPropsDefine.h; sourceTree = "<group>"; };
 		7882DFDB272929D300C12149 /* HippyCSSPropsDefine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyCSSPropsDefine.m; sourceTree = "<group>"; };
+		9252AE8A2809532F00B27E50 /* root_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = root_node.cc; sourceTree = "<group>"; };
+		9252AE8C2809534100B27E50 /* root_node.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = root_node.h; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		D4B09E362750D21600643CDF /* Flex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Flex.cpp; sourceTree = "<group>"; };
@@ -1102,6 +1105,7 @@
 		D84AB8D9273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				9252AE8C2809534100B27E50 /* root_node.h */,
 				F4810952277062A1005C221B /* layer_optimized_render_manager.h */,
 				F4E7B435276C61DC00F17139 /* deserializer.h */,
 				F4E7B437276C61DC00F17139 /* diff_utils.h */,
@@ -1131,6 +1135,7 @@
 		D84AB8E4273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				9252AE8A2809532F00B27E50 /* root_node.cc */,
 				F4810953277062AD005C221B /* layer_optimized_render_manager.cc */,
 				F4E7B43B276C61EB00F17139 /* deserializer.cc */,
 				F4E7B439276C61EA00F17139 /* dom_argument.cc */,
@@ -2074,6 +2079,7 @@
 				D84AB9B1273A618B00987D03 /* log_settings.cc in Sources */,
 				787C199F2726A1020062EBFF /* HippyPageDomain.mm in Sources */,
 				F45D266128067B6900CAB185 /* HippyShadowTextView.mm in Sources */,
+				9252AE8B2809532F00B27E50 /* root_node.cc in Sources */,
 				F45D266828067B6900CAB185 /* HippyWaterfallView.mm in Sources */,
 				F472301A2774805600A120AC /* OCTypeToDomArgument.mm in Sources */,
 				064C5A5923AB1A51001E80DD /* HippyDisplayLink.m in Sources */,

@@ -95,6 +95,11 @@ std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   return child;
 }
 
+void DomNode::DoLayout() {
+  std::vector<std::shared_ptr<DomNode>> changed_nodes;
+  DoLayout(changed_nodes);
+}
+
 void DomNode::DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   layout_node_->CalculateLayout(0, 0);
   TransferLayoutOutputsRecursive(changed_nodes);
