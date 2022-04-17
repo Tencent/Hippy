@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.6](https://github.com/Tencent/Hippy/compare/2.12.5...2.12.6) (2022-04-17)
+
+
+### Bug Fixes
+
+* **core:** remove batch call redundant param ([784ea7c](https://github.com/Tencent/Hippy/commit/784ea7c2d504d6a6c95b4f9715932a4b1e27c218))
+* **web:** fix turbo demo bugs ([b54b97b](https://github.com/Tencent/Hippy/commit/b54b97bb8fe0228134ead6ec3d3e0072f2c56aff))
+
+
+
+
+
 ## [2.12.5](https://github.com/Tencent/Hippy/compare/2.12.4...2.12.5) (2022-03-09)
 
 
