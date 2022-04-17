@@ -255,24 +255,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
         value = [HippyGetCache() objectForKey:key];
         if (!value) {
             NSString *filePath = [self _filePathForKey:key];
-<<<<<<< HEAD
-<<<<<<< HEAD
             value = [self _readFileFromPath:filePath key:key error:errorOut];
-=======
-            NSString *serialized = [self _readFileFromPath:filePath key:key error:errorOut];
-            //HippyReadFile(filePath, key, errorOut);
-            NSError *error = nil;
-            NSMutableDictionary *tmpDic = serialized ? HippyJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
-            if (error) {
-                HippyLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
-                tmpDic = [NSMutableDictionary new];
-            }
-            [_manifest addEntriesFromDictionary:tmpDic];
-            value = tmpDic[key];
->>>>>>> feat(ios): localstorage can handle error
-=======
-            value = [self _readFileFromPath:filePath key:key error:errorOut];
->>>>>>> fix(ios): fix value fetch error
             if (value) {
                 [HippyGetCache() setObject:value forKey:key cost:value.length];
             } else {
