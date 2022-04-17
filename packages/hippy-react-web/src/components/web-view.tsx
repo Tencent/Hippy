@@ -17,23 +17,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// @ts-nocheck
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
+
+interface WebViewProps {
+  source: { uri: string };
+  userAgent: string;
+  method: string;
+  onLoadStart: ({ url: string }) => void;
+  onLoad: ({ url: string }) => void;
+  onLoadEnd: ({ url: string }) => void;
+  style: HippyTypes.Style;
+};
 
 /**
  * System built-in WebView
  *
  * For iOS it uses WKWebView, for Android it uses Webkit built-in.
  */
-function WebView(props) {
-  const { source, style, ...otherProps } = props;
-  const src = source.uri;
+const WebView = (props: WebViewProps) => {
+  const { source, style, onLoadEnd } = props;
+  const src = source?.uri;
   const newStyle = formatWebStyle(style);
+
   return (
-    <iframe title="WebView" src={src} style={newStyle} {...otherProps} />
+    <iframe title="WebView" src={src} style={newStyle} onLoad={() => {
+      onLoadEnd({ url: src });
+    }} />
   );
-}
+};
 
 export default WebView;

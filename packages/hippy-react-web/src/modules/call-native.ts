@@ -18,14 +18,22 @@
  * limitations under the License.
  */
 
-import { Device } from './native';
-import { warn } from './utils';
+import { isFunc, error } from '../utils';
 
-global.Hippy = {
-  // @ts-ignore
-  Device,
+let moduleMap = {};
+const callNative = (moduleName: string, fName: string, param: string) => {
+  if (moduleMap[moduleName]) {
+    if (isFunc(moduleMap[moduleName][fName])) {
+      moduleMap[moduleName][fName](param);
+    } else {
+      error(`${moduleName}.${fName} is not a function`);
+    }
+  } else {
+    error(`can not find moduleMap ${moduleName}`);
+  }
 };
-global.getTurboModule = () => {
-  warn('getTurboModule is unsupported');
-  return {};
+callNative.init = (module: any) => {
+  moduleMap = module;
 };
+
+export default callNative;

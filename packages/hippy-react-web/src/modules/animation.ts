@@ -206,7 +206,6 @@ export class Animation {
         }
       }, 16);
     }
-    // console.log('start animation');
   }
 
   /**
@@ -218,7 +217,6 @@ export class Animation {
       this.onAnimationCancelCallback();
     }
     this.resetState();
-    // console.log('destroy animation');
   }
 
   /**
@@ -226,7 +224,6 @@ export class Animation {
    */
   public pause() {
     this.clearAnimationInterval();
-    // console.log('pause animation');
   }
 
   /**
@@ -259,7 +256,6 @@ export class Animation {
           this.renderNowValue(finalValue);
         }
       }, 16);
-      // console.log('resume animation');
     }
   }
 

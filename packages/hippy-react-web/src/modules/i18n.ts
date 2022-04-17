@@ -18,18 +18,24 @@
  * limitations under the License.
  */
 
-// @ts-nocheck
-function getCookies() {
-  return Promise.resolve(document.cookie);
-}
+import { canUseDOM } from '../utils';
 
-function setCookie(url: string, keyValue: any, expires: string) {
-  // TODO: Merge exist cookies.
-  document.cookie = `${keyValue}; expire=${expires}`;
-  return Promise.resolve(undefined);
-}
+const directionLTR = 0;
+const directionRTL = 1;
 
-export {
-  getCookies,
-  setCookie,
+export const isLTR = () => {
+  if (canUseDOM) {
+    const { direction } = getComputedStyle(document.body);
+    return direction === 'ltr';
+  }
+};
+
+export const getDirection = () => {
+  if (!canUseDOM) {
+    return undefined;
+  }
+  if (isLTR()) {
+    return directionLTR;
+  }
+  return directionRTL;
 };

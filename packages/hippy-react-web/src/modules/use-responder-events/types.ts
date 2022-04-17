@@ -18,14 +18,12 @@
  * limitations under the License.
  */
 
-import { Device } from './native';
-import { warn } from './utils';
-
-global.Hippy = {
-  // @ts-ignore
-  Device,
-};
-global.getTurboModule = () => {
-  warn('getTurboModule is unsupported');
-  return {};
+export interface TouchEvent {
+  pageX: number;
+  pageY: number;
+  target: any;
+  currentTarget: any;
+  force: number;
+  identifier: number;
+  stopPropagation: () => void;
 };
