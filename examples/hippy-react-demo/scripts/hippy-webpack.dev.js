@@ -20,6 +20,8 @@ module.exports = {
       host: '127.0.0.1',
       port: 38989,
     },
+    // support inspect react components, store and router, by default is disabled
+    reactDevtools: true,
     // support debug multiple project with only one debug server, by default is set false.
     multiple: false,
     // by default hot and liveReload option are true, you could set only liveReload to true
@@ -66,6 +68,7 @@ module.exports = {
     rules: [
       {
         test: /\.(jsx?)$/,
+        exclude: /@hippy\/hippy-react-devtools-plugin/,
         use: [
           {
             loader: 'babel-loader',

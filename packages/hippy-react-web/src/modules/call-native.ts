@@ -17,34 +17,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
-import { formatWebStyle } from '../adapters/transfer';
 
-interface WebViewProps {
-  source: { uri: string };
-  userAgent: string;
-  method: string;
-  onLoadStart: ({ url: string }) => void;
-  onLoad: ({ url: string }) => void;
-  onLoadEnd: ({ url: string }) => void;
-  style: HippyTypes.Style;
-}
+import { isFunc, error } from '../utils';
 
-/**
- * System built-in WebView
- *
- * For iOS it uses WKWebView, for Android it uses Webkit built-in.
- */
-const WebView = (props: WebViewProps) => {
-  const { source, style, onLoadEnd } = props;
-  const src = source?.uri;
-  const newStyle = formatWebStyle(style);
-
-  return (
-    <iframe title="WebView" src={src} style={newStyle} onLoad={() => {
-      onLoadEnd({ url: src });
-    }} />
-  );
+let moduleMap = {};
+const callNative = (moduleName: string, fName: string, param: string) => {
+  if (moduleMap[moduleName]) {
+    if (isFunc(moduleMap[moduleName][fName])) {
+      moduleMap[moduleName][fName](param);
+    } else {
+      error(`${moduleName}.${fName} is not a function`);
+    }
+  } else {
+    error(`can not find moduleMap ${moduleName}`);
+  }
+};
+callNative.init = (module: any) => {
+  moduleMap = module;
 };
 
-export default WebView;
+export default callNative;

@@ -219,7 +219,7 @@ declare namespace HippyTypes {
       language: string;
       direction: number;
     };
-    OS?: 'android' | 'ios' | null;
+    OS?: 'android' | 'ios' | 'web' | null;
     PackageName?: string;
     VersionName?: string;
   }

@@ -17,34 +17,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
-import { formatWebStyle } from '../adapters/transfer';
 
-interface WebViewProps {
-  source: { uri: string };
-  userAgent: string;
-  method: string;
-  onLoadStart: ({ url: string }) => void;
-  onLoad: ({ url: string }) => void;
-  onLoadEnd: ({ url: string }) => void;
-  style: HippyTypes.Style;
-}
+import { canUseDOM } from '../utils';
 
-/**
- * System built-in WebView
- *
- * For iOS it uses WKWebView, for Android it uses Webkit built-in.
- */
-const WebView = (props: WebViewProps) => {
-  const { source, style, onLoadEnd } = props;
-  const src = source?.uri;
-  const newStyle = formatWebStyle(style);
+export const HIDE_SCROLLBAR_CLASS = '__hippy-react-hide-scrollbar';
+const hideScrollbarKey = '__hippyReactHideScrollbarActive';
 
-  return (
-    <iframe title="WebView" src={src} style={newStyle} onLoad={() => {
-      onLoadEnd({ url: src });
-    }} />
-  );
+export const shouldHideScrollBar = (isHideScrollBar: boolean) => {
+  if (canUseDOM) {
+    if (isHideScrollBar && !window[hideScrollbarKey]) {
+      window[hideScrollbarKey] = true;
+      document.styleSheets[0].addRule(`.${HIDE_SCROLLBAR_CLASS}::-webkit-scrollbar`, 'display: none');
+      document.styleSheets[0].addRule(`.${HIDE_SCROLLBAR_CLASS}`, '-ms-overflow-style: none; scrollbar-width: none;');
+    }
+  }
 };
-
-export default WebView;

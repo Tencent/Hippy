@@ -18,14 +18,9 @@
  * limitations under the License.
  */
 
-import { Device } from './native';
-import { warn } from './utils';
+export const canUseDOM = !!(window?.document?.createElement);
 
-global.Hippy = {
-  // @ts-ignore
-  Device,
-};
-global.getTurboModule = () => {
-  warn('getTurboModule is unsupported');
-  return {};
-};
+export const canUseClipboard = !!(window?.navigator?.clipboard);
+
+
+export const canUseCopyCommand = !!(document?.queryCommandSupported && document?.queryCommandSupported('copy'));
