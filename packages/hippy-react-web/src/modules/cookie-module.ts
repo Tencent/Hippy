@@ -28,15 +28,15 @@ import { canUseDOM } from '../utils';
 function getCookies(): Promise<string> {
   if (canUseDOM && document.cookie) {
     return Promise.resolve(document.cookie);
-  };
+  }
   return Promise.resolve('');
-};
+}
 
 /**
  * Set cookie to url
  *
  * @param {string} url - Specific url for cookie.
- * @param {string} cookie - Cookie key and value string, split with `:`.
+ * @param {string} keyValue - Cookie key and value string, split with `:`.
  * @param {Date|string} [expires] - UTC Date string or Date object for cookie expire.
  */
 function setCookie(url: string, keyValue: string, expires: string | Date): void {
