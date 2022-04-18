@@ -42,7 +42,7 @@ const unsupportedWarn = () => {
         + 'NetworkInformation document: https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation');
       didWarn = true;
     }
-  };
+  }
 };
 
 const getCurrentState = () => {
@@ -84,7 +84,7 @@ const NetInfo: NetInfoModule = {
           handler({ network_info: getCurrentState() });
         });
       });
-    };
+    }
     return {
       remove: () => {
         this.removeEventListener('change', listener);
@@ -94,7 +94,7 @@ const NetInfo: NetInfoModule = {
   removeEventListener(eventName: string, listener) {
     if (eventName === 'change') {
       eventListenerList.splice(eventListenerList.findIndex(handler => handler === listener), 1);
-    };
+    }
   },
   fetch() {
     if (!connection) {
