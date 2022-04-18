@@ -184,7 +184,7 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
       style.position = 'relative';
     }
     return (
-      defaultSource && <img style={style} src={defaultSource}></img>
+      defaultSource && <img style={style} src={defaultSource} />
     );
   };
 

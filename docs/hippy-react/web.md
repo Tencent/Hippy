@@ -3,7 +3,7 @@
 
 hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 库来将 Hippy 应用转译、运行在浏览器中。
 
-> 该项目仍在开发中，有不完善的地方，欢迎 PR。
+> @hippy/react-web 2.14.0 开始支持较为完整的转 Web 能力
 
 # 安装运行时依赖
 
@@ -12,7 +12,7 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 | 包名            | 说明                              |
 | --------------- | --------------------------------- |
 | react           | react 版本 >= v16.8.0      |
-| hippy-react-web | hippy-react 转 Web 适配器          |
+| hippy-react-web | hippy-react 转 Web 适配器    |
 | react-dom       | react 的 Web 的渲染器              |
 | animated-scroll-to | scroll 的时候添加动画            |
 | swiper          | ViewPager 需要                    |

@@ -86,6 +86,6 @@ class WebSocketWeb implements HippyTypes.WebSocket {
     }
     this.webSocketIns.send(data);
   }
-};
+}
 
 export default WebSocketWeb;
