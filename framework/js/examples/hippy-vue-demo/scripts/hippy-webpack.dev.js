@@ -3,6 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
@@ -84,6 +85,7 @@ module.exports = {
       // HMR [hash].hot-update.json will fetch from this path
       hotManifestPublicPath: 'http://localhost:38989/',
     }),
+    new CleanWebpackPlugin(),
   ],
   module: {
     rules: [
