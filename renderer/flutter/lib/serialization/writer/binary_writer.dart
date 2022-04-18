@@ -72,15 +72,23 @@ class BinaryWriter {
   /// @param start  The offset within the array of the first byte to be read
   /// @param length The number of bytes to be read from the given array
   ///
-  void putBytes(List<int> bytes, {int start = 0, int length = 0}) {
+  void putBytes(List<int> bytes, {int start = 0, int length = -1}) {
+    if (length == 0) {
+      return;
+    }
+
     var insertFullLength = bytes.length - start;
     if (insertFullLength < 0) {
       throw ArgumentError(
           "illegal write bytes, put start pos($start) out of bytes length(${bytes.length})");
     }
 
-    var realLength = min(insertFullLength, max(length, insertFullLength));
-    if (realLength == 0) {
+    var realLength = insertFullLength;
+    if (length > 0) {
+      realLength = min(insertFullLength, length);
+    }
+
+    if (realLength <= 0) {
       return;
     }
     for (var i = 0; i < realLength; i++) {

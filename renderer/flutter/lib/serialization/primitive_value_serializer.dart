@@ -211,8 +211,10 @@ abstract class PrimitiveValueSerializer extends SharedSerialization {
     }
 
     bool isOneByteString = true;
-    for (var element in curStringWriteBuffer) {
-      if (element >= 0x80) {
+
+    for (int idx = 0; idx < length; idx++) {
+      var charUnit = curStringWriteBuffer[idx];
+      if (charUnit >= 0x80) {
         isOneByteString = false;
         break;
       }
@@ -227,8 +229,9 @@ abstract class PrimitiveValueSerializer extends SharedSerialization {
       // region two byte string, universal path
       writeTag(SerializationTag.kTwoByteString);
       writer.putVarint(length * 2);
-      for (var char in curStringWriteBuffer) {
-        writer.putChar(char);
+      for (int idx = 0; idx < length; idx++) {
+        var charUnit = curStringWriteBuffer[idx];
+        writer.putChar(charUnit);
       }
     }
   }
