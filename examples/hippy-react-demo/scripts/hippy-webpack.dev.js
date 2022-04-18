@@ -3,6 +3,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const ReactRefreshWebpackPlugin = require('@hippy/hippy-react-refresh-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('../package.json');
 
 module.exports = {
@@ -27,6 +28,9 @@ module.exports = {
     liveReload: true,
     client: {
       overlay: false,
+    },
+    devMiddleware: {
+      writeToDisk: true,
     },
   },
   entry: {
@@ -56,6 +60,7 @@ module.exports = {
     new ReactRefreshWebpackPlugin({
       overlay: false,
     }),
+    new CleanWebpackPlugin(),
   ],
   module: {
     rules: [

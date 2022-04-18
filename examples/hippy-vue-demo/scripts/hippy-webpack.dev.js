@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
@@ -50,6 +51,9 @@ module.exports = {
     client: {
       overlay: false,
     },
+    devMiddleware: {
+      writeToDisk: true,
+    },
   },
   entry: {
     index: [path.resolve(pkg.nativeMain)],
@@ -82,6 +86,7 @@ module.exports = {
     //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
     //   filename: '[file].map',
     // }),
+    new CleanWebpackPlugin(),
   ],
   module: {
     rules: [
