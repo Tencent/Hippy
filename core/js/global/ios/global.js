@@ -14,7 +14,7 @@ __GLOBAL__.requestAnimationFrameQueue = {};
 __GLOBAL__.destroyInstanceList = {};
 __GLOBAL__._callID = 0;
 __GLOBAL__._callbackID = 0;
-__GLOBAL__._callbacks = [];
+__GLOBAL__._callbacks = {};
 __GLOBAL__._notDeleteCallbackIds = {};
 __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
 
@@ -58,7 +58,6 @@ __GLOBAL__.enqueueNativeCall = (moduleID, methodID, params, onFail, onSucc) => {
   if (onFail || onSucc) {
     if (typeof params === 'object' && params.length > 0 && typeof params[0] === 'object' && params[0].notDelete) {
       params.shift();
-
       __GLOBAL__._notDeleteCallbackIds[__GLOBAL__._callbackID] = true;
     }
 
