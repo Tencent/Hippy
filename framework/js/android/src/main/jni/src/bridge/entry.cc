@@ -39,6 +39,8 @@
 #include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "dom/dom_manager.h"
+#include "dom/node_props.h"
+#include "dom/animation_manager.h"
 #include "dom/deserializer.h"
 #include "dom/dom_value.h"
 #include "render/hippy_render_manager.h"
@@ -98,6 +100,16 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "(I)V",
              DestroyDomInstance)
 
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "createAnimationManager",
+             "(I)I",
+             CreateAnimationManager)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "destroyAnimationManager",
+             "(I)V",
+             DestroyAnimationManager)
+
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -148,11 +160,32 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
   return dom_manager->GetId();
 }
 
+jint CreateAnimationManager(JNIEnv* j_env,
+                            __unused jobject j_obj,
+                            jint j_dom_id) {
+  TDF_BASE_DCHECK(j_dom_id <= std::numeric_limits<std::int32_t>::max());
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(j_dom_id);
+  std::shared_ptr<AnimationManager> ani_manager =
+      std::make_shared<AnimationManager>(dom_manager);
+  AnimationManager::Insert(ani_manager);
+  dom_manager->AddInterceptor(ani_manager);
+  return ani_manager->GetId();
+}
+
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
   auto dom_manager = DomManager::Find(j_dom_id);
   if (dom_manager) {
     dom_manager->TerminateTaskRunner();
     DomManager::Erase(static_cast<int32_t>(j_dom_id));
+  }
+}
+
+void DestroyAnimationManager(JNIEnv* j_env,
+                             __unused jobject j_obj,
+                             jint j_ani_id) {
+  auto ani_manager = AnimationManager::Find(j_ani_id);
+  if (ani_manager) {
+    AnimationManager::Erase(static_cast<int32_t>(j_ani_id));
   }
 }
 
@@ -274,72 +307,51 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
 
 void UpdateAnimationNode(JNIEnv* j_env,
                          __unused jobject j_obj,
-                         jint j_dom_manager_id,
+                         jint j_ani_manager_id,
                          jbyteArray j_params,
                          jint j_offset,
                          jint j_length) {
-  TDF_BASE_LOG(INFO) << "UpdateAnimationNode begin, j_dom_manager_id = " << static_cast<uint32_t>(j_dom_manager_id)
+  TDF_BASE_LOG(INFO) << "UpdateAnimationNode begin, j_dom_manager_id = "
+                     << static_cast<uint32_t>(j_ani_manager_id)
                      << ", j_offset = " << static_cast<uint32_t>(j_offset)
                      << ", j_length = " << static_cast<uint32_t>(j_length);
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_manager_id));
+  std::shared_ptr<AnimationManager> ani_manager =
+      AnimationManager::Find(static_cast<int32_t>(j_ani_manager_id));
 
   tdf::base::DomValue params;
   if (j_params != nullptr && j_length > 0) {
     jbyte params_buffer[j_length];
     j_env->GetByteArrayRegion(j_params, j_offset, j_length, params_buffer);
-    tdf::base::Deserializer deserializer((const uint8_t*)params_buffer,
-                                         hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
+    tdf::base::Deserializer deserializer(
+        (const uint8_t*)params_buffer,
+        hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
     deserializer.ReadObject(params);
   }
 
   TDF_BASE_DCHECK(params.IsArray());
   tdf::base::DomValue::DomValueArrayType array = params.ToArrayChecked();
-  std::unordered_map<int32_t, std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> node_style_map;
+  std::unordered_map<
+      int32_t,
+      std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>
+      node_style_map;
+  std::vector<std::pair<uint32_t, std::shared_ptr<tdf::base::DomValue>>>
+      ani_data;
   for (size_t i = 0; i < array.size(); i++) {
     TDF_BASE_DCHECK(array[i].IsObject());
-    auto node = array[i].ToObjectChecked();
-    int32_t node_id = node["nodeId"].ToInt32Checked();
-    // int32_t animation_id = node["animationId"].ToInt32();
-    std::string animation_key = node["animationKey"].ToStringChecked();
-    tdf::base::DomValue animation_value = node["animationValue"];
-
-    auto iter = node_style_map.find(node_id);
-    if (iter == node_style_map.end()) {
-      std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map;
-      style_map.insert({animation_key, std::make_shared<tdf::base::DomValue>(animation_value)});
-      node_style_map.insert({node_id, style_map});
-    } else {
-      std::pair<std::string, std::shared_ptr<tdf::base::DomValue>> pair = {
-          animation_key, std::make_shared<tdf::base::DomValue>(animation_value)};
-      iter->second.insert(pair);
+    tdf::base::DomValue::DomValueObjectType node;
+    if (array[i].ToObject(node)) {
+      if (node[kAnimationId].IsInt32()) {
+        int32_t animation_id;
+        node[kAnimationId].ToInt32(animation_id);
+        tdf::base::DomValue animation_value = node[kAnimationValue];
+        ani_data.push_back(std::make_pair(
+            static_cast<uint32_t>(animation_id),
+            std::make_shared<tdf::base::DomValue>(animation_value)));
+      }
     }
   }
-
-  std::vector<std::shared_ptr<DomNode>> update_nodes;
-  for (auto& update_style_map : node_style_map) {
-    auto dom_node = dom_manager->GetNode(static_cast<uint32_t>(update_style_map.first));
-    if (dom_node == nullptr) {
-      TDF_BASE_DLOG(WARNING) << "UpdateAnimationNode DomNode not found for id: " << update_style_map.first;
-      return;
-    }
-    std::string tag_name = dom_node->GetTagName();
-    std::string view_name = dom_node->GetViewName();
-    auto style_map = dom_node->GetStyleMap();
-    auto dom_ext = dom_node->GetExtStyle();
-    std::shared_ptr<DomNode> upate_dom_node = std::make_shared<DomNode>(
-        dom_node->GetId(), dom_node->GetPid(), dom_node->GetIndex(), std::move(tag_name), std::move(view_name),
-        std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>(*style_map),
-        std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>(*dom_ext), dom_manager);
-    for (auto& style : update_style_map.second) {
-      upate_dom_node->EmplaceStyleMap(style.first, *style.second);
-    }
-
-    update_nodes.push_back(upate_dom_node);
-  }
-
-  dom_manager->UpdateDomNodes(std::move(update_nodes));
-  dom_manager->EndBatch();
+  ani_manager->OnAnimationUpdate(ani_data);
 }
 
 jlong InitInstance(JNIEnv* j_env,

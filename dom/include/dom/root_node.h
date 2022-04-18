@@ -12,6 +12,7 @@ class RootNode : public DomNode {
   void CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
+  void UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void SyncWithRenderManager(std::shared_ptr<RenderManager> render_manager);
   void DoAndFlushLayout(std::shared_ptr<RenderManager> render_manager);
 

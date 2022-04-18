@@ -104,11 +104,11 @@ DomValueArray DiffUtils::DiffArray(const DomValueArray& from, const DomValueArra
         return to;
       }
     } else if (from_value.IsArray()) {
-      if (!to_value.IsArray() || DiffArray(from_value.ToArrayChecked(), to_value.ToArrayChecked()).empty()) {
+      if (!to_value.IsArray() || DiffArray(from_value.ToArrayChecked(), to_value.ToArrayChecked()).size() > 0) {
         return to;
       }
     } else if (from_value.IsObject()) {
-      if (!to_value.IsObject() || DiffObject(from_value.ToObjectChecked(), to_value.ToObjectChecked()).empty()) {
+      if (!to_value.IsObject() || DiffObject(from_value.ToObjectChecked(), to_value.ToObjectChecked()).size() > 0) {
         return to;
       }
     } else if (from_value.IsNull()) {

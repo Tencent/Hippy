@@ -64,14 +64,18 @@ void DoBind(JNIEnv* j_env,
 
 void UpdateAnimationNode(JNIEnv* j_env,
                          __unused jobject j_obj,
-                         jint j_dom_manager_id,
+                         jint j_ani_manager_id,
                          jbyteArray j_params,
                          jint j_offset,
                          jint j_length);
 
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id);
 
+jint CreateAnimationManager(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
+
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
+
+void DestroyAnimationManager(JNIEnv* j_env, __unused jobject j_obj, jint j_ani_id);
 
 }  // namespace bridge
 }  // namespace hippy

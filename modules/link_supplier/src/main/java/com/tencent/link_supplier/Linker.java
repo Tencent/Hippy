@@ -16,6 +16,8 @@
 package com.tencent.link_supplier;
 
 import androidx.annotation.NonNull;
+
+import com.tencent.link_supplier.proxy.LinkProxy;
 import com.tencent.link_supplier.proxy.dom.DomProxy;
 import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.RenderProxy;
@@ -26,6 +28,7 @@ public class Linker implements LinkHelper {
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
+    private AnimationManagerProxy mAniManagerProx;
     private final int mRootId;
 
     public Linker() {
@@ -51,6 +54,14 @@ public class Linker implements LinkHelper {
     }
 
     @Override
+    public void createAnimationManager() {
+      if (mAniManagerProx == null && mDomProxy != null) {
+        mAniManagerProx = new AnimationManagerProxy(mDomProxy.getInstanceId());
+      }
+    }
+
+
+  @Override
     public void createDomHolder(int instanceId) {
         if (mDomProxy == null) {
             mDomProxy = new DomHolder(instanceId);
@@ -94,7 +105,7 @@ public class Linker implements LinkHelper {
 
     @Override
     public void updateAnimationNode(byte[] params, int offset, int length) {
-        updateAnimationNode(mDomProxy.getInstanceId(), params, offset, length);
+        updateAnimationNode(mAniManagerProx.getInstanceId(), params, offset, length);
     }
 
     @Override
@@ -102,6 +113,10 @@ public class Linker implements LinkHelper {
         if (mDomProxy != null) {
             mDomProxy.destroy();
             mDomProxy = null;
+        }
+        if (mAniManagerProx != null) {
+            mAniManagerProx.destroy();
+            mAniManagerProx = null;
         }
         if (mRenderProxy != null) {
             mRenderProxy.destroy();
@@ -136,6 +151,24 @@ public class Linker implements LinkHelper {
         }
     }
 
+    private class AnimationManagerProxy implements LinkProxy {
+      private final int mInstanceId;
+
+      public AnimationManagerProxy(int domId) {
+        mInstanceId = createAnimationManager(domId);
+      }
+
+      @Override
+      public int getInstanceId() {
+        return mInstanceId;
+      }
+
+      @Override
+      public void destroy() {
+          destroyAnimationManager(mInstanceId);
+      }
+    }
+
     private RenderProxy createNativeRenderer() {
         try {
             Class nativeRendererClass = Class
@@ -156,11 +189,26 @@ public class Linker implements LinkHelper {
     private native int createDomInstance(int rootId);
 
     /**
+     * Create native (C++) dom manager instance.
+     *
+     * @param domId dom instance id
+     * @return the unique id of native (C++) animation manager
+     */
+    private native int createAnimationManager(int domId);
+
+    /**
      * Release native (C++) dom manager instance.
      *
      * @param instanceId the unique id of native (C++) dom manager
      */
     private native void destroyDomInstance(int instanceId);
+
+    /**
+     * Release native (C++) dom manager instance.
+     *
+     * @param instanceId the unique id of native (C++) dom manager
+     */
+    private native void destroyAnimationManager(int instanceId);
 
     /**
      * Bind native (C++) dom manager, render manager and framework with instance id.
@@ -187,5 +235,5 @@ public class Linker implements LinkHelper {
      * @param offset start position of params buffer
      * @param length available total length of params buffer
      */
-    private native void updateAnimationNode(int domId, byte[] params, int offset, int length);
+    private native void updateAnimationNode(int aniId, byte[] params, int offset, int length);
 }

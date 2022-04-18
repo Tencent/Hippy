@@ -13,6 +13,8 @@
 #include "dom/macro.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
+#include "dom/dom_action_interceptor.h"
+#include "dom/animation_manager.h"
 
 namespace hippy {
 inline namespace dom {
@@ -78,6 +80,9 @@ std::shared_ptr<DomNode> DomManager::GetNode(uint32_t id) const {
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes]() mutable {
     DEFINE_AND_CHECK_SELF(DomManager)
+    for (std::shared_ptr<DomActionInterceptor> interceptor : self->interceptors_) {
+      interceptor->OnDomNodeCreate(nodes);
+    }
     self->root_node_->CreateDomNodes(std::move(nodes));
   });
 }
@@ -85,13 +90,23 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes]() mutable {
     DEFINE_AND_CHECK_SELF(DomManager)
+    for (std::shared_ptr<DomActionInterceptor> interceptor : self->interceptors_) {
+      interceptor->OnDomNodeUpdate(nodes);
+    }
     self->root_node_->UpdateDomNodes(std::move(nodes));
   });
+}
+
+void DomManager::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+  root_node_->UpdateAnimation(std::move(nodes));
 }
 
 void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   PostTask([WEAK_THIS, nodes]() mutable {
     DEFINE_AND_CHECK_SELF(DomManager)
+    for (std::shared_ptr<DomActionInterceptor> interceptor : self->interceptors_) {
+      interceptor->OnDomNodeDelete(nodes);
+    }
     self->root_node_->DeleteDomNodes(std::move(nodes));
   });
 }
@@ -303,6 +318,10 @@ void DomManager::Layout() {
     return;
   }
   root_node_->DoAndFlushLayout(render_manager);
+}
+
+void DomManager::AddInterceptor(std::shared_ptr<DomActionInterceptor> interceptor) {
+    interceptors_.push_back(interceptor);
 }
 
 }  // namespace dom
