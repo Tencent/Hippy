@@ -1,6 +1,5 @@
 // @dart=2.9
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:voltron_renderer/common.dart';
 import 'package:voltron_renderer/util/extension_util.dart';
@@ -10,6 +9,13 @@ void testNum(num num) {
   expect(encodeList.isNotEmpty, true);
   var decodeNum = encodeList.decode();
   expect(decodeNum, num);
+}
+
+void testString(String str) {
+  var encodeList = str.encode();
+  expect(encodeList.isNotEmpty, true);
+  var decodeStr = encodeList.decode();
+  expect(decodeStr, str);
 }
 
 void testMap(Map object) {
@@ -74,6 +80,24 @@ void main() {
     windowPhysicalPixelsMap.push('bottomBarHeight', 0.0);
     paramsMap.push('windowPhysicalPixels', windowPhysicalPixelsMap);
     map.push("params", paramsMap);
+    testVoltronMap(map);
+  });
+
+  test('test serializer load instance voltron map', () {
+    var map = VoltronMap();
+    map.push("name", 'Demo');
+    map.push("id", 100000);
+    var params = VoltronMap();
+    params.push('msgFromNative', 'Hi js developer, I come from native code!');
+    params.push('sourcePath', 'http://localhost:38989/index.bundle');
+    map.push("params", params);
+    testVoltronMap(map);
+  });
+
+  test('test serializer string', () {
+    var map = VoltronMap();
+    map.push('msgFromNative', 'Hi js developer, I come from native code!');
+    map.push("params", 'http://localhost:38989/index.bundle');
     testVoltronMap(map);
   });
 }
