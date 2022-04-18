@@ -26,7 +26,7 @@ static std::atomic<int32_t> global_dom_manager_key{0};
 constexpr uint32_t kInvalidListenerId = 0;
 
 DomManager::DomManager(uint32_t root_id) {
-  root_node_ = std::make_shared<RootNode>(root_id);
+  root_node_ = std::make_shared<RootNode>(root_id, weak_from_this());
   dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
   id_ = global_dom_manager_key.fetch_add(1);
 }
