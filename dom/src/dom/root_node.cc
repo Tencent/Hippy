@@ -113,6 +113,23 @@ void RootNode::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   }
 }
 
+void RootNode::UpdateAnimation(std::vector<std::shared_ptr<DomNode>> &&nodes) {
+    std::vector<std::shared_ptr<DomNode>> nodes_to_update;
+    for (const auto& it : nodes) {
+        std::shared_ptr<DomNode> node = GetNode(it->GetId());
+        if (node == nullptr) {
+            continue;
+        }
+        nodes_to_update.push_back(node);
+        node->ParseLayoutStyleInfo();
+        node->HandleEvent(std::make_shared<DomEvent>(kDomUpdated, node, nullptr));
+    }
+    HandleEvent(std::make_shared<DomEvent>(kDomTreeUpdated, weak_from_this(), nullptr));
+    if (!nodes_to_update.empty()) {
+        dom_operations_.push_back({DomOperation::kOpUpdate, nodes_to_update});
+    }
+}
+
 void RootNode::SyncWithRenderManager(std::shared_ptr<RenderManager> render_manager) {
   FlushDomOperations(render_manager);
   FlushEventOperations(render_manager);

@@ -775,6 +775,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mLinkHelper = (mDebugMode && mRootView != null) ? new Linker(mRootView.getId())
                     : new Linker();
             mLinkHelper.createDomHolder();
+            mLinkHelper.createAnimationManager();
             mLinkHelper.createRenderer(NATIVE_RENDER);
             mLinkHelper.setFrameworkProxy(HippyEngineManagerImpl.this);
             List<Class<?>> controllers = null;

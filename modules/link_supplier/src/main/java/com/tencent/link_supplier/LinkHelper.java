@@ -70,6 +70,10 @@ public interface LinkHelper {
     void createDomHolder();
 
     /**
+     * Create animation manager, will call native jni {@link Linker#createAnimationManager()}
+     */
+    void createAnimationManager();
+    /**
      * Create dom holder with instance id, just set new id, not call native jni {@link
      * Linker#createDomInstance()}
      *

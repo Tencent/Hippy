@@ -223,6 +223,8 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array);
   j_env->DeleteLocalRef(j_int_array);
+  j_env->DeleteLocalRef(j_class);
+
 }
 
 void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
@@ -278,6 +280,7 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array, to_pid, from_pid);
   j_env->DeleteLocalRef(j_int_array);
+  j_env->DeleteLocalRef(j_class);
 }
 
 void HippyRenderManager::EndBatch() { CallNativeMethod("endBatch"); }
@@ -335,6 +338,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
   j_env->CallVoidMethod(j_object, j_method_id, node->GetId(), (jlong)cb_id, j_name, j_buffer);
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_name);
+  j_env->DeleteLocalRef(j_class);
 }
 
 float HippyRenderManager::DpToPx(float dp) const { return dp * density_; }
@@ -367,6 +371,7 @@ void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buf
   j_env->CallVoidMethod(j_object, j_method_id, j_buffer);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_buffer);
+  j_env->DeleteLocalRef(j_class);
 }
 
 void HippyRenderManager::CallNativeMethod(const std::string& method) {
@@ -388,6 +393,8 @@ void HippyRenderManager::CallNativeMethod(const std::string& method) {
 
   j_env->CallVoidMethod(j_object, j_method_id);
   JNIEnvironment::ClearJEnvException(j_env);
+  j_env->DeleteLocalRef(j_class);
+
 }
 
 void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode,
@@ -411,7 +418,9 @@ void HippyRenderManager::CallNativeMeasureMethod(const int32_t id, const float w
   jlong measure_result = j_env->CallLongMethod(j_object, j_method_id, id, width, width_mode, height, height_mode);
   JNIEnvironment::ClearJEnvException(j_env);
 
-  result = (int64_t)measure_result;
+  result = static_cast<int64_t>(measure_result);
+  j_env->DeleteLocalRef(j_class);
+
 }
 
 void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name) {

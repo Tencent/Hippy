@@ -50,6 +50,9 @@ constexpr const char* kPaddingRight = "paddingRight";
 constexpr const char* kPaddingBottom = "paddingBottom";
 
 constexpr const char* kStyle = "style";
+constexpr const char* kUseAnimation = "useAnimation";
+constexpr const char* kAnimationId = "animationId";
+constexpr const char* kAnimationValue = "animationValue";
 
 constexpr const char* kBackgroundColor = "backgroundColor";
 constexpr const char* kColor = "color";
