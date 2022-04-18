@@ -33,9 +33,13 @@ class DevToolUtils {
                                                      const std::shared_ptr<DomNode>& new_node);
   static std::shared_ptr<DomNode> GetMaxDepthAndMinAreaHitNode(const std::shared_ptr<DomNode>& node, double x,
                                                                double y);
-  static std::string ParseNodeProps(
+  static std::string ParseNodeKeyProps(const std::string& node_key,
       const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>& node_props);
+  static std::string ParseNodeProps(
+                                    const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>& node_props);
+  static std::string ParseNodeProps(const std::unordered_map<std::string, tdf::base::DomValue>& node_props);
   static std::string ParseDomValue(const tdf::base::DomValue& value);
+  static void AppendDomKeyValue(std::string& node_str, bool& first_object, const std::string& node_key, const tdf::base::DomValue& dom_value);
   static void PostDomTask(int32_t dom_id, std::function<void()> func);
 };
 }  // namespace devtools
