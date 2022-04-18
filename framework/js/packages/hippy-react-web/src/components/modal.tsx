@@ -108,7 +108,7 @@ export interface ModalProps {
   onDismiss?: Function;
   transparent?: boolean;
   visible?: boolean;
-};
+}
 type AnimationModalProps = Pick<ModalProps, 'animationType' | 'onDismiss' | 'visible' | 'onShow' | 'transparent' | 'darkStatusBarText'> & { children: any };
 
 const getAnimationStyle = (animationType: AnimationType, visible: boolean) => {

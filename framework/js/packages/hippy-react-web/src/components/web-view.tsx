@@ -28,7 +28,7 @@ interface WebViewProps {
   onLoad: ({ url: string }) => void;
   onLoadEnd: ({ url: string }) => void;
   style: HippyTypes.Style;
-};
+}
 
 /**
  * System built-in WebView
