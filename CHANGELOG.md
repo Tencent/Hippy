@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.6](https://github.com/Tencent/Hippy/compare/2.13.5...2.13.6) (2022-04-18)
+
+
+### Bug Fixes
+
+* **core:** change callbacks to object to fix memory leak ([9ea52da](https://github.com/Tencent/Hippy/commit/9ea52dae503512ef22e9a928483ef4119674c49b))
+
+
+
+
+
 ## [2.13.5](https://github.com/Tencent/Hippy/compare/2.13.4...2.13.5) (2022-04-01)
 
 
