@@ -7,7 +7,7 @@ inline namespace dom {
 
 class RootNode : public DomNode {
  public:
-  RootNode(uint32_t id, const std::weak_ptr<DomManager>& dom_manager);
+  RootNode(uint32_t id);
 
   void CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);

@@ -141,6 +141,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
   void UpdateObjectStyle(DomValue& style_map, const DomValue& update_style);
   bool ReplaceStyle(DomValue& object, const std::string&key, const DomValue& value);
+  inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) { dom_manager_ = dom_manager; }
 
  private:
   uint32_t id_;             // 节点唯一id
@@ -175,6 +176,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
                                      std::array<std::vector<std::shared_ptr<EventListenerInfo>>,
                                                 2>>>
       event_listener_map_;
+
+  friend DomManager;
 };
 
 }  // namespace dom
