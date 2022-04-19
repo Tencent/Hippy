@@ -10,11 +10,11 @@ constexpr char kOnDomCreated[] = "onDomCreated";
 constexpr char kOnDomUpdated[] = "onDomUpdated";
 constexpr char kOnDomDeleted[] = "onDomDeleted";
 
-RootNode::RootNode(uint32_t id, const std::weak_ptr<DomManager> &dom_manager)
+RootNode::RootNode(uint32_t id)
         : DomNode(id, 0, 0, "", "",
                   std::unordered_map<std::string, std::shared_ptr<DomValue>>(),
                   std::unordered_map<std::string, std::shared_ptr<DomValue>>(),
-                  dom_manager.lock()) {}
+                  nullptr) {}
 
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;

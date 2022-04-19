@@ -26,7 +26,7 @@ static std::atomic<int32_t> global_dom_manager_key{0};
 constexpr uint32_t kInvalidListenerId = 0;
 
 DomManager::DomManager(uint32_t root_id) {
-  root_node_ = std::make_shared<RootNode>(root_id, weak_from_this());
+  root_node_ = std::make_shared<RootNode>(root_id);
   dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
   id_ = global_dom_manager_key.fetch_add(1);
 }
@@ -58,6 +58,7 @@ bool DomManager::Erase(int32_t id) {
 bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
 void DomManager::SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
+  root_node_->SetDomManager(weak_from_this());
 #ifdef ENABLE_LAYER_OPTIMIZATION
   optimized_render_manager_ = std::make_shared<LayerOptimizedRenderManager>(render_manager);
   render_manager_ = optimized_render_manager_;
@@ -169,6 +170,7 @@ void DomManager::SetRootNode(const std::shared_ptr<RootNode>& root_node) {
     DEFINE_AND_CHECK_SELF(DomManager)
     if (root_node) {
       self->root_node_ = root_node;
+      root_node->SetDomManager(self);
     }
   });
 }
