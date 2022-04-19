@@ -954,6 +954,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
     }
     else {
+        //TODO
+        HippyAssert(NO, @"目前hippy底层会封装DomValue为Array类型。可能第三方接入者不一定会将其封装为Array");
         [finalParams addObject:[NSNull null]];
     }
     if (cb) {
