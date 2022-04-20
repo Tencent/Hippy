@@ -59,7 +59,7 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
     BOOL _implementsUIBlockToAmendWithShadowViewRegistry;
     __weak HippyViewManager *_manager;
-    NSDictionary<NSString *, id<HippyBridgeMethod>> *_methodsByName;
+    NSDictionary<NSString *, NSValue *> *_methodsByName;
 }
 
 @end
@@ -439,7 +439,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [_eventNameMap copy];
 }
 
-- (NSDictionary<NSString *, id<HippyBridgeMethod>> *)methodsByName {
+- (NSDictionary<NSString *, NSValue *> *)methodsByName {
     if (!_methodsByName) {
         [self methods];
     }
@@ -448,7 +448,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (void)methods {
     if (!_methodsByName) {
-        NSMutableDictionary<NSString *, id<HippyBridgeMethod>> *methodsDic = [NSMutableDictionary dictionary];
+        NSMutableDictionary<NSString *, NSValue *> *methodsDic = [NSMutableDictionary dictionary];
         unsigned int methodCount;
         Class cls = _managerClass;
         while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
@@ -459,16 +459,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                 if ([NSStringFromSelector(selector) hasPrefix:@"__render_export__"]) {
                     IMP imp = method_getImplementation(method);
                     NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(_managerClass, selector);
-//                    id<HippyBridgeMethod> moduleMethod =
-//                        [[HippyModuleMethod alloc] initWithMethodSignature:entries[1]
-//                                                              JSMethodName:entries[0]
-//                                                               moduleClass:_managerClass];
-//                    [methodsDic setObject:moduleMethod forKey:moduleMethod.JSMethodName];
                     NSString *JSMethodName = [self JSMethodNameFromEntries:entries];
-                    SEL selector = [self selectorFromSignature:entries[1]];
+                    NSString *selectorString = [self selectorStringFromSignature:entries[1]];
+                    NSValue *selectorPointer = [NSValue valueWithPointer:NSSelectorFromString(selectorString)];
+                    [methodsDic setObject:selectorPointer forKey:JSMethodName];
                 }
             }
-
             free(methods);
             cls = class_getSuperclass(cls);
         }
@@ -492,7 +488,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return @"";
 }
 
-- (SEL)selectorFromSignature:(NSString *)signature {
+- (NSString *)selectorStringFromSignature:(NSString *)signature {
 //    signature = @"createView:(nonnull NSNumber *)hippyTag viewName:(NSString *)viewName rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName props:(NSDictionary *)props";
 //    signature = @"startBatch";
 //    signature = @"endBatch:";
@@ -521,7 +517,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             [selString appendFormat:@"%@:", selPartString];
         }
     }
-    return NSSelectorFromString(selString);
+    HippyAssert([selString length] > 0, @"signature parse failed");
+    return [selString copy];
 }
 
 - (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
