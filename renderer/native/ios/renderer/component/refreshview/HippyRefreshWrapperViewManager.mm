@@ -34,7 +34,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 }
 
 // clang-format off
-HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag args:(id)arg) {
+RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag args:(id)arg) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView refreshCompleted];
@@ -43,7 +43,7 @@ HIPPY_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag args:(id)arg
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)hippyTag args:(id)arg) {
+RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)hippyTag args:(id)arg) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView startRefresh];

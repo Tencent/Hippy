@@ -39,7 +39,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 
 // clang-format off
-HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
@@ -55,7 +55,7 @@ HIPPY_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
