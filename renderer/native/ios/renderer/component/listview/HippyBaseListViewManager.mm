@@ -48,7 +48,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 }
 
 // clang-format off
-HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 									xIndex:(__unused NSNumber *)xIndex
 									yIndex:(__unused NSNumber *)yIndex
 									animation:(nonnull NSNumber *)animation) {
@@ -65,7 +65,7 @@ HIPPY_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
 									x:(nonnull NSNumber *)x
 									y:(nonnull NSNumber *)y
 									animation:(nonnull NSNumber *)animation) {

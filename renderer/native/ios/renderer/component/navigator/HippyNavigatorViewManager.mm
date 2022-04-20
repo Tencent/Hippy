@@ -36,7 +36,7 @@
 }
 
 // clang-format off
-HIPPY_EXPORT_METHOD(push:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__nonnull)params) {
+RENDER_COMPONENT_EXPORT_METHOD(push:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__nonnull)params) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyNavigatorHostView *navigatorHostView = viewRegistry[hippyTag];
         [navigatorHostView push:params];
@@ -45,7 +45,7 @@ HIPPY_EXPORT_METHOD(push:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__no
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(pop:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__nonnull)params) {
+RENDER_COMPONENT_EXPORT_METHOD(pop:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__nonnull)params) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyNavigatorHostView *navigatorHostView = viewRegistry[hippyTag];
         [navigatorHostView pop:params];

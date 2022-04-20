@@ -115,6 +115,18 @@
     HIPPY_REMAP_SHADOW_PROPERTY(name, __custom__, type)     \
     -(void)set_##name : (id)json forShadowView : (viewClass *)view
 
+
+#define RENDER_CONCAT2(A, B) A##B
+#define RENDER_CONCAT(A, B) RENDER_CONCAT2(A, B)
+
+#define RENDER_COMPONENT_EXPORT_METHOD(method_name) RENDER_COMPONENT_REMAP_METHOD(, method_name)
+
+#define RENDER_COMPONENT_REMAP_METHOD(js_name, method_name)                                                                     \
+    +(NSArray<NSString *> *)RENDER_CONCAT(__render_export__, RENDER_CONCAT(js_name, RENDER_CONCAT(__LINE__, __COUNTER__))) {    \
+        return @[@#js_name, @#method_name];                                                                                     \
+    }                                                                                                                           \
+    -(void)method_name
+
 @end
 
 @interface HippyViewManager (InitProps)

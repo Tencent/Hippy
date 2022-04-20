@@ -954,6 +954,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
     }
     else {
+        //TODO
+        HippyAssert(NO, @"目前hippy底层会封装DomValue为Array类型。可能第三方接入者不一定会将其封装为Array");
         [finalParams addObject:[NSNull null]];
     }
     if (cb) {
@@ -967,18 +969,33 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
     HippyViewManager *viewManager = [self renderViewManagerForViewName:nativeModuleName];
     HippyComponentData *componentData = [self componentDataForViewName:nativeModuleName];
-    id<HippyBridgeMethod> method = componentData.methodsByName[name];
-    if (!method) {
+    NSValue *selectorPointer = [componentData.methodsByName objectForKey:name];
+    SEL selector = (SEL)[selectorPointer pointerValue];
+    if (!selector) {
         return nil;
     }
     @try {
-        return [method invokeWithBridge:nil module:viewManager arguments:finalParams];
+        NSMethodSignature *methodSignature = [viewManager methodSignatureForSelector:selector];
+        HippyAssert(methodSignature, @"method signature creation failure");
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+        [invocation setSelector:selector];
+        for (NSInteger i = 0; i < [finalParams count]; i++) {
+            id object = finalParams[i];
+            [invocation setArgument:&object atIndex:i+2];
+        }
+        [invocation invokeWithTarget:viewManager];
+        void *returnValue = nil;
+        if (strcmp(invocation.methodSignature.methodReturnType, "@") == 0) {
+            [invocation getReturnValue:&returnValue];
+            return (__bridge id)returnValue;
+        }
+        return nil;
     } @catch (NSException *exception) {
         if ([exception.name hasPrefix:HippyFatalExceptionName]) {
             @throw exception;
         }
 
-        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, method.JSMethodName, nativeModuleName, finalParams];
+        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, name, nativeModuleName, finalParams];
         NSError *error = HippyErrorWithMessage(message);
         HippyFatal(error);
         return nil;

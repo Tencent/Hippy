@@ -71,7 +71,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
 HIPPY_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
 // clang-format off
-HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
+RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
          if (view == nil) return ;
@@ -84,7 +84,7 @@ HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
+RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
          if (view == nil) return ;
@@ -97,7 +97,7 @@ HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
+RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
         if (view == nil) return ;
@@ -110,7 +110,7 @@ HIPPY_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
                   text:(NSString *)text ) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
@@ -124,7 +124,7 @@ HIPPY_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
                   callback:(HippyResponseSenderBlock)callback ) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];

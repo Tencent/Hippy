@@ -96,7 +96,7 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
 }
 
 // clang-format off
-HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
                     callback:(HippyResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:
      ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -120,7 +120,7 @@ HIPPY_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
                     offsetX:(CGFloat)x
                     offsetY:(CGFloat)y
                     animated:(BOOL)animated) {
@@ -139,7 +139,7 @@ HIPPY_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
+RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
                     options:(NSDictionary *)options) {
     [self.renderContext addUIBlock:
      ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){

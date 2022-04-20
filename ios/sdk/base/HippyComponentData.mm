@@ -59,7 +59,7 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
     BOOL _implementsUIBlockToAmendWithShadowViewRegistry;
     __weak HippyViewManager *_manager;
-    NSDictionary<NSString *, id<HippyBridgeMethod>> *_methodsByName;
+    NSDictionary<NSString *, NSValue *> *_methodsByName;
 }
 
 @end
@@ -439,7 +439,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [_eventNameMap copy];
 }
 
-- (NSDictionary<NSString *, id<HippyBridgeMethod>> *)methodsByName {
+- (NSDictionary<NSString *, NSValue *> *)methodsByName {
     if (!_methodsByName) {
         [self methods];
     }
@@ -448,7 +448,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (void)methods {
     if (!_methodsByName) {
-        NSMutableDictionary<NSString *, id<HippyBridgeMethod>> *methodsDic = [NSMutableDictionary dictionary];
+        NSMutableDictionary<NSString *, NSValue *> *methodsDic = [NSMutableDictionary dictionary];
         unsigned int methodCount;
         Class cls = _managerClass;
         while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
@@ -456,22 +456,69 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             for (unsigned int i = 0; i < methodCount; i++) {
                 Method method = methods[i];
                 SEL selector = method_getName(method);
-                if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export__"]) {
+                if ([NSStringFromSelector(selector) hasPrefix:@"__render_export__"]) {
                     IMP imp = method_getImplementation(method);
                     NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(_managerClass, selector);
-                    id<HippyBridgeMethod> moduleMethod =
-                        [[HippyModuleMethod alloc] initWithMethodSignature:entries[1]
-                                                              JSMethodName:entries[0]
-                                                               moduleClass:_managerClass];
-                    [methodsDic setObject:moduleMethod forKey:moduleMethod.JSMethodName];
+                    NSString *JSMethodName = [self JSMethodNameFromEntries:entries];
+                    NSString *selectorString = [self selectorStringFromSignature:entries[1]];
+                    NSValue *selectorPointer = [NSValue valueWithPointer:NSSelectorFromString(selectorString)];
+                    [methodsDic setObject:selectorPointer forKey:JSMethodName];
                 }
             }
-
             free(methods);
             cls = class_getSuperclass(cls);
         }
         _methodsByName = [methodsDic copy];
     }
+}
+
+- (NSString *)JSMethodNameFromEntries:(NSArray<NSString *> *)entries {
+    HippyAssert(2 == [entries count], @"entries should contains 2 items, one is js method, the other is method signature");
+    NSString *jsName = [entries firstObject];
+    if ([jsName length] > 0) {
+        return jsName;
+    }
+    NSString *signature = [entries lastObject];
+    NSRange range = [signature rangeOfString:@":"];
+    if (NSNotFound != range.location) {
+        jsName = [signature substringToIndex:range.location];
+        jsName = [jsName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        return jsName;
+    }
+    return @"";
+}
+
+- (NSString *)selectorStringFromSignature:(NSString *)signature {
+//    signature = @"createView:(nonnull NSNumber *)hippyTag viewName:(NSString *)viewName rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName props:(NSDictionary *)props";
+//    signature = @"startBatch";
+//    signature = @"endBatch:";
+//    signature = @"startBatch:::";
+//    signature = @"startBatch:_::";
+    NSArray<NSString *> *colonsComponent = [signature componentsSeparatedByString:@":"];
+    NSUInteger colonsComponentCount = [colonsComponent count];
+    NSMutableString *selString = [NSMutableString stringWithCapacity:64];
+    if (1 == colonsComponentCount) {
+        [selString appendString:signature];
+    }
+    else {
+        for (NSUInteger i = 0; i < colonsComponentCount; i++) {
+            if (i == colonsComponentCount - 1) {
+                break;
+            }
+            NSString *signaturePart = colonsComponent[i];
+            NSUInteger lastWhitespaceLocation = [signaturePart rangeOfString:@" " options:NSBackwardsSearch].location;
+            NSString *selPartString = nil;
+            if (NSNotFound == lastWhitespaceLocation) {
+                selPartString = signaturePart;
+            }
+            else {
+                selPartString = [signaturePart substringFromIndex:lastWhitespaceLocation + 1];
+            }
+            [selString appendFormat:@"%@:", selPartString];
+        }
+    }
+    HippyAssert([selString length] > 0, @"signature parse failed");
+    return [selString copy];
 }
 
 - (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
