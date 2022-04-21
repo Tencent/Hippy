@@ -23,7 +23,7 @@
 #import "ViewController.h"
 #import "HippyRootView.h"
 #import "HippyBridge+LocalFileSource.h"
-#import "HippyLog.h"
+#import "HippyLogging.h"
 #import "HippyBundleURLProvider.h"
 #import "UIView+Hippy.h"
 #include "dom/dom_manager.h"
@@ -36,6 +36,8 @@
 #import "HippyDomNodeUtils.h"
 #import "HippyImageDataLoader.h"
 #import "HippyDefaultImageProvider.h"
+#import "HippyRedBox.h"
+#import "HippyAssert.h"
 
 @interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy> {
     std::shared_ptr<hippy::DomManager> _domManager;
@@ -50,8 +52,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-
-    HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+    HippySetLogMessageFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
     });
     [self runCommonDemo];
@@ -89,6 +90,12 @@
                                                          moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)}
                                                       launchOptions:nil delegate:nil];
 #endif
+    HippySetErrorLogShowAction(^(NSString *message, NSArray<NSDictionary *> *stacks) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stacks];
+        });
+    });
+    
     rootView.frame = self.view.bounds;
     
     //1.initial render context with root view
