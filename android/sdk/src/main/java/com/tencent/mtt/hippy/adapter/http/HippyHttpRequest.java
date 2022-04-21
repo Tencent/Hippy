@@ -135,22 +135,7 @@ public class HippyHttpRequest {
       final String country = locale.getCountry();
       buffer.append("-");
       buffer.append(country.toLowerCase());
-      // add the model for the release build
-      if (android.os.Build.VERSION.SDK_INT > 3 && "REL".equals(Build.VERSION.CODENAME)) {
-        final String model = Build.MODEL;
-        if (model.length() > 0) {
-          buffer.append("; ");
-          buffer.append(model);
-        }
-      }
-      final String id = Build.ID;
-      if (id.length() > 0) {
-        buffer.append(" Build/");
-        buffer.append(id);
-      }
-
       final String base = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
-
       USER_AGENT = String.format(base, buffer);
     }
   }
