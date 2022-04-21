@@ -26,7 +26,6 @@
 #import "UIView+Hippy.h"
 #import "HippyNavigatorItemViewController.h"
 #import "HippyNavigatorRootViewController.h"
-#import "HippyAssert.h"
 #import "UIView+AppearEvent.h"
 
 @interface HippyNavigatorHostView () {
@@ -75,7 +74,7 @@
         UIView *rootView = [self createRootViewForModuleName:_appName initProperties:_initProps];
         HippyNavigatorItemViewController *itemViewController = [[HippyNavigatorItemViewController alloc] initWithView:rootView];
         UIViewController *presentingViewController = [self hippyViewController];
-        HippyAssert(presentingViewController, @"no presenting view controller for navigator module");
+        NSAssert(presentingViewController, @"no presenting view controller for navigator module");
         _navigatorRootViewController = [[HippyNavigatorRootViewController alloc] initWithRootViewController:itemViewController];
         _navigatorRootViewController.navigationBar.hidden = YES;
         _navigatorRootViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;

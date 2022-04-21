@@ -492,7 +492,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     //    self.layer.magnificationFilter = kCAFilterTrilinear;
 
     if (image.images) {
-        HippyAssert(NO, @"GIF should not invoke this");
+        NSAssert(NO, @"GIF should not invoke this");
     } else {
         self.image = image;
     }
@@ -530,19 +530,19 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         CGFloat height = CGRectGetHeight(contentRect);
         BOOL flag1 = _borderTopLeftRadius <= MIN(width, height) / 2;
         if (!flag1) {
-            HippyLog(@"[warning] _borderTopLeftRadius must be shorter than width / 2");
+            //HippyLog(@"[warning] _borderTopLeftRadius must be shorter than width / 2");
         }
         BOOL flag2 = _borderTopRightRadius <= MIN(width, height) / 2;
         if (!flag2) {
-            HippyLog(@"[warning] _borderTopRightRadius must be shorter than width / 2");
+            //HippyLog(@"[warning] _borderTopRightRadius must be shorter than width / 2");
         }
         BOOL flag3 = _borderBottomLeftRadius <= MIN(width, height) / 2;
         if (!flag3) {
-            HippyLog(@"[warning] _borderBottomLeftRadius must be shorter than width / 2");
+            //HippyLog(@"[warning] _borderBottomLeftRadius must be shorter than width / 2");
         }
         BOOL flag4 = _borderBottomRightRadius <= MIN(width, height) / 2;
         if (!flag4) {
-            HippyLog(@"[warning] _borderBottomRightRadius must be shorter than width / 2");
+            //HippyLog(@"[warning] _borderBottomRightRadius must be shorter than width / 2");
         }
 #endif
 

@@ -54,8 +54,8 @@
     -(id)method
 
 #define HIPPY_EXTERN_REMAP_TURBO_METHOD(js_name, method)                                                \
-    +(NSArray<NSString *> *)Hippy_CONCAT(__hippy_export_turbo__,                                        \
-                                         Hippy_CONCAT(js_name, Hippy_CONCAT(__LINE__, __COUNTER__))) {  \
+    +(NSArray<NSString *> *)HIPPY_CONCAT(__hippy_export_turbo__,                                        \
+                                         HIPPY_CONCAT(js_name, HIPPY_CONCAT(__LINE__, __COUNTER__))) {  \
         return @[@ #js_name, @ #method];                                                                \
     }
 

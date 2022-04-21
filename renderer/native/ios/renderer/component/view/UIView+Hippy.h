@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
 #import "HippyViewEventProtocol.h"
-#import "HippyDefines.h"
+#import "RenderDefines.h"
 #include "dom/dom_node.h"
 
 @class HippyShadowView;

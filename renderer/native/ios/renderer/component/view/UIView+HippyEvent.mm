@@ -22,8 +22,6 @@
 
 #import "UIView+HippyEvent.h"
 #import <objc/runtime.h>
-#import "HippyAssert.h"
-#import "HippyLog.h"
 #import "dom/dom_listener.h"
 #import "UIView+AppearEvent.h"
 

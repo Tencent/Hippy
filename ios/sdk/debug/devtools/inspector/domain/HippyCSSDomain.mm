@@ -25,6 +25,7 @@
 #import "HippyDevCommand.h"
 #import "HippyUIManager.h"
 #import "HippyShadowView.h"
+#import "HippyBridge.h"
 
 NSString *const HippyCSSDomainName = @"CSS";
 NSString *const HippyCSSMethodGetMatchedStylesForNode = @"getMatchedStylesForNode";

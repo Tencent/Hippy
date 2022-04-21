@@ -25,6 +25,7 @@
 #import "HippyLog.h"
 #import "HippyPageModel.h"
 #import "HippyUIManager.h"
+#import "HippyBridge.h"
 
 NSString *const HippyPageDomainName = @"Page";
 // Method

@@ -28,31 +28,6 @@
 @protocol HippyBridgeMethod;
 
 /**
- * The type of a block that is capable of sending a response to a bridged
- * operation. Use this for returning callback methods to JS.
- */
-typedef void (^HippyResponseSenderBlock)(NSArray *response);
-
-/**
- * The type of a block that is capable of sending an error response to a
- * bridged operation. Use this for returning error information to JS.
- */
-typedef void (^HippyResponseErrorBlock)(NSError *error);
-
-/**
- * Block that bridge modules use to resolve the JS promise waiting for a result.
- * Nil results are supported and are converted to JS's undefined value.
- */
-typedef void (^HippyPromiseResolveBlock)(id result);
-
-/**
- * Block that bridge modules use to reject the JS promise waiting for a result.
- * The error may be nil but it is preferable to pass an NSError object for more
- * precise error messages.
- */
-typedef void (^HippyPromiseRejectBlock)(NSString *code, NSString *message, NSError *error);
-
-/**
  * This constant can be returned from +methodQueue to force module
  * methods to be called on the JavaScript thread. This can have serious
  * implications for performance, so only use this if you're sure it's what
@@ -223,7 +198,7 @@ extern dispatch_queue_t HippyJSThread;
  * Like HIPPY_EXTERN_REMAP_METHOD, but allows setting a custom JavaScript name.
  */
 #define HIPPY_EXTERN_REMAP_METHOD(js_name, method)                                                                       \
-    +(NSArray<NSString *> *)Hippy_CONCAT(__hippy_export__, Hippy_CONCAT(js_name, Hippy_CONCAT(__LINE__, __COUNTER__))) { \
+    +(NSArray<NSString *> *)HIPPY_CONCAT(__hippy_export__, HIPPY_CONCAT(js_name, HIPPY_CONCAT(__LINE__, __COUNTER__))) { \
         return @[@ #js_name, @ #method];                                                                                 \
     }
 

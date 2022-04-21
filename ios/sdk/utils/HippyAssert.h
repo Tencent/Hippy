@@ -21,8 +21,8 @@
  */
 
 #import <Foundation/Foundation.h>
-
 #import "HippyDefines.h"
+
 @class HippyJSStackFrame;
 /*
  * Defined in HippyUtils.m
@@ -39,7 +39,7 @@ HIPPY_EXTERN BOOL HippyIsMainQueue(void);
     do {                                                                                                                      \
         if ((condition) == 0) {                                                                                               \
             _HippyAssertFormat(#condition, __FILE__, __LINE__, __func__, __VA_ARGS__);                                        \
-            if (Hippy_NSASSERT) {                                                                                             \
+            if (HIPPY_NSASSERT) {                                                                                             \
                 [[NSAssertionHandler currentHandler] handleFailureInFunction:@(__func__) file:@(__FILE__) lineNumber:__LINE__ \
                                                                  description:__VA_ARGS__];                                    \
             }                                                                                                                 \

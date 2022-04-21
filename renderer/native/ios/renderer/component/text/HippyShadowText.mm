@@ -23,7 +23,6 @@
 #import "HippyShadowText.h"
 #import "HippyConvert.h"
 #import "HippyFont.h"
-#import "HippyLog.h"
 #import "HippyText.h"
 #import "HippyTextView.h"
 #import "HippyUtils.h"
@@ -186,7 +185,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (child) {
                 float width = child.nodeLayoutResult.width, height = child.nodeLayoutResult.height;
                 if (isnan(width) || isnan(height)) {
-                    HippyLogError(@"Views nested within a <Text> must have a width and height");
+                    //HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
 
                 /**
@@ -380,7 +379,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
             if (isnan(width) || isnan(height)) {
-                HippyLogError(@"Views nested within a <Text> must have a width and height");
+                //HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
             static UIImage *placehoderImage = nil;
             static dispatch_once_t onceToken;
@@ -764,7 +763,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 - (void)setFontSizeMultiplier:(CGFloat)fontSizeMultiplier {
     _fontSizeMultiplier = fontSizeMultiplier;
     if (_fontSizeMultiplier == 0) {
-        HippyLogError(@"fontSizeMultiplier value must be > zero.");
+        //HippyLogError(@"fontSizeMultiplier value must be > zero.");
         _fontSizeMultiplier = 1.0;
     }
     for (HippyShadowView *child in [self hippySubviews]) {

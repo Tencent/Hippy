@@ -21,7 +21,6 @@
  */
 
 #import "HippyImageDataLoader.h"
-#import "HippyUtils.h"
 #import "HippyImageCacheManager.h"
 #import "HippyDownloadTask.h"
 

@@ -24,6 +24,7 @@
 #import "HippyLog.h"
 #import "HippyAssert.h"
 #import "HippyBridge.h"
+#import "RenderDefines.h"
 
 @implementation HippyExceptionModule
 

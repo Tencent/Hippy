@@ -24,7 +24,6 @@
 
 #import "HippyInvalidating.h"
 #import "HippyViewManager.h"
-#import "HippyRootView.h"
 #include <memory>
 #include <unordered_map>
 #import "HippyDomNodeUtils.h"
@@ -40,31 +39,31 @@
 /**
  * UIManager queue
  */
-HIPPY_EXTERN dispatch_queue_t HippyGetUIManagerQueue(void);
+RENDER_EXTERN dispatch_queue_t HippyGetUIManagerQueue(void);
 
 /**
  * Default name for the UIManager queue
  */
-HIPPY_EXTERN const char *HippyUIManagerQueueName;
+RENDER_EXTERN const char *HippyUIManagerQueueName;
 
 /**
  * Posted whenever a new root view is registered with HippyUIManager. The userInfo property
  * will contain a HippyUIManagerRootViewKey with the registered root view.
  */
-HIPPY_EXTERN NSString *const HippyUIManagerDidRegisterRootViewNotification;
+RENDER_EXTERN NSString *const HippyUIManagerDidRegisterRootViewNotification;
 
 /**
  * Key for the root view property in the above notifications
  */
-HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
+RENDER_EXTERN NSString *const HippyUIManagerRootViewKey;
 
 //TODO delete it
-HIPPY_EXTERN NSString *const HippyUIManagerKey;
+RENDER_EXTERN NSString *const HippyUIManagerKey;
 
 /**
  * Posted whenever endBatch is called
  */
-HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
+RENDER_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
 /**
  * The HippyUIManager is the module responsible for updating the view hierarchy.

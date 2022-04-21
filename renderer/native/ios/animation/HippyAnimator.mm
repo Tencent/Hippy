@@ -107,7 +107,7 @@
     HippyAnimation *ani = [[HippyAnimation alloc] initWithMode: mode animationId: animationId config: params];
     [_animationById setObject: ani forKey: animationId];
     [_lock unlock];
-    HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_Animation:%@", animationId);
+    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_Animation:%@", animationId);
 }
 
 - (void)createAnimationSet:(NSNumber *)animationId animations:(NSDictionary *)animations {
@@ -132,7 +132,7 @@
     
     [_lock unlock];
     
-    HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_AnimationSet:%@", animationId);
+    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_AnimationSet:%@", animationId);
 }
 
 
@@ -141,11 +141,11 @@
     HippyAnimation *ani = _animationById[animationId];
     if (ani.state == HippyAnimationStartedState) {
         [_lock unlock];
-        HippyLogInfo(@"[Hippy_OC_Log][Animation],Start_Animation_Failed, Animation Already Started:%@", animationId);
+        //HippyLogInfo(@"[Hippy_OC_Log][Animation],Start_Animation_Failed, Animation Already Started:%@", animationId);
         return;
     }
     
-    HippyLogInfo(@"[Hippy_OC_Log][Animation],Start_Animation, [%@] from [%@] to [%@]", animationId, @(ani.startValue), @(ani.endValue));
+    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Start_Animation, [%@] from [%@] to [%@]", animationId, @(ani.startValue), @(ani.endValue));
 
     ani.state = HippyAnimationReadyState;
     
@@ -217,7 +217,7 @@
                 return;
             }
             
-            HippyLogInfo(@"[Hippy_OC_Log][Animation],Animation_Not_Add_To_Window, %@", animationId);
+            //HippyLogInfo(@"[Hippy_OC_Log][Animation],Animation_Not_Add_To_Window, %@", animationId);
             [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams *p, __unused NSUInteger idx, __unused BOOL *stop) {
                 [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *obj, __unused BOOL *stop1) {
                     HippyAnimation *ani = self->_animationById[obj];
@@ -258,7 +258,7 @@
             if ([obj isEqual: animationId]) {
                 [p setValue: @(rcani.startValue) forProp: key];
                 [updateParams addObject: p.updateParams];
-                HippyLogInfo(@"[Hippy_OC_Log][Animation],Update_Animation:[%@] key:[%@] value:[%@]", animationId, key, params[@"startValue"]);
+                //HippyLogInfo(@"[Hippy_OC_Log][Animation],Update_Animation:[%@] key:[%@] value:[%@]", animationId, key, params[@"startValue"]);
             }
         }];
     }];
@@ -283,7 +283,7 @@
     }];
     [_paramsByAnimationId removeObjectForKey: animationId];
     [_lock unlock];
-    HippyLogInfo(@"[Hippy_OC_Log][Animation],Destroy_Animation:%@", animationId);
+    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Destroy_Animation:%@", animationId);
 }
 // clang-format on
 
@@ -311,7 +311,7 @@
 
                 [p setValue:@(ani.endValue) forProp:key];
                 ani.state = HippyAnimationFinishState;
-                HippyLogInfo(@"[Hippy_OC_Log][Animation],Animation_Did_Stop:%@ finish:%@ prop:%@ value:%@", animationId, @(flag), key, @(ani.endValue));
+                //HippyLogInfo(@"[Hippy_OC_Log][Animation],Animation_Did_Stop:%@ finish:%@ prop:%@ value:%@", animationId, @(flag), key, @(ani.endValue));
             }];
         }];
     }];
@@ -372,7 +372,7 @@
 
         if (!contain) {
             [viewParams addObject:p];
-            HippyLogInfo(@"[Hippy_OC_Log][Animation],Bind_Animation:[%@] to view [%@] prop [%@]", animationId, viewTag, key);
+            //HippyLogInfo(@"[Hippy_OC_Log][Animation],Bind_Animation:[%@] to view [%@] prop [%@]", animationId, viewTag, key);
         } else {
             NSInteger index = [viewParams indexOfObject:p];
             if (index != NSNotFound) {
@@ -407,8 +407,8 @@
         [ani setValue:view.hippyTag forKey:@"viewID"];
         ani.delegate = self;
         [animations addObject:ani];
-        HippyLogInfo(@"[Hippy_OC_Log][Animation],Connect_Animation:[%@] to view [%@] prop [%@] from [%@] to [%@]", animationId, view.hippyTag, prop, @(animation.startValue),
-                     @(animation.endValue));
+//        HippyLogInfo(@"[Hippy_OC_Log][Animation],Connect_Animation:[%@] to view [%@] prop [%@] from [%@] to [%@]", animationId, view.hippyTag, prop, @(animation.startValue),
+//                     @(animation.endValue));
 
     }];
     [animations enumerateObjectsUsingBlock:^(CAAnimation *_Nonnull ani, __unused NSUInteger idx, __unused BOOL *stop) {

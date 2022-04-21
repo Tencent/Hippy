@@ -148,7 +148,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     [super insertHippySubview:subview atIndex:index];
     if ([subview isKindOfClass:[HippyText class]]) {
         if (_richTextView) {
-            HippyLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
+            //HippyLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
         }
         _richTextView = (HippyText *)subview;
 
@@ -495,7 +495,7 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
         _previousSelectionRange = selectedTextRange;
         _textView.selectedTextRange = selectedTextRange;
     } else if (eventLag > HippyTextUpdateLagWarningThreshold) {
-        HippyLogWarn(@"Native TextInput(%@) is %ld events ahead of JS - try to make your JS faster.", self.text, (long)eventLag);
+        //HippyLogWarn(@"Native TextInput(%@) is %ld events ahead of JS - try to make your JS faster.", self.text, (long)eventLag);
     }
 }
 
@@ -526,7 +526,7 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
         [self updateContentSize];  // keep the text wrapping when the length of
         // the textline has been extended longer than the length of textinputView
     } else if (eventLag > HippyTextUpdateLagWarningThreshold) {
-        HippyLogWarn(@"Native TextInput(%@) is %ld events ahead of JS - try to make your JS faster.", self.text, (long)eventLag);
+        //HippyLogWarn(@"Native TextInput(%@) is %ld events ahead of JS - try to make your JS faster.", self.text, (long)eventLag);
     }
 }
 

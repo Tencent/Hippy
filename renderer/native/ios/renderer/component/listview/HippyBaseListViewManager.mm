@@ -57,7 +57,7 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 		 HippyBaseListView *view = (HippyBaseListView *)viewRegistry[hippyTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[HippyBaseListView class]]) {
-			 HippyLogError(@"Invalid view returned from registry, expecting HippyBaseListView, got: %@", view);
+			 //HippyLogError(@"Invalid view returned from registry, expecting HippyBaseListView, got: %@", view);
 		 }
 		 [view scrollToIndex: yIndex.integerValue animated: [animation boolValue]];
 	 }];
@@ -74,7 +74,7 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTa
 		 HippyBaseListView *view = (HippyBaseListView *)viewRegistry[hippyTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[HippyBaseListView class]]) {
-			 HippyLogError(@"Invalid view returned from registry, expecting HippyBaseListView, got: %@", view);
+			 //HippyLogError(@"Invalid view returned from registry, expecting HippyBaseListView, got: %@", view);
 		 }
 		 [view scrollToContentOffset:CGPointMake([x floatValue], [y floatValue]) animated: [animation boolValue]];
 	 }];

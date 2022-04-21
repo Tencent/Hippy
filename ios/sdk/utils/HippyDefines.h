@@ -58,29 +58,29 @@
 #endif
 
 #if HIPPY_DEV
-#define Hippy_IF_DEV(...) __VA_ARGS__
+#define HIPPY_IF_DEV(...) __VA_ARGS__
 #else
-#define Hippy_IF_DEV(...)
+#define HIPPY_IF_DEV(...)
 #endif
 
-#ifndef Hippy_PROFILE
-#define Hippy_PROFILE HIPPY_DEV
+#ifndef HIPPY_PROFILE
+#define HIPPY_PROFILE HIPPY_DEV
 #endif
 
 /**
  * By default, only raise an NSAssertion in debug mode
  * (custom assert functions will still be called).
  */
-#ifndef Hippy_NSASSERT
-#define Hippy_NSASSERT HIPPY_DEBUG
+#ifndef HIPPY_NSASSERT
+#define HIPPY_NSASSERT HIPPY_DEBUG
 #endif
 
 /**
  * Concat two literals. Supports macro expansions,
- * e.g. Hippy_CONCAT(foo, __FILE__).
+ * e.g. HIPPY_CONCAT(foo, __FILE__).
  */
-#define Hippy_CONCAT2(A, B) A##B
-#define Hippy_CONCAT(A, B) Hippy_CONCAT2(A, B)
+#define HIPPY_CONCAT2(A, B) A##B
+#define HIPPY_CONCAT(A, B) HIPPY_CONCAT2(A, B)
 
 /**
  * Throw an assertion for unimplemented methods.

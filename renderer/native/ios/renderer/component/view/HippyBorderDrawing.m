@@ -21,7 +21,6 @@
  */
 
 #import "HippyBorderDrawing.h"
-#import "HippyLog.h"
 
 static const CGFloat HippyViewBorderThreshold = 0.001;
 
@@ -403,7 +402,7 @@ static UIImage *HippyGetDashedOrDottedBorderImage(HippyBorderStyle borderStyle, 
     NSCParameterAssert(borderStyle == HippyBorderStyleDashed || borderStyle == HippyBorderStyleDotted);
 
     if (!HippyBorderColorsAreEqual(borderColors) || !HippyBorderInsetsAreEqual(borderInsets)) {
-        HippyLogWarn(@"Unsupported dashed / dotted border style");
+        //HippyLogWarn(@"Unsupported dashed / dotted border style");
         return nil;
     }
 

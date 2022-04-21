@@ -241,7 +241,7 @@ void _HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int line
 #if HIPPY_DEBUG
 
         // Log to red box in debug mode.
-        if ([UIApplication sharedApplication] && level >= HippyLOG_REDBOX_LEVEL) {
+        if ([UIApplication sharedApplication] && level >= HIPPYLOG_REDBOX_LEVEL) {
             NSArray<NSString *> *stackSymbols = [NSThread callStackSymbols];
             NSMutableArray<NSDictionary *> *stack = [NSMutableArray arrayWithCapacity:(stackSymbols.count - 1)];
             [stackSymbols enumerateObjectsUsingBlock:^(NSString *frameSymbols, NSUInteger idx, __unused BOOL *stop) {

@@ -21,7 +21,6 @@
  */
 
 #import "HippyViewPager.h"
-#import "HippyLog.h"
 #import "float.h"
 #import "HippyViewPagerItem.h"
 #import "UIView+Hippy.h"
@@ -86,7 +85,7 @@
 
 - (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
     if (atIndex > self.viewPagerItems.count) {
-        HippyLogWarn(@"Error In HippyViewPager: addSubview —— out of bound of array");
+        //HippyLogWarn(@"Error In HippyViewPager: addSubview —— out of bound of array");
         return;
     }
     if (atIndex < [self.viewPagerItems count]) {
@@ -158,7 +157,7 @@
 #pragma mark hippy js call methods
 - (void)setPage:(NSInteger)pageNumber animated:(BOOL)animated {
     if (pageNumber >= self.viewPagerItems.count || pageNumber < 0) {
-        HippyLogWarn(@"Error In ViewPager setPage: pageNumber invalid");
+        //HippyLogWarn(@"Error In ViewPager setPage: pageNumber invalid");
         return;
     }
 
@@ -413,14 +412,14 @@
     }
 
     if (self.initialPage >= self.viewPagerItems.count) {
-        HippyLogWarn(@"Error In HippyViewPager: layoutSubviews");
+        //HippyLogWarn(@"Error In HippyViewPager: layoutSubviews");
         self.contentSize = CGSizeZero;
         return;
     }
 
     UIView *lastViewPagerItem = self.viewPagerItems.lastObject;
     if (!lastViewPagerItem) {
-        HippyLogWarn(@"Error In HippyViewPager: addSubview");
+        //HippyLogWarn(@"Error In HippyViewPager: addSubview");
         self.contentSize = CGSizeZero;
         return;
     }
@@ -458,7 +457,7 @@
     }
 
     if (thePage < 0) {
-        HippyLogWarn(@"Error In ViewPager nowPage: thePage invalid");
+        //HippyLogWarn(@"Error In ViewPager nowPage: thePage invalid");
         return 0;
     } else {
         return (NSUInteger)thePage;

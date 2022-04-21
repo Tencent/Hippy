@@ -29,6 +29,7 @@
 #import "HippyFetchInfo.h"
 #import "objc/runtime.h"
 #import "HippyUtils.h"
+#import "RenderDefines.h"
 
 static char fetchInfoKey;
 

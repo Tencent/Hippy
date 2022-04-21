@@ -21,7 +21,6 @@
  */
 
 #import "HippySimpleWebView.h"
-#import "HippyAssert.h"
 #import "HippyUtils.h"
 
 @implementation HippySimpleWebView

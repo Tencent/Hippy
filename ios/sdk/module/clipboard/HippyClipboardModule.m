@@ -21,6 +21,7 @@
  */
 
 #import "HippyClipboardModule.h"
+#import "RenderDefines.h"
 
 @implementation HippyClipboardModule
 

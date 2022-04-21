@@ -32,6 +32,7 @@
 #import "HippyParserUtils.h"
 #import "HippyUtils.h"
 #import "HippyTurboModuleManager.h"
+#import "RenderDefines.h"
 
 typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
 

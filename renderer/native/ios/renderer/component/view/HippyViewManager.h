@@ -23,8 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "HippyConvert.h"
-#import "HippyDefines.h"
-#import "HippyLog.h"
+#import "RenderDefines.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyRenderContext.h"
 

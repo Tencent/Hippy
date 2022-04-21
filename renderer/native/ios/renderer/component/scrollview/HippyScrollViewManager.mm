@@ -106,8 +106,8 @@ RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
         if (view == nil) return ;
         
         if (!view || ![view isKindOfClass:[HippyScrollView class]]) {
-            HippyLogError(@"Cannot find HippyScrollView with tag #%@", hippyTag);
-            return;
+//            HippyLogError(@"Cannot find HippyScrollView with tag #%@", hippyTag);
+//            return;
         }
         
         CGSize size = view.scrollView.contentSize;
@@ -131,8 +131,8 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
             [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){x, y} animated:animated];
         } else {
-            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
-                          "with tag #%@", view, hippyTag);
+//            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
+//                          "with tag #%@", view, hippyTag);
         }
     }];
 }
@@ -162,8 +162,8 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
                 ((HippyScrollView *)view).scrollView.contentOffset = CGPointMake(x, y);
             }];
         } else {
-            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
-                          "with tag #%@", view, hippyTag);
+//            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
+//                          "with tag #%@", view, hippyTag);
         }
     }];
 }

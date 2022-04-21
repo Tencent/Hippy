@@ -24,13 +24,11 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "HippyAnimationType.h"
-#import "HippyAssert.h"
 #import "HippyComponent.h"
 #import "HippyComponentData.h"
 #import "HippyConvert.h"
-#import "HippyDefines.h"
+#import "RenderDefines.h"
 #import "HippyEventDispatcher.h"
-#import "HippyLog.h"
 #import "HippyModuleData.h"
 #import "HippyModuleMethod.h"
 #import "HippyRootShadowView.h"
@@ -337,7 +335,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyComponentData *componentData = _componentDataByName[viewName];
         if (!componentData) {
             HippyViewManager *viewManager = [self renderViewManagerForViewName:viewName];
-            HippyAssert(viewManager, @"No view manager found for %@", viewName);
+            NSAssert(viewManager, @"No view manager found for %@", viewName);
             if (viewManager) {
                 componentData = [[HippyComponentData alloc] initWithViewManager:viewManager viewName:viewName];
                 _componentDataByName[viewName] = componentData;
@@ -352,11 +350,11 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     HippyAssertMainQueue();
 
     NSNumber *hippyTag = rootView.hippyTag;
-    HippyAssert(HippyIsHippyRootView(hippyTag), @"View %@ with tag #%@ is not a root view", rootView, hippyTag);
+    NSAssert(HippyIsHippyRootView(hippyTag), @"View %@ with tag #%@ is not a root view", rootView, hippyTag);
 
 #if HIPPY_DEBUG
     UIView *existingView = _viewRegistry[hippyTag];
-    HippyAssert(existingView == nil || existingView == rootView, @"Expect all root views to have unique tag. Added %@ twice", hippyTag);
+    NSAssert(existingView == nil || existingView == rootView, @"Expect all root views to have unique tag. Added %@ twice", hippyTag);
 #endif
     // Register view
     _viewRegistry[hippyTag] = rootView;
@@ -406,7 +404,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)purgeChildren:(NSArray<id<HippyComponent>> *)children fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)registry {
     for (id<HippyComponent> child in children) {
         HippyTraverseViewNodes(registry[child.hippyTag], ^(id<HippyComponent> subview) {
-            HippyAssert(![subview isHippyRootView], @"Root views should not be unregistered");
+            NSAssert(![subview isHippyRootView], @"Root views should not be unregistered");
             if ([subview conformsToProtocol:@protocol(HippyInvalidating)]) {
                 [(id<HippyInvalidating>)subview invalidate];
             }
@@ -480,7 +478,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyComponentData *componentData = [self componentDataForViewName:viewName];
         HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
         if (componentData == nil) {
-            HippyLogError(@"No component found for view with name \"%@\"", viewName);
+            //HippyLogError(@"No component found for view with name \"%@\"", viewName);
         }
         id isAnimated = props[@"useAnimation"];
         if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
@@ -605,7 +603,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
             // this view was probably collapsed out
-            HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
@@ -613,7 +611,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         // If in a <Modal>, rootView will be the root of the modal container.
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
-            HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
@@ -639,13 +637,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
             // this view was probably collapsed out
-            HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
-            HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
@@ -663,7 +661,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
             // this view was probably collapsed out
-            HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
@@ -706,7 +704,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (object_isClass(object)) {
         HippyViewManager *viewManager = [object new];
         viewManager.renderContext = self;
-        HippyAssert([viewManager isKindOfClass:[HippyViewManager class]], @"It must be a HippyViewManager instance");
+        NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"It must be a HippyViewManager instance");
         [_viewManagers setObject:viewManager forKey:viewName];
         object = viewManager;
     }
@@ -780,7 +778,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                         block(uiManager, uiManager->_viewRegistry);
                     }
                 } @catch (NSException *exception) {
-                    HippyLogError(@"Exception thrown while executing UI block: %@", exception);
+                    //HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                 }
             }
         });
@@ -809,7 +807,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [dicProps setObject:[self createShadowViewFromNode:node] forKey:@(node->GetId())];
     }
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
-        HippyAssert(subviewTags.size() == subviewIndices.size(), @"subviewTags count must be equal to subviewIndices count");
+        NSAssert(subviewTags.size() == subviewIndices.size(), @"subviewTags count must be equal to subviewIndices count");
         HippyShadowView *superShadowView = self->_shadowViewRegistry[@(tag)];
         for (NSUInteger index = 0; index < subviewTags.size(); index++) {
             HippyShadowView *subShadowView = self->_shadowViewRegistry[@(subviewTags[index])];
@@ -887,7 +885,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)renderMoveViews:(const std::vector<int32_t> &&)ids
           fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
-    HippyAssert(NO, @"no implementation for this method");
+    NSAssert(NO, @"no implementation for this method");
 }
 
 - (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult, bool,
@@ -946,7 +944,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     [finalParams addObject:@(hippyTag)];
     if (DomValueType::kArray == type) {
         NSArray * paramsArray = domValueToOCType(&params);
-        HippyAssert([paramsArray isKindOfClass:[NSArray class]], @"dispatch function method params type error");
+        NSAssert([paramsArray isKindOfClass:[NSArray class]], @"dispatch function method params type error");
         if ([paramsArray isKindOfClass:[NSArray class]]) {
             for (id param in paramsArray) {
                 [finalParams addObject:param];
@@ -955,7 +953,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
     else {
         //TODO
-        HippyAssert(NO, @"目前hippy底层会封装DomValue为Array类型。可能第三方接入者不一定会将其封装为Array");
+        NSAssert(NO, @"目前hippy底层会封装DomValue为Array类型。可能第三方接入者不一定会将其封装为Array");
         [finalParams addObject:[NSNull null]];
     }
     if (cb) {
@@ -976,7 +974,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
     @try {
         NSMethodSignature *methodSignature = [viewManager methodSignatureForSelector:selector];
-        HippyAssert(methodSignature, @"method signature creation failure");
+        NSAssert(methodSignature, @"method signature creation failure");
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
         [invocation setSelector:selector];
         for (NSInteger i = 0; i < [finalParams count]; i++) {

@@ -33,7 +33,6 @@
 #import "HippyCollectionViewFlowLayout.h"
 #import "UIView+DirectionalLayout.h"
 #import "HippyRenderContext.h"
-#import "HippyAssert.h"
 #import "objc/runtime.h"
 
 #define kCellZIndexConst 10000.f
@@ -102,7 +101,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 
 - (void)registerCells {
     Class cls = [self listItemClass];
-    HippyAssert([cls isSubclassOfClass:[HippyBaseListViewCell class]], @"list item class must be a subclass of HippyBaseListViewCell");
+    NSAssert([cls isSubclassOfClass:[HippyBaseListViewCell class]], @"list item class must be a subclass of HippyBaseListViewCell");
     [self.collectionView registerClass:cls forCellWithReuseIdentifier:kCellIdentifier];
 }
 
@@ -302,7 +301,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     if (!cellView) {
         cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
     }
-    HippyAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+    NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
     return cell;

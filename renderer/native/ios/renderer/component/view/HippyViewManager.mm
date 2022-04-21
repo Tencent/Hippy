@@ -24,7 +24,6 @@
 #import "HippyBorderStyle.h"
 #import "HippyConvert.h"
 #import "HippyEventDispatcher.h"
-#import "HippyLog.h"
 #import "HippyShadowView.h"
 #import "HippyUtils.h"
 #import "HippyView.h"
@@ -50,7 +49,7 @@
 - (dispatch_queue_t)methodQueue {
 //    return HippyGetUIManagerQueue();
     //TODO
-    HippyAssert(NO, @"return queue");
+    NSAssert(NO, @"return queue");
     return nil;
 }
 
@@ -237,7 +236,8 @@ HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView) {
             view.userInteractionEnabled = NO;
             break;
         default:
-            HippyLogError(@"UIView base class does not support pointerEvent value: %@", json);
+            //HippyLogError(@"UIView base class does not support pointerEvent value: %@", json);
+            break;
     }
 }
 

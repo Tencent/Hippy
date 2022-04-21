@@ -23,7 +23,7 @@
 #import "HippyAnimatedImageView.h"
 #import "HippyAnimatedImage.h"
 #import <QuartzCore/QuartzCore.h>
-#import "HippyAssert.h"
+
 @interface HippyAnimatedImageView ()
 
 // Override of public `readonly` properties as private `readwrite`
@@ -293,7 +293,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b) {
 
 - (void)setRunLoopMode:(NSString *)runLoopMode {
     if (![@[NSDefaultRunLoopMode, NSRunLoopCommonModes] containsObject:runLoopMode]) {
-        HippyAssert(NO, @"Invalid run loop mode: %@", runLoopMode);
+        NSAssert(NO, @"Invalid run loop mode: %@", runLoopMode);
         _runLoopMode = [[self class] defaultRunLoopMode];
     } else {
         _runLoopMode = runLoopMode;

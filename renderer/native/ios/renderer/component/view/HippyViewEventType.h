@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyDefines.h"
+#import "RenderDefines.h"
 #include <string>
 
 typedef NS_ENUM(NSInteger, HippyViewEventType) {
@@ -46,4 +46,4 @@ typedef NS_ENUM(NSInteger, HippyViewEventType) {
     HippyViewEventTypeUnknown = -1,
 };
 
-HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
+RENDER_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);

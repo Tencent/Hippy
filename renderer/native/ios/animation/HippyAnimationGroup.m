@@ -21,7 +21,6 @@
  */
 
 #import "HippyAnimationGroup.h"
-#import "HippyLog.h"
 #import <objc/runtime.h>
 #import "HippyAnimation+Group.h"
 #import "HippyAnimation+Value.h"
@@ -67,7 +66,7 @@
     }];
 
     self.duration = duration;
-    HippyLogInfo(@"[Hippy_OC_Log][Animation],Setup_Animation:%@", animations);
+    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Setup_Animation:%@", animations);
     _animations = animations;
 }
 
