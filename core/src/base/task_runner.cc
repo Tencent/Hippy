@@ -139,7 +139,6 @@ std::shared_ptr<Task> TaskRunner::GetNext() {
     }
 
     if (is_terminated_) {
-      hippy::napi::DetachThread();
       TDF_BASE_DLOG(INFO) << "TaskRunner terminate";
       return nullptr;
     }
