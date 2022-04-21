@@ -25,13 +25,10 @@
 		064C5A0523AB1A51001E80DD /* HippyClipboardModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C590D23AB1A51001E80DD /* HippyClipboardModule.m */; };
 		064C5A3A23AB1A51001E80DD /* HippyParserUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C598C23AB1A51001E80DD /* HippyParserUtils.m */; };
 		064C5A3C23AB1A51001E80DD /* HippyConvert+Transform.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C599023AB1A51001E80DD /* HippyConvert+Transform.m */; };
-		064C5A3D23AB1A51001E80DD /* NSArray+HippyArrayDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C599223AB1A51001E80DD /* NSArray+HippyArrayDeepCopy.m */; };
 		064C5A3E23AB1A51001E80DD /* HippyAssert.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C599623AB1A51001E80DD /* HippyAssert.m */; };
-		064C5A3F23AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C599723AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.m */; };
 		064C5A4023AB1A51001E80DD /* HippyConvert.mm in Sources */ = {isa = PBXBuildFile; fileRef = 064C599B23AB1A51001E80DD /* HippyConvert.mm */; };
 		064C5A4123AB1A51001E80DD /* HippyErrorInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C599E23AB1A51001E80DD /* HippyErrorInfo.m */; };
 		064C5A4223AB1A51001E80DD /* HippyUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C59A123AB1A51001E80DD /* HippyUtils.m */; };
-		064C5A4323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C59A323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.m */; };
 		064C5A4423AB1A51001E80DD /* HippyPerformanceLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 064C59A523AB1A51001E80DD /* HippyPerformanceLogger.mm */; };
 		064C5A4623AB1A51001E80DD /* HippyComponentData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 064C59A923AB1A51001E80DD /* HippyComponentData.mm */; };
 		064C5A4823AB1A51001E80DD /* HippyJSStackFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 064C59AF23AB1A51001E80DD /* HippyJSStackFrame.m */; };
@@ -214,6 +211,9 @@
 		F4C1CE262811439A00CED4C4 /* UIView+Sequence.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1CE252811439A00CED4C4 /* UIView+Sequence.m */; };
 		F4C1DAA2281175A000CED4C4 /* HippyLogging.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4C1DAA1281175A000CED4C4 /* HippyLogging.mm */; };
 		F4C1DAA52811795200CED4C4 /* HippyLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4C1DAA42811795200CED4C4 /* HippyLog.mm */; };
+		F4C1DAAD28117C1900CED4C4 /* NSArray+HippyArrayDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1DAA628117C1800CED4C4 /* NSArray+HippyArrayDeepCopy.m */; };
+		F4C1DAAE28117C1900CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1DAA728117C1800CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.m */; };
+		F4C1DAAF28117C1900CED4C4 /* NSNumber+HippyNumberDeepCopy.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1DAA828117C1800CED4C4 /* NSNumber+HippyNumberDeepCopy.m */; };
 		F4CEDF9B27D858C700583C9E /* HippyImageDataLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = F4CEDF9427D858C700583C9E /* HippyImageDataLoader.m */; };
 		F4CEDF9C27D858C700583C9E /* HippyDownloadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = F4CEDF9627D858C700583C9E /* HippyDownloadTask.m */; };
 		F4CEDF9D27D858C700583C9E /* HippyDefaultImageProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = F4CEDF9927D858C700583C9E /* HippyDefaultImageProvider.m */; };
@@ -260,27 +260,20 @@
 		064C590C23AB1A51001E80DD /* HippyClipboardModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyClipboardModule.h; sourceTree = "<group>"; };
 		064C590D23AB1A51001E80DD /* HippyClipboardModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyClipboardModule.m; sourceTree = "<group>"; };
 		064C598C23AB1A51001E80DD /* HippyParserUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyParserUtils.m; sourceTree = "<group>"; };
-		064C598D23AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNumber+HippyNumberDeepCopy.h"; sourceTree = "<group>"; };
 		064C598F23AB1A51001E80DD /* HippyErrorCustomizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyErrorCustomizer.h; sourceTree = "<group>"; };
 		064C599023AB1A51001E80DD /* HippyConvert+Transform.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "HippyConvert+Transform.m"; sourceTree = "<group>"; };
 		064C599123AB1A51001E80DD /* HippyErrorInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyErrorInfo.h; sourceTree = "<group>"; };
-		064C599223AB1A51001E80DD /* NSArray+HippyArrayDeepCopy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+HippyArrayDeepCopy.m"; sourceTree = "<group>"; };
-		064C599323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+HippyDictionaryDeepCopy.h"; sourceTree = "<group>"; };
 		064C599423AB1A51001E80DD /* HippyDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefines.h; sourceTree = "<group>"; };
 		064C599523AB1A51001E80DD /* HippyUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyUtils.h; sourceTree = "<group>"; };
 		064C599623AB1A51001E80DD /* HippyAssert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyAssert.m; sourceTree = "<group>"; };
-		064C599723AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+HippyNumberDeepCopy.m"; sourceTree = "<group>"; };
 		064C599823AB1A51001E80DD /* HippyParserUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyParserUtils.h; sourceTree = "<group>"; };
 		064C599923AB1A51001E80DD /* HippyConvert+Transform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HippyConvert+Transform.h"; sourceTree = "<group>"; };
 		064C599A23AB1A51001E80DD /* HippyNullability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyNullability.h; sourceTree = "<group>"; };
 		064C599B23AB1A51001E80DD /* HippyConvert.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyConvert.mm; sourceTree = "<group>"; };
 		064C599C23AB1A51001E80DD /* HippyConvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyConvert.h; sourceTree = "<group>"; };
-		064C599D23AB1A51001E80DD /* NSArray+HippyArrayDeepCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+HippyArrayDeepCopy.h"; sourceTree = "<group>"; };
 		064C599E23AB1A51001E80DD /* HippyErrorInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyErrorInfo.m; sourceTree = "<group>"; };
-		064C599F23AB1A51001E80DD /* HippyDeepCopyProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDeepCopyProtocol.h; sourceTree = "<group>"; };
 		064C59A023AB1A51001E80DD /* HippyAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAssert.h; sourceTree = "<group>"; };
 		064C59A123AB1A51001E80DD /* HippyUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyUtils.m; sourceTree = "<group>"; };
-		064C59A323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+HippyDictionaryDeepCopy.m"; sourceTree = "<group>"; };
 		064C59A523AB1A51001E80DD /* HippyPerformanceLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyPerformanceLogger.mm; sourceTree = "<group>"; };
 		064C59A923AB1A51001E80DD /* HippyComponentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyComponentData.mm; sourceTree = "<group>"; };
 		064C59AB23AB1A51001E80DD /* HippyComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyComponent.h; sourceTree = "<group>"; };
@@ -681,6 +674,13 @@
 		F4C1DAA1281175A000CED4C4 /* HippyLogging.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyLogging.mm; sourceTree = "<group>"; };
 		F4C1DAA32811795200CED4C4 /* HippyLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyLog.h; sourceTree = "<group>"; };
 		F4C1DAA42811795200CED4C4 /* HippyLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyLog.mm; sourceTree = "<group>"; };
+		F4C1DAA628117C1800CED4C4 /* NSArray+HippyArrayDeepCopy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+HippyArrayDeepCopy.m"; sourceTree = "<group>"; };
+		F4C1DAA728117C1800CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+HippyDictionaryDeepCopy.m"; sourceTree = "<group>"; };
+		F4C1DAA828117C1800CED4C4 /* NSNumber+HippyNumberDeepCopy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+HippyNumberDeepCopy.m"; sourceTree = "<group>"; };
+		F4C1DAA928117C1800CED4C4 /* NSNumber+HippyNumberDeepCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNumber+HippyNumberDeepCopy.h"; sourceTree = "<group>"; };
+		F4C1DAAA28117C1800CED4C4 /* NSArray+HippyArrayDeepCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+HippyArrayDeepCopy.h"; sourceTree = "<group>"; };
+		F4C1DAAB28117C1900CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+HippyDictionaryDeepCopy.h"; sourceTree = "<group>"; };
+		F4C1DAAC28117C1900CED4C4 /* HippyDeepCopyProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDeepCopyProtocol.h; sourceTree = "<group>"; };
 		F4CEDF9327D858C700583C9E /* HippyDefaultImageProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefaultImageProvider.h; sourceTree = "<group>"; };
 		F4CEDF9427D858C700583C9E /* HippyImageDataLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyImageDataLoader.m; sourceTree = "<group>"; };
 		F4CEDF9527D858C700583C9E /* HippyImageDataLoaderProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyImageDataLoaderProtocol.h; sourceTree = "<group>"; };
@@ -901,20 +901,13 @@
 				064C599023AB1A51001E80DD /* HippyConvert+Transform.m */,
 				064C599123AB1A51001E80DD /* HippyErrorInfo.h */,
 				064C599E23AB1A51001E80DD /* HippyErrorInfo.m */,
-				064C599D23AB1A51001E80DD /* NSArray+HippyArrayDeepCopy.h */,
-				064C599223AB1A51001E80DD /* NSArray+HippyArrayDeepCopy.m */,
-				064C599323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.h */,
-				064C59A323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.m */,
 				064C599523AB1A51001E80DD /* HippyUtils.h */,
 				064C59A123AB1A51001E80DD /* HippyUtils.m */,
-				064C598D23AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.h */,
-				064C599723AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.m */,
 				064C599A23AB1A51001E80DD /* HippyNullability.h */,
 				064C599C23AB1A51001E80DD /* HippyConvert.h */,
 				064C599B23AB1A51001E80DD /* HippyConvert.mm */,
 				064C59A023AB1A51001E80DD /* HippyAssert.h */,
 				064C599623AB1A51001E80DD /* HippyAssert.m */,
-				064C599F23AB1A51001E80DD /* HippyDeepCopyProtocol.h */,
 				F4D0028D2675C7D5004A43B6 /* HippyGradientObject.h */,
 				F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */,
 				F40736CA275F5B79009890F2 /* HippyDomNodeUtils.h */,
@@ -1788,6 +1781,13 @@
 		F4CEDF9227D8587900583C9E /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				F4C1DAAC28117C1900CED4C4 /* HippyDeepCopyProtocol.h */,
+				F4C1DAAA28117C1800CED4C4 /* NSArray+HippyArrayDeepCopy.h */,
+				F4C1DAA628117C1800CED4C4 /* NSArray+HippyArrayDeepCopy.m */,
+				F4C1DAAB28117C1900CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.h */,
+				F4C1DAA728117C1800CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.m */,
+				F4C1DAA928117C1800CED4C4 /* NSNumber+HippyNumberDeepCopy.h */,
+				F4C1DAA828117C1800CED4C4 /* NSNumber+HippyNumberDeepCopy.m */,
 				F4C1DAA32811795200CED4C4 /* HippyLog.h */,
 				F4C1DAA42811795200CED4C4 /* HippyLog.mm */,
 				F4C1CE21281131EB00CED4C4 /* NSData+DataType.h */,
@@ -1947,6 +1947,7 @@
 				067AB97523B5F309009D5EE2 /* MyViewManager.mm in Sources */,
 				F4810954277062AD005C221B /* layer_optimized_render_manager.cc in Sources */,
 				064C5A5223AB1A51001E80DD /* HippyKeyCommands.m in Sources */,
+				F4C1DAAF28117C1900CED4C4 /* NSNumber+HippyNumberDeepCopy.m in Sources */,
 				064C5A4123AB1A51001E80DD /* HippyErrorInfo.m in Sources */,
 				F48291A0274E420D00D91128 /* HPLayoutCache.cpp in Sources */,
 				F45D268C28067B6900CAB185 /* HippyNavigatorItemViewController.m in Sources */,
@@ -1969,7 +1970,6 @@
 				064C5A5A23AB1A51001E80DD /* HippyRootShadowView.mm in Sources */,
 				D84AB9C4273A618B00987D03 /* task_runner.cc in Sources */,
 				D84AB8F0273A5AAD00987D03 /* dom_value.cc in Sources */,
-				064C5A3D23AB1A51001E80DD /* NSArray+HippyArrayDeepCopy.m in Sources */,
 				F45D266A28067B6900CAB185 /* HippyWaterfallViewManager.mm in Sources */,
 				F45D269828067B6A00CAB185 /* HippyModalCustomAnimationTransition.m in Sources */,
 				D84AB9BA273A618B00987D03 /* worker_task_runner.cc in Sources */,
@@ -2003,6 +2003,7 @@
 				F45D269128067B6900CAB185 /* HippyFooterRefresh.mm in Sources */,
 				F45D268D28067B6900CAB185 /* HippyNavigatorHostView.mm in Sources */,
 				064C5A0523AB1A51001E80DD /* HippyClipboardModule.m in Sources */,
+				F4C1DAAE28117C1900CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */,
 				F45D267728067B6900CAB185 /* HippyBaseListItemView.mm in Sources */,
 				F45D1BDD26B1555E004010EE /* HippyI18nUtils.m in Sources */,
 				F4CEDF9D27D858C700583C9E /* HippyDefaultImageProvider.m in Sources */,
@@ -2021,7 +2022,6 @@
 				F45D266F28067B6900CAB185 /* HippyAnimatedImage.m in Sources */,
 				F45D267128067B6900CAB185 /* HippyImageViewManager.m in Sources */,
 				F4E7B440276C61EB00F17139 /* serializer.cc in Sources */,
-				064C5A3F23AB1A51001E80DD /* NSNumber+HippyNumberDeepCopy.m in Sources */,
 				F48291AA274E5BB600D91128 /* HippyOCTurboModule.mm in Sources */,
 				F482919F274E420D00D91128 /* Hippy.cpp in Sources */,
 				064C59FF23AB1A51001E80DD /* HippyRedBox.mm in Sources */,
@@ -2089,12 +2089,12 @@
 				F45D267A28067B6900CAB185 /* HippyCollectionViewFlowLayout.m in Sources */,
 				F44D711627F436730004F1E1 /* HippyAnimationModule.mm in Sources */,
 				064C5A3E23AB1A51001E80DD /* HippyAssert.m in Sources */,
-				064C5A4323AB1A51001E80DD /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */,
 				064C59F323AB1A51001E80DD /* HippyFetchInfo.m in Sources */,
 				F4D0028F2675C7D5004A43B6 /* HippyGradientObject.m in Sources */,
 				064C5A4C23AB1A51001E80DD /* HippyBundleURLProvider.m in Sources */,
 				F45D267328067B6900CAB185 /* HippyImageCache.m in Sources */,
 				F45D267828067B6900CAB185 /* HippyBaseListViewManager.mm in Sources */,
+				F4C1DAAD28117C1900CED4C4 /* NSArray+HippyArrayDeepCopy.m in Sources */,
 				F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */,
 				F45D267628067B6900CAB185 /* HippyBaseListViewCell.mm in Sources */,
 				067AB96F23B5EEF4009D5EE2 /* TestModule.mm in Sources */,
