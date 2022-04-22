@@ -2,6 +2,7 @@ package com.tencent.mtt.hippy.devsupport.inspector.model;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.text.TextUtils;
@@ -147,6 +148,7 @@ public class PageModel {
         screenBitmap = bitmap;
       }
       Canvas canvas = new Canvas(bitmap);
+      canvas.drawColor(Color.WHITE);
       hippyRootView.draw(canvas);
       if (scale != 1.0f) {
         Matrix matrix = new Matrix();
