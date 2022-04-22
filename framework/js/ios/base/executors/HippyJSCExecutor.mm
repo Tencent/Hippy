@@ -197,6 +197,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
             std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
             JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
             context->RegisterGlobalInJs();
+            context->RegisterClasses(scope);
             NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[strongSelf.bridge deviceInfo]];
             if ([strongBridgeDelegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
                 NSDictionary *customObjects = [strongBridgeDelegate objectsBeforeExecuteCode];

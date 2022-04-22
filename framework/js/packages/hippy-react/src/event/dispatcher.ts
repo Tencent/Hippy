@@ -34,24 +34,6 @@ interface NativeEvent {
 const eventHubs = new Map();
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
 
-function receiveUIComponentEvent(nativeEvent: any[]) {
-  trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
-  if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
-    return;
-  }
-  const [targetNodeId, eventName, eventParam] = nativeEvent;
-  if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
-    return;
-  }
-  const targetNode = getFiberNodeFromId(targetNodeId);
-  if (!targetNode) {
-    return;
-  }
-  if (isNodePropFunction(eventName, targetNode)) {
-    targetNode.memoizedProps[eventName](eventParam);
-  }
-}
-
 interface ListenerObj {
   eventName: string;
   listener: Function;
@@ -254,6 +236,24 @@ function unregisterNativeEventHub(eventName: any) {
   }
   if (eventHubs.has(eventName)) {
     eventHubs.delete(eventName);
+  }
+}
+
+function receiveUIComponentEvent(nativeEvent: any[]) {
+  trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
+  if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
+    return;
+  }
+  const [targetNodeId, eventName, eventParam] = nativeEvent;
+  if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
+    return;
+  }
+  const targetNode = getFiberNodeFromId(targetNodeId);
+  if (!targetNode) {
+    return;
+  }
+  if (isNodePropFunction(eventName, targetNode)) {
+    targetNode.memoizedProps[eventName](eventParam);
   }
 }
 

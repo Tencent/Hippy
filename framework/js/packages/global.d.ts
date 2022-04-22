@@ -414,6 +414,7 @@ declare namespace HippyTypes {
     __PLATFORM__: __PLATFORM__;
     __HIPPYCURDIR__?: string;
     Hippy: HippyTypes.HippyConstance;
+    ScreenBuilder: ScreenBuilder | any;
     WebSocket: WebSocket | any;
     ConsoleModule: ConsoleModule;
     HippyDealloc?: () => void;

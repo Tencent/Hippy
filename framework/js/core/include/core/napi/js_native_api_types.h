@@ -39,8 +39,8 @@ class Scope;
 namespace hippy {
 namespace napi {
 
-static const char kErrorHandlerJSName[] = "ExceptionHandle.js";
-static const char kHippyErrorHandlerName[] = "HippyExceptionHandler";
+constexpr char kErrorHandlerJSName[] = "ExceptionHandle.js";
+constexpr char kHippyErrorHandlerName[] = "HippyExceptionHandler";
 
 enum PropertyAttribute {
   /** None. **/
@@ -77,6 +77,50 @@ class CtxValue {
   virtual ~CtxValue() {}
 };
 
+template <typename T>
+using GetterCallback = std::function<std::shared_ptr<CtxValue>(T* thiz)>;
+
+template <typename T>
+using SetterCallback = std::function<void(T* thiz, const std::shared_ptr<CtxValue>& value)>;
+
+template <typename T>
+using FunctionCallback = std::function<std::shared_ptr<CtxValue>(
+    T* thiz,
+    size_t argument_count,
+    const std::shared_ptr<CtxValue> arguments[])>;
+
+template <typename T>
+using InstanceConstructor = std::function<std::shared_ptr<T>(size_t argument_count,
+                                                             const std::shared_ptr<CtxValue> arguments[])>;
+
+template <typename T>
+struct PropertyDefine {
+  using unicode_string_view = tdf::base::unicode_string_view;
+
+  GetterCallback<T> getter;
+  SetterCallback<T> setter;
+  unicode_string_view name;
+};
+
+template <typename T>
+struct FunctionDefine {
+  using unicode_string_view = tdf::base::unicode_string_view;
+
+  FunctionCallback<T> cb;
+  unicode_string_view name;
+};
+
+template <typename T>
+struct InstanceDefine {
+  using unicode_string_view = tdf::base::unicode_string_view;
+
+  InstanceConstructor<T> constructor;
+  std::vector<PropertyDefine<T>> properties{};
+  std::vector<FunctionDefine<T>> functions{};
+  unicode_string_view name;
+  std::unordered_map<void*, std::shared_ptr<T>> holder;
+};
+
 class Ctx {
  public:
   using JSValueWrapper = hippy::base::JSValueWrapper;
@@ -87,6 +131,7 @@ class Ctx {
   virtual ~Ctx() { TDF_BASE_DLOG(INFO) << "~Ctx"; }
 
   virtual bool RegisterGlobalInJs() = 0;
+  virtual void RegisterClasses(std::weak_ptr<Scope> scope) = 0;
   virtual bool SetGlobalJsonVar(const unicode_string_view& name,
                                 const unicode_string_view& json) = 0;
   virtual bool SetGlobalStrVar(const unicode_string_view& name,

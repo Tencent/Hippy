@@ -22,9 +22,17 @@
 
 import ViewNode from '../dom/view-node';
 import Element from '../dom/element-node';
-import * as UIManagerModule from '../modules/ui-manager-module';
-import { getRootViewId, getRootContainer } from '../utils/node';
+// import * as UIManagerModule from '../modules/ui-manager-module';
+import {
+  EVENT_ATTRIBUTE_NAME,
+  getRootViewId,
+  getRootContainer,
+  translateToNativeEventName,
+  eventHandlerType,
+  nativeEventMap,
+} from '../utils/node';
 import { trace, warn } from '../utils';
+import { EventDispatcher } from '../event';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -41,6 +49,7 @@ const NODE_OPERATION_TYPES: BatchType = {
 interface BatchChunk {
   type: symbol,
   nodes: HippyTypes.NativeNode[]
+  eventNodes: HippyTypes.EventNode[]
 }
 
 let batchIdle = true;
@@ -53,18 +62,66 @@ function chunkNodes(batchNodes: BatchChunk[]) {
   const result: BatchChunk[] = [];
   for (let i = 0; i < batchNodes.length; i += 1) {
     const chunk: BatchChunk = batchNodes[i];
-    const { type, nodes } = chunk;
+    const { type, nodes, eventNodes } = chunk;
     const lastChunk = result[result.length - 1];
     if (!lastChunk || lastChunk.type !== type) {
       result.push({
         type,
         nodes,
+        eventNodes,
       });
     } else {
       lastChunk.nodes = lastChunk.nodes.concat(nodes);
+      lastChunk.eventNodes = lastChunk.eventNodes.concat(eventNodes);
     }
   }
   return result;
+}
+
+
+function isNativeGesture(name) {
+  return !!nativeEventMap[name];
+}
+
+function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuilder: any) {
+  eventNodes.forEach((eventNode) => {
+    if (eventNode) {
+      const { id, eventList } = eventNode;
+      eventList.forEach((eventAttribute) => {
+        const { name, listener, type, isCapture, hasBound } = eventAttribute;
+        let nativeEventName;
+        if (isNativeGesture(name)) {
+          nativeEventName = nativeEventMap[name];
+        } else {
+          nativeEventName = translateToNativeEventName(name);
+        }
+        if (type === eventHandlerType.REMOVE && !hasBound) {
+          eventAttribute.hasBound = true;
+          console.log('RemoveEventListener', id, nativeEventName, isCapture);
+          sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
+        }
+        if (type === eventHandlerType.ADD && !hasBound) {
+          const callback = (event) => {
+            const { id,  currentId, params } = event;
+            console.log('callback event', event);
+            if (isNativeGesture(name)) {
+              const dispatcherEvent = {
+                id, name, currentId,
+              };
+              Object.assign(dispatcherEvent, params);
+              EventDispatcher.receiveNativeGesture(dispatcherEvent);
+            } else {
+              const dispatcherEvent = [id, name, params];
+              EventDispatcher.receiveUIComponentEvent(dispatcherEvent);
+            }
+          };
+          eventAttribute.hasBound = true;
+          eventAttribute.listener = listener;
+          sceneBuilder.AddEventListener(id, nativeEventName, callback);
+        }
+      });
+    }
+  });
 }
 
 /**
@@ -73,23 +130,31 @@ function chunkNodes(batchNodes: BatchChunk[]) {
  */
 function batchUpdate(rootViewId: number): void {
   const chunks = chunkNodes(batchNodes);
+  const sceneBuilder = new global.SceneBuilder(rootViewId);
   chunks.forEach((chunk) => {
     switch (chunk.type) {
       case NODE_OPERATION_TYPES.createNode:
         trace(...componentName, 'createNode', chunk.nodes);
-        UIManagerModule.createNode(rootViewId, chunk.nodes);
+        sceneBuilder.Create(chunk.nodes);
+        handleEventListeners(chunk.eventNodes, sceneBuilder);
+        // UIManagerModule.createNode(rootViewId, chunk.nodes);
         break;
       case NODE_OPERATION_TYPES.updateNode:
         trace(...componentName, 'updateNode', chunk.nodes);
-        UIManagerModule.updateNode(rootViewId, chunk.nodes);
+        sceneBuilder.Update(chunk.nodes);
+        handleEventListeners(chunk.eventNodes, sceneBuilder);
+        // UIManagerModule.updateNode(rootViewId, chunk.nodes);
         break;
       case NODE_OPERATION_TYPES.deleteNode:
         trace(...componentName, 'deleteNode', chunk.nodes);
-        UIManagerModule.deleteNode(rootViewId, chunk.nodes);
+        sceneBuilder.Delete(chunk.nodes);
+        handleEventListeners(chunk.eventNodes, sceneBuilder);
+        // UIManagerModule.deleteNode(rootViewId, chunk.nodes);
         break;
       default:
     }
   });
+  sceneBuilder.Build();
 }
 
 /**
@@ -107,13 +172,12 @@ function endBatch(isHookUsed = false): void {
   // if commitEffectsHook used, call batchUpdate synchronously
   if (isHookUsed) {
     batchUpdate(rootViewId);
-    UIManagerModule.endBatch();
     batchNodes = [];
     batchIdle = true;
   } else {
     Promise.resolve().then(() => {
       batchUpdate(rootViewId);
-      UIManagerModule.endBatch();
+      // UIManagerModule.endBatch();
       batchNodes = [];
       batchIdle = true;
     });
@@ -133,17 +197,12 @@ function getNativeProps(node: Element) {
  */
 function getTargetNodeAttributes(targetNode: Element) {
   try {
-    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const { EVENT_ATTRIBUTE_NAME, ...devAttributes } = targetNode.attributes;
+    const targetNodeAttributes = JSON.parse(JSON.stringify(devAttributes));
     const attributes = {
       id: targetNode.id,
       ...targetNodeAttributes,
     };
-    // delete special __bind__event attribute, which is used in C DOM
-    Object.keys(attributes).forEach((key) => {
-      if (key.indexOf('__bind__') === 0 && typeof attributes[key] === 'boolean') {
-        delete attributes[key];
-      }
-    });
     delete attributes.text;
     delete attributes.value;
     return attributes;
@@ -154,15 +213,43 @@ function getTargetNodeAttributes(targetNode: Element) {
 }
 
 /**
+ * getEventNode - translate event attributes to event node.
+ * @param targetNode
+ */
+function getEventNode(targetNode): HippyTypes.EventNode {
+  let eventNode: HippyTypes.EventNode = undefined;
+  const eventsAttributes = targetNode.attributes[EVENT_ATTRIBUTE_NAME] as Object;
+  if (eventsAttributes) {
+    const eventList = Object.keys(eventsAttributes).map((key) => {
+      const { name, listener, type, isCapture, hasBound } = eventsAttributes[key];
+      return {
+        name,
+        listener,
+        type,
+        isCapture,
+        hasBound,
+      };
+    });
+    eventNode = {
+      id: targetNode.nodeId,
+      eventList,
+    };
+  }
+  return eventNode;
+}
+
+type renderToNativeReturnVal = { nativeNode?: HippyTypes.NativeNode, eventNode?: HippyTypes.EventNode };
+
+/**
  * Render Element to native
  */
-function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.NativeNode | null {
+function renderToNative(rootViewId: number, targetNode: Element): renderToNativeReturnVal {
   if (!targetNode.nativeName) {
     warn('Component need to define the native name', targetNode);
-    return null;
+    return {};
   }
   if (targetNode.meta.skipAddToDom) {
-    return null;
+    return {};
   }
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
@@ -178,6 +265,7 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
       style: targetNode.style,
     },
   };
+  const eventNode = getEventNode(targetNode);
   // Add nativeNode attributes info for debugging
   if (process.env.NODE_ENV !== 'production') {
     nativeNode.tagName = targetNode.nativeName;
@@ -185,7 +273,7 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
       nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
     }
   }
-  return nativeNode;
+  return { nativeNode, eventNode };
 }
 
 /**
@@ -194,29 +282,33 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
  * @param {ViewNode} node - current node
  * @param {number} [atIndex] - current node index
  * @param {Function} [callback] - function called on each traversing process
- * @returns {HippyTypes.NativeNode[]}
+ * @returns { nativeLanguages: HippyTypes.NativeNode[], eventLanguages: HippyTypes.EventNode[]}
  */
 function renderToNativeWithChildren(
   rootViewId: number,
   node: ViewNode,
   atIndex?: number,
   callback?: Function,
-): HippyTypes.NativeNode[] {
+): { nativeLanguages: HippyTypes.NativeNode[], eventLanguages: HippyTypes.EventNode[]} {
   const nativeLanguages: HippyTypes.NativeNode[] = [];
+  const eventLanguages: HippyTypes.EventNode[] = [];
   let index = atIndex;
   if (typeof index === 'undefined' && node && node.parentNode) {
     index = node.parentNode.childNodes.indexOf(node);
   }
   node.traverseChildren((targetNode: Element) => {
-    const nativeNode = renderToNative(rootViewId, targetNode);
+    const { nativeNode, eventNode } = renderToNative(rootViewId, targetNode);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
+    }
+    if (eventNode) {
+      eventLanguages.push(eventNode);
     }
     if (typeof callback === 'function') {
       callback(targetNode);
     }
   }, index);
-  return nativeLanguages;
+  return { nativeLanguages, eventLanguages };
 }
 
 function isLayout(node: ViewNode) {
@@ -239,7 +331,7 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
   // Render the root node
   if (isLayout(parentNode) && !parentNode.isMounted) {
     // Start real native work.
-    const translated = renderToNativeWithChildren(
+    const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(
       rootViewId,
       childNode,
       atIndex,
@@ -251,12 +343,12 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
     );
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
-      nodes: translated,
+      nodes: nativeLanguages,
+      eventNodes: eventLanguages,
     });
-    // endBatch();
     // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
-    const translated = renderToNativeWithChildren(
+    const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(
       rootViewId,
       childNode,
       atIndex,
@@ -268,9 +360,9 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
     );
     batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
-      nodes: translated,
+      nodes: nativeLanguages,
+      eventNodes: eventLanguages,
     });
-    // endBatch();
   }
 }
 
@@ -286,11 +378,12 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
+  const eventNode = getEventNode(childNode);
   batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
+    eventNodes: [eventNode],
   });
-  // endBatch();
 }
 
 function updateChild(parentNode: Element) {
@@ -298,14 +391,14 @@ function updateChild(parentNode: Element) {
     return;
   }
   const rootViewId = getRootViewId();
-  const translated = renderToNative(rootViewId, parentNode);
-  if (translated) {
+  const { nativeNode, eventNode } = renderToNative(rootViewId, parentNode);
+  if (nativeNode) {
     batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
-      nodes: [translated],
+      nodes: [nativeNode],
+      eventNodes: [eventNode],
     });
   }
-  // endBatch();
 }
 
 function updateWithChildren(parentNode: ViewNode) {
@@ -313,12 +406,14 @@ function updateWithChildren(parentNode: ViewNode) {
     return;
   }
   const rootViewId = getRootViewId();
-  const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  batchNodes.push({
-    type: NODE_OPERATION_TYPES.updateNode,
-    nodes: translated,
-  });
-  // endBatch();
+  const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(rootViewId, parentNode) || {};
+  if (nativeLanguages) {
+    batchNodes.push({
+      type: NODE_OPERATION_TYPES.updateNode,
+      nodes: nativeLanguages,
+      eventNodes: eventLanguages,
+    });
+  }
 }
 
 export {
