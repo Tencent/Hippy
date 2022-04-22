@@ -263,7 +263,6 @@
 		064C598F23AB1A51001E80DD /* HippyErrorCustomizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyErrorCustomizer.h; sourceTree = "<group>"; };
 		064C599023AB1A51001E80DD /* HippyConvert+Transform.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "HippyConvert+Transform.m"; sourceTree = "<group>"; };
 		064C599123AB1A51001E80DD /* HippyErrorInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyErrorInfo.h; sourceTree = "<group>"; };
-		064C599423AB1A51001E80DD /* HippyDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefines.h; sourceTree = "<group>"; };
 		064C599523AB1A51001E80DD /* HippyUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyUtils.h; sourceTree = "<group>"; };
 		064C599623AB1A51001E80DD /* HippyAssert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyAssert.m; sourceTree = "<group>"; };
 		064C599823AB1A51001E80DD /* HippyParserUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyParserUtils.h; sourceTree = "<group>"; };
@@ -465,6 +464,7 @@
 		F438B743281248010078435B /* HippyDomNodeUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDomNodeUtils.h; sourceTree = "<group>"; };
 		F438B74728124B200078435B /* HippyI18nUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyI18nUtils.h; sourceTree = "<group>"; };
 		F438B74828124B200078435B /* HippyI18nUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyI18nUtils.m; sourceTree = "<group>"; };
+		F438B74B28124E9F0078435B /* HippyDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefines.h; sourceTree = "<group>"; };
 		F43A2D08275882650056F36C /* diff_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = diff_utils.cc; sourceTree = "<group>"; };
 		F43BE80D26733F620080999C /* HippyNetInfoIntenal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyNetInfoIntenal.h; sourceTree = "<group>"; };
 		F43BE80E26733F620080999C /* HippyNetInfoIntenal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyNetInfoIntenal.m; sourceTree = "<group>"; };
@@ -891,7 +891,6 @@
 		064C598B23AB1A51001E80DD /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				064C599423AB1A51001E80DD /* HippyDefines.h */,
 				064C599823AB1A51001E80DD /* HippyParserUtils.h */,
 				064C598C23AB1A51001E80DD /* HippyParserUtils.m */,
 				064C598F23AB1A51001E80DD /* HippyErrorCustomizer.h */,
@@ -1773,6 +1772,7 @@
 		F4CEDF9227D8587900583C9E /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				F438B74B28124E9F0078435B /* HippyDefines.h */,
 				F438B74728124B200078435B /* HippyI18nUtils.h */,
 				F438B74828124B200078435B /* HippyI18nUtils.m */,
 				F438B743281248010078435B /* HippyDomNodeUtils.h */,
