@@ -99,6 +99,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 #endif
     std::shared_ptr<Ctx> ctx = scope->GetContext();
     ctx->RegisterGlobalInJs();
+    ctx->RegisterClasses(scope);
     ctx->RegisterNativeBinding(kHippyCallNativeKey,
                                call_native_cb,
                                reinterpret_cast<void*>(runtime_id));

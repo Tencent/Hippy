@@ -32,8 +32,9 @@ CallbackInfo::CallbackInfo(std::shared_ptr<Scope> scope) : scope_(std::move(scop
 }
 
 void CallbackInfo::AddValue(const std::shared_ptr<CtxValue>& value) {
-  if (!value)
+  if (!value) {
     return;
+  }
   values_.push_back(value);
 }
 

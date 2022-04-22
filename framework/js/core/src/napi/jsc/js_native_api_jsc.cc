@@ -81,8 +81,8 @@ JSValueRef JsCallbackFunc(JSContextRef ctx,
     return JSValueMakeUndefined(ctx);
   }
 
-  JSValueRef valueRef = ret_value->value_;
-  return valueRef;
+  JSValueRef value_ref = ret_value->value_;
+  return value_ref;
 }
 
 JSObjectRef RegisterModule(std::shared_ptr<Scope> scope,

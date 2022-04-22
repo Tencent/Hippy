@@ -32,6 +32,10 @@
 #include "base/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/napi/js_native_api_types.h"
+#include "core/scope.h"
+#include "core/modules/scene_builder.h"
+#include "dom/scene_builder.h"
+#include "core/base/string_view_utils.h"
 
 template <std::size_t N>
 constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
@@ -44,6 +48,14 @@ namespace napi {
 constexpr char16_t kLengthStr[] = u"length";
 constexpr char16_t kMessageStr[] = u"message";
 constexpr char16_t kStackStr[] = u"stack";
+constexpr char16_t kDefinePropertyStr[] = u"defineProperty";
+constexpr char16_t kPrototypeStr[] = u"prototype";
+constexpr char16_t kObjectStr[] = u"object";
+constexpr char16_t kGetStr[] = u"get";
+constexpr char16_t kSetStr[] = u"set";
+
+constexpr char kGetterStr[] = "getter";
+constexpr char kSetterStr[] = "setter";
 
 class JSCVM : public VM {
  public:
@@ -98,6 +110,7 @@ class JSCCtx : public Ctx {
     is_exception_handled_ = is_exception_handled;
   }
   virtual bool RegisterGlobalInJs() override;
+  virtual void RegisterClasses(std::weak_ptr<Scope> scope) override;
   virtual bool SetGlobalJsonVar(const unicode_string_view& name,
                                 const unicode_string_view& json) override;
   virtual bool SetGlobalStrVar(const unicode_string_view& name,
@@ -188,7 +201,7 @@ class JSCCtx : public Ctx {
       const unicode_string_view& data,
       const unicode_string_view& file_name) override;
   virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
-    
+
   virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) override;
   virtual void ThrowException(const unicode_string_view& exception) override;
   virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
@@ -197,13 +210,22 @@ class JSCCtx : public Ctx {
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<JSValueWrapper>& wrapper) override;
-    
+
   virtual std::shared_ptr<DomValue> ToDomValue(
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<DomArgument> ToDomArgument(
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<DomValue>& value) override;
+
+  template <typename T>
+  std::shared_ptr<JSCCtxValue> RegisterPrototype(const std::shared_ptr<InstanceDefine<T>> instance_define);
+
+  template <typename T>
+  JSObjectCallAsConstructorCallback NewConstructor();
+
+  template <typename T>
+  void RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_define);
 
   unicode_string_view GetExceptionMsg(const std::shared_ptr<CtxValue>& exception);
   JSStringRef CreateJSCString(const unicode_string_view& str_view);
@@ -252,6 +274,161 @@ class JSCTryCatch : public TryCatch {
   bool is_verbose_;
   bool is_rethrow_;
 };
+
+inline void JSCCtx::RegisterClasses(std::weak_ptr<Scope> scope) {
+  auto build = hippy::RegisterSceneBuilder(scope);
+  RegisterJsClass(build);
+}
+
+template <typename T>
+std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<InstanceDefine<T>> instance_define) {
+  auto prototype = JSObjectMake(context_, nullptr, nullptr);
+  JSValueRef exception;
+  JSStringRef get_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kGetStr),
+                                                          arraysize(kObjectStr) - 1);
+  JSStringRef set_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kSetStr),
+                                                          arraysize(kObjectStr) - 1);
+
+  for (auto& prop : instance_define->properties) {
+    auto prop_obj = JSObjectMake(context_, nullptr, nullptr);
+
+    JSValueRef getter;
+    JSValueRef setter;
+
+    if (prop.getter) {
+      JSClassDefinition js_cls_def = kJSClassDefinitionEmpty;
+      js_cls_def.className = kGetterStr;
+      js_cls_def.callAsFunction = [](JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
+                                   size_t argumentCount, const JSValueRef arguments[],
+                                   JSValueRef* exception) {
+        auto* prop = static_cast<PropertyDefine<T>*>(JSObjectGetPrivate(function));
+        auto* t = static_cast<T*>(JSObjectGetPrivate(this_object));
+        auto ret = (prop->getter)(t);
+        std::shared_ptr<JSCCtxValue> ret_value = std::static_pointer_cast<JSCCtxValue>(ret);
+        JSValueRef value_ref = ret_value->value_;
+        return value_ref;
+      };
+      JSClassRef func_ref = JSClassCreate(&js_cls_def);
+      getter = JSObjectMake(context_, func_ref, reinterpret_cast<void*>(&prop));
+      JSClassRelease(func_ref);
+
+      JSObjectSetProperty(context_, prop_obj, get_key_name, getter, kJSPropertyAttributeNone, &exception);
+    }
+
+    if (prop.setter) {
+      JSClassDefinition js_cls_def = kJSClassDefinitionEmpty;
+      js_cls_def.className = kSetterStr;
+      js_cls_def.callAsFunction = [](JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
+                                   size_t argc, const JSValueRef arguments[],
+                                   JSValueRef* exception) {
+        auto* prop = static_cast<PropertyDefine<T>*>(JSObjectGetPrivate(function));
+        auto* t = static_cast<T*>(JSObjectGetPrivate(this_object));
+        std::shared_ptr<CtxValue> value = std::static_pointer_cast<CtxValue>(std::make_shared<JSCCtxValue>((JSGlobalContextRef)ctx, arguments[0]));
+        (prop->setter)(t, value);
+        return JSValueMakeBoolean(ctx, true);
+      };
+      JSClassRef func_ref = JSClassCreate(&js_cls_def);
+      setter = JSObjectMake(context_, func_ref, reinterpret_cast<void*>(&prop));
+      JSClassRelease(func_ref);
+      JSObjectSetProperty(context_, prop_obj, set_key_name, setter, kJSPropertyAttributeNone, &exception);
+    }
+
+    if (prop.getter || prop.setter) {
+      auto name = hippy::base::StringViewUtils::ToU8StdStr(prop.name);
+      JSStringRef prop_name_ref = JSStringCreateWithUTF8CString(name.c_str());
+      JSValueRef prop_name = JSValueMakeString(context_, prop_name_ref);
+      JSStringRelease(prop_name_ref);
+      JSValueRef values[2];  // NOLINT(runtime/arrays)
+      values[0] = prop_name;
+      values[1] = prop_obj;
+      JSObjectCallAsFunction(context_, prototype, prototype, 2, values, &exception);
+    }
+  }
+
+  for (auto& func : instance_define->functions) {
+    JSClassDefinition func_def = kJSClassDefinitionEmpty;
+    std::string func_name = hippy::base::StringViewUtils::ToU8StdStr(func.name);
+    func_def.className = func_name.c_str();
+    func_def.callAsFunction = [](JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
+                                 size_t argc, const JSValueRef argv[],
+                                 JSValueRef* exception) {
+      auto* func_def = static_cast<FunctionDefine<T>*>(JSObjectGetPrivate(function));
+      auto* t = static_cast<T*>(JSObjectGetPrivate(this_object));
+      std::shared_ptr<CtxValue> param[argc];
+      for (auto i = 0; i < argc; ++i) {
+        param[i] = std::static_pointer_cast<CtxValue>(std::make_shared<JSCCtxValue>((JSGlobalContextRef)ctx, argv[i]));
+      }
+      auto ret = func_def->cb(t, argc, param);
+      std::shared_ptr<JSCCtxValue> ret_value = std::static_pointer_cast<JSCCtxValue>(ret);
+      if (ret_value) {
+        return ret_value->value_;
+      }
+      return JSValueMakeNull(ctx);
+    };
+
+    auto func_cls = JSClassCreate(&func_def);
+    auto obj_ref = JSObjectMake(context_, func_cls, &func);
+    JSClassRelease(func_cls);
+    JSStringRef func_name_ref = JSStringCreateWithUTF8CString(func_name.c_str());
+    JSObjectSetProperty(context_, prototype, func_name_ref, obj_ref, kJSPropertyAttributeNone, &exception);
+    JSStringRelease(func_name_ref);
+  }
+
+  JSStringRelease(get_key_name);
+  JSStringRelease(set_key_name);
+  return std::make_shared<JSCCtxValue>(context_, prototype);
+}
+
+template<typename T>
+struct PrivateData {
+  InstanceDefine<T>* instance_define;
+  JSClassRef cls_ref;
+  std::shared_ptr<JSCCtxValue> prototype;
+};
+
+template <typename T>
+JSObjectCallAsConstructorCallback JSCCtx::NewConstructor() {
+  return [](JSContextRef ctx, JSObjectRef constructor_ref, size_t argc,
+            const JSValueRef argv[], JSValueRef* exception) {
+    auto* data = static_cast<PrivateData<T>*>(JSObjectGetPrivate(constructor_ref));
+    auto instance_define = data->instance_define;
+    auto cls_ref = data->cls_ref;
+    auto prototype = data->prototype;
+    auto constructor = instance_define->constructor;
+    std::shared_ptr<CtxValue> param[argc];
+    for (auto i = 0; i < argc; ++i) {
+      auto p = std::make_shared<JSCCtxValue>((JSGlobalContextRef)ctx, argv[i]);
+      param[i] = std::static_pointer_cast<CtxValue>(p);
+    }
+    std::shared_ptr<T> ret = constructor(argc, param);
+    instance_define->holder.insert({ ret.get(), ret });
+    JSObjectRef obj_ref = JSObjectMake(ctx, cls_ref, nullptr);
+    JSObjectSetPrivate(obj_ref, ret.get());
+    JSObjectSetPrototype(ctx, obj_ref, prototype->value_);
+    return obj_ref;
+  };
+}
+
+template <typename T>
+void JSCCtx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_define) {
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.attributes = kJSClassAttributeNone;
+  cls_def.callAsConstructor = NewConstructor<T>();
+  auto name = hippy::base::StringViewUtils::ToU8StdStr(instance_define->name);
+  cls_def.className = name.c_str();
+  auto cls_ref = JSClassCreate(&cls_def);
+  auto* data = new PrivateData<T>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};
+  auto obj = JSObjectMake(context_, cls_ref, data);
+  auto name_ref = JSStringCreateWithUTF8CString(name.c_str());
+  JSObjectSetProperty(context_, JSContextGetGlobalObject(context_), name_ref,
+                      obj,
+                      kJSPropertyAttributeDontDelete, nullptr);
+  JSStringRelease(name_ref);
+  cls_def.finalize = [](JSObjectRef object) {
+    delete static_cast<PrivateData<T>*>(JSObjectGetPrivate(object));
+  };
+}
+
 
 }  // namespace napi
 }  // namespace hippy

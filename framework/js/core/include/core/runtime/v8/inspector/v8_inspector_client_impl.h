@@ -61,7 +61,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
       v8::Local<v8::Value>) override {
     return nullptr;
   }
-  bool formatAccessorsAsProperties(v8::Local<v8::Value>) override {
+  bool formatAccessorsAsProperties(v8::Local<v8::Value>) {
     return false;
   }
   bool isInspectableHeapObject(v8::Local<v8::Object>) override { return true; }
