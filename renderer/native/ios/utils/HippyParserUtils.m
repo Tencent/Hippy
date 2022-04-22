@@ -21,7 +21,6 @@
  */
 
 #import "HippyParserUtils.h"
-
 #import "HippyLog.h"
 
 BOOL HippyReadChar(const char **input, char c) {

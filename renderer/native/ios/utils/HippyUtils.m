@@ -21,18 +21,13 @@
  */
 
 #import "HippyUtils.h"
-
 #import <mach/mach_time.h>
 #import <objc/message.h>
 #import <objc/runtime.h>
-
 #import <UIKit/UIKit.h>
-
 #import <CommonCrypto/CommonCrypto.h>
-
 #import <zlib.h>
 #import <dlfcn.h>
-
 #import "HippyAssert.h"
 #import "HippyLog.h"
 

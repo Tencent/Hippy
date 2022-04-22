@@ -22,7 +22,6 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
-
 #include "Flex.h"
 #import "HippyAnimationType.h"
 #import "HippyBorderStyle.h"

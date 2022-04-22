@@ -25,8 +25,6 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-
-#import "HippyAssert.h"
 #import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN

@@ -21,11 +21,8 @@
  */
 
 #import <CoreText/CoreText.h>
-
 #import "HippyConvert.h"
-
 #import <objc/message.h>
-
 #import "HippyDefines.h"
 #import "HippyParserUtils.h"
 #import "HippyUtils.h"
