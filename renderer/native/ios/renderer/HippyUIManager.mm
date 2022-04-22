@@ -46,6 +46,7 @@
 #import "UIView+HippyEvent.h"
 #import "objc/runtime.h"
 #import "UIView+Render.h"
+#import "RenderErrorHandler.h"
 #include <mutex>
 
 using DomValue = tdf::base::DomValue;
@@ -130,6 +131,8 @@ static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<Hip
         }
     }
 }
+
+#define AssertMainQueue() NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread")
 
 const char *HippyUIManagerQueueName = "com.tencent.hippy.ShadowQueue";
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
@@ -298,7 +301,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 }
 
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     return _viewRegistry[hippyTag];
 }
 
@@ -347,7 +350,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)registerRootView:(UIView *)rootView {
-    HippyAssertMainQueue();
+    AssertMainQueue();
 
     NSNumber *hippyTag = rootView.hippyTag;
     NSAssert(HippyIsHippyRootView(hippyTag), @"View %@ with tag #%@ is not a root view", rootView, hippyTag);
@@ -383,7 +386,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 
 - (void)setFrame:(CGRect)frame forView:(UIView *)view {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     NSNumber *hippyTag = view.hippyTag;
     dispatch_async(HippyGetUIManagerQueue(), ^{
         std::lock_guard<std::mutex> lock([self shadowQueueLock]);
@@ -427,7 +430,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName];
     UIView *view = [self createViewByComponentData:componentData hippyTag:shadowView.hippyTag rootTag:_rootViewTag properties:shadowView.props viewName:shadowView.viewName];
     view.renderContext = self;
@@ -441,7 +444,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     [shadowView dirtyDescendantPropagation];
     return [self createViewRecursiveFromShadowViewWithNOLock:shadowView];
@@ -989,13 +992,9 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
         return nil;
     } @catch (NSException *exception) {
-        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
-            @throw exception;
-        }
-
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, name, nativeModuleName, finalParams];
         NSError *error = HippyErrorWithMessage(message);
-        HippyFatal(error);
+        RenderFatal(error);
         return nil;
     }
 }
@@ -1044,7 +1043,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addEventNameInMainThread:(const std::string &)name forDomNodeId:(int32_t)node_id {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     if (name == hippy::kClickEvent) {
         [self addClickEventListenerForView:node_id];
     } else if (name == hippy::kLongClickEvent) {
@@ -1062,7 +1061,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addClickEventListenerForView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kClickEvent];
@@ -1084,7 +1083,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addLongClickEventListenerForView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kLongClickEvent];
@@ -1106,7 +1105,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addPressEventListenerForType:(const std::string &)type forView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     HippyViewEventType eventType = hippy::kPressIn == type ? HippyViewEventType::HippyViewEventTypePressIn : HippyViewEventType::HippyViewEventTypePressOut;
     if (view) {
@@ -1131,7 +1130,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)addTouchEventListenerForType:(const std::string &)type
                              forView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         // todo 默认值应该有个值代表未知
@@ -1170,7 +1169,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addShowEventListenerForType:(const std::string &)type forView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
@@ -1218,7 +1217,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addRenderEvent:(const std::string &)name forDomNode:(int32_t)node_id {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     std::string name_ = std::move(name);
     NSDictionary *componentDataByName = [_componentDataByName copy];
     UIView *view = [self viewForHippyTag:@(node_id)];

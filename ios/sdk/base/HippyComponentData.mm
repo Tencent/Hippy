@@ -92,7 +92,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
             name = [name substringToIndex:name.length - @"Manager".length];
         }
 
-        HippyAssert(name.length, @"Invalid moduleName '%@'", name);
+        NSAssert(name.length, @"Invalid moduleName '%@'", name);
         _name = name;
 
         _implementsUIBlockToAmendWithShadowViewRegistry = NO;
@@ -110,7 +110,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (UIView *)createViewWithTag:(NSNumber *)tag {
-    HippyAssertMainQueue();
+    NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread");
     UIView *view = [self.manager view];
     view.hippyTag = tag;
     view.multipleTouchEnabled = YES;
@@ -121,6 +121,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (UIView *)createViewWithTag:(NSNumber *)tag initProps:(NSDictionary *)props {
+    NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread");
     self.manager.props = props;
     UIView *view = [self.manager view];
     view.hippyTag = tag;
@@ -473,7 +474,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (NSString *)JSMethodNameFromEntries:(NSArray<NSString *> *)entries {
-    HippyAssert(2 == [entries count], @"entries should contains 2 items, one is js method, the other is method signature");
+    NSAssert(2 == [entries count], @"entries should contains 2 items, one is js method, the other is method signature");
     NSString *jsName = [entries firstObject];
     if ([jsName length] > 0) {
         return jsName;
@@ -517,7 +518,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             [selString appendFormat:@"%@:", selPartString];
         }
     }
-    HippyAssert([selString length] > 0, @"signature parse failed");
+    NSAssert([selString length] > 0, @"signature parse failed");
     return [selString copy];
 }
 

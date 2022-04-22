@@ -40,6 +40,7 @@
 #import "HippyBridge+Private.h"
 #import "HippyImageDataLoader.h"
 #import "HippyDefaultImageProvider.h"
+#import "HippyAssert.h"
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptWillStartLoadingNotification = @"HippyJavaScriptWillStartLoadingNotification";

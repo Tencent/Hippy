@@ -23,7 +23,6 @@
 #import "HippyScrollViewManager.h"
 #import "HippyScrollView.h"
 #import "HippyShadowView.h"
-#import "HippyUIManager.h"
 
 @implementation HippyConvert (UIScrollView)
 

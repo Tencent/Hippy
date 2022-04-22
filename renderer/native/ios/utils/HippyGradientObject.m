@@ -23,6 +23,7 @@
 #import "HippyGradientObject.h"
 #import "HippyUtils.h"
 #import "HippyBorderDrawing.h"
+#import "RenderErrorHandler.h"
 
 @interface HippyGradientLocationParser () {
     NSPointerArray *_locations;
@@ -49,7 +50,7 @@
 }
 
 - (void)setLocationValue:(NSNumber *)value atLocation:(NSUInteger)location {
-    HippyAssert(location < _locationsCount, @"HippyGradientLocationParser location out of range,try to insert value at %lu, but count is %lu", location, _locationsCount);
+    NSAssert(location < _locationsCount, @"HippyGradientLocationParser location out of range,try to insert value at %lu, but count is %lu", location, _locationsCount);
     [_locations replacePointerAtIndex:location withPointer:(__bridge void *)value];
 }
 
@@ -284,7 +285,7 @@ static LinearGradientPoints pointsFromDirection(HippyGradientObject *object, CGS
         } @catch (NSException *exception) {
             NSString *errorString = [NSString stringWithFormat:@"gradient parse error:%@", [exception reason]];
             NSError *error = HippyErrorWithMessageAndModuleName(errorString, nil);
-            HippyFatal(error);
+            RenderFatal(error);
             return self;
         }
     }
@@ -325,8 +326,8 @@ static CGFloat *CreateNSNumbersToCGFloats(NSArray<NSNumber *> * locations) {
     return pLocs;
 }
 
-HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CanvasInfo canvasInfo) {
-    HippyAssert(context, @"context cannot be null for drawing linear gradient");
+void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CanvasInfo canvasInfo) {
+    NSCAssert(context, @"context cannot be null for drawing linear gradient");
     CGColorSpaceRef spaceRef = CGColorSpaceCreateDeviceRGB();
     CFArrayRef colors = UIColorsToCGColors(object.colors);
     CGFloat *locations = CreateNSNumbersToCGFloats(object.locations);
@@ -352,6 +353,6 @@ HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, 
 }
 
 HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize size) {
-    HippyAssert(context, @"context cannot be null for drawing radial gradient");
-    HippyAssert(NO, @"HippyDrawRadialGradientInContext not implemented");
+    NSCAssert(context, @"context cannot be null for drawing radial gradient");
+    NSCAssert(NO, @"HippyDrawRadialGradientInContext not implemented");
 }

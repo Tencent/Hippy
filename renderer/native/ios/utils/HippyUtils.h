@@ -83,7 +83,7 @@ HIPPY_EXTERN NSDictionary<NSString *, id> *HippyJSErrorFromNSError(NSError *erro
 HIPPY_EXTERN NSDictionary<NSString *, id> *HippyJSErrorFromCodeMessageAndNSError(NSString *code, NSString *message, NSError *__nullable error);
 
 // The default error code to use as the `code` property for callback error objects
-HIPPY_EXTERN NSString *const HippyErrorUnspecified;
+HIPPY_EXTERN NSString *const RenderErrorUnspecified;
 
 // Returns YES if Hippy is running in a test environment
 HIPPY_EXTERN BOOL HippyRunningInTestEnvironment(void);

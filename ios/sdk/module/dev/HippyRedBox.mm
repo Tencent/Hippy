@@ -28,6 +28,7 @@
 #import "HippyErrorInfo.h"
 #import "HippyUtils.h"
 #import "HippyJSStackFrame.h"
+#import "HippyAssert.h"
 
 #if HIPPY_DEBUG
 

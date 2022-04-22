@@ -30,6 +30,7 @@
 #import "HippyBaseListViewDataSource.h"
 #import "UIView+Render.h"
 #import "objc/runtime.h"
+#import "HippyRenderContext.h"
 #import "HippyShadowView.h"
 
 static NSInteger kInfiniteLoopBegin = 2;

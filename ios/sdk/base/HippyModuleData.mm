@@ -31,6 +31,7 @@
 #import "HippyModuleMethod.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
+#import "HippyAssert.h"
 
 @implementation HippyModuleData {
     NSDictionary<NSString *, id> *_constantsToExport;

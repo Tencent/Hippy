@@ -121,7 +121,7 @@
         BOOL follow = [info[@"follow"] boolValue];
         HippyAnimation *ani = self->_animationById[subAnimationId];
         if (ani == nil) {
-            HippyAssert(ani != nil, @"create group animation but use illege sub animaiton");
+            NSAssert(ani != nil, @"create group animation but use illege sub animaiton");
             return;
         }
         ani.bFollow = follow;

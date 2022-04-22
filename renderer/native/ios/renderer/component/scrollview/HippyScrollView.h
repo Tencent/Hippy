@@ -23,13 +23,12 @@
 #import <UIKit/UIScrollView.h>
 
 #import "HippyAutoInsetsProtocol.h"
-#import "HippyEventDispatcher.h"
 #import "HippyScrollableProtocol.h"
 #import "HippyView.h"
 
 @protocol UIScrollViewDelegate;
 
-@interface HippyScrollView : HippyView <UIScrollViewDelegate, HippyScrollableProtocol, HippyAutoInsetsProtocol, HippyInvalidating>
+@interface HippyScrollView : HippyView <UIScrollViewDelegate, HippyScrollableProtocol, HippyAutoInsetsProtocol>
 
 /**
  * The `HippyScrollView` may have at most one single subview. This will ensure

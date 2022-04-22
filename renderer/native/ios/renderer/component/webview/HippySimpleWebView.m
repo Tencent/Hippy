@@ -46,7 +46,6 @@
     _url = urlString;
     NSURL *url = HippyURLWithString(urlString, NULL);
     if (!url) {
-        HippyFatal(HippyErrorWithMessage(@"Error in [HippyWebview setUrl]: illegal url"));
         return;
     }
     NSURLRequest *request = [NSURLRequest requestWithURL:url];

@@ -20,16 +20,10 @@
  * limitations under the License.
  */
 
-#import "HippyScrollView.h"
-
 #import <UIKit/UIKit.h>
-
-#import "HippyConvert.h"
-#import "HippyEventDispatcher.h"
-#import "HippyUIManager.h"
+#import "HippyScrollView.h"
 #import "UIView+Private.h"
 #import "UIView+Hippy.h"
-#import "HippyInvalidating.h"
 #import "UIView+DirectionalLayout.h"
 #import "objc/runtime.h"
 
@@ -211,8 +205,6 @@
 - (void)invalidate {
     [_scrollListeners removeAllObjects];
 }
-
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)setRemoveClippedSubviews:(__unused BOOL)removeClippedSubviews {
     // Does nothing

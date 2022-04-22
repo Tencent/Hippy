@@ -21,9 +21,8 @@
  */
 
 #import "HippyKeyCommands.h"
-
 #import <UIKit/UIKit.h>
-
+#import "HippyAssert.h"
 #import "HippyDefines.h"
 #import "HippyUtils.h"
 

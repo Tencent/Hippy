@@ -21,7 +21,6 @@
  */
 
 #import "HippyDomNodeUtils.h"
-#import "HippyAssert.h"
 
 using DomValue = tdf::base::DomValue;
 using DomManager = hippy::DomManager;
@@ -162,7 +161,7 @@ CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode) {
 }
 
 NSNumber *domValueToNumber(const DomValue *const pDomValue) {
-    HippyAssert(pDomValue->IsNumber(), @"domvalue should be a number");
+    NSCAssert(pDomValue->IsNumber(), @"domvalue should be a number");
     NSNumber *number = nil;
     switch (pDomValue->GetNumberType()) {
         case DomValueNumberType::kInt32:

@@ -23,6 +23,7 @@
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "HippyJSStackFrame.h"
+
 NSString *const HippyErrorDomain = @"HippyErrorDomain";
 NSString *const HippyJSStackTraceKey = @"HippyJSStackTraceKey";
 NSString *const HippyJSRawStackTraceKey = @"HippyJSRawStackTraceKey";

@@ -30,6 +30,7 @@
 #import "HippyConvert.h"
 #import "HippyLog.h"
 #import "HippyUtils.h"
+#import "HippyAssert.h"
 #import "RenderDefines.h"
 
 NSString *const HippyStorageDirectory = @"HippyAsyncLocalStorage_V1";
@@ -344,7 +345,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
          *  HippyBridge.moduleName must be set.
          *  If not, HippyAsyncLocalStorage will write configuration into public file
          */
-        HippyAssert([[self bridge] moduleName], @"HippyBridge.moduleName must not be null");
+        NSAssert([[self bridge] moduleName], @"HippyBridge.moduleName must not be null");
         _storageDirectory =
             [[_storageDirectory stringByAppendingPathComponent:HippyStorageDirectory] stringByAppendingPathComponent:[self bridge].moduleName];
     }

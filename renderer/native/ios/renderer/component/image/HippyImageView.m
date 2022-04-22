@@ -26,6 +26,7 @@
 #import "HippyAnimatedImage.h"
 #import <Accelerate/Accelerate.h>
 #import "UIView+AppearEvent.h"
+#import "RenderErrorHandler.h"
 
 NSString *const HippyImageErrorDomain = @"HippyImageErrorDomain";
 
@@ -445,7 +446,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
             UIImage *blurredImage = HippyBlurredImageWithRadiusv(image, br, &error);
             if (error) {
                 NSError *finalError = HippyErrorFromErrorAndModuleName(error, @"unknown");
-                HippyFatal(finalError);
+                RenderFatal(finalError);
             }
             HippyExecuteOnMainQueue(^{
                 setImageBlock(blurredImage);
