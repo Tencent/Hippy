@@ -163,7 +163,6 @@
 		F468DE6A2812A95200319196 /* HippyLogging.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDF32812A95100319196 /* HippyLogging.mm */; };
 		F468DE6B2812A95200319196 /* HippyErrorInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DDF52812A95100319196 /* HippyErrorInfo.m */; };
 		F468DE6C2812A95200319196 /* HippyEventDispatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDF92812A95100319196 /* HippyEventDispatcher.mm */; };
-		F468DE6D2812A95200319196 /* HippyComponentData.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDFA2812A95100319196 /* HippyComponentData.mm */; };
 		F468DE6E2812A95200319196 /* HippyPerformanceLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDFE2812A95100319196 /* HippyPerformanceLogger.mm */; };
 		F468DE6F2812A95200319196 /* HippyJSStackFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE002812A95200319196 /* HippyJSStackFrame.m */; };
 		F468DE702812A95200319196 /* HippyModuleMethod.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE012812A95200319196 /* HippyModuleMethod.mm */; };
@@ -176,14 +175,12 @@
 		F468DE772812A95200319196 /* HippyJSCExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE192812A95200319196 /* HippyJSCExecutor.mm */; };
 		F468DE782812A95200319196 /* HippyJSCErrorHandling.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE1A2812A95200319196 /* HippyJSCErrorHandling.m */; };
 		F468DE792812A95200319196 /* HippyKeyCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE1D2812A95200319196 /* HippyKeyCommands.m */; };
-		F468DE7A2812A95200319196 /* HippyFont.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE1E2812A95200319196 /* HippyFont.mm */; };
 		F468DE7B2812A95200319196 /* native_source_code_ios.cc in Sources */ = {isa = PBXBuildFile; fileRef = F468DE1F2812A95200319196 /* native_source_code_ios.cc */; };
 		F468DE7C2812A95200319196 /* HippyBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE232812A95200319196 /* HippyBridge.mm */; };
 		F468DE7D2812A95200319196 /* HippyBridge+LocalFileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE252812A95200319196 /* HippyBridge+LocalFileSource.mm */; };
 		F468DE7E2812A95200319196 /* HippyModuleData.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE2A2812A95200319196 /* HippyModuleData.mm */; };
 		F468DE7F2812A95200319196 /* HippyFrameUpdate.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE2B2812A95200319196 /* HippyFrameUpdate.m */; };
 		F468DE802812A95200319196 /* HippyDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE2C2812A95200319196 /* HippyDisplayLink.m */; };
-		F468DE812812A95200319196 /* HippyRootShadowView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE2D2812A95200319196 /* HippyRootShadowView.mm */; };
 		F468DE822812A95200319196 /* HippySRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE342812A95200319196 /* HippySRWebSocket.m */; };
 		F468DE832812A95200319196 /* HippySRSIMDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE352812A95200319196 /* HippySRSIMDHelpers.m */; };
 		F468DE842812A95200319196 /* HippyWebSocketManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE362812A95200319196 /* HippyWebSocketManager.m */; };
@@ -200,6 +197,9 @@
 		F468DE8F2812A95200319196 /* HippyDevInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE522812A95200319196 /* HippyDevInfo.m */; };
 		F468DE902812A95200319196 /* HippyDevWebSocketClient.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE532812A95200319196 /* HippyDevWebSocketClient.m */; };
 		F468DE912812A95200319196 /* HippyDevManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE542812A95200319196 /* HippyDevManager.mm */; };
+		F468DE9D2812ACEA00319196 /* HippyComponentData.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE962812ACEA00319196 /* HippyComponentData.mm */; };
+		F468DE9E2812ACEA00319196 /* HippyRootShadowView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE972812ACEA00319196 /* HippyRootShadowView.mm */; };
+		F468DE9F2812ACEA00319196 /* HippyFont.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE992812ACEA00319196 /* HippyFont.mm */; };
 		F4810954277062AD005C221B /* layer_optimized_render_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4810953277062AD005C221B /* layer_optimized_render_manager.cc */; };
 		F482919A274E420C00D91128 /* HPStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F482918B274E420C00D91128 /* HPStyle.cpp */; };
 		F482919B274E420C00D91128 /* HPConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F482918D274E420C00D91128 /* HPConfig.cpp */; };
@@ -567,10 +567,6 @@
 		F468DDF62812A95100319196 /* HippyAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAssert.h; sourceTree = "<group>"; };
 		F468DDF82812A95100319196 /* HippyJSEnginesMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSEnginesMapper.h; sourceTree = "<group>"; };
 		F468DDF92812A95100319196 /* HippyEventDispatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyEventDispatcher.mm; sourceTree = "<group>"; };
-		F468DDFA2812A95100319196 /* HippyComponentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyComponentData.mm; sourceTree = "<group>"; };
-		F468DDFB2812A95100319196 /* HippyComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyComponent.h; sourceTree = "<group>"; };
-		F468DDFC2812A95100319196 /* HippyAutoInsetsProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAutoInsetsProtocol.h; sourceTree = "<group>"; };
-		F468DDFD2812A95100319196 /* HippyAnimationType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimationType.h; sourceTree = "<group>"; };
 		F468DDFE2812A95100319196 /* HippyPerformanceLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyPerformanceLogger.mm; sourceTree = "<group>"; };
 		F468DDFF2812A95100319196 /* HippyBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBridge.h; sourceTree = "<group>"; };
 		F468DE002812A95200319196 /* HippyJSStackFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyJSStackFrame.m; sourceTree = "<group>"; };
@@ -581,17 +577,14 @@
 		F468DE052812A95200319196 /* HippyRootView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyRootView.mm; sourceTree = "<group>"; };
 		F468DE062812A95200319196 /* HippyRootView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyRootView.h; sourceTree = "<group>"; };
 		F468DE072812A95200319196 /* HippyBridge+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HippyBridge+Private.h"; sourceTree = "<group>"; };
-		F468DE082812A95200319196 /* HippyFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyFont.h; sourceTree = "<group>"; };
 		F468DE092812A95200319196 /* HippyModuleMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyModuleMethod.h; sourceTree = "<group>"; };
 		F468DE0A2812A95200319196 /* HippyModuleData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyModuleData.h; sourceTree = "<group>"; };
 		F468DE0B2812A95200319196 /* HippyBridge+LocalFileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HippyBridge+LocalFileSource.h"; sourceTree = "<group>"; };
-		F468DE0C2812A95200319196 /* HippyScrollProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyScrollProtocol.h; sourceTree = "<group>"; };
 		F468DE0D2812A95200319196 /* HippyDisplayLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDisplayLink.h; sourceTree = "<group>"; };
 		F468DE0E2812A95200319196 /* HippyFrameUpdate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyFrameUpdate.h; sourceTree = "<group>"; };
 		F468DE0F2812A95200319196 /* HippyDeviceBaseInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDeviceBaseInfo.h; sourceTree = "<group>"; };
 		F468DE102812A95200319196 /* HippyBundleURLProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyBundleURLProvider.m; sourceTree = "<group>"; };
 		F468DE112812A95200319196 /* HippyJSEnginesMapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJSEnginesMapper.mm; sourceTree = "<group>"; };
-		F468DE122812A95200319196 /* HippyRootShadowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyRootShadowView.h; sourceTree = "<group>"; };
 		F468DE132812A95200319196 /* HippyJavaScriptLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJavaScriptLoader.mm; sourceTree = "<group>"; };
 		F468DE142812A95200319196 /* HippyPerformanceLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyPerformanceLogger.h; sourceTree = "<group>"; };
 		F468DE152812A95200319196 /* HippyBatchedBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyBatchedBridge.mm; sourceTree = "<group>"; };
@@ -602,7 +595,6 @@
 		F468DE1B2812A95200319196 /* HippyJSCExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSCExecutor.h; sourceTree = "<group>"; };
 		F468DE1C2812A95200319196 /* HippyJSCErrorHandling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSCErrorHandling.h; sourceTree = "<group>"; };
 		F468DE1D2812A95200319196 /* HippyKeyCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyKeyCommands.m; sourceTree = "<group>"; };
-		F468DE1E2812A95200319196 /* HippyFont.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyFont.mm; sourceTree = "<group>"; };
 		F468DE1F2812A95200319196 /* native_source_code_ios.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native_source_code_ios.cc; sourceTree = "<group>"; };
 		F468DE202812A95200319196 /* HippyEventDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyEventDispatcher.h; sourceTree = "<group>"; };
 		F468DE212812A95200319196 /* HippyBridgeMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBridgeMethod.h; sourceTree = "<group>"; };
@@ -610,14 +602,11 @@
 		F468DE232812A95200319196 /* HippyBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyBridge.mm; sourceTree = "<group>"; };
 		F468DE242812A95200319196 /* HippyJavaScriptLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJavaScriptLoader.h; sourceTree = "<group>"; };
 		F468DE252812A95200319196 /* HippyBridge+LocalFileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "HippyBridge+LocalFileSource.mm"; sourceTree = "<group>"; };
-		F468DE262812A95200319196 /* HippyMemoryOpt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMemoryOpt.h; sourceTree = "<group>"; };
 		F468DE272812A95200319196 /* HippyBundleURLProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBundleURLProvider.h; sourceTree = "<group>"; };
-		F468DE282812A95200319196 /* HippyComponentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyComponentData.h; sourceTree = "<group>"; };
 		F468DE292812A95200319196 /* HippyRootViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyRootViewDelegate.h; sourceTree = "<group>"; };
 		F468DE2A2812A95200319196 /* HippyModuleData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyModuleData.mm; sourceTree = "<group>"; };
 		F468DE2B2812A95200319196 /* HippyFrameUpdate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyFrameUpdate.m; sourceTree = "<group>"; };
 		F468DE2C2812A95200319196 /* HippyDisplayLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyDisplayLink.m; sourceTree = "<group>"; };
-		F468DE2D2812A95200319196 /* HippyRootShadowView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyRootShadowView.mm; sourceTree = "<group>"; };
 		F468DE302812A95200319196 /* HippyWebSocketProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyWebSocketProxyDelegate.h; sourceTree = "<group>"; };
 		F468DE312812A95200319196 /* HippySRSIMDHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippySRSIMDHelpers.h; sourceTree = "<group>"; };
 		F468DE322812A95200319196 /* HippyWebSocketManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyWebSocketManager.h; sourceTree = "<group>"; };
@@ -652,6 +641,17 @@
 		F468DE532812A95200319196 /* HippyDevWebSocketClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyDevWebSocketClient.m; sourceTree = "<group>"; };
 		F468DE542812A95200319196 /* HippyDevManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyDevManager.mm; sourceTree = "<group>"; };
 		F468DE552812A95200319196 /* HippyDevManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDevManager.h; sourceTree = "<group>"; };
+		F468DE922812ACE900319196 /* HippyAnimationType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimationType.h; sourceTree = "<group>"; };
+		F468DE932812ACE900319196 /* HippyComponentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyComponentData.h; sourceTree = "<group>"; };
+		F468DE942812ACE900319196 /* HippyComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyComponent.h; sourceTree = "<group>"; };
+		F468DE952812ACE900319196 /* HippyAutoInsetsProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAutoInsetsProtocol.h; sourceTree = "<group>"; };
+		F468DE962812ACEA00319196 /* HippyComponentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyComponentData.mm; sourceTree = "<group>"; };
+		F468DE972812ACEA00319196 /* HippyRootShadowView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyRootShadowView.mm; sourceTree = "<group>"; };
+		F468DE982812ACEA00319196 /* HippyScrollProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyScrollProtocol.h; sourceTree = "<group>"; };
+		F468DE992812ACEA00319196 /* HippyFont.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyFont.mm; sourceTree = "<group>"; };
+		F468DE9A2812ACEA00319196 /* HippyMemoryOpt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMemoryOpt.h; sourceTree = "<group>"; };
+		F468DE9B2812ACEA00319196 /* HippyFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyFont.h; sourceTree = "<group>"; };
+		F468DE9C2812ACEA00319196 /* HippyRootShadowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyRootShadowView.h; sourceTree = "<group>"; };
 		F4810952277062A1005C221B /* layer_optimized_render_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = layer_optimized_render_manager.h; sourceTree = "<group>"; };
 		F4810953277062AD005C221B /* layer_optimized_render_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layer_optimized_render_manager.cc; sourceTree = "<group>"; };
 		F482918B274E420C00D91128 /* HPStyle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPStyle.cpp; sourceTree = "<group>"; };
@@ -1422,7 +1422,6 @@
 			isa = PBXGroup;
 			children = (
 				F468DDB82812A95100319196 /* module */,
-				F468DDED2812A95100319196 /* component */,
 				F468DDEE2812A95100319196 /* utils */,
 				F468DDF72812A95100319196 /* base */,
 				F468DE2E2812A95200319196 /* debug */,
@@ -1574,13 +1573,6 @@
 			path = clipboard;
 			sourceTree = "<group>";
 		};
-		F468DDED2812A95100319196 /* component */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = component;
-			sourceTree = "<group>";
-		};
 		F468DDEE2812A95100319196 /* utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -1599,12 +1591,9 @@
 		F468DDF72812A95100319196 /* base */ = {
 			isa = PBXGroup;
 			children = (
+				F468DE182812A95200319196 /* executors */,
 				F468DDF82812A95100319196 /* HippyJSEnginesMapper.h */,
 				F468DDF92812A95100319196 /* HippyEventDispatcher.mm */,
-				F468DDFA2812A95100319196 /* HippyComponentData.mm */,
-				F468DDFB2812A95100319196 /* HippyComponent.h */,
-				F468DDFC2812A95100319196 /* HippyAutoInsetsProtocol.h */,
-				F468DDFD2812A95100319196 /* HippyAnimationType.h */,
 				F468DDFE2812A95100319196 /* HippyPerformanceLogger.mm */,
 				F468DDFF2812A95100319196 /* HippyBridge.h */,
 				F468DE002812A95200319196 /* HippyJSStackFrame.m */,
@@ -1615,25 +1604,20 @@
 				F468DE052812A95200319196 /* HippyRootView.mm */,
 				F468DE062812A95200319196 /* HippyRootView.h */,
 				F468DE072812A95200319196 /* HippyBridge+Private.h */,
-				F468DE082812A95200319196 /* HippyFont.h */,
 				F468DE092812A95200319196 /* HippyModuleMethod.h */,
 				F468DE0A2812A95200319196 /* HippyModuleData.h */,
 				F468DE0B2812A95200319196 /* HippyBridge+LocalFileSource.h */,
-				F468DE0C2812A95200319196 /* HippyScrollProtocol.h */,
 				F468DE0D2812A95200319196 /* HippyDisplayLink.h */,
 				F468DE0E2812A95200319196 /* HippyFrameUpdate.h */,
 				F468DE0F2812A95200319196 /* HippyDeviceBaseInfo.h */,
 				F468DE102812A95200319196 /* HippyBundleURLProvider.m */,
 				F468DE112812A95200319196 /* HippyJSEnginesMapper.mm */,
-				F468DE122812A95200319196 /* HippyRootShadowView.h */,
 				F468DE132812A95200319196 /* HippyJavaScriptLoader.mm */,
 				F468DE142812A95200319196 /* HippyPerformanceLogger.h */,
 				F468DE152812A95200319196 /* HippyBatchedBridge.mm */,
 				F468DE162812A95200319196 /* HippyBridgeDelegate.h */,
 				F468DE172812A95200319196 /* HippyInvalidating.h */,
-				F468DE182812A95200319196 /* executors */,
 				F468DE1D2812A95200319196 /* HippyKeyCommands.m */,
-				F468DE1E2812A95200319196 /* HippyFont.mm */,
 				F468DE1F2812A95200319196 /* native_source_code_ios.cc */,
 				F468DE202812A95200319196 /* HippyEventDispatcher.h */,
 				F468DE212812A95200319196 /* HippyBridgeMethod.h */,
@@ -1641,14 +1625,11 @@
 				F468DE232812A95200319196 /* HippyBridge.mm */,
 				F468DE242812A95200319196 /* HippyJavaScriptLoader.h */,
 				F468DE252812A95200319196 /* HippyBridge+LocalFileSource.mm */,
-				F468DE262812A95200319196 /* HippyMemoryOpt.h */,
 				F468DE272812A95200319196 /* HippyBundleURLProvider.h */,
-				F468DE282812A95200319196 /* HippyComponentData.h */,
 				F468DE292812A95200319196 /* HippyRootViewDelegate.h */,
 				F468DE2A2812A95200319196 /* HippyModuleData.mm */,
 				F468DE2B2812A95200319196 /* HippyFrameUpdate.m */,
 				F468DE2C2812A95200319196 /* HippyDisplayLink.m */,
-				F468DE2D2812A95200319196 /* HippyRootShadowView.mm */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -1773,6 +1754,17 @@
 			isa = PBXGroup;
 			children = (
 				F45D25AA28067B6900CAB185 /* component */,
+				F468DE922812ACE900319196 /* HippyAnimationType.h */,
+				F468DE952812ACE900319196 /* HippyAutoInsetsProtocol.h */,
+				F468DE942812ACE900319196 /* HippyComponent.h */,
+				F468DE932812ACE900319196 /* HippyComponentData.h */,
+				F468DE962812ACEA00319196 /* HippyComponentData.mm */,
+				F468DE9B2812ACEA00319196 /* HippyFont.h */,
+				F468DE992812ACEA00319196 /* HippyFont.mm */,
+				F468DE9A2812ACEA00319196 /* HippyMemoryOpt.h */,
+				F468DE9C2812ACEA00319196 /* HippyRootShadowView.h */,
+				F468DE972812ACEA00319196 /* HippyRootShadowView.mm */,
+				F468DE982812ACEA00319196 /* HippyScrollProtocol.h */,
 				F4A8423E27D38CF900AEFC88 /* HippyUIManager.h */,
 				F4A8423F27D38CF900AEFC88 /* NativeRenderManager.mm */,
 				F4A8424027D38CF900AEFC88 /* NativeRenderManager.h */,
@@ -1911,7 +1903,6 @@
 				D4B09E392750D2C000643CDF /* Flex.cpp in Sources */,
 				F45D266E28067B6900CAB185 /* HippyImageView.m in Sources */,
 				F4C1DAA52811795200CED4C4 /* HippyLog.mm in Sources */,
-				F468DE812812A95200319196 /* HippyRootShadowView.mm in Sources */,
 				F468DE5F2812A95200319196 /* ios_loader.cc in Sources */,
 				067AB97623B5F309009D5EE2 /* MyView.m in Sources */,
 				F468DE602812A95200319196 /* HippyEventObserverModule.mm in Sources */,
@@ -1980,6 +1971,8 @@
 				F468DE582812A95200319196 /* NSObject+HippyTurbo.mm in Sources */,
 				F468DE882812A95200319196 /* HippyDomModel.mm in Sources */,
 				F438B744281248010078435B /* HippyGradientObject.m in Sources */,
+				F468DE9E2812ACEA00319196 /* HippyRootShadowView.mm in Sources */,
+				F468DE9D2812ACEA00319196 /* HippyComponentData.mm in Sources */,
 				F45D269828067B6A00CAB185 /* HippyModalCustomAnimationTransition.m in Sources */,
 				D84AB9BA273A618B00987D03 /* worker_task_runner.cc in Sources */,
 				F45D267028067B6900CAB185 /* HippyAnimatedImageView.m in Sources */,
@@ -2063,6 +2056,7 @@
 				F45D267528067B6900CAB185 /* HippyBaseListView.mm in Sources */,
 				F45D268628067B6900CAB185 /* UIView+HippyEvent.mm in Sources */,
 				F468DE6A2812A95200319196 /* HippyLogging.mm in Sources */,
+				F468DE9F2812ACEA00319196 /* HippyFont.mm in Sources */,
 				F45D268228067B6900CAB185 /* HippyView.mm in Sources */,
 				F468DE8D2812A95200319196 /* HippyDevCommand.m in Sources */,
 				D84AB9C0273A618B00987D03 /* contextify_module.cc in Sources */,
@@ -2095,7 +2089,6 @@
 				F468DE822812A95200319196 /* HippySRWebSocket.m in Sources */,
 				F468DE902812A95200319196 /* HippyDevWebSocketClient.m in Sources */,
 				F45D266128067B6900CAB185 /* HippyShadowTextView.mm in Sources */,
-				F468DE7A2812A95200319196 /* HippyFont.mm in Sources */,
 				9252AE8B2809532F00B27E50 /* root_node.cc in Sources */,
 				F45D266828067B6900CAB185 /* HippyWaterfallView.mm in Sources */,
 				F482919C274E420C00D91128 /* HPUtil.cpp in Sources */,
@@ -2107,7 +2100,6 @@
 				F4C1DAAD28117C1900CED4C4 /* NSArray+HippyArrayDeepCopy.m in Sources */,
 				F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */,
 				F468DE7F2812A95200319196 /* HippyFrameUpdate.m in Sources */,
-				F468DE6D2812A95200319196 /* HippyComponentData.mm in Sources */,
 				F45D267628067B6900CAB185 /* HippyBaseListViewCell.mm in Sources */,
 				067AB96F23B5EEF4009D5EE2 /* TestModule.mm in Sources */,
 				F468DE7E2812A95200319196 /* HippyModuleData.mm in Sources */,
