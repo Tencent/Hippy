@@ -51,6 +51,8 @@ global.__Response = global.Response;
 global.Response = Response as any;
 global.__fetch = global.fetch;
 global.fetch = fetch as any;
+global.__WebSocket = global.WebSocket;
+
 // TODO:
 // global.dynamicLoad
 
