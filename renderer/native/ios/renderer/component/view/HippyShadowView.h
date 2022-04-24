@@ -22,13 +22,13 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyDomNodeUtils.h"
-#import "RenderDefines.h"
 #import "HippyComponent.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
 #include "dom/layout_node.h"
 #include "Hippy.h"
 #include "Flex.h"
+#import "HippyDefines.h"
 
 typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
     HippyUpdateLifecycleUninitialized = 0,
@@ -44,7 +44,7 @@ typedef NS_ENUM(NSUInteger, HippyCreationType) {
 
 @class HippyShadowView;
 
-RENDER_EXTERN CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView);
+HIPPY_EXTERN CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView);
 
 typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
 

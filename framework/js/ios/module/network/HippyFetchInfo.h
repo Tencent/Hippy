@@ -22,7 +22,6 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyBridgeModule.h"
-#import "RenderDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

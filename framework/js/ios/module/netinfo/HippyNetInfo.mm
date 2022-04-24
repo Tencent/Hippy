@@ -26,7 +26,6 @@
 #import "HippyBridge.h"
 #import "HippyEventDispatcher.h"
 #import "HippyNetInfoIntenal.h"
-#import "RenderDefines.h"
 
 @interface HippyNetInfo ()<HippyNetworkTypeChangedDelegate> {
 }

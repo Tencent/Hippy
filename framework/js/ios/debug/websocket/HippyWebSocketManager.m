@@ -26,7 +26,6 @@
 #import "HippyLog.h"
 #import "HippyUtils.h"
 #import "HippySRWebSocket.h"
-#import "RenderDefines.h"
 
 static NSUInteger socketIndex = 0;
 

@@ -31,7 +31,6 @@
 #import "HippyLog.h"
 #import "HippyUtils.h"
 #import "HippyAssert.h"
-#import "RenderDefines.h"
 
 NSString *const HippyStorageDirectory = @"HippyAsyncLocalStorage_V1";
 static NSString *const HippyManifestFileName = @"manifest.json";

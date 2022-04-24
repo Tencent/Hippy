@@ -29,7 +29,6 @@
 #import "HippyImageDataLoader.h"
 #import "HippyUtils.h"
 #import "HippyDefaultImageProvider.h"
-#import "RenderDefines.h"
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
 static NSUInteger const ImageLoaderErrorParseError = 2;

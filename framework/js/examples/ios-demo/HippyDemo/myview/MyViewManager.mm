@@ -24,7 +24,6 @@
 #import "MyView.h"
 #import "UIView+Hippy.h"
 #import "HippyUIManager.h"
-#import "RenderDefines.h"
 
 @implementation MyViewManager
 

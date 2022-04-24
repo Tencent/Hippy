@@ -21,7 +21,6 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "RenderDefines.h"
 #import "HippyComponent.h"
 #import "HippyTouchesView.h"
 #include <string>
