@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -205,6 +206,8 @@ public abstract class HippyEngine {
       HippyEngine.ModuleLoadParams loadParams, Callback<Boolean> callback);
 
   public abstract void destroyInstanceState(HippyRootView rootView);
+
+  public abstract void runScript(@NonNull String script);
 
   public interface BackPressHandler {
 

@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
@@ -602,6 +603,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
   }
 
+  public void runScript(@NonNull String script) {
+    if (mEngineContext != null) {
+      mEngineContext.runScript(script);
+    }
+  }
+
   private void notifyModuleLoaded(final ModuleLoadStatus statusCode, final String msg,
       final HippyRootView hippyRootView) {
     if (mModuleListener != null) {
@@ -1009,6 +1016,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     public void destroyBridge(Callback<Boolean> callback) {
       mBridgeManager.destroyBridge(callback);
+    }
+
+    void runScript(@NonNull String script) {
+      mBridgeManager.runScript(script);
     }
 
     public void destroy() {
