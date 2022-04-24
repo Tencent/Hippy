@@ -21,15 +21,14 @@
  */
 
 #import <UIKit/UIKit.h>
-
-#include "HPNode.h"
-#include "Hippy.h"
+#import "HippyDomNodeUtils.h"
 #import "HippyComponent.h"
-#import "HippyRootView.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
 #include "dom/layout_node.h"
-#import "HippyDomNodeUtils.h"
+#include "Hippy.h"
+#include "Flex.h"
+#import "HippyDefines.h"
 
 typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
     HippyUpdateLifecycleUninitialized = 0,

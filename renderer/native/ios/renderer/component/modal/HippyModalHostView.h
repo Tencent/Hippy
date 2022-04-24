@@ -21,8 +21,6 @@
  */
 
 #import <UIKit/UIKit.h>
-
-#import "HippyInvalidating.h"
 #import "HippyModalHostViewManager.h"
 #import "HippyView.h"
 
@@ -30,7 +28,7 @@
 
 @protocol HippyModalHostViewInteractor;
 
-@interface HippyModalHostView : UIView <HippyInvalidating>
+@interface HippyModalHostView : UIView
 
 @property (nonatomic, copy) NSString *animationType;
 @property (nonatomic, copy) NSString *primaryKey;

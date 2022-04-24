@@ -22,7 +22,6 @@
 
 #import "HippyWaterfallViewManager.h"
 #import "HippyWaterfallView.h"
-#import "HippyUIManager.h"
 
 @implementation HippyWaterfallViewManager
 
@@ -57,7 +56,7 @@ RENDER_COMPONENT_EXPORT_METHOD(refreshCompleted
         if (view == nil)
             return;
         if (![view isKindOfClass:[HippyWaterfallView class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
         }
         [view refreshCompleted:status.integerValue text:text];
     }];
@@ -69,7 +68,7 @@ RENDER_COMPONENT_EXPORT_METHOD(startRefresh : (nonnull NSNumber *)reactTag) {
         if (view == nil)
             return;
         if (![view isKindOfClass:[HippyWaterfallView class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
         }
         [view startRefreshFromJS];
     }];
@@ -81,7 +80,7 @@ RENDER_COMPONENT_EXPORT_METHOD(startRefreshWithType : (nonnull NSNumber *)reactT
         if (view == nil)
             return;
         if (![view isKindOfClass:[HippyWaterfallView class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
         }
         [view startRefreshFromJSWithType:type];
     }];
@@ -93,7 +92,7 @@ RENDER_COMPONENT_EXPORT_METHOD(callExposureReport : (nonnull NSNumber *)reactTag
         if (view == nil)
             return;
         if (![view isKindOfClass:[HippyWaterfallView class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
         }
         [view callExposureReport];
     }];
@@ -109,7 +108,7 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex
         if (view == nil)
             return;
         if (![view isKindOfClass:[HippyWaterfallView class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
         }
         [view scrollToIndex:xIndex.integerValue animated:[animation boolValue]];
     }];
@@ -125,7 +124,7 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset
         if (view == nil)
             return;
         if (![view isKindOfClass:[HippyWaterfallView class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
         }
         [view scrollToOffset:CGPointMake([x floatValue], [y floatValue]) animated:[animation boolValue]];
     }];
@@ -137,7 +136,7 @@ RENDER_COMPONENT_EXPORT_METHOD(startLoadMore : (nonnull NSNumber *)reactTag) {
         if (view == nil)
             return;
         if (![view isKindOfClass:[HippyWaterfallView class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
         }
         [view startLoadMore];
     }];

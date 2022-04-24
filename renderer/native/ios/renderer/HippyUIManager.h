@@ -24,7 +24,6 @@
 
 #import "HippyInvalidating.h"
 #import "HippyViewManager.h"
-#import "HippyRootView.h"
 #include <memory>
 #include <unordered_map>
 #import "HippyDomNodeUtils.h"
@@ -234,6 +233,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * @param node_id node id for the event
  */
 - (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id;
+
+/**
+ * clear all memories
+ */
+- (void)invalidate;
 
 /**
  * get animator

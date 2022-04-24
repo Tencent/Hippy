@@ -19,6 +19,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #import "NativeRenderManager.h"
 #import "HippyShadowText.h"
 #import "HippyUIManager.h"
@@ -166,6 +167,6 @@ UIView *NativeRenderManager::CreateViewHierarchyFromId(int32_t id) {
 }
 
 NativeRenderManager::~NativeRenderManager() {
-    RenderManager::~RenderManager();
+    [uiManager_ invalidate];
     uiManager_ = nil;
 }

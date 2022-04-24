@@ -20,18 +20,11 @@
  * limitations under the License.
  */
 
-#import "HippyScrollView.h"
-
 #import <UIKit/UIKit.h>
-
-#import "HippyConvert.h"
-#import "HippyEventDispatcher.h"
-#import "HippyUIManager.h"
+#import "HippyScrollView.h"
 #import "UIView+Private.h"
 #import "UIView+Hippy.h"
-#import "HippyInvalidating.h"
 #import "UIView+DirectionalLayout.h"
-#import "objc/runtime.h"
 
 @interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
 
@@ -179,7 +172,6 @@
     CGFloat _lastNonZeroTranslationAlongAxis;
     NSMutableDictionary *_contentOffsetCache;
     BOOL _didSetContentOffset;
-    __weak HippyRootView *_rootView;
     BOOL _showScrollIndicator[2];
 }
 
@@ -213,8 +205,6 @@
     [_scrollListeners removeAllObjects];
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
-
 - (void)setRemoveClippedSubviews:(__unused BOOL)removeClippedSubviews {
     // Does nothing
 }
@@ -223,7 +213,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if (view == _contentView && 0 == atIndex) {
         return;
     }
-    HippyAssert(0 == atIndex, @"HippyScrollView only contain one subview at index 0");
+    NSAssert(0 == atIndex, @"HippyScrollView only contain one subview at index 0");
     if (_contentView) {
         [self removeHippySubview:_contentView];
     }
@@ -269,7 +259,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)removeHippySubview:(UIView *)subview {
     [super removeHippySubview:subview];
-    HippyAssert(_contentView == subview, @"Attempted to remove non-existent subview");
+    NSAssert(_contentView == subview, @"Attempted to remove non-existent subview");
     [_contentView removeObserver:self forKeyPath:@"frame"];
     _contentView = nil;
 }
@@ -303,8 +293,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    HippyAssert(self.subviews.count == 1, @"we should only have exactly one subview");
-    HippyAssert([self.subviews lastObject] == _scrollView, @"our only subview should be a scrollview");
+    NSAssert(self.subviews.count == 1, @"we should only have exactly one subview");
+    NSAssert([self.subviews lastObject] == _scrollView, @"our only subview should be a scrollview");
 
     if (_scrollView.pagingEnabled) {
         //下面计算index,currIndex的计算需要使用scrollview原contentSize除以原frame
@@ -644,27 +634,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     return _contentView;
 }
 
-- (HippyRootView *)rootView {
-    if (_rootView) {
-        return _rootView;
-    }
-
-    UIView *view = [self superview];
-
-    while (view && ![view isKindOfClass:[HippyRootView class]]) {
-        view = [view superview];
-    }
-
-    if ([view isKindOfClass:[HippyRootView class]]) {
-        _rootView = (HippyRootView *)view;
-        return _rootView;
-    } else
-        return nil;
-}
-
 - (void)didMoveToSuperview {
     [super didMoveToSuperview];
-    _rootView = nil;
 }
 
 #pragma mark - Setters

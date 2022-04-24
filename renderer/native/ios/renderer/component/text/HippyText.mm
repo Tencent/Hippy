@@ -21,7 +21,6 @@
  */
 
 #import "HippyText.h"
-#import "HippyLog.h"
 #import "HippyShadowText.h"
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
@@ -223,7 +222,7 @@ static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDe
 }
 
 - (void)setBackgroundImageUrl:(NSString *)backgroundImageUrl {
-    HippyLogWarn(@"Warning:    backgroundImage is not available in HippyText.");
+    //HippyLogWarn(@"Warning: backgroundImage is not available in HippyText.");
 }
 
 @end

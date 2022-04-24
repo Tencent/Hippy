@@ -29,9 +29,8 @@
 
 HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
 
-HIPPY_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
-                    color:(__unused NSString *)color)
-{
+RENDER_COMPONENT_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
+                               color:(__unused NSString *)color) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[reactTag];
         if (view == nil || ![view isKindOfClass:[MyView class]]) {

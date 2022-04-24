@@ -22,9 +22,7 @@
 
 #import "HippyModalHostView.h"
 
-#import "HippyAssert.h"
 #import "HippyModalHostViewController.h"
-#import "HippyUIManager.h"
 #import "UIView+Hippy.h"
 #import "HippyModalHostViewInteractor.h"
 
@@ -96,7 +94,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
     [super didMoveToWindow];
 
     if (!_isPresented && self.window) {
-        HippyAssert(self.hippyViewController, @"Can't present modal view controller without a presenting view controller");
+        NSAssert(self.hippyViewController, @"Can't present modal view controller without a presenting view controller");
         _modalViewController.supportedInterfaceOrientations = [self supportedOrientationsMask];
         if ([self.animationType isEqualToString:@"fade"]) {
             _modalViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
@@ -120,12 +118,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
     if (_isPresented && !self.superview) {
         [self dismissModalViewController];
     }
-}
-
-- (void)invalidate {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self dismissModalViewController];
-    });
 }
 
 - (BOOL)isTransparent {

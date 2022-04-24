@@ -24,15 +24,9 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import "HippyAnimationType.h"
-#import "HippyAssert.h"
 #import "HippyComponent.h"
 #import "HippyComponentData.h"
 #import "HippyConvert.h"
-#import "HippyDefines.h"
-#import "HippyEventDispatcher.h"
-#import "HippyLog.h"
-#import "HippyModuleData.h"
-#import "HippyModuleMethod.h"
 #import "HippyRootShadowView.h"
 #import "HippyShadowView.h"
 #import "HippyUtils.h"
@@ -48,6 +42,7 @@
 #import "UIView+HippyEvent.h"
 #import "objc/runtime.h"
 #import "UIView+Render.h"
+#import "RenderErrorHandler.h"
 #include <mutex>
 
 using DomValue = tdf::base::DomValue;
@@ -133,6 +128,8 @@ static void HippyTraverseViewNodes(id<HippyComponent> view, void (^block)(id<Hip
     }
 }
 
+#define AssertMainQueue() NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread")
+
 const char *HippyUIManagerQueueName = "com.tencent.hippy.ShadowQueue";
 NSString *const HippyUIManagerDidRegisterRootViewNotification = @"HippyUIManagerDidRegisterRootViewNotification";
 NSString *const HippyUIManagerRootViewKey = @"HippyUIManagerRootViewKey";
@@ -216,25 +213,12 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 }
 
 - (void)invalidate {
-    //TODO needs Framework call invalide manually
-    /**
-     * Called on the JS Thread since all modules are invalidated on the JS thread
-     */
     _pendingUIBlocks = nil;
     [_completeBlocks removeAllObjects];
     __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         HippyUIManager *strongSelf = weakSelf;
         if (strongSelf) {
-            [(id<HippyInvalidating>)strongSelf->_viewRegistry[strongSelf->_rootViewTag] invalidate];
-            [strongSelf->_viewRegistry removeObjectForKey:strongSelf->_rootViewTag];
-
-            for (NSNumber *hippyTag in [strongSelf->_viewRegistry allKeys]) {
-                id<HippyComponent> subview = strongSelf->_viewRegistry[hippyTag];
-                if ([subview conformsToProtocol:@protocol(HippyInvalidating)]) {
-                    [(id<HippyInvalidating>)subview invalidate];
-                }
-            }
             strongSelf->_viewRegistry = nil;
             strongSelf->_componentTransactionListeners = nil;
             [[NSNotificationCenter defaultCenter] removeObserver:strongSelf];
@@ -300,7 +284,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 }
 
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     return _viewRegistry[hippyTag];
 }
 
@@ -337,7 +321,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyComponentData *componentData = _componentDataByName[viewName];
         if (!componentData) {
             HippyViewManager *viewManager = [self renderViewManagerForViewName:viewName];
-            HippyAssert(viewManager, @"No view manager found for %@", viewName);
+            NSAssert(viewManager, @"No view manager found for %@", viewName);
             if (viewManager) {
                 componentData = [[HippyComponentData alloc] initWithViewManager:viewManager viewName:viewName];
                 _componentDataByName[viewName] = componentData;
@@ -349,14 +333,14 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)registerRootView:(UIView *)rootView {
-    HippyAssertMainQueue();
+    AssertMainQueue();
 
     NSNumber *hippyTag = rootView.hippyTag;
-    HippyAssert(HippyIsHippyRootView(hippyTag), @"View %@ with tag #%@ is not a root view", rootView, hippyTag);
+    NSAssert(HippyIsHippyRootView(hippyTag), @"View %@ with tag #%@ is not a root view", rootView, hippyTag);
 
 #if HIPPY_DEBUG
     UIView *existingView = _viewRegistry[hippyTag];
-    HippyAssert(existingView == nil || existingView == rootView, @"Expect all root views to have unique tag. Added %@ twice", hippyTag);
+    NSAssert(existingView == nil || existingView == rootView, @"Expect all root views to have unique tag. Added %@ twice", hippyTag);
 #endif
     // Register view
     _viewRegistry[hippyTag] = rootView;
@@ -385,7 +369,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 
 - (void)setFrame:(CGRect)frame forView:(UIView *)view {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     NSNumber *hippyTag = view.hippyTag;
     dispatch_async(HippyGetUIManagerQueue(), ^{
         std::lock_guard<std::mutex> lock([self shadowQueueLock]);
@@ -406,7 +390,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)purgeChildren:(NSArray<id<HippyComponent>> *)children fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)registry {
     for (id<HippyComponent> child in children) {
         HippyTraverseViewNodes(registry[child.hippyTag], ^(id<HippyComponent> subview) {
-            HippyAssert(![subview isHippyRootView], @"Root views should not be unregistered");
+            NSAssert(![subview isHippyRootView], @"Root views should not be unregistered");
             if ([subview conformsToProtocol:@protocol(HippyInvalidating)]) {
                 [(id<HippyInvalidating>)subview invalidate];
             }
@@ -429,7 +413,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName];
     UIView *view = [self createViewByComponentData:componentData hippyTag:shadowView.hippyTag rootTag:_rootViewTag properties:shadowView.props viewName:shadowView.viewName];
     view.renderContext = self;
@@ -443,7 +427,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     [shadowView dirtyDescendantPropagation];
     return [self createViewRecursiveFromShadowViewWithNOLock:shadowView];
@@ -480,7 +464,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyComponentData *componentData = [self componentDataForViewName:viewName];
         HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
         if (componentData == nil) {
-            HippyLogError(@"No component found for view with name \"%@\"", viewName);
+            //HippyLogError(@"No component found for view with name \"%@\"", viewName);
         }
         id isAnimated = props[@"useAnimation"];
         if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
@@ -605,7 +589,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
             // this view was probably collapsed out
-            HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
@@ -613,7 +597,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         // If in a <Modal>, rootView will be the root of the modal container.
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
-            HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
@@ -639,13 +623,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
             // this view was probably collapsed out
-            HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
-            HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
@@ -663,7 +647,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
             // this view was probably collapsed out
-            HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
+            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
@@ -706,7 +690,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (object_isClass(object)) {
         HippyViewManager *viewManager = [object new];
         viewManager.renderContext = self;
-        HippyAssert([viewManager isKindOfClass:[HippyViewManager class]], @"It must be a HippyViewManager instance");
+        NSAssert([viewManager isKindOfClass:[HippyViewManager class]], @"It must be a HippyViewManager instance");
         [_viewManagers setObject:viewManager forKey:viewName];
         object = viewManager;
     }
@@ -780,7 +764,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                         block(uiManager, uiManager->_viewRegistry);
                     }
                 } @catch (NSException *exception) {
-                    HippyLogError(@"Exception thrown while executing UI block: %@", exception);
+                    //HippyLogError(@"Exception thrown while executing UI block: %@", exception);
                 }
             }
         });
@@ -809,7 +793,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [dicProps setObject:[self createShadowViewFromNode:node] forKey:@(node->GetId())];
     }
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
-        HippyAssert(subviewTags.size() == subviewIndices.size(), @"subviewTags count must be equal to subviewIndices count");
+        NSAssert(subviewTags.size() == subviewIndices.size(), @"subviewTags count must be equal to subviewIndices count");
         HippyShadowView *superShadowView = self->_shadowViewRegistry[@(tag)];
         for (NSUInteger index = 0; index < subviewTags.size(); index++) {
             HippyShadowView *subShadowView = self->_shadowViewRegistry[@(subviewTags[index])];
@@ -887,7 +871,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)renderMoveViews:(const std::vector<int32_t> &&)ids
           fromContainer:(int32_t)fromContainer toContainer:(int32_t)toContainer {
-    HippyAssert(NO, @"no implementation for this method");
+    NSAssert(NO, @"no implementation for this method");
 }
 
 - (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult, bool,
@@ -946,7 +930,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     [finalParams addObject:@(hippyTag)];
     if (DomValueType::kArray == type) {
         NSArray * paramsArray = domValueToOCType(&params);
-        HippyAssert([paramsArray isKindOfClass:[NSArray class]], @"dispatch function method params type error");
+        NSAssert([paramsArray isKindOfClass:[NSArray class]], @"dispatch function method params type error");
         if ([paramsArray isKindOfClass:[NSArray class]]) {
             for (id param in paramsArray) {
                 [finalParams addObject:param];
@@ -955,7 +939,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
     else {
         //TODO
-        HippyAssert(NO, @"目前hippy底层会封装DomValue为Array类型。可能第三方接入者不一定会将其封装为Array");
+        NSAssert(NO, @"目前hippy底层会封装DomValue为Array类型。可能第三方接入者不一定会将其封装为Array");
         [finalParams addObject:[NSNull null]];
     }
     if (cb) {
@@ -976,7 +960,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
     @try {
         NSMethodSignature *methodSignature = [viewManager methodSignatureForSelector:selector];
-        HippyAssert(methodSignature, @"method signature creation failure");
+        NSAssert(methodSignature, @"method signature creation failure");
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
         [invocation setSelector:selector];
         for (NSInteger i = 0; i < [finalParams count]; i++) {
@@ -991,13 +975,9 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
         return nil;
     } @catch (NSException *exception) {
-        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
-            @throw exception;
-        }
-
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, name, nativeModuleName, finalParams];
         NSError *error = HippyErrorWithMessage(message);
-        HippyFatal(error);
+        RenderFatal(error);
         return nil;
     }
 }
@@ -1046,7 +1026,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addEventNameInMainThread:(const std::string &)name forDomNodeId:(int32_t)node_id {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     if (name == hippy::kClickEvent) {
         [self addClickEventListenerForView:node_id];
     } else if (name == hippy::kLongClickEvent) {
@@ -1064,19 +1044,23 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addClickEventListenerForView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kClickEvent];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:hippy::kClickEvent];
+        __weak id weakSelf = self;
         [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node,
-                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                        static_cast<std::shared_ptr<DomValue>>(nullptr)));
-                }
-            }];
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
+                    if (node) {
+                        node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node,
+                                                                            canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                            static_cast<std::shared_ptr<DomValue>>(nullptr)));
+                    }
+                }];
+            }
         }];
     }
     else {
@@ -1086,19 +1070,23 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addLongClickEventListenerForView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kLongClickEvent];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:hippy::kLongClickEvent];
+        __weak id weakSelf = self;
         [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node,
-                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                        static_cast<std::shared_ptr<DomValue>>(nullptr)));
-                }
-            }];
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
+                    if (node) {
+                        node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node,
+                                                                            canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                            static_cast<std::shared_ptr<DomValue>>(nullptr)));
+                    }
+                }];
+            }
         }];
     }
     else {
@@ -1108,21 +1096,25 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addPressEventListenerForType:(const std::string &)type forView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     HippyViewEventType eventType = hippy::kPressIn == type ? HippyViewEventType::HippyViewEventTypePressIn : HippyViewEventType::HippyViewEventTypePressOut;
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
         std::string block_type = type;
+        __weak id weakSelf = self;
         [view addViewEvent:eventType eventListener:^(CGPoint) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    node->HandleEvent(std::make_shared<hippy::DomEvent>(block_type, node,
-                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                        static_cast<std::shared_ptr<DomValue>>(nullptr)));
-                }
-            }];
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
+                    if (node) {
+                        node->HandleEvent(std::make_shared<hippy::DomEvent>(block_type, node,
+                                                                            canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                            static_cast<std::shared_ptr<DomValue>>(nullptr)));
+                    }
+                }];
+            }
         }];
     }
     else {
@@ -1133,7 +1125,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (void)addTouchEventListenerForType:(const std::string &)type
                              forView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         // todo 默认值应该有个值代表未知
@@ -1150,19 +1142,23 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
         const std::string type_ = type;
+        __weak id weakSelf = self;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    tdf::base::DomValue::DomValueObjectType domValue;
-                    domValue["page_x"] = tdf::base::DomValue(point.x);
-                    domValue["page_y"] = tdf::base::DomValue(point.y);
-                    std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
                     if (node) {
-                       node->HandleEvent(std::make_shared<DomEvent>(type_, node, canBePreventedInCapturing,
-                                                                    canBePreventedInBubbling,value));
+                        tdf::base::DomValue::DomValueObjectType domValue;
+                        domValue["page_x"] = tdf::base::DomValue(point.x);
+                        domValue["page_y"] = tdf::base::DomValue(point.y);
+                        std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
+                        if (node) {
+                           node->HandleEvent(std::make_shared<DomEvent>(type_, node, canBePreventedInCapturing,
+                                                                        canBePreventedInBubbling,value));
+                        }
                     }
-                }
-            }];
+                }];
+            }
         }];
     }
     else {
@@ -1172,20 +1168,24 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addShowEventListenerForType:(const std::string &)type forView:(int32_t)hippyTag {
-    HippyAssertMainThread();
+    AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag)];
     if (view) {
         HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
+        __weak id weakSelf = self;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(true);
-                    node->HandleEvent(std::make_shared<DomEvent>(type, node, canBePreventedInCapturing,
-                                                                 canBePreventedInBubbling, domValue));
-                }
-            }];
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
+                    if (node) {
+                        std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(true);
+                        node->HandleEvent(std::make_shared<DomEvent>(type, node, canBePreventedInCapturing,
+                                                                     canBePreventedInBubbling, domValue));
+                    }
+                }];
+            }
         }];
     }
     else {
@@ -1220,7 +1220,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 }
 
 - (void)addRenderEvent:(const std::string &)name forDomNode:(int32_t)node_id {
-    HippyAssertMainQueue();
+    AssertMainQueue();
     std::string name_ = std::move(name);
     NSDictionary *componentDataByName = [_componentDataByName copy];
     UIView *view = [self viewForHippyTag:@(node_id)];
@@ -1232,15 +1232,19 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (mapToEventName) {
             BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name_];
             BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name_];
+            __weak id weakSelf = self;
             [view addStatusChangeEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
-                [self domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> domNode) {
-                    if (domNode) {
-                        DomValue value = [body toDomValue];
-                        std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(std::move(value));
-                        domNode->HandleEvent(std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
-                                                                     canBePreventedInBubbling, domValue));
-                    }
-                }];
+                id strongSelf = weakSelf;
+                if (strongSelf) {
+                    [strongSelf domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> domNode) {
+                        if (domNode) {
+                            DomValue value = [body toDomValue];
+                            std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(std::move(value));
+                            domNode->HandleEvent(std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
+                                                                         canBePreventedInBubbling, domValue));
+                        }
+                    }];
+                }
             }];
         }
     }

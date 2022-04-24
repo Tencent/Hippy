@@ -21,7 +21,6 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyComponent.h"
 #import "HippyBaseListViewCell.h"
 #import "HippyTouchesView.h"
 

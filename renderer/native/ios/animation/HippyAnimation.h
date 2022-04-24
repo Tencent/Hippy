@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
+
 @class HippyAnimation;
 
 typedef NS_ENUM(NSInteger, HippyAnimationValueType) {

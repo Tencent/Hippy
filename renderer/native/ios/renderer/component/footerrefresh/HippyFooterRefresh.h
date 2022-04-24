@@ -21,6 +21,7 @@
  */
 
 #import "HippyRefresh.h"
+#import "HippyComponent.h"
 
 @interface HippyFooterRefresh : HippyRefresh
 

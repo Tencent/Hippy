@@ -21,9 +21,7 @@
  */
 
 #import "HippyAnimation.h"
-#import "HippyAnimation+Group.h"
 #import "HippyAnimation+Value.h"
-#import "HippyAssert.h"
 #import "UIView+HippyAnimationProtocol.h"
 
 @implementation HippyAnimation
@@ -179,7 +177,7 @@
     }
 
     if (animationKey == nil) {
-        HippyAssert(animationKey != nil, @"[%@] illge animaton prop", prop);
+        NSAssert(animationKey != nil, @"[%@] illge animaton prop", prop);
         return nil;
     }
 

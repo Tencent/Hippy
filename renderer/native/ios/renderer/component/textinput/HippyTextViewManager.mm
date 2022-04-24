@@ -76,7 +76,7 @@ RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
          HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[HippyBaseTextInput class]]) {
-             HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
+             //HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
          }
          [view focus];
      }];
@@ -89,7 +89,7 @@ RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
          HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[HippyBaseTextInput class]]) {
-             HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
+             //HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
          }
          [view blur];
      }];
@@ -102,7 +102,7 @@ RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
         }
         [view clearText];
     }];
@@ -116,7 +116,7 @@ RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
         }
         [view setValue: text];
     }];
@@ -130,7 +130,7 @@ RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
-            HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
+            //HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
         }
         NSString *stringValue = [view value];
         if (nil == stringValue) {

@@ -23,10 +23,7 @@
 #import "HippyModalTransitioningDelegate.h"
 #import "HippyModalCustomPresentationController.h"
 #import "HippyModalCustomAnimationTransition.h"
-
 #import "UIView+Hippy.h"
-#import "HippyModalHostViewManager.h"
-#import "HippyModalHostView.h"
 
 @implementation HippyModalTransitioningDelegate
 

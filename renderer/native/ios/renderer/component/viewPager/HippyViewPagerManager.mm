@@ -45,8 +45,8 @@ RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
         UIView *view = viewRegistry[hippyTag];
 
         if (view == nil || ![view isKindOfClass:[HippyViewPager class]]) {
-            HippyLogError(@"tried to setPage: on an error viewPager %@ "
-                        "with tag #%@", view, hippyTag);
+//            HippyLogError(@"tried to setPage: on an error viewPager %@ "
+//                        "with tag #%@", view, hippyTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;
         [(HippyViewPager *)view setPage:pageNumberInteger animated:YES];
@@ -60,8 +60,8 @@ RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippy
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil || ![view isKindOfClass:[HippyViewPager class]]) {
-            HippyLogError(@"tried to setPage: on an error viewPager %@ "
-                        "with tag #%@", view, hippyTag);
+//            HippyLogError(@"tried to setPage: on an error viewPager %@ "
+//                        "with tag #%@", view, hippyTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;
         [(HippyViewPager *)view setPage:pageNumberInteger animated:NO];

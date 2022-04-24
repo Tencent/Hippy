@@ -21,11 +21,9 @@
  */
 
 #import "HippyView.h"
-
 #import "HippyAutoInsetsProtocol.h"
 #import "HippyBorderDrawing.h"
 #import "HippyConvert.h"
-#import "HippyLog.h"
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "HippyGradientObject.h"
@@ -240,7 +238,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
         case HippyPointerEventsBoxNone:
             return hitSubview;
         default:
-            HippyLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
+            //HippyLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
             return hitSubview ?: hitView;
     }
 }

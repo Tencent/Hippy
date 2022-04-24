@@ -21,8 +21,7 @@
  */
 
 #import "HippyNavigatorViewManager.h"
-#import "HippyNavigatorHostView.h"
-#import "HippyUIManager.h"
+
 @interface HippyNavigatorViewManager ()
 
 @end

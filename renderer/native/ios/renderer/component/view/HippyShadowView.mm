@@ -21,10 +21,7 @@
  */
 
 #import "HippyShadowView.h"
-
 #import "HippyConvert.h"
-#import "HippyLog.h"
-#import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "UIView+Private.h"
 #import "HPNode.h"

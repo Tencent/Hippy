@@ -26,8 +26,6 @@
 #import "HippyBaseTextInput.h"
 #import "UIView+Hippy.h"
 
-@class HippyEventDispatcher;
-
 @protocol HippyUITextViewResponseDelegate <NSObject>
 @required
 - (void)textview_becomeFirstResponder;

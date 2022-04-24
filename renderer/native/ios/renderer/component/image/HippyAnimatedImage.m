@@ -23,7 +23,6 @@
 #import "HippyAnimatedImage.h"
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/MobileCoreServices.h>
-#import "HippyAssert.h"
 
 // From vm_param.h, define for iOS 8.0 or higher to build on device.
 #ifndef BYTE_SIZE
@@ -143,7 +142,7 @@ static NSHashTable *allAnimatedImagesWeak;
                                                       usingBlock:^(NSNotification *note) {
                                                           // UIKit notifications are posted on the main thread. didReceiveMemoryWarning: is expecting
                                                           // the main run loop, and we don't lock on allAnimatedImagesWeak
-                                                          HippyAssert([NSThread isMainThread], @"Received memory warning on non-main thread");
+                                                          NSAssert([NSThread isMainThread], @"Received memory warning on non-main thread");
                                                           // Get a strong reference to all of the images. If an instance is returned in this array, it
                                                           // is still live and has not entered dealloc. Note that HippyAnimatedImages can be created
                                                           // on any thread, so the hash table must be locked.

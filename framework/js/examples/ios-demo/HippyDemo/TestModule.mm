@@ -25,6 +25,7 @@
 #import "AppDelegate.h"
 #import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
+#import "UIView+Hippy.h"
 
 @interface TestModule ()<HippyBridgeDelegate>
 
@@ -63,6 +64,7 @@ HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
     rootView.bridge.enableTurbo = YES;  // keep the same logic with Android
 	rootView.backgroundColor = [UIColor whiteColor];
 	rootView.frame = vc.view.bounds;
+    [bridge setUpWithRootTag:rootView.hippyTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView];
 	[vc.view addSubview:rootView];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     [nav presentViewController:vc animated:YES completion:NULL];
@@ -88,6 +90,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} delegate:nil];
     rootView.backgroundColor = [UIColor whiteColor];
     rootView.frame = vc.view.bounds;
+    [bridge setUpWithRootTag:rootView.hippyTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView];
     [vc.view addSubview:rootView];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     [nav presentViewController:vc animated:YES completion:NULL];

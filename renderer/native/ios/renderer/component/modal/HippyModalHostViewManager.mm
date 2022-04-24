@@ -73,11 +73,4 @@ HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
     return [HippyModalHostShadowView new];
 }
 
-- (void)invalidate {
-    for (HippyModalHostView *hostView in _hostViews) {
-        [hostView invalidate];
-    }
-    [_hostViews removeAllObjects];
-}
-
 @end

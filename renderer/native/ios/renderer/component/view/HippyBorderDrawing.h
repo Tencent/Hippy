@@ -21,8 +21,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyDefines.h"
 #import "HippyBorderStyle.h"
+#import "HippyDefines.h"
 
 typedef struct {
     CGFloat topLeft;

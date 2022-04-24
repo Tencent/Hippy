@@ -21,10 +21,7 @@
  */
 
 #import "HippyTextManager.h"
-
-#import "HippyAssert.h"
 #import "HippyConvert.h"
-#import "HippyLog.h"
 #import "HippyShadowText.h"
 #import "HippyText.h"
 #import "HippyTextView.h"
@@ -103,10 +100,10 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
         for (NSInteger i = 0; i < queue.count; i++) {
             HippyShadowView *shadowView = queue[i];
             if (!shadowView) {
-                HippyLogWarn(@"shadowView is nil, please remain xcode state and call rainywan");
+                //HippyLogWarn(@"shadowView is nil, please remain xcode state and call rainywan");
                 continue;
             }
-            HippyAssert([shadowView isTextDirty], @"Don't process any nodes that don't have dirty text");
+            NSAssert([shadowView isTextDirty], @"Don't process any nodes that don't have dirty text");
 
             if ([shadowView isKindOfClass:[HippyShadowText class]]) {
                 ((HippyShadowText *)shadowView).fontSizeMultiplier = 1.0;

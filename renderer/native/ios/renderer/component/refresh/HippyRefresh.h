@@ -21,7 +21,6 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyComponent.h"
 #import "HippyTouchesView.h"
 
 typedef NS_ENUM(NSUInteger, HippyRefreshStatus) {

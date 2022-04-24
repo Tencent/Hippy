@@ -21,12 +21,9 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyView.h"
 #import "HippyComponent.h"
 #import "HippyBaseTextInput.h"
-
-@class HippyEventDispatcher;
 
 @protocol HippyUITextFieldResponseDelegate <NSObject>
 @required

@@ -22,8 +22,6 @@
 
 #import "UIView+Hippy.h"
 #import <objc/runtime.h>
-#import "HippyAssert.h"
-#import "HippyLog.h"
 #import "HippyShadowView.h"
 
 #define HippyEventMethod(name, value, type)                                                       \
@@ -90,6 +88,14 @@
 
 - (void)setTagName:(NSString *)tagName {
     objc_setAssociatedObject(self, @selector(tagName), tagName, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (void)setParent:(id<HippyComponent>)parent {
+//    self.superview = parent;
+}
+
+- (id<HippyComponent>)parent {
+    return self.superview;
 }
 
 // clang-format off
@@ -266,8 +272,8 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
     // Avoid crashes due to nan coords
     if (isnan(position.x) || isnan(position.y) || isnan(bounds.origin.x) || isnan(bounds.origin.y) || isnan(bounds.size.width)
         || isnan(bounds.size.height)) {
-        HippyLogError(
-            @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.hippyTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
+        //HippyLogError(
+//            @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.hippyTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
         return;
     }
 

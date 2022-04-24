@@ -22,7 +22,6 @@
 
 #import "HippyViewManager.h"
 #import "HippyModalHostView.h"
-#import "HippyInvalidating.h"
 
 #define HippyModalHostViewDismissNotification @"HippyModalHostViewDismissNotification"
 
@@ -31,7 +30,7 @@
 typedef void (^HippyModalViewInteractionBlock)(
     UIViewController *reactViewController, UIViewController *viewController, BOOL animated, dispatch_block_t completionBlock);
 
-@interface HippyModalHostViewManager : HippyViewManager <HippyInvalidating>
+@interface HippyModalHostViewManager : HippyViewManager
 
 @property (nonatomic, strong) NSHashTable *hostViews;
 @property (nonatomic, strong) id<HippyModalHostViewInteractor, UIViewControllerTransitioningDelegate> transitioningDelegate;

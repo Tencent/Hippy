@@ -20,8 +20,8 @@
  * limitations under the License.
  */
 
-#import "HippyDefines.h"
 #include <string>
+#import "HippyDefines.h"
 
 typedef NS_ENUM(NSInteger, HippyViewEventType) {
     //touche event

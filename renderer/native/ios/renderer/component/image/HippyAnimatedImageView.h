@@ -21,6 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
+
 @class HippyAnimatedImage;
 //
 //  An `HippyAnimatedImageView` can take an `HippyAnimatedImage` and plays it automatically when in view hierarchy and stops when removed.

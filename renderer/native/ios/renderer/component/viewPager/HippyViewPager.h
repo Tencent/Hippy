@@ -22,7 +22,6 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyScrollView.h"
-#import "HippyInvalidating.h"
 
 /**
  * A Callback block to indicate view pager's item count changed
@@ -30,7 +29,7 @@
  */
 typedef void (^ViewPagerItemsCountChanged)(NSUInteger count);
 
-@interface HippyViewPager : UIScrollView <UIScrollViewDelegate, HippyInvalidating>
+@interface HippyViewPager : UIScrollView <UIScrollViewDelegate>
 @property (nonatomic, strong) HippyDirectEventBlock onPageSelected;
 @property (nonatomic, strong) HippyDirectEventBlock onPageScroll;
 @property (nonatomic, strong) HippyDirectEventBlock onPageScrollStateChanged;
@@ -44,4 +43,5 @@ typedef void (^ViewPagerItemsCountChanged)(NSUInteger count);
 - (void)setPage:(NSInteger)pageNumber animated:(BOOL)animated;
 - (void)addScrollListener:(id<UIScrollViewDelegate>)scrollListener;
 - (void)removeScrollListener:(id<UIScrollViewDelegate>)scrollListener;
+
 @end
