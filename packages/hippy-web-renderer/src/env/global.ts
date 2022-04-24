@@ -57,7 +57,7 @@ declare global {
   /* eslint no-var: off */
   var __fetch: (url: string, option: any) => Promise<any>;
 
-  var __WebSocket: (url: string | URL, protocols?: string | string[]) => Promise<any>;
+  var __WebSocket: (url: string | URL, protocols?: string | string[]) => void;
 
   var Hippy: HippyGlobalObject;
 

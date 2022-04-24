@@ -57,7 +57,7 @@ export class WebSocketModule extends HippyWebModule {
     callBack.resolve({ code: 0, id });
   }
 
-  public send(callBack: HippyCallBack, data: {id: string, data: any}) {
+  public send(data: {id: string, data: any}) {
     if (!data || !data.id) {
       console.log('hippy', 'send: ERROR: request is null or no socket id specified');
       return;
@@ -72,7 +72,7 @@ export class WebSocketModule extends HippyWebModule {
     this.webSocketConnections[data.id]!.send(data.data);
   }
 
-  public close(callBack: HippyCallBack, data: { id: string, code: number, reason: string}) {
+  public close(data: { id: string, code: number, reason: string}) {
     if (!data || !data.id) {
       console.log('hippy', 'close: ERROR: request is null');
       return;
