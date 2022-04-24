@@ -70,7 +70,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   std::weak_ptr<TaskRunner> delegate_task_runner_;
   std::shared_ptr<TaskRunner> dom_task_runner_;
 
-  void HandleEvent(const std::shared_ptr<DomEvent>& event);
+  void HandleEvent(std::shared_ptr<DomEvent>& event);
   void AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void UpdateRenderNode(const std::shared_ptr<DomNode>& node);

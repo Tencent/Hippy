@@ -6,13 +6,6 @@
 namespace hippy {
 inline namespace dom {
 
-constexpr char kDomCreated[] = "DomCreated";
-constexpr char kDomUpdated[] = "DomUpdated";
-constexpr char kDomDeleted[] = "DomDeleted";
-constexpr char kDomTreeCreated[] = "DomTreeCreated";
-constexpr char kDomTreeUpdated[] = "DomTreeUpdated";
-constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
-
 RootNode::RootNode(uint32_t id)
         : DomNode(id, 0, 0, "", "",
                   std::unordered_map<std::string, std::shared_ptr<DomValue>>(),
@@ -32,11 +25,9 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     node->ParseLayoutStyleInfo();
     parent_node->AddChildAt(node, node->GetIndex());
 
-    node->HandleEvent(std::make_shared<DomEvent>(kDomCreated, node, nullptr));
     OnDomNodeCreated(node);
   }
 
-  HandleEvent(std::make_shared<DomEvent>(kDomTreeCreated, weak_from_this(), nullptr));
 
   if (!nodes_to_create.empty()) {
     dom_operations_.push_back({DomOperation::kOpCreate, nodes_to_create});
@@ -80,10 +71,7 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     it->SetDeleteProps(delete_value);
     node->ParseLayoutStyleInfo();
 
-    node->HandleEvent(std::make_shared<DomEvent>(kDomUpdated, node, nullptr));
   }
-
-  HandleEvent(std::make_shared<DomEvent>(kDomTreeUpdated, weak_from_this(), nullptr));
 
   if (!nodes_to_update.empty()) {
     dom_operations_.push_back({DomOperation::kOpUpdate, nodes_to_update});
@@ -102,11 +90,8 @@ void RootNode::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     if (parent_node != nullptr) {
       parent_node->RemoveChildAt(parent_node->IndexOf(node));
     }
-    node->HandleEvent(std::make_shared<DomEvent>(kDomDeleted, node, nullptr));
     OnDomNodeDeleted(node);
   }
-
-  HandleEvent(std::make_shared<DomEvent>(kDomTreeDeleted, weak_from_this(), nullptr));
 
   if (!nodes_to_delete.empty()) {
     dom_operations_.push_back({DomOperation::kOpDelete, nodes_to_delete});

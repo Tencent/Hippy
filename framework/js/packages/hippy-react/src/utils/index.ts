@@ -61,6 +61,10 @@ function isCaptureEvent(eventName: any) {
   return captureEventReg.test(eventName);
 }
 
+function hasTargetEvent(key: string, events: object | undefined): boolean {
+  return (typeof events !== 'undefined' && typeof events[key] === 'object' && !events[key]);
+}
+
 /**
  * Convert to string as possible
  */
@@ -157,6 +161,7 @@ export {
   unicodeToChar,
   tryConvertNumber,
   isCaptureEvent,
+  hasTargetEvent,
   isFunction,
   isNumber,
   setSilent,

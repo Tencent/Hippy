@@ -1887,5 +1887,46 @@ unicode_string_view V8Ctx::CopyFunctionName(
   return result;
 }
 
+void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
+  auto instance_define = hippy::MakeEventInstanceDefine(scope, dom_event);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  // new Event object
+  v8::Local<v8::FunctionTemplate> function_template = NewConstructor(instance_define);
+  v8::Local<v8::Function> function = function_template->GetFunction(context).ToLocalChecked();
+  v8::Local<v8::Object> instance = function->NewInstance(context).ToLocalChecked();
+
+  // run callback with Event Object
+  if(scope.lock()) {
+    if (callback == nullptr) {
+      scope.lock()->GetContext()->ThrowException(tdf::base::unicode_string_view("callback function nullptr"));
+      return;
+    }
+
+    if (context.IsEmpty() || context->Global().IsEmpty()) {
+      scope.lock()->GetContext()->ThrowException(tdf::base::unicode_string_view("v8 context is empty"));
+      return;
+    }
+
+    std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(callback);
+    v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+    if (!handle_value->IsFunction()) {
+      scope.lock()->GetContext()->ThrowException(tdf::base::unicode_string_view("callback is not a function"));
+      return;
+    }
+
+    // call the callback function
+    v8::Function* v8_fn = v8::Function::Cast(*handle_value);
+    auto param = v8::Local<v8::Value>::New(isolate_, instance);
+    v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(context, context->Global(), 1, &param);
+    if(maybe_result.IsEmpty()) {
+      scope.lock()->GetContext()->ThrowException(tdf::base::unicode_string_view("maybe_result is empty"));
+      return;
+    }
+  }
+}
+
 }
 }  // namespace hippy

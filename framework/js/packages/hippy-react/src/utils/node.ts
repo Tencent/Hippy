@@ -173,19 +173,46 @@ interface EventNamesMap {
   [propName: string]: string[];
 }
 
+// EventPrefix
+const EVENT_ATTRIBUTE_NAME = '__events__';
 // Event Names map
 const NATIVE_EVENT = 1;
+const eventHandlerType = {
+  ADD: 0,
+  REMOVE: 1,
+};
 const eventNamesMap: EventNamesMap = {
-  // TODO pressIn, pressOut will be deprecated in future
   // onPressIn: ['onPressIn', 'onTouchDown'],
   // onPressOut: ['onPressOut', 'onTouchEnd'],
   onTouchStart: ['onTouchStart', 'onTouchDown'],
   onPress: ['onPress', 'onClick'],
 };
 
+const nativeEventMap = {
+  onClick: 'click',
+  onLongClick: 'longclick',
+  // onPressIn: 'touchstart', // normalization
+  // onPressOut: 'touchend', // normalization
+  onPressIn: 'pressin',
+  onPressOut: 'pressout',
+  onTouchDown: 'touchstart', // compatible with w3c standard name touchstart
+  onTouchStart: 'touchstart',
+  onTouchEnd: 'touchend',
+  onTouchMove: 'touchmove',
+  onTouchCancel: 'touchcancel',
+};
+
+function translateToNativeEventName(name) {
+  return name.replace(/^(on)?/g, '').toLocaleLowerCase();
+}
+
 export {
+  EVENT_ATTRIBUTE_NAME,
   NATIVE_EVENT,
+  eventHandlerType,
   eventNamesMap,
+  nativeEventMap,
+  translateToNativeEventName,
   requestIdleCallback,
   cancelIdleCallback,
   setRootContainer,

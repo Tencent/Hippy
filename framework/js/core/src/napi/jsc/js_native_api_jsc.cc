@@ -786,5 +786,33 @@ bool JSCCtx::IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) {
   return (JSValueIsNull(context_, value_ref) || JSValueIsUndefined(context_, value_ref));
 }
 
+void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
+  auto instance_define = hippy::MakeEventInstanceDefine(scope, dom_event);
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.attributes = kJSClassAttributeNone;
+  cls_def.callAsConstructor = NewConstructor<DomEvent>();
+  auto name = hippy::base::StringViewUtils::ToU8StdStr(instance_define->name);
+  cls_def.className = name.c_str();
+  auto cls_ref = JSClassCreate(&cls_def);
+  auto* data = new PrivateData<DomEvent>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};
+  JSObjectRef obj = JSObjectMake(context_, cls_ref, data);
+
+  JSValueRef exception = nullptr;
+  JSObjectRef event_object = JSObjectCallAsConstructor(context_, obj, 0, nullptr, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return;
+  }
+
+  cls_def.finalize = [](JSObjectRef object) {
+    delete static_cast<PrivateData<DomEvent>*>(JSObjectGetPrivate(object));
+  };
+
+  auto event = std::static_pointer_cast<CtxValue>(std::make_shared<JSCCtxValue>(context_, event_object));
+  std::shared_ptr<CtxValue> argv[] = {event};
+  CallFunction(callback, 1, argv);
+}
+
+
 }  // namespace napi
 }  // namespace hippy

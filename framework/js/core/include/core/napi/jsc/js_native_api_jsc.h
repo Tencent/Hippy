@@ -36,6 +36,8 @@
 #include "core/modules/scene_builder.h"
 #include "dom/scene_builder.h"
 #include "core/base/string_view_utils.h"
+#include "core/modules/event_module.h"
+#include "dom/dom_event.h"
 
 template <std::size_t N>
 constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
@@ -50,7 +52,7 @@ constexpr char16_t kMessageStr[] = u"message";
 constexpr char16_t kStackStr[] = u"stack";
 constexpr char16_t kDefinePropertyStr[] = u"defineProperty";
 constexpr char16_t kPrototypeStr[] = u"prototype";
-constexpr char16_t kObjectStr[] = u"object";
+constexpr char16_t kObjectStr[] = u"Object";
 constexpr char16_t kGetStr[] = u"get";
 constexpr char16_t kSetStr[] = u"set";
 
@@ -111,6 +113,7 @@ class JSCCtx : public Ctx {
   }
   virtual bool RegisterGlobalInJs() override;
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) override;
+  virtual void RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) override;
   virtual bool SetGlobalJsonVar(const unicode_string_view& name,
                                 const unicode_string_view& json) override;
   virtual bool SetGlobalStrVar(const unicode_string_view& name,
@@ -285,8 +288,12 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
   auto prototype = JSObjectMake(context_, nullptr, nullptr);
   JSValueRef exception;
   JSStringRef get_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kGetStr),
-                                                          arraysize(kObjectStr) - 1);
+                                                          arraysize(kGetStr) - 1);
   JSStringRef set_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kSetStr),
+                                                          arraysize(kSetStr) - 1);
+  JSStringRef define_property_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kDefinePropertyStr),
+                                                          arraysize(kDefinePropertyStr) - 1);
+  JSStringRef object_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kObjectStr),
                                                           arraysize(kObjectStr) - 1);
 
   for (auto& prop : instance_define->properties) {
@@ -305,7 +312,10 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
         auto* t = static_cast<T*>(JSObjectGetPrivate(this_object));
         auto ret = (prop->getter)(t);
         std::shared_ptr<JSCCtxValue> ret_value = std::static_pointer_cast<JSCCtxValue>(ret);
-        JSValueRef value_ref = ret_value->value_;
+        JSValueRef value_ref = JSValueMakeUndefined(ctx);
+        if (ret_value != nullptr) {
+          value_ref = ret_value->value_;
+        }
         return value_ref;
       };
       JSClassRef func_ref = JSClassCreate(&js_cls_def);
@@ -334,14 +344,21 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
     }
 
     if (prop.getter || prop.setter) {
+      JSValueRef values[3];
+      values[0] = prototype;
       auto name = hippy::base::StringViewUtils::ToU8StdStr(prop.name);
       JSStringRef prop_name_ref = JSStringCreateWithUTF8CString(name.c_str());
       JSValueRef prop_name = JSValueMakeString(context_, prop_name_ref);
       JSStringRelease(prop_name_ref);
-      JSValueRef values[2];  // NOLINT(runtime/arrays)
-      values[0] = prop_name;
-      values[1] = prop_obj;
-      JSObjectCallAsFunction(context_, prototype, prototype, 2, values, &exception);
+      values[1] = prop_name;
+      values[2] = prop_obj;
+
+      // get object define property function
+      JSValueRef object_value_ref = JSObjectGetProperty(context_, JSContextGetGlobalObject(context_), object_name, &exception);
+      JSObjectRef object = JSValueToObject(context_, object_value_ref, &exception);
+      JSValueRef define_property_value_ref =  JSObjectGetProperty(context_, object, define_property_name, &exception);
+      JSObjectRef define_property = JSValueToObject(context_, define_property_value_ref, &exception);
+      JSObjectCallAsFunction(context_, define_property, object, 3, values, &exception);
     }
   }
 
@@ -376,6 +393,8 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
 
   JSStringRelease(get_key_name);
   JSStringRelease(set_key_name);
+  JSStringRelease(define_property_name);
+  JSStringRelease(object_name);
   return std::make_shared<JSCCtxValue>(context_, prototype);
 }
 

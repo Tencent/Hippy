@@ -255,7 +255,7 @@ declare namespace HippyTypes {
   }
 
   export interface Attributes {
-    [key: string]: string | number;
+    [key: string]: any;
   }
 
   export interface AnimationStyle {
@@ -278,6 +278,16 @@ declare namespace HippyTypes {
       attributes?: Attributes;
     }
   }
+
+  export interface EventAttribute {
+    name: string;
+    type: number;
+    isCapture: boolean;
+    hasBound: boolean;
+    listener: (...args: any[]) => void,
+  }
+
+  export type EventNode = undefined | { id: number, eventList: EventAttribute[] };
 
   export interface AsyncStorage {
     getAllKeys: () => Promise<string[]>;
@@ -414,7 +424,7 @@ declare namespace HippyTypes {
     __PLATFORM__: __PLATFORM__;
     __HIPPYCURDIR__?: string;
     Hippy: HippyTypes.HippyConstance;
-    ScreenBuilder: ScreenBuilder | any;
+    SceneBuilder: any;
     WebSocket: WebSocket | any;
     ConsoleModule: ConsoleModule;
     HippyDealloc?: () => void;

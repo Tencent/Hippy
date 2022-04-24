@@ -33,6 +33,7 @@
 #include "core/base/js_value_wrapper.h"
 #include "dom/dom_value.h"
 #include "dom/dom_argument.h"
+#include "dom/dom_event.h"
 
 class Scope;
 
@@ -132,6 +133,7 @@ class Ctx {
 
   virtual bool RegisterGlobalInJs() = 0;
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) = 0;
+  virtual void RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) = 0;
   virtual bool SetGlobalJsonVar(const unicode_string_view& name,
                                 const unicode_string_view& json) = 0;
   virtual bool SetGlobalStrVar(const unicode_string_view& name,

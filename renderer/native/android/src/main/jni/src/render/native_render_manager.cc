@@ -209,6 +209,6 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
 
   jboolean is_copy = JNI_TRUE;
   const char* event_name = j_env->GetStringUTFChars(j_event_name, &is_copy);
-  node->HandleEvent(std::make_shared<DomEvent>(event_name, node,
-                                               (bool) j_use_capture, (bool) j_use_bubble, params));
+  auto event = std::make_shared<DomEvent>(event_name, node,(bool) j_use_capture, (bool) j_use_bubble, params);
+  node->HandleEvent(event);
 }
