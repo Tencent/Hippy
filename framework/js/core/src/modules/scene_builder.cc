@@ -22,11 +22,12 @@
 
 #include "core/modules/scene_builder.h"
 
+#include "base/unicode_string_view.h"
 #include "core/base/string_view_utils.h"
-#include "core/scope.h"
-#include "core/napi/js_native_api_types.h"
+#include "core/modules/scene_builder.h"
 #include "core/modules/ui_manager_module.h"
-#include "dom/scene_builder.h"
+#include "core/napi/js_native_api_types.h"
+#include "core/scope.h"
 #include "dom/node_props.h"
 
 template <typename T>
@@ -274,6 +275,32 @@ std::tuple<bool, std::string, std::vector<std::shared_ptr<DomNode>>> HandleJsVal
   return std::make_tuple(true, "", std::move(dom_nodes));
 }
 
+
+
+void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
+                             const size_t argument_count,
+                             const std::shared_ptr<CtxValue> arguments[],
+                             hippy::dom::EventListenerInfo& listener_info){
+  TDF_BASE_CHECK(argument_count == 2 || argument_count == 3);
+
+  int32_t dom_id;
+  bool ret = context->GetValueNumber(arguments[0], &dom_id);
+  TDF_BASE_CHECK(ret) << "get dom id failed";
+
+  tdf::base::unicode_string_view str_view;
+  ret = context->GetValueString(arguments[1], &str_view);
+  std::string event_name = hippy::base::StringViewUtils::ToU8StdStr(str_view);
+  TDF_BASE_DCHECK(ret) << "get event name failed";
+
+  listener_info.dom_id = static_cast<uint32_t>(dom_id);
+  listener_info.event_name = event_name;
+  listener_info.callback = nullptr;
+
+  if (argument_count == 3) {
+    listener_info.callback = arguments[2];
+  }
+}
+
 std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::weak_ptr<Scope>& weak_scope) {
   using SceneBuilder = hippy::dom::SceneBuilder;
   InstanceDefine<SceneBuilder> def;
@@ -313,6 +340,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     }
     return nullptr;
   };
+  def.functions.emplace_back(std::move(update_func_def));
 
   FunctionDefine<SceneBuilder> delete_func_def;
   delete_func_def.name = "Delete";
@@ -354,6 +382,40 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     return nullptr;
   };
   def.functions.emplace_back(std::move(delete_func_def));
+
+  FunctionDefine<SceneBuilder> add_event_listener_def;
+  add_event_listener_def.name = "AddEventListener";
+  add_event_listener_def.cb = [weak_scope](
+      SceneBuilder* builder,
+      size_t argument_count,
+      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+    auto scope = weak_scope.lock();
+    if (scope) {
+      hippy::dom::EventListenerInfo listener_info;
+      HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
+      builder->AddEventListener(scope, listener_info);
+    }
+    return nullptr;
+  };
+  def.functions.emplace_back(std::move(add_event_listener_def));
+
+  // TODO remove event listener
+  FunctionDefine<SceneBuilder> remove_event_listener_def;
+  remove_event_listener_def.name = "RemoveEventListener";
+  remove_event_listener_def.cb = [weak_scope](
+      SceneBuilder* builder,
+      size_t argument_count,
+      const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
+    auto scope = weak_scope.lock();
+    if (scope) {
+      hippy::dom::EventListenerInfo listener_info;
+      HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
+      builder->RemoveEventListener(scope, listener_info);
+    }
+    return nullptr;
+  };
+  def.functions.emplace_back(std::move(remove_event_listener_def));
+
 
   FunctionDefine<SceneBuilder> build_func_def;
   build_func_def.name = "Build";

@@ -31,12 +31,13 @@ import {
   warn,
   convertImgUrl,
   isCaptureEvent,
+  hasTargetEvent,
 } from '../utils';
-import { eventNamesMap, NATIVE_EVENT } from '../utils/node';
+import { eventNamesMap, eventHandlerType, NATIVE_EVENT, EVENT_ATTRIBUTE_NAME } from '../utils/node';
 import ViewNode from './view-node';
 
 interface Attributes {
-  [key: string]: string | number | boolean | undefined;
+  [key: string]: string | number | boolean | object | undefined;
 }
 
 interface NativePropsStyle {
@@ -421,13 +422,24 @@ class ElementNode extends ViewNode {
           action: () => {
             if (typeof value === 'function') {
               const processedKey = getEventPropKey(key);
-              this.attributes[`__bind__${processedKey}`] = true;
+              this.attributes[processedKey] = value;
+              this.attributes[EVENT_ATTRIBUTE_NAME] = this.attributes[EVENT_ATTRIBUTE_NAME] || {};
+              (this.attributes[EVENT_ATTRIBUTE_NAME] as Object)[processedKey] = {
+                name: processedKey,
+                type: eventHandlerType.ADD,
+                isCapture: isCaptureEvent(key),
+                hasBound: false,
+              };
             } else {
-              this.attributes[key] = value;
               const processedKey = getEventPropKey(key);
-              if (this.attributes[`__bind__${processedKey}`] === true
+              const eventsAttributes = this.attributes[EVENT_ATTRIBUTE_NAME] as Object;
+              if (hasTargetEvent(processedKey, eventsAttributes)
                   && typeof value !== 'function') {
-                this.attributes[`__bind__${processedKey}`] = false;
+                delete this.attributes[processedKey];
+                eventsAttributes[processedKey].type = eventHandlerType.REMOVE;
+                eventsAttributes[processedKey].hasBound = false;
+              } else {
+                this.attributes[key] = value;
               }
             }
             return false;

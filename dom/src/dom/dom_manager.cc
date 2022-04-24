@@ -205,7 +205,7 @@ void DomManager::DoLayout(std::function<void()> func) {
   });
 }
 
-void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
+void DomManager::HandleEvent(std::shared_ptr<DomEvent>& event) {
   // Post 到 Dom taskRunner 避免多线程问题
   PostTask([WEAK_THIS, event]() {
     DEFINE_AND_CHECK_SELF(DomManager)
