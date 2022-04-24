@@ -68,7 +68,7 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     await super.beforeChildMount(child, childPosition);
     if (child.tagName === InnerNodeTag.LIST) {
       setElementStyle(child.dom!, { position: 'relative', zIndex: 2 });
-      this.pullRefresh = new PullRefresh(child.dom!, this.dom!, this.handlePull.bind(this));
+      this.pullRefresh = new PullRefresh(child.dom!, this.dom!.childNodes[0] as HTMLElement, this.handlePull.bind(this));
       this.pullRefresh.init();
     }
   }
@@ -178,7 +178,7 @@ class PullRefresh {
         this.refreshHeadHeight = this.refreshContent.clientHeight;
         setElementStyle(this.refreshContent, { top: -this.refreshContent.clientHeight });
       }
-      setElementStyle(this.refreshContent, { transform: buildTranslate(0, `${realMove}px`) });
+      setElementStyle(this.refreshContent, { transform: buildTranslate(0, `${(realMove - this.refreshContent.clientHeight) ?? 0}px`) });
       this.refreshStatus = this.moveLengthRecord >= this.overScrollThreshold;
     }
     return realMove;
@@ -221,8 +221,11 @@ class PullRefresh {
       });
       if (this.refreshStatus) {
         this.handleCallBack?.();
-        setElementsStyle([this.scrollContent, this.refreshContent], {
+        setElementsStyle([this.scrollContent], {
           transform: buildTranslate(0, `${this.overScrollThreshold}px`),
+        });
+        setElementsStyle([this.refreshContent], {
+          transform: buildTranslate(0, `${(this.overScrollThreshold - this.refreshContent.clientHeight) ?? 0}px`),
         });
       } else {
         setElementsStyle([this.scrollContent, this.refreshContent], {
