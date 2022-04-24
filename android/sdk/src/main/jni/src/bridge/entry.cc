@@ -69,6 +69,11 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
 
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
+             "runScript",
+             "(JLjava/lang/String;)V",
+             RunScript)
+
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
@@ -141,13 +146,31 @@ void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_log
   }
 }
 
-bool RunScript(const std::shared_ptr<Runtime>& runtime,
-               const unicode_string_view& file_name,
-               bool is_use_code_cache,
-               const unicode_string_view& code_cache_dir,
-               const unicode_string_view& uri,
-               AAssetManager* asset_manager) {
-  TDF_BASE_LOG(INFO) << "RunScript begin, file_name = " << file_name
+void RunScript(JNIEnv* j_env, __unused jobject, jlong j_runtime_id, jstring j_script) {
+  TDF_BASE_DLOG(INFO) << "RunScript, j_runtime_id = " << j_runtime_id;
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl RunScript, j_runtime_id invalid";
+    return;
+  }
+  const unicode_string_view script = JniUtils::ToStrView(j_env, j_script);
+  TDF_BASE_DLOG(INFO) << "RunScript, script = " << script;
+  auto runner = runtime->GetEngine()->GetJSRunner();
+  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+  task->callback = [runtime, script{std::move(script)}] () mutable {
+    auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(runtime->GetScope()->GetContext());
+    auto ret = context->RunScript(script, "");
+  };
+  runner->PostTask(task);
+}
+
+bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
+                       const unicode_string_view& file_name,
+                       bool is_use_code_cache,
+                       const unicode_string_view& code_cache_dir,
+                       const unicode_string_view& uri,
+                       AAssetManager* asset_manager) {
+  TDF_BASE_LOG(INFO) << "RunScriptInternal begin, file_name = " << file_name
                      << ", is_use_code_cache = " << is_use_code_cache
                      << ", code_cache_dir = " << code_cache_dir
                      << ", uri = " << uri
@@ -318,8 +341,8 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                     j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
                     time_begin] {
     TDF_BASE_DLOG(INFO) << "runScriptFromUri enter";
-    bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
-                          code_cache_dir, uri, aasset_manager);
+    bool flag = RunScriptInternal(runtime, script_name, j_can_use_code_cache,
+                                  code_cache_dir, uri, aasset_manager);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
                         std::chrono::system_clock::now())
                         .time_since_epoch()

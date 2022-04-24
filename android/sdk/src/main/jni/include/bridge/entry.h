@@ -54,5 +54,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jlong j_runtime_id,
                           jobject j_cb);
 
+void RunScript(JNIEnv* j_env, __unused jobject, jlong j_runtime_id, jstring j_script);
+
 }  // namespace bridge
 }  // namespace hippy
