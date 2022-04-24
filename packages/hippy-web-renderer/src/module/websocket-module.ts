@@ -24,11 +24,12 @@ const enum EventType {
   ON_OPEN='onOpen',
   ON_CLOSE='onClose',
   ON_ERROR='onError',
-  ON_MESSAGE='text',
+  ON_MESSAGE='onMessage',
 }
 export class WebSocketModule extends HippyWebModule {
-  public name = 'WebSocketModule';
+  public name = 'websocket';
   private webSocketConnections: {[key: string]: WebsocketObject} = {};
+  private connections = 0;
 
   public connect(data: {url?: string, headers?: {[key: string]: any} }, callBack: HippyCallBack) {
     const response = {
@@ -49,9 +50,11 @@ export class WebSocketModule extends HippyWebModule {
     if (data.headers?.['Sec-WebSocket-Protocol']) {
       protocols =  data?.headers['Sec-WebSocket-Protocol'].split(',');
     }
-    const id = `websocket-key-${Object.keys(this.webSocketConnections).length}`;
+    this.connections += 1;
+    const id = this.connections;
     this.webSocketConnections[id] = new WebsocketObject(id, data.url, protocols);
-    this.webSocketConnections[id].connect(this.dispatchEvent);
+    this.webSocketConnections[id].connect(this.dispatchEvent.bind(this));
+    callBack.resolve({ code: 0, id });
   }
 
   public send(callBack: HippyCallBack, data: {id: string, data: any}) {
@@ -81,7 +84,7 @@ export class WebSocketModule extends HippyWebModule {
     this.webSocketConnections[data.id].close(data.code, data.reason);
   }
 
-  public dispatchEvent(id: string, eventType: EventType, data: any) {
+  public dispatchEvent(id: number, eventType: EventType, data: any) {
     this.context.sendEvent('hippyWebsocketEvents', { ...data, id, type: eventType });
   }
 
@@ -102,13 +105,16 @@ const enum WebSocketReadyState {
 }
 
 class WebsocketObject {
-  private id!: string;
+  private id!: number;
   private connection?: WebSocket;
   private state?: WebSocketReadyState;
-  private dispatchEvent?: (id: string, eventType: EventType, data?: {[key: string]: any}) => void;
-  public constructor(id: string, url: string, protocols: string|string[]|undefined) {
-    this.connection = new WebSocket(url, protocols);
+  private dispatchEvent?: (id: number, eventType: EventType, data?: {[key: string]: any}) => void;
+  private protocols: string|string[]|undefined;
+  private url: string;
+  public constructor(id: number, url: string, protocols: string|string[]|undefined) {
     this.id = id;
+    this.protocols = protocols;
+    this.url = url;
     this.handleSocketOpen = this.handleSocketOpen.bind(this);
     this.handleSocketMessage = this.handleSocketMessage.bind(this);
     this.handleSocketClose = this.handleSocketClose.bind(this);
@@ -119,16 +125,16 @@ class WebsocketObject {
     return this.state !== WebSocketReadyState.OPEN;
   }
 
-  public connect(dispatchEvent: (id: string, eventType: EventType, data: any) => void) {
+  public connect(dispatchEvent: (id: number, eventType: EventType, data: any) => void) {
     if (!this.connection) {
-      return;
+      this.connection = new window.__WebSocket(this.url, this.protocols ?? []);
     }
     this.dispatchEvent = dispatchEvent;
     this.state = WebSocketReadyState.CONNECTING;
-    this.connection.addEventListener('open', this.handleSocketOpen);
-    this.connection.addEventListener('message', this.handleSocketMessage);
-    this.connection.addEventListener('close', this.handleSocketClose);
-    this.connection.addEventListener('error', this.handleSocketError);
+    this.connection!.addEventListener('open', this.handleSocketOpen);
+    this.connection!.addEventListener('message', this.handleSocketMessage);
+    this.connection!.addEventListener('close', this.handleSocketClose);
+    this.connection!.addEventListener('error', this.handleSocketError);
   }
 
   public handleSocketOpen() {
