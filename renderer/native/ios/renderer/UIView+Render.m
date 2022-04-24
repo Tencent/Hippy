@@ -32,6 +32,9 @@
         [weakContainer addObject:renderContext];
         objc_setAssociatedObject(self, @selector(renderContext), weakContainer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+    else {
+        objc_setAssociatedObject(self, @selector(renderContext), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
 }
 
 - (id<HippyRenderContext>)renderContext {

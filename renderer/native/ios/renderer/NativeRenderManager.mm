@@ -167,6 +167,6 @@ UIView *NativeRenderManager::CreateViewHierarchyFromId(int32_t id) {
 }
 
 NativeRenderManager::~NativeRenderManager() {
-    RenderManager::~RenderManager();
+    [uiManager_ invalidate];
     uiManager_ = nil;
 }

@@ -235,6 +235,11 @@ RENDER_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id;
 
 /**
+ * clear all memories
+ */
+- (void)invalidate;
+
+/**
  * get animator
  *
  * @return animator held by HippyUIManager

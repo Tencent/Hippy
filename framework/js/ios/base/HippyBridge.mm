@@ -148,6 +148,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     NSURL *_delegateBundleURL;
     NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
+    dispatch_block_t _nativeSetUpBlock;
 }
 @end
 
@@ -204,7 +205,6 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _executorKey = executorKey;
         _invalidateReason = HippyInvalidateReasonDealloc;
         [self setUp];
-
         HippyExecuteOnMainQueue(^{
             [self bindKeys];
         });
@@ -349,6 +349,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     } @catch (NSException *exception) {
         MttHippyException(exception);
     }
+    if (_nativeSetUpBlock) {
+        _nativeSetUpBlock();
+    }
     if (nil == self.renderContext.frameworkProxy) {
         self.renderContext.frameworkProxy = self;
     }
@@ -356,6 +359,33 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [self.batchedBridge setUpDomManager:domManager];
+}
+
+- (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
+          frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view {
+    __weak HippyBridge *weakBridge = self;
+    __weak id<HippyFrameworkProxy> weakProxy = proxy;
+    __weak UIView *weakView = view;
+    _nativeSetUpBlock = ^(){
+        HippyBridge *strongSelf = weakBridge;
+        if (strongSelf) {
+            strongSelf->_domManager = std::make_shared<hippy::DomManager>([tag intValue]);
+            strongSelf->_domManager->StartTaskRunner();
+            strongSelf->_domManager->SetRootSize(size.width, size.height);
+
+            strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
+            strongSelf->_renderManager->SetFrameworkProxy(weakProxy);
+            strongSelf->_renderManager->RegisterRootView(weakView);
+            strongSelf->_renderManager->SetDomManager(strongSelf->_domManager);
+            
+            strongSelf->_domManager->SetRenderManager(strongSelf->_renderManager);
+            
+            [strongSelf setUpDomManager:strongSelf->_domManager];
+        }
+    };
+    if (self.batchedBridge) {
+        _nativeSetUpBlock();
+    }
 }
 
 - (void)setUpDevClientWithName:(NSString *)name {
@@ -386,7 +416,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
     HippyBridge *batchedBridge = self.batchedBridge;
     self.batchedBridge = nil;
-
+    _domManager = nullptr;
+    _renderManager = nullptr;
     if (batchedBridge) {
         HippyExecuteOnMainQueue(^{
             [batchedBridge invalidate];

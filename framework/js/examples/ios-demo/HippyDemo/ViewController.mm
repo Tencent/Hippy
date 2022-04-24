@@ -98,14 +98,7 @@
     
     rootView.frame = self.view.bounds;
     
-    //1.initial render context with root view
-    [self initRenderContextWithRootView:rootView];
-    
-    //2.bridge set up dom mananger
-    [bridge setUpDomManager:_domManager];
-
-    //3.set native render manager's frameworkProxy to bridge
-    _nativeRenderManager->SetFrameworkProxy(bridge);
+    [bridge setUpWithRootTag:rootView.hippyTag rootSize:rootView.bounds.size frameworkProxy:self rootView:rootView.contentView];
     
     //4.set frameworkProxy for bridge.If bridge cannot handle frameworkProxy protocol, it will forward to {self}
     bridge.frameworkProxy = self;

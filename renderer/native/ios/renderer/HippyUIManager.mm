@@ -217,25 +217,12 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 }
 
 - (void)invalidate {
-    //TODO needs Framework call invalide manually
-    /**
-     * Called on the JS Thread since all modules are invalidated on the JS thread
-     */
     _pendingUIBlocks = nil;
     [_completeBlocks removeAllObjects];
     __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         HippyUIManager *strongSelf = weakSelf;
         if (strongSelf) {
-            [(id<HippyInvalidating>)strongSelf->_viewRegistry[strongSelf->_rootViewTag] invalidate];
-            [strongSelf->_viewRegistry removeObjectForKey:strongSelf->_rootViewTag];
-
-            for (NSNumber *hippyTag in [strongSelf->_viewRegistry allKeys]) {
-                id<HippyComponent> subview = strongSelf->_viewRegistry[hippyTag];
-                if ([subview conformsToProtocol:@protocol(HippyInvalidating)]) {
-                    [(id<HippyInvalidating>)subview invalidate];
-                }
-            }
             strongSelf->_viewRegistry = nil;
             strongSelf->_componentTransactionListeners = nil;
             [[NSNotificationCenter defaultCenter] removeObserver:strongSelf];
@@ -1066,14 +1053,18 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kClickEvent];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:hippy::kClickEvent];
+        __weak id weakSelf = self;
         [view addViewEvent:HippyViewEventTypeClick eventListener:^(CGPoint) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node,
-                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                        static_cast<std::shared_ptr<DomValue>>(nullptr)));
-                }
-            }];
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
+                    if (node) {
+                        node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node,
+                                                                            canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                            static_cast<std::shared_ptr<DomValue>>(nullptr)));
+                    }
+                }];
+            }
         }];
     }
     else {
@@ -1088,14 +1079,18 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kLongClickEvent];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:hippy::kLongClickEvent];
+        __weak id weakSelf = self;
         [view addViewEvent:HippyViewEventTypeLongClick eventListener:^(CGPoint) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node,
-                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                        static_cast<std::shared_ptr<DomValue>>(nullptr)));
-                }
-            }];
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
+                    if (node) {
+                        node->HandleEvent(std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node,
+                                                                            canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                            static_cast<std::shared_ptr<DomValue>>(nullptr)));
+                    }
+                }];
+            }
         }];
     }
     else {
@@ -1112,14 +1107,18 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
         std::string block_type = type;
+        __weak id weakSelf = self;
         [view addViewEvent:eventType eventListener:^(CGPoint) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    node->HandleEvent(std::make_shared<hippy::DomEvent>(block_type, node,
-                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                        static_cast<std::shared_ptr<DomValue>>(nullptr)));
-                }
-            }];
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
+                    if (node) {
+                        node->HandleEvent(std::make_shared<hippy::DomEvent>(block_type, node,
+                                                                            canBePreventedInCapturing, canBePreventedInBubbling,
+                                                                            static_cast<std::shared_ptr<DomValue>>(nullptr)));
+                    }
+                }];
+            }
         }];
     }
     else {
@@ -1147,19 +1146,23 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
         const std::string type_ = type;
+        __weak id weakSelf = self;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    tdf::base::DomValue::DomValueObjectType domValue;
-                    domValue["page_x"] = tdf::base::DomValue(point.x);
-                    domValue["page_y"] = tdf::base::DomValue(point.y);
-                    std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
                     if (node) {
-                       node->HandleEvent(std::make_shared<DomEvent>(type_, node, canBePreventedInCapturing,
-                                                                    canBePreventedInBubbling,value));
+                        tdf::base::DomValue::DomValueObjectType domValue;
+                        domValue["page_x"] = tdf::base::DomValue(point.x);
+                        domValue["page_y"] = tdf::base::DomValue(point.y);
+                        std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
+                        if (node) {
+                           node->HandleEvent(std::make_shared<DomEvent>(type_, node, canBePreventedInCapturing,
+                                                                        canBePreventedInBubbling,value));
+                        }
                     }
-                }
-            }];
+                }];
+            }
         }];
     }
     else {
@@ -1175,14 +1178,18 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:type];
         BOOL canBePreventedInBubbling = [view canBePreventInBubbling:type];
+        __weak id weakSelf = self;
         [view addViewEvent:event_type eventListener:^(CGPoint point) {
-            [self domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
-                if (node) {
-                    std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(true);
-                    node->HandleEvent(std::make_shared<DomEvent>(type, node, canBePreventedInCapturing,
-                                                                 canBePreventedInBubbling, domValue));
-                }
-            }];
+            id strongSelf = weakSelf;
+            if (strongSelf) {
+                [strongSelf domNodeForHippyTag:hippyTag resultNode:^(std::shared_ptr<DomNode> node) {
+                    if (node) {
+                        std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(true);
+                        node->HandleEvent(std::make_shared<DomEvent>(type, node, canBePreventedInCapturing,
+                                                                     canBePreventedInBubbling, domValue));
+                    }
+                }];
+            }
         }];
     }
     else {
@@ -1229,15 +1236,19 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         if (mapToEventName) {
             BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name_];
             BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name_];
+            __weak id weakSelf = self;
             [view addStatusChangeEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
-                [self domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> domNode) {
-                    if (domNode) {
-                        DomValue value = [body toDomValue];
-                        std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(std::move(value));
-                        domNode->HandleEvent(std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
-                                                                     canBePreventedInBubbling, domValue));
-                    }
-                }];
+                id strongSelf = weakSelf;
+                if (strongSelf) {
+                    [strongSelf domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> domNode) {
+                        if (domNode) {
+                            DomValue value = [body toDomValue];
+                            std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(std::move(value));
+                            domNode->HandleEvent(std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
+                                                                         canBePreventedInBubbling, domValue));
+                        }
+                    }];
+                }
             }];
         }
     }

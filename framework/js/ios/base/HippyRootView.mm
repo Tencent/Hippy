@@ -40,7 +40,7 @@
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
-static NSNumber *AllocRootViewTag() {
+NSNumber *AllocRootViewTag() {
     static NSString * const token = @"allocateRootTag";
     @synchronized (token) {
         static NSUInteger rootTag = 0;
@@ -430,7 +430,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
 }
 
 - (void)removeAllSubviews {
-    [[self subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [self resetHippySubviews];
 }
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
@@ -439,6 +439,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
 
 - (UIColor *)backgroundColor {
     return _backgroundColor;
+}
+
+- (void)didAddSubview:(UIView *)subview {
+    [super didAddSubview:subview];
 }
 
 - (void)invalidate {

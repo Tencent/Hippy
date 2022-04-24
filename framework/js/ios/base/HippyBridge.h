@@ -32,6 +32,7 @@
 #import "HippyRenderContext.h"
 #import <memory>
 #import "dom/dom_manager.h"
+#import "NativeRenderManager.h"
 
 @class JSValue;
 @class HippyBridge;
@@ -130,6 +131,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 - (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
 
+//TODO 可能有更好的方法设置。最好能将HippyRootView与bridge加载bundle的行为剥离。HippyRootView就是view，和bridge没关系
+- (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
+          frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view;
+
 /**
  * set up chrome dev tools connection
  */
@@ -210,6 +215,9 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
 
 @property (nonatomic, weak) id<HippyRenderContext> renderContext;
+
+@property (nonatomic, readonly) std::shared_ptr<hippy::DomManager> domManager;
+@property (nonatomic, readonly) std::shared_ptr<NativeRenderManager> renderManager;
 
 /**
  * The launch options that were used to initialize the bridge.
