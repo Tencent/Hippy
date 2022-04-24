@@ -21,7 +21,6 @@
  */
 
 #import "HippyImageView.h"
-#import <objc/runtime.h>
 #import "HippyUtils.h"
 #import "HippyAnimatedImage.h"
 #import <Accelerate/Accelerate.h>

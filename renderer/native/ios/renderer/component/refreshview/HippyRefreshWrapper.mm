@@ -83,10 +83,6 @@
     [super insertHippySubview:view atIndex:index];
 }
 
-- (void)invalidate {
-    [_scrollableView removeScrollListener:self];
-}
-
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     CGFloat wrapperItemViewHeight = _wrapperItemView.frame.size.height;
     UIEdgeInsets insets = scrollView.contentInset;

@@ -23,7 +23,6 @@
 #import "HippyModalHostView.h"
 
 #import "HippyModalHostViewController.h"
-#import "HippyUIManager.h"
 #import "UIView+Hippy.h"
 #import "HippyModalHostViewInteractor.h"
 
@@ -119,12 +118,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
     if (_isPresented && !self.superview) {
         [self dismissModalViewController];
     }
-}
-
-- (void)invalidate {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self dismissModalViewController];
-    });
 }
 
 - (BOOL)isTransparent {

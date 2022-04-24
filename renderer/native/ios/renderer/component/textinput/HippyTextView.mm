@@ -28,7 +28,6 @@
 #import "HippyUtils.h"
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
-#import "HippyEventDispatcher.h"
 
 @implementation HippyUITextView {
     BOOL _jsRequestingFirstResponder;
@@ -494,8 +493,6 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
     if (eventLag == 0 && ![currentSelection isEqual:selectedTextRange]) {
         _previousSelectionRange = selectedTextRange;
         _textView.selectedTextRange = selectedTextRange;
-    } else if (eventLag > HippyTextUpdateLagWarningThreshold) {
-        //HippyLogWarn(@"Native TextInput(%@) is %ld events ahead of JS - try to make your JS faster.", self.text, (long)eventLag);
     }
 }
 
@@ -525,8 +522,6 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
         [self updatePlaceholderVisibility];
         [self updateContentSize];  // keep the text wrapping when the length of
         // the textline has been extended longer than the length of textinputView
-    } else if (eventLag > HippyTextUpdateLagWarningThreshold) {
-        //HippyLogWarn(@"Native TextInput(%@) is %ld events ahead of JS - try to make your JS faster.", self.text, (long)eventLag);
     }
 }
 

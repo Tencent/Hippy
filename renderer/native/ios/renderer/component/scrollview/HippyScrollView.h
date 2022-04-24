@@ -21,7 +21,6 @@
  */
 
 #import <UIKit/UIScrollView.h>
-
 #import "HippyAutoInsetsProtocol.h"
 #import "HippyScrollableProtocol.h"
 #import "HippyView.h"

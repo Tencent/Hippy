@@ -90,6 +90,14 @@
     objc_setAssociatedObject(self, @selector(tagName), tagName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+- (void)setParent:(id<HippyComponent>)parent {
+//    self.superview = parent;
+}
+
+- (id<HippyComponent>)parent {
+    return self.superview;
+}
+
 // clang-format off
 HippyEventMethod(OnClick, onClick, HippyDirectEventBlock)
 HippyEventMethod(OnPressIn, onPressIn, HippyDirectEventBlock)

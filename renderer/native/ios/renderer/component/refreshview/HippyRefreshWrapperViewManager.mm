@@ -22,7 +22,6 @@
 
 #import "HippyRefreshWrapperViewManager.h"
 #import "HippyRefreshWrapper.h"
-#import "HippyUIManager.h"
 
 @implementation HippyRefreshWrapperViewManager
 

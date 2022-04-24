@@ -23,6 +23,7 @@
 #import "HippyShadowView.h"
 
 @interface HippyShadowTextView : HippyShadowView
+
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, copy) NSString *placeholder;
 

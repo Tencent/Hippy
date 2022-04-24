@@ -22,7 +22,6 @@
 
 #import "HippyHeaderRefreshManager.h"
 #import "HippyHeaderRefresh.h"
-#import "HippyUIManager.h"
 
 @implementation HippyHeaderRefreshManager
 

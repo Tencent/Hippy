@@ -25,7 +25,6 @@
 #import "UIView+Private.h"
 #import "UIView+Hippy.h"
 #import "UIView+DirectionalLayout.h"
-#import "objc/runtime.h"
 
 @interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
 

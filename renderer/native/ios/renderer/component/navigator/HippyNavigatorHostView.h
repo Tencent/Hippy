@@ -21,14 +21,13 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyInvalidating.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol NavigatorHostViewDelegate <NSObject>
 @end
 
-@interface HippyNavigatorHostView : UIView <HippyInvalidating, UINavigationControllerDelegate>
+@interface HippyNavigatorHostView : UIView <UINavigationControllerDelegate>
 
 @property (nonatomic, weak) id<NavigatorHostViewDelegate> delegate;
 

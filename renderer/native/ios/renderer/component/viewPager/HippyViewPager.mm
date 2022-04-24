@@ -150,10 +150,6 @@
     [self setNeedsLayout];
 }
 
-- (void)invalidate {
-    [_scrollViewListener removeAllObjects];
-}
-
 #pragma mark hippy js call methods
 - (void)setPage:(NSInteger)pageNumber animated:(BOOL)animated {
     if (pageNumber >= self.viewPagerItems.count || pageNumber < 0) {

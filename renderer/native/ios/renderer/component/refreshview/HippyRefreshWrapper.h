@@ -21,12 +21,11 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyInvalidating.h"
 #import "HippyTouchesView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyRefreshWrapper : HippyTouchesView <HippyInvalidating>
+@interface HippyRefreshWrapper : HippyTouchesView
 
 - (void)refreshCompleted;
 - (void)startRefresh;

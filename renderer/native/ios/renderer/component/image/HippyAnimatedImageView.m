@@ -22,7 +22,6 @@
 
 #import "HippyAnimatedImageView.h"
 #import "HippyAnimatedImage.h"
-#import <QuartzCore/QuartzCore.h>
 
 @interface HippyAnimatedImageView ()
 

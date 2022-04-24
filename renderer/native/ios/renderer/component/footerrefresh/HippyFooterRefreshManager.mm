@@ -21,7 +21,6 @@
  */
 
 #import "HippyFooterRefreshManager.h"
-#import "HippyUIManager.h"
 #import "HippyFooterRefresh.h"
 
 @implementation HippyFooterRefreshManager

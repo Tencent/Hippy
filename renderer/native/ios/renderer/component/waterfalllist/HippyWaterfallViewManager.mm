@@ -22,7 +22,6 @@
 
 #import "HippyWaterfallViewManager.h"
 #import "HippyWaterfallView.h"
-#import "HippyUIManager.h"
 
 @implementation HippyWaterfallViewManager
 

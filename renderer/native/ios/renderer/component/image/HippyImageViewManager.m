@@ -22,13 +22,10 @@
 
 #import "HippyImageViewManager.h"
 #import "HippyImageView.h"
-#import "HippyConvert.h"
 #import "HippyImageDataLoader.h"
 #import "HippyDefaultImageProvider.h"
-#import "objc/runtime.h"
 #import "HippyUtils.h"
 #import "UIView+Sequence.h"
-#import <UIKit/UIKit.h>
 
 @interface HippyImageViewManager () {
     id<HippyImageDataLoaderProtocol> _imageDataLoader;

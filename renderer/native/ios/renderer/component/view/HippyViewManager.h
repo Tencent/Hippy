@@ -21,10 +21,8 @@
  */
 
 #import <UIKit/UIKit.h>
-
 #import "HippyConvert.h"
 #import "RenderDefines.h"
-#import "HippyBundleURLProvider.h"
 #import "HippyRenderContext.h"
 
 @class HippyShadowView;

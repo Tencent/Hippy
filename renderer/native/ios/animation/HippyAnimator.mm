@@ -20,7 +20,6 @@
  * limitations under the License.
  */
 
-#import "HippyUIManager.h"
 #import "HippyAnimation.h"
 #import "HippyAnimationGroup.h"
 #import "HippyAnimation+Group.h"

@@ -137,13 +137,6 @@
     return result;
 }
 
-- (void)invalidate {
-    if (_isPresented) {
-        [_navigatorRootViewController dismissViewControllerAnimated:YES completion:NULL];
-        _isPresented = NO;
-    }
-}
-
 - (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
                                   animationControllerForOperation:(UINavigationControllerOperation)operation
                                                fromViewController:(UIViewController *)fromVC

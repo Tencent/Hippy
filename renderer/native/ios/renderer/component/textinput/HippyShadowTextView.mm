@@ -25,9 +25,10 @@
 #import "HippyUtils.h"
 #import "dom/layout_node.h"
 
-
 @interface HippyShadowTextView ()
+
 @property (nonatomic, strong) NSDictionary *dicAttributes;
+
 @end
 
 static hippy::LayoutSize x5MeasureFunc(

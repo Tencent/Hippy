@@ -21,7 +21,6 @@
  */
 
 #import "HippyView.h"
-
 #import "HippyAutoInsetsProtocol.h"
 #import "HippyBorderDrawing.h"
 #import "HippyConvert.h"

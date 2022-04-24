@@ -22,7 +22,6 @@
 
 #import "HippyModalHostViewController.h"
 #import "HippyUtils.h"
-#import "HippyModalHostView.h"
 
 @implementation HippyModalHostViewController {
     CGRect _lastViewFrame;
