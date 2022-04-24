@@ -76,18 +76,25 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
     || shadowTextData.textShadowOffsetX || shadowTextData.textShadowOffsetY) {
     styleUpdateWithCheck(element, 'text-shadow', textShadowProcess(shadowTextData));
   }
-  if (Object.keys(background).length > 0) {
-    for (const key of Object.keys(background)) {
-      if (key === 'backgroundImage') {
-        styleUpdateWithCheck(element, key, `url(${background.backgroundImage})`);
-      }
-      if (key === 'backgroundSize') {
-        styleUpdateWithCheck(element, key, background.backgroundSize);
-      }
-    }
-  }
+  backgroundProcess(background, element);
 }
 
+function backgroundProcess(backgroundData: any, element: HTMLElement) {
+  for (const key of Object.keys(backgroundData)) {
+    if (key === 'backgroundImage') {
+      styleUpdateWithCheck(element, key, `url(${backgroundData.backgroundImage})`);
+      continue;
+    }
+    if (key === 'backgroundSize' && backgroundData.backgroundSize === 'contain') {
+      styleUpdateWithCheck(element, key, '100% 100%');
+    } else if (key === 'backgroundSize') {
+      styleUpdateWithCheck(element, key, backgroundData.backgroundSize);
+    }
+  }
+  if (Object.keys(backgroundData).length > 0) {
+    styleUpdateWithCheck(element, 'backgroundRepeat', 'no-repeat');
+  }
+}
 function shadowProcess(shadow: {shadowOpacity?: number, shadowRadius?: number,
   shadowOffsetX?: number, shadowOffsetY?: number, shadowColor?: number}) {
   return `${shadow.shadowOffsetX ?? 0}px ${shadow.shadowOffsetY ?? 0}px ${shadow.shadowRadius ?? 0}px ${convertHexToRgba(shadow.shadowColor)}`;
