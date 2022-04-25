@@ -101,9 +101,12 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
           sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
         }
         if (type === eventHandlerType.ADD && !hasBound) {
+          eventAttribute.hasBound = true;
+          eventAttribute.listener = listener;
+          console.log('AddEventListener', id, nativeEventName, isCapture);
           const callback = (event) => {
             const { id,  currentId, params } = event;
-            console.log('callback event', event);
+            console.log('callback event', id, JSON.stringify(params));
             if (isNativeGesture(name)) {
               const dispatcherEvent = {
                 id, name, currentId,
@@ -115,8 +118,6 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
               EventDispatcher.receiveUIComponentEvent(dispatcherEvent);
             }
           };
-          eventAttribute.hasBound = true;
-          eventAttribute.listener = listener;
           sceneBuilder.AddEventListener(id, nativeEventName, callback);
         }
       });
@@ -148,7 +149,6 @@ function batchUpdate(rootViewId: number): void {
       case NODE_OPERATION_TYPES.deleteNode:
         trace(...componentName, 'deleteNode', chunk.nodes);
         sceneBuilder.Delete(chunk.nodes);
-        handleEventListeners(chunk.eventNodes, sceneBuilder);
         // UIManagerModule.deleteNode(rootViewId, chunk.nodes);
         break;
       default:

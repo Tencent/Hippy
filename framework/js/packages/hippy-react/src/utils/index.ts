@@ -62,7 +62,7 @@ function isCaptureEvent(eventName: any) {
 }
 
 function hasTargetEvent(key: string, events: object | undefined): boolean {
-  return (typeof events !== 'undefined' && typeof events[key] === 'object' && !events[key]);
+  return (typeof events !== 'undefined' && typeof events[key] === 'object' && !!events[key]);
 }
 
 /**
