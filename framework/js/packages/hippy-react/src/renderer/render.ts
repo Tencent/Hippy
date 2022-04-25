@@ -31,7 +31,7 @@ import {
   eventHandlerType,
   nativeEventMap,
 } from '../utils/node';
-import { trace, warn } from '../utils';
+import { deepCopy, trace, warn } from '../utils';
 import { EventDispatcher } from '../event';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -88,25 +88,27 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
     if (eventNode) {
       const { id, eventList } = eventNode;
       eventList.forEach((eventAttribute) => {
-        const { name, listener, type, isCapture, hasBound } = eventAttribute;
+        const { name,
+          listener,
+          type,
+          // isCapture,
+        } = eventAttribute;
         let nativeEventName;
         if (isNativeGesture(name)) {
           nativeEventName = nativeEventMap[name];
         } else {
           nativeEventName = translateToNativeEventName(name);
         }
-        if (type === eventHandlerType.REMOVE && !hasBound) {
-          eventAttribute.hasBound = true;
-          console.log('RemoveEventListener', id, nativeEventName, isCapture);
+        if (type === eventHandlerType.REMOVE) {
+          // console.log('RemoveEventListener', id, nativeEventName, isCapture);
           sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
         }
-        if (type === eventHandlerType.ADD && !hasBound) {
-          eventAttribute.hasBound = true;
+        if (type === eventHandlerType.ADD) {
           eventAttribute.listener = listener;
-          console.log('AddEventListener', id, nativeEventName, isCapture);
+          // console.log('AddEventListener', id, nativeEventName, isCapture);
           const callback = (event) => {
             const { id,  currentId, params } = event;
-            console.log('callback event', id, JSON.stringify(params));
+            // console.log('callback event', id, JSON.stringify(params));
             if (isNativeGesture(name)) {
               const dispatcherEvent = {
                 id, name, currentId,
@@ -197,8 +199,8 @@ function getNativeProps(node: Element) {
  */
 function getTargetNodeAttributes(targetNode: Element) {
   try {
-    const { EVENT_ATTRIBUTE_NAME, ...devAttributes } = targetNode.attributes;
-    const targetNodeAttributes = JSON.parse(JSON.stringify(devAttributes));
+    const { [EVENT_ATTRIBUTE_NAME]: eventAttributes, ...devAttributes } = targetNode.attributes;
+    const targetNodeAttributes = deepCopy(devAttributes);
     const attributes = {
       id: targetNode.id,
       ...targetNodeAttributes,
