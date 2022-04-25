@@ -200,6 +200,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
         TDF_BASE_DCHECK(dom_manager);
         if (dom_manager) {
           dom_manager->RemoveEventListenerOperation(self, name);
+          self->event_listener_map_->erase(it);
         }
       }
     });

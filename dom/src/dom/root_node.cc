@@ -6,6 +6,13 @@
 namespace hippy {
 inline namespace dom {
 
+constexpr char kDomCreated[] = "DomCreated";
+constexpr char kDomUpdated[] = "DomUpdated";
+constexpr char kDomDeleted[] = "DomDeleted";
+constexpr char kDomTreeCreated[] = "DomTreeCreated";
+constexpr char kDomTreeUpdated[] = "DomTreeUpdated";
+constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
+
 RootNode::RootNode(uint32_t id)
         : DomNode(id, 0, 0, "", "",
                   std::unordered_map<std::string, std::shared_ptr<DomValue>>(),
@@ -25,9 +32,13 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     node->ParseLayoutStyleInfo();
     parent_node->AddChildAt(node, node->GetIndex());
 
+    auto event = std::make_shared<DomEvent>(kDomCreated, node, nullptr);
+    node->HandleEvent(event);
     OnDomNodeCreated(node);
   }
 
+  auto event = std::make_shared<DomEvent>(kDomTreeCreated, weak_from_this(), nullptr);
+  HandleEvent(event);
 
   if (!nodes_to_create.empty()) {
     dom_operations_.push_back({DomOperation::kOpCreate, nodes_to_create});
@@ -70,8 +81,12 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     it->SetDiffStyle(diff_value);
     it->SetDeleteProps(delete_value);
     node->ParseLayoutStyleInfo();
-
+    auto event = std::make_shared<DomEvent>(kDomUpdated, node, nullptr);
+    node->HandleEvent(event);
   }
+
+  auto event = std::make_shared<DomEvent>(kDomTreeUpdated, weak_from_this(), nullptr);
+  HandleEvent(event);
 
   if (!nodes_to_update.empty()) {
     dom_operations_.push_back({DomOperation::kOpUpdate, nodes_to_update});
@@ -90,8 +105,13 @@ void RootNode::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
     if (parent_node != nullptr) {
       parent_node->RemoveChildAt(parent_node->IndexOf(node));
     }
+    auto event = std::make_shared<DomEvent>(kDomDeleted, node, nullptr);
+    node->HandleEvent(event);
     OnDomNodeDeleted(node);
   }
+
+  auto event = std::make_shared<DomEvent>(kDomTreeDeleted, weak_from_this(), nullptr);
+  HandleEvent(event);
 
   if (!nodes_to_delete.empty()) {
     dom_operations_.push_back({DomOperation::kOpDelete, nodes_to_delete});
