@@ -507,6 +507,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                 break;
             }
             NSString *signaturePart = colonsComponent[i];
+            signaturePart = [signaturePart stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
             NSUInteger lastWhitespaceLocation = [signaturePart rangeOfString:@" " options:NSBackwardsSearch].location;
             NSString *selPartString = nil;
             if (NSNotFound == lastWhitespaceLocation) {
