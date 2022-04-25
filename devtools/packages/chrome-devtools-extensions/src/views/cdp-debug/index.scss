@@ -1,0 +1,46 @@
+.cdp-detail-wrap,
+.new-cdp-wrap {
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  .header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    padding: 20px 10px;
+    flex: 0 0 auto;
+    font-size: 14px;
+    height: 36px;
+    >*:not(:last-child) {
+      margin-right: 20px;
+    }
+    .method-label {
+      height: 28px;
+      line-height: 28px;
+      >span {
+        margin-right: 10px;
+      }
+    }
+    .method-input {
+      flex: 1;
+    }
+  }
+  .body {
+    flex: 1;
+    width: 100%;
+    margin-right: 10px;
+    overflow: hidden;
+
+    .custom-resizer {
+      height: 100%;
+      flex: 1;
+      .pane-wrap {
+        overflow: hidden;
+        width: 100%;
+      }
+    }
+  }
+}

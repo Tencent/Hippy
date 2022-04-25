@@ -1,7 +1,8 @@
 {
   "npmClient": "npm",
   "packages": [
-    "framework/js/packages/*"
+    "framework/js/packages/*",
+    "devtools/packages/*"
   ],
   "version": "2.2.1"
 }

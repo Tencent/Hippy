@@ -46,6 +46,12 @@ module.exports = {
         '@typescript-eslint/prefer-for-of': 'off',
       },
     },
+    {
+      files: ['devtools/packages/chrome-devtools-extensions/{vue.config.js,.eslintrc.js}'],
+      rules: {
+        '@typescript-eslint/no-require-imports': 'off',
+      },
+    },
   ],
   env: {
     browser: true,

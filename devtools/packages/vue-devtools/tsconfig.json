@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@vue-devtools": ["src"],
+      "@vue-devtools/*": ["src/*"],
+    },
+    "outDir": "lib",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "types": [
+      "chrome",
+      "node",
+      "webpack-env",
+    ],
+    "allowJs": true,
+    "target": "ES2019",
+    "noImplicitAny": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "skipLibCheck": true,
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+}

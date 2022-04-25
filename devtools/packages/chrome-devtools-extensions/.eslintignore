@@ -1,0 +1,10 @@
+.git
+.vscode
+
+build
+node_modules
+out
+dist
+
+.eslintrc.js
+vue.config.js

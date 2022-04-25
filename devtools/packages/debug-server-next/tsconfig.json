@@ -1,0 +1,32 @@
+{
+  "ts-node": {
+    "files": true
+  },
+  "compilerOptions": {
+    "rootDir": ".",
+    "target": "ES2019",
+    "module": "CommonJS",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "strictNullChecks": false,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "typeRoots": ["src/@types", "node_modules/@types", "node_modules/@hippy/devtools-protocol/@types"],
+    "paths": {
+      "tslib": ["node_modules/tslib/tslib.d.ts"],
+      "*": ["*", "node_modules/*", "src/@types/*"],
+      "@debug-server-next/*": ["src/*"]
+    },
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts", "global.d.ts", "package.json", "node_modules/@hippy/devtools-protocol/**/*", "src/utils/event-emitter.js", "src/utils/sender.js"],
+  "exclude": ["!node_modules/@hippy/devtools-protocol"]
+}

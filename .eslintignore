@@ -11,3 +11,10 @@ framework/js/packages/hippy-vue/types
 framework/js/packages/hippy-debug-server/webpack-dev-server/client
 framework/js/packages/hippy-debug-server/webpack-dev-server/lib
 framework/js/packages/hippy-vue-loader/lib
+
+devtools/packages/vue-devtools/build-tools
+devtools/packages/chrome-devtools-extensions/{.eslintrc.js,vue.config.js}
+devtools/packages/devtools-protocol/protocol-viewer
+devtools/packages/debug-server-next/src/webpack-dev-server
+devtools/packages/debug-server-next/src/patch/aegis.js
+devtools/packages/debug-server-next/gulpfile.js

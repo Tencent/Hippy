@@ -1,0 +1,431 @@
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  background-color: #fafafa;
+
+  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  --header-text-color: white;
+  /* Border used in the aside to mark different sections */
+  --separation-border: 1px solid rgba(0, 0, 0, 0.14);
+  /* Material-like elevation shadow */
+  --elevation-shadow: rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px, rgba(0, 0, 0, 0.2) 0px 3px 1px -2px;
+
+  --home-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="hsl(0, 0%, 40%)" height="36" viewBox="0 0 24 24" width="36"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>');
+}
+
+body {
+  display: flex;
+}
+
+.monospace, code {
+  font-family: Consolas, Menlo, monospace;
+}
+
+code {
+  color: #8E24AA;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+a, .aside-close-button {
+  color: hsl(232, 50%, 45%);
+}
+
+aside {
+  height: 100vh;
+  display: flex;
+  min-width: 200px;
+  flex-direction: column;
+  border-right: var(--separation-border);
+
+}
+
+nav {
+  background-color: white;
+}
+
+.navs header {
+  font-size: 1.3em;
+  height: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: var(--separation-border);
+  color: #727272;
+  font-size: 16px;
+}
+
+#domains {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  /*
+   * Without this, the scroller won't properly compute its height and
+   * enforce that items in it are overflowing.
+   */
+  min-height: 0;
+
+  border-top: var(--separation-border);
+}
+
+/* Scroller used to make sure that domains are overflowing with display flex */
+#domains .scroller {
+  flex: 1;
+  overflow-y: auto;
+}
+
+#home a, .menu-link {
+  background-image: var(--home-icon);
+  background-repeat: no-repeat;
+  padding-left: 26px;
+  background-size: 14px 14px;
+  border-left: 0;
+  background-position: 6px;
+}
+
+.navs a {
+  flex: 1;
+  font-weight: 400;
+  min-height: 32px;
+  padding: 0 16px;
+  border-left: 10px solid transparent;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.navs a:hover {
+  background-color: hsl(0,0%, 96%);
+}
+
+#domains nav a.experimental {
+  border-left: 10px solid #E5737399;
+}
+
+#domains nav a.deprecated {
+  border-left: 10px solid #FFCC8099;
+}
+
+#domains.version-tot nav a:not(.tot),
+#domains.version-1-2 nav a:not([class~="1-2"]),
+#domains.version-1-3 nav a:not([class~="1-3"]),
+#domains.version-v8 nav a:not(.v8),
+#domains.version-tdf_protocol nav a:not(.tdf_protocol),
+#domains.version-Inspector-iOS-9\.0 nav a:not(.Inspector-iOS-9\.0),
+#domains.version-Inspector-iOS-9\.3 nav a:not(.Inspector-iOS-9\.3),
+#domains.version-Inspector-iOS-10\.0 nav a:not(.Inspector-iOS-10\.0),
+#domains.version-Inspector-iOS-10\.3 nav a:not(.Inspector-iOS-10\.3),
+#domains.version-Inspector-iOS-11\.0 nav a:not(.Inspector-iOS-11\.0),
+#domains.version-Inspector-iOS-11\.3 nav a:not(.Inspector-iOS-11\.3),
+#domains.version-Inspector-iOS-12\.0 nav a:not(.Inspector-iOS-12\.0),
+#domains.version-Inspector-iOS-12\.2 nav a:not(.Inspector-iOS-12\.2),
+#domains.version-Inspector-iOS-13\.0 nav a:not(.Inspector-iOS-13\.0),
+#domains.version-Inspector-iOS-13\.4 nav a:not(.Inspector-iOS-13\.4),
+#domains.version-Inspector-iOS-14\.0 nav a:not(.Inspector-iOS-14\.0) {
+  display: none;
+}
+
+main {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+  /* Make sure that if the content is too small, we still show the full header */
+  flex-grow: 1;
+}
+
+main, cr-search-results {
+  background-color: #fafafa;
+}
+
+main > header {
+  background-color: #3f51b5;
+  color: var(--header-text-color);
+  justify-content: space-between;
+  align-items: center;
+}
+
+main > header h1 {
+  --header-height: 26px;
+  font-size: var(--header-height);
+  line-height: var(--header-height);
+  padding-left: 10px;
+  display: inline-block;
+  font-weight: 400;
+}
+
+main > header .menu-link {
+  color: var(--header-text-color);
+  background-color: inherit;
+  text-decoration: underline;
+  border: none;
+  display: none;
+  font-size: 1em;
+  margin-top: 20px;
+  /*
+   * Reset the background image, as we don't want it on this link,
+   * but we do want it on all others.
+   */
+  background-image: none;
+}
+
+/* When narrow, hide page title to avoid wrapping h1 + search */
+@media only screen and (max-width:825px) {
+  main > header h1 {
+    display:none;
+  }
+}
+
+.aside-close-button {
+  display: none;
+}
+
+/* hide sidenav on mobile */
+@media only screen and (max-width:640px) {
+  aside {
+    transform: translate(-200px, 0);
+    position: absolute;
+    width: 200px;
+    z-index: 1;
+    background: inherit;
+    visibility: hidden;
+    transition: cubic-bezier(0,0,0.32,1);
+    transition-duration: 200ms;
+  }
+
+  aside.shown {
+    transform: none;
+    visibility: visible;
+  }
+
+  .aside-close-button {
+    display: block;
+    font-size: 1em;
+    width: 48px;
+  }
+
+  #home nav {
+    display: flex;
+  }
+
+  main > header .menu-link {
+    display: inline-block;
+  }
+}
+
+cr-search-control {
+  flex: 1;
+  margin: 14px 25px;
+  display: inline-block;
+}
+
+main > section {
+  overflow-y: auto;
+  padding: 25px;
+  /* To make sure that the GitHub badge positions correctly */
+  position: relative;
+}
+@media only screen and (max-width:640px) {
+  main > section {
+    padding: 25px 4vw;
+  }
+}
+
+/* Make sure that code snippets don't overflow the full content container */
+pre {
+  overflow-x: auto;
+}
+
+/* Make sure that images don't overflow the full content container */
+img {
+  max-width: 100%;
+  object-fit: scale-down;
+}
+
+.gh-badge img {
+  float: right;
+  /* The image is a triangle facing the right */
+  shape-outside: polygon(0 0, 150px 0, 150px 150px);
+  /*
+   * All content in the main section has a padding, but this
+   * image must be floated to the borders of the section.
+   */
+  margin: -21px -15px;
+}
+
+/* Limit content width and center it */
+.main-content-section {
+  max-width: 100ch;
+  margin: 0 auto;
+}
+
+.main-content-section:not(.domain),
+.domain-section > div {
+  padding: 5px 15px;
+  margin-bottom: 25px;
+  background-color: white;
+  box-shadow: var(--elevation-shadow);
+}
+
+span.experimental, span.deprecated {
+  font-size: 70%;
+  text-transform: uppercase;
+  padding: 2px;
+  margin-right: 5px;
+  cursor: help;
+  vertical-align: baseline;
+  font-weight: normal;
+  font-family: inherit;
+}
+
+span.experimental {
+  background-color: #ec8888;
+  color: #171616;
+  border: 1px solid transparent;
+}
+
+span.deprecated {
+  background-color: #FFCC80;
+  color: black;
+  border: 1px solid #EF6C00;
+}
+
+.domain-experimental span.experimental {
+  display: none;
+}
+
+.domain-experimental .heading-domain span.experimental {
+  display: inline-block;
+}
+
+.domain-experimental .heading-domain {
+  border: 1px solid #E57373;
+}
+
+span.domain-dot {
+  color: #555555;
+}
+
+.toc-link {
+  line-height: 1.1em;
+}
+
+.details {
+  padding-bottom: 10px;
+  word-break: break-word;
+}
+
+.details:not(:last-child) {
+  border-bottom: var(--separation-border);
+}
+
+.details .permalink {
+  opacity: 0;
+}
+
+.details:hover .permalink, .details .permalink:focus {
+  opacity: 1;
+}
+
+.details .permalink.copied::after {
+  content: "Copied URL!";
+  background-color: #E0E0E0;
+  color: initial;
+  display: inline-block;
+  text-decoration: none;
+  margin-left: 6px;
+  font-size: 70%;
+  padding: 1px 3px;
+  font-weight: normal;
+  animation: 1s fadeOut 1s forwards;
+}
+.details .permalink.copied__md::after{
+  content: "Copied markdown!";
+}
+
+.details .properties-name {
+  color: #4c4b4b;
+  font-weight: 300;
+  text-transform: uppercase;
+  margin: 1rem 0 0;
+}
+
+.properties-container {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr 2fr);
+}
+
+.properties-container dt {
+  flex: 1;
+  text-align: right;
+}
+
+.properties-container dd {
+  flex: 2;
+  margin-left: 10px;
+}
+
+.properties-container dt, .properties-container dd {
+  padding: 5px;
+}
+
+.details-description {
+  display: inline;
+  font-size: 90%;
+}
+
+.details-description p {
+  display: inline;
+}
+
+.param-container:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+.optional::after {
+  content: "optional";
+  opacity: .6;
+  font-size: 70%;
+  display: block;
+}
+
+.param-type {
+  display: block;
+  font-weight: bold;
+}
+
+.param-type__array {
+  font-weight: normal;
+}
+
+.param-type .param-type__array .param-type  {
+  display: inline;
+}
+
+h4 {
+  /* use padding rather than margin for better positioning when viewing #method-navigate, etc. */
+  margin-top: 0;
+  padding-top: 1.33em;
+}
+
+h3 {
+  color: hsl(0, 0%, 47%);
+}
+
+@media(max-width: 800px) {
+  .navs a {
+    min-height: 48px;
+  }
+}
+
+@keyframes fadeOut {
+  0% {opacity: 1}
+  100% {opacity: 0}
+ }
+
+#versions nav {
+  max-height: 200px;
+  overflow: auto;
+}

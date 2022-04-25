@@ -1,0 +1,15 @@
+.git
+.vscode
+.vscode
+
+dist
+node_modules
+build
+cache
+hmr
+log
+public
+
+src/webpack-dev-server
+src/patch/aegis.js
+src/utils/event-emitter.js

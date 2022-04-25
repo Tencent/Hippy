@@ -1,0 +1,635 @@
+{
+  "version": {
+    "major": "1",
+    "minor": "4"
+  },
+  "domains": [
+    {
+      "domain": "TDFInspector",
+      "types": [
+        {
+          "id": "ITree",
+          "type": "object",
+          "properties": [
+            {
+              "name": "nodeType",
+              "type": "string"
+            },
+            {
+              "name": "id",
+              "type": "number"
+            },
+            {
+              "name": "domRelativeRenderId",
+              "type": "number"
+            },
+            {
+              "name": "width",
+              "type": "number"
+            },
+            {
+              "name": "height",
+              "type": "number"
+            },
+            {
+              "name": "borderColor",
+              "type": "bigint"
+            },
+            {
+              "name": "text",
+              "type": "string"
+            },
+            {
+              "name": "bgColor",
+              "type": "bigint"
+            },
+            {
+              "name": "base64",
+              "type": "string"
+            },
+            {
+              "name": "bounds",
+              "type": "object",
+              "$ref": "INodeBounds"
+            },
+            {
+              "name": "child",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "ITree"
+              }
+            },
+            {
+              "name": "flexNodeStyle",
+              "type": "object",
+              "$ref": "IFlexNodeStyle"
+            }
+          ]
+        },
+        {
+          "id": "IFlexNodeStyle",
+          "type": "object",
+          "properties": [
+            {
+              "name": "border",
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "margin",
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "padding",
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          ]
+        },
+        {
+          "id": "RTree",
+          "type": "object",
+          "properties": [
+            {
+              "name": "id",
+              "type": "number"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "isRepaintBoundary",
+              "type": "boolean"
+            },
+            {
+              "name": "needsCompositing",
+              "type": "boolean"
+            },
+            {
+              "name": "bounds",
+              "type": "object",
+              "$ref": "INodeBounds"
+            },
+            {
+              "name": "child",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "$ref": "RTree"
+              }
+            }
+          ]
+        },
+        {
+          "id": "INodeBounds",
+          "type": "object",
+          "properties": [
+            {
+              "name": "top",
+              "type": "number"
+            },
+            {
+              "name": "bottom",
+              "type": "number"
+            },
+            {
+              "name": "left",
+              "type": "number"
+            },
+            {
+              "name": "right",
+              "type": "number"
+            }
+          ]
+        },
+        {
+          "id": "ScreenshotFrameMetadata",
+          "type": "object",
+          "properties": [
+            {
+              "name": "deviceWidth",
+              "type": "number"
+            },
+            {
+              "name": "deviceHeight",
+              "type": "number"
+            },
+            {
+              "name": "timestamp",
+              "type": "number"
+            }
+          ]
+        },
+        {
+          "id": "RenderNodeProperty",
+          "type": "object",
+          "properties": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "value",
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "id": "RenderNodeProperties",
+          "type": "object",
+          "properties": [
+            {
+              "name": "properties",
+              "type": "array",
+              "items": {
+                "$ref": "RenderNodeProperty"
+              }
+            }
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "name": "dumpDomTree",
+          "description": "get DomTree information.",
+          "returns": [
+            {
+              "name": "itree",
+              "$ref": "ITree"
+            }
+          ]
+        },
+        {
+          "name": "getDomTree",
+          "description": "",
+          "returns": [
+            {
+              "name": "itree",
+              "$ref": "ITree"
+            }
+          ]
+        },
+        {
+          "name": "getRenderTree",
+          "description": "",
+          "returns": [
+            {
+              "name": "rtree",
+              "$ref": "RTree"
+            }
+          ]
+        },
+        {
+          "name": "getSelectedDomNode",
+          "description": "",
+          "returns": [
+            {
+              "name": "itree",
+              "$ref": "ITree"
+            }
+          ]
+        },
+        {
+          "name": "getSelectedRenderObject",
+          "description": "",
+          "parameters": [
+            {
+              "name": "id",
+              "type": "number"
+            }
+          ],
+          "returns": [
+            {
+              "name": "rtree",
+              "type": "object",
+              "$ref": "RenderNodeProperties"
+            }
+          ]
+        },
+        {
+          "name": "getScreenshot",
+          "description": "",
+          "parameters": [
+            {
+              "name": "format",
+              "type": "string",
+              "enum": [
+                "jpeg",
+                "png"
+              ]
+            },
+            {
+              "name": "quality",
+              "type": "number"
+            },
+            {
+              "name": "maxWidth",
+              "type": "number"
+            },
+            {
+              "name": "maxHeight",
+              "type": "number"
+            }
+          ],
+          "returns": [
+            {
+              "name": "data",
+              "type": "string"
+            },
+            {
+              "name": "metadata",
+              "$ref": "ScreenshotFrameMetadata"
+            },
+            {
+              "name": "sessionId",
+              "type": "number"
+            }
+          ]
+        },
+        {
+          "name": "enableUpdateNotification"
+        },
+        {
+          "name": "disableUpdateNotification"
+        }
+      ],
+      "events": [
+        {
+          "name": "domTreeUpdated",
+          "description": "",
+          "parameters": [
+            {
+              "name": "itree",
+              "$ref": "ITree"
+            }
+          ]
+        },
+        {
+          "name": "renderTreeUpdated",
+          "description": "",
+          "parameters": [
+            {
+              "name": "rtree",
+              "$ref": "RTree"
+            }
+          ]
+        },
+        {
+          "name": "screenshotUpdated",
+          "description": "reuse the parameters of the last [TDFInspector.getScreenshot] request",
+          "parameters": [
+            {
+              "name": "data",
+              "type": "string"
+            },
+            {
+              "name": "metadata",
+              "$ref": "ScreenshotFrameMetadata"
+            },
+            {
+              "name": "sessionId",
+              "type": "number"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "TDFPerformance",
+      "types": [
+        {
+          "id": "FrameInfo",
+          "type": "object",
+          "properties": [
+            {
+              "name": "ui",
+              "$ref": "FrameInfoDetail"
+            },
+            {
+              "name": "raster",
+              "$ref": "FrameInfoDetail"
+            }
+          ]
+        },
+        {
+          "id": "FrameInfoDetail",
+          "type": "object",
+          "properties": [
+            {
+              "name": "b",
+              "type": "number"
+            },
+            {
+              "name": "e",
+              "type": "number"
+            }
+          ]
+        },
+        {
+          "id": "TraceInfoPh",
+          "type": "string",
+          "enum": [
+            "B",
+            "E",
+            "M",
+            "X"
+          ]
+        },
+        {
+          "id": "TraceInfo",
+          "type": "object",
+          "properties": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "ts",
+              "type": "number"
+            },
+            {
+              "name": "pid",
+              "type": "number"
+            },
+            {
+              "name": "tid",
+              "type": "number"
+            },
+            {
+              "name": "ph",
+              "$ref": "TraceInfoPh"
+            },
+            {
+              "name": "dur",
+              "optional": true,
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "name": "start",
+          "description": "start recording performance data.",
+          "returns": [
+            {
+              "name": "startTime",
+              "type": "number"
+            }
+          ]
+        },
+        {
+          "name": "end",
+          "description": "stop recording performance data.",
+          "returns": [
+            {
+              "name": "endTime",
+              "type": "number"
+            }
+          ]
+        },
+        {
+          "name": "frameTimings",
+          "description": "get frameTimings data.",
+          "returns": [
+            {
+              "name": "frameTimings",
+              "type": "array",
+              "items": {
+                "$ref": "FrameInfo"
+              }
+            }
+          ]
+        },
+        {
+          "name": "timeline",
+          "description": "get tdf core trace data.",
+          "returns": [
+            {
+              "name": "traceEvents",
+              "type": "array",
+              "items": {
+                "$ref": "TraceInfo"
+              }
+            }
+          ]
+        },
+        {
+          "name": "v8Tracing",
+          "description": "get v8 trace data.",
+          "returns": [
+            {
+              "name": "traceEvents",
+              "type": "array",
+              "items": {
+                "$ref": "TraceInfo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "TDFMemory",
+      "types": [
+        {
+          "id": "IMemoryHeapMeta",
+          "type": "object",
+          "properties": [
+            {
+              "name": "address",
+              "type": "string"
+            },
+            {
+              "name": "file",
+              "type": "string"
+            },
+            {
+              "name": "line",
+              "type": "number"
+            },
+            {
+              "name": "size",
+              "type": "number"
+            },
+            {
+              "name": "type",
+              "type": "string"
+            }
+          ]
+        }
+      ],
+      "commands": [
+        {
+          "name": "getHeapMeta",
+          "description": "",
+          "returns": [
+            {
+              "name": "heapMetas",
+              "type": "array",
+              "items": {
+                "$ref": "IMemoryHeapMeta"
+              }
+            }
+          ]
+        },
+        {
+          "name": "fetchHeapCache",
+          "parameters": [
+            {
+              "name": "id",
+              "type": "number"
+            }
+          ],
+          "returns": [
+            {
+              "name": "heapMetas",
+              "type": "array",
+              "items": {
+                "$ref": "IMemoryHeapMeta"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "TDFLog",
+      "types": [
+        {
+          "id": "LogInfo",
+          "type": "object",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string"
+            },
+            {
+              "name": "level",
+              "type": "string"
+            },
+            {
+              "name": "module",
+              "type": "string"
+            },
+            {
+              "name": "message",
+              "type": "string"
+            },
+            {
+              "name": "timestamp",
+              "type": "number",
+              "description": "number of nanosecond"
+            },
+            {
+              "name": "file_name",
+              "type": "string"
+            },
+            {
+              "name": "line_number",
+              "type": "number"
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "name": "getLog",
+          "parameters": [
+            {
+              "name": "log",
+              "type": "array",
+              "items": {
+                "$ref": "LogInfo"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "TDFRuntime",
+      "commands": [
+        {
+          "name": "resume",
+          "description": "resume v8."
+        }
+      ],
+      "events": [
+        {
+          "name": "enableVueDevtools",
+          "description": "current runtime support vue devtools, notify frontend to show vue devtools tab",
+          "parameters": [
+            {
+              "name": "contextName",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "name": "updateContextInfo",
+          "description": "update context info",
+          "parameters": [
+            {
+              "name": "contextName",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

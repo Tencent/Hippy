@@ -1,0 +1,57 @@
+{
+  "name": "@hippy/devtools-protocol",
+  "version": "0.0.1",
+  "description": "The DevTools Protocol JSON",
+  "repository": "",
+  "author": "",
+  "files": [
+    "types",
+    "@types",
+    "dist",
+    "tsconfig.json"
+  ],
+  "types": "@types/index.d.ts",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "build": "npm run protocol:generate-ts && npm run protocol:compile-ts && npm run site:build",
+    "lint": "npx eslint --fix --ext .js,.ts,.jsx,.tsx ./scripts",
+    "protocol:generate-ts": "ts-node scripts/index.ts",
+    "protocol:compile-ts": "rimraf dist && tsc --build",
+    "protocol:changelog": "node scripts/generate-changelog.js",
+    "site:build": "rimraf site && npm run site:prep && cd protocol-viewer && node generate-sidenav-html.js && node create-search-index.js && node -r esm ../node_modules/.bin/eleventy && rollup -c rollup.config.js",
+    "site:prep": "bash protocol-viewer/prep-tot-protocol-files.sh",
+    "site:serve": "echo 'Open http://localhost:8696/devtools-protocol for built site'; statikk --port 8696 site"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.8",
+    "@babel/eslint-parser": "^7.14.7",
+    "@types/node": "^16.7.11",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.26.0",
+    "eslint": "^7.29.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "just-diff": "^2.1.0",
+    "obj-list-diff": "^1.0.0",
+    "prettier": "^2.3.1",
+    "simple-git": "^1.75.0",
+    "ts-node": "^7.0.0",
+    "typescript": "^4.3.2",
+    "yarn": "^1.22.11",
+    "@11ty/eleventy": "0.10.0",
+    "@rollup/plugin-node-resolve": "^13.1.2",
+    "esm": "3.2.25",
+    "gh-pages": "^2.0.1",
+    "lit-html": "1.2.1",
+    "marked": "0.8.2",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.63.0",
+    "rollup-plugin-terser": "5.3.0",
+    "statikk": "^2.1.1",
+    "glob": "^7.1.7",
+    "lodash": "^4.17.21"
+  },
+  "dependencies": {
+  }
+}

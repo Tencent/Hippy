@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "target": "es6",
+    "module": "CommonJS",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "strictNullChecks": false,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": false,
+    "baseUrl": ".",
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+    "typeRoots": [
+      "@types",
+      "node_modules/@types"
+    ],
+  },
+  "include": [
+    "@types/**/*",
+    "types/**/*"
+  ],
+}

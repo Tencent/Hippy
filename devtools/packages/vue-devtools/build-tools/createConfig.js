@@ -1,0 +1,194 @@
+const path = require('path')
+const webpack = require('webpack')
+const { mergeWithRules } = require('webpack-merge')
+// const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+const { VueLoaderPlugin } = require('vue-loader')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+const ESLintPlugin = require('eslint-webpack-plugin')
+const MonacoEditorPlugin = require('monaco-editor-webpack-plugin')
+
+const resolve = (...dir) => path.join(__dirname, '..', ...dir)
+
+exports.resolve = resolve
+
+exports.createConfig = (config, target = { chrome: 52, firefox: 48 }) => {
+  const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development'
+  // const workspace = path.basename(process.cwd())
+
+  const baseConfig = {
+    mode,
+    resolve: {
+      extensions: ['.js', '.ts', '.vue'],
+      alias: {
+        '@vue-devtools': resolve('src'),
+      },
+      // symlinks: false,
+      fallback: {
+        path: require.resolve('path-browserify'),
+      },
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules|vue\/dist|vuex\/dist/,
+          loader: 'babel-loader',
+        },
+        {
+          test: /\.ts$/,
+          loader: 'esbuild-loader',
+          options: {
+            loader: 'ts',
+            target: 'es2015',
+          },
+        },
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader',
+          options: {
+            compilerOptions: {
+              preserveWhitespace: false,
+            },
+            transpileOptions: {
+              target,
+              objectAssign: 'Object.assign',
+              transforms: {
+                modules: false,
+              },
+            },
+          },
+        },
+        {
+          test: /\.(css|postcss|pcss)$/,
+          use: ['vue-style-loader', 'css-loader', 'postcss-loader'],
+        },
+        {
+          test: /\.styl(us)?$/,
+          use: [
+            'vue-style-loader',
+            'css-loader',
+            'postcss-loader',
+            'stylus-loader',
+            {
+              loader: 'style-resources-loader',
+              options: {
+                patterns: [resolve(`src/assets/style/imports.styl`)],
+              },
+            },
+          ],
+        },
+        {
+          test: /\.(png|woff2|svg|ttf)$/,
+          type: 'asset/inline',
+        },
+      ],
+    },
+    performance: {
+      hints: false,
+    },
+    plugins: [
+      new VueLoaderPlugin(),
+      // ...(process.env.VUE_DEVTOOL_TEST ? [] : [new FriendlyErrorsPlugin()]),
+      new webpack.DefinePlugin({
+        'process.env.RELEASE_CHANNEL': JSON.stringify(process.env.RELEASE_CHANNEL || 'stable'),
+        __VUE_OPTIONS_API__: true,
+        __VUE_PROD_DEVTOOLS__: true,
+      }),
+      new ForkTsCheckerWebpackPlugin({
+        typescript: {
+          configFile: resolve('tsconfig.json'),
+          extensions: {
+            vue: true,
+          },
+        },
+      }),
+      new ESLintPlugin({
+        threads: true,
+        overrideConfigFile: resolve('.eslintrc.js'),
+        fix: true,
+        quiet: true,
+        emitWarning: false,
+        fixTypes: ['problem', 'suggestion', 'layout'],
+      }),
+      new MonacoEditorPlugin({
+        // https://github.com/Microsoft/monaco-editor-webpack-plugin#options
+        languages: ['javascript'],
+      }),
+    ],
+    devtool: false,
+    stats: {
+      colors: true,
+    },
+    // cache: {
+    //   type: 'filesystem',
+    //   cacheDirectory: path.resolve(process.cwd(), 'node_modules/.cache/webpack'),
+    //   name: `${workspace}-${mode}`
+    // },
+    snapshot: {
+      managedPaths: [],
+    },
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    const TerserPlugin = require('terser-webpack-plugin')
+    baseConfig.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': '"production"',
+      }),
+    )
+    baseConfig.optimization = {
+      minimizer: [
+        new TerserPlugin({
+          exclude: /backend/,
+          terserOptions: {
+            compress: {
+              // turn off flags with small gains to speed up minification
+              arrows: false,
+              collapse_vars: false,
+              comparisons: false,
+              computed_props: false,
+              hoist_funs: false,
+              hoist_props: false,
+              hoist_vars: false,
+              inline: false,
+              loops: false,
+              negate_iife: false,
+              properties: false,
+              reduce_funcs: false,
+              reduce_vars: false,
+              switches: false,
+              toplevel: false,
+              typeofs: false,
+
+              // a few flags with noticable gains/speed ratio
+              // numbers based on out of the box vendor bundle
+              booleans: true,
+              if_return: true,
+              sequences: true,
+              unused: true,
+
+              // required features to drop conditional branches
+              conditionals: true,
+              dead_code: true,
+              evaluate: true,
+            },
+            mangle: {
+              safari10: true,
+            },
+          },
+          parallel: false,
+        }),
+      ],
+    }
+  }
+
+  return mergeWithRules({
+    module: {
+      rules: {
+        test: 'match',
+        loader: 'replace',
+        options: 'merge',
+      },
+    },
+  })(baseConfig, config)
+}

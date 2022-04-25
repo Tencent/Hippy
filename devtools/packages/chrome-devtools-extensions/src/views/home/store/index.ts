@@ -1,0 +1,65 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { createStore } from 'vuex';
+import { getDebugTargets } from '@chrome-devtools-extensions/api/home';
+import { DebugTarget } from '@chrome-devtools-extensions/@types/debug-target';
+
+export const storeOption = {
+  state: {
+    debugTargets: [],
+    isLoading: true,
+    isFailed: false,
+  },
+  getters: {
+    // hippyTargets(state) {},
+  },
+  mutations: {
+    setDebugTargets(state, debugTargets: DebugTarget[]) {
+      state.debugTargets = debugTargets;
+    },
+    setLoading(state, isLoading: boolean) {
+      state.isLoading = isLoading;
+    },
+    setFailState(state, isFailed: boolean) {
+      state.isFailed = isFailed;
+    },
+  },
+  actions: {
+    async getDebugTargets({ commit }) {
+      try {
+        const debugTargets = await getDebugTargets();
+        commit('setDebugTargets', debugTargets);
+        commit('setFailState', false);
+      } catch (e) {
+        commit('setDebugTargets', []);
+        commit('setFailState', true);
+      }
+      commit('setLoading', false);
+    },
+  },
+  modules: {},
+};
+export default createStore<HomeState>(storeOption);
+
+interface HomeState {
+  debugTargets: DebugTarget[];
+  isLoading: boolean;
+}

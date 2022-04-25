@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": false,
+    "allowJs": true,
+    "baseUrl": ".",
+    "typeRoots": [
+      "node_modules/@types",
+      "src/@types",
+      "node_modules/@hippy/devtools-protocol/@types"
+    ],
+    "paths": {
+      "*": ["*", "node_modules/*", "src/@types/*"],
+      "@chrome-devtools-extensions/*": ["src/*"],
+      "@mocks/*": ["__mocks__/*"]
+    },
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "chrome-devtools", "out"]
+}

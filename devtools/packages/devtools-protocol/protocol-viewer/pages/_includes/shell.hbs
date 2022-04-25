@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {{#if domain}}
+    <meta name="description" content="Chrome DevTools Protocol - version {{{version}}} - {{{domain.domain}}} domain" />
+  {{else}}
+    <meta name="description" content="Chrome DevTools Protocol - version {{{version}}}" />
+  {{/if}}
+  <link rel="icon" type="image/png" href="{{{ url '/images/logo.png'}}}" />
+  {{#if domain}}
+    <title>{{{title}}} - {{{domain.domain}}} domain</title>
+  {{else}}
+    <title>{{{title}}}</title>
+  {{/if}}
+
+  <meta name="theme-color" content="#303F9F" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@chromedevtools" />
+  <meta name="twitter:creator" content="@chromedevtools" />
+  <meta property="og:title" content="Chrome DevTools Protocol" />
+  <meta property="og:image" content="https://developers.google.com/web/tools/images/chrome-devtools-16x9_720.png" />
+  {{#if domain}}
+    <meta property="og:description" content="Chrome DevTools Protocol - version {{{version}}} - {{{domain.domain}}} domain" />
+  {{else}}
+    <meta property="og:description" content="Chrome DevTools Protocol - version {{{version}}}" />
+  {{/if}}
+
+  <script type="module" src="{{{ url '/scripts/index.js' }}}"></script>
+  <link href="{{{ url '/styles/protocol.css' }}}" rel="stylesheet">
+</head>
+<body>
+  <aside>
+    <div id="home" class="navs">
+      <nav>
+        <a href="{{{ url '/' }}}">Home</a>
+        <button class="aside-close-button" aria-label="Close navigation">x</button>
+      </nav>
+    </div>
+    <div id="versions" class="navs">
+      <header>Versions</header>
+      <nav>
+        <a href="{{{ url '/tot' }}}" name="tot">
+          latest (tip-of-tree)
+        </a>
+        <a href="{{{ url '/v8' }}}" name="v8">
+          v8-inspector (node)
+        </a>
+        <a href="{{{ url '/1-3' }}}" name="1-3">
+          stable RC (1.3)
+        </a>
+        <a href="{{{ url '/1-2' }}}" name="1-2">
+          stable (1.2)
+        </a>
+        <a href="{{{ url '/tdf_protocol' }}}" name="tdf_protocol">
+          TDF
+        </a>
+        <a href="{{{ url '/Inspector-iOS-9.0' }}}" name="Inspector-iOS-9.0">iOS 9.0 </a>
+        <a href="{{{ url '/Inspector-iOS-9.3' }}}" name="Inspector-iOS-9.3">iOS 9.3 </a>
+        <a href="{{{ url '/Inspector-iOS-10.0' }}}" name="Inspector-iOS-10.0">iOS 10.0 </a>
+        <a href="{{{ url '/Inspector-iOS-10.3' }}}" name="Inspector-iOS-10.3">iOS 10.3 </a>
+        <a href="{{{ url '/Inspector-iOS-11.0' }}}" name="Inspector-iOS-11.0">iOS 11.0 </a>
+        <a href="{{{ url '/Inspector-iOS-11.3' }}}" name="Inspector-iOS-11.3">iOS 11.3 </a>
+        <a href="{{{ url '/Inspector-iOS-12.0' }}}" name="Inspector-iOS-12.0">iOS 12.0 </a>
+        <a href="{{{ url '/Inspector-iOS-12.2' }}}" name="Inspector-iOS-12.2">iOS 12.2 </a>
+        <a href="{{{ url '/Inspector-iOS-13.0' }}}" name="Inspector-iOS-13.0">iOS 13.0 </a>
+        <a href="{{{ url '/Inspector-iOS-13.4' }}}" name="Inspector-iOS-13.4">iOS 13.4 </a>
+        <a href="{{{ url '/Inspector-iOS-14.0' }}}" name="Inspector-iOS-14.0">iOS 14.0 </a>
+      </nav>
+    </div>
+
+    <div id="domains" class="navs version-{{{version}}}">
+      <header>Domains</header>
+      <div class="scroller">
+        <nav>
+          {{> sider-nav }}
+        </nav>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <h1>TDF DevTools Protocol</h1>
+      <button class="menu-link">Navigation</button>
+      <cr-search-control base-url="{{{ url '/' }}}" protocol-search-index="/search_index/{{{version}}}.json"></cr-search-control>
+    </header>
+    <section>
+      <div class="main-content-section {{{shadow}}}">
+        {{{content}}}
+      </div>
+    </section>
+  </main>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-60854461-3', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>
