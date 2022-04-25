@@ -33,6 +33,7 @@
 #import <memory>
 #import "dom/dom_manager.h"
 #import "NativeRenderManager.h"
+#import "HippyMethodInterceptorProtocol.h"
 
 @class JSValue;
 @class HippyBridge;
@@ -266,6 +267,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, strong) NSString *appVerson;  //
 
 @property (nonatomic, assign) HippyInvalidateReason invalidateReason;
+
+@property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 
 /**
  * just for debugger

@@ -39,7 +39,7 @@
 #import "HippyRedBox.h"
 #import "HippyAssert.h"
 
-@interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy> {
+@interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
     HippyBridge *_bridge;
@@ -95,7 +95,8 @@
             [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stacks];
         });
     });
-    
+    bridge.methodInterceptor = self;
+
     rootView.frame = self.view.bounds;
     
     [bridge setUpWithRootTag:rootView.hippyTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView];
@@ -260,6 +261,18 @@
     //HippyImageProviderProtocol负责将NSData转换为UIImage，用于处理ios系统无法处理的图片格式数据
     //默认使用HippyDefaultImageProvider
     return [HippyDefaultImageProvider class];
+}
+
+- (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
+    return YES;
+}
+
+- (BOOL)shouldCallbackBeInvokedWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName callbackId:(NSNumber *)cbId arguments:(id)arguments {
+    HippyAssert(moduleName, @"module name must not be null");
+    HippyAssert(methodName, @"method name must not be null");
+    return YES;
 }
 
 @end
