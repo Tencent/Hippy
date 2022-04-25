@@ -229,7 +229,9 @@ class ElementNode extends ViewNode {
   public tagName: string;
   public id = '';
   public style: HippyTypes.Style = {};
-  public attributes: Attributes = {};
+  public attributes: Attributes = {
+    [EVENT_ATTRIBUTE_NAME]: {},
+  };
 
   public constructor(tagName: string) {
     super();
@@ -423,8 +425,7 @@ class ElementNode extends ViewNode {
             if (typeof value === 'function') {
               const processedKey = getEventPropKey(key);
               this.attributes[processedKey] = value;
-              this.attributes[EVENT_ATTRIBUTE_NAME] = this.attributes[EVENT_ATTRIBUTE_NAME] || {};
-              (this.attributes[EVENT_ATTRIBUTE_NAME] as Object)[processedKey] = {
+              this.attributes[EVENT_ATTRIBUTE_NAME]![processedKey] = {
                 name: processedKey,
                 type: eventHandlerType.ADD,
                 isCapture: isCaptureEvent(key),
