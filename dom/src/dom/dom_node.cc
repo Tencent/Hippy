@@ -273,8 +273,8 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
     layout_param[kLayoutHeightKey] = DomValue(layout_.height);
     DomValueObjectType layout_obj;
     layout_obj[kLayoutLayoutKey] = std::move(layout_param);
-//    HandleEvent(std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(),
-//                                           std::make_shared<DomValue>(std::move(layout_obj))));
+    auto event = std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(), std::make_shared<DomValue>(std::move(layout_obj)));
+    HandleEvent(event);
   }
   for (auto& it : children_) {
     it->TransferLayoutOutputsRecursive(changed_nodes);
