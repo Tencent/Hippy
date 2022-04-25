@@ -41,7 +41,7 @@ export class NetInfoModule extends HippyWebModule {
   }
 
   public getCurrentConnectivity(callBack: HippyCallBack) {
-    callBack.resolve(this.state);
+    callBack.resolve({ network_info: this.state });
   }
 
   public addListener(name: string) {
