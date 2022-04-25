@@ -73,8 +73,8 @@
     NSMutableDictionary<NSNumber *, HippyAnimation *> *_animationById;
     NSMutableDictionary<NSNumber *, NSMutableArray<HippyAnimationViewParams *> *> *_paramsByAnimationId;
     NSMutableDictionary<NSNumber *, HippyAnimationViewParams *> *_paramsByHippyTag;
-    NSLock *_lock;
     HippyAnimationIdCount *_virtualAnimations;
+    std::mutex _mutex;
 }
 
 - (instancetype)initWithRenderContext:(id<HippyRenderContext>)renderContext {
@@ -83,18 +83,16 @@
         _paramsByHippyTag = [NSMutableDictionary new];
         _paramsByAnimationId = [NSMutableDictionary new];
         _renderContext = renderContext;
-        _lock = [[NSLock alloc] init];
         _virtualAnimations = [[HippyAnimationIdCount alloc] init];
     }
     return self;
 }
 
 - (void)invalidate {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     [_paramsByAnimationId removeAllObjects];
     [_paramsByHippyTag removeAllObjects];
     [_animationById removeAllObjects];
-    [_lock unlock];
 }
 
 - (BOOL)isRunInDomThread {
@@ -102,15 +100,13 @@
 }
 
 - (void)createAnimation:(NSNumber *)animationId mode:(NSString *)mode params:(NSDictionary *)params {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     HippyAnimation *ani = [[HippyAnimation alloc] initWithMode: mode animationId: animationId config: params];
     [_animationById setObject: ani forKey: animationId];
-    [_lock unlock];
-    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_Animation:%@", animationId);
 }
 
 - (void)createAnimationSet:(NSNumber *)animationId animations:(NSDictionary *)animations {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     HippyAnimationGroup *group = [[HippyAnimationGroup alloc] initWithMode: @"group" animationId: animationId config: animations];
     group.virtualAnimation = [animations[@"virtual"] boolValue];
     NSArray *children = animations[@"children"];
@@ -128,24 +124,15 @@
     }];
     group.animations = anis;
     [_animationById setObject: group forKey: animationId];
-    
-    [_lock unlock];
-    
-    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Create_AnimationSet:%@", animationId);
 }
 
 
 - (void)startAnimation:(NSNumber *)animationId {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     HippyAnimation *ani = _animationById[animationId];
     if (ani.state == HippyAnimationStartedState) {
-        [_lock unlock];
-        //HippyLogInfo(@"[Hippy_OC_Log][Animation],Start_Animation_Failed, Animation Already Started:%@", animationId);
         return;
     }
-    
-    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Start_Animation, [%@] from [%@] to [%@]", animationId, @(ani.startValue), @(ani.endValue));
-
     ani.state = HippyAnimationReadyState;
     
     if ([ani isKindOfClass:[HippyAnimationGroup class]]) {
@@ -164,12 +151,11 @@
     } else {
         [self paramForAnimationId:animationId];
     }
-    [_lock unlock];
 }
 
 
 - (void)pauseAnimation:(NSNumber *)animationId {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
@@ -177,11 +163,10 @@
             [view.layer pauseLayerAnimation];
         }];
     }];
-    [_lock unlock];
 }
 
 - (void)resumeAnimation:(NSNumber *)animationId {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
@@ -189,7 +174,6 @@
             [view.layer resumeLayerAnimation];
         }];
     }];
-    [_lock unlock];
 }
 
 - (void)paramForAnimationId:(NSNumber *)animationId {
@@ -242,7 +226,7 @@
     if (params == nil) {
         return;
     }
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     HippyAnimation *ani = _animationById[animationId];
     
     ani.state = HippyAnimationInitState;
@@ -267,11 +251,10 @@
         }
         [self.renderContext setNeedsLayout];
     }];
-    [_lock unlock];
 }
 
 - (void)destroyAnimation:(NSNumber * __nonnull)animationId {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     [_animationById removeObjectForKey: animationId];
     NSMutableArray <HippyAnimationViewParams *> *params = _paramsByAnimationId[animationId];
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -281,10 +264,7 @@
         }];
     }];
     [_paramsByAnimationId removeObjectForKey: animationId];
-    [_lock unlock];
-    //HippyLogInfo(@"[Hippy_OC_Log][Animation],Destroy_Animation:%@", animationId);
 }
-// clang-format on
 
 #pragma mark - CAAnimationDelegate
 - (void)animationDidStart:(CAAnimation *)anim {
@@ -295,7 +275,7 @@
 }
 
 - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     NSNumber *animationId = [anim valueForKey:@"animationID"];
     NSNumber *viewId = [anim valueForKey:@"viewID"];
 
@@ -314,7 +294,6 @@
             }];
         }];
     }];
-    [_lock unlock];
 
     [self.renderContext executeBlockOnRenderQueue:^{
         for (HippyAnimationViewParams *param in params) {
@@ -348,8 +327,7 @@
 }
 #pragma mark -
 - (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
-    [_lock lock];
-
+    std::lock_guard<std::mutex> lock(_mutex);
     HippyAnimationViewParams *p = [[HippyAnimationViewParams alloc] initWithParams:params animator:self viewTag:viewTag rootTag:rootTag];
     [p parse];
 
@@ -381,13 +359,11 @@
         }
     }];
     [_paramsByHippyTag setObject:p forKey:viewTag];
-    [_lock unlock];
-
     return p.updateParams;
 }
 
 - (void)connectAnimationToView:(UIView *)view {
-    [_lock lock];
+    std::lock_guard<std::mutex> lock(_mutex);
     NSNumber *hippyTag = view.hippyTag;
     HippyAnimationViewParams *p = _paramsByHippyTag[hippyTag];
 
@@ -414,8 +390,6 @@
         NSNumber *animationId = [ani valueForKey:@"animationID"];
         [view.layer addAnimation:ani forKey:[NSString stringWithFormat:@"%@", animationId]];
     }];
-
-    [_lock unlock];
 }
 
 - (BOOL)alreadyConnectAnimation:(HippyAnimationViewParams *)p {
