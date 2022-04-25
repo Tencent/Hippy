@@ -27,6 +27,7 @@
 #include <memory>
 #include "dom/render_manager.h"
 #import "HippyFrameworkProxy.h"
+#import "HippyRenderContext.h"
 
 @class UIView, HippyUIManager;
 
@@ -132,6 +133,9 @@ public:
     UIView *CreateViewHierarchyFromDomNode(std::shared_ptr<hippy::DomNode> dom_node);
     
     UIView *CreateViewHierarchyFromId(int32_t id);
+    
+    id<HippyRenderContext> GetRenderContext();
+    
 private:
     HippyUIManager *uiManager_;
 };

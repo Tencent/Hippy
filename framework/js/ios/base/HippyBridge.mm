@@ -381,6 +381,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             strongSelf->_domManager->SetRenderManager(strongSelf->_renderManager);
             
             [strongSelf setUpDomManager:strongSelf->_domManager];
+            
+            strongSelf.renderContext = strongSelf->_renderManager->GetRenderContext();
         }
     };
     if (self.batchedBridge) {

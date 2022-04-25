@@ -166,6 +166,10 @@ UIView *NativeRenderManager::CreateViewHierarchyFromId(int32_t id) {
     }
 }
 
+id<HippyRenderContext> NativeRenderManager::GetRenderContext() {
+    return uiManager_;
+}
+
 NativeRenderManager::~NativeRenderManager() {
     [uiManager_ invalidate];
     uiManager_ = nil;
