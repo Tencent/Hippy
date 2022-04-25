@@ -149,6 +149,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
     dispatch_block_t _nativeSetUpBlock;
+    id<HippyMethodInterceptorProtocol> _methodInterceptor;
 }
 @end
 
@@ -357,6 +358,25 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 }
 
+- (void)setMethodInterceptor:(id<HippyMethodInterceptorProtocol>)methodInterceptor {
+    if ([self isKindOfClass:[HippyBatchedBridge class]]) {
+        HippyBatchedBridge *batchedBrige = (HippyBatchedBridge *)self;
+        batchedBrige.parentBridge.methodInterceptor = methodInterceptor;
+    } else {
+        _methodInterceptor = methodInterceptor;
+    }
+}
+
+- (id<HippyMethodInterceptorProtocol>)methodInterceptor {
+    if ([self isKindOfClass:[HippyBatchedBridge class]]) {
+        HippyBatchedBridge *batchedBrige = (HippyBatchedBridge *)self;
+        return batchedBrige.parentBridge.methodInterceptor;
+    } else {
+        return _methodInterceptor;
+    }
+}
+
+//TODO这个方法是否需要
 - (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [self.batchedBridge setUpDomManager:domManager];
 }
