@@ -30,6 +30,7 @@
 #import "HippyImageViewCustomLoader.h"
 #import "HippyCustomTouchHandlerProtocol.h"
 #import "HippyImageProviderProtocol.h"
+#import "HippyMethodInterceptorProtocol.h"
 
 @class JSValue;
 @class HippyBridge;
@@ -201,7 +202,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, strong, readonly) id<HippyImageViewCustomLoader> imageLoader;
 @property (nonatomic, strong, readonly) id<HippyCustomTouchHandlerProtocol> customTouchHandler;
 @property (nonatomic, strong, readonly) NSSet<Class<HippyImageProviderProtocol>> *imageProviders;
-
+@property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 /**
  * The launch options that were used to initialize the bridge.
  */
