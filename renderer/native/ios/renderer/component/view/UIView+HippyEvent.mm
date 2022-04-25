@@ -24,6 +24,7 @@
 #import <objc/runtime.h>
 #import "dom/dom_listener.h"
 #import "UIView+AppearEvent.h"
+#import "UIView+Hippy.h"
 
 @implementation UIView(HippyEvent)
 
@@ -49,8 +50,11 @@
 }
 
 - (void)didAddStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
-    if (name == "onDidMount") {
+    if (name == "onDidMount" ) {
         [self viewDidMountEvent];
+    }
+    else if (name == "onAttachedToWindow") {
+        [self sendAttachedToWindowEvent];
     }
 }
 
@@ -76,9 +80,6 @@
 }
 
 - (void)didRemoveStatusChangeEvent:(const std::string &)name {
-    if (name == "onDidUnmount") {
-        [self viewDidUnmoundEvent];
-    }
 }
 
 #pragma mark HippyTouchesProtocol Methods
