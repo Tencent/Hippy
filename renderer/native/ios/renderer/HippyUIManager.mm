@@ -371,17 +371,24 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)setFrame:(CGRect)frame forView:(UIView *)view {
     AssertMainQueue();
     NSNumber *hippyTag = view.hippyTag;
-    dispatch_async(HippyGetUIManagerQueue(), ^{
-        std::lock_guard<std::mutex> lock([self shadowQueueLock]);
-        HippyShadowView *shadowView = self->_shadowViewRegistry[hippyTag];
-        if (shadowView == nil) {
-            return;
-        }
-        if (!CGRectEqualToRect(frame, shadowView.frame)) {
-            shadowView.frame = frame;
-            [self setNeedsLayout];
-        }
-    });
+    auto domManager = _domManager.lock();
+    if (domManager) {
+        __weak id weakSelf = self;
+        std::function<void()> func = [hippyTag, weakSelf, frame]() {
+            if (weakSelf) {
+                HippyUIManager *strongSelf = weakSelf;
+                HippyShadowView *shadowView = strongSelf->_shadowViewRegistry[hippyTag];
+                if (shadowView == nil) {
+                    return;
+                }
+                if (!CGRectEqualToRect(frame, shadowView.frame)) {
+                    shadowView.frame = frame;
+                    [strongSelf setNeedsLayout];
+                }
+            }
+        };
+        domManager->PostTask(func);
+    }
 }
 
 /**
@@ -887,7 +894,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
         if (shadowView) {
             if (isAnimated) {
-                //TODO 动画需要剥离bridge
                 HippyAnimator *animationModule = [self animator];
                 NSDictionary *styleProps = unorderedMapDomValueToDictionary(props);
                 styleProps = [animationModule bindAnimaiton:styleProps viewTag:hippyTag rootTag:shadowView.rootTag];
