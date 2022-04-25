@@ -215,7 +215,7 @@ function parseTextShadowOffset(styleKey: string, styleValue: number, style: any)
  * get final key sent to native
  * @param key
  */
-function getEventPropKey(key: string) {
+function getEventName(key: string) {
   if (isCaptureEvent(key)) {
     key = key.replace('Capture', '');
   }
@@ -423,25 +423,23 @@ class ElementNode extends ViewNode {
           match: () => true,
           action: () => {
             if (typeof value === 'function') {
-              const processedKey = getEventPropKey(key);
-              this.attributes[processedKey] = value;
-              this.attributes[EVENT_ATTRIBUTE_NAME]![processedKey] = {
-                name: processedKey,
+              const eventName = getEventName(key);
+              this.attributes[eventName] = value;
+              this.attributes[EVENT_ATTRIBUTE_NAME]![eventName] = {
+                name: eventName,
                 type: eventHandlerType.ADD,
                 isCapture: isCaptureEvent(key),
-                hasBound: false,
               };
             } else {
-              const processedKey = getEventPropKey(key);
+              const eventName = getEventName(key);
               const eventsAttributes = this.attributes[EVENT_ATTRIBUTE_NAME] as Object;
-              if (hasTargetEvent(processedKey, eventsAttributes)
+              if (hasTargetEvent(eventName, eventsAttributes)
                   && typeof value !== 'function') {
-                delete this.attributes[processedKey];
-                eventsAttributes[processedKey].type = eventHandlerType.REMOVE;
-                eventsAttributes[processedKey].hasBound = false;
-              } else {
-                this.attributes[key] = value;
+                delete this.attributes[eventName];
+                eventsAttributes[eventName].type = eventHandlerType.REMOVE;
+                return false;
               }
+              this.attributes[key] = value;
             }
             return false;
           },

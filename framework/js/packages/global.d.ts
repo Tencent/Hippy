@@ -283,7 +283,6 @@ declare namespace HippyTypes {
     name: string;
     type: number;
     isCapture: boolean;
-    hasBound: boolean;
     listener: (...args: any[]) => void,
   }
 
