@@ -54,6 +54,7 @@
 		F400C2E7274F66ED008BD74B /* js_native_turbo.cc in Sources */ = {isa = PBXBuildFile; fileRef = F400C2E6274F66ED008BD74B /* js_native_turbo.cc */; };
 		F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F419C382274634E9003E242A /* taitank_layout_node.cc */; };
 		F41E3F6127859AB600BD3935 /* create_node.json in Resources */ = {isa = PBXBuildFile; fileRef = F41E3F6027859AB600BD3935 /* create_node.json */; };
+		F42155ED2816A77500688C0D /* animation_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F42155EC2816A77500688C0D /* animation_manager.cc */; };
 		F42EA79A277C354C007874A2 /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = F42EA796277C354C007874A2 /* TurboConfig.m */; };
 		F42EA79B277C354C007874A2 /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F42EA799277C354C007874A2 /* TurboBaseModule.mm */; };
 		F438B744281248010078435B /* HippyGradientObject.m in Sources */ = {isa = PBXBuildFile; fileRef = F438B73E281248010078435B /* HippyGradientObject.m */; };
@@ -338,6 +339,10 @@
 		F419C382274634E9003E242A /* taitank_layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_layout_node.cc; sourceTree = "<group>"; tabWidth = 2; };
 		F41E3F6027859AB600BD3935 /* create_node.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = create_node.json; path = ../../../../../dom/test/create_node.json; sourceTree = "<group>"; };
 		F42155EB2816939D00688C0D /* HippyMethodInterceptorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMethodInterceptorProtocol.h; sourceTree = "<group>"; };
+		F42155EC2816A77500688C0D /* animation_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_manager.cc; sourceTree = "<group>"; };
+		F42155EE2816A78000688C0D /* animation_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = animation_manager.h; sourceTree = "<group>"; };
+		F42155EF2816A78000688C0D /* dom_action_interceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_action_interceptor.h; sourceTree = "<group>"; };
+		F42155F02816A78000688C0D /* macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macro.h; sourceTree = "<group>"; };
 		F42EA796277C354C007874A2 /* TurboConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
 		F42EA797277C354C007874A2 /* TurboConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboConfig.h; sourceTree = "<group>"; };
 		F42EA798277C354C007874A2 /* TurboBaseModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboBaseModule.h; sourceTree = "<group>"; };
@@ -814,6 +819,9 @@
 			children = (
 				D4B5A0832816640500ABBD9C /* scene_builder.h */,
 				D4B5A0822816640500ABBD9C /* scene.h */,
+				F42155EE2816A78000688C0D /* animation_manager.h */,
+				F42155EF2816A78000688C0D /* dom_action_interceptor.h */,
+				F42155F02816A78000688C0D /* macro.h */,
 				9252AE8C2809534100B27E50 /* root_node.h */,
 				F4810952277062A1005C221B /* layer_optimized_render_manager.h */,
 				F4E7B435276C61DC00F17139 /* deserializer.h */,
@@ -846,6 +854,7 @@
 			children = (
 				D4B5A07E281663F400ABBD9C /* scene_builder.cc */,
 				D4B5A07F281663F400ABBD9C /* scene.cc */,
+				F42155EC2816A77500688C0D /* animation_manager.cc */,
 				9252AE8A2809532F00B27E50 /* root_node.cc */,
 				F4810953277062AD005C221B /* layer_optimized_render_manager.cc */,
 				F4E7B43B276C61EB00F17139 /* deserializer.cc */,
@@ -2120,6 +2129,7 @@
 				F45D267A28067B6900CAB185 /* HippyCollectionViewFlowLayout.m in Sources */,
 				F468DE722812A95200319196 /* HippyRootView.mm in Sources */,
 				F45D267328067B6900CAB185 /* HippyImageCache.m in Sources */,
+				F42155ED2816A77500688C0D /* animation_manager.cc in Sources */,
 				F45D267828067B6900CAB185 /* HippyBaseListViewManager.mm in Sources */,
 				F4C1DAAD28117C1900CED4C4 /* NSArray+HippyArrayDeepCopy.m in Sources */,
 				F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */,
