@@ -145,6 +145,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     id<HippyCustomTouchHandlerProtocol> _customTouchHandler;
     NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
+    id<HippyMethodInterceptorProtocol> _methodInterceptor;
 }
 
 dispatch_queue_t HippyJSThread;
@@ -349,6 +350,24 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         [self.batchedBridge start];
     } @catch (NSException *exception) {
         MttHippyException(exception);
+    }
+}
+
+- (void)setMethodInterceptor:(id<HippyMethodInterceptorProtocol>)methodInterceptor {
+    if ([self isKindOfClass:[HippyBatchedBridge class]]) {
+        HippyBatchedBridge *batchedBrige = (HippyBatchedBridge *)self;
+        batchedBrige.parentBridge.methodInterceptor = methodInterceptor;
+    } else {
+        _methodInterceptor = methodInterceptor;
+    }
+}
+
+- (id<HippyMethodInterceptorProtocol>)methodInterceptor {
+    if ([self isKindOfClass:[HippyBatchedBridge class]]) {
+        HippyBatchedBridge *batchedBrige = (HippyBatchedBridge *)self;
+        return batchedBrige.parentBridge.methodInterceptor;
+    } else {
+        return _methodInterceptor;
     }
 }
 
