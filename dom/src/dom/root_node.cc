@@ -127,9 +127,11 @@ void RootNode::UpdateAnimation(std::vector<std::shared_ptr<DomNode>> &&nodes) {
         }
         nodes_to_update.push_back(node);
         node->ParseLayoutStyleInfo();
-        node->HandleEvent(std::make_shared<DomEvent>(kDomUpdated, node, nullptr));
+        auto event = std::make_shared<DomEvent>(kDomUpdated, node, nullptr);
+        node->HandleEvent(event);
     }
-    HandleEvent(std::make_shared<DomEvent>(kDomTreeUpdated, weak_from_this(), nullptr));
+    auto event = std::make_shared<DomEvent>(kDomTreeUpdated, weak_from_this(), nullptr);
+    HandleEvent(event);
     if (!nodes_to_update.empty()) {
         dom_operations_.push_back({DomOperation::kOpUpdate, nodes_to_update});
     }
