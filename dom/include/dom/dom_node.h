@@ -49,7 +49,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
           std::unordered_map<std::string, std::shared_ptr<DomValue>> &&style_map,
           std::unordered_map<std::string, std::shared_ptr<DomValue>> &&dom_ext_map,
           const std::shared_ptr<DomManager> &dom_manager);
+
   DomNode(uint32_t id, uint32_t pid);
+  DomNode() = default;
   ~DomNode();
 
   // 层级优化后的RenderNode信息
@@ -71,9 +73,11 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline uint32_t GetChildCount() const {
     return hippy::base::checked_numeric_cast<size_t, uint32_t>(children_.size());
   }
-  inline void SetTagName(const std::string& tag_name) { tag_name_ = tag_name; }
-  inline const std::string& GetTagName() { return tag_name_; }
-  inline const std::string& GetViewName() { return view_name_; }
+
+  inline void SetTagName(const std::string &tag_name) { tag_name_ = tag_name; }
+  inline const std::string &GetTagName() { return tag_name_; }
+  inline void SetViewName(const std::string &view_name) { view_name_ = view_name; }
+  inline const std::string &GetViewName() { return view_name_; }
   inline std::shared_ptr<LayoutNode> GetLayoutNode() { return layout_node_; }
   inline void SetId(uint32_t id) { id_ = id; }
   inline uint32_t GetId() const { return id_; }
@@ -166,6 +170,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void UpdateObjectStyle(DomValue& style_map, const DomValue& update_style);
   bool ReplaceStyle(DomValue& object, const std::string& key, const DomValue& value);
   inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) { dom_manager_ = dom_manager; }
+  DomValue Serialize() const;
+  bool Deserialize(DomValue value);
 
  private:
   uint32_t id_;            // 节点唯一id

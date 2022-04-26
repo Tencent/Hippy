@@ -44,6 +44,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
  public:
   using DomValue = tdf::base::DomValue;
   using TaskRunner = hippy::base::TaskRunner;
+  using bytes = std::string;
 
   DomManager(uint32_t root_id);
   ~DomManager() = default;
@@ -84,6 +85,10 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void CancelTask(std::shared_ptr<CommonTask> task);
   void StartTaskRunner() { dom_task_runner_->Start(); }
   void TerminateTaskRunner() { dom_task_runner_->Terminate(); }
+  void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
+
+  bytes GetSnapShot();
+  bool SetSnapShot(const bytes& buffer, std::shared_ptr<RootNode> root);
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
   static std::shared_ptr<DomManager> Find(int32_t id);
   static bool Erase(int32_t id);

@@ -15,6 +15,9 @@
 #include "dom/macro.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
+#include "dom/serializer.h"
+#include "dom/deserializer.h"
+#include "dom/scene_builder.h"
 
 #ifdef HIPPY_TEST
 #define DCHECK_RUN_THREAD() {}
@@ -27,10 +30,16 @@ namespace hippy {
 inline namespace dom {
 
 using DomNode = hippy::DomNode;
+using Serializer = tdf::base::Serializer;
+using Deserializer = tdf::base::Deserializer;
 
 static std::unordered_map<int32_t, std::shared_ptr<DomManager>> dom_manager_map;
 static std::mutex mutex;
 static std::atomic<int32_t> global_dom_manager_key{0};
+
+using DomValueArrayType = tdf::base::DomValue::DomValueArrayType;
+
+constexpr uint32_t kInvalidListenerId = 0;
 
 DomManager::DomManager(uint32_t root_id) {
   id_ = global_dom_manager_key.fetch_add(1);
@@ -309,6 +318,69 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
 
 void DomManager::AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor) {
   interceptors_.push_back(interceptor);
+}
+
+void DomManager::Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse) {
+ if (!root_node_) {
+   return;
+ }
+
+ std::stack<std::shared_ptr<DomNode>> stack;
+ stack.push(root_node_);
+ while(!stack.empty()) {
+   auto top = stack.top();
+   stack.pop();
+   on_traverse(top);
+   auto children = top->GetChildren();
+   if (!children.empty()) {
+     for (auto it = children.rbegin(); it != children.rend(); ++it) {
+       stack.push(*it);
+     }
+   }
+ }
+}
+
+DomManager::bytes DomManager::GetSnapShot() {
+  DomValueArrayType array;
+  Traverse([&array](const std::shared_ptr<DomNode>& node) {
+    array.emplace_back(node->Serialize());
+  });
+  Serializer serializer;
+  serializer.WriteDenseJSArray(array);
+  auto ret = serializer.Release();
+  return std::string(reinterpret_cast<const char*>(ret.first), ret.second);
+}
+
+bool DomManager::SetSnapShot(const DomManager::bytes& buffer, std::shared_ptr<RootNode> root) {
+  Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
+  DomValue value;
+  auto flag = deserializer.ReadDenseJSArray(value);
+  if (!flag || !value.IsArray()) {
+    return false;
+  }
+  DomValueArrayType array;
+  value.ToArray(array);
+  std::vector<std::shared_ptr<DomNode>> nodes;
+  for (const auto& node : array) {
+    auto dom_node = std::make_shared<DomNode>();
+    flag = dom_node->Deserialize(node);
+    if (!flag) {
+      return false;
+    }
+    nodes.push_back(std::move(dom_node));
+  }
+
+  std::vector<std::function<void()>> ops = {
+      [WEAK_THIS, nodes{std::move(nodes)}, root{std::move(root)}]() mutable {
+        DEFINE_AND_CHECK_SELF(DomManager)
+        self->root_node_ = root;
+        self->root_node_->CreateDomNodes(std::move(nodes));
+        self->root_node_->SyncWithRenderManager(self->render_manager_.lock());
+      }
+  };
+  PostTask(Scene(std::move(ops)));
+
+  return true;
 }
 
 }  // namespace dom
