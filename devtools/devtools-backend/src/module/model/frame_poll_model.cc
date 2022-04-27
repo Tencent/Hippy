@@ -23,8 +23,7 @@
 #include "devtools_base/common/worker_pool.h"
 #include "devtools_base/logging.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr int32_t kRefreshIntervalMilliSeconds = 500;
 
 FramePollModel::FramePollModel() {
@@ -91,5 +90,4 @@ FramePollModel::~FramePollModel() {
   RemoveFrameCallback();
   WorkerPool::GetInstance(0)->RemoveTaskRunner(refresh_task_runner_);
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

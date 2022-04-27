@@ -27,8 +27,7 @@ constexpr char kDomainNetworkLoadingFinished[] = "Network.loadingFinished";
 constexpr char kDomainNetworkRequestWillBeSent[] = "Network.requestWillBeSent";
 constexpr char kDomainNetworkResponseReceived[] = "Network.responseReceived";
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 void DefaultNetworkNotification::RequestWillBeSent(std::string request_id, const DevtoolsHttpRequest& request) {
   tunnel_service_->SendDataToFrontend(
       InspectEvent(kDomainNetworkRequestWillBeSent, request.Serialize()).ToJsonString());
@@ -42,5 +41,4 @@ void DefaultNetworkNotification::ResponseReceived(std::string request_id, const 
 void DefaultNetworkNotification::LoadingFinished(std::string request_id, const DevtoolsLoadingFinished& loading) {
   tunnel_service_->SendDataToFrontend(InspectEvent(kDomainNetworkLoadingFinished, loading.Serialize()).ToJsonString());
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

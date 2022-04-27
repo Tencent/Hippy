@@ -26,8 +26,7 @@
 #include "module/domain/base_domain.h"
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class TDFPerformanceDomain : public BaseDomain {
  public:
@@ -44,5 +43,4 @@ class TDFPerformanceDomain : public BaseDomain {
   void ResponseError(int32_t id, const std::string& method);
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

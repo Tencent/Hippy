@@ -23,8 +23,7 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * @brief 编辑 CSS Style Texts 的请求
  */
@@ -40,5 +39,4 @@ class CSSEditStyleTextsRequest : public Deserializer {
   nlohmann::json edits_;
   bool has_set_edits_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

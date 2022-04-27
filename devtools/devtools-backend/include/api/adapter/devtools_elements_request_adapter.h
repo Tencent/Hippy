@@ -24,8 +24,7 @@
 #include "api/adapter/data/dom_node_location.h"
 #include "api/adapter/data/domain_metas.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class ElementsRequestAdapter {
  public:
   using DomainDataCallback = std::function<void(const DomainMetas& data)>;
@@ -41,5 +40,4 @@ class ElementsRequestAdapter {
   virtual void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) = 0;
   virtual ~ElementsRequestAdapter() {}
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

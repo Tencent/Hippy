@@ -25,8 +25,7 @@
 #include "devtools_base/common/logging.h"
 #include "module/record_logger.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class DefaultLogAdapter : public LogNotification {
  public:
   using BackendLogHandler = std::function<void(LoggerModel logger_model)>;
@@ -41,5 +40,4 @@ class DefaultLogAdapter : public LogNotification {
  private:
   BackendLogHandler log_handler_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

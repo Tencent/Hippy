@@ -25,8 +25,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 struct BoundRect {
   double left;
@@ -58,5 +57,4 @@ class DomNodeMetas : public Serializable {
   uint32_t height_;
   std::vector<DomNodeMetas> children_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

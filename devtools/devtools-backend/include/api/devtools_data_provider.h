@@ -33,8 +33,7 @@
 #include "api/adapter/devtools_tracing_adapter.h"
 #include "api/adapter/devtools_vm_request_adapter.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * devtools The function data required for debugging is realized by the external framework,
  * and each function adapter is injected
@@ -52,5 +51,4 @@ struct DataProvider {
   std::shared_ptr<CommonProtocolAdapter> common_protocol_adapter;
   std::shared_ptr<NetworkAdapter> network_adapter;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

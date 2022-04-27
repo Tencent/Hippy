@@ -24,8 +24,7 @@
 #include "devtools_base/logging.h"
 #include "devtools_base/transform_string_util.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kRecordLogKey[] = "log";
 constexpr char kRecordLogSourceKey[] = "source";
@@ -43,7 +42,7 @@ std::string GetKeyValueString(const std::string& key, const std::string& value) 
   return str_result;
 }
 
-std::string ConvertToLogJsonString(LoggerModel logger_model) {
+std::string ConvertToLogJsonString(const LoggerModel& logger_model) {
   std::string element_string = "{\"";
   element_string += kRecordLogSourceKey;
   element_string += "\":\"";
@@ -97,11 +96,10 @@ std::string RecordLogger::GetRecordLogs() {
     result_string += ",";
   }
   result_string.pop_back();
-  result_string += record_logs_.size() ? "]}" : "[]}";
+  result_string += !record_logs_.empty() ? "]}" : "[]}";
   return result_string;
 }
 
 void RecordLogger::ResetRecordLogs() { record_logs_.clear(); }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

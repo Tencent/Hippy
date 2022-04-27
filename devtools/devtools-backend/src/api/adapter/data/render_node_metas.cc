@@ -22,8 +22,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kRenderName[] = "name";
 constexpr char kDomRelativeRenderId[] = "domRelativeRenderId";
 constexpr char kRenderIsRepaintBoundary[] = "isRepaintBoundary";
@@ -79,5 +78,4 @@ std::string RenderNodeMetas::ToJsonString() const {
   return node_str;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

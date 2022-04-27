@@ -27,8 +27,7 @@
 #include "module/domain_dispatch.h"
 #include "module/inspect_event.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 using json = nlohmann::json;
 class DomainDispatchTest : public ::testing::Test {
@@ -79,5 +78,4 @@ TEST_F(DomainDispatchTest, DomainDispatch) {
   EXPECT_NO_THROW(dispatch->RegisterJSDebuggerDomainListener());
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

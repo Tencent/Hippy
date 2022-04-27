@@ -27,8 +27,7 @@
 #include "devtools_base/tdf_string_util.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kRoot[] = "root";
 constexpr char kRootId[] = "rootId";
 constexpr char kNodeId[] = "nodeId";
@@ -389,5 +388,4 @@ nlohmann::json DOMModel::ParseAttributesObjectToArray() {
   return attributes_array;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

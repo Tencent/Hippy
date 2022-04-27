@@ -22,8 +22,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kNodeId[] = "nodeId";
 constexpr char kHitNodeRelationTree[] = "hitNodeRelationTree";
 
@@ -48,5 +47,4 @@ std::string DomNodeLocation::Serialize() const {
   return node_str;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

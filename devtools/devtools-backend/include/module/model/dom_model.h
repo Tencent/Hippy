@@ -25,8 +25,7 @@
 #include "module/model/base_model.h"
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief dom node类型
@@ -83,7 +82,7 @@ class DOMModel : public BaseModel {
    * @param point 节点坐标
    * @return 节点id相关信息JSON
    */
-  nlohmann::json GetNodeForLocation(int32_t node_id);
+  static nlohmann::json GetNodeForLocation(int32_t node_id);
 
   constexpr void SetNodeId(int32_t node_id) { node_id_ = node_id; }
   constexpr int32_t GetNodeId() const { return node_id_; }
@@ -165,5 +164,4 @@ class DOMModel : public BaseModel {
   uint32_t child_node_count_ = 0;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

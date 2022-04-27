@@ -40,8 +40,7 @@
 #define BACKEND_LOGE(module, format, ...) \
   BACKEND_LOG(hippy::devtools::DEVTOOLS_LOG_ERROR, module, format, ##__VA_ARGS__)
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 typedef int LogLevel;
 
@@ -57,11 +56,10 @@ class Logger {
  public:
   static void Log(LogLevel level, const char *file,
                   int line, const char *module, const char *format, ...);
-  static void RegisterCallback(LogCallback callback);
+  static void RegisterCallback(const LogCallback& callback);
   static std::string GetTimeStamp();
  private:
-  static void DispatchToCallbacks(LoggerModel logger_model);
+  static void DispatchToCallbacks(const LoggerModel& logger_model);
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

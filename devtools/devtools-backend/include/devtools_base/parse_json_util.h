@@ -22,8 +22,7 @@
 #include <string>
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief TDF JSON 解析工具
@@ -47,5 +46,4 @@ class TDFParseJSONUtil {
   }
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

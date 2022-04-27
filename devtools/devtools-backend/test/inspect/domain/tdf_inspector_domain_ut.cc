@@ -27,8 +27,7 @@
 #include "module/domain_dispatch.h"
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class TDFInspectorDomainTest : public ::testing::Test {
  protected:
@@ -120,5 +119,4 @@ TEST_F(TDFInspectorDomainTest, TDFInspectorDomain) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(disable_update_notification_request));
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

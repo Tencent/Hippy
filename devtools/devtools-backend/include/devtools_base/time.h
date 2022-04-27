@@ -23,8 +23,7 @@
 #include <chrono>
 #include <sstream>
 #include <string>
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 using Clock = std::chrono::steady_clock;
 using TimePoint = std::chrono::time_point<Clock>;
 using Duration = std::chrono::nanoseconds;
@@ -93,5 +92,4 @@ class SteadyClockTime {
   }
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

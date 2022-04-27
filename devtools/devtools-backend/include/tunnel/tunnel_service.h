@@ -26,8 +26,7 @@
 #include "tunnel/net_channel.h"
 #include "api/devtools_config.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief 通道逻辑处理服务，包括通道建立和协议收发等
@@ -60,5 +59,4 @@ class TunnelService {
   std::shared_ptr<NetChannel> channel_;
   std::shared_ptr<DomainDispatch> dispatch_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

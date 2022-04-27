@@ -22,8 +22,7 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * Request encapsulation of upper layer execution engine，like v8、 jsc virtual machine
  */
@@ -39,5 +38,4 @@ class VMRequestAdapter {
   virtual void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) = 0;
   virtual ~VMRequestAdapter(){}
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

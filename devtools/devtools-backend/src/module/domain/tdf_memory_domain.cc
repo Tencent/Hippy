@@ -22,8 +22,7 @@
 #include "api/devtools_backend_service.h"
 #include "module/domain_register.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 std::string_view TDFMemoryDomain::GetDomainName() { return kFrontendKeyDomainNameTDFMemory; }
 
@@ -39,5 +38,4 @@ void TDFMemoryDomain::GetHeapMeta(const Deserializer& request) {
     ResponseResultToFrontend(request.GetId(), memoryMetas.Serialize());
   });
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

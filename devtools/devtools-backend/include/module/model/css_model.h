@@ -27,8 +27,7 @@
 #include "module/model/base_model.h"
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief chrome devtools CSS 相关协议的数据类
@@ -62,7 +61,7 @@ class CSSModel : public BaseModel {
    * @brief 获取chrome CSS getInlineStyles所需JSON数据
    * @return JSON数据
    */
-  nlohmann::json GetInlineStylesJSON();
+  static nlohmann::json GetInlineStylesJSON();
 
   /**
    * @brief 获取chrome CSS setStyleTexts所需JSON数据
@@ -104,5 +103,4 @@ class CSSModel : public BaseModel {
   double width_ = 0;
   double height_ = 0;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

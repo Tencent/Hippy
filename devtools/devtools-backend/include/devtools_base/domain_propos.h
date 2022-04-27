@@ -20,8 +20,7 @@
 
 #pragma once
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kFrontendKeyDomainNameCSS[] = "CSS";
 constexpr char kFrontendKeyDomainNameDOM[] = "DOM";
@@ -37,5 +36,4 @@ constexpr char kFrontendKeyDomainNameTDFRuntime[] = "TDFRuntime";
 constexpr char kLogEventName[] = "TDFLog.getLog";
 
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

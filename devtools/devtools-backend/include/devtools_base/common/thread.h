@@ -27,8 +27,7 @@
 
 #include "devtools_base/common/macros.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace runner {
 class Thread {
  public:
@@ -51,5 +50,4 @@ class Thread {
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(Thread);
 };
 }  // namespace runner
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

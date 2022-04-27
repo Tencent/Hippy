@@ -21,10 +21,9 @@
 #include "api/notification/default/default_v8_response_notification.h"
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 DefaultV8ResponseAdapter::DefaultV8ResponseAdapter(ResponseHandler response_handler)
-    : response_handler_(response_handler) {}
+    : response_handler_(std::move(response_handler)) {}
 /**
  * 消息送v8返回
  * @param data
@@ -35,5 +34,4 @@ void DefaultV8ResponseAdapter::ResponseToDevtool(std::string data) {
   }
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -33,8 +33,7 @@
 #include "tunnel/tunnel_service.h"
 #include "tunnel/channel_factory.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class CSSDomainTest : public ::testing::Test {
  protected:
@@ -116,5 +115,4 @@ TEST_F(CSSDomainTest, SetStyles) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(normal_request.dump()));
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

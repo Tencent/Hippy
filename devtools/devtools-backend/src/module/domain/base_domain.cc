@@ -22,8 +22,7 @@
 #include <sstream>
 #include "module/domain_dispatch.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kErrorCode[] = "code";
 constexpr char kErrorMessage[] = "message";
@@ -32,10 +31,7 @@ constexpr char kMethodDisable[] = "Disable";
 
 bool BaseDomain::HandleDomainSwitchEvent(int32_t id, const std::string& method) {
   // 由具体的 domain 子类处理
-  if (method == kMethodEnable) {
-    ResponseResultToFrontend(id, "{}");
-    return true;
-  } else if (method == kMethodDisable) {
+  if (method == kMethodEnable || method == kMethodDisable) {
     ResponseResultToFrontend(id, "{}");
     return true;
   }
@@ -58,7 +54,7 @@ void BaseDomain::ResponseErrorToFrontend(int32_t id, const int32_t error_code, c
   }
 }
 
-void BaseDomain::SendEventToFrontend(const InspectEvent&& event) {
+void BaseDomain::SendEventToFrontend(InspectEvent&& event) {
   auto dispatch = dispatch_.lock();
   if (dispatch) {
     dispatch->SendEventToFrontend(std::move(event));
@@ -81,5 +77,4 @@ std::shared_ptr<NotificationCenter> BaseDomain::GetNotificationCenter() {
   return domain_dispatch->GetDataChannel()->GetNotificationCenter();
 }
 
-}  // namespace devtools
 }  // namespace hippy

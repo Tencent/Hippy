@@ -26,8 +26,7 @@
 #include "module/domain/base_domain.h"
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class TDFRuntimeDomain : public BaseDomain {
  public:
@@ -40,5 +39,4 @@ class TDFRuntimeDomain : public BaseDomain {
   void IsDebugMode(const Deserializer& request);
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

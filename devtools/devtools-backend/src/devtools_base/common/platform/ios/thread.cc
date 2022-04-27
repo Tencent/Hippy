@@ -29,8 +29,7 @@
 #include <string>
 #include <thread>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace runner {
 Thread::Thread(const std::string& name) : name_(name) {}
 
@@ -56,6 +55,5 @@ void Thread::SetCurrentThreadName(const std::string& name) {
   pthread_setname_np(name.c_str());
 }
 }  // namespace runner
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools
 #endif

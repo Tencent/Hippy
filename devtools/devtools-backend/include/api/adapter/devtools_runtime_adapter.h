@@ -22,12 +22,10 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class RuntimeAdapter {
  public:
   virtual bool IsDebug() = 0;
   virtual ~RuntimeAdapter(){}
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

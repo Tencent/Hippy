@@ -23,8 +23,7 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * @brief 获取 domTree 节点数据的请求
  */
@@ -40,5 +39,4 @@ class DomNodeDataRequest : public Deserializer {
   int32_t node_id_;
   bool has_set_node_id_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

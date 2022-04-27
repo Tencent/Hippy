@@ -24,8 +24,7 @@
 #include "devtools_base/time.h"
 #include "module/domain_register.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kPerformanceDomainMethodStart[] = "start";
 constexpr char kPerformanceDomainMethodEnd[] = "end";
@@ -65,7 +64,6 @@ void TDFPerformanceDomain::Start(const Deserializer& request) {
   nlohmann::json start_time_json = nlohmann::json::object();
   start_time_json["startTime"] = SteadyClockTime::NowTimeSinceEpochStr();
   ResponseResultToFrontend(request.GetId(), start_time_json.dump());
-  return;
 }
 
 void TDFPerformanceDomain::End(const Deserializer& request) {
@@ -115,7 +113,7 @@ void TDFPerformanceDomain::Timeline(const Deserializer& request) {
 }
 
 void TDFPerformanceDomain::ResponseError(int32_t id, const std::string& method) {
-  std::string error_msg = "";
+  std::string error_msg;
   if (kPerformanceDomainMethodStart == method) {
     error_msg = "start failed, no data.";
   } else if (kPerformanceDomainMethodEnd == method) {
@@ -131,5 +129,4 @@ void TDFPerformanceDomain::ResponseError(int32_t id, const std::string& method) 
   ResponseErrorToFrontend(id, kErrorFailCode, error_msg);
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -23,8 +23,7 @@
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 // rsp json key
 constexpr char kCSSStyles[] = "styles";
@@ -32,9 +31,9 @@ constexpr char kCSSStyles[] = "styles";
 // default value
 constexpr uint32_t kCSSStyleNodeDepth = 1;
 
-CSSDomain::CSSDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {
+CSSDomain::CSSDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   // 注册数据回调
-  css_data_call_back_ = [this](int32_t node_id, CSSStyleDataCallback callback) {
+  css_data_call_back_ = [this](int32_t node_id, const CSSStyleDataCallback& callback) {
     auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
       auto response_callback = [callback, provider = GetDataProvider()](const DomainMetas& data) {
@@ -97,8 +96,8 @@ void CSSDomain::GetInlineStylesForNode(const CSSNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetInlineStyles, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [this, request](CSSModel model) {
-    ResponseResultToFrontend(request.GetId(), model.GetInlineStylesJSON().dump());
+  css_data_call_back_(request.GetNodeId(), [this, request](const CSSModel& model) {
+    ResponseResultToFrontend(request.GetId(), CSSModel::GetInlineStylesJSON().dump());
   });
 }
 
@@ -145,5 +144,4 @@ void CSSDomain::SetStyleTexts(const CSSEditStyleTextsRequest& request) {
   }
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

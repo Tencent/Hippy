@@ -19,8 +19,7 @@
  */
 
 #include "devtools_base/common/base64.h"
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 std::string Base64::Encode(const uint8_t *bin, const size_t len) {
   static constexpr char kEncodingTable[] = {
       'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
@@ -85,6 +84,5 @@ std::string Base64::Decode(const std::string &input) {
   }
   return out;
 }
-}  // namespace devtools
 }  // namespace hippy
 

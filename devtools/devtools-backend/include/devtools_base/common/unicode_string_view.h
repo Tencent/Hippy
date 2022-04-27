@@ -33,8 +33,7 @@
 #define u8_type char
 #endif
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace stringview {
 class unicode_string_view_temp final {
  public:
@@ -155,8 +154,7 @@ class unicode_string_view_temp final {
   friend std::hash<unicode_string_view_temp>;
 };
 }  // namespace stringview
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools
 
 template <>
 struct std::hash<hippy::devtools::unicode_string_view_temp> {

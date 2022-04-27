@@ -22,8 +22,7 @@
 #include <iostream>
 #include "module/model/frame_poll_model.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class FramePollModelTest : public ::testing::Test {
  protected:
@@ -45,5 +44,4 @@ TEST_F(FramePollModelTest, FramePollModel) {
 //  std::this_thread::sleep_for(std::chrono::duration<int>(2));  // 睡眠导致线程偶现异常
   EXPECT_NO_THROW(frame_poll_model_->StopPoll());
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

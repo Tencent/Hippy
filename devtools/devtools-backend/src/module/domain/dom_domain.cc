@@ -28,8 +28,7 @@
 #include "devtools_base/tdf_base_util.h"
 #include "module/domain_register.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 // params key
 constexpr char kParamsHitNodeRelationTree[] = "hitNodeRelationTree";
@@ -43,9 +42,9 @@ constexpr uint32_t kDocumentNodeDepth = 3;
 constexpr uint32_t kNormalNodeDepth = 2;
 constexpr int32_t kInvalidNodeId = -1;
 
-DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {
+DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   // 注册dom data回调
-  dom_data_call_back_ = [this](int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback) {
+  dom_data_call_back_ = [this](int32_t node_id, bool is_root, uint32_t depth, const DomDataCallback& callback) {
     auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
       auto response_callback = [callback, provider = GetDataProvider()](const DomainMetas& data) {
@@ -62,7 +61,7 @@ DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispat
   };
 
   // location for node回调
-  location_for_node_call_back_ = [this](int32_t x, int32_t y, DomDataCallback callback) {
+  location_for_node_call_back_ = [this](int32_t x, int32_t y, const DomDataCallback& callback) {
     auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
       auto node_callback = [callback, provider = GetDataProvider()](const DomNodeLocation& metas) {
@@ -161,10 +160,10 @@ void DOMDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
   }
   int32_t x = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX());
   int32_t y = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY());
-  location_for_node_call_back_(x, y, [this, request](DOMModel model) {
+  location_for_node_call_back_(x, y, [this, request](const DOMModel& model) {
     auto node_id = SearchNearlyCacheNode(model.GetRelationTree());
     if (node_id != kInvalidNodeId) {
-      ResponseResultToFrontend(request.GetId(), model.GetNodeForLocation(node_id).dump());
+      ResponseResultToFrontend(request.GetId(), DOMModel::GetNodeForLocation(node_id).dump());
     } else {
       ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "DOMDomain, GetNodeForLocation, nodeId is invalid");
     }
@@ -214,5 +213,4 @@ int32_t DOMDomain::SearchNearlyCacheNode(nlohmann::json relation_tree) {
   return node_id;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

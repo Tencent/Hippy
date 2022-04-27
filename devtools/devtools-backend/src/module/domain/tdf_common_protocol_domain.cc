@@ -22,8 +22,7 @@
 #include "api/devtools_backend_service.h"
 #include "devtools_base/error.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 std::string_view TDFCommonProtocolDomain::GetDomainName() { return kFrontendKeyDomainNameTDF; }
 
@@ -47,5 +46,4 @@ bool TDFCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string 
   return true;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

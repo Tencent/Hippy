@@ -25,8 +25,7 @@
 #include "api/notification/devtools_network_notification.h"
 #include "tunnel/tunnel_service.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * 网络模块调试数据收集
  * 触发场景：由接入框架的网络监听发起
@@ -44,5 +43,4 @@ class DefaultNetworkNotification : public NetworkNotification {
  private:
   std::shared_ptr<TunnelService> tunnel_service_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

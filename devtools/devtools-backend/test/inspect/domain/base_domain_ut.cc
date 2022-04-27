@@ -31,8 +31,7 @@
 #include "tunnel/channel_factory.h"
 #include "tunnel/tunnel_service.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class SubBaseDomain : public BaseDomain {
  public:
@@ -85,5 +84,4 @@ TEST_F(BaseDomainTest, BaseDomain) {
   EXPECT_NO_THROW(sub_base_domain_->SendEventToFrontend(InspectEvent("method", "params")));
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

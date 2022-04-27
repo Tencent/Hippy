@@ -31,8 +31,7 @@
 #include "module/record_logger.h"
 #include "tunnel/tunnel_service.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * @brief Devtools Backend Service 调试后端服务，主要负责 Devtools 的调试通道搭建、调试协议分发和接入框架的数据采集
  * 作为接入方，需要关心的是：DataProvider 实现 Adapter 能力的实现
@@ -88,5 +87,4 @@ class DevtoolsBackendService {
   std::shared_ptr<TunnelService> tunnel_service_;
   std::shared_ptr<DomainDispatch> domain_dispatch_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

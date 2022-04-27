@@ -47,8 +47,7 @@ std::size_t std::hash<unicode_string_view_temp>::operator()(const unicode_string
   return 0;
 }
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace stringview {
 unicode_string_view_temp::unicode_string_view_temp(const unicode_string_view_temp& source) : encoding_(source.encoding_) {
   switch (encoding_) {
@@ -311,5 +310,4 @@ const unicode_string_view_temp::u32string& unicode_string_view_temp::utf32_value
   return u32_string_;
 }
 }  // namespace stringview
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -36,8 +36,7 @@
 #include "nlohmann/json.hpp"
 #include "tunnel/tunnel_service.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kDomainDispatchResult[] = "result";
 constexpr char kDomainDispatchError[] = "error";
@@ -76,7 +75,7 @@ void DomainDispatch::RegisterDomainHandler(const std::shared_ptr<BaseDomain>& ba
 
 void DomainDispatch::ClearDomainHandler() { domain_register_map_.clear(); }
 
-bool DomainDispatch::ReceiveDataFromFrontend(std::string data_string) {
+bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   BACKEND_LOGD(TDF_BACKEND, "DomainDispatch, receive data from frontend :%s", data_string.c_str());
 
   json data_json = json::object();
@@ -144,7 +143,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(std::string data_string) {
   return false;
 }
 
-void DomainDispatch::DispatchToV8(std::string data) {
+void DomainDispatch::DispatchToV8(const std::string& data) {
 #ifdef OS_ANDROID
   BACKEND_LOGD(TDF_BACKEND, "JSDebugger, params=%s.", data.c_str());
   // 非Debug模式，不把消息发给V8
@@ -177,10 +176,9 @@ void DomainDispatch::SendDataToFrontend(int32_t id, const std::string& result, c
   }
 }
 
-void DomainDispatch::SendEventToFrontend(const InspectEvent&& event) {
+void DomainDispatch::SendEventToFrontend(InspectEvent&& event) {
   if (rsp_handler_) {
     rsp_handler_(event.ToJsonString());
   }
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

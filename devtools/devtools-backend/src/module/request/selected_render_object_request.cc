@@ -21,8 +21,7 @@
 #include "module/request/selected_render_object_request.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 void SelectedRenderObjectRequest::Deserialize(const std::string& params) {
   nlohmann::json params_json = nlohmann::json::parse(params);
@@ -30,5 +29,4 @@ void SelectedRenderObjectRequest::Deserialize(const std::string& params) {
   render_id_ = render_id;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

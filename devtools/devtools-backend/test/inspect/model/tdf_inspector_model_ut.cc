@@ -22,8 +22,7 @@
 #include <iostream>
 #include "module/model/tdf_inspector_model.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class TDFInspectorModelTest : public ::testing::Test {
  protected:
@@ -40,5 +39,4 @@ class TDFInspectorModelTest : public ::testing::Test {
 };
 
 TEST_F(TDFInspectorModelTest, TDFInspectorModel) { EXPECT_NO_THROW(tdf_inspector_model_.GetRenderTree("render_tree")); }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

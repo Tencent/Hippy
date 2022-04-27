@@ -29,8 +29,7 @@
 #include "module/model/screen_shot_model.h"
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * CDP 网络模块的协议实现
@@ -46,5 +45,4 @@ class NetworkDomain : public BaseDomain {
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

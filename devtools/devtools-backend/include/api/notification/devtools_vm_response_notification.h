@@ -22,8 +22,7 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class VMResponseNotification {
  public:
   /**
@@ -32,5 +31,4 @@ class VMResponseNotification {
    */
   virtual void ResponseToDevtool(std::string data) = 0;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

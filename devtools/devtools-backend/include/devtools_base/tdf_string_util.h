@@ -23,8 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief TDF devtools 字符串工具类
@@ -76,5 +75,4 @@ class TDFStringUtil {
   }
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

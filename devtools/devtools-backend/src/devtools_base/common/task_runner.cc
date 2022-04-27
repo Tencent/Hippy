@@ -26,8 +26,7 @@
 #include "devtools_base/logging.h"
 #include "devtools_base/common/worker.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace runner {
 std::atomic<int32_t> global_task_runner_id{0};
 
@@ -244,5 +243,4 @@ void TaskRunner::RunnerDestroySpecifics() {
   }
 }
 }  // namespace runner
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

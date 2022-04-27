@@ -24,8 +24,7 @@
 #include "api/adapter/data/render_diagnostic_metas.h"
 #include "api/adapter/data/render_node_metas.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class RenderTreeAdapter {
  public:
   using GetRenderTreeCallback = std::function<void(const bool is_success, const RenderNodeMetas& metas)>;
@@ -44,5 +43,4 @@ class RenderTreeAdapter {
    */
   virtual void GetSelectedRenderObject(int32_t render_id, GetRenderDiagnosticCallback callback) = 0;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

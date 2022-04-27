@@ -31,8 +31,7 @@ using WSClient = websocketpp::client<websocketpp::config::asio_client>;
 using WSMessagePtr = websocketpp::config::asio_tls_client::message_type::ptr;
 using WSThread = websocketpp::lib::shared_ptr<websocketpp::lib::thread>;
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * 连接通道的webSocket实现
  */
@@ -56,7 +55,6 @@ class WebSocketChannel : public hippy::devtools::NetChannel {
   std::string ws_uri_;
   ReceiveDataHandler data_handler_;
   WSThread ws_thread_;
-  std::vector<std::string> unset_messages_;
+  std::vector<std::string> unset_messages_{};
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

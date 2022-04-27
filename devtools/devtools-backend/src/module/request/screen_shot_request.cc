@@ -20,8 +20,7 @@
 #include "module/request/screen_shot_request.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 void ScreenShotRequest::Deserialize(const std::string& params) {
   nlohmann::json params_json = nlohmann::json::parse(params);
@@ -31,5 +30,4 @@ void ScreenShotRequest::Deserialize(const std::string& params) {
   max_height_ = params_json[kFrontendKeyMaxHeight].get<int32_t>();
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

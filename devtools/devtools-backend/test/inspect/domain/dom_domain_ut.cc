@@ -32,8 +32,7 @@
 #include "tunnel/channel_factory.h"
 #include "tunnel/tunnel_service.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class DOMDomainTest : public ::testing::Test {
  protected:
@@ -108,5 +107,4 @@ TEST_F(DOMDomainTest, DOMDomain) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(empty_child_nodes_request));
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

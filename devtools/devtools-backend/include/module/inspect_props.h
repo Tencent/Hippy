@@ -20,8 +20,7 @@
 
 #pragma once
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kFrontendKeyQuality[] ="quality";
 constexpr char kFrontendKeyMaxWidth[] ="maxWidth";
@@ -178,5 +177,4 @@ constexpr char kFontWeight700[] ="700";
 constexpr char kFontWeight800[] ="800";
 constexpr char kFontWeight900[] ="900";
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -28,8 +28,7 @@
 #include "devtools_base/logging.h"
 #include "devtools_base/common/worker_pool.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace runner {
 std::atomic<int32_t> global_worker_id{0};
 thread_local int32_t local_worker_id;
@@ -430,5 +429,4 @@ void Worker::UpdateSpecific(int32_t task_runner_id, std::array<void*, Worker::kW
   specific_map_[task_runner_id] = array;  // insert or update
 }
 }  // namespace runner
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

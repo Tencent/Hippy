@@ -22,8 +22,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kWidth[] = "width";
 constexpr char kHeight[] = "height";
 constexpr char kRootId[] = "rootId";
@@ -118,5 +117,4 @@ std::string DomainMetas::Serialize() const {
   return node_str;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

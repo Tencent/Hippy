@@ -49,8 +49,7 @@ constexpr char kHttpResponseCacheStorageCacheName[] = "cacheStorageCacheName";
 constexpr char kHttpResponseProtocol[] = "protocol";
 constexpr char kHttpResponseSecurityState[] = "securityState";
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 std::string Response::Serialize() const{
   std::string result = "{\"";
   result += kHttpResponseUrl;
@@ -164,5 +163,4 @@ std::string DevtoolsHttpResponse::Serialize() const {
   result += "\"}";
   return result;
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

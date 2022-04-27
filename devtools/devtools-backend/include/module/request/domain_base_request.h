@@ -23,8 +23,7 @@
 #include <string>
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief Parsing JSON sent from the front end_ Request data of type string
@@ -44,5 +43,4 @@ class Deserializer {
   int32_t id_;  // 请求带有的唯一标识符
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

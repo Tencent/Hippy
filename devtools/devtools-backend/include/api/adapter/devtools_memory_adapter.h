@@ -23,8 +23,7 @@
 #include <string>
 #include "api/adapter/data/memory_metas.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class MemoryAdapter {
  public:
   using CoreMemoryUsageCallback = std::function<void(const MemoryMetas& metas)>;
@@ -35,5 +34,4 @@ class MemoryAdapter {
    */
   virtual void CollectMemoryUsage(CoreMemoryUsageCallback callback) = 0;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -24,8 +24,7 @@
 #include <string>
 #include "module/domain/base_domain.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief 通用协议适配
@@ -39,5 +38,4 @@ class TDFCommonProtocolDomain : public BaseDomain {
   bool ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params);
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

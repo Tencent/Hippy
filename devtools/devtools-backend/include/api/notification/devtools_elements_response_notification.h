@@ -21,8 +21,7 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class ElementsResponseNotification {
  public:
   /**
@@ -40,5 +39,4 @@ class ElementsResponseNotification {
  protected:
   bool need_notify_batch_event_ = true;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

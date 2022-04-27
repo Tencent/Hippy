@@ -26,8 +26,7 @@
 #include "devtools_base/logging.h"
 #include "socket.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kListenHost[] = "127.0.0.1";
 constexpr int32_t kListenPort = 2345;
 
@@ -234,5 +233,4 @@ void TcpChannel::ListenerAndResponse(int client_fd) {
 
 void TcpChannel::StopListenAndDisConnect() { SetStarting(false); }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

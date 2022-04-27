@@ -29,8 +29,7 @@
 
 #endif
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 const char *const kBackendLogLevelNames[5] =
     {"INFO", "DEBUG", "WARNING", "ERROR", "FATAL"};
 static std::list<LogCallback> log_callbacks_;
@@ -110,6 +109,8 @@ void Logger::Log(LogLevel level, const char *file,
     case DEVTOOLS_LOG_FATAL:
       priority = ANDROID_LOG_FATAL;
       break;
+    default:
+      break;
   }
   __android_log_write(priority, "backend", stream.str().c_str());
 #else
@@ -135,15 +136,14 @@ void Logger::Log(LogLevel level, const char *file,
   DispatchToCallbacks(logger_model);
 }
 
-void Logger::RegisterCallback(LogCallback callback) {
+void Logger::RegisterCallback(const LogCallback& callback) {
   log_callbacks_.push_back(callback);
 }
 
-void Logger::DispatchToCallbacks(LoggerModel logger_model) {
-  for (auto callback : log_callbacks_) {
+void Logger::DispatchToCallbacks(const LoggerModel& logger_model) {
+  for (auto const& callback : log_callbacks_) {
     callback(logger_model);
   }
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

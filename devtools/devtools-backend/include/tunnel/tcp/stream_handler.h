@@ -23,8 +23,7 @@
 #include <functional>
 #include <vector>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr uint32_t kTunnelBufferSize = 32768;
 /*
  *  header
@@ -56,5 +55,4 @@ class StreamHandler {
  private:
   std::vector<char> stream_buffer_ = std::vector<char>();
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

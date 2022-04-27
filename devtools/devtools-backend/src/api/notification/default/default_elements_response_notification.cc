@@ -23,10 +23,9 @@
 #include "api/devtools_backend_service.h"
 #include "devtools_base/logging.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 DefaultElementsResponseAdapter::DefaultElementsResponseAdapter(DocumentUpdateHandler document_update_Handler)
-    : document_update_Handler_(document_update_Handler) {}
+    : document_update_Handler_(std::move(document_update_Handler)) {}
 
 void DefaultElementsResponseAdapter::NotifyDocumentUpdate() {
 //  auto runner = DevtoolsBackendService::GetInstance().GetTaskRunner();
@@ -42,5 +41,4 @@ void DefaultElementsResponseAdapter::NotifyDocumentUpdate() {
     document_update_Handler_();
 //  });
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

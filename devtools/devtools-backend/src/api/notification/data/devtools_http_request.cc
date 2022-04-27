@@ -47,8 +47,7 @@ constexpr char kHttpRequestIsSameSite[] = "isSameSite";
 constexpr char kHttpRequestType[] = "type";
 constexpr char kHttpRequestBytes[] = "bytes";
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 std::string Initiator::Serialize() const {
   std::string result = "{\"";
   result += kHttpRequestType;
@@ -171,5 +170,4 @@ std::string DevtoolsHttpRequest::Serialize() const {
   result += "}";
   return result;
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

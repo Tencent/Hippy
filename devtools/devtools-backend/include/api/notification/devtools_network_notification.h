@@ -25,8 +25,7 @@
 #include "api/notification/data/devtools_http_request.h"
 #include "api/notification/data/devtools_http_response.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * 网络模块调试数据收集
  * 触发场景：由接入框架的网络监听发起
@@ -39,5 +38,4 @@ class NetworkNotification {
 
   virtual void LoadingFinished(std::string request_id, const DevtoolsLoadingFinished& loading) = 0;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

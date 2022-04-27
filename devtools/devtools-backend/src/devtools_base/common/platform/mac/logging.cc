@@ -28,8 +28,7 @@
 
 #include "devtools_base/common/log_settings.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace log {
 namespace {
 const char* const kLogSeverityNames[TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR", "FATAL"};
@@ -80,6 +79,5 @@ int GetVlogVerbosity() { return std::max(-1, LOG_INFO - GetMinLogLevel()); }
 
 bool ShouldCreateLogMessage(LogSeverity severity) { return severity >= GetMinLogLevel(); }
 }  // namespace log
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools
 #endif

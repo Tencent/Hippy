@@ -26,8 +26,7 @@
 #include "module/inspect_props.h"
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 #define ENUM_TO_STR(enu) #enu
 
@@ -98,5 +97,4 @@ class TransformStringUtil {
   }
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -24,8 +24,7 @@
 #include "api/devtools_data_provider.h"
 #include "api/devtools_notification_center.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief model 处理基类
@@ -38,5 +37,4 @@ class BaseModel {
   std::shared_ptr<DataProvider> provider_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

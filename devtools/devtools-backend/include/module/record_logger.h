@@ -24,8 +24,7 @@
 #include <utility>
 #include <vector>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class LoggerModel {
  public:
@@ -76,5 +75,4 @@ class RecordLogger {
   std::vector<std::string> record_logs_;
   RecordLogOperateCallback operate_callback_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

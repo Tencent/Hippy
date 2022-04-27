@@ -22,8 +22,7 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * Runtime相关Notification
  */
@@ -36,5 +35,4 @@ class RuntimeNotification {
   virtual void UpdateContextName(const std::string& context_name) = 0;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

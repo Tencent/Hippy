@@ -30,8 +30,7 @@
 #include "module/request/dom_node_for_location_request.h"
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * @brief DOM domain 处理类
  *        处理 frontend 分发过来的 DOM 相关的 method
@@ -40,8 +39,8 @@ class DOMDomain : public BaseDomain {
  public:
   using DomDataCallback = std::function<void(DOMModel model)>;
   using DomDataRequestCallback =
-      std::function<void(int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback)>;
-  using LocationForNodeDataCallback = std::function<void(double x, double y, DomDataCallback callback)>;
+      std::function<void(int32_t node_id, bool is_root, uint32_t depth, const DomDataCallback& callback)>;
+  using LocationForNodeDataCallback = std::function<void(double x, double y, const DomDataCallback& callback)>;
   explicit DOMDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string_view GetDomainName() override;
   void RegisterMethods() override;
@@ -64,5 +63,4 @@ class DOMDomain : public BaseDomain {
   DomDataRequestCallback dom_data_call_back_;
   LocationForNodeDataCallback location_for_node_call_back_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

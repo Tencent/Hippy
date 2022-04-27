@@ -26,14 +26,13 @@
 #include "tunnel/tcp/tcp_channel.h"
 #include "tunnel/ws/web_socket_channel.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr uint32_t kClose = 4003;
 constexpr uint32_t kReload = 4004;
 
-TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const DevtoolsConfig &devtools_config) {
-  dispatch_ = dispatch;
+TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const DevtoolsConfig &devtools_config)
+    : dispatch_(std::move(dispatch)) {
   dispatch_->SetResponseHandler([this](const std::string &rsp_data) { channel_->Send(rsp_data); });
   Connect(devtools_config);
 }
@@ -62,5 +61,4 @@ void TunnelService::Close(bool is_reload) {
   channel_->Close(is_reload ? kReload : kClose, "");
   dispatch_->SetResponseHandler(nullptr);
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

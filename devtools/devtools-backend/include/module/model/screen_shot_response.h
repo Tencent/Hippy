@@ -22,8 +22,7 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * @brief page截屏回包数据
  */
@@ -44,5 +43,4 @@ class ScreenShotResponse {
   int32_t screen_width_;
   int32_t screen_height_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -30,8 +30,7 @@
 #include "module/domain_dispatch.h"
 #include "tunnel/tunnel_service.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kDevtoolsTaskName[] = "devToolsTask";
 
@@ -94,5 +93,4 @@ void DevtoolsBackendService::RegisterJSDebuggerCallback() {
       std::make_shared<DefaultV8ResponseAdapter>(response_handler);
 #endif
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

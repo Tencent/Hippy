@@ -24,8 +24,7 @@
 #include <string>
 #include "api/adapter/data/serializable.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * CDP 网络协议，loading finished事件数据体
@@ -58,5 +57,4 @@ class DevtoolsLoadingFinished : public Serializable {
   uint64_t timestamp_;
   bool should_report_corb_blocking_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

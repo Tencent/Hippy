@@ -22,8 +22,7 @@
 #include "devtools_base/transform_string_util.hpp"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kFrontendKeyOffsetTop[] = "offsetTop";
 constexpr char kFrontendKeyPageScaleFactor[] = "pageScaleFactor";
@@ -70,5 +69,4 @@ std::string ScreenShotResponse::ToJsonString() const {
   result_string += "}";
   return result_string;
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

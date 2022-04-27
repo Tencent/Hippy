@@ -22,8 +22,7 @@
 #include <iostream>
 #include "module/model/screen_shot_model.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class ScreenShotModelTest : public ::testing::Test {
  protected:
@@ -49,5 +48,4 @@ TEST_F(ScreenShotModelTest, ScreenShotModel) {
   EXPECT_NO_THROW(screen_shot_model_.ReqScreenShotToResponse());
   EXPECT_NO_THROW(screen_shot_model_.ReqScreenShotToSendEvent());
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

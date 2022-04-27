@@ -28,8 +28,7 @@
 #include "module/model/screen_shot_model.h"
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class PageDomain : public BaseDomain {
  public:
@@ -55,5 +54,4 @@ class PageDomain : public BaseDomain {
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

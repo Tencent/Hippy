@@ -21,8 +21,7 @@
 #include <unistd.h>
 #include "tunnel/timer.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 void TimeoutFunction() { std::cout << "test timeout function" << std::endl; }
 
@@ -47,5 +46,4 @@ TEST_F(TimerTest, Timer) {
   EXPECT_EQ(timer_->IsRunning(), false);
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

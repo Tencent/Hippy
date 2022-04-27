@@ -23,8 +23,7 @@
 #include <string>
 #include "api/notification/devtools_vm_response_notification.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class DefaultV8ResponseAdapter : public VMResponseNotification {
  public:
   using ResponseHandler = std::function<void(std::string)>;
@@ -38,5 +37,4 @@ class DefaultV8ResponseAdapter : public VMResponseNotification {
  private:
   ResponseHandler response_handler_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

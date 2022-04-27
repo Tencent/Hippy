@@ -28,8 +28,7 @@
 
 #include "devtools_base/common/time_delta.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace time {
 class TimePoint {
  public:
@@ -72,5 +71,4 @@ class TimePoint {
   int64_t ticks_ = 0;
 };
 }  // namespace time
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

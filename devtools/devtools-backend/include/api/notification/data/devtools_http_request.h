@@ -27,8 +27,7 @@
 #include "api/adapter/data/serializable.h"
 #include "api/notification/data/devtools_network_enum.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * Information about the request initiator.
  * @see https://chromedevtools.github.io/devtools-protocol/tot/Network/#type-Initiator
@@ -128,5 +127,4 @@ class DevtoolsHttpRequest : public Serializable {
   std::string frame_id_;
   bool has_user_gesture_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

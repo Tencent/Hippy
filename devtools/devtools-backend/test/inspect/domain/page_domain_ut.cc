@@ -26,8 +26,7 @@
 #include "module/domain/page_domain.h"
 #include "module/domain_dispatch.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class PageDomainTest : public ::testing::Test {
  protected:
@@ -73,5 +72,4 @@ TEST_F(PageDomainTest, PageDomain) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(screencast_frame_ack_request.dump()));
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

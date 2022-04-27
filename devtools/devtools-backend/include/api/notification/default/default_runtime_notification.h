@@ -24,8 +24,7 @@
 #include "api/notification/devtools_runtime_notification.h"
 #include "tunnel/tunnel_service.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * Runtime相关Notification
  */
@@ -43,5 +42,4 @@ class DefaultRuntimeNotification : public RuntimeNotification {
   std::shared_ptr<TunnelService> tunnel_service_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

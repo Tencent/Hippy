@@ -29,8 +29,7 @@
 #include "devtools_base/common/task.h"
 #include "devtools_base/common/thread.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace runner {
 class WorkerPool;
 class TaskRunner;
@@ -102,5 +101,4 @@ class Worker : public Thread {
   std::string name_;
 };
 }  // namespace runner
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

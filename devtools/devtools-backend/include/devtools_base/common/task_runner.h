@@ -34,8 +34,7 @@
 #include "devtools_base/common/time_point.h"
 #include "devtools_base/common/worker.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace runner {
 class TaskRunner {
  public:
@@ -125,5 +124,4 @@ class TaskRunner {
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(TaskRunner);
 };
 }  // namespace runner
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -56,7 +56,7 @@ void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas meta
 #endif
 }
 
-void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
+void HippyDomTreeAdapter::GetDomTree(const DumpDomTreeCallback& callback) {
   if (callback) {
 #if TDF_SERVICE_ENABLED
     std::function func = [this, callback] {

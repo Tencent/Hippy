@@ -21,9 +21,7 @@
 #include "module/request/css_edit_style_texts_request.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
-
+namespace hippy::devtools {
 void CSSEditStyleTextsRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
   if (!params_json.is_object() || params_json.find(kFrontendKeyEdits) == params_json.end()) {
@@ -32,6 +30,4 @@ void CSSEditStyleTextsRequest::Deserialize(const std::string& params) {
   edits_ = params_json[kFrontendKeyEdits];
   has_set_edits_ = true;
 }
-
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

@@ -23,8 +23,7 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * @brief 根据定位获取 domTree 节点的请求
  */
@@ -42,5 +41,4 @@ class DomNodeForLocationRequest : public Deserializer {
   int32_t y_;
   bool has_set_xy_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

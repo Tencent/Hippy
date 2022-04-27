@@ -23,8 +23,7 @@
 #include <chrono>
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * picture encoder format enum
  */
@@ -74,5 +73,4 @@ class ScreenAdapter {
    */
   virtual double GetScreenScale() { return 1.0f; }
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

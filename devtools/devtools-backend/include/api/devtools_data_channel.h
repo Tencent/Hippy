@@ -24,8 +24,7 @@
 #include "api/devtools_data_provider.h"
 #include "api/devtools_notification_center.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * 外部接入框架与devtools的数据交互通道
  * 1 提供外部接入框架的需要充的provider数据接口
@@ -42,5 +41,4 @@ class DataChannel {
   std::shared_ptr<DataProvider> provider_;
   std::shared_ptr<NotificationCenter> notification_center_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

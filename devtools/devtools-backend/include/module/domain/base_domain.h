@@ -30,8 +30,7 @@
 #include "module/inspect_event.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class DomainDispatch;
 /**
@@ -78,7 +77,7 @@ class BaseDomain {
    * @brief 抛 event 事件给 frontend
    * @param event 回包的 event，需要实现 ToJsonString
    */
-  void SendEventToFrontend(const InspectEvent&& event);
+  void SendEventToFrontend(InspectEvent&& event);
 
  protected:
   /**
@@ -99,5 +98,4 @@ class BaseDomain {
   std::string name_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

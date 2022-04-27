@@ -25,8 +25,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class DomainMetas : public Serializable {
  public:
@@ -65,5 +64,4 @@ class DomainMetas : public Serializable {
   std::vector<DomainMetas> children_;
   uint64_t children_count_;  // 用于展开逻辑，必须赋值，不可从children_读取
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

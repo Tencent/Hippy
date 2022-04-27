@@ -24,8 +24,7 @@
 #include <utility>
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief 调试主动事件通知
@@ -62,5 +61,4 @@ struct InspectEvent {
   std::string params_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

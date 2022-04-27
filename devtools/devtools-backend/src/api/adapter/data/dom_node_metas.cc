@@ -24,8 +24,7 @@
 #include "devtools_base/transform_string_util.hpp"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kNodeType[] = "nodeType";
 constexpr char kId[] = "id";
 constexpr char kBorderLeft[] = "borderLeft";
@@ -115,5 +114,4 @@ std::string DomNodeMetas::Serialize() const {
   node_str += "}";
   return node_str;
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

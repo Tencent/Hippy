@@ -25,8 +25,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class DomNodeLocation : public Serializable {
  public:
@@ -39,5 +38,4 @@ class DomNodeLocation : public Serializable {
   uint32_t node_id_;
   std::vector<uint32_t> relation_tree_ids_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

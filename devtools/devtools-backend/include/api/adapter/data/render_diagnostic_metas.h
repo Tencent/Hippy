@@ -24,8 +24,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 struct RenderDiagnosticMeta {
   std::string name_;
   std::string type_;
@@ -42,5 +41,4 @@ class RenderDiagnosticMetas : public Serializable {
  private:
   std::vector<RenderDiagnosticMeta> metas_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

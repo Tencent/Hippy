@@ -22,8 +22,7 @@
 #include <chrono>
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char *const kLogSeverityNames[hippy::devtools::TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR", "FATAL"};
 constexpr char kSeverityUnknown[] = "UNKNOWN";
@@ -34,7 +33,7 @@ const char *GetNameForLogSeverity(hippy::devtools::LogSeverity severity) {
   return kSeverityUnknown;
 }
 
-DefaultLogAdapter::DefaultLogAdapter(BackendLogHandler log_handler) {}
+DefaultLogAdapter::DefaultLogAdapter(BackendLogHandler log_handler) : log_handler_(std::move(log_handler)) {}
 
 void DefaultLogAdapter::PrintLog(const std::string &log_message, hippy::devtools::LogSeverity severity,
                                  const std::string &file_name, int32_t line_number) {
@@ -53,5 +52,4 @@ void DefaultLogAdapter::PrintLog(const std::string &log_message, hippy::devtools
   }
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

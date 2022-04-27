@@ -22,8 +22,7 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class TracingAdapter {
  public:
   using TracingDataCallback = std::function<void(const std::string&)>;
@@ -38,5 +37,4 @@ class TracingAdapter {
   virtual void StopTracing(TracingDataCallback callback) = 0;
   virtual ~TracingAdapter(){}
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

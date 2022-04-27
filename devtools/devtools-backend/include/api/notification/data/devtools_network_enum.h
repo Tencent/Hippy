@@ -23,8 +23,7 @@
 #include <map>
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * Enumeration is automatically prefixed with k, such as One -> kOne
@@ -115,5 +114,4 @@ DEFINE_ENUM(SecurityMixedContentType, SecurityMixedContentTypeEnumList)
 #undef DEFINE_ENUM
 #undef VK
 #undef VS
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

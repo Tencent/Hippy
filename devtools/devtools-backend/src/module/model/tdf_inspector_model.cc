@@ -22,10 +22,9 @@
 #include <sstream>
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
-std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {
+std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {  /* NOLINT */
   std::string result_string;
   std::stringstream sstream;
   sstream << "{\"" << kFrontendKeyRtree << "\":";
@@ -34,5 +33,4 @@ std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {
   return result_string;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

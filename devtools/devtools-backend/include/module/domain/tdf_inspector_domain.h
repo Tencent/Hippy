@@ -32,8 +32,7 @@
 #include "module/request/screen_shot_request.h"
 #include "module/request/selected_render_object_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief UI 调试，主要涉及 DOM、Render、Layer Tree
@@ -103,5 +102,4 @@ class TDFInspectorDomain : public BaseDomain {
   void SendRenderTreeUpdatedEvent();
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

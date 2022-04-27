@@ -25,8 +25,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 struct RenderRect {
   double top;
@@ -54,5 +53,4 @@ class RenderNodeMetas : public Serializable {
   RenderRect bounds_;
   std::vector<RenderNodeMetas> children_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

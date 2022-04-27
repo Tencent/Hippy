@@ -31,7 +31,7 @@ class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
   explicit HippyDomTreeAdapter(int32_t dom_id) : dom_id_(dom_id) {}
 
   void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
-  void GetDomTree(DumpDomTreeCallback callback) override;
+  void GetDomTree(const DumpDomTreeCallback& callback) override;
 
  private:
   int32_t dom_id_;

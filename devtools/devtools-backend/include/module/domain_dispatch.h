@@ -27,8 +27,7 @@
 #include "module/domain/base_domain.h"
 #include "module/inspect_event.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class BaseDomain;
 
 /**
@@ -54,9 +53,9 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
    * @brief 从 frontend 收到消息
    * @param 从 frontend 发过来的消息体
    */
-  bool ReceiveDataFromFrontend(std::string data);
+  bool ReceiveDataFromFrontend(const std::string& data);
 
-  void DispatchToV8(std::string data);
+  void DispatchToV8(const std::string& data);
 
   /**
    * @brief 回包给 frontend
@@ -68,7 +67,7 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
    * @brief 主动抛 event 事件给 frontend
    * @param event 回包的 event，需要实现 ToJsonString
    */
-  void SendEventToFrontend(const InspectEvent&& event);
+  void SendEventToFrontend(InspectEvent&& event);
 
   /**
    * @brief 注册 JSDebugger Domain 事件
@@ -88,5 +87,4 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
   std::shared_ptr<DataChannel> data_channel_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

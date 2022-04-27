@@ -20,8 +20,7 @@
 #include <gtest/gtest.h>
 #include "tunnel/tcp/tcp_channel.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class TcpServerTest : public ::testing::Test {
  protected:
@@ -51,5 +50,4 @@ TEST_F(TcpServerTest, TcpChannel) {
   EXPECT_NO_THROW(tcp_server_->StopListenAndDisConnect());
   EXPECT_NO_THROW(tcp_server_->SendResponse(nullptr, 0, 0));
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

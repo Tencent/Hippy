@@ -24,8 +24,7 @@
 #include "devtools_base/common/logging.h"
 #include "module/record_logger.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class LogNotification {
  public:
   /**
@@ -35,5 +34,4 @@ class LogNotification {
   virtual void PrintLog(const std::string& log_message, LogSeverity serverity, const std::string& file_name,
                         int32_t line_number) = 0;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

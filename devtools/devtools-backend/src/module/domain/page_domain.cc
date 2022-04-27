@@ -23,12 +23,11 @@
 #include "module/domain_register.h"
 #include "module/model/frame_poll_model.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kPageEventScreencastFrame[] = "Page.screencastFrame";
 
-PageDomain::PageDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {
+PageDomain::PageDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   screen_shot_model_ = std::make_shared<ScreenShotModel>();
   frame_poll_model_ = std::make_shared<FramePollModel>();
   screen_shot_model_->SetDataProvider(GetDataProvider());
@@ -74,5 +73,4 @@ void PageDomain::HandleScreenShotUpdatedNotification() {
   screen_shot_model_->SetSendEventScreenShotCallback(screen_shot_callback);
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

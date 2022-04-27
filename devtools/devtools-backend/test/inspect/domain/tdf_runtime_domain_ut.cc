@@ -27,8 +27,7 @@
 #include "module/domain_dispatch.h"
 #include "module/domain_register.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class TDFRuntimeDomainTest : public ::testing::Test {
  protected:
@@ -68,5 +67,4 @@ TEST_F(TDFRuntimeDomainTest, TDFRuntimeDomain) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(is_debug_mode_request));
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

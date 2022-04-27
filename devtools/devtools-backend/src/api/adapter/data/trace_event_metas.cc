@@ -22,8 +22,7 @@
 #include <sstream>
 #include "devtools_base/transform_string_util.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kTraceEvents[] = "traceEvents";
 constexpr char kTraceName[] = "name";
@@ -80,7 +79,7 @@ std::string TraceEventMetas::SerializeTrace() const {
     trace_result_string += element_string;
   }
   trace_result_string.pop_back();
-  trace_result_string += trace_metas_.size() ? "]" : "[]";
+  trace_result_string += !trace_metas_.empty() ? "]" : "[]";
   return trace_result_string;
 }
 
@@ -101,9 +100,8 @@ std::string TraceEventMetas::SerializeThread() const {
     thread_result_string += element_string;
   }
   thread_result_string.pop_back();
-  thread_result_string += thread_metas_.size() ? "]" : "[]";
+  thread_result_string += !thread_metas_.empty() ? "]" : "[]";
   return thread_result_string;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

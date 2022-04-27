@@ -27,8 +27,7 @@
 #include "module/domain_dispatch.h"
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class TDFCommonProtocolDomainTest : public ::testing::Test {
  protected:
@@ -64,5 +63,4 @@ TEST_F(TDFCommonProtocolDomainTest, TDFCommonProtocolDomain) {
   EXPECT_EQ(demo_result, true);
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

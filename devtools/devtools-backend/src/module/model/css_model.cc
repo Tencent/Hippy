@@ -28,8 +28,7 @@
 #include "devtools_base/tdf_string_util.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 // json key
 constexpr char kComputedStyleKey[] = "computedStyle";
@@ -345,5 +344,4 @@ void CSSModel::InitializeStyleEnumMap() {
   style_enum_map_[kResizeMode] = {kCover, kContain, kStretch, kRepeat, kCenter};
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

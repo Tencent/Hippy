@@ -23,8 +23,7 @@
 #include <string>
 #include "api/notification/devtools_elements_response_notification.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class DefaultElementsResponseAdapter : public ElementsResponseNotification {
  public:
   using DocumentUpdateHandler = std::function<void()>;
@@ -34,5 +33,4 @@ class DefaultElementsResponseAdapter : public ElementsResponseNotification {
  private:
   DocumentUpdateHandler document_update_Handler_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

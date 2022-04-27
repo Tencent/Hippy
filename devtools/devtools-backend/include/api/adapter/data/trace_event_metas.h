@@ -26,8 +26,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 using ThreadId = uint32_t;
 using TimeInterval = std::chrono::time_point<std::chrono::steady_clock>;
 
@@ -59,5 +58,4 @@ class TraceEventMetas : public Serializable {
   std::vector<TraceMeta> trace_metas_;
   std::vector<ThreadMeta> thread_metas_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

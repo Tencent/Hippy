@@ -20,10 +20,8 @@
 
 #include "devtools_base/common/log_settings.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace log {
 LogSettings global_log_settings;
 }  // namespace log
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

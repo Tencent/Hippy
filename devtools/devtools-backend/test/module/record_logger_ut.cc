@@ -28,8 +28,7 @@
 #include "module/record_logger.h"
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 using json = nlohmann::json;
 
 class RecordLoggerTest : public ::testing::Test {
@@ -63,5 +62,4 @@ TEST_F(RecordLoggerTest, RecordLogger) {
   logger_model_.time_stamp = 20;
   EXPECT_NO_THROW(record_logger_->RecordLogData(logger_model_));
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

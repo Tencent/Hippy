@@ -23,8 +23,7 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * network 模块调试，getResponseBody的请求数据体
  */
@@ -37,5 +36,4 @@ class NetworkResponseBodyRequest : public Deserializer {
  private:
   std::string request_id_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

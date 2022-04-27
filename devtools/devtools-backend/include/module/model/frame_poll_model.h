@@ -25,8 +25,7 @@
 #include "devtools_base/common/task_runner.h"
 #include "module/model/base_model.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief 定时轮询帧是否有刷新
@@ -46,12 +45,11 @@ class FramePollModel : public BaseModel{
   void ScheduleRefreshTimer();
   std::mutex mutex_;
   bool had_add_frame_callback_ = false;
-  uint64_t frame_callback_handler_;
+  uint64_t frame_callback_handler_ = 0;
   ResponseHandler response_handler_;
   bool frame_is_dirty_ = true;
   std::shared_ptr<TaskRunner> refresh_task_runner_;
   std::function<void()> refresh_task_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

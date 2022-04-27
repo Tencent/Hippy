@@ -29,8 +29,7 @@
 #include "tunnel/tcp/stream_handler.h"
 #include "tunnel/tcp/tcp_defines.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr int32_t kNullSocket = -1;
 constexpr int32_t kBufferSize = 32768;
 
@@ -65,5 +64,4 @@ class TcpChannel : public hippy::devtools::NetChannel {
   StreamHandler stream_handler_;
   ReceiveDataHandler data_handler_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

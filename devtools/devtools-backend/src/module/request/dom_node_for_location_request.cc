@@ -23,8 +23,7 @@
 #include "devtools_base/tdf_base_util.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kParamsX[] = "x";
 constexpr char kParamsY[] = "y";
@@ -41,5 +40,4 @@ void DomNodeForLocationRequest::Deserialize(const std::string& params) {
   has_set_xy_ = true;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -22,8 +22,7 @@
 #include <sstream>
 #include "devtools_base/transform_string_util.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kMemoryKeyHeapMetas[] = "heapMetas";
 constexpr char kMemoryKeyType[] = "t";
@@ -63,8 +62,7 @@ std::string MemoryMetas::Serialize() const {
     result_string += element_string;
   }
   result_string.pop_back();
-  result_string += metas_.size() ? "]}" : "[]}";
+  result_string += !metas_.empty() ? "]}" : "[]}";
   return result_string;
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

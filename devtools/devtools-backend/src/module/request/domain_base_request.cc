@@ -22,10 +22,8 @@
 #include "devtools_base/logging.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 void Deserializer::Deserialize(const std::string& params) {}
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

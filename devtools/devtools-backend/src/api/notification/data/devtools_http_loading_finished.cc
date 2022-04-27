@@ -25,8 +25,7 @@ constexpr char kLoadingFinishedTimestamp[] = "timestamp";
 constexpr char kLoadingFinishedEncodeDataLength[] = "encodedDataLength";
 constexpr char kLoadingFinishedShouldReportCorbBlocking[] = "shouldReportCorbBlocking";
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 std::string DevtoolsLoadingFinished::Serialize() const {
   std::string result = "{\"";
   result += kLoadingFinishedRequestId;
@@ -47,5 +46,4 @@ std::string DevtoolsLoadingFinished::Serialize() const {
   result += "}";
   return result;
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

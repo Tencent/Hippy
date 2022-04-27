@@ -30,8 +30,7 @@
 #include "devtools_base/common/macros.h"
 #include "devtools_base/common/unicode_string_view.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace log {
 inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view_temp& str_view) {
   unicode_string_view_temp::Encoding encoding = str_view.encoding();
@@ -100,5 +99,4 @@ int GetVlogVerbosity();
 
 bool ShouldCreateLogMessage(LogSeverity severity);
 }  // namespace log
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

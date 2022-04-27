@@ -22,10 +22,9 @@
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
-NetworkDomain::NetworkDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
+NetworkDomain::NetworkDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
 
 std::string_view NetworkDomain::GetDomainName() { return kFrontendKeyDomainNameNetwork; }
 
@@ -41,5 +40,4 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
     BACKEND_LOGE(TDF_BACKEND, "NetworkDomain::GetResponseBody no NetworkAdapterImp");
   }
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

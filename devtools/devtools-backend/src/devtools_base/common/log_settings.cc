@@ -21,13 +21,11 @@
 #include "devtools_base/common/log_settings.h"
 
 #include <fcntl.h>
-#include <string.h>
 
 #include <algorithm>
 #include <iostream>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace log {
 extern LogSettings global_log_settings;
 
@@ -40,5 +38,4 @@ LogSettings GetLogSettings() { return global_log_settings; }
 
 int GetMinLogLevel() { return std::min(global_log_settings.min_log_level, TDF_LOG_FATAL); }
 }  // namespace log
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

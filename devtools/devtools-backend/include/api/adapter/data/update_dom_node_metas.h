@@ -24,8 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class CSSStyleMetas;
 
@@ -86,7 +85,7 @@ class CSSStyleMetas {
   /**
    * @brief 获取 double 类型属性值
    */
-  double ToDouble();
+  double ToDouble() const;
 
   std::string GetKey() { return key_; }
 
@@ -97,5 +96,4 @@ class CSSStyleMetas {
   std::string string_value_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

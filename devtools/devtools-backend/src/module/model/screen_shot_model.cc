@@ -24,8 +24,7 @@
 #include "devtools_base/transform_string_util.hpp"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 void ScreenShotModel::SetScreenShotRequest(const ScreenShotRequest &req) {
   request_ = req;
   has_set_request_ = true;
@@ -34,7 +33,7 @@ void ScreenShotModel::SetScreenShotRequest(const ScreenShotRequest &req) {
 void ScreenShotModel::ReqScreenShotToResponse() {
   auto screen_shot_callback = [this](const std::string &image_base64, int32_t width, int32_t height) {
     if (response_callback_) {
-      response_callback_(ScreenShotResponse(std::move(image_base64), width, height));
+      response_callback_(ScreenShotResponse(image_base64, width, height));
     }
     BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToResponse end");
   };
@@ -44,7 +43,7 @@ void ScreenShotModel::ReqScreenShotToResponse() {
 void ScreenShotModel::ReqScreenShotToSendEvent() {
   auto screen_shot_callback = [this](const std::string &image_base64, int32_t width, int32_t height) {
     if (send_event_callback_) {
-      send_event_callback_(ScreenShotResponse(std::move(image_base64), width, height));
+      send_event_callback_(ScreenShotResponse(image_base64, width, height));
     }
     BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToSendEvent end");
   };
@@ -68,5 +67,4 @@ void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen
       {request_.GetQuality(), request_.GetMaxWidth(), request_.GetMaxHeight()},
       screen_shot_callback);
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

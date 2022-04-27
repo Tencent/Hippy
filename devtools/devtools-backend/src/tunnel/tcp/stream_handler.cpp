@@ -20,13 +20,12 @@
 
 #include "tunnel/tcp/stream_handler.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include <algorithm>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr int32_t kHeaderSize = 5;
 constexpr int32_t kMaxDataSize = 200 * 1024 * 1024;
 
@@ -108,5 +107,4 @@ void StreamHandler::HandleReceiveStream(void *data, int32_t len) {
     stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data), reinterpret_cast<char *>(data) + len);
   }
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

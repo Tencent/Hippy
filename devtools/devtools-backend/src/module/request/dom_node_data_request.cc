@@ -21,8 +21,7 @@
 #include "module/request/dom_node_data_request.h"
 #include "module/inspect_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 void DomNodeDataRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
@@ -33,5 +32,4 @@ void DomNodeDataRequest::Deserialize(const std::string& params) {
   has_set_node_id_ = true;
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

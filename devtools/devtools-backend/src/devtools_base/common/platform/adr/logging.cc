@@ -26,8 +26,7 @@
 
 #include "devtools_base/common/log_settings.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace log {
 namespace {
 
@@ -53,7 +52,7 @@ const char* StripPath(const char* path) {
 
 }  // namespace
 
-std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::delegate_ =
+std::function<void(const std::ostringstream&, LogSeverity severity)> LogMessage::delegate_ =   /* NOLINT */
     [](const std::ostringstream& stream, LogSeverity severity) {
       android_LogPriority priority = (severity < 0) ? ANDROID_LOG_VERBOSE : ANDROID_LOG_UNKNOWN;
       switch (severity) {
@@ -103,6 +102,5 @@ int GetVlogVerbosity() { return std::max(-1, TDF_LOG_INFO - GetMinLogLevel()); }
 
 bool ShouldCreateLogMessage(LogSeverity severity) { return severity >= GetMinLogLevel(); }
 }  // namespace log
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools
 #endif

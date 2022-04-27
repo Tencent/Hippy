@@ -21,21 +21,19 @@
 #include "devtools_base/tdf_base_util.h"
 #include "api/devtools_backend_service.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
-double TDFBaseUtil::AddScreenScaleFactor(std::shared_ptr<ScreenAdapter> screen_adapter, double origin_value) {
+double TDFBaseUtil::AddScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
   if (!screen_adapter) {
     return 1.f;
   }
   return origin_value * screen_adapter->GetScreenScale();
 }
 
-double TDFBaseUtil::RemoveScreenScaleFactor(std::shared_ptr<ScreenAdapter> screen_adapter, double origin_value) {
+double TDFBaseUtil::RemoveScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
   if (!screen_adapter || screen_adapter->GetScreenScale() == 0) {
     return 1.f;
   }
   return origin_value / screen_adapter->GetScreenScale();
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

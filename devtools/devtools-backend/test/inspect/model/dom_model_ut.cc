@@ -26,8 +26,7 @@
 #include "module/model/dom_model.h"
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class DOMModelTest : public ::testing::Test {
  protected:
@@ -124,5 +123,4 @@ TEST_F(DOMModelTest, CreatorDeathTest) {
   EXPECT_DEATH(DOMModel::CreateModelByJSON(array_json), "");
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

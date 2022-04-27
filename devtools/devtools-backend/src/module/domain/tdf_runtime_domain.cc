@@ -22,8 +22,7 @@
 #include "api/devtools_backend_service.h"
 #include "module/domain_register.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 std::string_view TDFRuntimeDomain::GetDomainName() { return kFrontendKeyDomainNameTDFRuntime; }
 
@@ -55,5 +54,4 @@ void TDFRuntimeDomain::IsDebugMode(const Deserializer& request) {
   ResponseResultToFrontend(request.GetId(), result_json.dump());
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

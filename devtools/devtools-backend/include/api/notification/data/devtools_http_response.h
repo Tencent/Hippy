@@ -27,8 +27,7 @@
 #include "api/notification/data/devtools_http_request.h"
 #include "api/notification/data/devtools_network_enum.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * Timing information for the given request.
@@ -117,5 +116,4 @@ class DevtoolsHttpResponse : public Serializable {
   std::string frame_id_;
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

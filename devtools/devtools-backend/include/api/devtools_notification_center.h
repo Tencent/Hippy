@@ -27,8 +27,7 @@
 #include "api/notification/devtools_runtime_notification.h"
 #include "api/notification/devtools_vm_response_notification.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
  /**
   * devtools Provide a set of functional interfaces that can be used by the external access framework,
@@ -41,5 +40,4 @@ struct NotificationCenter {
   std::shared_ptr<NetworkNotification> network_notification;
   std::shared_ptr<RuntimeNotification> runtime_notification;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

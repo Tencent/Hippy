@@ -27,6 +27,8 @@ set(PROJECT_NAME devtools_backend)
 project(${PROJECT_NAME})
 message("make devtools_backend so/.a")
 
+set(CMAKE_CXX_CLANG_TIDY ${ANDROID_TOOLCHAIN_ROOT}/bin/clang-tidy -checks=*)
+
 set(ABI_COMPILE_OPTIONS -fexceptions -Wno-error -frtti)
 add_compile_options(${ABI_COMPILE_OPTIONS})
 

@@ -24,13 +24,12 @@
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 constexpr char kInspectorEventScreenShotUpdated[] = "TDFInspector.screenshotUpdated";
 constexpr char kInspectorEventRenderTreeUpdated[] = "TDFInspector.renderTreeUpdated";
 
-TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {
+TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   tdf_inspector_model_ = std::make_shared<TDFInspectorModel>();
   frame_poll_model_ = std::make_shared<FramePollModel>();
   screen_shot_model_ = std::make_shared<ScreenShotModel>();
@@ -60,7 +59,7 @@ void TDFInspectorDomain::DumpDomTree(const Deserializer& request) {
     return;
   }
   BACKEND_LOGD(TDF_BACKEND, "HandleDumpDomTree dumpDom start");
-  dom_tree_adapter->GetDomTree([this, request](bool is_success, DomNodeMetas metas) {
+  dom_tree_adapter->GetDomTree([this, request](bool is_success, const DomNodeMetas& metas) {
     BACKEND_LOGD(TDF_BACKEND, "HandleDumpDomTree dumpDom end");
     nlohmann::json tree_json = nlohmann::json::parse(metas.Serialize());
     json result_json = json::object();
@@ -81,7 +80,7 @@ void TDFInspectorDomain::GetDomTree(const Deserializer& request) {
     return;
   }
   BACKEND_LOGD(TDF_BACKEND, "GetDomTree dumpDom start");
-  dom_tree_adapter->GetDomTree([this, request](bool is_success, DomNodeMetas metas) {
+  dom_tree_adapter->GetDomTree([this, request](bool is_success, const DomNodeMetas& metas) {
     BACKEND_LOGD(TDF_BACKEND, "GetDomTree dumpDom end");
     nlohmann::json tree_json = nlohmann::json::parse(metas.Serialize());
     json result_json = json::object();
@@ -118,7 +117,7 @@ void TDFInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
   // 用最近一次 GetScreenShot 事件的参数，作为截屏更新监听的参数
   screen_shot_model_->SetScreenShotRequest(request);
   auto screen_shot_callback = ScreenShotModel::ScreenShotCallback([this, request](ScreenShotResponse&& response) {
-    ResponseResultToFrontend(request.GetId(), std::move(response.ToJsonString()));
+    ResponseResultToFrontend(request.GetId(), response.ToJsonString());
   });
   screen_shot_model_->SetResponseScreenShotCallback(screen_shot_callback);
   screen_shot_model_->ReqScreenShotToResponse();
@@ -180,5 +179,4 @@ void TDFInspectorDomain::SendRenderTreeUpdatedEvent() {
   });
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

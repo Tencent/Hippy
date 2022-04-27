@@ -29,8 +29,7 @@
 #include "devtools_base/common/thread.h"
 #include "devtools_base/common/worker.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace runner {
 class WorkerPool {
  public:
@@ -62,5 +61,4 @@ class WorkerPool {
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(WorkerPool);
 };
 }  // namespace runner
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

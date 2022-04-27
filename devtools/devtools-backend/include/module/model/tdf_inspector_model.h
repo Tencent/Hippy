@@ -22,8 +22,7 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief UI 调试 model
@@ -33,5 +32,4 @@ class TDFInspectorModel {
   std::string GetRenderTree(const std::string& render_tree);
 };
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

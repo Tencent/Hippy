@@ -22,8 +22,7 @@
 
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * 可序列化基类
  */
@@ -36,5 +35,4 @@ class Serializable {
   virtual std::string Serialize() const = 0;
   virtual ~Serializable() {}
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

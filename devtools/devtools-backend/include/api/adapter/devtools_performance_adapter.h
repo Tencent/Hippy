@@ -24,8 +24,7 @@
 #include "api/adapter/data/trace_event_metas.h"
 #include "api/adapter/data/frame_timing_metas.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class PerformanceAdapter {
  public:
   using CoreTimelineCallback = std::function<void(const TraceEventMetas &metas)>;
@@ -53,5 +52,4 @@ class PerformanceAdapter {
    */
   virtual void ResetTimeline() = 0;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

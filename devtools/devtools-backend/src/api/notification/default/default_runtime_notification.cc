@@ -23,8 +23,7 @@
 
 constexpr char kRuntimeEventUpdateContextInfo[] = "TDFRuntime.updateContextInfo";
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 void DefaultRuntimeNotification::UpdateContextName(const std::string& context_name) {
   nlohmann::json params = nlohmann::json::object();
@@ -35,5 +34,4 @@ void DefaultRuntimeNotification::UpdateContextName(const std::string& context_na
   }
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

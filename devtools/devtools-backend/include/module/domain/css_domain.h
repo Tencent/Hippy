@@ -29,20 +29,19 @@
 #include "module/request/css_edit_style_texts_request.h"
 #include "module/request/css_node_data_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief CSSModel数据回调
  */
-using CSSStyleDataCallback = std::function<void(CSSModel model)>;
+using CSSStyleDataCallback = std::function<void(const CSSModel& model)>;
 
 /**
  * @brief 根据node id请求单个节点的style数据
  * @param node_id 节点id
  * @param callback 数据回调
  */
-using CSSDataRequestCallback = std::function<void(int32_t node_id, CSSStyleDataCallback callback)>;
+using CSSDataRequestCallback = std::function<void(int32_t node_id, const CSSStyleDataCallback& callback)>;
 
 /**
  * @brief CSS domain 处理类
@@ -64,5 +63,4 @@ class CSSDomain : public BaseDomain {
   std::map<int32_t, nlohmann::json> style_text_map_;
   std::map<int32_t, uint32_t> request_call_back_count_map_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

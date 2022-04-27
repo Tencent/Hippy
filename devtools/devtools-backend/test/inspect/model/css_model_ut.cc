@@ -26,8 +26,7 @@
 #include "module/model/css_model.h"
 #include "nlohmann/json.hpp"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class CSSModelTest : public ::testing::Test {
  protected:
@@ -107,5 +106,4 @@ TEST_F(CSSModelTest, CreatorDeathTest) {
   EXPECT_DEATH(CSSModel::CreateModelByJSON(array_json), "");
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

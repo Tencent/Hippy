@@ -29,8 +29,7 @@
 
 typedef WSClient::connection_ptr WSConnectionPtr;
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
   ws_uri_ = ws_uri;
@@ -151,5 +150,4 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
                con->get_remote_close_reason().c_str());
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

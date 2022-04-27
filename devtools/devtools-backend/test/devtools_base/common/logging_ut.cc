@@ -32,8 +32,7 @@
 #else
 #endif
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 class LoggerTest : public ::testing::Test {
  protected:
@@ -64,5 +63,4 @@ TEST_F(LoggerTest, Logger) {
   steady_clock_time_->NowTimeSinceEpoch(SteadyClockTime::TimeUnit::kNanoSeconds);
 }
 
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

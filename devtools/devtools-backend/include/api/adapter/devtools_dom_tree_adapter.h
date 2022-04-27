@@ -24,8 +24,7 @@
 #include "api/adapter/data/dom_node_metas.h"
 #include "api/adapter/data/update_dom_node_metas.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class DomTreeAdapter {
  public:
   using DumpDomTreeCallback = std::function<void(const bool is_success, const DomNodeMetas& metas)>;
@@ -38,8 +37,7 @@ class DomTreeAdapter {
   /**
    * @brief 获取 JS 的 DOM Tree
    */
-  virtual void GetDomTree(DumpDomTreeCallback callback) = 0;
+  virtual void GetDomTree(const DumpDomTreeCallback& callback) = 0;
   virtual ~DomTreeAdapter() {}
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

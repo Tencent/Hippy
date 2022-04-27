@@ -25,8 +25,7 @@
 
 #include "devtools_base/common/logging.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 inline namespace runner {
 std::mutex WorkerPool::creation_mutex_;
 
@@ -192,5 +191,4 @@ void WorkerPool::BindWorker(std::shared_ptr<Worker> worker, std::vector<std::sha
   }
 }
 }  // namespace runner
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

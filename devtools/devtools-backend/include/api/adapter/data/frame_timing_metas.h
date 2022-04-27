@@ -25,8 +25,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 struct FrameMeta {
   std::time_t ui_begin;
   std::time_t ui_end;
@@ -44,6 +43,5 @@ class FrameTimingMetas : public Serializable {
  private:
   std::vector<FrameMeta> metas_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools
 

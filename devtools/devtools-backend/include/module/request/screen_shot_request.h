@@ -23,8 +23,7 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  * @brief 截屏请求
  */
@@ -43,5 +42,4 @@ class ScreenShotRequest : public Deserializer {
   int32_t max_width_;
   int32_t max_height_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools

@@ -22,8 +22,7 @@
 #include <memory>
 #include <string>
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief 使用框架
@@ -59,5 +58,4 @@ struct DevtoolsConfig {
 
   std::string ws_url;  // ws 通道设置的 url
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace devtools::devtools
