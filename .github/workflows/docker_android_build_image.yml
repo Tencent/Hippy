@@ -1,4 +1,4 @@
-name: '[android] build release image'
+name: '[docker] make android build image'
 
 on:
   workflow_dispatch:
@@ -11,8 +11,6 @@ on:
     branches:
       - master
       - main
-    tags-ignore:
-      - '**'
     paths:
       - 'docker/android-release/Dockerfile'
 jobs:

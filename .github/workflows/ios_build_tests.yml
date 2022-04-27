@@ -1,0 +1,22 @@
+name: '[ios] build tests'
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+    paths:
+      - 'driver/js/ios/**'
+      - 'driver/js/core/**'
+
+jobs:
+  ios_build_tests:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        run: |
+          # https://github.com/actions/virtual-environments/issues/4180
+          pushd examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd

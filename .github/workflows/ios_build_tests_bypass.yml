@@ -1,0 +1,20 @@
+name: '[ios] build tests'
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+    paths-ignore:
+      - 'driver/js/ios/**'
+      - 'driver/js/core/**'
+
+jobs:
+  ios_build_tests:
+    runs-on: macos-latest
+    steps:
+    - name: Build Test Bypass
+      run: |
+        echo "No build test required"

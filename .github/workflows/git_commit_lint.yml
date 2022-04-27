@@ -1,4 +1,4 @@
-name: '[commit-lint] check commit message format'
+name: '[git] commit message format lint'
 
 on: [ pull_request ]
 
