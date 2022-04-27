@@ -24,18 +24,16 @@
 import { Event } from '../../renderer/native/event';
 import Native from '../native';
 
-// FIXME: Android Should update defaultValue while typing for update contents by state.
 function androidUpdate(el, value, oldValue) {
   if (value !== oldValue) {
-    el.setAttribute('defaultValue', value);
+    el.setAttribute('defaultValue', value, { textUpdate: true });
   }
 }
 
-// FIXME: iOS doesn't need to update any props while typing, but need to update text when set state.
 function iOSUpdate(el, value) {
   if (value !== el.attributes.defaultValue) {
     el.attributes.defaultValue = value;
-    el.setAttribute('text', value);
+    el.setAttribute('text', value, { textUpdate: true });
   }
 }
 

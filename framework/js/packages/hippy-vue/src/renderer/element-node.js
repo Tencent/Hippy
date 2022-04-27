@@ -242,7 +242,7 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
-  setAttribute(key, value) {
+  setAttribute(key, value, options = {}) {
     try {
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
@@ -284,7 +284,9 @@ class ElementNode extends ViewNode {
               throw new TypeError(`Property ${key} must be string：${err.message}`);
             }
           }
-          value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+          if (!options || !options.textUpdate) {
+            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+          }
           this.attributes[key] = unicodeToChar(value);
           break;
         }
