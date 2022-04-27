@@ -244,12 +244,14 @@ class SimpleAnimation {
       this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
     );
     this.animationUpdate2Css(animation);
-    element.addEventListener('animationstart', this.handleAnimationStart);
     element.addEventListener('animationend', this.handleAnimationEnd);
   }
 
   public start() {
     this.changeAnimationStatus('running');
+    setTimeout(() => {
+      this.handleAnimationStart({ animationName: this.animationName, elapsedTime: 0, pseudoElement: '' } as AnimationEvent);
+    }, this.animationInfo.delay ?? 0);
   }
 
   public stop() {
@@ -343,7 +345,7 @@ class SimpleAnimation {
   }
 
   private dispatchEvent(eventName: HippyAnimationEvent) {
-    this.context.sendUiEvent(this.id as number, eventName, null);
+    this.context.sendEvent(eventName, this.id);
   }
 
   private buildCssValue(value: string) {
@@ -365,13 +367,14 @@ class SimpleAnimation {
   }
 
   private handleAnimationStart(event: AnimationEvent) {
+    console.log('begin animation');
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.START);
     }
-    event.stopPropagation();
   }
 
   private handleAnimationEnd(event: AnimationEvent) {
+    console.log('end animation');
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.END);
     }
