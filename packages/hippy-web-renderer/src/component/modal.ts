@@ -17,7 +17,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NodeProps, ModalAnimationType, ModalOrientations, InnerNodeTag, HippyBaseView } from '../types';
+import {
+  NodeProps,
+  ModalAnimationType,
+  ModalOrientations,
+  InnerNodeTag,
+  HippyBaseView,
+  UIProps,
+} from '../types';
 
 import {  setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
@@ -115,8 +122,20 @@ export class Modal extends HippyView<HTMLDivElement> {
       width: '100vw',
       height: '100vh',
       top: '0%',
+      position: 'fixed',
       boxSizing: 'border-box',
     };
+  }
+
+  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+    if (this.firstUpdateStyle) {
+      defaultProcess(this, { style: this.defaultStyle() });
+    }
+    const newData = { ...data };
+    if (data.style?.position) {
+      delete newData.style.position;
+    }
+    defaultProcess(this, newData);
   }
 
   public get animated() {
