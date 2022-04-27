@@ -264,7 +264,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     auto domManager = self.domManager.lock();
     if (domManager) {
         __weak HippyShadowView *weakSelf = self;
-        std::function<void ()> func = [weakSelf, domManager](){
+        std::vector<std::function<void()>> ops_ = {[weakSelf, domManager](){
             @autoreleasepool {
                 if (weakSelf) {
                     HippyShadowView *strongSelf = weakSelf;
@@ -278,8 +278,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                     }
                 }
             }
-        };
-        domManager->PostTask(func);
+        }};
+        domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
     }
 }
 

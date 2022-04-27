@@ -426,12 +426,10 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     auto scope = weak_scope.lock();
     if (scope) {
       auto weak_dom_manager = scope->GetDomManager();
-      auto screen = builder->Build(weak_dom_manager);
+      auto scene = builder->Build(weak_dom_manager);
       auto dom_manager = weak_dom_manager.lock();
       if (dom_manager) {
-        dom_manager->PostTask([screen]() {
-          screen.Build();
-        });
+        dom_manager->PostTask(std::move(scene));
       }
     }
     return nullptr;

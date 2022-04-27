@@ -221,7 +221,8 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     auto domManager = self.domManager.lock();
     if (domManager) {
         __weak HippyShadowView *weakSelf = self;
-        std::function<void ()> func = [weakSelf](){
+        
+        std::vector<std::function<void()>> ops_ = {[weakSelf](){
             if (weakSelf) {
                 HippyShadowView *strongSelf = weakSelf;
                 strongSelf.creationType = HippyCreationTypeInstantly;
@@ -229,8 +230,8 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
                     [subShadowView synchronousRecusivelySetCreationTypeToInstant];
                 }
             }
-        };
-        domManager->PostTask(func);
+        }};
+        domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
     }
 }
 
@@ -350,7 +351,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     auto domManager = self.domManager.lock();
     if (domManager) {
         __weak HippyShadowView *weakSelf = self;
-        std::function<void ()> func = [weakSelf, domManager, frame](){
+        std::vector<std::function<void()>> ops_ = {[weakSelf, domManager, frame](){
             @autoreleasepool {
                 if (weakSelf) {
                     HippyShadowView *strongSelf = weakSelf;
@@ -368,8 +369,8 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
                     }
                 }
             }
-        };
-        domManager->PostTask(func);
+        }};
+        domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
     }
 }
 
