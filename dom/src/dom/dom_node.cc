@@ -11,6 +11,8 @@
 namespace hippy {
 inline namespace dom {
 
+using Scene = hippy::dom::Scene;
+
 constexpr char kLayoutLayoutKey[] = "layout";
 constexpr char kLayoutXKey[] = "x";
 constexpr char kLayoutYKey[] = "y";
@@ -110,7 +112,7 @@ void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, event] {
+    std::vector<std::function<void()>> ops = {[WEAK_THIS, event] {
       DEFINE_AND_CHECK_SELF(DomNode);
       auto manager = self->dom_manager_.lock();
       TDF_BASE_DCHECK(manager);
@@ -118,7 +120,7 @@ void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
         manager->HandleEvent(std::move(event));
       }
     }};
-    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
+    dom_manager->PostTask(Scene(std::move(ops)));
   }
 }
 
@@ -166,7 +168,7 @@ void DomNode::AddEventListener(const std::string& name, bool use_capture, const 
         callback(arg);
       }
     }};
-    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
+    dom_manager->PostTask(Scene(std::move(ops_)));
   }
 }
 
@@ -214,7 +216,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
         }
       }
     }};
-    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
+    dom_manager->PostTask(Scene(std::move(ops_)));
   }
 }
 
@@ -364,7 +366,7 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
         dom_manager->UpdateRenderNode(self->shared_from_this());
       }
     }};
-    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
+    dom_manager->PostTask(Scene(std::move(ops_)));
   }
 }
 

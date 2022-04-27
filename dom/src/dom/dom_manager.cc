@@ -16,7 +16,7 @@
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
 
-#define CHECK_RUN_THREAD() \
+#define DCHECK_RUN_THREAD() \
   { TDF_BASE_DCHECK(dom_task_runner_->Id() == hippy::base::ThreadId::GetCurrent()); }
 
 namespace hippy {
@@ -77,7 +77,7 @@ uint32_t DomManager::GetRootId() const { return root_node_->GetId(); }
 std::shared_ptr<DomNode> DomManager::GetNode(uint32_t id) const { return root_node_->GetNode(id); }
 
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
     interceptor->OnDomNodeCreate(nodes);
   }
@@ -85,7 +85,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 }
 
 void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
     interceptor->OnDomNodeUpdate(nodes);
   }
@@ -93,12 +93,12 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 }
 
 void DomManager::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   root_node_->UpdateAnimation(std::move(nodes));
 }
 
 void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
     interceptor->OnDomNodeDelete(nodes);
   }
@@ -106,7 +106,7 @@ void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 }
 
 void DomManager::EndBatch() {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   auto render_manager = render_manager_.lock();
   TDF_BASE_DCHECK(render_manager);
   if (!render_manager) {
@@ -117,7 +117,7 @@ void DomManager::EndBatch() {
 
 void DomManager::AddEventListener(uint32_t id, const std::string& name, bool use_capture, const EventCallback& cb,
                                   const CallFunctionCallback& callback) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   auto node = root_node_->GetNode(id);
   if (!node && callback) {
     callback(std::make_shared<DomArgument>(DomValue(kInvalidListenerId)));
@@ -127,7 +127,7 @@ void DomManager::AddEventListener(uint32_t id, const std::string& name, bool use
 }
 
 void DomManager::RemoveEventListener(uint32_t id, const std::string& name, uint32_t listener_id) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   auto node = root_node_->GetNode(id);
   if (!node) {
     return;
@@ -137,7 +137,7 @@ void DomManager::RemoveEventListener(uint32_t id, const std::string& name, uint3
 
 void DomManager::CallFunction(uint32_t id, const std::string& name, const DomArgument& param,
                               const CallFunctionCallback& cb) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   auto node = root_node_->GetNode(id);
   if (node == nullptr) {
     return;
@@ -159,13 +159,13 @@ std::tuple<float, float> DomManager::GetRootSize() {
 }
 
 void DomManager::SetRootSize(float width, float height) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   TDF_BASE_CHECK(root_node_);
   root_node_->SetLayoutSize(width, height);
 }
 
 void DomManager::SetRootNode(const std::shared_ptr<RootNode>& root_node) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   if (root_node) {
     root_node_ = root_node;
     root_node->SetDomManager(weak_from_this());
@@ -173,7 +173,7 @@ void DomManager::SetRootNode(const std::shared_ptr<RootNode>& root_node) {
 }
 
 void DomManager::DoLayout() {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   auto render_manager = render_manager_.lock();
   // check render_manager, measure text dependent render_manager
   TDF_BASE_DCHECK(render_manager);
@@ -184,7 +184,7 @@ void DomManager::DoLayout() {
 }
 
 void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
-  CHECK_RUN_THREAD()
+  DCHECK_RUN_THREAD()
   auto weak_target = event->GetTarget();
   auto event_name = event->GetType();
   auto target = weak_target.lock();
