@@ -231,7 +231,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
                 }
             }
         }};
-        domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
+        domManager->PostTask(hippy::dom::Scene(std::move(ops)));
     }
 }
 
@@ -370,7 +370,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
                 }
             }
         }};
-        domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
+        domManager->PostTask(hippy::dom::Scene(std::move(ops)));
     }
 }
 
