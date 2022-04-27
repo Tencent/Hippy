@@ -28,6 +28,7 @@
 #import "HippyUtils.h"
 #import "HippyI18nUtils.h"
 #import "dom/layout_node.h"
+#include "dom/taitank_layout_node.h"
 
 NSString *const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
 NSString *const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
@@ -97,6 +98,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             [layoutManager lineFragmentUsedRectForGlyphAtIndex:numberOfGlyphs - 1 effectiveRange:&lineFramentEffectiveRange];
         }
     }
+}
+
+- (void)printLayoutNodeChildren {
+    
 }
 
 - (instancetype)init {
@@ -200,6 +205,20 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
                 CGRect childFrame = CGRectMake(location.x, positionY, roundedWidth, roundedHeight);
                 child.frame = childFrame;
+                auto domManager = [child domManager].lock();
+                if (domManager) {
+                    int32_t hippyTag = [child.hippyTag intValue];
+//                    auto domNode = domManager->GetNode(hippyTag);
+//                    if (domNode) {
+//                        domNode->DoLayout();
+//                        width = domNode->GetLayoutResult().width;
+//                        height = domNode->GetLayoutResult().height;
+//                        child.nodeLayoutResult = domNode->GetLayoutResult();
+//                    }
+//                    std::shared_ptr<hippy::DomNode> domNode = std::make_shared<hippy::DomNode>(<#_Args &&__args...#>)
+//                    domManager->UpdateDomNodes(<#std::vector<std::shared_ptr<DomNode>> &&nodes#>)
+//                    domManager->updatepro
+                }
             }
         }];
         [super amendLayoutBeforeMount];
@@ -781,6 +800,31 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         _minimumFontScale = minimumFontScale;
     }
     [self dirtyText];
+}
+
+- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
+    [super insertHippySubview:subview atIndex:atIndex];
+    auto domManager = [self domManager].lock();
+    if (domManager) {
+        int32_t hippyTag = [self.hippyTag intValue];
+        auto node = domManager->GetNode(hippyTag);
+        auto layoutNode = std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
+        HPNodeRef nodeRef = layoutNode->GetLayoutEngineNodeRef();
+        uint32_t childrenCount = HPNodeChildCount(nodeRef);
+        for (int i = childrenCount - 1; i >= 0; i--) {
+            HPNodeRef child = HPNodeGetChild(nodeRef, i);
+            HPNodeRemoveChild(nodeRef, child);
+        }
+
+        __weak HippyShadowText *weakSelf = self;
+        hippy::MeasureFunction measureFunc =
+            [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
+                                 float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
+            return textMeasureFunc(weakSelf, width, widthMeasureMode,
+                                   height, heightMeasureMode, layoutContext);
+        };
+        layoutNode->SetMeasureFunction(measureFunc);
+    }
 }
 
 @end
