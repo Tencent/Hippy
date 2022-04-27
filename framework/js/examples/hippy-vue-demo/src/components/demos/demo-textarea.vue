@@ -31,7 +31,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 #demo-textarea {
   display: flex;
   align-items: center;
