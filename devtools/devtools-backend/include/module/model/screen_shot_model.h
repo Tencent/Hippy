@@ -27,7 +27,7 @@
 #include "module/request/screen_shot_request.h"
 #include "module/model/base_model.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 using json = nlohmann::json;
 
@@ -71,4 +71,4 @@ class ScreenShotModel : public BaseModel {
   ScreenShotCallback send_event_callback_;  // 截屏回调，用来发送事件到前端
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

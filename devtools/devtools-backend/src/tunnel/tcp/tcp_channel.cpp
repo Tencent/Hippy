@@ -26,15 +26,16 @@
 #include "devtools_base/logging.h"
 #include "socket.h"
 
-namespace tdf::devtools {
-constexpr const char *kListenHost = "127.0.0.1";
+namespace hippy {
+namespace devtools {
+constexpr char kListenHost[] = "127.0.0.1";
 constexpr int32_t kListenPort = 2345;
 
 TcpChannel::TcpChannel() {
   // fd=0、1、2是已经被系统的stdin、stdout和stderr，所以这里要初始化为-1，否则首次启动时，会close掉fd=0的socket资源，导致系统fd被占用。
   socket_fd_ = kNullSocket;
   client_fd_ = kNullSocket;
-  stream_handler_ = tunnel::StreamHandler();
+  stream_handler_ = StreamHandler();
   stream_handler_.send_stream_callback_ = [this](void *data, int32_t len) { this->SendResponse_(data, len); };
 
   stream_handler_.receive_stream_callback_ = [this](void *data, int32_t len, int32_t task_flag) {
@@ -185,7 +186,7 @@ void TcpChannel::Connect(ReceiveDataHandler handler) {
 
 void TcpChannel::Send(const std::string &rsp_data) {
   const char *buffer = rsp_data.c_str();
-  SendResponse(const_cast<void *>(reinterpret_cast<const void *>(buffer)), rsp_data.length(), tdf::devtools::TASK_FLAG);
+  SendResponse(const_cast<void *>(reinterpret_cast<const void *>(buffer)), rsp_data.length(), hippy::devtools::TASK_FLAG);
 }
 
 void TcpChannel::Close(uint32_t code, const std::string &reason) {}
@@ -233,4 +234,5 @@ void TcpChannel::ListenerAndResponse(int client_fd) {
 
 void TcpChannel::StopListenAndDisConnect() { SetStarting(false); }
 
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

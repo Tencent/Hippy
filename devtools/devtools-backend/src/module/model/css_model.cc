@@ -28,38 +28,36 @@
 #include "devtools_base/tdf_string_util.h"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 // json key
-constexpr const char* kComputedStyleKey = "computedStyle";
-constexpr const char* kInlineStyleKey = "inlineStyle";
-constexpr const char* kNodeId = "nodeId";
-constexpr const char* kStyleSheetIdKey = "styleSheetId";
-constexpr const char* kCSSPropertiesKey = "cssProperties";
-constexpr const char* kShorthandEntriesKey = "shorthandEntries";
-constexpr const char* kCSSTextKey = "cssText";
-constexpr const char* kRangeKey = "range";
-constexpr const char* kStyleKey = "style";
-constexpr const char* kStyleNameKey = "name";
-constexpr const char* kStyleValueKey = "value";
-constexpr const char* kStyleImportantKey = "important";
-constexpr const char* kStyleImplicitKey = "implicit";
-constexpr const char* kStyleTextKey = "text";
-constexpr const char* kStyleParsedOKKey = "parsedOk";
-constexpr const char* kStyleDisabledKey = "disabled";
-constexpr const char* kStyleRangeKey = "range";
-constexpr const char* kStyleStartLineKey = "startLine";
-constexpr const char* kStyleStartColumnKey = "startColumn";
-constexpr const char* kStyleEndLineKey = "endLine";
-constexpr const char* kStyleEndColumnKey = "endColumn";
-constexpr const char* kUpdateNodeIdKey = "id";
-constexpr const char* kUpdateNodeInfoKey = "updateInfo";
-
-// default value
-constexpr const char* kDefaultLength = "0";
-constexpr const char* kDefaultDisplay = "block";
-constexpr const char* kDefaultPosition = "relative";
+constexpr char kComputedStyleKey[] = "computedStyle";
+constexpr char kInlineStyleKey[] = "inlineStyle";
+constexpr char kNodeId[] = "nodeId";
+constexpr char kStyleSheetIdKey[] = "styleSheetId";
+constexpr char kCSSPropertiesKey[] = "cssProperties";
+constexpr char kShorthandEntriesKey[] = "shorthandEntries";
+constexpr char kCSSTextKey[] = "cssText";
+constexpr char kRangeKey[] = "range";
+constexpr char kStyleKey[] = "style";
+constexpr char kStyleNameKey[] = "name";
+constexpr char kStyleValueKey[] = "value";
+constexpr char kStyleImportantKey[] = "important";
+constexpr char kStyleImplicitKey[] = "implicit";
+constexpr char kStyleTextKey[] = "text";
+constexpr char kStyleParsedOKKey[] = "parsedOk";
+constexpr char kStyleDisabledKey[] = "disabled";
+constexpr char kStyleRangeKey[] = "range";
+constexpr char kStyleStartLineKey[] = "startLine";
+constexpr char kStyleStartColumnKey[] = "startColumn";
+constexpr char kStyleEndLineKey[] = "endLine";
+constexpr char kStyleEndColumnKey[] = "endColumn";
+constexpr char kUpdateNodeIdKey[] = "id";
+constexpr char kUpdateNodeInfoKey[] = "updateInfo";
+constexpr char kDefaultLength[] = "0";
+constexpr char kDefaultDisplay[] = "block";
+constexpr char kDefaultPosition[] = "relative";
 
 CSSModel::CSSModel() {
   InitializeBoxModelRequireMap();
@@ -112,7 +110,7 @@ nlohmann::json CSSModel::GetStyleTextJSON(const nlohmann::json& text) {
 
   auto update_info = ParseStyleTextValue(text_value);
   UpdateDomNodeMetas result_metas(node_id_, update_info);
-  auto dom_tree_adapter = provider_->GetDomTreeAdapter();
+  auto dom_tree_adapter = provider_->dom_tree_adapter;
   if (dom_tree_adapter) {
     auto update_node_id = node_id_;
     dom_tree_adapter->UpdateDomTree(result_metas, [update_node_id](const bool is_success) {
@@ -348,4 +346,4 @@ void CSSModel::InitializeStyleEnumMap() {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

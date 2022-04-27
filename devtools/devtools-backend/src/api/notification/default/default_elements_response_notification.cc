@@ -23,7 +23,7 @@
 #include "api/devtools_backend_service.h"
 #include "devtools_base/logging.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 DefaultElementsResponseAdapter::DefaultElementsResponseAdapter(DocumentUpdateHandler document_update_Handler)
     : document_update_Handler_(document_update_Handler) {}
@@ -43,4 +43,4 @@ void DefaultElementsResponseAdapter::NotifyDocumentUpdate() {
 //  });
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

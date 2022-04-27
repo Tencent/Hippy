@@ -24,7 +24,7 @@
 #include <string>
 #include "module/domain/base_domain.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -40,4 +40,4 @@ class TDFCommonProtocolDomain : public BaseDomain {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

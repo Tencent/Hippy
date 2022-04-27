@@ -26,7 +26,7 @@
 
 namespace hippy {
 namespace devtools {
-class HippyElementsRequestAdapter : public tdf::devtools::ElementsRequestAdapter {
+class HippyElementsRequestAdapter : public hippy::devtools::ElementsRequestAdapter {
  public:
   using DomainHandler = std::function<void(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback)>;
   using NodeHandler = std::function<void(double x, double y, DomainDataCallback callback)>;

@@ -27,7 +27,8 @@
 #include <iosfwd>
 #include <limits>
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace time {
 using Milliseconds = std::chrono::duration<double, std::milli>;
 
@@ -105,5 +106,6 @@ class TimeDelta {
   int64_t delta_ = 0;
 };
 }  // namespace time
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy
 

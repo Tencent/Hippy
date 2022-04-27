@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -34,4 +34,4 @@ class TDFInspectorModel {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -22,20 +22,20 @@
 #include <sstream>
 #include "module/domain_dispatch.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* ERROR_CODE = "code";
-constexpr const char* ERROR_MESSAGE = "message";
-constexpr const char* METHOD_ENABLE = "Enable";
-constexpr const char* METHOD_DISABLE = "Disable";
+constexpr char kErrorCode[] = "code";
+constexpr char kErrorMessage[] = "message";
+constexpr char kMethodEnable[] = "Enable";
+constexpr char kMethodDisable[] = "Disable";
 
 bool BaseDomain::HandleDomainSwitchEvent(int32_t id, const std::string& method) {
   // 由具体的 domain 子类处理
-  if (method == METHOD_ENABLE) {
+  if (method == kMethodEnable) {
     ResponseResultToFrontend(id, "{}");
     return true;
-  } else if (method == METHOD_DISABLE) {
+  } else if (method == kMethodDisable) {
     ResponseResultToFrontend(id, "{}");
     return true;
   }
@@ -51,7 +51,7 @@ void BaseDomain::ResponseResultToFrontend(int32_t id, const std::string& result)
 
 void BaseDomain::ResponseErrorToFrontend(int32_t id, const int32_t error_code, const std::string& error_msg) {
   std::stringstream sstream;
-  sstream << "{\"" << ERROR_CODE << "\":" << error_code << ",\"" << ERROR_MESSAGE << "\":\"" << error_msg << "\"}";
+  sstream << "{\"" << kErrorCode << "\":" << error_code << ",\"" << kErrorMessage << "\":\"" << error_msg << "\"}";
   auto dispatch = dispatch_.lock();
   if (dispatch) {
     dispatch->SendDataToFrontend(id, "", sstream.str());
@@ -82,4 +82,4 @@ std::shared_ptr<NotificationCenter> BaseDomain::GetNotificationCenter() {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

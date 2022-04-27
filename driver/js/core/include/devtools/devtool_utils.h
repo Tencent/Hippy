@@ -38,10 +38,10 @@ namespace devtools {
  */
 class DevToolUtils {
  public:
-  static tdf::devtools::DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
-  static tdf::devtools::DomainMetas GetDomDomainData(const std::shared_ptr<DomNode>& dom_node, uint32_t depth,
+  static hippy::devtools::DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
+  static hippy::devtools::DomainMetas GetDomDomainData(const std::shared_ptr<DomNode>& dom_node, uint32_t depth,
                                                      const std::shared_ptr<DomManager>& dom_manager);
-  static tdf::devtools::DomNodeLocation GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node, double x,
+  static hippy::devtools::DomNodeLocation GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node, double x,
                                                                double y);
   static bool IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, double x, double y);
   static std::shared_ptr<DomNode> GetSmallerAreaNode(const std::shared_ptr<DomNode>& old_node,

@@ -21,7 +21,7 @@
 #include "devtools_base/tdf_string_util.h"
 #include <regex>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 std::vector<std::string> TDFStringUtil::SplitString(const std::string &origin, const std::string &split_tag) {
@@ -69,4 +69,4 @@ std::string TDFStringUtil::UnCamelize(const std::string &origin) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

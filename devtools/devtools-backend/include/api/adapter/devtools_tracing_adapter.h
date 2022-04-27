@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class TracingAdapter {
  public:
@@ -39,4 +39,4 @@ class TracingAdapter {
   virtual ~TracingAdapter(){}
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

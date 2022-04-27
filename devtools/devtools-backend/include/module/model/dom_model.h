@@ -25,7 +25,7 @@
 #include "module/model/base_model.h"
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -166,4 +166,4 @@ class DOMModel : public BaseModel {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

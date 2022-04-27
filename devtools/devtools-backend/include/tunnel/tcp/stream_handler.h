@@ -23,7 +23,8 @@
 #include <functional>
 #include <vector>
 
-namespace tdf::tunnel {
+namespace hippy {
+namespace devtools {
 constexpr uint32_t kTunnelBufferSize = 32768;
 /*
  *  header
@@ -55,4 +56,5 @@ class StreamHandler {
  private:
   std::vector<char> stream_buffer_ = std::vector<char>();
 };
-}  // namespace tdf::tunnel
+}  // namespace devtools
+}  // namespace hippy

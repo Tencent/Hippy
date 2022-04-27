@@ -23,10 +23,10 @@
 #include "module/domain_register.h"
 #include "module/model/frame_poll_model.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* kPageEventScreencastFrame = "Page.screencastFrame";
+constexpr char kPageEventScreencastFrame[] = "Page.screencastFrame";
 
 PageDomain::PageDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {
   screen_shot_model_ = std::make_shared<ScreenShotModel>();
@@ -41,8 +41,8 @@ std::string_view PageDomain::GetDomainName() { return kFrontendKeyDomainNamePage
 
 void PageDomain::RegisterMethods() {
   REGISTER_DOMAIN(PageDomain, StartScreencast, ScreenShotRequest);
-  REGISTER_DOMAIN(PageDomain, StopScreencast, DomainBaseRequest);
-  REGISTER_DOMAIN(PageDomain, ScreencastFrameAck, DomainBaseRequest);
+  REGISTER_DOMAIN(PageDomain, StopScreencast, Deserializer);
+  REGISTER_DOMAIN(PageDomain, ScreencastFrameAck, Deserializer);
 }
 
 void PageDomain::StartScreencast(const ScreenShotRequest& request) {
@@ -52,13 +52,13 @@ void PageDomain::StartScreencast(const ScreenShotRequest& request) {
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 
-void PageDomain::StopScreencast(const DomainBaseRequest& request) {
+void PageDomain::StopScreencast(const Deserializer& request) {
   BACKEND_LOGD(TDF_BACKEND, "HandleStopScreencast");
   frame_poll_model_->StopPoll();
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 
-void PageDomain::ScreencastFrameAck(const DomainBaseRequest& request) {
+void PageDomain::ScreencastFrameAck(const Deserializer& request) {
   BACKEND_LOGD(TDF_BACKEND, "HandleScreencastFrameAck");
   ResponseResultToFrontend(request.GetId(), "{}");
 }
@@ -75,4 +75,4 @@ void PageDomain::HandleScreenShotUpdatedNotification() {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

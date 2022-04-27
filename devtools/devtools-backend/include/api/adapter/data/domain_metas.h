@@ -25,7 +25,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class DomainMetas : public Serializable {
@@ -66,4 +66,4 @@ class DomainMetas : public Serializable {
   uint64_t children_count_;  // 用于展开逻辑，必须赋值，不可从children_读取
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

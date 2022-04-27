@@ -19,34 +19,35 @@
  */
 
 #include "api/notification/data/devtools_http_request.h"
+#include "devtools_base/transform_string_util.hpp"
 
-constexpr const char* kHttpRequestRequestId = "requestId";
-constexpr const char* kHttpRequestLoaderId = "loaderId";
-constexpr const char* kHttpRequestDocumentUrl = "documentURL";
-constexpr const char* kHttpRequestTAG = "request";
-constexpr const char* kHttpRequestTimestamp = "timestamp";
-constexpr const char* kHttpRequestWallTime = "wallTime";
-constexpr const char* kHttpRequestInitiator = "initiator";
-constexpr const char* kHttpRequestRedirectHasExtraInfo = "redirectHasExtraInfo";
-constexpr const char* kHttpRequestFrameId = "frameId";
-constexpr const char* kHttpRequestHasUserGesture = "hasUserGesture";
-constexpr const char* kHttpRequestUrl = "url";
-constexpr const char* kHttpRequestUrlFragment = "urlFragment";
-constexpr const char* kHttpRequestMethod = "method";
-constexpr const char* kHttpRequestHeaders = "headers";
-constexpr const char* kHttpRequestHasPostData = "hasPostData";
-constexpr const char* kHttpRequestPostData = "postData";
-constexpr const char* kHttpRequestPostDataEntries = "postDataEntries";
-constexpr const char* kHttpRequestMixedContentType = "mixedContentType";
-constexpr const char* kHttpRequestInitialPriority = "initialPriority";
-constexpr const char* kHttpRequestReferrerPolicy = "referrerPolicy";
-constexpr const char* kHttpRequestIsLinkPreload = "isLinkPreload";
-constexpr const char* kHttpRequestTrustTokenParams = "trustTokenParams";
-constexpr const char* kHttpRequestIsSameSite = "isSameSite";
-constexpr const char* kHttpRequestType = "type";
-constexpr const char* kHttpRequestBytes = "bytes";
+constexpr char kHttpRequestRequestId[] = "requestId";
+constexpr char kHttpRequestLoaderId[] = "loaderId";
+constexpr char kHttpRequestDocumentUrl[] = "documentURL";
+constexpr char kHttpRequestTAG[] = "request";
+constexpr char kHttpRequestTimestamp[] = "timestamp";
+constexpr char kHttpRequestWallTime[] = "wallTime";
+constexpr char kHttpRequestInitiator[] = "initiator";
+constexpr char kHttpRequestRedirectHasExtraInfo[] = "redirectHasExtraInfo";
+constexpr char kHttpRequestFrameId[] = "frameId";
+constexpr char kHttpRequestHasUserGesture[] = "hasUserGesture";
+constexpr char kHttpRequestUrl[] = "url";
+constexpr char kHttpRequestUrlFragment[] = "urlFragment";
+constexpr char kHttpRequestMethod[] = "method";
+constexpr char kHttpRequestHeaders[] = "headers";
+constexpr char kHttpRequestHasPostData[] = "hasPostData";
+constexpr char kHttpRequestPostData[] = "postData";
+constexpr char kHttpRequestPostDataEntries[] = "postDataEntries";
+constexpr char kHttpRequestMixedContentType[] = "mixedContentType";
+constexpr char kHttpRequestInitialPriority[] = "initialPriority";
+constexpr char kHttpRequestReferrerPolicy[] = "referrerPolicy";
+constexpr char kHttpRequestIsLinkPreload[] = "isLinkPreload";
+constexpr char kHttpRequestTrustTokenParams[] = "trustTokenParams";
+constexpr char kHttpRequestIsSameSite[] = "isSameSite";
+constexpr char kHttpRequestType[] = "type";
+constexpr char kHttpRequestBytes[] = "bytes";
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 std::string Initiator::Serialize() const {
   std::string result = "{\"";
@@ -101,11 +102,11 @@ std::string Request::Serialize() const {
   result += "],\"";
   result += kHttpRequestMixedContentType;
   result += "\":\"";
-  result += NetworkEnumUtils::SecurityMixedContentTypeToString(mixed_content_type);
+  result += TransformStringUtil::ReplaceUnderLine(TransformStringUtil::ToLower(SecurityMixedContentTypeToString(mixed_content_type)));
   result += "\",\"";
   result += kHttpRequestInitialPriority;
   result += "\":\"";
-  result += NetworkEnumUtils::ResourcePriorityToString(initial_priority);
+  result += ResourcePriorityToString(initial_priority);
   result += "\",\"";
   result += kHttpRequestReferrerPolicy;
   result += "\":\"";
@@ -158,7 +159,7 @@ std::string DevtoolsHttpRequest::Serialize() const {
   result += ",\"";
   result += kHttpRequestType;
   result += "\":\"";
-  result += NetworkEnumUtils::ResourceTypeToString(type_);
+  result += ResourceTypeToString(type_);
   result += "\",\"";
   result += kHttpRequestFrameId;
   result += "\":\"";
@@ -171,4 +172,4 @@ std::string DevtoolsHttpRequest::Serialize() const {
   return result;
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

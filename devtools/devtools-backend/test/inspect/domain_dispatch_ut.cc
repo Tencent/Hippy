@@ -27,7 +27,7 @@
 #include "module/domain_dispatch.h"
 #include "module/inspect_event.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 using json = nlohmann::json;
@@ -80,4 +80,4 @@ TEST_F(DomainDispatchTest, DomainDispatch) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

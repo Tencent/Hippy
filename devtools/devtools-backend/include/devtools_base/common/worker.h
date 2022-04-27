@@ -29,7 +29,8 @@
 #include "devtools_base/common/task.h"
 #include "devtools_base/common/thread.h"
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace runner {
 class WorkerPool;
 class TaskRunner;
@@ -101,4 +102,5 @@ class Worker : public Thread {
   std::string name_;
 };
 }  // namespace runner
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

@@ -23,15 +23,15 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * @brief 根据定位获取 domTree 节点的请求
  */
-class DomNodeForLocationRequest : public DomainBaseRequest {
+class DomNodeForLocationRequest : public Deserializer {
  public:
   DomNodeForLocationRequest() : has_set_xy_(false) {}
-  void RefreshParams(const std::string& params) override;
+  void Deserialize(const std::string& params) override;
 
   int32_t GetX() const { return x_; }
   int32_t GetY() const { return y_; }
@@ -43,4 +43,4 @@ class DomNodeForLocationRequest : public DomainBaseRequest {
   bool has_set_xy_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -24,7 +24,7 @@
 #include "devtools_base/common/logging.h"
 #include "module/record_logger.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class LogNotification {
  public:
@@ -36,4 +36,4 @@ class LogNotification {
                         int32_t line_number) = 0;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

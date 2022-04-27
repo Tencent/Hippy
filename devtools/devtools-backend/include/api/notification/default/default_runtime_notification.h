@@ -24,7 +24,7 @@
 #include "api/notification/devtools_runtime_notification.h"
 #include "tunnel/tunnel_service.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * Runtime相关Notification
@@ -44,4 +44,4 @@ class DefaultRuntimeNotification : public RuntimeNotification {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

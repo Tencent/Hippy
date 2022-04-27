@@ -23,7 +23,7 @@
 #include <string>
 #include "api/notification/devtools_elements_response_notification.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class DefaultElementsResponseAdapter : public ElementsResponseNotification {
  public:
@@ -35,4 +35,4 @@ class DefaultElementsResponseAdapter : public ElementsResponseNotification {
   DocumentUpdateHandler document_update_Handler_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

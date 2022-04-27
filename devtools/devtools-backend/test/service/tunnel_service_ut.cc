@@ -34,7 +34,7 @@
 #include "tunnel/channel_factory.h"
 #include "tunnel/tunnel_service.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 using json = nlohmann::json;
@@ -68,4 +68,4 @@ TEST_F(TunnelServiceTest, TunnelService) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

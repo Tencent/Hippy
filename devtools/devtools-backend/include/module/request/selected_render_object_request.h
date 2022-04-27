@@ -23,14 +23,14 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * @brief 获取 renderTree 选中节点的请求
  */
-class SelectedRenderObjectRequest : public DomainBaseRequest {
+class SelectedRenderObjectRequest : public Deserializer {
  public:
-  void RefreshParams(const std::string& params) override;
+  void Deserialize(const std::string& params) override;
 
   int32_t GetRenderId() const { return render_id_; }
 
@@ -38,4 +38,4 @@ class SelectedRenderObjectRequest : public DomainBaseRequest {
   int32_t render_id_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

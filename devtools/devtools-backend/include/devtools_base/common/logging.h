@@ -30,30 +30,31 @@
 #include "devtools_base/common/macros.h"
 #include "devtools_base/common/unicode_string_view.h"
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace log {
-inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view& str_view) {
-  unicode_string_view::Encoding encoding = str_view.encoding();
+inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view_temp& str_view) {
+  unicode_string_view_temp::Encoding encoding = str_view.encoding();
   switch (encoding) {
-    case unicode_string_view::Encoding::Latin1: {
+    case unicode_string_view_temp::Encoding::Latin1: {
       const std::string& str = str_view.latin1_value();
       stream << str;
       break;
     }
-    case unicode_string_view::Encoding::Utf16: {
+    case unicode_string_view_temp::Encoding::Utf16: {
       const std::u16string& str = str_view.utf16_value();
       std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
       stream << convert.to_bytes(str);
       break;
     }
-    case unicode_string_view::Encoding::Utf32: {
+    case unicode_string_view_temp::Encoding::Utf32: {
       const std::u32string& str = str_view.utf32_value();
       std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t> convert;
       stream << convert.to_bytes(str);
       break;
     }
-    case unicode_string_view::Encoding::Utf8: {
-      const unicode_string_view::u8string& str = str_view.utf8_value();
+    case unicode_string_view_temp::Encoding::Utf8: {
+      const unicode_string_view_temp::u8string& str = str_view.utf8_value();
       stream << std::string(reinterpret_cast<const char*>(str.c_str()), str.length());
       break;
     }
@@ -99,4 +100,5 @@ int GetVlogVerbosity();
 
 bool ShouldCreateLogMessage(LogSeverity severity);
 }  // namespace log
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

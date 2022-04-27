@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * Runtime相关Notification
@@ -37,4 +37,4 @@ class RuntimeNotification {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

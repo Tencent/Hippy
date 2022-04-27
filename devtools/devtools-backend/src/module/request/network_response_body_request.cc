@@ -22,11 +22,11 @@
 #include <string>
 #include "nlohmann/json.hpp"
 
-constexpr const char* kFrontendRequestId = "requestId";
+constexpr char kFrontendRequestId[] = "requestId";
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-void NetworkResponseBodyRequest::RefreshParams(const std::string& params) {
+void NetworkResponseBodyRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
   if (!params_json.is_object()) {
     return;
@@ -35,4 +35,4 @@ void NetworkResponseBodyRequest::RefreshParams(const std::string& params) {
 }
 std::string NetworkResponseBodyRequest::GetRequestId() const { return request_id_; }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

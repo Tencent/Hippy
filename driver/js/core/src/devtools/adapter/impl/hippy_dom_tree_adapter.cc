@@ -28,8 +28,7 @@
 
 namespace hippy {
 namespace devtools {
-
-void HippyDomTreeAdapter::UpdateDomTree(tdf::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) {
+void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) {
 #if TDF_SERVICE_ENABLED
   bool is_success = false;
   int32_t node_id = metas.GetNodeId();
@@ -64,7 +63,7 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
       std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
       if (dom_manager) {
         auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-        tdf::devtools::DomNodeMetas metas = DevToolUtils::ToDomNodeMetas(root_node);
+        hippy::devtools::DomNodeMetas metas = DevToolUtils::ToDomNodeMetas(root_node);
         callback(true, metas);
       }
     };

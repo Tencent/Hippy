@@ -24,7 +24,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 struct RenderDiagnosticMeta {
   std::string name_;
@@ -43,4 +43,4 @@ class RenderDiagnosticMetas : public Serializable {
   std::vector<RenderDiagnosticMeta> metas_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

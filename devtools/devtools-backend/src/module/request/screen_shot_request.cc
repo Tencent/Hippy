@@ -20,10 +20,10 @@
 #include "module/request/screen_shot_request.h"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-void ScreenShotRequest::RefreshParams(const std::string& params) {
+void ScreenShotRequest::Deserialize(const std::string& params) {
   nlohmann::json params_json = nlohmann::json::parse(params);
   format_ = params_json[kFrontendKeyFormat].get<std::string>();
   quality_ = params_json[kFrontendKeyQuality].get<int32_t>();
@@ -32,4 +32,4 @@ void ScreenShotRequest::RefreshParams(const std::string& params) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -23,11 +23,11 @@
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 // rsp json key
-constexpr const char* kCSSStyles = "styles";
+constexpr char kCSSStyles[] = "styles";
 
 // default value
 constexpr uint32_t kCSSStyleNodeDepth = 1;
@@ -35,7 +35,7 @@ constexpr uint32_t kCSSStyleNodeDepth = 1;
 CSSDomain::CSSDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {
   // 注册数据回调
   css_data_call_back_ = [this](int32_t node_id, CSSStyleDataCallback callback) {
-    auto elements_request_adapter = GetDataProvider()->GetElementsRequestAdapter();
+    auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
       auto response_callback = [callback, provider = GetDataProvider()](const DomainMetas& data) {
         auto model = CSSModel::CreateModelByJSON(nlohmann::json::parse(data.Serialize()));
@@ -146,4 +146,4 @@ void CSSDomain::SetStyleTexts(const CSSEditStyleTextsRequest& request) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

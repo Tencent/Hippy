@@ -20,7 +20,8 @@
 
 #pragma once
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace log {
 enum LogSeverity {
   TDF_LOG_DEBUG,
@@ -45,5 +46,5 @@ constexpr LogSeverity TDF_LOG_DFATAL = TDF_LOG_ERROR;
 constexpr LogSeverity TDF_LOG_DFATAL = TDF_LOG_FATAL;
 #endif
 }  // namespace log
-}  // namespace tdf::devtools
-
+}  // namespace devtools
+}  // namespace hippy

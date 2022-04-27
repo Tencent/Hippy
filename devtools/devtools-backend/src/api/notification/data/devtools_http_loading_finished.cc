@@ -20,12 +20,12 @@
 
 #include "api/notification/data/devtools_http_loading_finished.h"
 
-constexpr const char* kLoadingFinishedRequestId = "requestId";
-constexpr const char* kLoadingFinishedTimestamp = "timestamp";
-constexpr const char* kLoadingFinishedEncodeDataLength = "encodedDataLength";
-constexpr const char* kLoadingFinishedShouldReportCorbBlocking = "shouldReportCorbBlocking";
+constexpr char kLoadingFinishedRequestId[] = "requestId";
+constexpr char kLoadingFinishedTimestamp[] = "timestamp";
+constexpr char kLoadingFinishedEncodeDataLength[] = "encodedDataLength";
+constexpr char kLoadingFinishedShouldReportCorbBlocking[] = "shouldReportCorbBlocking";
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 std::string DevtoolsLoadingFinished::Serialize() const {
   std::string result = "{\"";
@@ -48,4 +48,4 @@ std::string DevtoolsLoadingFinished::Serialize() const {
   return result;
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

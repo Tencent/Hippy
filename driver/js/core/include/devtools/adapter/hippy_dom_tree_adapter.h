@@ -26,11 +26,11 @@
 
 namespace hippy {
 namespace devtools {
-class HippyDomTreeAdapter : public tdf::devtools::DomTreeAdapter {
+class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
  public:
   explicit HippyDomTreeAdapter(int32_t dom_id) : dom_id_(dom_id) {}
 
-  void UpdateDomTree(tdf::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
+  void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
   void GetDomTree(DumpDomTreeCallback callback) override;
 
  private:

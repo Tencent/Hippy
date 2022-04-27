@@ -23,12 +23,16 @@
 #include <chrono>
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-
-constexpr const char* kEncodeFormatPNG = "png";
-constexpr const char* kEncodeFormatJPEG = "jpeg";
-constexpr const char* kEncodeFormatWEBP = "webp";
+/**
+ * picture encoder format enum
+ */
+enum class PicFormat {
+  kPng,
+  kJpeg,
+  kWebp
+};
 
 /**
  * @brief 截屏数据请求参数
@@ -37,7 +41,7 @@ struct ScreenRequest {
   int32_t quality;
   int32_t req_width;
   int32_t req_height;
-  std::string encode_format;
+  PicFormat encode_format{PicFormat::kJpeg};
 };
 
 class ScreenAdapter {
@@ -71,4 +75,4 @@ class ScreenAdapter {
   virtual double GetScreenScale() { return 1.0f; }
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

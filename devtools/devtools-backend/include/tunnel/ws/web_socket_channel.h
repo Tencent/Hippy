@@ -27,16 +27,16 @@
 #include "websocketpp/client.hpp"
 #include "websocketpp/config/asio_client.hpp"
 
-typedef websocketpp::client<websocketpp::config::asio_client> WSClient;
-typedef websocketpp::config::asio_tls_client::message_type::ptr WSMessagePtr;
-typedef websocketpp::lib::shared_ptr<websocketpp::lib::thread> WSThread;
+using WSClient = websocketpp::client<websocketpp::config::asio_client>;
+using WSMessagePtr = websocketpp::config::asio_tls_client::message_type::ptr;
+using WSThread = websocketpp::lib::shared_ptr<websocketpp::lib::thread>;
 
-namespace tdf::devtools {
-
+namespace hippy {
+namespace devtools {
 /**
  * 连接通道的webSocket实现
  */
-class WebSocketChannel : public tdf::devtools::NetChannel {
+class WebSocketChannel : public hippy::devtools::NetChannel {
  public:
   explicit WebSocketChannel(const std::string& ws_uri);
   void Connect(ReceiveDataHandler handler) override;
@@ -58,4 +58,5 @@ class WebSocketChannel : public tdf::devtools::NetChannel {
   WSThread ws_thread_;
   std::vector<std::string> unset_messages_;
 };
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

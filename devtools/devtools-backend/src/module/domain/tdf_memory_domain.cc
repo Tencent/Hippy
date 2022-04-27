@@ -22,15 +22,15 @@
 #include "api/devtools_backend_service.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 std::string_view TDFMemoryDomain::GetDomainName() { return kFrontendKeyDomainNameTDFMemory; }
 
-void TDFMemoryDomain::RegisterMethods() { REGISTER_DOMAIN(TDFMemoryDomain, GetHeapMeta, DomainBaseRequest); }
+void TDFMemoryDomain::RegisterMethods() { REGISTER_DOMAIN(TDFMemoryDomain, GetHeapMeta, Deserializer); }
 
-void TDFMemoryDomain::GetHeapMeta(const DomainBaseRequest& request) {
-  auto memory_adapter = GetDataProvider()->GetMemoryAdapter();
+void TDFMemoryDomain::GetHeapMeta(const Deserializer& request) {
+  auto memory_adapter = GetDataProvider()->memory_adapter;
   if (!memory_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get heap meta failed, no data.");
     return;
@@ -39,6 +39,5 @@ void TDFMemoryDomain::GetHeapMeta(const DomainBaseRequest& request) {
     ResponseResultToFrontend(request.GetId(), memoryMetas.Serialize());
   });
 }
-
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

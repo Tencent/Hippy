@@ -26,18 +26,18 @@
 #include "module/domain/base_domain.h"
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-class TDFMemoryDomain : public BaseDomain, public std::enable_shared_from_this<TDFMemoryDomain> {
+class TDFMemoryDomain : public BaseDomain {
  public:
   explicit TDFMemoryDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string_view GetDomainName() override;
   void RegisterMethods() override;
 
  private:
-  void GetHeapMeta(const DomainBaseRequest& request);
+  void GetHeapMeta(const Deserializer& request);
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

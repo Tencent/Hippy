@@ -25,7 +25,7 @@ namespace hippy {
 namespace devtools {
 HippyV8RequestAdapter::HippyV8RequestAdapter(V8RequestHandler request_handler) : request_handler_(request_handler) {}
 
-void HippyV8RequestAdapter::SendMsgToV8(std::string msg, SendFinishCallback sendFinishCallback) {
+void HippyV8RequestAdapter::SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) {
   if (request_handler_) {
     request_handler_(msg);
   }

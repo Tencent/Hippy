@@ -33,7 +33,7 @@
 #include "tunnel/tunnel_service.h"
 #include "tunnel/channel_factory.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class CSSDomainTest : public ::testing::Test {
@@ -117,4 +117,4 @@ TEST_F(CSSDomainTest, SetStyles) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -26,7 +26,8 @@
 
 #include "devtools_base/common/log_settings.h"
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace log {
 namespace {
 
@@ -102,5 +103,6 @@ int GetVlogVerbosity() { return std::max(-1, TDF_LOG_INFO - GetMinLogLevel()); }
 
 bool ShouldCreateLogMessage(LogSeverity severity) { return severity >= GetMinLogLevel(); }
 }  // namespace log
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy
 #endif

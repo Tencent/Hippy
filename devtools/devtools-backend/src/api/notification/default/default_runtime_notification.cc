@@ -21,9 +21,9 @@
 #include "api/notification/default/default_runtime_notification.h"
 #include <string>
 
-constexpr const char* kRuntimeEventUpdateContextInfo = "TDFRuntime.updateContextInfo";
+constexpr char kRuntimeEventUpdateContextInfo[] = "TDFRuntime.updateContextInfo";
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 void DefaultRuntimeNotification::UpdateContextName(const std::string& context_name) {
@@ -36,4 +36,4 @@ void DefaultRuntimeNotification::UpdateContextName(const std::string& context_na
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

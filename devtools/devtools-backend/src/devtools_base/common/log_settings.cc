@@ -26,7 +26,8 @@
 #include <algorithm>
 #include <iostream>
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace log {
 extern LogSettings global_log_settings;
 
@@ -39,4 +40,5 @@ LogSettings GetLogSettings() { return global_log_settings; }
 
 int GetMinLogLevel() { return std::min(global_log_settings.min_log_level, TDF_LOG_FATAL); }
 }  // namespace log
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

@@ -23,9 +23,9 @@
 #include "devtools_base/common/worker_pool.h"
 #include "devtools_base/logging.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-static constexpr const int32_t kRefreshIntervalMilliSeconds = 500;
+constexpr int32_t kRefreshIntervalMilliSeconds = 500;
 
 FramePollModel::FramePollModel() {
   refresh_task_runner_ = WorkerPool::GetInstance(1)->CreateTaskRunner();
@@ -58,7 +58,7 @@ void FramePollModel::AddFrameCallback() {
       BACKEND_LOGE(TDF_BACKEND, "AddFrameCallback provider is null");
       return;
     }
-    auto screen_adapter = provider_->GetScreenAdapter();
+    auto screen_adapter = provider_->screen_adapter;
     if (screen_adapter) {
       auto frame_callback = [this]() {
         frame_is_dirty_ = true;
@@ -79,7 +79,7 @@ void FramePollModel::StopPoll() {
 void FramePollModel::RemoveFrameCallback() {
   std::lock_guard<std::mutex> lock(mutex_);
   if (had_add_frame_callback_) {
-    auto screen_adapter = provider_->GetScreenAdapter();
+    auto screen_adapter = provider_->screen_adapter;
     if (screen_adapter) {
       screen_adapter->RemovePostFrameCallback(frame_callback_handler_);
     }
@@ -92,4 +92,4 @@ FramePollModel::~FramePollModel() {
   WorkerPool::GetInstance(0)->RemoveTaskRunner(refresh_task_runner_);
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

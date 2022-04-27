@@ -22,7 +22,7 @@
 #include <string>
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -48,4 +48,4 @@ class TDFParseJSONUtil {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

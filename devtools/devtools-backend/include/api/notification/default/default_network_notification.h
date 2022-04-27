@@ -25,7 +25,7 @@
 #include "api/notification/devtools_network_notification.h"
 #include "tunnel/tunnel_service.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * 网络模块调试数据收集
@@ -45,4 +45,4 @@ class DefaultNetworkNotification : public NetworkNotification {
   std::shared_ptr<TunnelService> tunnel_service_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

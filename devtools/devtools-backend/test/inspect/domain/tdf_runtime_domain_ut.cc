@@ -27,7 +27,7 @@
 #include "module/domain_dispatch.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class TDFRuntimeDomainTest : public ::testing::Test {
@@ -69,4 +69,4 @@ TEST_F(TDFRuntimeDomainTest, TDFRuntimeDomain) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

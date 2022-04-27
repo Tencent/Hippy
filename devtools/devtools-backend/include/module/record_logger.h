@@ -24,17 +24,12 @@
 #include <utility>
 #include <vector>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-
-// 定义 LogSource 类型
-typedef std::string LogSource;
-static LogSource DEVTOOLS_CORE_SOURCE = "TDF Core";
-static LogSource DEVTOOLS_BACKEND_SOURCE = "TDF Devtools";
 
 class LoggerModel {
  public:
-    LogSource source;
+    std::string source;
     std::string module;
     std::string level;
     std::string file_name;
@@ -65,14 +60,6 @@ class RecordLogger {
   }
 
   /**
-   * @brief 设置最大日志记录条数
-   * @param max_number_of_logs
-   */
-  constexpr void SetMaxNumberOfLogs(uint32_t max_number_of_logs) {
-    max_number_of_logs_ = max_number_of_logs;
-  }
-
-  /**
    * @brief 记录日志数据, 当记录的日志达到最大条数时，会触发LogOperate回调
    *        内部数据处理加锁，线程安全
    * @param logger_model   日志数据模型
@@ -88,8 +75,6 @@ class RecordLogger {
   std::recursive_mutex devtools_log_mutex_;
   std::vector<std::string> record_logs_;
   RecordLogOperateCallback operate_callback_;
-  uint32_t max_number_of_logs_ = 10;
 };
-
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -36,11 +36,11 @@
 #include "nlohmann/json.hpp"
 #include "tunnel/tunnel_service.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* K_DOMAIN_DISPATCH_RESULT = "result";
-constexpr const char* K_DOMAIN_DISPATCH_ERROR = "error";
+constexpr char kDomainDispatchResult[] = "result";
+constexpr char kDomainDispatchError[] = "error";
 
 using json = nlohmann::json;
 
@@ -148,13 +148,13 @@ void DomainDispatch::DispatchToV8(std::string data) {
 #ifdef OS_ANDROID
   BACKEND_LOGD(TDF_BACKEND, "JSDebugger, params=%s.", data.c_str());
   // 非Debug模式，不把消息发给V8
-  if (!data_channel_->GetProvider()->GetRuntimeAdapter()->IsDebug()) {
+  if (!data_channel_->GetProvider()->runtime_adapter->IsDebug()) {
     BACKEND_LOGD(TDF_BACKEND, "Not debug mode, return.");
     return;
   }
-  auto v8_request = data_channel_->GetProvider()->GetV8RequestAdapter();
+  auto v8_request = data_channel_->GetProvider()->vm_request_adapter;
   if (v8_request) {
-    v8_request->SendMsgToV8(data, nullptr);
+    v8_request->SendMsgToVM(data, nullptr);
   }
 #endif
 }
@@ -168,9 +168,9 @@ void DomainDispatch::SendDataToFrontend(int32_t id, const std::string& result, c
   rsp_json[kFrontendKeyId] = id;
 
   if (result.length()) {
-    rsp_json[K_DOMAIN_DISPATCH_RESULT] = json::parse(result.data());
+    rsp_json[kDomainDispatchResult] = json::parse(result.data());
   } else {
-    rsp_json[K_DOMAIN_DISPATCH_ERROR] = json::parse(error.data());
+    rsp_json[kDomainDispatchError] = json::parse(error.data());
   }
   if (rsp_handler_) {
     rsp_handler_(rsp_json.dump());
@@ -183,4 +183,4 @@ void DomainDispatch::SendEventToFrontend(const InspectEvent&& event) {
   }
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

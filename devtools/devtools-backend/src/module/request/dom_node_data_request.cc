@@ -21,10 +21,10 @@
 #include "module/request/dom_node_data_request.h"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-void DomNodeDataRequest::RefreshParams(const std::string& params) {
+void DomNodeDataRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
   if (!params_json.is_object() || params_json.find(kFrontendKeyNodeId) == params_json.end()) {
     return;
@@ -34,4 +34,4 @@ void DomNodeDataRequest::RefreshParams(const std::string& params) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -21,10 +21,10 @@
 #include "module/inspect_props.h"
 #include "module/request/css_node_data_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-void CSSNodeDataRequest::RefreshParams(const std::string& params) {
+void CSSNodeDataRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
   if (!params_json.is_object() || params_json.find(kFrontendKeyNodeId) == params_json.end()) {
     return;
@@ -34,4 +34,4 @@ void CSSNodeDataRequest::RefreshParams(const std::string& params) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

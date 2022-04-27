@@ -19,28 +19,41 @@
  */
 #pragma once
 
+#include <algorithm>
+#include <cctype>
 #include <sstream>
 #include <string>
-#include "nlohmann/json.hpp"
 #include "module/inspect_props.h"
+#include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 #define ENUM_TO_STR(enu) #enu
 
-constexpr const char* kNodeLocationDefaultValue = "[0, 0, 0, 0, 0, 0, 0, 0, 0]";
+constexpr char kNodeLocationDefaultValue[] = "[0, 0, 0, 0, 0, 0, 0, 0, 0]";
 
 /**
  * @brief 负责各类型转换 string 的 util
  **/
 class TransformStringUtil {
  public:
-  template <typename T>
+
+  static std::string ToLower(std::string name) {
+    transform(name.begin(), name.end(), name.begin(), ::tolower);
+    return name;
+  }
+
+  static std::string ReplaceUnderLine(std::string enum_name) {
+    replace(enum_name.begin(), enum_name.end(), '_', '-');
+    return enum_name;
+  }
+
   /**
    * @brief 将 number 类型（包括int，long等）转成 string 类型
    * @param number 任何类型的数字
    */
+  template <typename T>
   static std::string NumbertoString(const T& number) {
     std::string number_string;
     std::stringstream ss;
@@ -86,4 +99,4 @@ class TransformStringUtil {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

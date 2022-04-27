@@ -24,7 +24,7 @@
 #include "api/adapter/data/render_diagnostic_metas.h"
 #include "api/adapter/data/render_node_metas.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class RenderTreeAdapter {
  public:
@@ -45,4 +45,4 @@ class RenderTreeAdapter {
   virtual void GetSelectedRenderObject(int32_t render_id, GetRenderDiagnosticCallback callback) = 0;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

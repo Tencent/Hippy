@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 #include "tunnel/tcp/tcp_channel.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class TcpServerTest : public ::testing::Test {
@@ -52,4 +52,4 @@ TEST_F(TcpServerTest, TcpChannel) {
   EXPECT_NO_THROW(tcp_server_->SendResponse(nullptr, 0, 0));
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

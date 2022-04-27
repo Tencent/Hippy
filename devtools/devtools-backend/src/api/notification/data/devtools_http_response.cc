@@ -19,38 +19,39 @@
  */
 
 #include "api/notification/data/devtools_http_response.h"
+#include "devtools_base/transform_string_util.hpp"
 
-constexpr const char* kHttpResponseRequestId = "requestId";
-constexpr const char* kHttpResponseLoaderId = "loaderId";
-constexpr const char* kHttpResponseTimestamp = "timestamp";
-constexpr const char* kHttpResponseType = "type";
-constexpr const char* kHttpResponseResponse = "response";
-constexpr const char* kHttpResponseHasExtraInfo = "hasExtraInfo";
-constexpr const char* kHttpResponseFrameId = "frameId";
-constexpr const char* kHttpResponseUrl = "url";
-constexpr const char* kHttpResponseStatus = "status";
-constexpr const char* kHttpResponseStatusText = "statusText";
-constexpr const char* kHttpResponseHeaders = "headers";
-constexpr const char* kHttpResponseMimeType = "mimeType";
-constexpr const char* kHttpResponseRequestHeaders = "requestHeaders";
-constexpr const char* kHttpResponseConnectionReused = "connectionReused";
-constexpr const char* kHttpResponseConnectionId = "connectionId";
-constexpr const char* kHttpResponseRemoteIPAddress = "remoteIPAddress";
-constexpr const char* kHttpResponseRemotePort = "remotePort";
-constexpr const char* kHttpResponseFromDiskCache = "fromDiskCache";
-constexpr const char* kHttpResponseFromServiceWorker = "fromServiceWorker";
-constexpr const char* kHttpResponseFromPrefetchCache = "fromPrefetchCache";
-constexpr const char* kHttpResponseEncodedDataLength = "encodedDataLength";
-constexpr const char* kHttpResponseTiming = "timing";
-constexpr const char* kHttpResponseServiceWorkerResponseSource = "serviceWorkerResponseSource";
-constexpr const char* kHttpResponseResponseTime = "responseTime";
-constexpr const char* kHttpResponseCacheStorageCacheName = "cacheStorageCacheName";
-constexpr const char* kHttpResponseProtocol = "protocol";
-constexpr const char* kHttpResponseSecurityState = "securityState";
+constexpr char kHttpResponseRequestId[] = "requestId";
+constexpr char kHttpResponseLoaderId[] = "loaderId";
+constexpr char kHttpResponseTimestamp[] = "timestamp";
+constexpr char kHttpResponseType[] = "type";
+constexpr char kHttpResponseResponse[] = "response";
+constexpr char kHttpResponseHasExtraInfo[] = "hasExtraInfo";
+constexpr char kHttpResponseFrameId[] = "frameId";
+constexpr char kHttpResponseUrl[] = "url";
+constexpr char kHttpResponseStatus[] = "status";
+constexpr char kHttpResponseStatusText[] = "statusText";
+constexpr char kHttpResponseHeaders[] = "headers";
+constexpr char kHttpResponseMimeType[] = "mimeType";
+constexpr char kHttpResponseRequestHeaders[] = "requestHeaders";
+constexpr char kHttpResponseConnectionReused[] = "connectionReused";
+constexpr char kHttpResponseConnectionId[] = "connectionId";
+constexpr char kHttpResponseRemoteIPAddress[] = "remoteIPAddress";
+constexpr char kHttpResponseRemotePort[] = "remotePort";
+constexpr char kHttpResponseFromDiskCache[] = "fromDiskCache";
+constexpr char kHttpResponseFromServiceWorker[] = "fromServiceWorker";
+constexpr char kHttpResponseFromPrefetchCache[] = "fromPrefetchCache";
+constexpr char kHttpResponseEncodedDataLength[] = "encodedDataLength";
+constexpr char kHttpResponseTiming[] = "timing";
+constexpr char kHttpResponseServiceWorkerResponseSource[] = "serviceWorkerResponseSource";
+constexpr char kHttpResponseResponseTime[] = "responseTime";
+constexpr char kHttpResponseCacheStorageCacheName[] = "cacheStorageCacheName";
+constexpr char kHttpResponseProtocol[] = "protocol";
+constexpr char kHttpResponseSecurityState[] = "securityState";
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-std::string Response::Serialize() const {
+std::string Response::Serialize() const{
   std::string result = "{\"";
   result += kHttpResponseUrl;
   result += "\":\"";
@@ -94,7 +95,7 @@ std::string Response::Serialize() const {
   result += ",\"";
   result += kHttpResponseServiceWorkerResponseSource;
   result += "\":\"";
-  result += NetworkEnumUtils::ServiceWorkerResponseSourceToString(source);
+  result += TransformStringUtil::ReplaceUnderLine(TransformStringUtil::ToLower(ServiceWorkerResponseSourceToString(source)));
   result += "\",\"";
   result += kHttpResponseCacheStorageCacheName;
   result += "\":\"";
@@ -126,7 +127,7 @@ std::string Response::Serialize() const {
   result += "\",\"";
   result += kHttpResponseSecurityState;
   result += "\":\"";
-  result += NetworkEnumUtils::SecurityStateToString(security_state);
+  result += TransformStringUtil::ReplaceUnderLine(TransformStringUtil::ToLower(SecurityStateToString(security_state)));
   result += "\"}";
   return result;
 }
@@ -147,7 +148,7 @@ std::string DevtoolsHttpResponse::Serialize() const {
   result += ",\"";
   result += kHttpResponseType;
   result += "\":\"";
-  result += NetworkEnumUtils::ResourceTypeToString(type_);
+  result += ResourceTypeToString(type_);
   result += "\",\"";
   result += kHttpResponseResponse;
   result += "\":";
@@ -164,4 +165,4 @@ std::string DevtoolsHttpResponse::Serialize() const {
   return result;
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

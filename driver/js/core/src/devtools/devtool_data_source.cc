@@ -36,18 +36,17 @@
 
 namespace hippy {
 namespace devtools {
-std::vector<std::weak_ptr<tdf::devtools::DevtoolsBackendService>> DevtoolDataSource::all_services{};
-using tdf::devtools::DevtoolsBackendService;
+std::vector<std::weak_ptr<hippy::devtools::DevtoolsBackendService>> DevtoolDataSource::all_services{};
+using hippy::devtools::DevtoolsBackendService;
 
 DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
-  tdf::devtools::DevtoolsConfig devtools_config;
-  devtools_config.framework = tdf::devtools::Framework::kHippy;
-  devtools_config.tunnel = tdf::devtools::Tunnel::kWebSocket;
+  hippy::devtools::DevtoolsConfig devtools_config;
+  devtools_config.framework = hippy::devtools::Framework::kHippy;
+  devtools_config.tunnel = hippy::devtools::Tunnel::kTcp;
   devtools_config.ws_url = ws_url;
-  devtools_service_ = std::make_shared<tdf::devtools::DevtoolsBackendService>(devtools_config);
+  devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config);
   all_services.push_back(devtools_service_);
   runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>();
-  devtools_service_->GetDataProvider()->SetRuntimeAdapter(runtime_adapter_);
 }
 
 void DevtoolDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
@@ -55,10 +54,11 @@ void DevtoolDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_
   runtime_id_ = runtime_id;
   auto data_provider = devtools_service_->GetDataProvider();
   std::shared_ptr<HippyDomTreeAdapter> domTreeAdapter = std::make_shared<HippyDomTreeAdapter>(dom_id_);
-  data_provider->SetDomTreeAdapter(domTreeAdapter);
-  data_provider->SetElementsRequestAdapter(std::make_shared<HippyElementsRequestAdapter>(dom_id_));
-  data_provider->SetTracingAdapter(std::make_shared<HippyTracingAdapter>());
-  data_provider->SetScreenAdapter(std::make_shared<HippyScreenAdapter>(dom_id_));
+  data_provider->dom_tree_adapter = domTreeAdapter;
+  data_provider->elements_request_adapter = std::make_shared<HippyElementsRequestAdapter>(dom_id_);
+  data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
+  data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(dom_id_);
+  data_provider->runtime_adapter = runtime_adapter_;
   TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_provider:%p" << &devtools_service_;
 }
 
@@ -67,18 +67,19 @@ void DevtoolDataSource::Destroy(bool is_reload) {
 }
 
 void DevtoolDataSource::SetContextName(const std::string &context_name) {
-  devtools_service_->GetNotificationCenter()->GetRuntimeNotification()->UpdateContextName(context_name);
+  devtools_service_->GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 
 void DevtoolDataSource::SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler) {
-  devtools_service_->GetDataProvider()->SetV8RequestAdapter(std::make_shared<HippyV8RequestAdapter>(request_handler));
+  devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyV8RequestAdapter>(request_handler);
 }
 
 void DevtoolDataSource::SendV8Response(const std::string& data) {
   for (auto& devtools_service : all_services) {
     auto service = devtools_service.lock();
     if (service) {
-      service->GetNotificationCenter()->GetV8ResponseNotification()->SendResponseFromV8(data);
+      service->GetNotificationCenter()->vm_response_notification->ResponseToDevtool(
+          data);
     }
   }
 }

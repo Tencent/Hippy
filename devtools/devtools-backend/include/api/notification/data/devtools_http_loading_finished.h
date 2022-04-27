@@ -24,7 +24,7 @@
 #include <string>
 #include "api/adapter/data/serializable.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -59,4 +59,4 @@ class DevtoolsLoadingFinished : public Serializable {
   bool should_report_corb_blocking_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -22,23 +22,23 @@
 #include <iostream>
 #include <sstream>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-constexpr const char* kWidth = "width";
-constexpr const char* kHeight = "height";
-constexpr const char* kRootId = "rootId";
-constexpr const char* kNodeId = "nodeId";
-constexpr const char* kChildren = "children";
-constexpr const char* kChildNodeCount = "childNodeCount";
-constexpr const char* kNodeName = "nodeName";
-constexpr const char* kLocalName = "localName";
-constexpr const char* kClassName = "className";
-constexpr const char* kNodeValue = "nodeValue";
-constexpr const char* kParentId = "parentId";
-constexpr const char* kAttributes = "attributes";
-constexpr const char* kLayoutX = "x";
-constexpr const char* kLayoutY = "y";
-constexpr const char* kStyle = "style";
+constexpr char kWidth[] = "width";
+constexpr char kHeight[] = "height";
+constexpr char kRootId[] = "rootId";
+constexpr char kNodeId[] = "nodeId";
+constexpr char kChildren[] = "children";
+constexpr char kChildNodeCount[] = "childNodeCount";
+constexpr char kNodeName[] = "nodeName";
+constexpr char kLocalName[] = "localName";
+constexpr char kClassName[] = "className";
+constexpr char kNodeValue[] = "nodeValue";
+constexpr char kParentId[] = "parentId";
+constexpr char kAttributes[] = "attributes";
+constexpr char kLayoutX[] = "x";
+constexpr char kLayoutY[] = "y";
+constexpr char kStyle[] = "style";
 
 void DomainMetas::AddChild(const DomainMetas& meta) { children_.emplace_back(meta); }
 
@@ -119,4 +119,4 @@ std::string DomainMetas::Serialize() const {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

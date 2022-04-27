@@ -24,28 +24,28 @@
 #include "devtools_base/time.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* kPerformanceDomainMethodStart = "start";
-constexpr const char* kPerformanceDomainMethodEnd = "end";
-constexpr const char* kPerformanceDomainMethodv8Tracing = "v8Tracing";
-constexpr const char* kPerformanceDomainMethodFrameTimings = "frameTimings";
-constexpr const char* kPerformanceDomainMethodTimeline = "timeline";
+constexpr char kPerformanceDomainMethodStart[] = "start";
+constexpr char kPerformanceDomainMethodEnd[] = "end";
+constexpr char kPerformanceDomainMethodv8Tracing[] = "v8Tracing";
+constexpr char kPerformanceDomainMethodFrameTimings[] = "frameTimings";
+constexpr char kPerformanceDomainMethodTimeline[] = "timeline";
 
 std::string_view TDFPerformanceDomain::GetDomainName() { return kFrontendKeyDomainNameTDFPerformance; }
 
 void TDFPerformanceDomain::RegisterMethods() {
-  REGISTER_DOMAIN(TDFPerformanceDomain, Start, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFPerformanceDomain, End, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFPerformanceDomain, V8Tracing, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFPerformanceDomain, FrameTimings, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFPerformanceDomain, Timeline, DomainBaseRequest);
+  REGISTER_DOMAIN(TDFPerformanceDomain, Start, Deserializer);
+  REGISTER_DOMAIN(TDFPerformanceDomain, End, Deserializer);
+  REGISTER_DOMAIN(TDFPerformanceDomain, V8Tracing, Deserializer);
+  REGISTER_DOMAIN(TDFPerformanceDomain, FrameTimings, Deserializer);
+  REGISTER_DOMAIN(TDFPerformanceDomain, Timeline, Deserializer);
 }
 
-void TDFPerformanceDomain::Start(const DomainBaseRequest& request) {
+void TDFPerformanceDomain::Start(const Deserializer& request) {
   BACKEND_LOGD(TDF_BACKEND, "PerformanceStart.");
-  auto performance_adapter = GetDataProvider()->GetPerformanceAdapter();
+  auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
     // 置空frameTimings
     performance_adapter->ResetFrameTimings();
@@ -56,7 +56,7 @@ void TDFPerformanceDomain::Start(const DomainBaseRequest& request) {
   }
 
   // 开始获取v8-tracing
-  auto tracing_adapter = GetDataProvider()->GetTracingAdapter();
+  auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
     tracing_adapter->StartTracing();
   }
@@ -68,9 +68,9 @@ void TDFPerformanceDomain::Start(const DomainBaseRequest& request) {
   return;
 }
 
-void TDFPerformanceDomain::End(const DomainBaseRequest& request) {
+void TDFPerformanceDomain::End(const Deserializer& request) {
   BACKEND_LOGD(TDF_BACKEND, "PerformanceEnd.");
-  auto performance_adapter = GetDataProvider()->GetPerformanceAdapter();
+  auto performance_adapter = GetDataProvider()->performance_adapter;
   if (!performance_adapter) {
     BACKEND_LOGE(TDF_BACKEND, "PerformanceEnd performance_adapter is null");
   }
@@ -79,9 +79,9 @@ void TDFPerformanceDomain::End(const DomainBaseRequest& request) {
   ResponseResultToFrontend(request.GetId(), end_time_json.dump());
 }
 
-void TDFPerformanceDomain::V8Tracing(const DomainBaseRequest& request) {
+void TDFPerformanceDomain::V8Tracing(const Deserializer& request) {
   BACKEND_LOGD(TDF_BACKEND, "HandlePerformanceV8Tracing.");
-  auto tracing_adapter = GetDataProvider()->GetTracingAdapter();
+  auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (!tracing_adapter) {
     ResponseError(request.GetId(), kPerformanceDomainMethodv8Tracing);
     return;
@@ -90,9 +90,9 @@ void TDFPerformanceDomain::V8Tracing(const DomainBaseRequest& request) {
       [request, this](const std::string& result) { ResponseResultToFrontend(request.GetId(), result); });
 }
 
-void TDFPerformanceDomain::FrameTimings(const DomainBaseRequest& request) {
+void TDFPerformanceDomain::FrameTimings(const Deserializer& request) {
   BACKEND_LOGD(TDF_BACKEND, "PerformanceFrameTimings.");
-  auto performance_adapter = GetDataProvider()->GetPerformanceAdapter();
+  auto performance_adapter = GetDataProvider()->performance_adapter;
   if (!performance_adapter) {
     ResponseError(request.GetId(), kPerformanceDomainMethodFrameTimings);
     return;
@@ -102,9 +102,9 @@ void TDFPerformanceDomain::FrameTimings(const DomainBaseRequest& request) {
   });
 }
 
-void TDFPerformanceDomain::Timeline(const DomainBaseRequest& request) {
+void TDFPerformanceDomain::Timeline(const Deserializer& request) {
   BACKEND_LOGD(TDF_BACKEND, "PerformanceTimeline.");
-  auto performance_adapter = GetDataProvider()->GetPerformanceAdapter();
+  auto performance_adapter = GetDataProvider()->performance_adapter;
   if (!performance_adapter) {
     ResponseError(request.GetId(), kPerformanceDomainMethodTimeline);
     return;
@@ -132,4 +132,4 @@ void TDFPerformanceDomain::ResponseError(int32_t id, const std::string& method) 
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

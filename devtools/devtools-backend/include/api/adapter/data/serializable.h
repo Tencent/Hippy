@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * 可序列化基类
@@ -37,4 +37,4 @@ class Serializable {
   virtual ~Serializable() {}
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

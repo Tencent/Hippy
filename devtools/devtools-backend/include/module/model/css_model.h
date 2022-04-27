@@ -27,7 +27,7 @@
 #include "module/model/base_model.h"
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -88,7 +88,7 @@ class CSSModel : public BaseModel {
   void InitializeStyleEnumMap();
   nlohmann::json ParseComputedStyle();
   nlohmann::json ParseCSSStyle();
-  std::vector<tdf::devtools::CSSStyleMetas> ParseStyleTextValue(const std::string& text_value);
+  std::vector<hippy::devtools::CSSStyleMetas> ParseStyleTextValue(const std::string& text_value);
   bool ContainsStyleKey(const std::string& key);
   static nlohmann::json GetStylePropertyJSON(const std::string& name, const std::string& value);
   static nlohmann::json GetCSSPropertyJSON(const std::string& name, const std::string& value,
@@ -105,4 +105,4 @@ class CSSModel : public BaseModel {
   double height_ = 0;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

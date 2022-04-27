@@ -32,7 +32,7 @@
 #include "tunnel/channel_factory.h"
 #include "tunnel/tunnel_service.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class DOMDomainTest : public ::testing::Test {
@@ -109,4 +109,4 @@ TEST_F(DOMDomainTest, DOMDomain) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

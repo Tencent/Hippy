@@ -24,7 +24,7 @@
 #include "api/adapter/data/dom_node_location.h"
 #include "api/adapter/data/domain_metas.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class ElementsRequestAdapter {
  public:
@@ -42,4 +42,4 @@ class ElementsRequestAdapter {
   virtual ~ElementsRequestAdapter() {}
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

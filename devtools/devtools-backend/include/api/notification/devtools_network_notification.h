@@ -25,7 +25,7 @@
 #include "api/notification/data/devtools_http_request.h"
 #include "api/notification/data/devtools_http_response.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * 网络模块调试数据收集
@@ -40,4 +40,4 @@ class NetworkNotification {
   virtual void LoadingFinished(std::string request_id, const DevtoolsLoadingFinished& loading) = 0;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

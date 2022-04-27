@@ -26,7 +26,7 @@
 #include "module/domain/base_domain.h"
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class TDFPerformanceDomain : public BaseDomain {
@@ -36,13 +36,13 @@ class TDFPerformanceDomain : public BaseDomain {
   void RegisterMethods() override;
 
  private:
-  void Start(const DomainBaseRequest& request);
-  void End(const DomainBaseRequest& request);
-  void V8Tracing(const DomainBaseRequest& request);
-  void FrameTimings(const DomainBaseRequest& request);
-  void Timeline(const DomainBaseRequest& request);
+  void Start(const Deserializer& request);
+  void End(const Deserializer& request);
+  void V8Tracing(const Deserializer& request);
+  void FrameTimings(const Deserializer& request);
+  void Timeline(const Deserializer& request);
   void ResponseError(int32_t id, const std::string& method);
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

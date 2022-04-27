@@ -29,7 +29,7 @@
 #include "module/model/screen_shot_model.h"
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -47,4 +47,4 @@ class NetworkDomain : public BaseDomain {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

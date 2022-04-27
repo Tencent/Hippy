@@ -23,19 +23,19 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * network 模块调试，getResponseBody的请求数据体
  */
-class NetworkResponseBodyRequest : public DomainBaseRequest {
+class NetworkResponseBodyRequest : public Deserializer {
  public:
   NetworkResponseBodyRequest() = default;
-  void RefreshParams(const std::string& params) override;
+  void Deserialize(const std::string& params) override;
   std::string GetRequestId() const;
 
  private:
   std::string request_id_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

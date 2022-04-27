@@ -22,7 +22,7 @@
 #include <memory>
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -60,4 +60,4 @@ struct DevtoolsConfig {
   std::string ws_url;  // ws 通道设置的 url
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

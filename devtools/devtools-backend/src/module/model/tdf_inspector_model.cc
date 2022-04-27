@@ -22,7 +22,7 @@
 #include <sstream>
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {
@@ -35,4 +35,4 @@ std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

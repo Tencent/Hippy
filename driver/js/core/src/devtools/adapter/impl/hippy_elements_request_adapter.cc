@@ -25,7 +25,6 @@
 
 namespace hippy {
 namespace devtools {
-
 void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
                                                 bool is_root,
                                                 uint32_t depth,
@@ -39,13 +38,13 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
     if (is_root) {
       auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-      tdf::devtools::DomainMetas metas = DevToolUtils::GetDomDomainData(root_node, depth, dom_manager);
+      hippy::devtools::DomainMetas metas = DevToolUtils::GetDomDomainData(root_node, depth, dom_manager);
       callback(metas);
       return;
     }
     auto node = dom_manager->GetNode(static_cast<uint32_t>(node_id));
     assert(node != nullptr);
-    tdf::devtools::DomainMetas metas = DevToolUtils::GetDomDomainData(node, depth, dom_manager);
+    hippy::devtools::DomainMetas metas = DevToolUtils::GetDomDomainData(node, depth, dom_manager);
     callback(metas);
   };
   DevToolUtils::PostDomTask(dom_id_, func);

@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class RuntimeAdapter {
  public:
@@ -30,4 +30,4 @@ class RuntimeAdapter {
   virtual ~RuntimeAdapter(){}
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

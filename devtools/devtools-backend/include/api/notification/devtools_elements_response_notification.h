@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class ElementsResponseNotification {
  public:
@@ -41,4 +41,4 @@ class ElementsResponseNotification {
   bool need_notify_batch_event_ = true;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

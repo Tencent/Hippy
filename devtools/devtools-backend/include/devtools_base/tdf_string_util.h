@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -77,4 +77,4 @@ class TDFStringUtil {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

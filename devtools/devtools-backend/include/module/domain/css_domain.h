@@ -29,7 +29,7 @@
 #include "module/request/css_edit_style_texts_request.h"
 #include "module/request/css_node_data_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -65,4 +65,4 @@ class CSSDomain : public BaseDomain {
   std::map<int32_t, uint32_t> request_call_back_count_map_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

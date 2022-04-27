@@ -24,7 +24,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 struct HeapMeta {
   std::string type;
@@ -45,4 +45,4 @@ class MemoryMetas : public Serializable {
   std::vector<HeapMeta> metas_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

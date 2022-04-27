@@ -27,7 +27,7 @@
 #include "module/domain_dispatch.h"
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class TDFInspectorDomainTest : public ::testing::Test {
@@ -121,4 +121,4 @@ TEST_F(TDFInspectorDomainTest, TDFInspectorDomain) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

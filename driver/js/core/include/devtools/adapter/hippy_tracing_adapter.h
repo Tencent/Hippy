@@ -25,7 +25,7 @@
 
 namespace hippy {
 namespace devtools {
-class HippyTracingAdapter : public tdf::devtools::TracingAdapter {
+class HippyTracingAdapter : public hippy::devtools::TracingAdapter {
   void StartTracing() override;
   void StopTracing(TracingDataCallback callback) override;
 };

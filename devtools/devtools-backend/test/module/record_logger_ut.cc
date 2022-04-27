@@ -28,7 +28,7 @@
 #include "module/record_logger.h"
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 using json = nlohmann::json;
 
@@ -55,7 +55,7 @@ TEST_F(RecordLoggerTest, RecordLogger) {
   EXPECT_NO_THROW(record_logger_->SetMaxNumberOfLogs(max_number_of_logs_));
   EXPECT_NO_THROW(record_logger_->SetRecordLogOperateCallback(operate_callback_));
 
-  logger_model_.source = tdf::devtools::DEVTOOLS_BACKEND_SOURCE;
+  logger_model_.source = hippy::devtools::DEVTOOLS_BACKEND_SOURCE;
   logger_model_.module = "module_name";
   logger_model_.level = "level_name";
   logger_model_.file_name = "file_stream";
@@ -64,4 +64,4 @@ TEST_F(RecordLoggerTest, RecordLogger) {
   EXPECT_NO_THROW(record_logger_->RecordLogData(logger_model_));
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

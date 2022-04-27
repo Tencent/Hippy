@@ -23,9 +23,8 @@
 #include <string>
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-
 /**
  * @brief 通用协议适配
  * 处理当前未实现Adapter适配的协议
@@ -43,7 +42,5 @@ class CommonProtocolAdapter {
   virtual void HandleCommonProtocol(int32_t id, const std::string& method, const std::string& params,
                                     CommonDataCallback callback) = 0;
 };
-
-
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

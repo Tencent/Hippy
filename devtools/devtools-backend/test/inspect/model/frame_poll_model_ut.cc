@@ -22,7 +22,7 @@
 #include <iostream>
 #include "module/model/frame_poll_model.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class FramePollModelTest : public ::testing::Test {
@@ -46,4 +46,4 @@ TEST_F(FramePollModelTest, FramePollModel) {
   EXPECT_NO_THROW(frame_poll_model_->StopPoll());
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

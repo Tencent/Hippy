@@ -20,7 +20,7 @@
 
 #pragma once
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 typedef int ErrorType;
@@ -31,4 +31,4 @@ constexpr const ErrorType kErrorFailCode = -3;  // 结果异常
 constexpr const ErrorType kErrorImpl = -4;  // 实现异常，如第三方框架实现适配器异常
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

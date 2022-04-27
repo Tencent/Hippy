@@ -24,7 +24,7 @@
 #include "api/devtools_data_provider.h"
 #include "api/devtools_notification_center.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -39,4 +39,4 @@ class BaseModel {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

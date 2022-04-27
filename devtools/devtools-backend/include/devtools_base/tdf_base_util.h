@@ -23,7 +23,7 @@
 #include <memory>
 #include "api/adapter/devtools_screen_adapter.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -46,4 +46,4 @@ class TDFBaseUtil {
   static double RemoveScreenScaleFactor(std::shared_ptr<ScreenAdapter> screen_adapter, double origin_value);
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

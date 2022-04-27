@@ -20,163 +20,163 @@
 
 #pragma once
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char *kFrontendKeyQuality = "quality";
-constexpr const char *kFrontendKeyMaxWidth = "maxWidth";
-constexpr const char *kFrontendKeyMaxHeight = "maxHeight";
-constexpr const char *kFrontendKeyFormat = "format";
-constexpr const char *kFrontendKeyDeviceWidth = "deviceWidth";
-constexpr const char *kFrontendKeyDeviceHeight = "deviceHeight";
-constexpr const char *kFrontendKeyMetadata = "metadata";
-constexpr const char *kFrontendKeySessionId = "sessionId";
-constexpr const char *kFrontendKeyItree = "itree";
-constexpr const char *kFrontendKeyRtree = "rtree";
-constexpr const char *kFrontendKeyData = "data";
-constexpr const char *kFrontendKeyTimestamp = "timestamp";
-constexpr const char *kFrontendKeyBase64 = "base64";
-constexpr const char *kFrontendKeyMethod = "method";
-constexpr const char *kFrontendKeyParams = "params";
-constexpr const char *kFrontendKeyId = "id";
-constexpr const char *kFrontendKeyNodeId = "nodeId";
-constexpr const char *kFrontendKeyStyleSheetId = "styleSheetId";
-constexpr const char *kFrontendKeyEdits = "edits";
+constexpr char kFrontendKeyQuality[] ="quality";
+constexpr char kFrontendKeyMaxWidth[] ="maxWidth";
+constexpr char kFrontendKeyMaxHeight[] ="maxHeight";
+constexpr char kFrontendKeyFormat[] ="format";
+constexpr char kFrontendKeyDeviceWidth[] ="deviceWidth";
+constexpr char kFrontendKeyDeviceHeight[] ="deviceHeight";
+constexpr char kFrontendKeyMetadata[] ="metadata";
+constexpr char kFrontendKeySessionId[] ="sessionId";
+constexpr char kFrontendKeyItree[] ="itree";
+constexpr char kFrontendKeyRtree[] ="rtree";
+constexpr char kFrontendKeyData[] ="data";
+constexpr char kFrontendKeyTimestamp[] ="timestamp";
+constexpr char kFrontendKeyBase64[] ="base64";
+constexpr char kFrontendKeyMethod[] ="method";
+constexpr char kFrontendKeyParams[] ="params";
+constexpr char kFrontendKeyId[] ="id";
+constexpr char kFrontendKeyNodeId[] ="nodeId";
+constexpr char kFrontendKeyStyleSheetId[] ="styleSheetId";
+constexpr char kFrontendKeyEdits[] ="edits";
 
 
-constexpr const char* kOverflow = "overflow";
-constexpr const char* kCollapsable = "collapsable";
-constexpr const char* kJustifyContent = "justifyContent";
-constexpr const char* kDisplay = "display";
-constexpr const char* kPosition = "position";
-constexpr const char* kZIndex = "zIndex";
-constexpr const char* kOpacity = "opacity";
-constexpr const char* kFontSize = "fontSize";
-constexpr const char* kLineHeight = "lineHeight";
-constexpr const char* kLetterSpacing = "letterSpacing";
-constexpr const char* kFontWeight = "fontWeight";
-constexpr const char* kFontStyle = "fontStyle";
-constexpr const char* kBackgroundSize = "backgroundSize";
-constexpr const char* kBackgroundPositionX = "backgroundPositionX";
-constexpr const char* kBackgroundPositionY = "backgroundPositionY";
-constexpr const char* kTextAlign = "textAlign";
-constexpr const char* kResizeMode = "resizeMode";
+constexpr char kOverflow[] ="overflow";
+constexpr char kCollapsable[] ="collapsable";
+constexpr char kJustifyContent[] ="justifyContent";
+constexpr char kDisplay[] ="display";
+constexpr char kPosition[] ="position";
+constexpr char kZIndex[] ="zIndex";
+constexpr char kOpacity[] ="opacity";
+constexpr char kFontSize[] ="fontSize";
+constexpr char kLineHeight[] ="lineHeight";
+constexpr char kLetterSpacing[] ="letterSpacing";
+constexpr char kFontWeight[] ="fontWeight";
+constexpr char kFontStyle[] ="fontStyle";
+constexpr char kBackgroundSize[] ="backgroundSize";
+constexpr char kBackgroundPositionX[] ="backgroundPositionX";
+constexpr char kBackgroundPositionY[] ="backgroundPositionY";
+constexpr char kTextAlign[] ="textAlign";
+constexpr char kResizeMode[] ="resizeMode";
 
 // Rect
-constexpr const char* kLeft = "left";
-constexpr const char* kTop = "top";
-constexpr const char* kRight = "right";
-constexpr const char* kBottom = "bottom";
-constexpr const char* kWidth = "width";
-constexpr const char* kHeight = "height";
-constexpr const char* kMinWidth = "minWidth";
-constexpr const char* kMaxWidth = "maxWidth";
-constexpr const char* kMinHeight = "minHeight";
-constexpr const char* kMaxHeight = "maxHeight";
+constexpr char kLeft[] ="left";
+constexpr char kTop[] ="top";
+constexpr char kRight[] ="right";
+constexpr char kBottom[] ="bottom";
+constexpr char kWidth[] ="width";
+constexpr char kHeight[] ="height";
+constexpr char kMinWidth[] ="minWidth";
+constexpr char kMaxWidth[] ="maxWidth";
+constexpr char kMinHeight[] ="minHeight";
+constexpr char kMaxHeight[] ="maxHeight";
 
 // Flex
-constexpr const char* kFlex = "flex";
-constexpr const char* kFlexGrow = "flexGrow";
-constexpr const char* kFlexShrink = "flexShrink";
-constexpr const char* kFlexBasis = "flexBasis";
-constexpr const char* kFlexDirection = "flexDirection";
-constexpr const char* kFlexWrap = "flexWrap";
+constexpr char kFlex[] ="flex";
+constexpr char kFlexGrow[] ="flexGrow";
+constexpr char kFlexShrink[] ="flexShrink";
+constexpr char kFlexBasis[] ="flexBasis";
+constexpr char kFlexDirection[] ="flexDirection";
+constexpr char kFlexWrap[] ="flexWrap";
 
 // align
-constexpr const char* kAlignItems = "alignItems";
-constexpr const char* kAlignSelf = "alignSelf";
+constexpr char kAlignItems[] ="alignItems";
+constexpr char kAlignSelf[] ="alignSelf";
 
 // Border
-constexpr const char* kBorder = "border";
-constexpr const char* kBorderWidth = "borderWidth";
-constexpr const char* kBorderLeftWidth = "borderLeftWidth";
-constexpr const char* kBorderTopWidth = "borderTopWidth";
-constexpr const char* kBorderRightWidth = "borderRightWidth";
-constexpr const char* kBorderBottomWidth = "borderBottomWidth";
-constexpr const char* kBorderColor = "borderColor";
-constexpr const char* kBorderLeftColor = "borderLeftColor";
-constexpr const char* kBorderTopColor = "borderTopColor";
-constexpr const char* kBorderRightColor = "borderRightColor";
-constexpr const char* kBorderBottomColor = "borderBottomColor";
-constexpr const char* kBorderStyle = "borderStyle";
-constexpr const char* kBorderRadius = "borderRadius";
-constexpr const char* kBorderTopLeftRadius = "borderTopLeftRadius";
-constexpr const char* kBorderTopRightRadius = "borderTopRightRadius";
-constexpr const char* kBorderBottomLeftRadius = "borderBottomLeftRadius";
-constexpr const char* kBorderBottomRightRadius = "borderBottomRightRadius";
+constexpr char kBorder[] ="border";
+constexpr char kBorderWidth[] ="borderWidth";
+constexpr char kBorderLeftWidth[] ="borderLeftWidth";
+constexpr char kBorderTopWidth[] ="borderTopWidth";
+constexpr char kBorderRightWidth[] ="borderRightWidth";
+constexpr char kBorderBottomWidth[] ="borderBottomWidth";
+constexpr char kBorderColor[] ="borderColor";
+constexpr char kBorderLeftColor[] ="borderLeftColor";
+constexpr char kBorderTopColor[] ="borderTopColor";
+constexpr char kBorderRightColor[] ="borderRightColor";
+constexpr char kBorderBottomColor[] ="borderBottomColor";
+constexpr char kBorderStyle[] ="borderStyle";
+constexpr char kBorderRadius[] ="borderRadius";
+constexpr char kBorderTopLeftRadius[] ="borderTopLeftRadius";
+constexpr char kBorderTopRightRadius[] ="borderTopRightRadius";
+constexpr char kBorderBottomLeftRadius[] ="borderBottomLeftRadius";
+constexpr char kBorderBottomRightRadius[] ="borderBottomRightRadius";
 
 // Padding
-constexpr const char* kPadding = "padding";
-constexpr const char* kPaddingLeft = "paddingLeft";
-constexpr const char* kPaddingTop = "paddingTop";
-constexpr const char* kPaddingRight = "paddingRight";
-constexpr const char* kPaddingBottom = "paddingBottom";
+constexpr char kPadding[] ="padding";
+constexpr char kPaddingLeft[] ="paddingLeft";
+constexpr char kPaddingTop[] ="paddingTop";
+constexpr char kPaddingRight[] ="paddingRight";
+constexpr char kPaddingBottom[] ="paddingBottom";
 
 // Margin
-constexpr const char* kMargin = "margin";
-constexpr const char* kMarginLeft = "marginLeft";
-constexpr const char* kMarginTop = "marginTop";
-constexpr const char* kMarginRight = "marginRight";
-constexpr const char* kMarginBottom = "marginBottom";
+constexpr char kMargin[] ="margin";
+constexpr char kMarginLeft[] ="marginLeft";
+constexpr char kMarginTop[] ="marginTop";
+constexpr char kMarginRight[] ="marginRight";
+constexpr char kMarginBottom[] ="marginBottom";
 
 // shadow
-constexpr const char* kShadowColor = "shadowColor";
-constexpr const char* kShadowOffset = "shadowOffset";
-constexpr const char* kShadowOffsetX = "shadowOffsetX";
-constexpr const char* kShadowOffsetY = "shadowOffsetY";
-constexpr const char* kShadowOpacity = "shadowOpacity";
-constexpr const char* kShadowRadius = "shadowRadius";
-constexpr const char* kShadowSpread = "shadowSpread";
+constexpr char kShadowColor[] ="shadowColor";
+constexpr char kShadowOffset[] ="shadowOffset";
+constexpr char kShadowOffsetX[] ="shadowOffsetX";
+constexpr char kShadowOffsetY[] ="shadowOffsetY";
+constexpr char kShadowOpacity[] ="shadowOpacity";
+constexpr char kShadowRadius[] ="shadowRadius";
+constexpr char kShadowSpread[] ="shadowSpread";
 
 // style value define
 // general
-constexpr const char* kFlexStart = "flex-start";
-constexpr const char* kCenter = "center";
-constexpr const char* kFlexEnd = "flex-end";
-constexpr const char* kStretch = "stretch";
-constexpr const char* kBaseline = "baseline";
-constexpr const char* kAuto = "auto";
-constexpr const char* kNormal = "normal";
-constexpr const char* kItalic = "italic";
-constexpr const char* kBold = "bold";
-constexpr const char* kContain = "contain";
-constexpr const char* kCover = "cover";
-constexpr const char* kRepeat = "repeat";
+constexpr char kFlexStart[] ="flex-start";
+constexpr char kCenter[] ="center";
+constexpr char kFlexEnd[] ="flex-end";
+constexpr char kStretch[] ="stretch";
+constexpr char kBaseline[] ="baseline";
+constexpr char kAuto[] ="auto";
+constexpr char kNormal[] ="normal";
+constexpr char kItalic[] ="italic";
+constexpr char kBold[] ="bold";
+constexpr char kContain[] ="contain";
+constexpr char kCover[] ="cover";
+constexpr char kRepeat[] ="repeat";
 // display
-constexpr const char* kDisplayFlex = "flex";
-constexpr const char* kDisplayNone = "none";
+constexpr char kDisplayFlex[] ="flex";
+constexpr char kDisplayNone[] ="none";
 // flex direction
-constexpr const char* kFlexDirectionColumn = "column";
-constexpr const char* kFlexDirectionColumnReverse = "column-reverse";
-constexpr const char* kFlexDirectionRow = "row";
-constexpr const char* kFlexDirectionRowReverse = "row-reverse";
+constexpr char kFlexDirectionColumn[] ="column";
+constexpr char kFlexDirectionColumnReverse[] ="column-reverse";
+constexpr char kFlexDirectionRow[] ="row";
+constexpr char kFlexDirectionRowReverse[] ="row-reverse";
 // flex wrap
-constexpr const char* kFlexWrapNowrap = "nowrap";
-constexpr const char* kFlexWrapWrap = "wrap";
-constexpr const char* kFlexWrapWrapReverse = "wrap-reverse";
+constexpr char kFlexWrapNowrap[] ="nowrap";
+constexpr char kFlexWrapWrap[] ="wrap";
+constexpr char kFlexWrapWrapReverse[] ="wrap-reverse";
 // justify content
-constexpr const char* kJustifyContentSpaceBetween = "space-between";
-constexpr const char* kJustifyContentSpaceAround = "space-around";
-constexpr const char* kJustifyContentSpaceEvenly = "space-evenly";
+constexpr char kJustifyContentSpaceBetween[] ="space-between";
+constexpr char kJustifyContentSpaceAround[] ="space-around";
+constexpr char kJustifyContentSpaceEvenly[] ="space-evenly";
 // overflow
-constexpr const char* kOverflowHidden = "hidden";
-constexpr const char* kOverflowVisible = "visible";
-constexpr const char* kOverflowScroll = "scroll";
+constexpr char kOverflowHidden[] ="hidden";
+constexpr char kOverflowVisible[] ="visible";
+constexpr char kOverflowScroll[] ="scroll";
 // position
-constexpr const char* kPositionRelative = "relative";
-constexpr const char* kPositionAbsolute = "absolute";
+constexpr char kPositionRelative[] ="relative";
+constexpr char kPositionAbsolute[] ="absolute";
 // background size
-constexpr const char* kBackgroundSizeFit = "fit";
+constexpr char kBackgroundSizeFit[] ="fit";
 // font weight
-constexpr const char* kFontWeight100 = "100";
-constexpr const char* kFontWeight200 = "200";
-constexpr const char* kFontWeight300 = "300";
-constexpr const char* kFontWeight400 = "400";
-constexpr const char* kFontWeight500 = "500";
-constexpr const char* kFontWeight600 = "600";
-constexpr const char* kFontWeight700 = "700";
-constexpr const char* kFontWeight800 = "800";
-constexpr const char* kFontWeight900 = "900";
+constexpr char kFontWeight100[] ="100";
+constexpr char kFontWeight200[] ="200";
+constexpr char kFontWeight300[] ="300";
+constexpr char kFontWeight400[] ="400";
+constexpr char kFontWeight500[] ="500";
+constexpr char kFontWeight600[] ="600";
+constexpr char kFontWeight700[] ="700";
+constexpr char kFontWeight800[] ="800";
+constexpr char kFontWeight900[] ="900";
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

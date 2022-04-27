@@ -26,7 +26,7 @@
 #include "module/domain/page_domain.h"
 #include "module/domain_dispatch.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class PageDomainTest : public ::testing::Test {
@@ -74,4 +74,4 @@ TEST_F(PageDomainTest, PageDomain) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -24,7 +24,8 @@
 #include <cstdint>
 #include <functional>
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace runner {
 class Task {
  public:
@@ -45,4 +46,5 @@ class Task {
   std::function<void()> unit_;  // A unit of work to be processed
 };
 }  // namespace runner
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

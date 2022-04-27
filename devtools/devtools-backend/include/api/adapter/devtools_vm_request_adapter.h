@@ -22,15 +22,22 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-class V8ResponseNotification {
+/**
+ * Request encapsulation of upper layer execution engine，like v8、 jsc virtual machine
+ */
+class VMRequestAdapter {
  public:
+  using SendFinishCallback = std::function<void()>;
+
   /**
-   * 消息送v8返回
-   * @param data
+   * send message to virtual machine
+   * @param msg  message data
+   * @param callback  on send finish callback
    */
-  virtual void SendResponseFromV8(std::string data) = 0;
+  virtual void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) = 0;
+  virtual ~VMRequestAdapter(){}
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -25,7 +25,7 @@
 
 namespace hippy {
 namespace devtools {
-class HippyRuntimeAdapter : public tdf::devtools::RuntimeAdapter {
+class HippyRuntimeAdapter : public hippy::devtools::RuntimeAdapter {
  public:
   explicit HippyRuntimeAdapter() {}
   void SetDebugMode(bool debug_mode) { debug_mode_ = debug_mode; }

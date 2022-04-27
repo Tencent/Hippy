@@ -24,7 +24,7 @@
 #include "api/adapter/data/dom_node_metas.h"
 #include "api/adapter/data/update_dom_node_metas.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class DomTreeAdapter {
  public:
@@ -42,4 +42,4 @@ class DomTreeAdapter {
   virtual ~DomTreeAdapter() {}
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

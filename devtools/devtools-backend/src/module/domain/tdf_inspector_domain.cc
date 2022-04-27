@@ -24,11 +24,11 @@
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* kInspectorEventScreenShotUpdated = "TDFInspector.screenshotUpdated";
-constexpr const char* kInspectorEventRenderTreeUpdated = "TDFInspector.renderTreeUpdated";
+constexpr char kInspectorEventScreenShotUpdated[] = "TDFInspector.screenshotUpdated";
+constexpr char kInspectorEventRenderTreeUpdated[] = "TDFInspector.renderTreeUpdated";
 
 TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {
   tdf_inspector_model_ = std::make_shared<TDFInspectorModel>();
@@ -43,18 +43,18 @@ TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) :
 std::string_view TDFInspectorDomain::GetDomainName() { return kFrontendKeyDomainNameTDFInspector; }
 
 void TDFInspectorDomain::RegisterMethods() {
-  REGISTER_DOMAIN(TDFInspectorDomain, DumpDomTree, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetDomTree, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetRenderTree, DomainBaseRequest);
+  REGISTER_DOMAIN(TDFInspectorDomain, DumpDomTree, Deserializer);
+  REGISTER_DOMAIN(TDFInspectorDomain, GetDomTree, Deserializer);
+  REGISTER_DOMAIN(TDFInspectorDomain, GetRenderTree, Deserializer);
   REGISTER_DOMAIN(TDFInspectorDomain, GetScreenshot, ScreenShotRequest);
   REGISTER_DOMAIN(TDFInspectorDomain, GetSelectedRenderObject, SelectedRenderObjectRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetSelectedDomNode, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, EnableUpdateNotification, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, DisableUpdateNotification, DomainBaseRequest);
+  REGISTER_DOMAIN(TDFInspectorDomain, GetSelectedDomNode, Deserializer);
+  REGISTER_DOMAIN(TDFInspectorDomain, EnableUpdateNotification, Deserializer);
+  REGISTER_DOMAIN(TDFInspectorDomain, DisableUpdateNotification, Deserializer);
 }
 
-void TDFInspectorDomain::DumpDomTree(const DomainBaseRequest& request) {
-  auto dom_tree_adapter = GetDataProvider()->GetDomTreeAdapter();
+void TDFInspectorDomain::DumpDomTree(const Deserializer& request) {
+  auto dom_tree_adapter = GetDataProvider()->dom_tree_adapter;
   if (!dom_tree_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "dump dom tree failed, js delegate null.");
     return;
@@ -74,8 +74,8 @@ void TDFInspectorDomain::DumpDomTree(const DomainBaseRequest& request) {
   });
 }
 
-void TDFInspectorDomain::GetDomTree(const DomainBaseRequest& request) {
-  auto dom_tree_adapter = GetDataProvider()->GetDomTreeAdapter();
+void TDFInspectorDomain::GetDomTree(const Deserializer& request) {
+  auto dom_tree_adapter = GetDataProvider()->dom_tree_adapter;
   if (!dom_tree_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get dom tree failed, js delegate null.");
     return;
@@ -94,8 +94,8 @@ void TDFInspectorDomain::GetDomTree(const DomainBaseRequest& request) {
   });
 }
 
-void TDFInspectorDomain::GetRenderTree(const DomainBaseRequest& request) {
-  auto render_tree_adapter = GetDataProvider()->GetRenderTreeAdapter();
+void TDFInspectorDomain::GetRenderTree(const Deserializer& request) {
+  auto render_tree_adapter = GetDataProvider()->render_tree_adapter;
   if (!render_tree_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get render tree failed, js delegate null.");
     return;
@@ -125,7 +125,7 @@ void TDFInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
 }
 
 void TDFInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectRequest& request) {
-  auto render_tree_adapter = GetDataProvider()->GetRenderTreeAdapter();
+  auto render_tree_adapter = GetDataProvider()->render_tree_adapter;
   if (!render_tree_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "dump render tree failed, js delegate null.");
     return;
@@ -144,11 +144,11 @@ void TDFInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectReque
       });
 }
 
-void TDFInspectorDomain::GetSelectedDomNode(const DomainBaseRequest& request) {}
+void TDFInspectorDomain::GetSelectedDomNode(const Deserializer& request) {}
 
-void TDFInspectorDomain::EnableUpdateNotification(const DomainBaseRequest& request) { frame_poll_model_->StartPoll(); }
+void TDFInspectorDomain::EnableUpdateNotification(const Deserializer& request) { frame_poll_model_->StartPoll(); }
 
-void TDFInspectorDomain::DisableUpdateNotification(const DomainBaseRequest& request) { frame_poll_model_->StopPoll(); }
+void TDFInspectorDomain::DisableUpdateNotification(const Deserializer& request) { frame_poll_model_->StopPoll(); }
 
 void TDFInspectorDomain::HandleScreenShotUpdatedNotification() {
   auto screen_shot_callback = ScreenShotModel::ScreenShotCallback([this](ScreenShotResponse&& response) {
@@ -165,7 +165,7 @@ void TDFInspectorDomain::HandleFramePollModelRefreshNotification() {
 }
 
 void TDFInspectorDomain::SendRenderTreeUpdatedEvent() {
-  auto render_tree_adapter = GetDataProvider()->GetRenderTreeAdapter();
+  auto render_tree_adapter = GetDataProvider()->render_tree_adapter;
   if (!render_tree_adapter) {
     return;
   }
@@ -181,4 +181,4 @@ void TDFInspectorDomain::SendRenderTreeUpdatedEvent() {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

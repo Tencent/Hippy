@@ -22,10 +22,10 @@
 #include <iostream>
 #include <sstream>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-constexpr const char* kNodeId = "nodeId";
-constexpr const char* kHitNodeRelationTree = "hitNodeRelationTree";
+constexpr char kNodeId[] = "nodeId";
+constexpr char kHitNodeRelationTree[] = "hitNodeRelationTree";
 
 std::string DomNodeLocation::Serialize() const {
   std::string node_str;
@@ -49,4 +49,4 @@ std::string DomNodeLocation::Serialize() const {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

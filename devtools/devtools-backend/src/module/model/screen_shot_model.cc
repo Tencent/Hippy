@@ -24,9 +24,8 @@
 #include "devtools_base/transform_string_util.hpp"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-
 void ScreenShotModel::SetScreenShotRequest(const ScreenShotRequest &req) {
   request_ = req;
   has_set_request_ = true;
@@ -61,14 +60,13 @@ void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen
     return;
   }
   BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShot start");
-  auto screen_adapter = provider_->GetScreenAdapter();
+  auto screen_adapter = provider_->screen_adapter;
   if (!screen_adapter) {
     return;
   }
   screen_adapter->GetScreenShot(
-      {request_.GetQuality(), request_.GetMaxWidth(), request_.GetMaxHeight(), request_.GetFormat()},
+      {request_.GetQuality(), request_.GetMaxWidth(), request_.GetMaxHeight()},
       screen_shot_callback);
 }
-
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -28,7 +28,7 @@
 #include "module/model/screen_shot_model.h"
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class PageDomain : public BaseDomain {
@@ -39,8 +39,8 @@ class PageDomain : public BaseDomain {
 
  private:
   void StartScreencast(const ScreenShotRequest& request);
-  void StopScreencast(const DomainBaseRequest& request);
-  void ScreencastFrameAck(const DomainBaseRequest& request);
+  void StopScreencast(const Deserializer& request);
+  void ScreencastFrameAck(const Deserializer& request);
 
   /**
    * @brief 处理帧更新通知
@@ -56,4 +56,4 @@ class PageDomain : public BaseDomain {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

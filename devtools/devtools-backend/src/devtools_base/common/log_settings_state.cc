@@ -20,8 +20,10 @@
 
 #include "devtools_base/common/log_settings.h"
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace log {
 LogSettings global_log_settings;
 }  // namespace log
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

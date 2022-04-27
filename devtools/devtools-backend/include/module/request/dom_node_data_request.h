@@ -23,15 +23,15 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * @brief 获取 domTree 节点数据的请求
  */
-class DomNodeDataRequest : public DomainBaseRequest {
+class DomNodeDataRequest : public Deserializer {
  public:
   DomNodeDataRequest() : has_set_node_id_(false) {}
-  void RefreshParams(const std::string& params) override;
+  void Deserialize(const std::string& params) override;
 
   int32_t GetNodeId() const { return node_id_; }
   bool HasSetNodeId() const { return has_set_node_id_; }
@@ -41,4 +41,4 @@ class DomNodeDataRequest : public DomainBaseRequest {
   bool has_set_node_id_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -21,7 +21,7 @@
 #include "devtools_base/tdf_base_util.h"
 #include "api/devtools_backend_service.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 double TDFBaseUtil::AddScreenScaleFactor(std::shared_ptr<ScreenAdapter> screen_adapter, double origin_value) {
@@ -38,4 +38,4 @@ double TDFBaseUtil::RemoveScreenScaleFactor(std::shared_ptr<ScreenAdapter> scree
   return origin_value / screen_adapter->GetScreenScale();
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

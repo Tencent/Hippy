@@ -26,7 +26,7 @@
 #include "module/model/css_model.h"
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class CSSModelTest : public ::testing::Test {
@@ -108,4 +108,4 @@ TEST_F(CSSModelTest, CreatorDeathTest) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

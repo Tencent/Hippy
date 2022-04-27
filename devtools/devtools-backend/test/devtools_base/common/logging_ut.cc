@@ -32,7 +32,7 @@
 #else
 #endif
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class LoggerTest : public ::testing::Test {
@@ -65,4 +65,4 @@ TEST_F(LoggerTest, Logger) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

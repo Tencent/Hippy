@@ -24,17 +24,17 @@
 #include "devtools_base/logging.h"
 #include "devtools_base/transform_string_util.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-static constexpr const char* kRecordLogKey = "log";
-static constexpr const char* kRecordLogSourceKey = "source";
-static constexpr const char* kRecordLogModuleKey = "module";
-static constexpr const char* kRecordLogLevelKey = "level";
-static constexpr const char* kRecordLogFileNameKey = "file_name";
-static constexpr const char* kRecordLogLineNumberKey = "line_number";
-static constexpr const char* kRecordLogTimestampKey = "timestamp";
-static constexpr const char* kRecordLogMessageKey = "message";
+constexpr char kRecordLogKey[] = "log";
+constexpr char kRecordLogSourceKey[] = "source";
+constexpr char kRecordLogModuleKey[] = "module";
+constexpr char kRecordLogLevelKey[] = "level";
+constexpr char kRecordLogFileNameKey[] = "file_name";
+constexpr char kRecordLogLineNumberKey[] = "line_number";
+constexpr char kRecordLogTimestampKey[] = "timestamp";
+constexpr char kRecordLogMessageKey[] = "message";
 
 std::string GetKeyValueString(const std::string& key, const std::string& value) {
   std::string qutoes = "\"";
@@ -81,7 +81,7 @@ void RecordLogger::RecordLogData(LoggerModel logger_model) {
   std::lock_guard<std::recursive_mutex> lock(devtools_log_mutex_);
   std::string log_str = ConvertToLogJsonString(logger_model);
   record_logs_.emplace_back(std::move(log_str));
-  if (record_logs_.size() > max_number_of_logs_ && operate_callback_) {
+  if (!record_logs_.empty() && operate_callback_) {
     // 若记录的日志条数大于最大条数，则回调完整日志数据给外部，并重置列表
     operate_callback_(GetRecordLogs());
     ResetRecordLogs();
@@ -104,4 +104,4 @@ std::string RecordLogger::GetRecordLogs() {
 void RecordLogger::ResetRecordLogs() { record_logs_.clear(); }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -21,11 +21,11 @@
 #pragma once
 
 #include <string>
-#include "api/notification/devtools_v8_response_notification.h"
+#include "api/notification/devtools_vm_response_notification.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-class DefaultV8ResponseAdapter : public V8ResponseNotification {
+class DefaultV8ResponseAdapter : public VMResponseNotification {
  public:
   using ResponseHandler = std::function<void(std::string)>;
   explicit DefaultV8ResponseAdapter(ResponseHandler response_handler);
@@ -33,10 +33,10 @@ class DefaultV8ResponseAdapter : public V8ResponseNotification {
    * 消息送v8返回
    * @param data
    */
-  void SendResponseFromV8(std::string data) override;
+  void ResponseToDevtool(std::string data) override;
 
  private:
   ResponseHandler response_handler_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

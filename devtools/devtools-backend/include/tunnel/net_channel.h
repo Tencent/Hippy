@@ -20,8 +20,9 @@
 
 #pragma once
 #include <string>
+#include "api/devtools_config.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 const int32_t TASK_FLAG = 210;  // 任务消息
 /**
@@ -49,7 +50,8 @@ class NetChannel {
    * @param reason close reason
    */
   virtual void Close(uint32_t code, const std::string &reason) = 0;
-};
 
+  static std::shared_ptr<NetChannel> CreateChannel(const DevtoolsConfig& config);
+};
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -22,7 +22,7 @@
 #include <iostream>
 #include "module/model/screen_shot_model.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class ScreenShotModelTest : public ::testing::Test {
@@ -50,4 +50,4 @@ TEST_F(ScreenShotModelTest, ScreenShotModel) {
   EXPECT_NO_THROW(screen_shot_model_.ReqScreenShotToSendEvent());
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

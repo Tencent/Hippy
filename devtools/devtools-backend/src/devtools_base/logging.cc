@@ -29,7 +29,7 @@
 
 #endif
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 const char *const kBackendLogLevelNames[5] =
     {"INFO", "DEBUG", "WARNING", "ERROR", "FATAL"};
@@ -123,7 +123,7 @@ void Logger::Log(LogLevel level, const char *file,
   int64_t nano_time_stamp = nano_time_point.time_since_epoch().count();
 
   LoggerModel logger_model;
-  logger_model.source = tdf::devtools::DEVTOOLS_BACKEND_SOURCE;
+  logger_model.source = "TDF Devtools";
   logger_model.module = module_name;
   logger_model.level = level_name;
   logger_model.file_name = file_stream.str();
@@ -146,4 +146,4 @@ void Logger::DispatchToCallbacks(LoggerModel logger_model) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

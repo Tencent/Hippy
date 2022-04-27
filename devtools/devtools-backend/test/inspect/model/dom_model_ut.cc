@@ -26,7 +26,7 @@
 #include "module/model/dom_model.h"
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class DOMModelTest : public ::testing::Test {
@@ -125,4 +125,4 @@ TEST_F(DOMModelTest, CreatorDeathTest) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

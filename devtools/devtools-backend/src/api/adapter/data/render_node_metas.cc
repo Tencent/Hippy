@@ -22,19 +22,19 @@
 #include <iostream>
 #include <sstream>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-constexpr const char* kRenderName = "name";
-constexpr const char* kDomRelativeRenderId = "domRelativeRenderId";
-constexpr const char* kRenderIsRepaintBoundary = "isRepaintBoundary";
-constexpr const char* kRenderNeedsCompositing = "needsCompositing";
-constexpr const char* kTop = "top";
-constexpr const char* kLeft = "left";
-constexpr const char* kBottom = "bottom";
-constexpr const char* kRight = "right";
-constexpr const char* kNodeId = "id";
-constexpr const char* kBounds = "bounds";
-constexpr const char* kChild = "child";
+constexpr char kRenderName[] = "name";
+constexpr char kDomRelativeRenderId[] = "domRelativeRenderId";
+constexpr char kRenderIsRepaintBoundary[] = "isRepaintBoundary";
+constexpr char kRenderNeedsCompositing[] = "needsCompositing";
+constexpr char kTop[] = "top";
+constexpr char kLeft[] = "left";
+constexpr char kBottom[] = "bottom";
+constexpr char kRight[] = "right";
+constexpr char kNodeId[] = "id";
+constexpr char kBounds[] = "bounds";
+constexpr char kChild[] = "child";
 
 void RenderNodeMetas::AddChild(const RenderNodeMetas& meta) { children_.emplace_back(meta); }
 
@@ -80,4 +80,4 @@ std::string RenderNodeMetas::ToJsonString() const {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

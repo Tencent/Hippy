@@ -23,11 +23,10 @@
 #include "api/devtools_backend_service.h"
 #include "devtools_base/logging.h"
 #include "module/domain_dispatch.h"
-#include "tunnel/channel_factory.h"
 #include "tunnel/tcp/tcp_channel.h"
 #include "tunnel/ws/web_socket_channel.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 constexpr uint32_t kClose = 4003;
@@ -40,7 +39,7 @@ TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const Dev
 }
 
 void TunnelService::Connect(const DevtoolsConfig &devtools_config) {
-  channel_ = ChannelFactory::CreateChannel(devtools_config);
+  channel_ = NetChannel::CreateChannel(devtools_config);
   BACKEND_LOGI(TDF_BACKEND, "TunnelService, Start Connect.");
   channel_->Connect([this](void *buffer, ssize_t length, int flag) {
     if (flag == TASK_FLAG) {
@@ -64,4 +63,4 @@ void TunnelService::Close(bool is_reload) {
   dispatch_->SetResponseHandler(nullptr);
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

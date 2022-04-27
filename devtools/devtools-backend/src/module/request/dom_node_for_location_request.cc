@@ -23,13 +23,13 @@
 #include "devtools_base/tdf_base_util.h"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* kParamsX = "x";
-constexpr const char* kParamsY = "y";
+constexpr char kParamsX[] = "x";
+constexpr char kParamsY[] = "y";
 
-void DomNodeForLocationRequest::RefreshParams(const std::string& params) {
+void DomNodeForLocationRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
   if (!params_json.is_object()) {
     return;
@@ -42,4 +42,4 @@ void DomNodeForLocationRequest::RefreshParams(const std::string& params) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

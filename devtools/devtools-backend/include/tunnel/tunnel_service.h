@@ -26,7 +26,7 @@
 #include "tunnel/net_channel.h"
 #include "api/devtools_config.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -61,4 +61,4 @@ class TunnelService {
   std::shared_ptr<DomainDispatch> dispatch_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

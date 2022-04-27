@@ -24,24 +24,24 @@
 #include "devtools_base/transform_string_util.hpp"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-constexpr const char* kNodeType = "nodeType";
-constexpr const char* kId = "id";
-constexpr const char* kBorderLeft = "borderLeft";
-constexpr const char* kBorderTop = "borderTop";
-constexpr const char* kBorderRight = "borderRight";
-constexpr const char* kBorderBottom = "borderBottom";
-constexpr const char* kTotalProps = "total_props";
-constexpr const char* kFlexNodeStyle = "flexNodeStyle";
-constexpr const char* kBounds = "bounds";
-constexpr const char* kChild = "child";
-constexpr const char* kAttributes = "attributes";
-constexpr const char* kStyle = "style";
-constexpr const char* kBgColor = "bgColor";
-constexpr const char* kText = "text";
-constexpr const char* kBase64 = "base64";
-constexpr const char* kDomRelativeRenderId = "domRelativeRenderId";
+constexpr char kNodeType[] = "nodeType";
+constexpr char kId[] = "id";
+constexpr char kBorderLeft[] = "borderLeft";
+constexpr char kBorderTop[] = "borderTop";
+constexpr char kBorderRight[] = "borderRight";
+constexpr char kBorderBottom[] = "borderBottom";
+constexpr char kTotalProps[] = "total_props";
+constexpr char kFlexNodeStyle[] = "flexNodeStyle";
+constexpr char kBounds[] = "bounds";
+constexpr char kChild[] = "child";
+constexpr char kAttributes[] = "attributes";
+constexpr char kStyle[] = "style";
+constexpr char kBgColor[] = "bgColor";
+constexpr char kText[] = "text";
+constexpr char kBase64[] = "base64";
+constexpr char kDomRelativeRenderId[] = "domRelativeRenderId";
 
 void DomNodeMetas::AddChild(const DomNodeMetas& meta) { children_.emplace_back(meta); }
 
@@ -115,6 +115,5 @@ std::string DomNodeMetas::Serialize() const {
   node_str += "}";
   return node_str;
 }
-
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

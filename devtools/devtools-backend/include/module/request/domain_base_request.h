@@ -23,22 +23,19 @@
 #include <string>
 #include "nlohmann/json.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
- * @brief Domain 请求的基类，解析前端发来的 json_string 类型的请求数据
+ * @brief Parsing JSON sent from the front end_ Request data of type string
  */
-class DomainBaseRequest {
+class Deserializer {
  public:
-  DomainBaseRequest() = default;
-  ~DomainBaseRequest() = default;
-
   /**
-   * @brief 解析前端请求数据，更新对应的属性
-   * @param 前端发来的 json_string 类型请求数据
+   * parse json string to current member object
+   * @param params json format data
    */
-  virtual void RefreshParams(const std::string& params);
+  virtual void Deserialize(const std::string& params);
 
   void SetId(int32_t id) { id_ = id; }
   int32_t GetId() const { return id_; }
@@ -48,4 +45,4 @@ class DomainBaseRequest {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

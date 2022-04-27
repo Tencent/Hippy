@@ -29,11 +29,12 @@
 #include "tunnel/tcp/stream_handler.h"
 #include "tunnel/tcp/tcp_defines.h"
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 constexpr int32_t kNullSocket = -1;
 constexpr int32_t kBufferSize = 32768;
 
-class TcpChannel : public tdf::devtools::NetChannel {
+class TcpChannel : public hippy::devtools::NetChannel {
  public:
   TcpChannel();
   bool StartListen();
@@ -61,7 +62,8 @@ class TcpChannel : public tdf::devtools::NetChannel {
   int32_t socket_fd_;
   int32_t client_fd_;
   int32_t port_;
-  tunnel::StreamHandler stream_handler_;
+  StreamHandler stream_handler_;
   ReceiveDataHandler data_handler_;
 };
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

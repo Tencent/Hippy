@@ -24,7 +24,7 @@
 #include <utility>
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -63,4 +63,4 @@ struct InspectEvent {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -26,21 +26,21 @@
 
 #define BACKEND_LOG(level, module, format, ...)                                                             \
     do {                                                                                            \
-        tdf::devtools::Logger::Log(level, __FILE__, __LINE__, module, format, ##__VA_ARGS__);  \
+        hippy::devtools::Logger::Log(level, __FILE__, __LINE__, module, format, ##__VA_ARGS__);  \
     } while (0)
 
 #define TDF_BACKEND "TDF_Backend"
 
 #define BACKEND_LOGD(module, format, ...) \
-  BACKEND_LOG(tdf::devtools::DEVTOOLS_LOG_DEBUG, module, format, ##__VA_ARGS__)
+  BACKEND_LOG(hippy::devtools::DEVTOOLS_LOG_DEBUG, module, format, ##__VA_ARGS__)
 #define BACKEND_LOGI(module, format, ...) \
-  BACKEND_LOG(tdf::devtools::DEVTOOLS_LOG_INFO, module, format, ##__VA_ARGS__)
+  BACKEND_LOG(hippy::devtools::DEVTOOLS_LOG_INFO, module, format, ##__VA_ARGS__)
 #define BACKEND_LOGW(module, format, ...) \
-  BACKEND_LOG(tdf::devtools::DEVTOOLS_LOG_WARNING, module, format, ##__VA_ARGS__)
+  BACKEND_LOG(hippy::devtools::DEVTOOLS_LOG_WARNING, module, format, ##__VA_ARGS__)
 #define BACKEND_LOGE(module, format, ...) \
-  BACKEND_LOG(tdf::devtools::DEVTOOLS_LOG_ERROR, module, format, ##__VA_ARGS__)
+  BACKEND_LOG(hippy::devtools::DEVTOOLS_LOG_ERROR, module, format, ##__VA_ARGS__)
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 typedef int LogLevel;
@@ -64,4 +64,4 @@ class Logger {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

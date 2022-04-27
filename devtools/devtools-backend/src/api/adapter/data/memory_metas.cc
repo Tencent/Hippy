@@ -22,15 +22,15 @@
 #include <sstream>
 #include "devtools_base/transform_string_util.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* kMemoryKeyHeapMetas = "heapMetas";
-constexpr const char* kMemoryKeyType = "t";
-constexpr const char* kMemoryKeyFile = "f";
-constexpr const char* kMemoryKeyLine = "l";
-constexpr const char* kMemoryKeySize = "s";
-constexpr const char* kMemoryKeyAddress = "a";
+constexpr char kMemoryKeyHeapMetas[] = "heapMetas";
+constexpr char kMemoryKeyType[] = "t";
+constexpr char kMemoryKeyFile[] = "f";
+constexpr char kMemoryKeyLine[] = "l";
+constexpr char kMemoryKeySize[] = "s";
+constexpr char kMemoryKeyAddress[] = "a";
 
 void MemoryMetas::AddHeapMeta(const HeapMeta& meta) { metas_.emplace_back(meta); }
 
@@ -67,4 +67,4 @@ std::string MemoryMetas::Serialize() const {
   return result_string;
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

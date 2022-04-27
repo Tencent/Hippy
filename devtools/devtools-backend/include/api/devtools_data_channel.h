@@ -24,14 +24,14 @@
 #include "api/devtools_data_provider.h"
 #include "api/devtools_notification_center.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * 外部接入框架与devtools的数据交互通道
  * 1 提供外部接入框架的需要充的provider数据接口
  * 2 提供可供外部接入框架调用的Notification接口
  */
-class DataChannel : public std::enable_shared_from_this<DataChannel> {
+class DataChannel {
  public:
   DataChannel(std::shared_ptr<DataProvider> provider, std::shared_ptr<NotificationCenter> notification_center)
       : provider_(provider), notification_center_(notification_center) {}
@@ -43,4 +43,4 @@ class DataChannel : public std::enable_shared_from_this<DataChannel> {
   std::shared_ptr<NotificationCenter> notification_center_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

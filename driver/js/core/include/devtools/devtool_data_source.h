@@ -81,8 +81,8 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
   int32_t dom_id_;
   int32_t runtime_id_;
   std::shared_ptr<HippyRuntimeAdapter> runtime_adapter_;
-  std::shared_ptr<tdf::devtools::DevtoolsBackendService> devtools_service_;
-  static std::vector<std::weak_ptr<tdf::devtools::DevtoolsBackendService>> all_services;
+  std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
+  static std::vector<std::weak_ptr<hippy::devtools::DevtoolsBackendService>> all_services;
 };
 
 }  // namespace devtools

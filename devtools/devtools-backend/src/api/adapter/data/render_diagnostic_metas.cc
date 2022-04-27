@@ -22,13 +22,13 @@
 #include <sstream>
 #include "devtools_base/transform_string_util.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* kDiagnosticsPropertyName = "name";
-constexpr const char* kDiagnosticsPropertyType = "type";
-constexpr const char* kDiagnosticsPropertyValue = "value";
-constexpr const char* kDiagnosticsProperties = "properties";
+constexpr char kDiagnosticsPropertyName[] = "name";
+constexpr char kDiagnosticsPropertyType[] = "type";
+constexpr char kDiagnosticsPropertyValue[] = "value";
+constexpr char kDiagnosticsProperties[] = "properties";
 
 void RenderDiagnosticMetas::AddMeta(const RenderDiagnosticMeta& meta) { metas_.emplace_back(meta); }
 
@@ -57,4 +57,4 @@ std::string RenderDiagnosticMetas::Serialize() const {
   return result_string;
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

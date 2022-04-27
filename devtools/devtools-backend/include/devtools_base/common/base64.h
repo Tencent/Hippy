@@ -21,11 +21,12 @@
 #pragma once
 #include <string>
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 class Base64 {
  public:
-  static std::string Encode(const uint8_t* bin, const size_t len);
-  static std::string Decode(const std::string& input);
+  static std::string Encode(const uint8_t *bin, const size_t len);
+  static std::string Decode(const std::string &input);
 };
-}  // namespace tdf::devtools
-
+}  // namespace devtools
+}  // namespace hippy

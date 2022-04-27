@@ -27,7 +27,7 @@
 #include "module/domain/base_domain.h"
 #include "module/inspect_event.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class BaseDomain;
 
@@ -89,4 +89,4 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

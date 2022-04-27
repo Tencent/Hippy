@@ -23,7 +23,7 @@
 #include <chrono>
 #include <sstream>
 #include <string>
-namespace tdf {
+namespace hippy {
 namespace devtools {
 using Clock = std::chrono::steady_clock;
 using TimePoint = std::chrono::time_point<Clock>;
@@ -94,4 +94,4 @@ class SteadyClockTime {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

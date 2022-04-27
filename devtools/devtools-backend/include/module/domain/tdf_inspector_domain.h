@@ -32,13 +32,13 @@
 #include "module/request/screen_shot_request.h"
 #include "module/request/selected_render_object_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
  * @brief UI 调试，主要涉及 DOM、Render、Layer Tree
  */
-class TDFInspectorDomain : public BaseDomain, public std::enable_shared_from_this<TDFInspectorDomain> {
+class TDFInspectorDomain : public BaseDomain {
  public:
   explicit TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string_view GetDomainName() override;
@@ -50,22 +50,22 @@ class TDFInspectorDomain : public BaseDomain, public std::enable_shared_from_thi
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
 
   // Dump Dom Tree
-  void DumpDomTree(const DomainBaseRequest& request);
+  void DumpDomTree(const Deserializer& request);
 
   /**
    * @brief 获取 DOM Tree，节点信息包含区域
    */
-  void GetDomTree(const DomainBaseRequest& request);
+  void GetDomTree(const Deserializer& request);
 
   /**
    * @brief 获取选中的 DOM 节点的详细信息
    */
-  void GetSelectedDomNode(const DomainBaseRequest& request);
+  void GetSelectedDomNode(const Deserializer& request);
 
   /**
    * @brief 获取 Render Tree，节点信息包含区域
    */
-  void GetRenderTree(const DomainBaseRequest& request);
+  void GetRenderTree(const Deserializer& request);
 
   /**
    * @brief 获取选中的 Render 节点详细信息
@@ -80,12 +80,12 @@ class TDFInspectorDomain : public BaseDomain, public std::enable_shared_from_thi
   /**
    * @brief 打开更新通知开关
    */
-  void EnableUpdateNotification(const DomainBaseRequest& request);
+  void EnableUpdateNotification(const Deserializer& request);
 
   /**
    * @brief 关闭更新通知开关
    */
-  void DisableUpdateNotification(const DomainBaseRequest& request);
+  void DisableUpdateNotification(const Deserializer& request);
 
   /**
    * @brief 处理帧更新通知
@@ -104,4 +104,4 @@ class TDFInspectorDomain : public BaseDomain, public std::enable_shared_from_thi
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -25,7 +25,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 struct BoundRect {
@@ -59,4 +59,4 @@ class DomNodeMetas : public Serializable {
   std::vector<DomNodeMetas> children_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

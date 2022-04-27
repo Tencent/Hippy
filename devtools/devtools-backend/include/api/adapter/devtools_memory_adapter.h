@@ -23,7 +23,7 @@
 #include <string>
 #include "api/adapter/data/memory_metas.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class MemoryAdapter {
  public:
@@ -36,4 +36,4 @@ class MemoryAdapter {
   virtual void CollectMemoryUsage(CoreMemoryUsageCallback callback) = 0;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

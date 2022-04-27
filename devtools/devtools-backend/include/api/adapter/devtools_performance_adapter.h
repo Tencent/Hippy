@@ -24,7 +24,7 @@
 #include "api/adapter/data/trace_event_metas.h"
 #include "api/adapter/data/frame_timing_metas.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class PerformanceAdapter {
  public:
@@ -54,4 +54,4 @@ class PerformanceAdapter {
   virtual void ResetTimeline() = 0;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

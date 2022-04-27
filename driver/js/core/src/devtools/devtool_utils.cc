@@ -22,12 +22,12 @@
 
 namespace hippy {
 namespace devtools {
-constexpr const char* kDefaultNodeName = "DefaultNode";
-constexpr const char* kAttributes = "attributes";
-constexpr const char* kText = "text";
+constexpr char kDefaultNodeName[] = "DefaultNode";
+constexpr char kAttributes[] = "attributes";
+constexpr char kText[] = "text";
 
-tdf::devtools::DomNodeMetas DevToolUtils::ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node) {
-  tdf::devtools::DomNodeMetas metas(dom_node->GetId());
+hippy::devtools::DomNodeMetas DevToolUtils::ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node) {
+  hippy::devtools::DomNodeMetas metas(dom_node->GetId());
   if (!dom_node->GetTagName().empty()) {
     metas.SetNodeType(dom_node->GetTagName());
   } else if (!dom_node->GetViewName().empty()) {
@@ -38,7 +38,7 @@ tdf::devtools::DomNodeMetas DevToolUtils::ToDomNodeMetas(const std::shared_ptr<D
   auto layout_result = dom_node->GetLayoutInfoFromRoot();
   metas.SetWidth(static_cast<uint32_t>(layout_result.width));
   metas.SetHeight(static_cast<uint32_t>(layout_result.height));
-  metas.SetBounds(tdf::devtools::BoundRect{layout_result.left, layout_result.top,
+  metas.SetBounds(hippy::devtools::BoundRect{layout_result.left, layout_result.top,
                                            layout_result.left + layout_result.width,
                                            layout_result.top + layout_result.height});
   metas.SetStyleProps(ParseNodeProps(dom_node->GetStyleMap()));
@@ -52,17 +52,17 @@ tdf::devtools::DomNodeMetas DevToolUtils::ToDomNodeMetas(const std::shared_ptr<D
   return metas;
 }
 
-tdf::devtools::DomainMetas DevToolUtils::GetDomDomainData(const std::shared_ptr<DomNode>& dom_node,
+hippy::devtools::DomainMetas DevToolUtils::GetDomDomainData(const std::shared_ptr<DomNode>& dom_node,
                                                           uint32_t depth,
                                                           const std::shared_ptr<DomManager>& dom_manager) {
-  tdf::devtools::DomainMetas metas(dom_node->GetId());
+  hippy::devtools::DomainMetas metas(dom_node->GetId());
   metas.SetParentId(dom_node->GetPid());
   metas.SetRootId(dom_manager->GetRootId());
   if (dom_node->GetId() == dom_manager->GetRootId()) {
-    metas.SetClassName("rootView");
-    metas.SetNodeName("rootView");
-    metas.SetLocalName("rootView");
-    metas.SetNodeValue("rootView");
+    metas.SetClassName(kDefaultNodeName);
+    metas.SetNodeName(kDefaultNodeName);
+    metas.SetLocalName(kDefaultNodeName);
+    metas.SetNodeValue(kDefaultNodeName);
   } else {
     metas.SetClassName(dom_node->GetViewName());
     metas.SetNodeName(dom_node->GetTagName());
@@ -92,7 +92,7 @@ tdf::devtools::DomainMetas DevToolUtils::GetDomDomainData(const std::shared_ptr<
   return metas;
 }
 
-tdf::devtools::DomNodeLocation DevToolUtils::GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node,
+hippy::devtools::DomNodeLocation DevToolUtils::GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node,
                                                                     double x,
                                                                     double y) {
   auto hit_node = GetMaxDepthAndMinAreaHitNode(dom_node, x, y);
@@ -100,7 +100,7 @@ tdf::devtools::DomNodeLocation DevToolUtils::GetNodeIdByDomLocation(const std::s
     hit_node = dom_node;
   }
   uint32_t node_id = hit_node->GetId();
-  tdf::devtools::DomNodeLocation node_location(node_id);
+  hippy::devtools::DomNodeLocation node_location(node_id);
   node_location.AddRelationId(node_id);
   auto temp_hit_node = hit_node->GetParent();
   while (temp_hit_node != nullptr && temp_hit_node != dom_node) {

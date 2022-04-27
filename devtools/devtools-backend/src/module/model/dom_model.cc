@@ -27,36 +27,34 @@
 #include "devtools_base/tdf_string_util.h"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
-constexpr const char* kRoot = "root";
-constexpr const char* kRootId = "rootId";
-constexpr const char* kNodeId = "nodeId";
-constexpr const char* kNodes = "nodes";
-constexpr const char* kBackendNodeId = "backendNodeId";
-constexpr const char* kNodeType = "nodeType";
-constexpr const char* kChildren = "children";
-constexpr const char* kChildNodeCount = "childNodeCount";
-constexpr const char* kNodeName = "nodeName";
-constexpr const char* kLocalName = "localName";
-constexpr const char* kNodeValue = "nodeValue";
-constexpr const char* kParentId = "parentId";
-constexpr const char* kAttributes = "attributes";
-constexpr const char* kLayoutX = "x";
-constexpr const char* kLayoutY = "y";
-constexpr const char* kLayoutWidth = "width";
-constexpr const char* kLayoutHeight = "height";
-constexpr const char* kBaseURL = "baseURL";
-constexpr const char* kDocumentURL = "documentURL";
-constexpr const char* kBoxModel = "model";
-constexpr const char* kBoxModelContent = "content";
-constexpr const char* kBackendId = "backendId";
-constexpr const char* kFrameId = "frameId";
-constexpr const char* kMainFrame = "main_frame";
-constexpr const char* kDomDataStyle = "style";
-
-// document root define
-constexpr const char* kDocumentName = "#document";
+constexpr char kRoot[] = "root";
+constexpr char kRootId[] = "rootId";
+constexpr char kNodeId[] = "nodeId";
+constexpr char kNodes[] = "nodes";
+constexpr char kBackendNodeId[] = "backendNodeId";
+constexpr char kNodeType[] = "nodeType";
+constexpr char kChildren[] = "children";
+constexpr char kChildNodeCount[] = "childNodeCount";
+constexpr char kNodeName[] = "nodeName";
+constexpr char kLocalName[] = "localName";
+constexpr char kNodeValue[] = "nodeValue";
+constexpr char kParentId[] = "parentId";
+constexpr char kAttributes[] = "attributes";
+constexpr char kLayoutX[] = "x";
+constexpr char kLayoutY[] = "y";
+constexpr char kLayoutWidth[] = "width";
+constexpr char kLayoutHeight[] = "height";
+constexpr char kBaseURL[] = "baseURL";
+constexpr char kDocumentURL[] = "documentURL";
+constexpr char kBoxModel[] = "model";
+constexpr char kBoxModelContent[] = "content";
+constexpr char kBackendId[] = "backendId";
+constexpr char kFrameId[] = "frameId";
+constexpr char kMainFrame[] = "main_frame";
+constexpr char kDomDataStyle[] = "style";
+constexpr char kDocumentName[] = "#document";
 constexpr int32_t kDocumentNodeId = -3;
 constexpr int32_t kDocumentChildNodeCount = 1;
 constexpr int32_t kInvalidNodeId = -1;
@@ -169,14 +167,14 @@ nlohmann::json DOMModel::GetTextNodeJSON() {
 
 nlohmann::json DOMModel::GetBoxModelBorder() {
   auto border = nlohmann::json::array();
-  if (!provider_ || !provider_->GetScreenAdapter()) {
+  if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelBorder ScreenAdapter is null");
     return border;
   }
-  auto x = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), x_);
-  auto y = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), y_);
-  auto width = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), width_);
-  auto height = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), height_);
+  auto x = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, x_);
+  auto y = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, y_);
+  auto width = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, width_);
+  auto height = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, height_);
   // 左上
   border.emplace_back(x);
   border.emplace_back(y);
@@ -194,7 +192,7 @@ nlohmann::json DOMModel::GetBoxModelBorder() {
 
 nlohmann::json DOMModel::GetBoxModelPadding(const nlohmann::json& border) {
   auto padding = nlohmann::json::array();
-  if (!provider_ || !provider_->GetScreenAdapter()) {
+  if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelPadding ScreenAdapter is null");
     return padding;
   }
@@ -226,10 +224,10 @@ nlohmann::json DOMModel::GetBoxModelPadding(const nlohmann::json& border) {
   if (border_bottom_it != style_.end()) {
     border_bottom = border_bottom_it.value();
   }
-  border_left = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), border_left);
-  border_top = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), border_top);
-  border_right = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), border_right);
-  border_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), border_bottom);
+  border_left = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, border_left);
+  border_top = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, border_top);
+  border_right = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, border_right);
+  border_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, border_bottom);
   auto border_vector = border.get<std::vector<int32_t>>();
   padding.emplace_back(border_vector[0] + border_left);
   padding.emplace_back(border_vector[1] + border_top);
@@ -244,7 +242,7 @@ nlohmann::json DOMModel::GetBoxModelPadding(const nlohmann::json& border) {
 
 nlohmann::json DOMModel::GetBoxModelContent(const nlohmann::json& padding) {
   auto content = nlohmann::json::array();
-  if (!provider_ || !provider_->GetScreenAdapter()) {
+  if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelContent ScreenAdapter is null");
     return content;
   }
@@ -276,10 +274,10 @@ nlohmann::json DOMModel::GetBoxModelContent(const nlohmann::json& padding) {
   if (padding_bottom_it != style_.end()) {
     padding_bottom = padding_bottom_it.value();
   }
-  padding_left = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), padding_left);
-  padding_top = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), padding_top);
-  padding_right = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), padding_right);
-  padding_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), padding_bottom);
+  padding_left = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, padding_left);
+  padding_top = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, padding_top);
+  padding_right = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, padding_right);
+  padding_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, padding_bottom);
   auto padding_vector = padding.get<std::vector<int32_t>>();
   content.emplace_back(padding_vector[0] + padding_left);
   content.emplace_back(padding_vector[1] + padding_top);
@@ -294,7 +292,7 @@ nlohmann::json DOMModel::GetBoxModelContent(const nlohmann::json& padding) {
 
 nlohmann::json DOMModel::GetBoxModelMargin(const nlohmann::json& border) {
   auto margin = nlohmann::json::array();
-  if (!provider_ || !provider_->GetScreenAdapter()) {
+  if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelPadding ScreenAdapter is null");
     return margin;
   }
@@ -326,10 +324,10 @@ nlohmann::json DOMModel::GetBoxModelMargin(const nlohmann::json& border) {
   if (margin_bottom_it != style_.end()) {
     margin_bottom = margin_bottom_it.value();
   }
-  margin_left = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), margin_left);
-  margin_top = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), margin_top);
-  margin_right = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), margin_right);
-  margin_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->GetScreenAdapter(), margin_bottom);
+  margin_left = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, margin_left);
+  margin_top = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, margin_top);
+  margin_right = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, margin_right);
+  margin_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, margin_bottom);
   auto border_vector = border.get<std::vector<int32_t>>();
   margin.emplace_back(border_vector[0] - margin_left);
   margin.emplace_back(border_vector[1] - margin_top);
@@ -392,4 +390,4 @@ nlohmann::json DOMModel::ParseAttributesObjectToArray() {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

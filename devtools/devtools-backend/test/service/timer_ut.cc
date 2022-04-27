@@ -21,7 +21,7 @@
 #include <unistd.h>
 #include "tunnel/timer.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 void TimeoutFunction() { std::cout << "test timeout function" << std::endl; }
@@ -48,4 +48,4 @@ TEST_F(TimerTest, Timer) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

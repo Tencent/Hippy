@@ -30,7 +30,7 @@
 #include "module/inspect_event.h"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class DomainDispatch;
@@ -100,4 +100,4 @@ class BaseDomain {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

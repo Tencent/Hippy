@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class CSSStyleMetas;
@@ -98,4 +98,4 @@ class CSSStyleMetas {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

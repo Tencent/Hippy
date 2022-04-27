@@ -22,7 +22,7 @@
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 NetworkDomain::NetworkDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
@@ -33,7 +33,7 @@ void NetworkDomain::RegisterMethods() { REGISTER_DOMAIN(NetworkDomain, GetRespon
 
 void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
   BACKEND_LOGD(TDF_BACKEND, "NetworkDomain::GetResponseBody");
-  auto network_adapter = GetDataProvider()->GetNetworkAdapter();
+  auto network_adapter = GetDataProvider()->network_adapter;
   if (network_adapter) {
     std::string body = network_adapter->GetResponseBody(request.GetRequestId());
     ResponseResultToFrontend(request.GetId(), body);
@@ -42,4 +42,4 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
   }
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

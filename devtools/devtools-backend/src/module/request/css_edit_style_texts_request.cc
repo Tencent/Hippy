@@ -21,10 +21,10 @@
 #include "module/request/css_edit_style_texts_request.h"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-void CSSEditStyleTextsRequest::RefreshParams(const std::string& params) {
+void CSSEditStyleTextsRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
   if (!params_json.is_object() || params_json.find(kFrontendKeyEdits) == params_json.end()) {
     return;
@@ -34,4 +34,4 @@ void CSSEditStyleTextsRequest::RefreshParams(const std::string& params) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

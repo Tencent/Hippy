@@ -20,22 +20,22 @@
 
 #pragma once
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char *kFrontendKeyDomainNameCSS = "CSS";
-constexpr const char *kFrontendKeyDomainNameDOM = "DOM";
-constexpr const char *kFrontendKeyDomainNamePage = "Page";
-constexpr const char *kFrontendKeyDomainNameTDF = "TDF";
-constexpr const char *kFrontendKeyDomainNameNetwork = "Network";
-constexpr const char *kFrontendKeyDomainNameTDFInspector = "TDFInspector";
-constexpr const char *kFrontendKeyDomainNameTDFMemory = "TDFMemory";
-constexpr const char *kFrontendKeyDomainNameTDFPerformance = "TDFPerformance";
-constexpr const char *kFrontendKeyDomainNameTDFRuntime = "TDFRuntime";
+constexpr char kFrontendKeyDomainNameCSS[] = "CSS";
+constexpr char kFrontendKeyDomainNameDOM[] = "DOM";
+constexpr char kFrontendKeyDomainNamePage[] = "Page";
+constexpr char kFrontendKeyDomainNameTDF[] = "TDF";
+constexpr char kFrontendKeyDomainNameNetwork[] = "Network";
+constexpr char kFrontendKeyDomainNameTDFInspector[] = "TDFInspector";
+constexpr char kFrontendKeyDomainNameTDFMemory[] = "TDFMemory";
+constexpr char kFrontendKeyDomainNameTDFPerformance[] = "TDFPerformance";
+constexpr char kFrontendKeyDomainNameTDFRuntime[] = "TDFRuntime";
 
 // Event
-constexpr const char *kLogEventName = "TDFLog.getLog";
+constexpr char kLogEventName[] = "TDFLog.getLog";
 
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

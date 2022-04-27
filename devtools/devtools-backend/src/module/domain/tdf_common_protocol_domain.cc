@@ -22,7 +22,7 @@
 #include "api/devtools_backend_service.h"
 #include "devtools_base/error.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 std::string_view TDFCommonProtocolDomain::GetDomainName() { return kFrontendKeyDomainNameTDF; }
@@ -31,7 +31,7 @@ void TDFCommonProtocolDomain::RegisterMethods() {}
 
 bool TDFCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params) {
   // 全部进行消费
-  auto common_protocol_adapter = GetDataProvider()->GetCommonProtocolAdapter();
+  auto common_protocol_adapter = GetDataProvider()->common_protocol_adapter;
   if (common_protocol_adapter) {
     common_protocol_adapter->HandleCommonProtocol(id, method, params,
                                                   [this, id](bool is_success, const nlohmann::json &data) {
@@ -48,4 +48,4 @@ bool TDFCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string 
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

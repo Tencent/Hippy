@@ -22,38 +22,38 @@
 #include "api/devtools_backend_service.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 std::string_view TDFRuntimeDomain::GetDomainName() { return kFrontendKeyDomainNameTDFRuntime; }
 
 void TDFRuntimeDomain::RegisterMethods() {
-  REGISTER_DOMAIN(TDFRuntimeDomain, Resume, DomainBaseRequest);
-  REGISTER_DOMAIN(TDFRuntimeDomain, IsDebugMode, DomainBaseRequest);
+  REGISTER_DOMAIN(TDFRuntimeDomain, Resume, Deserializer);
+  REGISTER_DOMAIN(TDFRuntimeDomain, IsDebugMode, Deserializer);
 }
 
-void TDFRuntimeDomain::Resume(const DomainBaseRequest& request) {
+void TDFRuntimeDomain::Resume(const Deserializer& request) {
   // 恢复js debugger的断点调试
 #ifdef OS_ANDROID
   std::string data = "chrome_socket_closed";
   // 非Debug模式，不把消息发给V8
-  if (!GetDataProvider()->GetRuntimeAdapter()->IsDebug()) {
+  if (!GetDataProvider()->runtime_adapter->IsDebug()) {
     BACKEND_LOGD(TDF_BACKEND, "Not debug mode, return.");
     return;
   }
-  auto v8_request = GetDataProvider()->GetV8RequestAdapter();
+  auto v8_request = GetDataProvider()->vm_request_adapter;
   if (v8_request) {
-    v8_request->SendMsgToV8(data, nullptr);
+    v8_request->SendMsgToVM(data, nullptr);
   }
 #endif
 }
 
-void TDFRuntimeDomain::IsDebugMode(const DomainBaseRequest& request) {
-  bool isDebug = GetDataProvider()->GetRuntimeAdapter()->IsDebug();
+void TDFRuntimeDomain::IsDebugMode(const Deserializer& request) {
+  bool isDebug = GetDataProvider()->runtime_adapter->IsDebug();
   nlohmann::json result_json = nlohmann::json::object();
   result_json["isDebugMode"] = isDebug ? 1 : 0;
   ResponseResultToFrontend(request.GetId(), result_json.dump());
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

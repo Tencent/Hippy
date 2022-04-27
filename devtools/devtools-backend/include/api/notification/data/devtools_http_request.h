@@ -27,7 +27,7 @@
 #include "api/adapter/data/serializable.h"
 #include "api/notification/data/devtools_network_enum.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * Information about the request initiator.
@@ -129,4 +129,4 @@ class DevtoolsHttpRequest : public Serializable {
   bool has_user_gesture_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

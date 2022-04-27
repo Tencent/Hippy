@@ -23,7 +23,8 @@
 #include <string>
 #include "devtools_base/common/log_level.h"
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace log {
 struct LogSettings {
   LogSeverity min_log_level = TDF_LOG_INFO;
@@ -35,4 +36,5 @@ LogSettings GetLogSettings();
 
 int GetMinLogLevel();
 }  // namespace log
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

@@ -21,15 +21,15 @@
 #pragma once
 
 #include <string>
-#include "api/adapter/devtools_v8_request_adapter.h"
+#include "api/adapter/devtools_vm_request_adapter.h"
 
 namespace hippy {
 namespace devtools {
-class HippyV8RequestAdapter : public tdf::devtools::V8RequestAdapter {
+class HippyV8RequestAdapter : public hippy::devtools::VMRequestAdapter {
  public:
   using V8RequestHandler = std::function<void(std::string)>;
   explicit HippyV8RequestAdapter(V8RequestHandler request_handler);
-  void SendMsgToV8(std::string msg, SendFinishCallback sendFinishCallback) override;
+  void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) override;
 
  private:
   V8RequestHandler request_handler_;

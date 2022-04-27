@@ -23,14 +23,14 @@
 #include <string>
 #include "module/request/domain_base_request.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * @brief 截屏请求
  */
-class ScreenShotRequest : public DomainBaseRequest {
+class ScreenShotRequest : public Deserializer {
  public:
-  void RefreshParams(const std::string& params) override;
+  void Deserialize(const std::string& params) override;
 
   int32_t GetQuality() const { return quality_; }
   int32_t GetMaxWidth() const { return max_width_; }
@@ -44,4 +44,4 @@ class ScreenShotRequest : public DomainBaseRequest {
   int32_t max_height_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

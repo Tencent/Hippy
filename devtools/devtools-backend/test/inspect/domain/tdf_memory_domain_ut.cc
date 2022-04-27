@@ -27,7 +27,7 @@
 #include "module/domain/tdf_memory_domain.h"
 #include "module/domain_dispatch.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class TDFMemoryDomainTest : public ::testing::Test {
@@ -64,4 +64,4 @@ TEST_F(TDFMemoryDomainTest, TDFMemoryDomain) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -23,11 +23,11 @@
 #include "api/notification/default/default_network_notification.h"
 #include <string>
 
-constexpr const char* kDomainNetworkLoadingFinished = "Network.loadingFinished";
-constexpr const char* kDomainNetworkRequestWillBeSent = "Network.requestWillBeSent";
-constexpr const char* kDomainNetworkResponseReceived = "Network.responseReceived";
+constexpr char kDomainNetworkLoadingFinished[] = "Network.loadingFinished";
+constexpr char kDomainNetworkRequestWillBeSent[] = "Network.requestWillBeSent";
+constexpr char kDomainNetworkResponseReceived[] = "Network.responseReceived";
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 void DefaultNetworkNotification::RequestWillBeSent(std::string request_id, const DevtoolsHttpRequest& request) {
   tunnel_service_->SendDataToFrontend(
@@ -43,4 +43,4 @@ void DefaultNetworkNotification::LoadingFinished(std::string request_id, const D
   tunnel_service_->SendDataToFrontend(InspectEvent(kDomainNetworkLoadingFinished, loading.Serialize()).ToJsonString());
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -26,11 +26,11 @@
 
 namespace hippy {
 namespace devtools {
-class HippyScreenAdapter : public tdf::devtools::ScreenAdapter {
+class HippyScreenAdapter : public hippy::devtools::ScreenAdapter {
  public:
   explicit HippyScreenAdapter(int32_t dom_id) : dom_id_(dom_id) {}
 
-  void GetScreenShot(const tdf::devtools::ScreenRequest& request, CoreScreenshotCallback callback) override;
+  void GetScreenShot(const hippy::devtools::ScreenRequest& request, CoreScreenshotCallback callback) override;
 
   uint64_t AddPostFrameCallback(std::function<void()> callback) override;
 

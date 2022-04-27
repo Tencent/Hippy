@@ -31,7 +31,7 @@
 #include "tunnel/channel_factory.h"
 #include "tunnel/tunnel_service.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class SubBaseDomain : public BaseDomain {
@@ -86,4 +86,4 @@ TEST_F(BaseDomainTest, BaseDomain) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

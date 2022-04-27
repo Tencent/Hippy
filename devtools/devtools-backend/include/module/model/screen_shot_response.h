@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * @brief page截屏回包数据
@@ -45,4 +45,4 @@ class ScreenShotResponse {
   int32_t screen_height_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -25,7 +25,7 @@
 #include <vector>
 #include "api/adapter/data/serializable.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 struct RenderRect {
@@ -55,4 +55,4 @@ class RenderNodeMetas : public Serializable {
   std::vector<RenderNodeMetas> children_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

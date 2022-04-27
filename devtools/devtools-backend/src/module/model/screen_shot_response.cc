@@ -22,15 +22,15 @@
 #include "devtools_base/transform_string_util.hpp"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char *kFrontendKeyOffsetTop = "offsetTop";
-constexpr const char *kFrontendKeyPageScaleFactor = "pageScaleFactor";
-constexpr const char *kFrontendKeyScrollOffsetX = "scrollOffsetX";
-constexpr const char *kFrontendKeyScrollOffsetY = "scrollOffsetY";
-constexpr const char *kDefaultJointStringZero = "\":0,\"";
-constexpr const char *kDefaultJointStringOne = "\":1,\"";
+constexpr char kFrontendKeyOffsetTop[] = "offsetTop";
+constexpr char kFrontendKeyPageScaleFactor[] = "pageScaleFactor";
+constexpr char kFrontendKeyScrollOffsetX[] = "scrollOffsetX";
+constexpr char kFrontendKeyScrollOffsetY[] = "scrollOffsetY";
+constexpr char kDefaultJointStringZero[] = "\":0,\"";
+constexpr char kDefaultJointStringOne[] = "\":1,\"";
 
 std::string ScreenShotResponse::ToJsonString() const {
   if (screen_data_.empty()) {
@@ -71,4 +71,4 @@ std::string ScreenShotResponse::ToJsonString() const {
   return result_string;
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

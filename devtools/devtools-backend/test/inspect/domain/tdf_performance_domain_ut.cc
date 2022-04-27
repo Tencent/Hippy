@@ -27,7 +27,7 @@
 #include "module/domain_dispatch.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class TDFPerformanceDomainTest : public ::testing::Test {
@@ -81,4 +81,4 @@ TEST_F(TDFPerformanceDomainTest, TDFPerformanceDomain) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

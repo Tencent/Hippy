@@ -22,13 +22,13 @@
 #include <chrono>
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-const char *const kLogSeverityNames[tdf::devtools::TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR", "FATAL"};
-constexpr const char *kSeverityUnknown = "UNKNOWN";
-const char *GetNameForLogSeverity(tdf::devtools::LogSeverity severity) {
-  if (severity >= tdf::devtools::TDF_LOG_INFO && severity < tdf::devtools::TDF_LOG_NUM_SEVERITIES) {
+constexpr char *const kLogSeverityNames[hippy::devtools::TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR", "FATAL"};
+constexpr char kSeverityUnknown[] = "UNKNOWN";
+const char *GetNameForLogSeverity(hippy::devtools::LogSeverity severity) {
+  if (severity >= hippy::devtools::TDF_LOG_INFO && severity < hippy::devtools::TDF_LOG_NUM_SEVERITIES) {
     return kLogSeverityNames[severity];
   }
   return kSeverityUnknown;
@@ -36,13 +36,13 @@ const char *GetNameForLogSeverity(tdf::devtools::LogSeverity severity) {
 
 DefaultLogAdapter::DefaultLogAdapter(BackendLogHandler log_handler) {}
 
-void DefaultLogAdapter::PrintLog(const std::string &log_message, tdf::devtools::LogSeverity severity,
+void DefaultLogAdapter::PrintLog(const std::string &log_message, hippy::devtools::LogSeverity severity,
                                  const std::string &file_name, int32_t line_number) {
   if (log_handler_) {
     auto nano_time_point = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now());
     int64_t nano_time_stamp = nano_time_point.time_since_epoch().count();
-    tdf::devtools::LoggerModel logger_model;
-    logger_model.source = tdf::devtools::DEVTOOLS_CORE_SOURCE;
+    hippy::devtools::LoggerModel logger_model;
+    logger_model.source = "TDF Core";
     logger_model.module = "";
     logger_model.level = GetNameForLogSeverity(severity);
     logger_model.file_name = file_name;
@@ -54,4 +54,4 @@ void DefaultLogAdapter::PrintLog(const std::string &log_message, tdf::devtools::
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

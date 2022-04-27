@@ -22,7 +22,7 @@
 #include <iostream>
 #include "module/model/screen_shot_response.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 class ScreenShotResponseTest : public ::testing::Test {
@@ -49,4 +49,4 @@ TEST_F(ScreenShotResponseTest, ScreenShotResponse) {
   EXPECT_NO_THROW(screen_shot_response_.ToJsonString());
 }
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

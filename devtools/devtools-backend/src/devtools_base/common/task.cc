@@ -22,10 +22,12 @@
 
 std::atomic<uint32_t> g_next_task_id{0};
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace runner {
 Task::Task() : Task(nullptr) {}
 
 Task::Task(std::function<void()> exec_unit) : unit_(exec_unit) { id_ = g_next_task_id.fetch_add(1); }
 }  // namespace runner
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

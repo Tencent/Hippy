@@ -25,17 +25,17 @@
 
 namespace hippy {
 namespace devtools {
-constexpr const char* kScreenShot = "screenShot";
-constexpr const char* kScreenWidth = "width";
-constexpr const char* kScreenHeight = "height";
-constexpr const char* kMaxWidth = "maxWidth";
-constexpr const char* kMaxHeight = "maxHeight";
-constexpr const char* kQuality = "quality";
-constexpr const char* kGetScreenShot = "getScreenShot";
-constexpr const char* kAddFrameCallback = "addFrameCallback";
-constexpr const char* kRemoveFrameCallback = "removeFrameCallback";
-constexpr const char* kScreenScale = "screenScale";
-constexpr const char* kFrameCallbackId = "frameCallbackId";
+constexpr char kScreenShot[] = "screenShot";
+constexpr char kScreenWidth[] = "width";
+constexpr char kScreenHeight[] = "height";
+constexpr char kRequestMaxWidth[] = "maxWidth";
+constexpr char kRequestMaxHeight[] = "maxHeight";
+constexpr char kQuality[] = "quality";
+constexpr char kGetScreenShot[] = "getScreenShot";
+constexpr char kAddFrameCallback[] = "addFrameCallback";
+constexpr char kRemoveFrameCallback[] = "removeFrameCallback";
+constexpr char kScreenScale[] = "screenScale";
+constexpr char kFrameCallbackId[] = "frameCallbackId";
 double HippyScreenAdapter::screen_scale = 1.0;
 
 uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback) {
@@ -76,7 +76,7 @@ void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
   }
 }
 
-void HippyScreenAdapter::GetScreenShot(const tdf::devtools::ScreenRequest& request, CoreScreenshotCallback callback) {
+void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& request, CoreScreenshotCallback callback) {
   std::function func = [dom_id = dom_id_, callback, request] {
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
     if (dom_manager) {
@@ -84,8 +84,8 @@ void HippyScreenAdapter::GetScreenShot(const tdf::devtools::ScreenRequest& reque
       auto children = root_node->GetChildren();
       if (!children.empty()) {
         tdf::base::DomValue::DomValueObjectType dom_value_object;
-        dom_value_object[kMaxWidth] = tdf::base::DomValue(request.req_width);
-        dom_value_object[kMaxHeight] = tdf::base::DomValue(request.req_height);
+        dom_value_object[kRequestMaxWidth] = tdf::base::DomValue(request.req_width);
+        dom_value_object[kRequestMaxHeight] = tdf::base::DomValue(request.req_height);
         dom_value_object[kQuality] = tdf::base::DomValue(request.quality);
         tdf::base::DomValue::DomValueArrayType dom_value_array;
         dom_value_array.push_back(tdf::base::DomValue(dom_value_object));

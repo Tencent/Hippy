@@ -31,13 +31,13 @@
 #include "module/record_logger.h"
 #include "tunnel/tunnel_service.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * @brief Devtools Backend Service 调试后端服务，主要负责 Devtools 的调试通道搭建、调试协议分发和接入框架的数据采集
  * 作为接入方，需要关心的是：DataProvider 实现 Adapter 能力的实现
  */
-class DevtoolsBackendService: public std::enable_shared_from_this<DevtoolsBackendService> {
+class DevtoolsBackendService {
  public:
   /**
    * @brief 构造 Devtools 实例
@@ -89,4 +89,4 @@ class DevtoolsBackendService: public std::enable_shared_from_this<DevtoolsBacken
   std::shared_ptr<DomainDispatch> domain_dispatch_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

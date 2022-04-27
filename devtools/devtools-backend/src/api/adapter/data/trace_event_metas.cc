@@ -22,19 +22,19 @@
 #include <sstream>
 #include "devtools_base/transform_string_util.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* kTraceEvents = "traceEvents";
-constexpr const char* kTraceName = "name";
-constexpr const char* kTracePh = "ph";
-constexpr const char* kTracePid = "pid";
-constexpr const char* kTraceTid = "tid";
-constexpr const char* kTraceTimestamp = "ts";
+constexpr char kTraceEvents[] = "traceEvents";
+constexpr char kTraceName[] = "name";
+constexpr char kTracePh[] = "ph";
+constexpr char kTracePid[] = "pid";
+constexpr char kTraceTid[] = "tid";
+constexpr char kTraceTimestamp[] = "ts";
 
-constexpr const char* kThreadMetas = "threadMetas";
-constexpr const char* kThreadName = "name";
-constexpr const char* kThreadId = "tid";
+constexpr char kThreadMetas[] = "threadMetas";
+constexpr char kThreadName[] = "name";
+constexpr char kThreadId[] = "tid";
 
 void TraceEventMetas::AddTraceMeta(const TraceMeta& meta) { trace_metas_.emplace_back(meta); }
 void TraceEventMetas::AddThreadMeta(const ThreadMeta& meta) { thread_metas_.emplace_back(meta); }
@@ -106,4 +106,4 @@ std::string TraceEventMetas::SerializeThread() const {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

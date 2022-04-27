@@ -28,7 +28,8 @@
 #include "devtools_base/logging.h"
 #include "devtools_base/common/worker_pool.h"
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace runner {
 std::atomic<int32_t> global_worker_id{0};
 thread_local int32_t local_worker_id;
@@ -429,4 +430,5 @@ void Worker::UpdateSpecific(int32_t task_runner_id, std::array<void*, Worker::kW
   specific_map_[task_runner_id] = array;  // insert or update
 }
 }  // namespace runner
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

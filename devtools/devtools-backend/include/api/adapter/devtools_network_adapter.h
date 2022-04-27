@@ -22,7 +22,7 @@
 
 #include <string>
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 /**
  * Network domain allows tracking network activities of the page. It exposes information about http, file, data and
@@ -37,4 +37,4 @@ class NetworkAdapter {
   virtual std::string GetResponseBody(std::string request_id) = 0;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -27,7 +27,7 @@
 #include "api/notification/data/devtools_http_request.h"
 #include "api/notification/data/devtools_network_enum.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -118,4 +118,4 @@ class DevtoolsHttpResponse : public Serializable {
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

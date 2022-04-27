@@ -28,7 +28,8 @@
 
 #include "devtools_base/common/time_delta.h"
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 inline namespace time {
 class TimePoint {
  public:
@@ -71,4 +72,5 @@ class TimePoint {
   int64_t ticks_ = 0;
 };
 }  // namespace time
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

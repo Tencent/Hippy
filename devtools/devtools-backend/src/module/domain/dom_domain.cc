@@ -28,15 +28,15 @@
 #include "devtools_base/tdf_base_util.h"
 #include "module/domain_register.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 // params key
-constexpr const char* kParamsHitNodeRelationTree = "hitNodeRelationTree";
+constexpr char kParamsHitNodeRelationTree[] = "hitNodeRelationTree";
 
 // DOM event method name
-constexpr const char* kEventMethodSetChildNodes = "DOM.setChildNodes";
-constexpr const char* kEventMethodDocumentUpdated = "DOM.documentUpdated";
+constexpr char kEventMethodSetChildNodes[] = "DOM.setChildNodes";
+constexpr char kEventMethodDocumentUpdated[] = "DOM.documentUpdated";
 
 // default value
 constexpr uint32_t kDocumentNodeDepth = 3;
@@ -46,7 +46,7 @@ constexpr int32_t kInvalidNodeId = -1;
 DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {
   // 注册dom data回调
   dom_data_call_back_ = [this](int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback) {
-    auto elements_request_adapter = GetDataProvider()->GetElementsRequestAdapter();
+    auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
       auto response_callback = [callback, provider = GetDataProvider()](const DomainMetas& data) {
         auto model = DOMModel::CreateModelByJSON(nlohmann::json::parse(data.Serialize()));
@@ -63,7 +63,7 @@ DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispat
 
   // location for node回调
   location_for_node_call_back_ = [this](int32_t x, int32_t y, DomDataCallback callback) {
-    auto elements_request_adapter = GetDataProvider()->GetElementsRequestAdapter();
+    auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
       auto node_callback = [callback, provider = GetDataProvider()](const DomNodeLocation& metas) {
         DOMModel model;
@@ -87,15 +87,15 @@ DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispat
 std::string_view DOMDomain::GetDomainName() { return kFrontendKeyDomainNameDOM; }
 
 void DOMDomain::RegisterMethods() {
-  REGISTER_DOMAIN(DOMDomain, GetDocument, DomainBaseRequest);
+  REGISTER_DOMAIN(DOMDomain, GetDocument, Deserializer);
   REGISTER_DOMAIN(DOMDomain, RequestChildNodes, DomNodeDataRequest);
   REGISTER_DOMAIN(DOMDomain, GetBoxModel, DomNodeDataRequest);
   REGISTER_DOMAIN(DOMDomain, GetNodeForLocation, DomNodeForLocationRequest);
-  REGISTER_DOMAIN(DOMDomain, RemoveNode, DomainBaseRequest);
-  REGISTER_DOMAIN(DOMDomain, SetInspectedNode, DomainBaseRequest);
+  REGISTER_DOMAIN(DOMDomain, RemoveNode, Deserializer);
+  REGISTER_DOMAIN(DOMDomain, SetInspectedNode, Deserializer);
 }
 
-void DOMDomain::GetDocument(const DomainBaseRequest& request) {
+void DOMDomain::GetDocument(const Deserializer& request) {
   if (!dom_data_call_back_) {
     ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetDocument, dom_data_callback is null");
     return;
@@ -155,12 +155,12 @@ void DOMDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, GetNodeForLocation, without X, Y");
     return;
   }
-  if (!GetDataProvider() || !GetDataProvider()->GetScreenAdapter()) {
+  if (!GetDataProvider() || !GetDataProvider()->screen_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "screenAdapter is null");
     return;
   }
-  int32_t x = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->GetScreenAdapter(), request.GetX());
-  int32_t y = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->GetScreenAdapter(), request.GetY());
+  int32_t x = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX());
+  int32_t y = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY());
   location_for_node_call_back_(x, y, [this, request](DOMModel model) {
     auto node_id = SearchNearlyCacheNode(model.GetRelationTree());
     if (node_id != kInvalidNodeId) {
@@ -171,9 +171,9 @@ void DOMDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
   });
 }
 
-void DOMDomain::RemoveNode(const DomainBaseRequest& request) {}
+void DOMDomain::RemoveNode(const Deserializer& request) {}
 
-void DOMDomain::SetInspectedNode(const DomainBaseRequest& request) {
+void DOMDomain::SetInspectedNode(const Deserializer& request) {
   ResponseResultToFrontend(request.GetId(), nlohmann::json::object().dump());
 }
 
@@ -215,4 +215,4 @@ int32_t DOMDomain::SearchNearlyCacheNode(nlohmann::json relation_tree) {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

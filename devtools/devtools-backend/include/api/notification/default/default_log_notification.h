@@ -25,7 +25,7 @@
 #include "devtools_base/common/logging.h"
 #include "module/record_logger.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 class DefaultLogAdapter : public LogNotification {
  public:
@@ -42,4 +42,4 @@ class DefaultLogAdapter : public LogNotification {
   BackendLogHandler log_handler_;
 };
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

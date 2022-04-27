@@ -25,7 +25,7 @@
 #include "devtools_base/common/task_runner.h"
 #include "module/model/base_model.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
 /**
@@ -54,4 +54,4 @@ class FramePollModel : public BaseModel{
 };
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

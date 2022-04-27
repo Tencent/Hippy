@@ -22,14 +22,14 @@
 #include <sstream>
 #include "devtools_base/transform_string_util.hpp"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-constexpr const char* kFrameKeyFrameTimings = "frameTimings";
-constexpr const char* kFrameKeyUI = "ui";
-constexpr const char* kFrameKeyRaster = "raster";
-constexpr const char* kMemoryKeyBegin = "b";
-constexpr const char* kMemoryKeyEnd = "e";
+constexpr char kFrameKeyFrameTimings[] = "frameTimings";
+constexpr char kFrameKeyUI[] = "ui";
+constexpr char kFrameKeyRaster[] = "raster";
+constexpr char kMemoryKeyBegin[] = "b";
+constexpr char kMemoryKeyEnd[] = "e";
 
 void FrameTimingMetas::AddMeta(const FrameMeta& meta) { metas_.emplace_back(meta); }
 
@@ -68,4 +68,4 @@ std::string FrameTimingMetas::Serialize() const {
 }
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -18,21 +18,19 @@
  * limitations under the License.
  */
 
-#include "tunnel/channel_factory.h"
-#include "tunnel/tcp/tcp_channel.h"
-#include "tunnel/ws/web_socket_channel.h"
+#pragma once
 
-namespace tdf {
+#include <string>
+
+namespace hippy {
 namespace devtools {
-
-std::shared_ptr<NetChannel> ChannelFactory::CreateChannel(const DevtoolsConfig& config) {
-  auto tunnel_type = config.tunnel;
-  if (Tunnel::kWebSocket == tunnel_type) {
-    return std::make_shared<WebSocketChannel>(config.ws_url);
-  }
-  // default channel use tcp
-  return std::make_shared<TcpChannel>();
-}
-
+class VMResponseNotification {
+ public:
+  /**
+   * 消息送v8返回
+   * @param data
+   */
+  virtual void ResponseToDevtool(std::string data) = 0;
+};
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

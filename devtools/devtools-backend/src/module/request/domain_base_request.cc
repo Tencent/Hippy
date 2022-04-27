@@ -22,10 +22,10 @@
 #include "devtools_base/logging.h"
 #include "module/inspect_props.h"
 
-namespace tdf {
+namespace hippy {
 namespace devtools {
 
-void DomainBaseRequest::RefreshParams(const std::string& params) {}
+void Deserializer::Deserialize(const std::string& params) {}
 
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

@@ -18,23 +18,19 @@
  * limitations under the License.
  */
 
-#pragma once
+#include "tunnel/net_channel.h"
+#include "tunnel/tcp/tcp_channel.h"
+#include "tunnel/ws/web_socket_channel.h"
 
-#include <string>
-
-namespace tdf {
+namespace hippy {
 namespace devtools {
-class V8RequestAdapter {
- public:
-  using SendFinishCallback = std::function<void()>;
-
-  /**
-   * 发送 js debugger 协议到 v8
-   * @param msg 数据对象
-   * @param callback 发送完成回调
-   */
-  virtual void SendMsgToV8(std::string msg, SendFinishCallback sendFinishCallback) = 0;
-  virtual ~V8RequestAdapter(){}
-};
+std::shared_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& config) {
+  auto tunnel_type = config.tunnel;
+  if (Tunnel::kWebSocket == tunnel_type) {
+    return std::make_shared<WebSocketChannel>(config.ws_url);
+  }
+  // default channel use tcp
+  return std::make_shared<TcpChannel>();
+}
 }  // namespace devtools
-}  // namespace tdf
+}  // namespace hippy

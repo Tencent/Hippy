@@ -29,7 +29,8 @@
 
 typedef WSClient::connection_ptr WSConnectionPtr;
 
-namespace tdf::devtools {
+namespace hippy {
+namespace devtools {
 
 WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
   ws_uri_ = ws_uri;
@@ -132,7 +133,7 @@ void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_
   if (data_handler_) {
     const char* data_message = message.c_str();
     data_handler_(const_cast<void*>(reinterpret_cast<const void*>(data_message)), message.length(),
-                  tdf::devtools::TASK_FLAG);
+                  hippy::devtools::TASK_FLAG);
   }
   BACKEND_LOGD(TDF_BACKEND, "websocket receive message");
 }
@@ -150,4 +151,5 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
                con->get_remote_close_reason().c_str());
 }
 
-}  // namespace tdf::devtools
+}  // namespace devtools
+}  // namespace hippy

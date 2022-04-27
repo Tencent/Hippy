@@ -38,7 +38,7 @@
 class DomainRegister {
  public:
   using InvokerHandler =
-      std::function<void(std::shared_ptr<tdf::devtools::BaseDomain> instance, int32_t id, const std::string& params)>;
+      std::function<void(std::shared_ptr<hippy::devtools::BaseDomain> instance, int32_t id, const std::string& params)>;
   using MethodMap = std::unordered_map<std::string, InvokerHandler>;
   using DomainMap = std::unordered_map<std::string, MethodMap>;
   DomainMap global_domains_{};
@@ -51,13 +51,13 @@ class DomainRegister {
   }
 
   template <typename Domain, typename Function, typename Request,
-            class = typename std::enable_if<std::is_base_of<tdf::devtools::DomainBaseRequest, Request>::value>::type>
+            class = typename std::enable_if<std::is_base_of<hippy::devtools::Deserializer, Request>::value>::type>
   void RegisterDomain(Function Domain::*member_fn, const std::string& domain_name, const std::string& function_name,
                       Request request) {
-    InvokerHandler invoker = [member_fn, function_name, request](std::shared_ptr<tdf::devtools::BaseDomain> baseDomain,
+    InvokerHandler invoker = [member_fn, function_name, request](std::shared_ptr<hippy::devtools::BaseDomain> baseDomain,
                                                                  int32_t id, const std::string& params) mutable {
       request.SetId(id);
-      request.RefreshParams(params);
+      request.Deserialize(params);
       Domain* domain = reinterpret_cast<Domain*>(baseDomain.get());
       (std::mem_fn(member_fn))(domain, request);
     };
