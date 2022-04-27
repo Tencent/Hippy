@@ -35,6 +35,7 @@ using DomManager = hippy::dom::DomManager;
 using DomValue = tdf::base::DomValue;
 using HippyRenderManager = hippy::dom::HippyRenderManager;
 using RenderManager = hippy::dom::RenderManager;
+using Scene = hippy::dom::Scene;
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",
@@ -102,14 +103,14 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
   float width = static_cast<float>(j_width);
   float height = static_cast<float>(j_height);
 
-  std::vector<std::function<void()>> ops_;
-  ops_.emplace_back([dom_manager, width, height]{
+  std::vector<std::function<void()>> ops;
+  ops.emplace_back([dom_manager, width, height]{
     TDF_BASE_LOG(INFO) << "update root size width = " << width << ", height = " << height << std::endl;
     dom_manager->SetRootSize(width, height);
     dom_manager->DoLayout();
     dom_manager->EndBatch();
   });
-  dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
+  dom_manager->PostTask(Scene(std::move(ops)));
 }
 
 void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_node_id,
@@ -140,12 +141,11 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
   update_style.insert({"width", width});
   update_style.insert({"height", height});
 
-  std::vector<std::function<void()>> ops_;
-  ops_.emplace_back([dom_manager, node, update_style]{
+  std::vector<std::function<void()>> ops = {[dom_manager, node, update_style]{
     node->UpdateDomNodeStyleAndParseLayoutInfo(update_style);
     dom_manager->EndBatch();
-  });
-  dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
+  }};
+  dom_manager->PostTask(Scene(std::move(ops)));
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,

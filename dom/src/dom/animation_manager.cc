@@ -13,6 +13,8 @@
 
 namespace hippy {
 inline namespace dom {
+using Scene = hippy::dom::Scene;
+
 static std::unordered_map<int32_t, std::shared_ptr<AnimationManager>> ani_manager_map;
 static std::mutex mutex;
 static std::atomic<int32_t> global_ani_manager_key{0};
@@ -176,7 +178,7 @@ void AnimationManager::DeleteAnimation(const std::shared_ptr<DomNode> dom_node) 
 void AnimationManager::OnAnimationUpdate(std::vector<std::pair<uint32_t, std::shared_ptr<DomValue>>> ani_data) {
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, ani_data] {
+    std::vector<std::function<void()>> ops = {[WEAK_THIS, ani_data] {
       DEFINE_AND_CHECK_SELF(AnimationManager)
       std::vector<std::shared_ptr<DomNode>> update_nodes;
       auto dom_manager = self->dom_manager_.lock();
@@ -208,7 +210,7 @@ void AnimationManager::OnAnimationUpdate(std::vector<std::pair<uint32_t, std::sh
       dom_manager->UpdateAnimation(std::move(update_nodes));
       dom_manager->EndBatch();
     }};
-    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
+    dom_manager->PostTask(Scene(std::move(ops)));
   }
 }
 }  // namespace dom

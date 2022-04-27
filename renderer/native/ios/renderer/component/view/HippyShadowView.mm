@@ -222,7 +222,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     if (domManager) {
         __weak HippyShadowView *weakSelf = self;
         
-        std::vector<std::function<void()>> ops_ = {[weakSelf](){
+        std::vector<std::function<void()>> ops = {[weakSelf](){
             if (weakSelf) {
                 HippyShadowView *strongSelf = weakSelf;
                 strongSelf.creationType = HippyCreationTypeInstantly;
@@ -351,7 +351,7 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     auto domManager = self.domManager.lock();
     if (domManager) {
         __weak HippyShadowView *weakSelf = self;
-        std::vector<std::function<void()>> ops_ = {[weakSelf, domManager, frame](){
+        std::vector<std::function<void()>> ops = {[weakSelf, domManager, frame](){
             @autoreleasepool {
                 if (weakSelf) {
                     HippyShadowView *strongSelf = weakSelf;
