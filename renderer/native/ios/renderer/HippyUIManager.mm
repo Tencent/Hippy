@@ -240,13 +240,13 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     if (resultBlock) {
         auto domManager = _domManager.lock();
         if (domManager) {
-            auto func = [hippyTag, domManager, resultBlock](){
+            std::vector<std::function<void()>> ops_ = {[hippyTag, domManager, resultBlock](){
                 @autoreleasepool {
                     auto node = domManager->GetNode(hippyTag);
                     resultBlock(node);
                 }
-            };
-            domManager->PostTask(func);
+            }};
+            domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
         }
     }
 }
@@ -374,7 +374,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     auto domManager = _domManager.lock();
     if (domManager) {
         __weak id weakSelf = self;
-        std::function<void()> func = [hippyTag, weakSelf, frame]() {
+        std::vector<std::function<void()>> ops_ = {[hippyTag, weakSelf, frame]() {
             if (weakSelf) {
                 HippyUIManager *strongSelf = weakSelf;
                 HippyShadowView *shadowView = strongSelf->_shadowViewRegistry[hippyTag];
@@ -386,8 +386,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                     [strongSelf setNeedsLayout];
                 }
             }
-        };
-        domManager->PostTask(func);
+        }};
+        domManager->PostTask(hippy::dom::Scene(std::move(ops_)));
     }
 }
 

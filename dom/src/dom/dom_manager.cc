@@ -6,15 +6,18 @@
 #include <stack>
 #include <utility>
 
+#include "dom/animation_manager.h"
 #include "dom/diff_utils.h"
+#include "dom/dom_action_interceptor.h"
 #include "dom/dom_event.h"
 #include "dom/dom_node.h"
 #include "dom/layer_optimized_render_manager.h"
 #include "dom/macro.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
-#include "dom/dom_action_interceptor.h"
-#include "dom/animation_manager.h"
+
+#define CHECK_RUN_THREAD() \
+  { TDF_BASE_DCHECK(dom_task_runner_->Id() == hippy::base::ThreadId::GetCurrent()); }
 
 namespace hippy {
 inline namespace dom {
@@ -69,94 +72,77 @@ void DomManager::SetRenderManager(std::shared_ptr<RenderManager> render_manager)
 #endif
 }
 
-uint32_t DomManager::GetRootId() const {
-  return root_node_->GetId();
-}
+uint32_t DomManager::GetRootId() const { return root_node_->GetId(); }
 
-std::shared_ptr<DomNode> DomManager::GetNode(uint32_t id) const {
-  return root_node_->GetNode(id);
-}
+std::shared_ptr<DomNode> DomManager::GetNode(uint32_t id) const { return root_node_->GetNode(id); }
 
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  PostTask([WEAK_THIS, nodes]() mutable {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    for (std::shared_ptr<DomActionInterceptor> interceptor : self->interceptors_) {
-      interceptor->OnDomNodeCreate(nodes);
-    }
-    self->root_node_->CreateDomNodes(std::move(nodes));
-  });
+  CHECK_RUN_THREAD()
+  for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
+    interceptor->OnDomNodeCreate(nodes);
+  }
+  root_node_->CreateDomNodes(std::move(nodes));
 }
 
 void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  PostTask([WEAK_THIS, nodes]() mutable {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    for (std::shared_ptr<DomActionInterceptor> interceptor : self->interceptors_) {
-      interceptor->OnDomNodeUpdate(nodes);
-    }
-    self->root_node_->UpdateDomNodes(std::move(nodes));
-  });
+  CHECK_RUN_THREAD()
+  for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
+    interceptor->OnDomNodeUpdate(nodes);
+  }
+  root_node_->UpdateDomNodes(std::move(nodes));
 }
 
 void DomManager::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+  CHECK_RUN_THREAD()
   root_node_->UpdateAnimation(std::move(nodes));
 }
 
 void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  PostTask([WEAK_THIS, nodes]() mutable {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    for (std::shared_ptr<DomActionInterceptor> interceptor : self->interceptors_) {
-      interceptor->OnDomNodeDelete(nodes);
-    }
-    self->root_node_->DeleteDomNodes(std::move(nodes));
-  });
+  CHECK_RUN_THREAD()
+  for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
+    interceptor->OnDomNodeDelete(nodes);
+  }
+  root_node_->DeleteDomNodes(std::move(nodes));
 }
 
 void DomManager::EndBatch() {
-  PostTask([WEAK_THIS] {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    auto render_manager = self->render_manager_.lock();
-    TDF_BASE_DCHECK(render_manager);
-    if (!render_manager) {
-      return;
-    }
-    self->root_node_->SyncWithRenderManager(render_manager);
-  });
+  CHECK_RUN_THREAD()
+  auto render_manager = render_manager_.lock();
+  TDF_BASE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
+  root_node_->SyncWithRenderManager(render_manager);
 }
 
 void DomManager::AddEventListener(uint32_t id, const std::string& name, bool use_capture, const EventCallback& cb,
                                   const CallFunctionCallback& callback) {
-  PostTask([WEAK_THIS, id, name, use_capture, cb, callback]() {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    auto node = self->root_node_->GetNode(id);
-    if (!node && callback) {
-      callback(std::make_shared<DomArgument>(DomValue(kInvalidListenerId)));
-      return;
-    }
-    node->AddEventListener(name, use_capture, cb, callback);
-  });
+  CHECK_RUN_THREAD()
+  auto node = root_node_->GetNode(id);
+  if (!node && callback) {
+    callback(std::make_shared<DomArgument>(DomValue(kInvalidListenerId)));
+    return;
+  }
+  node->AddEventListener(name, use_capture, cb, callback);
 }
 
 void DomManager::RemoveEventListener(uint32_t id, const std::string& name, uint32_t listener_id) {
-  PostTask([WEAK_THIS, id, name, listener_id]() {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    auto node = self->root_node_->GetNode(id);
-    if (!node) {
-      return;
-    }
-    node->RemoveEventListener(name, listener_id);
-  });
+  CHECK_RUN_THREAD()
+  auto node = root_node_->GetNode(id);
+  if (!node) {
+    return;
+  }
+  node->RemoveEventListener(name, listener_id);
 }
 
 void DomManager::CallFunction(uint32_t id, const std::string& name, const DomArgument& param,
                               const CallFunctionCallback& cb) {
-  PostTask([WEAK_THIS, id, name, param, cb]() {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    auto node = self->root_node_->GetNode(id);
-    if (node == nullptr) {
-      return;
-    }
-    node->CallFunction(name, param, cb);
-  });
+  CHECK_RUN_THREAD()
+  auto node = root_node_->GetNode(id);
+  if (node == nullptr) {
+    return;
+  }
+  node->CallFunction(name, param, cb);
 }
 
 void DomManager::AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name) {
@@ -173,120 +159,110 @@ std::tuple<float, float> DomManager::GetRootSize() {
 }
 
 void DomManager::SetRootSize(float width, float height) {
-  PostTask([WEAK_THIS, width, height]() {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    TDF_BASE_CHECK(self->root_node_);
-    self->root_node_->SetLayoutSize(width, height);
-  });
+  CHECK_RUN_THREAD()
+  TDF_BASE_CHECK(root_node_);
+  root_node_->SetLayoutSize(width, height);
 }
 
 void DomManager::SetRootNode(const std::shared_ptr<RootNode>& root_node) {
-  PostTask([WEAK_THIS, root_node]() {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    if (root_node) {
-      self->root_node_ = root_node;
-      root_node->SetDomManager(self);
-    }
-  });
+  CHECK_RUN_THREAD()
+  if (root_node) {
+    root_node_ = root_node;
+    root_node->SetDomManager(weak_from_this());
+  }
 }
 
 void DomManager::DoLayout() {
-  PostTask([WEAK_THIS]() {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    self->Layout();
-  });
+  CHECK_RUN_THREAD()
+  auto render_manager = render_manager_.lock();
+  // check render_manager, measure text dependent render_manager
+  TDF_BASE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
+  root_node_->DoAndFlushLayout(render_manager);
 }
 
-void DomManager::DoLayout(std::function<void()> func) {
-  PostTask([WEAK_THIS, func]() {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    self->Layout();
-    if(func) func();
-  });
-}
-
-void DomManager::HandleEvent(std::shared_ptr<DomEvent>& event) {
-  // Post 到 Dom taskRunner 避免多线程问题
-  PostTask([WEAK_THIS, event]() {
-    DEFINE_AND_CHECK_SELF(DomManager)
-    auto weak_target = event->GetTarget();
-    auto event_name = event->GetType();
-    auto target = weak_target.lock();
-    if (target) {
-      std::stack<std::shared_ptr<DomNode>> capture_list = {};
-      // 执行捕获流程，注：target节点event.StopPropagation并不会阻止捕获流程
-      if (event->CanCapture()) {
-        // 获取捕获列表
-        auto parent = target->GetParent();
-        while (parent) {
-          capture_list.push(parent);
-          parent = parent->GetParent();
-        }
-      }
-      auto capture_target_listeners = target->GetEventListener(event_name, true);
-      auto bubble_target_listeners = target->GetEventListener(event_name, false);
-      // 捕获列表反过来就是冒泡列表，不需要额外遍历生成
-      auto runner = self->delegate_task_runner_.lock();
-      if (runner) {
-        std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-        task->func_ = [capture_list = std::move(capture_list),
-                       capture_target_listeners = std::move(capture_target_listeners),
-                       bubble_target_listeners = std::move(bubble_target_listeners), event, event_name]() mutable {
-          // 执行捕获流程
-          std::queue<std::shared_ptr<DomNode>> bubble_list = {};
-          while (!capture_list.empty()) {
-            auto capture_node = capture_list.top();
-            capture_list.pop();
-            event->SetCurrentTarget(capture_node);  // 设置当前节点，cb里会用到
-            auto listeners = capture_node->GetEventListener(event_name, true);
-            for (const auto& listener : listeners) {
-              listener->cb(event);  // StopPropagation并不会影响同级的回调调用
-            }
-            if (event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
-              return;  // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
-            }
-            bubble_list.push(std::move(capture_node));
-          }
-          // 执行本身节点回调
-          event->SetCurrentTarget(event->GetTarget());
-          for (const auto& listener : capture_target_listeners) {
-            listener->cb(event);
-          }
-          if (event->IsPreventCapture()) {
-            return;
-          }
-          for (const auto& listener : bubble_target_listeners) {
-            listener->cb(event);
-          }
-          if (event->IsPreventBubble()) {
-            return;
-          }
-          // 执行冒泡流程
-          while (!bubble_list.empty()) {
-            auto bubble_node = bubble_list.front();
-            bubble_list.pop();
-            event->SetCurrentTarget(bubble_node);
-            auto listeners = bubble_node->GetEventListener(event_name, false);
-            for (const auto& listener : listeners) {
-              listener->cb(event);
-            }
-            if (event->IsPreventBubble()) {
-              break;
-            }
-          }
-        };
-        runner->PostTask(std::move(task));
+void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
+  CHECK_RUN_THREAD()
+  auto weak_target = event->GetTarget();
+  auto event_name = event->GetType();
+  auto target = weak_target.lock();
+  if (target) {
+    std::stack<std::shared_ptr<DomNode>> capture_list = {};
+    // 执行捕获流程，注：target节点event.StopPropagation并不会阻止捕获流程
+    if (event->CanCapture()) {
+      // 获取捕获列表
+      auto parent = target->GetParent();
+      while (parent) {
+        capture_list.push(parent);
+        parent = parent->GetParent();
       }
     }
-  });
+    auto capture_target_listeners = target->GetEventListener(event_name, true);
+    auto bubble_target_listeners = target->GetEventListener(event_name, false);
+    // 捕获列表反过来就是冒泡列表，不需要额外遍历生成
+    auto runner = delegate_task_runner_.lock();
+    if (runner) {
+      std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
+      task->func_ = [capture_list = std::move(capture_list),
+                     capture_target_listeners = std::move(capture_target_listeners),
+                     bubble_target_listeners = std::move(bubble_target_listeners), dom_event = std::move(event),
+                     event_name]() mutable {
+        // 执行捕获流程
+        std::queue<std::shared_ptr<DomNode>> bubble_list = {};
+        while (!capture_list.empty()) {
+          auto capture_node = capture_list.top();
+          capture_list.pop();
+          dom_event->SetCurrentTarget(capture_node);  // 设置当前节点，cb里会用到
+          auto listeners = capture_node->GetEventListener(event_name, true);
+          for (const auto& listener : listeners) {
+            listener->cb(dom_event);  // StopPropagation并不会影响同级的回调调用
+          }
+          if (dom_event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
+            return;  // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
+          }
+          bubble_list.push(std::move(capture_node));
+        }
+        // 执行本身节点回调
+        dom_event->SetCurrentTarget(dom_event->GetTarget());
+        for (const auto& listener : capture_target_listeners) {
+          listener->cb(dom_event);
+        }
+        if (dom_event->IsPreventCapture()) {
+          return;
+        }
+        for (const auto& listener : bubble_target_listeners) {
+          listener->cb(dom_event);
+        }
+        if (dom_event->IsPreventBubble()) {
+          return;
+        }
+        // 执行冒泡流程
+        while (!bubble_list.empty()) {
+          auto bubble_node = bubble_list.front();
+          bubble_list.pop();
+          dom_event->SetCurrentTarget(bubble_node);
+          auto listeners = bubble_node->GetEventListener(event_name, false);
+          for (const auto& listener : listeners) {
+            listener->cb(dom_event);
+          }
+          if (dom_event->IsPreventBubble()) {
+            break;
+          }
+        }
+      };
+      runner->PostTask(std::move(task));
+    }
+  }
 }
 
-void DomManager::PostTask(std::function<void()> func) {
+void DomManager::PostTask(const Scene&& scene) {
   if (dom_task_runner_->Id() == hippy::base::ThreadId::GetCurrent()) {
-    func();
+    scene.Build();
   } else {
     std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-    task->func_ = std::move(func);
+    task->func_ = [scene = std::move(scene)] { scene.Build(); };
     dom_task_runner_->PostTask(std::move(task));
   }
 }
@@ -310,18 +286,8 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   root_node_->SyncWithRenderManager(render_manager);
 }
 
-void DomManager::Layout() {
-  auto render_manager = render_manager_.lock();
-  // check render_manager, measure text dependent render_manager
-  TDF_BASE_DCHECK(render_manager);
-  if (!render_manager) {
-    return;
-  }
-  root_node_->DoAndFlushLayout(render_manager);
-}
-
 void DomManager::AddInterceptor(std::shared_ptr<DomActionInterceptor> interceptor) {
-    interceptors_.push_back(interceptor);
+  interceptors_.push_back(interceptor);
 }
 
 }  // namespace dom

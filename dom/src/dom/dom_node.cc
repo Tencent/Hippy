@@ -29,7 +29,8 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name,
       tag_name_(std::move(tag_name)),
       view_name_(std::move(view_name)),
       style_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(style_map))),
-      dom_ext_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(dom_ext_map))),
+      dom_ext_map_(
+          std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(dom_ext_map))),
       is_virtual_(false),
       dom_manager_(dom_manager),
       current_callback_id_(0),
@@ -105,11 +106,19 @@ void DomNode::DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   TransferLayoutOutputsRecursive(changed_nodes);
 }
 
-void DomNode::HandleEvent(std::shared_ptr<DomEvent>& event) {
+void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->HandleEvent(event);
+    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, event] {
+      DEFINE_AND_CHECK_SELF(DomNode);
+      auto manager = self->dom_manager_.lock();
+      TDF_BASE_DCHECK(manager);
+      if (manager) {
+        manager->HandleEvent(std::move(event));
+      }
+    }};
+    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
   }
 }
 
@@ -127,7 +136,7 @@ void DomNode::AddEventListener(const std::string& name, bool use_capture, const 
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, name, use_capture, cb, callback]() {
+    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, name, use_capture, cb, callback]() {
       DEFINE_AND_CHECK_SELF(DomNode)
       // taskRunner内置执行确保current_callback_id_无多线程问题
       self->current_callback_id_ += 1;
@@ -156,7 +165,8 @@ void DomNode::AddEventListener(const std::string& name, bool use_capture, const 
         auto arg = std::make_shared<DomArgument>(DomValue(self->current_callback_id_));
         callback(arg);
       }
-    });
+    }};
+    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
   }
 }
 
@@ -164,7 +174,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, name, id]() {
+    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, name, id]() {
       DEFINE_AND_CHECK_SELF(DomNode)
       if (!self->event_listener_map_) {
         return;
@@ -203,7 +213,8 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
           self->event_listener_map_->erase(it);
         }
       }
-    });
+    }};
+    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
   }
 }
 
@@ -274,7 +285,8 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
     layout_param[kLayoutHeightKey] = DomValue(layout_.height);
     DomValueObjectType layout_obj;
     layout_obj[kLayoutLayoutKey] = std::move(layout_param);
-    auto event = std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(), std::make_shared<DomValue>(std::move(layout_obj)));
+    auto event =
+        std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(), std::make_shared<DomValue>(std::move(layout_obj)));
     HandleEvent(event);
   }
   for (auto& it : children_) {
@@ -317,9 +329,7 @@ CallFunctionCallback DomNode::GetCallback(const std::string& name, uint32_t id) 
   return nullptr;
 }
 
-bool DomNode::HasEventListeners() {
-  return event_listener_map_ != nullptr && !event_listener_map_->empty();
-}
+bool DomNode::HasEventListeners() { return event_listener_map_ != nullptr && !event_listener_map_->empty(); }
 
 void DomNode::EmplaceStyleMap(const std::string key, const DomValue& value) {
   auto iter = style_map_->find(key);
@@ -340,7 +350,7 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, update_style, update_dom_ext]() {
+    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, update_style, update_dom_ext]() {
       DEFINE_AND_CHECK_SELF(DomNode)
 
       self->UpdateDiff(update_style, update_dom_ext);
@@ -353,20 +363,15 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
       if (dom_manager) {
         dom_manager->UpdateRenderNode(self->shared_from_this());
       }
-    });
+    }};
+    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
   }
 }
 
-void DomNode::UpdateDomNodeStyleAndParseLayoutInfo(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, update_style]() {
-      DEFINE_AND_CHECK_SELF(DomNode)
-      self->UpdateStyle(update_style);
-      self->ParseLayoutStyleInfo();
-    });
-  }
+void DomNode::UpdateDomNodeStyleAndParseLayoutInfo(
+    const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+  UpdateStyle(update_style);
+  ParseLayoutStyleInfo();
 }
 
 void DomNode::UpdateDiff(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,

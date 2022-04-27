@@ -43,7 +43,7 @@ bool AnimationManager::Erase(int32_t id) {
 
 AnimationManager::AnimationManager(std::shared_ptr<DomManager> dom_manager) {
   dom_manager_ = dom_manager;
-  id_ =  global_ani_manager_key.fetch_add(1);
+  id_ = global_ani_manager_key.fetch_add(1);
 }
 
 void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomNode>>& nodes) {
@@ -173,11 +173,10 @@ void AnimationManager::DeleteAnimation(const std::shared_ptr<DomNode> dom_node) 
   }
 }
 
-void AnimationManager::OnAnimationUpdate(
-    std::vector<std::pair<uint32_t, std::shared_ptr<DomValue>>> ani_data) {
-    auto dom_manager = dom_manager_.lock();
+void AnimationManager::OnAnimationUpdate(std::vector<std::pair<uint32_t, std::shared_ptr<DomValue>>> ani_data) {
+  auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
-    dom_manager->PostTask([WEAK_THIS, ani_data]() {
+    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, ani_data] {
       DEFINE_AND_CHECK_SELF(AnimationManager)
       std::vector<std::shared_ptr<DomNode>> update_nodes;
       auto dom_manager = self->dom_manager_.lock();
@@ -207,8 +206,9 @@ void AnimationManager::OnAnimationUpdate(
         }
       }
       dom_manager->UpdateAnimation(std::move(update_nodes));
-    });
-    dom_manager->EndBatch();
+      dom_manager->EndBatch();
+    }};
+    dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
   }
 }
 }  // namespace dom

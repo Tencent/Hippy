@@ -25,6 +25,7 @@
 #include "dom/deserializer.h"
 #include "dom/dom_value.h"
 #include "dom/render_manager.h"
+#include "dom/scene.h"
 #include "jni/jni_register.h"
 #include "render/hippy_render_manager.h"
 
@@ -97,8 +98,18 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
     TDF_BASE_DLOG(WARNING) << "UpdateRootSize dom_manager is nullptr";
     return;
   }
-  dom_manager->SetRootSize(j_width, j_height);
-  dom_manager->DoLayout();
+
+  float width = static_cast<float>(j_width);
+  float height = static_cast<float>(j_height);
+
+  std::vector<std::function<void()>> ops_;
+  ops_.emplace_back([dom_manager, width, height]{
+    TDF_BASE_LOG(INFO) << "update root size width = " << width << ", height = " << height << std::endl;
+    dom_manager->SetRootSize(width, height);
+    dom_manager->DoLayout();
+    dom_manager->EndBatch();
+  });
+  dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
 }
 
 void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_node_id,
@@ -129,7 +140,12 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
   update_style.insert({"width", width});
   update_style.insert({"height", height});
 
-  node->UpdateDomNodeStyleAndParseLayoutInfo(update_style);
+  std::vector<std::function<void()>> ops_;
+  ops_.emplace_back([dom_manager, node, update_style]{
+    node->UpdateDomNodeStyleAndParseLayoutInfo(update_style);
+    dom_manager->EndBatch();
+  });
+  dom_manager->PostTask(hippy::dom::Scene(std::move(ops_)));
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
