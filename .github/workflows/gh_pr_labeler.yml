@@ -6,6 +6,7 @@ on:
       - master
       - main
       - v3.0-dev
+      - v3.0
 
 jobs:
   pull_request_labeler:

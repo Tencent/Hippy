@@ -1,27 +1,21 @@
-name: '[front-end] check js code'
+name: '[front-end] build tests'
 
 on:
   pull_request:
+    branches:
+      - main
+      - master
+      - v3.0-dev
+      - v3.0
     paths:
       - 'driver/js/packages/**'
       - 'driver/js/examples/hippy-*-demo/**'
       - 'driver/js/core/js/**/*.js'
       - 'package*.json'
       - 'scripts/**/*.js'
-    branches:
-      # Pull request events to main branch
-      - main
-      # Pull request events to master branch
-      - master
-      # Pull request events to v3.0-dev branch
-      - v3.0-dev
-      # Pull request events to v3.0 branch
-      - v3.0
-    tags-ignore:
-      - '**'
 
 jobs:
-  check_js:
+  frontend_build_tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
