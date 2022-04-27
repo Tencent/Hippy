@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.7](https://github.com/Tencent/Hippy/compare/2.13.6...2.13.7) (2022-04-27)
+
+
+### Bug Fixes
+
+* **debug-server:** update vulerable pacakage ([bd4653f](https://github.com/Tencent/Hippy/commit/bd4653f04aa9ea13f7cf96b2554a75c4cad2fd1e))
+
+
+
+
+
 ## [2.13.6](https://github.com/Tencent/Hippy/compare/2.13.5...2.13.6) (2022-04-18)
 
 **Note:** Version bump only for package @hippy/debug-server

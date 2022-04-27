@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.7](https://github.com/Tencent/Hippy/compare/2.13.6...2.13.7) (2022-04-27)
+
+
+### Bug Fixes
+
+* **android:** elements page screencast at first msg ([f9059d1](https://github.com/Tencent/Hippy/commit/f9059d1101cde64b87ec876be1bffaf83599ef60))
+* **android:** fix 'mControllers' may be accessed by multi-threads ([460ad50](https://github.com/Tencent/Hippy/commit/460ad502e22838d9b82f546bbc1911d66f438e57))
+* **android:** post to dom thread do save ([0ccb13a](https://github.com/Tencent/Hippy/commit/0ccb13ad748dbe314de3a5d5e1a090200223994c))
+* **android:** remove build modal from user agent ([4d0d376](https://github.com/Tencent/Hippy/commit/4d0d376b4a7493268f066b8939e44062e740c333))
+* **android:** reset pull header position for recycler view ([42ef3c9](https://github.com/Tencent/Hippy/commit/42ef3c9e682af037a87ff052cd970d4a2ff41ceb))
+* **android:** should call onInterceptPromiseCallBack first ([484d6c6](https://github.com/Tencent/Hippy/commit/484d6c658803f17ca4c1b02c3601794a355402ba))
+* **core:** fix jni detach crash ([785edb3](https://github.com/Tencent/Hippy/commit/785edb31bcef4d04f21dc52f11c8ab3f9f9d377c))
+* **core:** fix log macro conflict for iOS ([5654164](https://github.com/Tencent/Hippy/commit/565416408d2e5da98e8359bb3474cbc798394cda))
+* **debug-server:** update vulerable pacakage ([bd4653f](https://github.com/Tencent/Hippy/commit/bd4653f04aa9ea13f7cf96b2554a75c4cad2fd1e))
+* **devtools:** fix alpha screencast ([8604f1a](https://github.com/Tencent/Hippy/commit/8604f1a769a38f5721cf1a1213443fc0959d95ec))
+* **hippy-vue:** fixed vue text update filter ([c127669](https://github.com/Tencent/Hippy/commit/c127669b7695ddd4dc29e4b12a81ac42d9fe3060))
+* **ios:** fix image display crash ([c9a39fc](https://github.com/Tencent/Hippy/commit/c9a39fc3ccf5afa47a8c5f93ff2ecd69006f21bf))
+* **ios:** fix list scroll event throttle bug ([44b8aed](https://github.com/Tencent/Hippy/commit/44b8aed46edc1b3539ff66051178dea8abe5a44b))
+* **ios:** fix strange shaped text render bug ([d77df3b](https://github.com/Tencent/Hippy/commit/d77df3b7125437ac434999592c18825f0b3b07d5))
+* **ios:** fix touch handler conflict ([6ae38ca](https://github.com/Tencent/Hippy/commit/6ae38ca54c164d91cdf0ed122b4a46baca962401))
+* **ios:** fix value fetch error ([e0edfae](https://github.com/Tencent/Hippy/commit/e0edfaee4b06310c0f43590c82ce0ac5d9ea520f))
+
+
+### Features
+
+* **android:** add call native and promise callback monitor ([301562c](https://github.com/Tencent/Hippy/commit/301562c547d6f2b23c528fb86607cfaee7bcb5f6))
+* **android:** add method 'addApiProviders' in HippyEngineContext ([50dbe8a](https://github.com/Tencent/Hippy/commit/50dbe8ad71cafb333f1342debd02e4f86c87997a))
+* **android:** support vue-devtools debugClientId ([c09e751](https://github.com/Tencent/Hippy/commit/c09e7514af4e58148b9ca6782e07e07d1b5c53dd))
+* **core:** change log level ([12022fb](https://github.com/Tencent/Hippy/commit/12022fb9c9bfa8e0663cb64edadbeafbd232c0b9))
+* **devtools:** support vue-devtools ([e0cf765](https://github.com/Tencent/Hippy/commit/e0cf7654f4a95d4342aaeaca8bffa590ce9e2852))
+* **ios:** add clientId and fix empty port ([#1737](https://github.com/Tencent/Hippy/issues/1737)) ([aea12a3](https://github.com/Tencent/Hippy/commit/aea12a33397a3c6c5786492bd28b8dd8cba21f4a))
+* **ios:** localstorage can handle error ([2426a8e](https://github.com/Tencent/Hippy/commit/2426a8e5df948b63cf8d96534e5f91fcee0ae06b))
+* **ios:** method invoke interceptor ([#1774](https://github.com/Tencent/Hippy/issues/1774)) ([1ae54c6](https://github.com/Tencent/Hippy/commit/1ae54c6363426ff9f1b2fd877738913796470e24))
+* **ios:** unified client id generation logic ([#1743](https://github.com/Tencent/Hippy/issues/1743)) ([1c2359c](https://github.com/Tencent/Hippy/commit/1c2359c5926f0a27cec2744956f0bd73015e2dcc))
+* **react,vue:** add position absolute for modal default style ([7bbed56](https://github.com/Tencent/Hippy/commit/7bbed5684e309cde7fe229f81ad746b1873467da))
+
+
+
+
+
 ## [2.13.6](https://github.com/Tencent/Hippy/compare/2.13.5...2.13.6) (2022-04-18)
 
 

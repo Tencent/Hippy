@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.7](https://github.com/Tencent/Hippy/compare/2.13.6...2.13.7) (2022-04-27)
+
+
+### Features
+
+* **react,vue:** add position absolute for modal default style ([7bbed56](https://github.com/Tencent/Hippy/commit/7bbed5684e309cde7fe229f81ad746b1873467da))
+
+
+
+
+
 ## [2.13.6](https://github.com/Tencent/Hippy/compare/2.13.5...2.13.6) (2022-04-18)
 
 **Note:** Version bump only for package @hippy/vue-native-components
