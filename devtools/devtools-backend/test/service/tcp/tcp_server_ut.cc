@@ -50,4 +50,4 @@ TEST_F(TcpServerTest, TcpChannel) {
   EXPECT_NO_THROW(tcp_server_->StopListenAndDisConnect());
   EXPECT_NO_THROW(tcp_server_->SendResponse(nullptr, 0, 0));
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

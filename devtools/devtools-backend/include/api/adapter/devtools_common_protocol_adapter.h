@@ -41,4 +41,4 @@ class CommonProtocolAdapter {
   virtual void HandleCommonProtocol(int32_t id, const std::string& method, const std::string& params,
                                     CommonDataCallback callback) = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

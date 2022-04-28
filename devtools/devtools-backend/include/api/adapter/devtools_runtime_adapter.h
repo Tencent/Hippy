@@ -28,4 +28,4 @@ class RuntimeAdapter {
   virtual bool IsDebug() = 0;
   virtual ~RuntimeAdapter(){}
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

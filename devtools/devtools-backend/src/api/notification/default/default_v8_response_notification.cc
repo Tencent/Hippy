@@ -34,4 +34,4 @@ void DefaultV8ResponseAdapter::ResponseToDevtool(std::string data) {
   }
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

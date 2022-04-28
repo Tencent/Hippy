@@ -43,4 +43,4 @@ class Deserializer {
   int32_t id_;  // 请求带有的唯一标识符
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

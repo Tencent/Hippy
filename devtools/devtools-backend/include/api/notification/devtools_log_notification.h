@@ -34,4 +34,4 @@ class LogNotification {
   virtual void PrintLog(const std::string& log_message, LogSeverity serverity, const std::string& file_name,
                         int32_t line_number) = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

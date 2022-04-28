@@ -61,4 +61,4 @@ void TunnelService::Close(bool is_reload) {
   channel_->Close(is_reload ? kReload : kClose, "");
   dispatch_->SetResponseHandler(nullptr);
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

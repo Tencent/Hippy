@@ -40,4 +40,4 @@ void DomNodeForLocationRequest::Deserialize(const std::string& params) {
   has_set_xy_ = true;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

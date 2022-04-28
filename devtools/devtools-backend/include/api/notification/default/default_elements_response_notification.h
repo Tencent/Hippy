@@ -33,4 +33,4 @@ class DefaultElementsResponseAdapter : public ElementsResponseNotification {
  private:
   DocumentUpdateHandler document_update_Handler_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

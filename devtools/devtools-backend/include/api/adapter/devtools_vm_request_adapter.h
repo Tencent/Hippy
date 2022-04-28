@@ -38,4 +38,4 @@ class VMRequestAdapter {
   virtual void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) = 0;
   virtual ~VMRequestAdapter(){}
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

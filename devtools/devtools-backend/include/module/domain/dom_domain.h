@@ -63,4 +63,4 @@ class DOMDomain : public BaseDomain {
   DomDataRequestCallback dom_data_call_back_;
   LocationForNodeDataCallback location_for_node_call_back_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

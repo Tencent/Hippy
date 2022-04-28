@@ -64,4 +64,4 @@ class DomainMetas : public Serializable {
   std::vector<DomainMetas> children_;
   uint64_t children_count_;  // 用于展开逻辑，必须赋值，不可从children_读取
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

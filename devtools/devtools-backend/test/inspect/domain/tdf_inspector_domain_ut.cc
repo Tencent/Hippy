@@ -119,4 +119,4 @@ TEST_F(TDFInspectorDomainTest, TDFInspectorDomain) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(disable_update_notification_request));
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

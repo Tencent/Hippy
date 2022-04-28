@@ -90,4 +90,4 @@ FramePollModel::~FramePollModel() {
   RemoveFrameCallback();
   WorkerPool::GetInstance(0)->RemoveTaskRunner(refresh_task_runner_);
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -41,4 +41,4 @@ class RenderDiagnosticMetas : public Serializable {
  private:
   std::vector<RenderDiagnosticMeta> metas_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

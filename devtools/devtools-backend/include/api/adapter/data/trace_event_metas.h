@@ -58,4 +58,4 @@ class TraceEventMetas : public Serializable {
   std::vector<TraceMeta> trace_metas_;
   std::vector<ThreadMeta> thread_metas_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

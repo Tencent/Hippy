@@ -39,4 +39,4 @@ class TDFInspectorModelTest : public ::testing::Test {
 };
 
 TEST_F(TDFInspectorModelTest, TDFInspectorModel) { EXPECT_NO_THROW(tdf_inspector_model_.GetRenderTree("render_tree")); }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

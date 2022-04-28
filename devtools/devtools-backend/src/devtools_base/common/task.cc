@@ -28,4 +28,4 @@ Task::Task() : Task(nullptr) {}
 
 Task::Task(std::function<void()> exec_unit) : unit_(exec_unit) { id_ = g_next_task_id.fetch_add(1); }
 }  // namespace runner
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

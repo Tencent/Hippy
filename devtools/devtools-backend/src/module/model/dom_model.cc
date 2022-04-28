@@ -388,4 +388,4 @@ nlohmann::json DOMModel::ParseAttributesObjectToArray() {
   return attributes_array;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -69,4 +69,4 @@ std::string ScreenShotResponse::ToJsonString() const {
   result_string += "}";
   return result_string;
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -38,4 +38,4 @@ void TDFMemoryDomain::GetHeapMeta(const Deserializer& request) {
     ResponseResultToFrontend(request.GetId(), memoryMetas.Serialize());
   });
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

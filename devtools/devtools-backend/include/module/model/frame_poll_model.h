@@ -52,4 +52,4 @@ class FramePollModel : public BaseModel{
   std::function<void()> refresh_task_;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

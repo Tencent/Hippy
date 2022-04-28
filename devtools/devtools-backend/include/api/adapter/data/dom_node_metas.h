@@ -57,4 +57,4 @@ class DomNodeMetas : public Serializable {
   uint32_t height_;
   std::vector<DomNodeMetas> children_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

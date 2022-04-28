@@ -97,4 +97,4 @@ class TransformStringUtil {
   }
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

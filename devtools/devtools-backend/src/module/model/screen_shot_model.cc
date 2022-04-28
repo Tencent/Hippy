@@ -67,4 +67,4 @@ void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen
       {request_.GetQuality(), request_.GetMaxWidth(), request_.GetMaxHeight()},
       screen_shot_callback);
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

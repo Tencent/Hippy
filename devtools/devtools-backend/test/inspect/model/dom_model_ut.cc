@@ -123,4 +123,4 @@ TEST_F(DOMModelTest, CreatorDeathTest) {
   EXPECT_DEATH(DOMModel::CreateModelByJSON(array_json), "");
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

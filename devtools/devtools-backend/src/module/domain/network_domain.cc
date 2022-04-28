@@ -40,4 +40,4 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
     BACKEND_LOGE(TDF_BACKEND, "NetworkDomain::GetResponseBody no NetworkAdapterImp");
   }
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

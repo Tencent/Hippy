@@ -45,4 +45,4 @@ class NetworkDomain : public BaseDomain {
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -71,4 +71,4 @@ class TimePoint {
   int64_t ticks_ = 0;
 };
 }  // namespace time
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

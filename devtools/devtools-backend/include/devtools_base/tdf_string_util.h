@@ -75,4 +75,4 @@ class TDFStringUtil {
   }
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

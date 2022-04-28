@@ -52,4 +52,4 @@ class NetChannel {
 
   static std::unique_ptr<NetChannel> CreateChannel(const DevtoolsConfig& config);
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

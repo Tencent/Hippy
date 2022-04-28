@@ -34,4 +34,4 @@ void DefaultRuntimeNotification::UpdateContextName(const std::string& context_na
   }
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -73,4 +73,4 @@ class ScreenAdapter {
    */
   virtual double GetScreenScale() { return 1.0f; }
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

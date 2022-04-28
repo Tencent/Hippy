@@ -102,4 +102,4 @@ class TDFInspectorDomain : public BaseDomain {
   void SendRenderTreeUpdatedEvent();
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

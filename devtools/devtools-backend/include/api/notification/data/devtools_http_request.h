@@ -127,4 +127,4 @@ class DevtoolsHttpRequest : public Serializable {
   std::string frame_id_;
   bool has_user_gesture_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -40,4 +40,4 @@ class DomTreeAdapter {
   virtual void GetDomTree(const DumpDomTreeCallback& callback) = 0;
   virtual ~DomTreeAdapter() {}
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -102,4 +102,4 @@ std::string RecordLogger::GetRecordLogs() {
 
 void RecordLogger::ResetRecordLogs() { record_logs_.clear(); }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

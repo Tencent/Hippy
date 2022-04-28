@@ -52,4 +52,4 @@ void DefaultLogAdapter::PrintLog(const std::string &log_message, hippy::devtools
   }
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

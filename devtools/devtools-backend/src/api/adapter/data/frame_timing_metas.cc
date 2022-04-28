@@ -66,4 +66,4 @@ std::string FrameTimingMetas::Serialize() const {
   return result_string;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

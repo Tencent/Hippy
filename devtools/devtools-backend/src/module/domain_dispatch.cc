@@ -181,4 +181,4 @@ void DomainDispatch::SendEventToFrontend(InspectEvent&& event) {
     rsp_handler_(event.ToJsonString());
   }
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -144,4 +144,4 @@ void CSSDomain::SetStyleTexts(const CSSEditStyleTextsRequest& request) {
   }
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

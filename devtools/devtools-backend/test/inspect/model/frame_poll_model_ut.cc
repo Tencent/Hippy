@@ -44,4 +44,4 @@ TEST_F(FramePollModelTest, FramePollModel) {
 //  std::this_thread::sleep_for(std::chrono::duration<int>(2));  // 睡眠导致线程偶现异常
   EXPECT_NO_THROW(frame_poll_model_->StopPoll());
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

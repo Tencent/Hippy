@@ -47,4 +47,4 @@ TEST_F(ScreenShotResponseTest, ScreenShotResponse) {
   EXPECT_NO_THROW(screen_shot_response_ = ScreenShotResponse("", 100, 200));
   EXPECT_NO_THROW(screen_shot_response_.ToJsonString());
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

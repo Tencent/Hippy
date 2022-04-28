@@ -43,5 +43,5 @@ class FrameTimingMetas : public Serializable {
  private:
   std::vector<FrameMeta> metas_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools
 

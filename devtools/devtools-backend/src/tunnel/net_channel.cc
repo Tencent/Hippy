@@ -31,4 +31,4 @@ std::unique_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& conf
   // default channel use tcp
   return std::make_unique<TcpChannel>();
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

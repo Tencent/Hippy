@@ -41,4 +41,4 @@ class DataChannel {
   std::shared_ptr<DataProvider> provider_;
   std::shared_ptr<NotificationCenter> notification_center_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

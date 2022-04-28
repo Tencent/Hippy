@@ -39,4 +39,4 @@ class CSSEditStyleTextsRequest : public Deserializer {
   nlohmann::json edits_;
   bool has_set_edits_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

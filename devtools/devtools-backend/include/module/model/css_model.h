@@ -103,4 +103,4 @@ class CSSModel : public BaseModel {
   double width_ = 0;
   double height_ = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

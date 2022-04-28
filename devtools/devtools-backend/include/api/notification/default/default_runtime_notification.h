@@ -42,4 +42,4 @@ class DefaultRuntimeNotification : public RuntimeNotification {
   std::shared_ptr<TunnelService> tunnel_service_;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

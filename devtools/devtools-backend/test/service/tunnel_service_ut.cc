@@ -66,4 +66,4 @@ TEST_F(TunnelServiceTest, TunnelService) {
   EXPECT_NO_THROW(tunnel_service->SendDataToFrontend("error"));
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

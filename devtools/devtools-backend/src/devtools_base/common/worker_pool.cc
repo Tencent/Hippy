@@ -191,4 +191,4 @@ void WorkerPool::BindWorker(std::shared_ptr<Worker> worker, std::vector<std::sha
   }
 }
 }  // namespace runner
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

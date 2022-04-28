@@ -30,4 +30,4 @@ std::string CSSStyleMetas::ToString() { return IsString() ? string_value_ : ""; 
 
 double CSSStyleMetas::ToDouble() const { return IsDouble() ? double_value_ : 0.f; }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

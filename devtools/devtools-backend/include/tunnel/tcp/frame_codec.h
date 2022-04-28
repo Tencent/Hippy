@@ -59,4 +59,4 @@ class FrameCodec {
   std::function<void(void *, int32_t, uint8_t)> decode_callback_;
   std::vector<char> stream_buffer_ = std::vector<char>();
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

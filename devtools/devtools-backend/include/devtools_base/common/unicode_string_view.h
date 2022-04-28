@@ -154,7 +154,7 @@ class unicode_string_view_temp final {
   friend std::hash<unicode_string_view_temp>;
 };
 }  // namespace stringview
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools
 
 template <>
 struct std::hash<hippy::devtools::unicode_string_view_temp> {

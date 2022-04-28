@@ -41,4 +41,4 @@ void DefaultNetworkNotification::ResponseReceived(std::string request_id, const 
 void DefaultNetworkNotification::LoadingFinished(std::string request_id, const DevtoolsLoadingFinished& loading) {
   tunnel_service_->SendDataToFrontend(InspectEvent(kDomainNetworkLoadingFinished, loading.Serialize()).ToJsonString());
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

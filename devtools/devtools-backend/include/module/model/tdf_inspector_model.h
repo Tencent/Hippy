@@ -32,4 +32,4 @@ class TDFInspectorModel {
   std::string GetRenderTree(const std::string& render_tree);
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -55,4 +55,4 @@ std::string RenderDiagnosticMetas::Serialize() const {
   result_string += !metas_.empty() ? "]}" : "[]}";
   return result_string;
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -34,4 +34,4 @@ class MemoryAdapter {
    */
   virtual void CollectMemoryUsage(CoreMemoryUsageCallback callback) = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

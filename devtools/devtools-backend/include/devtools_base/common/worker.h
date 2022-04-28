@@ -101,4 +101,4 @@ class Worker : public Thread {
   std::string name_;
 };
 }  // namespace runner
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

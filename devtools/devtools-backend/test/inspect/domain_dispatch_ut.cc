@@ -78,4 +78,4 @@ TEST_F(DomainDispatchTest, DomainDispatch) {
   EXPECT_NO_THROW(dispatch->RegisterJSDebuggerDomainListener());
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

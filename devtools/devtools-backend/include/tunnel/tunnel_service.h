@@ -59,4 +59,4 @@ class TunnelService {
   std::unique_ptr<NetChannel> channel_;
   std::shared_ptr<DomainDispatch> dispatch_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

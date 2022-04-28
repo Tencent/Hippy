@@ -29,4 +29,4 @@ void SelectedRenderObjectRequest::Deserialize(const std::string& params) {
   render_id_ = render_id;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

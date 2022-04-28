@@ -62,4 +62,4 @@ TEST_F(RecordLoggerTest, RecordLogger) {
   logger_model_.time_stamp = 20;
   EXPECT_NO_THROW(record_logger_->RecordLogData(logger_model_));
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

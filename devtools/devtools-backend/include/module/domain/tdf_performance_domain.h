@@ -43,4 +43,4 @@ class TDFPerformanceDomain : public BaseDomain {
   void ResponseError(int32_t id, const std::string& method);
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

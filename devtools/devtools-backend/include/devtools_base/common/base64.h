@@ -27,4 +27,4 @@ class Base64 {
   static std::string Encode(const uint8_t *bin, const size_t len);
   static std::string Decode(const std::string &input);
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

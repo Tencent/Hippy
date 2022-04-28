@@ -87,4 +87,4 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
   std::shared_ptr<DataChannel> data_channel_;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

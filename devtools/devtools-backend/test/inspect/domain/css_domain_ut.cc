@@ -115,4 +115,4 @@ TEST_F(CSSDomainTest, SetStyles) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(normal_request.dump()));
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

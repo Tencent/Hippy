@@ -36,4 +36,4 @@ constexpr char kFrontendKeyDomainNameTDFRuntime[] = "TDFRuntime";
 constexpr char kLogEventName[] = "TDFLog.getLog";
 
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

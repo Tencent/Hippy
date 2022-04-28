@@ -92,4 +92,4 @@ class SteadyClockTime {
   }
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

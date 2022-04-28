@@ -40,4 +40,4 @@ struct NotificationCenter {
   std::shared_ptr<NetworkNotification> network_notification;
   std::shared_ptr<RuntimeNotification> runtime_notification;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

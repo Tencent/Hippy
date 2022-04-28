@@ -57,4 +57,4 @@ class WebSocketChannel : public hippy::devtools::NetChannel {
   WSThread ws_thread_;
   std::vector<std::string> unset_messages_{};
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

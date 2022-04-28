@@ -44,4 +44,4 @@ class TDFBaseUtil {
    */
   static double RemoveScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value);
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

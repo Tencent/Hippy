@@ -114,4 +114,4 @@ DEFINE_ENUM(SecurityMixedContentType, SecurityMixedContentTypeEnumList)
 #undef DEFINE_ENUM
 #undef VK
 #undef VS
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

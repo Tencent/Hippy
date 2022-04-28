@@ -51,5 +51,5 @@ void Thread::SetCurrentThreadName(const std::string& name) {
   pthread_setname_np(pthread_self(), name.c_str());
 }
 }  // namespace runner
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools
 #endif

@@ -35,4 +35,4 @@ class RuntimeNotification {
   virtual void UpdateContextName(const std::string& context_name) = 0;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

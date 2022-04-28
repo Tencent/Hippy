@@ -37,4 +37,4 @@ class TracingAdapter {
   virtual void StopTracing(TracingDataCallback callback) = 0;
   virtual ~TracingAdapter(){}
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

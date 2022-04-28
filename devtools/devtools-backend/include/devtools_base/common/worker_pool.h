@@ -61,4 +61,4 @@ class WorkerPool {
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(WorkerPool);
 };
 }  // namespace runner
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

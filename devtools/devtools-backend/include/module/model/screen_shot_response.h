@@ -43,4 +43,4 @@ class ScreenShotResponse {
   int32_t screen_width_;
   int32_t screen_height_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -51,4 +51,4 @@ struct DataProvider {
   std::shared_ptr<CommonProtocolAdapter> common_protocol_adapter;
   std::shared_ptr<NetworkAdapter> network_adapter;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

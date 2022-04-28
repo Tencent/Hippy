@@ -37,4 +37,4 @@ class DefaultV8ResponseAdapter : public VMResponseNotification {
  private:
   ResponseHandler response_handler_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

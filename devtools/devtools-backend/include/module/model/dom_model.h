@@ -164,4 +164,4 @@ class DOMModel : public BaseModel {
   uint32_t child_node_count_ = 0;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

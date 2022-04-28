@@ -36,4 +36,4 @@ class SelectedRenderObjectRequest : public Deserializer {
  private:
   int32_t render_id_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

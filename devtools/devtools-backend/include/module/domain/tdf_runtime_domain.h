@@ -39,4 +39,4 @@ class TDFRuntimeDomain : public BaseDomain {
   void IsDebugMode(const Deserializer& request);
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -150,4 +150,4 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
                con->get_remote_close_reason().c_str());
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

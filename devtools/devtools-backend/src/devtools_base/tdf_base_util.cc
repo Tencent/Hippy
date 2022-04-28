@@ -36,4 +36,4 @@ double TDFBaseUtil::RemoveScreenScaleFactor(const std::shared_ptr<ScreenAdapter>
   }
   return origin_value / screen_adapter->GetScreenScale();
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

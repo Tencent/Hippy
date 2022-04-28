@@ -163,4 +163,4 @@ std::string DevtoolsHttpResponse::Serialize() const {
   result += "\"}";
   return result;
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

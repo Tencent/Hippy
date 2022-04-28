@@ -38,4 +38,4 @@ class NetworkNotification {
 
   virtual void LoadingFinished(std::string request_id, const DevtoolsLoadingFinished& loading) = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -36,4 +36,4 @@ class NetworkResponseBodyRequest : public Deserializer {
  private:
   std::string request_id_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

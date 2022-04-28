@@ -344,4 +344,4 @@ void CSSModel::InitializeStyleEnumMap() {
   style_enum_map_[kResizeMode] = {kCover, kContain, kStretch, kRepeat, kCenter};
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

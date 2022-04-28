@@ -105,5 +105,5 @@ class TimeDelta {
   int64_t delta_ = 0;
 };
 }  // namespace time
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools
 

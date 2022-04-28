@@ -46,4 +46,4 @@ TEST_F(TimerTest, Timer) {
   EXPECT_EQ(timer_->IsRunning(), false);
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

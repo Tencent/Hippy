@@ -45,4 +45,4 @@ class Task {
   std::function<void()> unit_;  // A unit of work to be processed
 };
 }  // namespace runner
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

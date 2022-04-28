@@ -73,4 +73,4 @@ void PageDomain::HandleScreenShotUpdatedNotification() {
   screen_shot_model_->SetSendEventScreenShotCallback(screen_shot_callback);
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

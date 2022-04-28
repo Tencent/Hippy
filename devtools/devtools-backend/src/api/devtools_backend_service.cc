@@ -93,4 +93,4 @@ void DevtoolsBackendService::RegisterJSDebuggerCallback() {
       std::make_shared<DefaultV8ResponseAdapter>(response_handler);
 #endif
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

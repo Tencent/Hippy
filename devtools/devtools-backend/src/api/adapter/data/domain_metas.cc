@@ -117,4 +117,4 @@ std::string DomainMetas::Serialize() const {
   return node_str;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -75,4 +75,4 @@ class RecordLogger {
   std::vector<std::string> record_logs_;
   RecordLogOperateCallback operate_callback_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

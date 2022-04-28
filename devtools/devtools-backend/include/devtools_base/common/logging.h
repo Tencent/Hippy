@@ -99,4 +99,4 @@ int GetVlogVerbosity();
 
 bool ShouldCreateLogMessage(LogSeverity severity);
 }  // namespace log
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

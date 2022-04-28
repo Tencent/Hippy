@@ -58,4 +58,4 @@ struct DevtoolsConfig {
 
   std::string ws_url;  // ws 通道设置的 url
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

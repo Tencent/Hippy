@@ -69,4 +69,4 @@ class ScreenShotModel : public BaseModel {
   ScreenShotCallback response_callback_;    // 截屏回调，用来回包到前端
   ScreenShotCallback send_event_callback_;  // 截屏回调，用来发送事件到前端
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

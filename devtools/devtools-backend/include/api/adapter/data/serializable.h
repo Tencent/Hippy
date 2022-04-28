@@ -35,4 +35,4 @@ class Serializable {
   virtual std::string Serialize() const = 0;
   virtual ~Serializable() {}
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

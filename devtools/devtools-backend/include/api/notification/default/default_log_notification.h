@@ -40,4 +40,4 @@ class DefaultLogAdapter : public LogNotification {
  private:
   BackendLogHandler log_handler_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

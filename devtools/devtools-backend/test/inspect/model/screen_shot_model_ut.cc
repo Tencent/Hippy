@@ -48,4 +48,4 @@ TEST_F(ScreenShotModelTest, ScreenShotModel) {
   EXPECT_NO_THROW(screen_shot_model_.ReqScreenShotToResponse());
   EXPECT_NO_THROW(screen_shot_model_.ReqScreenShotToSendEvent());
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

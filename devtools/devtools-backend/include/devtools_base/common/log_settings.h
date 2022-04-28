@@ -35,4 +35,4 @@ LogSettings GetLogSettings();
 
 int GetMinLogLevel();
 }  // namespace log
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -116,4 +116,4 @@ class DevtoolsHttpResponse : public Serializable {
   std::string frame_id_;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

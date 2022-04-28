@@ -67,4 +67,4 @@ TEST_F(TDFRuntimeDomainTest, TDFRuntimeDomain) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(is_debug_mode_request));
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

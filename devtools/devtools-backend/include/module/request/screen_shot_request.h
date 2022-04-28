@@ -42,4 +42,4 @@ class ScreenShotRequest : public Deserializer {
   int32_t max_width_;
   int32_t max_height_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

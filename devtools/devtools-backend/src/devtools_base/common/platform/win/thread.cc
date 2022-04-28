@@ -74,5 +74,5 @@ void Thread::SetCurrentThreadName(const std::string& name) {
   }
 }
 }  // namespace runner
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools
 #endif

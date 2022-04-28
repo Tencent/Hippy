@@ -26,4 +26,4 @@ namespace hippy::devtools {
 
 void Deserializer::Deserialize(const std::string& params) {}
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -114,4 +114,4 @@ std::string DomNodeMetas::Serialize() const {
   node_str += "}";
   return node_str;
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

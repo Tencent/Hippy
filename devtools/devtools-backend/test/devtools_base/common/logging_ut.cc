@@ -63,4 +63,4 @@ TEST_F(LoggerTest, Logger) {
   steady_clock_time_->NowTimeSinceEpoch(SteadyClockTime::TimeUnit::kNanoSeconds);
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

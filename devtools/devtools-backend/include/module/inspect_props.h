@@ -177,4 +177,4 @@ constexpr char kFontWeight700[] ="700";
 constexpr char kFontWeight800[] ="800";
 constexpr char kFontWeight900[] ="900";
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -84,4 +84,4 @@ TEST_F(BaseDomainTest, BaseDomain) {
   EXPECT_NO_THROW(sub_base_domain_->SendEventToFrontend(InspectEvent("method", "params")));
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

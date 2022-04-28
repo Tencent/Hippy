@@ -33,4 +33,4 @@ std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {  
   return result_string;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

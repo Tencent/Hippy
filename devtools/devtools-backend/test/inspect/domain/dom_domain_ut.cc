@@ -107,4 +107,4 @@ TEST_F(DOMDomainTest, DOMDomain) {
   EXPECT_NO_THROW(dispatch_->ReceiveDataFromFrontend(empty_child_nodes_request));
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

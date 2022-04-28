@@ -52,4 +52,4 @@ class PerformanceAdapter {
    */
   virtual void ResetTimeline() = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

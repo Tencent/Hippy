@@ -104,4 +104,4 @@ std::string TraceEventMetas::SerializeThread() const {
   return thread_result_string;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

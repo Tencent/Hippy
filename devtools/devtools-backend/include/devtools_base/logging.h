@@ -62,4 +62,4 @@ class Logger {
   static void DispatchToCallbacks(const LoggerModel& logger_model);
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

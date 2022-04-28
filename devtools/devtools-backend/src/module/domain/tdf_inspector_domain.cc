@@ -179,4 +179,4 @@ void TDFInspectorDomain::SendRenderTreeUpdatedEvent() {
   });
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

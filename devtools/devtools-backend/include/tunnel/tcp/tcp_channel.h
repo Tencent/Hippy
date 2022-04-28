@@ -57,4 +57,4 @@ class TcpChannel : public hippy::devtools::NetChannel {
   FrameCodec frame_codec_;
   ReceiveDataHandler data_handler_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -53,4 +53,4 @@ class RenderNodeMetas : public Serializable {
   RenderRect bounds_;
   std::vector<RenderNodeMetas> children_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -45,4 +45,4 @@ constexpr LogSeverity TDF_LOG_DFATAL = TDF_LOG_ERROR;
 constexpr LogSeverity TDF_LOG_DFATAL = TDF_LOG_FATAL;
 #endif
 }  // namespace log
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

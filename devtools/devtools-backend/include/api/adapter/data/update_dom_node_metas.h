@@ -96,4 +96,4 @@ class CSSStyleMetas {
   std::string string_value_;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

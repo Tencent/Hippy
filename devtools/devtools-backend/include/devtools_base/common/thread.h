@@ -50,4 +50,4 @@ class Thread {
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(Thread);
 };
 }  // namespace runner
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

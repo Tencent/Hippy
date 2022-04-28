@@ -39,4 +39,4 @@ class DomNodeDataRequest : public Deserializer {
   int32_t node_id_;
   bool has_set_node_id_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -46,4 +46,4 @@ bool TDFCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string 
   return true;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

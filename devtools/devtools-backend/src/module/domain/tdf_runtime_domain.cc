@@ -54,4 +54,4 @@ void TDFRuntimeDomain::IsDebugMode(const Deserializer& request) {
   ResponseResultToFrontend(request.GetId(), result_json.dump());
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

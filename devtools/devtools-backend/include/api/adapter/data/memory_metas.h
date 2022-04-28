@@ -43,4 +43,4 @@ class MemoryMetas : public Serializable {
  private:
   std::vector<HeapMeta> metas_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -61,4 +61,4 @@ struct InspectEvent {
   std::string params_;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

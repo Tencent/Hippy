@@ -38,4 +38,4 @@ class DomNodeLocation : public Serializable {
   uint32_t node_id_;
   std::vector<uint32_t> relation_tree_ids_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -38,4 +38,4 @@ class TDFMemoryDomain : public BaseDomain {
   void GetHeapMeta(const Deserializer& request);
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

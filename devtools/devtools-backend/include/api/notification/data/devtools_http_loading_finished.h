@@ -57,4 +57,4 @@ class DevtoolsLoadingFinished : public Serializable {
   uint64_t timestamp_;
   bool should_report_corb_blocking_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

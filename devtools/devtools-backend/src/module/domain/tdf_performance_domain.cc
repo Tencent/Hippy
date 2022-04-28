@@ -129,4 +129,4 @@ void TDFPerformanceDomain::ResponseError(int32_t id, const std::string& method) 
   ResponseErrorToFrontend(id, kErrorFailCode, error_msg);
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

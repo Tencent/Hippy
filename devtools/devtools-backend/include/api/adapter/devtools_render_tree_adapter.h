@@ -43,4 +43,4 @@ class RenderTreeAdapter {
    */
   virtual void GetSelectedRenderObject(int32_t render_id, GetRenderDiagnosticCallback callback) = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -37,4 +37,4 @@ class BaseModel {
   std::shared_ptr<DataProvider> provider_;
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

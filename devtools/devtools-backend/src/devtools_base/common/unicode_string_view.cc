@@ -310,4 +310,4 @@ const unicode_string_view_temp::u32string& unicode_string_view_temp::utf32_value
   return u32_string_;
 }
 }  // namespace stringview
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

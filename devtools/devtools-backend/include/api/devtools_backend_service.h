@@ -87,4 +87,4 @@ class DevtoolsBackendService {
   std::shared_ptr<TunnelService> tunnel_service_;
   std::shared_ptr<DomainDispatch> domain_dispatch_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

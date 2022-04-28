@@ -38,4 +38,4 @@ LogSettings GetLogSettings() { return global_log_settings; }
 
 int GetMinLogLevel() { return std::min(global_log_settings.min_log_level, TDF_LOG_FATAL); }
 }  // namespace log
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

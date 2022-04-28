@@ -31,4 +31,4 @@ class VMResponseNotification {
    */
   virtual void ResponseToDevtool(std::string data) = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

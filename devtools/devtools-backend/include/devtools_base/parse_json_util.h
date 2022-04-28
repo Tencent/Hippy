@@ -46,4 +46,4 @@ class TDFParseJSONUtil {
   }
 };
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

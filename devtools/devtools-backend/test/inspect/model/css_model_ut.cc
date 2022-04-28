@@ -106,4 +106,4 @@ TEST_F(CSSModelTest, CreatorDeathTest) {
   EXPECT_DEATH(CSSModel::CreateModelByJSON(array_json), "");
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

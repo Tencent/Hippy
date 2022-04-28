@@ -41,4 +41,4 @@ class DomNodeForLocationRequest : public Deserializer {
   int32_t y_;
   bool has_set_xy_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

@@ -32,4 +32,4 @@ void CSSNodeDataRequest::Deserialize(const std::string& params) {
   has_set_node_id_ = true;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

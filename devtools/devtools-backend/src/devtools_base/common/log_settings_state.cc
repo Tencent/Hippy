@@ -24,4 +24,4 @@ namespace hippy::devtools {
 inline namespace log {
 LogSettings global_log_settings;
 }  // namespace log
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

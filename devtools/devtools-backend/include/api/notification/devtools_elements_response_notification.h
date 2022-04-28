@@ -39,4 +39,4 @@ class ElementsResponseNotification {
  protected:
   bool need_notify_batch_event_ = true;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

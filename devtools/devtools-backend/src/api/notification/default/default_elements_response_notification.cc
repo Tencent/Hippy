@@ -41,4 +41,4 @@ void DefaultElementsResponseAdapter::NotifyDocumentUpdate() {
     document_update_Handler_();
 //  });
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

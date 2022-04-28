@@ -40,4 +40,4 @@ class ElementsRequestAdapter {
   virtual void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) = 0;
   virtual ~ElementsRequestAdapter() {}
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

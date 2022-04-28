@@ -63,4 +63,4 @@ class CSSDomain : public BaseDomain {
   std::map<int32_t, nlohmann::json> style_text_map_;
   std::map<int32_t, uint32_t> request_call_back_count_map_;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

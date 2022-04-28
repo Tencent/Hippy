@@ -35,4 +35,4 @@ class NetworkAdapter {
    */
   virtual std::string GetResponseBody(std::string request_id) = 0;
 };
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

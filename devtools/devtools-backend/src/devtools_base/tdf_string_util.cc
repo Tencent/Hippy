@@ -67,4 +67,4 @@ std::string TDFStringUtil::UnCamelize(const std::string &origin) {
   return result_string;
 }
 
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools
