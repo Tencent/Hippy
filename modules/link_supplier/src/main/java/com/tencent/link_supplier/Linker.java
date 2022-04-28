@@ -24,11 +24,12 @@ import com.tencent.link_supplier.proxy.renderer.RenderProxy;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Linker implements LinkHelper {
+
     private static final int ROOT_VIEW_ID_INCREMENT = 10;
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
-    private AnimationManagerProxy mAniManagerProx;
+    private AnimationManagerProxy mAniManagerProxy;
     private final int mRootId;
 
     public Linker() {
@@ -55,13 +56,13 @@ public class Linker implements LinkHelper {
 
     @Override
     public void createAnimationManager() {
-      if (mAniManagerProx == null && mDomProxy != null) {
-        mAniManagerProx = new AnimationManagerProxy(mDomProxy.getInstanceId());
-      }
+        if (mAniManagerProxy == null && mDomProxy != null) {
+            mAniManagerProxy = new AnimationManagerProxy(mDomProxy.getInstanceId());
+        }
     }
 
 
-  @Override
+    @Override
     public void createDomHolder(int instanceId) {
         if (mDomProxy == null) {
             mDomProxy = new DomHolder(instanceId);
@@ -105,7 +106,7 @@ public class Linker implements LinkHelper {
 
     @Override
     public void updateAnimationNode(byte[] params, int offset, int length) {
-        updateAnimationNode(mAniManagerProx.getInstanceId(), params, offset, length);
+        updateAnimationNode(mAniManagerProxy.getInstanceId(), params, offset, length);
     }
 
     @Override
@@ -114,9 +115,9 @@ public class Linker implements LinkHelper {
             mDomProxy.destroy();
             mDomProxy = null;
         }
-        if (mAniManagerProx != null) {
-            mAniManagerProx.destroy();
-            mAniManagerProx = null;
+        if (mAniManagerProxy != null) {
+            mAniManagerProxy.destroy();
+            mAniManagerProxy = null;
         }
         if (mRenderProxy != null) {
             mRenderProxy.destroy();
@@ -152,21 +153,22 @@ public class Linker implements LinkHelper {
     }
 
     private class AnimationManagerProxy implements LinkProxy {
-      private final int mInstanceId;
 
-      public AnimationManagerProxy(int domId) {
-        mInstanceId = createAnimationManager(domId);
-      }
+        private final int mInstanceId;
 
-      @Override
-      public int getInstanceId() {
-        return mInstanceId;
-      }
+        public AnimationManagerProxy(int domId) {
+            mInstanceId = createAnimationManager(domId);
+        }
 
-      @Override
-      public void destroy() {
-          destroyAnimationManager(mInstanceId);
-      }
+        @Override
+        public int getInstanceId() {
+            return mInstanceId;
+        }
+
+        @Override
+        public void destroy() {
+            destroyAnimationManager(mInstanceId);
+        }
     }
 
     private RenderProxy createNativeRenderer() {
@@ -220,17 +222,10 @@ public class Linker implements LinkHelper {
     private native void doBind(int domId, int renderId, int frameworkId);
 
     /**
-     * Update node property on animation update, params buffer format:
-     * [
-     *   {
-     *     animationId:
-     *     nodeId:
-     *     animationKey:
-     *     animationValue:
-     *   }
-     * ]
+     * Update node property on animation update, params buffer format: [ { animationId: nodeId:
+     * animationKey: animationValue: } ]
      *
-     * @param domId dom manager instance id
+     * @param aniId dom manager instance id
      * @param params params buffer encoded by serializer
      * @param offset start position of params buffer
      * @param length available total length of params buffer

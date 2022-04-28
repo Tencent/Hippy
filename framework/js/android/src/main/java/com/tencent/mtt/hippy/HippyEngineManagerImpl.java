@@ -39,6 +39,7 @@ import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
+import com.tencent.link_supplier.proxy.renderer.RenderProxy;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
@@ -796,6 +797,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             // Call linker to bind framework until get v8 runtime id after js bridge initialized,
             // and use v8 runtime id to represent framework id.
             mLinkHelper.bind((int) runtimeId);
+            RenderProxy renderProxy = mLinkHelper.getRenderer();
+            if (renderProxy instanceof NativeRenderProxy) {
+                ((NativeRenderProxy) renderProxy).onJSBridgeInitialized();
+            }
         }
 
         @Override
