@@ -62,11 +62,13 @@
 - (void)focus;
 - (void)blur;
 - (void)keyboardWillShow:(NSNotification *)aNotification;
+- (void)keyboardHeightChanged:(NSNotification *)aNotification;
 
 @property (nonatomic, copy) HippyDirectEventBlock onBlur;
 @property (nonatomic, copy) HippyDirectEventBlock onFocus;
 @property (nonatomic, copy) HippyDirectEventBlock onEndEditing;
 @property (nonatomic, copy) HippyDirectEventBlock onKeyboardWillShow;
+@property (nonatomic, copy) HippyDirectEventBlock onKeyboardHeightChanged;
 
 @property (nonatomic, copy) NSString *value;
 @property (nonatomic, strong) NSNumber *fontSize;
