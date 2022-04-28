@@ -7,17 +7,17 @@
 #include <vector>
 
 #include "base/logging.h"
-#include "core/base/task_runner.h"
+#include "base/macros.h"
 #include "core/base/common.h"
+#include "core/base/task_runner.h"
 #include "core/task/common_task.h"
+#include "dom/dom_action_interceptor.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_event.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_value.h"
 #include "dom/layout_node.h"
-#include "dom/dom_action_interceptor.h"
 #include "dom/scene.h"
-#include "base/macros.h"
 
 namespace hippy {
 inline namespace dom {
@@ -26,6 +26,16 @@ class DomNode;
 class RenderManager;
 class RootNode;
 class LayerOptimizedRenderManager;
+
+// This class is used to mainpulate dom. Please note that the member
+// function of this class must be run in dom thread. If you want to call
+// in other thread please use PostTask.
+// Example:
+//    std::vector<std::function<void()>> ops;
+//    ops.emplace_back([]() {
+//      some_ops();
+//    });
+//    dom_manager->PostTask(Scene(std::move(ops)));
 
 class DomManager : public std::enable_shared_from_this<DomManager> {
  public:

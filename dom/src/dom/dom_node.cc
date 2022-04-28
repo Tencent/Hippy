@@ -112,15 +112,7 @@ void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    std::vector<std::function<void()>> ops = {[WEAK_THIS, event] {
-      DEFINE_AND_CHECK_SELF(DomNode);
-      auto manager = self->dom_manager_.lock();
-      TDF_BASE_DCHECK(manager);
-      if (manager) {
-        manager->HandleEvent(std::move(event));
-      }
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    dom_manager->HandleEvent(std::move(event));
   }
 }
 
@@ -138,37 +130,26 @@ void DomNode::AddEventListener(const std::string& name, bool use_capture, const 
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, name, use_capture, cb, callback]() {
-      DEFINE_AND_CHECK_SELF(DomNode)
-      // taskRunner内置执行确保current_callback_id_无多线程问题
-      self->current_callback_id_ += 1;
-      TDF_BASE_DCHECK(self->current_callback_id_ <= std::numeric_limits<uint32_t>::max());
-      if (!self->event_listener_map_) {
-        self->event_listener_map_ = std::make_shared<
-            std::unordered_map<std::string, std::array<std::vector<std::shared_ptr<EventListenerInfo>>, 2>>>();
-      }
-      auto it = self->event_listener_map_->find(name);
-      if (it == self->event_listener_map_->end()) {
-        (*self->event_listener_map_)[name] = {};
-        auto dom_manager = self->dom_manager_.lock();
-        TDF_BASE_DCHECK(dom_manager);
-        if (dom_manager) {
-          dom_manager->AddEventListenerOperation(self, name);
-        }
-      }
-      if (use_capture) {
-        (*self->event_listener_map_)[name][kCapture].push_back(
-            std::make_shared<EventListenerInfo>(self->current_callback_id_, cb));
-      } else {
-        (*self->event_listener_map_)[name][kBubble].push_back(
-            std::make_shared<EventListenerInfo>(self->current_callback_id_, cb));
-      }
-      if (callback) {
-        auto arg = std::make_shared<DomArgument>(DomValue(self->current_callback_id_));
-        callback(arg);
-      }
-    }};
-    dom_manager->PostTask(Scene(std::move(ops_)));
+    current_callback_id_ += 1;
+    TDF_BASE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
+    if (!event_listener_map_) {
+      event_listener_map_ = std::make_shared<
+          std::unordered_map<std::string, std::array<std::vector<std::shared_ptr<EventListenerInfo>>, 2>>>();
+    }
+    auto it = event_listener_map_->find(name);
+    if (it == event_listener_map_->end()) {
+      (*event_listener_map_)[name] = {};
+      dom_manager->AddEventListenerOperation(shared_from_this(), name);
+    }
+    if (use_capture) {
+      (*event_listener_map_)[name][kCapture].push_back(std::make_shared<EventListenerInfo>(current_callback_id_, cb));
+    } else {
+      (*event_listener_map_)[name][kBubble].push_back(std::make_shared<EventListenerInfo>(current_callback_id_, cb));
+    }
+    if (callback) {
+      auto arg = std::make_shared<DomArgument>(DomValue(current_callback_id_));
+      callback(arg);
+    }
   }
 }
 
@@ -176,47 +157,39 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, name, id]() {
-      DEFINE_AND_CHECK_SELF(DomNode)
-      if (!self->event_listener_map_) {
-        return;
-      }
-      auto it = self->event_listener_map_->find(name);
-      if (it == self->event_listener_map_->end()) {
-        return;
-      }
-      auto capture_listeners = it->second[kCapture];
-      auto capture_it = std::find_if(capture_listeners.begin(), capture_listeners.end(),
-                                     [id](const std::shared_ptr<EventListenerInfo>& item) {
-                                       if (item->id == id) {
-                                         return true;
-                                       }
-                                       return false;
-                                     });
-      if (capture_it != capture_listeners.end()) {
-        capture_listeners.erase(capture_it);
-      }
-      auto bubble_listeners = it->second[kBubble];
-      auto bubble_it = std::find_if(bubble_listeners.begin(), bubble_listeners.end(),
-                                    [id](const std::shared_ptr<EventListenerInfo>& item) {
-                                      if (item->id == id) {
-                                        return true;
-                                      }
-                                      return false;
-                                    });
-      if (bubble_it != bubble_listeners.end()) {
-        bubble_listeners.erase(bubble_it);
-      }
-      if (capture_listeners.empty() && bubble_listeners.empty()) {
-        auto dom_manager = self->dom_manager_.lock();
-        TDF_BASE_DCHECK(dom_manager);
-        if (dom_manager) {
-          dom_manager->RemoveEventListenerOperation(self, name);
-          self->event_listener_map_->erase(it);
-        }
-      }
-    }};
-    dom_manager->PostTask(Scene(std::move(ops_)));
+    if (!event_listener_map_) {
+      return;
+    }
+    auto it = event_listener_map_->find(name);
+    if (it == event_listener_map_->end()) {
+      return;
+    }
+    auto capture_listeners = it->second[kCapture];
+    auto capture_it = std::find_if(capture_listeners.begin(), capture_listeners.end(),
+                                   [id](const std::shared_ptr<EventListenerInfo>& item) {
+                                     if (item->id == id) {
+                                       return true;
+                                     }
+                                     return false;
+                                   });
+    if (capture_it != capture_listeners.end()) {
+      capture_listeners.erase(capture_it);
+    }
+    auto bubble_listeners = it->second[kBubble];
+    auto bubble_it = std::find_if(bubble_listeners.begin(), bubble_listeners.end(),
+                                  [id](const std::shared_ptr<EventListenerInfo>& item) {
+                                    if (item->id == id) {
+                                      return true;
+                                    }
+                                    return false;
+                                  });
+    if (bubble_it != bubble_listeners.end()) {
+      bubble_listeners.erase(bubble_it);
+    }
+    if (capture_listeners.empty() && bubble_listeners.empty()) {
+      dom_manager->RemoveEventListenerOperation(shared_from_this(), name);
+      event_listener_map_->erase(it);
+    }
   }
 }
 
@@ -352,21 +325,10 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    std::vector<std::function<void()>> ops_ = {[WEAK_THIS, update_style, update_dom_ext]() {
-      DEFINE_AND_CHECK_SELF(DomNode)
-
-      self->UpdateDiff(update_style, update_dom_ext);
-      self->UpdateStyle(update_style);
-      self->UpdateDomExt(update_dom_ext);
-
-      // update Render Node
-      auto dom_manager = self->dom_manager_.lock();
-      TDF_BASE_DCHECK(dom_manager);
-      if (dom_manager) {
-        dom_manager->UpdateRenderNode(self->shared_from_this());
-      }
-    }};
-    dom_manager->PostTask(Scene(std::move(ops_)));
+    this->UpdateDiff(update_style, update_dom_ext);
+    this->UpdateStyle(update_style);
+    this->UpdateDomExt(update_dom_ext);
+    dom_manager->UpdateRenderNode(shared_from_this());
   }
 }
 
