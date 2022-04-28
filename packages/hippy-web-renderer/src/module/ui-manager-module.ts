@@ -56,14 +56,28 @@ export class UIManagerModule extends HippyWebModule {
       const [root] = document.getElementsByTagName('body');
       this.rootDom = root;
     }
-    if (!window.document.getElementById(rootViewId)) {
-      this.contentDom = createRoot(rootViewId);
-      this.rootDom?.appendChild(this.contentDom);
+
+    if (!this.contentDom) {
+      let position = 0;
+      if (!window.document.getElementById(rootViewId)) {
+        this.contentDom = createRoot(rootViewId);
+        this.rootDom?.appendChild(this.contentDom);
+        position = this.rootDom.childNodes.length - 1;
+      } else {
+        this.contentDom = window.document.getElementById(rootViewId)!;
+      }
+      this.contentDom.parentNode!.childNodes.forEach((item, index) => {
+        if (item === this.contentDom) {
+          position = index;
+        }
+      });
+      setRootDefaultStyle(this.contentDom);
       this.viewDictionary[rootViewId] = {
-        id: rootViewId as number, pId: -1, index: this.rootDom.childNodes.length,
+        id: rootViewId as number, pId: -1, index: position,
         props: {}, dom: this.contentDom, tagName: 'View',
       };
     }
+
     const theUpdateComponentIdSet = new Set;
     for (let c = 0; c < data.length; c++) {
       const nodeItemData = data[c];
@@ -340,7 +354,10 @@ function createRoot(id: string) {
   const root = window.document.createElement('div');
   root.setAttribute('id', id);
   root.id = id;
-  setElementStyle(root, {
+  return root;
+}
+function setRootDefaultStyle(element: HTMLElement) {
+  setElementStyle(element, {
     height: '100vh',
     overflow: 'hidden',
     display: 'flex',
@@ -348,7 +365,6 @@ function createRoot(id: string) {
     flexDirection: 'column',
     position: 'relative',
   });
-  return root;
 }
 function stylePolyfill() {
   const style = document.createElement('style');
