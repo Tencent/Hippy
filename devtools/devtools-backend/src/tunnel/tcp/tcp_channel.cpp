@@ -95,7 +95,6 @@ void TcpChannel::SetStarting(bool starting) {
   if (is_starting_ == starting) {
     return;
   }
-
   if (mutex_.try_lock()) {
     is_starting_ = starting;
     if (is_starting_) {
@@ -180,7 +179,7 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
   FD_ZERO(&fds);
   FD_SET(client_fd, &fds);
 
-  while (true && client_fd_ != kNullSocket) {
+  while (client_fd_ != kNullSocket) {
     fd_set read_fds = fds;
     // 阻塞式 是否就绪
     int ret_sel = select(client_fd + 1, &read_fds, nullptr, nullptr, nullptr);
@@ -205,7 +204,7 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
 #ifdef WIN32
       if (read_len == -WSAEINTR || read_len == -WSAEWOULDBLOCK) {
 #else
-      if (read_len == -EINTR || read_len == -EWOULDBLOCK || read_len == -EAGAIN) {
+      if (read_len == -EINTR || read_len == -EWOULDBLOCK) {
 #endif
         continue;
       }

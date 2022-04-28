@@ -22,6 +22,7 @@
 
 #include <functional>
 #include <vector>
+#include <endian.h>
 
 namespace hippy::devtools {
 constexpr uint32_t kTunnelBufferSize = 32 * 1024;
@@ -33,31 +34,29 @@ constexpr uint32_t kTunnelBufferSize = 32 * 1024;
  *   8bit    32bit
  *
  */
-struct Header {
+#pragma pack(push, 1)
+struct alignas(1)  Header {
   uint8_t flag;
-  uint8_t body_length[4];
-
-  int bodySize() {
-    uint32_t value = body_length[3] | (body_length[2] << 8) | (body_length[1] << 16) | (body_length[0] << 24);
-    return value;
-  }
-};
+  int32_t body_length;
+  int32_t GetBodySize() { return ntohl(body_length); }
+} ;
+#pragma pack(pop)
 
 class FrameCodec {
  public:
   FrameCodec() { stream_buffer_.reserve(kTunnelBufferSize); }
   ~FrameCodec() { stream_buffer_.clear(); }
-  void Encode(void *data, int32_t len, int32_t flag);
+  void Encode(void *data, int32_t len, uint8_t flag);
   void Decode(void *data, int32_t len);
   inline void SetEncodeCallback(std::function<void(void *, int32_t)> callback) {
     encode_callback_ = callback;
   }
-  inline void SetDecodeCallback(std::function<void(void *, int32_t, int32_t)> callback) {
+  inline void SetDecodeCallback(std::function<void(void *, int32_t, uint8_t)> callback) {
     decode_callback_ = callback;
   }
  private:
   std::function<void(void *, int32_t)> encode_callback_;
-  std::function<void(void *, int32_t, int32_t)> decode_callback_;
+  std::function<void(void *, int32_t, uint8_t)> decode_callback_;
   std::vector<char> stream_buffer_ = std::vector<char>();
 };
 }  // namespace devtools::devtools

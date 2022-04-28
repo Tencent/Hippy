@@ -33,7 +33,7 @@ namespace hippy::devtools {
  */
 class TunnelService {
  public:
-  explicit TunnelService(const std::shared_ptr<DomainDispatch>& dispatch, const DevtoolsConfig &devtools_config);
+  explicit TunnelService(std::shared_ptr<DomainDispatch>  dispatch, const DevtoolsConfig &devtools_config);
 
   /**
    * @brief 发送数据给Frontend

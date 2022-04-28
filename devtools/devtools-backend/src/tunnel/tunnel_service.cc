@@ -20,6 +20,7 @@
 
 #include "tunnel/tunnel_service.h"
 #include <sstream>
+#include <utility>
 #include "api/devtools_backend_service.h"
 #include "devtools_base/logging.h"
 #include "module/domain_dispatch.h"
@@ -31,7 +32,7 @@ namespace hippy::devtools {
 constexpr int32_t kClose = 4003;
 constexpr int32_t kReload = 4004;
 
-TunnelService::TunnelService(const std::shared_ptr<DomainDispatch>& dispatch, const DevtoolsConfig &config) : dispatch_(std::move(dispatch)) {
+TunnelService::TunnelService(std::shared_ptr<DomainDispatch>  dispatch, const DevtoolsConfig &config) : dispatch_(std::move(dispatch)) {
   dispatch_->SetResponseHandler([this](const std::string &rsp_data) { channel_->Send(rsp_data); });
   Connect(config);
 }

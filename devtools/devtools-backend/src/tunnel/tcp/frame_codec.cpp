@@ -26,11 +26,11 @@
 #include <algorithm>
 
 namespace hippy::devtools {
-constexpr int32_t kHeaderSize = 5;
+constexpr int32_t kHeaderSize = sizeof(Header);
 constexpr int32_t kMaxDataSize = 200 * 1024 * 1024;
 
 #pragma mark - encode
-void FrameCodec::Encode(void *data, int32_t len, int32_t flag) {
+void FrameCodec::Encode(void *data, int32_t len, uint8_t flag) {
   if (!encode_callback_) {
     return;
   }
@@ -39,12 +39,9 @@ void FrameCodec::Encode(void *data, int32_t len, int32_t flag) {
   }
   auto *header = reinterpret_cast<Header *>(malloc(sizeof(struct Header)));
   header->flag = flag;
-  header->body_length[0] = len >> 24;
-  header->body_length[1] = (len >> 16) & 0xFF;
-  header->body_length[2] = (len >> 8) & 0xFF;
-  header->body_length[3] = len & 0xFF;
+  header->body_length = htonl(len);
   int32_t data_len = len + kHeaderSize;
-  void *frame = malloc(len + kHeaderSize);
+  void *frame = malloc(static_cast<size_t>(len + kHeaderSize));
   memcpy(frame, header, kHeaderSize);
   free(header);
   memcpy(reinterpret_cast<char *>(frame) + kHeaderSize, data, len);
@@ -57,11 +54,11 @@ void FrameCodec::Decode(void *data, int32_t len) {
   if (len <= 0) {
     return;
   }
-  int streamBufferLen = stream_buffer_.size();
-  while (streamBufferLen + len >= kHeaderSize) {
+  int32_t stream_buffer_len = stream_buffer_.size();
+  while ( stream_buffer_len + len >= kHeaderSize) {
     // header不完整需要拼接
-    if (streamBufferLen > 0 && streamBufferLen < kHeaderSize) {
-      int split_len = kHeaderSize - streamBufferLen;
+    if ( stream_buffer_len > 0 &&  stream_buffer_len < kHeaderSize) {
+      int split_len = kHeaderSize -  stream_buffer_len;
       stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data),
                             reinterpret_cast<char *>(data) + split_len);
 
@@ -69,14 +66,14 @@ void FrameCodec::Decode(void *data, int32_t len) {
       data = reinterpret_cast<char *>(data) + split_len;
     }
     // 解析头部，判断数据是否可提取
-    struct Header *header = nullptr;
+    struct Header *header;
     if (stream_buffer_.empty()) {
       header = (struct Header *)data;
     } else {
       char *temp = &stream_buffer_[0];
       header = (struct Header *)temp;
     }
-    int32_t total_len = header->bodySize() + kHeaderSize;
+    int32_t total_len = header->GetBodySize() + kHeaderSize;
     if (stream_buffer_.size() + len < total_len) {
       break;
     }
@@ -85,7 +82,7 @@ void FrameCodec::Decode(void *data, int32_t len) {
     stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data),
                           reinterpret_cast<char *>(data) + split_len);
     if (decode_callback_) {
-      int32_t header_body_size = header->bodySize();
+      int32_t header_body_size = header->GetBodySize();
       char *temp = &stream_buffer_[kHeaderSize];
       decode_callback_(temp, header_body_size, header->flag);
     }
@@ -100,4 +97,4 @@ void FrameCodec::Decode(void *data, int32_t len) {
     stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data), reinterpret_cast<char *>(data) + len);
   }
 }
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools
