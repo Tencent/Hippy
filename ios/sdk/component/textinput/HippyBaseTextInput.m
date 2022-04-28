@@ -35,5 +35,8 @@
 - (void)keyboardWillShow:(NSNotification *)aNotification {
     // base method, should be override
 }
+- (void)keyboardHeightChanged:(NSNotification *)aNotification {
+    // base method, should be override
+}
 
 @end

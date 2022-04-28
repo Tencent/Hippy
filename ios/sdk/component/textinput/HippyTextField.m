@@ -125,6 +125,17 @@
     }
 }
 
+-(void)keyboardHeightChanged:(NSNotification *)aNotification {
+    [super keyboardHeightChanged:aNotification];
+    NSDictionary *userInfo = [aNotification userInfo];
+    NSValue *aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
+    CGRect keyboardRect = [aValue CGRectValue];
+    CGFloat keyboardHeight = keyboardRect.size.height;
+    if (_textView.isFirstResponder && _onKeyboardHeightChanged) {
+        _onKeyboardHeightChanged(@{ @"keyboardHeight": @(keyboardHeight) });
+    }
+}
+
 - (instancetype)init {
     if ((self = [super initWithFrame:CGRectZero])) {
         [self setContentInset:UIEdgeInsetsZero];
