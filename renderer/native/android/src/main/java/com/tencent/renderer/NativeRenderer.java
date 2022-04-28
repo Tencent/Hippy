@@ -229,6 +229,22 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
+    public void onJSBridgeInitialized() {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mRootView != null) {
+                    final int width = mRootView.getWidth();
+                    final int height = mRootView.getHeight();
+                    if (width > 0 && height > 0) {
+                        onSizeChanged(width, height);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
     public void onSizeChanged(int w, int h) {
         mRenderProvider.onSizeChanged(w, h);
     }
