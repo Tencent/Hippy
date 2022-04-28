@@ -258,13 +258,9 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
 }
 
 void DomManager::PostTask(const Scene&& scene) {
-  if (dom_task_runner_->Id() == hippy::base::ThreadId::GetCurrent()) {
-    scene.Build();
-  } else {
-    std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-    task->func_ = [scene = std::move(scene)] { scene.Build(); };
-    dom_task_runner_->PostTask(std::move(task));
-  }
+  std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
+  task->func_ = [scene = std::move(scene)] { scene.Build(); };
+  dom_task_runner_->PostTask(std::move(task));
 }
 
 void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {

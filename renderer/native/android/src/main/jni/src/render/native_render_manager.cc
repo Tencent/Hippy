@@ -190,12 +190,9 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
   callback(std::make_shared<DomArgument>(*params));
 }
 
-void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
-                     jint j_instance_id, jint j_dom_id, jstring j_event_name,
-                     jbyteArray j_buffer, jint j_offset, jint j_length,
-                     jboolean j_use_capture, jboolean j_use_bubble) {
-  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
-          static_cast<int32_t>(j_instance_id));
+void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j_dom_id, jstring j_event_name,
+                     jbyteArray j_buffer, jint j_offset, jint j_length, jboolean j_use_capture, jboolean j_use_bubble) {
+  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_instance_id));
   if (!render_manager) {
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent j_instance_id invalid";
     return;
@@ -224,7 +221,15 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
   }
 
   jboolean is_copy = JNI_TRUE;
-  const char* event_name = j_env->GetStringUTFChars(j_event_name, &is_copy);
-  auto event = std::make_shared<DomEvent>(event_name, node,(bool) j_use_capture, (bool) j_use_bubble, params);
-  node->HandleEvent(event);
+  const char* c = j_env->GetStringUTFChars(j_event_name, &is_copy);
+  std::string event_name(c);
+
+  std::vector<std::function<void()>> ops = {[node = std::move(node), params = std::move(params),
+                                             use_capture = static_cast<bool>(j_use_capture),
+                                             use_bubble = static_cast<bool>(j_use_bubble),
+                                             event_name = std::move(event_name)] {
+    auto event = std::make_shared<DomEvent>(event_name, node, use_capture, use_bubble, params);
+    node->HandleEvent(event);
+  }};
+  dom_manager->PostTask(Scene(std::move(ops)));
 }
