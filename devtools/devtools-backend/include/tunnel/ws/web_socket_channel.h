@@ -40,7 +40,7 @@ class WebSocketChannel : public hippy::devtools::NetChannel {
   explicit WebSocketChannel(const std::string& ws_uri);
   void Connect(ReceiveDataHandler handler) override;
   void Send(const std::string& rsp_data) override;
-  void Close(uint32_t code, const std::string& reason) override;
+  void Close(int32_t code, const std::string& reason) override;
 
  private:
   void StartConnect(const std::string& ws_uri);

@@ -24,7 +24,7 @@
 #include <vector>
 
 namespace hippy::devtools {
-constexpr uint32_t kTunnelBufferSize = 32768;
+constexpr uint32_t kTunnelBufferSize = 32 * 1024;
 /*
  *  header
  *  ---------------------------------------------------
@@ -43,16 +43,21 @@ struct Header {
   }
 };
 
-class StreamHandler {
+class FrameCodec {
  public:
-  StreamHandler() { stream_buffer_.reserve(kTunnelBufferSize); }
-  ~StreamHandler() { stream_buffer_.clear(); }
-  void HandleSendStream(void *data, int32_t len, int32_t flag);
-  void HandleReceiveStream(void *data, int32_t len);
-  std::function<void(void *, int32_t)> send_stream_callback_;
-  std::function<void(void *, int32_t, int32_t)> receive_stream_callback_;
-
+  FrameCodec() { stream_buffer_.reserve(kTunnelBufferSize); }
+  ~FrameCodec() { stream_buffer_.clear(); }
+  void Encode(void *data, int32_t len, int32_t flag);
+  void Decode(void *data, int32_t len);
+  inline void SetEncodeCallback(std::function<void(void *, int32_t)> callback) {
+    encode_callback_ = callback;
+  }
+  inline void SetDecodeCallback(std::function<void(void *, int32_t, int32_t)> callback) {
+    decode_callback_ = callback;
+  }
  private:
+  std::function<void(void *, int32_t)> encode_callback_;
+  std::function<void(void *, int32_t, int32_t)> decode_callback_;
   std::vector<char> stream_buffer_ = std::vector<char>();
 };
 }  // namespace devtools::devtools

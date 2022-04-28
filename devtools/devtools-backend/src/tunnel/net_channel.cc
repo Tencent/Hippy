@@ -23,12 +23,12 @@
 #include "tunnel/ws/web_socket_channel.h"
 
 namespace hippy::devtools {
-std::shared_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& config) {
+std::unique_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& config) {
   auto tunnel_type = config.tunnel;
   if (Tunnel::kWebSocket == tunnel_type) {
-    return std::make_shared<WebSocketChannel>(config.ws_url);
+    return std::make_unique<WebSocketChannel>(config.ws_url);
   }
   // default channel use tcp
-  return std::make_shared<TcpChannel>();
+  return std::make_unique<TcpChannel>();
 }
 }  // namespace devtools::devtools

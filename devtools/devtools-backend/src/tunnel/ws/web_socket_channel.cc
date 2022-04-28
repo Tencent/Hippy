@@ -74,7 +74,7 @@ void WebSocketChannel::Send(const std::string& rsp_data) {
   ws_client_.send(connection_hdl_, rsp_data, websocketpp::frame::opcode::text);
 }
 
-void WebSocketChannel::Close(uint32_t code, const std::string& reason) {
+void WebSocketChannel::Close(int32_t code, const std::string& reason) {
   if (!connection_hdl_.lock()) {
     BACKEND_LOGE(TDF_BACKEND, "send message error, handler is null");
     return;
@@ -132,7 +132,7 @@ void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_
   if (data_handler_) {
     const char* data_message = message.c_str();
     data_handler_(const_cast<void*>(reinterpret_cast<const void*>(data_message)), message.length(),
-                  hippy::devtools::TASK_FLAG);
+                  hippy::devtools::kTaskFlag);
   }
   BACKEND_LOGD(TDF_BACKEND, "websocket receive message");
 }

@@ -28,20 +28,19 @@
 
 namespace hippy::devtools {
 
-constexpr uint32_t kClose = 4003;
-constexpr uint32_t kReload = 4004;
+constexpr int32_t kClose = 4003;
+constexpr int32_t kReload = 4004;
 
-TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const DevtoolsConfig &devtools_config)
-    : dispatch_(std::move(dispatch)) {
+TunnelService::TunnelService(const std::shared_ptr<DomainDispatch>& dispatch, const DevtoolsConfig &config) : dispatch_(std::move(dispatch)) {
   dispatch_->SetResponseHandler([this](const std::string &rsp_data) { channel_->Send(rsp_data); });
-  Connect(devtools_config);
+  Connect(config);
 }
 
 void TunnelService::Connect(const DevtoolsConfig &devtools_config) {
   channel_ = NetChannel::CreateChannel(devtools_config);
   BACKEND_LOGI(TDF_BACKEND, "TunnelService, Start Connect.");
   channel_->Connect([this](void *buffer, ssize_t length, int flag) {
-    if (flag == TASK_FLAG) {
+    if (flag == kTaskFlag) {
       HandleReceiveData(reinterpret_cast<char *>(buffer), static_cast<int32_t>(length));
     }
   });

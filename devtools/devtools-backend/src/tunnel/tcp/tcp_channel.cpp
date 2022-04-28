@@ -34,14 +34,20 @@ TcpChannel::TcpChannel() {
   // fd=0、1、2是已经被系统的stdin、stdout和stderr，所以这里要初始化为-1，否则首次启动时，会close掉fd=0的socket资源，导致系统fd被占用。
   socket_fd_ = kNullSocket;
   client_fd_ = kNullSocket;
-  stream_handler_ = StreamHandler();
-  stream_handler_.send_stream_callback_ = [this](void *data, int32_t len) { this->SendResponse_(data, len); };
+  frame_codec_ = FrameCodec();
+  frame_codec_.SetEncodeCallback([this](void *data, int32_t len) {
+    if (client_fd_ < 0) {
+      BACKEND_LOGD(TDF_BACKEND, "TcpChannel, client_fd_ < 0.");
+      return;
+    }
+    send(client_fd_, data, len, 0);
+  });
 
-  stream_handler_.receive_stream_callback_ = [this](void *data, int32_t len, int32_t task_flag) {
+  frame_codec_.SetDecodeCallback([this](void *data, int32_t len, int32_t task_flag) {
     if (this->data_handler_) {
       this->data_handler_(data, len, task_flag);
     }
-  };
+  });
 }
 
 bool TcpChannel::StartListen() {
@@ -57,20 +63,19 @@ bool TcpChannel::StartListen() {
   return false;
 }
 
-bool TcpChannel::StartServer(std::string host, int port) {
-  port_ = port;
+bool TcpChannel::StartServer(const std::string &host, int port) {
   socket_fd_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  memset(&server_addr_, 0, sizeof(server_addr_));          //  每个字节都用0填充
-  server_addr_.sin_family = AF_INET;                       //  使用IPv4地址
-  server_addr_.sin_addr.s_addr = inet_addr(host.c_str());  //  具体的IP地址
-  server_addr_.sin_port = htons(port);                     //  端口
+  memset(&server_address_, 0, sizeof(server_address_));       //  每个字节都用0填充
+  server_address_.sin_family = AF_INET;                       //  使用IPv4地址
+  server_address_.sin_addr.s_addr = inet_addr(host.c_str());  //  具体的IP地址
+  server_address_.sin_port = htons(port);                     //  端口
   int ra = 1;
   if (setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char *>(&ra), sizeof(ra)) < 0) {
     close(socket_fd_);
     return false;
   }
   //  绑定套接字
-  if (bind(socket_fd_, (struct sockaddr *)&server_addr_, sizeof(server_addr_)) < 0) {
+  if (bind(socket_fd_, (struct sockaddr *)&server_address_, sizeof(server_address_)) < 0) {
     BACKEND_LOGD(TDF_BACKEND, "TcpChannel, StartServer bind fail.");
     close(socket_fd_);
     return false;
@@ -104,18 +109,13 @@ void TcpChannel::SetStarting(bool starting) {
         socket_fd_ = kNullSocket;
       }
     }
-
-    if (server_status_change_callback_) {
-      ConnectStatus status = is_starting_ ? kConnectStatusOpen : kConnectStatusClosed;
-      server_status_change_callback_(status);
-    }
     mutex_.unlock();
   }
 }
 
 void TcpChannel::AcceptClient() {
   while (socket_fd_ != kNullSocket) {
-    int fd = accept(socket_fd_, NULL, NULL);
+    int fd = accept(socket_fd_, nullptr, nullptr);
     BACKEND_LOGD(TDF_BACKEND, "TcpChannel, AcceptClient fd=%d.", fd);
     if (fd < 0) {
       if (errno != EWOULDBLOCK) {
@@ -136,17 +136,16 @@ void TcpChannel::AcceptClient() {
   }
 }
 
-void TcpChannel::SetConnecting(bool connected, std::string error) {
+void TcpChannel::SetConnecting(bool connected, const std::string& error) {
   BACKEND_LOGD(TDF_BACKEND, "TcpChannel, SetConnecting connected=%d.", connected);
   if (is_connecting == connected) {
     return;
   }
-
   if (connect_mutex_.try_lock()) {
     is_connecting = connected;
     if (is_connecting) {
-      std::thread recv_thread(&TcpChannel::ListenerAndResponse, this, client_fd_);
-      recv_thread.detach();
+      std::thread receive_thread(&TcpChannel::ListenerAndResponse, this, client_fd_);
+      receive_thread.detach();
     } else {
       is_connecting = false;
       if (client_fd_ != kNullSocket) {
@@ -154,28 +153,8 @@ void TcpChannel::SetConnecting(bool connected, std::string error) {
         client_fd_ = kNullSocket;
       }
     }
-
-    if (connect_status_change_callback_) {
-      ConnectStatus status = is_starting_ ? kConnectStatusOpen : kConnectStatusClosed;
-      connect_status_change_callback_(status, std::move(error));
-    }
     connect_mutex_.unlock();
   }
-}
-
-void TcpChannel::SendResponse(void *buf, int32_t len, int32_t flag) {
-  if (client_fd_ < 0) {
-    return;
-  }
-  this->stream_handler_.HandleSendStream(buf, len, flag);
-}
-
-void TcpChannel::SendResponse_(void *buf, int32_t len) {
-  if (client_fd_ < 0) {
-    BACKEND_LOGD(TDF_BACKEND, "TcpChannel, SendResponse_ fail.");
-    return;
-  }
-  send(client_fd_, buf, len, 0);
 }
 
 void TcpChannel::Connect(ReceiveDataHandler handler) {
@@ -185,12 +164,18 @@ void TcpChannel::Connect(ReceiveDataHandler handler) {
 
 void TcpChannel::Send(const std::string &rsp_data) {
   const char *buffer = rsp_data.c_str();
-  SendResponse(const_cast<void *>(reinterpret_cast<const void *>(buffer)), rsp_data.length(), hippy::devtools::TASK_FLAG);
+  if (client_fd_ < 0) {
+    return;
+  }
+  this->frame_codec_.Encode(const_cast<void *>(reinterpret_cast<const void *>(buffer)), rsp_data.length(),
+                            hippy::devtools::kTaskFlag);
 }
 
-void TcpChannel::Close(uint32_t code, const std::string &reason) {}
+void TcpChannel::Close(int32_t code, const std::string &reason) {
+  SetStarting(false);
+}
 
-void TcpChannel::ListenerAndResponse(int client_fd) {
+void TcpChannel::ListenerAndResponse(int32_t client_fd) {
   fd_set fds;
   FD_ZERO(&fds);
   FD_SET(client_fd, &fds);
@@ -198,7 +183,7 @@ void TcpChannel::ListenerAndResponse(int client_fd) {
   while (true && client_fd_ != kNullSocket) {
     fd_set read_fds = fds;
     // 阻塞式 是否就绪
-    int ret_sel = select(client_fd + 1, &read_fds, NULL, NULL, NULL);
+    int ret_sel = select(client_fd + 1, &read_fds, nullptr, nullptr, nullptr);
     BACKEND_LOGD(TDF_BACKEND, "TcpChannel, ListenerAndResponse ret_sel=%d.", ret_sel);
     if (ret_sel < 0) {
       SetConnecting(false, "");
@@ -227,10 +212,8 @@ void TcpChannel::ListenerAndResponse(int client_fd) {
       SetConnecting(false, "readFromDevice: recv failed");
       break;
     }
-    this->stream_handler_.HandleReceiveStream(buffer, read_len);
+    this->frame_codec_.Decode(buffer, read_len);
   }
 }
 
-void TcpChannel::StopListenAndDisConnect() { SetStarting(false); }
-
-}  // namespace devtools::devtools
+}  // namespace hippy::devtools

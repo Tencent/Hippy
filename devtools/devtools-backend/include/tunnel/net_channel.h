@@ -23,7 +23,7 @@
 #include "api/devtools_config.h"
 
 namespace hippy::devtools {
-const int32_t TASK_FLAG = 210;  // 任务消息
+constexpr int32_t kTaskFlag = 210;  // 任务消息
 /**
  * @brief 与前端调试器的数据连接通道
  */
@@ -48,8 +48,8 @@ class NetChannel {
    * @param code close code
    * @param reason close reason
    */
-  virtual void Close(uint32_t code, const std::string &reason) = 0;
+  virtual void Close(int32_t code, const std::string &reason) = 0;
 
-  static std::shared_ptr<NetChannel> CreateChannel(const DevtoolsConfig& config);
+  static std::unique_ptr<NetChannel> CreateChannel(const DevtoolsConfig& config);
 };
 }  // namespace devtools::devtools
