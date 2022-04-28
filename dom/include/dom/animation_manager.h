@@ -2,6 +2,7 @@
 
 #include "dom/dom_action_interceptor.h"
 #include "dom/dom_manager.h"
+#include "base/macros.h"
 
 #include <set>
 
@@ -44,10 +45,11 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
    */
   std::map<uint32_t, std::map<uint32_t, std::string>> animation_nodes_;
   int32_t id_;
-    void ParseAnimation(const std::shared_ptr<DomNode> node);
-    void FetchAnimationsFromObj(const DomValue& value, const std::string& prop, std::map<uint32_t, std::string>& result);
-    void FetchAnimationsFromArray(const DomValue& value, std::map<uint32_t, std::string>& result);
+  void ParseAnimation(const std::shared_ptr<DomNode> node);
+  void FetchAnimationsFromObj(const DomValue& value, const std::string& prop, std::map<uint32_t, std::string>& result);
+  void FetchAnimationsFromArray(const DomValue& value, std::map<uint32_t, std::string>& result);
 
+  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(AnimationManager);
 };
 }  // namespace dom
 }  // namespace hippy

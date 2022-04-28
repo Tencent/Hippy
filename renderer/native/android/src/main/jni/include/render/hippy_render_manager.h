@@ -5,6 +5,7 @@
 #include "jni/scoped_java_ref.h"
 
 #include "dom/dom_node.h"
+#include "base/macros.h"
 #include "dom/render_manager.h"
 #include "dom/serializer.h"
 
@@ -85,6 +86,8 @@ class HippyRenderManager : public RenderManager {
   std::vector<ListenerOp> event_listener_ops_;
 
   std::weak_ptr<DomManager> dom_manager_;
+
+  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(HippyRenderManager);
 };
 }  // namespace dom
 }  // namespace hippy

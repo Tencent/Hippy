@@ -17,6 +17,7 @@
 #include "dom/layout_node.h"
 #include "dom/dom_action_interceptor.h"
 #include "dom/scene.h"
+#include "base/macros.h"
 
 namespace hippy {
 inline namespace dom {
@@ -78,6 +79,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
   void UpdateRenderNode(const std::shared_ptr<DomNode>& node);
+
+  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(DomManager);
 
   friend DomNode;
 };
