@@ -38,6 +38,7 @@ mixin TextStyleNode on StyleNode {
 
   // 文本转换后的span，组合各种css样式
   TextSpan? span;
+
   // 原文本
   String? _sourceText;
 
@@ -63,10 +64,13 @@ mixin TextStyleNode on StyleNode {
 
   // 下划线
   bool _isUnderlineTextDecorationSet = false;
+
   // 删除线
   bool _isLineThroughTextDecorationSet = false;
+
   // 下划线样式
   TextDecorationStyle _textDecorationStyle = TextDecorationStyle.solid;
+
   // 下划线颜色
   int _textDecorationColor = Colors.black.value;
 
@@ -76,9 +80,7 @@ mixin TextStyleNode on StyleNode {
   bool get enableScale => _enableScale;
 
   String get _text {
-    if (_whiteSpace == null ||
-        _whiteSpace == 'normal' ||
-        _whiteSpace == 'nowrap') {
+    if (_whiteSpace == null || _whiteSpace == 'normal' || _whiteSpace == 'nowrap') {
       // 连续的空白符会被合并，换行符会被当作空白符来处理
       return _sourceText
               ?.replaceAll(RegExp(r' +'), ' ')
@@ -88,9 +90,7 @@ mixin TextStyleNode on StyleNode {
     }
     if (_whiteSpace == 'pre-line') {
       // 连续的空白符会被合并。在遇到换行符或者<br>元素，才换行
-      return _sourceText
-              ?.replaceAll(RegExp(r' +'), ' ')
-              .replaceAll(RegExp(r'<br\s*/?>'), '\n') ??
+      return _sourceText?.replaceAll(RegExp(r' +'), ' ').replaceAll(RegExp(r'<br\s*/?>'), '\n') ??
           '';
     }
     if (_whiteSpace == 'pre') {
@@ -202,8 +202,7 @@ mixin TextStyleNode on StyleNode {
   void textDecorationLine(String textDecorationLineString) {
     _isUnderlineTextDecorationSet = false;
     _isLineThroughTextDecorationSet = false;
-    for (var textDecorationLineSubString
-        in textDecorationLineString.split(" ")) {
+    for (var textDecorationLineSubString in textDecorationLineString.split(" ")) {
       if ("underline" == textDecorationLineSubString) {
         _isUnderlineTextDecorationSet = true;
       } else if ("line-through" == textDecorationLineSubString) {
@@ -222,8 +221,7 @@ mixin TextStyleNode on StyleNode {
       'wavy': TextDecorationStyle.wavy,
     };
 
-    _textDecorationStyle =
-        propertyMap[textDecorationStyleString] ?? TextDecorationStyle.solid;
+    _textDecorationStyle = propertyMap[textDecorationStyleString] ?? TextDecorationStyle.solid;
   }
 
   @ControllerProps(NodeProps.kTextDecorationColor)
@@ -233,10 +231,8 @@ mixin TextStyleNode on StyleNode {
 
   @ControllerProps(NodeProps.kPropShadowOffset)
   void textShadowOffset(VoltronMap offsetMap) {
-    _textShadowOffsetDx =
-        offsetMap.get(NodeProps.kPropShadowOffsetWidth)?.toDouble() ?? 0.0;
-    _textShadowOffsetDy =
-        offsetMap.get(NodeProps.kPropShadowOffsetHeight)?.toDouble() ?? 0.0;
+    _textShadowOffsetDx = offsetMap.get(NodeProps.kPropShadowOffsetWidth)?.toDouble() ?? 0.0;
+    _textShadowOffsetDy = offsetMap.get(NodeProps.kPropShadowOffsetHeight)?.toDouble() ?? 0.0;
   }
 
   @ControllerProps(NodeProps.kPropShadowRadius)
@@ -331,10 +327,13 @@ mixin TextStyleNode on StyleNode {
 
     var shadowList = <Shadow>[];
     if (_textShadowOffsetDx != 0 || _textShadowOffsetDy != 0) {
-      shadowList.add(Shadow(
+      shadowList.add(
+        Shadow(
           blurRadius: _textShadowRadius,
           color: Color(_textShadowColor),
-          offset: Offset(_textShadowOffsetDx, _textShadowOffsetDy)));
+          offset: Offset(_textShadowOffsetDx, _textShadowOffsetDy),
+        ),
+      );
     }
 
     var childrenSpan = <TextSpan>[];
@@ -360,7 +359,11 @@ mixin TextStyleNode on StyleNode {
     if (_isLineThroughTextDecorationSet) {
       if (textDecoration != TextDecoration.none) {
         textDecoration = TextDecoration.combine(
-            [TextDecoration.underline, TextDecoration.lineThrough]);
+          [
+            TextDecoration.underline,
+            TextDecoration.lineThrough,
+          ],
+        );
       } else {
         textDecoration = TextDecoration.lineThrough;
       }
@@ -368,44 +371,50 @@ mixin TextStyleNode on StyleNode {
 
     if (!isEmpty(_text) || childrenSpan.isNotEmpty) {
       return TextSpan(
-          text: _text,
-          style: TextStyle(
-              leadingDistribution: TextLeadingDistribution.even,
-              color: Color(_color),
-              letterSpacing: _letterSpacing,
-              fontSize: curFontSize,
-              fontStyle: _fontStyle,
-              fontWeight: _fontWeight,
-              fontFamily: _fontFamily,
-              shadows: shadowList,
-              height: _lineHeightFactor(),
-              decoration: textDecoration,
-              decorationStyle: _textDecorationStyle,
-              decorationColor: Color(_textDecorationColor)),
-          children: childrenSpan);
+        text: _text,
+        style: TextStyle(
+          leadingDistribution: TextLeadingDistribution.even,
+          color: Color(_color),
+          letterSpacing: _letterSpacing,
+          fontSize: curFontSize,
+          fontStyle: _fontStyle,
+          fontWeight: _fontWeight,
+          fontFamily: _fontFamily,
+          shadows: shadowList,
+          height: _lineHeightFactor(),
+          decoration: textDecoration,
+          decorationStyle: _textDecorationStyle,
+          decorationColor: Color(_textDecorationColor),
+        ),
+        children: childrenSpan,
+      );
     }
     return const TextSpan(text: "");
   }
 
   TextData createData(double width, FlexMeasureMode widthMode) {
     var text = span ?? const TextSpan(text: "");
-    return TextData(_numberOfLines ?? kMaxLineCount, text, _textAlign,
-        _generateTextScale(), _textOverflow);
+    return TextData(
+      _numberOfLines ?? kMaxLineCount,
+      text,
+      _textAlign,
+      _generateTextScale(),
+      _textOverflow,
+    );
   }
 
   TextPainter createPainter(double width, FlexMeasureMode widthMode) {
-    var unconstrainedWidth =
-        widthMode == FlexMeasureMode.undefined || width < 0;
+    var unconstrainedWidth = widthMode == FlexMeasureMode.undefined || width < 0;
     var maxWidth = unconstrainedWidth ? double.infinity : width;
     var text = span ?? const TextSpan(text: "");
     var painter = TextPainter(
-        maxLines: _numberOfLines ?? kMaxLineCount,
-        text: text,
-        textDirection: TextDirection.ltr,
-        textAlign: _textAlign,
-        ellipsis: kEllipsis,
-        textScaleFactor: _generateTextScale())
-      ..layout(maxWidth: maxWidth);
+      maxLines: _numberOfLines ?? kMaxLineCount,
+      text: text,
+      textDirection: TextDirection.ltr,
+      textAlign: _textAlign,
+      ellipsis: kEllipsis,
+      textScaleFactor: _generateTextScale(),
+    )..layout(maxWidth: maxWidth);
 
     return painter;
   }
@@ -577,8 +586,13 @@ class TextData {
   final double textScaleFactor;
   final TextOverflow textOverflow;
 
-  TextData(this.maxLines, this.text, this.textAlign, this.textScaleFactor,
-      this.textOverflow);
+  TextData(
+    this.maxLines,
+    this.text,
+    this.textAlign,
+    this.textScaleFactor,
+    this.textOverflow,
+  );
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes

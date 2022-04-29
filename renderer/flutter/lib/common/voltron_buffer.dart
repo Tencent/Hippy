@@ -21,8 +21,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/services.dart';
-
 import '../util.dart';
 import 'lru_cache.dart';
 import 'voltron_array.dart';
@@ -233,10 +231,10 @@ class _Parser {
     }
     if (isOneByte) {
       // one byte表示使用iso-8896-1标准
-      return Latin1Codec().decode(bytes);
+      return const Latin1Codec().decode(bytes);
     } else {
       // 使用utf8标准解码string
-      return Utf8Codec().decode(bytes);
+      return const Utf8Codec().decode(bytes);
     }
   }
 
@@ -271,6 +269,7 @@ class _Builder {
   static const int kDefaultBufferSize = 2048;
   int _position = 0;
   Uint8List _byteData = Uint8List(kDefaultBufferSize);
+
   // 记录对象应用，避免环形应用导致的栈溢出
   List<Object> refStack = [];
   final Object _writeObject;

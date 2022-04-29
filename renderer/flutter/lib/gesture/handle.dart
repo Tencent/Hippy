@@ -46,56 +46,125 @@ class NativeGestureHandle {
   static const String kDismiss = 'dismiss';
 
   static void handleClick(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager
-        .execNativeEvent(rootId, nodeId, kClick, {});
+    context.bridgeManager.execNativeEvent(
+      rootId,
+      nodeId,
+      kClick,
+      {},
+    );
     LogUtils.d(kTag, "send msg: $kClick");
   }
 
   static void handleLongClick(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager
-        .execNativeEvent(rootId, nodeId, kLongClick, {});
+    context.bridgeManager.execNativeEvent(
+      rootId,
+      nodeId,
+      kLongClick,
+      {},
+    );
   }
 
   static void handleAttachedToWindow(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager
-        .execNativeEvent(rootId, nodeId, kShow, {});
+    context.bridgeManager.execNativeEvent(
+      rootId,
+      nodeId,
+      kShow,
+      {},
+    );
   }
 
   static void handleDetachedFromWindow(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager
-        .execNativeEvent(rootId, nodeId, kDismiss, {});
+    context.bridgeManager.execNativeEvent(
+      rootId,
+      nodeId,
+      kDismiss,
+      {},
+    );
   }
 
   static void handlePressIn(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager
-        .execNativeEvent(rootId, nodeId, kPressIn, {});
+    context.bridgeManager.execNativeEvent(
+      rootId,
+      nodeId,
+      kPressIn,
+      {},
+    );
     LogUtils.d(kTag, "send msg: $kPressIn");
   }
 
   static void handlePressOut(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager
-        .execNativeEvent(rootId, nodeId, kPressOut, {});
+    context.bridgeManager.execNativeEvent(
+      rootId,
+      nodeId,
+      kPressOut,
+      {},
+    );
     LogUtils.d(kTag, "send msg: $kPressOut");
   }
 
   static void handleTouchDown(RenderContext context, int nodeId, int rootId, double x, double y) {
     context.bridgeManager.execNativeEvent(
-        rootId, nodeId, kTouchDown, {kKeyPageX: x, kKeyPageY: y});
+      rootId,
+      nodeId,
+      kTouchDown,
+      {
+        kKeyPageX: x,
+        kKeyPageY: y,
+      },
+    );
   }
 
-  static void handleTouchMove(RenderContext context, int nodeId, int rootId, double x, double y) {
+  static void handleTouchMove(
+    RenderContext context,
+    int nodeId,
+    int rootId,
+    double x,
+    double y,
+  ) {
     context.bridgeManager.execNativeEvent(
-        rootId, nodeId, kTouchMove, {kKeyPageX: x, kKeyPageY: y});
+      rootId,
+      nodeId,
+      kTouchMove,
+      {
+        kKeyPageX: x,
+        kKeyPageY: y,
+      },
+    );
   }
 
-  static void handleTouchEnd(RenderContext context, int nodeId, int rootId, double x, double y) {
+  static void handleTouchEnd(
+    RenderContext context,
+    int nodeId,
+    int rootId,
+    double x,
+    double y,
+  ) {
     context.bridgeManager.execNativeEvent(
-        rootId, nodeId, kTouchEnd, {kKeyPageX: x, kKeyPageY: y});
+      rootId,
+      nodeId,
+      kTouchEnd,
+      {
+        kKeyPageX: x,
+        kKeyPageY: y,
+      },
+    );
   }
 
-  static void handleTouchCancel(RenderContext context, int nodeId, int rootId,
-      double x, double y) {
+  static void handleTouchCancel(
+    RenderContext context,
+    int nodeId,
+    int rootId,
+    double x,
+    double y,
+  ) {
     context.bridgeManager.execNativeEvent(
-        rootId, nodeId, kTouchCancel, {kKeyPageX: x, kKeyPageY: y});
+      rootId,
+      nodeId,
+      kTouchCancel,
+      {
+        kKeyPageX: x,
+        kKeyPageY: y,
+      },
+    );
   }
 }

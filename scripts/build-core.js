@@ -81,6 +81,23 @@ namespace hippy {
 }  // namespace hippy
 `,
   },
+  flutter: {
+    piece1: `
+}  // namespace
+
+namespace hippy {
+  static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
+    {"bootstrap.js", {k_bootstrap, arraysize(k_bootstrap) - 1}},  // NOLINT
+    {"hippy.js", {k_hippy, arraysize(k_hippy) - 1}},  // NOLINT`,
+    piece2: `
+  };
+  const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
+    const auto it = global_base_js_source_map.find(filename);
+    return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+  }
+}  // namespace hippy
+`,
+  },
 };
 
 /**
@@ -150,6 +167,9 @@ function readFileToBuffer(platform, filePath) {
       const compiled = babel.transform(code, iOSBabelConfig);
       return Buffer.from(compiled.code);
     }
+    case 'flutter': {
+      return fs.readFileSync(filePath);
+    }
     default:
       return null;
   }
@@ -207,3 +227,4 @@ function generateCpp(platform, buildDirPath) {
 // Start to work
 generateCpp('ios', getAbsolutePath('../framework/js/ios/base'));
 generateCpp('android', getAbsolutePath('../framework/js/android/src/main/jni/src/bridge/'));
+generateCpp('flutter', getAbsolutePath('../framework/js/flutter/core/src/bridge/'));

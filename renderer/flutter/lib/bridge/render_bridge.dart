@@ -36,8 +36,10 @@ class VoltronRenderBridgeManager implements Destroyable {
 
   static HashMap<int, VoltronRenderBridgeManager> bridgeMap = HashMap();
 
-  VoltronRenderBridgeManager(this._engineId, this._context)
-      : _operatorRunner = RenderOperatorRunner(_context);
+  VoltronRenderBridgeManager(
+    this._engineId,
+    this._context,
+  ) : _operatorRunner = RenderOperatorRunner(_context);
 
   void init() {
     VoltronRenderApi.init();
@@ -51,7 +53,12 @@ class VoltronRenderBridgeManager implements Destroyable {
       return false;
     }
     await VoltronRenderApi.updateNodeSize(
-        _engineId, instanceId, nodeId, width, height);
+      _engineId,
+      instanceId,
+      nodeId,
+      width,
+      height,
+    );
   }
 
   Future notifyDom() async {
@@ -62,16 +69,27 @@ class VoltronRenderBridgeManager implements Destroyable {
   }
 
   Future<dynamic> callNativeFunction(
-      int rootId, String callbackId, Object params) async {
+    int rootId,
+    String callbackId,
+    Object params,
+  ) async {
     if (!_isBridgeInit) {
       return false;
     }
     VoltronRenderApi.callNativeFunction(
-        _engineId, rootId, callbackId, params, true);
+      _engineId,
+      rootId,
+      callbackId,
+      params,
+      true,
+    );
   }
 
   Future<dynamic> execNativeCallback(
-      int rootId, String callbackId, Object params) async {
+    int rootId,
+    String callbackId,
+    Object params,
+  ) async {
     if (!_isBridgeInit) {
       return false;
     }
@@ -81,16 +99,18 @@ class VoltronRenderBridgeManager implements Destroyable {
     } else if (params is VoltronArray) {
       convertParams = params.toList();
     }
-    await callNativeFunction(rootId, callbackId, convertParams);
+    await callNativeFunction(
+      rootId,
+      callbackId,
+      convertParams,
+    );
   }
 
-  Future<dynamic> execNativeEvent(
-      int rootId, int id, String event, Object params) async {
+  Future<dynamic> execNativeEvent(int rootId, int id, String event, Object params) async {
     if (!_isBridgeInit) {
       return false;
     }
-    await VoltronRenderApi.callNativeEvent(
-        _engineId, rootId, id, event, params);
+    await VoltronRenderApi.callNativeEvent(_engineId, rootId, id, event, params);
   }
 
   @override
@@ -108,13 +128,11 @@ class VoltronRenderBridgeManager implements Destroyable {
     }
   }
 
-  int calculateNodeLayout(
-      int instanceId, int nodeId, FlexLayoutParams layoutParams) {
+  int calculateNodeLayout(int instanceId, int nodeId, FlexLayoutParams layoutParams) {
     LogUtils.dBridge(
         'call calculate node layout(page:$instanceId, node:$nodeId, layout:$layoutParams)');
     if (_isBridgeInit) {
-      return _context.renderManager
-          .calculateLayout(instanceId, nodeId, layoutParams);
+      return _context.renderManager.calculateLayout(instanceId, nodeId, layoutParams);
     }
     return layoutParams.defaultOutput();
   }

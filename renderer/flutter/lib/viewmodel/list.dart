@@ -21,37 +21,56 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 
+import '../common.dart';
 import '../controller.dart';
 import '../gesture.dart';
 import '../render.dart';
-import 'group.dart';
-import 'list_item.dart';
-import 'view_model.dart';
+import '../viewmodel.dart';
 
 class ListViewModel extends ScrollableModel {
-  static const String kWrapperKey = "refresh_wrapper";
-
+  bool bounces = true;
+  bool horizontal = false;
   bool showScrollIndicator = false;
   bool hasStickyItem = false;
   double preloadSize = 0;
   double initOffset = 0;
+
   // 间距相关
   double paddingTop = 0.0;
   double paddingRight = 0.0;
   double paddingBottom = 0.0;
   double paddingLeft = 0.0;
 
+  // fire initialListReady when first screen render complete
+  bool hasRemovePreDraw = false;
+
+  ListPullHeaderViewModel? pullHeaderViewModel;
+  ListPullFooterViewModel? pullFooterViewModel;
+
   late ListViewDetailModel listViewDetailModel;
+  late RefreshEventDispatcher refreshEventDispatcher;
 
   RefreshWrapperDelegate? get refreshWrapper =>
-      getExtraInfo<RefreshWrapperDelegate>(kWrapperKey);
+      getExtraInfo<RefreshWrapperDelegate>(RefreshWrapperController.kWrapperKey);
 
-  ListViewModel(int id, int instanceId, String className, RenderContext context)
-      : super(id, instanceId, className, context);
+  ListViewModel(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+  ) : super(id, instanceId, className, context) {
+    refreshEventDispatcher = RefreshEventDispatcher(id, context);
+  }
 
-  ListViewModel.copy(int id, int instanceId, String className,
-      RenderContext context, ListViewModel viewModel)
-      : super.copy(id, instanceId, className, context, viewModel) {
+  ListViewModel.copy(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    ListViewModel viewModel,
+  ) : super.copy(id, instanceId, className, context, viewModel) {
+    horizontal = viewModel.horizontal;
+    bounces = viewModel.bounces;
     showScrollIndicator = viewModel.showScrollIndicator;
     hasStickyItem = viewModel.hasStickyItem;
     preloadSize = viewModel.preloadSize;
@@ -62,49 +81,63 @@ class ListViewModel extends ScrollableModel {
     paddingBottom = viewModel.paddingBottom;
     paddingLeft = viewModel.paddingLeft;
     var stickyList = <List<RenderViewModel>>[];
+    var realItemList = <ListItemViewModel>[];
     var isSticky = false;
     if (viewModel.hasStickyItem) {
       if (viewModel.children.isNotEmpty) {
         var curList = <RenderViewModel>[];
         for (var element in viewModel.children) {
-          if (element is ListItemViewModel && element.shouldSticky) {
-            // sticky item
-            if (curList.isNotEmpty) {
-              stickyList.add(curList);
-              curList = <RenderViewModel>[];
+          if (element is ListItemViewModel) {
+            if (element.shouldSticky) {
+              // sticky item
+              if (curList.isNotEmpty) {
+                stickyList.add(curList);
+                curList = <RenderViewModel>[];
+              }
+              stickyList.add([element]);
+              isSticky = true;
+            } else {
+              curList.add(element);
             }
-            stickyList.add([element]);
-            isSticky = true;
-          } else {
-            curList.add(element);
           }
         }
-
         if (curList.isNotEmpty) {
           stickyList.add(curList);
         }
       }
     }
     hasStickyItem = isSticky;
+    if (!hasStickyItem) {
+      realItemList = viewModel.children.whereType<ListItemViewModel>().toList();
+    }
     listViewDetailModel = ListViewDetailModel(
       childrenList: viewModel.children,
       preloadSize: viewModel.preloadSize,
       controller: viewModel.scrollController,
+      horizontal: viewModel.horizontal,
+      bounces: viewModel.bounces,
       scrollGestureDispatcher: viewModel.scrollGestureDispatcher,
+      refreshEventDispatcher: viewModel.refreshEventDispatcher,
       delegate: viewModel.refreshWrapper,
       showScrollIndicator: viewModel.showScrollIndicator,
       hasStickyItem: hasStickyItem,
+      pullHeaderViewModel: viewModel.pullHeaderViewModel,
+      pullFooterViewModel: viewModel.pullFooterViewModel,
       stickyList: stickyList,
+      realItemList: realItemList,
       paddingTop: viewModel.paddingTop,
       paddingRight: viewModel.paddingRight,
       paddingBottom: viewModel.paddingBottom,
       paddingLeft: viewModel.paddingLeft,
+      hasRemovePreDraw: viewModel.hasRemovePreDraw,
     );
   }
 
   @override
   bool operator ==(Object other) {
     return other is ListViewModel &&
+        horizontal == other.horizontal &&
+        bounces == other.bounces &&
         showScrollIndicator == other.showScrollIndicator &&
         hasStickyItem == other.hasStickyItem &&
         preloadSize == other.preloadSize &&
@@ -118,6 +151,8 @@ class ListViewModel extends ScrollableModel {
 
   @override
   int get hashCode =>
+      horizontal.hashCode |
+      bounces.hashCode |
       showScrollIndicator.hashCode |
       hasStickyItem.hashCode |
       preloadSize.hashCode |
@@ -133,6 +168,32 @@ class ListViewModel extends ScrollableModel {
     return TrackingScrollController(initialScrollOffset: initOffset);
   }
 
+  @override
+  void addViewModel(RenderViewModel child, int index) {
+    if (child is ListPullHeaderViewModel) {
+      pullHeaderViewModel = child;
+    } else if (child is ListPullFooterViewModel) {
+      pullFooterViewModel = child;
+    }
+    super.addViewModel(child, index);
+  }
+
+  @override
+  void removeViewModel(RenderViewModel child) {
+    if (child is ListPullHeaderViewModel) {
+      pullHeaderViewModel = null;
+    } else if (child is ListPullFooterViewModel) {
+      pullFooterViewModel = null;
+    }
+    super.removeViewModel(child);
+  }
+
+  @override
+  void dispose() {
+    refreshEventDispatcher.refreshController.dispose();
+    super.dispose();
+  }
+
   void scrollToIndex(int index, int duration, bool animate) {
     scrollToOffset(calculateOffsetOfIndex(index), duration, animate);
   }
@@ -144,9 +205,11 @@ class ListViewModel extends ScrollableModel {
           ? offset
           : scrollController.position.maxScrollExtent;
       if (animate) {
-        scrollController.animateTo(finalOffset,
-            duration: Duration(milliseconds: duration),
-            curve: Curves.linearToEaseOut);
+        scrollController.animateTo(
+          finalOffset,
+          duration: Duration(milliseconds: duration),
+          curve: Curves.linearToEaseOut,
+        );
       } else {
         scrollController.jumpTo(finalOffset);
       }
@@ -167,6 +230,10 @@ class ListViewModel extends ScrollableModel {
 
     return realOffset;
   }
+
+  void sendEvent(String eventName, VoltronMap params) {
+    context.eventHandler.receiveUIComponentEvent(id, eventName, params);
+  }
 }
 
 class ListViewDetailModel {
@@ -175,6 +242,11 @@ class ListViewDetailModel {
   final ScrollController controller;
   final NativeScrollGestureDispatcher scrollGestureDispatcher;
   final bool hasStickyItem;
+  final ListPullHeaderViewModel? pullHeaderViewModel;
+  final ListPullFooterViewModel? pullFooterViewModel;
+  final List<ListItemViewModel> realItemList;
+  final bool bounces;
+  final bool horizontal;
   final bool showScrollIndicator;
   final List<List<RenderViewModel>> stickyChildList = [];
   final RefreshWrapperDelegate? delegate;
@@ -182,20 +254,30 @@ class ListViewDetailModel {
   final double paddingRight;
   final double paddingBottom;
   final double paddingLeft;
+  final RefreshEventDispatcher refreshEventDispatcher;
+  final bool hasRemovePreDraw;
 
-  ListViewDetailModel(
-      {@required List<RenderViewModel>? childrenList,
-      this.preloadSize = 0,
-      required this.controller,
-      required this.scrollGestureDispatcher,
-      this.hasStickyItem = false,
-      this.showScrollIndicator = false,
-      this.delegate,
-      this.paddingTop = 0.0,
-      this.paddingRight = 0.0,
-      this.paddingBottom = 0.0,
-      this.paddingLeft = 0.0,
-      List<List<RenderViewModel>>? stickyList}) {
+  ListViewDetailModel({
+    @required List<RenderViewModel>? childrenList,
+    this.preloadSize = 0,
+    required this.controller,
+    required this.scrollGestureDispatcher,
+    required this.refreshEventDispatcher,
+    this.horizontal = false,
+    this.bounces = true,
+    this.hasStickyItem = false,
+    this.pullHeaderViewModel,
+    this.pullFooterViewModel,
+    this.realItemList = const [],
+    this.showScrollIndicator = false,
+    this.hasRemovePreDraw = false,
+    this.delegate,
+    this.paddingTop = 0.0,
+    this.paddingRight = 0.0,
+    this.paddingBottom = 0.0,
+    this.paddingLeft = 0.0,
+    List<List<RenderViewModel>>? stickyList,
+  }) {
     if (childrenList != null) {
       children.addAll(childrenList);
     }
@@ -209,9 +291,25 @@ class ListViewDetailModel {
       }
     }
   }
+
   @override
   int get hashCode =>
-      children.hashCode | preloadSize.hashCode | controller.hashCode;
+      children.hashCode |
+      preloadSize.hashCode |
+      controller.hashCode |
+      horizontal.hashCode |
+      bounces.hashCode |
+      showScrollIndicator.hashCode |
+      hasStickyItem.hashCode |
+      hasStickyItem.hashCode |
+      stickyChildList.hashCode |
+      paddingTop.hashCode |
+      paddingRight.hashCode |
+      paddingBottom.hashCode |
+      paddingLeft.hashCode |
+      hasRemovePreDraw.hashCode |
+      scrollGestureDispatcher.hashCode |
+      delegate.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -219,14 +317,18 @@ class ListViewDetailModel {
       const DeepCollectionEquality().equals(children, other.children) &&
       preloadSize == other.preloadSize &&
       controller == other.controller &&
+      horizontal == other.horizontal &&
+      bounces == other.bounces &&
       showScrollIndicator == other.showScrollIndicator &&
       hasStickyItem == other.hasStickyItem &&
       const DeepCollectionEquality().equals(stickyChildList, other.stickyChildList) &&
+      const DeepCollectionEquality().equals(realItemList, other.realItemList) &&
       paddingTop == other.paddingTop &&
       paddingRight == other.paddingRight &&
       paddingBottom == other.paddingBottom &&
       paddingLeft == other.paddingLeft &&
       scrollGestureDispatcher == other.scrollGestureDispatcher &&
+      hasRemovePreDraw == other.hasRemovePreDraw &&
       delegate == other.delegate;
 }
 
@@ -235,8 +337,11 @@ abstract class ScrollableModel extends GroupViewModel {
 
   @override
   NativeGestureDispatcher createDispatcher() {
-    scrollGestureDispatcher =
-        NativeScrollGestureDispatcher(rootId: rootId, id: id, context: context);
+    scrollGestureDispatcher = NativeScrollGestureDispatcher(
+      rootId: rootId,
+      id: id,
+      context: context,
+    );
     return scrollGestureDispatcher;
   }
 
@@ -257,12 +362,19 @@ abstract class ScrollableModel extends GroupViewModel {
   }
 
   ScrollableModel(
-      int id, int instanceId, String className, RenderContext context)
-      : super(id, instanceId, className, context);
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+  ) : super(id, instanceId, className, context);
 
-  ScrollableModel.copy(int id, int instanceId, String className,
-      RenderContext context, GroupViewModel viewModel)
-      : super.copy(id, instanceId, className, context, viewModel);
+  ScrollableModel.copy(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    GroupViewModel viewModel,
+  ) : super.copy(id, instanceId, className, context, viewModel);
 
   @override
   void onDispose() {

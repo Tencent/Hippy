@@ -15,9 +15,12 @@ dependencies:
   sqflite: ^2.0.0+3
   dio_cookie_manager: ^2.0.0
   cookie_jar: ^3.0.1
-  pull_to_refresh: ^2.0.0
   web_socket_channel: ^2.0.0
   system_proxy: ^0.1.0
+  device_info_plus: ^3.2.3
+  package_info_plus: ^1.4.2
+  intl: ^0.17.0
+  connectivity_plus: ^2.3.0
   voltron_renderer:
     path: ../../../renderer/flutter/
 

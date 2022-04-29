@@ -58,7 +58,7 @@ class _QrWidgetState extends FRState<QrWidget> {
         semanticsLabel: '',
         version: viewModel.version,
         errorCorrectionLevel: viewModel.level,
-        padding: EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
       );
     } else {
       return Container();

@@ -27,37 +27,23 @@ import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-class TextController
-    extends VoltronViewController<TextRenderViewModel, TextRenderNode> {
+class TextController extends VoltronViewController<TextRenderViewModel, TextRenderNode> {
   static const String kClassName = "Text";
 
   @override
-  TextRenderNode createRenderNode(int id, VoltronMap? props, String name,
-      RenderTree tree, ControllerManager controllerManager, bool lazy) {
-    return TextRenderNode(id, name, tree, controllerManager, props);
+  TextRenderNode createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
+      ControllerManager controllerManager, bool lazy) {
+    return TextRenderNode(id, kClassName, tree, controllerManager, props);
   }
 
   @override
-  TextRenderViewModel createRenderViewModel(
-      TextRenderNode node, RenderContext context) {
+  TextRenderViewModel createRenderViewModel(TextRenderNode node, RenderContext context) {
     return TextRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
   @override
-  Widget createWidget(
-      BuildContext context, TextRenderViewModel viewModel) {
+  Widget createWidget(BuildContext context, TextRenderViewModel viewModel) {
     return TextWidget(viewModel);
-  }
-
-  @override
-  void applyProps(RenderContext context, TextRenderNode node) {
-    node.generateSpan(context);
-  }
-
-  @override
-  void updateLayout(RenderContext context, TextRenderNode node) {
-    node.updateData(context);
-    super.updateLayout(context, node);
   }
 
   @override
@@ -77,13 +63,11 @@ class TextController
 
     var alignItems = style.get<String>('alignItems') ?? '';
     if (alignItems.isNotEmpty) {
-      renderViewModel.alignItems =
-          flexAlignFromValue(alignItems) ?? FlexAlign.flexStart;
+      renderViewModel.alignItems = flexAlignFromValue(alignItems) ?? FlexAlign.flexStart;
     }
     var justifyContent = style.get<String>('justifyContent') ?? '';
     if (justifyContent.isNotEmpty) {
-      renderViewModel.justifyContent =
-          flexAlignFromValue(justifyContent) ?? FlexAlign.flexStart;
+      renderViewModel.justifyContent = flexAlignFromValue(justifyContent) ?? FlexAlign.flexStart;
     }
   }
 
@@ -94,12 +78,32 @@ class TextController
   void updateExtra(TextRenderViewModel renderViewModel, Object updateExtra) {
     if (updateExtra is TextExtra && updateExtra.extra is TextData) {
       renderViewModel.padding = EdgeInsets.only(
-          left: updateExtra.leftPadding,
-          top: updateExtra.topPadding,
-          bottom: updateExtra.bottomPadding,
-          right: updateExtra.rightPadding);
+        left: updateExtra.leftPadding,
+        top: updateExtra.topPadding,
+        bottom: updateExtra.bottomPadding,
+        right: updateExtra.rightPadding,
+      );
       renderViewModel.data = updateExtra.extra as TextData;
+      renderViewModel.update();
+    } else if (updateExtra is TextData) {
+      renderViewModel.data = updateExtra;
       renderViewModel.update();
     }
   }
+}
+
+class TextExtra {
+  final Object extra;
+  final double leftPadding;
+  final double rightPadding;
+  final double bottomPadding;
+  final double topPadding;
+
+  const TextExtra(
+    this.extra,
+    this.leftPadding,
+    this.rightPadding,
+    this.bottomPadding,
+    this.topPadding,
+  );
 }

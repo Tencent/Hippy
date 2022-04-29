@@ -21,7 +21,6 @@
 import 'package:flutter/material.dart';
 import 'package:keyboard_utils/keyboard_listener.dart' as keyboard_listener;
 import 'package:keyboard_utils/keyboard_utils.dart';
-
 import 'package:voltron_renderer/render.dart';
 
 import '../controller.dart';
@@ -30,6 +29,7 @@ import '../util.dart';
 import 'view_model.dart';
 
 class TextInputRenderViewModel extends RenderViewModel {
+  static const String kTag = 'TextInputRenderViewModel';
   static const String kKeyboardTypeEmailAddress = "email";
   static const String kKeyboardTypeNumeric = "numeric";
   static const String kKeyboardTypePhonePad = "phone-pad";
@@ -145,14 +145,11 @@ class TextInputRenderViewModel extends RenderViewModel {
     var flagsToSet = TextInputType.text;
     if (kKeyboardTypeNumeric.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.number;
-    } else if (kKeyboardTypeEmailAddress.toLowerCase() ==
-        keyboardType.toLowerCase()) {
+    } else if (kKeyboardTypeEmailAddress.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.emailAddress;
-    } else if (kKeyboardTypePhonePad.toLowerCase() ==
-        keyboardType.toLowerCase()) {
+    } else if (kKeyboardTypePhonePad.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.phone;
-    } else if (kKeyboardTypePassword.toLowerCase() ==
-        keyboardType.toLowerCase()) {
+    } else if (kKeyboardTypePassword.toLowerCase() == keyboardType.toLowerCase()) {
       flagsToSet = TextInputType.visiblePassword;
       obscureText = true;
     }
@@ -174,15 +171,78 @@ class TextInputRenderViewModel extends RenderViewModel {
   }
 
   void setTextAlign(String textAlignStr) {
-    textAlign = TextStyleNode.parseTextAlign(textAlignStr);
+    var align = TextAlign.start;
+    if ("auto" == (textAlignStr)) {
+      align = TextAlign.start;
+    } else if ("left" == (textAlignStr)) {
+      align = TextAlign.left;
+    } else if ("right" == (textAlignStr)) {
+      align = TextAlign.right;
+    } else if ("center" == (textAlignStr)) {
+      align = TextAlign.center;
+    } else if ("justify" == (textAlignStr)) {
+      align = TextAlign.justify;
+    } else {
+      LogUtils.e(kTag, "Invalid textAlign: $textAlign");
+    }
+    textAlign = align;
+  }
+
+  int _parseArgument(String weight) {
+    return weight.length == 3 &&
+            weight.endsWith("00") &&
+            weight.codeUnitAt(0) <= '9'.codeUnitAt(0) &&
+            weight.codeUnitAt(0) >= '1'.codeUnitAt(0)
+        ? 100 * (weight.codeUnitAt(0) - '0'.codeUnitAt(0))
+        : -1;
   }
 
   void setFontWeight(String fontWeightStr) {
-    fontWeight = TextStyleNode.parseFontWeight(fontWeightStr);
+    var tempFontWeight = FontWeight.normal;
+    if ("bold" == fontWeightStr) {
+      tempFontWeight = FontWeight.bold;
+    } else if ("normal" == fontWeightStr) {
+      tempFontWeight = FontWeight.normal;
+    } else {
+      var fontWeightNumeric = _parseArgument(fontWeightStr);
+      if (fontWeightNumeric != -1) {
+        if (fontWeightNumeric <= 100) {
+          tempFontWeight = FontWeight.w100;
+        } else if (fontWeightNumeric <= 200) {
+          tempFontWeight = FontWeight.w200;
+        } else if (fontWeightNumeric <= 300) {
+          tempFontWeight = FontWeight.w300;
+        } else if (fontWeightNumeric <= 400) {
+          tempFontWeight = FontWeight.w400;
+        } else if (fontWeightNumeric <= 500) {
+          tempFontWeight = FontWeight.w500;
+        } else if (fontWeightNumeric <= 600) {
+          tempFontWeight = FontWeight.w600;
+        } else if (fontWeightNumeric <= 700) {
+          tempFontWeight = FontWeight.w700;
+        } else if (fontWeightNumeric <= 800) {
+          tempFontWeight = FontWeight.w800;
+        } else {
+          tempFontWeight = FontWeight.w900;
+        }
+      }
+    }
+    fontWeight = tempFontWeight;
+  }
+
+  FontStyle parseFontStyle(String fontStyleStr) {
+    var fontStyle = FontStyle.normal;
+    if ("italic" == fontStyleStr) {
+      fontStyle = FontStyle.italic;
+    } else if ("normal" == fontStyleStr) {
+      fontStyle = FontStyle.normal;
+    }
+
+    return fontStyle;
   }
 
   void setFontStyle(String fontStyleStr) {
-    fontStyle = TextStyleNode.parseFontStyle(fontStyleStr);
+    fontStyle = parseFontStyle(fontStyleStr);
   }
 
   void setValue(String value) {
@@ -190,8 +250,7 @@ class TextInputRenderViewModel extends RenderViewModel {
     var selectionStart = controller.selection.start;
     var selectionEnd = controller.selection.end;
 
-    LogUtils.d("text_input",
-        "setText: selectionStart:$selectionStart selectionEnd:$selectionEnd");
+    LogUtils.d("text_input", "setText: selectionStart:$selectionStart selectionEnd:$selectionEnd");
     var oldValue = controller.text;
 
     if (value == oldValue) {
@@ -209,8 +268,7 @@ class TextInputRenderViewModel extends RenderViewModel {
         value.startsWith(sub1) &&
         value.endsWith(sub2)) {
       // 未选中状态 && insert
-      var insertStr =
-          value.substring(selectionStart, value.length - sub2.length);
+      var insertStr = value.substring(selectionStart, value.length - sub2.length);
       LogUtils.d("text_input", "setText: InsertStr: [$insertStr]");
       var offset = selectionStart + insertStr.length;
       if (offset > value.length || offset < 0) {
@@ -220,12 +278,9 @@ class TextInputRenderViewModel extends RenderViewModel {
           text: value,
           selection: TextSelection.fromPosition(
               TextPosition(offset: offset, affinity: TextAffinity.downstream)));
-    } else if (selectionStart < selectionEnd &&
-        value.startsWith(sub1) &&
-        value.endsWith(sub2)) {
+    } else if (selectionStart < selectionEnd && value.startsWith(sub1) && value.endsWith(sub2)) {
       // 选中状态 && replace选中部分
-      var replaceStr =
-          value.substring(selectionStart, value.length - sub2.length);
+      var replaceStr = value.substring(selectionStart, value.length - sub2.length);
       LogUtils.d("text_input", "setText: ReplaceStr: [$replaceStr]");
       var offsetStart = selectionStart;
       var offsetEnd = selectionStart + replaceStr.length;
@@ -233,14 +288,11 @@ class TextInputRenderViewModel extends RenderViewModel {
         offsetEnd = value.length;
       }
       controller.value = TextEditingValue(
-          text: value,
-          selection:
-              TextSelection(baseOffset: offsetStart, extentOffset: offsetEnd));
+          text: value, selection: TextSelection(baseOffset: offsetStart, extentOffset: offsetEnd));
     } else if (selectionStart == selectionEnd &&
         value.length < oldValue.length &&
         value.endsWith(sub2) &&
-        value.startsWith(sub1.substring(
-            0, selectionStart - (oldValue.length - value.length)))) {
+        value.startsWith(sub1.substring(0, selectionStart - (oldValue.length - value.length)))) {
       // 未选中状态 && delete
       var delLen = oldValue.length - value.length;
       var offset = selectionEnd - delLen;
@@ -257,8 +309,8 @@ class TextInputRenderViewModel extends RenderViewModel {
     } else {
       controller.value = TextEditingValue(
           text: value,
-          selection: TextSelection.fromPosition(TextPosition(
-              offset: value.length, affinity: TextAffinity.downstream)));
+          selection: TextSelection.fromPosition(
+              TextPosition(offset: value.length, affinity: TextAffinity.downstream)));
     }
   }
 
@@ -287,8 +339,11 @@ class TextInputRenderViewModel extends RenderViewModel {
   }
 
   TextInputRenderViewModel(
-      int id, int instanceId, String className, RenderContext context)
-      : super(id, instanceId, className, context) {
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+  ) : super(id, instanceId, className, context) {
     dispatcher = TextInputDispatcher(context, id, controller);
 
     controller.addListener(() {

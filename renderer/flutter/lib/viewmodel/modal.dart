@@ -27,8 +27,7 @@ import '../util.dart';
 import '../widget.dart';
 import 'group.dart';
 
-class ModalRenderViewModel extends GroupViewModel
-    implements InstanceLifecycleEventListener {
+class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEventListener {
   bool animationSwitch = true;
   String animationType = "none";
   int animationDuration = 200;
@@ -46,22 +45,22 @@ class ModalRenderViewModel extends GroupViewModel
 
   GlobalKey modalKey = GlobalKey();
 
-  ModalRenderViewModel(
-      {required int id,
-      required int instanceId,
-      required String className,
-      required RenderContext context})
-      : super(id, instanceId, className, context) {
+  ModalRenderViewModel({
+    required int id,
+    required int instanceId,
+    required String className,
+    required RenderContext context,
+  }) : super(id, instanceId, className, context) {
     context.addInstanceLifecycleEventListener(this);
   }
 
-  ModalRenderViewModel.copy(
-      {required int id,
-      required int instanceId,
-      required String className,
-      required RenderContext context,
-      required ModalRenderViewModel viewModel})
-      : super.copy(id, instanceId, className, context, viewModel) {
+  ModalRenderViewModel.copy({
+    required int id,
+    required int instanceId,
+    required String className,
+    required RenderContext context,
+    required ModalRenderViewModel viewModel,
+  }) : super.copy(id, instanceId, className, context, viewModel) {
     animationSwitch = viewModel.animationSwitch;
     animationType = viewModel.animationType;
     animationDuration = viewModel.animationDuration;
@@ -139,8 +138,7 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void registerFrameCallback() {
-    if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) ==
-        false) {
+    if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) == false) {
       context.getInstance(rootId)?.viewExecutorList.add(doFrame);
     }
   }
@@ -164,8 +162,7 @@ class ModalRenderViewModel extends GroupViewModel
 
   void showOrDismissDialog() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      LogUtils.dWidget(
-          "ModalWidget", "container build inner, can show:$canDialogShow");
+      LogUtils.dWidget("ModalWidget", "container build inner, can show:$canDialogShow");
       if (canDialogShow) {
         showDialog();
       } else {
@@ -175,8 +172,8 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void showDialog() {
-    LogUtils.dWidget("ModalWidget",
-        "real show dialog, (isShow: $isShowDialog, childLen(${children.length}))");
+    LogUtils.dWidget(
+        "ModalWidget", "real show dialog, (isShow: $isShowDialog, childLen(${children.length}))");
     var buildContext = context.getInstance(rootId)?.rootKey.currentContext;
     if (!isShowDialog && buildContext != null && children.isNotEmpty) {
       isShowDialog = true;
@@ -187,23 +184,24 @@ class ModalRenderViewModel extends GroupViewModel
         durationTime = animationDuration;
       }
       showGeneralDialog(
-          barrierLabel:
-              MaterialLocalizations.of(buildContext).modalBarrierDismissLabel,
-          barrierDismissible: true,
-          barrierColor: Color(barrierColor),
-          context: buildContext,
-          transitionDuration: Duration(milliseconds: durationTime),
-          transitionBuilder: (context, anim1, anim2, child) {
-            return _animation(
-                aniType: animationType,
-                child: _dialogRoot(
-                  child: ModalDialogWidget(this),
-                ),
-                animation: anim1);
-          },
-          pageBuilder: (context, animation, secondaryAnimation) {
-            return Container();
-          }).then((value) {
+        barrierLabel: MaterialLocalizations.of(buildContext).modalBarrierDismissLabel,
+        barrierDismissible: true,
+        barrierColor: Color(barrierColor),
+        context: buildContext,
+        transitionDuration: Duration(milliseconds: durationTime),
+        transitionBuilder: (context, anim1, anim2, child) {
+          return _animation(
+            aniType: animationType,
+            child: _dialogRoot(
+              child: ModalDialogWidget(this),
+            ),
+            animation: anim1,
+          );
+        },
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return Container();
+        },
+      ).then((value) {
         isShowDialog = false;
       });
       onShow();
@@ -218,21 +216,22 @@ class ModalRenderViewModel extends GroupViewModel
       content = SafeArea(child: child);
     }
     return Material(
-        type: MaterialType.transparency,
-        child: Scaffold(
-            backgroundColor: const Color(0x01ffffff),
-            resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-            body: AnnotatedRegion<SystemUiOverlayStyle>(
-                value: statusBarTextDarkColor
-                    ? SystemUiOverlayStyle.dark
-                    : SystemUiOverlayStyle.light,
-                child: WillPopScope(
-                  onWillPop: () async {
-                    onRequestClose();
-                    return false;
-                  },
-                  child: content,
-                ))));
+      type: MaterialType.transparency,
+      child: Scaffold(
+        backgroundColor: const Color(0x01ffffff),
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        body: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: statusBarTextDarkColor ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+          child: WillPopScope(
+            onWillPop: () async {
+              onRequestClose();
+              return false;
+            },
+            child: content,
+          ),
+        ),
+      ),
+    );
   }
 
   void onRequestClose() {
@@ -243,76 +242,124 @@ class ModalRenderViewModel extends GroupViewModel
     context.eventHandler.receiveUIComponentEvent(id, "onShow", null);
   }
 
-  Widget _animation(
-      {String? aniType, Widget? child, required Animation<double> animation}) {
+  Widget _animation({String? aniType, Widget? child, required Animation<double> animation}) {
     if (!isEmpty(aniType)) {
       if (aniType == "fade") {
         return FadeTransition(
-            opacity: CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeInCubic,
-            ),
-            child: child);
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInCubic,
+          ),
+          child: child,
+        );
       } else if (aniType == "slide" || aniType == "slide-bottom") {
         var screenHeight = ScreenUtil.getInstance().screenHeight;
 
         return Transform.translate(
-            offset: Tween(begin: Offset(0, screenHeight), end: Offset.zero)
-                .animate(CurvedAnimation(
-                    parent: animation, curve: Curves.easeInCubic))
-                .value,
-            child: child);
+          offset: Tween(
+            begin: Offset(0, screenHeight),
+            end: Offset.zero,
+          )
+              .animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeInCubic,
+                ),
+              )
+              .value,
+          child: child,
+        );
       } else if (aniType == 'slide_fade') {
         return SlideTransition(
-            position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
-                .animate(CurvedAnimation(
-                    parent: animation, curve: Curves.easeInCubic)),
-            child: FadeTransition(
-                opacity: CurvedAnimation(
-                    parent: animation, curve: Curves.easeInCubic),
-                child: child));
+          position: Tween<Offset>(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeInCubic,
+            ),
+          ),
+          child: FadeTransition(
+            opacity: CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeInCubic,
+            ),
+            child: child,
+          ),
+        );
       } else if (aniType == "pop") {
-        return ScaleTransition(scale: animation, child: child);
+        return ScaleTransition(
+          scale: animation,
+          child: child,
+        );
       } else if (aniType == "slide-top") {
         var screenHeight = ScreenUtil.getInstance().screenHeight;
 
         return Transform.translate(
-            offset: Tween(begin: Offset(0, -screenHeight), end: Offset.zero)
-                .animate(CurvedAnimation(
-                    parent: animation, curve: Curves.easeInCubic))
-                .value,
-            child: child);
+          offset: Tween(
+            begin: Offset(0, -screenHeight),
+            end: Offset.zero,
+          )
+              .animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeInCubic,
+                ),
+              )
+              .value,
+          child: child,
+        );
       } else if (aniType == "slide-left") {
         var screenWidth = ScreenUtil.getInstance().screenWidth;
 
         return Transform.translate(
-            offset: Tween(begin: Offset(-screenWidth, 0), end: Offset.zero)
-                .animate(CurvedAnimation(
-                    parent: animation, curve: Curves.easeInCubic))
-                .value,
-            child: child);
+          offset: Tween(
+            begin: Offset(
+              -screenWidth,
+              0,
+            ),
+            end: Offset.zero,
+          )
+              .animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeInCubic,
+                ),
+              )
+              .value,
+          child: child,
+        );
       } else if (aniType == "slide-right") {
         var screenWidth = ScreenUtil.getInstance().screenWidth;
 
         return Transform.translate(
-            offset: Tween(begin: Offset(screenWidth, 0), end: Offset.zero)
-                .animate(CurvedAnimation(
-                    parent: animation, curve: Curves.easeInCubic))
-                .value,
-            child: child);
+          offset: Tween(
+            begin: Offset(screenWidth, 0),
+            end: Offset.zero,
+          )
+              .animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeInCubic,
+                ),
+              )
+              .value,
+          child: child,
+        );
       }
     }
     return FadeTransition(
-        opacity: CurvedAnimation(
-          parent: animation,
-          curve: Curves.linear,
-        ),
-        child: child);
+      opacity: CurvedAnimation(
+        parent: animation,
+        curve: Curves.linear,
+      ),
+      child: child,
+    );
   }
 
   void dismissDialog() {
-    LogUtils.dWidget(
-        "ModalWidget", "real dismiss dialog, (isShow: $isShowDialog)");
+    LogUtils.dWidget("ModalWidget", "real dismiss dialog, (isShow: $isShowDialog)");
     var buildContext = context.getInstance(rootId)?.rootKey.currentContext;
     if (isShowDialog && buildContext != null) {
       removeFrameCallback();

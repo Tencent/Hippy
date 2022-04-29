@@ -71,8 +71,6 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
   // ignore: unused_field
   late String _serverHost;
 
-  bool _enableVoltronBuffer = false;
-
   bool _devManagerInited = false;
   bool _hasReportEngineLoadResult = false;
   late int _groupId;
@@ -94,25 +92,28 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
     return VoltronJSEngine(params, null);
   }
 
-  VoltronJSEngine(
-      EngineInitParams params, VoltronBundleLoader? preloadBundleLoader) {
+  VoltronJSEngine(EngineInitParams params, VoltronBundleLoader? preloadBundleLoader) {
     // create core bundle loader
     VoltronBundleLoader? coreBundleLoader;
     if (!isEmpty(params.coreJSAssetsPath)) {
       if (params.coreAssetsLoader != null) {
         coreBundleLoader = params.coreAssetsLoader;
       } else {
-        coreBundleLoader = AssetBundleLoader(params.coreJSAssetsPath!,
-            canUseCodeCache: !isEmpty(params.codeCacheTag),
-            codeCacheTag: params.codeCacheTag);
+        coreBundleLoader = AssetBundleLoader(
+          params.coreJSAssetsPath!,
+          canUseCodeCache: !isEmpty(params.codeCacheTag),
+          codeCacheTag: params.codeCacheTag,
+        );
       }
     } else if (!isEmpty(params.coreJSFilePath)) {
       if (params.coreFileLoader != null) {
         coreBundleLoader = params.coreFileLoader;
       } else {
-        coreBundleLoader = FileBundleLoader(params.coreJSFilePath,
-            canUseCodeCache: !isEmpty(params.codeCacheTag),
-            codeCacheTag: params.codeCacheTag);
+        coreBundleLoader = FileBundleLoader(
+          params.coreJSFilePath,
+          canUseCodeCache: !isEmpty(params.codeCacheTag),
+          codeCacheTag: params.codeCacheTag,
+        );
       }
     }
 
@@ -132,10 +133,25 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
 
   Future<dynamic> initEngine(EngineListener listener) async {
     // 初始化平台相关信息， 必须放到第一位，否则可能run app之后平台信息还未初始化完成
-    await PlatformManager.getInstance().initPlatform();
-    LogUtils.d(_kTag, "initEngine getPlatform");
-    await _initBridge();
+    try {
+      await PlatformManager.getInstance().initPlatform();
+    } catch (e) {
+      _currentState = EngineState.initError;
+      if (e is Error) {
+        LogUtils.e(_kTag, "${e.stackTrace}");
+      }
+    }
+    LogUtils.d(_kTag, "initEngine getPlatform done");
+    try {
+      _initBridge();
+    } catch (e) {
+      _currentState = EngineState.initError;
+      if (e is Error) {
+        LogUtils.e(_kTag, "${e.stackTrace}");
+      }
+    }
     LogUtils.d(_kTag, "initEngine initBridge done");
+
     if (_currentState != EngineState.unInit) {
       _listen(listener);
       return;
@@ -148,14 +164,17 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
 
     try {
       // _devSupportManager = DevSupportManager(
-      //     _globalConfigs, _debugMode, _serverHost, _serverBundleName);
+      //   _globalConfigs,
+      //   _debugMode,
+      //   _serverHost,
+      //   _serverBundleName,
+      // );
       // // todo 完善调试能力
       // // _devSupportManager.setDevCallback(this);
       // if (_debugMode) {
       //   _devSupportManager.init(null);
       //   return;
       // }
-
       LogUtils.d(_kTag, "start restartEngineInBackground...");
       await _restartEngineInBackground();
     } catch (e) {
@@ -164,7 +183,9 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
         LogUtils.e(_kTag, "${e.stackTrace}");
       }
       _notifyEngineInitialized(
-          EngineStatus.initException, StateError(e.toString()));
+        EngineStatus.initException,
+        StateError(e.toString()),
+      );
     }
   }
 
@@ -174,8 +195,7 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
     // 2. 若mCurrentState是初始化过程中的状态，则把listener添加到mEventListeners后返回
     if (_currentState == EngineState.inited) {
       listener(EngineStatus.ok, null);
-    } else if (_currentState == EngineState.initError ||
-        _currentState == EngineState.destroyed) {
+    } else if (_currentState == EngineState.initError || _currentState == EngineState.destroyed) {
       listener(EngineStatus.wrongState, "engine state=$_currentState");
     } else {
       // 说明mCurrentState是初始化过程中的状态
@@ -199,13 +219,13 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
           e);
     }
     for (var listener in _eventListenerList) {
-      listener(statusCode, e == null ? null : e.toString());
+      listener(statusCode, e?.toString());
     }
     _eventListenerList.clear();
   }
 
-  void _notifyModuleLoaded(final EngineStatus statusCode, final String? msg,
-      final RootWidgetViewModel rootView) {
+  void _notifyModuleLoaded(
+      final EngineStatus statusCode, final String? msg, final RootWidgetViewModel rootView) {
     if (statusCode != EngineStatus.ok) {
       rootView.onLoadError();
     }
@@ -224,23 +244,24 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
     if (!_hasReportEngineLoadResult) {
       _hasReportEngineLoadResult = true;
       _globalConfigs.monitorAdapter?.reportEngineLoadResult(
-          code, _startTimeMonitor.totalTime, _startTimeMonitor.events, e);
+        code,
+        _startTimeMonitor.totalTime,
+        _startTimeMonitor.events,
+        e,
+      );
     }
   }
 
-  Future<dynamic> _restartEngineInBackground() async {
+  Future<void> _restartEngineInBackground() async {
     if (_currentState == EngineState.destroyed || _currentState == EngineState.initError) {
-      var errorMsg =
-          "restartEngineInBackground... error STATUS_WRONG_STATE, state=$_currentState";
+      var errorMsg = "restartEngineInBackground... error STATUS_WRONG_STATE, state=$_currentState";
       LogUtils.e(_kTag, errorMsg);
       _notifyEngineInitialized(EngineStatus.wrongState, StateError(errorMsg));
       return;
     }
     _startTimeMonitor.begin();
-    _startTimeMonitor
-        .startEvent(EngineMonitorEventKey.engineLoadEventInitInstance);
-    if (_currentState != EngineState.unInit &&
-        _currentState != EngineState.onInit) {
+    _startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitInstance);
+    if (_currentState != EngineState.unInit && _currentState != EngineState.onInit) {
       resetEngine();
     }
     if (_currentState != EngineState.onInit) {
@@ -260,26 +281,24 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
       _engineMonitor,
     );
     await _engineContext.bridgeManager.initBridge((param, e) {
-      if (_currentState != EngineState.onInit &&
-          _currentState != EngineState.onRestart) {
-        LogUtils.e(_kTag,
-            "initBridge callback error STATUS_WRONG_STATE, state=$_currentState");
+      if (_currentState != EngineState.onInit && _currentState != EngineState.onRestart) {
+        LogUtils.e(
+          _kTag,
+          "initBridge callback error STATUS_WRONG_STATE, state=$_currentState",
+        );
         _notifyEngineInitialized(EngineStatus.wrongState, e);
         return;
       }
-      _startTimeMonitor
-          .startEvent(EngineMonitorEventKey.engineLoadEventNotifyEngineInited);
+      _startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventNotifyEngineInited);
 
       _engineContext.renderContext.forEachInstance(_internalLoadInstance);
 
       var state = _currentState;
       _currentState = param ? EngineState.inited : EngineState.initError;
       if (state != EngineState.onRestart) {
-        _notifyEngineInitialized(
-            param ? EngineStatus.ok : EngineStatus.errBridge, e);
+        _notifyEngineInitialized(param ? EngineStatus.ok : EngineStatus.errBridge, e);
       } else {
-        LogUtils.e(_kTag,
-            "initBridge callback error STATUS_WRONG_STATE, state=$_currentState");
+        LogUtils.e(_kTag, "initBridge callback error STATUS_WRONG_STATE, state=$_currentState");
         _notifyEngineInitialized(EngineStatus.wrongState, e);
         _startTimeMonitor.end();
       }
@@ -298,37 +317,29 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
       listener.onInstanceLoad(instance.id);
     }
     instance.attachToEngine(_engineContext.renderContext);
-    var loadInstanceContext =
-        _engineContext.renderContext.getLoadContext(instance.id);
+    var loadInstanceContext = _engineContext.renderContext.getLoadContext(instance.id);
     var launchParams = loadInstanceContext?.launchParams;
     var name = loadInstanceContext?.name;
     var loader = loadInstanceContext?.bundleLoader;
     if (loader != null && name != null) {
-      instance.timeMonitor
-          ?.startEvent(EngineMonitorEventKey.moduleLoadEventWaitLoadBundle);
-      await _engineContext.bridgeManager
-          .runBundle(instance.id, loader, _moduleListener, instance);
+      instance.timeMonitor?.startEvent(EngineMonitorEventKey.moduleLoadEventWaitLoadBundle);
+      await _engineContext.bridgeManager.runBundle(instance.id, loader, _moduleListener, instance);
     } else {
-      _notifyModuleLoaded(EngineStatus.variableUnInit,
-          "load module error. loader null", instance);
+      _notifyModuleLoaded(EngineStatus.variableUnInit, "load module error. loader null", instance);
       return;
     }
-    LogUtils.d(
-        _kTag, "in internalLoadInstance before loadInstance, $_debugMode");
-    await _engineContext.bridgeManager
-        .loadInstance(name, instance.id, launchParams);
+    LogUtils.d(_kTag, "in internalLoadInstance before loadInstance, $_debugMode");
+    await _engineContext.bridgeManager.loadInstance(name, instance.id, launchParams);
   }
 
-  Future<dynamic> loadModule(
-      ModuleLoadParams loadParams, RootWidgetViewModel viewModel,
-      {ModuleListener? listener,
-      OnLoadCompleteListener? onLoadCompleteListener}) async {
+  Future<dynamic> loadModule(ModuleLoadParams loadParams, RootWidgetViewModel viewModel,
+      {ModuleListener? listener, OnLoadCompleteListener? onLoadCompleteListener}) async {
     if (_currentState != EngineState.inited) {
-      _notifyModuleLoaded(EngineStatus.wrongState,
-          "load module error wrong state, Engine destroyed", viewModel);
+      _notifyModuleLoaded(
+          EngineStatus.wrongState, "load module error wrong state, Engine destroyed", viewModel);
       return;
     }
-    if (loadParams.jsParams == null) loadParams.jsParams = VoltronMap();
+    loadParams.jsParams ??= VoltronMap();
     if (!isEmpty(loadParams.jsAssetsPath)) {
       loadParams.jsParams!.push("sourcePath", loadParams.jsAssetsPath);
     } else if (!isEmpty(loadParams.jsFilePath)) {
@@ -349,8 +360,7 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
     viewModel.onSizeChangedListener = this;
     // viewModel.attachEngineManager(this);
     var loadContext = JSLoadInstanceContext(loadParams);
-    _engineContext.renderContext
-        .createInstance(viewModel.id, loadContext, viewModel);
+    _engineContext.renderContext.createInstance(viewModel.id, loadContext, viewModel);
     _devSupportManager?.attachToHost(viewModel);
     if (!_devManagerInited && _debugMode) {
       _devManagerInited = true;
@@ -360,10 +370,8 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
     if (_currentState == EngineState.inited) {
       _internalLoadInstance(viewModel);
     } else {
-      _notifyModuleLoaded(
-          EngineStatus.wrongState,
-          "error wrong state, Engine state not INITED, state: $_currentState",
-          viewModel);
+      _notifyModuleLoaded(EngineStatus.wrongState,
+          "error wrong state, Engine state not INITED, state: $_currentState", viewModel);
     }
   }
 
@@ -388,8 +396,8 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
   }
 
   @override
-  void onSizeChanged(int rootId, double width, double height, double oldWidth,
-      double oldHeight) async {
+  void onSizeChanged(
+      int rootId, double width, double height, double oldWidth, double oldHeight) async {
     await _engineContext.renderContext.bridgeManager
         .updateNodeSize(rootId, width: width, height: height);
   }
@@ -421,8 +429,8 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
   }
 
   void sendEvent(String event, Object params) {
-    final dispatcher = _engineContext.moduleManager.getJavaScriptModule(
-        enumValueToString(JavaScriptModuleType.EventDispatcher));
+    final dispatcher = _engineContext.moduleManager
+        .getJavaScriptModule(enumValueToString(JavaScriptModuleType.EventDispatcher));
     if (dispatcher is EventDispatcher) {
       dispatcher.receiveNativeEvent(event, params);
     }
@@ -430,8 +438,7 @@ class VoltronJSEngine implements OnSizeChangedListener, OnResumeAndPauseListener
 
   bool onBackPressed(BackPressHandler handler) {
     var module = _engineContext.moduleManager
-        .getNativeModule<DeviceEventModule>(
-            DeviceEventModule.kDeviceModuleName);
+        .getNativeModule<DeviceEventModule>(DeviceEventModule.kDeviceModuleName);
     if (module != null) {
       return module.onBackPressed(handler);
     }

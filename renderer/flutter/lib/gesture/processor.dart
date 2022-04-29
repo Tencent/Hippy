@@ -20,10 +20,8 @@
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 
-import '../style.dart';
 import 'type.dart';
 
 class NativeGestureProcessor {

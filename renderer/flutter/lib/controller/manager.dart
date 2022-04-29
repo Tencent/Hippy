@@ -47,9 +47,12 @@ class ControllerManager implements InstanceLifecycleEventListener {
 
     for (var controllerFactory in generators) {
       _controllerRegistry.addControllerHolder(
-          controllerFactory.name,
-          ControllerHolder(
-              controllerFactory.generateController, controllerFactory.isLazy));
+        controllerFactory.name,
+        ControllerHolder(
+          controllerFactory.generateController,
+          controllerFactory.isLazy,
+        ),
+      );
     }
   }
 
@@ -61,24 +64,21 @@ class ControllerManager implements InstanceLifecycleEventListener {
   }
 
   void deleteRoot(int id, [RenderTree? renderTree]) {
-    final _renderTree =
-        renderTree ?? _controllerRegistry.getRenderTree(id);
+    final _renderTree = renderTree ?? _controllerRegistry.getRenderTree(id);
     if (_renderTree != null) {
       _renderTree.clear();
       _controllerRegistry.removeRenderTree(_renderTree);
     }
   }
 
-  void deleteChild(
-      RenderViewModel? parentViewModel, RenderViewModel? childViewModel,
+  void deleteChild(RenderViewModel? parentViewModel, RenderViewModel? childViewModel,
       {int childIndex = -1}) {
     if (parentViewModel is GroupViewModel && childViewModel != null) {
       deleteChildRecursive(parentViewModel, childViewModel, childIndex);
     }
   }
 
-  void deleteChildRecursive(
-      GroupViewModel? viewParent, RenderViewModel? child, int childIndex) {
+  void deleteChildRecursive(GroupViewModel? viewParent, RenderViewModel? child, int childIndex) {
     if (viewParent == null || child == null) {
       return;
     }
@@ -99,6 +99,14 @@ class ControllerManager implements InstanceLifecycleEventListener {
     }
 
     viewParent.removeViewModel(child);
+  }
+
+  VirtualNode? createVirtualNode(int id, int pid, int index, String className, VoltronMap props) {
+    var controller = findController(className);
+    if (controller != null) {
+      return controller.createVirtualNode(id, pid, index, className, props);
+    }
+    return null;
   }
 
   void createViewModel(RenderNode node, VoltronMap? initialProps) {
@@ -144,8 +152,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
       final controller = findController(node.name);
 
       if (controller != null) {
-        final validProps =
-            AnimationUtil.getRenderNodeStyleByAnimationRule(newProps);
+        final validProps = AnimationUtil.getRenderNodeStyleByAnimationRule(newProps);
         ControllerUpdateUtil.updateProps(controller, node, validProps);
         controller.onAfterUpdateProps(_context, node);
       }
@@ -160,7 +167,8 @@ class ControllerManager implements InstanceLifecycleEventListener {
       parentViewModel.addViewModel(childViewModel, index);
     } else {
       Error exception = StateError(
-          "${"child null or parent not ViewGroup pid ${parentNode.id}"} parentClass ${parentNode.name} renderNodeClass ${childNode.name}${" id ${childNode.id}"}");
+        "${"child null or parent not ViewGroup pid ${parentNode.id}"} parentClass ${parentNode.name} renderNodeClass ${childNode.name}${" id ${childNode.id}"}",
+      );
       _context.handleNativeException(exception, true);
     }
   }
@@ -177,8 +185,10 @@ class ControllerManager implements InstanceLifecycleEventListener {
       newParent.addViewModel(viewModel, index);
     }
 
-    LogUtils.d("ControllerManager",
-        "move id: ${node.id} fromId:${oldParent?.id} toId:${newParent.id} ");
+    LogUtils.d(
+      "ControllerManager",
+      "move id: ${node.id} fromId:${oldParent?.id} toId:${newParent.id} ",
+    );
   }
 
   void updateLayout(RenderNode node) {
@@ -209,8 +219,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
     }
   }
 
-  RenderNode? createRenderNode(
-      int id, VoltronMap? props, String name, RenderTree tree, bool lazy) {
+  RenderNode? createRenderNode(int id, VoltronMap? props, String name, RenderTree tree, bool lazy) {
     final controller = findController(name);
     if (controller != null) {
       return controller.createRenderNode(id, props, name, tree, this, lazy);
@@ -218,14 +227,18 @@ class ControllerManager implements InstanceLifecycleEventListener {
     return null;
   }
 
-  void dispatchUIFunction(int instanceId, int id, String name,
-      String functionName, VoltronArray params, Promise promise) {
+  void dispatchUIFunction(int instanceId, int id, String name, String functionName,
+      VoltronArray params, Promise promise) {
     final node = findNode(instanceId, id);
     final controller = findController(name);
 
     if (node != null && controller != null) {
-      controller.dispatchFunction(node.renderViewModel, functionName, params,
-          promise: promise.isCallback() ? promise : null);
+      controller.dispatchFunction(
+        node.renderViewModel,
+        functionName,
+        params,
+        promise: promise.isCallback() ? promise : null,
+      );
     }
   }
 
@@ -268,8 +281,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
 
       var node = _controllerRegistry.getRenderNode(instanceId, instanceId);
       if (node == null) {
-        node =
-            RootRenderNode(instanceId, NodeProps.kRootNode, tree, this, null);
+        node = RootRenderNode(instanceId, NodeProps.kRootNode, tree, this, null);
         tree.init(node);
       }
 

@@ -201,6 +201,7 @@ class NodeProps {
 
   static const String kViewClassName = "View";
   static const String kTextClassName = "Text";
+  static const String kImageClassName = "Text";
 
   /// 节点样式，包含内联样式
   static const String kStyle = "style";
@@ -232,12 +233,10 @@ class NodeProps {
   static const String kAnimationKeyFrameHundredPercent = '100%';
 
   /// keyframe selector的百分比数字
-  static const String kAnimationKeyFrameSelectorPercent =
-      'animationKeyFrameSelectorPercent';
+  static const String kAnimationKeyFrameSelectorPercent = 'animationKeyFrameSelectorPercent';
 
   /// 需要根据animation规则操作的属性Map
-  static const String kAnimationPropertyOptionMap =
-      'animationPropertyOptionMap';
+  static const String kAnimationPropertyOptionMap = 'animationPropertyOptionMap';
 
   /// animation动画播放结束后，animationFillModel为'none'时，需要设置的属性集
   static const String kAnimationEndPropertyMap = 'animationEndPropertyMap';
@@ -324,8 +323,7 @@ class NodeProps {
       case kOpacity:
         return map.isNull(kOpacity) || map.get<double>(kOpacity) == 1;
       case kBorderRadius:
-        if (map.containsKey(kBackgroundColor) &&
-            map.get<int>(kBackgroundColor) != kTransparent) {
+        if (map.containsKey(kBackgroundColor) && map.get<int>(kBackgroundColor) != kTransparent) {
           return false;
         }
         if (map.containsKey(kBorderWidth) &&
@@ -345,17 +343,13 @@ class NodeProps {
       case kBorderWidth:
         return map.isNull(kBorderWidth) || map.get<double>(kBorderWidth) == 0;
       case kBorderLeftWidth:
-        return map.isNull(kBorderLeftWidth) ||
-            map.get<double>(kBorderLeftWidth) == 0;
+        return map.isNull(kBorderLeftWidth) || map.get<double>(kBorderLeftWidth) == 0;
       case kBorderTopWidth:
-        return map.isNull(kBorderTopWidth) ||
-            map.get<double>(kBorderTopWidth) == 0;
+        return map.isNull(kBorderTopWidth) || map.get<double>(kBorderTopWidth) == 0;
       case kBorderRightWidth:
-        return map.isNull(kBorderRightWidth) ||
-            map.get<double>(kBorderRightWidth) == 0;
+        return map.isNull(kBorderRightWidth) || map.get<double>(kBorderRightWidth) == 0;
       case kBorderBottomWidth:
-        return map.isNull(kBorderBottomWidth) ||
-            map.get<double>(kBorderBottomWidth) == 0;
+        return map.isNull(kBorderBottomWidth) || map.get<double>(kBorderBottomWidth) == 0;
       case kOverflow:
         return map.isNull(kOverflow) || kVisible == map.get<String>(kOverflow);
       default:

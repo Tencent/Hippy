@@ -39,17 +39,20 @@ class RefreshWrapperItemWidget extends FRStatefulWidget {
 class _RefreshWrapperItemWidgetState extends FRState<RefreshWrapperItemWidget> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-        value: widget.viewModel, child: _boxContent());
+    return ChangeNotifierProvider.value(value: widget.viewModel, child: _boxContent());
   }
 
   Widget _boxContent() {
-    return Consumer<RefreshWrapperItemRenderViewModel>(builder: (context, viewModel, _) {
-      return BoxWidget(viewModel,
+    return Consumer<RefreshWrapperItemRenderViewModel>(
+      builder: (context, viewModel, _) {
+        return BoxWidget(
+          viewModel,
           child: Selector<RefreshWrapperItemRenderViewModel, DivContainerViewModel>(
             selector: (context, viewModel) => DivContainerViewModel(viewModel),
             builder: (context, viewModel, _) => DivContainerWidget(viewModel),
-          ));
-    });
+          ),
+        );
+      },
+    );
   }
 }

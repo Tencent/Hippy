@@ -42,55 +42,68 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-        value: widget._viewModel,
-        child: Selector<ViewPagerRenderViewModel, ViewPagerRenderViewModel>(
-          selector: (context, viewModel) {
-            return ViewPagerRenderViewModel.copy(
-                id: viewModel.id,
-                instanceId: viewModel.rootId,
-                className: viewModel.name,
-                context: viewModel.context,
-                viewModel: viewModel);
-          },
-          builder: (context, viewModel, widget) {
-            return PositionWidget(viewModel, child: viewPager(viewModel));
-          },
-        ));
+      value: widget._viewModel,
+      child: Selector<ViewPagerRenderViewModel, ViewPagerRenderViewModel>(
+        selector: (context, viewModel) {
+          return ViewPagerRenderViewModel.copy(
+            id: viewModel.id,
+            instanceId: viewModel.rootId,
+            className: viewModel.name,
+            context: viewModel.context,
+            viewModel: viewModel,
+          );
+        },
+        builder: (context, viewModel, widget) {
+          return PositionWidget(
+            viewModel,
+            child: viewPager(viewModel),
+          );
+        },
+      ),
+    );
   }
 
   Widget viewPager(ViewPagerRenderViewModel viewModel) {
-    LogUtils.dWidget("view_pager",
-        "build view pager, children:${viewModel.children.length}");
+    LogUtils.dWidget("view_pager", "build view pager, children:${viewModel.children.length}");
     if (viewModel.children.isEmpty) {
       return Container();
     } else {
       // viewPortFraction必须大于0
-      var viewPortFraction =
-          viewModel.pageMargin > 0 ? viewModel.pageMargin : 1.0;
+      var viewPortFraction = viewModel.pageMargin > 0 ? viewModel.pageMargin : 1.0;
       var controller = PageController(
-          initialPage: viewModel.initialPage,
-          viewportFraction: viewPortFraction);
+        initialPage: viewModel.initialPage,
+        viewportFraction: viewPortFraction,
+      );
       changeController(controller);
       var physics = viewModel.scrollEnabled
-          ? BouncingScrollPhysics()
-          : NeverScrollableScrollPhysics();
+          ? viewModel.bounces
+              ? const BouncingScrollPhysics()
+              : const ClampingScrollPhysics()
+          : const NeverScrollableScrollPhysics();
       var overflow = viewModel.overflow;
       // 创建viewpager时需要回调一下js当前的Page，防止数据不一致的问题
       onPageChanged(viewModel.initialPage);
       return NotificationListener<ScrollNotification>(
-          onNotification: onScrollNotification,
-          child: PageView.builder(
-              itemBuilder: (context, index) {
-                if (index < 0 || index >= viewModel.children.length) {
-                  return Container();
-                }
-                return pageChild(context, viewModel.children[index], overflow,
-                    viewPortFraction);
-              },
-              controller: controller,
-              physics: physics,
-              onPageChanged: onPageChanged,
-              itemCount: viewModel.children.length));
+        onNotification: onScrollNotification,
+        child: PageView.builder(
+          scrollDirection: viewModel.isVertical ? Axis.vertical : Axis.horizontal,
+          itemBuilder: (context, index) {
+            if (index < 0 || index >= viewModel.children.length) {
+              return Container();
+            }
+            return pageChild(
+              context,
+              viewModel.children[index],
+              overflow,
+              viewPortFraction,
+            );
+          },
+          controller: controller,
+          physics: physics,
+          onPageChanged: onPageChanged,
+          itemCount: viewModel.children.length,
+        ),
+      );
     }
   }
 
@@ -108,8 +121,8 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
     return false;
   }
 
-  Widget pageChild(BuildContext context, RenderViewModel childViewModel,
-      String overflow, double viewPortFraction) {
+  Widget pageChild(BuildContext context, RenderViewModel childViewModel, String overflow,
+      double viewPortFraction) {
     var content = generateByViewModel(context, childViewModel);
 
     content = Stack(
@@ -118,11 +131,15 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
     );
     if (viewPortFraction != 1.0) {
       content = FractionallySizedBox(
-          widthFactor: 1 / viewPortFraction, child: content);
+        widthFactor: 1 / viewPortFraction,
+        child: content,
+      );
     }
 
     LogUtils.dWidget(
-        "view_pager", "build view pager child(${childViewModel.id}) success");
+      "view_pager",
+      "build view pager child(${childViewModel.id}) success",
+    );
     return content;
   }
 
@@ -150,16 +167,22 @@ class _ViewPagerItemWidgetState extends FRState<ViewPagerItemWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-        value: widget._itemViewModel,
-        child: Consumer<ViewPagerItemRenderViewModel>(builder: (context, viewModel, child) {
-          return BoxWidget(viewModel,
-              child: Selector<ViewPagerItemRenderViewModel, DivContainerViewModel>(
-                selector: (context, viewModel) => DivContainerViewModel(viewModel),
-                builder: (context, viewModel, _) =>
-                    DivContainerWidget(viewModel),
+      value: widget._itemViewModel,
+      child: Consumer<ViewPagerItemRenderViewModel>(
+        builder: (context, viewModel, child) {
+          return BoxWidget(
+            viewModel,
+            child: Selector<ViewPagerItemRenderViewModel, DivContainerViewModel>(
+              selector: (context, viewModel) => DivContainerViewModel(
+                viewModel,
               ),
-              isInfinitySize: true);
-        }));
+              builder: (context, viewModel, _) => DivContainerWidget(viewModel),
+            ),
+            isInfinitySize: true,
+          );
+        },
+      ),
+    );
   }
 
   @override

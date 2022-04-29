@@ -32,6 +32,7 @@ class ScreenUtil {
   double _fontScale = 0.0;
   MediaQueryData? _mediaQueryData;
   Size? _physicalSize;
+  Brightness _brightness = Brightness.light;
 
   static final ScreenUtil _singleton = ScreenUtil();
 
@@ -52,6 +53,7 @@ class ScreenUtil {
       _bottomBarHeight = mediaQuery.padding.bottom;
       _fontScale = mediaQuery.textScaleFactor;
       _appBarHeight = kToolbarHeight;
+      _brightness = mediaQuery.platformBrightness;
     }
   }
 
@@ -84,6 +86,8 @@ class ScreenUtil {
   double get fontScale => _fontScale;
 
   Size? get physicalSize => _physicalSize;
+
+  Brightness get brightness => _brightness;
 
   /// screen width
   /// 当前屏幕 宽 dp

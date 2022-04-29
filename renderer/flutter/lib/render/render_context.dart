@@ -26,11 +26,13 @@ import '../controller.dart';
 import '../engine.dart';
 import '../gesture.dart';
 import '../render.dart';
+import '../style.dart';
 import '../widget.dart';
 
 abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
   late VoltronRenderBridgeManager _bridgeManager;
   late RenderManager _renderManager;
+  late VirtualNodeManager _virtualNodeManager;
   final EngineMonitor _engineMonitor;
   final HashMap<int, RootWidgetViewModel> _instanceMap = HashMap();
   final HashMap<int, T> _loadContextMap = HashMap();
@@ -38,6 +40,9 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
   UIComponentEventHandler get eventHandler;
   double get fontScale;
   DimensionChecker get dimensionChecker;
+
+  // UI Manager
+  VirtualNodeManager get virtualNodeManager => _virtualNodeManager;
 
   // UI Manager
   RenderManager get renderManager => _renderManager;
@@ -54,25 +59,22 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
     _instanceMap.values.forEach(call);
   }
 
-  RenderContext(int id, List<ViewControllerGenerator>? generators,
-      EngineMonitor engineMonitor)
+  RenderContext(int id, List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor)
       : _engineMonitor = engineMonitor {
     _bridgeManager = VoltronRenderBridgeManager(id, this);
     _renderManager = RenderManager(this, generators);
+    _virtualNodeManager = VirtualNodeManager(this);
   }
 
   String convertRelativePath(int rootId, String path);
 
-  void removeInstanceLifecycleEventListener(
-      InstanceLifecycleEventListener listener);
+  void removeInstanceLifecycleEventListener(InstanceLifecycleEventListener listener);
 
   void addEngineLifecycleEventListener(EngineLifecycleEventListener listener);
 
-  void removeEngineLifecycleEventListener(
-      EngineLifecycleEventListener listener);
+  void removeEngineLifecycleEventListener(EngineLifecycleEventListener listener);
 
-  void addInstanceLifecycleEventListener(
-      InstanceLifecycleEventListener listener);
+  void addInstanceLifecycleEventListener(InstanceLifecycleEventListener listener);
 
   void handleNativeException(Error error, bool haveCaught);
 

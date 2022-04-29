@@ -32,7 +32,8 @@ class AnimationWidget extends StatelessWidget {
   final RenderViewModel viewModel;
   final bool isStackLayout;
 
-  const AnimationWidget(this.child, this.viewModel, [this.isStackLayout = false]);
+  const AnimationWidget(this.child, this.viewModel,
+      [this.isStackLayout = false]);
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,8 @@ class AnimationChild extends StatefulWidget {
   final RenderViewModel viewModel;
   final bool isStackLayout;
 
-  const AnimationChild(this.child, this.animation, this.transition, this.viewModel,
+  const AnimationChild(
+      this.child, this.animation, this.transition, this.viewModel,
       [this.isStackLayout = false]);
 
   @override
@@ -258,11 +260,13 @@ class _AnimationChildState extends State<AnimationChild>
         ? StackChild(
             animationProperty: animationProperty,
             viewModel: viewModel,
-            child: widget.child)
+            child: widget.child,
+          )
         : CommonChild(
             animationProperty: animationProperty,
             viewModel: viewModel,
-            child: widget.child);
+            child: widget.child,
+          );
   }
 }
 
@@ -272,25 +276,36 @@ class CommonChild extends StatelessWidget {
   final RenderViewModel viewModel;
   final Widget child;
 
-  const CommonChild(
-      {this.animationProperty, required this.viewModel, required this.child});
+  const CommonChild({
+    this.animationProperty,
+    required this.viewModel,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
     final viewModelMargin = EdgeInsets.only(
-        top: viewModel.layoutY ?? 0.0, left: viewModel.layoutX ?? 0.0);
+      top: viewModel.layoutY ?? 0.0,
+      left: viewModel.layoutX ?? 0.0,
+    );
     final animationMargin =
         animationProperty?.get<EdgeInsets>(NodeProps.kMargin);
     var margin = animationMargin ?? viewModelMargin;
     if (margin.isNonNegative) {
-      return BoxWidget(viewModel,
-          child: child, animationProperty: animationProperty);
+      return BoxWidget(
+        viewModel,
+        child: child,
+        animationProperty: animationProperty,
+      );
     } else {
       return Container(
         alignment: Alignment.topLeft,
         margin: margin,
-        child: BoxWidget(viewModel,
-            child: child, animationProperty: animationProperty),
+        child: BoxWidget(
+          viewModel,
+          child: child,
+          animationProperty: animationProperty,
+        ),
       );
     }
   }
@@ -302,8 +317,11 @@ class StackChild extends StatelessWidget {
   final RenderViewModel viewModel;
   final Widget child;
 
-  const StackChild(
-      {this.animationProperty, required this.viewModel, required this.child});
+  const StackChild({
+    this.animationProperty,
+    required this.viewModel,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -313,8 +331,11 @@ class StackChild extends StatelessWidget {
     return Positioned(
       top: animationTop ?? viewModel.layoutY,
       left: animationLeft ?? viewModel.layoutX,
-      child: BoxWidget(viewModel,
-          child: child, animationProperty: animationProperty),
+      child: BoxWidget(
+        viewModel,
+        child: child,
+        animationProperty: animationProperty,
+      ),
     );
   }
 }

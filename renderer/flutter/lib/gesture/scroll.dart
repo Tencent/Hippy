@@ -20,7 +20,7 @@
 
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import '../render.dart';
 import '../viewmodel.dart';
@@ -35,11 +35,14 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   bool scrollEnable = true;
   int scrollEventThrottle = 400;
   int preloadItemNumber = 0;
+  bool exposureEventEnabled = false;
   Stopwatch stopwatch = Stopwatch();
 
-  NativeScrollGestureDispatcher(
-      {required int rootId, required int id, required RenderContext context})
-      : super(rootId: rootId, id: id, context: context);
+  NativeScrollGestureDispatcher({
+    required int rootId,
+    required int id,
+    required RenderContext context,
+  }) : super(rootId: rootId, id: id, context: context);
 
   @override
   bool get enableScroll => scrollEnable;
@@ -49,7 +52,8 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
       scrollEndDragEventEnable ||
       momentumScrollBeginEventEnable ||
       momentumScrollEndEventEnable ||
-      scrollEventEnable;
+      scrollEventEnable ||
+      exposureEventEnabled;
 
   void handleScrollBegin(RenderViewModel view, double scrollX, double scrollY) {
     if (scrollBeginDragEventEnable) {
@@ -63,8 +67,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
     }
   }
 
-  void handleScrollMomentumBegin(
-      RenderViewModel view, double scrollX, double scrollY) {
+  void handleScrollMomentumBegin(RenderViewModel view, double scrollX, double scrollY) {
     if (momentumScrollBeginEventEnable) {
       _ScrollEventHelper.emitScrollMomentumBeginEvent(view, scrollX, scrollY);
     }
@@ -74,8 +77,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
     view.context.eventHandler.receiveUIComponentEvent(view.id, "onEndReached", null);
   }
 
-  void handleScrollMomentumEnd(
-      RenderViewModel view, double scrollX, double scrollY) {
+  void handleScrollMomentumEnd(RenderViewModel view, double scrollX, double scrollY) {
     if (momentumScrollEndEventEnable) {
       _ScrollEventHelper.emitScrollMomentumEndEvent(view, scrollX, scrollY);
     }
@@ -96,6 +98,10 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
       stopwatch.start();
     }
   }
+
+  void sendExposureEvent(RenderViewModel viewModel, String eventName) {
+    viewModel.context.eventHandler.receiveUIComponentEvent(viewModel.id, eventName, null);
+  }
 }
 
 class _ScrollEventHelper {
@@ -105,33 +111,28 @@ class _ScrollEventHelper {
   static const String kEventTypeMomentumBegin = "onMomentumScrollBegin";
   static const String kEventTypeMomentumEnd = "onMomentumScrollEnd";
 
-  static void emitScrollEvent(
-      RenderViewModel view, double scrollX, double scrollY) {
+  static void emitScrollEvent(RenderViewModel view, double scrollX, double scrollY) {
     _doEmitScrollEvent(view, kEventTypeScroll, scrollX, scrollY);
   }
 
-  static void emitScrollBeginDragEvent(
-      RenderViewModel view, double scrollX, double scrollY) {
+  static void emitScrollBeginDragEvent(RenderViewModel view, double scrollX, double scrollY) {
     _doEmitScrollEvent(view, kEventTypeBeginDrag, scrollX, scrollY);
   }
 
-  static void emitScrollEndDragEvent(
-      RenderViewModel view, double scrollX, double scrollY) {
+  static void emitScrollEndDragEvent(RenderViewModel view, double scrollX, double scrollY) {
     _doEmitScrollEvent(view, kEventTypeEndDrag, scrollX, scrollY);
   }
 
-  static void emitScrollMomentumBeginEvent(
-      RenderViewModel view, double scrollX, double scrollY) {
+  static void emitScrollMomentumBeginEvent(RenderViewModel view, double scrollX, double scrollY) {
     _doEmitScrollEvent(view, kEventTypeMomentumBegin, scrollX, scrollY);
   }
 
-  static void emitScrollMomentumEndEvent(
-      RenderViewModel view, double scrollX, double scrollY) {
+  static void emitScrollMomentumEndEvent(RenderViewModel view, double scrollX, double scrollY) {
     _doEmitScrollEvent(view, kEventTypeMomentumEnd, scrollX, scrollY);
   }
 
-  static void _doEmitScrollEvent(RenderViewModel view, String scrollEventType,
-      double scrollX, double scrollY) {
+  static void _doEmitScrollEvent(
+      RenderViewModel view, String scrollEventType, double scrollX, double scrollY) {
     var contentInset = {};
     contentInset["top"] = 0;
     contentInset["bottom"] = 0;
@@ -158,8 +159,12 @@ class _ScrollEventHelper {
     event["contentSize"] = contentSize;
     event["layoutMeasurement"] = layoutMeasurement;
 
-    view.context.bridgeManager
-        .execNativeEvent(view.rootId, view.id, scrollEventType, event);
+    view.context.bridgeManager.execNativeEvent(
+      view.rootId,
+      view.id,
+      scrollEventType,
+      event,
+    );
   }
 
   static Size _firstChildSize(RenderViewModel viewModel) {

@@ -45,7 +45,7 @@ class ControllerRegistry {
     return _renderTree[rootId];
   }
 
-  void forEachRenderTree(void func(int key, RenderTree value)) {
+  void forEachRenderTree(void Function(int key, RenderTree value) func) {
     if (_renderTree.isNotEmpty) {
       final entryPtr = _renderTree.entries.iterator;
       if (entryPtr.moveNext()) {

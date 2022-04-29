@@ -24,6 +24,7 @@ import 'package:provider/provider.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../controller.dart';
 import '../viewmodel.dart';
 import 'base.dart';
 import 'div.dart';
@@ -43,22 +44,28 @@ class _RefreshWrapperWidgetState extends FRState<RefreshWrapperWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-        value: widget._viewModel,
-        child: Selector<RefreshWrapperRenderViewModel,
-            RefreshWrapperRenderViewModel>(
-          selector: (context, viewModel) {
-            return RefreshWrapperRenderViewModel.copy(viewModel.id,
-                viewModel.rootId, viewModel.name, viewModel.context, viewModel);
-          },
-          builder: (context, viewModel, _) {
-            return PositionWidget(viewModel,
-                child: Selector0<RefreshWrapperRenderContentViewModel>(
-                  selector: (context) =>
-                      viewModel.refreshWrapperRenderContentViewModel,
-                  builder: (context, viewModel, _) => refreshWrapper(viewModel),
-                ));
-          },
-        ));
+      value: widget._viewModel,
+      child: Selector<RefreshWrapperRenderViewModel, RefreshWrapperRenderViewModel>(
+        selector: (context, viewModel) {
+          return RefreshWrapperRenderViewModel.copy(
+            viewModel.id,
+            viewModel.rootId,
+            viewModel.name,
+            viewModel.context,
+            viewModel,
+          );
+        },
+        builder: (context, viewModel, _) {
+          return PositionWidget(
+            viewModel,
+            child: Selector0<RefreshWrapperRenderContentViewModel>(
+              selector: (context) => viewModel.refreshWrapperRenderContentViewModel,
+              builder: (context, viewModel, _) => refreshWrapper(viewModel),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget refreshWrapper(RefreshWrapperRenderContentViewModel viewModel) {
@@ -73,7 +80,7 @@ class _RefreshWrapperWidgetState extends FRState<RefreshWrapperWidget> {
       header = generateByViewModel(context, headerModel);
     }
     var listChild = content;
-    listChild.pushExtraInfo(ListViewModel.kWrapperKey, (context, child) {
+    listChild.pushExtraInfo(RefreshWrapperController.kWrapperKey, (context, child) {
       return SmartRefresher(
         enablePullDown: true,
         controller: viewModel.controller,
