@@ -36,7 +36,6 @@ const String kIndexPath = "jsbundle/$kBundleDir/$kPlatform/index.$kPlatform.js";
 
 VoltronJSLoaderManager generateManager({bool? debugMode}) {
   var initParams = EngineInitParams();
-  initParams.iEngineType = EngineType.vue;
   // 可选，是否开启voltron debug模式
   initParams.debugMode = debugMode ?? false;
   // 可选：是否打印引擎的完整的log。默认为false
@@ -86,12 +85,15 @@ class _PageTestWidgetState extends State<PageTestWidget> {
     _bundle = widget.bundle ?? kIndexPath;
     _debugMode = widget.debugMode;
     _loaderManager = generateManager(debugMode: _debugMode);
-    _jsLoader = _loaderManager.createLoader(generateParams(_bundle), moduleListener: (status, msg, viewModel) {
-      LogUtils.i(
+    _jsLoader = _loaderManager.createLoader(
+      generateParams(_bundle),
+      moduleListener: (status, msg, viewModel) {
+        LogUtils.i(
           "flutterRender",
-          "loadModule status($status), msg"
-              "($msg)");
-    });
+          "loadModule status($status), msg ($msg)",
+        );
+      },
+    );
     super.initState();
   }
 
@@ -117,69 +119,81 @@ class _PageTestWidgetState extends State<PageTestWidget> {
                 children: [
                   voltronWidget,
                   Positioned(
-                      left: offsetA.dx,
-                      top: offsetA.dy,
-                      child: Draggable(
-                          //创建可以被拖动的Widget
-                          child: FloatingActionButton(
-                            child: Icon(Icons.refresh),
-                            backgroundColor: Color(0xFF40b883),
-                            onPressed: () {
-                              Future.delayed(Duration.zero, () {
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PageTestWidget(
-                                            _bundle, _debugMode)));
-                              });
-                            },
-                          ),
-                          //拖动过程中的Widget
-                          feedback: FloatingActionButton(
-                            child: Icon(Icons.refresh),
-                            backgroundColor: Color(0xFF40b883),
-                            onPressed: () {
-                              Future.delayed(Duration.zero, () {
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PageTestWidget(
-                                            _bundle, _debugMode)));
-                              });
-                            },
-                          ),
-                          //拖动过程中，在原来位置停留的Widget，设定这个可以保留原本位置的残影，如果不需要可以直接设置为Container()
-                          childWhenDragging: Container(),
+                    left: offsetA.dx,
+                    top: offsetA.dy,
+                    child: Draggable(
+                      //创建可以被拖动的Widget
+                      child: FloatingActionButton(
+                        child: Icon(Icons.refresh),
+                        backgroundColor: Color(0xFF40b883),
+                        onPressed: () {
+                          Future.delayed(Duration.zero, () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PageTestWidget(
+                                  _bundle,
+                                  _debugMode,
+                                ),
+                              ),
+                            );
+                          });
+                        },
+                      ),
+                      //拖动过程中的Widget
+                      feedback: FloatingActionButton(
+                        child: Icon(Icons.refresh),
+                        backgroundColor: Color(0xFF40b883),
+                        onPressed: () {
+                          Future.delayed(Duration.zero, () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PageTestWidget(
+                                  _bundle,
+                                  _debugMode,
+                                ),
+                              ),
+                            );
+                          });
+                        },
+                      ),
+                      //拖动过程中，在原来位置停留的Widget，设定这个可以保留原本位置的残影，如果不需要可以直接设置为Container()
+                      childWhenDragging: Container(),
 
-                          // FloatingActionButton(
-                          //   tooltip: 'Increment',
-                          //   child: Icon(Icons.add), onPressed: () {},
-                          // ),
-                          //拖动结束后的Widget
-                          onDraggableCanceled: (velocity, offset) {
-                            // 计算组件可移动范围  更新位置信息
-                            setState(() {
-                              var x = offset.dx;
-                              var y = offset.dy;
-                              if (offset.dx < 0) {
-                                x = 20;
-                              }
+                      // FloatingActionButton(
+                      //   tooltip: 'Increment',
+                      //   child: Icon(Icons.add), onPressed: () {},
+                      // ),
+                      //拖动结束后的Widget
+                      onDraggableCanceled: (velocity, offset) {
+                        // 计算组件可移动范围  更新位置信息
+                        setState(
+                          () {
+                            var x = offset.dx;
+                            var y = offset.dy;
+                            if (offset.dx < 0) {
+                              x = 20;
+                            }
 
-                              if (offset.dx > 375) {
-                                x = 335;
-                              }
+                            if (offset.dx > 375) {
+                              x = 335;
+                            }
 
-                              if (offset.dy < kBottomNavigationBarHeight) {
-                                y = kBottomNavigationBarHeight;
-                              }
+                            if (offset.dy < kBottomNavigationBarHeight) {
+                              y = kBottomNavigationBarHeight;
+                            }
 
-                              if (offset.dy > height - 100) {
-                                y = height - 100;
-                              }
+                            if (offset.dy > height - 100) {
+                              y = height - 100;
+                            }
 
-                              offsetA = Offset(x, y);
-                            });
-                          })),
+                            offsetA = Offset(x, y);
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ],
               )
             : voltronWidget);

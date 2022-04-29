@@ -22,8 +22,7 @@ import 'dart:typed_data';
 
 import '../voltron_renderer.dart';
 
-typedef RenderOpTaskGenerator = RenderOpTask Function(
-    int instanceId, int nodeId, Map params);
+typedef RenderOpTaskGenerator = RenderOpTask Function(int instanceId, int nodeId, Map params);
 
 const int kInvalidIndex = -1;
 const int kInvalidId = -1;
@@ -48,8 +47,7 @@ class RenderOperatorRunner implements Destroyable {
         _UpdateNodeOpTask(instanceId, nodeId, params),
     _RenderOpType.updateLayout.index: (instanceId, nodeId, params) =>
         _UpdateLayoutOpTask(instanceId, nodeId, params),
-    _RenderOpType.batch.index: (instanceId, nodeId, params) =>
-        _BatchOpTask(instanceId),
+    _RenderOpType.batch.index: (instanceId, nodeId, params) => _BatchOpTask(instanceId),
     _RenderOpType.dispatchUiFunc.index: (instanceId, nodeId, params) =>
         _CallUiFunctionOpTask(instanceId, nodeId, params),
     _RenderOpType.addEvent.index: (instanceId, nodeId, params) =>
@@ -96,6 +94,8 @@ abstract class RenderOpTask {
 
   late RenderContext _renderContext;
 
+  VirtualNodeManager get virtualNodeManager => _renderContext.virtualNodeManager;
+
   RenderManager get renderManager => _renderContext.renderManager;
 
   void _run();
@@ -109,22 +109,28 @@ abstract class _NodeOpTask extends RenderOpTask {
 }
 
 class _AddNodeOpTask extends _NodeOpTask {
-  _AddNodeOpTask(int instanceId, int nodeId, Map params)
-      : super(instanceId, nodeId, params);
+  _AddNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
 
   @override
   void _run() {
     var className = _params[_RenderOpParamsKey.kClassNameKey] ?? '';
-    var childIndex =
-        _params[_RenderOpParamsKey.kChildIndexKey] ?? kInvalidIndex;
+    var childIndex = _params[_RenderOpParamsKey.kChildIndexKey] ?? kInvalidIndex;
     var parentId = _params[_RenderOpParamsKey.kParentNodeIdKey] ?? kInvalidId;
     var styleMap = _params[_RenderOpParamsKey.kStylesKey] ?? {};
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
     var composePropMap = VoltronMap.fromMap(propMap);
     composePropMap.pushAll(VoltronMap.fromMap(styleMap));
+    virtualNodeManager.createNode(_nodeId, parentId, childIndex, className, composePropMap);
+    if (virtualNodeManager.hasVirtualParent(_nodeId)) return;
     renderManager.addUITask(() {
-      renderManager.createNode(_instanceId, _nodeId, parentId, childIndex,
-          className, composePropMap);
+      renderManager.createNode(
+        _instanceId,
+        _nodeId,
+        parentId,
+        childIndex,
+        className,
+        composePropMap,
+      );
     });
   }
 }
@@ -134,6 +140,11 @@ class _DeleteNodeOpTask extends _NodeOpTask {
 
   @override
   void _run() {
+    if (virtualNodeManager.hasVirtualParent(_nodeId)) {
+      virtualNodeManager.deleteNode(_nodeId);
+      return;
+    }
+    virtualNodeManager.deleteNode(_nodeId);
     renderManager.addUITask(() {
       renderManager.deleteNode(_instanceId, _nodeId);
     });
@@ -141,55 +152,54 @@ class _DeleteNodeOpTask extends _NodeOpTask {
 }
 
 class _UpdateNodeOpTask extends _NodeOpTask {
-  _UpdateNodeOpTask(int instanceId, int nodeId, Map params)
-      : super(instanceId, nodeId, params);
+  _UpdateNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
 
   @override
   void _run() {
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
+    virtualNodeManager.updateNode(_nodeId, VoltronMap.fromMap(propMap));
+    if (virtualNodeManager.hasVirtualParent(_nodeId)) return;
     renderManager.addUITask(() {
       renderManager.updateNode(
-          _instanceId, _nodeId, VoltronMap.fromMap(propMap));
+        _instanceId,
+        _nodeId,
+        VoltronMap.fromMap(propMap),
+      );
     });
   }
 }
 
 class _UpdateLayoutOpTask extends _NodeOpTask {
-  _UpdateLayoutOpTask(int instanceId, int nodeId, Map params)
-      : super(instanceId, nodeId, params);
+  _UpdateLayoutOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
 
   @override
   void _run() {
-    var layoutNodeList =
-        (_params[_RenderOpParamsKey.kLayoutNodesKey] ?? []) as List;
-    var parseLayoutNodeList = <_LayoutNodeInfo>[];
-    if (layoutNodeList.isNotEmpty) {
-      for (var layoutNode in layoutNodeList) {
-        if (layoutNode is List) {
-          var nodeId = (layoutNode[0] ?? kInvalidId) as int;
-          if (nodeId.isValidId()) {
-            var left = layoutNode[1] ?? 0;
-            var top = layoutNode[2] ?? 0;
-            var width = layoutNode[3] ?? 0;
-            var height = layoutNode[4] ?? 0;
-            parseLayoutNodeList.add(_LayoutNodeInfo(nodeId,
-                left: left, top: top, width: width, height: height));
-          }
+    var layoutNodeList = (_params[_RenderOpParamsKey.kLayoutNodesKey] ?? []) as List;
+    for (var layoutNode in layoutNodeList) {
+      if (layoutNode is List) {
+        var nodeId = (layoutNode[0] ?? kInvalidId) as int;
+        if (nodeId.isValidId()) {
+          var left = layoutNode[1] ?? 0;
+          var top = layoutNode[2] ?? 0;
+          var width = layoutNode[3] ?? 0;
+          var height = layoutNode[4] ?? 0;
+          if (virtualNodeManager.hasVirtualParent(nodeId)) continue;
+          final TextExtra? supplier = virtualNodeManager.updateLayout(nodeId, width, layoutNode);
+          renderManager.addUITask(() {
+            if (supplier != null) {
+              renderManager.updateExtra(_instanceId, nodeId, supplier);
+            }
+            renderManager.updateLayout(
+              _instanceId,
+              nodeId,
+              left,
+              top,
+              width,
+              height,
+            );
+          });
         }
       }
-    }
-    if (parseLayoutNodeList.isNotEmpty) {
-      renderManager.addUITask(() {
-        for (var parseLayoutNode in parseLayoutNodeList) {
-          renderManager.updateLayout(
-              _instanceId,
-              parseLayoutNode.nodeId,
-              parseLayoutNode.left,
-              parseLayoutNode.top,
-              parseLayoutNode.width,
-              parseLayoutNode.height);
-        }
-      });
     }
   }
 }
@@ -201,13 +211,11 @@ class _LayoutNodeInfo {
   final double width;
   final double height;
 
-  _LayoutNodeInfo(this.nodeId,
-      {this.left = 0, this.top = 0, this.width = 0, this.height = 0});
+  _LayoutNodeInfo(this.nodeId, {this.left = 0, this.top = 0, this.width = 0, this.height = 0});
 }
 
 class _MoveNodeOpTask extends _NodeOpTask {
-  _MoveNodeOpTask(int instanceId, int nodeId, Map params)
-      : super(instanceId, nodeId, params);
+  _MoveNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
 
   @override
   void _run() {
@@ -225,6 +233,14 @@ class _BatchOpTask extends RenderOpTask {
 
   @override
   void _run() {
+    Map<int, TextData>? layoutToUpdate = virtualNodeManager.endBatch();
+    if (layoutToUpdate != null) {
+      layoutToUpdate.forEach((int id, TextData textData) {
+        renderManager.addUITask(() {
+          renderManager.updateExtra(_instanceId, id, textData);
+        });
+      });
+    }
     renderManager.renderBatchEnd();
   }
 }
@@ -250,64 +266,49 @@ class _LayoutFinishOpTask extends RenderOpTask {
 }
 
 class _CallUiFunctionOpTask extends _NodeOpTask {
-  _CallUiFunctionOpTask(int instanceId, int nodeId, Map params)
-      : super(instanceId, nodeId, params);
+  _CallUiFunctionOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
 
   @override
   void _run() {
     String funcName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
     if (funcName.isNotEmpty) {
       Uint8List funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? [];
-      var realParams = funcParams.decodeType<VoltronArray>()??VoltronArray();
-      String callbackId =
-          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
+      var realParams = funcParams.decodeType<VoltronArray>() ?? VoltronArray();
+      String callbackId = _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
       var promise = NativePromise(_renderContext, callId: callbackId, rootId: _instanceId);
       renderManager.addNulUITask(() {
-        renderManager.dispatchUIFunction(
-            _instanceId, _nodeId, funcName, realParams, promise);
+        renderManager.dispatchUIFunction(_instanceId, _nodeId, funcName, realParams, promise);
       });
+      renderManager.renderBatchEnd();
     }
   }
 }
 
 class _AddEventOpTask extends _NodeOpTask {
-  _AddEventOpTask(int instanceId, int nodeId, Map params)
-      : super(instanceId, nodeId, params);
+  _AddEventOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
 
   @override
   void _run() {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
     renderManager.addNulUITask(() {
-      renderManager.setEventListener(
-          _instanceId, _nodeId, eventName);
+      renderManager.setEventListener(_instanceId, _nodeId, eventName);
     });
   }
 }
 
 class _RemoveEventOpTask extends _NodeOpTask {
-  _RemoveEventOpTask(int instanceId, int nodeId, Map params)
-      : super(instanceId, nodeId, params);
+  _RemoveEventOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
 
   @override
   void _run() {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
     renderManager.addNulUITask(() {
-      renderManager.removeEventListener(
-          _instanceId, _nodeId, eventName);
+      renderManager.removeEventListener(_instanceId, _nodeId, eventName);
     });
   }
 }
 
-enum EventType {
-  click,
-  longClick,
-  touchStart,
-  touchMove,
-  touchEnd,
-  touchCancel,
-  show,
-  dismiss
-}
+enum EventType { click, longClick, touchStart, touchMove, touchEnd, touchCancel, show, dismiss }
 
 enum _RenderOpType {
   addNode,

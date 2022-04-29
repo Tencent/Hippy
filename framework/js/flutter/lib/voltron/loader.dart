@@ -36,12 +36,15 @@ class VoltronJSLoaderManager {
 
   // 框架初始化
   static VoltronJSLoaderManager createLoaderManager(
-      EngineInitParams params, EngineListener listener) {
+    EngineInitParams params,
+    EngineListener listener,
+  ) {
+    // create voltron engine
     var render = VoltronJSLoaderManager._internal(params);
+    // init voltron engine
     render._init((status, msg) {
       LogUtils.i("flutter_render", "init engine status($status), msg($msg)");
       listener(status, msg);
-
       // engine初始化成功
       if (render.pendingExecutor.isNotEmpty) {
         for (var executor in render.pendingExecutor) {
@@ -53,12 +56,17 @@ class VoltronJSLoaderManager {
     return render;
   }
 
-  VoltronJSLoader createLoader(ModuleLoadParams loadParams,
-      {ModuleListener? moduleListener,
-      OnLoadCompleteListener? onLoadCompleteListener}) {
-    return VoltronJSLoader._internal(this, loadParams,
-        moduleListener: moduleListener,
-        onLoadCompleteListener: onLoadCompleteListener);
+  VoltronJSLoader createLoader(
+    ModuleLoadParams loadParams, {
+    ModuleListener? moduleListener,
+    OnLoadCompleteListener? onLoadCompleteListener,
+  }) {
+    return VoltronJSLoader._internal(
+      this,
+      loadParams,
+      moduleListener: moduleListener,
+      onLoadCompleteListener: onLoadCompleteListener,
+    );
   }
 
   int get engineId => _engine.id;
@@ -91,7 +99,6 @@ class VoltronJSLoaderManager {
         break;
     }
   }
-
 }
 
 class VoltronJSLoader with RendererLoader {
@@ -101,10 +108,12 @@ class VoltronJSLoader with RendererLoader {
   final ModuleLoadParams _loadParams;
   RootWidgetViewModel? _instance;
 
-  VoltronJSLoader._internal(this._jsLoaderManager, this._loadParams,
-      {ModuleListener? moduleListener,
-      OnLoadCompleteListener? onLoadCompleteListener})
-      : _moduleListener = moduleListener,
+  VoltronJSLoader._internal(
+    this._jsLoaderManager,
+    this._loadParams, {
+    ModuleListener? moduleListener,
+    OnLoadCompleteListener? onLoadCompleteListener,
+  })  : _moduleListener = moduleListener,
         _onLoadCompleteListener = onLoadCompleteListener;
 
   @override
@@ -112,7 +121,6 @@ class VoltronJSLoader with RendererLoader {
     return _jsLoaderManager._engine.onBackPressed(handler);
   }
 
-  @override
   void destroy() {
     var originViewModel = _instance;
     if (originViewModel != null) {
@@ -127,10 +135,12 @@ class VoltronJSLoader with RendererLoader {
   void load(RootWidgetViewModel viewModel) {
     _instance = viewModel;
     _jsLoaderManager._execute(() {
-      _jsLoaderManager._engine.loadModule(_loadParams, viewModel,
-          listener: _moduleListener,
-          onLoadCompleteListener: _onLoadCompleteListener);
+      _jsLoaderManager._engine.loadModule(
+        _loadParams,
+        viewModel,
+        listener: _moduleListener,
+        onLoadCompleteListener: _onLoadCompleteListener,
+      );
     });
   }
-
 }

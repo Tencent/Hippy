@@ -23,4 +23,12 @@ abstract class VoltronThirdPartyAdapter {
   const VoltronThirdPartyAdapter.fromData(Object data);
 
   void setVoltronBridgeId(int runtimeId);
+
+  String getPackageName();
+
+  String getAppVersion();
+
+  String getPageUrl();
+
+  Map<String, dynamic> getExtraData();
 }

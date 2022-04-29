@@ -59,17 +59,29 @@ class TextRenderViewModel extends RenderViewModel {
   }
 
   TextRenderViewModel(
-      int id, int instanceId, String className, RenderContext context)
-      : super(id, instanceId, className, context);
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+  ) : super(id, instanceId, className, context);
 
-  TextRenderViewModel.copy(int id, int instanceId, String className,
-      RenderContext context, TextRenderViewModel viewModel)
-      : super.copy(id, instanceId, className, context, viewModel) {
+  TextRenderViewModel.copy(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    TextRenderViewModel viewModel,
+  ) : super.copy(id, instanceId, className, context, viewModel) {
     padding = viewModel.padding;
     var data = viewModel.data;
     if (data != null) {
-      data = TextData(data.maxLines, data.text, data.textAlign,
-          data.textScaleFactor, data.textOverflow);
+      data = TextData(
+        data.maxLines,
+        data.text,
+        data.textAlign,
+        data.textScaleFactor,
+        data.textOverflow,
+      );
     }
   }
 

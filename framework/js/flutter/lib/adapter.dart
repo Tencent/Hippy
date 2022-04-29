@@ -28,4 +28,3 @@ export 'adapter/preferences.dart';
 export 'adapter/preferences.dart';
 export 'adapter/storage.dart';
 export 'adapter/third_party.dart';
-export 'adapter/websocket.dart';

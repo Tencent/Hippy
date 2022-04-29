@@ -22,12 +22,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodel.dart';
+import 'base.dart';
 import 'div.dart';
 
-class TextInputWidget extends StatefulWidget {
+class TextInputWidget extends FRStatefulWidget {
   final TextInputRenderViewModel _viewModel;
 
-  TextInputWidget(this._viewModel);
+  TextInputWidget(this._viewModel) : super(_viewModel);
 
   @override
   State<StatefulWidget> createState() {
@@ -35,7 +36,7 @@ class TextInputWidget extends StatefulWidget {
   }
 }
 
-class _TextInputWidgetState extends State<TextInputWidget> {
+class _TextInputWidgetState extends FRState<TextInputWidget> {
   @override
   void initState() {
     super.initState();
@@ -53,32 +54,41 @@ class _TextInputWidgetState extends State<TextInputWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-        value: widget._viewModel,
-        child: Consumer<TextInputRenderViewModel>(
-          builder: (context, viewModel, widget) {
-            return PositionWidget(viewModel, child: _textInput(viewModel));
-          },
-        ));
+      value: widget._viewModel,
+      child: Consumer<TextInputRenderViewModel>(
+        builder: (context, viewModel, widget) {
+          return PositionWidget(
+            viewModel,
+            child: _textInput(viewModel),
+          );
+        },
+      ),
+    );
   }
 
   Widget _textInput(TextInputRenderViewModel inputModel) {
     return TextField(
-      scrollPadding: EdgeInsets.all(0),
+      scrollPadding: const EdgeInsets.all(0),
       decoration: InputDecoration(
         /// 解决文字居中问题
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 0, color: Colors.transparent)),
-        disabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 0, color: Colors.transparent)),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(width: 0, color: Colors.transparent)),
-        border: OutlineInputBorder(
-            borderSide: BorderSide(width: 0, color: Colors.transparent)),
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(width: 0, color: Colors.transparent),
+        ),
+        disabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(width: 0, color: Colors.transparent),
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(width: 0, color: Colors.transparent),
+        ),
+        border: const OutlineInputBorder(
+          borderSide: BorderSide(width: 0, color: Colors.transparent),
+        ),
         contentPadding: EdgeInsets.only(
-            top: inputModel.paddingTop,
-            right: inputModel.paddingRight,
-            bottom: inputModel.paddingBottom,
-            left: inputModel.paddingLeft),
+          top: inputModel.paddingTop,
+          right: inputModel.paddingRight,
+          bottom: inputModel.paddingBottom,
+          left: inputModel.paddingLeft,
+        ),
         hintText: inputModel.hint,
         counterText: '',
         hintStyle: TextStyle(
@@ -102,7 +112,7 @@ class _TextInputWidgetState extends State<TextInputWidget> {
       onEditingComplete: () {
         inputModel.dispatcher.onEndEdit();
       },
-      scrollPhysics: BouncingScrollPhysics(),
+      scrollPhysics: const BouncingScrollPhysics(),
       style: TextStyle(
         color: Color(inputModel.textColor),
         fontSize: inputModel.fontSize,

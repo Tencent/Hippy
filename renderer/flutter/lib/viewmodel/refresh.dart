@@ -37,23 +37,31 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
   double? preloadSize;
 
   RenderViewModel? get content => _content;
-  RefreshWrapperItemRenderViewModel? get header =>
-      _refreshWrapperItemRenderViewModel;
+
+  RefreshWrapperItemRenderViewModel? get header => _refreshWrapperItemRenderViewModel;
+
   RefreshController get controller => refreshEventDispatcher.refreshController;
+
   RefreshEventDispatcher get dispatcher => refreshEventDispatcher;
 
-  late RefreshWrapperRenderContentViewModel
-      refreshWrapperRenderContentViewModel;
+  late RefreshWrapperRenderContentViewModel refreshWrapperRenderContentViewModel;
 
   RefreshWrapperRenderViewModel(
-      int id, int instanceId, String className, RenderContext context)
-      : super(id, instanceId, className, context) {
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+  ) : super(id, instanceId, className, context) {
     refreshEventDispatcher = createRefreshDispatcher();
   }
 
-  RefreshWrapperRenderViewModel.copy(int id, int instanceId, String className,
-      RenderContext context, RefreshWrapperRenderViewModel viewModel)
-      : super.copy(id, instanceId, className, context, viewModel) {
+  RefreshWrapperRenderViewModel.copy(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    RefreshWrapperRenderViewModel viewModel,
+  ) : super.copy(id, instanceId, className, context, viewModel) {
     _refreshWrapperItemRenderViewModel = viewModel.header;
     refreshEventDispatcher = viewModel.dispatcher;
     _content = viewModel.content;
@@ -61,10 +69,11 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
     preloadSize = viewModel.preloadSize;
     scrollGestureDispatcher = viewModel.scrollGestureDispatcher;
     refreshWrapperRenderContentViewModel = RefreshWrapperRenderContentViewModel(
-        header: viewModel.header,
-        content: viewModel.content,
-        controller: viewModel.controller,
-        dispatcher: viewModel.dispatcher);
+      header: viewModel.header,
+      content: viewModel.content,
+      controller: viewModel.controller,
+      dispatcher: viewModel.dispatcher,
+    );
   }
 
   @override
@@ -76,8 +85,7 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
   }
 
   @override
-  int get hashCode =>
-      _content.hashCode | bounceTime.hashCode | preloadSize.hashCode;
+  int get hashCode => _content.hashCode | bounceTime.hashCode | preloadSize.hashCode;
 
   RefreshEventDispatcher createRefreshDispatcher() {
     return RefreshEventDispatcher(id, context);
@@ -112,10 +120,7 @@ class RefreshWrapperRenderContentViewModel {
   RefreshEventDispatcher dispatcher;
 
   RefreshWrapperRenderContentViewModel(
-      {this.header,
-      this.content,
-      required this.controller,
-      required this.dispatcher});
+      {this.header, this.content, required this.controller, required this.dispatcher});
 
   @override
   // ignore: unnecessary_overrides

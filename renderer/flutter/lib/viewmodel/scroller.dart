@@ -63,8 +63,7 @@ class ScrollViewRenderViewModel extends ScrollableModel {
           : scrollController.position.maxScrollExtent;
       if (duration > 0) {
         scrollController.animateTo(finalOffset,
-            duration: Duration(milliseconds: duration),
-            curve: Curves.linearToEaseOut);
+            duration: Duration(milliseconds: duration), curve: Curves.linearToEaseOut);
       } else {
         scrollController.jumpTo(finalOffset);
       }
@@ -76,13 +75,12 @@ class ScrollViewRenderViewModel extends ScrollableModel {
     return true;
   }
 
-  ScrollViewRenderViewModel(
-      int id, int instanceId, String className, RenderContext context,
+  ScrollViewRenderViewModel(int id, int instanceId, String className, RenderContext context,
       [this.isHorizontal = false])
       : super(id, instanceId, className, context);
 
-  ScrollViewRenderViewModel.copy(int id, int instanceId, String className,
-      RenderContext context, ScrollViewRenderViewModel viewModel,
+  ScrollViewRenderViewModel.copy(int id, int instanceId, String className, RenderContext context,
+      ScrollViewRenderViewModel viewModel,
       [this.isHorizontal = false])
       : super.copy(id, instanceId, className, context, viewModel) {
     pagingEnable = viewModel.pagingEnable;
@@ -139,14 +137,15 @@ class ScrollViewDetailRenderViewModel {
   bool bounces = true;
 
   ScrollViewDetailRenderViewModel(
-      List<RenderViewModel> childrenList,
-      this.controllerManager,
-      this.controller,
-      this.scrollGestureDispatcher,
-      this.pagingEnable,
-      this.isHorizontal,
-      this.showScrollIndicator,
-      this.bounces) {
+    List<RenderViewModel> childrenList,
+    this.controllerManager,
+    this.controller,
+    this.scrollGestureDispatcher,
+    this.pagingEnable,
+    this.isHorizontal,
+    this.showScrollIndicator,
+    this.bounces,
+  ) {
     children.addAll(childrenList);
   }
 

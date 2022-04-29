@@ -24,9 +24,13 @@ import 'node.dart';
 import 'tree.dart';
 
 class ModalRenderNode extends RenderNode {
-  ModalRenderNode(int id, String className, RenderTree root,
-      ControllerManager controllerManager, VoltronMap? props)
-      : super(id, className, root, controllerManager, props);
+  ModalRenderNode(
+    int id,
+    String className,
+    RenderTree root,
+    ControllerManager controllerManager,
+    VoltronMap? props,
+  ) : super(id, className, root, controllerManager, props);
 
   void addChild(RenderNode? node, int index) {
     super.addChild(node, index);

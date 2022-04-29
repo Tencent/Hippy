@@ -116,7 +116,7 @@ class VoltronArray {
 
   @override
   bool operator ==(Object other) {
-    if (!(other is VoltronArray)) {
+    if (other is! VoltronArray) {
       return false;
     }
 

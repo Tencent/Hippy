@@ -36,21 +36,29 @@ class DivRenderViewModel extends GroupViewModel {
   @override
   Decoration? getDecoration({Color? backgroundColor}) {
     return toDecoration(
-        decorationColor: backgroundColor,
-        backgroundImg: backgroundImg,
-        backgroundImgSize: backgroundImgSize,
-        backgroundImgRepeat: backgroundImgRepeat,
-        backgroundImgPositionX: imagePositionX,
-        backgroundImgPositionY: imagePositionY);
+      decorationColor: backgroundColor,
+      backgroundImg: backgroundImg,
+      backgroundImgSize: backgroundImgSize,
+      backgroundImgRepeat: backgroundImgRepeat,
+      backgroundImgPositionX: imagePositionX,
+      backgroundImgPositionY: imagePositionY,
+    );
   }
 
   DivRenderViewModel(
-      int id, int instanceId, String className, RenderContext context)
-      : super(id, instanceId, className, context);
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+  ) : super(id, instanceId, className, context);
 
-  DivRenderViewModel.copy(int id, int instanceId, String className,
-      RenderContext context, DivRenderViewModel viewModel)
-      : super.copy(id, instanceId, className, context, viewModel) {
+  DivRenderViewModel.copy(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    DivRenderViewModel viewModel,
+  ) : super.copy(id, instanceId, className, context, viewModel) {
     backgroundImg = viewModel.backgroundImg;
     backgroundImgSize = viewModel.backgroundImgSize;
     imagePositionX = viewModel.imagePositionX;

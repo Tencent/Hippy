@@ -58,12 +58,19 @@ class GroupViewModel extends RenderViewModel {
   int get childCount => _children.length;
 
   GroupViewModel(
-      int id, int instanceId, String className, RenderContext context)
-      : super(id, instanceId, className, context);
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+  ) : super(id, instanceId, className, context);
 
-  GroupViewModel.copy(int id, int instanceId, String className,
-      RenderContext context, GroupViewModel viewModel)
-      : super.copy(id, instanceId, className, context, viewModel) {
+  GroupViewModel.copy(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    GroupViewModel viewModel,
+  ) : super.copy(id, instanceId, className, context, viewModel) {
     interceptTouch = viewModel.interceptTouch;
     interceptPullUp = viewModel.interceptPullUp;
     interceptTouch = viewModel.interceptTouch;
@@ -154,6 +161,7 @@ class DivContainerViewModel {
   final GroupViewModel _viewModel;
 
   int get id => _viewModel.id;
+
   GroupViewModel get viewModel => _viewModel;
 
   DivContainerViewModel(GroupViewModel viewModel)

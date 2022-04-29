@@ -63,20 +63,21 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
     if (widgetModel.children.isEmpty) {
       return Container();
     }
-    ScrollPhysics physics = BouncingScrollPhysics();
+    ScrollPhysics physics = const BouncingScrollPhysics();
     if (!widgetModel.bounces) {
-      physics = ClampingScrollPhysics();
+      physics = const ClampingScrollPhysics();
     }
 
     if (!(widgetModel.scrollGestureDispatcher.enableScroll == true)) {
-      physics = NeverScrollableScrollPhysics();
+      physics = const NeverScrollableScrollPhysics();
     } else {
       if (widgetModel.pagingEnable) {
-        physics = PageScrollPhysics().applyTo(BouncingScrollPhysics());
+        physics =
+            const PageScrollPhysics().applyTo(const BouncingScrollPhysics());
         if (!widgetModel.bounces) {
-          physics = PageScrollPhysics().applyTo(ClampingScrollPhysics());
+          physics =
+              const PageScrollPhysics().applyTo(const ClampingScrollPhysics());
         }
-
       }
     }
     var direction = Axis.vertical;
@@ -136,11 +137,12 @@ class ScrollNotificationListener extends StatefulWidget {
   final bool isHorizontal;
   final RenderViewModel viewModel;
 
-  ScrollNotificationListener(
-      {required this.scrollGestureDispatcher,
-      required this.child,
-      this.isHorizontal = false,
-      required this.viewModel});
+  ScrollNotificationListener({
+    required this.scrollGestureDispatcher,
+    required this.child,
+    this.isHorizontal = false,
+    required this.viewModel,
+  });
 
   @override
   State<StatefulWidget> createState() {

@@ -26,9 +26,13 @@ import '../render.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-class ListItemViewController
-    extends GroupController<ListItemViewModel, ListItemRenderNode> {
+class ListItemViewController extends GroupController<ListItemViewModel, ListItemRenderNode> {
   static const String kClassName = "ListViewItem";
+
+  static const onWillAppear = "onWillAppear";
+  static const willAppear = "onAppear";
+  static const onWillDisappear = "onWillDisappear";
+  static const onDisappear = "onDisappear";
 
   @override
   Widget createWidget(BuildContext context, ListItemViewModel viewModel) {
@@ -37,18 +41,38 @@ class ListItemViewController
 
   @override
   ListItemViewModel createRenderViewModel(
-      ListItemRenderNode node, RenderContext context) {
+    ListItemRenderNode node,
+    RenderContext context,
+  ) {
     return ListItemViewModel(
-        node.id, node.rootId, node.name, node.shouldSticky, context);
+      node.id,
+      node.rootId,
+      node.name,
+      node.shouldSticky,
+      context,
+    );
   }
 
   @override
   String get name => kClassName;
 
   @override
-  ListItemRenderNode createRenderNode(int id, VoltronMap? props, String name,
-      RenderTree tree, ControllerManager controllerManager, bool lazy) {
-    return ListItemRenderNode(id, name, tree, controllerManager, props, lazy);
+  ListItemRenderNode createRenderNode(
+    int id,
+    VoltronMap? props,
+    String name,
+    RenderTree tree,
+    ControllerManager controllerManager,
+    bool lazy,
+  ) {
+    return ListItemRenderNode(
+      id,
+      name,
+      tree,
+      controllerManager,
+      props,
+      lazy,
+    );
   }
 
   @override

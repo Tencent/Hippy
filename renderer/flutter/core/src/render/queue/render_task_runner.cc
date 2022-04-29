@@ -100,23 +100,26 @@ void VoltronRenderTaskRunner::RunUpdateLayout(const SpList<DomNode> &nodes) {
   if (!nodes.empty()) {
     auto args_map = EncodableMap();
     auto render_node_list = EncodableList();
-
     for (const auto &node : nodes) {
       TDF_BASE_DLOG(INFO) << "RunUpdateLayout id" << node->GetId();
-      auto layout_node = node->GetLayoutNode();
-      if (layout_node) {
-        auto node_layout_prop_list = EncodableList();
-        node_layout_prop_list.emplace_back(node->GetId());
-        // x
-        node_layout_prop_list.emplace_back(layout_node->GetLeft());
-        // y
-        node_layout_prop_list.emplace_back(layout_node->GetTop());
-        // w
-        node_layout_prop_list.emplace_back(layout_node->GetWidth());
-        // h
-        node_layout_prop_list.emplace_back(layout_node->GetHeight());
-        render_node_list.emplace_back(std::move(node_layout_prop_list));
+      const auto& result = node->GetRenderLayoutResult();
+      auto node_layout_prop_list = EncodableList();
+      node_layout_prop_list.emplace_back(node->GetId());
+      // x
+      node_layout_prop_list.emplace_back(result.left);
+      // y
+      node_layout_prop_list.emplace_back(result.top);
+      // w
+      node_layout_prop_list.emplace_back(result.width);
+      // h
+      node_layout_prop_list.emplace_back(result.height);
+      if (node->GetViewName() == "Text") {
+          node_layout_prop_list.emplace_back(result.paddingLeft);
+          node_layout_prop_list.emplace_back(result.paddingTop);
+          node_layout_prop_list.emplace_back(result.paddingRight);
+          node_layout_prop_list.emplace_back(result.paddingBottom);
       }
+      render_node_list.emplace_back(std::move(node_layout_prop_list));
     }
     if (!render_node_list.empty()) {
       args_map[EncodableValue(kLayoutNodesKey)] =

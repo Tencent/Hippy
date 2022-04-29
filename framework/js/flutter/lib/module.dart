@@ -30,6 +30,7 @@ export 'module/exception.dart';
 export 'module/image_loader.dart';
 export 'module/module.dart';
 export 'module/monitor.dart';
+export 'module/net_info.dart';
 export 'module/network.dart';
 export 'module/promise.dart';
 export 'module/storage.dart';

@@ -48,39 +48,56 @@ class _ImageWidgetState extends FRState<ImageWidget> {
     LogUtils.dWidget("ImageWidget",
         "build image widget:(id: ${widget.viewModel.id}, name: ${widget.viewModel.name}, parent: ${widget.viewModel.parent?.id})");
     return ChangeNotifierProvider.value(
-        value: widget.viewModel,
-        child: Consumer<ImageRenderViewModel>(
-          builder: (context, viewModel, widget) {
-            return PositionWidget(viewModel, child: imageChild(viewModel));
-          },
-        ));
+      value: widget.viewModel,
+      child: Consumer<ImageRenderViewModel>(
+        builder: (context, viewModel, widget) {
+          return PositionWidget(
+            viewModel,
+            child: imageChild(viewModel),
+          );
+        },
+      ),
+    );
   }
 
   Widget imageChild(ImageRenderViewModel imageViewModel) {
     var image = imageViewModel.image;
     var defaultImage = imageViewModel.defaultImage;
     late Widget imageWidget;
-    if (defaultImage != null &&
-        !imageViewModel.dispatchedEvent.contains(NodeProps.kOnLoadEnd)) {
+    if (defaultImage != null && !imageViewModel.dispatchedEvent.contains(NodeProps.kOnLoadEnd)) {
       // 默认图
-      imageWidget = defaultImage;
-    } else if (imageViewModel.capInsets != null &&
-        imageViewModel.imageHeight == null) {
+      imageWidget = imageWidget = Container(
+        width: imageViewModel.width,
+        height: imageViewModel.height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(imageViewModel.borderRadius ?? 0),
+          image: DecorationImage(
+            image: defaultImage.image,
+            fit: imageViewModel.fit,
+            alignment: imageViewModel.alignment ?? Alignment.center,
+            repeat: imageViewModel.repeat ?? ImageRepeat.noRepeat,
+          ),
+        ),
+      );
+    } else if (imageViewModel.capInsets != null && imageViewModel.imageHeight == null) {
       //.9图，图片信息未加载完成时，先占位
       imageWidget = const Placeholder(color: Colors.transparent);
     } else if (image != null) {
+      var centerSliceParam = createCenterSlice(imageViewModel);
+      var fitMode = centerSliceParam != null ? BoxFit.fill : imageViewModel.fit;
       imageWidget = Container(
         width: imageViewModel.width,
         height: imageViewModel.height,
         decoration: BoxDecoration(
-            borderRadius:
-                BorderRadius.circular(imageViewModel.borderRadius ?? 0),
-            image: DecorationImage(
-                image: image,
-                fit: imageViewModel.fit,
-                alignment: imageViewModel.alignment ?? Alignment.center,
-                repeat: imageViewModel.repeat ?? ImageRepeat.noRepeat,
-                centerSlice: createCenterSlice(imageViewModel))),
+          borderRadius: BorderRadius.circular(imageViewModel.borderRadius ?? 0),
+          image: DecorationImage(
+            image: image,
+            fit: fitMode,
+            alignment: imageViewModel.alignment ?? Alignment.center,
+            repeat: imageViewModel.repeat ?? ImageRepeat.noRepeat,
+            centerSlice: centerSliceParam,
+          ),
+        ),
       );
     } else {
       imageWidget = SizedBox(
@@ -126,11 +143,7 @@ class CapInsets {
   double right;
   double bottom;
 
-  CapInsets(
-      {required this.left,
-      required this.top,
-      required this.right,
-      required this.bottom});
+  CapInsets({required this.left, required this.top, required this.right, required this.bottom});
 }
 
 class ImageEventDispatcher {
@@ -170,7 +183,7 @@ class ImageEventDispatcher {
     }
   }
 
-    bool _needHandle(String type) {
+  bool _needHandle(String type) {
     return _gestureTypes.contains(type);
   }
 

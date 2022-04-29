@@ -33,8 +33,7 @@ class EngineContext implements Destroyable {
   final List<EngineLifecycleEventListener> _engineLifecycleEventListeners = [];
 
   // All CompoundView Instance Status Listener
-  final List<InstanceLifecycleEventListener> _instanceLifecycleEventListeners =
-      [];
+  final List<InstanceLifecycleEventListener> _instanceLifecycleEventListeners = [];
 
   // Module Manager
   late ModuleManager _moduleManager;
@@ -74,31 +73,39 @@ class EngineContext implements Destroyable {
   JSRenderContext get renderContext => _renderContext;
 
   EngineContext(
-      List<APIProvider>? apiProviders,
-      VoltronBundleLoader? coreLoader,
-      int bridgeType,
-      bool isDevModule,
-      int groupId,
-      VoltronThirdPartyAdapter? thirdPartyAdapter,
-      GlobalConfigs globalConfigs,
-      int id,
-      TimeMonitor monitor,
-      EngineMonitor engineMonitor)
-      : _globalConfigs = globalConfigs,
+    List<APIProvider>? apiProviders,
+    VoltronBundleLoader? coreLoader,
+    int bridgeType,
+    bool isDevModule,
+    int groupId,
+    VoltronThirdPartyAdapter? thirdPartyAdapter,
+    GlobalConfigs globalConfigs,
+    int id,
+    TimeMonitor monitor,
+    EngineMonitor engineMonitor,
+  )   : _globalConfigs = globalConfigs,
         _id = id,
         _isDevMode = isDevModule,
         _startTimeMonitor = monitor {
     _renderContext = JSRenderContext(
-        this, _id, processControllers(apiProviders), engineMonitor);
+      this,
+      _id,
+      processControllers(apiProviders),
+      engineMonitor,
+    );
     _moduleManager = ModuleManager(this, apiProviders);
-    _bridgeManager = VoltronBridgeManager(this, coreLoader, groupId, _id,
-        thirdPartyAdapter: thirdPartyAdapter,
-        bridgeType: bridgeType,
-        isDevModule: isDevModule);
+    _bridgeManager = VoltronBridgeManager(
+      this,
+      coreLoader,
+      groupId,
+      _id,
+      thirdPartyAdapter: thirdPartyAdapter,
+      bridgeType: bridgeType,
+      isDevModule: isDevModule,
+    );
   }
 
-  List<ViewControllerGenerator>? processControllers(
-      List<APIProvider>? packages) {
+  List<ViewControllerGenerator>? processControllers(List<APIProvider>? packages) {
     if (packages == null) {
       return [];
     }
@@ -117,8 +124,7 @@ class EngineContext implements Destroyable {
     return renderContext.getInstance(id);
   }
 
-  void addInstanceLifecycleEventListener(
-      InstanceLifecycleEventListener listener) {
+  void addInstanceLifecycleEventListener(InstanceLifecycleEventListener listener) {
     if (!_instanceLifecycleEventListeners.contains(listener)) {
       _instanceLifecycleEventListeners.add(listener);
     }
@@ -127,8 +133,7 @@ class EngineContext implements Destroyable {
   List<InstanceLifecycleEventListener> get instanceLifecycleEventListener =>
       _instanceLifecycleEventListeners;
 
-  void removeInstanceLifecycleEventListener(
-      InstanceLifecycleEventListener listener) {
+  void removeInstanceLifecycleEventListener(InstanceLifecycleEventListener listener) {
     _instanceLifecycleEventListeners.remove(listener);
   }
 
@@ -138,8 +143,7 @@ class EngineContext implements Destroyable {
     }
   }
 
-  void removeEngineLifecycleEventListener(
-      EngineLifecycleEventListener listener) {
+  void removeEngineLifecycleEventListener(EngineLifecycleEventListener listener) {
     _engineLifecycleEventListeners.remove(listener);
   }
 

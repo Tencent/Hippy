@@ -31,17 +31,24 @@ import '../util.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-typedef RefreshWrapperDelegate = SmartRefresher Function(
-    BuildContext context, Widget child);
+typedef RefreshWrapperDelegate = RefreshConfiguration Function({
+  required BuildContext context,
+  required Widget child,
+  RenderViewModel? footerModel,
+});
 
 class ListViewController extends BaseGroupController<ListViewModel> {
   static const String kClassName = "ListView";
 
+  static const kHorizontal = "horizontal";
   static const kShowScrollIndicator = "showScrollIndicator";
   static const kRowShouldSticky = "rowShouldSticky";
   static const kPreloadItemSize = "preloadItemSize";
   static const kPreloadItemNumber = "preloadItemNumber";
   static const kInitContentOffset = "initialContentOffset";
+  static const kBounces = "bounces";
+  static const kOverScrollEnabled = "overScrollEnabled";
+  static const kExposureEventEnabled = "exposureEventEnabled";
 
   static const kScrollToIndex = "scrollToIndex";
   static const kScrollToContentOffset = "scrollToContentOffset";
@@ -62,24 +69,23 @@ class ListViewController extends BaseGroupController<ListViewModel> {
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
         kRowShouldSticky: ControllerMethodProp(setRowShouldSticky, false),
-        NodeProps.kOnScrollBeginDrag:
-            ControllerMethodProp(setScrollBeginDragEventEnable, false),
-        NodeProps.kOnScrollEndDrag:
-            ControllerMethodProp(setScrollEndDragEventEnable, false),
+        kHorizontal: ControllerMethodProp(setHorizontal, false),
+        NodeProps.kOnScrollBeginDrag: ControllerMethodProp(setScrollBeginDragEventEnable, false),
+        NodeProps.kOnScrollEndDrag: ControllerMethodProp(setScrollEndDragEventEnable, false),
         NodeProps.kOnMomentumScrollBegin:
             ControllerMethodProp(setMomentumScrollBeginEventEnable, false),
         NodeProps.kOnMomentumScrollEnd:
             ControllerMethodProp(setMomentumScrollEndEventEnable, false),
-        NodeProps.kOnScrollEnable:
-            ControllerMethodProp(setOnScrollEventEnable, false),
+        NodeProps.kOnScrollEnable: ControllerMethodProp(setOnScrollEventEnable, false),
         NodeProps.kScrollEnable: ControllerMethodProp(setScrollEnable, true),
-        NodeProps.kScrollEventThrottle:
-            ControllerMethodProp(setScrollEventThrottle, 30),
-        kShowScrollIndicator:
-            ControllerMethodProp(setShowScrollIndicator, false),
+        NodeProps.kScrollEventThrottle: ControllerMethodProp(setScrollEventThrottle, 30),
+        kShowScrollIndicator: ControllerMethodProp(setShowScrollIndicator, false),
         kPreloadItemSize: ControllerMethodProp(setPreloadItemSize, 0.0),
         kInitContentOffset: ControllerMethodProp(setInitContentOffset, 0.0),
         kPreloadItemNumber: ControllerMethodProp(setPreloadItemNumber, 0),
+        kBounces: ControllerMethodProp(setBounces, true),
+        kOverScrollEnabled: ControllerMethodProp(setOverScrollEnabled, true),
+        kExposureEventEnabled: ControllerMethodProp(setExposureEventEnabled, false),
         NodeProps.kPaddingTop: ControllerMethodProp(setPaddingTop, 0.0),
         NodeProps.kPaddingRight: ControllerMethodProp(setPaddingRight, 0.0),
         NodeProps.kPaddingBottom: ControllerMethodProp(setPaddingBottom, 0.0),
@@ -91,7 +97,12 @@ class ListViewController extends BaseGroupController<ListViewModel> {
     renderViewModel.hasStickyItem = enable;
   }
 
-  @ControllerProps(kRowShouldSticky)
+  @ControllerProps(kHorizontal)
+  void setHorizontal(ListViewModel renderViewModel, bool enable) {
+    renderViewModel.horizontal = enable;
+  }
+
+  @ControllerProps(kShowScrollIndicator)
   void setShowScrollIndicator(ListViewModel renderViewModel, bool enable) {
     renderViewModel.showScrollIndicator = enable;
   }
@@ -108,14 +119,14 @@ class ListViewController extends BaseGroupController<ListViewModel> {
 
   @ControllerProps(NodeProps.kOnMomentumScrollBegin)
   void setMomentumScrollBeginEventEnable(
-      ListViewModel renderViewModel, bool flag) {
-    renderViewModel.scrollGestureDispatcher.momentumScrollBeginEventEnable =
-        flag;
+    ListViewModel renderViewModel,
+    bool flag,
+  ) {
+    renderViewModel.scrollGestureDispatcher.momentumScrollBeginEventEnable = flag;
   }
 
   @ControllerProps(NodeProps.kOnMomentumScrollEnd)
-  void setMomentumScrollEndEventEnable(
-      ListViewModel renderViewModel, bool flag) {
+  void setMomentumScrollEndEventEnable(ListViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.momentumScrollEndEventEnable = flag;
   }
 
@@ -130,15 +141,12 @@ class ListViewController extends BaseGroupController<ListViewModel> {
   }
 
   @ControllerProps(NodeProps.kScrollEventThrottle)
-  void setScrollEventThrottle(
-      ListViewModel renderViewModel, int scrollEventThrottle) {
-    renderViewModel.scrollGestureDispatcher.scrollEventThrottle =
-        scrollEventThrottle;
+  void setScrollEventThrottle(ListViewModel renderViewModel, int scrollEventThrottle) {
+    renderViewModel.scrollGestureDispatcher.scrollEventThrottle = scrollEventThrottle;
   }
 
   @ControllerProps(kPreloadItemSize)
-  void setPreloadItemSize(
-      ListViewModel renderViewModel, double preloadItemSize) {
+  void setPreloadItemSize(ListViewModel renderViewModel, double preloadItemSize) {
     renderViewModel.preloadSize = preloadItemSize;
   }
 
@@ -152,6 +160,24 @@ class ListViewController extends BaseGroupController<ListViewModel> {
     var gestureDispatcher = renderViewModel.gestureDispatcher;
     if (gestureDispatcher is NativeScrollGestureDispatcher) {
       gestureDispatcher.preloadItemNumber = number;
+    }
+  }
+
+  @ControllerProps(kBounces)
+  void setBounces(ListViewModel renderViewModel, bool enable) {
+    renderViewModel.bounces = enable;
+  }
+
+  @ControllerProps(kBounces)
+  void setOverScrollEnabled(ListViewModel renderViewModel, bool enable) {
+    renderViewModel.bounces = enable;
+  }
+
+  @ControllerProps(kExposureEventEnabled)
+  void setExposureEventEnabled(ListViewModel renderViewModel, bool enable) {
+    var gestureDispatcher = renderViewModel.gestureDispatcher;
+    if (gestureDispatcher is NativeScrollGestureDispatcher) {
+      gestureDispatcher.exposureEventEnabled = enable;
     }
   }
 
@@ -201,10 +227,12 @@ class ListViewController extends BaseGroupController<ListViewModel> {
 
   @override
   void dispatchFunction(
-      ListViewModel viewModel, String functionName, VoltronArray array,
-      {Promise? promise}) {
-    super.dispatchFunction(viewModel, functionName, array,
-        promise: promise);
+    ListViewModel viewModel,
+    String functionName,
+    VoltronArray array, {
+    Promise? promise,
+  }) {
+    super.dispatchFunction(viewModel, functionName, array, promise: promise);
     if (functionName == kScrollToIndex) {
       // list滑动到某个item
       var yIndex = array.get(1) ?? -1;
@@ -219,7 +247,7 @@ class ListViewController extends BaseGroupController<ListViewModel> {
       viewModel.scrollToIndex(yIndex, duration, animated);
     } else if (functionName == kScrollToContentOffset) {
       // list滑动到某个距离
-      var yOffset = array.get(1).toDouble() ?? -1.0;
+      var yOffset = array.get<double>(1) ?? array.get<int>(1)?.toDouble() ?? 0.0;
       var animated = array.get(2) ?? false;
       var duration = array.get(3) ?? 0; //1.2.7 增加滚动时间 ms,animated==true时生效
 

@@ -46,13 +46,14 @@ class _ModalContainerWidgetState extends FRState<ModalContainerWidget> {
       child: Selector<ModalRenderViewModel, _ModalContainerModel>(
           selector: (context, renderViewModel) {
         return _ModalContainerModel(
-            canShowDialog: renderViewModel.canDialogShow,
-            aniType: renderViewModel.animationType,
-            transparent: renderViewModel.transparent,
-            immersionStatusBar: renderViewModel.immersionStatusBar,
-            statusBarTextDarkColor: renderViewModel.statusBarTextDarkColor,
-            animationDuration: renderViewModel.animationDuration,
-            barrierColor: renderViewModel.barrierColor);
+          canShowDialog: renderViewModel.canDialogShow,
+          aniType: renderViewModel.animationType,
+          transparent: renderViewModel.transparent,
+          immersionStatusBar: renderViewModel.immersionStatusBar,
+          statusBarTextDarkColor: renderViewModel.statusBarTextDarkColor,
+          animationDuration: renderViewModel.animationDuration,
+          barrierColor: renderViewModel.barrierColor,
+        );
       }, builder: (context, modalViewModel, widget) {
         WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
           if (modalViewModel.canShowDialog) {
@@ -138,19 +139,17 @@ class ModalDialogWidget extends StatefulWidget {
 class _ModalDialogWidgetState extends State<ModalDialogWidget> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: ChangeNotifierProvider.value(
+    return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<ModalRenderViewModel, DivContainerViewModel>(
         selector: (context, divViewModel) {
-          return DivContainerViewModel(
-              divViewModel);
+          return DivContainerViewModel(divViewModel);
         },
         builder: (context, viewModel, _) {
           return DivContainerWidget(viewModel);
         },
       ),
-    ));
+    );
   }
 
   @override

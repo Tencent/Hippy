@@ -23,7 +23,6 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../style.dart';
@@ -189,22 +188,22 @@ class VoltronRenderApi {
   // 初始化bridge层
   static Future<dynamic> initBridge() async {
     // 先注册回调的post指针和port端口号
-    final nativePort =
-        _RenderBridgeFFIManager.instance._interactiveCppRequests.sendPort.nativePort;
+    final nativePort = _RenderBridgeFFIManager
+        .instance._interactiveCppRequests.sendPort.nativePort;
     _RenderBridgeFFIManager.instance
         .registerDartPostCObject(NativeApi.postCObject, nativePort);
 
     // 注册全局回调
     var globalCallbackFunc =
         Pointer.fromFunction<GlobalCallback>(globalCallback);
-    _RenderBridgeFFIManager.instance
-        .registerCallback(RenderFuncType.globalCallback.index, globalCallbackFunc);
+    _RenderBridgeFFIManager.instance.registerCallback(
+        RenderFuncType.globalCallback.index, globalCallbackFunc);
 
     // 注册postRenderOp回调
     var postRenderOpFunc =
         Pointer.fromFunction<PostRenderOpNativeType>(postRenderOp);
-    _RenderBridgeFFIManager.instance
-        .registerPostRenderOp(RenderFuncType.postRenderOp.index, postRenderOpFunc);
+    _RenderBridgeFFIManager.instance.registerPostRenderOp(
+        RenderFuncType.postRenderOp.index, postRenderOpFunc);
 
     // 注册layout回调
     var calculateNodeLayoutFunc =
@@ -238,16 +237,21 @@ void postRenderOp(int engineId, int rootId, Pointer<Void> data, int len) {
 
 Pointer<Int64> calculateNodeLayout(int engineId, int rootId, int nodeId,
     double width, int widthMode, double height, int heightMode) {
-  final bridge = VoltronRenderBridgeManager.bridgeMap[engineId];
-  var layoutParams = FlexLayoutParams(width, height, widthMode, heightMode);
-  var result = layoutParams.defaultOutput();
-  if (bridge != null) {
-    result = bridge.calculateNodeLayout(rootId, nodeId, layoutParams);
-  }
+  try {
+    final bridge = VoltronRenderBridgeManager.bridgeMap[engineId];
+    var layoutParams = FlexLayoutParams(width, height, widthMode, heightMode);
+    var result = layoutParams.defaultOutput();
+    if (bridge != null) {
+      result = bridge.calculateNodeLayout(rootId, nodeId, layoutParams);
+    }
 
-  final resultPtr = malloc<Int64>(1);
-  resultPtr.asTypedList(1)[0] = result;
-  return resultPtr;
+    final resultPtr = malloc<Int64>(1);
+    resultPtr.asTypedList(1)[0] = result;
+    return resultPtr;
+  } catch (err) {
+    LogUtils.d('calculateNodeLayout', err.toString());
+  }
+  return Pointer.fromAddress(0);
 }
 
 // ------------------ native call dart方法 end ---------------------

@@ -6,7 +6,7 @@ set(VOLTRON_CORE_SRC_FILES
         ${VOLTRON_CORE_SRC_DIR}/ffi/bridge_define.cc
         ${VOLTRON_CORE_SRC_DIR}/ffi/bridge_ffi_impl.cc
         ${VOLTRON_CORE_SRC_DIR}/ffi/ffi_bridge_runtime.cc
-        ${VOLTRON_CORE_SRC_DIR}/bridge/native_source_code_voltron.cc)
+        ${VOLTRON_CORE_SRC_DIR}/bridge/native_source_code_flutter.cc)
 
 if ((CMAKE_SYSTEM_NAME STREQUAL "Android") OR (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
     set(VOLTRON_CORE_SRC_FILES ${VOLTRON_CORE_SRC_FILES}

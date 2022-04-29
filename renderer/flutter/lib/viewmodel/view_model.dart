@@ -23,8 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:gradient_like_css/gradient_like_css.dart';
 
 import '../common.dart';
-import '../render.dart';
 import '../gesture.dart';
+import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import '../util/gradient_util.dart';
@@ -34,6 +34,8 @@ int _kRenderModelInstanceId = 1;
 
 class RenderViewModel extends ChangeNotifier {
   ContextWrapper? _wrapper;
+
+  String display = '';
 
   double? _x;
   double? _y;
@@ -121,8 +123,10 @@ class RenderViewModel extends ChangeNotifier {
   CssAnimation? transition;
   CssAnimation? animation;
   String? animationFillMode;
+
   // animation动画播放结束后，animationFillModel为'none'时，需要设置的属性集
   VoltronMap? animationEndPropertyMap;
+
   // 需要根据animation规则操作的动画属性Map(key: String, value: AnimationPropertyOption(如：禁止设置属性值))
   VoltronMap? animationPropertyOptionMap;
 
@@ -131,20 +135,29 @@ class RenderViewModel extends ChangeNotifier {
   // 手势事件相关
   late NativeGestureDispatcher _dispatcher;
 
+  bool get isShow => display != 'none';
+
   int get id => _id;
+
   String get idDesc => '$name($id)-$_modelId';
+
   int get rootId => _instanceId;
+
   String get name => _className;
+
   ContextWrapper? get contextWrapper => _wrapper;
+
   Map<String, Object> get extraInfo => _extraInfo;
 
   double? get layoutX => _x;
+
   double? get layoutY => _y;
+
   double? get width => _width;
+
   double? get height => _height;
 
-  bool get noPosition =>
-      _x == null || _y == null || _x == double.nan || _y == double.nan;
+  bool get noPosition => _x == null || _y == null || _x == double.nan || _y == double.nan;
 
   bool get noSize =>
       _width == null ||
@@ -172,14 +185,19 @@ class RenderViewModel extends ChangeNotifier {
 
   RenderViewModel? childFromId(int id) => null;
 
-  RenderViewModel(
-      this._id, this._instanceId, this._className, RenderContext context)
+  RenderViewModel(this._id, this._instanceId, this._className, RenderContext context)
       : _renderContext = context {
     _dispatcher = createDispatcher();
   }
 
-  RenderViewModel.copy(this._id, this._instanceId, this._className,
-      this._renderContext, RenderViewModel viewModel) {
+  RenderViewModel.copy(
+    this._id,
+    this._instanceId,
+    this._className,
+    this._renderContext,
+    RenderViewModel viewModel,
+  ) {
+    display = viewModel.display;
     _x = viewModel.layoutX;
     _y = viewModel.layoutY;
     _width = viewModel.width;
@@ -234,6 +252,7 @@ class RenderViewModel extends ChangeNotifier {
   @override
   bool operator ==(Object other) {
     return other is RenderViewModel &&
+        display == other.display &&
         _x == other.layoutX &&
         _y == other.layoutY &&
         width == other.width &&
@@ -282,6 +301,7 @@ class RenderViewModel extends ChangeNotifier {
 
   @override
   int get hashCode =>
+      display.hashCode |
       _x.hashCode |
       _y.hashCode |
       width.hashCode |
@@ -617,32 +637,39 @@ class RenderViewModel extends ChangeNotifier {
           }
         }
       });
-    } else if (localBoxShadowRadius != null &&
-        localBoxShadowColor != null) {
+    } else if (localBoxShadowRadius != null && localBoxShadowColor != null) {
       // hippy box-shadow
-      result.add(BoxShadow(
-        color: Color(localBoxShadowColor).withOpacity(localBoxShadowOpacity ?? 1),
-        offset: Offset(localBoxShadowOffsetX ?? 0, localBoxShadowOffsetY ?? 0),
-        blurRadius: localBoxShadowRadius,
-        spreadRadius: localBoxShadowSpread ?? 0.0,
-      ));
+      result.add(
+        BoxShadow(
+          color: Color(localBoxShadowColor).withOpacity(localBoxShadowOpacity ?? 1),
+          offset: Offset(localBoxShadowOffsetX ?? 0, localBoxShadowOffsetY ?? 0),
+          blurRadius: localBoxShadowRadius,
+          spreadRadius: localBoxShadowSpread ?? 0.0,
+        ),
+      );
     }
     return result.isEmpty ? null : result;
   }
 
-  Decoration? toDecoration(
-      {Color? decorationColor,
-      Object? backgroundImg,
-      String? backgroundImgSize,
-      String? backgroundImgRepeat,
-      String? backgroundImgPositionX,
-      String? backgroundImgPositionY}) {
+  Decoration? toDecoration({
+    Color? decorationColor,
+    Object? backgroundImg,
+    String? backgroundImgSize,
+    String? backgroundImgRepeat,
+    String? backgroundImgPositionX,
+    String? backgroundImgPositionY,
+  }) {
     var radius = _toRadius();
     var color = decorationColor ?? backgroundColor;
     var boxShadow = _generateBoxShadow();
     var gradient = _generateGradient(backgroundImg);
-    var image = _toImage(backgroundImg, backgroundImgSize, backgroundImgRepeat,
-        backgroundImgPositionX, backgroundImgPositionY);
+    var image = _toImage(
+      backgroundImg,
+      backgroundImgSize,
+      backgroundImgRepeat,
+      backgroundImgPositionX,
+      backgroundImgPositionY,
+    );
 
     if (radius != null) {
       // 有圆角的情况下，不允许设置不同的边
@@ -656,10 +683,7 @@ class RenderViewModel extends ChangeNotifier {
       );
     } else {
       var border = _toBorder();
-      if (image == null &&
-          border == null &&
-          gradient == null &&
-          boxShadow == null) {
+      if (image == null && border == null && gradient == null && boxShadow == null) {
         return null;
       }
 
@@ -687,10 +711,11 @@ class RenderViewModel extends ChangeNotifier {
     }
 
     return BorderRadius.only(
-        topLeft: topLeftRadius,
-        topRight: topRightRadius,
-        bottomLeft: bottomLeftRadius,
-        bottomRight: bottomRightRadius);
+      topLeft: topLeftRadius,
+      topRight: topRightRadius,
+      bottomLeft: bottomLeftRadius,
+      bottomRight: bottomRightRadius,
+    );
   }
 
   Radius _generateRadius(double? radius) {
@@ -706,32 +731,23 @@ class RenderViewModel extends ChangeNotifier {
     return Radius.zero;
   }
 
-  DecorationImage? _toImage(
-      Object? backgroundImg,
-      String? backgroundImgSize,
-      String? backgroundImgRepeat,
-      backgroundImgPositionX,
-      backgroundImgPositionY) {
+  DecorationImage? _toImage(Object? backgroundImg, String? backgroundImgSize,
+      String? backgroundImgRepeat, backgroundImgPositionX, backgroundImgPositionY) {
     if (backgroundImg is! String || backgroundImg == '') return null;
     // 背景图暂时只支持网络图片
     var imgFit = resizeModeToBoxFit(backgroundImgSize);
-    const alignMap = {
-      'left': -1.0,
-      'center': 0.0,
-      'right': 1.0,
-      'top': -1.0,
-      'bottom': 1.0
-    };
+    const alignMap = {'left': -1.0, 'center': 0.0, 'right': 1.0, 'top': -1.0, 'bottom': 1.0};
     var alignX = alignMap[backgroundImgPositionX] ?? -1.0;
     var alignY = alignMap[backgroundImgPositionY] ?? -1.0;
     var alignment = Alignment(alignX, alignY);
     // 背景图不为空使用背景图
     return DecorationImage(
-        alignment: alignment,
-        image: getImage(backgroundImg),
-        repeat: resizeModeToImageRepeat(backgroundImgRepeat),
-        scale: 1.0,
-        fit: imgFit);
+      alignment: alignment,
+      image: getImage(backgroundImg),
+      repeat: resizeModeToImageRepeat(backgroundImgRepeat),
+      scale: 1.0,
+      fit: imgFit,
+    );
   }
 
   Border _toAllBorder() {
@@ -750,17 +766,19 @@ class RenderViewModel extends ChangeNotifier {
         originSideColor != null &&
         originSideColor != Colors.transparent.value) {
       return BorderSide(
-          width: originSideWidth,
-          color: Color(originSideColor),
-          style: BorderStyle.solid);
+        width: originSideWidth,
+        color: Color(originSideColor),
+        style: BorderStyle.solid,
+      );
     } else if (originBorderWidth != null &&
         originBorderWidth > 0 &&
         originBorderColor != null &&
         originBorderColor != Colors.transparent.value) {
       return BorderSide(
-          width: originBorderWidth,
-          color: Color(originBorderColor),
-          style: BorderStyle.solid);
+        width: originBorderWidth,
+        color: Color(originBorderColor),
+        style: BorderStyle.solid,
+      );
     }
 
     return BorderSide.none;
@@ -779,10 +797,11 @@ class RenderViewModel extends ChangeNotifier {
     }
 
     return Border(
-        top: _generateBorderSide(borderTopWidth, borderTopColor),
-        left: _generateBorderSide(borderLeftWidth, borderLeftColor),
-        bottom: _generateBorderSide(borderBottomWidth, borderBottomColor),
-        right: _generateBorderSide(borderRightWidth, borderRightColor));
+      top: _generateBorderSide(borderTopWidth, borderTopColor),
+      left: _generateBorderSide(borderLeftWidth, borderLeftColor),
+      bottom: _generateBorderSide(borderBottomWidth, borderBottomColor),
+      right: _generateBorderSide(borderRightWidth, borderRightColor),
+    );
   }
 
   bool isNoneSide(BorderSide side) {
@@ -796,8 +815,7 @@ class RenderViewModel extends ChangeNotifier {
 
   bool get isOverflowClip {
     var radius = _toRadius();
-    var isOverflowhidden =
-        overflow == enumValueToString(ContainOverflow.hidden);
+    var isOverflowhidden = overflow == enumValueToString(ContainOverflow.hidden);
     if (isOverflowhidden && radius != null) {
       return true;
     }
@@ -809,10 +827,13 @@ class RenderViewModel extends ChangeNotifier {
 class Transition {
   // 动画属性名
   String transitionProperty = '';
+
   // 动画持续时间(单位：毫秒)
   int transitionDuration = 0;
+
   // 动画效果
   Curve transitionTimingFunction = Curves.ease;
+
   // 动画效果延迟时间(单位：毫秒)
   int transitionDelay = 0;
 
@@ -821,8 +842,7 @@ class Transition {
     transitionDuration = params.get(NodeProps.kTransitionDuration) ?? 0;
     final originTransitionTimingFunction =
         params.get(NodeProps.kTransitionTimingFunction) ?? TimingFunction.kEase;
-    transitionTimingFunction =
-        resizeModeToCurve(originTransitionTimingFunction);
+    transitionTimingFunction = resizeModeToCurve(originTransitionTimingFunction);
     transitionDelay = params.get(NodeProps.kTransitionDelay) ?? 0;
   }
 
@@ -843,13 +863,10 @@ class Transition {
       transitionDelay.hashCode;
 
   void update(VoltronMap params) {
-    transitionDuration =
-        params.get(NodeProps.kTransitionDuration) ?? transitionDuration;
-    final originTransitionTimingFunction =
-        params.get(NodeProps.kTransitionTimingFunction);
+    transitionDuration = params.get(NodeProps.kTransitionDuration) ?? transitionDuration;
+    final originTransitionTimingFunction = params.get(NodeProps.kTransitionTimingFunction);
     if (originTransitionTimingFunction != null) {
-      transitionTimingFunction =
-          resizeModeToCurve(originTransitionTimingFunction);
+      transitionTimingFunction = resizeModeToCurve(originTransitionTimingFunction);
     }
     transitionDelay = params.get(NodeProps.kTransitionDelay) ?? transitionDelay;
   }
@@ -875,12 +892,10 @@ class CssAnimation {
   /// 属性动画的tweenSequenceMap，用于生成AnimatedBuilder动画的计算(Map<String, AnimationTweenSequence>)
   VoltronMap animationTweenSequenceMap = VoltronMap();
 
-  CssAnimation(this.totalDuration, this.canRepeat, this.isDisable,
-      this.playCount, this.direction);
+  CssAnimation(this.totalDuration, this.canRepeat, this.isDisable, this.playCount, this.direction);
 
   /// 获取动画属性当前renderViewModel对应值的策略Map
-  Map<String, dynamic> _getAnimationStartValueStrategyMap(
-      RenderViewModel viewModel) {
+  Map<String, dynamic> _getAnimationStartValueStrategyMap(RenderViewModel viewModel) {
     final strategyMap = {
       NodeProps.kWidth: viewModel.width,
       NodeProps.kHeight: viewModel.height,
@@ -905,11 +920,9 @@ class CssAnimation {
     return strategyMap;
   }
 
-  CssAnimation.initByTransition(
-      VoltronMap transitionMap, RenderViewModel viewModel) {
+  CssAnimation.initByTransition(VoltronMap transitionMap, RenderViewModel viewModel) {
     final startValueStrategyMap = _getAnimationStartValueStrategyMap(viewModel);
-    final transitionTotalDuration =
-        AnimationUtil.getTransitionTotalDuration(transitionMap);
+    final transitionTotalDuration = AnimationUtil.getTransitionTotalDuration(transitionMap);
     for (final key in transitionMap.keySet()) {
       final transition = transitionMap.get<Transition>(key);
       if (transition == null) {
@@ -923,8 +936,7 @@ class CssAnimation {
       final curve = transition.transitionTimingFunction;
       final formatKey = _specialKeyStrategyMap[key] ?? key;
       final tweenList = VoltronArray();
-      final animationTween =
-          AnimationTween(startValueStrategyMap[formatKey], null, 100.0);
+      final animationTween = AnimationTween(startValueStrategyMap[formatKey], null, 100.0);
       tweenList.push<AnimationTween>(animationTween);
       final animationTweenSequence =
           AnimationTweenSequence(tweenList, startInterval, endInterval, curve);
@@ -933,22 +945,18 @@ class CssAnimation {
     totalDuration = Duration(milliseconds: transitionTotalDuration);
   }
 
-  CssAnimation.initByAnimation(VoltronMap animation,
-      List<VoltronMap> propertyMapSortList, RenderViewModel viewModel) {
+  CssAnimation.initByAnimation(
+      VoltronMap animation, List<VoltronMap> propertyMapSortList, RenderViewModel viewModel) {
     final animationDirection =
-        animation.get<String>(NodeProps.kAnimationDirection) ??
-            AnimationDirection.kNormal;
-    final animationIterationCount =
-        animation.get(NodeProps.kAnimationIterationCount);
-    final animationDuration =
-        animation.get<int>(NodeProps.kAnimationDuration) ?? 0;
+        animation.get<String>(NodeProps.kAnimationDirection) ?? AnimationDirection.kNormal;
+    final animationIterationCount = animation.get(NodeProps.kAnimationIterationCount);
+    final animationDuration = animation.get<int>(NodeProps.kAnimationDuration) ?? 0;
     final animationDelay = animation.get<int>(NodeProps.kAnimationDelay) ?? 0;
     final animationTotalDuration = animationDuration + animationDelay;
     final startInterval = animationDelay / animationTotalDuration;
     const endInterval = 1.0;
     final originTimingFunction =
-        animation.get<String>(NodeProps.kAnimationTimingFunction) ??
-            TimingFunction.kEase;
+        animation.get<String>(NodeProps.kAnimationTimingFunction) ?? TimingFunction.kEase;
     final curve = resizeModeToCurve(originTimingFunction);
     final sortListLength = propertyMapSortList.length;
 
@@ -956,23 +964,13 @@ class CssAnimation {
     for (var i = 0; i < sortListLength - 1; i++) {
       final startValue = propertyMapSortList[i];
       AnimationUtil.handleUpdateAnimationTweenSequence(
-          animationTweenSequenceMap,
-          startValue,
-          startInterval,
-          endInterval,
-          curve);
+          animationTweenSequenceMap, startValue, startInterval, endInterval, curve);
       final endValue = propertyMapSortList[i + 1];
       AnimationUtil.handleUpdateAnimationTweenSequence(
-          animationTweenSequenceMap,
-          endValue,
-          startInterval,
-          endInterval,
-          curve,
-          false);
+          animationTweenSequenceMap, endValue, startInterval, endInterval, curve, false);
     }
     // 2.剔除无效的AnimationTweenSequence
-    AnimationUtil.handleRemoveInvalidAnimationTweenSequence(
-        animationTweenSequenceMap);
+    AnimationUtil.handleRemoveInvalidAnimationTweenSequence(animationTweenSequenceMap);
     totalDuration = Duration(milliseconds: animationTotalDuration);
     if (animationIterationCount == AnimationIterationCount.kInfinite) {
       canRepeat = true;
@@ -983,8 +981,7 @@ class CssAnimation {
   }
 
   CssAnimation copy() {
-    final cssAnimation =
-        CssAnimation(totalDuration, canRepeat, isDisable, playCount, direction);
+    final cssAnimation = CssAnimation(totalDuration, canRepeat, isDisable, playCount, direction);
     for (final entry in animationTweenSequenceMap.entrySet()) {
       final key = entry.key;
       final value = entry.value;
@@ -1021,16 +1018,13 @@ class CssAnimation {
       return null;
     }
 
-    final list = animationTweenSequenceMap
-        .get<AnimationTweenSequence>(propertyName)
-        ?.itemList;
+    final list = animationTweenSequenceMap.get<AnimationTweenSequence>(propertyName)?.itemList;
     return list;
   }
 
   /// 更新transition动画属性值，按照start => end => start的循环顺序更新属性值
   void updateTransitionAnimation<T>(String key, T value) {
-    final tweenSequence =
-        animationTweenSequenceMap.get<AnimationTweenSequence>(key);
+    final tweenSequence = animationTweenSequenceMap.get<AnimationTweenSequence>(key);
     final tween = tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
     if (tween == null) {
       return;
@@ -1051,10 +1045,8 @@ class CssAnimation {
     // 当transition动画播放完毕，且不需要重复播放时，更新动画属性状态，避免动画被二次播放
     final keyList = animationTweenSequenceMap.keySet();
     for (final key in keyList) {
-      final tweenSequence =
-          animationTweenSequenceMap.get<AnimationTweenSequence>(key);
-      final tween =
-          tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
+      final tweenSequence = animationTweenSequenceMap.get<AnimationTweenSequence>(key);
+      final tween = tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
       if (tween == null) {
         return;
       }
@@ -1081,8 +1073,7 @@ class AnimationTweenSequence {
   /// 动画效果
   Curve curve;
 
-  AnimationTweenSequence(
-      this.itemList, this.startInterval, this.endInterval, this.curve);
+  AnimationTweenSequence(this.itemList, this.startInterval, this.endInterval, this.curve);
 
   AnimationTweenSequence copy() {
     final newTweenList = VoltronArray();
@@ -1093,8 +1084,7 @@ class AnimationTweenSequence {
       }
     }
 
-    return AnimationTweenSequence(
-        newTweenList, startInterval, endInterval, curve);
+    return AnimationTweenSequence(newTweenList, startInterval, endInterval, curve);
   }
 
   @override
@@ -1108,10 +1098,7 @@ class AnimationTweenSequence {
 
   @override
   int get hashCode =>
-      itemList.hashCode |
-      startInterval.hashCode |
-      endInterval.hashCode |
-      curve.hashCode;
+      itemList.hashCode | startInterval.hashCode | endInterval.hashCode | curve.hashCode;
 }
 
 /// 动画Tween，用于指定动画属性的开始值、结束值和权重
@@ -1145,10 +1132,7 @@ class AnimationTween {
 
   @override
   int get hashCode =>
-      startValue.hashCode |
-      endValue.hashCode |
-      weight.hashCode |
-      totalWeight.hashCode;
+      startValue.hashCode | endValue.hashCode | weight.hashCode | totalWeight.hashCode;
 }
 
 class BoundingClientRect {
@@ -1207,9 +1191,7 @@ class TransformOrigin {
 
   @override
   bool operator ==(Object other) {
-    return other is TransformOrigin &&
-        offset == other.offset &&
-        alignment == other.alignment;
+    return other is TransformOrigin && offset == other.offset && alignment == other.alignment;
   }
 
   @override

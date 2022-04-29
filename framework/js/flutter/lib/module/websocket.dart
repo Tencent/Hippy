@@ -18,111 +18,233 @@
 // limitations under the License.
 //
 
-import 'package:voltron_renderer/voltron_renderer.dart';
+import 'dart:io';
 
-import '../adapter.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/status.dart' as status;
+
+import './event_dispatcher.dart';
 import '../engine.dart';
-import 'event_dispatcher.dart';
 import 'module.dart';
 import 'promise.dart';
 
 class WebsocketModule extends VoltronNativeModule {
   static const String kWebSocketModuleName = "websocket";
-  static const String kFuncConnect = "connect";
-  static const String kFuncClose = "close";
-  static const String kFuncSend = "send";
-  EventDispatcher? _event;
+  static const String funcConnect = "connect";
+  static const String funcClose = "close";
+  static const String funcSend = "send";
+  static int _autoInt = 0;
+  final Map<int, WebSocketClient> mWebSocketConnections = {};
 
-  WebsocketModule(EngineContext context) : super(context) {
-    _event = EventDispatcher(context);
-  }
+  WebsocketModule(EngineContext context) : super(context);
 
-  @VoltronMethod(kFuncConnect)
+  @VoltronMethod(funcConnect)
   bool connect(VoltronMap params, final JSPromise promise) {
-    var headers = params.get<VoltronMap>('headers');
     var url = params.get<String>('url');
-    var protocols = headers?.get<String>('Sec-WebSocket-Protocol')?.split(',');
+    var headers = params.get<VoltronMap>('headers');
+    var protocals = headers?.get<String>('Sec-WebSocket-Protocol')?.split(',');
+
     if (url == null) {
-      promise.reject('The `url` parameter is empty.');
+      var returnValue = VoltronMap();
+      returnValue.push<int>('code', -1);
+      returnValue.push<String>('reason', 'no valid url for websocket');
+      promise.reject(returnValue);
       return false;
     }
-    // 实例化一个 web socket 实例
-    var ws = WebsocketAdapter(
-        url: url, protocols: protocols, headers: headers?.toMap());
-    // 进行事件监听
-    _attachEvent(ws);
-    // 开始连接
-    ws.connect().then((_) {
-      // 如果连接成功，先返回 promise
-      promise.resolve(_generateResult(ws.id, 0, ''));
-      // 然后再发送 onOpen 事件
-      _sendEvent(ws.id, 'onOpen', null);
-    }).catchError((error) {
-      // 如果连接失败，返回 promise
-      promise.resolve(_generateResult(null, error.errorCode, error.message));
-    });
+
+    _autoInt += 1;
+    var webSocketId = _autoInt;
+    // 实例化一个 websocket 实例
+    var webSocketClient = WebSocketClient(
+      url: url,
+      listener: WebSocketListener(webSocketId, context, this),
+      protocols: protocals,
+      headers: headers?.toMap(),
+    );
+    mWebSocketConnections[webSocketId] = webSocketClient;
+
+    var returnValue = VoltronMap();
+    returnValue.push<int>('code', 0);
+    returnValue.push<String>('reason', "");
+    returnValue.push<int>('id', webSocketId);
+    promise.resolve(returnValue);
+
+    webSocketClient.connect();
     return true;
   }
 
-  @VoltronMethod(kFuncClose)
-  bool close(VoltronMap params, final JSPromise promise) {
-    var id = params.get('id')?.toInt();
-    var code = params.get('code')?.toInt();
-    var reason = params.get<String>('reason');
-    var channel = WebSocketManager.getInstance().get(id.toString());
-    channel?.sink.close(code, reason);
-    return true;
-  }
-
-  @VoltronMethod(kFuncSend)
-  bool send(VoltronMap params, final JSPromise promise) {
-    var id = params.get('id')?.toInt();
-    var data = params.get<String>('data') ?? '';
-    var channel = WebSocketManager.getInstance().get(id.toString());
-    channel?.sink.add(data);
-    return true;
-  }
-
-  void _sendEvent(int id, String type, Object? data) {
-    var event = VoltronMap();
-    event.push('id', id);
-    event.push('type', type);
-    if (data != null) {
-      event.push('data', data);
+  @VoltronMethod(funcClose)
+  void close(VoltronMap params, final Promise promise) {
+    var socketId = params.get<int>('id');
+    if (socketId == null) {
+      LogUtils.d(kWebSocketModuleName, "close: ERROR: no socket id specified");
+      return;
     }
-    _event?.receiveNativeEvent('hippyWebsocketEvents', event);
-  }
-
-  VoltronMap _generateResult(int? id, int code, String reason) {
-    var ret = VoltronMap();
-    ret.push('code', code);
-    ret.push('reason', reason);
-    if (id != null) {
-      ret.push('id', id);
+    var socketClient = mWebSocketConnections[socketId];
+    if (socketClient == null || !socketClient.isConnected) {
+      LogUtils.d(
+          kWebSocketModuleName, "send: ERROR: specified socket not found, or not connected yet");
+      return;
     }
-    return ret;
+    var code = params.get<int>('code') ?? 0;
+    var reason = params.get<String>('reason') ?? '';
+    socketClient.requestClose(code, reason);
   }
 
-  void _attachEvent(WebsocketAdapter ws) {
-    ws.onDataCallback = (message) {
-      _sendEvent(ws.id, 'onMessage', message);
-    };
-    ws.onErrorCallback = (error) {
-      _sendEvent(ws.id, 'onError',
-          _generateResult(null, error.errorCode, error.message));
-    };
-    ws.onDoneCallback = () {
-      _sendEvent(ws.id, 'onClose', null);
-    };
+  @VoltronMethod(funcSend)
+  void send(VoltronMap params, final Promise promise) {
+    var socketId = params.get<int>('id');
+    if (socketId == null) {
+      LogUtils.d(kWebSocketModuleName, "close: ERROR: no socket id specified");
+      return;
+    }
+    var socketClient = mWebSocketConnections[socketId];
+    if (socketClient == null || !socketClient.isConnected) {
+      LogUtils.d(
+          kWebSocketModuleName, "send: ERROR: specified socket not found, or not connected yet");
+      return;
+    }
+    var textData = params.get<String>('data');
+    if (textData == null) {
+      LogUtils.d(kWebSocketModuleName, "send: ERROR: no data specified to be sent");
+      return;
+    }
+    socketClient.send(textData);
+  }
+
+  void removeSocketConnection(int socketId) {
+    mWebSocketConnections.remove(socketId);
   }
 
   @override
   Map<String, Function> get extraFuncMap => {
-        kFuncConnect: connect,
-        kFuncClose: close,
-        kFuncSend: send,
+        funcConnect: connect,
+        funcClose: close,
+        funcSend: send,
       };
 
   @override
   String get moduleName => kWebSocketModuleName;
+
+  @override
+  void destroy() {
+    mWebSocketConnections.forEach((key, connection) {
+      connection._channel?.sink.close(status.goingAway);
+    });
+    mWebSocketConnections.clear();
+  }
+}
+
+class WebSocketClient {
+  final String url;
+  final List<String>? protocols;
+  final Map<String, dynamic>? headers;
+  final WebSocketListener listener;
+  IOWebSocketChannel? _channel;
+  bool _connected = false;
+
+  WebSocketClient({
+    required this.url,
+    required this.listener,
+    this.protocols,
+    this.headers,
+  });
+
+  bool get isConnected {
+    return _connected;
+  }
+
+  void connect() {
+    WebSocket.connect(
+      url,
+      protocols: protocols,
+      headers: headers,
+    ).then((ws) {
+      _connected = true;
+      listener.onConnect();
+      _channel = IOWebSocketChannel(ws);
+      _channel?.stream.listen((message) {
+        // 监听服务端返回的消息
+        var msg = message is String ? message : message.toString();
+        listener.onMessage(msg);
+      });
+    }).catchError((err) {
+      _connected = false;
+      listener.onError(err);
+    });
+  }
+
+  void disconnect() {
+    _connected = false;
+    listener.onDisconnect(0, "closed");
+  }
+
+  void requestClose(int code, String reason) {
+    if (_connected) {
+      try {
+        _channel?.sink.close(code == 0 ? null : code, reason);
+      } catch (e) {
+        LogUtils.d('WebSocketClient', 'close fail, ${e.toString()}');
+      }
+      disconnect();
+    }
+  }
+
+  void send(String textData) {
+    if (_connected) {
+      _channel?.sink.add(textData);
+    }
+  }
+}
+
+class WebSocketListener {
+  final int mWebSocketId;
+  final EngineContext context;
+  bool mDisconnected = false;
+  final WebsocketModule mWebSocketModule;
+
+  WebSocketListener(this.mWebSocketId, this.context, this.mWebSocketModule);
+
+  void _sendWebSocketEvent(String eventType, VoltronMap data) {
+    if (mDisconnected) {
+      return;
+    }
+
+    var eventParams = VoltronMap();
+    eventParams.push<int>('id', mWebSocketId);
+    eventParams.push<String>('type', eventType);
+    eventParams.push<VoltronMap>('data', data);
+    context.moduleManager
+        .getJavaScriptModule<EventDispatcher>(
+            enumValueToString(JavaScriptModuleType.EventDispatcher))
+        ?.receiveNativeEvent('hippyWebsocketEvents', eventParams);
+  }
+
+  void onConnect() {
+    _sendWebSocketEvent('onOpen', VoltronMap());
+  }
+
+  void onMessage(String message) {
+    var params = VoltronMap();
+    params.push<String>('data', message);
+    params.push<String>('type', "text");
+    _sendWebSocketEvent('onMessage', params);
+  }
+
+  void onDisconnect(int code, String reason) {
+    var map = VoltronMap();
+    map.push<int>('code', code);
+    map.push<String>('reason', reason);
+    _sendWebSocketEvent('onClose', map);
+    mWebSocketModule.removeSocketConnection(mWebSocketId);
+    mDisconnected = true;
+  }
+
+  void onError(Exception error) {
+    var map = VoltronMap();
+    map.push<String>('reason', error.toString());
+    _sendWebSocketEvent('onError', map);
+    mDisconnected = true;
+  }
 }

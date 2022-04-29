@@ -34,33 +34,29 @@ enum RefreshState {
   loading,
 }
 
-class RefreshWrapperController
-    extends BaseGroupController<RefreshWrapperRenderViewModel> {
+class RefreshWrapperController extends BaseGroupController<RefreshWrapperRenderViewModel> {
+  static const String kWrapperKey = "refresh_wrapper";
+
   static const kPreloadItemSize = "preloadItemSize";
   static const String kClassName = "RefreshWrapper";
   static const String kRefreshComplected = "refreshComplected";
   static const String kStartRefresh = "startRefresh";
 
   @override
-  RefreshWrapperRenderViewModel createRenderViewModel(
-      RenderNode node, RenderContext context) {
-    return RefreshWrapperRenderViewModel(
-        node.id, node.rootId, node.name, context);
+  RefreshWrapperRenderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
+    return RefreshWrapperRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
   @override
-  Widget createWidget(
-      BuildContext context, RefreshWrapperRenderViewModel viewModel) {
+  Widget createWidget(BuildContext context, RefreshWrapperRenderViewModel viewModel) {
     return RefreshWrapperWidget(viewModel);
   }
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
         NodeProps.kBounceTime: ControllerMethodProp(bounceTime, 300),
-        NodeProps.kOnScrollEnable:
-            ControllerMethodProp(setOnScrollEventEnable, true),
-        NodeProps.kScrollEventThrottle:
-            ControllerMethodProp(setScrollEventThrottle, 400),
+        NodeProps.kOnScrollEnable: ControllerMethodProp(setOnScrollEventEnable, true),
+        NodeProps.kScrollEventThrottle: ControllerMethodProp(setScrollEventThrottle, 400),
         kPreloadItemSize: ControllerMethodProp(setPreloadItemSize, 0.0),
       };
 
@@ -68,36 +64,31 @@ class RefreshWrapperController
   String get name => kClassName;
 
   @ControllerProps(NodeProps.kBounceTime)
-  void bounceTime(
-      RefreshWrapperRenderViewModel renderViewModel, int bounceTime) {
+  void bounceTime(RefreshWrapperRenderViewModel renderViewModel, int bounceTime) {
     renderViewModel.bounceTime = bounceTime;
   }
 
   @ControllerProps(NodeProps.kOnScrollEnable)
-  void setOnScrollEventEnable(
-      RefreshWrapperRenderViewModel renderViewModel, bool flag) {
+  void setOnScrollEventEnable(RefreshWrapperRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollEnable = flag;
   }
 
   @ControllerProps(NodeProps.kScrollEventThrottle)
   void setScrollEventThrottle(
       RefreshWrapperRenderViewModel renderViewModel, int scrollEventThrottle) {
-    renderViewModel.scrollGestureDispatcher.scrollEventThrottle =
-        scrollEventThrottle;
+    renderViewModel.scrollGestureDispatcher.scrollEventThrottle = scrollEventThrottle;
   }
 
   @ControllerProps(kPreloadItemSize)
-  void setPreloadItemSize(
-      RefreshWrapperRenderViewModel renderViewModel, double preloadItemSize) {
+  void setPreloadItemSize(RefreshWrapperRenderViewModel renderViewModel, double preloadItemSize) {
     renderViewModel.preloadSize = preloadItemSize;
   }
 
   @override
-  void dispatchFunction(RefreshWrapperRenderViewModel viewModel,
-      String functionName, VoltronArray array,
+  void dispatchFunction(
+      RefreshWrapperRenderViewModel viewModel, String functionName, VoltronArray array,
       {Promise? promise}) {
-    super.dispatchFunction(viewModel, functionName, array,
-        promise: promise);
+    super.dispatchFunction(viewModel, functionName, array, promise: promise);
     if (kRefreshComplected == functionName) {
       viewModel.refreshEventDispatcher.refreshComplected();
     } else if (kStartRefresh == functionName) {
@@ -110,8 +101,7 @@ class RefreshEventDispatcher {
   final int _id;
   final RenderContext _context;
 
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   RefreshController get refreshController => _refreshController;
 
@@ -123,6 +113,10 @@ class RefreshEventDispatcher {
 
   void refreshComplected() {
     _refreshController.refreshCompleted();
+  }
+
+  void loadingCompleted() {
+    _refreshController.loadComplete();
   }
 
   void startRefresh() {

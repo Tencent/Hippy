@@ -34,7 +34,6 @@ class HttpAdapter with Destroyable {
     var headerMap = request.getHeaders();
     var headers = <String, dynamic>{};
     headerMap.forEach((k, v) {
-      print(v.runtimeType);
       if (v is String) {
         headers[k] = v;
       } else if (v is List) {
@@ -48,17 +47,19 @@ class HttpAdapter with Destroyable {
       LogUtils.i("HttpAdapter getProxySettings", e.toString());
     });
 
-    var dio = Dio(BaseOptions(
+    var dio = Dio(
+      BaseOptions(
         method: request.getMethod(),
         connectTimeout: request.getConnectTimeout(),
         receiveTimeout: request.getReceiveTimeout(),
         sendTimeout: request.getSendTimeout(),
         headers: headers,
-        followRedirects: request.getFollowRedirects()));
+        followRedirects: request.getFollowRedirects(),
+      ),
+    );
 
     if (proxy != null && proxy['host'] != null && proxy['port'] != null) {
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (client) {
+      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
         // 设置代理
         client.findProxy = (uri) {
           return 'PROXY ${proxy['host']}:${proxy['port']}';
@@ -67,14 +68,13 @@ class HttpAdapter with Destroyable {
         client.badCertificateCallback = (cert, host, port) {
           return Platform.isAndroid;
         };
+        return null;
       };
     }
 
-    dio.interceptors
-        .add(CookieManager(channel.CookieManager.getInstance().cookieJar));
+    dio.interceptors.add(CookieManager(channel.CookieManager.getInstance().cookieJar));
     try {
-      var response =
-          await dio.request(request.url ?? '', data: request.getBody());
+      var response = await dio.request(request.url ?? '', data: request.getBody());
       LogUtils.i("HttpAdapter sendRequest", response.toString());
       return response;
     } on DioError catch (e) {
@@ -96,7 +96,7 @@ class HttpRequest {
   bool _followRedirects = true;
   String _method = "GET";
 
-  String? _url;
+  String? url;
   String? _body;
   String? _userAgent;
   late Map<String, Object> _mHeaderMap;
@@ -111,14 +111,6 @@ class HttpRequest {
     } else {
       LogUtils.e("HttpRequest", "user_agent is null!");
     }
-  }
-
-  String? get url {
-    return _url;
-  }
-
-  set url(String? url) {
-    _url = url;
   }
 
   void addHeader(String name, Object value) {
@@ -194,9 +186,7 @@ class HttpRequest {
       info += (platInfo.language);
       info += "-${platInfo.country}";
 
-      if (platInfo.apiLevel > 3 &&
-          platInfo.codeName == 'REL' &&
-          platInfo.model.isNotEmpty) {
+      if (platInfo.apiLevel > 3 && platInfo.codeName == 'REL' && platInfo.model.isNotEmpty) {
         info += '; ${platInfo.model}';
       }
 

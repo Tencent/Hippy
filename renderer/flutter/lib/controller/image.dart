@@ -21,7 +21,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import '../common.dart';
 import '../controller.dart';
@@ -34,9 +33,15 @@ import '../widget.dart';
 class ImageController extends BaseViewController<ImageRenderViewModel> {
   static const String kClassName = "Image";
 
+  // new 3.0 eventName
+  static const String kEventOnLoad = 'load';
+  static const String kEventOnLoadStart = 'loadstart';
+  static const String kEventOnLoadEnd = 'loadend';
+  static const String kEventOnError = 'error';
+  static const String kEventOnProgress = 'progress';
+
   @override
-  ImageRenderViewModel createRenderViewModel(
-      RenderNode node, RenderContext context) {
+  ImageRenderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
     return ImageRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
@@ -52,17 +57,13 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     extraMap[NodeProps.kSource] = ControllerMethodProp(setSource, null);
     extraMap[NodeProps.kResizeMode] = ControllerMethodProp(setResizeMode, '');
     extraMap[NodeProps.kOnLoad] = ControllerMethodProp(setOnLoad, false);
-    extraMap[NodeProps.kOnLoadStart] =
-        ControllerMethodProp(setOnLoadStart, false);
+    extraMap[NodeProps.kOnLoadStart] = ControllerMethodProp(setOnLoadStart, false);
     extraMap[NodeProps.kOnLoadEnd] = ControllerMethodProp(setOnLoadEnd, false);
     extraMap[NodeProps.kOnError] = ControllerMethodProp(setOnError, false);
     extraMap[NodeProps.kOnProgress] = ControllerMethodProp(setOnProgress, false);
     extraMap[NodeProps.kCapInsets] = ControllerMethodProp(setCapInsets, null);
-    extraMap[NodeProps.kDefaultSource] =
-        ControllerMethodProp(setDefaultSource, null);
-    extraMap[NodeProps.kTintColor] =
-        ControllerMethodProp(setTintColor, Colors.transparent.value);
-
+    extraMap[NodeProps.kDefaultSource] = ControllerMethodProp(setDefaultSource, null);
+    extraMap[NodeProps.kTintColor] = ControllerMethodProp(setTintColor, Colors.transparent.value);
 
     return extraMap;
   }
@@ -70,8 +71,7 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   // for Android
   @ControllerProps(NodeProps.kSrc)
   void setUrl(ImageRenderViewModel renderViewModel, String src) {
-    src = renderViewModel.context
-        .convertRelativePath(renderViewModel.rootId, src);
+    src = renderViewModel.context.convertRelativePath(renderViewModel.rootId, src);
     if (src != renderViewModel.src) {
       renderViewModel.src = src;
     }
@@ -83,8 +83,7 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
     if (source.size() == 0) return;
     VoltronMap firstObj = source.get(0);
     String src = firstObj.get('uri');
-    src = renderViewModel.context
-        .convertRelativePath(renderViewModel.rootId, src);
+    src = renderViewModel.context.convertRelativePath(renderViewModel.rootId, src);
     if (src != renderViewModel.src) {
       renderViewModel.src = src;
     }
@@ -113,15 +112,12 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.kDefaultSource)
-  void setDefaultSource(
-      ImageRenderViewModel renderViewModel, String defaultSource) {
-    if (defaultSource.indexOf('data:image/png;base64,') == 0) {
-      var bytesImage = const Base64Decoder()
-          .convert(defaultSource.replaceFirst('data:image/png;base64,', ''));
+  void setDefaultSource(ImageRenderViewModel renderViewModel, String defaultSource) {
+    if (defaultSource.startsWith('data:image/')) {
+      var bytesImage = const Base64Decoder().convert(defaultSource.split('base64,').last);
       renderViewModel.defaultImage = Image.memory(bytesImage);
     } else {
-      LogUtils.w('ImageController',
-          "setDefaultSource error, defaultSource must be base64");
+      LogUtils.w('ImageController', "setDefaultSource error, defaultSource must be base64");
     }
   }
 
@@ -151,17 +147,45 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   }
 
   @ControllerProps(NodeProps.kCapInsets)
-  void setCapInsets(
-      ImageRenderViewModel renderViewModel, VoltronMap capInsetsMap) {
+  void setCapInsets(ImageRenderViewModel renderViewModel, VoltronMap capInsetsMap) {
     renderViewModel.capInsets = CapInsets(
-        left: capInsetsMap.get('left').toDouble(),
-        top: capInsetsMap.get('top').toDouble(),
-        right: capInsetsMap.get('right').toDouble(),
-        bottom: capInsetsMap.get('bottom').toDouble());
+      left: capInsetsMap.get('left').toDouble(),
+      top: capInsetsMap.get('top').toDouble(),
+      right: capInsetsMap.get('right').toDouble(),
+      bottom: capInsetsMap.get('bottom').toDouble(),
+    );
   }
 
-  void setEventType(
-      String type, ImageRenderViewModel renderViewModel, bool enable) {
+  @override
+  void updateEvents(
+    ImageRenderViewModel renderViewModel,
+    Set<EventHolder> holders,
+  ) {
+    super.updateEvents(renderViewModel, holders);
+    if (holders.isNotEmpty) {
+      for (var holder in holders) {
+        switch (holder.eventName) {
+          case kEventOnLoad:
+            setOnLoad(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnLoadStart:
+            setOnLoadStart(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnLoadEnd:
+            setOnLoadEnd(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnError:
+            setOnError(renderViewModel, holder.isAdd);
+            break;
+          case kEventOnProgress:
+            setOnProgress(renderViewModel, holder.isAdd);
+            break;
+        }
+      }
+    }
+  }
+
+  void setEventType(String type, ImageRenderViewModel renderViewModel, bool enable) {
     if (enable) {
       renderViewModel.imageEventDispatcher.addEventType(type);
     } else {

@@ -42,26 +42,31 @@ class _TextWidgetState extends FRState<TextWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-        value: widget.renderViewModel,
-        child: Consumer<TextRenderViewModel>(
-          builder: (context, viewModel, widget) {
-            return PositionWidget(viewModel, child: textView(viewModel));
-          },
-        ));
+      value: widget.renderViewModel,
+      child: Consumer<TextRenderViewModel>(
+        builder: (context, viewModel, widget) {
+          return PositionWidget(
+            viewModel,
+            child: textView(viewModel),
+          );
+        },
+      ),
+    );
   }
 
   Widget textView(TextRenderViewModel textModel) {
     var data = textModel.data;
-    if (textModel.padding != null && data != null) {
+    if (data != null) {
       return Container(
         alignment: textModel.getAlignment(),
         padding: textModel.padding,
         child: RichText(
-            text: data.text,
-            textAlign: data.textAlign,
-            maxLines: data.maxLines,
-            textScaleFactor: data.textScaleFactor,
-            overflow: data.textOverflow),
+          text: data.text,
+          textAlign: data.textAlign,
+          maxLines: data.maxLines,
+          textScaleFactor: data.textScaleFactor,
+          overflow: data.textOverflow,
+        ),
       );
     } else {
       return Container();

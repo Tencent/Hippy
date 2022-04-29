@@ -80,13 +80,17 @@ class ModuleManager implements Destroyable {
 
     final moduleInfo = _nativeModule[params._moduleName];
     if (moduleInfo == null) {
-      var promise = JSPromise.js(_context,
-          module: params._moduleName,
-          method: params._moduleFunc,
-          callId: params._callId);
+      var promise = JSPromise.js(
+        _context,
+        module: params._moduleName,
+        method: params._moduleFunc,
+        callId: params._callId,
+      );
       // 这里跟hippy不一致，我们要主动暴露模块未找到的错误
       promise.error(
-          JSPromise.kPromiseCodeOtherError, "module can not be found");
+        JSPromise.kPromiseCodeOtherError,
+        "module can not be found",
+      );
       return;
     }
 
@@ -96,23 +100,30 @@ class ModuleManager implements Destroyable {
   void _doCallNative(VoltronNativeModule module, CallNativeParams params) {
     var id = _anrMonitor.startMonitor(params._moduleName, params._moduleFunc);
     var promise = JSPromise.js(_context,
-        module: params._moduleName,
-        method: params._moduleFunc,
-        callId: params._callId);
+        module: params._moduleName, method: params._moduleFunc, callId: params._callId);
     try {
       module.initialize();
       var function = module.funcMap[params._moduleFunc];
       if (function == null) {
-        promise.error(JSPromise.kPromiseCodeNormanError,
-            "module function can not be found");
+        promise.error(
+          JSPromise.kPromiseCodeNormanError,
+          "module function can not be found",
+        );
         return;
       }
-      _invokeMethod(_context, module, params._params ?? VoltronArray(), promise,
-          function);
+      _invokeMethod(
+        _context,
+        module,
+        params._params ?? VoltronArray(),
+        promise,
+        function,
+      );
     } catch (e) {
       promise.error(JSPromise.kPromiseCodeNormanError, e.toString());
       LogUtils.e(
-          kTag, "call(${params._moduleName}.${params._moduleFunc} error:$e)");
+        kTag,
+        "call(${params._moduleName}.${params._moduleFunc} error:$e)",
+      );
     } finally {
       params.onDispose();
     }
@@ -122,8 +133,8 @@ class ModuleManager implements Destroyable {
     }
   }
 
-  void _invokeMethod(EngineContext context, VoltronNativeModule receiver,
-      VoltronArray args, JSPromise promise, Function function) {
+  void _invokeMethod(EngineContext context, VoltronNativeModule receiver, VoltronArray args,
+      JSPromise promise, Function function) {
     final params = _prepareArguments(args, promise);
     final result = Function.apply(function, params);
     if (!promise.hasCall && !result) {
@@ -187,8 +198,8 @@ class CallNativeParams {
 
   CallNativeParams();
 
-  static CallNativeParams obtain(String moduleName, String moduleFunc,
-      String callId, VoltronArray params) {
+  static CallNativeParams obtain(
+      String moduleName, String moduleFunc, String callId, VoltronArray params) {
     CallNativeParams? instance;
     if (!sInstancePool.isEmpty) {
       instance = sInstancePool.removeFirst();
@@ -198,8 +209,7 @@ class CallNativeParams {
     return instance;
   }
 
-  void _init(String moduleName, String moduleFunc, String callId,
-      VoltronArray params) {
+  void _init(String moduleName, String moduleFunc, String callId, VoltronArray params) {
     _moduleName = moduleName;
     _moduleFunc = moduleFunc;
     _callId = callId;
@@ -235,7 +245,7 @@ abstract class VoltronNativeModule implements Destroyable {
   final Map<String, Function> _funcMap = {};
 
   @VoltronMethod(kModuleAddListener)
-  void addListener(String name) {
+  void addListener(String name, JSPromise promise) {
     var count = 0;
     if (_eventMap.containsKey(name)) {
       count = _eventMap[name]!;
@@ -250,7 +260,7 @@ abstract class VoltronNativeModule implements Destroyable {
   }
 
   @VoltronMethod(kModuleRemoveListener)
-  void removeListener(String name) {
+  void removeListener(String name, JSPromise promise) {
     if (!_eventMap.containsKey(name)) {
       return;
     }
@@ -279,10 +289,7 @@ abstract class VoltronNativeModule implements Destroyable {
 
   Map<String, Function> get funcMap {
     if (_funcMap.isEmpty) {
-      _funcMap.addAll({
-        kModuleAddListener: addListener,
-        kModuleRemoveListener: removeListener
-      });
+      _funcMap.addAll({kModuleAddListener: addListener, kModuleRemoveListener: removeListener});
       _funcMap.addAll(extraFuncMap);
     }
     return _funcMap;

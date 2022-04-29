@@ -19,6 +19,51 @@
 		D955189E0BADBB96E715948E /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEFAA276EF2826900EB7A248 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		C222B4C92812943D00399AFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BD75C25B4D044C429A5F2947;
+			remoteInfo = dom;
+		};
+		C222B4CB2812943D00399AFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 54E53F28D4144F3ABA870CD3;
+			remoteInfo = layout;
+		};
+		C222B4CD2812943D00399AFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9F317848EB8C4B51931DF804;
+			remoteInfo = render_core;
+		};
+		C222B4CF2812943D00399AFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B8C716265D694F189E46A2D2;
+			remoteInfo = tdf_base;
+		};
+		C222B4D12812943D00399AFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F8D3A1F2B5D540B3B7A9878E;
+			remoteInfo = tdf_base_common;
+		};
+		C222B4D32812943D00399AFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 37943133B2D74B4C88F1C469;
+			remoteInfo = voltron_core;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		3EE0CBB6262D8386005CEE65 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -56,6 +101,7 @@
 		BC870F332775720B007080AE /* libdom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdom.a; path = ../../build/ios/arm64/libdom.a; sourceTree = "<group>"; };
 		BC870F342775720B007080AE /* liblayout.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblayout.a; path = ../../build/ios/arm64/liblayout.a; sourceTree = "<group>"; };
 		BC870F352775720B007080AE /* libtdf_base.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtdf_base.a; path = ../../build/ios/arm64/libtdf_base.a; sourceTree = "<group>"; };
+		C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = VoltronCore.xcodeproj; path = ../../build/CMakeOutput/ios/x86_64/VoltronCore.xcodeproj; sourceTree = "<group>"; };
 		CEFAA276EF2826900EB7A248 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E63C63D4F44A757FFF578F29 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -113,6 +159,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */,
 				3EFE7CE625ADCB9D00BAC367 /* jsbundle */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
@@ -151,6 +198,19 @@
 			children = (
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C222B4BF2812943D00399AFF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C222B4CA2812943D00399AFF /* libdom.a */,
+				C222B4CC2812943D00399AFF /* liblayout.a */,
+				C222B4CE2812943D00399AFF /* librender_core.a */,
+				C222B4D02812943D00399AFF /* libtdf_base.a */,
+				C222B4D22812943D00399AFF /* libtdf_base_common.a */,
+				C222B4D42812943D00399AFF /* voltron_core.framework/voltron_core */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -204,12 +264,64 @@
 			mainGroup = 97C146E51CF9000F007C117D;
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = C222B4BF2812943D00399AFF /* Products */;
+					ProjectRef = C222B4BE2812943D00399AFF /* VoltronCore.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		C222B4CA2812943D00399AFF /* libdom.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdom.a;
+			remoteRef = C222B4C92812943D00399AFF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		C222B4CC2812943D00399AFF /* liblayout.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblayout.a;
+			remoteRef = C222B4CB2812943D00399AFF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		C222B4CE2812943D00399AFF /* librender_core.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = librender_core.a;
+			remoteRef = C222B4CD2812943D00399AFF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		C222B4D02812943D00399AFF /* libtdf_base.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libtdf_base.a;
+			remoteRef = C222B4CF2812943D00399AFF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		C222B4D22812943D00399AFF /* libtdf_base_common.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libtdf_base_common.a;
+			remoteRef = C222B4D12812943D00399AFF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		C222B4D42812943D00399AFF /* voltron_core.framework/voltron_core */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			name = voltron_core.framework/voltron_core;
+			path = voltron_core.framework;
+			remoteRef = C222B4D32812943D00399AFF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		97C146EC1CF9000F007C117D /* Resources */ = {

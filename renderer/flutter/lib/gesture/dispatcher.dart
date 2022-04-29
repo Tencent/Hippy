@@ -45,17 +45,22 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   bool get enableScroll => false;
 
   bool get canClick => clickable;
+
   bool get canLongClick => longClickable;
 
   final HashSet<GestureType> _gestureTypes = HashSet();
 
-  NativeGestureDispatcher({required int rootId, required int id, required RenderContext context})
-      : _id = id, _rootId = rootId,
+  NativeGestureDispatcher({
+    required int rootId,
+    required int id,
+    required RenderContext context,
+  })  : _id = id,
+        _rootId = rootId,
         _context = context;
 
   @override
   void handle(GestureType type, double x, double y) {
-    switch(type) {
+    switch (type) {
       case GestureType.pressIn:
         NativeGestureHandle.handlePressIn(_context, _id, _rootId);
         break;

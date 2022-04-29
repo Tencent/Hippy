@@ -26,6 +26,7 @@ class JsError extends Error {
 
   JsError([this._message, this._stack]);
 
+  @override
   String toString() {
     if (_message != null) {
       return "Js error: ${Error.safeToString(_message)}, stack:$_stack";

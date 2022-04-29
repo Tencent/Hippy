@@ -33,9 +33,7 @@ class _GlobalCallbackManager {
 
   static _GlobalCallbackManager _getInstance() {
     // 只能有一个实例
-    if (_instance == null) {
-      _instance = _GlobalCallbackManager._internal();
-    }
+    _instance ??= _GlobalCallbackManager._internal();
 
     return _instance!;
   }
@@ -71,6 +69,5 @@ int generateCallback(CallbackType callback) {
 }
 
 void globalCallback(int callbackId, int value) {
-  print('call callback');
   _GlobalCallbackManager.instance._callbackMap[callbackId]?._doAction(value);
 }

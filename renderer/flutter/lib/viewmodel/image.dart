@@ -56,8 +56,11 @@ class ImageRenderViewModel extends RenderViewModel {
   }
 
   ImageRenderViewModel(
-      int id, int instanceId, String className, RenderContext context)
-      : super(id, instanceId, className, context) {
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+  ) : super(id, instanceId, className, context) {
     imageEventDispatcher = createImageEventDispatcher();
   }
 
@@ -84,37 +87,46 @@ class ImageRenderViewModel extends RenderViewModel {
     } else {
       dispatchedEvent = {};
       var img = getImage(src);
-      img
-          .resolve(const ImageConfiguration())
-          .addListener(ImageStreamListener((image, flag) {
-        if (!dispatchedEvent.contains(NodeProps.kOnLoad) && src == curSrc) {
-          imageEventDispatcher.handleOnLoad();
-          imageEventDispatcher.handleOnLoadEnd();
-          imageWidth = image.image.width;
-          imageHeight = image.image.height;
-          // notifyListeners();
-          dispatchedEvent.add(NodeProps.kOnLoad);
-          dispatchedEvent.add(NodeProps.kOnLoadEnd);
-          LogUtils.d('ImageRenderViewModel',
-              "ImageProvider onImage, info: ${image.toString()}");
-        }
-      }, onChunk: (event) {
-        var total = event.expectedTotalBytes;
-        var loaded = event.cumulativeBytesLoaded;
-        if (loaded > 0 && total is int && total > 0) {
-          var params = VoltronMap();
-          params.push('loaded', loaded);
-          params.push('total', total);
-          imageEventDispatcher.handleOnProgress(params);
-        }
-      }, onError: (exception, stackTrace) {
-        if (src == curSrc) {
-          imageEventDispatcher.handleOnError();
-          imageEventDispatcher.handleOnLoadEnd();
-          LogUtils.w('ImageController',
-              "ImageProvider onError, src $src exception: ${exception.toString()}");
-        }
-      }));
+      img.resolve(const ImageConfiguration()).addListener(
+            ImageStreamListener(
+              (image, flag) {
+                if (!dispatchedEvent.contains(NodeProps.kOnLoad) && src == curSrc) {
+                  imageEventDispatcher.handleOnLoad();
+                  imageEventDispatcher.handleOnLoadEnd();
+                  imageWidth = image.image.width;
+                  imageHeight = image.image.height;
+                  dispatchedEvent.add(NodeProps.kOnLoad);
+                  dispatchedEvent.add(NodeProps.kOnLoadEnd);
+                  LogUtils.d(
+                    'ImageRenderViewModel',
+                    "ImageProvider onImage, info: ${image.toString()}",
+                  );
+                  notifyListeners();
+                }
+              },
+              onChunk: (event) {
+                var total = event.expectedTotalBytes;
+                var loaded = event.cumulativeBytesLoaded;
+                if (loaded > 0 && total is int && total > 0) {
+                  var params = VoltronMap();
+                  params.push('loaded', loaded);
+                  params.push('total', total);
+                  imageEventDispatcher.handleOnProgress(params);
+                }
+              },
+              onError: (exception, stackTrace) {
+                if (src == curSrc) {
+                  imageEventDispatcher.handleOnError();
+                  imageEventDispatcher.handleOnLoadEnd();
+                  LogUtils.w(
+                    'ImageController',
+                    "ImageProvider onError, src $src exception: ${exception.toString()}",
+                  );
+                  notifyListeners();
+                }
+              },
+            ),
+          );
       image = img;
     }
   }

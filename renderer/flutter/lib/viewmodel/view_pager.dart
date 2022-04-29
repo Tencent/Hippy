@@ -31,30 +31,34 @@ class ViewPagerRenderViewModel extends GroupViewModel {
   @override
   // ignore: overridden_fields
   String overflow = '';
+  bool bounces = true;
+  bool isVertical = false;
 
   bool _scrollFlingStartHandle = false;
 
   PageController? pageController;
 
-  ViewPagerRenderViewModel(
-      {required int id,
-      required int instanceId,
-      required String className,
-      required RenderContext context})
-      : super(id, instanceId, className, context);
+  ViewPagerRenderViewModel({
+    required int id,
+    required int instanceId,
+    required String className,
+    required RenderContext context,
+  }) : super(id, instanceId, className, context);
 
-  ViewPagerRenderViewModel.copy(
-      {required int id,
-      required int instanceId,
-      required String className,
-      required RenderContext context,
-      required ViewPagerRenderViewModel viewModel})
-      : super.copy(id, instanceId, className, context, viewModel) {
+  ViewPagerRenderViewModel.copy({
+    required int id,
+    required int instanceId,
+    required String className,
+    required RenderContext context,
+    required ViewPagerRenderViewModel viewModel,
+  }) : super.copy(id, instanceId, className, context, viewModel) {
     scrollEnabled = viewModel.scrollEnabled;
     initialPage = viewModel.initialPage;
     pageMargin = viewModel.pageMargin;
     overflow = viewModel.overflow;
     pageController = viewModel.pageController;
+    bounces = viewModel.bounces;
+    isVertical = viewModel.isVertical;
   }
 
   @override
@@ -62,6 +66,8 @@ class ViewPagerRenderViewModel extends GroupViewModel {
     return other is ViewPagerRenderViewModel &&
         scrollEnabled == other.scrollEnabled &&
         initialPage == other.initialPage &&
+        bounces == other.bounces &&
+        isVertical == other.isVertical &&
         pageMargin == other.pageMargin &&
         overflow == other.overflow &&
         super == other;
@@ -69,8 +75,10 @@ class ViewPagerRenderViewModel extends GroupViewModel {
 
   @override
   int get hashCode =>
+      bounces.hashCode |
       scrollEnabled.hashCode |
       initialPage.hashCode |
+      isVertical.hashCode |
       pageMargin.hashCode |
       overflow.hashCode |
       super.hashCode;
@@ -155,14 +163,18 @@ class ViewPagerRenderViewModel extends GroupViewModel {
 }
 
 class ViewPagerItemRenderViewModel extends GroupViewModel {
-  ViewPagerItemRenderViewModel(
-      {required int id,
-      required int instanceId,
-      required String className,
-      required RenderContext context})
-      : super(id, instanceId, className, context);
+  ViewPagerItemRenderViewModel({
+    required int id,
+    required int instanceId,
+    required String className,
+    required RenderContext context,
+  }) : super(id, instanceId, className, context);
 
-  ViewPagerItemRenderViewModel.copy(int id, int instanceId, String className,
-      RenderContext context, ViewPagerItemRenderViewModel viewModel)
-      : super.copy(id, instanceId, className, context, viewModel);
+  ViewPagerItemRenderViewModel.copy(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    ViewPagerItemRenderViewModel viewModel,
+  ) : super.copy(id, instanceId, className, context, viewModel);
 }
