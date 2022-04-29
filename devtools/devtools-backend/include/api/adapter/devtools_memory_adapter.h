@@ -24,14 +24,20 @@
 #include "api/adapter/data/memory_metas.h"
 
 namespace hippy::devtools {
+
+/**
+ * Native Render Memory collector
+ */
 class MemoryAdapter {
  public:
   using CoreMemoryUsageCallback = std::function<void(const MemoryMetas& metas)>;
 
   /**
-   * 获取内存使用情况
-   * @param callback 回调接口
+   * Get current system memory usage
+   * @param callback data callback
    */
   virtual void CollectMemoryUsage(CoreMemoryUsageCallback callback) = 0;
+
+  virtual ~MemoryAdapter() {}
 };
 }  // namespace hippy::devtools

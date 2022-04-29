@@ -62,6 +62,7 @@ class DomainMetas : public Serializable {
   float layout_x_;
   float layout_y_;
   std::vector<DomainMetas> children_;
-  uint64_t children_count_;  // 用于展开逻辑，必须赋值，不可从children_读取
+  // It is used to expand logic. It must be assigned a value and cannot be used from children_ read
+  uint64_t children_count_;
 };
 }  // namespace hippy::devtools

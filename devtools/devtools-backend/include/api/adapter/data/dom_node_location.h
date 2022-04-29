@@ -26,7 +26,6 @@
 #include "api/adapter/data/serializable.h"
 
 namespace hippy::devtools {
-
 class DomNodeLocation : public Serializable {
  public:
   DomNodeLocation() = default;

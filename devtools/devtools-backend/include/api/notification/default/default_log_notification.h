@@ -30,10 +30,6 @@ class DefaultLogAdapter : public LogNotification {
  public:
   using BackendLogHandler = std::function<void(LoggerModel logger_model)>;
   explicit DefaultLogAdapter(BackendLogHandler log_handler);
-  /**
-   * JS 日志输出
-   * @param log_message
-   */
   void PrintLog(const std::string& log_message, LogSeverity severity, const std::string& file_name,
                 int32_t line_number) override;
 

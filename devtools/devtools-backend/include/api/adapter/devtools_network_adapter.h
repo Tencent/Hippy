@@ -26,13 +26,16 @@ namespace hippy::devtools {
 /**
  * Network domain allows tracking network activities of the page. It exposes information about http, file, data and
  * other requests and responses, their headers, bodies, timing, etc.
+ * @see https://chromedevtools.github.io/devtools-protocol/tot/Network/
  */
 class NetworkAdapter {
  public:
   /**
-   * 获取网络请求的数据包体
-   * @param request_id 单个网络请求 id
+   * Get the packet body of the network request
+   * @param request_id network request id
    */
   virtual std::string GetResponseBody(std::string request_id) = 0;
+
+  virtual ~NetworkAdapter() {}
 };
 }  // namespace hippy::devtools

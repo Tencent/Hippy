@@ -26,9 +26,9 @@
 
 namespace hippy::devtools {
 /**
- * 外部接入框架与devtools的数据交互通道
- * 1 提供外部接入框架的需要充的provider数据接口
- * 2 提供可供外部接入框架调用的Notification接口
+ * Data interaction channel between external access framework and devtools,
+ * 1 provide the provider data interface that needs to be charged for the external access framework;
+ * 2 Provide notification interface that can be called by external access framework;
  */
 class DataChannel {
  public:

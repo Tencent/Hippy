@@ -29,7 +29,7 @@ message("make devtools_backend so/.a")
 
 set(CMAKE_CXX_CLANG_TIDY ${ANDROID_TOOLCHAIN_ROOT}/bin/clang-tidy -checks=*)
 
-set(ABI_COMPILE_OPTIONS -fexceptions -Wno-error -frtti -w )
+set(ABI_COMPILE_OPTIONS -fexceptions -Wno-error -frtti)
 add_compile_options(${ABI_COMPILE_OPTIONS})
 
 get_filename_component(DEVTOOLS_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" REALPATH)

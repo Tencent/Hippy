@@ -25,19 +25,34 @@
 #include "api/adapter/data/domain_metas.h"
 
 namespace hippy::devtools {
+/**
+ * get the root DOM node (and optionally the subtree) to the caller.
+ * @see https://chromedevtools.github.io/devtools-protocol/tot/DOM/#method-getDocument
+ */
 class ElementsRequestAdapter {
  public:
   using DomainDataCallback = std::function<void(const DomainMetas& data)>;
   using NodeLocationCallback = std::function<void(const DomNodeLocation& data)>;
+
   /**
-   * @brief 获取domain数据
+   * Get the n-tier child node data of the node
+   * @param node_id current node
+   * @param is_root is root node
+   * @param depth n-tier child node
+   * @param callback finish callback
    */
   virtual void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) = 0;
 
   /**
-   * @brief 根据location坐标获取NodeId
+   * Returns node id at given location.
+   * Depending on whether DOM domain is enabled, nodeId is either returned or not.
+   * @see https://chromedevtools.github.io/devtools-protocol/tot/DOM/#method-getNodeForLocation
+   * @param x  mouse x coordinate.
+   * @param y mouse y coordinate.
+   * @param callback finish callback
    */
   virtual void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) = 0;
+
   virtual ~ElementsRequestAdapter() {}
 };
 }  // namespace hippy::devtools

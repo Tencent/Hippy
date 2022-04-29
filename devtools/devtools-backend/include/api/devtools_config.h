@@ -25,7 +25,7 @@
 namespace hippy::devtools {
 
 /**
- * @brief 使用框架
+ * @brief render framework type
  */
 enum class Framework {
   kHippy,
@@ -34,28 +34,22 @@ enum class Framework {
 };
 
 /**
- * @brief 调试通道
+ * @brief tunnel channel type
  */
 enum Tunnel {
-  kWebSocket,  // WebSocket 通道，支持无线局域网/公网，或 Android 有线
-  kTcp,  // 有线连接 TCP 通道，相比 WS 对 iOS 可使用 Chrome 调试 JSC（console、source、memory）
-  kInterface  // CDP 协议接口调用方式，业务方搭建调试通道
+  kWebSocket,  // Websocket channel, supporting WLAN / public network, or Android wired
+  kTcp,  // Wired TCP channel. Compared with WS, you can use chrome to debug JSC (console, source, memory) for IOS
+  kInterface  // CDP protocol interface calling mode, and the business party builds a debugging channel
 };
 
 /**
- * @brief Devtools Config 调试配置注入
+ * devtools config sets
  */
 struct DevtoolsConfig {
-  /**
-   * @brief 当前框架名称，是否需要渲染框架
-   */
   Framework framework = Framework::kHippy;
 
-  /**
-   * @brief 调试通道
-   */
   Tunnel tunnel = Tunnel::kTcp;
 
-  std::string ws_url;  // ws 通道设置的 url
+  std::string ws_url;
 };
 }  // namespace hippy::devtools

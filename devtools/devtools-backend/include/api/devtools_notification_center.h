@@ -21,7 +21,6 @@
 #pragma once
 
 #include <memory>
-#include "api/notification/devtools_elements_response_notification.h"
 #include "api/notification/devtools_log_notification.h"
 #include "api/notification/devtools_network_notification.h"
 #include "api/notification/devtools_runtime_notification.h"
@@ -36,7 +35,6 @@ namespace hippy::devtools {
 struct NotificationCenter {
   std::shared_ptr<LogNotification> log_notification;
   std::shared_ptr<VMResponseNotification> vm_response_notification;
-  std::shared_ptr<ElementsResponseNotification> elements_response_notification;
   std::shared_ptr<NetworkNotification> network_notification;
   std::shared_ptr<RuntimeNotification> runtime_notification;
 };

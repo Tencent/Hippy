@@ -27,15 +27,33 @@
 
 namespace hippy::devtools {
 /**
- * 网络模块调试数据收集
- * 触发场景：由接入框架的网络监听发起
+ * Network module debugging data collection
+ * Trigger scenario: initiated by the network monitoring of the access framework
  */
 class NetworkNotification {
  public:
+  /**
+   * Fired when page is about to send HTTP request.
+   * @see https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-requestWillBeSent
+   * @param request_id network request id
+   * @param request see #DevtoolsHttpRequest
+   */
   virtual void RequestWillBeSent(std::string request_id, const DevtoolsHttpRequest& request) = 0;
 
+  /**
+   * Fired when HTTP response is available.
+   * @see https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-responseReceived
+   * @param request_id network request id
+   * @param response #DevtoolsHttpResponse
+   */
   virtual void ResponseReceived(std::string request_id, const DevtoolsHttpResponse& response) = 0;
 
+  /**
+   * Fired when HTTP request has finished loading.
+   * @see https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-loadingFinished
+   * @param request_id request_id network request id
+   * @param loading #DevtoolsLoadingFinished
+   */
   virtual void LoadingFinished(std::string request_id, const DevtoolsLoadingFinished& loading) = 0;
 };
 }  // namespace hippy::devtools

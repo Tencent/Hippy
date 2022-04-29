@@ -25,17 +25,25 @@
 #include "api/adapter/data/update_dom_node_metas.h"
 
 namespace hippy::devtools {
+/**
+ * Dom node tree data adapter, get or update dom node interface declare
+ * @see https://chromedevtools.github.io/devtools-protocol/tot/DOM/
+ */
 class DomTreeAdapter {
  public:
   using DumpDomTreeCallback = std::function<void(const bool is_success, const DomNodeMetas& metas)>;
   using UpdateDomTreeCallback = std::function<void(const bool is_success)>;
-  /**
-   * @brief 设置 JS 的 dom 节点修改
-   */
+
+   /**
+    * @brief update current page dom node tree
+    * @param metas dom node properties metas
+    * @param callback  finish callback
+    */
   virtual void UpdateDomTree(UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) = 0;
 
   /**
-   * @brief 获取 JS 的 DOM Tree
+   * get current page dom node tree
+   * @param callback finish callback
    */
   virtual void GetDomTree(const DumpDomTreeCallback& callback) = 0;
   virtual ~DomTreeAdapter() {}

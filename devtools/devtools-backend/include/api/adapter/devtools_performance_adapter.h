@@ -25,30 +25,33 @@
 #include "api/adapter/data/frame_timing_metas.h"
 
 namespace hippy::devtools {
+/**
+ * native system performance collector
+ */
 class PerformanceAdapter {
  public:
   using CoreTimelineCallback = std::function<void(const TraceEventMetas &metas)>;
   using CoreFrameTimingsCallback = std::function<void(const FrameTimingMetas &frame_timings)>;
 
   /**
-   * 获取timeline性能数据
-   * @param callback 操作完成后的回调
+   * Get timeline performance data
+   * @param callback data callback
    */
   virtual void CollectTimeline(CoreTimelineCallback callback) = 0;
 
   /**
-   * 获取FrameTimings数据
-   * @param callback 操作完成的回调
-   */
+  * Get FrameTimings performance data
+  * @param callback data callback
+  */
   virtual void CollectFrameTimings(CoreFrameTimingsCallback callback) = 0;
 
   /**
-   * 清空内核 frameTimings 数据
+   * reset current system frameTimings data
    */
   virtual void ResetFrameTimings() = 0;
 
   /**
-   * 清空内核 timeline 数据
+   * reset current system timeline data
    */
   virtual void ResetTimeline() = 0;
 };

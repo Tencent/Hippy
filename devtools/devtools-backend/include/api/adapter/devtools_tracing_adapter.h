@@ -23,17 +23,15 @@
 #include <string>
 
 namespace hippy::devtools {
+/**
+ * Virtual machine running tracing stack
+ */
 class TracingAdapter {
  public:
   using TracingDataCallback = std::function<void(const std::string&)>;
-  /**
-   * @brief 开始获取 Tracing
-   */
+
   virtual void StartTracing() = 0;
 
-  /**
-   * @breif 结束获取 Tracing，并设置获取数据的回调
-   */
   virtual void StopTracing(TracingDataCallback callback) = 0;
   virtual ~TracingAdapter(){}
 };

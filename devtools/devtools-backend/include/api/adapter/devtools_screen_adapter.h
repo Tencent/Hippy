@@ -34,7 +34,7 @@ enum class PicFormat {
 };
 
 /**
- * @brief 截屏数据请求参数
+ * @brief Screenshot data request parameters
  */
 struct ScreenRequest {
   int32_t quality;
@@ -43,33 +43,37 @@ struct ScreenRequest {
   PicFormat encode_format{PicFormat::kJpeg};
 };
 
+/**
+ * screen shot data adapter,
+ * Provide real-time rendering callback capability
+ */
 class ScreenAdapter {
  public:
   using CoreScreenshotCallback = std::function<void(const std::string& image_base64, int32_t width, int32_t height)>;
   virtual ~ScreenAdapter() {}
   /**
-   * @brief 获取当前界面截图
-   * @param request 请求参数
-   * @param callback 回调
+   * @brief Get screenshot data of current interface
+   * @param request request body
+   * @param callback data callback
    */
   virtual void GetScreenShot(const ScreenRequest& request, CoreScreenshotCallback callback) = 0;
 
   /**
-   * 注册core帧回调
-   * @param name 注册key
-   * @param callback core每帧绘制后回调
+   * Register page frame callback
+   * @param callback post render callback
+   * @return register id
    */
   virtual uint64_t AddPostFrameCallback(std::function<void()> callback) = 0;
 
-  /**
-   * 取消注册core帧监听
-   * @param name 注册的key
-   */
+   /**
+    * unregister page frame callback
+    * @param id register id
+    */
   virtual void RemovePostFrameCallback(uint64_t id) = 0;
 
   /**
-   * 获取屏幕像素比 子类可根据需求实现
-   * @return
+   * Obtain the screen pixel ratio subclass, which can be implemented according to requirements
+   * @return scale factor
    */
   virtual double GetScreenScale() { return 1.0f; }
 };

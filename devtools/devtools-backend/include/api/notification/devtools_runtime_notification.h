@@ -24,13 +24,13 @@
 
 namespace hippy::devtools {
 /**
- * Runtime相关Notification
+ * Runtime related notification
  */
 class RuntimeNotification {
  public:
   /**
-   * @brief 更新 context_name
-   * @param context_name context名称
+   * @brief update current context name
+   * @param context_name new context name
    */
   virtual void UpdateContextName(const std::string& context_name) = 0;
 };

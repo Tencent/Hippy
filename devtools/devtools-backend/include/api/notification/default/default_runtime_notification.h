@@ -25,17 +25,12 @@
 #include "tunnel/tunnel_service.h"
 
 namespace hippy::devtools {
-/**
- * Runtime相关Notification
- */
+
 class DefaultRuntimeNotification : public RuntimeNotification {
  public:
   explicit DefaultRuntimeNotification(std::shared_ptr<TunnelService> tunnel_service)
       : tunnel_service_(tunnel_service) {}
-  /**
-   * @brief 更新 context_name
-   * @param context_name
-   */
+
   void UpdateContextName(const std::string& context_name) override;
 
  private:

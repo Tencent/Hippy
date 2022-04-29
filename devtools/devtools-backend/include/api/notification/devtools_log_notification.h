@@ -25,11 +25,17 @@
 #include "module/record_logger.h"
 
 namespace hippy::devtools {
+/**
+ * Log bridge notification
+ */
 class LogNotification {
  public:
   /**
-   * JS 日志输出
-   * @param log_message
+   * Output log to the frontend of devtools
+   * @param log_message msg detail
+   * @param serverity log level
+   * @param file_name log file name
+   * @param line_number line numbder
    */
   virtual void PrintLog(const std::string& log_message, LogSeverity serverity, const std::string& file_name,
                         int32_t line_number) = 0;

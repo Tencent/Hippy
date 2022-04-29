@@ -23,11 +23,14 @@
 #include <string>
 
 namespace hippy::devtools {
+/**
+ * virtual machine notification to devtools
+ */
 class VMResponseNotification {
  public:
   /**
-   * 消息送v8返回
-   * @param data
+   * Message sending from virtual machine
+   * @param data msg
    */
   virtual void ResponseToDevtool(std::string data) = 0;
 };

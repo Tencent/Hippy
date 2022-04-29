@@ -28,10 +28,6 @@ class DefaultV8ResponseAdapter : public VMResponseNotification {
  public:
   using ResponseHandler = std::function<void(std::string)>;
   explicit DefaultV8ResponseAdapter(ResponseHandler response_handler);
-  /**
-   * 消息送v8返回
-   * @param data
-   */
   void ResponseToDevtool(std::string data) override;
 
  private:

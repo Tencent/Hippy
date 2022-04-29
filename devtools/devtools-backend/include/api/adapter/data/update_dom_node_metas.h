@@ -28,9 +28,7 @@ namespace hippy::devtools {
 
 class CSSStyleMetas;
 
-/**
- * 更新 dom node 的数据
- */
+
 class UpdateDomNodeMetas {
  public:
   UpdateDomNodeMetas() = default;
@@ -41,7 +39,7 @@ class UpdateDomNodeMetas {
 
  private:
   int32_t node_id_;
-  std::vector<CSSStyleMetas> style_metas_list_;  // css style 属性列表
+  std::vector<CSSStyleMetas> style_metas_list_;  // css style properties list
 };
 
 /**
