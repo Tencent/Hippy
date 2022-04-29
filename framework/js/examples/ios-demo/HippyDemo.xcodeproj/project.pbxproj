@@ -52,6 +52,7 @@
 		D84AB9CD273A618B00987D03 /* js_native_api_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB985273A618B00987D03 /* js_native_api_jsc.cc */; };
 		F400C2E3274F65FA008BD74B /* js_native_turbo_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = F400C2E2274F65FA008BD74B /* js_native_turbo_jsc.cc */; };
 		F400C2E7274F66ED008BD74B /* js_native_turbo.cc in Sources */ = {isa = PBXBuildFile; fileRef = F400C2E6274F66ED008BD74B /* js_native_turbo.cc */; };
+		F4079544281ABD7A00DD084A /* RenderVsyncManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4079543281ABA4100DD084A /* RenderVsyncManager.mm */; };
 		F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = F419C382274634E9003E242A /* taitank_layout_node.cc */; };
 		F41E3F6127859AB600BD3935 /* create_node.json in Resources */ = {isa = PBXBuildFile; fileRef = F41E3F6027859AB600BD3935 /* create_node.json */; };
 		F42155ED2816A77500688C0D /* animation_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F42155EC2816A77500688C0D /* animation_manager.cc */; };
@@ -335,6 +336,8 @@
 		F400C2E4274F6691008BD74B /* js_native_turbo_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo_jsc.h; sourceTree = "<group>"; };
 		F400C2E5274F66E3008BD74B /* js_native_turbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo.h; sourceTree = "<group>"; };
 		F400C2E6274F66ED008BD74B /* js_native_turbo.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_turbo.cc; sourceTree = "<group>"; };
+		F4079542281ABA4100DD084A /* RenderVsyncManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderVsyncManager.h; sourceTree = "<group>"; };
+		F4079543281ABA4100DD084A /* RenderVsyncManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderVsyncManager.mm; sourceTree = "<group>"; };
 		F419C381274634DB003E242A /* taitank_layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = taitank_layout_node.h; sourceTree = "<group>"; };
 		F419C382274634E9003E242A /* taitank_layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_layout_node.cc; sourceTree = "<group>"; tabWidth = 2; };
 		F41E3F6027859AB600BD3935 /* create_node.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = create_node.json; path = ../../../../../dom/test/create_node.json; sourceTree = "<group>"; };
@@ -1803,6 +1806,8 @@
 				F459C45827D4F355009A7441 /* UIView+Render.h */,
 				F459C45927D4F355009A7441 /* UIView+Render.m */,
 				F4BD045927D5E39F00339A2C /* HippyFrameworkProxy.h */,
+				F4079542281ABA4100DD084A /* RenderVsyncManager.h */,
+				F4079543281ABA4100DD084A /* RenderVsyncManager.mm */,
 			);
 			name = renderer;
 			path = ../../../../renderer/native/ios/renderer;
@@ -1947,6 +1952,7 @@
 				F45D269428067B6900CAB185 /* HippyTextManager.mm in Sources */,
 				F45D266228067B6900CAB185 /* HippyTextField.mm in Sources */,
 				F45D265D28067B6900CAB185 /* HippyViewPagerItemManager.mm in Sources */,
+				F4079544281ABD7A00DD084A /* RenderVsyncManager.mm in Sources */,
 				F468DE802812A95200319196 /* HippyDisplayLink.m in Sources */,
 				F468DE6E2812A95200319196 /* HippyPerformanceLogger.mm in Sources */,
 				F45D269228067B6900CAB185 /* HippyShadowText.mm in Sources */,

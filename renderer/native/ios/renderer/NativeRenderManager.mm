@@ -25,6 +25,7 @@
 #import "HippyUIManager.h"
 #import "dom/layout_node.h"
 #import "dom/dom_manager.h"
+#import "RenderVsyncManager.h"
 
 using DomValue = tdf::base::DomValue;
 using RenderManager = hippy::RenderManager;
@@ -168,6 +169,10 @@ UIView *NativeRenderManager::CreateViewHierarchyFromId(int32_t id) {
 
 id<HippyRenderContext> NativeRenderManager::GetRenderContext() {
     return uiManager_;
+}
+
+void NativeRenderManager::RegisterVSyncSignal(std::function<void ()> vsync_callback, const std::string &key) {
+    [[RenderVsyncManager sharedInstance] registerVsyncObserver:vsync_callback forKey:key];
 }
 
 NativeRenderManager::~NativeRenderManager() {
