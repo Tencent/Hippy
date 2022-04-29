@@ -622,6 +622,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     .reviseDimensionIfNeed(context, dimensionMap, false,
                             false);
         }
+        if (mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().getHippyPlatformAdapter() != null
+                && mContext.getGlobalConfigs().getHippyPlatformAdapter().getNativeMap() != null) {
+            globalParams.pushMap("params", mContext.getGlobalConfigs().getHippyPlatformAdapter().getNativeMap());
+        }
         globalParams.pushMap("Dimensions", dimensionMap);
 
         String packageName = "";

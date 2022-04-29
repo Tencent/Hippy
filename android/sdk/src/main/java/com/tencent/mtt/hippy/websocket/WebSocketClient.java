@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.security.KeyManagementException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,13 +54,13 @@ public class WebSocketClient {
   private final Handler mHandler;
   private final List<Header> mExtraHeaders;
   private final HybiParser mParser;
-  private boolean mConnected;
+  private AtomicBoolean mConnected;
 
   public WebSocketClient(URI uri, WebSocketListener listener, List<Header> extraHeaders) {
     mURI = uri;
     mListener = listener;
     mExtraHeaders = extraHeaders;
-    mConnected = false;
+    mConnected = new AtomicBoolean(false);
     mParser = new HybiParser(this);
 
     mHandlerThread = new HandlerThread("websocket-thread");
@@ -148,7 +149,7 @@ public class WebSocketClient {
 
           mListener.onConnect();
 
-          mConnected = true;
+          mConnected.set(true);
 
           // Now decode websocket frames.
           mParser.start(stream);
@@ -156,16 +157,16 @@ public class WebSocketClient {
         } catch (EOFException ex) {
           Log.d(TAG, "WebSocket EOF!", ex);
           mListener.onDisconnect(0, "EOF");
-          mConnected = false;
+          mConnected.set(false);
         } catch (SSLException ex) {
           // Connection reset by peer
           Log.d(TAG, "Websocket SSL error!", ex);
           mListener.onDisconnect(0, "SSL");
-          mConnected = false;
+          mConnected.set(false);
         } catch (Throwable ex) {
           mListener.onError(new Exception(ex));
         } finally {
-          if (!mConnected && mSocket != null) {
+          if (!mConnected.get() && mSocket != null) {
             try {
               mSocket.close();
             } catch (Throwable ex) {
@@ -194,7 +195,7 @@ public class WebSocketClient {
             mListener.onDisconnect(0, "closed");
             mSocket = null;
           }
-          mConnected = false;
+          mConnected.set(false);
         }
       });
     }
@@ -214,7 +215,7 @@ public class WebSocketClient {
   }
 
   public boolean isConnected() {
-    return mConnected;
+    return mConnected.get();
   }
 
   private StatusLine parseStatusLine(String line) throws IOException {

@@ -39,6 +39,8 @@ import com.tencent.mtt.hippy.adapter.soloader.HippySoLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.adapter.platform.DefaultHippyPlatformAdapter;
+import com.tencent.mtt.hippy.adapter.platform.HippyPlatformAdapter;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyGlobalConfigs {
@@ -99,6 +101,11 @@ public class HippyGlobalConfigs {
 
   private boolean mEnableTurbo;
 
+  /**
+   * platform adater
+   */
+  private HippyPlatformAdapter mHippyPlatformAdapter;
+
   public HippyGlobalConfigs(HippyEngine.EngineInitParams params) {
     this.mContext = params.context;
     this.mSharedPreferencesAdapter = params.sharedPreferencesAdapter;
@@ -113,6 +120,7 @@ public class HippyGlobalConfigs {
     this.mDeviceAdapter = params.deviceAdapter;
     this.mLogAdapter = params.logAdapter;
     this.mEnableTurbo = params.enableTurbo;
+    this.mHippyPlatformAdapter = params.platformAdapter;
   }
 
   private HippyGlobalConfigs(Context context,
@@ -123,7 +131,8 @@ public class HippyGlobalConfigs {
       HippyEngineMonitorAdapter engineMonitorAdapter,
       HippyFontScaleAdapter hippyFontScaleAdapter, HippySoLoaderAdapter hippySoLoaderAdapter,
       HippyDeviceAdapter hippyDeviceAdapter,
-      HippyLogAdapter hippyLogAdapter) {
+      HippyLogAdapter hippyLogAdapter,
+      HippyPlatformAdapter hippyPlatformAdapter) {
     this.mContext = context;
     this.mSharedPreferencesAdapter = sharedPreferencesAdapter;
     this.mExceptionHandler = exceptionHandler;
@@ -136,6 +145,7 @@ public class HippyGlobalConfigs {
     this.mSoLoaderAdapter = hippySoLoaderAdapter;
     this.mDeviceAdapter = hippyDeviceAdapter;
     this.mLogAdapter = hippyLogAdapter;
+    this.mHippyPlatformAdapter = hippyPlatformAdapter;
   }
 
   public void destroyIfNeed() {
@@ -206,6 +216,10 @@ public class HippyGlobalConfigs {
     return mEngineMonitorAdapter;
   }
 
+  public HippyPlatformAdapter getHippyPlatformAdapter() {
+    return mHippyPlatformAdapter;
+  }
+
   @Deprecated
   public void toDebug(HippyEngine.EngineInitParams params) {
     params.context = mContext;
@@ -221,6 +235,7 @@ public class HippyGlobalConfigs {
     params.deviceAdapter = mDeviceAdapter;
     params.logAdapter = mLogAdapter;
     params.enableTurbo = true;
+    params.platformAdapter = mHippyPlatformAdapter;
   }
 
   @SuppressWarnings({"unused"})
@@ -251,6 +266,7 @@ public class HippyGlobalConfigs {
 
     private HippyLogAdapter mLogAdapter;
 
+    private HippyPlatformAdapter mHippyPlatformAdapter;
 
     public HippyLogAdapter getLogAdapter() {
       return mLogAdapter;
@@ -317,6 +333,11 @@ public class HippyGlobalConfigs {
       return this;
     }
 
+    public Builder setHippyPlatformAdapter(HippyPlatformAdapter hippyPlatformAdapter) {
+      this.mHippyPlatformAdapter = hippyPlatformAdapter;
+      return this;
+    }
+
     @Deprecated
     public HippyGlobalConfigs build() {
       if (mContext == null) {
@@ -355,6 +376,9 @@ public class HippyGlobalConfigs {
       if (mLogAdapter == null) {
         mLogAdapter = new DefaultLogAdapter();
       }
+      if (mHippyPlatformAdapter == null) {
+        mHippyPlatformAdapter = new DefaultHippyPlatformAdapter();
+      }
       if (mImageLoaderAdapter == null) {
         throw new IllegalArgumentException(
             "HippyGlobalConfigs ImageLoaderAdapter must is not null!");
@@ -364,7 +388,7 @@ public class HippyGlobalConfigs {
           mContext, mSharedPreferencesAdapter, mExceptionHandler,
           mHttpAdapter, mImageLoaderAdapter, mExecutorSupplierAdapter, mStorageAdapter,
           mEngineMonitorAdapter, mFontScaleAdapter,
-          mSoLoaderAdapter, mDeviceAdapter, mLogAdapter);
+          mSoLoaderAdapter, mDeviceAdapter, mLogAdapter, mHippyPlatformAdapter);
       return configs;
     }
   }

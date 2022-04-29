@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "network")
@@ -50,9 +52,11 @@ public class NetworkModule extends HippyNativeModuleBase {
 
   // 使用CookieManager之前，需要初始化CookieSyncManager，单例的
   static CookieSyncManager mCookieSyncManager;
+  boolean isTvPlatform = false;
 
   public NetworkModule(HippyEngineContext context) {
     super(context);
+    isTvPlatform = context.getGlobalConfigs().getHippyPlatformAdapter().isTvPlatform();
   }
 
   private void hippyMapToRequestHeaders(HippyHttpRequest request, HippyMap map) {
@@ -126,7 +130,7 @@ public class NetworkModule extends HippyNativeModuleBase {
     if (configs != null && configs.getHttpAdapter() != null) {
       adapter = configs.getHttpAdapter();
       adapter.handleRequestCookie(url, requestCookies, httpRequest);
-      adapter.sendRequest(httpRequest, new HttpTaskCallbackImpl(promise));
+      adapter.sendRequest(httpRequest, new HttpTaskCallbackImpl(promise, isTvPlatform));
     }
   }
 
@@ -193,9 +197,11 @@ public class NetworkModule extends HippyNativeModuleBase {
   private static class HttpTaskCallbackImpl implements HippyHttpAdapter.HttpTaskCallback {
 
     private final Promise mPromise;
+    private final boolean isTvPlatform;
 
-    public HttpTaskCallbackImpl(Promise promise) {
+    public HttpTaskCallbackImpl(Promise promise, boolean isTvPlatform) {
       mPromise = promise;
+      this.isTvPlatform = isTvPlatform;
     }
 
     @SuppressWarnings("CharsetObjectCanBeUsed")
@@ -259,7 +265,18 @@ public class NetworkModule extends HippyNativeModuleBase {
     @Override
     public void onTaskFailed(HippyHttpRequest request, Throwable error) {
       if (error != null) {
-        mPromise.resolve(error.getMessage());
+        if (isTvPlatform) {
+          JSONObject object = new JSONObject();
+          try {
+            object.put("errorCode", request.getErrorCode());
+            object.put("errorMsg", error.getMessage());
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
+          mPromise.resolve(object.toString());
+        } else {
+          mPromise.resolve(error.getMessage());
+        }
       }
     }
   }

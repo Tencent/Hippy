@@ -36,6 +36,7 @@ public class HippyHttpRequest {
   private String mMethod = "GET";
   private boolean mInstanceFollowRedirects = false;
   private String mBody;
+  private int mErrorCode = 0;
 
   public HippyHttpRequest() {
     //noinspection unchecked,rawtypes
@@ -111,6 +112,14 @@ public class HippyHttpRequest {
 
   public String getBody() {
     return mBody;
+  }
+
+  public void setErrorCode(int errorCode) {
+    this.mErrorCode = errorCode;
+  }
+
+  public int getErrorCode() {
+    return mErrorCode;
   }
 
   public void setBody(String body) {

@@ -51,6 +51,8 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
+import com.tencent.mtt.hippy.adapter.platform.DefaultHippyPlatformAdapter;
+import com.tencent.mtt.hippy.adapter.platform.HippyPlatformAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -291,6 +293,8 @@ public abstract class HippyEngine {
     public HippyLogAdapter logAdapter;
     public V8InitParams v8InitParams;
     public boolean enableTurbo;
+    // 可选参数 tv平台支持
+    public HippyPlatformAdapter platformAdapter;
 
     protected void check() {
       if (context == null) {
@@ -332,6 +336,9 @@ public abstract class HippyEngine {
       }
       if (logAdapter == null) {
         logAdapter = new DefaultLogAdapter();
+      }
+      if (platformAdapter == null) {
+        platformAdapter = new DefaultHippyPlatformAdapter();
       }
       if (providers == null) {
         providers = new ArrayList<>();

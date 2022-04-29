@@ -17,6 +17,10 @@ package com.tencent.mtt.hippy.uimanager;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
+import android.graphics.drawable.PaintDrawable;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.text.TextUtils;
@@ -227,6 +231,87 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
   }
 
+  @HippyControllerProps(name = "setVisible", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+  public void setVisible(T view, boolean flag) {
+    view.setVisibility(flag ? View.VISIBLE : View.INVISIBLE);
+  }
+
+  @HippyControllerProps(name = "gradient", defaultType = HippyControllerProps.MAP)
+  public void setGradientFill(T view, HippyMap map) {
+    if (map != null && map.containsKey("shader")) {
+      Shader shader = null;
+      int borderRadius = map.getInt("borderRadius");
+      String name = map.getString("shader");
+      switch (name) {
+        case "LinearGradient":
+          shader = getLinearGradient(map);
+          break;
+        case "RadialGradient":
+          shader = getRadialGradient(map);
+          break;
+        default:
+          break;
+      }
+      PaintDrawable paintDrawable = new PaintDrawable();
+      paintDrawable.getPaint().setShader(shader);
+      paintDrawable.setCornerRadius(borderRadius);
+      view.setBackgroundDrawable(paintDrawable);
+    }
+  }
+
+  private Shader getRadialGradient(HippyMap map) {
+    Shader shader = null;
+    HippyMap paramHippyMap = map.getMap("param");
+    if (paramHippyMap != null) {
+      float cx = PixelUtil.dp2px(paramHippyMap.getDouble("cx"));
+      float cy = PixelUtil.dp2px(paramHippyMap.getDouble("cy"));
+      float rx = PixelUtil.dp2px(paramHippyMap.getDouble("rx"));
+      HippyArray stopArray = map.getArray("stop");
+      if (stopArray != null) {
+        int[] colors = new int[stopArray.size()];
+        float[] offsets = new float[stopArray.size()];
+        for (int i = 0; i < stopArray.size(); i++) {
+          HippyMap stopMap = stopArray.getMap(i);
+          if (stopMap != null) {
+            float offset = (float) stopMap.getDouble("offset");
+            int stopColor = stopMap.getInt("stopColor");
+            offsets[i] = offset;
+            colors[i] = stopColor;
+          }
+        }
+        shader = new RadialGradient(cx, cy, rx, colors, offsets, Shader.TileMode.CLAMP);
+      }
+    }
+    return shader;
+  }
+
+  private Shader getLinearGradient(HippyMap map) {
+    Shader shader = null;
+    HippyMap paramHippyMap = map.getMap("param");
+    if (paramHippyMap != null) {
+      float x1 = PixelUtil.dp2px(paramHippyMap.getDouble("x1"));
+      float y1 = PixelUtil.dp2px(paramHippyMap.getDouble("y1"));
+      float x2 = PixelUtil.dp2px(paramHippyMap.getDouble("x2"));
+      float y2 = PixelUtil.dp2px(paramHippyMap.getDouble("y2"));
+      HippyArray stopArray = map.getArray("stop");
+      if (stopArray != null) {
+        int[] colors = new int[stopArray.size()];
+        float[] offsets = new float[stopArray.size()];
+        for (int i = 0; i < stopArray.size(); i++) {
+          HippyMap stopMap = stopArray.getMap(i);
+          if (stopMap != null) {
+            float offset = (float) stopMap.getDouble("offset");
+            int stopColor = stopMap.getInt("stopColor");
+            offsets[i] = offset;
+            colors[i] = stopColor;
+          }
+        }
+        shader = new LinearGradient(x1, y1, x2, y2, colors, offsets, Shader.TileMode.CLAMP);
+      }
+    }
+    return shader;
+  }
+
   /**
    * color/border/alpha
    **/
@@ -317,6 +402,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
   @HippyControllerProps(name = NodeProps.FOCUSABLE, defaultType = HippyControllerProps.BOOLEAN)
   public void setFocusable(T view, boolean focusable) {
     view.setFocusable(focusable);
+    view.setFocusableInTouchMode(focusable);
     if (focusable) {
       view.setOnFocusChangeListener(this);
     } else {
