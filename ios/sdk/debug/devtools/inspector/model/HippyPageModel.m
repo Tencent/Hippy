@@ -120,7 +120,7 @@ NSString *const HippyPageImageFormatJPEG = @"jpeg";
             scale = MIN(scaleX, scaleY);
         }
         // root view snapshot
-        UIGraphicsBeginImageContextWithOptions(rootView.frame.size, YES, scale);
+        UIGraphicsBeginImageContextWithOptions(rootView.frame.size, NO, scale);
         [rootView drawViewHierarchyInRect:rootView.bounds afterScreenUpdates:YES];
         UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
