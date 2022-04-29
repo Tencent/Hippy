@@ -18,22 +18,25 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.view.KeyEvent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.HippyRecyclerViewBase;
 import androidx.recyclerview.widget.IHippyViewAboundListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHeaderHelper;
-import java.util.ArrayList;
 
 /**
  * Created  on 2020/12/22. Description
@@ -54,6 +57,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private ViewStickEventHelper viewStickEventHelper;
     private boolean stickEventEnable;
     private int mInitialContentOffset;
+    private boolean isTvPlatform = false;
+    private HippyRecycleViewFocusHelper mFocusHelper = null;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -106,9 +111,14 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     public void initRecyclerView() {
+        isTvPlatform = hippyEngineContext.isRunningOnTVPlatform();
         setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this, this.hippyEngineContext));
         intEventHelper();
         setItemViewCacheSize(DEFAULT_ITEM_VIEW_CACHE_SIZE);
+        if (isTvPlatform) {
+            mFocusHelper = new HippyRecycleViewFocusHelper(this);
+            setFocusableInTouchMode(true);
+        }
     }
 
     @Override
@@ -135,7 +145,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         int itemCount = getAdapter().getItemCount();
         boolean vertical = HippyListUtils.isVerticalLayout(this);
         for (int i = 0; i < itemCount; i++) {
-            distanceToPosition += vertical ? listAdapter.getItemHeight(i) : listAdapter.getItemWidth(i);
+            distanceToPosition +=
+                    vertical ? listAdapter.getItemHeight(i) : listAdapter.getItemWidth(i);
             if (distanceToPosition > offset) {
                 position = i;
                 break;
@@ -157,6 +168,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public void setListData() {
         LogUtils.d("HippyRecyclerView", "itemCount =" + listAdapter.getItemCount());
         listAdapter.notifyDataSetChanged();
+
+        if (isTvPlatform) {
+            mFocusHelper.setListData();
+        }
+
         //notifyDataSetChanged 本身是可以触发requestLayout的，但是Hippy框架下 HippyRootView 已经把
         //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
         renderNodeCount = getAdapter().getRenderNodeCount();
@@ -181,7 +197,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public int getContentOffsetX() {
         int firstChildPosition = getFirstChildPosition();
         int totalWidthBeforePosition = getTotalWithBefore(firstChildPosition);
-        int firstChildOffset = listAdapter.getItemWidth(firstChildPosition) - getVisibleWidth(getChildAt(0));
+        int firstChildOffset =
+                listAdapter.getItemWidth(firstChildPosition) - getVisibleWidth(getChildAt(0));
         return totalWidthBeforePosition + firstChildOffset;
     }
 
@@ -211,27 +228,27 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     /**
-     * 获取position 前面的内容高度，不包含position自身的高度
-     * 对于竖向排版，取ItemHeight求和，对于横向排版，取ItemWidth求和
+     * 获取position 前面的内容高度，不包含position自身的高度 对于竖向排版，取ItemHeight求和，对于横向排版，取ItemWidth求和
      */
     public int getTotalHeightBefore(int position) {
         int totalHeightBefore = 0;
         boolean vertical = HippyListUtils.isVerticalLayout(this);
         for (int i = 0; i < position; i++) {
-            totalHeightBefore += vertical ? listAdapter.getItemHeight(i) : listAdapter.getItemWidth(i);
+            totalHeightBefore +=
+                    vertical ? listAdapter.getItemHeight(i) : listAdapter.getItemWidth(i);
         }
         return totalHeightBefore;
     }
 
     /**
-     * 获取renderNodePosition前面的内容高度，不包含renderNodePosition自身的高度
-     * 对于竖向排版，取RenderNodeHeight求和，对于横向排版，取RenderNodeWidth求和
+     * 获取renderNodePosition前面的内容高度，不包含renderNodePosition自身的高度 对于竖向排版，取RenderNodeHeight求和，对于横向排版，取RenderNodeWidth求和
      */
     public int getRenderNodeHeightBefore(int renderNodePosition) {
         int renderNodeTotalHeight = 0;
         boolean vertical = HippyListUtils.isVerticalLayout(this);
         for (int i = 0; i < renderNodePosition; i++) {
-            renderNodeTotalHeight += vertical ? listAdapter.getRenderNodeHeight(i) : listAdapter.getRenderNodeWidth(i);
+            renderNodeTotalHeight += vertical ? listAdapter.getRenderNodeHeight(i)
+                    : listAdapter.getRenderNodeWidth(i);
         }
         return renderNodeTotalHeight;
     }
@@ -277,7 +294,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public void scrollToIndex(int xIndex, int yPosition, boolean animated, int duration) {
         int positionInAdapter = getNodePositionInAdapter(yPosition);
         if (animated) {
-            doSmoothScrollY(duration, getTotalHeightBefore(positionInAdapter) - getContentOffsetY());
+            doSmoothScrollY(duration,
+                    getTotalHeightBefore(positionInAdapter) - getContentOffsetY());
             postDispatchLayout();
         } else {
             scrollToPositionWithOffset(positionInAdapter, 0);
@@ -292,7 +310,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
      * @param animated 是否有动画
      * @param duration 动画的时间
      */
-    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated, int duration) {
+    public void scrollToContentOffset(double xOffset, double yOffset, boolean animated,
+            int duration) {
         if (!canScrollToContentOffset()) {
             return;
         }
@@ -309,8 +328,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     /**
      * renderNodeCount是在setListData的时候更新，必须调用setListData后，确保renderNodeCount和
      * getAdapter().getRenderNodeCount()的值相等，才能进行滚动，否则scrollBy会出现IndexOutOfBoundsException
-     * 的问题，主要原因就是RecyclerView的内部状态没有通过setListData进行刷新，还是老的数据，
-     * 这个比现的场景来自于QQ浏览器的搜索tab的切换。
+     * 的问题，主要原因就是RecyclerView的内部状态没有通过setListData进行刷新，还是老的数据， 这个比现的场景来自于QQ浏览器的搜索tab的切换。
      * RenderManager的batch方法应该把dispatchUIFunction放到batchComplete后面，但是这样改动太大
      *
      * @return
@@ -377,8 +395,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     /**
-     * 当header被摘下来，需要对header进行还原或者回收对处理
-     * 遍历所有都ViewHolder，看看有没有收纳这个headerView都ViewHolder
+     * 当header被摘下来，需要对header进行还原或者回收对处理 遍历所有都ViewHolder，看看有没有收纳这个headerView都ViewHolder
      * 如果没有，需要把aboundHeader进行回收，并同步删除render节点对应都view
      *
      * @param aboundHeader HeaderView对应的Holder
@@ -389,7 +406,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         boolean findHostViewHolder = false;
         for (int i = 0; i < getChildCountWithCaches(); i++) {
             ViewHolder viewHolder = getChildViewHolder(getChildAtWithCaches(i));
-            if (isTheSameRenderNode((HippyRecyclerViewHolder) aboundHeader, (HippyRecyclerViewHolder) viewHolder)) {
+            if (isTheSameRenderNode((HippyRecyclerViewHolder) aboundHeader,
+                    (HippyRecyclerViewHolder) viewHolder)) {
                 findHostViewHolder = true;
                 fillContentView(currentHeaderView, viewHolder);
                 break;
@@ -411,7 +429,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         return false;
     }
 
-    private boolean isTheSameRenderNode(HippyRecyclerViewHolder aboundHeader, HippyRecyclerViewHolder viewHolder) {
+    public boolean isTheSameRenderNode(HippyRecyclerViewHolder aboundHeader,
+            HippyRecyclerViewHolder viewHolder) {
         if (viewHolder.bindNode != null && aboundHeader.bindNode != null) {
             return viewHolder.bindNode.getId() == aboundHeader.bindNode.getId();
         }
@@ -451,8 +470,51 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            if (isTvPlatform) {
+                mFocusHelper.setKeyCode(event.getKeyCode());
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public void requestChildFocus(View child, View focused) {
+        super.requestChildFocus(child, focused);
+        if (isTvPlatform) {
+            mFocusHelper.requestChildFocus(child, focused);
+        }
+    }
+
+    @Override
+    public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {
+        if (isTvPlatform) {
+            return mFocusHelper.requestChildRectangleOnScreen(child, rect, immediate);
+        }
+        return super.requestChildRectangleOnScreen(child, rect, immediate);
+    }
+
+    @Override
+    protected int getChildDrawingOrder(int childCount, int i) {
+        if (isTvPlatform) {
+            return mFocusHelper.getChildDrawingOrder(childCount, i);
+        }
+        return super.getChildDrawingOrder(childCount, i);
+    }
+
+    @Override
+    public View focusSearch(View focused, int direction) {
+        if (isTvPlatform) {
+            return mFocusHelper.focusSearch(focused, direction);
+        }
+        return super.focusSearch(focused, direction);
+    }
+
+    @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "{renderNodeCount:" + renderNodeCount + ",state:" + getStateInfo()
+        return this.getClass().getSimpleName() + "{renderNodeCount:" + renderNodeCount + ",state:"
+                + getStateInfo()
                 + "}";
     }
 }

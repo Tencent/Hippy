@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.uimanager;
 
+import android.text.TextUtils;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
@@ -43,6 +44,7 @@ public class UIManagerModule extends HippyNativeModuleBase {
   final String NAME = "name";
   final String PROPS = "props";
   final String TAG_NAME = "tagName";
+  final String NATIVE_NAME = "nativeName";
 
   public UIManagerModule(HippyEngineContext context) {
     super(context);
@@ -65,6 +67,11 @@ public class UIManagerModule extends HippyNativeModuleBase {
         }
 
         String className = (String) nodeArray.get(NAME);
+        String nativeName = nodeArray.getString(NATIVE_NAME);
+        if (!TextUtils.isEmpty(nativeName) && !TextUtils.isEmpty(className)
+          && !TextUtils.equals(nativeName, className)) {
+          className = nativeName;
+        }
         String tagName = (String) nodeArray.get(TAG_NAME);
         HippyMap props = (HippyMap) nodeArray.get(PROPS);
         domManager.createNode(hippyRootView, rootID, tag, pTag, index, className, tagName, props);

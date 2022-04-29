@@ -17,13 +17,19 @@ package com.tencent.mtt.hippy.views.scroll;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Build;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ScrollView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.HippyInstanceContext;
+import java.util.ArrayList;
 
 @SuppressWarnings("deprecation")
 public class HippyVerticalScrollView extends ScrollView implements HippyViewBase, HippyScrollView {
@@ -60,11 +66,20 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
   private int mLastY = 0;
   private int initialContentOffset = 0;
   private boolean hasCompleteFirstBatch = false;
+  private HippyVerticalScrollViewFocusHelper mFocusHelper = null;
+  private final boolean isTvPlatform;
 
   public HippyVerticalScrollView(Context context) {
     super(context);
     mHippyOnScrollHelper = new HippyOnScrollHelper();
     setVerticalScrollBarEnabled(false);
+
+    HippyEngineContext hippyContext = ((HippyInstanceContext) context).getEngineContext();
+    isTvPlatform = hippyContext.isRunningOnTVPlatform();
+    if (isTvPlatform) {
+        mFocusHelper = new HippyVerticalScrollViewFocusHelper(this);
+        setFocusableInTouchMode(true);
+    }
   }
 
   public void setScrollEnabled(boolean enabled) {
@@ -139,6 +154,10 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
       // 当手指松开时，让父控件重新获取onTouch权限
       setParentScrollableIfNeed(true);
       mDragging = false;
+    }
+
+    if (!mDragging && isTvPlatform) {
+      mFocusHelper.handleRequestFocusFromTouch(event);
     }
 
     boolean result = mScrollEnabled && super.onTouchEvent(event);
@@ -264,7 +283,11 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     if (height <= 0) {
       return;
     }
-    int maxPage = getChildAt(0).getHeight()/height;
+    View view = getChildAt(0);
+    if (view == null) {
+      return;
+    }
+    int maxPage = view.getHeight()/height;
     int page = startScrollY / height;
     int offset = getScrollY() - startScrollY;
     if (offset == 0) {
@@ -341,5 +364,47 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     }
 
     hasCompleteFirstBatch = true;
+  }
+
+  @Override
+  public View focusSearch(View focused, int direction) {
+    if (isTvPlatform) {
+      return mFocusHelper.focusSearch(focused, direction);
+    }
+    return super.focusSearch(focused, direction);
+  }
+
+  @Override
+  protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+    if (getVisibility() != View.VISIBLE) {
+      return false;
+    }
+
+    if (isTvPlatform) {
+      if (mFocusHelper.requestFocusInDescendants(direction, previouslyFocusedRect)) {
+        return true;
+      }
+    }
+
+    return super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
+  }
+
+  @Override
+  public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+    if (isTvPlatform) {
+      if (!mFocusHelper.addFocusablesImp(views, direction, focusableMode)) {
+        super.addFocusables(views, direction, focusableMode);
+      }
+    } else {
+      super.addFocusables(views, direction, focusableMode);
+    }
+  }
+
+  @Override
+  public void requestChildFocus(View child, View focused) {
+    super.requestChildFocus(child, focused);
+    if (isTvPlatform) {
+      mFocusHelper.scrollToFocusChild(focused);
+    }
   }
 }

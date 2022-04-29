@@ -105,6 +105,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   private final String mRemoteServerUrl;
 
   final boolean enableV8Serialization;
+  final boolean mRunningOnTVPlatform;
 
   boolean mDevManagerInited = false;
   final TimeMonitor mStartTimeMonitor;
@@ -154,6 +155,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     this.mGroupId = params.groupId;
     this.mThirdPartyAdapter = params.thirdPartyAdapter;
     this.v8InitParams = params.v8InitParams;
+    this.mRunningOnTVPlatform = params.runningOnTVPlatform;
   }
 
   /**
@@ -959,6 +961,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     public void setNativeParams(Map<String, Object> nativeParams) {
       mNativeParams = nativeParams;
+    }
+
+    @Override
+    public boolean isRunningOnTVPlatform() {
+      return mRunningOnTVPlatform;
     }
 
     @Override
