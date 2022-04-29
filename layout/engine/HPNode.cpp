@@ -190,7 +190,7 @@ bool HPNode::insertChild(HPNodeRef item, uint32_t index) {
     return false;
   }
   item->setParent(this);
-  children.insert(children.begin() + index, item);
+  children.insert(children.begin() + static_cast<int>(index), item);
   markAsDirty();
   return true;
 }
@@ -223,7 +223,7 @@ bool HPNode::removeChild(uint32_t index) {
     child->setParent(nullptr);
     child->resetLayoutRecursive(false);
   }
-  children.erase(children.begin() + index);
+  children.erase(children.begin() + static_cast<int>(index));
   markAsDirty();
   return true;
 }
