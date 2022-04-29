@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.http;
 
 import android.os.Build;
 
 import androidx.annotation.Nullable;
+
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -175,5 +178,4 @@ public class HippyHttpRequest {
             USER_AGENT = String.format(base, buffer);
         }
     }
-
 }
