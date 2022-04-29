@@ -138,6 +138,8 @@ public:
     
     void RegisterVSyncSignal(std::function<void ()> vsync_callback, const std::string &key);
     
+    void UnregiserVSyncSingal(const std::string &key);
+    
 private:
     HippyUIManager *uiManager_;
 };

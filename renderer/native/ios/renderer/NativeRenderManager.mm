@@ -175,6 +175,10 @@ void NativeRenderManager::RegisterVSyncSignal(std::function<void ()> vsync_callb
     [[RenderVsyncManager sharedInstance] registerVsyncObserver:vsync_callback forKey:key];
 }
 
+void NativeRenderManager::UnregiserVSyncSingal(const std::string &key) {
+    [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:key];
+}
+
 NativeRenderManager::~NativeRenderManager() {
     [uiManager_ invalidate];
     uiManager_ = nil;
