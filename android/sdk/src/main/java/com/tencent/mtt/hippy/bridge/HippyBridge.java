@@ -18,6 +18,9 @@ package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
 
+import com.tencent.mtt.hippy.bridge.heap.HeapCodeStatistics;
+import com.tencent.mtt.hippy.bridge.heap.HeapSpaceStatistics;
+import com.tencent.mtt.hippy.bridge.heap.HeapStatistics;
 import com.tencent.mtt.hippy.common.HippyArray;
 
 import java.nio.ByteBuffer;
@@ -44,6 +47,12 @@ public interface HippyBridge {
             int length);
 
     long getV8RuntimeId();
+
+    // [Heap]
+    HeapCodeStatistics getHeapCodeStatistics();
+    HeapStatistics getHeapStatistics();
+    HeapSpaceStatistics[] getHeapSpaceStatisticsList();
+    int writeHeapSnapshot(String filePath);
 
     interface BridgeCallback {
 

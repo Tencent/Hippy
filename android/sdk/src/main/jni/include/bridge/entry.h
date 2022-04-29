@@ -22,10 +22,24 @@
 
 #pragma once
 
+#include <core/base/file.h>
 #include <jni.h>
+#include <sys/stat.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#include "v8/v8-profiler.h"
+#pragma clang diagnostic pop
+#include "jni/jni_utils.h"
+
+#define HSOSA_FILE_OK 0
+#define WRITE_HEAP_OK 0
+#define WRITE_HEAP_ERR_RUN -1
+#define WRITE_HEAP_ERR_FILE -2
+#define WRITE_HEAP_ERR_SAVE -3
 
 namespace hippy {
 namespace bridge {
+using unicode_string_view = tdf::base::unicode_string_view;
 
 void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
 
@@ -53,6 +67,85 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jstring j_code_cache_dir,
                           jlong j_runtime_id,
                           jobject j_cb);
+
+// [Heap]
+jobject GetHeapCodeStatistics(JNIEnv* j_env,
+                              jobject j_object,
+                              jlong j_runtime_id);
+jobject GetHeapSpaceStatisticsList(JNIEnv* j_env,
+                                   jobject j_object,
+                                   jlong j_runtime_id);
+jobject GetHeapStatistics(JNIEnv* j_env,
+                          jobject j_object,
+                          jlong j_runtime_id);
+// Creating a heap snapshot requires memory about twice the size of the heap at the time the snapshot is created.
+// This results in the risk of OOM killers terminating the process.
+jint WriteHeapSnapshot(JNIEnv* j_env,
+                       jobject j_object,
+                       jlong j_runtime_id,
+                       jstring j_heap_snapshot_path);
+// [Heap] HeapSnapshot OutputStream
+class HeapSnapshotOutputStreamAdapter : public v8::OutputStream {
+private:
+    unicode_string_view m_file_path;
+public:
+    enum SaveResult {
+        sInit = 0,
+        sOk = 1,
+        sError = 2
+    };
+    SaveResult save_res_ = sInit;
+    void EndOfStream(){
+        save_res_ = sOk;
+        return;
+    }
+    int GetChunkSize(){
+        return 1024;
+    }
+    WriteResult WriteAsciiChunk(char* data, int size) {
+        if (!base::StringViewUtils::IsEmpty(m_file_path)) {
+            // save to file
+            std::string heap_snapshot_chunk_data =
+                    base::StringViewUtils::ToU8StdStr(data);
+            bool save_file_ret =
+                    base::HippyFile::SaveFile(m_file_path, heap_snapshot_chunk_data, std::ios::app);
+            if (!save_file_ret) {
+                TDF_BASE_DLOG(WARNING) << "HeapSnapshotOutputStreamAdapter save file error";
+                save_res_ = sError;
+                return kAbort;
+            }
+        }
+        return kContinue;
+    }
+    WriteResult WriteHeapStatsChunk(v8::HeapStatsUpdate* data, int count) {
+        save_res_ = sError;
+        return kAbort;
+    }
+
+    int SetFilePath(const unicode_string_view& snapshot_file_path) {
+        TDF_BASE_DLOG(INFO) << "HeapSnapshotOutputStreamAdapter SetFilePath heap_snapshot_file_path = " << snapshot_file_path;
+        int result = HSOSA_FILE_OK;
+        size_t pos =
+                base::StringViewUtils::FindLastOf(snapshot_file_path, EXTEND_LITERAL('/'));
+        unicode_string_view snapshot_parent_dir =
+                base::StringViewUtils::SubStr(snapshot_file_path, 0, pos);
+        int check_parent_dir_ret =
+                base::HippyFile::CheckDir(snapshot_parent_dir, F_OK);
+        // no file or no permission
+        if (check_parent_dir_ret) {
+            TDF_BASE_DLOG(INFO) << "HeapSnapshotOutputStreamAdapter SetFilePath check_heap_snapshot_parent_dir_ret = " << check_parent_dir_ret;
+            result = base::HippyFile::CreateDir(snapshot_parent_dir, S_IRWXU);
+        }
+        if (!result) {
+            save_res_ = sInit;
+            m_file_path = snapshot_file_path;
+        } else {
+            save_res_ = sError;
+        }
+        TDF_BASE_DLOG(INFO) << "HeapSnapshotOutputStreamAdapter SetFilePath result = " << result;
+        return result;
+    }
+};
 
 }  // namespace bridge
 }  // namespace hippy

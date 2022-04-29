@@ -688,4 +688,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     private boolean enableTurbo() {
         return mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().enableTurbo();
     }
+
+  @Override
+  public HippyBridge getHippyBridge() {
+      return mHippyBridge;
+  }
 }

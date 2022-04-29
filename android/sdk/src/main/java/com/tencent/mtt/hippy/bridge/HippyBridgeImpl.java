@@ -19,6 +19,9 @@ package com.tencent.mtt.hippy.bridge;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.bridge.heap.HeapCodeStatistics;
+import com.tencent.mtt.hippy.bridge.heap.HeapSpaceStatistics;
+import com.tencent.mtt.hippy.bridge.heap.HeapStatistics;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
@@ -284,6 +287,23 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         destroy(mV8RuntimeId, mSingleThreadMode, callback);
     }
 
+  @Override
+  public HeapCodeStatistics getHeapCodeStatistics() {
+    return getHeapCodeStatistics(mV8RuntimeId);
+  }
+  @Override
+  public HeapStatistics getHeapStatistics() {
+    return getHeapStatistics(mV8RuntimeId);
+  }
+  @Override
+  public HeapSpaceStatistics[] getHeapSpaceStatisticsList() {
+    return getHeapSpaceStatisticsList(mV8RuntimeId);
+  }
+  @Override
+  public int writeHeapSnapshot(String filePath) {
+    return writeHeapSnapshot(mV8RuntimeId, filePath);
+  }
+
     public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, V8InitParams v8InitParams);
@@ -292,6 +312,12 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
 
     public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
+
+    // [Heap]
+    public native HeapCodeStatistics getHeapCodeStatistics(long runtimeId);
+    public native HeapStatistics getHeapStatistics(long runtimeId);
+    public native HeapSpaceStatistics[] getHeapSpaceStatisticsList(long runtimeId);
+    public native int writeHeapSnapshot(long runtimeId, String filePath);
 
     public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);
