@@ -293,6 +293,7 @@ public abstract class HippyEngine {
     public HippyLogAdapter logAdapter;
     public V8InitParams v8InitParams;
     public boolean enableTurbo;
+    public boolean runningOnTVPlatform;
 
     protected void check() {
       if (context == null) {
