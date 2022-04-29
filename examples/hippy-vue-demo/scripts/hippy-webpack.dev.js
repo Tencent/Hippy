@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
@@ -39,6 +40,8 @@ module.exports = {
       host: '127.0.0.1',
       port: 38989,
     },
+    // support inspect vue components, store and router, by default is disabled
+    vueDevtools: false,
     // support debug multiple project with only one debug server, by default is set false.
     multiple: false,
     // by default hot and liveReload option are true, you could set only liveReload to true
@@ -47,6 +50,9 @@ module.exports = {
     liveReload: true,
     client: {
       overlay: false,
+    },
+    devMiddleware: {
+      writeToDisk: true,
     },
   },
   entry: {
@@ -80,6 +86,7 @@ module.exports = {
     //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
     //   filename: '[file].map',
     // }),
+    new CleanWebpackPlugin(),
   ],
   module: {
     rules: [

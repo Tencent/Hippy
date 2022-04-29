@@ -102,7 +102,7 @@ iOS 调试支持模拟器和真机两种方式，由于 JSBundle 和调试协议
 
 ### 真机调试
 
-1. iOS 真机调试只支持 XCode 编译的 App，并且 iOS 设备上需要开启 JavaScript 调试和 Web 检查器选项
+1. **iOS 真机调试只支持 XCode 编译的 App，并且 iOS 设备上需要开启 JavaScript 调试和 Web 检查器选项**
 
    <img src="../assets/img/ios-safari-config.png" alt="safari 调试设置" width="60%" />
   
@@ -320,6 +320,39 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
       },
     }
     ```
+
+# Vue Devtools
+
+> 最低支持版本 2.13.7
+
+支持调试 Vue 组件树、组件状态、路由、store、以及事件性能等
+
+<video width="80%" controls>
+  <source src="../assets/img/hippy-vue-devtools-x2.mp4" type="video/mp4">
+  Vue Devtools示例(您的浏览器不支持webm视频格式)
+</video>
+
+1. 安装 vue-devtools 依赖：
+
+   ```bash
+   npm i @hippy/vue@^2.13.7 @hippy/vue-router@^2.13.7
+   npm i @hippy/debug-server-next@latest -D
+   ```
+
+2. 开启 vue devtools
+
+   ```js
+   module.exports = {
+    devServer: {
+       remote: {
+         protocol: 'https',
+         host: 'devtools.qq.com',
+         port: 443,
+       },
+      // 默认为 false，开启后将通过 remote 字段指定的远程调试服务分发 vue 调试指令
+      vueDevtools: true
+    },
+   ```
 
 ## 接口
 

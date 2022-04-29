@@ -38,10 +38,11 @@ import com.tencent.mtt.hippy.uimanager.RenderNode;
  * Created  on 2020/12/22.
  */
 
-@HippyController(name = HippyRecyclerViewController.CLASS_NAME)
+@HippyController(name = HippyRecyclerViewController.CLASS_NAME, names = {HippyRecyclerViewController.EXTRA_CLASS_NAME})
 public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> extends HippyViewController<HRW> {
 
     public static final String CLASS_NAME = "ListView";
+    public static final String EXTRA_CLASS_NAME = "RecyclerView";
     public static final String SCROLL_TO_INDEX = "scrollToIndex";
     public static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
     public static final String SCROLL_TO_TOP = "scrollToTop";

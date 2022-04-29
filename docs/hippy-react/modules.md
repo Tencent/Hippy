@@ -15,7 +15,7 @@
 - 在 render 时，将动画设置到需要产生动画效果的控件属性上；
 - 通过 Animation 的 start 接口启动动画，或是通过 destroy 停止并销毁动画。
 
-> 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画
+> 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画，hippy-react-web 不支持颜色渐变动画。
 
 ## 构造参数
 
@@ -187,7 +187,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 [[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/pages/gallery.jsx#L171)
 
-可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。
+可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。 `hippy-react-web` 不支持。
 
 > 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
@@ -221,11 +221,11 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### Clipboard.getString
 
-`() => string` 获取剪贴板的内容
+`() => string` 获取剪贴板的内容。 `hippy-react-web: () => Promise<string>`
 
 ### Clipboard.setString
 
-`(value: string) => void` 设置剪贴板的内容
+`(value: string) => void` 设置剪贴板的内容。 `hippy-react-web: () => Promise<void>`
 
 > - value: string - 需要设置到剪贴板中的内容。
 
@@ -306,6 +306,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
+`hippy-react-web` 使用了实验属性 NetworkInformation，详情参考 https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation 
+
 ## 网络状态
 
 以异步的方式判断设备是否联网，以及是否使用了移动数据网络。
@@ -340,6 +342,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 主要包含了网络相关的模块，目前主要是操作 Cookie。
 
 普通的网络请求请参考: [起步 - 网络请求](guide/network-request.md)
+
+`hippy-react-web` 获取 cookie 和 设置 cookie 有域名限制，具体参考 https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#define_where_cookies_are_sent
 
 ## 方法
 
@@ -401,7 +405,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 | 参数         | 描述                                     | 类型                                                                                                                       | 支持平台 |
 | ------------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------- |
 | OS           | 用来判断是在 iOS 或者 Android 下         | `string`                                                                                                                   | `Android、iOS`    |
-| Localization | 输出国际化相关信息, `最低支持版本 2.8.0` | `object: { country: string , language: string, direction: number }`， 其中 `direction` 为 0 表示 LTR 方向，1 表示 RTL 方向 | `Android、iOS`    |
+| Localization | 输出国际化相关信息, `最低支持版本 2.8.0` | `object: { country: string , language: string, direction: number }`， 其中 `direction` 为 0 表示 LTR 方向，1 表示 RTL 方向 | `Android、iOS、hippy-react-web(不支持 country 信息)`    |
 
 ---
 
@@ -443,7 +447,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### UIManagerModule.getElementFromFiberRef
 
-获取元素 Ref 对应的 Element(类似DOM)
+获取元素 Ref 对应的 Element(类似DOM)。`hippy-react-web` 不支持。
 
 `getElementFromFiberRef(instance: ref): ElementNode`
 

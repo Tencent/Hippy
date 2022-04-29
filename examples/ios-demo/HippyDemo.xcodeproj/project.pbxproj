@@ -627,6 +627,7 @@
 		F440E26D26B80A990069436B /* HippyReusableNodeCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyReusableNodeCache.m; sourceTree = "<group>"; };
 		F45D1BDB26B1555E004010EE /* HippyI18nUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyI18nUtils.h; sourceTree = "<group>"; };
 		F45D1BDC26B1555E004010EE /* HippyI18nUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyI18nUtils.m; sourceTree = "<group>"; };
+		F4C5D53A27FC5116001CC53D /* HippyMethodInterceptorProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyMethodInterceptorProtocol.h; sourceTree = "<group>"; };
 		F4D0028D2675C7D5004A43B6 /* HippyGradientObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyGradientObject.h; sourceTree = "<group>"; };
 		F4D0028E2675C7D5004A43B6 /* HippyGradientObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HippyGradientObject.m; sourceTree = "<group>"; };
 		F4E2AD77271FC23500E36EFB /* HippyDevWebSocketClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDevWebSocketClient.h; sourceTree = "<group>"; };
@@ -1216,6 +1217,7 @@
 				064C59E023AB1A51001E80DD /* HippyRootShadowView.mm */,
 				06868AF725CA4A6B0024A0BA /* HippyDeviceBaseInfo.h */,
 				06868AF825CA4A6B0024A0BA /* HippyDeviceBaseInfo.m */,
+				F4C5D53A27FC5116001CC53D /* HippyMethodInterceptorProtocol.h */,
 			);
 			path = base;
 			sourceTree = "<group>";
