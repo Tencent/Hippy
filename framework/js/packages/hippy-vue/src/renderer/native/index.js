@@ -283,12 +283,6 @@ function getTargetNodeAttributes(targetNode) {
       class: classInfo,
       ...targetNodeAttributes,
     };
-    // delete special __bind__event attribute, which is used in C DOM
-    Object.keys(attributes).forEach((key) => {
-      if (key.indexOf('__bind__') === 0 && typeof attributes[key] === 'boolean') {
-        delete attributes[key];
-      }
-    });
     delete attributes.text;
     delete attributes.value;
     return attributes;
@@ -348,16 +342,16 @@ function renderToNative(rootViewId, targetNode) {
       vueEventNames.forEach((vueEventName) => {
         const nativeEventName = eventNamesMap[vueEventName];
         if (nativeEventName) {
-          events[`__bind__${nativeEventName}`] = true;
+          events[nativeEventName] = true;
         } else {
           const name = `on${capitalizeFirstLetter(vueEventName)}`;
-          events[`__bind__${name}`] = true;
+          events[name] = true;
         }
       });
     } else {
       vueEventNames.forEach((vueEventName) => {
         const name = `on${capitalizeFirstLetter(vueEventName)}`;
-        events[`__bind__${name}`] = true;
+        events[name] = true;
       });
     }
   }

@@ -24,6 +24,7 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { warn } from '../utils';
+import { Device } from '../native';
 import ListViewItem, { ListViewItemProps } from './list-view-item';
 import PullHeader from './pull-header';
 import PullFooter from './pull-footer';
@@ -402,6 +403,9 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       }
       const appearEventList = [onAppear, onDisappear, onWillAppear, onWillDisappear];
       nativeProps.exposureEventEnabled = appearEventList.some(func => typeof func === 'function');
+      if (Device.platform.OS === 'ios') {
+        nativeProps.numberOfRows = itemList.length;
+      }
       (nativeProps as ListViewProps).initialListSize = initialListSize;
       (nativeProps as ListViewProps).style = {
         overflow: 'scroll',

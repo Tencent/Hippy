@@ -140,18 +140,15 @@ function batchUpdate(rootViewId: number): void {
         trace(...componentName, 'createNode', chunk.nodes);
         sceneBuilder.Create(chunk.nodes);
         handleEventListeners(chunk.eventNodes, sceneBuilder);
-        // UIManagerModule.createNode(rootViewId, chunk.nodes);
         break;
       case NODE_OPERATION_TYPES.updateNode:
         trace(...componentName, 'updateNode', chunk.nodes);
         sceneBuilder.Update(chunk.nodes);
         handleEventListeners(chunk.eventNodes, sceneBuilder);
-        // UIManagerModule.updateNode(rootViewId, chunk.nodes);
         break;
       case NODE_OPERATION_TYPES.deleteNode:
         trace(...componentName, 'deleteNode', chunk.nodes);
         sceneBuilder.Delete(chunk.nodes);
-        // UIManagerModule.deleteNode(rootViewId, chunk.nodes);
         break;
       default:
     }
@@ -179,7 +176,6 @@ function endBatch(isHookUsed = false): void {
   } else {
     Promise.resolve().then(() => {
       batchUpdate(rootViewId);
-      // UIManagerModule.endBatch();
       batchNodes = [];
       batchIdle = true;
     });
