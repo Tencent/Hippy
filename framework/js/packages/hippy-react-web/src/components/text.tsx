@@ -21,7 +21,7 @@
 // @ts-nocheck
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import applyLayout from '../adapters/apply-layout';
+import View from './view';
 
 const styles = {
   initial: {
@@ -45,7 +45,6 @@ const styles = {
     fontFamily: 'inherit',
     fontSize: 'inherit',
     whiteSpace: 'inherit',
-    // display: 'inline',
   },
   singleLineStyle: {
     maxWidth: '100%',
@@ -89,7 +88,7 @@ export class Text extends React.Component {
     const baseStyle = {
       textOverflow,
       overflow: 'hidden',
-      display: '-webkit-box',
+      display: numberOfLines > 1 ? '-webkit-box' : 'inline',
       WebkitBoxOrient: 'vertical',
       WebkitLineClamp: numberOfLines ? numberOfLines.toString() : '0',
     };
@@ -103,14 +102,14 @@ export class Text extends React.Component {
       ]),
     });
     delete newProps.numberOfLines;
-    delete newProps.onLayout;
     delete newProps.ellipsizeMode;
+    delete newProps.enableScale;
 
-    if (isInAParentText) return <span {...newProps} />;
+    if (isInAParentText) return <View {...newProps} />;
     return (
-      <div {...newProps} />
+      <View {...newProps} />
     );
   }
 }
 
-export default applyLayout(Text);
+export default Text;

@@ -19,12 +19,12 @@
  */
 
 // @ts-nocheck
-import React, { Component } from 'react';
+import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { SwiperOptions } from 'swiper/types';
 import 'swiper/swiper.min.css';
 
-interface Props extends SwiperOptions {
+interface ViewPagerProps extends SwiperOptions {
   style: Object,
   children: [],
   initialPage: number,
@@ -40,61 +40,67 @@ interface Props extends SwiperOptions {
  * and will be stretched to fill the ViewPage.
  * @noInheritDoc
  */
-export class ViewPager extends Component {
-  private viewPagerSwiper: any;
-  public constructor(props: Props) {
-    super(props);
-    this.state = {};
-  }
+export const ViewPager: React.FC<ViewPagerProps> = React.forwardRef((props, ref) => {
+  const {
+    style = {},
+    children,
+    initialPage = 0,
+    onPageSelected,
+    scrollEnabled = true,
+    loop = false,
+    direction = 'horizontal',
+  } = props;
 
-  public setPage(index: number) {
-    if (Number.isInteger(index)) {
-      this.viewPagerSwiper.slideToLoop(index);
+  const swiperRef = React.useRef<null | Swiper>(null);
+
+  const renderViewPagerItem = () => {
+    if (!children || (children as React.ReactNodeArray).length === 0) return null;
+    return children.map((item: any, index: number) => {
+      const keyParam = index;
+      return <SwiperSlide key={`ViewPager-${keyParam}`}>{item}</SwiperSlide>;
+    });
+  };
+
+  const onSwiper = (swiper: Swiper) => {
+    swiperRef.current = swiper;
+  };
+
+  const setPage = (index: number) => {
+    if (Number.isInteger(index) && swiperRef.current) {
+      swiperRef.current.slideToLoop(index);
     }
-  }
+  };
 
-  public setPageWithoutAnimation(index: number) {
-    if (Number.isInteger(index)) {
-      this.viewPagerSwiper.slideToLoop(index, 0);
+  const setPageWithoutAnimation = (index: number) => {
+    if (Number.isInteger(index) && swiperRef.current) {
+      swiperRef.current.slideToLoop(index, 0);
     }
-  }
+  };
 
-  public render() {
-    const {
-      style = {},
-      children,
-      initialPage = 0,
-      onPageSelected,
-      scrollEnabled,
-      loop = false,
-      direction = 'horizontal' } = this.props as Props;
-    const renderViewPagerItem = () => {
-      if (!children || (children as React.ReactNodeArray).length === 0) return null;
-      return children.map((item: any, index: number) => {
-        const keyParam = index;
-        return <SwiperSlide nativeName="ListViewItem" key={`ViewPager-${keyParam}`}>{item}</SwiperSlide>;
-      });
-    };
-    return (
-      // @ts-ignore
-      <Swiper
-        direction={direction}
-        loop={loop}
-        style={Object.assign({ width: '100%' }, style)}
-        initialSlide={initialPage}
-        autoHeight
-        allowTouchMove={scrollEnabled}
-        onSwiper={swiper => this.viewPagerSwiper = swiper}
-        onSlideChange={(swiper) => {
-          if (onPageSelected) {
-            onPageSelected.call(this, { position: swiper.realIndex || 0 });
-          }
-        }}
-      >
-        {renderViewPagerItem()}
-      </Swiper>
-    );
-  }
-}
+  React.useImperativeHandle(ref, () => ({
+    setPage,
+    setPageWithoutAnimation,
+  }));
 
+  return (
+    <Swiper
+      direction={direction}
+      loop={loop}
+      style={Object.assign({ width: '100%' }, style)}
+      initialSlide={initialPage}
+      autoHeight
+      allowTouchMove={scrollEnabled}
+      onSwiper={onSwiper}
+      onSlideChange={(swiper) => {
+        if (onPageSelected) {
+          onPageSelected.call(this, { position: swiper.realIndex || 0 });
+        }
+      }}
+    >
+      {renderViewPagerItem()}
+    </Swiper>
+  );
+});
+
+ViewPager.displayName = 'ViewPager';
 export default ViewPager;
