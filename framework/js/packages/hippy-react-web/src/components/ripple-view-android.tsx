@@ -18,14 +18,8 @@
  * limitations under the License.
  */
 
-import { Device } from './native';
-import { warn } from './utils';
+import React from 'react';
 
-global.Hippy = {
-  // @ts-ignore
-  Device,
-};
-global.getTurboModule = () => {
-  warn('getTurboModule is unsupported');
-  return {};
-};
+const RippleViewAndroid: React.FC<any> = () => null;
+RippleViewAndroid.displayName = 'RippleViewAndroid';
+export default RippleViewAndroid;

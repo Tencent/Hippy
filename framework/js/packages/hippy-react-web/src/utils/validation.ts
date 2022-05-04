@@ -18,14 +18,5 @@
  * limitations under the License.
  */
 
-import { Device } from './native';
-import { warn } from './utils';
-
-global.Hippy = {
-  // @ts-ignore
-  Device,
-};
-global.getTurboModule = () => {
-  warn('getTurboModule is unsupported');
-  return {};
-};
+export const isDef = v => v !== undefined;
+export const isFunc = func => func && typeof func === 'function';

@@ -18,14 +18,8 @@
  * limitations under the License.
  */
 
-import { Device } from './native';
-import { warn } from './utils';
+import React from 'react';
 
-global.Hippy = {
-  // @ts-ignore
-  Device,
-};
-global.getTurboModule = () => {
-  warn('getTurboModule is unsupported');
-  return {};
-};
+const WaterfallView: React.FC<any> = () => null;
+WaterfallView.displayName = 'WaterfallView';
+export default WaterfallView;

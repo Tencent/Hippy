@@ -18,14 +18,24 @@
  * limitations under the License.
  */
 
-import { Device } from './native';
-import { warn } from './utils';
+import { canUseDOM } from '../utils';
 
-global.Hippy = {
-  // @ts-ignore
-  Device,
+const directionLTR = 0;
+const directionRTL = 1;
+
+export const isLTR = () => {
+  if (canUseDOM) {
+    const { direction } = getComputedStyle(document.body);
+    return direction === 'ltr';
+  }
 };
-global.getTurboModule = () => {
-  warn('getTurboModule is unsupported');
-  return {};
+
+export const getDirection = () => {
+  if (!canUseDOM) {
+    return undefined;
+  }
+  if (isLTR()) {
+    return directionLTR;
+  }
+  return directionRTL;
 };
