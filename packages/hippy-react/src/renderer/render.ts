@@ -153,12 +153,6 @@ function getTargetNodeAttributes(targetNode: Element) {
       id: targetNode.id,
       ...targetNodeAttributes,
     };
-    // delete special __bind__event attribute, which is used in C DOM
-    Object.keys(attributes).forEach((key) => {
-      if (key.indexOf('__bind__') === 0 && typeof attributes[key] === 'boolean') {
-        delete attributes[key];
-      }
-    });
     delete attributes.text;
     delete attributes.value;
     return attributes;
@@ -269,7 +263,6 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
-    // endBatch();
   }
 }
 
@@ -289,7 +282,6 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
   });
-  // endBatch();
 }
 
 function updateChild(parentNode: Element) {
@@ -304,7 +296,6 @@ function updateChild(parentNode: Element) {
       nodes: [translated],
     });
   }
-  // endBatch();
 }
 
 function updateWithChildren(parentNode: ViewNode) {
@@ -317,7 +308,6 @@ function updateWithChildren(parentNode: ViewNode) {
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,
   });
-  // endBatch();
 }
 
 export {

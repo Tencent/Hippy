@@ -319,6 +319,9 @@ class ElementNode extends ViewNode {
         default:
           this.attributes[key] = value;
       }
+      if (typeof this.filterAttribute === 'function') {
+        this.filterAttribute(this.attributes);
+      }
       updateChild(this);
     } catch (err) {
       // Throw error in development mode
