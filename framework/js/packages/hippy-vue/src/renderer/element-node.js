@@ -290,6 +290,12 @@ class ElementNode extends ViewNode {
           this.attributes[key] = unicodeToChar(value);
           break;
         }
+        case 'numberOfRows':
+          this.attributes[key] = value;
+          if (Native.Platform !== 'ios') {
+            return;
+          }
+          break;
         case 'caretColor':
         case 'caret-color':
           this.attributes['caret-color'] = Native.parseColor(value);
@@ -312,6 +318,9 @@ class ElementNode extends ViewNode {
         }
         default:
           this.attributes[key] = value;
+      }
+      if (typeof this.filterAttribute === 'function') {
+        this.filterAttribute(this.attributes);
       }
       updateChild(this);
     } catch (err) {

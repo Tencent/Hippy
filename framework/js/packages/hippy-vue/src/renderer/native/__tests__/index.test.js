@@ -244,7 +244,7 @@ test('renderToNative test with children --debug mode', (t) => {
           text: 'high',
         },
         multiline: true,
-        __bind__onTyping: true,
+        onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
@@ -360,7 +360,7 @@ test('renderToNative test with children --production mode', (t) => {
       name: 'TextInput',
       props: {
         multiline: true,
-        __bind__onTyping: true,
+        onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
