@@ -22,9 +22,7 @@
 
 import ViewNode from '../dom/view-node';
 import Element from '../dom/element-node';
-// import * as UIManagerModule from '../modules/ui-manager-module';
 import {
-  EVENT_ATTRIBUTE_NAME,
   getRootViewId,
   getRootContainer,
   translateToNativeEventName,
@@ -32,7 +30,6 @@ import {
   nativeEventMap,
 } from '../utils/node';
 import { deepCopy, trace, warn } from '../utils';
-import { EventDispatcher } from '../event';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -88,11 +85,7 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
     if (eventNode) {
       const { id, eventList } = eventNode;
       eventList.forEach((eventAttribute) => {
-        const { name,
-          listener,
-          type,
-          // isCapture,
-        } = eventAttribute;
+        const { name, type, isCapture, listener } = eventAttribute;
         let nativeEventName;
         if (isNativeGesture(name)) {
           nativeEventName = nativeEventMap[name];
@@ -100,27 +93,12 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
           nativeEventName = translateToNativeEventName(name);
         }
         if (type === eventHandlerType.REMOVE) {
-          // console.log('RemoveEventListener', id, nativeEventName, isCapture);
+          console.log('RemoveEventListener', id, nativeEventName, isCapture);
           sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
         }
         if (type === eventHandlerType.ADD) {
-          eventAttribute.listener = listener;
-          // console.log('AddEventListener', id, nativeEventName, isCapture);
-          const callback = (event) => {
-            const { id,  currentId, params } = event;
-            // console.log('callback event', id, JSON.stringify(params));
-            if (isNativeGesture(name)) {
-              const dispatcherEvent = {
-                id, name, currentId,
-              };
-              Object.assign(dispatcherEvent, params);
-              EventDispatcher.receiveNativeGesture(dispatcherEvent);
-            } else {
-              const dispatcherEvent = [id, name, params];
-              EventDispatcher.receiveUIComponentEvent(dispatcherEvent);
-            }
-          };
-          sceneBuilder.AddEventListener(id, nativeEventName, callback);
+          console.log('AddEventListener', id, nativeEventName, isCapture);
+          sceneBuilder.AddEventListener(id, nativeEventName, listener);
         }
       });
     }
@@ -195,8 +173,7 @@ function getNativeProps(node: Element) {
  */
 function getTargetNodeAttributes(targetNode: Element) {
   try {
-    const { [EVENT_ATTRIBUTE_NAME]: eventAttributes, ...devAttributes } = targetNode.attributes;
-    const targetNodeAttributes = deepCopy(devAttributes);
+    const targetNodeAttributes = deepCopy(targetNode.attributes);
     const attributes = {
       id: targetNode.id,
       ...targetNodeAttributes,
@@ -216,18 +193,22 @@ function getTargetNodeAttributes(targetNode: Element) {
  */
 function getEventNode(targetNode): HippyTypes.EventNode {
   let eventNode: HippyTypes.EventNode = undefined;
-  const eventsAttributes = targetNode.attributes[EVENT_ATTRIBUTE_NAME] as Object;
+  const eventsAttributes = targetNode.events;
   if (eventsAttributes) {
-    const eventList = Object.keys(eventsAttributes).map((key) => {
-      const { name, listener, type, isCapture, hasBound } = eventsAttributes[key];
-      return {
-        name,
-        listener,
-        type,
-        isCapture,
-        hasBound,
-      };
-    });
+    const eventList: HippyTypes.EventAttribute[] = [];
+    Object.keys(eventsAttributes)
+      .forEach((key) => {
+        const { name, type, isCapture, listener } = eventsAttributes[key];
+        if (!targetNode.isListenerHandled(key, type)) {
+          targetNode.setListenerHandledType(key, type);
+          eventList.push({
+            name,
+            type,
+            isCapture,
+            listener,
+          });
+        }
+      });
     eventNode = {
       id: targetNode.nodeId,
       eventList,
@@ -376,11 +357,10 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  const eventNode = getEventNode(childNode);
   batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
-    eventNodes: [eventNode],
+    eventNodes: [],
   });
 }
 

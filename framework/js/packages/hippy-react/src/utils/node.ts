@@ -173,10 +173,8 @@ interface EventNamesMap {
   [propName: string]: string[];
 }
 
-// EventPrefix
-const EVENT_ATTRIBUTE_NAME = '__events__';
-// Event Names map
-const NATIVE_EVENT = 1;
+// Event Name Index
+const NATIVE_EVENT_INDEX = 1;
 const eventHandlerType = {
   ADD: 0,
   REMOVE: 1,
@@ -202,16 +200,20 @@ const nativeEventMap = {
   onTouchCancel: 'touchcancel',
 };
 
+function isNativeGesture(name) {
+  return !!nativeEventMap[name];
+}
+
 function translateToNativeEventName(name) {
   return name.replace(/^(on)?/g, '').toLocaleLowerCase();
 }
 
 export {
-  EVENT_ATTRIBUTE_NAME,
-  NATIVE_EVENT,
+  NATIVE_EVENT_INDEX,
   eventHandlerType,
   eventNamesMap,
   nativeEventMap,
+  isNativeGesture,
   translateToNativeEventName,
   requestIdleCallback,
   cancelIdleCallback,

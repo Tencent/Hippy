@@ -19,7 +19,7 @@
  */
 
 import { Fiber } from '@hippy/react-reconciler';
-import { getFiberNodeFromId, getElementFromFiber, eventNamesMap, NATIVE_EVENT } from '../utils/node';
+import { getFiberNodeFromId, getElementFromFiber, eventNamesMap, NATIVE_EVENT_INDEX } from '../utils/node';
 import { trace, isGlobalBubble, isHostComponent } from '../utils';
 import HippyEventHub from './hub';
 import Event from './event';
@@ -53,7 +53,7 @@ function convertEventName(eventName: string, nodeItem: Fiber) {
     for (let i = 0; i < eventNameList.length; i += 1) {
       const uiEvent = eventNameList[i];
       const eventList = eventNamesMap[uiEvent];
-      if (nodeItem.memoizedProps[uiEvent] && eventName === eventList[NATIVE_EVENT]) {
+      if (nodeItem.memoizedProps[uiEvent] && eventName === eventList[NATIVE_EVENT_INDEX]) {
         processedEvenName = uiEvent;
         break;
       }
