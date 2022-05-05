@@ -37,6 +37,10 @@ export class Image extends HippyView<HTMLImageElement> {
     data: UIProps,
     defaultProcess: (component: HippyBaseView, data: UIProps) => void,
   ) {
+    if (this.firstUpdateStyle) {
+      defaultProcess(this, { style: this.defaultStyle() });
+      this.firstUpdateStyle = false;
+    }
     if (data.style.tintColor !== undefined) {
       const newData = { ...data };
       newData.tintColor = data.style.tintColor;
@@ -164,9 +168,9 @@ export class Image extends HippyView<HTMLImageElement> {
   private handleLoad(_event: Event, loadUrl?: string) {
     this.isLoadSuccess = false;
 
-    if ((!loadUrl && this.dom!.src === this.src) || loadUrl === this.src) {
+    if ((!loadUrl && this.dom?.src === this.src) || loadUrl === this.src) {
       this.onLoad(null);
-      if (this.dom!.src !== this.src) {
+      if (this.dom?.src !== this.src) {
         this.dom!.src = this.src;
       }
     }
