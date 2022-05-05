@@ -33,7 +33,8 @@ import {
   isCaptureEvent,
   hasTargetEvent,
 } from '../utils';
-import { eventNamesMap, eventHandlerType, NATIVE_EVENT, EVENT_ATTRIBUTE_NAME } from '../utils/node';
+import { eventNamesMap, eventHandlerType, NATIVE_EVENT_INDEX, isNativeGesture } from '../utils/node';
+import { EventDispatcher } from '../event';
 import ViewNode from './view-node';
 
 interface Attributes {
@@ -224,18 +225,33 @@ function getEventName(key: string) {
     key = key.replace('Capture', '');
   }
   if (eventNamesMap[key]) {
-    return eventNamesMap[key][NATIVE_EVENT];
+    return eventNamesMap[key][NATIVE_EVENT_INDEX];
   }
   return key;
+}
+
+function createEventListener(name): (event) => void {
+  return (event) => {
+    const { id,  currentId, params } = event;
+    console.log('callback event', id, JSON.stringify(params));
+    if (isNativeGesture(name)) {
+      const dispatcherEvent = {
+        id, name, currentId,
+      };
+      Object.assign(dispatcherEvent, params);
+      EventDispatcher.receiveNativeGesture(dispatcherEvent);
+    } else {
+      const dispatcherEvent = [id, name, params];
+      EventDispatcher.receiveUIComponentEvent(dispatcherEvent);
+    }
+  };
 }
 
 class ElementNode extends ViewNode {
   public tagName: string;
   public id = '';
   public style: HippyTypes.Style = {};
-  public attributes: Attributes = {
-    [EVENT_ATTRIBUTE_NAME]: {},
-  };
+  public attributes: Attributes = {};
   public events: object = {};
 
   public constructor(tagName: string) {
@@ -250,6 +266,22 @@ class ElementNode extends ViewNode {
 
   public toString() {
     return `${this.tagName}:(${this.nativeName})`;
+  }
+
+  setListenerHandledType(key, type) {
+    if (this.events[key]) {
+      this.events[key].handledType = type;
+    }
+  }
+
+  isListenerHandled(key, type) {
+    if (this.events[key] && type !== this.events[key].handledType) {
+      // if handledType not equals type params, this event needs updated
+      // if handledType equals undefined, this event needs created
+      return false;
+    }
+    // if event not existed, marked it has been handled
+    return true;
   }
 
   public hasAttribute(key: string) {
@@ -465,18 +497,18 @@ class ElementNode extends ViewNode {
           if (typeof value === 'function') {
             const eventName = getEventName(key);
             this.attributes[eventName] = value;
-            this.attributes[EVENT_ATTRIBUTE_NAME]![eventName] = {
+            this.events[eventName] = {
               name: eventName,
               type: eventHandlerType.ADD,
               isCapture: isCaptureEvent(key),
+              listener: createEventListener(eventName),
             };
           } else {
             const eventName = getEventName(key);
-            const eventsAttributes = this.attributes[EVENT_ATTRIBUTE_NAME] as Object;
-            if (hasTargetEvent(eventName, eventsAttributes)
+            if (hasTargetEvent(eventName, this.events)
               && typeof value !== 'function') {
               delete this.attributes[eventName];
-              eventsAttributes[eventName].type = eventHandlerType.REMOVE;
+              this.events[eventName].type = eventHandlerType.REMOVE;
               return false;
             }
             this.attributes[key] = value;
