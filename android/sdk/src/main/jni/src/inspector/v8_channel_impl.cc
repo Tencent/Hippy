@@ -54,6 +54,7 @@ void V8ChannelImpl::sendResponse(
     j_env->CallVoidMethod(bridge_->GetObj(),
                           instance->GetMethods().j_inspector_channel_method_id,
                           msg);
+    JNIEnvironment::ClearJEnvException(j_env);
   }
 
   j_env->DeleteLocalRef(msg);
@@ -79,6 +80,7 @@ void V8ChannelImpl::sendNotification(
     j_env->CallVoidMethod(bridge_->GetObj(),
                           instance->GetMethods().j_inspector_channel_method_id,
                           msg);
+    JNIEnvironment::ClearJEnvException(j_env);
   }
 
   j_env->DeleteLocalRef(msg);
