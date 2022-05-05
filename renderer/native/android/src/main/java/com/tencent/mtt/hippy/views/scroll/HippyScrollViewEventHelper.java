@@ -15,83 +15,44 @@
  */
 package com.tencent.mtt.hippy.views.scroll;
 
-import android.content.Context;
 import android.view.ViewGroup;
 
-import com.tencent.mtt.hippy.common.HippyMap;
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRenderContext;
-import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.utils.EventUtils;
+import java.util.HashMap;
+import java.util.Map;
 
-@SuppressWarnings({"deprecation", "unused"})
 public class HippyScrollViewEventHelper {
-  public static final long MOMENTUM_DELAY = 20;
-  public static final String EVENT_TYPE_BEGIN_DRAG = "scrollbegindrag";
-  public static final String EVENT_TYPE_END_DRAG = "scrollenddrag";
-  public static final String EVENT_TYPE_SCROLL = "scroll";
-  public static final String EVENT_TYPE_MOMENTUM_BEGIN = "momentumscrollbegin";
-  public static final String EVENT_TYPE_MOMENTUM_END = "momentumscrollend";
-  public static final String EVENT_TYPE_ANIMATION_END = "scrollanimationend";
 
-  public static void emitScrollEvent(ViewGroup view) {
-    emitScrollEvent(view, EVENT_TYPE_SCROLL);
-  }
+    public static final long MOMENTUM_DELAY = 20;
 
-  public static void emitScrollBeginDragEvent(ViewGroup view) {
-    emitScrollEvent(view, EVENT_TYPE_BEGIN_DRAG);
-  }
-
-  public static void emitScrollEndDragEvent(ViewGroup view) {
-    emitScrollEvent(view, EVENT_TYPE_END_DRAG);
-  }
-
-  public static void emitScrollMomentumBeginEvent(ViewGroup view) {
-    emitScrollEvent(view, EVENT_TYPE_MOMENTUM_BEGIN);
-  }
-
-  public static void emitScrollMomentumEndEvent(ViewGroup view) {
-    emitScrollEvent(view, EVENT_TYPE_MOMENTUM_END);
-  }
-
-  protected static void emitScrollEvent(ViewGroup view, String scrollEventType) {
-    if (view == null) {
-      return;
+    protected static void emitScrollEvent(@NonNull ViewGroup view, @NonNull String eventName) {
+        if (!EventUtils.checkRegisteredEvent(view, eventName)) {
+            return;
+        }
+        Map<String, Object> contentInset = new HashMap<>();
+        contentInset.put("top", 0);
+        contentInset.put("bottom", 0);
+        contentInset.put("left", 0);
+        contentInset.put("right", 0);
+        Map<String, Object> contentOffset = new HashMap<>();
+        contentOffset.put("x", PixelUtil.px2dp(view.getScrollX()));
+        contentOffset.put("y", PixelUtil.px2dp(view.getScrollY()));
+        Map<String, Object> contentSize = new HashMap<>();
+        contentSize.put("width", PixelUtil
+                .px2dp(view.getChildCount() > 0 ? view.getChildAt(0).getWidth() : view.getWidth()));
+        contentSize.put("height", PixelUtil
+                .px2dp(view.getChildCount() > 0 ? view.getChildAt(0).getHeight()
+                        : view.getHeight()));
+        Map<String, Object> layoutMeasurement = new HashMap<>();
+        layoutMeasurement.put("width", PixelUtil.px2dp(view.getWidth()));
+        layoutMeasurement.put("height", PixelUtil.px2dp(view.getHeight()));
+        Map<String, Object> params = new HashMap<>();
+        params.put("contentInset", contentInset);
+        params.put("contentOffset", contentOffset);
+        params.put("contentSize", contentSize);
+        params.put("layoutMeasurement", layoutMeasurement);
+        EventUtils.send(view, eventName, params);
     }
-    HippyMap contentInset = new HippyMap();
-    contentInset.pushDouble("top", 0);
-    contentInset.pushDouble("bottom", 0);
-    contentInset.pushDouble("left", 0);
-    contentInset.pushDouble("right", 0);
-
-    HippyMap contentOffset = new HippyMap();
-    contentOffset.pushDouble("x", PixelUtil.px2dp(view.getScrollX()));
-    contentOffset.pushDouble("y", PixelUtil.px2dp(view.getScrollY()));
-
-    HippyMap contentSize = new HippyMap();
-    contentSize.pushDouble("width", PixelUtil
-        .px2dp(view.getChildCount() > 0 ? view.getChildAt(0).getWidth() : view.getWidth()));
-    contentSize.pushDouble("height", PixelUtil
-        .px2dp(view.getChildCount() > 0 ? view.getChildAt(0).getHeight() : view.getHeight()));
-
-    HippyMap layoutMeasurement = new HippyMap();
-    layoutMeasurement.pushDouble("width", PixelUtil.px2dp(view.getWidth()));
-    layoutMeasurement.pushDouble("height", PixelUtil.px2dp(view.getHeight()));
-
-    HippyMap event = new HippyMap();
-    event.pushMap("contentInset", contentInset);
-    event.pushMap("contentOffset", contentOffset);
-    event.pushMap("contentSize", contentSize);
-    event.pushMap("layoutMeasurement", layoutMeasurement);
-
-    Context context = view.getContext();
-    if (context instanceof NativeRenderContext) {
-      int instanceId = ((NativeRenderContext)view.getContext()).getInstanceId();
-      NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-      //noinspection ConstantConditions
-      if (nativeRenderer != null) {
-        nativeRenderer.dispatchUIComponentEvent(view.getId(), scrollEventType, event);
-      }
-    }
-  }
 }

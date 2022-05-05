@@ -272,7 +272,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
      */
     @Override
     public void dispatchUIComponentEvent(int id, String eventName, @Nullable Object params) {
-        if (mRenderManager.hasEventRegistered(id, eventName)) {
+        if (mRenderManager.checkRegisteredEvent(id, eventName)) {
             // UI component event default disable capture and bubble phase,
             // can not enable both in native and js.
             mRenderProvider.dispatchEvent(id, eventName, params, false, false);

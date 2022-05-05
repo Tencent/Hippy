@@ -139,7 +139,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     protected HippyViewEvent getOnScrollDragStartedEvent() {
         if (onScrollDragStartedEvent == null) {
-            onScrollDragStartedEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_BEGIN_DRAG);
+            onScrollDragStartedEvent = new HippyViewEvent(EventUtils.EVENT_SCROLLER_BEGIN_DRAG);
         }
         return onScrollDragStartedEvent;
     }
@@ -147,7 +147,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     // scroll
     protected HippyViewEvent getOnScrollEvent() {
         if (onScrollEvent == null) {
-            onScrollEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_SCROLL);
+            onScrollEvent = new HippyViewEvent(EventUtils.EVENT_SCROLLER_ON_SCROLL);
         }
         return onScrollEvent;
     }
@@ -155,7 +155,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     // start fling
     protected HippyViewEvent getOnScrollFlingStartedEvent() {
         if (onScrollFlingStartedEvent == null) {
-            onScrollFlingStartedEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_BEGIN);
+            onScrollFlingStartedEvent = new HippyViewEvent(EventUtils.EVENT_SCROLLER_MOMENTUM_BEGIN);
         }
         return onScrollFlingStartedEvent;
     }
@@ -163,7 +163,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     // end drag event
     protected HippyViewEvent getOnScrollDragEndedEvent() {
         if (onScrollDragEndedEvent == null) {
-            onScrollDragEndedEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_END_DRAG);
+            onScrollDragEndedEvent = new HippyViewEvent(EventUtils.EVENT_SCROLLER_END_DRAG);
         }
         return onScrollDragEndedEvent;
     }
@@ -281,7 +281,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     // end fling
     protected HippyViewEvent getOnScrollFlingEndedEvent() {
         if (onScrollFlingEndedEvent == null) {
-            onScrollFlingEndedEvent = new HippyViewEvent(HippyScrollViewEventHelper.EVENT_TYPE_MOMENTUM_END);
+            onScrollFlingEndedEvent = new HippyViewEvent(EventUtils.EVENT_SCROLLER_MOMENTUM_END);
         }
         return onScrollFlingEndedEvent;
     }

@@ -21,6 +21,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
@@ -70,19 +71,19 @@ public class EventUtils {
     public static final String EVENT_REFRESH_WRAPPER_SCROLL = "scroll";
 
     // On view page item will appear, event of exposure monitor.
-    public static final String EVENT_VIEW_PAGE_ITEM_WILL_APPEAR = "willAppear";
+    public static final String EVENT_PAGE_ITEM_WILL_APPEAR = "willAppear";
     // On view page item appear, event of exposure monitor.
-    public static final String EVENT_VIEW_PAGE_ITEM_DID_APPEAR = "didAppear";
+    public static final String EVENT_PAGE_ITEM_DID_APPEAR = "didAppear";
     // On view page item will disappear, event of exposure monitor.
-    public static final String EVENT_VIEW_PAGE_ITEM_WILL_DISAPPEAR = "willDisAppear";
+    public static final String EVENT_PAGE_ITEM_WILL_DISAPPEAR = "willDisAppear";
     // On view page item disappear, event of exposure monitor.
-    public static final String EVENT_VIEW_PAGE_ITEM_DID_DISAPPEAR = "didDisAppear";
+    public static final String EVENT_PAGE_ITEM_DID_DISAPPEAR = "didDisAppear";
     // On view page scroll.
-    public static final String EVENT_VIEW_PAGE_SCROLL = "pageScroll";
+    public static final String EVENT_PAGE_SCROLL = "pageScroll";
     // On view page scroll state changed.
-    public static final String EVENT_VIEW_PAGE_SCROLL_STATE_CHANGED = "pageScrollStateChanged";
+    public static final String EVENT_PAGE_SCROLL_STATE_CHANGED = "pageScrollStateChanged";
     // On view page selected.
-    public static final String EVENT_VIEW_PAGE_SELECTED = "pageSelected";
+    public static final String EVENT_PAGE_SELECTED = "pageSelected";
 
     // On waterfall view footer appeared.
     public static final String EVENT_WATERFALL_FOOTER_APPEARED = "footerAppeared";
@@ -94,6 +95,17 @@ public class EventUtils {
     public static final String EVENT_WATERFALL_EXPOSURE_REPORT = "exposureReport";
     // On waterfall view end reached.
     public static final String EVENT_WATERFALL_END_REACHED = "endReached";
+
+    // On scroll view begin drag.
+    public static final String EVENT_SCROLLER_BEGIN_DRAG = "scrollBeginDrag";
+    // On scroll view end drag.
+    public static final String EVENT_SCROLLER_END_DRAG = "scrollEndDrag";
+    // On scroll view on scroll.
+    public static final String EVENT_SCROLLER_ON_SCROLL = "scroll";
+    // On scroll view momentum begin.
+    public static final String EVENT_SCROLLER_MOMENTUM_BEGIN = "momentumScrollBegin";
+    // On scroll view momentum end.
+    public static final String EVENT_SCROLLER_MOMENTUM_END = "momentumScrollEnd";
 
     @MainThread
     public static void send(@NonNull View view, @NonNull String eventName,
@@ -111,5 +123,26 @@ public class EventUtils {
         if (nativeRenderer != null) {
             nativeRenderer.dispatchUIComponentEvent(id, eventName.toLowerCase(), params);
         }
+    }
+
+    /**
+     * Check whether the specified event has been registered to target view.
+     *
+     * @param view target view
+     * @param eventName target event name
+     * @return the check result.
+     */
+    @MainThread
+    public static boolean checkRegisteredEvent(@NonNull View view, @NonNull String eventName) {
+        if (view.getContext() instanceof NativeRenderContext) {
+            int instanceId = ((NativeRenderContext) view.getContext()).getInstanceId();
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+            if (nativeRenderer == null) {
+                return false;
+            }
+            RenderManager renderManager = nativeRenderer.getRenderManager();
+            return renderManager.checkRegisteredEvent(view.getId(), eventName.toLowerCase());
+        }
+        return false;
     }
 }
