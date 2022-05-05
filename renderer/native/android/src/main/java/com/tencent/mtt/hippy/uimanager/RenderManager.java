@@ -211,10 +211,10 @@ public class RenderManager {
         return mNodes.get(id);
     }
 
-    public boolean hasEventRegistered(int id, @NonNull String eventName) {
+    public boolean checkRegisteredEvent(int id, @NonNull String eventName) {
         RenderNode node = mNodes.get(id);
         if (node != null) {
-            return node.hasEventRegistered(eventName);
+            return node.checkRegisteredEvent(eventName);
         }
         return false;
     }

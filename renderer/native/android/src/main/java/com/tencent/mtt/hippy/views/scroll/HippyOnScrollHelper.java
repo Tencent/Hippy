@@ -17,13 +17,13 @@ package com.tencent.mtt.hippy.views.scroll;
 
 public class HippyOnScrollHelper {
 
-  private int mPrevX = Integer.MIN_VALUE;
-  private int mPrevY = Integer.MIN_VALUE;
+    private int mPrevX = Integer.MIN_VALUE;
+    private int mPrevY = Integer.MIN_VALUE;
 
-  public boolean onScrollChanged(int x, int y) {
-    boolean shouldDispatch = mPrevX != x || mPrevY != y;
-    mPrevX = x;
-    mPrevY = y;
-    return shouldDispatch;
-  }
+    public boolean onScrollChanged(int x, int y) {
+        boolean shouldDispatch = mPrevX != x || mPrevY != y;
+        mPrevX = x;
+        mPrevY = y;
+        return shouldDispatch;
+    }
 }

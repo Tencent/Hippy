@@ -45,7 +45,7 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         Map<String, Object> params = new HashMap<>();
         params.put(PAGE_ITEM_POSITION, position);
         params.put(PAGE_ITEM_OFFSET, positionOffset);
-        EventUtils.send(mPager, EventUtils.EVENT_VIEW_PAGE_SCROLL, params);
+        EventUtils.send(mPager, EventUtils.EVENT_PAGE_SCROLL, params);
     }
 
     @Override
@@ -53,13 +53,13 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         mCurrPageIndex = position;
         Map<String, Object> params = new HashMap<>();
         params.put(PAGE_ITEM_POSITION, position);
-        EventUtils.send(mPager, EventUtils.EVENT_VIEW_PAGE_SELECTED, params);
+        EventUtils.send(mPager, EventUtils.EVENT_PAGE_SELECTED, params);
         View currView = mPager.getViewFromAdapter(mCurrPageIndex);
         params.put(PAGE_ITEM_POSITION, mCurrPageIndex);
-        EventUtils.send(currView, EventUtils.EVENT_VIEW_PAGE_ITEM_WILL_APPEAR, params);
+        EventUtils.send(currView, EventUtils.EVENT_PAGE_ITEM_WILL_APPEAR, params);
         View lastView = mPager.getViewFromAdapter(mLastPageIndex);
         params.put(PAGE_ITEM_POSITION, mLastPageIndex);
-        EventUtils.send(lastView, EventUtils.EVENT_VIEW_PAGE_ITEM_WILL_DISAPPEAR, params);
+        EventUtils.send(lastView, EventUtils.EVENT_PAGE_ITEM_WILL_DISAPPEAR, params);
     }
 
     private void onScrollStateChangeToIdle() {
@@ -77,10 +77,10 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         View currView = mPager.getViewFromAdapter(mCurrPageIndex);
         Map<String, Object> params = new HashMap<>();
         params.put(PAGE_ITEM_POSITION, mCurrPageIndex);
-        EventUtils.send(currView, EventUtils.EVENT_VIEW_PAGE_ITEM_DID_APPEAR, params);
+        EventUtils.send(currView, EventUtils.EVENT_PAGE_ITEM_DID_APPEAR, params);
         View lastView = mPager.getViewFromAdapter(mLastPageIndex);
         params.put(PAGE_ITEM_POSITION, mLastPageIndex);
-        EventUtils.send(lastView, EventUtils.EVENT_VIEW_PAGE_ITEM_DID_DISAPPEAR, params);
+        EventUtils.send(lastView, EventUtils.EVENT_PAGE_ITEM_DID_DISAPPEAR, params);
         mLastPageIndex = mCurrPageIndex;
     }
 
@@ -103,6 +103,6 @@ public class ViewPagerPageChangeListener implements ViewPager.OnPageChangeListen
         }
         Map<String, Object> params = new HashMap<>();
         params.put(PAGE_SCROLL_STATE, pageScrollState);
-        EventUtils.send(mPager, EventUtils.EVENT_VIEW_PAGE_SCROLL_STATE_CHANGED, params);
+        EventUtils.send(mPager, EventUtils.EVENT_PAGE_SCROLL_STATE_CHANGED, params);
     }
 }

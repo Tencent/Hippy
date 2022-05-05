@@ -371,7 +371,7 @@ public class RenderNode {
         return checkNodeFlag(FLAG_ALREADY_DELETED);
     }
 
-    public boolean hasEventRegistered(@NonNull String eventName) {
+    public boolean checkRegisteredEvent(@NonNull String eventName) {
         if (mEvents != null && mEvents.containsKey(eventName)) {
             Object value = mEvents.get(eventName);
             if (value instanceof Boolean) {
