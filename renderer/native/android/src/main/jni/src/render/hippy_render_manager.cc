@@ -222,6 +222,7 @@ void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&
   }
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array);
+  JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_int_array);
   j_env->DeleteLocalRef(j_class);
 
@@ -279,6 +280,7 @@ void HippyRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_
   }
 
   j_env->CallVoidMethod(j_object, j_method_id, j_int_array, to_pid, from_pid);
+  JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_int_array);
   j_env->DeleteLocalRef(j_class);
 }
@@ -336,6 +338,7 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
   jstring j_name = j_env->NewStringUTF(name.c_str());
 
   j_env->CallVoidMethod(j_object, j_method_id, node->GetId(), (jlong)cb_id, j_name, j_buffer);
+  JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_name);
   j_env->DeleteLocalRef(j_class);
