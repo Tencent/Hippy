@@ -214,6 +214,7 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
     std::string str = stream.str();
     jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
     j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
+    JNIEnvironment::ClearJEnvException(j_env);
     j_env->DeleteLocalRef(j_logger_str);
   });
 }

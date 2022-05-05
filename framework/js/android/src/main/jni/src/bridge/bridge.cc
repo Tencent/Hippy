@@ -25,6 +25,7 @@ void ADRBridge::SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message
     j_env->CallVoidMethod(ref_->GetObj(),
                           instance->GetMethods().j_inspector_channel_method_id,
                           msg);
+    JNIEnvironment::ClearJEnvException(j_env);
   }
 
   j_env->DeleteLocalRef(msg);
@@ -49,6 +50,7 @@ void ADRBridge::SendNotification(std::unique_ptr<v8_inspector::StringBuffer> mes
     j_env->CallVoidMethod(ref_->GetObj(),
                           instance->GetMethods().j_inspector_channel_method_id,
                           msg);
+    JNIEnvironment::ClearJEnvException(j_env);
   }
 
   j_env->DeleteLocalRef(msg);
