@@ -31,7 +31,7 @@ constexpr char kListenHost[] = "127.0.0.1";
 constexpr int32_t kListenPort = 2345;
 
 TcpChannel::TcpChannel() {
-  // fd=0、1、2是已经被系统的stdin、stdout和stderr，所以这里要初始化为-1，否则首次启动时，会close掉fd=0的socket资源，导致系统fd被占用。
+  // fd=0、1、2 is system stdin、stdout and stderr, so init it as -1, otherwise when first start, it will close socket fd=0 and cause fd be used
   socket_fd_ = kNullSocket;
   client_fd_ = kNullSocket;
   frame_codec_ = FrameCodec();
@@ -65,23 +65,21 @@ bool TcpChannel::StartListen() {
 
 bool TcpChannel::StartServer(const std::string &host, int port) {
   socket_fd_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  memset(&server_address_, 0, sizeof(server_address_));       //  每个字节都用0填充
-  server_address_.sin_family = AF_INET;                       //  使用IPv4地址
-  server_address_.sin_addr.s_addr = inet_addr(host.c_str());  //  具体的IP地址
-  server_address_.sin_port = htons(port);                     //  端口
+  memset(&server_address_, 0, sizeof(server_address_));
+  server_address_.sin_family = AF_INET;
+  server_address_.sin_addr.s_addr = inet_addr(host.c_str());
+  server_address_.sin_port = htons(port);
   int ra = 1;
   if (setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char *>(&ra), sizeof(ra)) < 0) {
     close(socket_fd_);
     return false;
   }
-  //  绑定套接字
   if (bind(socket_fd_, (struct sockaddr *)&server_address_, sizeof(server_address_)) < 0) {
     BACKEND_LOGD(TDF_BACKEND, "TcpChannel, StartServer bind fail.");
     close(socket_fd_);
     return false;
   }
 
-  //  监听
   if (listen(socket_fd_, 5) < 0) {
     BACKEND_LOGD(TDF_BACKEND, "TcpChannel, StartServer listen fail.");
     close(socket_fd_);
@@ -119,7 +117,7 @@ void TcpChannel::AcceptClient() {
     if (fd < 0) {
       if (errno != EWOULDBLOCK) {
         SetStarting(false);
-        // 重启socket服务
+        // restart socket server
         StartListen();
         break;
       }
@@ -181,7 +179,6 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
 
   while (client_fd_ != kNullSocket) {
     fd_set read_fds = fds;
-    // 阻塞式 是否就绪
     int ret_sel = select(client_fd + 1, &read_fds, nullptr, nullptr, nullptr);
     BACKEND_LOGD(TDF_BACKEND, "TcpChannel, ListenerAndResponse ret_sel=%d.", ret_sel);
     if (ret_sel < 0) {

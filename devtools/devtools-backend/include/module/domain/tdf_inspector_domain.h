@@ -35,7 +35,7 @@
 namespace hippy::devtools {
 
 /**
- * @brief UI 调试，主要涉及 DOM、Render、Layer Tree
+ * @brief UIInspect domain relative with DOM、Render、Layer Tree
  */
 class TDFInspectorDomain : public BaseDomain {
  public:
@@ -48,56 +48,49 @@ class TDFInspectorDomain : public BaseDomain {
   std::shared_ptr<FramePollModel> frame_poll_model_;
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
 
-  // Dump Dom Tree
   void DumpDomTree(const Deserializer& request);
 
   /**
-   * @brief 获取 DOM Tree，节点信息包含区域
+   * @brief get dom tree
    */
   void GetDomTree(const Deserializer& request);
 
   /**
-   * @brief 获取选中的 DOM 节点的详细信息
+   * @brief get selecting dom node info
    */
   void GetSelectedDomNode(const Deserializer& request);
 
   /**
-   * @brief 获取 Render Tree，节点信息包含区域
+   * @brief get render tree
    */
   void GetRenderTree(const Deserializer& request);
 
   /**
-   * @brief 获取选中的 Render 节点详细信息
+   * @brief get selecting render node info
    */
   void GetSelectedRenderObject(const SelectedRenderObjectRequest& request);
 
   /**
-   * @brief 获取界面截图
+   * @brief get screenshot in current page
    */
   void GetScreenshot(const ScreenShotRequest& request);
 
   /**
-   * @brief 打开更新通知开关
+   * @brief enable screenshot update switch
    */
   void EnableUpdateNotification(const Deserializer& request);
 
   /**
-   * @brief 关闭更新通知开关
+   * @brief disable screenshot update switch
    */
   void DisableUpdateNotification(const Deserializer& request);
 
-  /**
-   * @brief 处理帧更新通知
-   */
   void HandleFramePollModelRefreshNotification();
 
-  /**
-   * @brief 处理截屏更新通知
-   */
   void HandleScreenShotUpdatedNotification();
 
   /**
-   * @brief 通知 render tree 更新事件
+   * @brief notify render tree update event
    */
   void SendRenderTreeUpdatedEvent();
 };

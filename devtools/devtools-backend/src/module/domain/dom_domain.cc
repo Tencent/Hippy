@@ -43,7 +43,6 @@ constexpr uint32_t kNormalNodeDepth = 2;
 constexpr int32_t kInvalidNodeId = -1;
 
 DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
-  // 注册dom data回调
   dom_data_call_back_ = [this](int32_t node_id, bool is_root, uint32_t depth, const DomDataCallback& callback) {
     auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
@@ -60,7 +59,6 @@ DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::m
     }
   };
 
-  // location for node回调
   location_for_node_call_back_ = [this](int32_t x, int32_t y, const DomDataCallback& callback) {
     auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
@@ -81,6 +79,8 @@ DOMDomain::DOMDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::m
       callback(DOMModel());
     }
   };
+  auto update_handler = [this]() { HandleDocumentUpdate(); };
+  GetNotificationCenter()->elements_notification = std::make_shared<DefaultElementsResponseAdapter>(update_handler);
 }
 
 std::string_view DOMDomain::GetDomainName() { return kFrontendKeyDomainNameDOM; }
@@ -99,13 +99,12 @@ void DOMDomain::GetDocument(const Deserializer& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetDocument, dom_data_callback is null");
     return;
   }
-  // 触发回调并且获取 dom 结构数据
   dom_data_call_back_(-1, true, kDocumentNodeDepth, [this, request](DOMModel model) {
-    // 触发GetDocument先清空缓存
+    //  need clear first
     element_tree_cache_.clear();
-    // 缓存下已获取孩子数据的节点
+    // cache node that has obtain
     CacheDocumentNode(model);
-    // 回包给 frontend
+    // response to frontend
     ResponseResultToFrontend(request.GetId(), model.GetDocumentJSON().dump());
   });
 }
@@ -138,7 +137,7 @@ void DOMDomain::GetBoxModel(const DomNodeDataRequest& request) {
     auto cache_it = element_tree_cache_.find(model.GetNodeId());
     bool in_cache = cache_it != element_tree_cache_.end();
     if ((in_cache && cache_it->second == 0) || !in_cache) {
-      // GetBoxModel的时候如果已经给过数据了，就不要再给了
+      // if not in cache, then should send to frontend
       SetChildNodesEvent(model);
     }
     ResponseResultToFrontend(request.GetId(), model.GetBoxModelJSON().dump());
@@ -187,7 +186,6 @@ void DOMDomain::CacheDocumentNode(DOMModel model) {
 
 void DOMDomain::SetChildNodesEvent(DOMModel model) {
   if (model.GetChildren().empty()) {
-    // 空的就不设置了
     return;
   }
   SendEventToFrontend(InspectEvent(kEventMethodSetChildNodes, model.GetChildNodesJSON().dump()));
@@ -204,7 +202,7 @@ int32_t DOMDomain::SearchNearlyCacheNode(nlohmann::json relation_tree) {
   auto node_id = 0;
   for (auto& child : relation_tree.items()) {
     auto relation_node = child.value();
-    // 找离得最近的
+    // find recently
     if (element_tree_cache_.find(relation_node) != element_tree_cache_.end()) {
       node_id = relation_node;
       break;

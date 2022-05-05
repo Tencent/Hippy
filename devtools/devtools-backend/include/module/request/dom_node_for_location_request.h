@@ -25,7 +25,7 @@
 
 namespace hippy::devtools {
 /**
- * @brief 根据定位获取 domTree 节点的请求
+ * @brief GetNodeForLocation request
  */
 class DomNodeForLocationRequest : public Deserializer {
  public:

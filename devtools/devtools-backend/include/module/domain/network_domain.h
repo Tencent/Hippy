@@ -32,7 +32,7 @@
 namespace hippy::devtools {
 
 /**
- * CDP 网络模块的协议实现
+ * @brief Network domain
  */
 class NetworkDomain : public BaseDomain {
  public:

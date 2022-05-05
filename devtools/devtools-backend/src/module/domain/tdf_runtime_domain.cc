@@ -32,10 +32,10 @@ void TDFRuntimeDomain::RegisterMethods() {
 }
 
 void TDFRuntimeDomain::Resume(const Deserializer& request) {
-  // 恢复js debugger的断点调试
+  // recover js debugger
 #ifdef OS_ANDROID
   std::string data = "chrome_socket_closed";
-  // 非Debug模式，不把消息发给V8
+  // don't send msg to v8 if not debug mode
   if (!GetDataProvider()->runtime_adapter->IsDebug()) {
     BACKEND_LOGD(TDF_BACKEND, "Not debug mode, return.");
     return;

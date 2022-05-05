@@ -32,7 +32,6 @@ constexpr char kCSSStyles[] = "styles";
 constexpr uint32_t kCSSStyleNodeDepth = 1;
 
 CSSDomain::CSSDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
-  // 注册数据回调
   css_data_call_back_ = [this](int32_t node_id, const CSSStyleDataCallback& callback) {
     auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
@@ -114,7 +113,7 @@ void CSSDomain::SetStyleTexts(const CSSEditStyleTextsRequest& request) {
   auto edits = request.GetEdits();
   auto style_texts = nlohmann::json::array();
   auto request_call_back_count = edits.size();
-  // 这里根据id记录下数据，使用普通变量在回调里面修改会有释放导致Crash的问题
+  // use id not object to record style data
   style_text_map_[request.GetId()] = style_texts;
   request_call_back_count_map_[request.GetId()] = request_call_back_count;
 
@@ -137,7 +136,7 @@ void CSSDomain::SetStyleTexts(const CSSEditStyleTextsRequest& request) {
       auto style_result = nlohmann::json::object();
       style_result[kCSSStyles] = style_texts;
       ResponseResultToFrontend(request.GetId(), style_result.dump());
-      // 清除数据
+      // clear data
       style_text_map_.erase(request.GetId());
       request_call_back_count_map_.erase(request.GetId());
     });

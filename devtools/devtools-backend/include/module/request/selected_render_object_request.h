@@ -25,7 +25,7 @@
 
 namespace hippy::devtools {
 /**
- * @brief 获取 renderTree 选中节点的请求
+ * @brief get selected renderTree request
  */
 class SelectedRenderObjectRequest : public Deserializer {
  public:

@@ -27,9 +27,6 @@
 
 namespace hippy::devtools {
 
-/**
- * @brief 定时轮询帧是否有刷新
- */
 class FramePollModel : public BaseModel{
  public:
   FramePollModel();

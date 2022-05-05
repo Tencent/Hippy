@@ -25,7 +25,7 @@
 
 namespace hippy::devtools {
 /**
- * network 模块调试，getResponseBody的请求数据体
+ * network getResponseBody request
  */
 class NetworkResponseBodyRequest : public Deserializer {
  public:

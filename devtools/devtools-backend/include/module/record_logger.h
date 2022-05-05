@@ -37,38 +37,22 @@ class LoggerModel {
     std::string log_data;
 };
 
-// 定义记录日志达最大条数后的操作回调，附带完整的日志JSON数据
 using RecordLogOperateCallback = std::function<void(std::string&& log)>;
 /**
- * @brief   Log寄存器
- *          主要能力是保存日志数据
- *          当存储的日志数据超过一定值时会通过callback把完整日志回调回调用方处理
- *          并且当前存储的日志数据会清空
- *          日志存储的最大条数可自定义
+ * @brief record log, and provide callback to handle if over max numbers
  */
 class RecordLogger {
  public:
   RecordLogger() = default;
 
-  /**
-   * @brief 设置RecordLogOperateCallback
-   * 当记录的日志足够多时，会回调此callback供外部处理相应的日志
-   */
   void SetRecordLogOperateCallback(RecordLogOperateCallback callback) {
     operate_callback_ = std::move(callback);
   }
 
-  /**
-   * @brief 记录日志数据, 当记录的日志达到最大条数时，会触发LogOperate回调
-   *        内部数据处理加锁，线程安全
-   * @param logger_model   日志数据模型
-   */
   void RecordLogData(LoggerModel logger_model);
 
  private:
-  // 获取已记录的所有日志(非线程安全)
   std::string GetRecordLogs();
-  // 重置日志列表(非线程安全)
   void ResetRecordLogs();
 
   std::recursive_mutex devtools_log_mutex_;

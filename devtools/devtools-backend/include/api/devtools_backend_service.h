@@ -35,7 +35,7 @@ namespace hippy::devtools {
 /**
  * @brief Devtools backend service is a debugging back-end service, which is mainly responsible for the construction of debugging channel,
  * debugging protocol distribution and data collection of access framework of devtools.
- * As an access party, we need to be concerned about the implementation of adapter capability by DataProvider
+ * As an access framework, we need to be concerned about the implementation of adapter capability by DataProvider
  */
 class DevtoolsBackendService {
  public:

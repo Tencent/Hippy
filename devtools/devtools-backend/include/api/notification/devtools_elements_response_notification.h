@@ -17,39 +17,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #pragma once
-#include <memory>
+
 #include <string>
 
 namespace hippy::devtools {
+class ElementsResponseNotification {
+ public:
 
-/**
- * @brief framework type
- */
-enum class Framework {
-  kHippy,
-  kVl,
-  kTdf
-};
+  virtual void NotifyDocumentUpdate() = 0;
 
-/**
- * @brief tunnel channel type
- */
-enum Tunnel {
-  kWebSocket,  // Websocket channel, supporting WLAN / public network, or Android wired
-  kTcp,  // Wired TCP channel. Compared with WS, you can use chrome to debug JSC (console, source, memory) for IOS
-  kInterface  // CDP protocol interface calling mode, and the business party builds a debugging channel
-};
-
-/**
- * devtools config sets
- */
-struct DevtoolsConfig {
-  Framework framework = Framework::kHippy;
-
-  Tunnel tunnel = Tunnel::kTcp;
-
-  std::string ws_url;
+  void SetNeedNotifyBatchEvent(bool need_notify_batch_event) {
+    need_notify_batch_event_ = need_notify_batch_event;
+  }
+ protected:
+  bool need_notify_batch_event_ = true;
 };
 }  // namespace hippy::devtools

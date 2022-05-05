@@ -27,7 +27,7 @@
 namespace hippy::devtools {
 
 /**
- * @brief 通用协议适配
+ * @brief common domain where other domain don't handle
  */
 class TDFCommonProtocolDomain : public BaseDomain {
  public:

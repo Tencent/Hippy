@@ -25,7 +25,7 @@
 
 namespace hippy::devtools {
 /**
- * @brief 获取 domTree 节点数据的请求
+ * @brief dom node request
  */
 class DomNodeDataRequest : public Deserializer {
  public:

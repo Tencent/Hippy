@@ -33,7 +33,6 @@ namespace hippy::devtools {
 
 WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
   ws_uri_ = ws_uri;
-  // 日志输出输出失败部分
   ws_client_.set_access_channels(websocketpp::log::alevel::fail);
   ws_client_.set_error_channels(websocketpp::log::elevel::all);
   // Initialize ASIO
@@ -103,7 +102,7 @@ void WebSocketChannel::HandleSocketInit(const websocketpp::connection_hdl& handl
 
 void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl& handle) {
   auto con = ws_client_.get_con_from_hdl(handle);
-  // 链接不成功，handler置空
+  // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
   BACKEND_LOGE(TDF_BACKEND,
@@ -139,7 +138,7 @@ void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_
 
 void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hdl& handle) {
   auto con = ws_client_.get_con_from_hdl(handle);
-  // 关闭链接，handler置空
+  // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
   BACKEND_LOGI(TDF_BACKEND,

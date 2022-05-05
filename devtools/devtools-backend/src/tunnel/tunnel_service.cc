@@ -50,7 +50,7 @@ void TunnelService::Connect(const DevtoolsConfig &devtools_config) {
 void TunnelService::HandleReceiveData(const char *buffer, int32_t buffer_length) {
   std::string data(buffer, buffer + buffer_length);
   auto isInspectDomain = dispatch_->ReceiveDataFromFrontend(data);
-  if (!isInspectDomain) {  // 其余的丢给 v8
+  if (!isInspectDomain) {  // others send to v8 if use CDP
     dispatch_->DispatchToV8(data);
   }
 }

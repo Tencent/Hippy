@@ -26,9 +26,9 @@
 
 namespace hippy::devtools {
 /**
- * Data interaction channel between external access framework and devtools,
- * 1 provide the provider data interface that needs to be charged for the external access framework;
- * 2 Provide notification interface that can be called by external access framework;
+ * @brief Data interaction channel between external access framework and devtools,
+ * 1. provide the provider data interface that needs to be charged for the external access framework;
+ * 2. Provide notification interface that can be called by external access framework;
  */
 class DataChannel {
  public:

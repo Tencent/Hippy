@@ -33,7 +33,7 @@ using WSThread = websocketpp::lib::shared_ptr<websocketpp::lib::thread>;
 
 namespace hippy::devtools {
 /**
- * 连接通道的webSocket实现
+ * @brief web socket channel to implement net
  */
 class WebSocketChannel : public hippy::devtools::NetChannel {
  public:

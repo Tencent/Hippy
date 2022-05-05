@@ -114,7 +114,7 @@ void TDFInspectorDomain::GetRenderTree(const Deserializer& request) {
 
 void TDFInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
   BACKEND_LOGD(TDF_BACKEND, "TDFInspectorDomain::HandleGetScreenShot start");
-  // 用最近一次 GetScreenShot 事件的参数，作为截屏更新监听的参数
+  // use the latest GetScreenShot request params as the screenshot params
   screen_shot_model_->SetScreenShotRequest(request);
   auto screen_shot_callback = ScreenShotModel::ScreenShotCallback([this, request](ScreenShotResponse&& response) {
     ResponseResultToFrontend(request.GetId(), response.ToJsonString());

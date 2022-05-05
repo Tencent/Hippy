@@ -32,20 +32,19 @@
 namespace hippy::devtools {
 
 /**
- * @brief CSSModel数据回调
+ * @brief CSSModel callback
  */
 using CSSStyleDataCallback = std::function<void(const CSSModel& model)>;
 
 /**
- * @brief 根据node id请求单个节点的style数据
- * @param node_id 节点id
- * @param callback 数据回调
+ * @brief css style by node id
+ * @param node_id
+ * @param callback
  */
 using CSSDataRequestCallback = std::function<void(int32_t node_id, const CSSStyleDataCallback& callback)>;
 
 /**
- * @brief CSS domain 处理类
- *        处理 frontend 分发过来的 CSS 相关的 method
+ * @brief CSS domain
  */
 class CSSDomain : public BaseDomain {
  public:

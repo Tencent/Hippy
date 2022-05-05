@@ -27,21 +27,21 @@
 namespace hippy::devtools {
 
 /**
- * @brief 调试主动事件通知
+ * @brief inspect event when you need send data to frontend but not reponse to frontend
  */
 struct InspectEvent {
   /**
-   * @brief 初始化通知事件
-   * @param method  事件名
-   * @param params 事件内容，string 类型
+   * @brief event constructor
+   * @param method method name
+   * @param params data string
    */
   InspectEvent(const std::string& method, std::string&& params) {
     method_ = method;
-    params_ = std::move(params);  // 这里的params可能会大于1M，所以这里用 move 提高性能
+    params_ = std::move(params);  // the params will be so large, like sometimes more 1M, then use move to improve performance
   }
 
   /**
-   * @brief 将通知事件转换成string
+   * @brief change data to cdp event json string
    */
   std::string ToJsonString() const {
     std::string result = "{\"";

@@ -25,7 +25,7 @@
 
 namespace hippy::devtools {
 /**
- * @brief 截屏请求
+ * @brief screenshot request
  */
 class ScreenShotRequest : public Deserializer {
  public:

@@ -42,7 +42,7 @@ using hippy::devtools::DevtoolsBackendService;
 DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
-  devtools_config.tunnel = hippy::devtools::Tunnel::kTcp;
+  devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
   devtools_config.ws_url = ws_url;
   devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config);
   all_services.push_back(devtools_service_);

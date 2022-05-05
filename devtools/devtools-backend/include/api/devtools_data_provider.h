@@ -35,8 +35,8 @@
 
 namespace hippy::devtools {
 /**
- * devtools The function data required for debugging is realized by the external framework,
- * and each function adapter is injected
+ * @brief Devtools provide a set of adapter interfaces to implement cdp protocol by the external framework,
+ * like elements, network, memory, performance, etc
  */
 struct DataProvider {
   std::shared_ptr<PerformanceAdapter> performance_adapter;

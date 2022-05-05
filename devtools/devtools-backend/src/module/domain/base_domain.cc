@@ -30,7 +30,7 @@ constexpr char kMethodEnable[] = "Enable";
 constexpr char kMethodDisable[] = "Disable";
 
 bool BaseDomain::HandleDomainSwitchEvent(int32_t id, const std::string& method) {
-  // 由具体的 domain 子类处理
+  // handle Domain.disable and Domain.disable, then others will be handled by child domain
   if (method == kMethodEnable || method == kMethodDisable) {
     ResponseResultToFrontend(id, "{}");
     return true;

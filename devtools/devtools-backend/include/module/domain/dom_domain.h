@@ -32,8 +32,7 @@
 
 namespace hippy::devtools {
 /**
- * @brief DOM domain 处理类
- *        处理 frontend 分发过来的 DOM 相关的 method
+ * @brief DOM domain
  */
 class DOMDomain : public BaseDomain {
  public:

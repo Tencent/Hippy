@@ -25,7 +25,7 @@
 namespace hippy::devtools {
 
 /**
- * @brief UI 调试 model
+ * @brief UIInspect model
  */
 class TDFInspectorModel {
  public:

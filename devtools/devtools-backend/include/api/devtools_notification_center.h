@@ -25,17 +25,19 @@
 #include "api/notification/devtools_network_notification.h"
 #include "api/notification/devtools_runtime_notification.h"
 #include "api/notification/devtools_vm_response_notification.h"
+#include "api/notification/devtools_elements_response_notification.h"
 
 namespace hippy::devtools {
 
  /**
-  * devtools Provide a set of functional interfaces that can be used by the external access framework,
-  * Debug log, debug response, etc
+  * @brief Devtools provide a set of notification interfaces to notify frontend by the external access framework,
+  * like Debug log, debug response, etc
   */
 struct NotificationCenter {
   std::shared_ptr<LogNotification> log_notification;
   std::shared_ptr<VMResponseNotification> vm_response_notification;
   std::shared_ptr<NetworkNotification> network_notification;
   std::shared_ptr<RuntimeNotification> runtime_notification;
+  std::shared_ptr<ElementsResponseNotification> elements_notification;
 };
 }  // namespace hippy::devtools

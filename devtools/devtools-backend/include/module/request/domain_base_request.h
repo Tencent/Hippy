@@ -40,7 +40,7 @@ class Deserializer {
   int32_t GetId() const { return id_; }
 
  private:
-  int32_t id_;  // 请求带有的唯一标识符
+  int32_t id_;
 };
 
 }  // namespace hippy::devtools

@@ -90,10 +90,10 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     return false;
   }
 
-  // 解析 id
+  // parse id
   auto id = data_json[kFrontendKeyId];
 
-  // 解析 domain.method
+  // parse domain.method
   std::string domain_param_list;
   if (data_json[kFrontendKeyMethod].is_string()) {
     domain_param_list = data_json[kFrontendKeyMethod];
@@ -111,7 +111,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   std::string method = split_params.at(1);
   method[0] = toupper(method[0]);  // 协议里的method首字母都是小写，但是C++方法名要求首字母大写，所以这里需要处理一下
 
-  // 解析 params
+  // parse params
   std::string params;
   if (!data_json[kFrontendKeyParams].is_null()) {
     json params_json = json::object();
@@ -121,7 +121,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
 
   auto base_domain = domain_register_map_.find(domain);
 
-  // 找到实现的 domain 处理消费
+  // find domain to handle
   if (base_domain != domain_register_map_.end()) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
@@ -132,10 +132,10 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
       return true;
     }
   }
-  // 未实现的 TDF 协议交给通用协议适配器处理
+  // if no domain to handle, then find common domain
   auto tdf_common_domain = domain_register_map_.find(kFrontendKeyDomainNameTDF);
   if (domain.find(kFrontendKeyDomainNameTDF) != std::string::npos && tdf_common_domain != domain_register_map_.end()) {
-    // 将 domain.method 一起透传
+    // put domain.method to pass
     std::static_pointer_cast<TDFCommonProtocolDomain>(tdf_common_domain->second)
         ->ReceiveFromFrontend(id, domain_param_list, params);
     return true;
@@ -146,7 +146,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
 void DomainDispatch::DispatchToV8(const std::string& data) {
 #ifdef OS_ANDROID
   BACKEND_LOGD(TDF_BACKEND, "JSDebugger, params=%s.", data.c_str());
-  // 非Debug模式，不把消息发给V8
+  // if not debug mode, then not send msg to v8
   if (!data_channel_->GetProvider()->runtime_adapter->IsDebug()) {
     BACKEND_LOGD(TDF_BACKEND, "Not debug mode, return.");
     return;

@@ -29,9 +29,9 @@ std::string_view TDFCommonProtocolDomain::GetDomainName() { return kFrontendKeyD
 void TDFCommonProtocolDomain::RegisterMethods() {}
 
 bool TDFCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params) {
-  // 全部进行消费
   auto common_protocol_adapter = GetDataProvider()->common_protocol_adapter;
   if (common_protocol_adapter) {
+    // if has common adapter, then handle all the left Domain.Method
     common_protocol_adapter->HandleCommonProtocol(id, method, params,
                                                   [this, id](bool is_success, const nlohmann::json &data) {
                                                     if (is_success) {

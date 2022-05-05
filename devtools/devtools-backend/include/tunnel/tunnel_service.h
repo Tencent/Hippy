@@ -29,30 +29,30 @@
 namespace hippy::devtools {
 
 /**
- * @brief 通道逻辑处理服务，包括通道建立和协议收发等
+ * @brief tunnel service to handle interact with frontend, including manage channel and dispatch msg
  */
 class TunnelService {
  public:
   explicit TunnelService(std::shared_ptr<DomainDispatch>  dispatch, const DevtoolsConfig &devtools_config);
 
   /**
-   * @brief 发送数据给Frontend
+   * @brief send data to frontend
    */
   void SendDataToFrontend(const std::string &rsp_data);
 
   /**
-   * @brief 关闭连接通道
-   * @param is_reload 是否重新加载
+   * @brief close connect
+   * @param is_reload differ close or reconnect
    */
   void Close(bool is_reload);
 
  private:
   /**
-   * @brief Tunnel 通道连接
+   * @brief connect to frontend
    */
   void Connect(const DevtoolsConfig &devtools_config);
   /**
-   * @brief 收到Frontend传过来的数据
+   * @brief receive msg from frontend
    */
   void HandleReceiveData(const char *buffer, int32_t buffer_length);
 

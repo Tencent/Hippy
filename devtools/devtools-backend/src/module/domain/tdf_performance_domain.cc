@@ -46,21 +46,21 @@ void TDFPerformanceDomain::Start(const Deserializer& request) {
   BACKEND_LOGD(TDF_BACKEND, "PerformanceStart.");
   auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
-    // 置空frameTimings
+    // reset frameTimings
     performance_adapter->ResetFrameTimings();
-    // 置空timeline
+    // reset timeline
     performance_adapter->ResetTimeline();
   } else {
     BACKEND_LOGE(TDF_BACKEND, "PerformanceStart performance_adapter is null");
   }
 
-  // 开始获取v8-tracing
+  // start v8-tracing
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
     tracing_adapter->StartTracing();
   }
 
-  // 组装数据
+  // build data
   nlohmann::json start_time_json = nlohmann::json::object();
   start_time_json["startTime"] = SteadyClockTime::NowTimeSinceEpochStr();
   ResponseResultToFrontend(request.GetId(), start_time_json.dump());

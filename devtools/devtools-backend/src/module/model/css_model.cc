@@ -87,7 +87,7 @@ nlohmann::json CSSModel::GetComputedStyleJSON() {
 }
 
 nlohmann::json CSSModel::GetInlineStylesJSON() {
-  // 内联样式现在 MatchedStyles 中展示，这里暂不处理
+  // inline style use be in GetMatchedStylesJSON, so don't handle now
   return nlohmann::json::object();
 }
 
@@ -189,15 +189,15 @@ std::vector<CSSStyleMetas> CSSModel::ParseStyleTextValue(const std::string& text
   for (auto& property : text_list) {
     auto property_list = TDFStringUtil::SplitString(property, ":");
     if (property_list.size() != 2) {
-      // 如果不是 xxx:xxx 结构，直接continue
+      // if not xxx:xxx struct, then continue
       continue;
     }
     auto key = property_list[0];
     auto value = property_list[1];
-    // 去除多余空格
+    // remove useless space line
     value = TDFStringUtil::TrimmingStringWhitespace(value);
     key = TDFStringUtil::Camelize(TDFStringUtil::TrimmingStringWhitespace(key));
-    // 若是 number 类型，需要转成 double
+    // if number type，then need change to double
     if (style_number_set_.find(key) != style_number_set_.end() && value.length()) {
       auto double_value = std::stod(value);
       style_[key] = double_value;
@@ -260,7 +260,6 @@ std::string CSSModel::ConversionEnum(const std::vector<std::string>& options, co
 }
 
 void CSSModel::InitializeBoxModelRequireMap() {
-  // CSS 数据构造使用
   box_model_require_map_[kPaddingTop] = kDefaultLength;
   box_model_require_map_[kPaddingLeft] = kDefaultLength;
   box_model_require_map_[kPaddingRight] = kDefaultLength;
@@ -278,7 +277,6 @@ void CSSModel::InitializeBoxModelRequireMap() {
 }
 
 void CSSModel::InitializeStyleNumberMap() {
-  // CSS 数据构造使用
   style_number_set_ = {kFlex,
                        kFlexGrow,
                        kFlexShrink,
@@ -318,7 +316,6 @@ void CSSModel::InitializeStyleNumberMap() {
 }
 
 void CSSModel::InitializeStyleEnumMap() {
-  // CSS 数据构造使用
   style_enum_map_[kDisplay] = {kDisplayFlex, kDisplayNone};
   style_enum_map_[kFlexDirection] = {kFlexDirectionColumn, kFlexDirectionColumnReverse, kFlexDirectionRow,
                                      kFlexDirectionRowReverse};

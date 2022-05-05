@@ -56,7 +56,7 @@ void FrameCodec::Decode(void *data, int32_t len) {
   }
   int32_t stream_buffer_len = stream_buffer_.size();
   while ( stream_buffer_len + len >= kHeaderSize) {
-    // header不完整需要拼接
+    // header don't need join
     if ( stream_buffer_len > 0 &&  stream_buffer_len < kHeaderSize) {
       int split_len = kHeaderSize -  stream_buffer_len;
       stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data),
@@ -65,7 +65,7 @@ void FrameCodec::Decode(void *data, int32_t len) {
       len -= split_len;
       data = reinterpret_cast<char *>(data) + split_len;
     }
-    // 解析头部，判断数据是否可提取
+    // parse header and judge if can use
     struct Header *header;
     if (stream_buffer_.empty()) {
       header = (struct Header *)data;
@@ -77,7 +77,7 @@ void FrameCodec::Decode(void *data, int32_t len) {
     if (stream_buffer_.size() + len < total_len) {
       break;
     }
-    // 提取完整数据
+    // use absolute data
     int32_t split_len = total_len - stream_buffer_.size();
     stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data),
                           reinterpret_cast<char *>(data) + split_len);
@@ -88,11 +88,11 @@ void FrameCodec::Decode(void *data, int32_t len) {
     }
     stream_buffer_.clear();
 
-    // 剩余数据
+    // left data
     len -= split_len;
     data = reinterpret_cast<char *>(data) + split_len;
   }
-  // 缓存数据
+  // cache left data
   if (len > 0) {
     stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data), reinterpret_cast<char *>(data) + len);
   }

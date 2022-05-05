@@ -31,7 +31,7 @@ namespace hippy::devtools {
 class BaseDomain;
 
 /**
- * @brief Domain 分发处理器，包括俩部分：1、chrome debugging protocol， 2、自定义的 protocol
+ * @brief domain dispatch, including two parts protocol, 1. chrome debugging protocol， 2. self define protocol start with TDF_
  */
 class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
  public:
@@ -40,44 +40,44 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
   std::shared_ptr<DataChannel> GetDataChannel() { return data_channel_; }
 
   /**
-   * @brief 注册 domain handler
+   * @brief register domain handler which can handle Domain.Method
    */
   void RegisterDomainHandler(const std::shared_ptr<BaseDomain>& domain);
 
   /**
-   * @brief 清楚注册的  domain handler
+   * @brief clear domain register handler
    */
   void ClearDomainHandler();
 
   /**
-   * @brief 从 frontend 收到消息
-   * @param 从 frontend 发过来的消息体
+   * @brief receive msg from frontend
+   * @param params passing from frontend
    */
   bool ReceiveDataFromFrontend(const std::string& data);
 
   void DispatchToV8(const std::string& data);
 
   /**
-   * @brief 回包给 frontend
-   * @param 回包的结果数据
+   * @brief response to frontend after call ReceiveDataFromFrontend
+   * @param result response
    */
   void SendDataToFrontend(int32_t id, const std::string& result, const std::string& error_code);
 
   /**
-   * @brief 主动抛 event 事件给 frontend
-   * @param event 回包的 event，需要实现 ToJsonString
+   * @brief send event to frontend if you want
+   * @param event params that should be implemented ToJsonString
    */
   void SendEventToFrontend(InspectEvent&& event);
 
   /**
-   * @brief 注册 JSDebugger Domain 事件
+   * @brief register domain handler relative with JS engine
    */
   void RegisterJSDebuggerDomainListener();
 
   void SetResponseHandler(std::function<void(const std::string)> rsp_handler) { rsp_handler_ = rsp_handler; }
 
   /**
-   * @brief 注册默认 Domain 事件的监听
+   * @brief register domain handler default
    */
   void RegisterDefaultDomainListener();
 

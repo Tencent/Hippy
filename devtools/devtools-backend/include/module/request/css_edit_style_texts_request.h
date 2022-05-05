@@ -25,7 +25,7 @@
 
 namespace hippy::devtools {
 /**
- * @brief 编辑 CSS Style Texts 的请求
+ * @brief edit CSS Style Texts request
  */
 class CSSEditStyleTextsRequest : public Deserializer {
  public:

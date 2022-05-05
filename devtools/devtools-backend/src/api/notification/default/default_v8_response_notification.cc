@@ -24,10 +24,7 @@
 namespace hippy::devtools {
 DefaultV8ResponseAdapter::DefaultV8ResponseAdapter(ResponseHandler response_handler)
     : response_handler_(std::move(response_handler)) {}
-/**
- * 消息送v8返回
- * @param data
- */
+
 void DefaultV8ResponseAdapter::ResponseToDevtool(std::string data) {
   if (response_handler_) {
     response_handler_(data);

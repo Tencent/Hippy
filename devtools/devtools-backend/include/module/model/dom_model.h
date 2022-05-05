@@ -28,8 +28,7 @@
 namespace hippy::devtools {
 
 /**
- * @brief dom node类型
- *        参考文档：https://dom.spec.whatwg.org/#dom-node-nodetype
+ * @brief dom node, @see https://dom.spec.whatwg.org/#dom-node-nodetype
  */
 enum class DomNodeType {
   kElementNode = 1,
@@ -44,44 +43,37 @@ enum class DomNodeType {
 };
 
 /**
- * @brief chrome devtools DOM 相关协议的数据类
- *        负责记录 Node DOM 相关数据及转成 chrome 协议需要的 JSON 格式
- *        chrome 协议参考 https://chromedevtools.github.io/devtools-protocol/tot/DOM/
+ * @brief chrome devtools DOM model, @see https://chromedevtools.github.io/devtools-protocol/tot/DOM/
  */
 class DOMModel : public BaseModel {
  public:
   DOMModel() = default;
 
   /**
-   * @brief 快捷构造方法
-   * @param json 上层给过来的 DOM 树结构
-   * @return CSSModel
+   * @brief create dom model by json
+   * @param json dom json struct
+   * @return DOMModel
    */
   static DOMModel CreateModelByJSON(const nlohmann::json& json);
 
   /**
-   * @brief 获取chrome DOM getDocument所需的JSON数据
-   * @return JSON数据
+   * @brief dom method to getDocument
+   * @return json struct
    */
   nlohmann::json GetDocumentJSON();
 
   /**
-   * @brief 获取chrome DOM GetBoxModel所需的JSON数据
-   * @return JSON数据
+   * @brief dom method to getBoxModel
+   * @return json struct
    */
   nlohmann::json GetBoxModelJSON();
 
   /**
-   * 获取chrome DOM setChildNodes所需JSON数据
-   * @return JSON数据
+   * dom method to setChildNodes
+   * @return json struct
    */
   nlohmann::json GetChildNodesJSON();
 
-  /**
-   * @brief 根据节点坐标获取节点id
-   * @param point 节点坐标
-   * @return 节点id相关信息JSON
-   */
   static nlohmann::json GetNodeForLocation(int32_t node_id);
 
   constexpr void SetNodeId(int32_t node_id) { node_id_ = node_id; }
@@ -149,8 +141,7 @@ class DOMModel : public BaseModel {
   nlohmann::json style_;
 
   /**
-   * @brief getNodeForLocation的时候用于查找最近缓存节点使用，node对应的关系链，
-   *        nlohmann::json::array格式
+   * @brief find recently cached node when getNodeForLocation
    */
   nlohmann::json relation_tree_;
   double x_ = 0.0;

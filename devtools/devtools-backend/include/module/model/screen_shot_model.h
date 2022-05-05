@@ -31,7 +31,7 @@ namespace hippy::devtools {
 using json = nlohmann::json;
 
 /**
- * @brief 截屏数据model
+ * @brief screenshot model
  */
 class ScreenShotModel : public BaseModel {
  public:
@@ -43,30 +43,27 @@ class ScreenShotModel : public BaseModel {
   void SetSendEventScreenShotCallback(ScreenShotCallback callback) { send_event_callback_ = callback; }
 
   /**
-   * @brief 设置截屏请求参数
+   * @brief set screenshot request params
+   * @param req model
    */
   void SetScreenShotRequest(const ScreenShotRequest& req);
 
   /**
-   * @brief 请求截屏数据，用来回包到前端
+   * @brief response screenshot result
    */
   void ReqScreenShotToResponse();
 
   /**
-   * @brief 请求截屏数据，用来发送事件到前端
+   * @brief request screenshot and response
    */
   void ReqScreenShotToSendEvent();
 
  private:
-  /**
-   * @brief 请求截屏数据，用来发送事件到前端
-   * @param screen_shot_callback 截屏数据返回的回调
-   */
   void ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen_shot_callback);
 
-  bool has_set_request_;  // 是否已经设置过 request_ 属性
+  bool has_set_request_;
   ScreenShotRequest request_;
-  ScreenShotCallback response_callback_;    // 截屏回调，用来回包到前端
-  ScreenShotCallback send_event_callback_;  // 截屏回调，用来发送事件到前端
+  ScreenShotCallback response_callback_;
+  ScreenShotCallback send_event_callback_;
 };
 }  // namespace hippy::devtools

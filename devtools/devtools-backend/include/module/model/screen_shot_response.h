@@ -24,7 +24,7 @@
 
 namespace hippy::devtools {
 /**
- * @brief page截屏回包数据
+ * @brief screenshot response model
  */
 class ScreenShotResponse {
  public:
@@ -33,8 +33,8 @@ class ScreenShotResponse {
       : screen_data_(screen_data), screen_width_(width), screen_height_(height) {}
 
   /**
-   * @brief 组装截屏数据
-   * @return 截屏jsonString
+   * @brief screenshot model to json
+   * @return json struct
    */
   std::string ToJsonString() const;
 

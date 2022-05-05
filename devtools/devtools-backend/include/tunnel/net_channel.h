@@ -23,28 +23,28 @@
 #include "api/devtools_config.h"
 
 namespace hippy::devtools {
-constexpr uint8_t kTaskFlag = 210;  // 任务消息
+constexpr uint8_t kTaskFlag = 210;  // message flag
 /**
- * @brief 与前端调试器的数据连接通道
+ * @brief abstract channel to send and receive from frontend
  */
 class NetChannel {
  public:
   using ReceiveDataHandler = std::function<void(void *buf, size_t length, uint8_t flag)>;
 
   /**
-   * 向调试器前端发起连接请求
-   * @param handler 连接后回包处理函数
+   * @brief connect to frontend
+   * @param handler to receive msg from frontend
    */
   virtual void Connect(ReceiveDataHandler handler) = 0;
 
   /**
-   * 向调试器前端发送回包
-   * @param rsp_data 回包数据
+   * @brief send data to frontend
+   * @param rsp_data
    */
   virtual void Send(const std::string &rsp_data) = 0;
 
   /**
-   * 关闭连接
+   * close channel
    * @param code close code
    * @param reason close reason
    */

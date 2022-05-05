@@ -25,7 +25,7 @@
 
 namespace hippy::devtools {
 /**
- * @brief 获取 CSS node 数据的请求
+ * @brief get CSS node model request
  */
 class CSSNodeDataRequest : public Deserializer {
  public:

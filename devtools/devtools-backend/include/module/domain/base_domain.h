@@ -34,59 +34,52 @@ namespace hippy::devtools {
 
 class DomainDispatch;
 /**
- * @brief domain 处理基类，封装与 frontend 交互发消息的基础方法，并对 frontend 调用的 method 进行分发处理
+ * @brief abstract base domain, handle domain.method from frontend
  */
 class BaseDomain {
  public:
   explicit BaseDomain(std::weak_ptr<DomainDispatch> dispatch) : dispatch_(dispatch) {}
 
   /**
-   * @brief 当前 domain 名称
+   * @brief domain name
    */
   virtual std::string_view GetDomainName() = 0;
 
   /**
-   * @brief 注册 domain 下面的方法
+   * @brief register domain method
    */
   virtual void RegisterMethods() = 0;
 
   /**
-   * @brief 处理 domain 的开关事件
-   * @param id 唯一自增 id
-   * @param method 调用命令
-   * @return 是开关事件就返回 true，并直接回包
+   * @brief handle domain.enable and domain.disable switch
+   * @param id
+   * @param method
+   * @return if switch enable or disable return true, else return false
    */
   bool HandleDomainSwitchEvent(int32_t id, const std::string& method);
 
   /**
-   * @brief 成功时的回包
-   * @param id：Frontend传过来的id
-   * @param result：回包结果数据
+   * @brief handle domain.method success response
+   * @param id frontend id
+   * @param result response result
    */
   void ResponseResultToFrontend(int32_t id, const std::string& result);
 
   /**
-   * @brief 失败时的回包
-   * @param id Frontend 传过来的 id
-   * @param error_code 错误码
-   * @param error_msg 错误信息
+   * @brief handle domain.method fail response
+   * @param id
+   * @param error_code
+   * @param error_msg
    */
   void ResponseErrorToFrontend(int32_t id, const int32_t error_code, const std::string& error_msg);
 
   /**
-   * @brief 抛 event 事件给 frontend
-   * @param event 回包的 event，需要实现 ToJsonString
+   * @brief send event to frontend
+   * @param inspect event that need to implement ToJsonString
    */
   void SendEventToFrontend(InspectEvent&& event);
 
  protected:
-  /**
-   * @brief 处理 frontend 发过来的 method
-   * @param id 唯一自增 id
-   * @param method 调用命令
-   * @param params 调用参数
-   */
-  bool HandleFrontendMethod(int32_t id, const std::string& method, const std::string& params);
 
   std::weak_ptr<DomainDispatch> dispatch_;
 

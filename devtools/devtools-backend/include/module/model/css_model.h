@@ -30,42 +30,40 @@
 namespace hippy::devtools {
 
 /**
- * @brief chrome devtools CSS 相关协议的数据类
- *        负责记录 Node CSS 相关数据及转成 chrome 协议需要的 JSON 格式
- *        chrome 协议参考 https://chromedevtools.github.io/devtools-protocol/tot/CSS/
+ * @brief CSS Model, @see https://chromedevtools.github.io/devtools-protocol/tot/CSS/
  */
 class CSSModel : public BaseModel {
  public:
   CSSModel();
 
   /**
-   * @brief 快捷构造方法
-   * @param json 上层给过来的 CSS 数据结构
+   * @brief create css mode by json
+   * @param json css struct
    * @return CSSModel
    */
   static CSSModel CreateModelByJSON(const nlohmann::json& json);
 
   /**
-   * @brief 获取chrome CSS getMatchedStyles所需JSON数据
-   * @return JSON数据
+   * @brief css method to getMatchedStyles
+   * @return style json
    */
   nlohmann::json GetMatchedStylesJSON();
 
   /**
-   * @brief 获取chrome CSS getComputedStyle所需JSON数据
-   * @return JSON数据
+   * @brief css method to getComputedStyle
+   * @return style json
    */
   nlohmann::json GetComputedStyleJSON();
 
   /**
-   * @brief 获取chrome CSS getInlineStyles所需JSON数据
-   * @return JSON数据
+   * @brief css method to getInlineStyles
+   * @return style json
    */
   static nlohmann::json GetInlineStylesJSON();
 
   /**
-   * @brief 获取chrome CSS setStyleTexts所需JSON数据
-   * @return JSON数据
+   * @brief css method to setStyleTexts, it will effect the display
+   * @return style json
    */
   nlohmann::json GetStyleTextJSON(const nlohmann::json& text);
 

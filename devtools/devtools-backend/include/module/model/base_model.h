@@ -27,7 +27,7 @@
 namespace hippy::devtools {
 
 /**
- * @brief model 处理基类
+ * @brief abstract base mode which provide DataProvider to get
  */
 class BaseModel {
  public:

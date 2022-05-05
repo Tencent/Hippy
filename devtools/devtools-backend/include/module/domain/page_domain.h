@@ -42,12 +42,12 @@ class PageDomain : public BaseDomain {
   void ScreencastFrameAck(const Deserializer& request);
 
   /**
-   * @brief 处理帧更新通知
+   * @brief handle frame notification
    */
   void HandleFramePollModelRefreshNotification();
 
   /**
-   * @brief 处理截屏更新通知
+   * @brief handle screenshot notification
    */
   void HandleScreenShotUpdatedNotification();
   std::shared_ptr<FramePollModel> frame_poll_model_;

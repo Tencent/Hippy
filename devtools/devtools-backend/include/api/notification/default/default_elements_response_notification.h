@@ -19,37 +19,18 @@
  */
 
 #pragma once
-#include <memory>
+
 #include <string>
+#include "api/notification/devtools_elements_response_notification.h"
 
 namespace hippy::devtools {
+class DefaultElementsResponseAdapter : public ElementsResponseNotification {
+ public:
+  using DocumentUpdateHandler = std::function<void()>;
+  explicit DefaultElementsResponseAdapter(DocumentUpdateHandler document_update_Handler);
+  void NotifyDocumentUpdate() override;
 
-/**
- * @brief framework type
- */
-enum class Framework {
-  kHippy,
-  kVl,
-  kTdf
-};
-
-/**
- * @brief tunnel channel type
- */
-enum Tunnel {
-  kWebSocket,  // Websocket channel, supporting WLAN / public network, or Android wired
-  kTcp,  // Wired TCP channel. Compared with WS, you can use chrome to debug JSC (console, source, memory) for IOS
-  kInterface  // CDP protocol interface calling mode, and the business party builds a debugging channel
-};
-
-/**
- * devtools config sets
- */
-struct DevtoolsConfig {
-  Framework framework = Framework::kHippy;
-
-  Tunnel tunnel = Tunnel::kTcp;
-
-  std::string ws_url;
+ private:
+  DocumentUpdateHandler document_update_Handler_;
 };
 }  // namespace hippy::devtools

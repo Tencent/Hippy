@@ -174,16 +174,16 @@ nlohmann::json DOMModel::GetBoxModelBorder() {
   auto y = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, y_);
   auto width = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, width_);
   auto height = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, height_);
-  // 左上
+  // left-top
   border.emplace_back(x);
   border.emplace_back(y);
-  // 右上
+  // right-top
   border.emplace_back(x + width);
   border.emplace_back(y);
-  // 右下
+  // right-bottom
   border.emplace_back(x + width);
   border.emplace_back(y + height);
-  // 左下
+  // left-bottom
   border.emplace_back(x);
   border.emplace_back(y + height);
   return border;
@@ -343,7 +343,7 @@ nlohmann::json DOMModel::ParseNodeBasicJSON(DomNodeType node_type) {
   auto node_json = nlohmann::json::object();
   auto result_id = node_id_;
   if (node_type == DomNodeType::kTextNode) {
-    // text node的id为其负数
+    // text node id need be negative
     result_id = -node_id_;
   }
   node_json[kNodeId] = result_id;
@@ -371,7 +371,7 @@ nlohmann::json DOMModel::ParseAttributesObjectToArray() {
       continue;
     }
     if (attribute.key() == kDomDataStyle && value.is_object()) {
-      // 解析内嵌style
+      // parse to inline style
       std::stringstream style_stream;
       for (auto& inline_style : value.items()) {
         style_stream << inline_style.key() << ":" << inline_style.value() << ";";
@@ -379,7 +379,7 @@ nlohmann::json DOMModel::ParseAttributesObjectToArray() {
       value = style_stream.str();
     }
     if (!value.is_string()) {
-      // 非字符串的需要转成字符串类型
+      // non string type need change to string type
       value = TDFStringUtil::Characterization(value);
     }
     attributes_array.emplace_back(attribute.key());

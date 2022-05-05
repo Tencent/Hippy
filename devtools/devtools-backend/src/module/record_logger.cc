@@ -81,7 +81,7 @@ void RecordLogger::RecordLogData(LoggerModel logger_model) {
   std::string log_str = ConvertToLogJsonString(logger_model);
   record_logs_.emplace_back(std::move(log_str));
   if (!record_logs_.empty() && operate_callback_) {
-    // 若记录的日志条数大于最大条数，则回调完整日志数据给外部，并重置列表
+    // callback to outside
     operate_callback_(GetRecordLogs());
     ResetRecordLogs();
   }
