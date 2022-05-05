@@ -133,6 +133,7 @@ void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_log
         jstring j_tag_str = j_env->NewStringUTF(kLogTag);
         jint j_level = static_cast<jint>(severity);
         j_env->CallVoidMethod(logger->GetObj(), j_method, j_level, j_tag_str, j_logger_str);
+        JNIEnvironment::ClearJEnvException(j_env);
         j_env->DeleteLocalRef(j_tag_str);
         j_env->DeleteLocalRef(j_logger_str);
       });
