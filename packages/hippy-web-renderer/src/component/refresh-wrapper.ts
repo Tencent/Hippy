@@ -68,7 +68,10 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
     await super.beforeChildMount(child, childPosition);
     if (child.tagName === InnerNodeTag.LIST) {
       setElementStyle(child.dom!, { position: 'relative', zIndex: 2 });
-      this.pullRefresh = new PullRefresh(child.dom!, this.dom!.childNodes[0] as HTMLElement, this.handlePull.bind(this));
+      this.pullRefresh = new PullRefresh(
+        child.dom!, this.dom!.childNodes[0] as HTMLElement,
+        this.handlePull.bind(this),
+      );
       this.pullRefresh.init();
     }
   }
