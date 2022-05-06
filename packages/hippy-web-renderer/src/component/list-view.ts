@@ -253,6 +253,9 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public endBatch() {
     setTimeout(() => {
+      if (!this.dom) {
+        return;
+      }
       if (!this.virtualList) {
         this.virtualList = new VirtualizedList(this.dom!, {
           height: this.dom?.clientHeight,
