@@ -29,8 +29,7 @@ export class HippyWebEventBus {
     oldSubscriptions.push(func);
     this.subscriptions[evt] = oldSubscriptions;
   }
-  publish(evt: string) {
-    const args = Array.prototype.slice.call(arguments, 1);
+  publish(evt: string, ...args) {
     const subFunctions = this.subscriptions[evt] || [];
     for (let i = 0; i < subFunctions.length; i++) {
       subFunctions[i].apply(null, args);

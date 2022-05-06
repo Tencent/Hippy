@@ -24,7 +24,7 @@ import * as Components from './component';
 import { HippyWebEngine } from './base/engine';
 
 HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components;
+HippyWebEngine.coreComponents = Components as any;
 
 export * from './base';
 export * from './types';
