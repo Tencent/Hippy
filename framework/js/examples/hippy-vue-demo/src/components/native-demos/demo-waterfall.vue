@@ -161,7 +161,7 @@ export default {
 }
 
 #demo-waterfall .refresh-header {
-  background-color: green;
+  background-color: #40b883;
 }
 
 #demo-waterfall .refresh-text {
@@ -233,13 +233,13 @@ export default {
 }
 
 #demo-waterfall .refresh {
-  background-color: green;
+  background-color: #40b883;
 }
 
 #demo-waterfall .pull-footer {
   flex: 1;
   height: 40px;
-  background-color: green;
+  background-color: #40b883;
   justify-content: center;
   align-items: center;
 }

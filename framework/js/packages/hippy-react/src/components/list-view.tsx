@@ -408,12 +408,8 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       }
       (nativeProps as ListViewProps).initialListSize = initialListSize;
       (nativeProps as ListViewProps).style = {
-        overflow: 'scroll',
         ...style,
       };
-    }
-    if (!nativeProps.onLoadMore && nativeProps.onEndReached) {
-      nativeProps.onLoadMore = nativeProps.onEndReached;
     }
 
     return (
