@@ -467,7 +467,6 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       this._emitter = new EventEmitter(this);
     }
-    this._emitter.addEventListener(eventNames, callback, options);
     // Added default scrollEventThrottle when scroll event is added.
     if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       const scrollEventThrottle = 200;
@@ -475,8 +474,9 @@ class ElementNode extends ViewNode {
         this.attributes.scrollEventThrottle = scrollEventThrottle;
       }
     }
-    if (this.polyFillNativeEvents) {
-      this.polyFillNativeEvents('addEvent', eventNames, callback, options);
+    this._emitter.addEventListener(eventNames, callback, options);
+    if (typeof this.polyfillNativeEvents === 'function') {
+      this.polyfillNativeEvents('addEventListener', eventNames, callback, options);
     }
     updateChild(this);
   }
@@ -485,10 +485,12 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       return null;
     }
-    if (this.polyFillNativeEvents) {
-      this.polyFillNativeEvents('removeEvent', eventNames, callback, options);
+    if (typeof this.polyfillNativeEvents === 'function') {
+      this.polyfillNativeEvents('removeEventListener', eventNames, callback, options);
     }
-    return this._emitter.removeEventListener(eventNames, callback, options);
+    const observer = this._emitter.removeEventListener(eventNames, callback, options);
+    updateChild(this);
+    return observer;
   }
 
   dispatchEvent(eventInstance) {

@@ -109,10 +109,10 @@ function prepareUpdate(
         if (
           (newPropValue !== undefined && newPropValue !== null)
           && (oldPropValue === undefined || oldPropValue === null)) {
+          // if newProps created
           updatePayload[key] = newPropValue;
         } else if (typeof newPropValue !== 'function' && !isEqual(oldPropValue, newPropValue)) {
-          // if newProps existed and oldProps removed(undefined/null)
-          // or newProps only updated if not function property
+          // newProps only updated if not function property
           updatePayload[key] = newPropValue;
         }
       }
