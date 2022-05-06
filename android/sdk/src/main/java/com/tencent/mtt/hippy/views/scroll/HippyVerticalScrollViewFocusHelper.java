@@ -46,6 +46,9 @@ public class HippyVerticalScrollViewFocusHelper {
   public void handleRequestFocusFromTouch(MotionEvent event) {
     float posY = event.getY();
     ViewGroup liView = (ViewGroup) mScrollView.getChildAt(0);
+    if (liView == null) {
+      return;
+    }
     int count = liView.getChildCount();
     for (int i = 0; i < count; ++i) {
       View child = liView.getChildAt(i);
@@ -84,7 +87,13 @@ public class HippyVerticalScrollViewFocusHelper {
     final int focusPosition;
     focusPosition = getFocusPosition();
     ViewGroup liView = (ViewGroup) mScrollView.getChildAt(0);
+    if (liView == null) {
+      return false;
+    }
     View realFocuView = liView.getChildAt(focusPosition);
+    if (realFocuView == null) {
+      return false;
+    }
 
     boolean ret = (realFocuView != null && realFocuView
       .requestFocus(direction, previouslyFocusedRect));
@@ -93,7 +102,7 @@ public class HippyVerticalScrollViewFocusHelper {
       if (Math.abs(focusPosition) <= Math.abs(focusPosition - liView.getChildCount())) {
         for (int i = 0; i < liView.getChildCount(); i++) {
           View v = liView.getChildAt(i);
-          if (v.getVisibility() == View.VISIBLE && v.requestFocus(direction,
+          if (v != null && v.getVisibility() == View.VISIBLE && v.requestFocus(direction,
             previouslyFocusedRect)) {
             ret = true;
             break;
@@ -102,7 +111,7 @@ public class HippyVerticalScrollViewFocusHelper {
       } else {
         for (int i = liView.getChildCount() - 1; i >= 0; i--) {
           View v = liView.getChildAt(i);
-          if (v.getVisibility() == View.VISIBLE && v.requestFocus(direction,
+          if (v != null && v.getVisibility() == View.VISIBLE && v.requestFocus(direction,
             previouslyFocusedRect)) {
             ret = true;
             break;
@@ -120,10 +129,13 @@ public class HippyVerticalScrollViewFocusHelper {
     }
 
     ViewGroup liView = (ViewGroup) mScrollView.getChildAt(0);
+    if (liView == null) {
+      return false;
+    }
     ArrayList<View> childViews = new ArrayList<>();
     for (int i = 0; i < liView.getChildCount(); i++) {
       View child = liView.getChildAt(i);
-      if (child.getVisibility() == View.VISIBLE) {
+      if (child != null && child.getVisibility() == View.VISIBLE) {
         child.addFocusables(childViews, direction, focusableMode);
       }
     }
@@ -146,7 +158,8 @@ public class HippyVerticalScrollViewFocusHelper {
     if (rect.top > 0) {
       screenTop += fadingEdge;
     }
-    if (rect.bottom < mScrollView.getChildAt(0).getHeight()) {
+    View view = mScrollView.getChildAt(0);
+    if (view != null && rect.bottom < view.getHeight()) {
       screenBottom -= fadingEdge;
     }
 
@@ -162,7 +175,7 @@ public class HippyVerticalScrollViewFocusHelper {
         scrollYDelta += (rect.bottom - screenBottom) + height / 4;
       }
 
-      int bottom = mScrollView.getChildAt(0).getBottom();
+      int bottom = view == null ? mScrollView.getBottom() : view.getBottom();
       int distanceToBottom = bottom - screenBottom;
       scrollYDelta = Math.min(scrollYDelta, distanceToBottom);
       LogUtils.i(TAG,

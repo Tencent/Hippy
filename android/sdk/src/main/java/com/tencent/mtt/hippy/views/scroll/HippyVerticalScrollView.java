@@ -283,7 +283,11 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     if (height <= 0) {
       return;
     }
-    int maxPage = getChildAt(0).getHeight()/height;
+    View view = getChildAt(0);
+    if (view == null) {
+      return;
+    }
+    int maxPage = view.getHeight()/height;
     int page = startScrollY / height;
     int offset = getScrollY() - startScrollY;
     if (offset == 0) {
@@ -408,6 +412,9 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
   public int getFocusViewPosition(View view) {
     ViewGroup liView = (ViewGroup) getChildAt(0);
+    if (liView == null) {
+      return 0;
+    }
     for (int i = 0; i < liView.getChildCount(); i++) {
       View child = liView.getChildAt(i);
       if (child == view) {
