@@ -4,7 +4,7 @@ class CustomModule extends HippyWebModule {
   public name = 'camp_common_ability_module'; //module name
 
   public getSwScale(callBack: HippyCallBack) {
-    //TODO implement method
+    callBack.resolve({ swScale: 1 })
   }
 }
 
