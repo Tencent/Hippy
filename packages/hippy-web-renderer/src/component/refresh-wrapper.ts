@@ -78,7 +78,7 @@ export class RefreshWrapper extends HippyView<HTMLDivElement> {
 
   public async beforeRemove(): Promise<void> {
     await super.beforeRemove();
-    this.pullRefresh.destroy();
+    this.pullRefresh?.destroy();
   }
 
   private handlePull() {
