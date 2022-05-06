@@ -119,7 +119,7 @@ export class ViewPager extends HippyView<HTMLDivElement> {
   public init() {
     this.props[NodeProps.INITIAL_PAGE] = 0;
     this.props[NodeProps.SCROLL_ENABLED] = true;
-    this.hammer =  new Hammer.Manager(this.dom, { inputClass: Hammer.TouchInput });
+    this.hammer =  new Hammer.Manager(this.dom!, { inputClass: Hammer.TouchInput });
     const swipe = new Hammer.Swipe();
     this.hammer.add(swipe);
     this.hammer.on('swipe', (e) => {

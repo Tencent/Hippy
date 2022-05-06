@@ -19,10 +19,10 @@
  */
 
 export function scriptLoader(scripts: string[]) {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     let count = scripts.length;
 
-    function urlCallback(url) {
+    function urlCallback() {
       return function () {
         // console.log(url + ' was loaded (' + --count + ' more scripts remaining).');
         count = count - 1;
@@ -35,7 +35,7 @@ export function scriptLoader(scripts: string[]) {
     function loadScript(url) {
       const s = document.createElement('script');
       s.setAttribute('src', url);
-      s.onload = urlCallback(url);
+      s.onload = urlCallback();
       document.body.appendChild(s);
     }
 
