@@ -405,23 +405,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
   public void requestChildFocus(View child, View focused) {
     super.requestChildFocus(child, focused);
     if (isTvPlatform) {
-      mFocusHelper.setFocusPosition(getFocusViewPosition(focused));
       mFocusHelper.scrollToFocusChild(focused);
     }
-  }
-
-  public int getFocusViewPosition(View view) {
-    ViewGroup liView = (ViewGroup) getChildAt(0);
-    if (liView == null) {
-      return 0;
-    }
-    for (int i = 0; i < liView.getChildCount(); i++) {
-      View child = liView.getChildAt(i);
-      if (child == view) {
-        return i;
-      }
-    }
-
-    return 0;
   }
 }

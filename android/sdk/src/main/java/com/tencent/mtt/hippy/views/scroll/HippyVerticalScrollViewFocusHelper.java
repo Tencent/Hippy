@@ -70,11 +70,27 @@ public class HippyVerticalScrollViewFocusHelper {
     return mFocusPosition;
   }
 
-  public void setFocusPosition(int position) {
+  private void setFocusPosition(int position) {
     mFocusPosition = position;
   }
 
+  private int getFocusViewPosition(View view) {
+    ViewGroup liView = (ViewGroup) mScrollView.getChildAt(0);
+    if (liView == null) {
+      return 0;
+    }
+    for (int i = 0; i < liView.getChildCount(); i++) {
+      View child = liView.getChildAt(i);
+      if (child == view) {
+        return i;
+      }
+    }
+
+    return 0;
+  }
+
   public void scrollToFocusChild(View child) {
+    setFocusPosition(getFocusViewPosition(child));
     child.getDrawingRect(mFocusRect);
     mScrollView.offsetDescendantRectToMyCoords(child, mFocusRect);
     int scrollY = computeScrollDelta(mFocusRect);
