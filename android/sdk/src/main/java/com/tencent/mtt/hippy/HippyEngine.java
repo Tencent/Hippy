@@ -188,6 +188,8 @@ public abstract class HippyEngine {
    */
   public abstract void onEnginePause();
 
+  public abstract void onFontChanged(int rootId);
+
   public abstract void sendEvent(String event, Object params);
 
   public abstract void sendEvent(String event, Object params, BridgeTransferType transferType);
