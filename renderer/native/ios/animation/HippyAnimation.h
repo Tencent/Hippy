@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
+#import "dom/animation_manager.h"
 
 @class HippyAnimation;
 
@@ -60,6 +61,7 @@ typedef NS_ENUM(NSInteger, HippyAnimationState) {
 @property (nonatomic, assign, readonly) HippyAnimationDirection directionType;
 @property (nonatomic, copy) NSNumber *parentAnimationId;
 @property (nonatomic, assign) HippyAnimationState state;
+@property (nonatomic, assign) std::weak_ptr<hippy::AnimationManager> animationManager;
 
 - (void)updateAnimation:(NSDictionary *)config;
 

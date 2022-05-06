@@ -162,6 +162,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 @implementation HippyUIManager
 
 @synthesize frameworkProxy = _frameworkProxy;
+@synthesize domManager = _domManager;
 
 #pragma mark Life cycle
 

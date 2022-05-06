@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 
 @class HippyAnimation;
+@class HippyBridge;
 @protocol HippyRenderContext;
 
 @interface HippyAnimationIdCount : NSObject
@@ -35,16 +36,20 @@
 
 @protocol HippyAnimationTimingProtocol <NSObject>
 
+- (BOOL)animationShouldUseCustomerTimingFunction:(HippyAnimator *)animator;
+
 - (void)animationDidStart:(HippyAnimator *)animator animationId:(NSNumber *)animationId;
 - (void)animationDidStop:(HippyAnimator *)animator animationId:(NSNumber *)animationId finished:(BOOL)finished;
 
 @end
 
+//TODO HippyAnimator相关的代码逻辑应该移动到hippy，而不是render
 @interface HippyAnimator : NSObject
 
 - (instancetype)initWithRenderContext:(id<HippyRenderContext>)renderContext;
 
 @property(nonatomic, weak) id<HippyAnimationTimingProtocol> animationTimingDelegate;
+@property(nonatomic, weak) HippyBridge *bridge;
 
 - (void)createAnimation:(NSNumber *)animationId mode:(NSString *)mode params:(NSDictionary *)params;
 - (void)createAnimationSet:(NSNumber *)animationId animations:(NSDictionary *)animations;

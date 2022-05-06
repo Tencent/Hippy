@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import "HippyFrameworkProxy.h"
 #import "UIView+Render.h"
+#import "dom/dom_manager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,6 +39,8 @@ typedef void (^HippyViewUpdateCompletedBlock)(id<HippyRenderContext> renderConte
 @protocol HippyRenderContext <NSObject>
 
 @property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;
+
+@property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
 
 @property(nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
 

@@ -30,6 +30,9 @@
 #import "CALayer+HippyAnimation.h"
 #import "UIView+Hippy.h"
 #import "HippyRenderContext.h"
+#import "TimingAnimation.h"
+#import "HippyUIManager.h"
+#import "HippyBridge.h"
 
 @implementation HippyAnimationIdCount {
     NSMutableDictionary *_animationIdDic;
@@ -366,25 +369,37 @@
     std::lock_guard<std::mutex> lock(_mutex);
     NSNumber *hippyTag = view.hippyTag;
     HippyAnimationViewParams *p = _paramsByHippyTag[hippyTag];
-
     NSMutableArray<CAAnimation *> *animations = [NSMutableArray new];
     [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *prop, NSNumber *animationId, __unused BOOL *stop) {
         HippyAnimation *animation = self->_animationById[animationId];
         if (animation.state != HippyAnimationReadyState) {
             return;
         }
-        CAAnimation *ani = [animation animationOfView:view forProp:prop];
-        animation.state = HippyAnimationStartedState;
-        [ani setValue:animationId forKey:@"animationID"];
-        if (animation.parentAnimationId) {
-            [ani setValue:animation.parentAnimationId forKey:@"animationParentID"];
+        BOOL useCustomerTimingFunction = NO;
+        if ([self.animationTimingDelegate respondsToSelector:@selector(animationShouldUseCustomerTimingFunction:)]) {
+            useCustomerTimingFunction = [self.animationTimingDelegate animationShouldUseCustomerTimingFunction:self];
         }
-        [ani setValue:view.hippyTag forKey:@"viewID"];
-        ani.delegate = self;
-        [animations addObject:ani];
-//        HippyLogInfo(@"[Hippy_OC_Log][Animation],Connect_Animation:[%@] to view [%@] prop [%@] from [%@] to [%@]", animationId, view.hippyTag, prop, @(animation.startValue),
-//                     @(animation.endValue));
-
+        useCustomerTimingFunction |= [TimingAnimation canHandleAnimationForProperty:prop];
+        if (useCustomerTimingFunction) {
+            //TODO implemente customer animation timing function
+            TimingAnimation *tAnimation =
+                [[TimingAnimation alloc] initWithKeyPath:prop timingFunction:animation.timingFunction
+                                              domManager:self.bridge.animationManager viewTag:[[view hippyTag] intValue]];
+            tAnimation.hpAni = animation;
+            tAnimation.animationId = animationId;
+            [view addTimingAnimation:tAnimation];
+        }
+        else {
+            CAAnimation *ani = [animation animationOfView:view forProp:prop];
+            animation.state = HippyAnimationStartedState;
+            [ani setValue:animationId forKey:@"animationID"];
+            if (animation.parentAnimationId) {
+                [ani setValue:animation.parentAnimationId forKey:@"animationParentID"];
+            }
+            [ani setValue:view.hippyTag forKey:@"viewID"];
+            ani.delegate = self;
+            [animations addObject:ani];
+        }
     }];
     [animations enumerateObjectsUsingBlock:^(CAAnimation *_Nonnull ani, __unused NSUInteger idx, __unused BOOL *stop) {
         NSNumber *animationId = [ani valueForKey:@"animationID"];
