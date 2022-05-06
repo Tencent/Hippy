@@ -82,3 +82,5 @@ framework/js/core/ARM
 
 # web
 .parcel-cache
+packages/hippy-web-renderer/lib
+packages/hippy-web-renderer/es

@@ -1,9 +1,10 @@
 {
-  "name": "@hippy/web-renderer",
+  "name": "@tencent/camp-hippy-web-renderer",
   "version": "0.0.1",
   "description": "hippy web renderer",
-  "source": "example/index.html",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "typings": "es/index.d.ts",
   "homepage": "http://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-web-render",
   "license": "Apache-2.0",
@@ -16,8 +17,8 @@
     "Web"
   ],
   "scripts": {
-    "watch": "parcel",
-    "build": "parcel build"
+    "watch": "father-build --watch",
+    "build": "father-build"
   },
   "dependencies": {
     "@types/hammerjs": "^2.0.41",
@@ -25,5 +26,8 @@
     "morphdom": "^2.3.1",
     "resize-observer-polyfill": "^1.5.1",
     "whatwg-fetch": "^3.6.2"
+  },
+  "devDependencies": {
+    "father-build": "^1.22.1"
   }
 }
