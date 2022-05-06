@@ -70,7 +70,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public defaultStyle() {
-    return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box' };
+    return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box', overflow: 'scroll' };
   }
 
   public get overScrollEnabled() {
