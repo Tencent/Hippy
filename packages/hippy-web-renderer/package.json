@@ -5,13 +5,7 @@
   "main": "lib/index.js",
   "module": "es/index.js",
   "typings": "es/index.d.ts",
-  "homepage": "http://hippyjs.org",
-  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-web-render",
   "license": "Apache-2.0",
-  "types": "types/index.d.ts",
-  "bugs": {
-    "url": "https://github.com/Tencent/Hippy/issues"
-  },
   "keywords": [
     "Hippy",
     "Web"
