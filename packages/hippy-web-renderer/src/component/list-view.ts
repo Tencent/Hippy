@@ -70,7 +70,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public defaultStyle() {
-    return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box' };
+    return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box', overflow: 'scroll' };
   }
 
   public get overScrollEnabled() {
@@ -202,12 +202,11 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public scrollToContentOffset(xOffset: number, yOffset: number, animated: boolean) {
-    // TODO to implement
     this.virtualList.scrollTo(yOffset, animated);
   }
 
   public scrollToIndex(xIndex: number, yIndex: number, animated: boolean) {
-    this.virtualList.scrollToIndex(xIndex, animated);
+    this.virtualList.scrollToIndex(yIndex, animated);
   }
 
   public async beforeRemove(): Promise<any> {
@@ -254,6 +253,9 @@ export class ListView extends HippyView<HTMLDivElement> {
 
   public endBatch() {
     setTimeout(() => {
+      if (!this.dom) {
+        return;
+      }
       if (!this.virtualList) {
         this.virtualList = new VirtualizedList(this.dom!, {
           height: this.dom?.clientHeight,
@@ -273,6 +275,10 @@ export class ListView extends HippyView<HTMLDivElement> {
   public getChildHeight(index) {
     if (this.childData[index] && !this.childData[index]?.height) {
       this.childData[index].height = this.getListItemNewHeight(this.childData[index]);
+    }
+    console.log('list-view', index, this.childData[index]?.height ?? 0);
+    if (this.childData[index]?.height === 56) {
+      debugger;
     }
     return this.childData[index]?.height ?? 0;
   }
@@ -550,7 +556,7 @@ export class ListViewItem extends HippyView<HTMLDivElement> {
   public handleReLayout(entries: ResizeObserverEntry[]) {
     const [entry] = entries;
     const { height } = entry.contentRect;
-    if (height === 0 && Math.round(height) !== this.height) {
+    if ((height === 0 && Math.round(height) !== this.height) || Math.round(height) !== this.dom?.clientHeight) {
       return;
     }
     this.height = Math.round(height);
