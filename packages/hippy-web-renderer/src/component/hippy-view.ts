@@ -230,7 +230,7 @@ export class HippyView<T extends HTMLElement> implements HippyBaseView {
 }
 
 function buildHippyTouchEvent(event: TouchEvent, name: HippyTransferData.NativeGestureEventTypes, id: number) {
-  const touch = event.touches[0];
+  const touch = event.changedTouches[0];
   const x = Number(touch.pageX);
   const y = Number(touch.pageY);
   return {

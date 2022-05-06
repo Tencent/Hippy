@@ -62,10 +62,8 @@ export class HippyWebEngine {
 
   constructor(options?: HippyWebEngineCreatorOptions) {
     this.context = new HippyWebEngineContext(this);
-    if (options === undefined) {
-      return;
-    }
-    const { modules, components } = options;
+
+    const { modules, components } = options || {};
 
     this.registerCore();
     this.registerModules(modules);
