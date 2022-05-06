@@ -202,12 +202,11 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   public scrollToContentOffset(xOffset: number, yOffset: number, animated: boolean) {
-    // TODO to implement
     this.virtualList.scrollTo(yOffset, animated);
   }
 
   public scrollToIndex(xIndex: number, yIndex: number, animated: boolean) {
-    this.virtualList.scrollToIndex(xIndex, animated);
+    this.virtualList.scrollToIndex(yIndex, animated);
   }
 
   public async beforeRemove(): Promise<any> {
