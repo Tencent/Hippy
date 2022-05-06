@@ -238,7 +238,7 @@ test('Element.dispatchEvent with polyfill event', (t) => {
   t.is(node.removeEventListener('loadMore', callback), null);
   node.addEventListener('loadMore', callback);
   t.true(!!node._emitter);
-  let event = DocumentNode.createEvent('loadMore');
+  let event = DocumentNode.createEvent('endReached');
   node.dispatchEvent(event);
   t.is(called, true);
   node.removeEventListener('loadMore', callback);
@@ -247,7 +247,7 @@ test('Element.dispatchEvent with polyfill event', (t) => {
   called = false;
   t.is(called, false);
   node.addEventListener('endReached', callback);
-  event = DocumentNode.createEvent('loadMore');
+  event = DocumentNode.createEvent('endReached');
   node.dispatchEvent(event);
   t.is(called, true);
   node.removeEventListener('endReached', callback);
