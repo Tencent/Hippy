@@ -28,17 +28,12 @@ class ListItemNode extends ElementNode {
   /**
    * Poly fill native event
    */
-  polyFillNativeEvents(method, eventNames, callback, options) {
-    const eventHandlerMap = {
-      addEvent: 'addEventListener',
-      removeEvent: 'removeEventListener',
-    };
+  polyfillNativeEvents(method, eventNames, callback, options) {
     let name = eventNames;
-    if (eventNames === 'disappear') {
-      name = Native.Platform === 'ios' ? 'disappear' : 'disAppear';
-      if (this.emitter && eventHandlerMap[method]) {
-        const handler = eventHandlerMap[method];
-        this.emitter[handler](name, callback, options);
+    if (eventNames === 'disappear' && Native.Platform === 'android') {
+      name = 'disAppear';
+      if (this.emitter && this.emitter[method]) {
+        this.emitter[method](name, callback, options);
       }
     }
   }
