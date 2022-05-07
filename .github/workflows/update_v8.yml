@@ -46,6 +46,7 @@ jobs:
           host-tag: x86_64-linux-android
     steps:
     - name: Clean up before
+      shell: bash
       run: |
         shopt -s dotglob
         rm -rf *
@@ -92,8 +93,6 @@ jobs:
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
       run: |
-        \cp -f build/linux/debian_sid_amd64-sysroot/usr/lib/x86_64-linux-gnu/libstdc++.so.6 /lib64
-        \cp -f build/linux/debian_sid_i386-sysroot/usr/lib/i386-linux-gnu/libstdc++.so.6 /lib
         ninja -C out/${{ matrix.arch }} ${{ github.event.inputs.build_target }}
     - name: Release artifact
       working-directory: ./v8/out/${{ matrix.arch }}
@@ -112,6 +111,7 @@ jobs:
         if-no-files-found: error
     - name: Clean up after
       if: ${{ always() }}
+      shell: bash
       run: |
         shopt -s dotglob
         rm -rf *
@@ -128,6 +128,7 @@ jobs:
       v8-dist: ./android/sdk/src/main/jni/third_party/v8/${{ github.event.inputs.release_tag }}
     steps:
     - name: Clean up before
+      shell: bash
       run: |
         shopt -s dotglob
         rm -rf *
@@ -138,6 +139,7 @@ jobs:
         lfs: true
     - name: Construct directory structure
       working-directory: ${{ env.v8-dist }}/official-release
+      shell: bash
       run: |
         shopt -s dotglob
         shopt -s extglob
@@ -151,6 +153,7 @@ jobs:
     - name: Merge all artifact
       id: merge_all_artifact
       working-directory: ${{ env.v8-dist }}/official-release
+      shell: bash
       run: |
         for d in */ ; do
           current_head=`cat $d/HEAD`
@@ -208,6 +211,7 @@ jobs:
           android
     - name: Clean up after
       if: ${{ always() }}
+      shell: bash
       run: |
         shopt -s dotglob
         rm -rf *
