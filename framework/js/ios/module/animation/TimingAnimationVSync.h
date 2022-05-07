@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 HIPPY_EXTERN double const AnimationRefreshRate;
 
 typedef void (^VSyncCallback)(void);
+typedef void (^CallbackActionBlock)(BOOL);
 
 @interface TimingAnimationVSync : NSObject
 
@@ -35,7 +36,7 @@ typedef void (^VSyncCallback)(void);
 
 - (void)addVSyncCallback:(VSyncCallback)callback forKey:(id)key;
 
-- (void)removeVSyncCallbackForKey:(id)key;
+- (void)removeVSyncCallbackForKey:(id)key completion:(CallbackActionBlock)block;
 
 - (void)pauseVSyncForKey:(id)key;
 

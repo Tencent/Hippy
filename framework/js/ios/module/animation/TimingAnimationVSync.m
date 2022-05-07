@@ -81,15 +81,19 @@ double const AnimationRefreshRate = 30.f;
     }
 }
 
-- (void)addVSyncCallback:(VSyncCallback)callback forKey:(id)key {
+- (void)addVSyncCallback:(VSyncCallback)callback forKey:(id)key{
     if (callback && key) {
         [_vsyncCallbacksMap setObject:callback forKey:key];
         _vsync.paused = NO;
     }
 }
 
-- (void)removeVSyncCallbackForKey:(id)key {
+- (void)removeVSyncCallbackForKey:(id)key completion:(CallbackActionBlock)block {
     if (key) {
+        if (block) {
+            id obj = [_vsyncCallbacksMap objectForKey:key];
+            block(nil != obj);
+        }
         [_vsyncCallbacksMap removeObjectForKey:key];
         _vsync.paused = !([_vsyncCallbacksMap count] > 0);
     }
@@ -100,7 +104,9 @@ double const AnimationRefreshRate = 30.f;
         id callback = [_vsyncCallbacksMap objectForKey:key];
         if (callback) {
             [_pausedCallbacksMap setObject:callback forKey:key];
-            [self removeVSyncCallbackForKey:key];
+            [self removeVSyncCallbackForKey:key completion:^(BOOL containAnimation) {
+                
+            }];
         }
     }
 }

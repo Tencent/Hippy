@@ -68,11 +68,7 @@
 }
 @end
 
-@interface HippyAnimator () <CAAnimationDelegate>
-@property(nonatomic, weak) id<HippyRenderContext> renderContext;
-@end
-
-@implementation HippyAnimator {
+@interface HippyAnimator () <CAAnimationDelegate, TimingAnimationDelegate> {
     NSMutableDictionary<NSNumber *, HippyAnimation *> *_animationById;
     NSMutableDictionary<NSNumber *, NSMutableArray<HippyAnimationViewParams *> *> *_paramsByAnimationId;
     NSMutableDictionary<NSNumber *, HippyAnimationViewParams *> *_paramsByHippyTag;
@@ -80,6 +76,12 @@
     HippyAnimationIdCount *_virtualAnimations;
     std::mutex _mutex;
 }
+
+@property(nonatomic, weak) id<HippyRenderContext> renderContext;
+
+@end
+
+@implementation HippyAnimator
 
 - (instancetype)initWithRenderContext:(id<HippyRenderContext>)renderContext {
     if (self = [super init]) {
@@ -349,6 +351,19 @@
         }
     }
 }
+
+- (void)timingAnimationDidStart:(TimingAnimation *)animation {
+    if ([self.animationTimingDelegate respondsToSelector:@selector(animationDidStart:animationId:)]) {
+        [self.animationTimingDelegate animationDidStart:self animationId:animation.animationId];
+    }
+}
+
+- (void)timingAnimationDidStop:(TimingAnimation *)animation {
+    if ([self.animationTimingDelegate respondsToSelector:@selector(animationDidStop:animationId:finished:)]) {
+        [self.animationTimingDelegate animationDidStop:self animationId:animation.animationId finished:YES];
+    }
+}
+
 #pragma mark -
 - (NSDictionary *)bindAnimaiton:(NSDictionary *)params viewTag:(NSNumber *)viewTag rootTag:(NSNumber *)rootTag {
     std::lock_guard<std::mutex> lock(_mutex);
@@ -411,6 +426,7 @@
             TimingAnimation *tAnimation =
                 [[TimingAnimation alloc] initWithKeyPath:prop timingFunction:animation.timingFunction
                                               domManager:self.bridge.animationManager viewTag:[[view hippyTag] intValue]];
+            tAnimation.delegate = self;
             tAnimation.hpAni = animation;
             tAnimation.duration = animation.duration;
             tAnimation.animationId = animationId;

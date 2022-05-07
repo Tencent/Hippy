@@ -108,6 +108,9 @@ static ValueInfo ValueForMediaTime(double startValue, double endValue, double du
 }
 
 - (void)performAnimating {
+    if ([self.delegate respondsToSelector:@selector(timingAnimationDidStart:)]) {
+        [self.delegate timingAnimationDidStart:self];
+    }
     _aniBeginTime = CACurrentMediaTime();
     NSNumber *animationId = self.animationId;
     __weak __typeof(self) weakSelf = self;
@@ -121,7 +124,11 @@ static ValueInfo ValueForMediaTime(double startValue, double endValue, double du
             }
         }
         else {
-            [[TimingAnimationVSync sharedInstance] removeVSyncCallbackForKey:animationId];
+            [[TimingAnimationVSync sharedInstance] removeVSyncCallbackForKey:animationId completion:^(BOOL containAnimation) {
+                if (containAnimation && [self.delegate respondsToSelector:@selector(timingAnimationDidStop:)]) {
+                    [self.delegate timingAnimationDidStop:self];
+                }
+            }];
         }
     } forKey:animationId];
 }
@@ -148,7 +155,11 @@ static ValueInfo ValueForMediaTime(double startValue, double endValue, double du
     _isPausing = NO;
     _pauseTimeInterval = 0.f;
     _pauseTimeDuration = 0.f;
-    [[TimingAnimationVSync sharedInstance] removeVSyncCallbackForKey:self.animationId];
+    [[TimingAnimationVSync sharedInstance] removeVSyncCallbackForKey:self.animationId completion:^(BOOL containAnimation) {
+        if (containAnimation && [self.delegate respondsToSelector:@selector(timingAnimationDidStop:)]) {
+            [self.delegate timingAnimationDidStop:self];
+        }
+    }];
 }
 
 - (BOOL)animatingAction {
@@ -173,7 +184,7 @@ static ValueInfo ValueForMediaTime(double startValue, double endValue, double du
 }
 
 - (void)dealloc {
-    [[TimingAnimationVSync sharedInstance] removeVSyncCallbackForKey:self.animationId];
+    [self removeAnimating];
 }
 
 @end

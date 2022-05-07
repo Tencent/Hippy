@@ -27,7 +27,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyAnimation;
+@class HippyAnimation, TimingAnimation;
+
+@protocol TimingAnimationDelegate <NSObject>
+
+@optional
+- (void)timingAnimationDidStart:(TimingAnimation *)animation;
+- (void)timingAnimationDidStop:(TimingAnimation *)animation;
+
+@end
 
 @interface TimingAnimation : NSObject
 
@@ -45,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak) HippyAnimation *hpAni;
 @property(nonatomic, assign) NSTimeInterval duration;
 @property(nonatomic, strong) NSNumber *animationId;
+@property(nonatomic, weak) id<TimingAnimationDelegate> delegate;
 
 @end
 
