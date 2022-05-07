@@ -85,7 +85,8 @@ export class HippyWebEngine {
     Object.keys(modules || {}).forEach((key) => {
       const ModuleCtor = modules![key];
       const mod = new ModuleCtor(this.context);
-      this.modules[mod.name] = mod;
+      const moduleName = mod.name === '' ? key : mod.name;
+      this.modules[moduleName] = mod;
     });
   }
 
