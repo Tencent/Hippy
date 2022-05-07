@@ -21,6 +21,9 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyAPIProvider;
@@ -186,6 +189,10 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   public void updateLayout(String name, int id, int x, int y, int width, int height) {
     HippyViewController component = mControllerRegistry.getViewController(name);
     component.updateLayout(id, x, y, width, height, mControllerRegistry);
+  }
+
+  public void addFakeRootView(@NonNull HippyRootView rootView) {
+    mControllerRegistry.addRootView(rootView);
   }
 
   @Override
