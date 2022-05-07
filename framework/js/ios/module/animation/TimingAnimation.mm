@@ -44,16 +44,17 @@ static RSTimingFunction *MediaTimingFunctionToRSTimingFunction(CAMediaTimingFunc
     return NULL;
 }
 
-static ValueInfo valueForMediaTime(double startValue, double endValue, double duration, double startTime, RSTimingFunction *timingFunction, double targetTime) {
-    double valuePerSecond = (endValue - startValue) / duration;
-    double timeDiff = targetTime - startTime;
+static ValueInfo ValueForMediaTime(double startValue, double endValue, double duration, double startTime, double targetTime, double pauseTimeDuration, RSTimingFunction *timingFunction) {
+    double valueDiff = endValue - startValue;
+    double timeDiff = targetTime - pauseTimeDuration - startTime;
     long loopIndex = 0;
     while (timeDiff > duration) {
         loopIndex++;
         timeDiff -= duration;
     }
-    double valueDiff = valuePerSecond * timeDiff;
-    ValueInfo valueInfo = {.loopIndex = loopIndex, .targetValue = valueDiff + startValue};
+    double y = [timingFunction valueForX:timeDiff / duration];
+    double taretValue = startValue + y * valueDiff;
+    ValueInfo valueInfo = {.loopIndex = loopIndex, .targetValue = taretValue};
     return valueInfo;
 }
 
@@ -61,9 +62,12 @@ static ValueInfo valueForMediaTime(double startValue, double endValue, double du
     NSString *_keyPath;
     RSTimingFunction *_timingFunction;
     std::weak_ptr<hippy::AnimationManager> _animationManager;
-    NSTimeInterval _duration;
+    double _duration;
     int32_t _viewTag;
-    CFTimeInterval _aniBeginTime;
+    double _aniBeginTime;
+    BOOL _isPausing;
+    double _pauseTimeDuration;
+    double _pauseTimeInterval;
 }
 
 @end
@@ -100,38 +104,72 @@ static ValueInfo valueForMediaTime(double startValue, double endValue, double du
 }
 
 - (void)startAnimating {
+    [self performSelector:@selector(performAnimating) withObject:nil afterDelay:_hpAni.delay];
+}
+
+- (void)performAnimating {
     _aniBeginTime = CACurrentMediaTime();
+    NSNumber *animationId = self.animationId;
     __weak __typeof(self) weakSelf = self;
     [[TimingAnimationVSync sharedInstance] addVSyncCallback:^{
-        __typeof(weakSelf) strongSelf = weakSelf;
+        __strong __typeof(weakSelf) strongSelf = weakSelf;
         if (strongSelf) {
-            [strongSelf animatingAction];
+            if (!strongSelf->_isPausing) {
+                if (![strongSelf animatingAction]) {
+                    [strongSelf removeAnimating];
+                }
+            }
         }
-    } forKey:self.animationId];
+        else {
+            [[TimingAnimationVSync sharedInstance] removeVSyncCallbackForKey:animationId];
+        }
+    } forKey:animationId];
 }
 
 - (void)pauseAnimating {
-    
+    if (_isPausing) {
+        return;
+    }
+    _isPausing = YES;
+    _pauseTimeInterval = CACurrentMediaTime();
+    [[TimingAnimationVSync sharedInstance] pauseVSyncForKey:self.animationId];
+}
+
+- (void)resumeAnimating {
+    if (_isPausing) {
+        _isPausing = NO;
+        _pauseTimeDuration += (CACurrentMediaTime() - _pauseTimeInterval);
+        _pauseTimeInterval = 0.f;
+        [[TimingAnimationVSync sharedInstance] resumeVSyncForKey:self.animationId];
+    }
 }
 
 - (void)removeAnimating {
+    _isPausing = NO;
+    _pauseTimeInterval = 0.f;
+    _pauseTimeDuration = 0.f;
     [[TimingAnimationVSync sharedInstance] removeVSyncCallbackForKey:self.animationId];
 }
 
-- (void)animatingAction {
+- (BOOL)animatingAction {
     HippyAnimation *animation = _hpAni;
     if (!animation) {
         [self removeAnimating];
+        return NO;
     }
     auto aniManager = _animationManager.lock();
     if (aniManager) {
-        ValueInfo valueInfo = valueForMediaTime(_hpAni.startValue, _hpAni.endValue, _hpAni.duration, _aniBeginTime, _timingFunction, CACurrentMediaTime());
-        using DomValue = tdf::base::DomValue;
-        std::shared_ptr<DomValue> value = std::make_shared<DomValue>(valueInfo.targetValue);
-        std::pair<uint32_t, std::shared_ptr<DomValue>> pair = std::make_pair([_hpAni.animationId unsignedIntValue], std::move(value));
-        std::vector<std::pair<uint32_t, std::shared_ptr<DomValue>>> valueVector = {std::move(pair)};
-        aniManager->OnAnimationUpdate(std::move(valueVector));
+        ValueInfo valueInfo = ValueForMediaTime(animation.startValue, animation.endValue, _duration, _aniBeginTime, CACurrentMediaTime(), _pauseTimeDuration, _timingFunction);
+        if (valueInfo.loopIndex < _hpAni.repeatCount) {
+            using DomValue = tdf::base::DomValue;
+            std::shared_ptr<DomValue> value = std::make_shared<DomValue>(valueInfo.targetValue);
+            std::pair<uint32_t, std::shared_ptr<DomValue>> pair = std::make_pair([self.animationId unsignedIntValue], std::move(value));
+            std::vector<std::pair<uint32_t, std::shared_ptr<DomValue>>> valueVector = {std::move(pair)};
+            aniManager->OnAnimationUpdate(std::move(valueVector));
+            return YES;
+        }
     }
+    return NO;
 }
 
 - (void)dealloc {

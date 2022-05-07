@@ -76,6 +76,7 @@
     NSMutableDictionary<NSNumber *, HippyAnimation *> *_animationById;
     NSMutableDictionary<NSNumber *, NSMutableArray<HippyAnimationViewParams *> *> *_paramsByAnimationId;
     NSMutableDictionary<NSNumber *, HippyAnimationViewParams *> *_paramsByHippyTag;
+    NSMapTable<NSNumber *, TimingAnimation *> *_timingAnimationMap;
     HippyAnimationIdCount *_virtualAnimations;
     std::mutex _mutex;
 }
@@ -87,6 +88,7 @@
         _paramsByAnimationId = [NSMutableDictionary new];
         _renderContext = renderContext;
         _virtualAnimations = [[HippyAnimationIdCount alloc] init];
+        _timingAnimationMap = [NSMapTable strongToWeakObjectsMapTable];
     }
     return self;
 }
@@ -159,24 +161,36 @@
 
 - (void)pauseAnimation:(NSNumber *)animationId {
     std::lock_guard<std::mutex> lock(_mutex);
-    NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
-    [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-            UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
-            [view.layer pauseLayerAnimation];
+    TimingAnimation *tAni = [_timingAnimationMap objectForKey:animationId];
+    if (tAni) {
+        [tAni performSelectorOnMainThread:@selector(pauseAnimating) withObject:nil waitUntilDone:NO];
+    }
+    else {
+        NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
+        [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
+                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
+                [view.layer pauseLayerAnimation];
+            }];
         }];
-    }];
+    }
 }
 
 - (void)resumeAnimation:(NSNumber *)animationId {
     std::lock_guard<std::mutex> lock(_mutex);
-    NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
-    [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-            UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
-            [view.layer resumeLayerAnimation];
+    TimingAnimation *tAni = [_timingAnimationMap objectForKey:animationId];
+    if (tAni) {
+        [tAni performSelectorOnMainThread:@selector(resumeAnimating) withObject:nil waitUntilDone:NO];
+    }
+    else {
+        NSArray <HippyAnimationViewParams *> *params = [_paramsByAnimationId[animationId] copy];
+        [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
+                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
+                [view.layer resumeLayerAnimation];
+            }];
         }];
-    }];
+    }
 }
 
 - (void)paramForAnimationId:(NSNumber *)animationId {
@@ -259,13 +273,20 @@
 - (void)destroyAnimation:(NSNumber * __nonnull)animationId {
     std::lock_guard<std::mutex> lock(_mutex);
     [_animationById removeObjectForKey: animationId];
-    NSMutableArray <HippyAnimationViewParams *> *params = _paramsByAnimationId[animationId];
-    [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
-            UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
-            [view.layer removeAnimationForKey: [NSString stringWithFormat: @"%@", animationId]];
+    TimingAnimation *tAni = [_timingAnimationMap objectForKey:animationId];
+    if (tAni) {
+        [tAni removeAnimating];
+        [_timingAnimationMap removeObjectForKey:animationId];
+    }
+    else {
+        NSMutableArray <HippyAnimationViewParams *> *params = _paramsByAnimationId[animationId];
+        [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+            [params enumerateObjectsUsingBlock:^(HippyAnimationViewParams * _Nonnull param, NSUInteger __unused idx, BOOL * _Nonnull __unused stop) {
+                UIView *view = [renderContext viewFromRenderViewTag:param.hippyTag];
+                [view.layer removeAnimationForKey: [NSString stringWithFormat: @"%@", animationId]];
+            }];
         }];
-    }];
+    }
     [_paramsByAnimationId removeObjectForKey: animationId];
 }
 
@@ -370,7 +391,8 @@
     NSNumber *hippyTag = view.hippyTag;
     HippyAnimationViewParams *p = _paramsByHippyTag[hippyTag];
     NSMutableArray<CAAnimation *> *animations = [NSMutableArray new];
-    [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *prop, NSNumber *animationId, __unused BOOL *stop) {
+    NSDictionary *animationIdWithPropDictionary = p.animationIdWithPropDictionary;
+    [animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *prop, NSNumber *animationId, __unused BOOL *stop) {
         HippyAnimation *animation = self->_animationById[animationId];
         if (animation.state != HippyAnimationReadyState) {
             return;
@@ -386,8 +408,10 @@
                 [[TimingAnimation alloc] initWithKeyPath:prop timingFunction:animation.timingFunction
                                               domManager:self.bridge.animationManager viewTag:[[view hippyTag] intValue]];
             tAnimation.hpAni = animation;
+            tAnimation.duration = animation.duration;
             tAnimation.animationId = animationId;
             [view addTimingAnimation:tAnimation];
+            [_timingAnimationMap setObject:tAnimation forKey:animationId];
         }
         else {
             CAAnimation *ani = [animation animationOfView:view forProp:prop];

@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)startAnimating;
 - (void)pauseAnimating;
+- (void)resumeAnimating;
 - (void)removeAnimating;
 
 //TODO 这里应该使用协议抽象HippyAnimation与TimingAnimation。

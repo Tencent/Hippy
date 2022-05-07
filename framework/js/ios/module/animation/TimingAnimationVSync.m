@@ -28,6 +28,7 @@ double const AnimationRefreshRate = 30.f;
 @interface TimingAnimationVSync () {
     CADisplayLink *_vsync;
     NSMutableDictionary<id, VSyncCallback> *_vsyncCallbacksMap;
+    NSMutableDictionary<id, VSyncCallback> *_pausedCallbacksMap;
 }
 
 @end
@@ -54,6 +55,7 @@ double const AnimationRefreshRate = 30.f;
         [_vsync addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
         _vsync.paused = YES;
         _vsyncCallbacksMap = [NSMutableDictionary dictionaryWithCapacity:32];
+        _pausedCallbacksMap = [NSMutableDictionary dictionaryWithCapacity:32];
         [self setRefreshRate];
     }
     return self;
@@ -90,6 +92,26 @@ double const AnimationRefreshRate = 30.f;
     if (key) {
         [_vsyncCallbacksMap removeObjectForKey:key];
         _vsync.paused = !([_vsyncCallbacksMap count] > 0);
+    }
+}
+
+- (void)pauseVSyncForKey:(id)key {
+    if (key) {
+        id callback = [_vsyncCallbacksMap objectForKey:key];
+        if (callback) {
+            [_pausedCallbacksMap setObject:callback forKey:key];
+            [self removeVSyncCallbackForKey:key];
+        }
+    }
+}
+
+- (void)resumeVSyncForKey:(id)key {
+    if (key) {
+        id callback = [_pausedCallbacksMap objectForKey:key];
+        if (callback) {
+            [_pausedCallbacksMap removeObjectForKey:key];
+            [self addVSyncCallback:callback forKey:key];
+        }
     }
 }
 

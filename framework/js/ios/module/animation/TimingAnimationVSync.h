@@ -37,6 +37,10 @@ typedef void (^VSyncCallback)(void);
 
 - (void)removeVSyncCallbackForKey:(id)key;
 
+- (void)pauseVSyncForKey:(id)key;
+
+- (void)resumeVSyncForKey:(id)key;
+
 @end
 
 NS_ASSUME_NONNULL_END
