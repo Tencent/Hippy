@@ -202,7 +202,7 @@ public abstract class HippyEngine {
   public abstract void saveInstanceState(Object params);
 
   public abstract HippyRootView restoreInstanceState(ArrayList<DomNodeRecord> domNodeRecordList,
-      HippyEngine.ModuleLoadParams loadParams, Callback<Boolean> callback);
+      HippyEngine.ModuleLoadParams loadParams, boolean isSync);
 
   public abstract void destroyInstanceState(HippyRootView rootView);
 
