@@ -354,9 +354,13 @@
     std::lock_guard<std::mutex> lock(_mutex);
     HippyAnimationViewParams *p = [[HippyAnimationViewParams alloc] initWithParams:params animator:self viewTag:viewTag rootTag:rootTag];
     [p parse];
+    NSDictionary<NSString *, NSNumber *> *animationIdWithPropDictionary = [p animationIdWithPropDictionary];
+    if (0 == [animationIdWithPropDictionary count]) {
+        return nil;
+    }
 
     BOOL contain = [self alreadyConnectAnimation:p];
-    [p.animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *animationId, __unused BOOL *stop) {
+    [animationIdWithPropDictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSNumber *animationId, __unused BOOL *stop) {
         HippyAnimation *ani = self->_animationById[animationId];
 
         if (ani.state == HippyAnimationFinishState) {
@@ -401,7 +405,7 @@
         if ([self.animationTimingDelegate respondsToSelector:@selector(animationShouldUseCustomerTimingFunction:)]) {
             useCustomerTimingFunction = [self.animationTimingDelegate animationShouldUseCustomerTimingFunction:self];
         }
-        useCustomerTimingFunction |= [TimingAnimation canHandleAnimationForProperty:prop];
+        useCustomerTimingFunction &= [TimingAnimation canHandleAnimationForProperty:prop];
         if (useCustomerTimingFunction) {
             //TODO implemente customer animation timing function
             TimingAnimation *tAnimation =
