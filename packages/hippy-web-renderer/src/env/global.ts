@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+import { HippyWebModule } from '../base/base-unit';
 import { dealloc } from './event';
 import { nativeGlobal } from './native-global';
 import { emitter, hippyRegister } from './others';
@@ -32,7 +33,7 @@ declare global {
     off: typeof emitter.off,
     emit: typeof emitter.emit,
     asyncStorage: typeof asyncStorage,
-    turboPromise: typeof Promise,
+    turboPromise: typeof turboPromise,
     register: {
       regist: typeof hippyRegister,
     }
@@ -81,5 +82,9 @@ declare global {
 
   var __localStorage: typeof global.localStorage;
 
-  var turboPromise: typeof global.Promise;
+  var turboPromise: (func: Function) => (...args: any[]) => Promise<any>;
+
+  var getTurboModule: <T extends HippyWebModule>(moduleName: string) => T | undefined;
+
+  var dynamicLoad: (path: string, encode: string, cb: any) => void;
 }
