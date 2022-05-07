@@ -8,71 +8,62 @@
 #include "dom/node_props.h"
 namespace hippy {
 inline namespace dom {
-DiffValue DiffUtils::DiffProps(
-    const DomValueMap& from, const DomValueMap& to) {
-    std::shared_ptr<DomValueMap> update_props = std::make_shared<DomValueMap>();
-    std::shared_ptr<std::vector<std::string>> delete_props = std::make_shared<std::vector<std::string>>();
-  for (const auto& kv : from) {
-    auto from_value = from.find(kv.first);  // old
-    auto to_value = to.find(kv.first);      // new
-    if (to_value == to.end()) {
+DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueMap& new_props_map) {
+  std::shared_ptr<DomValueMap> update_props = std::make_shared<DomValueMap>();
+  std::shared_ptr<std::vector<std::string>> delete_props = std::make_shared<std::vector<std::string>>();
+
+  // delete props
+  // Example:
+  //                                      diff                         delete
+  //  old_props_map: { a: 1, b: 2, c: 3 } ---> new_props_map: { a: 1 } ----->  delete_props: [b, c]
+  for (const auto& kv : old_props_map) {
+    auto iter = new_props_map.find(kv.first);
+    if (iter == new_props_map.end()) {
       delete_props->push_back(kv.first);
-      continue;
-    }
-    if (from_value->second == nullptr) {
-      if (to_value->second) {
-        (*update_props)[kv.first] = to_value->second;
-      }
-      continue;
-    }
-    if (from_value->second->IsBoolean()) {
-      if (!to_value->second || (to_value->second->ToBooleanChecked() != from_value->second->ToBooleanChecked())) {
-        (*update_props)[kv.first] = to_value->second;
-      }
-    } else if (from_value->second->IsNumber()) {
-      if (!to_value->second || (to_value->second->ToDoubleChecked() != from_value->second->ToDoubleChecked())) {
-        (*update_props)[kv.first] = to_value->second;
-      }
-    } else if (from_value->second->IsString()) {
-      if (!to_value->second || (to_value->second->ToStringChecked() != from_value->second->ToStringChecked())) {
-        (*update_props)[kv.first] = to_value->second;
-      }
-    } else if (from_value->second->IsArray()) {
-      if (to_value->second && to_value->second->IsArray()) {
-        DomValueArray result = DiffArray(from_value->second->ToArrayChecked(), to_value->second->ToArrayChecked());
-        if (!result.empty()) {
-          (*update_props)[kv.first] = std::make_shared<DomValue>(result);
-        }
-      } else {
-        (*update_props)[kv.first] = to_value->second;
-      }
-    } else if (from_value->second->IsObject()) {
-      if (to_value->second && to_value->second->IsObject()) {
-        DomValueObject result = DiffObject(to_value->second->ToObjectChecked(), to_value->second->ToObjectChecked());
-        if (!result.empty()) {
-          (*update_props)[kv.first] = to_value->second;
-        }
-      } else {
-        (*update_props)[kv.first] = std::make_shared<DomValue>(DomValue::Null());
-      }
-    } else if (from_value->second->IsNull()) {
-      if (to_value->second && !to_value->second->IsNull()) {
-        (*update_props)[kv.first] = to_value->second;
-      }
-    } else if (from_value->second->IsUndefined()) {
-      if (to_value->second && !to_value->second->IsUndefined()) {
-        (*update_props)[kv.first] = to_value->second;
-      }
-    } else {
-      TDF_BASE_UNREACHABLE();
     }
   }
-  for (const auto& kv : to) {
-    if (from.find(kv.first) != from.end()) {
+
+  // update props (update old prop)
+  // Example:
+  // old_props_map:                  new_props_map:           update_props:
+  // {                               {                        {
+  //   a: 1,                   diff    a: 11          update    a: 11
+  //   b: { b1: 21, b2: 22 },  --->    b: { b1: 21 }  ----->    b: { b1: 21 }
+  //   c: [ c1: 31, c2: 32 ]           c: [ c1: 31 ]            c: [ c1: 31 ]
+  //   d: 4                          }                        }
+  // }
+  for (const auto& old_prop : old_props_map) {
+    auto key = old_prop.first;
+    auto new_prop_iter = new_props_map.find(key);
+    // delete case has already been processed above
+    if (new_prop_iter == new_props_map.end()) {
       continue;
     }
-    (*update_props)[kv.first] = kv.second;
+    // special case, update prop has key but no value
+    TDF_BASE_DCHECK(new_prop_iter->second == nullptr);
+
+    // update props
+    if (old_prop.second == nullptr || old_prop.second.get() != new_prop_iter->second.get()) {
+      (*update_props)[key] = new_prop_iter->second;
+    }
   }
+
+  // update props (insert new prop)
+  // Example:
+  // old_props_map:        new_props_map:            update_props:
+  //                       {                         {
+  // {               diff    b: 2          update      b: 2,
+  //   a: 1,         --->    c: { c1: 31 }  ----->     c: { c1: 31 },
+  // }                       d: [ d1: 41 ]             d: [ d1: 41 ],
+  //                       }                         }
+  for (const auto& new_prop : new_props_map) {
+    auto key = new_prop.first;
+    if (old_props_map.find(key) != old_props_map.end()) {
+      continue;
+    }
+    (*update_props)[key] = new_prop.second;
+  }
+
   if (delete_props->empty()) {
     delete_props = nullptr;
   }
@@ -82,105 +73,5 @@ DiffValue DiffUtils::DiffProps(
   DiffValue diff_props = std::make_tuple(update_props, delete_props);
   return diff_props;
 }
-
-DomValueArray DiffUtils::DiffArray(const DomValueArray& from, const DomValueArray& to) {
-  if (from.size() != to.size()) {
-    return to;
-  }
-  DomValueArray diff_array;
-  for (size_t i = 0; i < from.size(); i++) {
-    auto from_value = from[i];
-    auto to_value = to[i];
-    if (from_value.IsBoolean()) {
-      if (from_value.ToBooleanChecked() != to_value.ToBooleanChecked()) {
-        return to;
-      }
-    } else if (from_value.IsNumber()) {
-      if (from_value.ToDoubleChecked() != from_value.ToDoubleChecked()) {
-        return to;
-      }
-    } else if (from_value.IsString()) {
-      if (from_value.ToStringChecked() != from_value.ToStringChecked()) {
-        return to;
-      }
-    } else if (from_value.IsArray()) {
-      if (!to_value.IsArray() || DiffArray(from_value.ToArrayChecked(), to_value.ToArrayChecked()).size() > 0) {
-        return to;
-      }
-    } else if (from_value.IsObject()) {
-      if (!to_value.IsObject() || DiffObject(from_value.ToObjectChecked(), to_value.ToObjectChecked()).size() > 0) {
-        return to;
-      }
-    } else if (from_value.IsNull()) {
-      if (!to_value.IsNull()) {
-        return to;
-      }
-    } else if (from_value.IsUndefined()) {
-      if (!to_value.IsUndefined()) {
-        return to;
-      }
-    } else {
-      TDF_BASE_UNREACHABLE();
-    }
-  }
-  return diff_array;
-}
-
-DomValueObject DiffUtils::DiffObject(const DomValueObject& from, const DomValueObject& to) {
-  DomValueObject diff_props;
-  for (const auto& kv : from) {
-    auto from_value = from.find(kv.first);  // old
-    auto to_value = to.find(kv.first);      // new
-    if (from_value->second.IsBoolean()) {
-      if (to_value != to.end() && to_value->second.ToBooleanChecked() != from_value->second.ToBooleanChecked()) {
-        diff_props[kv.first] = to_value->second;
-      }
-    } else if (from_value->second.IsNumber()) {
-      if (to_value != to.end() && to_value->second.ToDoubleChecked() != from_value->second.ToDoubleChecked()) {
-        diff_props[kv.first] = to_value->second;
-      }
-    } else if (from_value->second.IsString()) {
-      if (to_value != to.end() && to_value->second.ToStringChecked() != from_value->second.ToStringChecked()) {
-        diff_props[kv.first] = to_value->second;
-      }
-    } else if (from_value->second.IsArray()) {
-      if (to_value != to.end() && to_value->second.IsArray()) {
-        DomValueArray result = DiffArray(from_value->second.ToArrayChecked(), to_value->second.ToArrayChecked());
-        if (!result.empty()) {
-          diff_props[kv.first] = result;
-        }
-      } else {
-        diff_props[kv.first] = DomValue::Null();
-      }
-    } else if (from_value->second.IsObject()) {
-      if (to_value != to.end() && to_value->second.IsObject()) {
-        DomValueObject result = DiffObject(to_value->second.ToObjectChecked(), to_value->second.ToObjectChecked());
-        if (!result.empty()) {
-          diff_props[kv.first] = to_value->second;
-        }
-      } else {
-        diff_props[kv.first] = DomValue::Null();
-      }
-    } else if (from_value->second.IsNull()) {
-      if (to_value != to.end() && !to_value->second.IsNull()) {
-        diff_props[kv.first] = to_value->second;
-      }
-    } else if (from_value->second.IsUndefined()) {
-      if (to_value != to.end() && !to_value->second.IsUndefined()) {
-        diff_props[kv.first] = to_value->second;
-      }
-    } else {
-      TDF_BASE_UNREACHABLE();
-    }
-  }
-  for (const auto& kv : to) {
-    if (from.find(kv.first) != from.end()) {
-      continue;
-    }
-    diff_props[kv.first] = kv.second;
-  }
-  return diff_props;
-}
-
 }  // namespace dom
 }  // namespace hippy
