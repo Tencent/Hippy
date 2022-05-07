@@ -68,12 +68,6 @@
 		F438B757281250CD0078435B /* HippyParserUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F438B753281250CD0078435B /* HippyParserUtils.m */; };
 		F438B75A281283550078435B /* RenderErrorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = F438B759281283550078435B /* RenderErrorHandler.m */; };
 		F43A2D09275882650056F36C /* diff_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43A2D08275882650056F36C /* diff_utils.cc */; };
-		F44D710E27F432B90004F1E1 /* HippyAnimation+Value.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44D710127F432B80004F1E1 /* HippyAnimation+Value.mm */; };
-		F44D710F27F432B90004F1E1 /* HippyAnimation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44D710427F432B80004F1E1 /* HippyAnimation.mm */; };
-		F44D711027F432B90004F1E1 /* CALayer+HippyAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = F44D710927F432B80004F1E1 /* CALayer+HippyAnimation.m */; };
-		F44D711127F432B90004F1E1 /* HippyAnimationGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44D710A27F432B80004F1E1 /* HippyAnimationGroup.mm */; };
-		F44D711227F432B90004F1E1 /* HippyAnimator.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44D710B27F432B80004F1E1 /* HippyAnimator.mm */; };
-		F44D711327F432B90004F1E1 /* HippyAnimationViewParams.mm in Sources */ = {isa = PBXBuildFile; fileRef = F44D710C27F432B80004F1E1 /* HippyAnimationViewParams.mm */; };
 		F45D265328067B6900CAB185 /* HippyScrollView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25AD28067B6900CAB185 /* HippyScrollView.mm */; };
 		F45D265428067B6900CAB185 /* HippyScrollViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25B028067B6900CAB185 /* HippyScrollViewManager.mm */; };
 		F45D265528067B6900CAB185 /* HippyRefreshWrapperItemView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25B328067B6900CAB185 /* HippyRefreshWrapperItemView.mm */; };
@@ -206,6 +200,12 @@
 		F468DE9D2812ACEA00319196 /* HippyComponentData.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE962812ACEA00319196 /* HippyComponentData.mm */; };
 		F468DE9E2812ACEA00319196 /* HippyRootShadowView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE972812ACEA00319196 /* HippyRootShadowView.mm */; };
 		F468DE9F2812ACEA00319196 /* HippyFont.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE992812ACEA00319196 /* HippyFont.mm */; };
+		F47E5826282696E3000B2CE8 /* HippyAnimation+Value.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47E5819282696E2000B2CE8 /* HippyAnimation+Value.mm */; };
+		F47E5827282696E3000B2CE8 /* HippyAnimator.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47E581D282696E3000B2CE8 /* HippyAnimator.mm */; };
+		F47E5828282696E3000B2CE8 /* CALayer+HippyAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = F47E581E282696E3000B2CE8 /* CALayer+HippyAnimation.m */; };
+		F47E5829282696E3000B2CE8 /* HippyAnimation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47E5822282696E3000B2CE8 /* HippyAnimation.mm */; };
+		F47E582A282696E3000B2CE8 /* HippyAnimationViewParams.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47E5823282696E3000B2CE8 /* HippyAnimationViewParams.mm */; };
+		F47E582B282696E3000B2CE8 /* HippyAnimationGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = F47E5824282696E3000B2CE8 /* HippyAnimationGroup.mm */; };
 		F4810954277062AD005C221B /* layer_optimized_render_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4810953277062AD005C221B /* layer_optimized_render_manager.cc */; };
 		F482919A274E420C00D91128 /* HPStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F482918B274E420C00D91128 /* HPStyle.cpp */; };
 		F482919B274E420C00D91128 /* HPConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F482918D274E420C00D91128 /* HPConfig.cpp */; };
@@ -374,19 +374,6 @@
 		F438B758281283550078435B /* RenderErrorHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderErrorHandler.h; sourceTree = "<group>"; };
 		F438B759281283550078435B /* RenderErrorHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RenderErrorHandler.m; sourceTree = "<group>"; };
 		F43A2D08275882650056F36C /* diff_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = diff_utils.cc; sourceTree = "<group>"; };
-		F44D710127F432B80004F1E1 /* HippyAnimation+Value.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "HippyAnimation+Value.mm"; sourceTree = "<group>"; };
-		F44D710227F432B80004F1E1 /* HippyAnimationGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimationGroup.h; sourceTree = "<group>"; };
-		F44D710327F432B80004F1E1 /* CALayer+HippyAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CALayer+HippyAnimation.h"; sourceTree = "<group>"; };
-		F44D710427F432B80004F1E1 /* HippyAnimation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyAnimation.mm; sourceTree = "<group>"; };
-		F44D710527F432B80004F1E1 /* HippyAnimation+Group.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HippyAnimation+Group.h"; sourceTree = "<group>"; };
-		F44D710627F432B80004F1E1 /* HippyAnimationViewParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimationViewParams.h; sourceTree = "<group>"; };
-		F44D710727F432B80004F1E1 /* HippyAnimation+Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HippyAnimation+Value.h"; sourceTree = "<group>"; };
-		F44D710827F432B80004F1E1 /* HippyAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimation.h; sourceTree = "<group>"; };
-		F44D710927F432B80004F1E1 /* CALayer+HippyAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CALayer+HippyAnimation.m"; sourceTree = "<group>"; };
-		F44D710A27F432B80004F1E1 /* HippyAnimationGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyAnimationGroup.mm; sourceTree = "<group>"; };
-		F44D710B27F432B80004F1E1 /* HippyAnimator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyAnimator.mm; sourceTree = "<group>"; };
-		F44D710C27F432B80004F1E1 /* HippyAnimationViewParams.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyAnimationViewParams.mm; sourceTree = "<group>"; };
-		F44D710D27F432B80004F1E1 /* HippyAnimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimator.h; sourceTree = "<group>"; };
 		F459C45827D4F355009A7441 /* UIView+Render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Render.h"; sourceTree = "<group>"; };
 		F459C45927D4F355009A7441 /* UIView+Render.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIView+Render.mm"; sourceTree = "<group>"; };
 		F45D25AC28067B6900CAB185 /* HippyScrollableProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyScrollableProtocol.h; sourceTree = "<group>"; };
@@ -676,6 +663,19 @@
 		F468DE9A2812ACEA00319196 /* HippyMemoryOpt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMemoryOpt.h; sourceTree = "<group>"; };
 		F468DE9B2812ACEA00319196 /* HippyFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyFont.h; sourceTree = "<group>"; };
 		F468DE9C2812ACEA00319196 /* HippyRootShadowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyRootShadowView.h; sourceTree = "<group>"; };
+		F47E5819282696E2000B2CE8 /* HippyAnimation+Value.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "HippyAnimation+Value.mm"; sourceTree = "<group>"; };
+		F47E581A282696E2000B2CE8 /* HippyAnimationGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimationGroup.h; sourceTree = "<group>"; };
+		F47E581B282696E3000B2CE8 /* HippyAnimationViewParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimationViewParams.h; sourceTree = "<group>"; };
+		F47E581C282696E3000B2CE8 /* HippyAnimation+Group.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HippyAnimation+Group.h"; sourceTree = "<group>"; };
+		F47E581D282696E3000B2CE8 /* HippyAnimator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyAnimator.mm; sourceTree = "<group>"; };
+		F47E581E282696E3000B2CE8 /* CALayer+HippyAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CALayer+HippyAnimation.m"; sourceTree = "<group>"; };
+		F47E581F282696E3000B2CE8 /* HippyAnimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimator.h; sourceTree = "<group>"; };
+		F47E5820282696E3000B2CE8 /* HippyAnimation+Value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HippyAnimation+Value.h"; sourceTree = "<group>"; };
+		F47E5821282696E3000B2CE8 /* CALayer+HippyAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CALayer+HippyAnimation.h"; sourceTree = "<group>"; };
+		F47E5822282696E3000B2CE8 /* HippyAnimation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyAnimation.mm; sourceTree = "<group>"; };
+		F47E5823282696E3000B2CE8 /* HippyAnimationViewParams.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyAnimationViewParams.mm; sourceTree = "<group>"; };
+		F47E5824282696E3000B2CE8 /* HippyAnimationGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyAnimationGroup.mm; sourceTree = "<group>"; };
+		F47E5825282696E3000B2CE8 /* HippyAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAnimation.h; sourceTree = "<group>"; };
 		F4810952277062A1005C221B /* layer_optimized_render_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = layer_optimized_render_manager.h; sourceTree = "<group>"; };
 		F4810953277062AD005C221B /* layer_optimized_render_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = layer_optimized_render_manager.cc; sourceTree = "<group>"; };
 		F482918B274E420C00D91128 /* HPStyle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPStyle.cpp; sourceTree = "<group>"; };
@@ -1134,7 +1134,6 @@
 		F42E711D27D0684C0099248B /* render */ = {
 			isa = PBXGroup;
 			children = (
-				F44D710027F432B80004F1E1 /* animation */,
 				F4CEDF9227D8587900583C9E /* utils */,
 				F4A8423D27D38CF900AEFC88 /* renderer */,
 			);
@@ -1150,27 +1149,6 @@
 				F42EA799277C354C007874A2 /* TurboBaseModule.mm */,
 			);
 			path = turbomodule;
-			sourceTree = "<group>";
-		};
-		F44D710027F432B80004F1E1 /* animation */ = {
-			isa = PBXGroup;
-			children = (
-				F44D710127F432B80004F1E1 /* HippyAnimation+Value.mm */,
-				F44D710227F432B80004F1E1 /* HippyAnimationGroup.h */,
-				F44D710327F432B80004F1E1 /* CALayer+HippyAnimation.h */,
-				F44D710427F432B80004F1E1 /* HippyAnimation.mm */,
-				F44D710527F432B80004F1E1 /* HippyAnimation+Group.h */,
-				F44D710627F432B80004F1E1 /* HippyAnimationViewParams.h */,
-				F44D710727F432B80004F1E1 /* HippyAnimation+Value.h */,
-				F44D710827F432B80004F1E1 /* HippyAnimation.h */,
-				F44D710927F432B80004F1E1 /* CALayer+HippyAnimation.m */,
-				F44D710A27F432B80004F1E1 /* HippyAnimationGroup.mm */,
-				F44D710B27F432B80004F1E1 /* HippyAnimator.mm */,
-				F44D710C27F432B80004F1E1 /* HippyAnimationViewParams.mm */,
-				F44D710D27F432B80004F1E1 /* HippyAnimator.h */,
-			);
-			name = animation;
-			path = ../../../../renderer/native/ios/animation;
 			sourceTree = "<group>";
 		};
 		F45D25AA28067B6900CAB185 /* component */ = {
@@ -1522,6 +1500,19 @@
 		F468DDC72812A95100319196 /* animation */ = {
 			isa = PBXGroup;
 			children = (
+				F47E5821282696E3000B2CE8 /* CALayer+HippyAnimation.h */,
+				F47E581E282696E3000B2CE8 /* CALayer+HippyAnimation.m */,
+				F47E5825282696E3000B2CE8 /* HippyAnimation.h */,
+				F47E5822282696E3000B2CE8 /* HippyAnimation.mm */,
+				F47E581C282696E3000B2CE8 /* HippyAnimation+Group.h */,
+				F47E5820282696E3000B2CE8 /* HippyAnimation+Value.h */,
+				F47E5819282696E2000B2CE8 /* HippyAnimation+Value.mm */,
+				F47E581A282696E2000B2CE8 /* HippyAnimationGroup.h */,
+				F47E5824282696E3000B2CE8 /* HippyAnimationGroup.mm */,
+				F47E581B282696E3000B2CE8 /* HippyAnimationViewParams.h */,
+				F47E5823282696E3000B2CE8 /* HippyAnimationViewParams.mm */,
+				F47E581F282696E3000B2CE8 /* HippyAnimator.h */,
+				F47E581D282696E3000B2CE8 /* HippyAnimator.mm */,
 				F468DDC82812A95100319196 /* HippyAnimationModule.mm */,
 				F468DDC92812A95100319196 /* HippyAnimationModule.h */,
 				F4DD3C9528236AF70043D3A0 /* RSTimingFunction.h */,
@@ -1969,6 +1960,7 @@
 				F438B74928124B200078435B /* HippyI18nUtils.m in Sources */,
 				F468DE8C2812A95200319196 /* HippyPageDomain.mm in Sources */,
 				F45D266428067B6900CAB185 /* HippySimpleWebView.m in Sources */,
+				F47E582A282696E3000B2CE8 /* HippyAnimationViewParams.mm in Sources */,
 				F45D269428067B6900CAB185 /* HippyTextManager.mm in Sources */,
 				F45D266228067B6900CAB185 /* HippyTextField.mm in Sources */,
 				F45D265D28067B6900CAB185 /* HippyViewPagerItemManager.mm in Sources */,
@@ -1979,14 +1971,12 @@
 				F400C2E3274F65FA008BD74B /* js_native_turbo_jsc.cc in Sources */,
 				F45D268828067B6900CAB185 /* HippyTouchesView.mm in Sources */,
 				F45D268F28067B6900CAB185 /* HippyNavigatorViewManager.mm in Sources */,
-				F44D711327F432B90004F1E1 /* HippyAnimationViewParams.mm in Sources */,
 				F45D269028067B6900CAB185 /* HippyFooterRefreshManager.mm in Sources */,
 				D84AB9AE273A618B00987D03 /* logging.cc in Sources */,
 				F482919B274E420C00D91128 /* HPConfig.cpp in Sources */,
 				D84AB9AF273A618B00987D03 /* log_settings_state.cc in Sources */,
 				F45D268B28067B6900CAB185 /* HippyNavigatorRootViewController.m in Sources */,
 				F468DE8A2812A95200319196 /* HippyInspectorDomain.mm in Sources */,
-				F44D711127F432B90004F1E1 /* HippyAnimationGroup.mm in Sources */,
 				F4DD3CA72823BA050043D3A0 /* TimingAnimationVSync.m in Sources */,
 				F468DE8F2812A95200319196 /* HippyDevInfo.m in Sources */,
 				F438B75A281283550078435B /* RenderErrorHandler.m in Sources */,
@@ -2014,10 +2004,8 @@
 				F468DE832812A95200319196 /* HippySRSIMDHelpers.m in Sources */,
 				F468DE782812A95200319196 /* HippyJSCErrorHandling.m in Sources */,
 				F45D266328067B6900CAB185 /* HippyTextSelection.m in Sources */,
-				F44D711227F432B90004F1E1 /* HippyAnimator.mm in Sources */,
 				F468DE5B2812A95200319196 /* HippyAnimationModule.mm in Sources */,
 				F45D266C28067B6900CAB185 /* HippyCollectionViewWaterfallLayout.m in Sources */,
-				F44D711027F432B90004F1E1 /* CALayer+HippyAnimation.m in Sources */,
 				D84AB9B9273A618B00987D03 /* javascript_task.cc in Sources */,
 				F45D268528067B6900CAB185 /* HippyBorderDrawing.m in Sources */,
 				D84AB9CD273A618B00987D03 /* js_native_api_jsc.cc in Sources */,
@@ -2025,6 +2013,7 @@
 				D84AB9C4273A618B00987D03 /* task_runner.cc in Sources */,
 				D84AB8F0273A5AAD00987D03 /* dom_value.cc in Sources */,
 				F45D266A28067B6900CAB185 /* HippyWaterfallViewManager.mm in Sources */,
+				F47E5826282696E3000B2CE8 /* HippyAnimation+Value.mm in Sources */,
 				F468DE582812A95200319196 /* NSObject+HippyTurbo.mm in Sources */,
 				F468DE882812A95200319196 /* HippyDomModel.mm in Sources */,
 				F438B744281248010078435B /* HippyGradientObject.m in Sources */,
@@ -2033,7 +2022,6 @@
 				F45D269828067B6A00CAB185 /* HippyModalCustomAnimationTransition.m in Sources */,
 				D84AB9BA273A618B00987D03 /* worker_task_runner.cc in Sources */,
 				F45D267028067B6900CAB185 /* HippyAnimatedImageView.m in Sources */,
-				F44D710F27F432B90004F1E1 /* HippyAnimation.mm in Sources */,
 				D84AB9B6273A618B00987D03 /* scope.cc in Sources */,
 				D84AB9B2273A618B00987D03 /* unicode_string_view.cc in Sources */,
 				F45D265B28067B6900CAB185 /* HippyViewPagerManager.mm in Sources */,
@@ -2064,10 +2052,12 @@
 				F45D266728067B6900CAB185 /* HippyHeaderRefresh.mm in Sources */,
 				F45D269128067B6900CAB185 /* HippyFooterRefresh.mm in Sources */,
 				F468DE6C2812A95200319196 /* HippyEventDispatcher.mm in Sources */,
+				F47E5828282696E3000B2CE8 /* CALayer+HippyAnimation.m in Sources */,
 				F468DE682812A95200319196 /* HippyClipboardModule.m in Sources */,
 				F45D268D28067B6900CAB185 /* HippyNavigatorHostView.mm in Sources */,
 				F4C1DAAE28117C1900CED4C4 /* NSDictionary+HippyDictionaryDeepCopy.m in Sources */,
 				F45D267728067B6900CAB185 /* HippyBaseListItemView.mm in Sources */,
+				F47E582B282696E3000B2CE8 /* HippyAnimationGroup.mm in Sources */,
 				F4CEDF9D27D858C700583C9E /* HippyDefaultImageProvider.m in Sources */,
 				F468DE592812A95200319196 /* HippyNetWork.m in Sources */,
 				F45D269A28067B6A00CAB185 /* HippyModalHostView.mm in Sources */,
@@ -2094,6 +2084,7 @@
 				F45D267428067B6900CAB185 /* HippyBaseListItemShadowView.mm in Sources */,
 				D84AB8EC273A5AAD00987D03 /* dom_manager.cc in Sources */,
 				F45D268028067B6900CAB185 /* HippyViewManager.mm in Sources */,
+				F47E5827282696E3000B2CE8 /* HippyAnimator.mm in Sources */,
 				F45D268328067B6900CAB185 /* HippyView+HippyViewAnimation.mm in Sources */,
 				F45D266528067B6900CAB185 /* HippySimpleWebViewManager.mm in Sources */,
 				F43A2D09275882650056F36C /* diff_utils.cc in Sources */,
@@ -2133,7 +2124,6 @@
 				D84AB9C2273A618B00987D03 /* file.cc in Sources */,
 				F4CEDF9B27D858C700583C9E /* HippyImageDataLoader.m in Sources */,
 				F45D269728067B6900CAB185 /* HippyModalTransitioningDelegate.mm in Sources */,
-				F44D710E27F432B90004F1E1 /* HippyAnimation+Value.mm in Sources */,
 				F45D266D28067B6900CAB185 /* HippyWaterfallItemViewManager.mm in Sources */,
 				F4A8424227D38CF900AEFC88 /* NativeRenderManager.mm in Sources */,
 				F45D265E28067B6900CAB185 /* HippyTextView.mm in Sources */,
@@ -2147,6 +2137,7 @@
 				F4C1CE262811439A00CED4C4 /* UIView+Sequence.m in Sources */,
 				F468DE7B2812A95200319196 /* native_source_code_ios.cc in Sources */,
 				F438B756281250CD0078435B /* HippyConvert.mm in Sources */,
+				F47E5829282696E3000B2CE8 /* HippyAnimation.mm in Sources */,
 				F468DE762812A95200319196 /* HippyBatchedBridge.mm in Sources */,
 				D84AB9B1273A618B00987D03 /* log_settings.cc in Sources */,
 				F468DE822812A95200319196 /* HippySRWebSocket.m in Sources */,
