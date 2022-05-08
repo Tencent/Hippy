@@ -25,14 +25,14 @@ import '../voltron_renderer.dart';
 abstract class BaseViewController<T extends RenderViewModel>
     extends VoltronViewController<T, RenderNode> {
   @override
-  RenderNode createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
-      ControllerManager controllerManager, bool lazy) {
+  RenderNode createRenderNode(int id, VoltronMap? props, String name,
+      RenderTree tree, ControllerManager controllerManager, bool lazy) {
     return RenderNode(id, name, tree, controllerManager, props);
   }
 }
 
-abstract class VoltronViewController<T extends RenderViewModel, R extends RenderNode>
-    implements ControllerMethodPropConsumer<T> {
+abstract class VoltronViewController<T extends RenderViewModel,
+    R extends RenderNode> implements ControllerMethodPropConsumer<T> {
   @override
   String get name;
 
@@ -47,38 +47,53 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   Map<String, ControllerMethodProp> get _baseRegisteredMethodProp => {
         NodeProps.kDisplay: ControllerMethodProp(setDisplay, ''),
         NodeProps.kTransform: ControllerMethodProp(setTransform, null),
-        NodeProps.kTransformOrigin: ControllerMethodProp(setTransformOrigin, null),
-        NodeProps.kPropAccessibilityLabel: ControllerMethodProp(setAccessibilityLabel, ""),
+        NodeProps.kTransformOrigin:
+            ControllerMethodProp(setTransformOrigin, null),
+        NodeProps.kPropAccessibilityLabel:
+            ControllerMethodProp(setAccessibilityLabel, ""),
         NodeProps.kBackgroundColor:
             ControllerMethodProp(setBackgroundColor, Colors.transparent.value),
         NodeProps.kOpacity: ControllerMethodProp(setOpacity, 1.0),
-        NodeProps.kBorderRadius: ControllerMethodProp(setBorderRadius, 0.0),
-        NodeProps.kBorderTopLeftRadius: ControllerMethodProp(setTopLeftBorderRadius, 0.0),
-        NodeProps.kBorderTopRightRadius: ControllerMethodProp(setTopRightBorderRadius, 0.0),
-        NodeProps.kBorderBottomRightRadius: ControllerMethodProp(setBottomRightBorderRadius, 0.0),
-        NodeProps.kBorderBottomLeftRadius: ControllerMethodProp(setBottomLeftBorderRadius, 0.0),
-        NodeProps.kBorderWidth: ControllerMethodProp(setBorderWidth, 0.0),
-        NodeProps.kNextFocusDownId: ControllerMethodProp(setNextFocusDownId, 0.0),
+        NodeProps.kNextFocusDownId:
+            ControllerMethodProp(setNextFocusDownId, 0.0),
         NodeProps.kNextFocusUpId: ControllerMethodProp(setNextFocusUpId, 0.0),
-        NodeProps.kNextFocusLeftId: ControllerMethodProp(setNextFocusLeftId, 0.0),
-        NodeProps.kNextFocusRightId: ControllerMethodProp(setNextFocusRightId, 0.0),
-        NodeProps.kBorderLeftWidth: ControllerMethodProp(setLeftBorderWidth, 0.0),
+        NodeProps.kNextFocusLeftId:
+            ControllerMethodProp(setNextFocusLeftId, 0.0),
+        NodeProps.kNextFocusRightId:
+            ControllerMethodProp(setNextFocusRightId, 0.0),
+        NodeProps.kBorderRadius: ControllerMethodProp(setBorderRadius, 0.0),
+        NodeProps.kBorderTopLeftRadius:
+            ControllerMethodProp(setTopLeftBorderRadius, 0.0),
+        NodeProps.kBorderTopRightRadius:
+            ControllerMethodProp(setTopRightBorderRadius, 0.0),
+        NodeProps.kBorderBottomRightRadius:
+            ControllerMethodProp(setBottomRightBorderRadius, 0.0),
+        NodeProps.kBorderBottomLeftRadius:
+            ControllerMethodProp(setBottomLeftBorderRadius, 0.0),
+        NodeProps.kBorderWidth: ControllerMethodProp(setBorderWidth, 0.0),
+        NodeProps.kBorderLeftWidth:
+            ControllerMethodProp(setLeftBorderWidth, 0.0),
         NodeProps.kBorderTopWidth: ControllerMethodProp(setTopBorderWidth, 0.0),
-        NodeProps.kBorderRightWidth: ControllerMethodProp(setRightBorderWidth, 0.0),
-        NodeProps.kBorderBottomWidth: ControllerMethodProp(setBottomBorderWidth, 0.0),
-        NodeProps.kBorderColor: ControllerMethodProp(setBorderColor, Colors.transparent.value),
+        NodeProps.kBorderRightWidth:
+            ControllerMethodProp(setRightBorderWidth, 0.0),
+        NodeProps.kBorderBottomWidth:
+            ControllerMethodProp(setBottomBorderWidth, 0.0),
+        NodeProps.kBorderColor:
+            ControllerMethodProp(setBorderColor, Colors.transparent.value),
         NodeProps.kBorderLeftColor:
             ControllerMethodProp(setBorderLeftColor, Colors.transparent.value),
         NodeProps.kBorderTopColor:
             ControllerMethodProp(setBorderTopColor, Colors.transparent.value),
         NodeProps.kBorderRightColor:
             ControllerMethodProp(setBorderRightColor, Colors.transparent.value),
-        NodeProps.kBorderBottomColor:
-            ControllerMethodProp(setBorderBottomColor, Colors.transparent.value),
+        NodeProps.kBorderBottomColor: ControllerMethodProp(
+            setBorderBottomColor, Colors.transparent.value),
+        NodeProps.kBorderStyle: ControllerMethodProp(setBorderStyle, ''),
         NodeProps.kBoxShadow: ControllerMethodProp(setBoxShadow, null),
         NodeProps.kTransition: ControllerMethodProp(setTransition, null),
         NodeProps.kAnimation: ControllerMethodProp(setAnimation, null),
-        NodeProps.kAnimationEndPropertyMap: ControllerMethodProp(setAnimationEndPropertyMap, null),
+        NodeProps.kAnimationEndPropertyMap:
+            ControllerMethodProp(setAnimationEndPropertyMap, null),
         NodeProps.kAnimationPropertyOptionMap:
             ControllerMethodProp(setAnimationPropertyOptionMap, null),
         NodeProps.kFocusable: ControllerMethodProp(setFocusable, false),
@@ -91,7 +106,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
         NodeProps.shadowOpacity: ControllerMethodProp(setShadowOpacity, 0.0),
         NodeProps.shadowRadius: ControllerMethodProp(setShadowRadius, 0.0),
         NodeProps.shadowSpread: ControllerMethodProp(setShadowSpread, 0.0),
-        NodeProps.shadowColor: ControllerMethodProp(setShadowColor, Colors.transparent.value),
+        NodeProps.shadowColor:
+            ControllerMethodProp(setShadowColor, Colors.transparent.value),
       };
 
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp;
@@ -112,7 +128,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   void setTransformOrigin(T viewModel, VoltronMap? transformOriginMap) {
     final transformOrigin = TransformOrigin(transformOriginMap);
     viewModel.transformOrigin = transformOrigin;
-    viewModel.updateAnimation<TransformOrigin>(NodeProps.kTransformOrigin, transformOrigin);
+    viewModel.updateAnimation<TransformOrigin>(
+        NodeProps.kTransformOrigin, transformOrigin);
   }
 
   /// zIndex
@@ -279,6 +296,11 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
     viewModel.borderBottomColor = color;
   }
 
+  @ControllerProps(NodeProps.kBorderStyle)
+  void setBorderStyle(T viewModel, String borderStyle) {
+    viewModel.borderStyle = borderStyle;
+  }
+
   @ControllerProps(NodeProps.kBoxShadow)
   void setBoxShadow(T viewModel, VoltronArray? data) {
     viewModel.boxShadow = data;
@@ -291,21 +313,26 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
       return;
     }
 
-    viewModel.transition = CssAnimation.initByTransition(transitionMap, viewModel);
+    viewModel.transition =
+        CssAnimation.initByTransition(transitionMap, viewModel);
   }
 
   @ControllerProps(NodeProps.kAnimation)
   void setAnimation(T viewModel, VoltronMap? value) {
-    final animationPropertyMap = value?.get<VoltronMap>(NodeProps.kAnimationKeyFramePropertyMap);
+    final animationPropertyMap =
+        value?.get<VoltronMap>(NodeProps.kAnimationKeyFramePropertyMap);
     if (value == null || animationPropertyMap == null) {
       return;
     }
 
     final propertyMapSortList =
-        AnimationUtil.getAnimationPropertyListSortByKeyframeSelector(animationPropertyMap);
-    viewModel.animation = CssAnimation.initByAnimation(value, propertyMapSortList, viewModel);
+        AnimationUtil.getAnimationPropertyListSortByKeyframeSelector(
+            animationPropertyMap);
+    viewModel.animation =
+        CssAnimation.initByAnimation(value, propertyMapSortList, viewModel);
     viewModel.animationFillMode =
-        value.get<String>(NodeProps.kAnimationFillModel) ?? AnimationFillMode.kNone;
+        value.get<String>(NodeProps.kAnimationFillModel) ??
+            AnimationFillMode.kNone;
   }
 
   @ControllerProps(NodeProps.kAnimationEndPropertyMap)
@@ -347,7 +374,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
     var layoutY = node.layoutY;
     var layoutWidth = node.layoutWidth;
     var layoutHeight = node.layoutHeight;
-    node.renderViewModel.updateLayout(layoutX, layoutY, layoutWidth, layoutHeight);
+    node.renderViewModel
+        .updateLayout(layoutX, layoutY, layoutWidth, layoutHeight);
   }
 
   bool shouldInterceptLayout(R node) {
@@ -413,7 +441,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   // @param functionName 函数名
   // @param array 函数参数
   // @param promise 回调
-  void dispatchFunction(T viewModel, String functionName, VoltronArray array, {Promise? promise}) {}
+  void dispatchFunction(T viewModel, String functionName, VoltronArray array,
+      {Promise? promise}) {}
 
   void onBatchComplete(R node) {}
 

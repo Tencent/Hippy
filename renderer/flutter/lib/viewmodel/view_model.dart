@@ -19,6 +19,7 @@
 //
 
 import 'package:flutter/material.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:gradient_like_css/gradient_like_css.dart';
 
@@ -94,6 +95,7 @@ class RenderViewModel extends ChangeNotifier {
   int? borderTopColor;
   int? borderRightColor;
   int? borderBottomColor;
+  String? borderStyle;
   String overflow = enumValueToString(ContainOverflow.visible);
 
   // voltron box-shadow
@@ -157,7 +159,8 @@ class RenderViewModel extends ChangeNotifier {
 
   double? get height => _height;
 
-  bool get noPosition => _x == null || _y == null || _x == double.nan || _y == double.nan;
+  bool get noPosition =>
+      _x == null || _y == null || _x == double.nan || _y == double.nan;
 
   bool get noSize =>
       _width == null ||
@@ -185,8 +188,12 @@ class RenderViewModel extends ChangeNotifier {
 
   RenderViewModel? childFromId(int id) => null;
 
-  RenderViewModel(this._id, this._instanceId, this._className, RenderContext context)
-      : _renderContext = context {
+  RenderViewModel(
+    this._id,
+    this._instanceId,
+    this._className,
+    RenderContext context,
+  ) : _renderContext = context {
     _dispatcher = createDispatcher();
   }
 
@@ -222,6 +229,7 @@ class RenderViewModel extends ChangeNotifier {
     borderTopColor = viewModel.borderTopColor;
     borderRightColor = viewModel.borderRightColor;
     borderBottomColor = viewModel.borderBottomColor;
+    borderStyle = viewModel.borderStyle;
     overflow = viewModel.overflow;
     boxShadow = viewModel.boxShadow;
     shadowOffsetX = viewModel.shadowOffsetX;
@@ -275,6 +283,7 @@ class RenderViewModel extends ChangeNotifier {
         borderTopColor == other.borderTopColor &&
         borderRightColor == other.borderRightColor &&
         borderBottomColor == other.borderBottomColor &&
+        borderStyle == other.borderStyle &&
         overflow == other.overflow &&
         boxShadow == other.boxShadow &&
         shadowOffsetX == other.shadowOffsetX &&
@@ -326,6 +335,7 @@ class RenderViewModel extends ChangeNotifier {
       borderTopColor.hashCode |
       borderRightColor.hashCode |
       borderBottomColor.hashCode |
+      borderStyle.hashCode |
       overflow.hashCode |
       boxShadow.hashCode |
       shadowOffsetX.hashCode |
@@ -366,7 +376,8 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   NativeGestureDispatcher createDispatcher() {
-    return NativeGestureDispatcher(rootId: rootId, id: id, context: _renderContext);
+    return NativeGestureDispatcher(
+        rootId: rootId, id: id, context: _renderContext);
   }
 
   void updateLayout(double x, double y, double width, double height) {
@@ -521,6 +532,40 @@ class RenderViewModel extends ChangeNotifier {
     return "$idDesc: (x[$_x], y[$_y], w[$_width], h[$_height])";
   }
 
+  BoxConstraints getInnerBoxConstraints(double width, double height) {
+    var computedBorderTopWidth = 0.0;
+    var computedBorderRightWidth = 0.0;
+    var computedBorderBottomWidth = 0.0;
+    var computedBorderLeftWidth = 0.0;
+    var originBorderWidth = borderWidth;
+    if (originBorderWidth != null && originBorderWidth > 0) {
+      computedBorderTopWidth = originBorderWidth;
+      computedBorderRightWidth = originBorderWidth;
+      computedBorderBottomWidth = originBorderWidth;
+      computedBorderLeftWidth = originBorderWidth;
+    }
+    var originBorderTopWidth = borderTopWidth;
+    var originBorderRightWidth = borderRightWidth;
+    var originBorderBottomWidth = borderBottomWidth;
+    var originBorderLeftWidth = borderLeftWidth;
+    if (originBorderTopWidth != null && originBorderTopWidth > 0) {
+      computedBorderTopWidth = originBorderTopWidth;
+    }
+    if (originBorderRightWidth != null && originBorderRightWidth > 0) {
+      computedBorderRightWidth = originBorderRightWidth;
+    }
+    if (originBorderBottomWidth != null && originBorderBottomWidth > 0) {
+      computedBorderBottomWidth = originBorderBottomWidth;
+    }
+    if (originBorderLeftWidth != null && originBorderLeftWidth > 0) {
+      computedBorderLeftWidth = originBorderLeftWidth;
+    }
+    return BoxConstraints.tightFor(
+      width: width - computedBorderLeftWidth - computedBorderRightWidth,
+      height: height - computedBorderTopWidth - computedBorderBottomWidth,
+    );
+  }
+
   Decoration? getDecoration({Color? backgroundColor}) {
     return toDecoration(decorationColor: backgroundColor);
   }
@@ -581,7 +626,8 @@ class RenderViewModel extends ChangeNotifier {
       var angle = linearGradientMap.get<String>("angle");
       var colorStopList = linearGradientMap.get<VoltronArray>("colorStopList");
       if (angle != null && colorStopList != null) {
-        return GradientUtil.generateHippyLinearGradient(w, h, angle, colorStopList);
+        return GradientUtil.generateHippyLinearGradient(
+            w, h, angle, colorStopList);
       }
     }
     return null;
@@ -641,8 +687,10 @@ class RenderViewModel extends ChangeNotifier {
       // hippy box-shadow
       result.add(
         BoxShadow(
-          color: Color(localBoxShadowColor).withOpacity(localBoxShadowOpacity ?? 1),
-          offset: Offset(localBoxShadowOffsetX ?? 0, localBoxShadowOffsetY ?? 0),
+          color: Color(localBoxShadowColor)
+              .withOpacity(localBoxShadowOpacity ?? 1),
+          offset:
+              Offset(localBoxShadowOffsetX ?? 0, localBoxShadowOffsetY ?? 0),
           blurRadius: localBoxShadowRadius,
           spreadRadius: localBoxShadowSpread ?? 0.0,
         ),
@@ -670,32 +718,16 @@ class RenderViewModel extends ChangeNotifier {
       backgroundImgPositionX,
       backgroundImgPositionY,
     );
-
-    if (radius != null) {
-      // 有圆角的情况下，不允许设置不同的边
-      return BoxDecoration(
-        borderRadius: radius,
-        image: image,
-        color: color,
-        border: _toAllBorder(),
-        gradient: gradient,
-        boxShadow: boxShadow,
-      );
-    } else {
-      var border = _toBorder();
-      if (image == null && border == null && gradient == null && boxShadow == null) {
-        return null;
-      }
-
-      border ??= const Border.fromBorderSide(BorderSide.none);
-      return ShapeDecoration(
-        shape: border,
-        image: image,
-        color: color,
-        gradient: gradient,
-        shadows: boxShadow,
-      );
-    }
+    var border = _toBorder();
+    var showRadius = radius != null && border != null && border.isUniform;
+    return BoxDecoration(
+      borderRadius: showRadius ? radius : null,
+      image: image,
+      color: color,
+      border: border,
+      gradient: gradient,
+      boxShadow: boxShadow,
+    );
   }
 
   BorderRadius? _toRadius() {
@@ -731,12 +763,21 @@ class RenderViewModel extends ChangeNotifier {
     return Radius.zero;
   }
 
-  DecorationImage? _toImage(Object? backgroundImg, String? backgroundImgSize,
-      String? backgroundImgRepeat, backgroundImgPositionX, backgroundImgPositionY) {
+  DecorationImage? _toImage(
+      Object? backgroundImg,
+      String? backgroundImgSize,
+      String? backgroundImgRepeat,
+      backgroundImgPositionX,
+      backgroundImgPositionY) {
     if (backgroundImg is! String || backgroundImg == '') return null;
-    // 背景图暂时只支持网络图片
     var imgFit = resizeModeToBoxFit(backgroundImgSize);
-    const alignMap = {'left': -1.0, 'center': 0.0, 'right': 1.0, 'top': -1.0, 'bottom': 1.0};
+    const alignMap = {
+      'left': -1.0,
+      'center': 0.0,
+      'right': 1.0,
+      'top': -1.0,
+      'bottom': 1.0
+    };
     var alignX = alignMap[backgroundImgPositionX] ?? -1.0;
     var alignY = alignMap[backgroundImgPositionY] ?? -1.0;
     var alignment = Alignment(alignX, alignY);
@@ -750,37 +791,41 @@ class RenderViewModel extends ChangeNotifier {
     );
   }
 
-  Border _toAllBorder() {
-    var side = _generateBorderSide(borderBottomWidth, borderBottomColor);
-    return Border.fromBorderSide(side);
+  BorderStyle parseBorderStyle(String? borderStyle) {
+    if (borderStyle == 'solid') {
+      return BorderStyle.solid;
+    } else if (borderStyle == 'none') {
+      return BorderStyle.none;
+    }
+    return BorderStyle.solid;
   }
 
   BorderSide _generateBorderSide(double? sideWidth, int? sideColor) {
     var originSideWidth = sideWidth;
     var originSideColor = sideColor;
-    var originBorderWidth = borderWidth;
-    var originBorderColor = borderColor;
+    var originBorderWidth = borderWidth ?? 0.0;
+    var originBorderColor = borderColor ?? 0;
 
-    if (originSideWidth != null &&
-        originSideWidth > 0 &&
-        originSideColor != null &&
-        originSideColor != Colors.transparent.value) {
-      return BorderSide(
-        width: originSideWidth,
-        color: Color(originSideColor),
-        style: BorderStyle.solid,
-      );
-    } else if (originBorderWidth != null &&
-        originBorderWidth > 0 &&
-        originBorderColor != null &&
-        originBorderColor != Colors.transparent.value) {
-      return BorderSide(
-        width: originBorderWidth,
-        color: Color(originBorderColor),
-        style: BorderStyle.solid,
-      );
+    var computedSideWidth = originBorderWidth;
+    var computedBorderColor = originBorderColor;
+
+    if (originSideWidth != null && originSideWidth > 0) {
+      computedSideWidth = originSideWidth;
     }
 
+    if (originSideColor != null && originSideColor > 0) {
+      computedBorderColor = originSideColor;
+    }
+
+    BorderStyle computedBorderStyle = parseBorderStyle(borderStyle);
+
+    if (computedSideWidth > 0 && computedBorderStyle != BorderStyle.none) {
+      return BorderSide(
+        width: computedSideWidth,
+        color: Color(computedBorderColor),
+        style: computedBorderStyle,
+      );
+    }
     return BorderSide.none;
   }
 
@@ -815,7 +860,8 @@ class RenderViewModel extends ChangeNotifier {
 
   bool get isOverflowClip {
     var radius = _toRadius();
-    var isOverflowhidden = overflow == enumValueToString(ContainOverflow.hidden);
+    var isOverflowhidden =
+        overflow == enumValueToString(ContainOverflow.hidden);
     if (isOverflowhidden && radius != null) {
       return true;
     }
@@ -842,7 +888,8 @@ class Transition {
     transitionDuration = params.get(NodeProps.kTransitionDuration) ?? 0;
     final originTransitionTimingFunction =
         params.get(NodeProps.kTransitionTimingFunction) ?? TimingFunction.kEase;
-    transitionTimingFunction = resizeModeToCurve(originTransitionTimingFunction);
+    transitionTimingFunction =
+        resizeModeToCurve(originTransitionTimingFunction);
     transitionDelay = params.get(NodeProps.kTransitionDelay) ?? 0;
   }
 
@@ -863,10 +910,13 @@ class Transition {
       transitionDelay.hashCode;
 
   void update(VoltronMap params) {
-    transitionDuration = params.get(NodeProps.kTransitionDuration) ?? transitionDuration;
-    final originTransitionTimingFunction = params.get(NodeProps.kTransitionTimingFunction);
+    transitionDuration =
+        params.get(NodeProps.kTransitionDuration) ?? transitionDuration;
+    final originTransitionTimingFunction =
+        params.get(NodeProps.kTransitionTimingFunction);
     if (originTransitionTimingFunction != null) {
-      transitionTimingFunction = resizeModeToCurve(originTransitionTimingFunction);
+      transitionTimingFunction =
+          resizeModeToCurve(originTransitionTimingFunction);
     }
     transitionDelay = params.get(NodeProps.kTransitionDelay) ?? transitionDelay;
   }
@@ -892,10 +942,12 @@ class CssAnimation {
   /// 属性动画的tweenSequenceMap，用于生成AnimatedBuilder动画的计算(Map<String, AnimationTweenSequence>)
   VoltronMap animationTweenSequenceMap = VoltronMap();
 
-  CssAnimation(this.totalDuration, this.canRepeat, this.isDisable, this.playCount, this.direction);
+  CssAnimation(this.totalDuration, this.canRepeat, this.isDisable,
+      this.playCount, this.direction);
 
   /// 获取动画属性当前renderViewModel对应值的策略Map
-  Map<String, dynamic> _getAnimationStartValueStrategyMap(RenderViewModel viewModel) {
+  Map<String, dynamic> _getAnimationStartValueStrategyMap(
+      RenderViewModel viewModel) {
     final strategyMap = {
       NodeProps.kWidth: viewModel.width,
       NodeProps.kHeight: viewModel.height,
@@ -920,9 +972,11 @@ class CssAnimation {
     return strategyMap;
   }
 
-  CssAnimation.initByTransition(VoltronMap transitionMap, RenderViewModel viewModel) {
+  CssAnimation.initByTransition(
+      VoltronMap transitionMap, RenderViewModel viewModel) {
     final startValueStrategyMap = _getAnimationStartValueStrategyMap(viewModel);
-    final transitionTotalDuration = AnimationUtil.getTransitionTotalDuration(transitionMap);
+    final transitionTotalDuration =
+        AnimationUtil.getTransitionTotalDuration(transitionMap);
     for (final key in transitionMap.keySet()) {
       final transition = transitionMap.get<Transition>(key);
       if (transition == null) {
@@ -936,7 +990,8 @@ class CssAnimation {
       final curve = transition.transitionTimingFunction;
       final formatKey = _specialKeyStrategyMap[key] ?? key;
       final tweenList = VoltronArray();
-      final animationTween = AnimationTween(startValueStrategyMap[formatKey], null, 100.0);
+      final animationTween =
+          AnimationTween(startValueStrategyMap[formatKey], null, 100.0);
       tweenList.push<AnimationTween>(animationTween);
       final animationTweenSequence =
           AnimationTweenSequence(tweenList, startInterval, endInterval, curve);
@@ -945,18 +1000,22 @@ class CssAnimation {
     totalDuration = Duration(milliseconds: transitionTotalDuration);
   }
 
-  CssAnimation.initByAnimation(
-      VoltronMap animation, List<VoltronMap> propertyMapSortList, RenderViewModel viewModel) {
+  CssAnimation.initByAnimation(VoltronMap animation,
+      List<VoltronMap> propertyMapSortList, RenderViewModel viewModel) {
     final animationDirection =
-        animation.get<String>(NodeProps.kAnimationDirection) ?? AnimationDirection.kNormal;
-    final animationIterationCount = animation.get(NodeProps.kAnimationIterationCount);
-    final animationDuration = animation.get<int>(NodeProps.kAnimationDuration) ?? 0;
+        animation.get<String>(NodeProps.kAnimationDirection) ??
+            AnimationDirection.kNormal;
+    final animationIterationCount =
+        animation.get(NodeProps.kAnimationIterationCount);
+    final animationDuration =
+        animation.get<int>(NodeProps.kAnimationDuration) ?? 0;
     final animationDelay = animation.get<int>(NodeProps.kAnimationDelay) ?? 0;
     final animationTotalDuration = animationDuration + animationDelay;
     final startInterval = animationDelay / animationTotalDuration;
     const endInterval = 1.0;
     final originTimingFunction =
-        animation.get<String>(NodeProps.kAnimationTimingFunction) ?? TimingFunction.kEase;
+        animation.get<String>(NodeProps.kAnimationTimingFunction) ??
+            TimingFunction.kEase;
     final curve = resizeModeToCurve(originTimingFunction);
     final sortListLength = propertyMapSortList.length;
 
@@ -964,13 +1023,23 @@ class CssAnimation {
     for (var i = 0; i < sortListLength - 1; i++) {
       final startValue = propertyMapSortList[i];
       AnimationUtil.handleUpdateAnimationTweenSequence(
-          animationTweenSequenceMap, startValue, startInterval, endInterval, curve);
+          animationTweenSequenceMap,
+          startValue,
+          startInterval,
+          endInterval,
+          curve);
       final endValue = propertyMapSortList[i + 1];
       AnimationUtil.handleUpdateAnimationTweenSequence(
-          animationTweenSequenceMap, endValue, startInterval, endInterval, curve, false);
+          animationTweenSequenceMap,
+          endValue,
+          startInterval,
+          endInterval,
+          curve,
+          false);
     }
     // 2.剔除无效的AnimationTweenSequence
-    AnimationUtil.handleRemoveInvalidAnimationTweenSequence(animationTweenSequenceMap);
+    AnimationUtil.handleRemoveInvalidAnimationTweenSequence(
+        animationTweenSequenceMap);
     totalDuration = Duration(milliseconds: animationTotalDuration);
     if (animationIterationCount == AnimationIterationCount.kInfinite) {
       canRepeat = true;
@@ -981,7 +1050,8 @@ class CssAnimation {
   }
 
   CssAnimation copy() {
-    final cssAnimation = CssAnimation(totalDuration, canRepeat, isDisable, playCount, direction);
+    final cssAnimation =
+        CssAnimation(totalDuration, canRepeat, isDisable, playCount, direction);
     for (final entry in animationTweenSequenceMap.entrySet()) {
       final key = entry.key;
       final value = entry.value;
@@ -1018,13 +1088,16 @@ class CssAnimation {
       return null;
     }
 
-    final list = animationTweenSequenceMap.get<AnimationTweenSequence>(propertyName)?.itemList;
+    final list = animationTweenSequenceMap
+        .get<AnimationTweenSequence>(propertyName)
+        ?.itemList;
     return list;
   }
 
   /// 更新transition动画属性值，按照start => end => start的循环顺序更新属性值
   void updateTransitionAnimation<T>(String key, T value) {
-    final tweenSequence = animationTweenSequenceMap.get<AnimationTweenSequence>(key);
+    final tweenSequence =
+        animationTweenSequenceMap.get<AnimationTweenSequence>(key);
     final tween = tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
     if (tween == null) {
       return;
@@ -1045,8 +1118,10 @@ class CssAnimation {
     // 当transition动画播放完毕，且不需要重复播放时，更新动画属性状态，避免动画被二次播放
     final keyList = animationTweenSequenceMap.keySet();
     for (final key in keyList) {
-      final tweenSequence = animationTweenSequenceMap.get<AnimationTweenSequence>(key);
-      final tween = tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
+      final tweenSequence =
+          animationTweenSequenceMap.get<AnimationTweenSequence>(key);
+      final tween =
+          tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
       if (tween == null) {
         return;
       }
@@ -1073,7 +1148,8 @@ class AnimationTweenSequence {
   /// 动画效果
   Curve curve;
 
-  AnimationTweenSequence(this.itemList, this.startInterval, this.endInterval, this.curve);
+  AnimationTweenSequence(
+      this.itemList, this.startInterval, this.endInterval, this.curve);
 
   AnimationTweenSequence copy() {
     final newTweenList = VoltronArray();
@@ -1084,7 +1160,8 @@ class AnimationTweenSequence {
       }
     }
 
-    return AnimationTweenSequence(newTweenList, startInterval, endInterval, curve);
+    return AnimationTweenSequence(
+        newTweenList, startInterval, endInterval, curve);
   }
 
   @override
@@ -1098,7 +1175,10 @@ class AnimationTweenSequence {
 
   @override
   int get hashCode =>
-      itemList.hashCode | startInterval.hashCode | endInterval.hashCode | curve.hashCode;
+      itemList.hashCode |
+      startInterval.hashCode |
+      endInterval.hashCode |
+      curve.hashCode;
 }
 
 /// 动画Tween，用于指定动画属性的开始值、结束值和权重
@@ -1132,7 +1212,10 @@ class AnimationTween {
 
   @override
   int get hashCode =>
-      startValue.hashCode | endValue.hashCode | weight.hashCode | totalWeight.hashCode;
+      startValue.hashCode |
+      endValue.hashCode |
+      weight.hashCode |
+      totalWeight.hashCode;
 }
 
 class BoundingClientRect {
@@ -1191,7 +1274,9 @@ class TransformOrigin {
 
   @override
   bool operator ==(Object other) {
-    return other is TransformOrigin && offset == other.offset && alignment == other.alignment;
+    return other is TransformOrigin &&
+        offset == other.offset &&
+        alignment == other.alignment;
   }
 
   @override
