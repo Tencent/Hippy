@@ -31,6 +31,7 @@
     <ClInclude Include="include\bridge\entry.h" />
     <ClInclude Include="include\bridge\java2js.h" />
     <ClInclude Include="include\bridge\js2java.h" />
+    <ClInclude Include="include\bridge\performance.h" />
     <ClInclude Include="include\bridge\runtime.h" />
     <ClInclude Include="include\bridge\serializer.h" />
     <ClInclude Include="include\hippy.h" />
@@ -71,6 +72,7 @@
     <ClCompile Include="src\bridge\entry.cc" />
     <ClCompile Include="src\bridge\java2js.cc" />
     <ClCompile Include="src\bridge\js2java.cc" />
+    <ClInclude Include="src\bridge\performance.cc" />
     <ClCompile Include="src\bridge\runtime.cc" />
     <ClCompile Include="src\bridge\serializer.cc" />
     <ClCompile Include="src\inspector\v8_channel_impl.cc" />
