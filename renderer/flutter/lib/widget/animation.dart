@@ -32,8 +32,11 @@ class AnimationWidget extends StatelessWidget {
   final RenderViewModel viewModel;
   final bool isStackLayout;
 
-  const AnimationWidget(this.child, this.viewModel,
-      [this.isStackLayout = false]);
+  const AnimationWidget(
+    this.child,
+    this.viewModel, [
+    this.isStackLayout = false,
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,12 @@ class AnimationWidget extends StatelessWidget {
     final transition = AnimationUtil.getCssAnimation(viewModel.transition);
     if (transition != null || animation != null) {
       return AnimationChild(
-          child, animation, transition, viewModel, isStackLayout);
+        child,
+        animation,
+        transition,
+        viewModel,
+        isStackLayout,
+      );
     }
 
     if (isStackLayout) {
@@ -61,8 +69,12 @@ class AnimationChild extends StatefulWidget {
   final bool isStackLayout;
 
   const AnimationChild(
-      this.child, this.animation, this.transition, this.viewModel,
-      [this.isStackLayout = false]);
+    this.child,
+    this.animation,
+    this.transition,
+    this.viewModel, [
+    this.isStackLayout = false,
+  ]);
 
   @override
   _AnimationChildState createState() => _AnimationChildState();
@@ -150,15 +162,19 @@ class _AnimationChildState extends State<AnimationChild>
 
   void _updateAnimationMap() {
     final animationMap = VoltronMap();
-    final propertyList = NodeProps.animationSupportPropertyList;
+    const propertyList = NodeProps.animationSupportPropertyList;
     for (final property in propertyList) {
       /// animation的动画属性优先于transition的动画属性
-      var animation =
-          _getAnimation(property, _animationController, widget.animation);
-      if (animation == null) {
-        animation =
-            _getAnimation(property, _transitionController, widget.transition);
-      }
+      var animation = _getAnimation(
+        property,
+        _animationController,
+        widget.animation,
+      );
+      animation ??= _getAnimation(
+        property,
+        _transitionController,
+        widget.transition,
+      );
       if (animation != null) {
         animationMap.push(property, animation);
       }
@@ -203,14 +219,17 @@ class _AnimationChildState extends State<AnimationChild>
     if (animationFillMode == AnimationFillMode.kForwards) {
       // 2.1 forwards行为，设置isDisableDom都为true
       AnimationUtil.handleUpdateAllDomNodePropertyIsDisableSetting(
-          viewModel.animationPropertyOptionMap);
+        viewModel.animationPropertyOptionMap,
+      );
     } else {
       // 2.2 非forwards行为，清空相关的动画属性，并同步更新animationEndPropertyMap的属性到对应的domNode样式中
       viewModel.clearAnimation();
       final style = VoltronMap.copy(viewModel.animationEndPropertyMap);
       if (!style.isEmpty) {
         AnimationUtil.updateDomNodeStyleByAnimationStyle(
-            widget.viewModel, style);
+          widget.viewModel,
+          style,
+        );
       }
     }
   }
@@ -228,9 +247,13 @@ class _AnimationChildState extends State<AnimationChild>
     }
 
     final curvedAnimation = CurvedAnimation(
-        parent: controller,
-        curve: Interval(tweenSequence.startInterval, tweenSequence.endInterval,
-            curve: tweenSequence.curve));
+      parent: controller,
+      curve: Interval(
+        tweenSequence.startInterval,
+        tweenSequence.endInterval,
+        curve: tweenSequence.curve,
+      ),
+    );
     final animation = TweenSequence(sequenceItemList).animate(curvedAnimation);
     return animation;
   }
@@ -288,8 +311,9 @@ class CommonChild extends StatelessWidget {
       top: viewModel.layoutY ?? 0.0,
       left: viewModel.layoutX ?? 0.0,
     );
-    final animationMargin =
-        animationProperty?.get<EdgeInsets>(NodeProps.kMargin);
+    final animationMargin = animationProperty?.get<EdgeInsets>(
+      NodeProps.kMargin,
+    );
     var margin = animationMargin ?? viewModelMargin;
     if (margin.isNonNegative) {
       return BoxWidget(

@@ -106,7 +106,7 @@ class NodeProps {
   static const String kBorderTopColor = "borderTopColor";
   static const String kBorderRightColor = "borderRightColor";
   static const String kBorderBottomColor = "borderBottomColor";
-  static const String kBorderStyles = "borderStyle";
+  static const String kBorderStyle = "borderStyle";
 
   // hippy linear-gradient
   static const String linearGradient = "linearGradient";

@@ -112,10 +112,11 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
     }
 
     return ScrollNotificationListener(
-        child: scrollBar,
-        scrollGestureDispatcher: widgetModel.scrollGestureDispatcher,
-        isHorizontal: widgetModel.isHorizontal,
-        viewModel: viewModel());
+      child: scrollBar,
+      scrollGestureDispatcher: widgetModel.scrollGestureDispatcher,
+      isHorizontal: widgetModel.isHorizontal,
+      viewModel: viewModel(),
+    );
   }
 
   RenderViewModel viewModel() {
