@@ -12,6 +12,8 @@ set(FRAMEWORK_CORE_SRC_FILES
         ${FRAMEWORK_CORE_SRC_DIR}/modules/contextify_module.cc
         ${FRAMEWORK_CORE_SRC_DIR}/modules/module_register.cc
         ${FRAMEWORK_CORE_SRC_DIR}/modules/timer_module.cc
+        ${FRAMEWORK_CORE_SRC_DIR}/modules/scene_builder.cc
+        ${FRAMEWORK_CORE_SRC_DIR}/modules/event_module.cc
         ${FRAMEWORK_CORE_SRC_DIR}/modules/ui_manager_module.cc
         ${FRAMEWORK_CORE_SRC_DIR}/napi/callback_info.cc
         ${FRAMEWORK_CORE_SRC_DIR}/napi/js_native_turbo.cc

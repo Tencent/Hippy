@@ -63,8 +63,12 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
       auto runtime_id = runtime->GetRuntimeId();
       BridgeImpl::BindDomManager(runtime_id, dom_manager);
     }
-    dom_manager->SetRootSize((float)width, (float)height);
     dom_manager->StartTaskRunner();
+    std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
+      dom_manager->SetRootSize((float)width, (float)height);
+    }};
+    dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
+
     CallFunctionFFI(engine_id, action, params, params_length, callback_id);
   }
 }
