@@ -32,10 +32,8 @@ class ListItemNode extends ElementNode {
     let name = eventNames;
     if (eventNames === 'disappear' && Native.Platform === 'android') {
       name = 'disAppear';
-      if (this.emitter && this.emitter[method]) {
-        this.emitter[method](name, callback, options);
-      }
     }
+    return { eventNames: name, callback, options };
   }
 }
 
