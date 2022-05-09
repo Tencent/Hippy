@@ -12,6 +12,7 @@
   * [动态加载](guide/dynamic-import.md)
   * [JSI 模式](guide/jsi.md)
   * [技术支持](guide/support.md)
+  * [隐私政策](guide/privacy.md)
 
 * Android
   * [Android 集成](android/integration.md)

@@ -48,17 +48,12 @@ class ListNode extends ElementNode {
   /**
    * Polyfill native event
    */
-  polyFillNativeEvents(method, eventNames, callback, options) {
-    const eventHandlerMap = {
-      addEvent: 'addEventListener',
-      removeEvent: 'removeEventListener',
-    };
+  polyfillNativeEvents(method, eventNames, callback, options) {
     let name = eventNames;
-    if (eventNames === 'endReached' || eventNames === 'loadMore') {
-      name = eventNames === 'endReached' ? 'loadMore' : 'endReached';
-      if (this.emitter && eventHandlerMap[method]) {
-        const handler = eventHandlerMap[method];
-        this.emitter[handler](name, callback, options);
+    if (eventNames === 'loadMore') {
+      name = 'endReached';
+      if (this.emitter && this.emitter[method]) {
+        this.emitter[method](name, callback, options);
       }
     }
   }

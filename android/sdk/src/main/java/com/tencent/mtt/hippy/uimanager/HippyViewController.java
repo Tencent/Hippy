@@ -51,8 +51,8 @@ import java.util.Map;
 public abstract class HippyViewController<T extends View & HippyViewBase> implements
     View.OnFocusChangeListener {
 
+  public static final String FAKE_NODE_TAG = "fake";
   private static final String TAG = "HippyViewController";
-
   private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
   private static final double[] sTransformDecompositionArray = new double[16];
   private boolean bUserChageFocus = false;
@@ -62,7 +62,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
       String className,
       HippyMap initialProps) {
     View view = null;
-
+    if (id < 0) {
+      initialProps.pushBoolean(FAKE_NODE_TAG, true);
+    }
     if (rootView != null) {
       Context rootViewContext = rootView.getContext();
       if (rootViewContext instanceof HippyInstanceContext) {

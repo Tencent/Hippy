@@ -37,6 +37,10 @@ typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
 
 @implementation HippyMethodArgument
 
+@synthesize type = _type;
+@synthesize nullability = _nullability;
+@synthesize unused = _unused;
+
 - (instancetype)initWithType:(NSString *)type nullability:(HippyNullability)nullability unused:(BOOL)unused {
     if (self = [super init]) {
         _type = [type copy];
@@ -56,6 +60,8 @@ typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
     NSString *_JSMethodName;
     SEL _selector;
 }
+
+@synthesize arguments = _arguments;
 
 static void HippyLogArgumentError(
     __unused HippyModuleMethod *method, __unused NSUInteger index, __unused id valueOrType, __unused const char *issue) {
@@ -162,6 +168,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 - (void)processMethodSignature {
     NSArray<HippyMethodArgument *> *arguments;
     _selector = HippyParseMethodSignature(_methodSignature, &arguments);
+    _arguments = [arguments copy];
     HippyAssert(_selector, @"%@ is not a valid selector", _methodSignature);
 
     // Create method invocation
@@ -194,10 +201,20 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             HippyLogArgumentError(weakSelf, index, json, "should be a function");
             return NO;
         }
-
-                        Hippy_BLOCK_ARGUMENT(^(NSArray *args) {
-                            [bridge enqueueCallback:json args:args];
-                        });)
+        Hippy_BLOCK_ARGUMENT(^(NSArray *args) {
+            BOOL shouldEnqueueCallback = YES;
+            if ([[bridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
+                NSString *moduleName = HippyBridgeModuleNameForClass(self->_moduleClass);
+                shouldEnqueueCallback =
+                    [[bridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
+                                                           methodName:[self JSMethodName]
+                                                           callbackId:json
+                                                            arguments:args];
+            }
+            if (shouldEnqueueCallback) {
+                [bridge enqueueCallback:json args:args];
+            }
+        });)
     };
 
     for (NSUInteger i = 2; i < numberOfArguments; i++) {
@@ -287,19 +304,41 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 }
 
                 Hippy_BLOCK_ARGUMENT(^(NSError *error) {
-                    [bridge enqueueCallback:json args:@[HippyJSErrorFromNSError(error)]];
+                    NSArray *errorArgs = @[HippyJSErrorFromNSError(error)];
+                    BOOL shouldEnqueueCallback = YES;
+                    if ([[bridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
+                        NSString *moduleName = HippyBridgeModuleNameForClass(self->_moduleClass);
+                        shouldEnqueueCallback =
+                            [[bridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
+                                                                                   methodName:[self JSMethodName]
+                                                                                   callbackId:json
+                                                                                    arguments:errorArgs];
+                    }
+                    if (shouldEnqueueCallback) {
+                        [bridge enqueueCallback:json args:errorArgs];
+                    }
                 });)
         } else if ([typeName isEqualToString:@"HippyPromiseResolveBlock"]) {
-            HippyAssert(i == numberOfArguments - 2, @"The HippyPromiseResolveBlock must be the second to last parameter in -[%@ %@]", _moduleClass,
-                _methodSignature);
+            HippyAssert(i == numberOfArguments - 2, @"The HippyPromiseResolveBlock must be the second to last parameter in -[%@ %@]", _moduleClass, _methodSignature);
             HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
                 HippyLogArgumentError(weakSelf, index, json, "should be a promise resolver function");
                 return NO;
             }
-
-                            Hippy_BLOCK_ARGUMENT(^(id result) {
-                                [bridge enqueueCallback:json args:result ? @[result] : @[]];
-                            });)
+            Hippy_BLOCK_ARGUMENT(^(id result) {
+                NSArray *args = result ? @[result] : @[];
+                BOOL shouldEnqueueCallback = YES;
+                if ([[bridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
+                    NSString *moduleName = HippyBridgeModuleNameForClass(self->_moduleClass);
+                    shouldEnqueueCallback =
+                        [[bridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
+                                                                               methodName:[self JSMethodName]
+                                                                               callbackId:json
+                                                                                arguments:args];
+                }
+                if (shouldEnqueueCallback) {
+                    [bridge enqueueCallback:json args:args];
+                }
+            });)
         } else if ([typeName isEqualToString:@"HippyPromiseRejectBlock"]) {
             HippyAssert(
                 i == numberOfArguments - 1, @"The HippyPromiseRejectBlock must be the last parameter in -[%@ %@]", _moduleClass, _methodSignature);
@@ -307,11 +346,22 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 HippyLogArgumentError(weakSelf, index, json, "should be a promise rejecter function");
                 return NO;
             }
-
-                            Hippy_BLOCK_ARGUMENT(^(NSString *code, NSString *message, NSError *error) {
-                                NSDictionary *errorJSON = HippyJSErrorFromCodeMessageAndNSError(code, message, error);
-                                [bridge enqueueCallback:json args:@[errorJSON]];
-                            });)
+            Hippy_BLOCK_ARGUMENT(^(NSString *code, NSString *message, NSError *error) {
+                NSDictionary *errorJSON = HippyJSErrorFromCodeMessageAndNSError(code, message, error);
+                NSArray *args = @[errorJSON];
+                BOOL shouldEnqueueCallback = YES;
+                if ([[bridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
+                    NSString *moduleName = HippyBridgeModuleNameForClass(self->_moduleClass);
+                    shouldEnqueueCallback =
+                        [[bridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
+                                                                               methodName:[self JSMethodName]
+                                                                               callbackId:json
+                                                                                arguments:args];
+                }
+                if (shouldEnqueueCallback) {
+                    [bridge enqueueCallback:json args:args];
+                }
+            });)
         } else if ([HippyTurboModuleManager isTurboModule:typeName]) {
             [argumentBlocks addObject:^(__unused HippyBridge * bridge, NSUInteger index, id json) {
                 [invocation setArgument:&json atIndex:(index) + 2];
@@ -411,7 +461,11 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 - (HippyFunctionType)functionType {
     if ([_methodSignature rangeOfString:@"HippyPromise"].length) {
         return HippyFunctionTypePromise;
-    } else {
+    }
+    else if ([_methodSignature rangeOfString:@"HippyResponseSenderBlock"].length) {
+        return HippyFunctionTypeCallback;
+    }
+    else {
         return HippyFunctionTypeNormal;
     }
 }
@@ -420,7 +474,6 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
     if (_argumentBlocks == nil) {
         [self processMethodSignature];
     }
-
     if (HIPPY_DEBUG) {
         // Sanity check
         HippyAssert([module class] == _moduleClass, @"Attempted to invoke method \
@@ -503,6 +556,13 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         [self processMethodSignature];
     }
     return [NSString stringWithFormat:@"-[%@ %@]", _moduleClass, NSStringFromSelector(_selector)];
+}
+
+- (NSArray<id<HippyBridgeArgument>> *)arguments {
+    if (!_arguments) {
+        [self processMethodSignature];
+    }
+    return [_arguments copy];
 }
 
 - (NSString *)description {

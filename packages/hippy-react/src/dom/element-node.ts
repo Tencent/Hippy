@@ -24,7 +24,6 @@ import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
 import { updateChild, updateWithChildren, endBatch } from '../renderer/render';
-import { Device } from '../native';
 import {
   unicodeToChar,
   tryConvertNumber,
@@ -50,6 +49,10 @@ interface PropertiesMap {
 
 interface DirectionMap {
   [propName: string]: string;
+}
+
+interface AttributeUpdateOption {
+  isBatchUpdate?: boolean
 }
 
 interface DegreeUnit {
@@ -215,7 +218,7 @@ function parseTextShadowOffset(styleKey: string, styleValue: number, style: any)
  * get final key sent to native
  * @param key
  */
-function getEventPropKey(key: string) {
+function getEventName(key: string) {
   if (isCaptureEvent(key)) {
     key = key.replace('Capture', '');
   }
@@ -230,6 +233,7 @@ class ElementNode extends ViewNode {
   public id = '';
   public style: HippyTypes.Style = {};
   public attributes: Attributes = {};
+  public events: object = {};
 
   public constructor(tagName: string) {
     super();
@@ -292,7 +296,6 @@ class ElementNode extends ViewNode {
           };
         });
       } else if (typeof style === 'object' && style) {
-        // TODO: Merge transform
         mergedStyles = {
           ...mergedStyles,
           ...style,
@@ -367,8 +370,126 @@ class ElementNode extends ViewNode {
     });
   }
 
-  /* istanbul ignore next */
-  public setAttribute(key: string, value: any) {
+  // set node attributes in a batch
+  public setAttributes(attributeQueue: [][] = []) {
+    if (Array.isArray(attributeQueue) && attributeQueue.length > 0) {
+      attributeQueue.forEach((attributeList) => {
+        if (Array.isArray(attributeList)) {
+          const [key, value]: (string | any)[] = attributeList;
+          this.setAttribute(key, value, { isBatchUpdate: true });
+        }
+      });
+      updateChild(this);
+    }
+  }
+
+  parseAnimationStyleProp(style) {
+    // Set useAnimation if animation exist in style
+    let useAnimation = false;
+    Object.keys(style).some((declare) => {
+      const styleVal = (style as any)[declare];
+      if (styleVal && Array.isArray(styleVal) && declare === 'transform') {
+        for (let i = 0; i < styleVal.length; i += 1) {
+          const transform = styleVal[i];
+          /* eslint-disable-next-line no-restricted-syntax, guard-for-in */
+          for (const transformKey in (transform as any)) {
+            const transformValue = (transform as any)[transformKey];
+            if (typeof transformValue === 'object'
+              && transformValue !== null
+              && Number.isInteger(transformValue.animationId)) {
+              useAnimation = true;
+              return true;
+            }
+          }
+        }
+      }
+      if (typeof styleVal === 'object'
+        && styleVal !== null
+        && Number.isInteger((styleVal as Animation).animationId)) {
+        useAnimation = true;
+        return true;
+      }
+      return false;
+    });
+    if (useAnimation) {
+      this.attributes.useAnimation = true;
+    } else if (typeof this.attributes.useAnimation === 'boolean') {
+      this.attributes.useAnimation = undefined;
+    }
+  }
+
+  parseAttributeProp(key: string, value: any): boolean {
+    const caseList = [
+      {
+        match: () => ['id'].indexOf(key) >= 0,
+        action: () => {
+          if (value === this.id) {
+            return true;
+          }
+          this.id = value;
+          // update current node and child nodes
+          updateWithChildren(this);
+          return true;
+        },
+      },
+      {
+        match: () => ['value', 'defaultValue', 'placeholder'].indexOf(key) >= 0,
+        action: () => {
+          this.attributes[key] = unicodeToChar(value);
+          return false;
+        },
+      },
+      {
+        match: () => ['text'].indexOf(key) >= 0,
+        action: () => {
+          this.attributes[key] = value;
+          return false;
+        },
+      },
+      {
+        match: () => ['style'].indexOf(key) >= 0,
+        action: () => {
+          if (typeof value !== 'object' || value === undefined || value === null) {
+            return true;
+          }
+          this.setStyleAttribute(value);
+          return false;
+        },
+      },
+      {
+        match: () => true,
+        action: () => {
+          if (typeof value === 'function') {
+            const eventName = getEventName(key);
+            this.attributes[eventName] = true;
+            this.events[`${eventName}`] = true;
+          } else {
+            this.attributes[key] = value;
+            const eventName = getEventName(key);
+            if (this.events[`${eventName}`] === true
+              && typeof value !== 'function') {
+              this.attributes[eventName] = false;
+              delete this.events[`${eventName}`];
+            }
+          }
+          return false;
+        },
+      },
+    ];
+
+    let isNeedReturn = false;
+    caseList.some((conditionObj: { match: Function, action: Function }) => {
+      if (conditionObj.match()) {
+        isNeedReturn = conditionObj.action();
+        return true;
+      }
+      return false;
+    });
+    return isNeedReturn;
+  }
+
+  // set node attribute
+  public setAttribute(key: string, value: any, options: AttributeUpdateOption = {}) {
     try {
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
@@ -376,119 +497,13 @@ class ElementNode extends ViewNode {
         value = true;
       }
       if (key === undefined) {
-        updateChild(this);
+        !options.isBatchUpdate && updateChild(this);
         return;
       }
-
-      const caseList = [
-        {
-          match: () => ['id'].indexOf(key) >= 0,
-          action: () => {
-            if (value === this.id) {
-              return true;
-            }
-            this.id = value;
-            // update current node and child nodes
-            updateWithChildren(this);
-            return true;
-          },
-        },
-        {
-          match: () => ['value', 'defaultValue', 'placeholder'].indexOf(key) >= 0,
-          action: () => {
-            this.attributes[key] = unicodeToChar(value);
-            return false;
-          },
-        },
-        {
-          match: () => ['text'].indexOf(key) >= 0,
-          action: () => {
-            this.attributes[key] = value;
-            return false;
-          },
-        },
-        {
-          match: () => ['numberOfRows'].indexOf(key) >= 0,
-          action: () => {
-            this.attributes[key] = value;
-            return Device.platform.OS !== 'ios';
-          },
-        },
-        {
-          match: () => ['style'].indexOf(key) >= 0,
-          action: () => {
-            if (typeof value !== 'object' || value === undefined || value === null) {
-              return true;
-            }
-            this.setStyleAttribute(value);
-            return false;
-          },
-        },
-        {
-          match: () => true,
-          action: () => {
-            if (typeof value === 'function') {
-              const processedKey = getEventPropKey(key);
-              this.attributes[processedKey] = true;
-              this.attributes[`__bind__${processedKey}`] = true;
-            } else {
-              this.attributes[key] = value;
-              const processedKey = getEventPropKey(key);
-              if (this.attributes[`__bind__${processedKey}`] === true
-                  && typeof value !== 'function') {
-                this.attributes[processedKey] = false;
-                this.attributes[`__bind__${processedKey}`] = false;
-              }
-            }
-            return false;
-          },
-        },
-      ];
-
-      let isNeedReturn = false;
-      caseList.some((conditionObj: { match: Function, action: Function }) => {
-        if (conditionObj.match()) {
-          isNeedReturn = conditionObj.action();
-          return true;
-        }
-        return false;
-      });
+      const isNeedReturn = this.parseAttributeProp(key, value);
       if (isNeedReturn) return;
-
-      // Set useAnimation if animation exist in style
-      let useAnimation = false;
-      Object.keys(this.style).some((declare) => {
-        const style = (this.style as any)[declare];
-        if (style && Array.isArray(style) && declare === 'transform') {
-          for (let i = 0; i < style.length; i += 1) {
-            const transform = style[i];
-            /* eslint-disable-next-line no-restricted-syntax, guard-for-in */
-            for (const transformKey in (transform as any)) {
-              const transformValue = (transform as any)[transformKey];
-              if (typeof transformValue === 'object'
-                && transformValue !== null
-                && Number.isInteger(transformValue.animationId)) {
-                useAnimation = true;
-                return transformValue;
-              }
-            }
-          }
-        }
-        if (typeof style === 'object'
-          && style !== null
-          && Number.isInteger((style as Animation).animationId)) {
-          useAnimation = true;
-          return style;
-        }
-        return false;
-      });
-      if (useAnimation) {
-        this.attributes.useAnimation = true;
-      } else if (typeof this.attributes.useAnimation === 'boolean') {
-        this.attributes.useAnimation = undefined;
-      }
-
-      updateChild(this);
+      this.parseAnimationStyleProp(this.style);
+      !options.isBatchUpdate && updateChild(this);
     } catch (e) {
       // noop
     }

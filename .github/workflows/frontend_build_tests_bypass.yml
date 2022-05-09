@@ -1,0 +1,21 @@
+name: '[front-end] build tests'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    paths-ignore:
+      - 'packages/**'
+      - 'package*.json'
+      - 'examples/hippy-*-demo/**'
+      - 'scripts/**/*.js'
+      - 'core/js/**/*.js'
+
+jobs:
+  frontend_build_tests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Test Bypass
+      run: |
+        echo "No build test required"

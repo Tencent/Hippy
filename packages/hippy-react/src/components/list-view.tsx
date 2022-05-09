@@ -425,15 +425,13 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       }
       const appearEventList = [onAppear, onDisappear, onWillAppear, onWillDisappear];
       nativeProps.exposureEventEnabled = appearEventList.some(func => typeof func === 'function');
-      nativeProps.numberOfRows = itemList.length;
+      if (Device.platform.OS === 'ios') {
+        nativeProps.numberOfRows = itemList.length;
+      }
       (nativeProps as ListViewProps).initialListSize = initialListSize;
       (nativeProps as ListViewProps).style = {
-        overflow: 'scroll',
         ...style,
       };
-    }
-    if (!nativeProps.onLoadMore && nativeProps.onEndReached) {
-      nativeProps.onLoadMore = nativeProps.onEndReached;
     }
 
     return (
