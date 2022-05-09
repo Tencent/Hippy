@@ -62,6 +62,10 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
       styleUpdateWithCheck(element, key, newValue);
       continue;
     }
+    if (isZIndex(key)) {
+      styleUpdateWithCheck(element, key, parseInt(object[key], 10));
+      continue;
+    }
     if (isBackground(key)) {
       background[key] = object[key];
     }
@@ -154,6 +158,9 @@ function isLayout(key: string, value: number) {
     || key.startsWith('z-index')
     || key.startsWith('opacity')
   );
+}
+function isZIndex(key: string) {
+  return key.startsWith('zIndex') || key.startsWith('z-index');
 }
 function isBackground(key) {
   return key.startsWith('background');
