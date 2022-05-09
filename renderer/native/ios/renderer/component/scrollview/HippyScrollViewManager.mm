@@ -120,15 +120,15 @@ RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
 
 // clang-format off
 RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
-                    offsetX:(CGFloat)x
-                    offsetY:(CGFloat)y
+                    offsetX:(NSNumber *)x
+                    offsetY:(NSNumber *)y
                     animated:(BOOL)animated) {
     [self.renderContext addUIBlock:
      ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(HippyScrollableProtocol)]) {
-            [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){x, y} animated:animated];
+            [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){[x floatValue], [y floatValue]} animated:animated];
         } else {
 //            HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
 //                          "with tag #%@", view, hippyTag);

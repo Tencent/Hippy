@@ -30,7 +30,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onFooterReleased, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onFooterPulling, HippyDirectEventBlock)
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter : (nonnull NSNumber *)reactTag) {
+RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter:(nonnull NSNumber *)reactTag) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
@@ -39,7 +39,7 @@ RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter : (nonnull NSNumber *)reactTag
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooterWithOptions : (nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
+RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooterWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinishWithOption:options];
@@ -48,7 +48,7 @@ RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooterWithOptions : (nonnull NSNumber
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(expandPullFooter : (nonnull NSNumber *)reactTag) {
+RENDER_COMPONENT_EXPORT_METHOD(expandPullFooter:(nonnull NSNumber *)reactTag) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];

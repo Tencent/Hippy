@@ -45,12 +45,11 @@ HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
     return [[HippyWaterfallView alloc] init];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(refreshCompleted
-                    : (nonnull NSNumber *)reactTag status
-                    : (nonnull NSNumber *)status text
-                    : (nonnull NSString *)text duration
-                    : (nonnull NSNumber *)duration imageUrl
-                    : (nonnull NSString *)imageUrl) {
+RENDER_COMPONENT_EXPORT_METHOD(refreshCompleted:(nonnull NSNumber *)reactTag
+                               status:(nonnull NSNumber *)status
+                               text:(nonnull NSString *)text
+                               duration:(nonnull NSNumber *)duration
+                               imageUrl:(nonnull NSString *)imageUrl) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
@@ -62,7 +61,7 @@ RENDER_COMPONENT_EXPORT_METHOD(refreshCompleted
     }];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(startRefresh : (nonnull NSNumber *)reactTag) {
+RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(nonnull NSNumber *)reactTag) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
@@ -74,7 +73,8 @@ RENDER_COMPONENT_EXPORT_METHOD(startRefresh : (nonnull NSNumber *)reactTag) {
     }];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(startRefreshWithType : (nonnull NSNumber *)reactTag type : (NSUInteger)type) {
+RENDER_COMPONENT_EXPORT_METHOD(startRefreshWithType:(nonnull NSNumber *)reactTag
+                               type:(NSNumber *)type) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
@@ -82,11 +82,11 @@ RENDER_COMPONENT_EXPORT_METHOD(startRefreshWithType : (nonnull NSNumber *)reactT
         if (![view isKindOfClass:[HippyWaterfallView class]]) {
             //HippyLogError(@"Invalid view returned from registry, expecting QBRNWaterfallView, got: %@", view);
         }
-        [view startRefreshFromJSWithType:type];
+        [view startRefreshFromJSWithType:[type unsignedIntegerValue]];
     }];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(callExposureReport : (nonnull NSNumber *)reactTag) {
+RENDER_COMPONENT_EXPORT_METHOD(callExposureReport:(nonnull NSNumber *)reactTag) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
@@ -98,11 +98,10 @@ RENDER_COMPONENT_EXPORT_METHOD(callExposureReport : (nonnull NSNumber *)reactTag
     }];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex
-                    : (nonnull NSNumber *)reactTag xIndex
-                    : (nonnull NSNumber *)xIndex yIndex
-                    : (nonnull NSNumber *)yIndex animation
-                    : (nonnull NSNumber *)animation) {
+RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag
+                               xIndex:(nonnull NSNumber *)xIndex
+                               yIndex:(nonnull NSNumber *)yIndex
+                               animation:(nonnull NSNumber *)animation) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
@@ -114,11 +113,10 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex
     }];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset
-                    : (nonnull NSNumber *)reactTag x
-                    : (nonnull NSNumber *)x y
-                    : (nonnull NSNumber *)y animation
-                    : (nonnull NSNumber *)animation) {
+RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)reactTag
+                               x:(nonnull NSNumber *)x
+                               y:(nonnull NSNumber *)y
+                               animation:(nonnull NSNumber *)animation) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
@@ -130,7 +128,7 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset
     }];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(startLoadMore : (nonnull NSNumber *)reactTag) {
+RENDER_COMPONENT_EXPORT_METHOD(startLoadMore:(nonnull NSNumber *)reactTag) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyWaterfallView *view = (HippyWaterfallView *)viewRegistry[reactTag];
         if (view == nil)

@@ -50,7 +50,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 // clang-format off
 RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 									xIndex:(__unused NSNumber *)xIndex
-									yIndex:(__unused NSNumber *)yIndex
+									yIndex:(NSNumber *)yIndex
 									animation:(nonnull NSNumber *)animation) {
 	[self.renderContext addUIBlock:
 	 ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
@@ -66,9 +66,9 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 
 // clang-format off
 RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
-									x:(nonnull NSNumber *)x
-									y:(nonnull NSNumber *)y
-									animation:(nonnull NSNumber *)animation) {
+                               x:(nonnull NSNumber *)x
+                               y:(nonnull NSNumber *)y
+                               animation:(nonnull NSNumber *)animation) {
 	[self.renderContext addUIBlock:
 	 ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 HippyBaseListView *view = (HippyBaseListView *)viewRegistry[hippyTag];
