@@ -22,12 +22,11 @@ test('ListNode.polyfillNativeEvents test', (t) => {
   t.is(listNode.removeEventListener('loadMore', callback), null);
   listNode.addEventListener('loadMore', callback);
   t.true(!!listNode._emitter);
-  t.not(listNode._emitter.getEventListeners().endReached, undefined);
+  t.not(listNode._emitter.getEventListeners().loadMore, undefined);
 
   called = false;
   t.is(called, false);
   listNode.removeEventListener('loadMore', callback);
-  listNode.removeEventListener('endReached', callback);
   listNode.addEventListener('endReached', callback);
   t.true(!!listNode._emitter);
   t.not(listNode._emitter.getEventListeners().endReached, undefined);
