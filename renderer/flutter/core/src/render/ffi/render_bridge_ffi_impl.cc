@@ -74,8 +74,8 @@ EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, int32_t root_id,
       std::string call_id_str = voltron::C16CharToString(call_id);
       if (params && params_len > 0) {
         auto copy_params = voltron::CopyBytes(params, params_len);
-        dom_manager->PostTask([keep, params_len, copy_params, bridge_manager,
-                               call_id_str]() {
+        std::vector<std::function<void()>> ops = {[keep, params_len, copy_params, bridge_manager,
+                                                      call_id_str]() {
           bool is_keep = keep;
           TDF_BASE_DLOG(INFO) << "CallNativeFunctionFFI call_id" << call_id_str;
           std::unique_ptr<EncodableValue> decode_params =
@@ -84,7 +84,8 @@ EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, int32_t root_id,
           voltron::ReleaseCopy(copy_params);
           bridge_manager->CallNativeCallback(call_id_str,
                                              std::move(decode_params), is_keep);
-        });
+        }};
+        dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
       }
     }
   }
@@ -102,8 +103,8 @@ EXTERN_C void CallNativeEventFFI(int32_t engine_id, int32_t root_id,
       std::string event_name = voltron::C16CharToString(event);
       if (params && params_len > 0) {
         auto copy_params = voltron::CopyBytes(params, params_len);
-        dom_manager->PostTask([dom_manager, render_manager, node_id, event_name,
-                               copy_params, params_len]() {
+        std::vector<std::function<void()>> ops = {[dom_manager, render_manager, node_id, event_name,
+                                                      copy_params, params_len]() {
           auto decode_params =
               StandardMessageCodec::GetInstance().DecodeMessage(copy_params,
                                                                 params_len);
@@ -115,15 +116,16 @@ EXTERN_C void CallNativeEventFFI(int32_t engine_id, int32_t root_id,
           if (dom_node) {
             render_manager->CallEvent(dom_node, event_name, decode_params);
           }
-        });
+        }};
+        dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
       } else {
-        dom_manager->PostTask(
-            [dom_manager, render_manager, node_id, event_name]() {
-              auto dom_node = dom_manager->GetNode(node_id);
-              if (dom_node) {
-                render_manager->CallEvent(dom_node, event_name, nullptr);
-              }
-            });
+        std::vector<std::function<void()>> ops = {[dom_manager, render_manager, node_id, event_name]() {
+          auto dom_node = dom_manager->GetNode(node_id);
+          if (dom_node) {
+            render_manager->CallEvent(dom_node, event_name, nullptr);
+          }
+        }};
+        dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
       }
     }
   }
@@ -135,7 +137,7 @@ EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id,
   if (bridge_manager) {
     auto dom_manager = bridge_manager->GetDomManager(root_id);
     if (dom_manager) {
-      dom_manager->PostTask([dom_manager, width, height, node_id]() {
+      std::vector<std::function<void()>> ops = {[dom_manager, width, height, node_id]() {
         if (node_id == 0) {
           dom_manager->SetRootSize((float)width, (float)height);
         } else {
@@ -144,7 +146,8 @@ EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id,
             node->SetLayoutSize((float)width, (float)height);
           }
         }
-      });
+      }};
+      dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
     }
   }
 }

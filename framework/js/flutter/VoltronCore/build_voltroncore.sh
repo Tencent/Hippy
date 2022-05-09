@@ -16,7 +16,7 @@ if [ -e ${IOS_FRAMEWORK} ]
 then
 rm -r ${IOS_FRAMEWORK}
 fi
-
+w
 if [ -e ${MACOS_FRAMEWORK} ]
 then
 rm -r ${MACOS_FRAMEWORK}

@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 
 buildscript {
   ext {
-    kotlin_version = '1.6.10'
+    kotlin_version = '1.6.20'
 
     THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
     JNI_LIBRARY_PATH = "$projectDir.absolutePath/libs"
@@ -42,7 +42,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.android.tools.build:gradle:7.0.4'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     classpath 'com.novoda:bintray-release:0.9.2'
   }
@@ -70,7 +70,7 @@ if (V8_TAG == "latest") {
 
 android {
   compileSdkVersion 28
-
+  android.ndkVersion "21.4.7075529"
 
   defaultConfig {
     minSdkVersion 21
