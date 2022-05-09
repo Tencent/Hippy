@@ -32,9 +32,9 @@ task clean(type: Delete) {
 }
 
 project.afterEvaluate {
-    delete 'examples/android-demo/example/src/main/assets'
+    delete 'examples/android-demo/src/main/assets'
     copy{
         from "examples/android-demo/res"
-        into "examples/android-demo/example/src/main/assets"
+        into "examples/android-demo/src/main/assets"
     }
 }
