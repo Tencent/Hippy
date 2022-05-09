@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.1'
+        classpath 'com.android.tools.build:gradle:7.1.3'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -28,13 +28,13 @@ allprojects {
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+    delete 'examples/android-demo/build'
 }
 
 project.afterEvaluate {
-    delete 'example/src/main/assets'
+    delete 'examples/android-demo/example/src/main/assets'
     copy{
-        from "res"
-        into "example/src/main/assets"
+        from "examples/android-demo/res"
+        into "examples/android-demo/example/src/main/assets"
     }
 }
