@@ -402,6 +402,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             
             [strongSelf setUpDomManager:strongSelf->_domManager];
             
+            strongSelf->_animationManager = std::make_shared<hippy::AnimationManager>(strongSelf->_domManager);
+            strongSelf->_domManager->AddInterceptor(strongSelf->_animationManager);
+            
             strongSelf.renderContext = strongSelf->_renderManager->GetRenderContext();
         }
     };

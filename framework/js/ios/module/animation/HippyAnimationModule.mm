@@ -48,6 +48,7 @@ HIPPY_EXPORT_MODULE(AnimationModule)
 - (HippyAnimator *)animator  {
     if (!_animator) {
         _animator = [self.bridge.renderContext animator];
+        _animator.bridge = self.bridge;
         _animator.animationTimingDelegate = self;
     }
     return _animator;
@@ -102,5 +103,9 @@ HIPPY_EXPORT_METHOD(destroyAnimation:(NSNumber * __nonnull)animationId) {
 - (void)animationDidStop:(HippyAnimator *)animator animationId:(NSNumber *)animationId finished:(BOOL)finished {
     [self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent"
                                           args:@{ @"eventName": @"onAnimationEnd", @"extra": animationId }];
+}
+
+- (BOOL)animationShouldUseCustomerTimingFunction:(HippyAnimator *)animator {
+    return YES;
 }
 @end

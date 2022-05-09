@@ -521,6 +521,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     }
 }
 
+- (std::shared_ptr<hippy::AnimationManager>)animationManager {
+    return self.parentBridge.animationManager;
+}
+
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {
     [_displayLink registerModuleForFrameUpdates:module withModuleData:moduleData];
 }

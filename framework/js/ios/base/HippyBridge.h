@@ -34,6 +34,7 @@
 #import "dom/dom_manager.h"
 #import "NativeRenderManager.h"
 #import "HippyMethodInterceptorProtocol.h"
+#import "dom/animation_manager.h"
 
 @class JSValue;
 @class HippyBridge;
@@ -219,6 +220,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, readonly) std::shared_ptr<hippy::DomManager> domManager;
 @property (nonatomic, readonly) std::shared_ptr<NativeRenderManager> renderManager;
+@property (nonatomic, readonly) std::shared_ptr<hippy::AnimationManager> animationManager;
 
 /**
  * The launch options that were used to initialize the bridge.

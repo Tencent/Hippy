@@ -108,7 +108,7 @@
 }
 
 - (NSDictionary *)animationIdWithPropDictionary {
-    return _animationIdWithPropDictionary;
+    return [_animationIdWithPropDictionary copy];
 }
 
 - (NSNumber *)hippyTag {

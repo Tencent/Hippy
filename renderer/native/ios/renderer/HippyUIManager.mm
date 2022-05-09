@@ -162,6 +162,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 @implementation HippyUIManager
 
 @synthesize frameworkProxy = _frameworkProxy;
+@synthesize domManager = _domManager;
 
 #pragma mark Life cycle
 
@@ -476,7 +477,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         id isAnimated = props[@"useAnimation"];
         if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
             HippyAnimator *animationModule = [self animator];
-            props = [animationModule bindAnimaiton:props viewTag: hippyTag rootTag: _rootViewTag];
+            props = [animationModule bindAnimaiton:props viewTag: hippyTag rootTag: _rootViewTag]?:props;
             shadowView.animated = [(NSNumber *)isAnimated boolValue];
         } else {
             shadowView.animated = NO;
@@ -567,7 +568,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     id isAnimated = props[@"useAnimation"];
     if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
         HippyAnimator *animationModule = [self animator];
-        props = [animationModule bindAnimaiton:props viewTag:hippyTag rootTag: shadowView.rootTag];
+        props = [animationModule bindAnimaiton:props viewTag:hippyTag rootTag: shadowView.rootTag]?:props;
         shadowView.animated = [(NSNumber *)isAnimated boolValue];;
     } else {
         shadowView.animated = NO;
@@ -896,7 +897,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             if (isAnimated) {
                 HippyAnimator *animationModule = [self animator];
                 NSDictionary *styleProps = unorderedMapDomValueToDictionary(props);
-                styleProps = [animationModule bindAnimaiton:styleProps viewTag:hippyTag rootTag:shadowView.rootTag];
+                styleProps = [animationModule bindAnimaiton:styleProps viewTag:hippyTag rootTag:shadowView.rootTag]?:styleProps;
                 shadowView.animated = isAnimated;
                 if ([styleProps objectForKey:@"height"]) {
                     frame.size.height = [styleProps[@"height"] floatValue];
