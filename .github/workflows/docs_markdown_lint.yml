@@ -1,17 +1,13 @@
-name: '[markdown-lint] check documents format'
+name: '[docs] markdown documents format lint'
 
 on:
   pull_request:
+    branches:
+      - main
+      - master
     paths:
       - '*.md'
       - 'docs/**/*.md'
-    branches:
-      # Pull request events to main branch
-      - main
-      # Pull request events to master branch
-      - master
-    tags-ignore:
-      - '**'
 
 jobs:
   markdownlint:
