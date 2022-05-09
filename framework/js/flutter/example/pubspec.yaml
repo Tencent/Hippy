@@ -39,9 +39,6 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-    - assets/bundle/
-    - assets/bundle/assets/
-    - assets/bundle/fonts/
     - jsbundle/
     - jsbundle/assets/
     - jsbundle/hippy-bundle/ios/
@@ -67,7 +64,7 @@ flutter:
   fonts:
     - family: TTTGB
       fonts:
-        - asset: assets/bundle/fonts/TTTGB.otf
+        - asset: jsbundle/fonts/TTTGB.otf
 
   #
   # For details regarding fonts from package dependencies,

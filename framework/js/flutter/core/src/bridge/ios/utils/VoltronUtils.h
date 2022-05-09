@@ -24,6 +24,7 @@
 #import "VoltronDefines.h"
 #import <JavaScriptCore/JavaScriptCore.h>
 #import "VoltronJSCWrapper.h"
+#import "VoltronJSStackFrame.h"
 
 /**
  * The default error domain to be used for Hippy errors.

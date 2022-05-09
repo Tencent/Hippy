@@ -40,7 +40,7 @@ DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueM
       continue;
     }
     // special case, update prop has key but no value
-    TDF_BASE_DCHECK(new_prop_iter->second == nullptr);
+    TDF_BASE_DCHECK(new_prop_iter->second != nullptr);
 
     // update props
     if (old_prop.second == nullptr || old_prop.second.get() != new_prop_iter->second.get()) {
