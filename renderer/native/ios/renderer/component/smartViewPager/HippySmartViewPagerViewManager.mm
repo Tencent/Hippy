@@ -46,7 +46,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
 
 // clang-format off
 RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
-        pageNumber:(__unused NSNumber *)pageNumber) {
+        pageNumber:(NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
 
@@ -62,7 +62,7 @@ RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
 
 // clang-format off
 RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
-        pageNumber:(__unused NSNumber *)pageNumber) {
+        pageNumber:(NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
         if (view == nil || ![view isKindOfClass:[HippySmartViewPagerView class]]) {
