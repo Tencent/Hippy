@@ -63,9 +63,6 @@ NSString *const HippyJSCThreadName = @"com.tencent.Voltron.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"VoltronJavaScriptContextCreatedNotification";
 NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey = @"VoltronJavaScriptContextCreatedNotificationBridgeKey";
 
-VOLTRON_EXTERN NSString *const HippyFBJSContextClassKey = @"_VoltronFBJSContextClassKey";
-VOLTRON_EXTERN NSString *const HippyFBJSValueClassKey = @"_VoltronFBJSValueClassKey";
-
 struct __attribute__((packed)) ModuleData {
     uint32_t offset;
     uint32_t size;
@@ -152,6 +149,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
         std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
         JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
         context->RegisterGlobalInJs();
+        context->RegisterClasses(scope);
 
         if (!strongSelf->_jscWrapper) {
           [strongSelf->_performanceLogger markStartForTag:VoltronPLJSCWrapperOpenLibrary];
@@ -418,22 +416,12 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Voltr
     [performanceLogger markStopForTag:VoltronPLScriptExecution];
 
   NSError *error = jsError ? VoltronNSErrorFromJSErrorRef(jsError, ctx) : nil;
-    // HIPPY_PROFILE_END_EVENT(0, @"js_call");
+    // HIPPY_PROFILE_END_EVENT(0, @"js_call")
     return error;
 }
 
 
 - (void)setUp {
-    [self executeBlockOnJavaScriptQueue:^{
-        if (!self.valid) {
-            return;
-        }
-        NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
-        if (!threadDictionary[HippyFBJSContextClassKey] || !threadDictionary[HippyFBJSValueClassKey]) {
-            threadDictionary[HippyFBJSContextClassKey] = [JSContext class];
-            threadDictionary[HippyFBJSValueClassKey] = [JSValue class];
-        }
-    }];
 }
 /** Installs synchronous hooks that don't require a weak reference back to the VoltronJSCExecutor. */
 static void installBasicSynchronousHooksOnContext(JSContext *context) {

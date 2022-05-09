@@ -52,7 +52,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
         NSAssert(0, @"initJSFramework has called");
         return;
     }
-  
+
     __weak typeof(self) weakSelf = self;
     VoltronFrameworkInitCallback callback = [weakSelf, completion](BOOL result) {
       NSError *error;
@@ -72,20 +72,20 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
           completion(YES);
       }
     };
-    
+
     self.jscExecutor = [[VoltronJSCExecutor alloc] initWithExecurotKey:@"VoltronExecutor" globalConfig:globalConfig completion:callback];
     self.jscExecutor.provider = self;
     [self.jscExecutor setUp];
 }
 
 - (void)dealloc {
-    
+
 }
 
 + (void)initCommonVars {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        
+
     });
 }
 
@@ -94,7 +94,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     [self.jscExecutor executeApplicationScript:script sourceURL:url onComplete:^(NSError *error) {
         typeof(self) strongSelf = weakSelf;
         [strongSelf dealWithError:error];
-        
+
         if (completion) {
             completion(error);
         }
@@ -108,7 +108,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
         VoltronLog(@"callFunctionOnAction:%@ arg:%@ result:%@ error:%@", action, args, result, error);
         typeof(self) strongSelf = weakSelf;
         [strongSelf dealWithError:error];
-        
+
         if (onComplete) {
             onComplete(result, error);
         }
@@ -123,7 +123,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     if (module == nil || method == nil) {
         return nil;
     }
-    
+
     if ([method isEqualToString:@"log"]) {
         VoltronLog(@"%@", params);
         return nil;
@@ -132,7 +132,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     if (!self.platformRuntime) {
         return nil;
     }
-    
+
     if (![NSJSONSerialization isValidJSONObject:params]) {
         VoltronLog(@"params is not valid json");
         params = @[];
@@ -177,7 +177,7 @@ static std::u16string NSStringToU16(NSString* str) {
     if (!error) {
         return;
     }
-    
+
     VoltronLog(@"execute js error: %@", error);
     NSString *traceMsg;
     id traceKey = [error userInfo][@"VoltronJSStackTraceKey"];

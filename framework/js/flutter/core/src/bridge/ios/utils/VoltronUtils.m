@@ -24,7 +24,6 @@
 #import <objc/runtime.h>
 #import "VoltronUtils.h"
 #import "VoltronLog.h"
-#import "VoltronJSStackFrame.h"
 
 NSString *const VoltronErrorDomain = @"VoltronErrorDomain";
 NSString *const VoltronJSStackTraceKey = @"VoltronJSStackTraceKey";
@@ -121,8 +120,7 @@ NSError *VoltronNSErrorFromJSError(JSValue *exception)
   }
   NSString *const stack = [exception[@"stack"] toString];
   if ([stack length]) {
-    NSArray<VoltronJSStackFrame *> *const unsymbolicatedFrames = [VoltronJSStackFrame stackFramesWithLines:stack];
-    userInfo[VoltronJSStackTraceKey] = unsymbolicatedFrames;
+    userInfo[VoltronJSStackTraceKey] = stack;
   }
   return [NSError errorWithDomain:VoltronErrorDomain code:1 userInfo:userInfo];
 }
