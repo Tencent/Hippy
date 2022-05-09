@@ -1,8 +1,11 @@
+/**
+ * modify base on https://github.com/vuejs/vue-hot-reload-api/blob/v2.3.4/src/index.js
+ */
 let Vue; // late bind
 let version;
 const map = Object.create(null);
-if (typeof window !== 'undefined') {
-  window.__VUE_HOT_MAP__ = map;
+if (typeof global !== 'undefined') {
+  global.__VUE_HOT_MAP__ = map;
 }
 let installed = false;
 let initHookName = 'beforeCreate';
@@ -244,6 +247,15 @@ exports.reload = tryWrap((id, options) => {
     }
   }
   record.instances.slice().forEach((instance) => {
+    // don't support component-level reload for root App component, fallback to reload
+    const isAppComponent = instance.$parent && !instance.$parent.$parent;
+    if(isAppComponent) {
+      // need some delay, otherwise will trigger unexpected error
+      setTimeout(() => {
+        global.Hippy.bridge.callNative('DevMenu', 'reload')
+      }, 500);
+      return
+    }
     if (instance.$vnode && instance.$vnode.context) {
       instance.$vnode.context.$forceUpdate();
     } else {
