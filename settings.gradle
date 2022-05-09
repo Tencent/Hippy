@@ -2,4 +2,4 @@ include 'android-sdk'
 project(':android-sdk').projectDir = new File('android/sdk')
 
 include 'example'
-project(':example').projectDir = new File('examples/android-demo/example')
+project(':example').projectDir = new File('examples/android-demo')
