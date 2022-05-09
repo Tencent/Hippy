@@ -24,8 +24,8 @@ jobs:
     - name: Debug Build
       working-directory: ./examples/android-demo
       run: |
-        gradle assembleDebug
+        ./gradlew assembleDebug
     - name: Release Build
       working-directory: ./examples/android-demo
       run: |
-        gradle assembleRelease
+        ./gradlew assembleRelease
