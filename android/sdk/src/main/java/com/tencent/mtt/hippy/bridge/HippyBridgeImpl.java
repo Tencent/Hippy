@@ -285,19 +285,26 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         destroy(mV8RuntimeId, mSingleThreadMode, callback);
     }
 
+    @Override
+    public void runScript(@NonNull String script) {
+        runScript(mV8RuntimeId, script);
+    }
+
     public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, V8InitParams v8InitParams);
 
+    public native void runScript(long runtimeId, String script);
+
     public native boolean runScriptFromUri(String uri, AssetManager assetManager,
-            boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
+            boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId, NativeCallback callback);
 
     public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
-    public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
+    public native void callFunction(String action, long runtimeId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);
 
-    public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
+    public native void callFunction(String action, long runtimeId, NativeCallback callback,
             byte[] buffer, int offset, int length);
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
