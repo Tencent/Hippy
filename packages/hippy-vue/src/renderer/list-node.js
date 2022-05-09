@@ -44,19 +44,6 @@ class ListNode extends ElementNode {
     }
     Native.callUIFunction(this, 'scrollToContentOffset', [posX, posY, needAnimation]);
   }
-
-  /**
-   * Polyfill native event
-   */
-  polyfillNativeEvents(method, eventNames, callback, options) {
-    let name = eventNames;
-    if (eventNames === 'loadMore') {
-      name = 'endReached';
-      if (this.emitter && this.emitter[method]) {
-        this.emitter[method](name, callback, options);
-      }
-    }
-  }
 }
 
 export default ListNode;
