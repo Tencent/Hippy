@@ -23,6 +23,7 @@
 #include "api/devtools_backend_service.h"
 #include "devtools_base/domain_propos.h"
 #include "devtools_base/logging.h"
+#include "devtools_base/tdf_string_util.h"
 #include "module/domain/css_domain.h"
 #include "module/domain/dom_domain.h"
 #include "module/domain/network_domain.h"
@@ -125,6 +126,10 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   if (base_domain != domain_register_map_.end()) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
+    }
+    if (domain.find("TDF") == std::string::npos) {
+      std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
+      domain[0] = toupper(domain[0]);
     }
     auto handler = DomainRegister::Instance()->GetMethod(domain + "Domain", method);
     if (handler) {
