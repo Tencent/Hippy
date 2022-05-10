@@ -22,10 +22,8 @@ jobs:
       with:
         lfs: true
     - name: Debug Build
-      working-directory: ./examples/android-demo
       run: |
-        ./gradlew assembleDebug
+        ./gradlew example::assembleDebug
     - name: Release Build
-      working-directory: ./examples/android-demo
       run: |
-        ./gradlew assembleRelease
+        ./gradlew example::assembleRelease
