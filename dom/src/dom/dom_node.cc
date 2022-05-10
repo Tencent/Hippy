@@ -126,7 +126,7 @@ void DomNode::SetLayoutSize(float width, float height) {
 }
 
 void DomNode::AddEventListener(const std::string& name, bool use_capture, const EventCallback& cb,
-                               const AddEventCallback& callback) {
+                               const CallFunctionCallback& callback) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
@@ -153,23 +153,21 @@ void DomNode::AddEventListener(const std::string& name, bool use_capture, const 
   }
 }
 
-void DomNode::RemoveEventListener(const std::string& name, uint32_t dom_event_id) {
+void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
     if (!event_listener_map_) {
       return;
     }
-
-    // remove dom node capture function
     auto it = event_listener_map_->find(name);
     if (it == event_listener_map_->end()) {
       return;
     }
     auto capture_listeners = it->second[kCapture];
     auto capture_it = std::find_if(capture_listeners.begin(), capture_listeners.end(),
-                                   [dom_event_id](const std::shared_ptr<EventListenerInfo>& item) {
-                                     if (item->id == dom_event_id) {
+                                   [id](const std::shared_ptr<EventListenerInfo>& item) {
+                                     if (item->id == id) {
                                        return true;
                                      }
                                      return false;
@@ -177,12 +175,10 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t dom_event_id
     if (capture_it != capture_listeners.end()) {
       capture_listeners.erase(capture_it);
     }
-
-    // remove dom node bubble function
     auto bubble_listeners = it->second[kBubble];
     auto bubble_it = std::find_if(bubble_listeners.begin(), bubble_listeners.end(),
-                                  [dom_event_id](const std::shared_ptr<EventListenerInfo>& item) {
-                                    if (item->id == dom_event_id) {
+                                  [id](const std::shared_ptr<EventListenerInfo>& item) {
+                                    if (item->id == id) {
                                       return true;
                                     }
                                     return false;

@@ -239,8 +239,6 @@ class Ctx {
       const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<DomValue>& value) = 0;
-
-  virtual bool Equals(const std::shared_ptr<CtxValue>& v1, const std::shared_ptr<CtxValue>& v2) = 0;
 };
 
 struct VMInitParam {};

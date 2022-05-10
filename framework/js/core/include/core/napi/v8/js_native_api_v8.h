@@ -249,8 +249,6 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<DomValue>& value) override;
 
-  virtual bool Equals(const std::shared_ptr<CtxValue>& v1, const std::shared_ptr<CtxValue>& v2) override;
-
   template <typename T>
   v8::Local<v8::FunctionTemplate> RegisterPrototype(v8::Local<v8::FunctionTemplate> func_template,
                                                     const std::shared_ptr<InstanceDefine<T>> instance_define);
