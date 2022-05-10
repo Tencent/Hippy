@@ -100,10 +100,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 }
 
-- (void)printLayoutNodeChildren {
-    
-}
-
 - (instancetype)init {
     if ((self = [super init])) {
         _fontSize = NAN;
@@ -188,7 +184,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         [layoutManager.textStorage enumerateAttribute:HippyShadowViewAttributeName inRange:characterRange options:0 usingBlock:^(
             HippyShadowView *child, NSRange range, __unused BOOL *_) {
             if (child) {
-                float width = child.nodeLayoutResult.width, height = child.nodeLayoutResult.height;
+                float width = child.frame.size.width, height = child.frame.size.height;
                 if (isnan(width) || isnan(height)) {
                     //HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
@@ -203,21 +199,14 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 CGFloat roundedHeight = HippyRoundPixelValue(height);
                 CGFloat roundedWidth = HippyRoundPixelValue(width);
                 CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
-                CGRect childFrame = CGRectMake(location.x, positionY, roundedWidth, roundedHeight);
-                child.frame = childFrame;
-                auto domManager = [child domManager].lock();
-                if (domManager) {
-                    int32_t hippyTag = [child.hippyTag intValue];
-//                    auto domNode = domManager->GetNode(hippyTag);
-//                    if (domNode) {
-//                        domNode->DoLayout();
-//                        width = domNode->GetLayoutResult().width;
-//                        height = domNode->GetLayoutResult().height;
-//                        child.nodeLayoutResult = domNode->GetLayoutResult();
-//                    }
-//                    std::shared_ptr<hippy::DomNode> domNode = std::make_shared<hippy::DomNode>(<#_Args &&__args...#>)
-//                    domManager->UpdateDomNodes(<#std::vector<std::shared_ptr<DomNode>> &&nodes#>)
-//                    domManager->updatepro
+                CGRect childFrameToSet = CGRectMake(HippyRoundPixelValue(location.x), HippyRoundPixelValue(positionY), roundedWidth, roundedHeight);
+                CGRect childFrame = child.frame;
+#define ChildFrameParamNearlyEqual(x, y) (fabs((x) - (y)) < 0.00001f)
+                if (!ChildFrameParamNearlyEqual(childFrame.origin.x, childFrameToSet.origin.x) ||
+                    !ChildFrameParamNearlyEqual(childFrame.origin.y, childFrameToSet.origin.y) ||
+                    !ChildFrameParamNearlyEqual(childFrame.size.width, childFrameToSet.size.width) ||
+                    !ChildFrameParamNearlyEqual(childFrame.size.height, childFrameToSet.size.height)) {
+                    [child setLayoutFrame:childFrameToSet];
                 }
             }
         }];
@@ -385,10 +374,12 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 int32_t hippyTag = [child.hippyTag intValue];
                 auto domNode = domManager->GetNode(hippyTag);
                 if (domNode) {
-                    domNode->DoLayout();
-                    width = domNode->GetLayoutResult().width;
-                    height = domNode->GetLayoutResult().height;
-                    child.nodeLayoutResult = domNode->GetLayoutResult();
+                    width = domNode->GetLayoutNode()->GetStyleWidth();
+                    height = domNode->GetLayoutNode()->GetStyleHeight();
+                    CGRect frame = child.frame;
+                    frame.size.width = width;
+                    frame.size.height = height;
+                    child.frame = frame;
                 }
             }
             if (isnan(width) || isnan(height)) {

@@ -29,7 +29,7 @@ static void collectNonTextDescendants(HippyText *view, NSMutableArray *nonTextDe
     for (UIView *child in view.hippySubviews) {
         if ([child isKindOfClass:[HippyText class]]) {
             collectNonTextDescendants((HippyText *)child, nonTextDescendants);
-        } else if (!CGRectEqualToRect(child.frame, CGRectZero)) {
+        } else {
             [nonTextDescendants addObject:child];
         }
     }
