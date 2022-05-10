@@ -64,6 +64,8 @@ class YogaLayoutNode : public LayoutNode, public std::enable_shared_from_this<Yo
 
   void MarkDirty() override;
 
+  void Print() override;
+
   bool IsDirty();
 
   void Reset();

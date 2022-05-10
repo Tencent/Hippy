@@ -363,6 +363,8 @@ void YogaLayoutNode::SetHasNewLayout(bool has_new_layout) { YGNodeSetHasNewLayou
 
 void YogaLayoutNode::MarkDirty() { YGNodeMarkDirty(yoga_node_); }
 
+void YogaLayoutNode::Print() {YGNodePrint(yoga_node_, YGPrintOptionsLayout | YGPrintOptionsStyle | YGPrintOptionsChildren);}
+
 bool YogaLayoutNode::IsDirty() { return YGNodeIsDirty(yoga_node_); }
 
 void YogaLayoutNode::Reset() { YGNodeReset(yoga_node_); }

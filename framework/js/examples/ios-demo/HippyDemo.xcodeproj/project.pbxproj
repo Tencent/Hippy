@@ -264,7 +264,7 @@
 		D4B5A0852816641600ABBD9C /* scene_builder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene_builder.cc; sourceTree = "<group>"; };
 		D4B5A0882816642300ABBD9C /* event_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = event_module.h; sourceTree = "<group>"; };
 		D4B5A0892816642300ABBD9C /* scene_builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene_builder.h; sourceTree = "<group>"; };
-		D84AB8DA273A5AAD00987D03 /* layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = layout_node.h; sourceTree = "<group>"; };
+		D84AB8DA273A5AAD00987D03 /* layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = layout_node.h; sourceTree = "<group>"; tabWidth = 2; };
 		D84AB8DB273A5AAD00987D03 /* dom_listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_listener.h; sourceTree = "<group>"; };
 		D84AB8DC273A5AAD00987D03 /* dom_node.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = dom_node.h; sourceTree = "<group>"; tabWidth = 2; };
 		D84AB8DD273A5AAD00987D03 /* render_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render_manager.h; sourceTree = "<group>"; };

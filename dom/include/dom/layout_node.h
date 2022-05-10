@@ -66,6 +66,7 @@ class LayoutNode {
   virtual void SetHasNewLayout(bool has_new_layout) = 0;
   virtual void SetMeasureFunction(MeasureFunction measure_function) = 0;
   virtual void MarkDirty() = 0;
+  virtual void Print() = 0;
 
   /**
    * @brief 插入子节点
