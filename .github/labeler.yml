@@ -1,0 +1,19 @@
+android:
+  - 'android/*'
+ios:
+  - 'ios/*'
+core/layout:
+  - 'core/*'
+  - 'layout/*'
+demo:
+  - 'examples/*'
+frontend:
+  - 'packages/*'
+  - 'static/*'
+  - '**/*.js'
+  - '**/*.ts'
+documentation:
+  - 'docs/*'
+  - '**/*.md'
+dependencies:
+  - '**/third_party/**'
