@@ -22,6 +22,8 @@ import './global';
 import {
   Device,
 } from './native';
+import { BackAndroid, Focusable, callNativeWithPromise, HippyEventEmitter } from './modules/unsupported-module';
+import callNative from './modules/call-native';
 import HippyReact from './hippy';
 import View from './components/view';
 import Text from './components/text';
@@ -34,19 +36,25 @@ import TextInput from './components/text-input';
 import ScrollView from './components/scroll-view';
 import Modal from './components/modal';
 import WebView from './components/web-view';
+import WaterfallView from './components/waterfall-view';
+import RippleViewAndroid from './components/ripple-view-android';
+import SafeAreaView  from './components/safe-area';
+import { UIManager as UIManagerModule } from './modules/ui-manager-module';
 import VideoPlayer from './components/video-player';
 import Animation from './modules/animation';
 import AnimationSet from './modules/animation-set';
 import StyleSheet from './modules/stylesheet';
-import * as NetInfo from './modules/net-info';
-import * as NetworkModule from './modules/network-module';
+import Clipboard from './modules/clipboard';
+import NetInfo from './modules/net-info';
+import WebSocket from './modules/websocket';
+import AsyncStorage from './modules/async-storage';
+import * as NetworkModule from './modules/cookie-module';
+import { ImageLoaderModule } from './adapters/image-loader';
 
 const Hippy = HippyReact;
 const ConsoleModule = console;
 
-const Platform = {
-  OS: Device.platform,
-};
+const Platform = Device.platform;
 
 const Dimensions = {
   get(name: 'window' | 'screen') {
@@ -69,13 +77,11 @@ const Dimensions = {
 
 const PixelRatio = {
   get() {
-    return Device.screen.scale;
+    return window.devicePixelRatio;
   },
 };
 
-const AsyncStorage = typeof window === 'object' ? localStorage : null;
 const ImageBackground = Image;
-
 export default HippyReact;
 export {
   Hippy,
@@ -91,6 +97,8 @@ export {
   ScrollView,
   Modal,
   WebView,
+  RippleViewAndroid,
+  SafeAreaView,
   VideoPlayer,
   Animation,
   AnimationSet,
@@ -102,4 +110,14 @@ export {
   PixelRatio,
   AsyncStorage,
   NetInfo,
+  WebSocket,
+  BackAndroid,
+  Clipboard,
+  Focusable,
+  callNative,
+  callNativeWithPromise,
+  HippyEventEmitter,
+  WaterfallView,
+  UIManagerModule,
+  ImageLoaderModule,
 };

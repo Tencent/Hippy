@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -199,10 +200,14 @@ public abstract class HippyEngine {
 
   public abstract void saveInstanceState();
 
+  public abstract void saveInstanceState(Object params);
+
   public abstract HippyRootView restoreInstanceState(ArrayList<DomNodeRecord> domNodeRecordList,
-      HippyEngine.ModuleLoadParams loadParams, Callback<Boolean> callback);
+      HippyEngine.ModuleLoadParams loadParams, boolean isSync);
 
   public abstract void destroyInstanceState(HippyRootView rootView);
+
+  public abstract void runScript(@NonNull String script);
 
   public interface BackPressHandler {
 

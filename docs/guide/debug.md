@@ -21,7 +21,44 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
 
 # 终端环境准备
 
-我们推荐在终端代码中留一个后门，通过一定条件触发后进入调试模式，具体代码可以参考 [iOS](//github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/TestModule.m#L36) 和 [Android](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/TestModule.java#L31)，这里实现了一个 `TestModule`，当前端调用它的 `debug` 或 `remoteDebug` 方法时就会进入调试模式，而终端可以通过其它方式进入。
+我们推荐在终端代码中留一个后门，通过一定条件触发后进入调试模式，具体代码可以参考 [iOS](//github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/TestModule.m#L60) 和 [Android](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/TestModule.java#L31)，这里实现了一个 `TestModule`，当前端调用它的 `debug` 或 `remoteDebug` 方法时就会进入调试模式，而终端可以通过其它方式进入。终端打开 Hippy Debug 页面代码如下：
+
+1. **Android**：
+
+   ```java
+        // 初始化 hippy 引擎
+        HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
+        // 可选：是否设置为debug模式，默认为false。设置true为调试模式，所有jsbundle都是从debug server上下载
+        initParams.debugMode = true;
+        initParams.debugServerHost = "localhost:38989";
+        initParams.debugBundleName="idex.bubdle";
+   ```
+
+2. **iOS**：
+
+   ```objective-c
+   - (void)viewDidLoad {
+       // 开启调试
+       NSDictionary *launchOptions = @{@"DebugMode": @(YES)};
+       // 使用默认 http://localhost:38989/index.bundle
+       NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
+       NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+       HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
+                                                         bundleURL:bundleUrl
+                                                    moduleProvider:nil
+                                                     launchOptions:launchOptions
+                                                       executorKey:@"Demo"];
+   }
+   
+   
+   - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
+       return bridge.debugMode;
+   }
+   
+   - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
+       return bridge.bundleURL;
+   }
+   ```
 
 # 前端环境准备
 
@@ -102,7 +139,7 @@ iOS 调试支持模拟器和真机两种方式，由于 JSBundle 和调试协议
 
 ### 真机调试
 
-1. iOS 真机调试只支持 XCode 编译的 App，并且 iOS 设备上需要开启 JavaScript 调试和 Web 检查器选项
+1. **iOS 真机调试只支持 XCode 编译的 App，并且 iOS 设备上需要开启 JavaScript 调试和 Web 检查器选项**
 
    <img src="../assets/img/ios-safari-config.png" alt="safari 调试设置" width="60%" />
   
@@ -321,6 +358,39 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
     }
     ```
 
+# Vue Devtools
+
+> 最低支持版本 2.13.7
+
+支持调试 Vue 组件树、组件状态、路由、store、以及事件性能等
+
+<video width="80%" controls>
+  <source src="../assets/img/hippy-vue-devtools-x2.mp4" type="video/mp4">
+  Vue Devtools示例(您的浏览器不支持webm视频格式)
+</video>
+
+1. 安装 vue-devtools 依赖：
+
+   ```bash
+   npm i @hippy/vue@^2.13.7 @hippy/vue-router@^2.13.7
+   npm i @hippy/debug-server-next@latest -D
+   ```
+
+2. 开启 vue devtools
+
+   ```js
+   module.exports = {
+    devServer: {
+       remote: {
+         protocol: 'https',
+         host: 'devtools.qq.com',
+         port: 443,
+       },
+      // 默认为 false，开启后将通过 remote 字段指定的远程调试服务分发 vue 调试指令
+      vueDevtools: true
+    },
+   ```
+
 ## 接口
 
 `@hippy/debug-server-next` 除了提供 bin 命令 `hippy-debug` 和 `hippy-dev` 进行调试构建，还提供了接口供自定义的 CLI 工具封装时调用，使用方法如下：
@@ -400,29 +470,39 @@ startDebugServer();
 
 ## 宿主 App 接入配置
 
-1. **Android**：设置 debugMode 为 true，并把 webpack 生成远程无线调试的 bundleUrl 填入 remoteServerUrl
+宿主 App 设置 debugMode 为 true，并把前端 webpack 生成远程无线调试的 bundleUrl 传入，推荐宿主使用输入框或扫描二维码的方式传入。
+
+1. **Android**：
 
    ```java
     // 初始化 hippy 引擎
     HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
     initParams.debugMode = true;
-    initParams.remoteServerUrl = "";  // 远程调试 Url
+    initParams.remoteServerUrl = "";  // 远程调试 bundleUrl
    ```
 
-2. **iOS**：实现 bridgeDelegate 关于调试的代理
+2. **iOS**：
 
    ```objective-c
-    /**
-      * ask delegate should bridge start a web inspector
-      * 返回是否开启调试能力
-      */
-    - (BOOL)shouldStartInspector:(HippyBridge *)bridge;
-
-    /**
-      * ask delegate URL for web inspector
-      * 返回调试 bundleUrl
-      */
-    - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge;
+   - (void)viewDidLoad {
+       // 开启调试
+       NSDictionary *launchOptions = @{@"DebugMode": @(YES)};
+       NSString *bundleStr = "";  // 远程调试 bundleUrl
+       NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+       HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
+                                                         bundleURL:bundleUrl
+                                                    moduleProvider:nil
+                                                     launchOptions:launchOptions
+                                                       executorKey:@"Demo"];
+   }
+   
+   - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
+       return bridge.debugMode;
+   }
+   
+   - (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
+       return bridge.bundleURL;
+   }
    ```
 
 ## 远程调试支持能力列表

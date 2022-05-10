@@ -247,7 +247,7 @@ test('Element.dispatchEvent with polyfill event', (t) => {
   called = false;
   t.is(called, false);
   node.addEventListener('endReached', callback);
-  event = DocumentNode.createEvent('loadMore');
+  event = DocumentNode.createEvent('endReached');
   node.dispatchEvent(event);
   t.is(called, true);
   node.removeEventListener('endReached', callback);

@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.bridge.HippyCallNativeParams;
 import com.tencent.mtt.hippy.common.Provider;
@@ -51,28 +52,26 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
     private volatile Handler mUIThreadHandler;
     private volatile Handler mBridgeThreadHandler;
     private volatile Handler mDomThreadHandler;
-    private final HippyModuleANRMonitor mANRMonitor;
 
     public HippyModuleManagerImpl(HippyEngineContext context, List<HippyAPIProvider> packages) {
         this.mContext = context;
-        mANRMonitor = new HippyModuleANRMonitor(mContext);
         mNativeModuleInfo = new ConcurrentHashMap<>();
         mJsModules = new HashMap<>();
         addModules(packages);
     }
 
     /**
-    * Add native modules and java script modules defined in {@link HippyAPIProvider}.
-    *
-    * @param apiProviders API providers need to be added.
-    */
+     * Add native modules and java script modules defined in {@link HippyAPIProvider}.
+     *
+     * @param apiProviders API providers need to be added.
+     */
     public synchronized void addModules(List<HippyAPIProvider> apiProviders) {
         if (apiProviders == null) {
             return;
         }
         for (HippyAPIProvider provider : apiProviders) {
             Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>>
-                nativeModules = provider.getNativeModules(mContext);
+                    nativeModules = provider.getNativeModules(mContext);
             if (nativeModules != null && nativeModules.size() > 0) {
                 Set<Class<? extends HippyNativeModuleBase>> keys = nativeModules.keySet();
                 for (Class cls : keys) {
@@ -80,14 +79,15 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
                 }
             }
 
-            List<Class<? extends HippyJavaScriptModule>> jsModules = provider.getJavaScriptModules();
+            List<Class<? extends HippyJavaScriptModule>> jsModules = provider
+                    .getJavaScriptModules();
             if (jsModules != null && jsModules.size() > 0) {
                 for (Class cls : jsModules) {
                     String name = getJavaScriptModuleName(cls);
                     // noinspection SuspiciousMethodCalls
                     if (mJsModules.containsKey(name)) {
                         throw new RuntimeException(
-                            "There is already a javascript module named : " + name);
+                                "There is already a javascript module named : " + name);
                     }
                     mJsModules.put(cls, null);
                 }
@@ -126,10 +126,6 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
         }
         if (mUIThreadHandler != null) {
             mUIThreadHandler.removeMessages(MSG_CODE_CALL_NATIVES);
-        }
-
-        if (mANRMonitor != null) {
-            mANRMonitor.checkMonitor();
         }
 
         //Must be thrown bridge thread to complete
@@ -306,6 +302,22 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
         return mBridgeThreadHandler;
     }
 
+    private boolean onInterceptCallNative(@Nullable HippyCallNativeParams params) {
+        HippyEngineMonitorAdapter adapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
+        if (adapter == null || params == null) {
+            return false;
+        }
+        return adapter.onInterceptCallNative(mContext.getComponentName(), params);
+    }
+
+    private void onCallNativeFinished(@Nullable HippyCallNativeParams params) {
+        HippyEngineMonitorAdapter adapter = mContext.getGlobalConfigs().getEngineMonitorAdapter();
+        if (adapter == null || params == null) {
+            return;
+        }
+        adapter.onCallNativeFinished(mContext.getComponentName(), params);
+    }
+
     @Override
     public boolean handleMessage(Message msg) {
 
@@ -315,16 +327,16 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
                 int id = -1;
                 try {
                     params = (HippyCallNativeParams) msg.obj;
-                    id = mANRMonitor.startMonitor(params.moduleName, params.moduleFunc);
-                    doCallNatives(params);
+                    boolean shouldInterceptCallNative = onInterceptCallNative(params);
+                    if (!shouldInterceptCallNative) {
+                        doCallNatives(params);
+                    }
                 } catch (Throwable e) {
                     e.printStackTrace();
                 } finally {
+                    onCallNativeFinished(params);
                     if (params != null) {
                         params.onDispose();
-                    }
-                    if (id >= 0) {
-                        mANRMonitor.endMonitor(id);
                     }
                 }
                 return true;

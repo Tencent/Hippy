@@ -45,4 +45,6 @@ public interface IHeaderRefreshView {
   int getContentHeight();
 
   void onFolded();
+
+  void resetPullHeaderPositionIfNeeded();
 }

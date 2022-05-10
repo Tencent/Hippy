@@ -118,6 +118,16 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     }
   }
 
+  public void createFakeRootNode(int rootId, int width, int height) {
+    DomNode node = new StyleNode();
+    node.setId(rootId);
+    node.setViewClassName(NodeProps.ROOT_NODE);
+    node.setStyleWidth(width);
+    node.setStyleHeight(height);
+    addRootNode(node);
+    mRenderManager.createRootNode(rootId);
+  }
+
   public void createRootNode(int instanceId) {
     HippyRootView view = mContext.getInstance(instanceId);
     if (view != null) {
@@ -136,6 +146,9 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
 
   @Override
   public void onInstanceLoad(final int instanceId) {
+    if (instanceId < 0) {
+      return;
+    }
     mContext.getThreadExecutor().postOnDomThread(new Runnable() {
       @Override
       public void run() {
@@ -338,7 +351,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
         final HippyMap newProps = map;
 
         //this is create view ahead  in every doframe
-        if (!node.isLazy()) {
+        if (!node.isLazy() && id >= 0) {
           synchronized (mDispatchLock) {
             addDispatchTask(new IDomExecutor() {
               @Override
@@ -782,27 +795,53 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     batch(false);
   }
 
-  public void batch(boolean isAnimation) {
-    int rootNodeCount = mNodeRegistry.getRootNodeCount();
+  public void screenshotBatchStop(boolean isSync) {
+    mRenderBatchStarted = false;
+    if (isSync) {
+      mPaddingNulUITasks.clear();
+      mUITasks.clear();
+    }
+  }
 
+  public void screenshotBatchEnd(boolean isSync) {
+    if (!isSync) {
+      renderBatchEnd();
+      return;
+    }
+    mRenderBatchStarted = false;
+    doLayout();
+    mTagsWithLayoutVisited.clear();
+    synchronized (mDispatchLock) {
+      if (mIsDestroyed) {
+        return;
+      }
+      for (int i = 0; i < mUITasks.size(); i++) {
+        mDispatchRunnable.add(mUITasks.get(i));
+      }
+      for (int i = 0; i < mPaddingNulUITasks.size(); i++) {
+        mDispatchRunnable.add(mPaddingNulUITasks.get(i));
+      }
+    }
+    mPaddingNulUITasks.clear();
+    mUITasks.clear();
+  }
+
+  private void doLayout() {
+    int rootNodeCount = mNodeRegistry.getRootNodeCount();
     for (int i = 0; i < rootNodeCount; i++) {
       int rootTag = mNodeRegistry.getRootTag(i);
       DomNode rootNode = mNodeRegistry.getNode(rootTag);
       if (rootNode != null) {
         applyLayoutBefore(rootNode);
-
-        LogUtils.d(TAG, " dom start  calculateLayout");
-
         rootNode.calculateLayout();
-
         applyLayoutAfter(rootNode);
-
         applyLayoutUpdateRecursive(rootNode);
-
-        LogUtils.d(TAG, "dom end  calculateLayout");
-        //				LogUtils.l(TAG, rootNode.toString());
       }
     }
+  }
+
+  public void batch(boolean isAnimation) {
+    doLayout();
 
     mTagsWithLayoutVisited.clear();
     LogUtils.d(TAG, "dom batch complete");
@@ -825,7 +864,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     }
   }
 
-  void flushPendingBatches() {
+  public void flushPendingBatches() {
 
     if (mEnginePaused) {
       mIsDispatchUIFrameCallbackEnqueued = false;

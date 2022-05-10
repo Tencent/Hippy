@@ -63,6 +63,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     static final int MSG_CODE_RUN_BUNDLE = 11;
     static final int MSG_CODE_CALL_FUNCTION = 12;
     static final int MSG_CODE_DESTROY_BRIDGE = 13;
+    static final int MSG_CODE_RUN_SCRIPT = 14;
 
     static final int FUNCTION_ACTION_LOAD_INSTANCE = 1;
     static final int FUNCTION_ACTION_RESUME_INSTANCE = 2;
@@ -223,6 +224,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
     }
 
+    private void handleRunScript(Message msg) {
+        final String script = (String) msg.obj;
+        mHippyBridge.runScript(script);
+    }
+
     private void handleDestroyBridge(Message msg) {
         if (mThirdPartyAdapter != null) {
             mThirdPartyAdapter.onRuntimeDestroy();
@@ -315,6 +321,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     }
                     return true;
                 }
+                case MSG_CODE_RUN_SCRIPT: {
+                    if (mIsInit) {
+                        handleRunScript(msg);
+                    }
+                    return true;
+                }
                 case MSG_CODE_RUN_BUNDLE: {
                     HippyRootView rootView = null;
                     if (msg.arg2 > 0) {
@@ -400,6 +412,15 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     public void initBridge(Callback<Boolean> callback) {
         mHandler = new Handler(mContext.getThreadExecutor().getJsThread().getLooper(), this);
         Message message = mHandler.obtainMessage(MSG_CODE_INIT_BRIDGE, callback);
+        mHandler.sendMessage(message);
+    }
+
+    @Override
+    public void runScript(String script) {
+        if (!mIsInit || mHandler == null) {
+            return;
+        }
+        Message message = mHandler.obtainMessage(MSG_CODE_RUN_SCRIPT, script);
         mHandler.sendMessage(message);
     }
 
@@ -533,6 +554,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             mHandler.removeMessages(MSG_CODE_INIT_BRIDGE);
             mHandler.removeMessages(MSG_CODE_RUN_BUNDLE);
             mHandler.removeMessages(MSG_CODE_CALL_FUNCTION);
+            mHandler.removeMessages(MSG_CODE_RUN_SCRIPT);
         }
     }
 
@@ -644,6 +666,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         platformParams.pushMap("Localization", Localization);
 
         globalParams.pushMap("Platform", platformParams);
+
+        if (mContext.getDevSupportManager().isSupportDev()) {
+          HippyMap debugParams = new HippyMap();
+          debugParams.pushString("debugClientId", mContext.getDevSupportManager().getDebugInstanceId());
+          globalParams.pushMap("Debug", debugParams);
+        }
 
         HippyMap tkd = new HippyMap();
         tkd.pushString("url", (pageUrl == null) ? "" : pageUrl);

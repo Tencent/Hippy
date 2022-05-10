@@ -305,12 +305,6 @@ function getTargetNodeAttributes(targetNode) {
       class: classInfo,
       ...targetNodeAttributes,
     };
-    // delete special __bind__event attribute, which is used in C DOM
-    Object.keys(attributes).forEach((key) => {
-      if (key.indexOf('__bind__') === 0 && typeof attributes[key] === 'boolean') {
-        delete attributes[key];
-      }
-    });
     delete attributes.text;
     delete attributes.value;
     return attributes;
@@ -344,31 +338,24 @@ function renderToNative(rootViewId, targetNode) {
   });
   // Apply style from style attribute.
   style = { ...style, ...targetNode.style };
+
   // Convert to real native event
   const events = {};
-  // FIXME: Bad accessing the private property.
   if (targetNode._emitter) {
-    const vueEventNames = Object.keys(targetNode._emitter.getEventListeners());
     const { eventNamesMap } = targetNode.meta.component;
-    if (eventNamesMap) {
-      vueEventNames.forEach((vueEventName) => {
+    const observers = targetNode._emitter.getEventListeners();
+    const vueEventNames = Object.keys(observers);
+    vueEventNames.forEach((vueEventName) => {
+      if (eventNamesMap && eventNamesMap[vueEventName]) {
         const nativeEventName = eventNamesMap[vueEventName];
-        if (nativeEventName) {
-          events[nativeEventName] = true;
-          events[`__bind__${nativeEventName}`] = true;
-        } else {
-          const name = `on${capitalizeFirstLetter(vueEventName)}`;
-          events[name] = true;
-          events[`__bind__${name}`] = true;
-        }
-      });
-    } else {
-      vueEventNames.forEach((vueEventName) => {
+        // if event removed, it is set undefined, which is a false value sent to native
+        events[nativeEventName] = !!observers[vueEventName];
+      } else {
         const name = `on${capitalizeFirstLetter(vueEventName)}`;
-        events[name] = true;
-        events[`__bind__${name}`] = true;
-      });
-    }
+        // if event removed, it is set undefined, which is a false value sent to native
+        events[name] = !!observers[vueEventName];
+      }
+    });
   }
   // Translate to native node
   const nativeNode = {

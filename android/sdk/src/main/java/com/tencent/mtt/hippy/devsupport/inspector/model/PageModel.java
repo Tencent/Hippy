@@ -2,6 +2,7 @@ package com.tencent.mtt.hippy.devsupport.inspector.model;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.text.TextUtils;
@@ -33,6 +34,7 @@ public class PageModel {
   private int maxHeight;
   private Bitmap screenBitmap;
   private WeakReference<FrameUpdateListener> mFrameUpdateListenerRef;
+  private ViewTreeObserver.OnDrawListener mOnDrawListener;
 
   public JSONObject startScreenCast(HippyEngineContext context, final JSONObject paramsObj) {
     isFramingScreenCast = true;
@@ -60,6 +62,19 @@ public class PageModel {
         LogUtils.e(TAG, "listenFrameUpdate error none hippyRootView");
         return;
       }
+      if (mOnDrawListener == null) {
+        mOnDrawListener = new ViewTreeObserver.OnDrawListener() {
+          @Override
+          public void onDraw() {
+            if (mFrameUpdateListenerRef != null) {
+              FrameUpdateListener listener = mFrameUpdateListenerRef.get();
+              if (listener != null) {
+                listener.onFrameUpdate();
+              }
+            }
+          }
+        };
+      }
       try {
         hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
         hippyRootView.getViewTreeObserver().addOnDrawListener(mOnDrawListener);
@@ -68,19 +83,6 @@ public class PageModel {
       }
     }
   }
-
-  private final ViewTreeObserver.OnDrawListener mOnDrawListener = new ViewTreeObserver.OnDrawListener() {
-    @Override
-    public void onDraw() {
-      LogUtils.d(TAG, "HippyRootView, onDraw");
-      if (mFrameUpdateListenerRef != null) {
-        FrameUpdateListener listener = mFrameUpdateListenerRef.get();
-        if (listener != null) {
-          listener.onFrameUpdate();
-        }
-      }
-    }
-  };
 
   public void setFrameUpdateListener(FrameUpdateListener listener) {
     if (listener != null) {
@@ -99,7 +101,9 @@ public class PageModel {
         LogUtils.e(TAG, "stopScreenCast error none hippyRootView");
         return;
       }
-      hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
+      if (mOnDrawListener != null) {
+        hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
+      }
     }
   }
 
@@ -147,6 +151,7 @@ public class PageModel {
         screenBitmap = bitmap;
       }
       Canvas canvas = new Canvas(bitmap);
+      canvas.drawColor(Color.WHITE);
       hippyRootView.draw(canvas);
       if (scale != 1.0f) {
         Matrix matrix = new Matrix();

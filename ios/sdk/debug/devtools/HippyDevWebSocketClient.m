@@ -91,17 +91,22 @@ static const char *stringFromReadyState(HippySRReadyState state) {
 
 #pragma mark initialization methods
 
-- (instancetype)initWithDevInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName {
+- (instancetype)initWithDevInfo:(HippyDevInfo *)devInfo
+                    contextName:(NSString *)contextName
+                       clientId:(NSString *)clientId {
     //ws://127.0.0.1:38989/debugger-proxy?clientId={clientId}&platform=1&role=ios_client&contextName={urlencode(contextName)}&deviceName={urlencode(deviceName)}
     HippyAssertParam(devInfo.ipAddress);
     self = [super init];
     if (self) {
-        NSString *uuid = UUIDForContextName(contextName);
         NSCharacterSet *allowedChar = [[NSCharacterSet characterSetWithCharactersInString:@"?!@#$^&%*+,:;='\"`<>()[]{}/\\| "] invertedSet];
         NSString *encodeName = [contextName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
         NSString *deviceName = [[UIDevice currentDevice] name];
         NSString *encodedDeviceName = [deviceName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
-        NSString *addressPrefix = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy", devInfo.scheme, devInfo.ipAddress, devInfo.port?:@"38989"];
+        NSString *port = devInfo.port;
+        if (port.length <= 0) {
+            port = [devInfo.scheme isEqualToString:@"wss"] ? @"443": @"80";
+        }
+        NSString *addressPrefix = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy", devInfo.scheme, devInfo.ipAddress, port];
         if (devInfo.wsURL.length > 0) {
             // wsURL has a high priority
             addressPrefix = devInfo.wsURL;
@@ -111,7 +116,7 @@ static const char *stringFromReadyState(HippySRReadyState state) {
         } else {
             addressPrefix = [NSString stringWithFormat:@"%@?", addressPrefix];
         }
-        NSString *devAddress = [NSString stringWithFormat:@"%@clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", addressPrefix, uuid, encodeName, encodedDeviceName];
+        NSString *devAddress = [NSString stringWithFormat:@"%@clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", addressPrefix, clientId, encodeName, encodedDeviceName];
         if (devInfo.versionId.length > 0) {
             devAddress = [NSString stringWithFormat:@"%@&hash=%@", devAddress, devInfo.versionId];
         }

@@ -21,6 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "HippyBridge.h"
 
 @interface HippyDevInfo : NSObject
 
@@ -33,5 +34,7 @@
 - (void)setScheme:(NSString *)scheme;
 
 - (void)parseWsURLWithURLQuery:(NSString *)query;
+
++ (NSString *)debugClientIdWithBridge:(HippyBridge *)bridge;
 
 @end

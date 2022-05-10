@@ -78,7 +78,7 @@ public class DevRemoteServerData {
   }
 
   public boolean isValid() {
-    return !TextUtils.isEmpty(host) && !TextUtils.isEmpty(versionId);
+    return !TextUtils.isEmpty(host);
   }
 
   public String getHost() {

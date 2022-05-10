@@ -242,7 +242,7 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
-  setAttribute(key, value) {
+  setAttribute(key, value, options = {}) {
     try {
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
@@ -284,7 +284,9 @@ class ElementNode extends ViewNode {
               throw new TypeError(`Property ${key} must be string：${err.message}`);
             }
           }
-          value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+          if (!options || !options.textUpdate) {
+            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+          }
           this.attributes[key] = unicodeToChar(value);
           break;
         }
@@ -316,6 +318,9 @@ class ElementNode extends ViewNode {
         }
         default:
           this.attributes[key] = value;
+      }
+      if (typeof this.filterAttribute === 'function') {
+        this.filterAttribute(this.attributes);
       }
       updateChild(this);
     } catch (err) {
@@ -462,7 +467,6 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       this._emitter = new EventEmitter(this);
     }
-    this._emitter.addEventListener(eventNames, callback, options);
     // Added default scrollEventThrottle when scroll event is added.
     if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       const scrollEventThrottle = 200;
@@ -470,9 +474,10 @@ class ElementNode extends ViewNode {
         this.attributes.scrollEventThrottle = scrollEventThrottle;
       }
     }
-    if (this.polyFillNativeEvents) {
-      this.polyFillNativeEvents('addEvent', eventNames, callback, options);
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents('addEventListener', eventNames, callback, options));
     }
+    this._emitter.addEventListener(eventNames, callback, options);
     updateChild(this);
   }
 
@@ -480,10 +485,12 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       return null;
     }
-    if (this.polyFillNativeEvents) {
-      this.polyFillNativeEvents('removeEvent', eventNames, callback, options);
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents('removeEventListener', eventNames, callback, options));
     }
-    return this._emitter.removeEventListener(eventNames, callback, options);
+    const observer = this._emitter.removeEventListener(eventNames, callback, options);
+    updateChild(this);
+    return observer;
   }
 
   dispatchEvent(eventInstance) {

@@ -6,7 +6,7 @@
 
 ## 💡 介绍
 
-Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写一套代码就直接运行于三个平台（iOS、Android 和 Web）。Hippy 的设计是面向传统 Web 开发者的，特别是之前有过 React 和 Vue 开发经验的开发者用起来会更为顺手，Hippy 致力于让前端开发跨端 App 更加容易。
+Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写一套代码就直接运行于多个平台（iOS、Android 和 Web等）。Hippy 的设计是面向传统 Web 开发者的，特别是之前有过 React 和 Vue 开发经验的开发者用起来会更为顺手，Hippy 致力于让前端开发跨端 App 更加容易。
 
 到目前为止，[腾讯](http://www.tencent.com/)公司内已经有 27+ 款主流 App 在使用 Hippy 框架，包括手机QQ、QQ浏览器、腾讯视频、QQ音乐、腾讯新闻等，每日触达数亿用户。
 
@@ -59,7 +59,7 @@ Windows 用户者需要以下软件:
     >
     > `npm run build`：编译每一个 JS SDK 包。
 
-2. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+2. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample [hippy-react-demo|hippy-vue-demo]`。
 3. 启动 Xcode 并且开始编译终端 App：`open examples/ios-demo/HippyDemo.xcodeproj`。
 
 > 如果步骤2出现错误，可以先 `cd` 到 `examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
@@ -80,7 +80,7 @@ Windows 用户者需要以下软件:
    > `npx lerna bootstrap`：安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多 JS SDK 包仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g` 全局安装 `Lerna`。）
    >
    > `npm run build`：编译每一个 JS SDK 包。
-2. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+2. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample [hippy-react-demo|hippy-vue-demo]`。
 3. 用 Android Studio 来打开终端范例工程 `examples/android-demo`。
 4. 用 USB 数据线插上你的 Android 手机，需要确认手机已经打开 USB 调试模式（可通过在电脑 Terminal 执行 `adb devices` 判断手机是否已经连上了电脑）。
 5. 运行工程，并安装 APK。
@@ -94,11 +94,11 @@ Windows 用户者需要以下软件:
 ### 调试前端 Demo
 
 1. 先按照 **[使用 JS 范例来构建 iOS App]** 和 **[使用 JS 范例来构建 Android App]** 步骤执行。
-2. 根目录执行 `npm run init:example -- [hippy-react-demo|hippy-vue-demo]`。
-3. 根目录执行 `npm run debugexample -- [hippy-react-demo|hippy-vue-demo] dev`。
-4. 根目录执行 `npm run debugexample -- [hippy-react-demo|hippy-vue-demo] debug`。
+2. 根目录执行 `npm run init:example [hippy-react-demo|hippy-vue-demo]`。
+3. 根目录执行 `npm run debugexample [hippy-react-demo|hippy-vue-demo] debug`。
+4. 根目录执行 `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev`。
 
-> 你也可以 `cd` 到 examples `hippy-react-demo` 或者 `hippy-vue-demo` 目录去分别执行 `npm run hippy:dev` 和 `npm run hippy:debug`。
+> 你也可以 `cd` 到 `examples/hippy-react-demo` 或者 `examples/hippy-vue-demo` 目录去分别执行 `npm run hippy:debug` 和 `npm run hippy:dev`。
 >
 > 在 example 调试模式下，@hippy/react、@hippy/vue 等 npm 模块会直接链接到 `packages` > `[different package]` > `dist` 目录下面的 js 文件(非 node_modules)，所以如果你修改了 packages 下的 JS 源代码并且想让其在 example 中生效，请重新在根目录执行 `npm run build`。
 >

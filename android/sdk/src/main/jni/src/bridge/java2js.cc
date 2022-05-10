@@ -76,8 +76,7 @@ void CallFunction(JNIEnv* j_env,
     TDF_BASE_DLOG(WARNING) << "CallFunction j_runtime_id invalid";
     return;
   }
-  std::shared_ptr<JavaScriptTaskRunner> runner =
-      runtime->GetEngine()->GetJSRunner();
+  std::shared_ptr<JavaScriptTaskRunner> runner = runtime->GetEngine()->GetJSRunner();
   if (!j_action) {
     TDF_BASE_DLOG(WARNING) << "CallFunction j_action invalid";
     return;
