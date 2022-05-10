@@ -80,6 +80,8 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
        },
        // 默认为 false，设为 true 调试服务支持多个工程同时调试，彼此之间不会干扰
        multiple: false,
+       // 默认为 false，hippy vue 项目可以手动开启
+       vueDevtools: false,
        // 默认 hot, liveReload 都为 true，如果只想使用 live-reload 功能，请将 hot 设为 false，liveReload 设为 true
        hot: true,
        liveReload: true,
@@ -91,16 +93,28 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    }
    ```
 
-3. 运行 `npm run hippy:debug` 开启调试服务
-4. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
+3. 修改 `package.json` 中的启动编译命令。如果业务通过自定义 cli 启动，参考 [打包编译 API](#debug-server-api) 进行配置
+
+   ```json
+   {
+     "scripts": {
+        "hippy:debug": "hippy-debug",
+        // -c 或 --config 提供 webpack config 配置路径
+        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js"
+     }  
+   } 
+   ```
+
+4. 运行 `npm run hippy:debug` 开启调试服务
+5. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
 
    <img src="../assets/img/hippy-dev-output.png" alt="hippy dev 输出" width="50%" alt="编译输出">
 
-5. <span id="config-bundle">粘贴 bundleUrl 并点击开始按钮</span>
+6. <span id="config-bundle">粘贴 bundleUrl 并点击开始按钮</span>
 
     <img src="../assets/img/ios-remote-debug-config.png" alt="iOS 远程调试配置" width="40%">
 
-6. 使用调试器开始调试
+7. 使用调试器开始调试
    - Safari DevTools：在 Mac 上打开 Safari 的开发菜单（`预置` -> `高级` -> `显示开发菜单`），然后按下图指引开始调试。Safari 调试器支持 iOS 设备，支持 `HMR & Live-Reload, Log, Sources, Memory` 等能力。
    
       <img src="../assets/img/safari-dev-process.png" alt="Safari 调试器" width="80%"/>
@@ -391,20 +405,17 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
     },
    ```
 
-## 接口
+# 打包编译 API
 
-`@hippy/debug-server-next` 除了提供 bin 命令 `hippy-debug` 和 `hippy-dev` 进行调试构建，还提供了接口供自定义的 CLI 工具封装时调用，使用方法如下：
+`@hippy/debug-server-next` 除了提供 bin 命令 `hippy-debug` 和 `hippy-dev` 进行调试构建，还提供了<span id="debug-server-api">接口供自定义的 CLI 工具封装时调用</span>，使用方法如下：
 
 ```javascript
-const { webpack, startDebugServer } = require('@hippy/debug-server-next');
+const { webpack } = require('@hippy/debug-server-next');
 
-// 进行 webpack 开发环境带 HMR 能力的打包构建
+// 开始 webpack 编译，支持 HMR 等能力
 webpack(webpackConfig, (err, stats) => {
-  // 处理 wepback 打包回调信息
+  // 处理 webpack 打包回调信息
 });
-
-// 启动调试 server
-startDebugServer();
 ```
 
 # 远程调试
