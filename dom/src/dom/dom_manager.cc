@@ -28,8 +28,6 @@ static std::unordered_map<int32_t, std::shared_ptr<DomManager>> dom_manager_map;
 static std::mutex mutex;
 static std::atomic<int32_t> global_dom_manager_key{0};
 
-constexpr uint32_t kInvalidListenerId = 0;
-
 DomManager::DomManager(uint32_t root_id) {
   root_node_ = std::make_shared<RootNode>(root_id);
   dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
@@ -116,23 +114,20 @@ void DomManager::EndBatch() {
 }
 
 void DomManager::AddEventListener(uint32_t id, const std::string& name, bool use_capture, const EventCallback& cb,
-                                  const CallFunctionCallback& callback) {
+                                  const AddEventCallback& callback) {
   DCHECK_RUN_THREAD()
   auto node = root_node_->GetNode(id);
-  if (!node && callback) {
-    callback(std::make_shared<DomArgument>(DomValue(kInvalidListenerId)));
-    return;
-  }
+  if (!node) return;
   node->AddEventListener(name, use_capture, cb, callback);
 }
 
-void DomManager::RemoveEventListener(uint32_t id, const std::string& name, uint32_t listener_id) {
+void DomManager::RemoveEventListener(uint32_t id, const std::string& name, uint32_t dom_event_id) {
   DCHECK_RUN_THREAD()
   auto node = root_node_->GetNode(id);
   if (!node) {
     return;
   }
-  node->RemoveEventListener(name, listener_id);
+  node->RemoveEventListener(name, dom_event_id);
 }
 
 void DomManager::CallFunction(uint32_t id, const std::string& name, const DomArgument& param,

@@ -1354,6 +1354,30 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
   return nullptr;
 }
 
+bool V8Ctx::Equals(const std::shared_ptr<CtxValue>& v1, const std::shared_ptr<CtxValue>& v2) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_v1 = std::static_pointer_cast<V8CtxValue>(v1);
+  std::shared_ptr<V8CtxValue> ctx_v2 = std::static_pointer_cast<V8CtxValue>(v2);
+
+  const v8::Global<v8::Value>& global_v1 = ctx_v1->global_value_;
+  TDF_BASE_DCHECK(!global_v1.IsEmpty());
+  v8::Local<v8::Value> local_v1 = v8::Local<v8::Value>::New(isolate_, global_v1);
+
+  const v8::Global<v8::Value>& global_v2 = ctx_v2->global_value_;
+  TDF_BASE_DCHECK(!global_v2.IsEmpty());
+  v8::Local<v8::Value> local_v2 = v8::Local<v8::Value>::New(isolate_, global_v2);
+
+  TDF_BASE_DCHECK(!local_v1.IsEmpty());
+
+  v8::Maybe<bool> maybe = local_v1->Equals(context, local_v2);
+  if(maybe.IsNothing()) {
+    return false;
+  }
+  return maybe.FromJust();
+}
+
 unicode_string_view V8Ctx::ToStringView(v8::Local<v8::String> str) const {
   TDF_BASE_DCHECK(!str.IsEmpty());
   v8::String* v8_string = v8::String::Cast(*str);
