@@ -26,37 +26,41 @@
 namespace hippy::devtools {
 
 // rsp json key
-constexpr char kCSSStyles[] = "styles";
+constexpr char kCssStyles[] = "styles";
 
 // default value
-constexpr uint32_t kCSSStyleNodeDepth = 1;
+constexpr uint32_t kCssStyleNodeDepth = 1;
 
-CSSDomain::CSSDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
-  css_data_call_back_ = [this](int32_t node_id, const CSSStyleDataCallback& callback) {
+CssDomain::CssDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
+  css_data_call_back_ = [this](int32_t node_id, CssStyleDataCallback callback) {
     auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
-    if (elements_request_adapter) {
-      auto response_callback = [callback, provider = GetDataProvider()](const DomainMetas& data) {
-        auto model = CSSModel::CreateModelByJSON(nlohmann::json::parse(data.Serialize()));
-        model.SetDataProvider(provider);
-        if (callback) {
-          callback(model);
-        }
-      };
-      elements_request_adapter->GetDomainData(node_id, false, kCSSStyleNodeDepth, response_callback);
+    if (!elements_request_adapter) {
+      if (callback) {
+        callback(CssModel());
+      }
+      return;
     }
+    auto response_callback = [callback, provider = GetDataProvider()](const DomainMetas& data) {
+      auto model = CssModel::CreateModelByJSON(nlohmann::json::parse(data.Serialize()));
+      model.SetDataProvider(provider);
+      if (callback) {
+        callback(model);
+      }
+    };
+    elements_request_adapter->GetDomainData(node_id, false, kCssStyleNodeDepth, response_callback);
   };
 }
 
-std::string_view CSSDomain::GetDomainName() { return kFrontendKeyDomainNameCSS; }
+std::string CssDomain::GetDomainName() { return kFrontendKeyDomainNameCSS; }
 
-void CSSDomain::RegisterMethods() {
-  REGISTER_DOMAIN(CSSDomain, GetMatchedStylesForNode, CSSNodeDataRequest);
-  REGISTER_DOMAIN(CSSDomain, GetComputedStyleForNode, CSSNodeDataRequest);
-  REGISTER_DOMAIN(CSSDomain, GetInlineStylesForNode, CSSNodeDataRequest);
-  REGISTER_DOMAIN(CSSDomain, SetStyleTexts, CSSEditStyleTextsRequest);
+void CssDomain::RegisterMethods() {
+  REGISTER_DOMAIN(CssDomain, GetMatchedStylesForNode, CssNodeDataRequest);
+  REGISTER_DOMAIN(CssDomain, GetComputedStyleForNode, CssNodeDataRequest);
+  REGISTER_DOMAIN(CssDomain, GetInlineStylesForNode, CssNodeDataRequest);
+  REGISTER_DOMAIN(CssDomain, SetStyleTexts, CssEditStyleTextsRequest);
 }
 
-void CSSDomain::GetMatchedStylesForNode(const CSSNodeDataRequest& request) {
+void CssDomain::GetMatchedStylesForNode(const CssNodeDataRequest& request) {
   if (!css_data_call_back_) {
     ResponseErrorToFrontend(request.GetId(), kErrorFailCode,
                             "CSSDomain, GetMatchedStyles, css_data_call_back_ is null");
@@ -66,12 +70,12 @@ void CSSDomain::GetMatchedStylesForNode(const CSSNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetMatchedStyles, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [this, request](CSSModel model) {
+  css_data_call_back_(request.GetNodeId(), [this, request](CssModel model) {
     ResponseResultToFrontend(request.GetId(), model.GetMatchedStylesJSON().dump());
   });
 }
 
-void CSSDomain::GetComputedStyleForNode(const CSSNodeDataRequest& request) {
+void CssDomain::GetComputedStyleForNode(const CssNodeDataRequest& request) {
   if (!css_data_call_back_) {
     ResponseErrorToFrontend(request.GetId(), kErrorFailCode,
                             "CSSDomain, GetComputedStyle, css_data_call_back_ is null");
@@ -81,12 +85,12 @@ void CSSDomain::GetComputedStyleForNode(const CSSNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetComputedStyle, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [this, request](CSSModel model) {
+  css_data_call_back_(request.GetNodeId(), [this, request](CssModel model) {
     ResponseResultToFrontend(request.GetId(), model.GetComputedStyleJSON().dump());
   });
 }
 
-void CSSDomain::GetInlineStylesForNode(const CSSNodeDataRequest& request) {
+void CssDomain::GetInlineStylesForNode(const CssNodeDataRequest& request) {
   if (!css_data_call_back_) {
     ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "CSSDomain, GetInlineStyles, css_data_call_back_ is null");
     return;
@@ -95,12 +99,12 @@ void CSSDomain::GetInlineStylesForNode(const CSSNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetInlineStyles, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [this, request](const CSSModel& model) {
-    ResponseResultToFrontend(request.GetId(), CSSModel::GetInlineStylesJSON().dump());
+  css_data_call_back_(request.GetNodeId(), [this, request](const CssModel& model) {
+    ResponseResultToFrontend(request.GetId(), CssModel::GetInlineStylesJSON().dump());
   });
 }
 
-void CSSDomain::SetStyleTexts(const CSSEditStyleTextsRequest& request) {
+void CssDomain::SetStyleTexts(const CssEditStyleTextsRequest& request) {
   if (!css_data_call_back_) {
     ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "CSSDomain, SetStyleTexts, css_data_call_back_ is null");
     return;
@@ -120,10 +124,10 @@ void CSSDomain::SetStyleTexts(const CSSEditStyleTextsRequest& request) {
   for (auto& edit : edits.items()) {
     auto edit_value = edit.value();
     auto node_id = edit_value[kFrontendKeyStyleSheetId];
-    css_data_call_back_(node_id, [this, request, edit_value](CSSModel model) {
+    css_data_call_back_(node_id, [this, request, edit_value](CssModel model) {
       auto style_texts = style_text_map_[request.GetId()];
       auto request_call_back_count = request_call_back_count_map_[request.GetId()];
-      auto style_json = model.GetStyleTextJSON(edit_value);
+      auto style_json = model.UpdateDomTreeAndGetStyleTextJSON(edit_value);
       if (!style_json.is_null()) {
         style_texts.push_back(style_json);
       }
@@ -134,7 +138,7 @@ void CSSDomain::SetStyleTexts(const CSSEditStyleTextsRequest& request) {
         return;
       }
       auto style_result = nlohmann::json::object();
-      style_result[kCSSStyles] = style_texts;
+      style_result[kCssStyles] = style_texts;
       ResponseResultToFrontend(request.GetId(), style_result.dump());
       // clear data
       style_text_map_.erase(request.GetId());

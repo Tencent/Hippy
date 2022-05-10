@@ -24,7 +24,7 @@
 
 namespace hippy::devtools {
 
-std::string_view TDFMemoryDomain::GetDomainName() { return kFrontendKeyDomainNameTDFMemory; }
+std::string TDFMemoryDomain::GetDomainName() { return kFrontendKeyDomainNameTDFMemory; }
 
 void TDFMemoryDomain::RegisterMethods() { REGISTER_DOMAIN(TDFMemoryDomain, GetHeapMeta, Deserializer); }
 

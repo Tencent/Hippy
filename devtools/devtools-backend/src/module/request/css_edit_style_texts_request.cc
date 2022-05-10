@@ -22,7 +22,7 @@
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
-void CSSEditStyleTextsRequest::Deserialize(const std::string& params) {
+void CssEditStyleTextsRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
   if (!params_json.is_object() || params_json.find(kFrontendKeyEdits) == params_json.end()) {
     return;

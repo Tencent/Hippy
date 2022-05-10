@@ -36,7 +36,7 @@ PageDomain::PageDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std:
   HandleFramePollModelRefreshNotification();
 }
 
-std::string_view PageDomain::GetDomainName() { return kFrontendKeyDomainNamePage; }
+std::string PageDomain::GetDomainName() { return kFrontendKeyDomainNamePage; }
 
 void PageDomain::RegisterMethods() {
   REGISTER_DOMAIN(PageDomain, StartScreencast, ScreenShotRequest);

@@ -43,7 +43,7 @@ class BaseDomain {
   /**
    * @brief domain name
    */
-  virtual std::string_view GetDomainName() = 0;
+  virtual std::string GetDomainName() = 0;
 
   /**
    * @brief register domain method
@@ -80,7 +80,6 @@ class BaseDomain {
   void SendEventToFrontend(InspectEvent&& event);
 
  protected:
-
   std::weak_ptr<DomainDispatch> dispatch_;
 
   std::shared_ptr<DataProvider> GetDataProvider();

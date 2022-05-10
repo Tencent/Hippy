@@ -33,7 +33,7 @@ namespace hippy::devtools {
 class PageDomain : public BaseDomain {
  public:
   explicit PageDomain(std::weak_ptr<DomainDispatch> dispatch);
-  std::string_view GetDomainName() override;
+  std::string GetDomainName() override;
   void RegisterMethods() override;
 
  private:

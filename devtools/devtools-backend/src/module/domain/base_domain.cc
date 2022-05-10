@@ -40,25 +40,35 @@ bool BaseDomain::HandleDomainSwitchEvent(int32_t id, const std::string& method) 
 
 void BaseDomain::ResponseResultToFrontend(int32_t id, const std::string& result) {
   auto dispatch = dispatch_.lock();
-  if (dispatch) {
-    dispatch->SendDataToFrontend(id, result, {});
+  if (!dispatch) {
+    return;
   }
+  dispatch->SendDataToFrontend(id, result, {});
 }
 
 void BaseDomain::ResponseErrorToFrontend(int32_t id, const int32_t error_code, const std::string& error_msg) {
-  std::stringstream sstream;
-  sstream << "{\"" << kErrorCode << "\":" << error_code << ",\"" << kErrorMessage << "\":\"" << error_msg << "\"}";
   auto dispatch = dispatch_.lock();
-  if (dispatch) {
-    dispatch->SendDataToFrontend(id, "", sstream.str());
+  if (!dispatch) {
+    return;
   }
+  std::string msg_string = "{\"";
+  msg_string += kErrorCode;
+  msg_string += "\":";
+  msg_string += error_code;
+  msg_string += ",\"";
+  msg_string += kErrorMessage;
+  msg_string += "\":\"";
+  msg_string += error_msg;
+  msg_string += "\"}";
+  dispatch->SendDataToFrontend(id, "", msg_string);
 }
 
 void BaseDomain::SendEventToFrontend(InspectEvent&& event) {
   auto dispatch = dispatch_.lock();
-  if (dispatch) {
-    dispatch->SendEventToFrontend(std::move(event));
+  if (!dispatch) {
+    return;
   }
+  dispatch->SendEventToFrontend(std::move(event));
 }
 
 std::shared_ptr<DataProvider> BaseDomain::GetDataProvider() {
@@ -77,4 +87,4 @@ std::shared_ptr<NotificationCenter> BaseDomain::GetNotificationCenter() {
   return domain_dispatch->GetDataChannel()->GetNotificationCenter();
 }
 
-}  // namespace hippy
+}  // namespace hippy::devtools

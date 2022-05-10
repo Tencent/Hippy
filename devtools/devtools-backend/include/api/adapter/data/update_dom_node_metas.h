@@ -26,70 +26,70 @@
 
 namespace hippy::devtools {
 
-class CSSStyleMetas;
-
+class CssStyleMetas;
 
 class UpdateDomNodeMetas {
  public:
   UpdateDomNodeMetas() = default;
-  explicit UpdateDomNodeMetas(int32_t id, std::vector<CSSStyleMetas> list) : node_id_(id), style_metas_list_(list) {}
+  explicit UpdateDomNodeMetas(int32_t id, std::vector<CssStyleMetas> list) : node_id_(id), style_metas_list_(list) {}
 
   int32_t GetNodeId() { return node_id_; }
-  std::vector<CSSStyleMetas> GetStyleMetasList() { return style_metas_list_; }
+  std::vector<CssStyleMetas> GetStyleMetasList() { return style_metas_list_; }
 
  private:
   int32_t node_id_;
-  std::vector<CSSStyleMetas> style_metas_list_;  // css style properties list
+  std::vector<CssStyleMetas> style_metas_list_;  // css style properties list
 };
 
 /**
- * css style 属性数据
+ * css style property data
  */
-class CSSStyleMetas {
+class CssStyleMetas {
  public:
-  enum class Type { kDouble, kString };  // 属性值类型，目前支持 double 和 string，后续可以扩展
+  // property value type. currently supports double and string, but can be extended later
+  enum class Type { kDouble, kString };
 
   /**
-   * @brief 默认构造函数，默认属性值为 double 类型
+   * @brief default constructor，the default property value is double
    */
-  CSSStyleMetas() : key_(""), type_(Type::kDouble), double_value_(0.f) {}
+  CssStyleMetas() : key_(""), type_(Type::kDouble), double_value_(0.f) {}
 
   /**
-   * @brief 构造 double 类型的属性
+   * @brief construct a property of type double
    */
-  explicit CSSStyleMetas(std::string key, double number) : key_(key), type_(Type::kDouble), double_value_(number) {}
+  explicit CssStyleMetas(std::string key, double number) : key_(key), type_(Type::kDouble), double_value_(number) {}
 
   /**
-   * @brief 构造 string 类型的属性
+   * @brief construct a property of type string
    */
-  explicit CSSStyleMetas(std::string key, std::string string)
+  explicit CssStyleMetas(std::string key, std::string string)
       : key_(key), type_(Type::kString), string_value_(string) {}
 
   /**
-   * @brief 属性是否是 double 类型
+   * @brief property is double type
    */
-  bool IsDouble() const noexcept;
+  inline bool IsDouble() const noexcept { return type_ == Type::kDouble; }
 
   /**
-   * @brief 属性是否是 string 类型
+   * @brief property is string type
    */
-  bool IsString() const noexcept;
+  inline bool IsString() const noexcept { return type_ == Type::kString; }
 
   /**
-   * @brief 获取 string 类型属性值
+   * @brief get string type value
    */
-  std::string ToString();
+  inline std::string ToString() { return IsString() ? string_value_ : ""; }
 
   /**
-   * @brief 获取 double 类型属性值
+   * @brief get double type value
    */
-  double ToDouble() const;
+  inline double ToDouble() const { return IsDouble() ? double_value_ : 0.f; }
 
   std::string GetKey() { return key_; }
 
  private:
-  std::string key_;            // 属性名
-  Type type_;                  // 属性值类型
+  std::string key_;  // property name
+  Type type_;        // property type
   double double_value_;
   std::string string_value_;
 };

@@ -32,7 +32,7 @@ constexpr char kPerformanceDomainMethodv8Tracing[] = "v8Tracing";
 constexpr char kPerformanceDomainMethodFrameTimings[] = "frameTimings";
 constexpr char kPerformanceDomainMethodTimeline[] = "timeline";
 
-std::string_view TDFPerformanceDomain::GetDomainName() { return kFrontendKeyDomainNameTDFPerformance; }
+std::string TDFPerformanceDomain::GetDomainName() { return kFrontendKeyDomainNameTDFPerformance; }
 
 void TDFPerformanceDomain::RegisterMethods() {
   REGISTER_DOMAIN(TDFPerformanceDomain, Start, Deserializer);

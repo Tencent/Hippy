@@ -31,7 +31,7 @@ namespace hippy::devtools {
 class TDFPerformanceDomain : public BaseDomain {
  public:
   explicit TDFPerformanceDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
-  std::string_view GetDomainName() override;
+  std::string GetDomainName() override;
   void RegisterMethods() override;
 
  private:

@@ -45,16 +45,16 @@ enum class DomNodeType {
 /**
  * @brief chrome devtools DOM model, @see https://chromedevtools.github.io/devtools-protocol/tot/DOM/
  */
-class DOMModel : public BaseModel {
+class DomModel : public BaseModel {
  public:
-  DOMModel() = default;
+  DomModel() = default;
 
   /**
    * @brief create dom model by json
    * @param json dom json struct
    * @return DOMModel
    */
-  static DOMModel CreateModelByJSON(const nlohmann::json& json);
+  static DomModel CreateModelByJSON(const nlohmann::json& json);
 
   /**
    * @brief dom method to getDocument
@@ -121,7 +121,7 @@ class DOMModel : public BaseModel {
   void SetRelationTree(const nlohmann::json& relation_tree) { relation_tree_ = relation_tree; }
   nlohmann::json GetRelationTree() const { return relation_tree_; }
 
-  std::vector<DOMModel>& GetChildren() { return children_; }
+  std::vector<DomModel>& GetChildren() { return children_; }
 
  private:
   nlohmann::json GetNodeJSON(DomNodeType node_type);
@@ -133,7 +133,7 @@ class DOMModel : public BaseModel {
   nlohmann::json ParseNodeBasicJSON(DomNodeType node_type);
   nlohmann::json ParseAttributesObjectToArray();
 
-  std::vector<DOMModel> children_;
+  std::vector<DomModel> children_;
   std::string local_name_;
   std::string node_name_;
   std::string node_value_;

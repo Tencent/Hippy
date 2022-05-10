@@ -27,9 +27,9 @@ namespace hippy::devtools {
 /**
  * @brief edit CSS Style Texts request
  */
-class CSSEditStyleTextsRequest : public Deserializer {
+class CssEditStyleTextsRequest : public Deserializer {
  public:
-  CSSEditStyleTextsRequest() : has_set_edits_(false) {}
+  CssEditStyleTextsRequest() : has_set_edits_(false) {}
   void Deserialize(const std::string& params) override;
 
   nlohmann::json GetEdits() const { return edits_; }

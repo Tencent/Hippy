@@ -27,9 +27,9 @@ namespace hippy::devtools {
 /**
  * @brief get CSS node model request
  */
-class CSSNodeDataRequest : public Deserializer {
+class CssNodeDataRequest : public Deserializer {
  public:
-  CSSNodeDataRequest() : has_set_node_id_(false) {}
+  CssNodeDataRequest() : has_set_node_id_(false) {}
   void Deserialize(const std::string& params) override;
 
   int32_t GetNodeId() const { return node_id_; }

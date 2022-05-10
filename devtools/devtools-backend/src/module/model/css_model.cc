@@ -35,9 +35,9 @@ constexpr char kComputedStyleKey[] = "computedStyle";
 constexpr char kInlineStyleKey[] = "inlineStyle";
 constexpr char kNodeId[] = "nodeId";
 constexpr char kStyleSheetIdKey[] = "styleSheetId";
-constexpr char kCSSPropertiesKey[] = "cssProperties";
+constexpr char kCssPropertiesKey[] = "cssProperties";
 constexpr char kShorthandEntriesKey[] = "shorthandEntries";
-constexpr char kCSSTextKey[] = "cssText";
+constexpr char kCssTextKey[] = "cssText";
 constexpr char kRangeKey[] = "range";
 constexpr char kStyleKey[] = "style";
 constexpr char kStyleNameKey[] = "name";
@@ -58,15 +58,15 @@ constexpr char kDefaultLength[] = "0";
 constexpr char kDefaultDisplay[] = "block";
 constexpr char kDefaultPosition[] = "relative";
 
-CSSModel::CSSModel() {
+CssModel::CssModel() {
   InitializeBoxModelRequireMap();
   InitializeStyleNumberMap();
   InitializeStyleEnumMap();
 }
 
-CSSModel CSSModel::CreateModelByJSON(const nlohmann::json& json) {
+CssModel CssModel::CreateModelByJSON(const nlohmann::json& json) {
   assert(json.is_object());
-  CSSModel model;
+  CssModel model;
   model.SetNodeId(TDFParseJSONUtil::GetJSONValue(json, kNodeId, 0));
   model.SetWidth(TDFParseJSONUtil::GetJSONValue(json, kWidth, 0.0));
   model.SetHeight(TDFParseJSONUtil::GetJSONValue(json, kHeight, 0.0));
@@ -74,24 +74,24 @@ CSSModel CSSModel::CreateModelByJSON(const nlohmann::json& json) {
   return model;
 }
 
-nlohmann::json CSSModel::GetMatchedStylesJSON() {
+nlohmann::json CssModel::GetMatchedStylesJSON() {
   auto matched_styles_json = nlohmann::json::object();
-  matched_styles_json[kInlineStyleKey] = ParseCSSStyle();
+  matched_styles_json[kInlineStyleKey] = ParseCssStyle();
   return matched_styles_json;
 }
 
-nlohmann::json CSSModel::GetComputedStyleJSON() {
+nlohmann::json CssModel::GetComputedStyleJSON() {
   auto computed_style_json = nlohmann::json::object();
   computed_style_json[kComputedStyleKey] = ParseComputedStyle();
   return computed_style_json;
 }
 
-nlohmann::json CSSModel::GetInlineStylesJSON() {
+nlohmann::json CssModel::GetInlineStylesJSON() {
   // inline style use be in GetMatchedStylesJSON, so don't handle now
   return nlohmann::json::object();
 }
 
-nlohmann::json CSSModel::GetStyleTextJSON(const nlohmann::json& text) {
+nlohmann::json CssModel::UpdateDomTreeAndGetStyleTextJSON(const nlohmann::json& text) {
   if (!provider_) {
     return nlohmann::json::object();
   }
@@ -116,17 +116,26 @@ nlohmann::json CSSModel::GetStyleTextJSON(const nlohmann::json& text) {
       BACKEND_LOGI(TDF_BACKEND, "CSS, update dom tree, id: %ld, success: %d", update_node_id, is_success);
     });
   }
-  return ParseCSSStyle();
+  return ParseCssStyle();
 }
 
-nlohmann::json CSSModel::ParseComputedStyle() {
+nlohmann::json CssModel::ParseComputedStyle() {
   auto computed_styles = nlohmann::json::array();
   if (style_.empty()) {
     return computed_styles;
   }
   for (auto& prop : style_.items()) {
     auto& key = prop.key();
-    if (!ContainsStyleKey(key) || key == kWidth || key == kHeight) {
+    if (!ContainsStyleKey(key)) {
+      continue;
+    }
+    // width and height are not taken from style, but from the actual render result
+    if (key == kWidth) {
+      computed_styles.emplace_back(GetStylePropertyJSON(TDFStringUtil::UnCamelize(kWidth), std::to_string(width_)));
+      continue;
+    }
+    if (key == kHeight) {
+      computed_styles.emplace_back(GetStylePropertyJSON(TDFStringUtil::UnCamelize(kHeight), std::to_string(height_)));
       continue;
     }
     auto value = prop.value();
@@ -142,13 +151,10 @@ nlohmann::json CSSModel::ParseComputedStyle() {
       computed_styles.emplace_back(GetStylePropertyJSON(TDFStringUtil::UnCamelize(box_model.first), box_model.second));
     }
   }
-
-  computed_styles.emplace_back(GetStylePropertyJSON(TDFStringUtil::UnCamelize(kWidth), std::to_string(width_)));
-  computed_styles.emplace_back(GetStylePropertyJSON(TDFStringUtil::UnCamelize(kHeight), std::to_string(height_)));
   return computed_styles;
 }
 
-nlohmann::json CSSModel::ParseCSSStyle() {
+nlohmann::json CssModel::ParseCssStyle() {
   auto style_json = nlohmann::json::object();
   if (style_.empty()) {
     return style_json;
@@ -164,28 +170,29 @@ nlohmann::json CSSModel::ParseCSSStyle() {
     if (!css_value.is_string()) {
       css_value = TDFStringUtil::Characterization(css_value);
     }
+    // css_value can be numbers or strings, so stringstream is used
     std::stringstream css_text_stream;
     css_text_stream << css_name << ":" << css_value;
     std::string css_text = css_text_stream.str();
     auto source_range = GetRange(0, all_of_css_text.length(), 0, all_of_css_text.length() + css_text.length() + 1);
-    auto css_property = GetCSSPropertyJSON(css_name, css_value, source_range);
+    auto css_property = GetCssPropertyJSON(css_name, css_value, source_range);
     css_properties.emplace_back(css_property);
     all_of_css_text = all_of_css_text.append(css_text).append(";");
   }
   style_json[kStyleSheetIdKey] = node_id_;
-  style_json[kCSSPropertiesKey] = css_properties;
+  style_json[kCssPropertiesKey] = css_properties;
   style_json[kShorthandEntriesKey] = nlohmann::json::object();
-  style_json[kCSSTextKey] = all_of_css_text;
+  style_json[kCssTextKey] = all_of_css_text;
   style_json[kRangeKey] = GetRange(0, 0, 0, all_of_css_text.length());
   return style_json;
 }
 
-std::vector<CSSStyleMetas> CSSModel::ParseStyleTextValue(const std::string& text_value) {
+std::vector<CssStyleMetas> CssModel::ParseStyleTextValue(const std::string& text_value) {
   if (text_value.empty()) {
     return {};
   }
   auto text_list = TDFStringUtil::SplitString(text_value, ";");
-  auto update_info = std::vector<CSSStyleMetas>{};
+  auto update_info = std::vector<CssStyleMetas>{};
   for (auto& property : text_list) {
     auto property_list = TDFStringUtil::SplitString(property, ":");
     if (property_list.size() != 2) {
@@ -213,18 +220,18 @@ std::vector<CSSStyleMetas> CSSModel::ParseStyleTextValue(const std::string& text
   return update_info;
 }
 
-bool CSSModel::ContainsStyleKey(const std::string& key) {
+bool CssModel::ContainsStyleKey(const std::string& key) {
   return style_number_set_.find(key) != style_number_set_.end() || style_enum_map_.find(key) != style_enum_map_.end();
 }
 
-nlohmann::json CSSModel::GetStylePropertyJSON(const std::string& name, const std::string& value) {
+nlohmann::json CssModel::GetStylePropertyJSON(const std::string& name, const std::string& value) {
   auto result = nlohmann::json::object();
   result[kStyleNameKey] = name;
   result[kStyleValueKey] = value;
   return result;
 }
 
-nlohmann::json CSSModel::GetCSSPropertyJSON(const std::string& name, const std::string& value,
+nlohmann::json CssModel::GetCssPropertyJSON(const std::string& name, const std::string& value,
                                             const nlohmann::json& source_range) {
   auto css_property = nlohmann::json::object();
   css_property[kStyleNameKey] = name;
@@ -238,7 +245,7 @@ nlohmann::json CSSModel::GetCSSPropertyJSON(const std::string& name, const std::
   return css_property;
 }
 
-nlohmann::json CSSModel::GetRange(int32_t start_line, int32_t start_column, int32_t end_line, int32_t end_column) {
+nlohmann::json CssModel::GetRange(int32_t start_line, int32_t start_column, int32_t end_line, int32_t end_column) {
   auto range_json = nlohmann::json::object();
   range_json[kStyleStartLineKey] = start_line;
   range_json[kStyleStartColumnKey] = start_column;
@@ -247,7 +254,7 @@ nlohmann::json CSSModel::GetRange(int32_t start_line, int32_t start_column, int3
   return range_json;
 }
 
-std::string CSSModel::ConversionEnum(const std::vector<std::string>& options, const std::string& value) {
+std::string CssModel::ConversionEnum(const std::vector<std::string>& options, const std::string& value) {
   if (options.empty()) {
     return value;
   }
@@ -259,7 +266,7 @@ std::string CSSModel::ConversionEnum(const std::vector<std::string>& options, co
   return options[0];
 }
 
-void CSSModel::InitializeBoxModelRequireMap() {
+void CssModel::InitializeBoxModelRequireMap() {
   box_model_require_map_[kPaddingTop] = kDefaultLength;
   box_model_require_map_[kPaddingLeft] = kDefaultLength;
   box_model_require_map_[kPaddingRight] = kDefaultLength;
@@ -276,7 +283,7 @@ void CSSModel::InitializeBoxModelRequireMap() {
   box_model_require_map_[kPosition] = kDefaultPosition;
 }
 
-void CSSModel::InitializeStyleNumberMap() {
+void CssModel::InitializeStyleNumberMap() {
   style_number_set_ = {kFlex,
                        kFlexGrow,
                        kFlexShrink,
@@ -315,7 +322,7 @@ void CSSModel::InitializeStyleNumberMap() {
                        kLineHeight};
 }
 
-void CSSModel::InitializeStyleEnumMap() {
+void CssModel::InitializeStyleEnumMap() {
   style_enum_map_[kDisplay] = {kDisplayFlex, kDisplayNone};
   style_enum_map_[kFlexDirection] = {kFlexDirectionColumn, kFlexDirectionColumnReverse, kFlexDirectionRow,
                                      kFlexDirectionRowReverse};

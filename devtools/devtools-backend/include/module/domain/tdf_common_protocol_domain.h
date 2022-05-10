@@ -32,7 +32,7 @@ namespace hippy::devtools {
 class TDFCommonProtocolDomain : public BaseDomain {
  public:
   explicit TDFCommonProtocolDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
-  std::string_view GetDomainName() override;
+  std::string GetDomainName() override;
   void RegisterMethods() override;
 
   bool ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params);

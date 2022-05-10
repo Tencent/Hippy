@@ -39,7 +39,7 @@ TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) :
   HandleFramePollModelRefreshNotification();
 }
 
-std::string_view TDFInspectorDomain::GetDomainName() { return kFrontendKeyDomainNameTDFInspector; }
+std::string TDFInspectorDomain::GetDomainName() { return kFrontendKeyDomainNameTDFInspector; }
 
 void TDFInspectorDomain::RegisterMethods() {
   REGISTER_DOMAIN(TDFInspectorDomain, DumpDomTree, Deserializer);

@@ -24,7 +24,7 @@
 
 namespace hippy::devtools {
 
-std::string_view TDFRuntimeDomain::GetDomainName() { return kFrontendKeyDomainNameTDFRuntime; }
+std::string TDFRuntimeDomain::GetDomainName() { return kFrontendKeyDomainNameTDFRuntime; }
 
 void TDFRuntimeDomain::RegisterMethods() {
   REGISTER_DOMAIN(TDFRuntimeDomain, Resume, Deserializer);

@@ -18,12 +18,12 @@
  * limitations under the License.
  */
 
-#include "module/inspect_props.h"
 #include "module/request/css_node_data_request.h"
+#include "module/inspect_props.h"
 
 namespace hippy::devtools {
 
-void CSSNodeDataRequest::Deserialize(const std::string& params) {
+void CssNodeDataRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
   if (!params_json.is_object() || params_json.find(kFrontendKeyNodeId) == params_json.end()) {
     return;

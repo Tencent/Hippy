@@ -26,7 +26,7 @@ namespace hippy::devtools {
 
 NetworkDomain::NetworkDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
 
-std::string_view NetworkDomain::GetDomainName() { return kFrontendKeyDomainNameNetwork; }
+std::string NetworkDomain::GetDomainName() { return kFrontendKeyDomainNameNetwork; }
 
 void NetworkDomain::RegisterMethods() { REGISTER_DOMAIN(NetworkDomain, GetResponseBody, NetworkResponseBodyRequest) }
 

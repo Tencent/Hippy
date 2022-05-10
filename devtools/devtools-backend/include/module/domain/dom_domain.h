@@ -34,14 +34,15 @@ namespace hippy::devtools {
 /**
  * @brief DOM domain
  */
-class DOMDomain : public BaseDomain {
+class DomDomain : public BaseDomain {
  public:
-  using DomDataCallback = std::function<void(DOMModel model)>;
+  using DomDataCallback = std::function<void(DomModel model)>;
   using DomDataRequestCallback =
-      std::function<void(int32_t node_id, bool is_root, uint32_t depth, const DomDataCallback& callback)>;
-  using LocationForNodeDataCallback = std::function<void(double x, double y, const DomDataCallback& callback)>;
-  explicit DOMDomain(std::weak_ptr<DomainDispatch> dispatch);
-  std::string_view GetDomainName() override;
+      std::function<void(int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback)>;
+  using LocationForNodeDataCallback = std::function<void(double x, double y, DomDataCallback callback)>;
+
+  explicit DomDomain(std::weak_ptr<DomainDispatch> dispatch);
+  std::string GetDomainName() override;
   void RegisterMethods() override;
   void SetDomDataRequestCallback(DomDataRequestCallback call_back) { dom_data_call_back_ = call_back; }
 
@@ -53,12 +54,12 @@ class DOMDomain : public BaseDomain {
   void RemoveNode(const Deserializer& request);
   void SetInspectedNode(const Deserializer& request);
   void HandleDocumentUpdate();
-  void CacheDocumentNode(DOMModel model);
-  void SetChildNodesEvent(DOMModel model);
+  void CacheEntireDocumentTree(DomModel root_model);
+  void SetChildNodesEvent(DomModel model);
   int32_t SearchNearlyCacheNode(nlohmann::json relation_tree);
 
   // <node_id, children_size>
-  std::map<int32_t, int32_t> element_tree_cache_;
+  std::map<int32_t, uint32_t> element_node_children_count_cache_;
   DomDataRequestCallback dom_data_call_back_;
   LocationForNodeDataCallback location_for_node_call_back_;
 };

@@ -19,10 +19,10 @@
  */
 
 #include "module/domain_dispatch.h"
-#include "devtools_base/logging.h"
 #include <regex>
 #include "api/devtools_backend_service.h"
 #include "devtools_base/domain_propos.h"
+#include "devtools_base/logging.h"
 #include "module/domain/css_domain.h"
 #include "module/domain/dom_domain.h"
 #include "module/domain/network_domain.h"
@@ -44,8 +44,8 @@ constexpr char kDomainDispatchError[] = "error";
 using json = nlohmann::json;
 
 void DomainDispatch::RegisterJSDebuggerDomainListener() {
-  auto dom_domain = std::make_shared<DOMDomain>(shared_from_this());
-  auto css_domain = std::make_shared<CSSDomain>(shared_from_this());
+  auto dom_domain = std::make_shared<DomDomain>(shared_from_this());
+  auto css_domain = std::make_shared<CssDomain>(shared_from_this());
   auto page_domain = std::make_shared<PageDomain>(shared_from_this());
   RegisterDomainHandler(dom_domain);
   RegisterDomainHandler(css_domain);

@@ -40,7 +40,7 @@ namespace hippy::devtools {
 class TDFInspectorDomain : public BaseDomain {
  public:
   explicit TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch);
-  std::string_view GetDomainName() override;
+  std::string GetDomainName() override;
   void RegisterMethods() override;
 
  private:

@@ -32,16 +32,16 @@ namespace hippy::devtools {
 /**
  * @brief CSS Model, @see https://chromedevtools.github.io/devtools-protocol/tot/CSS/
  */
-class CSSModel : public BaseModel {
+class CssModel : public BaseModel {
  public:
-  CSSModel();
+  CssModel();
 
   /**
    * @brief create css mode by json
    * @param json css struct
    * @return CSSModel
    */
-  static CSSModel CreateModelByJSON(const nlohmann::json& json);
+  static CssModel CreateModelByJSON(const nlohmann::json& json);
 
   /**
    * @brief css method to getMatchedStyles
@@ -65,7 +65,7 @@ class CSSModel : public BaseModel {
    * @brief css method to setStyleTexts, it will effect the display
    * @return style json
    */
-  nlohmann::json GetStyleTextJSON(const nlohmann::json& text);
+  nlohmann::json UpdateDomTreeAndGetStyleTextJSON(const nlohmann::json& text);
 
   void SetWidth(double width) { width_ = width; }
   constexpr double GetWidth() const { return width_; }
@@ -84,11 +84,11 @@ class CSSModel : public BaseModel {
   void InitializeStyleNumberMap();
   void InitializeStyleEnumMap();
   nlohmann::json ParseComputedStyle();
-  nlohmann::json ParseCSSStyle();
-  std::vector<hippy::devtools::CSSStyleMetas> ParseStyleTextValue(const std::string& text_value);
+  nlohmann::json ParseCssStyle();
+  std::vector<hippy::devtools::CssStyleMetas> ParseStyleTextValue(const std::string& text_value);
   bool ContainsStyleKey(const std::string& key);
   static nlohmann::json GetStylePropertyJSON(const std::string& name, const std::string& value);
-  static nlohmann::json GetCSSPropertyJSON(const std::string& name, const std::string& value,
+  static nlohmann::json GetCssPropertyJSON(const std::string& name, const std::string& value,
                                            const nlohmann::json& source_range);
   static nlohmann::json GetRange(int32_t start_line, int32_t start_column, int32_t end_line, int32_t end_column);
   static std::string ConversionEnum(const std::vector<std::string>& options, const std::string& value);

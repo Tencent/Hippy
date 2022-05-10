@@ -31,7 +31,7 @@ namespace hippy::devtools {
 class TDFRuntimeDomain : public BaseDomain {
  public:
   explicit TDFRuntimeDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
-  std::string_view GetDomainName() override;
+  std::string GetDomainName() override;
   void RegisterMethods() override;
 
  private:

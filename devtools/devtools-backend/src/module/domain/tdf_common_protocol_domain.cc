@@ -24,7 +24,7 @@
 
 namespace hippy::devtools {
 
-std::string_view TDFCommonProtocolDomain::GetDomainName() { return kFrontendKeyDomainNameTDF; }
+std::string TDFCommonProtocolDomain::GetDomainName() { return kFrontendKeyDomainNameTDF; }
 
 void TDFCommonProtocolDomain::RegisterMethods() {}
 

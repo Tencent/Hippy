@@ -34,31 +34,31 @@ namespace hippy::devtools {
 /**
  * @brief CSSModel callback
  */
-using CSSStyleDataCallback = std::function<void(const CSSModel& model)>;
+using CssStyleDataCallback = std::function<void(const CssModel& model)>;
 
 /**
  * @brief css style by node id
  * @param node_id
  * @param callback
  */
-using CSSDataRequestCallback = std::function<void(int32_t node_id, const CSSStyleDataCallback& callback)>;
+using CssDataRequestCallback = std::function<void(int32_t node_id, CssStyleDataCallback callback)>;
 
 /**
  * @brief CSS domain
  */
-class CSSDomain : public BaseDomain {
+class CssDomain : public BaseDomain {
  public:
-  explicit CSSDomain(std::weak_ptr<DomainDispatch> dispatch);
-  std::string_view GetDomainName() override;
+  explicit CssDomain(std::weak_ptr<DomainDispatch> dispatch);
+  std::string GetDomainName() override;
   void RegisterMethods() override;
 
  private:
-  void GetMatchedStylesForNode(const CSSNodeDataRequest& request);
-  void GetComputedStyleForNode(const CSSNodeDataRequest& request);
-  void GetInlineStylesForNode(const CSSNodeDataRequest& request);
-  void SetStyleTexts(const CSSEditStyleTextsRequest& request);
+  void GetMatchedStylesForNode(const CssNodeDataRequest& request);
+  void GetComputedStyleForNode(const CssNodeDataRequest& request);
+  void GetInlineStylesForNode(const CssNodeDataRequest& request);
+  void SetStyleTexts(const CssEditStyleTextsRequest& request);
 
-  CSSDataRequestCallback css_data_call_back_;
+  CssDataRequestCallback css_data_call_back_;
   std::map<int32_t, nlohmann::json> style_text_map_;
   std::map<int32_t, uint32_t> request_call_back_count_map_;
 };

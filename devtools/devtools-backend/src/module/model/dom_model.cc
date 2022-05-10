@@ -58,9 +58,9 @@ constexpr int32_t kDocumentNodeId = -3;
 constexpr int32_t kDocumentChildNodeCount = 1;
 constexpr int32_t kInvalidNodeId = -1;
 
-DOMModel DOMModel::CreateModelByJSON(const nlohmann::json& json) {
+DomModel DomModel::CreateModelByJSON(const nlohmann::json& json) {
   assert(json.is_object());
-  DOMModel model;
+  DomModel model;
   model.SetNodeId(TDFParseJSONUtil::GetJSONValue(json, kNodeId, 0));
   model.SetParentId(TDFParseJSONUtil::GetJSONValue(json, kParentId, 0));
   model.SetRootId(TDFParseJSONUtil::GetJSONValue(json, kRootId, 0));
@@ -84,7 +84,7 @@ DOMModel DOMModel::CreateModelByJSON(const nlohmann::json& json) {
   return model;
 }
 
-nlohmann::json DOMModel::GetDocumentJSON() {
+nlohmann::json DomModel::GetDocumentJSON() {
   auto document_json = nlohmann::json::object();
   auto root_json = nlohmann::json::object();
   // document root
@@ -106,7 +106,7 @@ nlohmann::json DOMModel::GetDocumentJSON() {
   return document_json;
 }
 
-nlohmann::json DOMModel::GetBoxModelJSON() {
+nlohmann::json DomModel::GetBoxModelJSON() {
   auto result_json = nlohmann::json::object();
   auto box_model_json = nlohmann::json::object();
   auto border = GetBoxModelBorder();
@@ -123,7 +123,7 @@ nlohmann::json DOMModel::GetBoxModelJSON() {
   return result_json;
 }
 
-nlohmann::json DOMModel::GetNodeForLocation(int32_t node_id) {
+nlohmann::json DomModel::GetNodeForLocation(int32_t node_id) {
   auto node_json = nlohmann::json::object();
   node_json[kBackendId] = node_id;
   node_json[kFrameId] = kMainFrame;
@@ -131,7 +131,7 @@ nlohmann::json DOMModel::GetNodeForLocation(int32_t node_id) {
   return node_json;
 }
 
-nlohmann::json DOMModel::GetChildNodesJSON() {
+nlohmann::json DomModel::GetChildNodesJSON() {
   auto node_json = nlohmann::json::object();
   node_json[kParentId] = node_id_;
   auto node_children_json = nlohmann::json::array();
@@ -142,7 +142,7 @@ nlohmann::json DOMModel::GetChildNodesJSON() {
   return node_json;
 }
 
-nlohmann::json DOMModel::GetNodeJSON(DomNodeType node_type) {
+nlohmann::json DomModel::GetNodeJSON(DomNodeType node_type) {
   auto node_json = ParseNodeBasicJSON(node_type);
   auto child_json = nlohmann::json::array();
   if (!node_value_.empty()) {
@@ -157,14 +157,14 @@ nlohmann::json DOMModel::GetNodeJSON(DomNodeType node_type) {
   return node_json;
 }
 
-nlohmann::json DOMModel::GetTextNodeJSON() {
+nlohmann::json DomModel::GetTextNodeJSON() {
   auto node_json = ParseNodeBasicJSON(DomNodeType::kTextNode);
   node_json[kChildNodeCount] = 0;
   node_json[kChildren] = nlohmann::json::array();
   return node_json;
 }
 
-nlohmann::json DOMModel::GetBoxModelBorder() {
+nlohmann::json DomModel::GetBoxModelBorder() {
   auto border = nlohmann::json::array();
   if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelBorder ScreenAdapter is null");
@@ -189,7 +189,7 @@ nlohmann::json DOMModel::GetBoxModelBorder() {
   return border;
 }
 
-nlohmann::json DOMModel::GetBoxModelPadding(const nlohmann::json& border) {
+nlohmann::json DomModel::GetBoxModelPadding(const nlohmann::json& border) {
   auto padding = nlohmann::json::array();
   if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelPadding ScreenAdapter is null");
@@ -239,7 +239,7 @@ nlohmann::json DOMModel::GetBoxModelPadding(const nlohmann::json& border) {
   return padding;
 }
 
-nlohmann::json DOMModel::GetBoxModelContent(const nlohmann::json& padding) {
+nlohmann::json DomModel::GetBoxModelContent(const nlohmann::json& padding) {
   auto content = nlohmann::json::array();
   if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelContent ScreenAdapter is null");
@@ -289,7 +289,7 @@ nlohmann::json DOMModel::GetBoxModelContent(const nlohmann::json& padding) {
   return content;
 }
 
-nlohmann::json DOMModel::GetBoxModelMargin(const nlohmann::json& border) {
+nlohmann::json DomModel::GetBoxModelMargin(const nlohmann::json& border) {
   auto margin = nlohmann::json::array();
   if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelPadding ScreenAdapter is null");
@@ -339,7 +339,7 @@ nlohmann::json DOMModel::GetBoxModelMargin(const nlohmann::json& border) {
   return margin;
 }
 
-nlohmann::json DOMModel::ParseNodeBasicJSON(DomNodeType node_type) {
+nlohmann::json DomModel::ParseNodeBasicJSON(DomNodeType node_type) {
   auto node_json = nlohmann::json::object();
   auto result_id = node_id_;
   if (node_type == DomNodeType::kTextNode) {
@@ -358,7 +358,7 @@ nlohmann::json DOMModel::ParseNodeBasicJSON(DomNodeType node_type) {
   return node_json;
 }
 
-nlohmann::json DOMModel::ParseAttributesObjectToArray() {
+nlohmann::json DomModel::ParseAttributesObjectToArray() {
   nlohmann::json attributes_array = nlohmann::json::array();
   if (!attributes_.is_object()) {
     BACKEND_LOGE(TDF_BACKEND, "DOMModel, attributes isn't object, parse error, return empty");
