@@ -120,6 +120,18 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   float GetBorder(Edge edge) override;
 
   /**
+   * @brief 获取设置的宽度
+   * @return 宽度
+   */
+  float GetStyleWidth() override;
+  
+  /**
+   * @brief 获取设置的高度
+   * @return 高度
+   */
+  float GetStyleHeight() override;
+    
+  /**
    * @brief 是否 overflow
    * @param overflow
    * @return border 属性

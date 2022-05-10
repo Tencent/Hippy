@@ -325,6 +325,14 @@ float YogaLayoutNode::GetBorder(Edge edge) {
   return YGNodeLayoutGetBorder(yoga_node_, ygedge);
 }
 
+float YogaLayoutNode::GetStyleWidth() {
+  return YGNodeStyleGetWidth(yoga_node_).value;
+}
+
+float YogaLayoutNode::GetStyleHeight() {
+  return YGNodeStyleGetHeight(yoga_node_).value;
+}
+
 void YogaLayoutNode::SetPosition(Edge edge, float position) {
   YGEdge ygedge = GetYGEdgeFromEdge(edge);
   YGNodeStyleSetPosition(yoga_node_, ygedge, position);

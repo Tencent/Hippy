@@ -86,6 +86,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes);
   std::tuple<float, float> GetLayoutSize();
   void SetLayoutSize(float width, float height);
+  void SetLayoutOrigin(float x, float y);
   const LayoutResult &GetLayoutResult() const { return layout_; }
   const LayoutResult &GetRenderLayoutResult() const { return render_layout_; }
 

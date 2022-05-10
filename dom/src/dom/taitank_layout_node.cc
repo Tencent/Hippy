@@ -387,6 +387,14 @@ float TaitankLayoutNode::GetBorder(Edge edge) {
   return engine_node_->result.border[css_direction];
 }
 
+float TaitankLayoutNode::GetStyleWidth() {
+  return engine_node_->style.dim[DimWidth];
+}
+
+float TaitankLayoutNode::GetStyleHeight() {
+  return engine_node_->style.dim[DimHeight];
+}
+
 bool TaitankLayoutNode::LayoutHadOverflow() {
   assert(engine_node_ != nullptr);
   return engine_node_->result.hadOverflow;
