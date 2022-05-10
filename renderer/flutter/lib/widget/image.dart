@@ -64,11 +64,10 @@ class _ImageWidgetState extends FRState<ImageWidget> {
     var image = imageViewModel.image;
     var defaultImage = imageViewModel.defaultImage;
     late Widget imageWidget;
-    if (defaultImage != null && !imageViewModel.dispatchedEvent.contains(NodeProps.kOnLoadEnd)) {
+    if (defaultImage != null &&
+        !imageViewModel.dispatchedEvent.contains(NodeProps.kOnLoadEnd)) {
       // 默认图
-      imageWidget = imageWidget = Container(
-        width: imageViewModel.width,
-        height: imageViewModel.height,
+      imageWidget = Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(imageViewModel.borderRadius ?? 0),
           image: DecorationImage(
@@ -79,15 +78,14 @@ class _ImageWidgetState extends FRState<ImageWidget> {
           ),
         ),
       );
-    } else if (imageViewModel.capInsets != null && imageViewModel.imageHeight == null) {
+    } else if (imageViewModel.capInsets != null &&
+        imageViewModel.imageHeight == null) {
       //.9图，图片信息未加载完成时，先占位
       imageWidget = const Placeholder(color: Colors.transparent);
     } else if (image != null) {
       var centerSliceParam = createCenterSlice(imageViewModel);
       var fitMode = centerSliceParam != null ? BoxFit.fill : imageViewModel.fit;
       imageWidget = Container(
-        width: imageViewModel.width,
-        height: imageViewModel.height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(imageViewModel.borderRadius ?? 0),
           image: DecorationImage(
@@ -100,10 +98,7 @@ class _ImageWidgetState extends FRState<ImageWidget> {
         ),
       );
     } else {
-      imageWidget = SizedBox(
-        width: imageViewModel.width,
-        height: imageViewModel.height,
-      );
+      imageWidget = Container();
     }
     if (imageViewModel.tintColor > 0) {
       imageWidget = ColorFiltered(
@@ -129,8 +124,10 @@ class _ImageWidgetState extends FRState<ImageWidget> {
 
       right = imageWidth - right;
       bottom = imageHeight - bottom;
-      LogUtils.d('ImageWidget',
-          "createCenterSlice, left: ${left.toString()} top: ${top.toString()} right: ${right.toString()} bottom: ${bottom.toString()}");
+      LogUtils.d(
+        'ImageWidget',
+        "createCenterSlice, left: ${left.toString()} top: ${top.toString()} right: ${right.toString()} bottom: ${bottom.toString()}",
+      );
       return Rect.fromLTRB(left, top, right, bottom);
     }
     return null;
@@ -143,7 +140,12 @@ class CapInsets {
   double right;
   double bottom;
 
-  CapInsets({required this.left, required this.top, required this.right, required this.bottom});
+  CapInsets({
+    required this.left,
+    required this.top,
+    required this.right,
+    required this.bottom,
+  });
 }
 
 class ImageEventDispatcher {

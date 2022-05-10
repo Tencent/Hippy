@@ -190,32 +190,23 @@ class _BoxWidgetState extends FRState<BoxWidget> {
 
     var current = widget.child;
 
-    var innerBoxConstraints =
-        BoxConstraints.tightFor(width: width, height: height);
-
-    if (width != null && height != null) {
-      innerBoxConstraints = widget._viewModel.getInnerBoxConstraints(
-        width,
-        height,
-      );
-    }
-
-    current = SizedBox(
-      width: width,
-      height: height,
-      child: ConstrainedBox(
-          constraints: innerBoxConstraints,
-          child: current,
-        ),
-    );
-
     final color = animationProperty?.get<Color>(NodeProps.kBackgroundColor) ??
         widget._viewModel.backgroundColor;
     final decoration = widget._viewModel.getDecoration(backgroundColor: color);
     if (decoration != null) {
-      current = DecoratedBox(decoration: decoration, child: current);
+      current = Container(
+        width: width,
+        height: height,
+        decoration: decoration,
+        child: current,
+      );
     } else if (color != null) {
-      current = ColoredBox(color: color, child: current);
+      current = Container(
+        width: width,
+        height: height,
+        color: color,
+        child: current,
+      );
     }
 
     var opacity = animationProperty?.get<num>(NodeProps.kOpacity)?.toDouble() ??

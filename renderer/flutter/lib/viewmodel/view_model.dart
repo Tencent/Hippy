@@ -532,40 +532,6 @@ class RenderViewModel extends ChangeNotifier {
     return "$idDesc: (x[$_x], y[$_y], w[$_width], h[$_height])";
   }
 
-  BoxConstraints getInnerBoxConstraints(double width, double height) {
-    var computedBorderTopWidth = 0.0;
-    var computedBorderRightWidth = 0.0;
-    var computedBorderBottomWidth = 0.0;
-    var computedBorderLeftWidth = 0.0;
-    var originBorderWidth = borderWidth;
-    if (originBorderWidth != null && originBorderWidth > 0) {
-      computedBorderTopWidth = originBorderWidth;
-      computedBorderRightWidth = originBorderWidth;
-      computedBorderBottomWidth = originBorderWidth;
-      computedBorderLeftWidth = originBorderWidth;
-    }
-    var originBorderTopWidth = borderTopWidth;
-    var originBorderRightWidth = borderRightWidth;
-    var originBorderBottomWidth = borderBottomWidth;
-    var originBorderLeftWidth = borderLeftWidth;
-    if (originBorderTopWidth != null && originBorderTopWidth > 0) {
-      computedBorderTopWidth = originBorderTopWidth;
-    }
-    if (originBorderRightWidth != null && originBorderRightWidth > 0) {
-      computedBorderRightWidth = originBorderRightWidth;
-    }
-    if (originBorderBottomWidth != null && originBorderBottomWidth > 0) {
-      computedBorderBottomWidth = originBorderBottomWidth;
-    }
-    if (originBorderLeftWidth != null && originBorderLeftWidth > 0) {
-      computedBorderLeftWidth = originBorderLeftWidth;
-    }
-    return BoxConstraints.tightFor(
-      width: width - computedBorderLeftWidth - computedBorderRightWidth,
-      height: height - computedBorderTopWidth - computedBorderBottomWidth,
-    );
-  }
-
   Decoration? getDecoration({Color? backgroundColor}) {
     return toDecoration(decorationColor: backgroundColor);
   }
