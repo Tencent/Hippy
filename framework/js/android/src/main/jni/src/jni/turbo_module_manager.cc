@@ -35,11 +35,6 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(ce
              "(J)I",
              Install)
 
-REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(cert-err58-cpp)
-             "uninstall",
-             "(J)V",
-             Uninstall)
-
 using namespace hippy::napi;
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -205,16 +200,4 @@ int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
   };
   runner->PostTask(task);
   return 0;
-}
-
-void Uninstall(JNIEnv *, jobject, jlong j_runtime_id) {
-  TDF_BASE_LOG(INFO) << "uninstall install TurboModuleManager";
-  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
-  if (!runtime) {
-    TDF_BASE_LOG(ERROR) << "TurboModuleManager install, v8RuntimePtr invalid";
-    return;
-  }
-  if (runtime->GetTurboModuleRuntime()) {
-    runtime->GetTurboModuleRuntime().reset();
-  }
 }
