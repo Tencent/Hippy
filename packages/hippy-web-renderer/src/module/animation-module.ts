@@ -156,6 +156,7 @@ class SimpleAnimation {
   public refNodeId: string | number | undefined;
   public dom: HTMLElement | null = null;
   public animationStamp = Date.now();
+  private animationState: 'play'|'end'|'wait' = 'wait';
 
   public constructor(
     context: ComponentContext, animationId: string | number,
@@ -237,7 +238,10 @@ class SimpleAnimation {
 
   public initAnimation(element: HTMLElement) {
     this.dom = element;
-    const data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
+    let data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
+    if (this.animationState === 'end' || this.animationState === 'play') {
+      data = this.createAnimationKeyFrame(this.createAnimationEndAndEndValue());
+    }
     this.updateAnimationInfoToPageStyle(data);
     const animation = createCssAnimation(
       this.animationTime, this.animationName,
@@ -249,8 +253,12 @@ class SimpleAnimation {
 
   public start() {
     this.changeAnimationStatus('running');
+    const data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
+    this.updateAnimationInfoToPageStyle(data);
+    this.animationState = 'play';
     setTimeout(() => {
       this.handleAnimationStart({ animationName: this.animationName, elapsedTime: 0, pseudoElement: '' } as AnimationEvent);
+      this.animationState = 'end';
     }, this.animationInfo.delay ?? 0);
   }
 
@@ -270,6 +278,7 @@ class SimpleAnimation {
   }
 
   public update(param: AnimationOptions) {
+    this.animationState = 'wait';
     this.animationInfo = param;
     this.animationStamp = Date.now();
     this.updateAnimationInfoToPageStyle(this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue()));
@@ -283,6 +292,15 @@ class SimpleAnimation {
   private createAnimationBeginAndEndValue() {
     const animationCssBeginValue = this.buildCssValue(this.animationBeginValue);
     const animationCssEndValue = this.buildCssValue(this.animationEndValue);
+    const beginFrame = {};
+    const endFrame = {};
+    beginFrame[this.useForSetProperty!] = animationCssBeginValue;
+    endFrame[this.useForSetProperty!] = animationCssEndValue;
+    return { beginFrame, endFrame };
+  }
+  private createAnimationEndAndEndValue() {
+    const animationCssBeginValue = this.buildCssValue(this.animationEndValue);
+    const animationCssEndValue = animationCssBeginValue;
     const beginFrame = {};
     const endFrame = {};
     beginFrame[this.useForSetProperty!] = animationCssBeginValue;
@@ -360,7 +378,7 @@ class SimpleAnimation {
     if (this.animationInfo.valueType) {
       unit = this.animationInfo.valueType;
     }
-    if (this.refCssProperty === 'scale') {
+    if (this.refCssProperty === 'scale' || this.refCssProperty === 'opacity') {
       unit = '';
     }
     return `${value}${unit}`;
@@ -410,7 +428,8 @@ function appendAnimationKeyFrame(keyFrame: string) {
 
 function updateAnimationKeyFrame(keyFrameName: string, newKeyFrame: string) {
   const oldKeyFrameStyle = getKeyFrameFromCssStyle(keyFrameName);
-  oldKeyFrameStyle.styleSheet.insertRule(newKeyFrame, oldKeyFrameStyle.index + 1);
+  oldKeyFrameStyle.styleSheet.rules.length && oldKeyFrameStyle.styleSheet.deleteRule(0);
+  oldKeyFrameStyle.styleSheet.insertRule(newKeyFrame);
 }
 
 function getKeyFrameFromCssStyle(name) {
