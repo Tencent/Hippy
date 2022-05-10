@@ -54,6 +54,7 @@ public:
                     const std::unique_ptr<EncodableValue> &params);
   void RunAddEventListener(const int32_t &node_id, const String &event_name);
   void RunRemoveEventListener(const int32_t &node_id, const String &event_name);
+  Sp<DomManager> GetDomManager() const;
 
 private:
   void ConsumeQueue();

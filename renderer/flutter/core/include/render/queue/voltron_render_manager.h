@@ -21,7 +21,9 @@
  */
 #pragma once
 
+#include "dom/node_props.h"
 #include "dom/render_manager.h"
+#include "dom/layout_node.h"
 #include "render/ffi/common_header.h"
 #include "render_task_runner.h"
 
@@ -31,6 +33,9 @@ using hippy::CallFunctionCallback;
 using hippy::LayoutDiffMapKey;
 using hippy::LayoutResult;
 using hippy::RenderManager;
+using hippy::LayoutNode;
+
+constexpr char kEnableScale[] = "enableScale";
 
 class VoltronRenderManager : public RenderManager,
                              private VoltronRenderTaskRunner {
@@ -62,6 +67,11 @@ public:
   int32_t GetRootId() const { return root_id_; }
 
 private:
+  void MarkTextDirty(uint32_t node_id);
+  static void MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff_style,
+                         const char *prop_name,
+                         std::shared_ptr<LayoutNode> layout_node);
+
   int32_t root_id_;
 
   std::mutex mutex_;

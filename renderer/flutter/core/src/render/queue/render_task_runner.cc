@@ -402,4 +402,12 @@ void VoltronRenderTaskRunner::SetNodeCustomMeasure(
   }
 }
 
+Sp<DomManager> VoltronRenderTaskRunner::GetDomManager() const {
+  auto bridge_manager = BridgeManager::Find(engine_id_);
+  if (bridge_manager) {
+    return bridge_manager->GetDomManager(root_id_);
+  }
+  return nullptr;
+}
+
 } // namespace voltron

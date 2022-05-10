@@ -203,12 +203,10 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     current = SizedBox(
       width: width,
       height: height,
-      child: UnconstrainedBox(
-        child: ConstrainedBox(
+      child: ConstrainedBox(
           constraints: innerBoxConstraints,
           child: current,
         ),
-      ),
     );
 
     final color = animationProperty?.get<Color>(NodeProps.kBackgroundColor) ??
