@@ -82,7 +82,6 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
   static std::vector<std::weak_ptr<hippy::devtools::DevtoolsBackendService>> all_services;
 };
-
 }  // namespace devtools
 }  // namespace hippy
 

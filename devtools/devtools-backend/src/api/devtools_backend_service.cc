@@ -25,6 +25,7 @@
 #include "api/notification/default/default_network_notification.h"
 #include "api/notification/default/default_runtime_notification.h"
 #include "api/notification/default/default_v8_response_notification.h"
+#include "devtools_base/common/macros.h"
 #include "devtools_base/common/worker_pool.h"
 #include "devtools_base/logging.h"
 #include "module/domain_dispatch.h"
@@ -47,8 +48,14 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
   if (devtools_config.framework == Framework::kHippy) {
     domain_dispatch_->RegisterJSDebuggerDomainListener();
   }
-  data_channel_->GetNotificationCenter()->vm_response_notification = std::make_shared<DefaultVMResponseAdapter>(
-      [this](const std::string &data) { tunnel_service_->SendDataToFrontend(data); });
+}
+
+void DevtoolsBackendService::InitVMNotification() {
+  data_channel_->GetNotificationCenter()->vm_response_notification =
+      std::make_shared<DefaultVMResponseAdapter>([WEAK_THIS](const std::string &data) {
+        DEFINE_AND_CHECK_SELF(DevtoolsBackendService)
+        self->tunnel_service_->SendDataToFrontend(data);
+      });
 }
 
 void DevtoolsBackendService::Destroy(bool is_reload) {

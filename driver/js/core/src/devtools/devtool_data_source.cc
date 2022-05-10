@@ -45,6 +45,7 @@ DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
   devtools_config.ws_url = ws_url;
   devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config);
+  devtools_service_->InitVMNotification();
   all_services.push_back(devtools_service_);
   runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>();
 }
@@ -78,8 +79,7 @@ void DevtoolDataSource::SendV8Response(const std::string& data) {
   for (auto& devtools_service : all_services) {
     auto service = devtools_service.lock();
     if (service) {
-      service->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(
-          data);
+      service->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(data);
     }
   }
 }

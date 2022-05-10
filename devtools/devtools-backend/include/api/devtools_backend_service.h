@@ -33,11 +33,11 @@
 
 namespace hippy::devtools {
 /**
- * @brief Devtools backend service is a debugging back-end service, which is mainly responsible for the construction of debugging channel,
- * debugging protocol distribution and data collection of access framework of devtools.
- * As an access framework, we need to be concerned about the implementation of adapter capability by DataProvider
+ * @brief Devtools backend service is a debugging back-end service, which is mainly responsible for the construction of
+ * debugging channel, debugging protocol distribution and data collection of access framework of devtools. As an access
+ * framework, we need to be concerned about the implementation of adapter capability by DataProvider
  */
-class DevtoolsBackendService {
+class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBackendService> {
  public:
   explicit DevtoolsBackendService(const DevtoolsConfig& devtools_config);
 
@@ -56,6 +56,7 @@ class DevtoolsBackendService {
    */
   std::shared_ptr<NotificationCenter> GetNotificationCenter() { return data_channel_->GetNotificationCenter(); }
 
+  void InitVMNotification();
  private:
   std::shared_ptr<DataChannel> data_channel_;
   std::shared_ptr<TunnelService> tunnel_service_;
