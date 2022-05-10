@@ -99,7 +99,7 @@
 
     rootView.frame = self.view.bounds;
     
-    [bridge setUpWithRootTag:rootView.hippyTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView];
+    [bridge setUpWithRootTag:rootView.hippyTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView screenScale:[UIScreen mainScreen].scale];
     
     //4.set frameworkProxy for bridge.If bridge cannot handle frameworkProxy protocol, it will forward to {self}
     bridge.frameworkProxy = self;

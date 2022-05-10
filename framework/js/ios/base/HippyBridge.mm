@@ -382,7 +382,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
-          frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view {
+          frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view screenScale:(CGFloat)scale {
     __weak HippyBridge *weakBridge = self;
     __weak id<HippyFrameworkProxy> weakProxy = proxy;
     __weak UIView *weakView = view;
@@ -390,6 +390,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         HippyBridge *strongSelf = weakBridge;
         if (strongSelf) {
             strongSelf->_domManager = std::make_shared<hippy::DomManager>([tag intValue]);
+            int ids = strongSelf->_domManager->GetRootId();
+            auto rootNode = strongSelf->_domManager->GetNode(ids);
+            rootNode->GetLayoutNode()->SetScaleFactor(scale);
             strongSelf->_domManager->StartTaskRunner();
             strongSelf->_domManager->SetRootSize(size.width, size.height);
 
