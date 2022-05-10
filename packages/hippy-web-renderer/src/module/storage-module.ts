@@ -23,7 +23,7 @@ import { HippyCallBack } from '../types';
 
 export class StorageModule extends HippyWebModule {
   public static preCheck() {
-    if (!window.localStorage) {
+    if (!window.__localStorage) {
       console.warn('not support localStorage');
       return false;
     }
@@ -39,7 +39,7 @@ export class StorageModule extends HippyWebModule {
       callBack.resolve('not support');
       return;
     }
-    let data = window.localStorage.getItem(`${this.STORE_PRX_KEY}ALL-KEY`);
+    let data = window.__localStorage.getItem(`${this.STORE_PRX_KEY}ALL-KEY`);
     try {
       data = JSON.stringify(data);
     } catch (e) {
@@ -59,7 +59,7 @@ export class StorageModule extends HippyWebModule {
     }
     const data: Array<Array<any>> = [];
     keys.forEach((key) => {
-      let dataItem = window.localStorage.getItem(key);
+      let dataItem = window.__localStorage.getItem(key);
       if (dataItem) {
         try {
           dataItem = JSON.stringify(dataItem);
@@ -88,7 +88,7 @@ export class StorageModule extends HippyWebModule {
         return;
       }
       try {
-        localStorage.setItem(dataItem[0], JSON.stringify(dataItem[1]));
+        __localStorage.setItem(dataItem[0], JSON.stringify(dataItem[1]));
       } catch (e) {
         callBack.reject('cant storage for key ${dataItem[0]} ');
         return;
@@ -107,7 +107,7 @@ export class StorageModule extends HippyWebModule {
       return;
     }
     for (let i = 0;i < keys.length;i++) {
-      window.localStorage.removeItem(keys[i]);
+      window.__localStorage.removeItem(keys[i]);
     }
     callBack.resolve('success');
   }
