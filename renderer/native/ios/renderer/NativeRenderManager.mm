@@ -61,7 +61,7 @@ void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode
     @autoreleasepool {
         using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult, bool, std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>>;
         std::vector<DomNodeUpdateInfoTuple> nodes_infos;
-        nodes_infos.resize(nodes.size());
+        nodes_infos.reserve(nodes.size());
         for (auto node : nodes) {
             int32_t tag = node->GetId();
             hippy::LayoutResult layoutResult = node->GetRenderLayoutResult();

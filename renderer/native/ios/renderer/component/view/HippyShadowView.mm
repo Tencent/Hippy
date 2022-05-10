@@ -359,11 +359,11 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
                     int32_t hippyTag = [[strongSelf hippyTag] intValue];
                     auto node = domManager->GetNode(hippyTag);
                     if (node) {
-                        auto layoutNode = node->GetLayoutNode();
                         node->SetLayoutOrigin(frame.origin.x, frame.origin.y);
                         node->SetLayoutSize(frame.size.width, frame.size.height);
-                        node->DoLayout();
-                        domManager->GetRenderManager()->UpdateLayout({node});
+                        std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
+                        node->DoLayout(changed_nodes);
+                        domManager->GetRenderManager()->UpdateLayout(std::move(changed_nodes));
                         [strongSelf dirtyPropagation];
                         strongSelf.hasNewLayout = YES;
                         domManager->EndBatch();
