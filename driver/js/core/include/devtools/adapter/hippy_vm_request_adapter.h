@@ -21,26 +21,18 @@
 #pragma once
 
 #include <string>
-#include "nlohmann/json.hpp"
+#include "api/adapter/devtools_vm_request_adapter.h"
 
-namespace hippy::devtools {
-
-/**
- * @brief Parsing JSON sent from the front end_ Request data of type string
- */
-class Deserializer {
+namespace hippy {
+namespace devtools {
+class HippyVMRequestAdapter : public hippy::devtools::VMRequestAdapter {
  public:
-  /**
-   * parse json string to current member object
-   * @param params json format data
-   */
-  virtual void Deserialize(const std::string& params);
-
-  void SetId(int32_t id) { id_ = id; }
-  int32_t GetId() const { return id_; }
+  using VMRequestHandler = std::function<void(std::string)>;
+  explicit HippyVMRequestAdapter(VMRequestHandler request_handler);
+  void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) override;
 
  private:
-  int32_t id_;
+  VMRequestHandler request_handler_;
 };
-
-}  // namespace hippy::devtools
+}  // namespace devtools
+}  // namespace hippy

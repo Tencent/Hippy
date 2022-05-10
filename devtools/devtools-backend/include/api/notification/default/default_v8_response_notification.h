@@ -24,11 +24,11 @@
 #include "api/notification/devtools_vm_response_notification.h"
 
 namespace hippy::devtools {
-class DefaultV8ResponseAdapter : public VMResponseNotification {
+class DefaultVMResponseAdapter : public VMResponseNotification {
  public:
   using ResponseHandler = std::function<void(std::string)>;
-  explicit DefaultV8ResponseAdapter(ResponseHandler response_handler);
-  void ResponseToDevtool(std::string data) override;
+  explicit DefaultVMResponseAdapter(ResponseHandler response_handler);
+  void ResponseToFrontend(std::string data) override;
 
  private:
   ResponseHandler response_handler_;

@@ -24,7 +24,7 @@
 #include "devtools_base/logging.h"
 
 namespace hippy::devtools {
-constexpr int32_t kRefreshIntervalMilliSeconds = 500;
+constexpr int32_t kRefreshIntervalMilliSeconds = 2000;
 
 FramePollModel::FramePollModel() {
   refresh_task_runner_ = WorkerPool::GetInstance(1)->CreateTaskRunner();
@@ -52,18 +52,16 @@ void FramePollModel::ScheduleRefreshTimer() {
 }
 
 void FramePollModel::AddFrameCallback() {
+  if (!provider_) {
+    BACKEND_LOGE(TDF_BACKEND, "AddFrameCallback provider is null");
+    return;
+  }
   if (!had_add_frame_callback_) {
-    if (!provider_) {
-      BACKEND_LOGE(TDF_BACKEND, "AddFrameCallback provider is null");
-      return;
-    }
-    auto screen_adapter = provider_->screen_adapter;
-    if (screen_adapter) {
-      auto frame_callback = [this]() {
+    if (provider_->screen_adapter) {
+      frame_callback_handler_ = provider_->screen_adapter->AddPostFrameCallback([this]() {
         frame_is_dirty_ = true;
-        BACKEND_LOGD(TDF_BACKEND, "AddFrameCallback on postFrameCallBack");
-      };
-      frame_callback_handler_ = screen_adapter->AddPostFrameCallback(frame_callback);
+        BACKEND_LOGD(TDF_BACKEND, "AddFrameCallback frame dirty callback");
+      });
     }
     had_add_frame_callback_ = true;
   }
@@ -76,7 +74,6 @@ void FramePollModel::StopPoll() {
 }
 
 void FramePollModel::RemoveFrameCallback() {
-  std::lock_guard<std::mutex> lock(mutex_);
   if (had_add_frame_callback_) {
     auto screen_adapter = provider_->screen_adapter;
     if (screen_adapter) {
@@ -88,6 +85,6 @@ void FramePollModel::RemoveFrameCallback() {
 
 FramePollModel::~FramePollModel() {
   RemoveFrameCallback();
-  WorkerPool::GetInstance(0)->RemoveTaskRunner(refresh_task_runner_);
+  WorkerPool::GetInstance(1)->RemoveTaskRunner(refresh_task_runner_);
 }
 }  // namespace hippy::devtools

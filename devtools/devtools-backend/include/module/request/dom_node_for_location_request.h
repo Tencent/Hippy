@@ -21,13 +21,13 @@
 #pragma once
 
 #include <string>
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 /**
  * @brief GetNodeForLocation request
  */
-class DomNodeForLocationRequest : public Deserializer {
+class DomNodeForLocationRequest : public BaseRequest {
  public:
   DomNodeForLocationRequest() : has_set_xy_(false) {}
   void Deserialize(const std::string& params) override;

@@ -26,7 +26,7 @@
 #include "module/domain/base_domain.h"
 #include "module/model/frame_poll_model.h"
 #include "module/model/screen_shot_model.h"
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 
@@ -38,18 +38,10 @@ class PageDomain : public BaseDomain {
 
  private:
   void StartScreencast(const ScreenShotRequest& request);
-  void StopScreencast(const Deserializer& request);
-  void ScreencastFrameAck(const Deserializer& request);
-
-  /**
-   * @brief handle frame notification
-   */
-  void HandleFramePollModelRefreshNotification();
-
-  /**
-   * @brief handle screenshot notification
-   */
-  void HandleScreenShotUpdatedNotification();
+  void StopScreencast(const BaseRequest& request);
+  void ScreencastFrameAck(const BaseRequest& request);
+  void SetFramePollCallback();
+  void SetScreenShotCallback();
   std::shared_ptr<FramePollModel> frame_poll_model_;
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
 };

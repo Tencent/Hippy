@@ -21,13 +21,13 @@
 #pragma once
 
 #include <string>
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 /**
  * @brief get selected renderTree request
  */
-class SelectedRenderObjectRequest : public Deserializer {
+class SelectedRenderObjectRequest : public BaseRequest {
  public:
   void Deserialize(const std::string& params) override;
 

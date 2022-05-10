@@ -32,45 +32,43 @@ PageDomain::PageDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std:
   frame_poll_model_ = std::make_shared<FramePollModel>();
   screen_shot_model_->SetDataProvider(GetDataProvider());
   frame_poll_model_->SetDataProvider(GetDataProvider());
-  HandleScreenShotUpdatedNotification();
-  HandleFramePollModelRefreshNotification();
+  SetFramePollCallback();
+  SetScreenShotCallback();
 }
 
 std::string PageDomain::GetDomainName() { return kFrontendKeyDomainNamePage; }
 
 void PageDomain::RegisterMethods() {
   REGISTER_DOMAIN(PageDomain, StartScreencast, ScreenShotRequest);
-  REGISTER_DOMAIN(PageDomain, StopScreencast, Deserializer);
-  REGISTER_DOMAIN(PageDomain, ScreencastFrameAck, Deserializer);
+  REGISTER_DOMAIN(PageDomain, StopScreencast, BaseRequest);
+  REGISTER_DOMAIN(PageDomain, ScreencastFrameAck, BaseRequest);
 }
 
 void PageDomain::StartScreencast(const ScreenShotRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "HandleStartScreencast");
+  BACKEND_LOGD(TDF_BACKEND, "PageDomain::StartScreencast");
   screen_shot_model_->SetScreenShotRequest(request);
   frame_poll_model_->StartPoll();
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 
-void PageDomain::StopScreencast(const Deserializer& request) {
-  BACKEND_LOGD(TDF_BACKEND, "HandleStopScreencast");
+void PageDomain::StopScreencast(const BaseRequest& request) {
+  BACKEND_LOGD(TDF_BACKEND, "PageDomain::StopScreencast");
   frame_poll_model_->StopPoll();
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 
-void PageDomain::ScreencastFrameAck(const Deserializer& request) {
-  BACKEND_LOGD(TDF_BACKEND, "HandleScreencastFrameAck");
+void PageDomain::ScreencastFrameAck(const BaseRequest& request) {
+  BACKEND_LOGD(TDF_BACKEND, "PageDomain::ScreencastFrameAck");
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 
-void PageDomain::HandleFramePollModelRefreshNotification() {
+void PageDomain::SetFramePollCallback() {
   frame_poll_model_->SetResponseHandler([this]() { screen_shot_model_->ReqScreenShotToSendEvent(); });
 }
 
-void PageDomain::HandleScreenShotUpdatedNotification() {
-  auto screen_shot_callback = ScreenShotModel::ScreenShotCallback([this](ScreenShotResponse&& response) {
-    SendEventToFrontend(InspectEvent(kPageEventScreencastFrame, std::move(response.ToJsonString())));
+void PageDomain::SetScreenShotCallback() {
+  screen_shot_model_->SetSendEventScreenShotCallback([this](const ScreenShotResponse response) {
+    SendEventToFrontend(InspectEvent(kPageEventScreencastFrame, response.ToJsonString()));
   });
-  screen_shot_model_->SetSendEventScreenShotCallback(screen_shot_callback);
 }
-
 }  // namespace hippy::devtools

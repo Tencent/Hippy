@@ -21,13 +21,13 @@
 #pragma once
 
 #include <string>
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 /**
  * @brief screenshot request
  */
-class ScreenShotRequest : public Deserializer {
+class ScreenShotRequest : public BaseRequest {
  public:
   void Deserialize(const std::string& params) override;
 

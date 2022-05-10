@@ -31,23 +31,21 @@ void ScreenShotModel::SetScreenShotRequest(const ScreenShotRequest &req) {
 }
 
 void ScreenShotModel::ReqScreenShotToResponse() {
-  auto screen_shot_callback = [this](const std::string &image_base64, int32_t width, int32_t height) {
+  ReqScreenShot([this](const std::string &image, int32_t width, int32_t height) {
     if (response_callback_) {
-      response_callback_(ScreenShotResponse(image_base64, width, height));
+      response_callback_(ScreenShotResponse(image, width, height));
     }
     BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToResponse end");
-  };
-  ReqScreenShot(screen_shot_callback);
+  });
 }
 
 void ScreenShotModel::ReqScreenShotToSendEvent() {
-  auto screen_shot_callback = [this](const std::string &image_base64, int32_t width, int32_t height) {
+  ReqScreenShot([this](const std::string &image_base64, int32_t width, int32_t height) {
     if (send_event_callback_) {
       send_event_callback_(ScreenShotResponse(image_base64, width, height));
     }
     BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToSendEvent end");
-  };
-  ReqScreenShot(screen_shot_callback);
+  });
 }
 
 void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen_shot_callback) {
@@ -63,8 +61,7 @@ void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen
   if (!screen_adapter) {
     return;
   }
-  screen_adapter->GetScreenShot(
-      {request_.GetQuality(), request_.GetMaxWidth(), request_.GetMaxHeight()},
-      screen_shot_callback);
+  screen_adapter->GetScreenShot({request_.GetQuality(), request_.GetMaxWidth(), request_.GetMaxHeight()},
+                                screen_shot_callback);
 }
 }  // namespace hippy::devtools

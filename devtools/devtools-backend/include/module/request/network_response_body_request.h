@@ -21,17 +21,17 @@
 #pragma once
 
 #include <string>
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 /**
  * network getResponseBody request
  */
-class NetworkResponseBodyRequest : public Deserializer {
+class NetworkResponseBodyRequest : public BaseRequest {
  public:
   NetworkResponseBodyRequest() = default;
   void Deserialize(const std::string& params) override;
-  std::string GetRequestId() const;
+  inline std::string GetRequestId() const { return request_id_; }
 
  private:
   std::string request_id_;

@@ -25,14 +25,14 @@
 
 namespace hippy {
 namespace devtools {
-class HippyV8RequestAdapter : public hippy::devtools::VMRequestAdapter {
+class HippyVMRequestAdapter : public hippy::devtools::VMRequestAdapter {
  public:
-  using V8RequestHandler = std::function<void(std::string)>;
-  explicit HippyV8RequestAdapter(V8RequestHandler request_handler);
+  using VMRequestHandler = std::function<void(std::string)>;
+  explicit HippyVMRequestAdapter(VMRequestHandler request_handler);
   void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) override;
 
  private:
-  V8RequestHandler request_handler_;
+  VMRequestHandler request_handler_;
 };
 }  // namespace devtools
 }  // namespace hippy

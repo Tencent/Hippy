@@ -32,5 +32,4 @@ void NetworkResponseBodyRequest::Deserialize(const std::string& params) {
   }
   request_id_ = params_json[kFrontendRequestId];
 }
-std::string NetworkResponseBodyRequest::GetRequestId() const { return request_id_; }
 }  // namespace hippy::devtools

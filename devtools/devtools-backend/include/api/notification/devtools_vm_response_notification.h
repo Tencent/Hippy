@@ -32,6 +32,6 @@ class VMResponseNotification {
    * Message sending from virtual machine
    * @param data msg
    */
-  virtual void ResponseToDevtool(std::string data) = 0;
+  virtual void ResponseToFrontend(std::string data) = 0;
 };
 }  // namespace hippy::devtools

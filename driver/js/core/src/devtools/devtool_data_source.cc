@@ -30,7 +30,7 @@
 #include "devtools/adapter/hippy_elements_request_adapter.h"
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
-#include "devtools/adapter/hippy_v8_request_adapter.h"
+#include "devtools/adapter/hippy_vm_request_adapter.h"
 #include "devtools/trace_control.h"
 #include "dom/dom_manager.h"
 
@@ -70,15 +70,15 @@ void DevtoolDataSource::SetContextName(const std::string &context_name) {
   devtools_service_->GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 
-void DevtoolDataSource::SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler) {
-  devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyV8RequestAdapter>(request_handler);
+void DevtoolDataSource::SetV8RequestHandler(HippyVMRequestAdapter::VMRequestHandler request_handler) {
+  devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVMRequestAdapter>(request_handler);
 }
 
 void DevtoolDataSource::SendV8Response(const std::string& data) {
   for (auto& devtools_service : all_services) {
     auto service = devtools_service.lock();
     if (service) {
-      service->GetNotificationCenter()->vm_response_notification->ResponseToDevtool(
+      service->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(
           data);
     }
   }

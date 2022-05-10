@@ -18,12 +18,20 @@
  * limitations under the License.
  */
 
-#include "module/request/domain_base_request.h"
-#include "devtools_base/logging.h"
-#include "module/inspect_props.h"
+#include "devtools/adapter/hippy_vm_request_adapter.h"
+#include <string>
 
-namespace hippy::devtools {
+namespace hippy {
+namespace devtools {
+HippyVMRequestAdapter::HippyVMRequestAdapter(VMRequestHandler request_handler) : request_handler_(request_handler) {}
 
-void Deserializer::Deserialize(const std::string& params) {}
-
-}  // namespace hippy::devtools
+void HippyVMRequestAdapter::SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) {
+  if (request_handler_) {
+    request_handler_(msg);
+  }
+  if (sendFinishCallback) {
+    sendFinishCallback();
+  }
+}
+}  // namespace devtools
+}  // namespace hippy

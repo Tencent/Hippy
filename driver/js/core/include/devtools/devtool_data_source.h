@@ -30,7 +30,7 @@
 #include "core/engine.h"
 #include "core/task/worker_task_runner.h"
 #include "devtools/adapter/hippy_runtime_adapter.h"
-#include "devtools/adapter/hippy_v8_request_adapter.h"
+#include "devtools/adapter/hippy_vm_request_adapter.h"
 #include "api/devtools_config.h"
 #include "api/devtools_backend_service.h"
 #include "module/record_logger.h"
@@ -73,7 +73,7 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
   static void SetFileCacheDir(const std::string& file_dir);
 #endif
 
-  void SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler);
+  void SetV8RequestHandler(HippyVMRequestAdapter::VMRequestHandler request_handler);
 
   static void SendV8Response(const std::string& data);
 

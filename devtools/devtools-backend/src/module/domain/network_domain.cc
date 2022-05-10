@@ -31,13 +31,13 @@ std::string NetworkDomain::GetDomainName() { return kFrontendKeyDomainNameNetwor
 void NetworkDomain::RegisterMethods() { REGISTER_DOMAIN(NetworkDomain, GetResponseBody, NetworkResponseBodyRequest) }
 
 void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "NetworkDomain::GetResponseBody");
   auto network_adapter = GetDataProvider()->network_adapter;
   if (network_adapter) {
     std::string body = network_adapter->GetResponseBody(request.GetRequestId());
     ResponseResultToFrontend(request.GetId(), body);
   } else {
-    BACKEND_LOGE(TDF_BACKEND, "NetworkDomain::GetResponseBody no NetworkAdapterImp");
+    ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "not support get network body");
+    BACKEND_LOGE(TDF_BACKEND, "NetworkDomain::GetResponseBody not support get network body");
   }
 }
 }  // namespace hippy::devtools

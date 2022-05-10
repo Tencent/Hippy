@@ -21,13 +21,13 @@
 #pragma once
 
 #include <string>
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 /**
  * @brief edit CSS Style Texts request
  */
-class CssEditStyleTextsRequest : public Deserializer {
+class CssEditStyleTextsRequest : public BaseRequest {
  public:
   CssEditStyleTextsRequest() : has_set_edits_(false) {}
   void Deserialize(const std::string& params) override;

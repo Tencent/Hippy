@@ -41,8 +41,6 @@ class DevtoolsBackendService {
  public:
   explicit DevtoolsBackendService(const DevtoolsConfig& devtools_config);
 
-  ~DevtoolsBackendService();
-
   void Destroy(bool is_reload);
 
   /**
@@ -59,11 +57,6 @@ class DevtoolsBackendService {
   std::shared_ptr<NotificationCenter> GetNotificationCenter() { return data_channel_->GetNotificationCenter(); }
 
  private:
-  void RegisterJSDebuggerCallback();
-  void RegisterLogCallback();
-  std::shared_ptr<RecordLogger> record_logger_ = std::make_shared<RecordLogger>();
-  std::shared_ptr<WorkerPool> worker_pool_ = WorkerPool::GetInstance(1);
-  std::shared_ptr<TaskRunner> task_runner_;
   std::shared_ptr<DataChannel> data_channel_;
   std::shared_ptr<TunnelService> tunnel_service_;
   std::shared_ptr<DomainDispatch> domain_dispatch_;

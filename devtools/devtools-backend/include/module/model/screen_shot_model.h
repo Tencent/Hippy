@@ -38,7 +38,7 @@ class ScreenShotModel : public BaseModel {
   ScreenShotModel() : has_set_request_(false) {}
   ~ScreenShotModel() = default;
 
-  using ScreenShotCallback = std::function<void(ScreenShotResponse&& response)>;
+  using ScreenShotCallback = std::function<void(const ScreenShotResponse& response)>;
   void SetResponseScreenShotCallback(ScreenShotCallback callback) { response_callback_ = callback; }
   void SetSendEventScreenShotCallback(ScreenShotCallback callback) { send_event_callback_ = callback; }
 

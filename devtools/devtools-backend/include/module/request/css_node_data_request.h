@@ -21,13 +21,13 @@
 #pragma once
 
 #include <string>
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 /**
  * @brief get CSS node model request
  */
-class CssNodeDataRequest : public Deserializer {
+class CssNodeDataRequest : public BaseRequest {
  public:
   CssNodeDataRequest() : has_set_node_id_(false) {}
   void Deserialize(const std::string& params) override;

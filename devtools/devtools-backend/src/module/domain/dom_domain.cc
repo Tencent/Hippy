@@ -86,15 +86,15 @@ DomDomain::DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::m
 std::string DomDomain::GetDomainName() { return kFrontendKeyDomainNameDOM; }
 
 void DomDomain::RegisterMethods() {
-  REGISTER_DOMAIN(DomDomain, GetDocument, Deserializer);
+  REGISTER_DOMAIN(DomDomain, GetDocument, BaseRequest);
   REGISTER_DOMAIN(DomDomain, RequestChildNodes, DomNodeDataRequest);
   REGISTER_DOMAIN(DomDomain, GetBoxModel, DomNodeDataRequest);
   REGISTER_DOMAIN(DomDomain, GetNodeForLocation, DomNodeForLocationRequest);
-  REGISTER_DOMAIN(DomDomain, RemoveNode, Deserializer);
-  REGISTER_DOMAIN(DomDomain, SetInspectedNode, Deserializer);
+  REGISTER_DOMAIN(DomDomain, RemoveNode, BaseRequest);
+  REGISTER_DOMAIN(DomDomain, SetInspectedNode, BaseRequest);
 }
 
-void DomDomain::GetDocument(const Deserializer& request) {
+void DomDomain::GetDocument(const BaseRequest& request) {
   if (!dom_data_call_back_) {
     ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetDocument, dom_data_callback is null");
     return;
@@ -170,9 +170,9 @@ void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
   });
 }
 
-void DomDomain::RemoveNode(const Deserializer& request) {}
+void DomDomain::RemoveNode(const BaseRequest& request) {}
 
-void DomDomain::SetInspectedNode(const Deserializer& request) {
+void DomDomain::SetInspectedNode(const BaseRequest& request) {
   ResponseResultToFrontend(request.GetId(), nlohmann::json::object().dump());
 }
 

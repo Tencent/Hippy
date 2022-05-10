@@ -26,8 +26,8 @@
 
 namespace hippy::devtools {
 
-constexpr char kInspectorEventScreenShotUpdated[] = "TDFInspector.screenshotUpdated";
-constexpr char kInspectorEventRenderTreeUpdated[] = "TDFInspector.renderTreeUpdated";
+constexpr char kScreenShotUpdated[] = "TDFInspector.screenshotUpdated";
+constexpr char kRenderTreeUpdated[] = "TDFInspector.renderTreeUpdated";
 
 TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   tdf_inspector_model_ = std::make_shared<TDFInspectorModel>();
@@ -42,91 +42,68 @@ TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) :
 std::string TDFInspectorDomain::GetDomainName() { return kFrontendKeyDomainNameTDFInspector; }
 
 void TDFInspectorDomain::RegisterMethods() {
-  REGISTER_DOMAIN(TDFInspectorDomain, DumpDomTree, Deserializer);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetDomTree, Deserializer);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetRenderTree, Deserializer);
+  REGISTER_DOMAIN(TDFInspectorDomain, GetDomTree, BaseRequest);
+  REGISTER_DOMAIN(TDFInspectorDomain, GetRenderTree, BaseRequest);
   REGISTER_DOMAIN(TDFInspectorDomain, GetScreenshot, ScreenShotRequest);
   REGISTER_DOMAIN(TDFInspectorDomain, GetSelectedRenderObject, SelectedRenderObjectRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetSelectedDomNode, Deserializer);
-  REGISTER_DOMAIN(TDFInspectorDomain, EnableUpdateNotification, Deserializer);
-  REGISTER_DOMAIN(TDFInspectorDomain, DisableUpdateNotification, Deserializer);
+  REGISTER_DOMAIN(TDFInspectorDomain, GetSelectedDomNode, BaseRequest);
+  REGISTER_DOMAIN(TDFInspectorDomain, EnableUpdateNotification, BaseRequest);
+  REGISTER_DOMAIN(TDFInspectorDomain, DisableUpdateNotification, BaseRequest);
 }
 
-void TDFInspectorDomain::DumpDomTree(const Deserializer& request) {
+void TDFInspectorDomain::GetDomTree(const BaseRequest& request) {
   auto dom_tree_adapter = GetDataProvider()->dom_tree_adapter;
   if (!dom_tree_adapter) {
-    ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "dump dom tree failed, js delegate null.");
+    ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get dom tree failed, dom_tree_adapter null.");
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "HandleDumpDomTree dumpDom start");
+  BACKEND_LOGD(TDF_BACKEND, "TDFInspectorDomain::GetDomTree start");
   dom_tree_adapter->GetDomTree([this, request](bool is_success, const DomNodeMetas& metas) {
-    BACKEND_LOGD(TDF_BACKEND, "HandleDumpDomTree dumpDom end");
-    nlohmann::json tree_json = nlohmann::json::parse(metas.Serialize());
-    json result_json = json::object();
-    result_json[kFrontendKeyItree] = tree_json;
-    BACKEND_LOGD(TDF_BACKEND, "HandleDumpDomTree restore end");
+    BACKEND_LOGD(TDF_BACKEND, "TDFInspectorDomain::GetDomTree end");
     if (is_success) {
+      nlohmann::json result_json = nlohmann::json::object();
+      result_json[kFrontendKeyItree] = nlohmann::json::parse(metas.Serialize());
       ResponseResultToFrontend(request.GetId(), result_json.dump());
     } else {
-      ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "dump dom tree failed, no tree data.");
+      ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get dom tree failed, is_success false.");
     }
   });
 }
 
-void TDFInspectorDomain::GetDomTree(const Deserializer& request) {
-  auto dom_tree_adapter = GetDataProvider()->dom_tree_adapter;
-  if (!dom_tree_adapter) {
-    ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get dom tree failed, js delegate null.");
-    return;
-  }
-  BACKEND_LOGD(TDF_BACKEND, "GetDomTree dumpDom start");
-  dom_tree_adapter->GetDomTree([this, request](bool is_success, const DomNodeMetas& metas) {
-    BACKEND_LOGD(TDF_BACKEND, "GetDomTree dumpDom end");
-    nlohmann::json tree_json = nlohmann::json::parse(metas.Serialize());
-    json result_json = json::object();
-    result_json[kFrontendKeyItree] = std::move(tree_json);
-    if (is_success) {
-      ResponseResultToFrontend(request.GetId(), result_json.dump());
-    } else {
-      ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get dom tree failed, no tree data.");
-    }
-  });
-}
-
-void TDFInspectorDomain::GetRenderTree(const Deserializer& request) {
+void TDFInspectorDomain::GetRenderTree(const BaseRequest& request) {
   auto render_tree_adapter = GetDataProvider()->render_tree_adapter;
   if (!render_tree_adapter) {
-    ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get render tree failed, js delegate null.");
+    ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get render tree failed, render_tree_adapter is null.");
     return;
   }
   BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom start");
   render_tree_adapter->GetRenderTree([this, request](bool is_success, const RenderNodeMetas& metas) {
     BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom end %d", is_success ? 1 : 0);
     if (is_success) {
-      json result_json = json::object();
-      result_json[kFrontendKeyRtree] = json::parse(metas.Serialize());
+      nlohmann::json result_json = nlohmann::json::object();
+      result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize());
       ResponseResultToFrontend(request.GetId(), result_json.dump());
     } else {
-      ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get render tree failed, no tree data.");
+      ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get render tree failed, is_success false.");
     }
   });
 }
 
 void TDFInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "TDFInspectorDomain::HandleGetScreenShot start");
+  BACKEND_LOGD(TDF_BACKEND, "TDFInspectorDomain::GetScreenshot start");
   // use the latest GetScreenShot request params as the screenshot params
   screen_shot_model_->SetScreenShotRequest(request);
-  auto screen_shot_callback = ScreenShotModel::ScreenShotCallback([this, request](ScreenShotResponse&& response) {
+  screen_shot_model_->SetResponseScreenShotCallback([this, request](const ScreenShotResponse& response) {
     ResponseResultToFrontend(request.GetId(), response.ToJsonString());
   });
-  screen_shot_model_->SetResponseScreenShotCallback(screen_shot_callback);
   screen_shot_model_->ReqScreenShotToResponse();
 }
 
 void TDFInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectRequest& request) {
   auto render_tree_adapter = GetDataProvider()->render_tree_adapter;
   if (!render_tree_adapter) {
-    ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "dump render tree failed, js delegate null.");
+    ResponseErrorToFrontend(request.GetId(), kErrorNotSupport,
+                            "get selected render object failed, render_tree_adapter.");
     return;
   }
   BACKEND_LOGD(TDF_BACKEND, "GetSelectedRenderObject start");
@@ -138,22 +115,21 @@ void TDFInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectReque
           result_json[kFrontendKeyRtree] = json::parse(metas.Serialize());
           ResponseResultToFrontend(request.GetId(), result_json.dump());
         } else {
-          ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetSelectedRenderObject failed, no tree data.");
+          ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetSelectedRenderObject failed, is_success false.");
         }
       });
 }
 
-void TDFInspectorDomain::GetSelectedDomNode(const Deserializer& request) {}
+void TDFInspectorDomain::GetSelectedDomNode(const BaseRequest& request) {}
 
-void TDFInspectorDomain::EnableUpdateNotification(const Deserializer& request) { frame_poll_model_->StartPoll(); }
+void TDFInspectorDomain::EnableUpdateNotification(const BaseRequest& request) { frame_poll_model_->StartPoll(); }
 
-void TDFInspectorDomain::DisableUpdateNotification(const Deserializer& request) { frame_poll_model_->StopPoll(); }
+void TDFInspectorDomain::DisableUpdateNotification(const BaseRequest& request) { frame_poll_model_->StopPoll(); }
 
 void TDFInspectorDomain::HandleScreenShotUpdatedNotification() {
-  auto screen_shot_callback = ScreenShotModel::ScreenShotCallback([this](ScreenShotResponse&& response) {
-    SendEventToFrontend(InspectEvent(kInspectorEventScreenShotUpdated, std::move(response.ToJsonString())));
+  screen_shot_model_->SetSendEventScreenShotCallback([this](const ScreenShotResponse& response) {
+    SendEventToFrontend(InspectEvent(kScreenShotUpdated, response.ToJsonString()));
   });
-  screen_shot_model_->SetSendEventScreenShotCallback(screen_shot_callback);
 }
 
 void TDFInspectorDomain::HandleFramePollModelRefreshNotification() {
@@ -168,15 +144,10 @@ void TDFInspectorDomain::SendRenderTreeUpdatedEvent() {
   if (!render_tree_adapter) {
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom start");
   render_tree_adapter->GetRenderTree([this](bool is_success, const RenderNodeMetas& metas) {
-    BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom end %d", is_success ? 1 : 0);
-    if (!is_success) {
-      return;
+    if (is_success) {
+      SendEventToFrontend(InspectEvent(kRenderTreeUpdated, tdf_inspector_model_->GetRenderTree(metas.Serialize())));
     }
-    auto result_string = tdf_inspector_model_->GetRenderTree(metas.Serialize());
-    SendEventToFrontend(InspectEvent(kInspectorEventRenderTreeUpdated, std::move(result_string)));
   });
 }
-
 }  // namespace hippy::devtools

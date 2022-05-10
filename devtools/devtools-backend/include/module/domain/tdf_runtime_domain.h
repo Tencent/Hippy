@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 #include "module/domain/base_domain.h"
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 
@@ -35,8 +35,8 @@ class TDFRuntimeDomain : public BaseDomain {
   void RegisterMethods() override;
 
  private:
-  void Resume(const Deserializer& request);
-  void IsDebugMode(const Deserializer& request);
+  void Resume(const BaseRequest& request);
+  void IsDebugMode(const BaseRequest& request);
 };
 
 }  // namespace hippy::devtools

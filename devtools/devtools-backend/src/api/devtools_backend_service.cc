@@ -32,12 +32,9 @@
 
 namespace hippy::devtools {
 
-constexpr char kDevtoolsTaskName[] = "devToolsTask";
-
 DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_config) {
   BACKEND_LOGI(TDF_BACKEND, "DevtoolsBackendService create framework:%d,tunnel:%d", devtools_config.framework,
                devtools_config.tunnel);
-  task_runner_ = worker_pool_->CreateTaskRunner(kDevtoolsTaskName, true);
   auto data_provider = std::make_shared<DataProvider>();
   auto notification_center = std::make_shared<NotificationCenter>();
   data_channel_ = std::make_shared<DataChannel>(data_provider, notification_center);
@@ -47,50 +44,15 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
   notification_center->network_notification = std::make_shared<DefaultNetworkNotification>(tunnel_service_);
   notification_center->runtime_notification = std::make_shared<DefaultRuntimeNotification>(tunnel_service_);
 
-  RegisterLogCallback();
   if (devtools_config.framework == Framework::kHippy) {
     domain_dispatch_->RegisterJSDebuggerDomainListener();
-    RegisterJSDebuggerCallback();
   }
-}
-
-DevtoolsBackendService::~DevtoolsBackendService() {
-  worker_pool_->Terminate();
-  record_logger_ = nullptr;
+  data_channel_->GetNotificationCenter()->vm_response_notification = std::make_shared<DefaultVMResponseAdapter>(
+      [this](const std::string &data) { tunnel_service_->SendDataToFrontend(data); });
 }
 
 void DevtoolsBackendService::Destroy(bool is_reload) {
   BACKEND_LOGI(TDF_BACKEND, "Destroy is_reload: %b", is_reload);
   tunnel_service_->Close(is_reload);
-}
-
-void DevtoolsBackendService::RegisterLogCallback() {
-  Logger::RegisterCallback([this](LoggerModel logger_model) {
-    if (!record_logger_) {
-      return;
-    }
-    record_logger_->RecordLogData(std::move(logger_model));
-  });
-  auto log_handler = [this](const LoggerModel &logger_model) {
-    task_runner_->PostTask([this, logger_model]() {
-      if (!record_logger_) {
-        return;
-      }
-      record_logger_->RecordLogData(logger_model);
-    });
-  };
-  data_channel_->GetNotificationCenter()->log_notification = std::make_shared<DefaultLogAdapter>(log_handler);
-  record_logger_->SetRecordLogOperateCallback([this](std::string &&log) {
-    //    InspectEvent inspect_event(kLogEventName, std::move(log));
-    //    tunnel_service_->SendDataToFrontend(inspect_event.ToJsonString());
-  });
-}
-
-void DevtoolsBackendService::RegisterJSDebuggerCallback() {
-#ifdef OS_ANDROID
-  auto response_handler = [this](const std::string &data) { tunnel_service_->SendDataToFrontend(data); };
-  data_channel_->GetNotificationCenter()->vm_response_notification =
-      std::make_shared<DefaultV8ResponseAdapter>(response_handler);
-#endif
 }
 }  // namespace hippy::devtools

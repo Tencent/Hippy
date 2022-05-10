@@ -29,5 +29,4 @@ void ScreenShotRequest::Deserialize(const std::string& params) {
   max_width_ = params_json[kFrontendKeyMaxWidth].get<int32_t>();
   max_height_ = params_json[kFrontendKeyMaxHeight].get<int32_t>();
 }
-
 }  // namespace hippy::devtools

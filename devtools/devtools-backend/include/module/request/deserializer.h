@@ -18,15 +18,11 @@
  * limitations under the License.
  */
 
-#include "module/model/tdf_inspector_model.h"
-#include <sstream>
-#include "module/inspect_props.h"
+#pragma once
 
 namespace hippy::devtools {
-
-std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {  /* NOLINT */
-  std::string result;
-  result = result + "{\"" + kFrontendKeyRtree + "\":" + render_tree + "}";
-  return result;
-}
-}  // namespace hippy::devtools
+class Deserializer {
+ public:
+  virtual void Deserialize(const std::string& params) = 0;
+};
+}  // namespace hippy::devtoolsB

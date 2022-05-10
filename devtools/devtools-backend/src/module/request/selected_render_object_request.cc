@@ -28,5 +28,4 @@ void SelectedRenderObjectRequest::Deserialize(const std::string& params) {
   int32_t render_id = params_json[kFrontendKeyId];
   render_id_ = render_id;
 }
-
 }  // namespace hippy::devtools

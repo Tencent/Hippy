@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 #include "module/domain/base_domain.h"
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 
@@ -35,7 +35,7 @@ class TDFMemoryDomain : public BaseDomain {
   void RegisterMethods() override;
 
  private:
-  void GetHeapMeta(const Deserializer& request);
+  void GetHeapMeta(const BaseRequest& request);
 };
 
 }  // namespace hippy::devtools

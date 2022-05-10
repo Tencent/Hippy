@@ -28,88 +28,77 @@ namespace hippy::devtools {
 
 constexpr char kPerformanceDomainMethodStart[] = "start";
 constexpr char kPerformanceDomainMethodEnd[] = "end";
-constexpr char kPerformanceDomainMethodv8Tracing[] = "v8Tracing";
+constexpr char kPerformanceDomainMethodV8Tracing[] = "v8Tracing";
 constexpr char kPerformanceDomainMethodFrameTimings[] = "frameTimings";
 constexpr char kPerformanceDomainMethodTimeline[] = "timeline";
 
 std::string TDFPerformanceDomain::GetDomainName() { return kFrontendKeyDomainNameTDFPerformance; }
 
 void TDFPerformanceDomain::RegisterMethods() {
-  REGISTER_DOMAIN(TDFPerformanceDomain, Start, Deserializer);
-  REGISTER_DOMAIN(TDFPerformanceDomain, End, Deserializer);
-  REGISTER_DOMAIN(TDFPerformanceDomain, V8Tracing, Deserializer);
-  REGISTER_DOMAIN(TDFPerformanceDomain, FrameTimings, Deserializer);
-  REGISTER_DOMAIN(TDFPerformanceDomain, Timeline, Deserializer);
+  REGISTER_DOMAIN(TDFPerformanceDomain, Start, BaseRequest);
+  REGISTER_DOMAIN(TDFPerformanceDomain, End, BaseRequest);
+  REGISTER_DOMAIN(TDFPerformanceDomain, V8Tracing, BaseRequest);
+  REGISTER_DOMAIN(TDFPerformanceDomain, FrameTimings, BaseRequest);
+  REGISTER_DOMAIN(TDFPerformanceDomain, Timeline, BaseRequest);
 }
 
-void TDFPerformanceDomain::Start(const Deserializer& request) {
-  BACKEND_LOGD(TDF_BACKEND, "PerformanceStart.");
+void TDFPerformanceDomain::Start(const BaseRequest& request) {
+  BACKEND_LOGD(TDF_BACKEND, "TDFPerformanceDomain::Start");
   auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
-    // reset frameTimings
     performance_adapter->ResetFrameTimings();
-    // reset timeline
     performance_adapter->ResetTimeline();
   } else {
-    BACKEND_LOGE(TDF_BACKEND, "PerformanceStart performance_adapter is null");
+    BACKEND_LOGE(TDF_BACKEND, "TDFPerformanceDomain::Start performance_adapter is null");
   }
-
-  // start v8-tracing
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
     tracing_adapter->StartTracing();
+  } else {
+    BACKEND_LOGE(TDF_BACKEND, "TDFPerformanceDomain::Start tracing_adapter is null");
   }
-
-  // build data
   nlohmann::json start_time_json = nlohmann::json::object();
   start_time_json["startTime"] = SteadyClockTime::NowTimeSinceEpochStr();
   ResponseResultToFrontend(request.GetId(), start_time_json.dump());
 }
 
-void TDFPerformanceDomain::End(const Deserializer& request) {
-  BACKEND_LOGD(TDF_BACKEND, "PerformanceEnd.");
-  auto performance_adapter = GetDataProvider()->performance_adapter;
-  if (!performance_adapter) {
-    BACKEND_LOGE(TDF_BACKEND, "PerformanceEnd performance_adapter is null");
-  }
+void TDFPerformanceDomain::End(const BaseRequest& request) {
+  BACKEND_LOGD(TDF_BACKEND, "TDFPerformanceDomain::End");
   nlohmann::json end_time_json = nlohmann::json::object();
   end_time_json["endTime"] = SteadyClockTime::NowTimeSinceEpochStr();
   ResponseResultToFrontend(request.GetId(), end_time_json.dump());
 }
 
-void TDFPerformanceDomain::V8Tracing(const Deserializer& request) {
-  BACKEND_LOGD(TDF_BACKEND, "HandlePerformanceV8Tracing.");
+void TDFPerformanceDomain::V8Tracing(const BaseRequest& request) {
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
-  if (!tracing_adapter) {
-    ResponseError(request.GetId(), kPerformanceDomainMethodv8Tracing);
-    return;
+  if (tracing_adapter) {
+    tracing_adapter->StopTracing(
+        [request, this](const std::string& result) { ResponseResultToFrontend(request.GetId(), result); });
+  } else {
+    ResponseError(request.GetId(), kPerformanceDomainMethodV8Tracing);
   }
-  tracing_adapter->StopTracing(
-      [request, this](const std::string& result) { ResponseResultToFrontend(request.GetId(), result); });
 }
 
-void TDFPerformanceDomain::FrameTimings(const Deserializer& request) {
-  BACKEND_LOGD(TDF_BACKEND, "PerformanceFrameTimings.");
+void TDFPerformanceDomain::FrameTimings(const BaseRequest& request) {
   auto performance_adapter = GetDataProvider()->performance_adapter;
-  if (!performance_adapter) {
+  if (performance_adapter) {
+    performance_adapter->CollectFrameTimings([this, request](const FrameTimingMetas& frame_metas) {
+      ResponseResultToFrontend(request.GetId(), frame_metas.Serialize());
+    });
+  } else {
     ResponseError(request.GetId(), kPerformanceDomainMethodFrameTimings);
-    return;
   }
-  performance_adapter->CollectFrameTimings([this, request](const FrameTimingMetas& frame_metas) {
-    ResponseResultToFrontend(request.GetId(), frame_metas.Serialize());
-  });
 }
 
-void TDFPerformanceDomain::Timeline(const Deserializer& request) {
-  BACKEND_LOGD(TDF_BACKEND, "PerformanceTimeline.");
+void TDFPerformanceDomain::Timeline(const BaseRequest& request) {
   auto performance_adapter = GetDataProvider()->performance_adapter;
-  if (!performance_adapter) {
+  if (performance_adapter) {
+    performance_adapter->CollectTimeline([this, request](const TraceEventMetas& time_line) {
+      ResponseResultToFrontend(request.GetId(), time_line.Serialize());
+    });
+  } else {
     ResponseError(request.GetId(), kPerformanceDomainMethodTimeline);
-    return;
   }
-  performance_adapter->CollectTimeline([this, request](const TraceEventMetas& time_line) {
-    ResponseResultToFrontend(request.GetId(), time_line.Serialize());
-  });
 }
 
 void TDFPerformanceDomain::ResponseError(int32_t id, const std::string& method) {
@@ -118,15 +107,13 @@ void TDFPerformanceDomain::ResponseError(int32_t id, const std::string& method) 
     error_msg = "start failed, no data.";
   } else if (kPerformanceDomainMethodEnd == method) {
     error_msg = "end failed, no data.";
-  } else if (kPerformanceDomainMethodv8Tracing == method) {
+  } else if (kPerformanceDomainMethodV8Tracing == method) {
     error_msg = "get v8 tracing failed, no data.";
   } else if (kPerformanceDomainMethodFrameTimings == method) {
     error_msg = "get frame timings failed, no data.";
   } else if (kPerformanceDomainMethodTimeline == method) {
     error_msg = "get time line failed, no data.";
   }
-
   ResponseErrorToFrontend(id, kErrorFailCode, error_msg);
 }
-
 }  // namespace hippy::devtools

@@ -28,7 +28,7 @@
 #include "module/model/dom_model.h"
 #include "module/request/dom_node_data_request.h"
 #include "module/request/dom_node_for_location_request.h"
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 /**
@@ -47,12 +47,12 @@ class DomDomain : public BaseDomain {
   void SetDomDataRequestCallback(DomDataRequestCallback call_back) { dom_data_call_back_ = call_back; }
 
  private:
-  void GetDocument(const Deserializer& request);
+  void GetDocument(const BaseRequest& request);
   void RequestChildNodes(const DomNodeDataRequest& request);
   void GetBoxModel(const DomNodeDataRequest& request);
   void GetNodeForLocation(const DomNodeForLocationRequest& request);
-  void RemoveNode(const Deserializer& request);
-  void SetInspectedNode(const Deserializer& request);
+  void RemoveNode(const BaseRequest& request);
+  void SetInspectedNode(const BaseRequest& request);
   void HandleDocumentUpdate();
   void CacheEntireDocumentTree(DomModel root_model);
   void SetChildNodesEvent(DomModel model);

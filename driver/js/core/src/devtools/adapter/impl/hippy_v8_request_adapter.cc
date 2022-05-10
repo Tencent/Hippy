@@ -18,14 +18,14 @@
  * limitations under the License.
  */
 
-#include "devtools/adapter/hippy_v8_request_adapter.h"
+#include "devtools/adapter/hippy_vm_request_adapter.h"
 #include <string>
 
 namespace hippy {
 namespace devtools {
-HippyV8RequestAdapter::HippyV8RequestAdapter(V8RequestHandler request_handler) : request_handler_(request_handler) {}
+HippyVMRequestAdapter::HippyVMRequestAdapter(VMRequestHandler request_handler) : request_handler_(request_handler) {}
 
-void HippyV8RequestAdapter::SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) {
+void HippyVMRequestAdapter::SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) {
   if (request_handler_) {
     request_handler_(msg);
   }
@@ -33,6 +33,5 @@ void HippyV8RequestAdapter::SendMsgToVM(std::string msg, SendFinishCallback send
     sendFinishCallback();
   }
 }
-
 }  // namespace devtools
 }  // namespace hippy

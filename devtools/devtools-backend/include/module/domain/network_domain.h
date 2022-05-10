@@ -26,7 +26,7 @@
 #include "module/domain/base_domain.h"
 #include "module/model/frame_poll_model.h"
 #include "module/model/screen_shot_model.h"
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 #include "module/request/network_response_body_request.h"
 
 namespace hippy::devtools {

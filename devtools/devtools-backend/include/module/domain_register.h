@@ -27,7 +27,7 @@
 #include <unordered_map>
 #include "devtools_base/logging.h"
 #include "module/domain/base_domain.h"
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 
 #define REGISTER_DOMAIN(Domain, Function, Request)                                                \
   auto __##Domain##Function##__ = [] {                                                            \
@@ -51,7 +51,7 @@ class DomainRegister {
   }
 
   template <typename Domain, typename Function, typename Request,
-            class = typename std::enable_if<std::is_base_of<hippy::devtools::Deserializer, Request>::value>::type>
+            class = typename std::enable_if<std::is_base_of<hippy::devtools::BaseRequest, Request>::value>::type>
   void RegisterDomain(Function Domain::*member_fn, const std::string& domain_name, const std::string& function_name,
                       Request request) {
     InvokerHandler invoker = [member_fn, function_name, request](std::shared_ptr<hippy::devtools::BaseDomain> baseDomain,

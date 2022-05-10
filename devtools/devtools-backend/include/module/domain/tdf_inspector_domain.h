@@ -28,7 +28,7 @@
 #include "module/model/frame_poll_model.h"
 #include "module/model/screen_shot_model.h"
 #include "module/model/tdf_inspector_model.h"
-#include "module/request/domain_base_request.h"
+#include "module/request/base_request.h"
 #include "module/request/screen_shot_request.h"
 #include "module/request/selected_render_object_request.h"
 
@@ -48,22 +48,22 @@ class TDFInspectorDomain : public BaseDomain {
   std::shared_ptr<FramePollModel> frame_poll_model_;
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
 
-  void DumpDomTree(const Deserializer& request);
+  void DumpDomTree(const BaseRequest& request);
 
   /**
    * @brief get dom tree
    */
-  void GetDomTree(const Deserializer& request);
+  void GetDomTree(const BaseRequest& request);
 
   /**
    * @brief get selecting dom node info
    */
-  void GetSelectedDomNode(const Deserializer& request);
+  void GetSelectedDomNode(const BaseRequest& request);
 
   /**
    * @brief get render tree
    */
-  void GetRenderTree(const Deserializer& request);
+  void GetRenderTree(const BaseRequest& request);
 
   /**
    * @brief get selecting render node info
@@ -78,12 +78,12 @@ class TDFInspectorDomain : public BaseDomain {
   /**
    * @brief enable screenshot update switch
    */
-  void EnableUpdateNotification(const Deserializer& request);
+  void EnableUpdateNotification(const BaseRequest& request);
 
   /**
    * @brief disable screenshot update switch
    */
-  void DisableUpdateNotification(const Deserializer& request);
+  void DisableUpdateNotification(const BaseRequest& request);
 
   void HandleFramePollModelRefreshNotification();
 
