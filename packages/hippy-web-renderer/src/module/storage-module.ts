@@ -48,7 +48,7 @@ export class StorageModule extends HippyWebModule {
     callBack.resolve(data);
   }
 
-  public multiGet(callBack: HippyCallBack, keys: Array<string>) {
+  public multiGet(keys: Array<string>, callBack: HippyCallBack) {
     if (!StorageModule.preCheck()) {
       callBack.reject('not support');
       return;
@@ -97,7 +97,7 @@ export class StorageModule extends HippyWebModule {
     callBack.resolve('success');
   }
 
-  public multiRemove(callBack: HippyCallBack, keys: Array<string>) {
+  public multiRemove(keys: Array<string>, callBack: HippyCallBack) {
     if (!StorageModule.preCheck()) {
       callBack.reject('not support');
       return;

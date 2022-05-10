@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EllipsizeMode, InnerNodeTag } from '../types';
+import { EllipsizeMode, InnerNodeTag, NodeProps } from '../types';
 import { setElementStyle } from '../common';
 import { HippyView } from './hippy-view';
 const HippyEllipsizeModeMap = {
@@ -27,37 +27,41 @@ const HippyEllipsizeModeMap = {
   tail: { 'text-overflow': 'ellipsis' },
 };
 export class TextView extends HippyView<HTMLSpanElement> {
-  private lines: number | undefined;
-  private ellipsis: EllipsizeMode | undefined;
-  private content = '';
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.TEXT;
     this.dom = document.createElement('span');
+    this.props[NodeProps.ELLIPSIZE_MODE] = EllipsizeMode.TAIL;
   }
   public defaultStyle(): { [p: string]: any } {
-    return { boxSizing: 'border-box', zIndex: 0 };
+    return { boxSizing: 'border-box', zIndex: 0, ...HippyEllipsizeModeMap[this.ellipsizeMode] };
   }
 
   public set numberOfLines(value: number|undefined) {
-    this.lines = value;
+    this.props[NodeProps.NUMBER_OF_LINES] = value;
+    if (value === 1) {
+      this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all' });
+    } else {
+      this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all' });
+    }
   }
 
   public get numberOfLines() {
-    return this.lines;
+    return this.props[NodeProps.NUMBER_OF_LINES];
   }
 
   public set ellipsizeMode(value) {
-    this.ellipsis = value;
-    if (this.dom && this.ellipsis) setElementStyle(this.dom, HippyEllipsizeModeMap[this.ellipsis]);
+    this.props[NodeProps.ELLIPSIZE_MODE] = value;
+
+    if (this.dom && value) setElementStyle(this.dom, { ...HippyEllipsizeModeMap[value], overflow: 'hidden' });
   }
 
   public get ellipsizeMode() {
-    return this.ellipsis;
+    return this.props[NodeProps.ELLIPSIZE_MODE];
   }
 
   public set text(value) {
-    this.content = value;
+    this.props[NodeProps.VALUE] = value;
     if (this.dom!.childNodes.length > 0) {
       let textNode: Text | null = null;
       this.dom!.childNodes.forEach((item) => {
@@ -78,6 +82,6 @@ export class TextView extends HippyView<HTMLSpanElement> {
   }
 
   public get text() {
-    return this.content;
+    return this.props[NodeProps.VALUE];
   }
 }
