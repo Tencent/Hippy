@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.view.KeyEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.HippyRecyclerViewBase;
@@ -51,6 +52,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private NodePositionHelper nodePositionHelper;
     private ViewStickEventHelper viewStickEventHelper;
     private boolean stickEventEnable;
+    private boolean isTvPlatform = false;
+    private HippyRecycleViewFocusHelper mFocusHelper = null;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -91,11 +94,16 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     public void setHippyEngineContext(HippyEngineContext hippyEngineContext) {
         this.hippyEngineContext = hippyEngineContext;
+        this.isTvPlatform = hippyEngineContext.getGlobalConfigs().getHippyPlatformAdapter().isTvPlatform();
     }
 
     public void initRecyclerView() {
         setAdapter(new HippyRecyclerListAdapter<HippyRecyclerView>(this, this.hippyEngineContext));
         intEventHelper();
+        if (isTvPlatform) {
+            mFocusHelper = new HippyRecycleViewFocusHelper(this);
+            setFocusableInTouchMode(true);
+        }
     }
 
 
@@ -113,6 +121,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     public void setListData() {
         LogUtils.d("HippyRecyclerView", "itemCount =" + listAdapter.getItemCount());
         listAdapter.notifyDataSetChanged();
+
+        if (isTvPlatform) {
+            mFocusHelper.setListData();
+        }
+
         //notifyDataSetChanged 本身是可以触发requestLayout的，但是Hippy框架下 HippyRootView 已经把
         //onLayout方法重载写成空方法，requestLayout不会回调孩子节点的onLayout，这里需要自己发起dispatchLayout
         renderNodeCount = getAdapter().getRenderNodeCount();
@@ -365,7 +378,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         return false;
     }
 
-    private boolean isTheSameRenderNode(HippyRecyclerViewHolder aboundHeader, HippyRecyclerViewHolder viewHolder) {
+    public boolean isTheSameRenderNode(HippyRecyclerViewHolder aboundHeader, HippyRecyclerViewHolder viewHolder) {
         if (viewHolder.bindNode != null && aboundHeader.bindNode != null) {
             return viewHolder.bindNode.getId() == aboundHeader.bindNode.getId();
         }
@@ -403,6 +416,49 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         }
         viewStickEventHelper = null;
     }
+
+  @Override
+  public boolean dispatchKeyEvent(KeyEvent event) {
+      if (event.getAction() == KeyEvent.ACTION_DOWN) {
+          if (isTvPlatform) {
+              mFocusHelper.setKeyCode(event.getKeyCode());
+          }
+      }
+      return super.dispatchKeyEvent(event);
+  }
+
+  @Override
+  public void requestChildFocus(View child, View focused) {
+      super.requestChildFocus(child, focused);
+      if (!isTvPlatform) {
+          return;
+      }
+      mFocusHelper.requestChildFocus(child, focused);
+  }
+
+  @Override
+  public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {
+      if (!isTvPlatform) {
+          return super.requestChildRectangleOnScreen(child, rect, immediate);
+      }
+      return mFocusHelper.requestChildRectangleOnScreen(child, rect, immediate);
+  }
+
+  @Override
+  protected int getChildDrawingOrder(int childCount, int i) {
+      if (!isTvPlatform) {
+          return super.getChildDrawingOrder(childCount, i);
+      }
+      return mFocusHelper.getChildDrawingOrder(childCount, i);
+  }
+
+  @Override
+  public View focusSearch(View focused, int direction) {
+      if (!isTvPlatform) {
+          return super.focusSearch(focused, direction);
+      }
+      return mFocusHelper.focusSearch(focused, direction);
+  }
 
     @Override
     public String toString() {
