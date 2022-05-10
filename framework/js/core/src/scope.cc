@@ -46,12 +46,13 @@ using TryCatch = hippy::napi::TryCatch;
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
-constexpr uint32_t kInvalidListenerId = 0;
+constexpr uint32_t kInvalidDomEventId = 0;
 
-Scope::Scope(Engine* engine,
-             std::string name,
-             std::unique_ptr<RegisterMap> map)
-    : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {}
+Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)
+    : engine_(engine),
+      context_(nullptr),
+      name_(std::move(name)),
+      map_(std::move(map)) {}
 
 Scope::~Scope() {
   TDF_BASE_DLOG(INFO) << "~Scope";
@@ -123,12 +124,14 @@ void Scope::Initialized() {
   auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
   TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
   unicode_string_view str_view(source_code.data_, source_code.length_);
-  std::shared_ptr<CtxValue> function = context_->RunScript(
-      str_view, kHippyBootstrapJSName);
+  std::shared_ptr<CtxValue> function =
+      context_->RunScript(str_view, kHippyBootstrapJSName);
 
   bool is_func = context_->IsFunction(function);
-  TDF_BASE_CHECK(is_func) << "bootstrap return not function, len = " << source_code.length_;
-  // TODO(super): The following statement will be removed when TDF_BASE_CHECK will be cause abort
+  TDF_BASE_CHECK(is_func) << "bootstrap return not function, len = "
+                          << source_code.length_;
+  // TODO(super): The following statement will be removed when TDF_BASE_CHECK
+  // will be cause abort
   if (!is_func) {
     return;
   }
@@ -175,26 +178,126 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::AddListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id) {
-  auto id_it = listener_id_map_.find(node_id);
-  if (id_it != listener_id_map_.end()) {
-    id_it->second[event_name] = listener_id; // 目前hippy上层还不支持绑定多个回调，update时替换原有回调
-  } else {
-    listener_id_map_[node_id] = std::unordered_map<std::string, uint32_t>();
-    listener_id_map_[node_id][event_name] = listener_id;
+void Scope::AddListener(const EventListenerInfo& event_listener_info,
+                        const uint32_t dom_event_id) {
+  uint32_t dom_id = event_listener_info.dom_id;
+  std::string event_name = event_listener_info.event_name;
+  const auto& js_function = event_listener_info.callback;
+  TDF_BASE_DCHECK(js_function != nullptr);
+
+  auto id_it = listener_map_.find(dom_id);
+  if (id_it == listener_map_.end()) {
+    listener_map_[dom_id] =
+        std::unordered_map<std::string, std::vector<std::weak_ptr<CtxValue>>>();
   }
+  auto name_it = listener_map_[dom_id].find(event_name);
+  if (name_it == listener_map_[dom_id].end()) {
+    listener_map_[dom_id][event_name] = std::vector<std::weak_ptr<CtxValue>>();
+  }
+  std::weak_ptr<hippy::napi::CtxValue> weak_js_function = js_function;
+  listener_map_[dom_id][event_name].push_back(weak_js_function);
+
+  // bind dom event id and js function
+  auto event_node_it = dom_event_map_.find(dom_id);
+  if (event_node_it == dom_event_map_.end()) {
+    dom_event_map_[dom_id] = std::unordered_map<
+        std::string, std::unordered_map<uint32_t, std::weak_ptr<CtxValue>>>();
+  }
+  auto event_name_it = dom_event_map_[dom_id].find(event_name);
+  if (event_name_it == dom_event_map_[dom_id].end()) {
+    dom_event_map_[dom_id][event_name] =
+        std::unordered_map<uint32_t, std::weak_ptr<CtxValue>>();
+  }
+
+  dom_event_map_[dom_id][event_name][dom_event_id] = weak_js_function;
 }
 
-uint32_t Scope::GetListenerId(uint32_t node_id, const std::string& event_name) {
-  auto id_it = listener_id_map_.find(node_id);
-  if (id_it == listener_id_map_.end()) {
-    return kInvalidListenerId;
+void Scope::RemoveListener(const EventListenerInfo& event_listener_info,
+                           const uint32_t dom_event_id) {
+  uint32_t dom_id = event_listener_info.dom_id;
+  std::string event_name = event_listener_info.event_name;
+  const auto& js_function = event_listener_info.callback;
+  TDF_BASE_DCHECK(js_function != nullptr);
+
+  auto id_it = listener_map_.find(dom_id);
+  if (id_it == listener_map_.end()) {
+    return;
+  }
+  auto name_it = listener_map_[dom_id].find(event_name);
+  if (name_it == listener_map_[dom_id].end()) {
+    return;
+  }
+  std::weak_ptr<hippy::napi::CtxValue> weak_js_function = js_function;
+  auto function_vec = listener_map_[dom_id][event_name];
+  auto function_it = std::find_if(
+      function_vec.begin(), function_vec.end(),
+      [context = context_, &js_function](const std::weak_ptr<CtxValue>& item) {
+        bool ret = context->Equals(item.lock(), js_function);
+        return ret;
+      });
+  if (function_it != function_vec.end()) {
+    function_vec.erase(function_it);
+  }
+
+  // unbind dom event id and js function
+  auto event_node_it = dom_event_map_.find(dom_id);
+  if (event_node_it == dom_event_map_.end()) {
+    return;
+  }
+  auto event_name_it = dom_event_map_[dom_id].find(event_name);
+  if (event_name_it == dom_event_map_[dom_id].end()) {
+    return;
+  }
+  dom_event_map_[dom_id][event_name].erase(dom_event_id);
+}
+
+bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
+  uint32_t dom_id = event_listener_info.dom_id;
+  std::string event_name = event_listener_info.event_name;
+  const auto& js_function = event_listener_info.callback;
+  TDF_BASE_DCHECK(js_function != nullptr);
+
+  auto id_it = listener_map_.find(dom_id);
+  if (id_it == listener_map_.end()) {
+    return false;
   }
   auto name_it = id_it->second.find(event_name);
   if (name_it == id_it->second.end()) {
-    return kInvalidListenerId;
+    return false;
   }
-  return name_it->second;
+
+  for (const auto& v : name_it->second) {
+    TDF_BASE_DCHECK(!v.expired());
+    auto value = v.lock();
+    bool ret = context_->Equals(value, js_function);
+    if (ret)
+      return true;
+  }
+
+  return false;
+}
+
+uint32_t Scope::GetDomEventId(const EventListenerInfo& event_listener_info) {
+  uint32_t dom_id = event_listener_info.dom_id;
+  std::string event_name = event_listener_info.event_name;
+  const auto& js_function = event_listener_info.callback;
+  TDF_BASE_DCHECK(js_function != nullptr);
+
+  auto event_node_it = dom_event_map_.find(dom_id);
+  if (event_node_it == dom_event_map_.end()) {
+    return kInvalidDomEventId;
+  }
+  auto event_name_it = dom_event_map_[dom_id].find(event_name);
+  if (event_name_it == dom_event_map_[dom_id].end()) {
+    return kInvalidDomEventId;
+  }
+  for (const auto& v : dom_event_map_[dom_id][event_name]) {
+    TDF_BASE_DCHECK(!v.second.expired());
+    bool ret = context_->Equals(v.second.lock(), js_function);
+    if (ret)
+      return v.first;
+  }
+  return kInvalidDomEventId;
 }
 
 void Scope::RunJS(const unicode_string_view& data,
@@ -203,7 +306,8 @@ void Scope::RunJS(const unicode_string_view& data,
   std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function callback = [data, name, is_copy, weak_context] {
 #ifdef JS_V8
-    auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+    auto context =
+        std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);
     }
@@ -235,7 +339,8 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
       [data, name, is_copy, weak_context, p = std::move(promise)]() mutable {
         std::shared_ptr<CtxValue> rst = nullptr;
 #ifdef JS_V8
-        auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+        auto context =
+            std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
         if (context) {
           rst = context->RunScript(data, name, false, nullptr, is_copy);
         }

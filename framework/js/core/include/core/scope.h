@@ -61,10 +61,9 @@ class Scope {
   using FunctionData = hippy::napi::FunctionData;
   using BindingData = hippy::napi::BindingData;
   using Encoding = hippy::napi::Encoding;
+  using EventListenerInfo = hippy::dom::EventListenerInfo;
 
-  Scope(Engine* engine,
-        std::string  name,
-        std::unique_ptr<RegisterMap> map);
+  Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map);
   ~Scope();
 
   void WillExit();
@@ -81,7 +80,7 @@ class Scope {
 
   void SaveFunctionData(std::unique_ptr<FunctionData> data);
   inline void SaveClassInstance(std::shared_ptr<hippy::napi::InstanceDefine<hippy::SceneBuilder>> instance) {
-      instance_holder_ = instance;
+    instance_holder_ = instance;
   }
 
   inline void SaveBindingData(std::unique_ptr<BindingData> data) {
@@ -92,8 +91,10 @@ class Scope {
     return binding_data_;
   }
 
-  void AddListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id);
-  uint32_t GetListenerId(uint32_t node_id, const std::string& event_name);
+  void AddListener(const EventListenerInfo& event_listener_info, const uint32_t dom_event_id);
+  void RemoveListener(const EventListenerInfo& event_listener_info, const uint32_t dom_event_id);
+  bool HasListener(const EventListenerInfo& event_listener_info);
+  uint32_t GetDomEventId(const EventListenerInfo& event_listener_info);
 
   void RunJS(const unicode_string_view& js,
              const unicode_string_view& name,
@@ -128,9 +129,7 @@ class Scope {
     dom_manager_ = dom_manager;
   }
 
-  inline std::weak_ptr<DomManager> GetDomManager() {
-    return dom_manager_;
-  }
+  inline std::weak_ptr<DomManager> GetDomManager() { return dom_manager_; }
 
   inline void SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
     render_manager_ = render_manager;
@@ -153,7 +152,10 @@ class Scope {
       module_value_map_;
   std::unordered_map<unicode_string_view, std::unique_ptr<ModuleBase>>
       module_class_map_;
-  std::unordered_map<uint32_t, std::unordered_map<std::string, uint32_t>> listener_id_map_;
+  std::unordered_map<uint32_t, std::unordered_map<std::string, std::vector<std::weak_ptr<CtxValue>>>>
+      listener_map_;
+  std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint32_t, std::weak_ptr<CtxValue>>>> 
+      dom_event_map_;
   std::vector<std::unique_ptr<FunctionData>> function_data_;
   std::shared_ptr<hippy::napi::InstanceDefine<hippy::SceneBuilder>> instance_holder_;
   std::unique_ptr<BindingData> binding_data_;
