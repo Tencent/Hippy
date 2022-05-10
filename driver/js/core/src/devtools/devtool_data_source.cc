@@ -23,7 +23,7 @@
 #include "devtools/devtool_data_source.h"
 
 #include <utility>
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
 #include "core/runtime/v8/runtime.h"
 #endif
 #include "devtools/adapter/hippy_dom_tree_adapter.h"

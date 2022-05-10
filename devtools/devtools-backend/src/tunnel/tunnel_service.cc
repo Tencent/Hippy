@@ -51,7 +51,7 @@ void TunnelService::HandleReceiveData(const char *buffer, int32_t buffer_length)
   std::string data(buffer, buffer + buffer_length);
   auto isInspectDomain = dispatch_->ReceiveDataFromFrontend(data);
   if (!isInspectDomain) {  // others send to v8 if use CDP
-    dispatch_->DispatchToV8(data);
+    dispatch_->DispatchToVM(data);
   }
 }
 

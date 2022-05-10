@@ -55,7 +55,7 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
    */
   bool ReceiveDataFromFrontend(const std::string& data);
 
-  void DispatchToV8(const std::string& data);
+  void DispatchToVM(const std::string& data);
 
   /**
    * @brief response to frontend after call ReceiveDataFromFrontend

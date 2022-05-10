@@ -22,7 +22,7 @@
 
 #include <string>
 #include <mutex>
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
 #include "v8/libplatform/v8-tracing.h"
 #endif
 
@@ -36,7 +36,7 @@ class TraceControl {
   }
   void StartTracing();
   void StopTracing();
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
   void SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control);
 #endif
   /**
@@ -54,7 +54,7 @@ class TraceControl {
  private:
   TraceControl();
   void ClosePreviousBuffer();
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
   v8::platform::tracing::TracingController *v8_trace_control_;
   v8::platform::tracing::TraceBuffer *trace_buffer_;
   v8::platform::tracing::TraceWriter *trace_writer_;

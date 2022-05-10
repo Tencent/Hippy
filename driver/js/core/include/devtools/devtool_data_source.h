@@ -20,11 +20,9 @@
 
 #pragma once
 
-//#if TDF_SERVICE_ENABLED
-
 #include <memory>
 #include <string>
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
 #include "v8/libplatform/v8-tracing.h"
 #endif
 #include "core/engine.h"
@@ -68,7 +66,7 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
    */
   void SetContextName(const std::string& context_name);
 
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);
 #endif
@@ -88,4 +86,3 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
 }  // namespace devtools
 }  // namespace hippy
 
-//#endif
