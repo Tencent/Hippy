@@ -212,10 +212,6 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             mThirdPartyAdapter.onRuntimeDestroy();
         }
 
-        if (enableTurbo() && mTurboModuleManager != null) {
-            mTurboModuleManager.uninstall(mHippyBridge.getV8RuntimeId());
-        }
-
         @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
         mHippyBridge.destroy(new NativeCallback(mHandler) {
             @Override
