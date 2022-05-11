@@ -62,7 +62,6 @@ static NSOperationQueue *animated_image_queue() {
     static NSOperationQueue *_animatedImageOQ = nil;
     dispatch_once(&onceToken, ^{
         _animatedImageOQ = [[NSOperationQueue alloc] init];
-        _animatedImageOQ.maxConcurrentOperationCount = 1;
     });
     return _animatedImageOQ;
 }
