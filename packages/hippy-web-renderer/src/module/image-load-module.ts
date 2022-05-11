@@ -22,7 +22,7 @@ import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
 
 export class ImageLoadModule extends HippyWebModule {
-  public name = 'ImageLoadModule';
+  public name = 'ImageLoaderModule';
 
   public getSize(url: string, callBack: HippyCallBack) {
     if (!url) {
