@@ -119,7 +119,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   // parse params
   std::string params;
   if (!data_json[kFrontendKeyParams].is_null()) {
-    json params_json = json::object();
+    nlohmann::json params_json = nlohmann::json::object();
     params_json.merge_patch(data_json[kFrontendKeyParams]);
     params = params_json.dump();
   }
@@ -134,7 +134,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     auto found = domain.find(kDomainNameTDFProtocol);
     if (std::string::npos != found) {
       domain = domain.replace(found, strlen(kDomainNameTDFProtocol), kDomainNameTdfPrefix);
-    } else {    // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
+    } else {  // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
       std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
       domain[0] = toupper(domain[0]);
     }
@@ -175,13 +175,13 @@ void DomainDispatch::SendDataToFrontend(int32_t id, const std::string& result, c
     BACKEND_LOGW(TDF_BACKEND, "result and error are both null");
     return;
   }
-  json rsp_json = json::object();
+  nlohmann::json rsp_json = nlohmann::json::object();
   rsp_json[kFrontendKeyId] = id;
 
   if (result.length()) {
-    rsp_json[kDomainDispatchResult] = json::parse(result.data());
+    rsp_json[kDomainDispatchResult] = nlohmann::json::parse(result.data());
   } else {
-    rsp_json[kDomainDispatchError] = json::parse(error.data());
+    rsp_json[kDomainDispatchError] = nlohmann::json::parse(error.data());
   }
   if (rsp_handler_) {
     rsp_handler_(rsp_json.dump());
