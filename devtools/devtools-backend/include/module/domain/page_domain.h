@@ -40,8 +40,8 @@ class PageDomain : public BaseDomain {
   void StartScreencast(const ScreenShotRequest& request);
   void StopScreencast(const BaseRequest& request);
   void ScreencastFrameAck(const BaseRequest& request);
-  void SetFramePollCallback();
-  void SetScreenShotCallback();
+  void RegisterFramePollCallback();
+  void RegisterScreenShotCallback();
   std::shared_ptr<FramePollModel> frame_poll_model_;
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
 };

@@ -36,7 +36,7 @@ void TDFRuntimeDomain::Resume(const BaseRequest& request) {
 #if JS_ENGINE_V8
   if (!GetDataProvider()->runtime_adapter->IsDebug()) {
     BACKEND_LOGD(TDF_BACKEND, "Not debug mode, return.");
-    return; // don't send msg to v8 if not debug mode
+    return;  // don't send msg to v8 if not debug mode
   }
   auto vm_request = GetDataProvider()->vm_request_adapter;
   if (vm_request) {
@@ -46,9 +46,9 @@ void TDFRuntimeDomain::Resume(const BaseRequest& request) {
 }
 
 void TDFRuntimeDomain::IsDebugMode(const BaseRequest& request) {
-  bool isDebug = GetDataProvider()->runtime_adapter->IsDebug();
+  bool is_debug = GetDataProvider()->runtime_adapter->IsDebug();
   nlohmann::json result_json = nlohmann::json::object();
-  result_json["isDebugMode"] = isDebug ? 1 : 0;
+  result_json["isDebugMode"] = is_debug ? 1 : 0;
   ResponseResultToFrontend(request.GetId(), result_json.dump());
 }
 }  // namespace hippy::devtools

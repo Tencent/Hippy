@@ -27,10 +27,10 @@
 
 namespace hippy::devtools {
 
-class FramePollModel : public BaseModel{
+class FramePollModel : public BaseModel {
  public:
-  FramePollModel();
   using ResponseHandler = std::function<void()>;
+  FramePollModel();
   void SetResponseHandler(ResponseHandler handler) { response_handler_ = handler; }
   void StartPoll();
   void StopPoll();

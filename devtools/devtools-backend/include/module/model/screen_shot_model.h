@@ -23,12 +23,11 @@
 #include <memory>
 #include <string>
 #include "api/adapter/devtools_screen_adapter.h"
+#include "module/model/base_model.h"
 #include "module/model/screen_shot_response.h"
 #include "module/request/screen_shot_request.h"
-#include "module/model/base_model.h"
 
 namespace hippy::devtools {
-using json = nlohmann::json;
 
 /**
  * @brief screenshot model

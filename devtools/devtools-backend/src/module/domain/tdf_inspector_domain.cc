@@ -111,8 +111,8 @@ void TDFInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectReque
       request.GetRenderId(), [this, request](bool is_success, const RenderDiagnosticMetas& metas) {
         BACKEND_LOGD(TDF_BACKEND, "GetSelectedRenderObject response");
         if (is_success) {
-          json result_json = json::object();
-          result_json[kFrontendKeyRtree] = json::parse(metas.Serialize());
+          nlohmann::json result_json = nlohmann::json::object();
+          result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize());
           ResponseResultToFrontend(request.GetId(), result_json.dump());
         } else {
           ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetSelectedRenderObject failed, is_success false.");

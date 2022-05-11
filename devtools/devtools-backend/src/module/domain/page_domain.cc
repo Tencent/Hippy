@@ -32,8 +32,8 @@ PageDomain::PageDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std:
   frame_poll_model_ = std::make_shared<FramePollModel>();
   screen_shot_model_->SetDataProvider(GetDataProvider());
   frame_poll_model_->SetDataProvider(GetDataProvider());
-  SetFramePollCallback();
-  SetScreenShotCallback();
+  RegisterFramePollCallback();
+  RegisterScreenShotCallback();
 }
 
 std::string PageDomain::GetDomainName() { return kFrontendKeyDomainNamePage; }
@@ -62,11 +62,11 @@ void PageDomain::ScreencastFrameAck(const BaseRequest& request) {
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 
-void PageDomain::SetFramePollCallback() {
+void PageDomain::RegisterFramePollCallback() {
   frame_poll_model_->SetResponseHandler([this]() { screen_shot_model_->ReqScreenShotToSendEvent(); });
 }
 
-void PageDomain::SetScreenShotCallback() {
+void PageDomain::RegisterScreenShotCallback() {
   screen_shot_model_->SetSendEventScreenShotCallback([this](const ScreenShotResponse response) {
     SendEventToFrontend(InspectEvent(kPageEventScreencastFrame, response.ToJsonString()));
   });
