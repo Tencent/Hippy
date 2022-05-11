@@ -425,6 +425,17 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   @Override
+  public void onFontChanged(final int rootId) {
+    final DomManager domManager = mEngineContext.getDomManager();
+    getThreadExecutor().postOnDomThread(new Runnable() {
+      @Override
+      public void run() {
+        domManager.onFontChanged(rootId);
+      }
+    });
+  }
+
+  @Override
   public void sendEvent(String event, Object params, BridgeTransferType transferType) {
     if (mEngineContext != null && mEngineContext.getModuleManager() != null) {
       mEngineContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
