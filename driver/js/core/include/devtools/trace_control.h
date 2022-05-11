@@ -21,7 +21,6 @@
 #pragma once
 
 #include <string>
-#include <mutex>
 #ifdef JS_ENGINE_V8
 #include "v8/libplatform/v8-tracing.h"
 #endif
@@ -39,32 +38,27 @@ class TraceControl {
 #ifdef JS_ENGINE_V8
   void SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control);
 #endif
-  /**
-   * @brief 设置 Tracing 保存路径
-   * @param file_cache_dir 路径
-   */
   void SetFileCacheDir(std::string file_cache_dir);
   std::string GetTracingContent();
 
  protected:
+  TraceControl() = default;
   TraceControl(TraceControl &&) = delete;
   TraceControl(const TraceControl &) = delete;
   void operator=(const TraceControl &) = delete;
 
  private:
-  TraceControl();
   void ClosePreviousBuffer();
 #ifdef JS_ENGINE_V8
-  v8::platform::tracing::TracingController *v8_trace_control_;
-  v8::platform::tracing::TraceBuffer *trace_buffer_;
-  v8::platform::tracing::TraceWriter *trace_writer_;
+  v8::platform::tracing::TracingController *v8_trace_control_ = nullptr;
+  v8::platform::tracing::TraceBuffer *trace_buffer_ = nullptr;
+  v8::platform::tracing::TraceWriter *trace_writer_ = nullptr;
   std::ofstream trace_file_;
   bool OpenCacheFile();
 #endif
   std::string cache_file_dir_;
   std::string cache_file_path_;
-  bool tracing_has_start_;
-  std::mutex devtools_tracing_mutex_;
+  bool tracing_has_start_ = false;
   bool control_has_init_ = false;
 };
 }  // namespace devtools

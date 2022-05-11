@@ -29,7 +29,7 @@ class HippyRuntimeAdapter : public hippy::devtools::RuntimeAdapter {
  public:
   explicit HippyRuntimeAdapter() {}
   void SetDebugMode(bool debug_mode) { debug_mode_ = debug_mode; }
-  bool IsDebug() override;
+  inline bool IsDebug() override { return debug_mode_; }
 
  private:
   bool debug_mode_;

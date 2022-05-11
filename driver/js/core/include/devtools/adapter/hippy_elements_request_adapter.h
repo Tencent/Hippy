@@ -28,25 +28,11 @@ namespace hippy {
 namespace devtools {
 class HippyElementsRequestAdapter : public hippy::devtools::ElementsRequestAdapter {
  public:
-  using DomainHandler = std::function<void(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback)>;
-  using NodeHandler = std::function<void(double x, double y, DomainDataCallback callback)>;
   explicit HippyElementsRequestAdapter(int32_t dom_id) : dom_id_(dom_id) {}
-  void SetDomainHandler(DomainHandler domain_handler) { domain_handler_ = domain_handler; }
-  void SetNodeHandler(NodeHandler node_handler) { node_handler_ = node_handler; }
-
-  /**
-   * @brief 获取domain数据
-   */
   void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-
-  /**
-   * @brief 根据location坐标获取NodeId
-   */
   void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
 
  private:
-  DomainHandler domain_handler_;
-  NodeHandler node_handler_;
   int32_t dom_id_;
 };
 }  // namespace devtools

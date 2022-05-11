@@ -37,43 +37,23 @@ namespace hippy {
 namespace devtools {
 
 /**
- * @brief Devtools Hippy 实现
+ * @brief Devtools Hippy framework imp
  */
 class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
  public:
   explicit DevtoolDataSource(const std::string& ws_url);
   ~DevtoolDataSource() = default;
-
-  /**
-   * @brief 绑定调试的 DOM/Render
-   * @param runtime_id Runtime id
-   * @param dom_id DOM Manager id
-   * @param render_id Render Manager id
-   */
   void Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id);
-
-  /**
-   * @brief 销毁调试实例
-   * @param is_reload 是否 reload
-   */
   void Destroy(bool is_reload);
-
   void SetRuntimeAdapterDebugMode(bool debug_mode);
+  void SetV8RequestHandler(HippyVMRequestAdapter::VMRequestHandler request_handler);
+  static void SendV8Response(const std::string& data);
 
-  /**
-   * @brief 设置contextName
-   * @param context_name context名称
-   */
   void SetContextName(const std::string& context_name);
-
 #ifdef JS_ENGINE_V8
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);
 #endif
-
-  void SetV8RequestHandler(HippyVMRequestAdapter::VMRequestHandler request_handler);
-
-  static void SendV8Response(const std::string& data);
 
  private:
   int32_t dom_id_;

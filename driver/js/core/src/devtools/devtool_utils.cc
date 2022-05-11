@@ -67,18 +67,14 @@ hippy::devtools::DomainMetas DevToolUtils::GetDomDomainData(const std::shared_pt
     metas.SetClassName(dom_node->GetViewName());
     metas.SetNodeName(dom_node->GetTagName());
     metas.SetLocalName(dom_node->GetTagName());
-    // Text 从 props 中取
     metas.SetNodeValue(ParseNodeKeyProps(kText, dom_node->GetExtStyle()));
   }
   metas.SetStyleProps(ParseNodeProps(dom_node->GetStyleMap()));
-  // attributes 从 props 中取
   metas.SetTotalProps(ParseNodeKeyProps(kAttributes, dom_node->GetExtStyle()));
   auto children = dom_node->GetChildren();
   metas.SetChildrenCount(children.size());
-  // 每获取一层数据 深度减一
   depth--;
   if (depth <= 0) {
-    // 不需要孩子节点数据 则直接返回
     return metas;
   }
   for (auto& child : children) {
@@ -158,7 +154,6 @@ std::string DevToolUtils::ParseDomValue(const tdf::base::DomValue& dom_value) {
   bool first_object = true;
   for (auto iterator : dom_value.ToObjectChecked()) {
     if (iterator.first == "uri" || iterator.first == "src") {
-      // 这个value是个base64，数据量太大，改成空字符串
       iterator.second = "";
     }
     std::string key = iterator.first;
@@ -255,7 +250,6 @@ std::string DevToolUtils::ParseNodeProps(
     TDF_BASE_DLOG(INFO) << "ParseNodeProps, node props is not object";
     return "{}";
   }
-
   std::string node_str = "{";
   bool first_object = true;
   for (auto& iterator : *node_props) {
@@ -270,7 +264,6 @@ std::string DevToolUtils::ParseNodeProps(const std::unordered_map<std::string, t
     TDF_BASE_DLOG(INFO) << "ParseNodeProps, node props is not object";
     return "{}";
   }
-
   std::string node_str = "{";
   bool first_object = true;
   for (const auto& node_prop : node_props) {
@@ -326,7 +319,6 @@ void DevToolUtils::AppendDomKeyValue(std::string& node_str, bool& first_object, 
       }
     }
     array += "]";
-
     node_str += first_object ? "\"" : ",\"";
     node_str += node_key;
     node_str += "\":";

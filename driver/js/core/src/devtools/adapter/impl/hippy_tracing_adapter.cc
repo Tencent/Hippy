@@ -31,8 +31,7 @@ void HippyTracingAdapter::StartTracing() {
 void HippyTracingAdapter::StopTracing(TracingDataCallback callback) {
   TraceControl::GetInstance().StopTracing();
   if (callback) {
-    auto result = TraceControl::GetInstance().GetTracingContent();
-    callback(result);
+    callback(TraceControl::GetInstance().GetTracingContent());
   }
 }
 }  // namespace devtools

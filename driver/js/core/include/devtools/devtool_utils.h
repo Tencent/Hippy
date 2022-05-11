@@ -32,10 +32,6 @@
 
 namespace hippy {
 namespace devtools {
-/**
- * devtools 的工具类
- * 处理 DomNode 数据读取转换等
- */
 class DevToolUtils {
  public:
   static hippy::devtools::DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);

@@ -29,48 +29,51 @@
 namespace hippy {
 namespace devtools {
 void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) {
-#if TDF_SERVICE_ENABLED
-  bool is_success = false;
-  int32_t node_id = metas.GetNodeId();
-  auto metas_list = metas.GetStyleMetasList();
-  if (!callback || node_id <= 0 || metas_list.empty()) {
-    callback(is_success);
+  if (!callback) {
     return;
   }
-
-  std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map{};
-  for (auto &meta : metas_list) {
-    if (meta.IsDouble()) {
-      style_map.insert({meta.GetKey(), std::make_shared<tdf::base::DomValue>(meta.ToDouble())});
-    } else if (meta.IsString()) {
-      style_map.insert({meta.GetKey(), std::make_shared<tdf::base::DomValue>(meta.ToString())});
+  std::function func = [dom_id = dom_id_, metas, callback] {
+    bool is_success = false;
+    int32_t node_id = metas.GetNodeId();
+    auto metas_list = metas.GetStyleMetasList();
+    if (node_id <= 0 || metas_list.empty()) {
+      callback(is_success);
+      return;
     }
-  }
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
-  if (dom_manager) {
-    auto node = dom_manager->GetNode(static_cast<uint32_t>(node_id));
-    node->UpdateProperties(style_map, std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>{});
-    is_success = true;
-  }
-  callback(is_success);
-#endif
-}
-
-void HippyDomTreeAdapter::GetDomTree(const DumpDomTreeCallback& callback) {
-  if (callback) {
-#if TDF_SERVICE_ENABLED
-    std::function func = [this, callback] {
-      std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
-      if (dom_manager) {
-        auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-        hippy::devtools::DomNodeMetas metas = DevToolUtils::ToDomNodeMetas(root_node);
-        callback(true, metas);
+    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map{};
+    for (auto &meta : metas_list) {
+      if (meta.IsDouble()) {
+        style_map.insert({meta.GetKey(), std::make_shared<tdf::base::DomValue>(meta.ToDouble())});
+      } else if (meta.IsString()) {
+        style_map.insert({meta.GetKey(), std::make_shared<tdf::base::DomValue>(meta.ToString())});
       }
-    };
-    DevToolUtils::PostDomTask(dom_id_, func);
-#endif
-  }
+    }
+    std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
+    if (dom_manager) {
+      auto node = dom_manager->GetNode(static_cast<uint32_t>(node_id));
+      node->UpdateProperties(style_map,
+                             std::unordered_map<std::string,
+                                                std::shared_ptr<tdf::base::DomValue>>{});
+      is_success = true;
+    }
+    callback(is_success);
+  };
+  DevToolUtils::PostDomTask(dom_id_, func);
 }
 
+void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
+  if (!callback) {
+    return;
+  }
+  std::function func = [dom_id = dom_id_, callback] {
+    std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
+    if (dom_manager) {
+      auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
+      hippy::devtools::DomNodeMetas metas = DevToolUtils::ToDomNodeMetas(root_node);
+      callback(true, metas);
+    }
+  };
+  DevToolUtils::PostDomTask(dom_id_, func);
+}
 }  // namespace devtools
 }  // namespace hippy

@@ -30,51 +30,13 @@ namespace hippy {
 namespace devtools {
 constexpr const char *kCacheFileName = "/v8_trace.json";
 
-TraceControl::TraceControl() {
-  TDF_BASE_LOG(INFO) << "TraceControl TraceControl construct";
-}
-
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
 void TraceControl::SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control) {
   if (tracing_control) {
-    TDF_BASE_LOG(INFO) << "TraceControl SetGlobalTracingController tracing_control";
     v8_trace_control_ = static_cast<v8::platform::tracing::TracingController *>(tracing_control);
-  } else {
-    v8_trace_control_ = nullptr;
-    TDF_BASE_LOG(INFO) << "TraceControl SetGlobalTracingController tracing_control is nullptr";
   }
 }
-#endif
 
-void TraceControl::SetFileCacheDir(std::string file_cache_dir) {
-  cache_file_dir_ = std::move(file_cache_dir);
-}
-
-void TraceControl::StartTracing() {
-  std::lock_guard<std::mutex> lock(devtools_tracing_mutex_);
-#ifdef OS_ANDROID
-  if (v8_trace_control_) {
-    if (tracing_has_start_) {
-      StopTracing();
-    }
-    TDF_BASE_LOG(INFO) << "TraceControl TraceControl StartTracing:" << v8_trace_control_;
-    OpenCacheFile();
-    trace_writer_ = v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(trace_file_);
-    trace_buffer_ = v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
-        v8::platform::tracing::TraceBuffer::kRingBufferChunks, trace_writer_);
-    v8_trace_control_->Initialize(trace_buffer_);
-    ClosePreviousBuffer();
-    v8::platform::tracing::TraceConfig *traceConfig = v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
-    v8_trace_control_->StartTracing(traceConfig);
-    control_has_init_ = true;
-    tracing_has_start_ = true;
-  } else {
-    TDF_BASE_LOG(INFO) << "TraceControl StartTracing tracingControl is nullptr";
-  }
-#endif
-}
-
-#ifdef OS_ANDROID
 bool TraceControl::OpenCacheFile() {
   struct timeval time;
   gettimeofday(&time, NULL);
@@ -86,23 +48,40 @@ bool TraceControl::OpenCacheFile() {
     remove(cache_file_path_.c_str());
   }
   cache_file_path_ = cache_file_dir_ + kCacheFileName;
-  TDF_BASE_LOG(INFO) << "TraceControl trace_file_ open filepath:" << cache_file_path_.c_str();
   trace_file_.open(cache_file_path_);
-  if (trace_file_.is_open()) {
-    TDF_BASE_LOG(INFO) << "TraceControl trace_file_ open success";
-    return true;
-  } else {
-    TDF_BASE_LOG(INFO) << "TraceControl trace_file_ open fail";
-  }
-  return false;
+  return trace_file_.is_open();
 }
 #endif
+
+void TraceControl::SetFileCacheDir(std::string file_cache_dir) {
+  cache_file_dir_ = std::move(file_cache_dir);
+}
+
+void TraceControl::StartTracing() {
+#ifdef JS_ENGINE_V8
+  if (v8_trace_control_) {
+    if (tracing_has_start_) {
+      StopTracing();
+    }
+    OpenCacheFile();
+    trace_writer_ = v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(trace_file_);
+    trace_buffer_ = v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
+        v8::platform::tracing::TraceBuffer::kRingBufferChunks, trace_writer_);
+    v8_trace_control_->Initialize(trace_buffer_);
+    ClosePreviousBuffer();
+    v8::platform::tracing::TraceConfig *traceConfig = v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
+    v8_trace_control_->StartTracing(traceConfig);
+    control_has_init_ = true;
+    tracing_has_start_ = true;
+  }
+#endif
+}
 
 void TraceControl::ClosePreviousBuffer() {
   if (!control_has_init_) {
     return;
   }
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
   if (trace_buffer_) {
     trace_buffer_->Flush();
   }
@@ -128,21 +107,15 @@ std::string TraceControl::GetTracingContent() {
 }
 
 void TraceControl::StopTracing() {
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
   if (v8_trace_control_) {
     v8_trace_control_->StopTracing();
     if (trace_writer_ != nullptr) {
       trace_file_ << "]}";
-      TDF_BASE_LOG(INFO) << "TraceControl StopTracing trace_writer_ write end flag";
-    } else {
-      TDF_BASE_LOG(INFO) << "TraceControl StopTracing trace_writer_ is nullPtr";
     }
     trace_file_.flush();
     trace_file_.close();
     tracing_has_start_ = false;
-    TDF_BASE_LOG(INFO) << "TraceControl StopTracing";
-  } else {
-    TDF_BASE_LOG(INFO) << "TraceControl StopTracing tracingControl is nullptr";
   }
 #endif
 }

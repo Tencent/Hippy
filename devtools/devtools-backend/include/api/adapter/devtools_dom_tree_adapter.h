@@ -45,7 +45,7 @@ class DomTreeAdapter {
    * get current page dom node tree
    * @param callback finish callback
    */
-  virtual void GetDomTree(const DumpDomTreeCallback& callback) = 0;
+  virtual void GetDomTree(DumpDomTreeCallback callback) = 0;
   virtual ~DomTreeAdapter() {}
 };
 }  // namespace hippy::devtools

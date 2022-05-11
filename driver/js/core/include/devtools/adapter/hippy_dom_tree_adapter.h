@@ -29,9 +29,8 @@ namespace devtools {
 class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
  public:
   explicit HippyDomTreeAdapter(int32_t dom_id) : dom_id_(dom_id) {}
-
   void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
-  void GetDomTree(const DumpDomTreeCallback& callback) override;
+  void GetDomTree(DumpDomTreeCallback callback) override;
 
  private:
   int32_t dom_id_;

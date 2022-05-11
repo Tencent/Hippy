@@ -21,6 +21,7 @@
 #include "devtools/adapter/hippy_elements_request_adapter.h"
 
 #include <string>
+
 #include "devtools/devtool_utils.h"
 
 namespace hippy {
@@ -29,13 +30,12 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
                                                 bool is_root,
                                                 uint32_t depth,
                                                 DomainDataCallback callback) {
-#if TDF_SERVICE_ENABLED
   if (!callback) {
     return;
   }
   tdf::base::DomValue domValue;
-  std::function func = [this, node_id, is_root, depth, callback] {
-    std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  std::function func = [dom_id = dom_id_, node_id, is_root, depth, callback] {
+    std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
     if (is_root) {
       auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
       hippy::devtools::DomainMetas metas = DevToolUtils::GetDomDomainData(root_node, depth, dom_manager);
@@ -48,22 +48,18 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
     callback(metas);
   };
   DevToolUtils::PostDomTask(dom_id_, func);
-#endif
 }
 
 void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) {
-#if TDF_SERVICE_ENABLED
   if (!callback) {
     return;
   }
-  std::function func = [this, x, y, callback] {
-    std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  std::function func = [dom_id = dom_id_, x, y, callback] {
+    std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
     auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
     callback(DevToolUtils::GetNodeIdByDomLocation(root_node, x, y));
   };
   DevToolUtils::PostDomTask(dom_id_, func);
-#endif
 }
-
 }  // namespace devtools
 }  // namespace hippy

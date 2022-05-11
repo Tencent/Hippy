@@ -36,7 +36,7 @@ class HippyScreenAdapter : public hippy::devtools::ScreenAdapter {
 
   void RemovePostFrameCallback(uint64_t id) override;
 
-  double GetScreenScale() override { return screen_scale; }
+  inline double GetScreenScale() override { return screen_scale; }
 
  private:
   int32_t dom_id_;

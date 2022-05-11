@@ -54,7 +54,7 @@ void BaseDomain::ResponseErrorToFrontend(int32_t id, const int32_t error_code, c
   std::string msg_string = "{\"";
   msg_string += kErrorCode;
   msg_string += "\":";
-  msg_string += error_code;
+  msg_string += std::to_string(error_code);
   msg_string += ",\"";
   msg_string += kErrorMessage;
   msg_string += "\":\"";
