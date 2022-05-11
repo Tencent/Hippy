@@ -33,7 +33,7 @@ function registerDialog(Vue) {
       position: 'absolute',
     },
   });
-  Vue.component('Dialog', {
+  Vue.component('HiDialog', {
     inheritAttrs: false,
     props: {
       collapsable: {
@@ -65,7 +65,7 @@ function registerDialog(Vue) {
       }
       const { collapsable, transparent, immersionStatusBar } = this;
       return h(
-        'Dialog',
+        'HiDialog',
         {
           on: { ...this.$listeners },
           attrs: {

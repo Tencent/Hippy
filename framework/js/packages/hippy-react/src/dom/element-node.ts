@@ -497,12 +497,16 @@ class ElementNode extends ViewNode {
           if (typeof value === 'function') {
             const eventName = getEventName(key);
             this.attributes[eventName] = value;
-            this.events[eventName] = {
-              name: eventName,
-              type: eventHandlerType.ADD,
-              isCapture: isCaptureEvent(key),
-              listener: createEventListener(eventName),
-            };
+            if (!this.events[eventName]) {
+              this.events[eventName] = {
+                name: eventName,
+                type: eventHandlerType.ADD,
+                isCapture: isCaptureEvent(key),
+                listener: createEventListener(eventName),
+              };
+            } else if (this.events[eventName] && this.events[eventName].type !== eventHandlerType.ADD) {
+              this.events[eventName].type = eventHandlerType.ADD;
+            }
           } else {
             const eventName = getEventName(key);
             if (hasTargetEvent(eventName, this.events)

@@ -103,7 +103,6 @@ const EventDispatcher = {
       processEventData(targetEvent, eventName, nativeEvent);
     }
     targetNode.dispatchEvent(targetEvent);
-    // TODO: Will remove soon.
     if (SpecialTouchHandler.isTouchEvent(eventName)) {
       targetNode.dispatchEvent(SpecialTouchHandler.convertTouchEvent(eventName, nativeEvent));
     }

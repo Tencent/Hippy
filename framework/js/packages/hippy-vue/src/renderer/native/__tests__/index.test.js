@@ -1,5 +1,3 @@
-// TODO: Add UIManagerModule mock module to verify result correction.
-
 import test, { before } from 'ava';
 import { registerBuiltinElements } from '../../../elements';
 import DocumentNode from '../../document-node';
@@ -21,6 +19,14 @@ before(() => {
     Platform: {
     },
   };
+  global.SceneBuilder = function SceneBuilder() {
+    this.Create = () => {};
+    this.Update = () => {};
+    this.Delete = () => {};
+    this.Build = () => {};
+    this.AddEventListener = () => {};
+    this.RemoveEventListener = () => {};
+  };
   setApp({
     $options: {
       rootViewId: 10,
@@ -35,8 +41,8 @@ before(() => {
 test('renderToNative simple test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('div');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode, eventNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 1,
     pId: ROOT_VIEW_ID,
     index: 0,
@@ -50,13 +56,17 @@ test('renderToNative simple test --debug mode', (t) => {
     },
     tagName: 'div',
   });
+  t.deepEqual(eventNode, {
+    id: 1,
+    eventList: [],
+  });
 });
 
 test('renderToNative simple test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('div');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 2,
     pId: ROOT_VIEW_ID,
     index: 0,
@@ -93,16 +103,15 @@ test('renderToNative test with children --debug mode', (t) => {
   childNode6.setAttribute('aria-valuemax', 10);
   childNode6.setAttribute('aria-valuenow', 7);
   childNode6.setAttribute('aria-valuetext', 'high');
-  childNode6.addEventListener('typing', () => {});
   parentNode.appendChild(childNode1);
   parentNode.appendChild(childNode2);
   parentNode.appendChild(childNode3);
   parentNode.appendChild(childNode4);
   parentNode.appendChild(childNode5);
   parentNode.appendChild(childNode6);
-  const nativeLanguage = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
-  t.true(Array.isArray(nativeLanguage));
-  t.deepEqual(nativeLanguage, [
+  const { nativeLanguages } = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
+  t.true(Array.isArray(nativeLanguages));
+  t.deepEqual(nativeLanguages, [
     {
       id: 3,
       pId: ROOT_VIEW_ID,
@@ -244,7 +253,6 @@ test('renderToNative test with children --debug mode', (t) => {
           text: 'high',
         },
         multiline: true,
-        onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
@@ -273,16 +281,15 @@ test('renderToNative test with children --production mode', (t) => {
   const childNode6 = DocumentNode.createElement('textarea');
   childNode6.setAttribute('rows', 10);
   childNode6.setAttribute('type', 'url');
-  childNode6.addEventListener('typing', () => {});
   parentNode.appendChild(childNode1);
   parentNode.appendChild(childNode2);
   parentNode.appendChild(childNode3);
   parentNode.appendChild(childNode4);
   parentNode.appendChild(childNode5);
   parentNode.appendChild(childNode6);
-  const nativeLanguage = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
-  t.true(Array.isArray(nativeLanguage));
-  t.deepEqual(nativeLanguage, [
+  const { nativeLanguages } = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
+  t.true(Array.isArray(nativeLanguages));
+  t.deepEqual(nativeLanguages, [
     {
       id: 12,
       pId: ROOT_VIEW_ID,
@@ -360,7 +367,6 @@ test('renderToNative test with children --production mode', (t) => {
       name: 'TextInput',
       props: {
         multiline: true,
-        onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
@@ -379,8 +385,8 @@ test('img attributeMaps test --debug mode', (t) => {
   const node = DocumentNode.createElement('img');
   node.setAttribute('src', 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
   node.setAttribute('alt', 'Test');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 21,
     index: 0,
     name: 'Image',
@@ -407,8 +413,8 @@ test('img attributeMaps test --production mode', (t) => {
   const node = DocumentNode.createElement('img');
   node.setAttribute('src', 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
   node.setAttribute('alt', 'Test');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 22,
     index: 0,
     name: 'Image',
@@ -427,8 +433,8 @@ test('span attributeMaps test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('span');
   node.setAttribute('text', 'Test');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 23,
     index: 0,
     name: 'Text',
@@ -451,8 +457,8 @@ test('span attributeMaps test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('span');
   node.setAttribute('text', 'Test');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 24,
     index: 0,
     name: 'Text',
@@ -471,8 +477,8 @@ test('a href attribute test --debug mode', (t) => {
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
   node.setAttribute('href', '/test');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 25,
     index: 0,
     name: 'Text',
@@ -498,8 +504,8 @@ test('a href attribute test --production mode', (t) => {
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
   node.setAttribute('href', '/test');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 26,
     index: 0,
     name: 'Text',
@@ -519,8 +525,8 @@ test('a href attribute with http prefix test --debug mode', (t) => {
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
   node.setAttribute('href', 'https://hippyjs.org');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 27,
     index: 0,
     name: 'Text',
@@ -546,8 +552,8 @@ test('a href attribute with http prefix test --production mode', (t) => {
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
   node.setAttribute('href', 'https://hippyjs.org');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 28,
     index: 0,
     name: 'Text',
@@ -567,8 +573,8 @@ test('div with overflow-X scroll test --debug mode', (t) => {
   Native.Localization = { direction: 0 };
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 29,
     index: 0,
     name: 'ScrollView',
@@ -587,8 +593,8 @@ test('div with overflow-X scroll test --debug mode', (t) => {
     tagName: 'div',
   });
   Native.Localization = { direction: 1 };
-  const nativeLanguage2 = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage2, {
+  const { nativeNode: nativeNode2 } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode2, {
     id: 29,
     index: 0,
     name: 'ScrollView',
@@ -613,8 +619,8 @@ test('div with overflow-X scroll test --production mode', (t) => {
   Native.Localization = { direction: 0 };
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 31,
     index: 0,
     name: 'ScrollView',
@@ -628,8 +634,8 @@ test('div with overflow-X scroll test --production mode', (t) => {
     },
   });
   Native.Localization = { direction: 1 };
-  const nativeLanguage2 = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage2, {
+  const { nativeNode: nativeNode2 } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode2, {
     id: 31,
     index: 0,
     name: 'ScrollView',
@@ -648,8 +654,8 @@ test('div with overflowY scroll test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 32,
     index: 0,
     name: 'ScrollView',
@@ -671,8 +677,8 @@ test('div with overflowY scroll test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 33,
     index: 0,
     name: 'ScrollView',
@@ -690,8 +696,8 @@ test('div with overflowX and overflowY scroll test --debug mode', (t) => {
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
   node.setStyle('overflowY', 'scroll');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 34,
     index: 0,
     name: 'ScrollView',
@@ -715,8 +721,8 @@ test('div with overflowX and overflowY scroll test --production mode', (t) => {
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
   node.setStyle('overflowY', 'scroll');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 35,
     index: 0,
     name: 'ScrollView',
@@ -736,8 +742,8 @@ test('div with child node and overflowX scroll test --debug mode', (t) => {
   const childNode = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
   node.appendChild(childNode);
-  const nativeLanguage = renderToNativeWithChildren(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, [
+  const { nativeLanguages } = renderToNativeWithChildren(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguages, [
     {
       id: 36,
       index: 0,
@@ -779,8 +785,8 @@ test('div with child node and overflowX scroll test --production mode', (t) => {
   const childNode = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
   node.appendChild(childNode);
-  const nativeLanguage = renderToNativeWithChildren(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, [
+  const { nativeLanguages } = renderToNativeWithChildren(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeLanguages, [
     {
       id: 38,
       index: 0,
@@ -847,7 +853,7 @@ test('text element with number text test', (t) => {
 test('Image.setStyle(background-color) test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const imgWithoutBg = DocumentNode.createElement('img');
-  const withoutBg = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
+  const { nativeNode: withoutBg } = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
   t.deepEqual(withoutBg, {
     id: 48,
     index: 0,
@@ -866,7 +872,7 @@ test('Image.setStyle(background-color) test --debug mode', (t) => {
   });
   const imgWithBg = DocumentNode.createElement('img');
   imgWithBg.setStyle('backgroundColor', '#abcdef');
-  const withBg = renderToNative(ROOT_VIEW_ID, imgWithBg);
+  const { nativeNode: withBg } = renderToNative(ROOT_VIEW_ID, imgWithBg);
   t.deepEqual(withBg, {
     id: 49,
     index: 0,
@@ -888,7 +894,7 @@ test('Image.setStyle(background-color) test --debug mode', (t) => {
 test('Image.setStyle(background-color) test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const imgWithoutBg = DocumentNode.createElement('img');
-  const withoutBg = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
+  const { nativeNode: withoutBg } = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
   t.deepEqual(withoutBg, {
     id: 51,
     index: 0,
@@ -902,7 +908,7 @@ test('Image.setStyle(background-color) test --production mode', (t) => {
   });
   const imgWithBg = DocumentNode.createElement('img');
   imgWithBg.setStyle('backgroundColor', '#abcdef');
-  const withBg = renderToNative(ROOT_VIEW_ID, imgWithBg);
+  const { nativeNode: withBg } = renderToNative(ROOT_VIEW_ID, imgWithBg);
   t.deepEqual(withBg, {
     id: 52,
     index: 0,
@@ -930,8 +936,8 @@ test('img with accessibility test --debug mode', (t) => {
   node.setAttribute('aria-valuemax', 10);
   node.setAttribute('aria-valuenow', 7);
   node.setAttribute('aria-valuetext', 'high');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 53,
     index: 0,
     name: 'Image',
@@ -989,8 +995,8 @@ test('img with accessibility test --production mode', (t) => {
   node.setAttribute('aria-valuemax', 10);
   node.setAttribute('aria-valuenow', 7);
   node.setAttribute('aria-valuetext', 'high');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 54,
     index: 0,
     name: 'Image',
@@ -1023,8 +1029,8 @@ test('div with backgroundImage local path test --debug mode', (t) => {
   const node = DocumentNode.createElement('div');
   const originalPath = 'assets/DefaultSource.png';
   node.setStyle('backgroundImage', originalPath);
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 55,
     index: 0,
     name: 'View',
@@ -1047,8 +1053,8 @@ test('div with backgroundImage local path test --production mode', (t) => {
   const node = DocumentNode.createElement('div');
   const originalPath = 'assets/DefaultSource.png';
   node.setStyle('backgroundImage', originalPath);
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 56,
     index: 0,
     name: 'View',
@@ -1075,8 +1081,8 @@ test('div with accessibility test --debug mode', (t) => {
   node.setAttribute('aria-valuemax', 10);
   node.setAttribute('aria-valuenow', 7);
   node.setAttribute('aria-valuetext', 'high');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 57,
     index: 0,
     name: 'View',
@@ -1132,8 +1138,8 @@ test('div with accessibility test --production mode', (t) => {
   node.setAttribute('aria-valuemax', 10);
   node.setAttribute('aria-valuenow', 7);
   node.setAttribute('aria-valuetext', 'high');
-  const nativeLanguage = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeLanguage, {
+  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, {
     id: 58,
     index: 0,
     name: 'View',
