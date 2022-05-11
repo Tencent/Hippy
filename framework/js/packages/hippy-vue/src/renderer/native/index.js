@@ -544,6 +544,7 @@ function removeChild(parentNode, childNode, index) {
   __batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
+    eventNodes: [],
   });
   endBatch(app);
 }
