@@ -30,11 +30,12 @@
 
 namespace hippy::devtools {
 
-class PageDomain : public BaseDomain {
+class PageDomain : public BaseDomain, public std::enable_shared_from_this<PageDomain> {
  public:
   explicit PageDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string GetDomainName() override;
   void RegisterMethods() override;
+  void RegisterCallback() override;
 
  private:
   void StartScreencast(const ScreenShotRequest& request);

@@ -39,6 +39,7 @@ class NetworkDomain : public BaseDomain {
   explicit NetworkDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string GetDomainName() override;
   void RegisterMethods() override;
+  void RegisterCallback() override;
 
  private:
   void GetResponseBody(const NetworkResponseBodyRequest& request);

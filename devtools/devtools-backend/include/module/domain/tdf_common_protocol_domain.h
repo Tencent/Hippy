@@ -34,6 +34,7 @@ class TdfCommonProtocolDomain : public BaseDomain {
   explicit TdfCommonProtocolDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
+  void RegisterCallback() override;
 
   bool ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params);
 };

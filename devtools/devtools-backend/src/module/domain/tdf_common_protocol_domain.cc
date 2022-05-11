@@ -28,6 +28,8 @@ std::string TdfCommonProtocolDomain::GetDomainName() { return kFrontendKeyDomain
 
 void TdfCommonProtocolDomain::RegisterMethods() {}
 
+void TdfCommonProtocolDomain::RegisterCallback() {}
+
 bool TdfCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params) {
   auto common_protocol_adapter = GetDataProvider()->common_protocol_adapter;
   if (common_protocol_adapter) {

@@ -51,6 +51,8 @@ void TdfInspectorDomain::RegisterMethods() {
   REGISTER_DOMAIN(TdfInspectorDomain, DisableUpdateNotification, BaseRequest);
 }
 
+void TdfInspectorDomain::RegisterCallback() {}
+
 void TdfInspectorDomain::GetDomTree(const BaseRequest& request) {
   auto dom_tree_adapter = GetDataProvider()->dom_tree_adapter;
   if (!dom_tree_adapter) {

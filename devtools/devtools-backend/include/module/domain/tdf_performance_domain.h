@@ -33,6 +33,7 @@ class TdfPerformanceDomain : public BaseDomain {
   explicit TdfPerformanceDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
+  void RegisterCallback() override;
 
  private:
   void Start(const BaseRequest& request);

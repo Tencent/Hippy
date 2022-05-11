@@ -51,6 +51,11 @@ class BaseDomain {
   virtual void RegisterMethods() = 0;
 
   /**
+   * @brief register domain callback
+   */
+  virtual void RegisterCallback() = 0;
+
+  /**
    * @brief handle domain.enable and domain.disable switch
    * @param id
    * @param method

@@ -32,6 +32,8 @@ void TdfRuntimeDomain::RegisterMethods() {
   REGISTER_DOMAIN(TdfRuntimeDomain, IsDebugMode, BaseRequest)
 }
 
+void TdfRuntimeDomain::RegisterCallback() {}
+
 void TdfRuntimeDomain::Resume(const BaseRequest& request) {
 #if JS_ENGINE_V8
   if (!GetDataProvider()->runtime_adapter->IsDebug()) {

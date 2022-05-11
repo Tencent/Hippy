@@ -33,6 +33,7 @@ class TdfMemoryDomain : public BaseDomain {
   explicit TdfMemoryDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
+  void RegisterCallback() override;
 
  private:
   void GetHeapMeta(const BaseRequest& request);

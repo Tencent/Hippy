@@ -48,6 +48,15 @@ DomDomain::DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::m
 std::string DomDomain::GetDomainName() { return kFrontendKeyDomainNameDOM; }
 
 void DomDomain::RegisterMethods() {
+  REGISTER_DOMAIN(DomDomain, GetDocument, BaseRequest);
+  REGISTER_DOMAIN(DomDomain, RequestChildNodes, DomNodeDataRequest);
+  REGISTER_DOMAIN(DomDomain, GetBoxModel, DomNodeDataRequest);
+  REGISTER_DOMAIN(DomDomain, GetNodeForLocation, DomNodeForLocationRequest);
+  REGISTER_DOMAIN(DomDomain, RemoveNode, BaseRequest);
+  REGISTER_DOMAIN(DomDomain, SetInspectedNode, BaseRequest);
+}
+
+void DomDomain::RegisterCallback() {
   dom_data_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
@@ -91,13 +100,6 @@ void DomDomain::RegisterMethods() {
     self->HandleDocumentUpdate();
   };
   GetNotificationCenter()->elements_notification = std::make_shared<DefaultElementsResponseAdapter>(update_handler);
-
-  REGISTER_DOMAIN(DomDomain, GetDocument, BaseRequest);
-  REGISTER_DOMAIN(DomDomain, RequestChildNodes, DomNodeDataRequest);
-  REGISTER_DOMAIN(DomDomain, GetBoxModel, DomNodeDataRequest);
-  REGISTER_DOMAIN(DomDomain, GetNodeForLocation, DomNodeForLocationRequest);
-  REGISTER_DOMAIN(DomDomain, RemoveNode, BaseRequest);
-  REGISTER_DOMAIN(DomDomain, SetInspectedNode, BaseRequest);
 }
 
 void DomDomain::GetDocument(const BaseRequest& request) {

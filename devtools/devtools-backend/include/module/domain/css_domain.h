@@ -51,6 +51,7 @@ class CssDomain : public BaseDomain, public std::enable_shared_from_this<CssDoma
   explicit CssDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string GetDomainName() override;
   void RegisterMethods() override;
+  void RegisterCallback() override;
 
  private:
   void GetMatchedStylesForNode(const CssNodeDataRequest& request);

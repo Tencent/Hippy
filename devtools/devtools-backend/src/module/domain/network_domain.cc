@@ -30,6 +30,8 @@ std::string NetworkDomain::GetDomainName() { return kFrontendKeyDomainNameNetwor
 
 void NetworkDomain::RegisterMethods() { REGISTER_DOMAIN(NetworkDomain, GetResponseBody, NetworkResponseBodyRequest) }
 
+void NetworkDomain::RegisterCallback() {}
+
 void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
   auto network_adapter = GetDataProvider()->network_adapter;
   if (network_adapter) {

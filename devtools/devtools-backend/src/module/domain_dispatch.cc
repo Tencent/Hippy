@@ -72,6 +72,7 @@ void DomainDispatch::RegisterDefaultDomainListener() {
 void DomainDispatch::RegisterDomainHandler(const std::shared_ptr<BaseDomain>& base_domain) {
   domain_register_map_.insert(
       std::map<std::string, std::shared_ptr<BaseDomain>>::value_type(base_domain->GetDomainName(), base_domain));
+  base_domain->RegisterCallback();
   base_domain->RegisterMethods();
 }
 

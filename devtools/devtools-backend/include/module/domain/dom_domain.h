@@ -44,6 +44,7 @@ class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDoma
   explicit DomDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string GetDomainName() override;
   void RegisterMethods() override;
+  void RegisterCallback() override;
   void SetDomDataRequestCallback(DomDataRequestCallback call_back) { dom_data_call_back_ = call_back; }
 
  private:

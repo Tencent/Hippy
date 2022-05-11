@@ -28,6 +28,8 @@ std::string TdfMemoryDomain::GetDomainName() { return kFrontendKeyDomainNameTDFM
 
 void TdfMemoryDomain::RegisterMethods() { REGISTER_DOMAIN(TdfMemoryDomain, GetHeapMeta, BaseRequest); }
 
+void TdfMemoryDomain::RegisterCallback() {}
+
 void TdfMemoryDomain::GetHeapMeta(const BaseRequest& request) {
   auto memory_adapter = GetDataProvider()->memory_adapter;
   if (!memory_adapter) {

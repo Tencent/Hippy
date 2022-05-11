@@ -42,6 +42,8 @@ void TdfPerformanceDomain::RegisterMethods() {
   REGISTER_DOMAIN(TdfPerformanceDomain, Timeline, BaseRequest);
 }
 
+void TdfPerformanceDomain::RegisterCallback() {}
+
 void TdfPerformanceDomain::Start(const BaseRequest& request) {
   BACKEND_LOGD(TDF_BACKEND, "TdfPerformanceDomain::Start");
   auto performance_adapter = GetDataProvider()->performance_adapter;

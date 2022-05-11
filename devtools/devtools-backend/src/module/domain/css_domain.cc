@@ -37,6 +37,13 @@ CssDomain::CssDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::m
 std::string CssDomain::GetDomainName() { return kFrontendKeyDomainNameCSS; }
 
 void CssDomain::RegisterMethods() {
+  REGISTER_DOMAIN(CssDomain, GetMatchedStylesForNode, CssNodeDataRequest);
+  REGISTER_DOMAIN(CssDomain, GetComputedStyleForNode, CssNodeDataRequest);
+  REGISTER_DOMAIN(CssDomain, GetInlineStylesForNode, CssNodeDataRequest);
+  REGISTER_DOMAIN(CssDomain, SetStyleTexts, CssEditStyleTextsRequest);
+}
+
+void CssDomain::RegisterCallback() {
   css_data_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t node_id, CssStyleDataCallback callback) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
     auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
@@ -55,11 +62,6 @@ void CssDomain::RegisterMethods() {
     };
     elements_request_adapter->GetDomainData(node_id, false, kCssStyleNodeDepth, response_callback);
   };
-
-  REGISTER_DOMAIN(CssDomain, GetMatchedStylesForNode, CssNodeDataRequest);
-  REGISTER_DOMAIN(CssDomain, GetComputedStyleForNode, CssNodeDataRequest);
-  REGISTER_DOMAIN(CssDomain, GetInlineStylesForNode, CssNodeDataRequest);
-  REGISTER_DOMAIN(CssDomain, SetStyleTexts, CssEditStyleTextsRequest);
 }
 
 void CssDomain::GetMatchedStylesForNode(const CssNodeDataRequest& request) {

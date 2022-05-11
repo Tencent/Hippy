@@ -19,6 +19,7 @@
  */
 
 #include "module/domain/page_domain.h"
+#include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 #include "module/model/frame_poll_model.h"
@@ -32,8 +33,6 @@ PageDomain::PageDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std:
   frame_poll_model_ = std::make_shared<FramePollModel>();
   screen_shot_model_->SetDataProvider(GetDataProvider());
   frame_poll_model_->SetDataProvider(GetDataProvider());
-  RegisterFramePollCallback();
-  RegisterScreenShotCallback();
 }
 
 std::string PageDomain::GetDomainName() { return kFrontendKeyDomainNamePage; }
@@ -42,6 +41,11 @@ void PageDomain::RegisterMethods() {
   REGISTER_DOMAIN(PageDomain, StartScreencast, ScreenShotRequest);
   REGISTER_DOMAIN(PageDomain, StopScreencast, BaseRequest);
   REGISTER_DOMAIN(PageDomain, ScreencastFrameAck, BaseRequest);
+}
+
+void PageDomain::RegisterCallback() {
+  RegisterFramePollCallback();
+  RegisterScreenShotCallback();
 }
 
 void PageDomain::StartScreencast(const ScreenShotRequest& request) {
@@ -63,12 +67,16 @@ void PageDomain::ScreencastFrameAck(const BaseRequest& request) {
 }
 
 void PageDomain::RegisterFramePollCallback() {
-  frame_poll_model_->SetResponseHandler([this]() { screen_shot_model_->ReqScreenShotToSendEvent(); });
+  frame_poll_model_->SetResponseHandler([DEVTOOLS_WEAK_THIS]() {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(PageDomain)
+    self->screen_shot_model_->ReqScreenShotToSendEvent();
+  });
 }
 
 void PageDomain::RegisterScreenShotCallback() {
-  screen_shot_model_->SetSendEventScreenShotCallback([this](const ScreenShotResponse response) {
-    SendEventToFrontend(InspectEvent(kPageEventScreencastFrame, response.ToJsonString()));
+  screen_shot_model_->SetSendEventScreenShotCallback([DEVTOOLS_WEAK_THIS](const ScreenShotResponse response) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(PageDomain)
+    self->SendEventToFrontend(InspectEvent(kPageEventScreencastFrame, response.ToJsonString()));
   });
 }
 }  // namespace hippy::devtools

@@ -42,6 +42,7 @@ class TdfInspectorDomain : public BaseDomain {
   explicit TdfInspectorDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string GetDomainName() override;
   void RegisterMethods() override;
+  void RegisterCallback() override;
 
  private:
   std::shared_ptr<TDFInspectorModel> tdf_inspector_model_;
