@@ -33,12 +33,12 @@ namespace hippy::devtools {
  */
 class TunnelService : public std::enable_shared_from_this<TunnelService> {
  public:
-  explicit TunnelService(std::shared_ptr<DomainDispatch> dispatch) : dispatch_(std::move(dispatch)) {}
+  explicit TunnelService(std::shared_ptr<DomainDispatch> dispatch, const DevtoolsConfig &devtools_config);
 
   /**
    * @brief connect to frontend
    */
-  void Connect(const DevtoolsConfig &devtools_config);
+  void Connect();
 
   /**
    * @brief send data to frontend

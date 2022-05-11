@@ -33,8 +33,12 @@ namespace hippy::devtools {
 constexpr int32_t kClose = 4003;
 constexpr int32_t kReload = 4004;
 
-void TunnelService::Connect(const DevtoolsConfig &devtools_config) {
+TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const DevtoolsConfig &devtools_config)
+    : dispatch_(std::move(dispatch)) {
   channel_ = NetChannel::CreateChannel(devtools_config);
+}
+
+void TunnelService::Connect() {
   BACKEND_LOGI(TDF_BACKEND, "TunnelService, start connect.");
   channel_->Connect([DEVTOOLS_WEAK_THIS](void *buffer, ssize_t length, int flag) {
     if (flag == kTaskFlag) {

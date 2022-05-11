@@ -41,8 +41,8 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
   data_channel_ = std::make_shared<DataChannel>(data_provider, notification_center);
   domain_dispatch_ = std::make_shared<DomainDispatch>(data_channel_);
   domain_dispatch_->RegisterDefaultDomainListener();
-  tunnel_service_ = std::make_shared<TunnelService>(domain_dispatch_);
-  tunnel_service_->Connect(devtools_config);
+  tunnel_service_ = std::make_shared<TunnelService>(domain_dispatch_, devtools_config);
+  tunnel_service_->Connect();
   notification_center->network_notification = std::make_shared<DefaultNetworkNotification>(tunnel_service_);
   notification_center->runtime_notification = std::make_shared<DefaultRuntimeNotification>(tunnel_service_);
 
