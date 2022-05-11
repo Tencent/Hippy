@@ -275,7 +275,7 @@ export class UIManagerModule extends HippyWebModule {
           animationModule.linkAnimation2Element(item[itemKey].animationId, component, itemKey);
           continue;
         }
-        valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey]) || itemKey === 'scale' ? '' : 'px'}) `;
+        valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey]) || itemKey.startsWith('scale') ? '' : 'px'}) `;
       }
     }
     style.transform = valueString;
