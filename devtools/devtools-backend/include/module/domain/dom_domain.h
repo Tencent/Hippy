@@ -26,15 +26,15 @@
 #include <string>
 #include "module/domain/base_domain.h"
 #include "module/model/dom_model.h"
+#include "module/request/base_request.h"
 #include "module/request/dom_node_data_request.h"
 #include "module/request/dom_node_for_location_request.h"
-#include "module/request/base_request.h"
 
 namespace hippy::devtools {
 /**
  * @brief DOM domain
  */
-class DomDomain : public BaseDomain {
+class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDomain> {
  public:
   using DomDataCallback = std::function<void(DomModel model)>;
   using DomDataRequestCallback =

@@ -23,10 +23,10 @@
 #include <utility>
 #include "api/devtools_backend_service.h"
 #include "api/notification/default/default_elements_response_notification.h"
+#include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "devtools_base/parse_json_util.h"
 #include "devtools_base/tdf_base_util.h"
-#include "devtools_base/common/macros.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -43,11 +43,16 @@ constexpr uint32_t kDocumentNodeDepth = 3;
 constexpr uint32_t kNormalNodeDepth = 2;
 constexpr int32_t kInvalidNodeId = -1;
 
-DomDomain::DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
-  dom_data_call_back_ = [this](int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback) {
-    auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
+DomDomain::DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
+
+std::string DomDomain::GetDomainName() { return kFrontendKeyDomainNameDOM; }
+
+void DomDomain::RegisterMethods() {
+  dom_data_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
-      auto response_callback = [callback, provider = GetDataProvider()](const DomainMetas& data) {
+      auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
         auto model = DomModel::CreateModelByJSON(nlohmann::json::parse(data.Serialize()));
         model.SetDataProvider(provider);
         if (callback) {
@@ -60,10 +65,11 @@ DomDomain::DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::m
     }
   };
 
-  location_for_node_call_back_ = [this](int32_t x, int32_t y, DomDataCallback callback) {
-    auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
+  location_for_node_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t x, int32_t y, DomDataCallback callback) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
-      auto node_callback = [callback, provider = GetDataProvider()](const DomNodeLocation& metas) {
+      auto node_callback = [callback, provider = self->GetDataProvider()](const DomNodeLocation& metas) {
         DomModel model;
         model.SetDataProvider(provider);
         nlohmann::json data = nlohmann::json::parse(metas.Serialize());
@@ -80,13 +86,12 @@ DomDomain::DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::m
       callback(DomModel());
     }
   };
-  auto update_handler = [this]() { HandleDocumentUpdate(); };
+  auto update_handler = [DEVTOOLS_WEAK_THIS]() {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    self->HandleDocumentUpdate();
+  };
   GetNotificationCenter()->elements_notification = std::make_shared<DefaultElementsResponseAdapter>(update_handler);
-}
 
-std::string DomDomain::GetDomainName() { return kFrontendKeyDomainNameDOM; }
-
-void DomDomain::RegisterMethods() {
   REGISTER_DOMAIN(DomDomain, GetDocument, BaseRequest);
   REGISTER_DOMAIN(DomDomain, RequestChildNodes, DomNodeDataRequest);
   REGISTER_DOMAIN(DomDomain, GetBoxModel, DomNodeDataRequest);
@@ -101,13 +106,14 @@ void DomDomain::GetDocument(const BaseRequest& request) {
     return;
   }
   // getDocument gets the data from the root node without the nodeId
-  dom_data_call_back_(kInvalidNodeId, true, kDocumentNodeDepth, [this, request](DomModel model) {
+  dom_data_call_back_(kInvalidNodeId, true, kDocumentNodeDepth, [DEVTOOLS_WEAK_THIS, request](DomModel model) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     //  need clear first
-    element_node_children_count_cache_.clear();
+    self->element_node_children_count_cache_.clear();
     // cache node that has obtain
-    CacheEntireDocumentTree(model);
+    self->CacheEntireDocumentTree(model);
     // response to frontend
-    ResponseResultToFrontend(request.GetId(), model.GetDocumentJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), model.GetDocumentJSON().dump());
   });
 }
 
@@ -120,9 +126,10 @@ void DomDomain::RequestChildNodes(const DomNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, RequestChildNodes, without nodeId");
     return;
   }
-  dom_data_call_back_(request.GetNodeId(), false, kNormalNodeDepth, [this, request](DomModel model) {
-    SetChildNodesEvent(model);
-    ResponseResultToFrontend(request.GetId(), nlohmann::json::object().dump());
+  dom_data_call_back_(request.GetNodeId(), false, kNormalNodeDepth, [DEVTOOLS_WEAK_THIS, request](DomModel model) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    self->SetChildNodesEvent(model);
+    self->ResponseResultToFrontend(request.GetId(), nlohmann::json::object().dump());
   });
 }
 
@@ -135,14 +142,15 @@ void DomDomain::GetBoxModel(const DomNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, GetBoxModel, without nodeId");
     return;
   }
-  dom_data_call_back_(request.GetNodeId(), false, kNormalNodeDepth, [this, request](DomModel model) {
-    auto cache_it = element_node_children_count_cache_.find(model.GetNodeId());
-    bool in_cache = cache_it != element_node_children_count_cache_.end();
+  dom_data_call_back_(request.GetNodeId(), false, kNormalNodeDepth, [DEVTOOLS_WEAK_THIS, request](DomModel model) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    auto cache_it = self->element_node_children_count_cache_.find(model.GetNodeId());
+    bool in_cache = cache_it != self->element_node_children_count_cache_.end();
     if ((in_cache && cache_it->second == 0) || !in_cache) {
       // if not in cache, then should send to frontend
-      SetChildNodesEvent(model);
+      self->SetChildNodesEvent(model);
     }
-    ResponseResultToFrontend(request.GetId(), model.GetBoxModelJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), model.GetBoxModelJSON().dump());
   });
 }
 
@@ -161,12 +169,14 @@ void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
   }
   int32_t x = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX());
   int32_t y = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY());
-  location_for_node_call_back_(x, y, [this, request](const DomModel& model) {
-    auto node_id = SearchNearlyCacheNode(model.GetRelationTree());
+  location_for_node_call_back_(x, y, [DEVTOOLS_WEAK_THIS, request](const DomModel& model) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    auto node_id = self->SearchNearlyCacheNode(model.GetRelationTree());
     if (node_id != kInvalidNodeId) {
-      ResponseResultToFrontend(request.GetId(), DomModel::GetNodeForLocation(node_id).dump());
+      self->ResponseResultToFrontend(request.GetId(), DomModel::GetNodeForLocation(node_id).dump());
     } else {
-      ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "DOMDomain, GetNodeForLocation, nodeId is invalid");
+      self->ResponseErrorToFrontend(request.GetId(), kErrorFailCode,
+                                    "DOMDomain, GetNodeForLocation, nodeId is invalid");
     }
   });
 }

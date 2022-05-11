@@ -20,6 +20,7 @@
 
 #include "module/domain/css_domain.h"
 #include "api/devtools_backend_service.h"
+#include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 
@@ -31,16 +32,21 @@ constexpr char kCssStyles[] = "styles";
 // default value
 constexpr uint32_t kCssStyleNodeDepth = 1;
 
-CssDomain::CssDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
-  css_data_call_back_ = [this](int32_t node_id, CssStyleDataCallback callback) {
-    auto elements_request_adapter = GetDataProvider()->elements_request_adapter;
+CssDomain::CssDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
+
+std::string CssDomain::GetDomainName() { return kFrontendKeyDomainNameCSS; }
+
+void CssDomain::RegisterMethods() {
+  css_data_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t node_id, CssStyleDataCallback callback) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+    auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
     if (!elements_request_adapter) {
       if (callback) {
         callback(CssModel());
       }
       return;
     }
-    auto response_callback = [callback, provider = GetDataProvider()](const DomainMetas& data) {
+    auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
       auto model = CssModel::CreateModelByJSON(nlohmann::json::parse(data.Serialize()));
       model.SetDataProvider(provider);
       if (callback) {
@@ -49,11 +55,7 @@ CssDomain::CssDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::m
     };
     elements_request_adapter->GetDomainData(node_id, false, kCssStyleNodeDepth, response_callback);
   };
-}
 
-std::string CssDomain::GetDomainName() { return kFrontendKeyDomainNameCSS; }
-
-void CssDomain::RegisterMethods() {
   REGISTER_DOMAIN(CssDomain, GetMatchedStylesForNode, CssNodeDataRequest);
   REGISTER_DOMAIN(CssDomain, GetComputedStyleForNode, CssNodeDataRequest);
   REGISTER_DOMAIN(CssDomain, GetInlineStylesForNode, CssNodeDataRequest);
@@ -70,8 +72,9 @@ void CssDomain::GetMatchedStylesForNode(const CssNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetMatchedStyles, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [this, request](CssModel model) {
-    ResponseResultToFrontend(request.GetId(), model.GetMatchedStylesJSON().dump());
+  css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](CssModel model) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+    self->ResponseResultToFrontend(request.GetId(), model.GetMatchedStylesJSON().dump());
   });
 }
 
@@ -85,8 +88,9 @@ void CssDomain::GetComputedStyleForNode(const CssNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetComputedStyle, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [this, request](CssModel model) {
-    ResponseResultToFrontend(request.GetId(), model.GetComputedStyleJSON().dump());
+  css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](CssModel model) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+    self->ResponseResultToFrontend(request.GetId(), model.GetComputedStyleJSON().dump());
   });
 }
 
@@ -99,8 +103,9 @@ void CssDomain::GetInlineStylesForNode(const CssNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetInlineStyles, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [this, request](const CssModel& model) {
-    ResponseResultToFrontend(request.GetId(), CssModel::GetInlineStylesJSON().dump());
+  css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](const CssModel& model) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+    self->ResponseResultToFrontend(request.GetId(), CssModel::GetInlineStylesJSON().dump());
   });
 }
 
@@ -124,25 +129,26 @@ void CssDomain::SetStyleTexts(const CssEditStyleTextsRequest& request) {
   for (auto& edit : edits.items()) {
     auto edit_value = edit.value();
     auto node_id = edit_value[kFrontendKeyStyleSheetId];
-    css_data_call_back_(node_id, [this, request, edit_value](CssModel model) {
-      auto style_texts = style_text_map_[request.GetId()];
-      auto request_call_back_count = request_call_back_count_map_[request.GetId()];
+    css_data_call_back_(node_id, [DEVTOOLS_WEAK_THIS, request, edit_value](CssModel model) {
+      DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+      auto style_texts = self->style_text_map_[request.GetId()];
+      auto request_call_back_count = self->request_call_back_count_map_[request.GetId()];
       auto style_json = model.UpdateDomTreeAndGetStyleTextJSON(edit_value);
       if (!style_json.is_null()) {
         style_texts.push_back(style_json);
       }
       request_call_back_count--;
       if (request_call_back_count > 0) {
-        request_call_back_count_map_[request.GetId()] = request_call_back_count;
-        style_text_map_[request.GetId()] = style_texts;
+        self->request_call_back_count_map_[request.GetId()] = request_call_back_count;
+        self->style_text_map_[request.GetId()] = style_texts;
         return;
       }
       auto style_result = nlohmann::json::object();
       style_result[kCssStyles] = style_texts;
-      ResponseResultToFrontend(request.GetId(), style_result.dump());
+      self->ResponseResultToFrontend(request.GetId(), style_result.dump());
       // clear data
-      style_text_map_.erase(request.GetId());
-      request_call_back_count_map_.erase(request.GetId());
+      self->style_text_map_.erase(request.GetId());
+      self->request_call_back_count_map_.erase(request.GetId());
     });
   }
 }

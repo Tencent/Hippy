@@ -38,15 +38,15 @@ using CssStyleDataCallback = std::function<void(const CssModel& model)>;
 
 /**
  * @brief css style by node id
- * @param node_id
- * @param callback
+ * @param node_id node id
+ * @param callback data callback
  */
 using CssDataRequestCallback = std::function<void(int32_t node_id, CssStyleDataCallback callback)>;
 
 /**
  * @brief CSS domain
  */
-class CssDomain : public BaseDomain {
+class CssDomain : public BaseDomain, public std::enable_shared_from_this<CssDomain> {
  public:
   explicit CssDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string GetDomainName() override;
