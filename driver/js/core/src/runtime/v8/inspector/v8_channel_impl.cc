@@ -25,7 +25,7 @@
 #include <string>
 #include <sstream>
 
-#include "devtools/devtool_helper.h"
+#include "devtools/devtools_helper.h"
 #include "core/base/string_view_utils.h"
 #include "base/unicode_string_view.h"
 

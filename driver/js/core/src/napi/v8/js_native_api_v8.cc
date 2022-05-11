@@ -30,7 +30,7 @@
 #include "core/napi/v8/serializer.h"
 #include "core/scope.h"
 #if TDF_SERVICE_ENABLED
-#include "devtools/devtool_helper.h"
+#include "devtools/devtools_helper.h"
 #endif
 #include "v8/libplatform/libplatform.h"
 #include "v8/v8.h"

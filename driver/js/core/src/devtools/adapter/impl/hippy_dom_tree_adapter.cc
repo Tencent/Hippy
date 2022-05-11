@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "devtools/devtool_utils.h"
+#include "devtools/devtools_util.h"
 #include "dom/dom_value.h"
 #include "dom/node_props.h"
 
@@ -58,7 +58,7 @@ void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas meta
     }
     callback(is_success);
   };
-  DevToolUtils::PostDomTask(dom_id_, func);
+  DevToolsUtil::PostDomTask(dom_id_, func);
 }
 
 void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
@@ -69,11 +69,11 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
     if (dom_manager) {
       auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-      hippy::devtools::DomNodeMetas metas = DevToolUtils::ToDomNodeMetas(root_node);
+      hippy::devtools::DomNodeMetas metas = DevToolsUtil::ToDomNodeMetas(root_node);
       callback(true, metas);
     }
   };
-  DevToolUtils::PostDomTask(dom_id_, func);
+  DevToolsUtil::PostDomTask(dom_id_, func);
 }
 }  // namespace devtools
 }  // namespace hippy

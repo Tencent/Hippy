@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "devtools/devtool_utils.h"
+#include "devtools/devtools_util.h"
 
 namespace hippy {
 namespace devtools {
@@ -38,16 +38,16 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
     if (is_root) {
       auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-      hippy::devtools::DomainMetas metas = DevToolUtils::GetDomDomainData(root_node, depth, dom_manager);
+      hippy::devtools::DomainMetas metas = DevToolsUtil::GetDomDomainData(root_node, depth, dom_manager);
       callback(metas);
       return;
     }
     auto node = dom_manager->GetNode(static_cast<uint32_t>(node_id));
     assert(node != nullptr);
-    hippy::devtools::DomainMetas metas = DevToolUtils::GetDomDomainData(node, depth, dom_manager);
+    hippy::devtools::DomainMetas metas = DevToolsUtil::GetDomDomainData(node, depth, dom_manager);
     callback(metas);
   };
-  DevToolUtils::PostDomTask(dom_id_, func);
+  DevToolsUtil::PostDomTask(dom_id_, func);
 }
 
 void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) {
@@ -57,9 +57,9 @@ void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, NodeLo
   std::function func = [dom_id = dom_id_, x, y, callback] {
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
     auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-    callback(DevToolUtils::GetNodeIdByDomLocation(root_node, x, y));
+    callback(DevToolsUtil::GetNodeIdByDomLocation(root_node, x, y));
   };
-  DevToolUtils::PostDomTask(dom_id_, func);
+  DevToolsUtil::PostDomTask(dom_id_, func);
 }
 }  // namespace devtools
 }  // namespace hippy

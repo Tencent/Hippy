@@ -20,7 +20,7 @@
 
 #include "devtools/adapter/hippy_screen_adapter.h"
 
-#include "devtools/devtool_utils.h"
+#include "devtools/devtools_util.h"
 #include "dom/macro.h"
 
 namespace hippy {
@@ -110,7 +110,7 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
       }
     }
   };
-  DevToolUtils::PostDomTask(dom_id_, func);
+  DevToolsUtil::PostDomTask(dom_id_, func);
 }
 }  // namespace devtools
 }  // namespace hippy

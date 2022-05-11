@@ -37,7 +37,7 @@
 #include "dom/render_manager.h"
 #include "dom/scene_builder.h"
 #if TDF_SERVICE_ENABLED
-#include "devtools/devtool_data_source.h"
+#include "devtools/devtools_data_source.h"
 #endif
 
 class JavaScriptTaskRunner;

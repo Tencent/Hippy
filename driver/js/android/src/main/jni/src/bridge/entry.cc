@@ -42,7 +42,7 @@
 #include "dom/animation_manager.h"
 #include "core/runtime/v8/runtime.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
-#include "devtools/devtool_helper.h"
+#include "devtools/devtools_helper.h"
 #include "dom/deserializer.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_value.h"
