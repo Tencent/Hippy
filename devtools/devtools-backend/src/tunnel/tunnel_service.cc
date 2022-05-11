@@ -39,7 +39,7 @@ TunnelService::TunnelService(std::shared_ptr<DomainDispatch>  dispatch, const De
 
 void TunnelService::Connect(const DevtoolsConfig &devtools_config) {
   channel_ = NetChannel::CreateChannel(devtools_config);
-  BACKEND_LOGI(TDF_BACKEND, "TunnelService, Start Connect.");
+  BACKEND_LOGI(TDF_BACKEND, "TunnelService, start connect.");
   channel_->Connect([this](void *buffer, ssize_t length, int flag) {
     if (flag == kTaskFlag) {
       HandleReceiveData(reinterpret_cast<char *>(buffer), static_cast<int32_t>(length));
@@ -49,8 +49,8 @@ void TunnelService::Connect(const DevtoolsConfig &devtools_config) {
 
 void TunnelService::HandleReceiveData(const char *buffer, int32_t buffer_length) {
   std::string data(buffer, buffer + buffer_length);
-  auto isInspectDomain = dispatch_->ReceiveDataFromFrontend(data);
-  if (!isInspectDomain) {  // others send to v8 if use CDP
+  auto is_inspect_domain = dispatch_->ReceiveDataFromFrontend(data);
+  if (!is_inspect_domain) {  // others send to VM if use CDP
     dispatch_->DispatchToVM(data);
   }
 }

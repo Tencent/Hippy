@@ -41,6 +41,7 @@ namespace hippy::devtools {
 
 constexpr char kDomainDispatchResult[] = "result";
 constexpr char kDomainDispatchError[] = "error";
+constexpr char kDomainClassSuffix[] = "Domain";
 
 using json = nlohmann::json;
 
@@ -110,7 +111,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   }
   std::string domain = split_params.at(0);
   std::string method = split_params.at(1);
-  method[0] = toupper(method[0]);  // 协议里的method首字母都是小写，但是C++方法名要求首字母大写，所以这里需要处理一下
+  method[0] = toupper(method[0]);  // CDP Method to C++ Method which require upper start
 
   // parse params
   std::string params;
@@ -127,11 +128,11 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
     }
-    if (domain.find("TDF") == std::string::npos) {
+    if (domain.find(kFrontendKeyDomainNameTDF) == std::string::npos) { // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
       std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
       domain[0] = toupper(domain[0]);
     }
-    auto handler = DomainRegister::Instance()->GetMethod(domain + "Domain", method);
+    auto handler = DomainRegister::Instance()->GetMethod(domain + kDomainClassSuffix, method);
     if (handler) {
       handler(base_domain->second, id, params);
       return true;
@@ -165,7 +166,7 @@ void DomainDispatch::DispatchToVM(const std::string& data) {
 
 void DomainDispatch::SendDataToFrontend(int32_t id, const std::string& result, const std::string& error) {
   if (result.length() == 0 && error.length() == 0) {
-    BACKEND_LOGE(TDF_BACKEND, "result and error are both null");
+    BACKEND_LOGW(TDF_BACKEND, "result and error are both null");
     return;
   }
   json rsp_json = json::object();
