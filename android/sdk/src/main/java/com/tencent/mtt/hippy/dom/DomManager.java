@@ -214,17 +214,14 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
         markTextNodeDirty(domNode.getChildAt(i));
       }
       if (domNode instanceof TextNode) {
-        TextNode textNode = (TextNode) domNode;
-        if (textNode.enableScale()) {
-          textNode.dirty();
-        }
+        domNode.markUpdated();
       }
     }
   }
 
-  public void forceUpdateNode(int rootId) {
-    DomNode node = mNodeRegistry.getNode(rootId);
-    markTextNodeDirty(node);
+  public void onFontChanged(int rootId) {
+    DomNode rootNode = mNodeRegistry.getNode(rootId);
+    markTextNodeDirty(rootNode);
     if (!mRenderBatchStarted) {
       batch();
     }
