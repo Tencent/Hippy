@@ -26,6 +26,7 @@ import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
 import {
   unicodeToChar,
+  capitalizeFirstLetter,
   tryConvertNumber,
   setsAreEqual,
   endsWith,
@@ -33,8 +34,9 @@ import {
   warn,
 } from '../util';
 import Native from '../runtime/native';
+import { eventHandlerType, isNativeGesture } from '../util/node';
 import { updateChild, updateWithChildren } from './native';
-import { Event, EventEmitter } from './native/event';
+import { Event, EventDispatcher, EventEmitter } from './native/event';
 import { Text } from './native/components';
 import ViewNode from './view-node';
 
@@ -189,6 +191,32 @@ function parseTextShadowOffset(property, value = 0, style) {
   return ['textShadowOffset', style.textShadowOffset];
 }
 
+function transverseEventNames(eventNames, callback) {
+  if (typeof eventNames !== 'string') return;
+  const events = eventNames.split(',');
+  for (let i = 0, l = events.length; i < l; i += 1) {
+    const eventName = events[i].trim();
+    callback(eventName);
+  }
+}
+
+function createEventListener(name) {
+  return (event) => {
+    const { id,  currentId, params } = event;
+    console.log('callback event', id, JSON.stringify(params));
+    if (isNativeGesture(name)) {
+      const dispatcherEvent = {
+        id, name, currentId,
+      };
+      Object.assign(dispatcherEvent, params);
+      EventDispatcher.receiveNativeGesture(dispatcherEvent);
+    } else {
+      const dispatcherEvent = [id, name, params];
+      EventDispatcher.receiveUIComponentEvent(dispatcherEvent);
+    }
+  };
+}
+
 class ElementNode extends ViewNode {
   constructor(tagName) {
     super();
@@ -204,6 +232,8 @@ class ElementNode extends ViewNode {
     this.classList = new Set(); // Fake DOMTokenLis
     // Other attributes in template.
     this.attributes = {};
+    // events map
+    this.events = {};
     // Event observer.
     this._emitter = null;
     // Style pre-processor
@@ -463,6 +493,33 @@ class ElementNode extends ViewNode {
     return this.setAttribute('text', text);
   }
 
+  setListenerHandledType(key, type) {
+    if (this.events[key]) {
+      this.events[key].handledType = type;
+    }
+  }
+
+  isListenerHandled(key, type) {
+    if (this.events[key] && type !== this.events[key].handledType) {
+      // if handledType not equals type params, this event needs updated
+      // if handledType equals undefined, this event needs created
+      return false;
+    }
+    // if event not existed, marked it has been handled
+    return true;
+  }
+
+  getNativeEventName(eventName) {
+    let nativeEventName = `on${capitalizeFirstLetter(eventName)}`;
+    if (this.meta.component) {
+      const { eventNamesMap } = this.meta.component;
+      if (eventNamesMap && eventNamesMap[eventName]) {
+        nativeEventName = eventNamesMap[eventName];
+      }
+    }
+    return nativeEventName;
+  }
+
   addEventListener(eventNames, callback, options) {
     if (!this._emitter) {
       this._emitter = new EventEmitter(this);
@@ -478,6 +535,19 @@ class ElementNode extends ViewNode {
       ({ eventNames, callback, options } = this.polyfillNativeEvents('addEventListener', eventNames, callback, options));
     }
     this._emitter.addEventListener(eventNames, callback, options);
+    transverseEventNames(eventNames, (eventName) => {
+      const nativeEventName = this.getNativeEventName(eventName);
+      if (!this.events[nativeEventName]) {
+        this.events[nativeEventName] = {
+          name: nativeEventName,
+          type: eventHandlerType.ADD,
+          listener: createEventListener(nativeEventName),
+          isCapture: false,
+        };
+      } else if (this.events[nativeEventName] && this.events[nativeEventName].type !== eventHandlerType.ADD) {
+        this.events[nativeEventName].type = eventHandlerType.ADD;
+      }
+    });
     updateChild(this);
   }
 
@@ -489,6 +559,12 @@ class ElementNode extends ViewNode {
       ({ eventNames, callback, options } = this.polyfillNativeEvents('removeEventListener', eventNames, callback, options));
     }
     const observer = this._emitter.removeEventListener(eventNames, callback, options);
+    transverseEventNames(eventNames, (eventName) => {
+      const nativeEventName = this.getNativeEventName(eventName);
+      if (this.events[nativeEventName]) {
+        this.events[nativeEventName].type = eventHandlerType.REMOVE;
+      }
+    });
     updateChild(this);
     return observer;
   }

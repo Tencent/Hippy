@@ -25,20 +25,20 @@
  * Virtual DOM to Native DOM
  */
 
-import { UIManagerModule } from '../../runtime/native';
+// import { UIManagerModule } from '../../runtime/native';
 import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '../../runtime/constants';
 import {
   getApp,
   trace,
   warn,
   isFunction,
-  capitalizeFirstLetter,
   convertImageLocalPath,
+  deepCopy,
 } from '../../util';
 import {
   isRTL,
 } from '../../util/i18n';
-import { preCacheNode } from '../../util/node';
+import { preCacheNode, eventHandlerType, nativeEventMap, translateToNativeEventName } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -65,18 +65,51 @@ function chunkNodes(batchNodes) {
   const result = [];
   for (let i = 0; i < batchNodes.length; i += 1) {
     const chunk = batchNodes[i];
-    const { type, nodes } = chunk;
-    const _chunk = result[result.length - 1];
-    if (!_chunk || _chunk.type !== type) {
+    const { type, nodes, eventNodes } = chunk;
+    const lastChunk = result[result.length - 1];
+    if (!lastChunk || lastChunk.type !== type) {
       result.push({
         type,
         nodes,
+        eventNodes,
       });
     } else {
-      _chunk.nodes = _chunk.nodes.concat(nodes);
+      lastChunk.nodes = lastChunk.nodes.concat(nodes);
+      lastChunk.eventNodes = lastChunk.eventNodes.concat(eventNodes);
     }
   }
   return result;
+}
+
+function isNativeGesture(name) {
+  return !!nativeEventMap[name];
+}
+
+function handleEventListeners(eventNodes = [], sceneBuilder) {
+  eventNodes.forEach((eventNode) => {
+    if (eventNode) {
+      const { id, eventList } = eventNode;
+      eventList.forEach((eventAttribute) => {
+        const { name, type, isCapture, listener } = eventAttribute;
+        let nativeEventName;
+        if (isNativeGesture(name)) {
+          nativeEventName = nativeEventMap[name];
+        } else {
+          nativeEventName = translateToNativeEventName(name);
+        }
+        if (type === eventHandlerType.REMOVE) {
+          console.log('RemoveEventListener', id, nativeEventName, isCapture);
+          sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
+        }
+        if (type === eventHandlerType.ADD) {
+          console.log('RemoveEventListener', id, nativeEventName, isCapture);
+          sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
+          console.log('AddEventListener', id, nativeEventName, isCapture);
+          sceneBuilder.AddEventListener(id, nativeEventName, listener);
+        }
+      });
+    }
+  });
 }
 
 /**
@@ -99,24 +132,27 @@ function endBatch(app) {
   } = app;
   $nextTick(() => {
     const chunks = chunkNodes(__batchNodes);
+    const sceneBuilder = new global.SceneBuilder(rootViewId);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NODE_OPERATION_TYPES.createNode:
           trace(...componentName, 'createNode', chunk.nodes);
-          UIManagerModule.createNode(rootViewId, chunk.nodes);
+          sceneBuilder.Create(chunk.nodes);
+          handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NODE_OPERATION_TYPES.updateNode:
           trace(...componentName, 'updateNode', chunk.nodes);
-          UIManagerModule.updateNode(rootViewId, chunk.nodes);
+          sceneBuilder.Update(chunk.nodes);
+          handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NODE_OPERATION_TYPES.deleteNode:
           trace(...componentName, 'deleteNode', chunk.nodes);
-          UIManagerModule.deleteNode(rootViewId, chunk.nodes);
+          sceneBuilder.Delete(chunk.nodes);
           break;
         default:
       }
     });
-    UIManagerModule.endBatch();
+    sceneBuilder.Build();
     __batchIdle = true;
     __batchNodes = [];
   });
@@ -262,7 +298,6 @@ function parseViewComponent(targetNode, nativeNode, style) {
         targetNode.childNodes[0].setStyle('collapsable', false);
       }
     }
-    // TODO backgroundImage would use local path if webpack file-loader active, which needs native support
     if (style.backgroundImage) {
       style.backgroundImage = convertImageLocalPath(style.backgroundImage);
     }
@@ -272,11 +307,13 @@ function parseViewComponent(targetNode, nativeNode, style) {
 /**
  * Get target node attributes, use to chrome devTool tag attribute show while debugging
  * @param targetNode
+ * @param events
  * @returns attributes|{}
  */
-function getTargetNodeAttributes(targetNode) {
+function getTargetNodeAttributes(targetNode, events) {
   try {
-    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const mergedProps = Object.assign({}, targetNode.attributes, events);
+    const targetNodeAttributes = deepCopy(mergedProps);
     const classInfo = Array.from(targetNode.classList || []).join(' ');
     const attributes = {
       id: targetNode.id,
@@ -304,8 +341,49 @@ If you want to make dialog cover fullscreen, please use { flex: 1 } or set heigh
         ['position', 'left', 'right', 'top', 'bottom'].forEach(positionProp => delete nodeStyle[positionProp]);
         return true;
       }
+      return false;
     });
   }
+}
+
+/**
+ * getEventAttributeAndNode - translate event info to event attribute & event node.
+ * @param targetNode
+ */
+function getEventAttributeAndNode(targetNode) {
+  const events = {};
+  let eventNode;
+  const eventsAttributes = targetNode.events;
+  if (eventsAttributes) {
+    const eventList = [];
+    Object.keys(eventsAttributes)
+      .forEach((key) => {
+        const { name, type, isCapture, listener } = eventsAttributes[key];
+        // if (!targetNode.isListenerHandled(key, type)) {
+        //   targetNode.setListenerHandledType(key, type);
+        //   eventList.push({
+        //     name,
+        //     type,
+        //     isCapture,
+        //     listener,
+        //   });
+        // }
+        Object.assign(events, {
+          [name]: () => {},
+        });
+        eventList.push({
+          name,
+          type,
+          isCapture,
+          listener,
+        });
+      });
+    eventNode = {
+      id: targetNode.nodeId,
+      eventList,
+    };
+  }
+  return { events, eventNode };
 }
 
 /**
@@ -313,7 +391,7 @@ If you want to make dialog cover fullscreen, please use { flex: 1 } or set heigh
  */
 function renderToNative(rootViewId, targetNode) {
   if (targetNode.meta.skipAddToDom) {
-    return null;
+    return {};
   }
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
@@ -334,23 +412,7 @@ function renderToNative(rootViewId, targetNode) {
   style = { ...style, ...targetNode.style };
 
   // Convert to real native event
-  const events = {};
-  if (targetNode._emitter) {
-    const { eventNamesMap } = targetNode.meta.component;
-    const observers = targetNode._emitter.getEventListeners();
-    const vueEventNames = Object.keys(observers);
-    vueEventNames.forEach((vueEventName) => {
-      if (eventNamesMap && eventNamesMap[vueEventName]) {
-        const nativeEventName = eventNamesMap[vueEventName];
-        // if event removed, it is set undefined, which is a false value sent to native
-        events[nativeEventName] = !!observers[vueEventName];
-      } else {
-        const name = `on${capitalizeFirstLetter(vueEventName)}`;
-        // if event removed, it is set undefined, which is a false value sent to native
-        events[name] = !!observers[vueEventName];
-      }
-    });
-  }
+  const { events, eventNode } = getEventAttributeAndNode(targetNode);
   // Translate to native node
   const nativeNode = {
     id: targetNode.nodeId,
@@ -367,11 +429,11 @@ function renderToNative(rootViewId, targetNode) {
   // Add nativeNode attributes info for Element debugging
   if (process.env.NODE_ENV !== 'production') {
     nativeNode.tagName = targetNode.tagName;
-    nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
+    nativeNode.props.attributes = getTargetNodeAttributes(targetNode, events);
   }
   parseViewComponent(targetNode, nativeNode, style);
   parseTextInputComponent(targetNode, style);
-  return nativeNode;
+  return { nativeNode, eventNode };
 }
 
 /**
@@ -379,20 +441,24 @@ function renderToNative(rootViewId, targetNode) {
  * @param {number} rootViewId - root view id
  * @param {ViewNode} node - target node to be traversed
  * @param {Function} [callback] - function called on each traversing process
- * @returns {[]}
+ * @returns {{}}
  */
 function renderToNativeWithChildren(rootViewId, node, callback) {
   const nativeLanguages = [];
+  const eventLanguages = [];
   node.traverseChildren((targetNode) => {
-    const nativeNode = renderToNative(rootViewId, targetNode);
+    const { nativeNode, eventNode } = renderToNative(rootViewId, targetNode);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
+    }
+    if (eventNode) {
+      eventLanguages.push(eventNode);
     }
     if (typeof callback === 'function') {
       callback(targetNode);
     }
   });
-  return nativeLanguages;
+  return { nativeLanguages, eventLanguages };
 }
 
 function isLayout(node, rootView) {
@@ -430,7 +496,7 @@ function insertChild(parentNode, childNode, atIndex = -1) {
   // Render the root node
   if (isLayout(parentNode, rootView) && !parentNode.isMounted) {
     // Start real native work.
-    const translated = renderToNativeWithChildren(rootViewId, parentNode, (node) => {
+    const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(rootViewId, parentNode, (node) => {
       if (!node.isMounted) {
         node.isMounted = true;
       }
@@ -438,12 +504,13 @@ function insertChild(parentNode, childNode, atIndex = -1) {
     });
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
-      nodes: translated,
+      nodes: nativeLanguages,
+      eventNodes: eventLanguages,
     });
     endBatch(app);
   // Render others child nodes.
   } else if (parentNode.isMounted && !childNode.isMounted) {
-    const translated = renderToNativeWithChildren(rootViewId, childNode, (node) => {
+    const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(rootViewId, childNode, (node) => {
       if (!node.isMounted) {
         node.isMounted = true;
       }
@@ -451,7 +518,8 @@ function insertChild(parentNode, childNode, atIndex = -1) {
     });
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
-      nodes: translated,
+      nodes: nativeLanguages,
+      eventNodes: eventLanguages,
     });
     endBatch(app);
   }
@@ -486,11 +554,12 @@ function updateChild(parentNode) {
   }
   const app = getApp();
   const { $options: { rootViewId } } = app;
-  const translated = renderToNative(rootViewId, parentNode);
-  if (translated) {
+  const  { nativeNode, eventNode } = renderToNative(rootViewId, parentNode);
+  if (nativeNode) {
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
-      nodes: [translated],
+      nodes: [nativeNode],
+      eventNodes: [eventNode],
     });
     endBatch(app);
   }
@@ -502,10 +571,11 @@ function updateWithChildren(parentNode) {
   }
   const app = getApp();
   const { $options: { rootViewId } } = app;
-  const translated = renderToNativeWithChildren(rootViewId, parentNode);
+  const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(rootViewId, parentNode);
   __batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
-    nodes: translated,
+    nodes: nativeLanguages,
+    eventNodes: eventLanguages,
   });
   endBatch(app);
 }

@@ -103,7 +103,38 @@ function cancelIdleCallback(id) {
   }
 }
 
+const eventHandlerType = {
+  ADD: 0,
+  REMOVE: 1,
+};
+
+const nativeEventMap = {
+  onClick: 'click',
+  onLongClick: 'longclick',
+  // onPressIn: 'touchstart', // normalization
+  // onPressOut: 'touchend', // normalization
+  onPressIn: 'pressin',
+  onPressOut: 'pressout',
+  onTouchDown: 'touchstart', // compatible with w3c standard name touchstart
+  onTouchStart: 'touchstart',
+  onTouchEnd: 'touchend',
+  onTouchMove: 'touchmove',
+  onTouchCancel: 'touchcancel',
+};
+
+function isNativeGesture(name) {
+  return !!nativeEventMap[name];
+}
+
+function translateToNativeEventName(name) {
+  return name.replace(/^(on)?/g, '').toLocaleLowerCase();
+}
+
 export {
+  translateToNativeEventName,
+  isNativeGesture,
+  eventHandlerType,
+  nativeEventMap,
   recursivelyUnCacheNode,
   requestIdleCallback,
   cancelIdleCallback,

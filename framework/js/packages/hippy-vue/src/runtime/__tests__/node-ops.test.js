@@ -26,6 +26,14 @@ before(() => {
       setTimeout(cb);
     },
   });
+  global.SceneBuilder = function SceneBuilder() {
+    this.Create = () => {};
+    this.Update = () => {};
+    this.Delete = () => {};
+    this.Build = () => {};
+    this.AddEventListener = () => {};
+    this.RemoveEventListener = () => {};
+  };
 });
 
 test('create new DocumentNode', (t) => {

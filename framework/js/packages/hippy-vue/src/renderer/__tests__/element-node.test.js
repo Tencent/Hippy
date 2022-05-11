@@ -108,7 +108,6 @@ test('Element.addEventListener and removeEventListener test', (t) => {
   t.true(!!node._emitter);
   const event = DocumentNode.createEvent('click');
   node.dispatchEvent(event);
-  // t.is(called, true); // FIXME
   node.removeEventListener('click', callback);
   t.true(!!node._emitter);
 });
@@ -124,7 +123,6 @@ test('Element.dispatchEvent test', (t) => {
   }, Error);
   t.is(err.message, 'dispatchEvent method only accept Event instance');
   childNode.dispatchEvent(event);
-  // TODO: bubbles testing.
 });
 
 test('Element.setText test', (t) => {
