@@ -52,8 +52,8 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
 
 void DevtoolsBackendService::InitVMNotification() {
   data_channel_->GetNotificationCenter()->vm_response_notification =
-      std::make_shared<DefaultVMResponseAdapter>([WEAK_THIS](const std::string &data) {
-        DEFINE_AND_CHECK_SELF(DevtoolsBackendService)
+      std::make_shared<DefaultVMResponseAdapter>([DEVTOOLS_WEAK_THIS](const std::string &data) {
+        DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsBackendService)
         self->tunnel_service_->SendDataToFrontend(data);
       });
 }

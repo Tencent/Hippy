@@ -26,6 +26,7 @@
 #include "devtools_base/logging.h"
 #include "devtools_base/parse_json_util.h"
 #include "devtools_base/tdf_base_util.h"
+#include "devtools_base/common/macros.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
