@@ -45,8 +45,6 @@ constexpr char kDomainClassSuffix[] = "Domain";
 constexpr char kDomainNameTdfPrefix[] = "Tdf";
 constexpr char kDomainNameTDFProtocol[] = "TDF";
 
-using json = nlohmann::json;
-
 void DomainDispatch::RegisterJSDebuggerDomainListener() {
   auto dom_domain = std::make_shared<DomDomain>(shared_from_this());
   auto css_domain = std::make_shared<CssDomain>(shared_from_this());
@@ -82,10 +80,10 @@ void DomainDispatch::ClearDomainHandler() { domain_register_map_.clear(); }
 bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   BACKEND_LOGD(TDF_BACKEND, "DomainDispatch, receive data from frontend :%s", data_string.c_str());
 
-  json data_json = json::object();
+  nlohmann::json data_json = nlohmann::json::object();
   try {
-    data_json = json::parse(data_string);
-  } catch (json::exception& e) {
+    data_json = nlohmann::json::parse(data_string);
+  } catch (nlohmann::json::exception& e) {
     BACKEND_LOGE(TDF_BACKEND, "parse data_string failed, e.what()=%s, e.id=%d, data_string=%s.", e.what(), e.id,
                  data_string.c_str());
   }
