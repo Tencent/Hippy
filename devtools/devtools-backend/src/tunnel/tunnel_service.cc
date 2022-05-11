@@ -22,6 +22,7 @@
 #include <sstream>
 #include <utility>
 #include "api/devtools_backend_service.h"
+#include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "module/domain_dispatch.h"
 #include "tunnel/tcp/tcp_channel.h"
@@ -32,18 +33,18 @@ namespace hippy::devtools {
 constexpr int32_t kClose = 4003;
 constexpr int32_t kReload = 4004;
 
-TunnelService::TunnelService(std::shared_ptr<DomainDispatch>  dispatch, const DevtoolsConfig &config) : dispatch_(std::move(dispatch)) {
-  dispatch_->SetResponseHandler([this](const std::string &rsp_data) { channel_->Send(rsp_data); });
-  Connect(config);
-}
-
 void TunnelService::Connect(const DevtoolsConfig &devtools_config) {
   channel_ = NetChannel::CreateChannel(devtools_config);
   BACKEND_LOGI(TDF_BACKEND, "TunnelService, start connect.");
-  channel_->Connect([this](void *buffer, ssize_t length, int flag) {
+  channel_->Connect([DEVTOOLS_WEAK_THIS](void *buffer, ssize_t length, int flag) {
     if (flag == kTaskFlag) {
-      HandleReceiveData(reinterpret_cast<char *>(buffer), static_cast<int32_t>(length));
+      DEVTOOLS_DEFINE_AND_CHECK_SELF(TunnelService)
+      self->HandleReceiveData(reinterpret_cast<char *>(buffer), static_cast<int32_t>(length));
     }
+  });
+  dispatch_->SetResponseHandler([DEVTOOLS_WEAK_THIS](const std::string &rsp_data) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TunnelService)
+    self->channel_->Send(rsp_data);
   });
 }
 

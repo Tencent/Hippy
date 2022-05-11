@@ -22,18 +22,24 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include "api/devtools_config.h"
 #include "module/domain_dispatch.h"
 #include "tunnel/net_channel.h"
-#include "api/devtools_config.h"
 
 namespace hippy::devtools {
 
 /**
  * @brief tunnel service to handle interact with frontend, including manage channel and dispatch msg
  */
-class TunnelService {
+class TunnelService : public std::enable_shared_from_this<TunnelService> {
  public:
-  explicit TunnelService(std::shared_ptr<DomainDispatch>  dispatch, const DevtoolsConfig &devtools_config);
+  explicit TunnelService(std::shared_ptr<DomainDispatch> dispatch)
+      : dispatch_(std::move(dispatch)) {}
+
+  /**
+   * @brief connect to frontend
+   */
+  void Connect(const DevtoolsConfig &devtools_config);
 
   /**
    * @brief send data to frontend
@@ -47,10 +53,6 @@ class TunnelService {
   void Close(bool is_reload);
 
  private:
-  /**
-   * @brief connect to frontend
-   */
-  void Connect(const DevtoolsConfig &devtools_config);
   /**
    * @brief receive msg from frontend
    */
