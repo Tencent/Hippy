@@ -29,7 +29,7 @@ namespace hippy::devtools {
 constexpr char kScreenShotUpdated[] = "TDFInspector.screenshotUpdated";
 constexpr char kRenderTreeUpdated[] = "TDFInspector.renderTreeUpdated";
 
-TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
+TdfInspectorDomain::TdfInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   tdf_inspector_model_ = std::make_shared<TDFInspectorModel>();
   frame_poll_model_ = std::make_shared<FramePollModel>();
   screen_shot_model_ = std::make_shared<ScreenShotModel>();
@@ -39,27 +39,27 @@ TDFInspectorDomain::TDFInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) :
   HandleFramePollModelRefreshNotification();
 }
 
-std::string TDFInspectorDomain::GetDomainName() { return kFrontendKeyDomainNameTDFInspector; }
+std::string TdfInspectorDomain::GetDomainName() { return kFrontendKeyDomainNameTDFInspector; }
 
-void TDFInspectorDomain::RegisterMethods() {
-  REGISTER_DOMAIN(TDFInspectorDomain, GetDomTree, BaseRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetRenderTree, BaseRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetScreenshot, ScreenShotRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetSelectedRenderObject, SelectedRenderObjectRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, GetSelectedDomNode, BaseRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, EnableUpdateNotification, BaseRequest);
-  REGISTER_DOMAIN(TDFInspectorDomain, DisableUpdateNotification, BaseRequest);
+void TdfInspectorDomain::RegisterMethods() {
+  REGISTER_DOMAIN(TdfInspectorDomain, GetDomTree, BaseRequest);
+  REGISTER_DOMAIN(TdfInspectorDomain, GetRenderTree, BaseRequest);
+  REGISTER_DOMAIN(TdfInspectorDomain, GetScreenshot, ScreenShotRequest);
+  REGISTER_DOMAIN(TdfInspectorDomain, GetSelectedRenderObject, SelectedRenderObjectRequest);
+  REGISTER_DOMAIN(TdfInspectorDomain, GetSelectedDomNode, BaseRequest);
+  REGISTER_DOMAIN(TdfInspectorDomain, EnableUpdateNotification, BaseRequest);
+  REGISTER_DOMAIN(TdfInspectorDomain, DisableUpdateNotification, BaseRequest);
 }
 
-void TDFInspectorDomain::GetDomTree(const BaseRequest& request) {
+void TdfInspectorDomain::GetDomTree(const BaseRequest& request) {
   auto dom_tree_adapter = GetDataProvider()->dom_tree_adapter;
   if (!dom_tree_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get dom tree failed, dom_tree_adapter null.");
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "TDFInspectorDomain::GetDomTree start");
+  BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetDomTree start");
   dom_tree_adapter->GetDomTree([this, request](bool is_success, const DomNodeMetas& metas) {
-    BACKEND_LOGD(TDF_BACKEND, "TDFInspectorDomain::GetDomTree end");
+    BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetDomTree end");
     if (is_success) {
       nlohmann::json result_json = nlohmann::json::object();
       result_json[kFrontendKeyItree] = nlohmann::json::parse(metas.Serialize());
@@ -70,7 +70,7 @@ void TDFInspectorDomain::GetDomTree(const BaseRequest& request) {
   });
 }
 
-void TDFInspectorDomain::GetRenderTree(const BaseRequest& request) {
+void TdfInspectorDomain::GetRenderTree(const BaseRequest& request) {
   auto render_tree_adapter = GetDataProvider()->render_tree_adapter;
   if (!render_tree_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get render tree failed, render_tree_adapter is null.");
@@ -89,8 +89,8 @@ void TDFInspectorDomain::GetRenderTree(const BaseRequest& request) {
   });
 }
 
-void TDFInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "TDFInspectorDomain::GetScreenshot start");
+void TdfInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
+  BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetScreenshot start");
   // use the latest GetScreenShot request params as the screenshot params
   screen_shot_model_->SetScreenShotRequest(request);
   screen_shot_model_->SetResponseScreenShotCallback([this, request](const ScreenShotResponse& response) {
@@ -99,7 +99,7 @@ void TDFInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
   screen_shot_model_->ReqScreenShotToResponse();
 }
 
-void TDFInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectRequest& request) {
+void TdfInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectRequest& request) {
   auto render_tree_adapter = GetDataProvider()->render_tree_adapter;
   if (!render_tree_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport,
@@ -120,26 +120,26 @@ void TDFInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectReque
       });
 }
 
-void TDFInspectorDomain::GetSelectedDomNode(const BaseRequest& request) {}
+void TdfInspectorDomain::GetSelectedDomNode(const BaseRequest& request) {}
 
-void TDFInspectorDomain::EnableUpdateNotification(const BaseRequest& request) { frame_poll_model_->StartPoll(); }
+void TdfInspectorDomain::EnableUpdateNotification(const BaseRequest& request) { frame_poll_model_->StartPoll(); }
 
-void TDFInspectorDomain::DisableUpdateNotification(const BaseRequest& request) { frame_poll_model_->StopPoll(); }
+void TdfInspectorDomain::DisableUpdateNotification(const BaseRequest& request) { frame_poll_model_->StopPoll(); }
 
-void TDFInspectorDomain::HandleScreenShotUpdatedNotification() {
+void TdfInspectorDomain::HandleScreenShotUpdatedNotification() {
   screen_shot_model_->SetSendEventScreenShotCallback([this](const ScreenShotResponse& response) {
     SendEventToFrontend(InspectEvent(kScreenShotUpdated, response.ToJsonString()));
   });
 }
 
-void TDFInspectorDomain::HandleFramePollModelRefreshNotification() {
+void TdfInspectorDomain::HandleFramePollModelRefreshNotification() {
   frame_poll_model_->SetResponseHandler([this]() {
     screen_shot_model_->ReqScreenShotToSendEvent();
     SendRenderTreeUpdatedEvent();
   });
 }
 
-void TDFInspectorDomain::SendRenderTreeUpdatedEvent() {
+void TdfInspectorDomain::SendRenderTreeUpdatedEvent() {
   auto render_tree_adapter = GetDataProvider()->render_tree_adapter;
   if (!render_tree_adapter) {
     return;

@@ -28,9 +28,9 @@
 
 namespace hippy::devtools {
 
-class TDFMemoryDomain : public BaseDomain {
+class TdfMemoryDomain : public BaseDomain {
  public:
-  explicit TDFMemoryDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
+  explicit TdfMemoryDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
 

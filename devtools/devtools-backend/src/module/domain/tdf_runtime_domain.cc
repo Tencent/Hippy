@@ -25,14 +25,14 @@
 namespace hippy::devtools {
 constexpr const char kCmdChromeSocketClose[] = "chrome_socket_closed";
 
-std::string TDFRuntimeDomain::GetDomainName() { return kFrontendKeyDomainNameTDFRuntime; }
+std::string TdfRuntimeDomain::GetDomainName() { return kFrontendKeyDomainNameTDFRuntime; }
 
-void TDFRuntimeDomain::RegisterMethods() {
-  REGISTER_DOMAIN(TDFRuntimeDomain, Resume, BaseRequest)
-  REGISTER_DOMAIN(TDFRuntimeDomain, IsDebugMode, BaseRequest)
+void TdfRuntimeDomain::RegisterMethods() {
+  REGISTER_DOMAIN(TdfRuntimeDomain, Resume, BaseRequest)
+  REGISTER_DOMAIN(TdfRuntimeDomain, IsDebugMode, BaseRequest)
 }
 
-void TDFRuntimeDomain::Resume(const BaseRequest& request) {
+void TdfRuntimeDomain::Resume(const BaseRequest& request) {
 #if JS_ENGINE_V8
   if (!GetDataProvider()->runtime_adapter->IsDebug()) {
     BACKEND_LOGD(TDF_BACKEND, "Not debug mode, return.");
@@ -45,7 +45,7 @@ void TDFRuntimeDomain::Resume(const BaseRequest& request) {
 #endif
 }
 
-void TDFRuntimeDomain::IsDebugMode(const BaseRequest& request) {
+void TdfRuntimeDomain::IsDebugMode(const BaseRequest& request) {
   bool is_debug = GetDataProvider()->runtime_adapter->IsDebug();
   nlohmann::json result_json = nlohmann::json::object();
   result_json["isDebugMode"] = is_debug ? 1 : 0;

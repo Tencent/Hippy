@@ -24,11 +24,11 @@
 
 namespace hippy::devtools {
 
-std::string TDFMemoryDomain::GetDomainName() { return kFrontendKeyDomainNameTDFMemory; }
+std::string TdfMemoryDomain::GetDomainName() { return kFrontendKeyDomainNameTDFMemory; }
 
-void TDFMemoryDomain::RegisterMethods() { REGISTER_DOMAIN(TDFMemoryDomain, GetHeapMeta, BaseRequest); }
+void TdfMemoryDomain::RegisterMethods() { REGISTER_DOMAIN(TdfMemoryDomain, GetHeapMeta, BaseRequest); }
 
-void TDFMemoryDomain::GetHeapMeta(const BaseRequest& request) {
+void TdfMemoryDomain::GetHeapMeta(const BaseRequest& request) {
   auto memory_adapter = GetDataProvider()->memory_adapter;
   if (!memory_adapter) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get heap meta failed, no data.");

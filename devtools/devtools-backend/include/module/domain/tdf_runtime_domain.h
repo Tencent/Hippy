@@ -28,9 +28,9 @@
 
 namespace hippy::devtools {
 
-class TDFRuntimeDomain : public BaseDomain {
+class TdfRuntimeDomain : public BaseDomain {
  public:
-  explicit TDFRuntimeDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
+  explicit TdfRuntimeDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
 

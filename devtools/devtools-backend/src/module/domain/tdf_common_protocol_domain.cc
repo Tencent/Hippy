@@ -24,11 +24,11 @@
 
 namespace hippy::devtools {
 
-std::string TDFCommonProtocolDomain::GetDomainName() { return kFrontendKeyDomainNameTDF; }
+std::string TdfCommonProtocolDomain::GetDomainName() { return kFrontendKeyDomainNameTDF; }
 
-void TDFCommonProtocolDomain::RegisterMethods() {}
+void TdfCommonProtocolDomain::RegisterMethods() {}
 
-bool TDFCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params) {
+bool TdfCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params) {
   auto common_protocol_adapter = GetDataProvider()->common_protocol_adapter;
   if (common_protocol_adapter) {
     // if has common adapter, then handle all the left Domain.Method

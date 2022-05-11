@@ -29,9 +29,9 @@ namespace hippy::devtools {
 /**
  * @brief common domain where other domain don't handle
  */
-class TDFCommonProtocolDomain : public BaseDomain {
+class TdfCommonProtocolDomain : public BaseDomain {
  public:
-  explicit TDFCommonProtocolDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
+  explicit TdfCommonProtocolDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
 

@@ -42,6 +42,8 @@ namespace hippy::devtools {
 constexpr char kDomainDispatchResult[] = "result";
 constexpr char kDomainDispatchError[] = "error";
 constexpr char kDomainClassSuffix[] = "Domain";
+constexpr char kDomainNameTdfPrefix[] = "Tdf";
+constexpr char kDomainNameTDFProtocol[] = "TDF";
 
 using json = nlohmann::json;
 
@@ -55,11 +57,11 @@ void DomainDispatch::RegisterJSDebuggerDomainListener() {
 }
 
 void DomainDispatch::RegisterDefaultDomainListener() {
-  auto tdf_inspector_domain = std::make_shared<TDFInspectorDomain>(shared_from_this());
-  auto tdf_performance_domain = std::make_shared<TDFPerformanceDomain>(shared_from_this());
-  auto tdf_memory_domain = std::make_shared<TDFMemoryDomain>(shared_from_this());
-  auto tdf_runtime_domain = std::make_shared<TDFRuntimeDomain>(shared_from_this());
-  auto tdf_common_protocol_domain = std::make_shared<TDFCommonProtocolDomain>(shared_from_this());
+  auto tdf_inspector_domain = std::make_shared<TdfInspectorDomain>(shared_from_this());
+  auto tdf_performance_domain = std::make_shared<TdfPerformanceDomain>(shared_from_this());
+  auto tdf_memory_domain = std::make_shared<TdfMemoryDomain>(shared_from_this());
+  auto tdf_runtime_domain = std::make_shared<TdfRuntimeDomain>(shared_from_this());
+  auto tdf_common_protocol_domain = std::make_shared<TdfCommonProtocolDomain>(shared_from_this());
   auto network_domain = std::make_shared<NetworkDomain>(shared_from_this());
   RegisterDomainHandler(tdf_inspector_domain);
   RegisterDomainHandler(tdf_performance_domain);
@@ -111,7 +113,10 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   }
   std::string domain = split_params.at(0);
   std::string method = split_params.at(1);
-  method[0] = toupper(method[0]);  // CDP Method to C++ Method which require upper start
+
+  // The initial letter of method in the protocol is lowercase, but the initial letter of C + + method name is required
+  // to be capitalized, so it needs to be handled here
+  method[0] = toupper(method[0]);
 
   // parse params
   std::string params;
@@ -128,7 +133,10 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
     }
-    if (domain.find(kFrontendKeyDomainNameTDF) == std::string::npos) { // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
+    auto found = domain.find(kDomainNameTDFProtocol);
+    if (std::string::npos != found) {
+      domain = domain.replace(found, strlen(kDomainNameTDFProtocol), kDomainNameTdfPrefix);
+    } else {    // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
       std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
       domain[0] = toupper(domain[0]);
     }
@@ -142,7 +150,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   auto tdf_common_domain = domain_register_map_.find(kFrontendKeyDomainNameTDF);
   if (domain.find(kFrontendKeyDomainNameTDF) != std::string::npos && tdf_common_domain != domain_register_map_.end()) {
     // put domain.method to pass
-    std::static_pointer_cast<TDFCommonProtocolDomain>(tdf_common_domain->second)
+    std::static_pointer_cast<TdfCommonProtocolDomain>(tdf_common_domain->second)
         ->ReceiveFromFrontend(id, domain_param_list, params);
     return true;
   }

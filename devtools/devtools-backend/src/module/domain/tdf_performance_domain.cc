@@ -32,44 +32,44 @@ constexpr char kPerformanceDomainMethodV8Tracing[] = "v8Tracing";
 constexpr char kPerformanceDomainMethodFrameTimings[] = "frameTimings";
 constexpr char kPerformanceDomainMethodTimeline[] = "timeline";
 
-std::string TDFPerformanceDomain::GetDomainName() { return kFrontendKeyDomainNameTDFPerformance; }
+std::string TdfPerformanceDomain::GetDomainName() { return kFrontendKeyDomainNameTDFPerformance; }
 
-void TDFPerformanceDomain::RegisterMethods() {
-  REGISTER_DOMAIN(TDFPerformanceDomain, Start, BaseRequest);
-  REGISTER_DOMAIN(TDFPerformanceDomain, End, BaseRequest);
-  REGISTER_DOMAIN(TDFPerformanceDomain, V8Tracing, BaseRequest);
-  REGISTER_DOMAIN(TDFPerformanceDomain, FrameTimings, BaseRequest);
-  REGISTER_DOMAIN(TDFPerformanceDomain, Timeline, BaseRequest);
+void TdfPerformanceDomain::RegisterMethods() {
+  REGISTER_DOMAIN(TdfPerformanceDomain, Start, BaseRequest);
+  REGISTER_DOMAIN(TdfPerformanceDomain, End, BaseRequest);
+  REGISTER_DOMAIN(TdfPerformanceDomain, V8Tracing, BaseRequest);
+  REGISTER_DOMAIN(TdfPerformanceDomain, FrameTimings, BaseRequest);
+  REGISTER_DOMAIN(TdfPerformanceDomain, Timeline, BaseRequest);
 }
 
-void TDFPerformanceDomain::Start(const BaseRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "TDFPerformanceDomain::Start");
+void TdfPerformanceDomain::Start(const BaseRequest& request) {
+  BACKEND_LOGD(TDF_BACKEND, "TdfPerformanceDomain::Start");
   auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
     performance_adapter->ResetFrameTimings();
     performance_adapter->ResetTimeline();
   } else {
-    BACKEND_LOGE(TDF_BACKEND, "TDFPerformanceDomain::Start performance_adapter is null");
+    BACKEND_LOGE(TDF_BACKEND, "TdfPerformanceDomain::Start performance_adapter is null");
   }
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
     tracing_adapter->StartTracing();
   } else {
-    BACKEND_LOGE(TDF_BACKEND, "TDFPerformanceDomain::Start tracing_adapter is null");
+    BACKEND_LOGE(TDF_BACKEND, "TdfPerformanceDomain::Start tracing_adapter is null");
   }
   nlohmann::json start_time_json = nlohmann::json::object();
   start_time_json["startTime"] = SteadyClockTime::NowTimeSinceEpochStr();
   ResponseResultToFrontend(request.GetId(), start_time_json.dump());
 }
 
-void TDFPerformanceDomain::End(const BaseRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "TDFPerformanceDomain::End");
+void TdfPerformanceDomain::End(const BaseRequest& request) {
+  BACKEND_LOGD(TDF_BACKEND, "TdfPerformanceDomain::End");
   nlohmann::json end_time_json = nlohmann::json::object();
   end_time_json["endTime"] = SteadyClockTime::NowTimeSinceEpochStr();
   ResponseResultToFrontend(request.GetId(), end_time_json.dump());
 }
 
-void TDFPerformanceDomain::V8Tracing(const BaseRequest& request) {
+void TdfPerformanceDomain::V8Tracing(const BaseRequest& request) {
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
     tracing_adapter->StopTracing(
@@ -79,7 +79,7 @@ void TDFPerformanceDomain::V8Tracing(const BaseRequest& request) {
   }
 }
 
-void TDFPerformanceDomain::FrameTimings(const BaseRequest& request) {
+void TdfPerformanceDomain::FrameTimings(const BaseRequest& request) {
   auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
     performance_adapter->CollectFrameTimings([this, request](const FrameTimingMetas& frame_metas) {
@@ -90,7 +90,7 @@ void TDFPerformanceDomain::FrameTimings(const BaseRequest& request) {
   }
 }
 
-void TDFPerformanceDomain::Timeline(const BaseRequest& request) {
+void TdfPerformanceDomain::Timeline(const BaseRequest& request) {
   auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
     performance_adapter->CollectTimeline([this, request](const TraceEventMetas& time_line) {
@@ -101,7 +101,7 @@ void TDFPerformanceDomain::Timeline(const BaseRequest& request) {
   }
 }
 
-void TDFPerformanceDomain::ResponseError(int32_t id, const std::string& method) {
+void TdfPerformanceDomain::ResponseError(int32_t id, const std::string& method) {
   std::string error_msg;
   if (kPerformanceDomainMethodStart == method) {
     error_msg = "start failed, no data.";
