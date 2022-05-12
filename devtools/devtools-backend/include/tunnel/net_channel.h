@@ -50,6 +50,6 @@ class NetChannel {
    */
   virtual void Close(int32_t code, const std::string &reason) = 0;
 
-  static std::unique_ptr<NetChannel> CreateChannel(const DevtoolsConfig& config);
+  static std::shared_ptr<NetChannel> CreateChannel(const DevtoolsConfig& config);
 };
 }  // namespace hippy::devtools

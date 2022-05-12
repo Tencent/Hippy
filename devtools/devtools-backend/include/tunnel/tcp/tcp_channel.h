@@ -33,12 +33,12 @@ namespace hippy::devtools {
 constexpr int32_t kNullSocket = -1;
 constexpr int32_t kBufferSize = 32 * 1024;
 
-class TcpChannel : public hippy::devtools::NetChannel {
+class TcpChannel : public hippy::devtools::NetChannel, public std::enable_shared_from_this<TcpChannel> {
  public:
   TcpChannel();
   void Connect(ReceiveDataHandler handler) override;
-  void Send(const std::string &data) override;
-  void Close(int32_t code, const std::string &reason) override;
+  void Send(const std::string& data) override;
+  void Close(int32_t code, const std::string& reason) override;
 
  private:
   bool StartListen();
@@ -49,7 +49,7 @@ class TcpChannel : public hippy::devtools::NetChannel {
   void ListenerAndResponse(int32_t client_fd);
   std::mutex mutex_;
   std::mutex connect_mutex_;
-  struct sockaddr_in server_address_{};
+  struct sockaddr_in server_address_ {};
   bool is_connecting = false;
   bool is_starting_ = false;
   int32_t socket_fd_;

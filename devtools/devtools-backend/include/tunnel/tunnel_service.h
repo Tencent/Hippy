@@ -57,7 +57,7 @@ class TunnelService : public std::enable_shared_from_this<TunnelService> {
    */
   void HandleReceiveData(const char *buffer, int32_t buffer_length);
 
-  std::unique_ptr<NetChannel> channel_;
+  std::shared_ptr<NetChannel> channel_;
   std::shared_ptr<DomainDispatch> dispatch_;
 };
 }  // namespace hippy::devtools

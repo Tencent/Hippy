@@ -78,8 +78,9 @@ void DomainDispatch::ClearDomainHandler() { domain_register_map_.clear(); }
 
 bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   BACKEND_LOGD(TDF_BACKEND, "DomainDispatch, receive data from frontend :%s", data_string.c_str());
-  nlohmann::json data_json = nlohmann::json::parse(data_string);
-  if (data_json.is_null()) {
+  nlohmann::json data_json = nlohmann::json::parse(data_string, nullptr, false);
+  if (data_json.is_discarded()) {
+    BACKEND_LOGE(TDF_BACKEND, "DomainDispatch, parse input json is invalid");
     return false;
   }
   // parse id
@@ -150,7 +151,7 @@ void DomainDispatch::DispatchToVM(const std::string& data) {
 #endif
 }
 
-void DomainDispatch::SendDataToFrontend(int32_t id, bool is_error, const std::string& msg) {
+void DomainDispatch::SendDataToFrontend(int32_t id, bool is_success, const std::string& msg) {
   if (msg.empty()) {
     BACKEND_LOGE(TDF_BACKEND, "send data to frontend, but msg is empty");
     return;
@@ -158,7 +159,7 @@ void DomainDispatch::SendDataToFrontend(int32_t id, bool is_error, const std::st
   nlohmann::json rsp_json = nlohmann::json::object();
   rsp_json[kFrontendKeyId] = id;
 
-  rsp_json[is_error ? kDomainDispatchError : kDomainDispatchResult] = nlohmann::json::parse(msg);
+  rsp_json[is_success ? kDomainDispatchResult : kDomainDispatchError] = nlohmann::json::parse(msg);
   if (rsp_handler_) {
     rsp_handler_(rsp_json.dump());
   }

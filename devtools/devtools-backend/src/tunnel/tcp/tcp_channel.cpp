@@ -25,6 +25,7 @@
 #include <thread>
 #include "devtools_base/logging.h"
 #include "socket.h"
+#include "devtools_base/common/macros.h"
 
 namespace hippy::devtools {
 constexpr char kListenHost[] = "127.0.0.1";
@@ -35,19 +36,38 @@ TcpChannel::TcpChannel() {
   socket_fd_ = kNullSocket;
   client_fd_ = kNullSocket;
   frame_codec_ = FrameCodec();
-  frame_codec_.SetEncodeCallback([this](void *data, int32_t len) {
-    if (client_fd_ < 0) {
+}
+
+void TcpChannel::Connect(ReceiveDataHandler handler) {
+  frame_codec_.SetEncodeCallback([DEVTOOLS_WEAK_THIS](void *data, int32_t len) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TcpChannel)
+    if (self->client_fd_ < 0) {
       BACKEND_LOGD(TDF_BACKEND, "TcpChannel, client_fd_ < 0.");
       return;
     }
-    send(client_fd_, data, len, 0);
+    send(self->client_fd_, data, len, 0);
   });
-
-  frame_codec_.SetDecodeCallback([this](void *data, int32_t len, int32_t task_flag) {
-    if (this->data_handler_) {
-      this->data_handler_(data, len, task_flag);
+  frame_codec_.SetDecodeCallback([DEVTOOLS_WEAK_THIS](void *data, int32_t len, int32_t task_flag) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TcpChannel)
+    if (self->data_handler_) {
+      self->data_handler_(data, len, task_flag);
     }
   });
+  StartListen();
+  data_handler_ = handler;
+}
+
+void TcpChannel::Send(const std::string &rsp_data) {
+  const char *buffer = rsp_data.c_str();
+  if (client_fd_ < 0) {
+    return;
+  }
+  frame_codec_.Encode(const_cast<void *>(reinterpret_cast<const void *>(buffer)), rsp_data.length(),
+                      hippy::devtools::kTaskFlag);
+}
+
+void TcpChannel::Close(int32_t code, const std::string &reason) {
+  SetStarting(false);
 }
 
 bool TcpChannel::StartListen() {
@@ -154,24 +174,6 @@ void TcpChannel::SetConnecting(bool connected, const std::string& error) {
   }
 }
 
-void TcpChannel::Connect(ReceiveDataHandler handler) {
-  StartListen();
-  data_handler_ = handler;
-}
-
-void TcpChannel::Send(const std::string &rsp_data) {
-  const char *buffer = rsp_data.c_str();
-  if (client_fd_ < 0) {
-    return;
-  }
-  this->frame_codec_.Encode(const_cast<void *>(reinterpret_cast<const void *>(buffer)), rsp_data.length(),
-                            hippy::devtools::kTaskFlag);
-}
-
-void TcpChannel::Close(int32_t code, const std::string &reason) {
-  SetStarting(false);
-}
-
 void TcpChannel::ListenerAndResponse(int32_t client_fd) {
   fd_set fds;
   FD_ZERO(&fds);
@@ -208,7 +210,7 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
       SetConnecting(false, "readFromDevice: recv failed");
       break;
     }
-    this->frame_codec_.Decode(buffer, read_len);
+    frame_codec_.Decode(buffer, read_len);
   }
 }
 

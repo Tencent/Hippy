@@ -24,12 +24,12 @@
 #include "devtools_base/common/macros.h"
 
 namespace hippy::devtools {
-std::unique_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& config) {
+std::shared_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& config) {
   switch (config.tunnel) {
     case Tunnel::kWebSocket:
-      return std::make_unique<WebSocketChannel>(config.ws_url);
+      return std::make_shared<WebSocketChannel>(config.ws_url);
     case Tunnel::kTcp:
-      return std::make_unique<TcpChannel>();
+      return std::make_shared<TcpChannel>();
     default:
       DEVTOOLS_BASE_UNREACHABLE();
   }

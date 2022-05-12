@@ -35,7 +35,7 @@ namespace hippy::devtools {
 /**
  * @brief web socket channel to implement net
  */
-class WebSocketChannel : public hippy::devtools::NetChannel {
+class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_shared_from_this<WebSocketChannel> {
  public:
   explicit WebSocketChannel(const std::string& ws_uri);
   void Connect(ReceiveDataHandler handler) override;
