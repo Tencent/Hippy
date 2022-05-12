@@ -33,7 +33,6 @@
 #include "dom/dom_event.h"
 #include "dom/dom_argument.h"
 
-REGISTER_MODULE(UIManagerModule, EndBatch)
 REGISTER_MODULE(UIManagerModule, CallUIFunction)
 
 using DomValue = tdf::base::DomValue;
@@ -47,23 +46,6 @@ using CallbackInfo = hippy::napi::CallbackInfo;
 UIManagerModule::UIManagerModule() = default;
 
 UIManagerModule::~UIManagerModule() = default;
-
-void UIManagerModule::EndBatch(const CallbackInfo &info) {
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
-  TDF_BASE_CHECK(context);
-
-  TDF_BASE_CHECK(!scope->GetDomManager().expired());
-  auto dom_manager_weak = scope->GetDomManager();
-  std::vector<std::function<void()>> ops = {[dom_manager_weak]() {
-    if (!dom_manager_weak.expired()) {
-      dom_manager_weak.lock()->EndBatch();
-    }
-  }};
-  TDF_BASE_CHECK(!dom_manager_weak.expired());
-  dom_manager_weak.lock()->PostTask(hippy::dom::Scene(std::move(ops)));
-
-}
 
 void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
   std::shared_ptr<Scope> scope = info.GetScope();
