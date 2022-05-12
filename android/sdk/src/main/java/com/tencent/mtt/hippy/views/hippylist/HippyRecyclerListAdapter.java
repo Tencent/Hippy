@@ -406,9 +406,9 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     }
 
     public void resetPullHeaderPositionIfNeeded(int offsetY) {
-        if (offsetY == 0) {
-            ListItemRenderNode renderNode = getChildNodeByAdapterPosition(0);
-            if (renderNode != null && renderNode.isPullHeader()) {
+        ListItemRenderNode renderNode = getChildNodeByAdapterPosition(0);
+        if (renderNode != null && renderNode.isPullHeader()) {
+            if (headerEventHelper != null && offsetY <= headerEventHelper.getVisibleHeight()) {
                 headerEventHelper.resetPullHeaderPositionIfNeeded();
             }
         }
