@@ -685,7 +685,7 @@ class RenderViewModel extends ChangeNotifier {
       backgroundImgPositionY,
     );
     var border = _toBorder();
-    var showRadius = radius != null && border != null && border.isUniform;
+    var showRadius = radius != null && (border == null || border.isUniform);
     return BoxDecoration(
       borderRadius: showRadius ? radius : null,
       image: image,

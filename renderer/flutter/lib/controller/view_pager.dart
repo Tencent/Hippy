@@ -27,7 +27,8 @@ import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> {
+class ViewPagerController
+    extends BaseGroupController<ViewPagerRenderViewModel> {
   static const String kClassName = "ViewPager";
   static const kInitialPage = "initialPage";
   static const kPageMargin = "pageMarginFact";
@@ -72,7 +73,8 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
   String get name => kClassName;
 
   @ControllerProps(kInitialPage)
-  void setInitialPage(ViewPagerRenderViewModel renderViewModel, int initialPage) {
+  void setInitialPage(
+      ViewPagerRenderViewModel renderViewModel, int initialPage) {
     renderViewModel.initialPage = initialPage;
   }
 
@@ -82,7 +84,8 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
   }
 
   @ControllerProps(kDirection)
-  void setDirection(ViewPagerRenderViewModel renderViewModel, String direction) {
+  void setDirection(
+      ViewPagerRenderViewModel renderViewModel, String direction) {
     if (direction == 'vertical') {
       renderViewModel.isVertical = true;
     } else {
@@ -108,8 +111,8 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
   }
 
   @override
-  void dispatchFunction(
-      ViewPagerRenderViewModel? viewModel, String functionName, VoltronArray array,
+  void dispatchFunction(ViewPagerRenderViewModel? viewModel,
+      String functionName, VoltronArray array,
       {Promise? promise}) {
     if (viewModel == null) {
       return;
@@ -117,7 +120,9 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
 
     if (functionName == kFuncSetPage) {
       Object selected = array.get(0);
-      if (selected is int && selected >= 0 && selected < viewModel.children.length) {
+      if (selected is int &&
+          selected >= 0 &&
+          selected < viewModel.children.length) {
         viewModel.pageController?.animateToPage(
           selected,
           duration: const Duration(milliseconds: 300),
@@ -126,28 +131,34 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
       }
     } else if (functionName == kFuncSetPageWidthOutAnim) {
       Object selected = array.get(0);
-      if (selected is int && selected >= 0 && selected < viewModel.children.length) {
-        viewModel.pageController?.animateToPage(
+      if (selected is int &&
+          selected >= 0 &&
+          selected < viewModel.children.length) {
+        viewModel.pageController?.jumpToPage(
           selected,
-          duration: const Duration(milliseconds: 40),
-          curve: Curves.linearToEaseOut,
         );
       }
     }
   }
 }
 
-class ViewPagerItemController extends BaseViewController<ViewPagerItemRenderViewModel> {
+class ViewPagerItemController
+    extends BaseViewController<ViewPagerItemRenderViewModel> {
   static const String kClassName = "ViewPagerItem";
 
   @override
-  ViewPagerItemRenderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
+  ViewPagerItemRenderViewModel createRenderViewModel(
+      RenderNode node, RenderContext context) {
     return ViewPagerItemRenderViewModel(
-        id: node.id, instanceId: node.rootId, className: node.name, context: context);
+        id: node.id,
+        instanceId: node.rootId,
+        className: node.name,
+        context: context);
   }
 
   @override
-  Widget createWidget(BuildContext context, ViewPagerItemRenderViewModel viewModel) {
+  Widget createWidget(
+      BuildContext context, ViewPagerItemRenderViewModel viewModel) {
     return ViewPagerItemWidget(viewModel);
   }
 
@@ -156,9 +167,4 @@ class ViewPagerItemController extends BaseViewController<ViewPagerItemRenderView
 
   @override
   String get name => kClassName;
-
-  @override
-  bool shouldInterceptLayout(RenderNode node) {
-    return true;
-  }
 }

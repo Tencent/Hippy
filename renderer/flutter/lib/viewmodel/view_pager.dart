@@ -34,6 +34,8 @@ class ViewPagerRenderViewModel extends GroupViewModel {
   bool bounces = true;
   bool isVertical = false;
 
+  bool firstRender = true;
+
   bool _scrollFlingStartHandle = false;
 
   PageController? pageController;
@@ -145,7 +147,8 @@ class ViewPagerRenderViewModel extends GroupViewModel {
   void setScrollState(String pageScrollState) {
     var map = VoltronMap();
     map.push("pageScrollState", pageScrollState);
-    context.eventHandler.receiveUIComponentEvent(id, "onPageScrollStateChanged", map);
+    context.eventHandler
+        .receiveUIComponentEvent(id, "onPageScrollStateChanged", map);
   }
 
   void onPageSelect(int page) {

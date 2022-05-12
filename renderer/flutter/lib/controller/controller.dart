@@ -366,20 +366,16 @@ abstract class VoltronViewController<T extends RenderViewModel,
   Widget createWidget(BuildContext context, T viewModel);
 
   void updateLayout(RenderContext context, R node) {
-    if (shouldInterceptLayout(node)) {
-      return;
-    }
-
     var layoutX = node.layoutX;
     var layoutY = node.layoutY;
     var layoutWidth = node.layoutWidth;
     var layoutHeight = node.layoutHeight;
-    node.renderViewModel
-        .updateLayout(layoutX, layoutY, layoutWidth, layoutHeight);
-  }
-
-  bool shouldInterceptLayout(R node) {
-    return false;
+    node.renderViewModel.updateLayout(
+      layoutX,
+      layoutY,
+      layoutWidth,
+      layoutHeight,
+    );
   }
 
   void updateExtra(T renderViewModel, Object updateExtra) {}

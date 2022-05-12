@@ -122,7 +122,6 @@ Widget generateByViewModel(
 class BoxWidget extends FRStatefulWidget {
   final RenderViewModel _viewModel;
   final Widget child;
-  final bool isInfinitySize;
 
   /// 动画属性
   final VoltronMap? animationProperty;
@@ -130,7 +129,6 @@ class BoxWidget extends FRStatefulWidget {
   BoxWidget(
     this._viewModel, {
     required this.child,
-    this.isInfinitySize = false,
     this.animationProperty,
   }) : super(_viewModel);
 
@@ -167,11 +165,6 @@ class _BoxWidgetState extends FRState<BoxWidget> {
         widget._viewModel.height;
     var width = animationProperty?.get<num>(NodeProps.kWidth)?.toDouble() ??
         widget._viewModel.width;
-    if (widget.isInfinitySize) {
-      height ??= double.infinity;
-      width ??= double.infinity;
-    }
-
     if (widget._viewModel.noSize) {
       LogUtils.d(
         "BoxWidget",
@@ -205,6 +198,12 @@ class _BoxWidgetState extends FRState<BoxWidget> {
         width: width,
         height: height,
         color: color,
+        child: current,
+      );
+    } else {
+      current = SizedBox(
+        width: width,
+        height: height,
         child: current,
       );
     }
