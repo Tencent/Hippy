@@ -34,6 +34,7 @@ import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnPreDrawListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.list.HippyListItemView;
@@ -175,6 +176,9 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         sendDragEndEvent(oldState, currentState);
         sendFlingEvent(newState);
         sendFlingEndEvent(oldState, currentState);
+        if (newState == SCROLL_STATE_IDLE) {
+            hippyRecyclerView.getAdapter().resetPullHeaderPositionIfNeeded(hippyRecyclerView.getContentOffsetY());
+        }
     }
 
     @Override
