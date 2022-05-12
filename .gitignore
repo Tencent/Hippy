@@ -31,8 +31,8 @@ docs/assets/*.js
 docs/assets/*.css
 
 examples/*/res/vendor-manifest.json
-examples/android-demo/example/src/main/assets/
-examples/android-demo/example/libs/*
+examples/android-demo/src/main/assets/
+examples/android-demo/libs/*
 examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 examples/hippy-react-demo/package-lock.json
