@@ -1,46 +1,53 @@
 <template>
   <div class="p-demo">
-    <label>不带样式：</label>
-    <p
-      class="p-demo-content"
-      @touchstart="onTouchTextStart"
-      @touchmove="onTouchTextMove"
-      @touchend="onTouchTextEnd"
-    >
-      这是最普通的一行文字 - 当前 touch 状态: {{ labelTouchStatus }}
-    </p>
-    <label>颜色：</label>
-    <p class="p-demo-1 p-demo-content">
-      这行文字改变了颜色
-    </p>
-    <label>尺寸：</label>
-    <p class="p-demo-2 p-demo-content">
-      这行改变了大小
-    </p>
-    <label>粗体：</label>
-    <p class="p-demo-3 p-demo-content">
-      这行加粗了
-    </p>
-    <label>下划线：</label>
-    <p class="p-demo-4 p-demo-content">
-      这里有条下划线
-    </p>
-    <label>删除线：</label>
-    <p class="p-demo-5 p-demo-content">
-      这里有条删除线
-    </p>
-    <label>自定义字体：</label>
-    <p class="p-demo-6 p-demo-content">
-      腾讯字体 Hippy
-    </p>
-    <label>文字阴影：</label>
-    <p
-      class="p-demo-7 p-demo-content"
-      :style="textShadow"
-      @click="changeTextShadow"
-    >
-      这里是文字灰色阴影
-    </p>
+    <div>
+      <label>不带样式：</label>
+      <p
+        class="p-demo-content"
+        @touchstart="onTouchTextStart"
+        @touchmove="onTouchTextMove"
+        @touchend="onTouchTextEnd"
+      >
+        这是最普通的一行可点击文字
+      </p>
+      <p
+        class="p-demo-content-status"
+      >
+        当前touch状态: {{ labelTouchStatus }}
+      </p>
+      <label>颜色：</label>
+      <p class="p-demo-1 p-demo-content">
+        这行文字改变了颜色
+      </p>
+      <label>尺寸：</label>
+      <p class="p-demo-2 p-demo-content">
+        这行改变了大小
+      </p>
+      <label>粗体：</label>
+      <p class="p-demo-3 p-demo-content">
+        这行加粗了
+      </p>
+      <label>下划线：</label>
+      <p class="p-demo-4 p-demo-content">
+        这里有条下划线
+      </p>
+      <label>删除线：</label>
+      <p class="p-demo-5 p-demo-content">
+        这里有条删除线
+      </p>
+      <label>自定义字体：</label>
+      <p class="p-demo-6 p-demo-content">
+        腾讯字体 Hippy
+      </p>
+      <label>文字阴影：</label>
+      <p
+        class="p-demo-7 p-demo-content"
+        :style="textShadow"
+        @click="changeTextShadow"
+      >
+        这里是文字灰色阴影，点击可改变颜色
+      </p>
+    </div>
   </div>
 </template>
 
@@ -102,9 +109,19 @@ export default {
 <style scoped>
 .p-demo {
   margin: 7px;
+  overflow-y: scroll;
+  flex: 1;
+  flex-direction: column;
 }
+
 .p-demo .p-demo-content {
   margin: 20px;
+}
+
+.p-demo .p-demo-content-status {
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
 }
 
 .p-demo .p-demo-1 {
