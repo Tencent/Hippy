@@ -42,7 +42,6 @@
 #include "dom/animation_manager.h"
 #include "core/runtime/v8/runtime.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
-#include "devtools/devtools_helper.h"
 #include "dom/deserializer.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_value.h"
@@ -394,11 +393,6 @@ jlong InitInstance(JNIEnv* j_env,
         maximum_heap_size_in_bytes);
     TDF_BASE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
   }
-  if (j_data_dir) {
-    const unicode_string_view dir_unicode_string = JniUtils::ToStrView(j_env, j_data_dir);
-    std::string dir = StringViewUtils::ToU8StdStr(dir_unicode_string);
-    DEVTOOLS_INIT_V8_TRACING_CACHE(dir);
-  }
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
     TDF_BASE_LOG(INFO) << "run scope cb";
     hippy::bridge::CallJavaMethod(save_object_->GetObj(),INIT_CB_STATE::SUCCESS);
@@ -413,6 +407,7 @@ jlong InitInstance(JNIEnv* j_env,
     ExceptionHandler::ReportJsException(runtime, desc, stack);
   });
   std::shared_ptr<ADRBridge> bridge = std::make_shared<ADRBridge>(j_env, j_object);
+  const unicode_string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
   const unicode_string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
   auto runtime_id = V8BridgeUtils::InitInstance(
       static_cast<bool>(j_enable_v8_serialization),
@@ -423,6 +418,7 @@ jlong InitInstance(JNIEnv* j_env,
       bridge,
       scope_cb,
       call_native_cb,
+      data_dir,
       ws_url);
   return static_cast<jlong>(runtime_id);
 }

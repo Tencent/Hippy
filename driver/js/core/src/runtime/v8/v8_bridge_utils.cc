@@ -10,6 +10,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/serializer.h"
+#include "devtools/devtools_helper.h"
 
 namespace hippy::runtime {
 
@@ -56,6 +57,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     std::shared_ptr<Bridge> bridge,
                                     const RegisterFunction& scope_cb,
                                     const RegisterFunction& call_native_cb,
+                                    const unicode_string_view& data_dir,
                                     const unicode_string_view& ws_url) {
   std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(enable_v8_serialization,
                                                                is_dev_module);
@@ -163,6 +165,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
 
 #if TDF_SERVICE_ENABLED
+  DEVTOOLS_INIT_V8_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
   scope->CreateDevtools(StringViewUtils::ToU8StdStr(ws_url), is_dev_module);
   scope->GetDevtoolsDataSource()->SetV8RequestHandler([runtime_id](std::string data) {
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);

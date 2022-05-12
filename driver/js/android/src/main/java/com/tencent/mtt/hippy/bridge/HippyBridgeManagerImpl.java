@@ -228,7 +228,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     destroyCallback.callback(success, exception);
                 }
             }
-        },msg.arg1 == 1);
+        },msg.arg1 == 1); // isReload ? 1 : 0
     }
 
     @Override
