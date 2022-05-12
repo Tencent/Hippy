@@ -54,7 +54,15 @@ void UIManagerModule::EndBatch(const CallbackInfo &info) {
   TDF_BASE_CHECK(context);
 
   TDF_BASE_CHECK(!scope->GetDomManager().expired());
-  scope->GetDomManager().lock()->EndBatch();
+  auto dom_manager_weak = scope->GetDomManager();
+  std::vector<std::function<void()>> ops = {[dom_manager_weak]() {
+    if (!dom_manager_weak.expired()) {
+      dom_manager_weak.lock()->EndBatch();
+    }
+  }};
+  TDF_BASE_CHECK(!dom_manager_weak.expired());
+  dom_manager_weak.lock()->PostTask(hippy::dom::Scene(std::move(ops)));
+
 }
 
 void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
@@ -119,6 +127,12 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
       }
     };
   }
-  TDF_BASE_CHECK(!scope->GetDomManager().expired());
-  scope->GetDomManager().lock()->CallFunction(static_cast<uint32_t>(id), name, param_value, cb);
+  auto dom_manager_weak = scope->GetDomManager();
+  std::vector<std::function<void()>> ops = {[dom_manager_weak, id, name, param_value, cb]() {
+    if (!dom_manager_weak.expired()) {
+      dom_manager_weak.lock()->CallFunction(static_cast<uint32_t>(id), name, param_value, cb);
+    }
+  }};
+  TDF_BASE_CHECK(!dom_manager_weak.expired());
+  dom_manager_weak.lock()->PostTask(hippy::dom::Scene(std::move(ops)));
 }
