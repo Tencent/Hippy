@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.8](https://github.com/Tencent/Hippy/compare/2.13.7...2.13.8) (2022-05-12)
+
+
+### Bug Fixes
+
+* **android:** fix remote url debug not contains version ([3005622](https://github.com/Tencent/Hippy/commit/30056228856242132892b99090f02cfc9a673a8b))
+* **android:** reset pull header position on scroll back ([301f631](https://github.com/Tencent/Hippy/commit/301f631f6acea235407bdb2f68bb62d9e7c96031))
+* **android:** reset recycle view stick view item type ([f79b73d](https://github.com/Tencent/Hippy/commit/f79b73d563705cf9bedb735a0d7942a1d7e6a291))
+* **core:** fix convert bug ([f43988f](https://github.com/Tencent/Hippy/commit/f43988fa7bfe6a5f1143d22965d20e979159f3a6))
+* **core:** fix jni pending exception crash ([5273ba5](https://github.com/Tencent/Hippy/commit/5273ba586308cddf6cbbde4de2feb718ddc75bcf))
+* **core:** fix turbomodule crash ([6d08242](https://github.com/Tencent/Hippy/commit/6d082428cdb196e14d5eebc0c328ea60bcb0f444))
+* **hippy-vue:** fix hmr for root App component ([2c2ef45](https://github.com/Tencent/Hippy/commit/2c2ef45f82e140173c0625b2e5837fbf6d76df5a))
+* **ios:** remove an unused macro check ([7f2b7f7](https://github.com/Tencent/Hippy/commit/7f2b7f788be67ed83dc5bfb01b968f2562e8065e))
+
+
+### Features
+
+* **devtools:** change the screenshot canvas background to white ([00445d5](https://github.com/Tencent/Hippy/commit/00445d57f0bc780e96bcaeb6ef03cd583c18b95f))
+
+
+
+
+
 ## [2.13.7](https://github.com/Tencent/Hippy/compare/2.13.6...2.13.7) (2022-04-27)
 
 
