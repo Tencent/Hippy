@@ -276,10 +276,6 @@ export class ListView extends HippyView<HTMLDivElement> {
     if (this.childData[index] && !this.childData[index]?.height) {
       this.childData[index].height = this.getListItemNewHeight(this.childData[index]);
     }
-    console.log('list-view', index, this.childData[index]?.height ?? 0);
-    if (this.childData[index]?.height === 56) {
-      debugger;
-    }
     return this.childData[index]?.height ?? 0;
   }
 
