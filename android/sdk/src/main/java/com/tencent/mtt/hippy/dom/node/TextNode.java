@@ -537,11 +537,13 @@ public class TextNode extends StyleNode {
         }
         ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(fontSize)));
       }
-
-      if (textNode.mFontStyle != UNSET || textNode.mFontWeight != UNSET
-          || textNode.mFontFamily != null) {
+      String fontFamily = textNode.mFontFamily;
+      if (fontFamily == null && mFontScaleAdapter != null) {
+        fontFamily = mFontScaleAdapter.getCustomDefaultFontFamily();
+      }
+      if (textNode.mFontStyle != UNSET || textNode.mFontWeight != UNSET || fontFamily != null) {
         ops.add(new SpanOperation(start, end,
-            new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, textNode.mFontFamily,
+            new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, fontFamily,
                 mFontScaleAdapter)));
       }
       if (textNode.mIsUnderlineTextDecorationSet) {
