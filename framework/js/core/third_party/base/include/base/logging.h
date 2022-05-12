@@ -21,8 +21,16 @@ inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view&
   unicode_string_view::Encoding encoding = str_view.encoding();
   switch (encoding) {
     case unicode_string_view::Encoding::Latin1: {
-      const std::string& str = str_view.latin1_value();
-      stream << str;
+      std::string u8;
+      for (const auto& ch : str_view.latin1_value()){
+        if (ch < 0x80) {
+          u8 += ch;
+        } else {
+          u8 += (0xc0 | ch >> 6);
+          u8 += (0x80 | (ch & 0x3f));
+        }
+      }
+      stream << u8;
       break;
     }
     case unicode_string_view::Encoding::Utf16: {
