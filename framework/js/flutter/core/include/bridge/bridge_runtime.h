@@ -35,7 +35,7 @@ class EXPORT JSBridgeRuntime : public BridgeRuntime {
 
  public:
   EXPORT virtual void CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
-                                const void* paramsData, uint32_t paramsLen, bool bridgeParamJson,
+                                void* paramsData, uint32_t paramsLen, bool bridgeParamJson,
                                 std::function<void()> callback) = 0;
   EXPORT virtual void ReportJSONException(const char* jsonValue) = 0;
   EXPORT virtual void ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) = 0;

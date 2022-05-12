@@ -43,15 +43,14 @@ void CallDart(hippy::napi::CBDataTuple *data) {
     std::u16string module_func = StringViewUtils::CovertToUtf16(func, func.encoding()).utf16_value();
     std::u16string call_id = StringViewUtils::CovertToUtf16(cb_id, cb_id.encoding()).utf16_value();
     int buffer_length = buffer.length();
-    const char *buffer_data = CopyCharToChar(buffer.c_str(), buffer_length);
-
+    char *buffer_data = CopyCharToChar(buffer.c_str(), buffer_length);
     auto bridge = std::static_pointer_cast<VoltronBridge>(runtime->GetBridge());
 
     if (bridge) {
       bridge->GetPlatformRuntime()->CallDart(module_name,
                                               module_func,
                                               call_id,
-                                              buffer_data,
+                                             buffer_data,
                                               buffer_length,
                                               !runtime->IsEnableV8Serialization(),
                                               nullptr);

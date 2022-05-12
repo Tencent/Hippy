@@ -27,12 +27,13 @@
 
 namespace voltron {
 void FFIJSBridgeRuntime::CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
-                                   const void* paramsData, uint32_t paramsLen, bool bridgeParamJson,
+                                  void* paramsData, uint32_t paramsLen, bool bridgeParamJson,
                                    std::function<void()> callback) {
   assert(call_native_func != nullptr);
   const Work work = [engine_id = engine_id_, moduleName_ = std::move(moduleName), moduleFunc_ = std::move(moduleFunc), callId_ = std::move(callId), paramsData, paramsLen, bridgeParamJson,
       callback_ = std::move(callback)]() {
     call_native_func(engine_id, moduleName_.c_str(), moduleFunc_.c_str(), callId_.c_str(), paramsData, paramsLen, bridgeParamJson);
+    free(paramsData);
     if (callback_) {
       callback_();
     }
