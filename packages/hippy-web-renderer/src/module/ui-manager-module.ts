@@ -358,7 +358,7 @@ function createRoot(id: string) {
 }
 function setRootDefaultStyle(element: HTMLElement) {
   setElementStyle(element, {
-    height: '100vh',
+    height: `${window.innerHeight}px`,
     overflow: 'hidden',
     display: 'flex',
     width: '100vw',

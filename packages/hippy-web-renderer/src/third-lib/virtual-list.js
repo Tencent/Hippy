@@ -22,8 +22,8 @@
 import morphdom from 'morphdom';
 import SizePositionManager from './size-position-manager';
 
-const STYLE_INNER = 'position:relative; overflow:hidden; width:100%; min-height:100%; will-change: transform;flex-shrink:0';
-const STYLE_CONTENT = 'position:absolute; top:0; left:0; height:100%; width:100%; overflow:visible;';
+const STYLE_INNER = 'position:relative; overflow:visible; width:100%; min-height:100%; will-change: transform;flex-shrink:0';
+const STYLE_CONTENT = 'position:absolute; top:0; left:0;width:100%; overflow:visible;';
 
 export  class VirtualizedList {
   constructor(container, options) {

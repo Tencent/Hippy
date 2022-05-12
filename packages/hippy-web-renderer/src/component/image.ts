@@ -62,8 +62,7 @@ export class Image extends HippyView<HTMLImageElement> {
       const color = new Color(red, blue, green);
       const solver = new Solver(color);
       const filter = solver.solve();
-      // console.log(filter, color);
-      setElementStyle(this.dom!, { filter: filter.filter });
+      setElementStyle(this.dom!, { filter: filter.filter, willChange: 'auto' });
     } else {
       setElementStyle(this.dom!, { filter: '' });
     }
@@ -106,6 +105,9 @@ export class Image extends HippyView<HTMLImageElement> {
   }
 
   public set src(value: string) {
+    if (value && this.src === value) {
+      return;
+    }
     this.props[NodeProps.SOURCE] = value ?? '';
 
     if (value && value !== this.props[NodeProps.DEFAULT_SOURCE]) {
@@ -114,19 +116,20 @@ export class Image extends HippyView<HTMLImageElement> {
 
     if (this.dom && !this.defaultSource) {
       this.dom.src = value ?? '';
-    } else {
-      const img = document.createElement('img');
-      img.addEventListener('load', (event) => {
-        if (this.src !== value) {
-          return;
-        }
-        this.handleLoad(event, value);
-      });
-      img.src = value;
+      this.onLoadStart(null);
+      return;
     }
     if (!value) {
       return;
     }
+    const img = document.createElement('img');
+    img.addEventListener('load', (event) => {
+      if (this.src !== value) {
+        return;
+      }
+      this.handleLoad(event, value);
+    });
+    img.src = value;
     this.onLoadStart(null);
   }
 

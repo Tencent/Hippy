@@ -96,7 +96,9 @@ export default class SizePositionManager {
   */
   getTotalSize() {
     const lastMeasuredSizeAndPosition = this.getSizeAndPositionOfLastMeasuredItem();
-
+    if(this._lastMeasuredIndex === this._itemCount){
+      return lastMeasuredSizeAndPosition.offset + lastMeasuredSizeAndPosition.size;
+    }
     return lastMeasuredSizeAndPosition.offset + lastMeasuredSizeAndPosition.size + (this._itemCount - this._lastMeasuredIndex - 1) * this._estimatedItemSize;
   }
 

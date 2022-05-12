@@ -340,8 +340,8 @@ export class ListView extends HippyView<HTMLDivElement> {
     if (this.stickyContainer === null) {
       this.stickyContainer = document.createElement('div');
       const rect = this.dom?.getBoundingClientRect() ?? { y: 0, x: 0, width: 0 };
-      setElementStyle(this.stickyContainer, { position: 'fixed', top: rect.y, left: rect.x, width: rect.width, zIndex: 0 });
-      this.dom!.append(this.stickyContainer);
+      setElementStyle(this.stickyContainer, {  position: 'sticky', top: 0, left: rect.x, width: rect.width, zIndex: 0 });
+      this.virtualList.inner.appendChild(this.stickyContainer);
     }
     const children = this.stickyListViewItem!.dom!.childNodes;
     setElementStyle(this.stickyListViewItem!.dom!, { height: this.stickyListViewItem?.height });
