@@ -40,10 +40,10 @@ TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const Dev
 
 void TunnelService::Connect() {
   BACKEND_LOGI(TDF_BACKEND, "TunnelService, start connect.");
-  channel_->Connect([DEVTOOLS_WEAK_THIS](void *buffer, ssize_t length, int flag) {
+  channel_->Connect([DEVTOOLS_WEAK_THIS](const std::string& msg, int flag) {
     if (flag == kTaskFlag) {
       DEVTOOLS_DEFINE_AND_CHECK_SELF(TunnelService)
-      self->HandleReceiveData(reinterpret_cast<char *>(buffer), static_cast<int32_t>(length));
+      self->HandleReceiveData(msg);
     }
   });
   dispatch_->SetResponseHandler([DEVTOOLS_WEAK_THIS](const std::string &rsp_data) {
@@ -52,11 +52,10 @@ void TunnelService::Connect() {
   });
 }
 
-void TunnelService::HandleReceiveData(const char *buffer, int32_t buffer_length) {
-  std::string data(buffer, buffer + buffer_length);
-  auto is_inspect_domain = dispatch_->ReceiveDataFromFrontend(data);
+void TunnelService::HandleReceiveData(const std::string& msg) {
+  auto is_inspect_domain = dispatch_->ReceiveDataFromFrontend(msg);
   if (!is_inspect_domain) {  // others send to VM if use CDP
-    dispatch_->DispatchToVM(data);
+    dispatch_->DispatchToVM(msg);
   }
 }
 

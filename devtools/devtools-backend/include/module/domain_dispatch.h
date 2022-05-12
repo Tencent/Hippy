@@ -61,7 +61,7 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
    * @brief response to frontend after call ReceiveDataFromFrontend
    * @param result response
    */
-  void SendDataToFrontend(int32_t id, bool is_success, const std::string& msg);
+  void SendDataToFrontend(int32_t id, bool is_success, const std::string& result);
 
   /**
    * @brief send event to frontend if you want

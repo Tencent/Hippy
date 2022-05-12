@@ -47,10 +47,11 @@ void TcpChannel::Connect(ReceiveDataHandler handler) {
     }
     send(self->client_fd_, data, len, 0);
   });
-  frame_codec_.SetDecodeCallback([DEVTOOLS_WEAK_THIS](void *data, int32_t len, int32_t task_flag) {
+  frame_codec_.SetDecodeCallback([DEVTOOLS_WEAK_THIS](void *buffer, int32_t len, int32_t task_flag) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(TcpChannel)
     if (self->data_handler_) {
-      self->data_handler_(data, len, task_flag);
+      std::string data(reinterpret_cast<char *>(buffer), reinterpret_cast<char *>(buffer) + len);
+      self->data_handler_(data, task_flag);
     }
   });
   StartListen();
@@ -58,11 +59,10 @@ void TcpChannel::Connect(ReceiveDataHandler handler) {
 }
 
 void TcpChannel::Send(const std::string &rsp_data) {
-  const char *buffer = rsp_data.c_str();
   if (client_fd_ < 0) {
     return;
   }
-  frame_codec_.Encode(const_cast<void *>(reinterpret_cast<const void *>(buffer)), rsp_data.length(),
+  frame_codec_.Encode(const_cast<void *>(reinterpret_cast<const void *>(rsp_data.c_str())), rsp_data.length(),
                       hippy::devtools::kTaskFlag);
 }
 

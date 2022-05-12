@@ -151,15 +151,15 @@ void DomainDispatch::DispatchToVM(const std::string& data) {
 #endif
 }
 
-void DomainDispatch::SendDataToFrontend(int32_t id, bool is_success, const std::string& msg) {
-  if (msg.empty()) {
+void DomainDispatch::SendDataToFrontend(int32_t id, bool is_success, const std::string& result) {
+  if (result.empty()) {
     BACKEND_LOGE(TDF_BACKEND, "send data to frontend, but msg is empty");
     return;
   }
   nlohmann::json rsp_json = nlohmann::json::object();
   rsp_json[kFrontendKeyId] = id;
 
-  rsp_json[is_success ? kDomainDispatchResult : kDomainDispatchError] = nlohmann::json::parse(msg);
+  rsp_json[is_success ? kDomainDispatchResult : kDomainDispatchError] = nlohmann::json::parse(result);
   if (rsp_handler_) {
     rsp_handler_(rsp_json.dump());
   }

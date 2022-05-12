@@ -29,7 +29,7 @@ constexpr uint8_t kTaskFlag = 210;  // message flag
  */
 class NetChannel {
  public:
-  using ReceiveDataHandler = std::function<void(void *buf, size_t length, uint8_t flag)>;
+  using ReceiveDataHandler = std::function<void(const std::string& msg, uint8_t flag)>;
 
   /**
    * @brief connect to frontend

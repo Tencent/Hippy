@@ -55,7 +55,7 @@ class TunnelService : public std::enable_shared_from_this<TunnelService> {
   /**
    * @brief receive msg from frontend
    */
-  void HandleReceiveData(const char *buffer, int32_t buffer_length);
+  void HandleReceiveData(const std::string& msg);
 
   std::shared_ptr<NetChannel> channel_;
   std::shared_ptr<DomainDispatch> dispatch_;

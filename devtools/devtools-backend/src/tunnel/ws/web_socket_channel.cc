@@ -139,8 +139,8 @@ void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_
                                                   const WSMessagePtr& message_ptr) {
   auto message = message_ptr->get_payload();
   if (data_handler_) {
-    data_handler_(const_cast<void*>(reinterpret_cast<const void*>(message.c_str())), message.length(),
-                  hippy::devtools::kTaskFlag);
+    std::string data(message.c_str(), message.length());
+    data_handler_(data, hippy::devtools::kTaskFlag);
   }
   BACKEND_LOGD(TDF_BACKEND, "websocket receive message");
 }
