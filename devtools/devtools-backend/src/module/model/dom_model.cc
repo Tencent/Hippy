@@ -75,6 +75,9 @@ DomModel DomModel::CreateModel(const nlohmann::json& json) {
   model.SetAttributes(TDFParseJSONUtil::GetJSONValue(json, kAttributes, nlohmann::json::object()));
   model.SetStyle(TDFParseJSONUtil::GetJSONValue(json, kDomDataStyle, nlohmann::json::object()));
   auto children_json = json.find(kChildren);
+  if (children_json == json.end()) {
+    return model;
+  }
   for (auto& child : children_json.value()) {
     model.GetChildren().emplace_back(CreateModel(child));
   }

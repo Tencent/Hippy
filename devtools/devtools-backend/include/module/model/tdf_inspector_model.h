@@ -32,8 +32,7 @@ namespace hippy::devtools {
 class TDFInspectorModel {
  public:
   inline std::string GetRenderTree(const std::string& render_tree) {
-    std::string result;
-    return result + "{\"" + kFrontendKeyRtree + "\":" + render_tree + "}";
+    return std::string() + "{\"" + kFrontendKeyRtree + "\":" + render_tree + "}";
   };
 };
 
