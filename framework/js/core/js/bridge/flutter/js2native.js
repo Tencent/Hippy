@@ -8,17 +8,6 @@
  *  2 : delete cache from moduleCallList whenever js want
  */
 
-const deepFindFunction = (arr) => {
-  for (let j = 0; j < arr.length; j += 1) {
-    if (typeof arr[j] === 'function') {
-      return arr.splice(j, 1)[0];
-    } if (Array.isArray(arr[j])) {
-      return deepFindFunction(arr[j]);
-    }
-  }
-  return undefined;
-};
-
 Hippy.bridge.callNative = (...callArguments) => {
   if (typeof hippyCallNatives === 'undefined') {
     throw new ReferenceError('hippyCallNatives not defined');
@@ -35,27 +24,12 @@ Hippy.bridge.callNative = (...callArguments) => {
   let cbCount = 0;
 
   for (let i = 2; i < callArguments.length; i += 1) {
-    if (cbCount === 0) {
-      if (typeof callArguments[i] === 'function') {
-        cbCount += 1;
-        __GLOBAL__.moduleCallList[currentCallId] = {
-          cb: callArguments[i],
-          type: 0,
-        };
-      } else if (Array.isArray(callArguments[i])) {
-        // for ios
-        const func = deepFindFunction(callArguments[i]);
-        if (func) {
-          cbCount += 1;
-          __GLOBAL__.moduleCallList[currentCallId] = {
-            cb: func,
-            type: 0,
-          };
-        }
-        param.push(callArguments[i]);
-      } else {
-        param.push(callArguments[i]);
-      }
+    if (typeof callArguments[i] === 'function' && cbCount === 0) {
+      cbCount += 1;
+      __GLOBAL__.moduleCallList[currentCallId] = {
+        cb: callArguments[i],
+        type: 0,
+      };
     } else {
       param.push(callArguments[i]);
     }
@@ -86,27 +60,13 @@ Hippy.bridge.callNativeWithPromise = (...callArguments) => {
     let cbCount = 0;
 
     for (let i = 2; i < callArguments.length; i += 1) {
-      if (cbCount === 0) {
-        if (typeof callArguments[i] === 'function') {
-          cbCount += 1;
-          __GLOBAL__.moduleCallList[currentCallId] = {
-            cb: callArguments[i],
-            type: 0,
-          };
-        } else if (Array.isArray(callArguments[i])) {
-          // for ios
-          const func = deepFindFunction(callArguments[i]);
-          if (func) {
-            cbCount += 1;
-            __GLOBAL__.moduleCallList[currentCallId] = {
-              cb: func,
-              type: 0,
-            };
-          }
-          param.push(callArguments[i]);
-        } else {
-          param.push(callArguments[i]);
-        }
+      if (typeof callArguments[i] === 'function' && cbCount === 0) {
+        cbCount += 1;
+        __GLOBAL__.moduleCallList[currentCallId] = {
+          cb: callArguments[i],
+          reject: rj,
+          type: 0,
+        };
       } else {
         param.push(callArguments[i]);
       }
@@ -150,28 +110,13 @@ Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
   }
 
   let cbCount = 0;
-  for (let i = 2; i < callArguments.length; i += 1) {
-    if (cbCount === 0) {
-      if (typeof callArguments[i] === 'function') {
-        cbCount += 1;
-        __GLOBAL__.moduleCallList[currentCallId] = {
-          cb: callArguments[i],
-          type: 0,
-        };
-      } else if (Array.isArray(callArguments[i])) {
-        // for ios
-        const func = deepFindFunction(callArguments[i]);
-        if (func) {
-          cbCount += 1;
-          __GLOBAL__.moduleCallList[currentCallId] = {
-            cb: func,
-            type: 0,
-          };
-        }
-        param.push(callArguments[i]);
-      } else {
-        param.push(callArguments[i]);
-      }
+  for (let i = 3; i < callArguments.length; i += 1) {
+    if (typeof callArguments[i] === 'function' && cbCount === 0) {
+      cbCount += 1;
+      __GLOBAL__.moduleCallList[currentCallId] = {
+        cb: callArguments[i],
+        type: autoDelete ? 1 : 2,
+      };
     } else {
       param.push(callArguments[i]);
     }
