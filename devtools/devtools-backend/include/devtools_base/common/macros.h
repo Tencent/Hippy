@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "devtools_base/logging.h"
+
 #define DEVTOOLS_WEAK_THIS weak_this = weak_from_this()
 #define DEVTOOLS_SHARED_THIS self = this->shared_from_this()
 #define DEVTOOLS_HAS_SELF(type) auto self = std::static_pointer_cast<type>(weak_this.lock())
@@ -33,3 +35,9 @@
 #define TDF_BASE_DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&) = delete;               \
   TypeName& operator=(const TypeName&) = delete
+
+#define DEVTOOLS_BASE_UNREACHABLE() \
+  do {                        \
+    BACKEND_LOGE(TDF_BACKEND, "devtools unreachable abort");   \
+    abort();                  \
+  } while (0)

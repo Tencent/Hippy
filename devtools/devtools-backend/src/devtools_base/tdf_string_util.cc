@@ -22,6 +22,8 @@
 #include <regex>
 
 namespace hippy::devtools {
+constexpr char kDomainNameTdfPrefix[] = "Tdf";
+constexpr char kDomainNameTDFProtocol[] = "TDF";
 
 std::vector<std::string> TDFStringUtil::SplitString(const std::string &origin, const std::string &split_tag) {
   if (origin.empty()) {
@@ -65,6 +67,17 @@ std::string TDFStringUtil::UnCamelize(const std::string &origin) {
   auto result_string = std::regex_replace(origin, match, "-$1$2");
   std::transform(result_string.begin(), result_string.end(), result_string.begin(), ::tolower);
   return result_string;
+}
+
+std::string TDFStringUtil::AdaptProtocolName(std::string domain) {
+  auto found = domain.find(kDomainNameTDFProtocol);
+  if (std::string::npos != found) {
+    domain = domain.replace(found, strlen(kDomainNameTDFProtocol), kDomainNameTdfPrefix);
+  } else {  // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
+    std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
+    domain[0] = toupper(domain[0]);
+  }
+  return domain;
 }
 
 }  // namespace hippy::devtools

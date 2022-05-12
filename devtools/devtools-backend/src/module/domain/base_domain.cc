@@ -43,7 +43,7 @@ void BaseDomain::ResponseResultToFrontend(int32_t id, const std::string& result)
   if (!dispatch) {
     return;
   }
-  dispatch->SendDataToFrontend(id, result, {});
+  dispatch->SendDataToFrontend(id, false, result);
 }
 
 void BaseDomain::ResponseErrorToFrontend(int32_t id, const int32_t error_code, const std::string& error_msg) {
@@ -60,7 +60,7 @@ void BaseDomain::ResponseErrorToFrontend(int32_t id, const int32_t error_code, c
   msg_string += "\":\"";
   msg_string += error_msg;
   msg_string += "\"}";
-  dispatch->SendDataToFrontend(id, "", msg_string);
+  dispatch->SendDataToFrontend(id, true, msg_string);
 }
 
 void BaseDomain::SendEventToFrontend(InspectEvent&& event) {

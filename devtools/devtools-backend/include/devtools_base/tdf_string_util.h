@@ -73,6 +73,9 @@ class TDFStringUtil {
     temp_stream << value;
     return temp_stream.str();
   }
+
+  static std::string AdaptProtocolName(std::string domain_name);
+
 };
 
 }  // namespace hippy::devtools

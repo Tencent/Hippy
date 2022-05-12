@@ -42,8 +42,6 @@ namespace hippy::devtools {
 constexpr char kDomainDispatchResult[] = "result";
 constexpr char kDomainDispatchError[] = "error";
 constexpr char kDomainClassSuffix[] = "Domain";
-constexpr char kDomainNameTdfPrefix[] = "Tdf";
-constexpr char kDomainNameTDFProtocol[] = "TDF";
 
 void DomainDispatch::RegisterJSDebuggerDomainListener() {
   auto dom_domain = std::make_shared<DomDomain>(shared_from_this());
@@ -80,49 +78,36 @@ void DomainDispatch::ClearDomainHandler() { domain_register_map_.clear(); }
 
 bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   BACKEND_LOGD(TDF_BACKEND, "DomainDispatch, receive data from frontend :%s", data_string.c_str());
-
-  nlohmann::json data_json = nlohmann::json::object();
-  try {
-    data_json = nlohmann::json::parse(data_string);
-  } catch (nlohmann::json::exception& e) {
-    BACKEND_LOGE(TDF_BACKEND, "parse data_string failed, e.what()=%s, e.id=%d, data_string=%s.", e.what(), e.id,
-                 data_string.c_str());
-  }
-
+  nlohmann::json data_json = nlohmann::json::parse(data_string);
   if (data_json.is_null()) {
     return false;
   }
-
   // parse id
+  if (!data_json.contains(kFrontendKeyId)) {
+    return false;
+  }
   auto id = data_json[kFrontendKeyId];
 
   // parse domain.method
-  std::string domain_param_list;
-  if (data_json[kFrontendKeyMethod].is_string()) {
-    domain_param_list = data_json[kFrontendKeyMethod];
-  }
-
-  std::regex split_str("\\.");
-  std::vector<std::string> split_params(
-      std::sregex_token_iterator(domain_param_list.begin(), domain_param_list.end(), split_str, -1),
-      std::sregex_token_iterator());
-  if (split_params.size() < 2) {
-    BACKEND_LOGE(TDF_BACKEND, "error domain_paramList");
+  if (!data_json.contains(kFrontendKeyMethod)) {
     return false;
   }
-  std::string domain = split_params.at(0);
-  std::string method = split_params.at(1);
+  std::string domain_param_list = data_json[kFrontendKeyMethod];
+  auto index = domain_param_list.find('.');
+  if (index == std::string::npos) {
+    return false;
+  }
+  std::string domain = domain_param_list.substr(0, index);
+  std::string method = domain_param_list.substr(index + 1);
 
   // The initial letter of method in the protocol is lowercase, but the initial letter of C + + method name is required
   // to be capitalized, so it needs to be handled here
-  method[0] = toupper(method[0]);
+  std::transform(method.begin(), method.begin() + 1, method.begin(), ::toupper);
 
   // parse params
   std::string params;
-  if (!data_json[kFrontendKeyParams].is_null()) {
-    nlohmann::json params_json = nlohmann::json::object();
-    params_json.merge_patch(data_json[kFrontendKeyParams]);
-    params = params_json.dump();
+  if (data_json.contains(kFrontendKeyParams)) {
+    params = data_json[kFrontendKeyParams].dump();
   }
 
   auto base_domain = domain_register_map_.find(domain);
@@ -132,13 +117,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
     }
-    auto found = domain.find(kDomainNameTDFProtocol);
-    if (std::string::npos != found) {
-      domain = domain.replace(found, strlen(kDomainNameTDFProtocol), kDomainNameTdfPrefix);
-    } else {  // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
-      std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
-      domain[0] = toupper(domain[0]);
-    }
+    domain = TDFStringUtil::AdaptProtocolName(domain);
     auto handler = DomainRegister::Instance()->GetMethod(domain + kDomainClassSuffix, method);
     if (handler) {
       handler(base_domain->second, id, params);
@@ -171,19 +150,15 @@ void DomainDispatch::DispatchToVM(const std::string& data) {
 #endif
 }
 
-void DomainDispatch::SendDataToFrontend(int32_t id, const std::string& result, const std::string& error) {
-  if (result.length() == 0 && error.length() == 0) {
-    BACKEND_LOGW(TDF_BACKEND, "result and error are both null");
+void DomainDispatch::SendDataToFrontend(int32_t id, bool is_error, const std::string& msg) {
+  if (msg.empty()) {
+    BACKEND_LOGE(TDF_BACKEND, "send data to frontend, but msg is empty");
     return;
   }
   nlohmann::json rsp_json = nlohmann::json::object();
   rsp_json[kFrontendKeyId] = id;
 
-  if (result.length()) {
-    rsp_json[kDomainDispatchResult] = nlohmann::json::parse(result.data());
-  } else {
-    rsp_json[kDomainDispatchError] = nlohmann::json::parse(error.data());
-  }
+  rsp_json[is_error ? kDomainDispatchError : kDomainDispatchResult] = nlohmann::json::parse(msg);
   if (rsp_handler_) {
     rsp_handler_(rsp_json.dump());
   }

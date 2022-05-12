@@ -21,14 +21,17 @@
 #include "tunnel/net_channel.h"
 #include "tunnel/tcp/tcp_channel.h"
 #include "tunnel/ws/web_socket_channel.h"
+#include "devtools_base/common/macros.h"
 
 namespace hippy::devtools {
 std::unique_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& config) {
-  auto tunnel_type = config.tunnel;
-  if (Tunnel::kWebSocket == tunnel_type) {
-    return std::make_unique<WebSocketChannel>(config.ws_url);
+  switch (config.tunnel) {
+    case Tunnel::kWebSocket:
+      return std::make_unique<WebSocketChannel>(config.ws_url);
+    case Tunnel::kTcp:
+      return std::make_unique<TcpChannel>();
+    default:
+      DEVTOOLS_BASE_UNREACHABLE();
   }
-  // default channel use tcp
-  return std::make_unique<TcpChannel>();
 }
 }  // namespace hippy::devtools
