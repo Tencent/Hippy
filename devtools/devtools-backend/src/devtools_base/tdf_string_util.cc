@@ -35,7 +35,7 @@ std::vector<std::string> TDFStringUtil::SplitString(const std::string &origin, c
   return {first, last};
 }
 
-std::string TDFStringUtil::TrimmingStringWhitespace(const std::string &origin) {
+std::string TDFStringUtil::TrimmingString(const std::string &origin) {
   std::string result{origin};
   result.erase(std::remove_if(result.begin(), result.end(), [](unsigned char str) { return std::isspace(str); }),
                result.end());

@@ -19,14 +19,5 @@
  */
 
 #include "module/model/tdf_inspector_model.h"
-#include <sstream>
-#include "module/inspect_props.h"
 
-namespace hippy::devtools {
-
-std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {  /* NOLINT */
-  std::string result;
-  result = result + "{\"" + kFrontendKeyRtree + "\":" + render_tree + "}";
-  return result;
-}
-}  // namespace hippy::devtools
+namespace hippy::devtools {}  // namespace hippy::devtools

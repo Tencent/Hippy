@@ -18,15 +18,16 @@
  * limitations under the License.
  */
 #include "module/request/screen_shot_request.h"
+#include "devtools_base/parse_json_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
 
 void ScreenShotRequest::Deserialize(const std::string& params) {
   nlohmann::json params_json = nlohmann::json::parse(params);
-  format_ = params_json[kFrontendKeyFormat].get<std::string>();
-  quality_ = params_json[kFrontendKeyQuality].get<int32_t>();
-  max_width_ = params_json[kFrontendKeyMaxWidth].get<int32_t>();
-  max_height_ = params_json[kFrontendKeyMaxHeight].get<int32_t>();
+  format_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyFormat, format_);
+  quality_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyQuality, 0);
+  max_width_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyMaxWidth, 0);
+  max_height_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyMaxHeight, 0);
 }
 }  // namespace hippy::devtools

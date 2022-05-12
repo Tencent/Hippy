@@ -29,14 +29,13 @@ namespace hippy::devtools {
  */
 class CssNodeDataRequest : public BaseRequest {
  public:
-  CssNodeDataRequest() : has_set_node_id_(false) {}
+  CssNodeDataRequest() {}
   void Deserialize(const std::string& params) override;
 
   int32_t GetNodeId() const { return node_id_; }
-  bool HasSetNodeId() const { return has_set_node_id_; }
+  bool HasSetNodeId() const { return HasAlreadySetValue(); }
 
  private:
   int32_t node_id_;
-  bool has_set_node_id_;
 };
 }  // namespace hippy::devtools

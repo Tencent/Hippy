@@ -19,13 +19,14 @@
  */
 
 #include "module/request/selected_render_object_request.h"
+#include "devtools_base/parse_json_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
 
 void SelectedRenderObjectRequest::Deserialize(const std::string& params) {
   nlohmann::json params_json = nlohmann::json::parse(params);
-  int32_t render_id = params_json[kFrontendKeyId];
+  int32_t render_id = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyId, 0);
   render_id_ = render_id;
 }
 }  // namespace hippy::devtools

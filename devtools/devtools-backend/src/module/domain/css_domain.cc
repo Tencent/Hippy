@@ -22,6 +22,7 @@
 #include "api/devtools_backend_service.h"
 #include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
+#include "devtools_base/tdf_string_util.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -54,7 +55,7 @@ void CssDomain::RegisterCallback() {
       return;
     }
     auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
-      auto model = CssModel::CreateModelByJSON(nlohmann::json::parse(data.Serialize()));
+      auto model = CssModel::CreateModel(nlohmann::json::parse(data.Serialize()));
       model.SetDataProvider(provider);
       if (callback) {
         callback(model);
@@ -76,7 +77,7 @@ void CssDomain::GetMatchedStylesForNode(const CssNodeDataRequest& request) {
   }
   css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](CssModel model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
-    self->ResponseResultToFrontend(request.GetId(), model.GetMatchedStylesJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), model.BuildMatchedStylesJSON().dump());
   });
 }
 
@@ -92,7 +93,7 @@ void CssDomain::GetComputedStyleForNode(const CssNodeDataRequest& request) {
   }
   css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](CssModel model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
-    self->ResponseResultToFrontend(request.GetId(), model.GetComputedStyleJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), model.BuildComputedStyleJSON().dump());
   });
 }
 
@@ -107,7 +108,7 @@ void CssDomain::GetInlineStylesForNode(const CssNodeDataRequest& request) {
   }
   css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](const CssModel& model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
-    self->ResponseResultToFrontend(request.GetId(), CssModel::GetInlineStylesJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), CssModel::BuildInlineStylesJSON().dump());
   });
 }
 

@@ -41,25 +41,25 @@ class CssModel : public BaseModel {
    * @param json css struct
    * @return CSSModel
    */
-  static CssModel CreateModelByJSON(const nlohmann::json& json);
+  static CssModel CreateModel(const nlohmann::json& json);
 
   /**
    * @brief css method to getMatchedStyles
    * @return style json
    */
-  nlohmann::json GetMatchedStylesJSON();
+  nlohmann::json BuildMatchedStylesJSON();
 
   /**
    * @brief css method to getComputedStyle
    * @return style json
    */
-  nlohmann::json GetComputedStyleJSON();
+  nlohmann::json BuildComputedStyleJSON();
 
   /**
    * @brief css method to getInlineStyles
    * @return style json
    */
-  static nlohmann::json GetInlineStylesJSON();
+  static nlohmann::json BuildInlineStylesJSON();
 
   /**
    * @brief css method to setStyleTexts, it will effect the display
@@ -83,15 +83,15 @@ class CssModel : public BaseModel {
   void InitializeBoxModelRequireMap();
   void InitializeStyleNumberMap();
   void InitializeStyleEnumMap();
-  nlohmann::json ParseComputedStyle();
-  nlohmann::json ParseCssStyle();
-  std::vector<hippy::devtools::CssStyleMetas> ParseStyleTextValue(const std::string& text_value);
+  nlohmann::json BuildComputedStyle();
+  nlohmann::json BuildCssStyle();
+  std::vector<hippy::devtools::CssStyleMetas> BuildStyleTextValue(const std::string& text_value);
   bool ContainsStyleKey(const std::string& key);
-  static nlohmann::json GetStylePropertyJSON(const std::string& name, const std::string& value);
-  static nlohmann::json GetCssPropertyJSON(const std::string& name, const std::string& value,
-                                           const nlohmann::json& source_range);
-  static nlohmann::json GetRange(int32_t start_line, int32_t start_column, int32_t end_line, int32_t end_column);
-  static std::string ConversionEnum(const std::vector<std::string>& options, const std::string& value);
+  static nlohmann::json BuildStylePropertyJSON(const std::string& name, const std::string& value);
+  static nlohmann::json BuildCssPropertyJSON(const std::string& name, const std::string& value,
+                                             const nlohmann::json& source_range);
+  static nlohmann::json BuildRangeJSON(int32_t start_line, int32_t start_column, int32_t end_line, int32_t end_column);
+  static std::string ConvertValueToEnum(const std::vector<std::string>& options, const std::string& value);
 
   nlohmann::json style_ = nlohmann::json::object();
   std::map<std::string, std::string> box_model_require_map_;

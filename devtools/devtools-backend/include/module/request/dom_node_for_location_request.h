@@ -29,16 +29,15 @@ namespace hippy::devtools {
  */
 class DomNodeForLocationRequest : public BaseRequest {
  public:
-  DomNodeForLocationRequest() : has_set_xy_(false) {}
+  DomNodeForLocationRequest() {}
   void Deserialize(const std::string& params) override;
 
   int32_t GetX() const { return x_; }
   int32_t GetY() const { return y_; }
-  bool HasSetXY() const { return has_set_xy_; }
+  bool HasSetXY() const { return HasAlreadySetValue(); }
 
  private:
   int32_t x_;
   int32_t y_;
-  bool has_set_xy_;
 };
 }  // namespace hippy::devtools

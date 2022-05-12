@@ -39,8 +39,11 @@ class BaseRequest : public Deserializer {
 
   inline void SetId(int32_t id) { id_ = id; }
   inline int32_t GetId() const { return id_; }
+  inline void SetAlreadySetValue(bool has_already_set_value) { has_already_set_value_ = has_already_set_value; }
+  inline bool HasAlreadySetValue() const { return has_already_set_value_; }
 
  private:
   int32_t id_;
+  bool has_already_set_value_ = false;
 };
 }  // namespace hippy::devtools

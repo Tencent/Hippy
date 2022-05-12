@@ -43,7 +43,7 @@ class TDFStringUtil {
    * @param origin 原始字符串
    * @return 调整后的字符串
    */
-  static std::string TrimmingStringWhitespace(const std::string& origin);
+  static std::string TrimmingString(const std::string& origin);
 
   /**
    * @brief 驼峰转换方法
@@ -68,7 +68,7 @@ class TDFStringUtil {
    * @return
    */
   template <typename T>
-  static std::string Characterization(T value) {
+  static std::string Character(T value) {
     std::stringstream temp_stream;
     temp_stream << value;
     return temp_stream.str();

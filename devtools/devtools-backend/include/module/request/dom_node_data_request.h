@@ -29,14 +29,13 @@ namespace hippy::devtools {
  */
 class DomNodeDataRequest : public BaseRequest {
  public:
-  DomNodeDataRequest() : has_set_node_id_(false) {}
+  DomNodeDataRequest() {}
   void Deserialize(const std::string& params) override;
 
   int32_t GetNodeId() const { return node_id_; }
-  bool HasSetNodeId() const { return has_set_node_id_; }
+  bool HasSetNodeId() const { return HasAlreadySetValue(); }
 
  private:
   int32_t node_id_;
-  bool has_set_node_id_;
 };
 }  // namespace hippy::devtools

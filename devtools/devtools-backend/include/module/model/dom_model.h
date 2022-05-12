@@ -54,27 +54,27 @@ class DomModel : public BaseModel {
    * @param json dom json struct
    * @return DOMModel
    */
-  static DomModel CreateModelByJSON(const nlohmann::json& json);
+  static DomModel CreateModel(const nlohmann::json& json);
 
   /**
    * @brief dom method to getDocument
    * @return json struct
    */
-  nlohmann::json GetDocumentJSON();
+  nlohmann::json BuildDocumentJSON();
 
   /**
    * @brief dom method to getBoxModel
    * @return json struct
    */
-  nlohmann::json GetBoxModelJSON();
+  nlohmann::json BuildBoxModelJSON();
 
   /**
    * dom method to setChildNodes
    * @return json struct
    */
-  nlohmann::json GetChildNodesJSON();
+  nlohmann::json BuildChildNodesJSON();
 
-  static nlohmann::json GetNodeForLocation(int32_t node_id);
+  static nlohmann::json BuildNodeForLocation(int32_t node_id);
 
   constexpr void SetNodeId(int32_t node_id) { node_id_ = node_id; }
   constexpr int32_t GetNodeId() const { return node_id_; }
@@ -124,14 +124,17 @@ class DomModel : public BaseModel {
   std::vector<DomModel>& GetChildren() { return children_; }
 
  private:
-  nlohmann::json GetNodeJSON(DomNodeType node_type);
-  nlohmann::json GetTextNodeJSON();
-  nlohmann::json GetBoxModelBorder();
-  nlohmann::json GetBoxModelPadding(const nlohmann::json& border);
-  nlohmann::json GetBoxModelContent(const nlohmann::json& padding);
-  nlohmann::json GetBoxModelMargin(const nlohmann::json& border);
-  nlohmann::json ParseNodeBasicJSON(DomNodeType node_type);
-  nlohmann::json ParseAttributesObjectToArray();
+  nlohmann::json BuildNodeJSON(DomNodeType node_type);
+  nlohmann::json BuildTextNodeJSON();
+  nlohmann::json BuildBoxModelBorder();
+  nlohmann::json BuildBoxModelPadding(const nlohmann::json& border);
+  nlohmann::json BuildBoxModelContent(const nlohmann::json& padding);
+  nlohmann::json BuildBoxModelMargin(const nlohmann::json& border);
+  nlohmann::json BuildNodeBasicJSON(DomNodeType node_type);
+  nlohmann::json BuildAttributesObjectToArray();
+  // return [left, top, right, bottom]
+  // keys [width, left_width, top_width, right_width, bottom_width]
+  std::vector<int32_t> GetLeftTopRightBottomValueFromStyle(std::vector<std::string> keys);
 
   std::vector<DomModel> children_;
   std::string local_name_;

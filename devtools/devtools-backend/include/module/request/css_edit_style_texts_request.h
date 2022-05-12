@@ -29,14 +29,13 @@ namespace hippy::devtools {
  */
 class CssEditStyleTextsRequest : public BaseRequest {
  public:
-  CssEditStyleTextsRequest() : has_set_edits_(false) {}
+  CssEditStyleTextsRequest() {}
   void Deserialize(const std::string& params) override;
 
   nlohmann::json GetEdits() const { return edits_; }
-  bool HasSetEdits() const { return has_set_edits_; }
+  bool HasSetEdits() const { return !edits_.empty(); }
 
  private:
   nlohmann::json edits_;
-  bool has_set_edits_;
 };
 }  // namespace hippy::devtools

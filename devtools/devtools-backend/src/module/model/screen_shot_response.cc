@@ -19,6 +19,7 @@
  */
 
 #include "module/model/screen_shot_response.h"
+#include <chrono>
 #include "devtools_base/transform_string_util.hpp"
 #include "module/inspect_props.h"
 
@@ -35,7 +36,9 @@ std::string ScreenShotResponse::ToJsonString() const {
   if (screen_data_.empty()) {
     return "{}";
   }
-  struct timeval time;
+  auto now_time_s =
+      std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::steady_clock::now()).time_since_epoch();
+  auto time = std::chrono::duration_cast<std::chrono::seconds>(now_time_s).count();
   std::string result_string = "{\"";
   result_string += kFrontendKeyData;
   result_string += "\":\"";
@@ -61,11 +64,11 @@ std::string ScreenShotResponse::ToJsonString() const {
   result_string += kDefaultJointStringZero;
   result_string += kFrontendKeyTimestamp;
   result_string += "\":";
-  result_string += TransformStringUtil::NumbertoString(time.tv_usec);
+  result_string += TransformStringUtil::NumbertoString(time);
   result_string += "},\"";
   result_string += kFrontendKeySessionId;
   result_string += "\":";
-  result_string += TransformStringUtil::NumbertoString(time.tv_usec);
+  result_string += TransformStringUtil::NumbertoString(time);
   result_string += "}";
   return result_string;
 }

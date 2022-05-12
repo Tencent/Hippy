@@ -27,7 +27,7 @@ constexpr char kFrontendRequestId[] = "requestId";
 namespace hippy::devtools {
 void NetworkResponseBodyRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
-  if (!params_json.is_object()) {
+  if (!params_json.is_object() || params_json.find(kFrontendRequestId) == params_json.end()) {
     return;
   }
   request_id_ = params_json[kFrontendRequestId];

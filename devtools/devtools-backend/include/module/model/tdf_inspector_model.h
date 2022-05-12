@@ -20,7 +20,9 @@
 
 #pragma once
 
+#include <sstream>
 #include <string>
+#include "module/inspect_props.h"
 
 namespace hippy::devtools {
 
@@ -29,7 +31,10 @@ namespace hippy::devtools {
  */
 class TDFInspectorModel {
  public:
-  std::string GetRenderTree(const std::string& render_tree);
+  inline std::string GetRenderTree(const std::string& render_tree) {
+    std::string result;
+    return result + "{\"" + kFrontendKeyRtree + "\":" + render_tree + "}";
+  };
 };
 
 }  // namespace hippy::devtools

@@ -28,6 +28,5 @@ void CssEditStyleTextsRequest::Deserialize(const std::string& params) {
     return;
   }
   edits_ = params_json[kFrontendKeyEdits];
-  has_set_edits_ = true;
 }
 }  // namespace hippy::devtools

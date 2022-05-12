@@ -58,7 +58,7 @@ constexpr int32_t kDocumentNodeId = -3;
 constexpr int32_t kDocumentChildNodeCount = 1;
 constexpr int32_t kInvalidNodeId = -1;
 
-DomModel DomModel::CreateModelByJSON(const nlohmann::json& json) {
+DomModel DomModel::CreateModel(const nlohmann::json& json) {
   assert(json.is_object());
   DomModel model;
   model.SetNodeId(TDFParseJSONUtil::GetJSONValue(json, kNodeId, 0));
@@ -75,16 +75,13 @@ DomModel DomModel::CreateModelByJSON(const nlohmann::json& json) {
   model.SetAttributes(TDFParseJSONUtil::GetJSONValue(json, kAttributes, nlohmann::json::object()));
   model.SetStyle(TDFParseJSONUtil::GetJSONValue(json, kDomDataStyle, nlohmann::json::object()));
   auto children_json = json.find(kChildren);
-  if (children_json == json.end()) {
-    return model;
-  }
   for (auto& child : children_json.value()) {
-    model.GetChildren().emplace_back(CreateModelByJSON(child));
+    model.GetChildren().emplace_back(CreateModel(child));
   }
   return model;
 }
 
-nlohmann::json DomModel::GetDocumentJSON() {
+nlohmann::json DomModel::BuildDocumentJSON() {
   auto document_json = nlohmann::json::object();
   auto root_json = nlohmann::json::object();
   // document root
@@ -98,7 +95,7 @@ nlohmann::json DomModel::GetDocumentJSON() {
 
   auto child_json = nlohmann::json::array();
   for (auto& child : children_) {
-    child_json.emplace_back(child.GetNodeJSON(DomNodeType::kElementNode));
+    child_json.emplace_back(child.BuildNodeJSON(DomNodeType::kElementNode));
   }
   root_json[kChildren] = child_json;
   document_json[kRoot] = root_json;
@@ -106,13 +103,13 @@ nlohmann::json DomModel::GetDocumentJSON() {
   return document_json;
 }
 
-nlohmann::json DomModel::GetBoxModelJSON() {
+nlohmann::json DomModel::BuildBoxModelJSON() {
   auto result_json = nlohmann::json::object();
   auto box_model_json = nlohmann::json::object();
-  auto border = GetBoxModelBorder();
-  auto padding = GetBoxModelPadding(border);
-  auto content = GetBoxModelContent(padding);
-  auto margin = GetBoxModelMargin(border);
+  auto border = BuildBoxModelBorder();
+  auto padding = BuildBoxModelPadding(border);
+  auto content = BuildBoxModelContent(padding);
+  auto margin = BuildBoxModelMargin(border);
   box_model_json[kBoxModelContent] = content;
   box_model_json[kPadding] = padding;
   box_model_json[kBorder] = border;
@@ -123,7 +120,7 @@ nlohmann::json DomModel::GetBoxModelJSON() {
   return result_json;
 }
 
-nlohmann::json DomModel::GetNodeForLocation(int32_t node_id) {
+nlohmann::json DomModel::BuildNodeForLocation(int32_t node_id) {
   auto node_json = nlohmann::json::object();
   node_json[kBackendId] = node_id;
   node_json[kFrameId] = kMainFrame;
@@ -131,25 +128,25 @@ nlohmann::json DomModel::GetNodeForLocation(int32_t node_id) {
   return node_json;
 }
 
-nlohmann::json DomModel::GetChildNodesJSON() {
+nlohmann::json DomModel::BuildChildNodesJSON() {
   auto node_json = nlohmann::json::object();
   node_json[kParentId] = node_id_;
   auto node_children_json = nlohmann::json::array();
   for (auto& child : children_) {
-    node_children_json.emplace_back(child.GetNodeJSON(DomNodeType::kElementNode));
+    node_children_json.emplace_back(child.BuildNodeJSON(DomNodeType::kElementNode));
   }
   node_json[kNodes] = node_children_json;
   return node_json;
 }
 
-nlohmann::json DomModel::GetNodeJSON(DomNodeType node_type) {
-  auto node_json = ParseNodeBasicJSON(node_type);
+nlohmann::json DomModel::BuildNodeJSON(DomNodeType node_type) {
+  auto node_json = BuildNodeBasicJSON(node_type);
   auto child_json = nlohmann::json::array();
   if (!node_value_.empty()) {
-    child_json.emplace_back(GetTextNodeJSON());
+    child_json.emplace_back(BuildTextNodeJSON());
   }
   for (auto& child : children_) {
-    child_json.emplace_back(child.GetNodeJSON(node_type));
+    child_json.emplace_back(child.BuildNodeJSON(node_type));
   }
   if (!child_json.empty()) {
     node_json[kChildren] = child_json;
@@ -157,14 +154,14 @@ nlohmann::json DomModel::GetNodeJSON(DomNodeType node_type) {
   return node_json;
 }
 
-nlohmann::json DomModel::GetTextNodeJSON() {
-  auto node_json = ParseNodeBasicJSON(DomNodeType::kTextNode);
+nlohmann::json DomModel::BuildTextNodeJSON() {
+  auto node_json = BuildNodeBasicJSON(DomNodeType::kTextNode);
   node_json[kChildNodeCount] = 0;
   node_json[kChildren] = nlohmann::json::array();
   return node_json;
 }
 
-nlohmann::json DomModel::GetBoxModelBorder() {
+nlohmann::json DomModel::BuildBoxModelBorder() {
   auto border = nlohmann::json::array();
   if (!provider_ || !provider_->screen_adapter) {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelBorder ScreenAdapter is null");
@@ -174,6 +171,16 @@ nlohmann::json DomModel::GetBoxModelBorder() {
   auto y = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, y_);
   auto width = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, width_);
   auto height = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, height_);
+  //  left-top                  right-top
+  //  (border[0],border[1])     (border[2],border[3])
+  //     --------------------------
+  //     |                        |
+  //     |         Border         |
+  //     |                        |
+  //     --------------------------
+  //  left-bottom               right-bottom
+  //  (border[6],border[7])     (border[4],border[5])
+  //
   // left-top
   border.emplace_back(x);
   border.emplace_back(y);
@@ -189,157 +196,125 @@ nlohmann::json DomModel::GetBoxModelBorder() {
   return border;
 }
 
-nlohmann::json DomModel::GetBoxModelPadding(const nlohmann::json& border) {
+nlohmann::json DomModel::BuildBoxModelPadding(const nlohmann::json& border) {
   auto padding = nlohmann::json::array();
-  if (!provider_ || !provider_->screen_adapter) {
-    BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelPadding ScreenAdapter is null");
+  if (!border.is_array()) {
+    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelPadding, border isn't array");
     return padding;
   }
-  if (!style_.is_object() || !border.is_array()) {
-    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelPadding, style isn't object");
+  std::vector<std::string> keys = {kBorderWidth, kBorderLeftWidth, kBorderTopWidth, kBorderRightWidth,
+                                   kBorderBottomWidth};
+  auto ltrb_values = GetLeftTopRightBottomValueFromStyle(keys);
+  if (ltrb_values.empty()) {
     return padding;
   }
-  int32_t border_top = 0, border_right = 0, border_left = 0, border_bottom = 0;
-  auto border_width_it = style_.find(kBorderWidth);
-  if (border_width_it != style_.end()) {
-    border_top = border_width_it.value();
-    border_left = border_width_it.value();
-    border_right = border_width_it.value();
-    border_bottom = border_width_it.value();
-  }
-  auto border_top_it = style_.find(kBorderTopWidth);
-  if (border_top_it != style_.end()) {
-    border_top = border_top_it.value();
-  }
-  auto border_left_it = style_.find(kBorderLeftWidth);
-  if (border_left_it != style_.end()) {
-    border_left = border_left_it.value();
-  }
-  auto border_right_it = style_.find(kBorderRightWidth);
-  if (border_right_it != style_.end()) {
-    border_right = border_right_it.value();
-  }
-  auto border_bottom_it = style_.find(kBorderBottomWidth);
-  if (border_bottom_it != style_.end()) {
-    border_bottom = border_bottom_it.value();
-  }
-  border_left = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, border_left);
-  border_top = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, border_top);
-  border_right = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, border_right);
-  border_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, border_bottom);
   auto border_vector = border.get<std::vector<int32_t>>();
-  padding.emplace_back(border_vector[0] + border_left);
-  padding.emplace_back(border_vector[1] + border_top);
-  padding.emplace_back(border_vector[2] - border_right);
-  padding.emplace_back(border_vector[3] + border_top);
-  padding.emplace_back(border_vector[4] - border_right);
-  padding.emplace_back(border_vector[5] - border_bottom);
-  padding.emplace_back(border_vector[6] + border_left);
-  padding.emplace_back(border_vector[7] - border_bottom);
+  //  left-top                  right-top
+  //  (padding[0],padding[1])   (padding[2],padding[3])
+  //     --------------------------
+  //     | border                 |
+  //     |   ------------------   |
+  //     |   | padding        |   |
+  //     |   |                |   |
+  //     |   ------------------   |
+  //     --------------------------
+  //  left-bottom               right-bottom
+  //  (padding[6],padding[7])   (padding[4],padding[5])
+  //  pdding in border
+  //  left-top = (border_x + border_left, border_y + border_top)
+  //  right-top = (border_x - border_right, border_y + border_top)
+  //  right-bottom = (border_x - border_right, border_y - border_bottom)
+  //  left-bottom = (border_x + border_left, border_y - border_bottom)
+  padding.emplace_back(border_vector[0] + ltrb_values[0]);
+  padding.emplace_back(border_vector[1] + ltrb_values[1]);
+  padding.emplace_back(border_vector[2] - ltrb_values[2]);
+  padding.emplace_back(border_vector[3] + ltrb_values[1]);
+  padding.emplace_back(border_vector[4] - ltrb_values[2]);
+  padding.emplace_back(border_vector[5] - ltrb_values[3]);
+  padding.emplace_back(border_vector[6] + ltrb_values[0]);
+  padding.emplace_back(border_vector[7] - ltrb_values[3]);
   return padding;
 }
 
-nlohmann::json DomModel::GetBoxModelContent(const nlohmann::json& padding) {
+nlohmann::json DomModel::BuildBoxModelContent(const nlohmann::json& padding) {
   auto content = nlohmann::json::array();
-  if (!provider_ || !provider_->screen_adapter) {
-    BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelContent ScreenAdapter is null");
+  if (!padding.is_array()) {
+    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelContent, padding isn't array");
     return content;
   }
-  if (!style_.is_object() || !padding.is_array()) {
-    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelContent, style isn't object");
+  std::vector<std::string> keys = {kPadding, kPaddingLeft, kPaddingTop, kPaddingRight, kPaddingBottom};
+  auto ltrb_values = GetLeftTopRightBottomValueFromStyle(keys);
+  if (ltrb_values.empty()) {
     return content;
   }
-  int32_t padding_top = 0, padding_right = 0, padding_left = 0, padding_bottom = 0;
-  auto padding_it = style_.find(kPadding);
-  if (padding_it != style_.end()) {
-    padding_top = padding_it.value();
-    padding_left = padding_it.value();
-    padding_right = padding_it.value();
-    padding_bottom = padding_it.value();
-  }
-  auto padding_top_it = style_.find(kPaddingTop);
-  if (padding_top_it != style_.end()) {
-    padding_top = padding_top_it.value();
-  }
-  auto padding_left_it = style_.find(kPaddingLeft);
-  if (padding_left_it != style_.end()) {
-    padding_left = padding_left_it.value();
-  }
-  auto padding_right_it = style_.find(kPaddingRight);
-  if (padding_right_it != style_.end()) {
-    padding_right = padding_right_it.value();
-  }
-  auto padding_bottom_it = style_.find(kPaddingBottom);
-  if (padding_bottom_it != style_.end()) {
-    padding_bottom = padding_bottom_it.value();
-  }
-  padding_left = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, padding_left);
-  padding_top = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, padding_top);
-  padding_right = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, padding_right);
-  padding_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, padding_bottom);
   auto padding_vector = padding.get<std::vector<int32_t>>();
-  content.emplace_back(padding_vector[0] + padding_left);
-  content.emplace_back(padding_vector[1] + padding_top);
-  content.emplace_back(padding_vector[2] - padding_right);
-  content.emplace_back(padding_vector[3] + padding_top);
-  content.emplace_back(padding_vector[4] - padding_right);
-  content.emplace_back(padding_vector[5] - padding_bottom);
-  content.emplace_back(padding_vector[6] + padding_left);
-  content.emplace_back(padding_vector[7] - padding_bottom);
+  //  left-top                  right-top
+  //  (content[0],content[1])   (content[2],content[3])
+  //     --------------------------
+  //     | padding                |
+  //     |   ------------------   |
+  //     |   | content        |   |
+  //     |   |                |   |
+  //     |   ------------------   |
+  //     --------------------------
+  //  left-bottom               right-bottom
+  //  (content[6],content[7])   (content[4],content[5])
+  //  content in padding
+  //  left-top = (padding_x + padding_left, padding_y + padding_top)
+  //  right-top = (padding_x - padding_right, padding_y + padding_top)
+  //  right-bottom = (padding_x - padding_right, padding_y - padding_bottom)
+  //  left-bottom = (padding_x + padding_left, padding_y - padding_bottom)
+  content.emplace_back(padding_vector[0] + ltrb_values[0]);
+  content.emplace_back(padding_vector[1] + ltrb_values[1]);
+  content.emplace_back(padding_vector[2] - ltrb_values[2]);
+  content.emplace_back(padding_vector[3] + ltrb_values[1]);
+  content.emplace_back(padding_vector[4] - ltrb_values[2]);
+  content.emplace_back(padding_vector[5] - ltrb_values[3]);
+  content.emplace_back(padding_vector[6] + ltrb_values[0]);
+  content.emplace_back(padding_vector[7] - ltrb_values[3]);
   return content;
 }
 
-nlohmann::json DomModel::GetBoxModelMargin(const nlohmann::json& border) {
+nlohmann::json DomModel::BuildBoxModelMargin(const nlohmann::json& border) {
   auto margin = nlohmann::json::array();
-  if (!provider_ || !provider_->screen_adapter) {
-    BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelPadding ScreenAdapter is null");
+  if (!border.is_array()) {
+    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelMargin, border isn't array");
     return margin;
   }
-  if (!style_.is_object() || !border.is_array()) {
-    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelMargin, style isn't object");
+  std::vector<std::string> keys = {kMargin, kMarginLeft, kMarginTop, kMarginRight, kMarginBottom};
+  auto ltrb_values = GetLeftTopRightBottomValueFromStyle(keys);
+  if (ltrb_values.empty()) {
     return margin;
   }
-  int32_t margin_top = 0, margin_right = 0, margin_left = 0, margin_bottom = 0;
-  auto margin_it = style_.find(kMargin);
-  if (margin_it != style_.end()) {
-    margin_top = margin_it.value();
-    margin_left = margin_it.value();
-    margin_right = margin_it.value();
-    margin_bottom = margin_it.value();
-  }
-  auto margin_top_it = style_.find(kMarginTop);
-  if (margin_top_it != style_.end()) {
-    margin_top = margin_top_it.value();
-  }
-  auto margin_left_it = style_.find(kMarginLeft);
-  if (margin_left_it != style_.end()) {
-    margin_left = margin_left_it.value();
-  }
-  auto margin_right_it = style_.find(kMarginRight);
-  if (margin_right_it != style_.end()) {
-    margin_right = margin_right_it.value();
-  }
-  auto margin_bottom_it = style_.find(kMarginBottom);
-  if (margin_bottom_it != style_.end()) {
-    margin_bottom = margin_bottom_it.value();
-  }
-  margin_left = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, margin_left);
-  margin_top = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, margin_top);
-  margin_right = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, margin_right);
-  margin_bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, margin_bottom);
   auto border_vector = border.get<std::vector<int32_t>>();
-  margin.emplace_back(border_vector[0] - margin_left);
-  margin.emplace_back(border_vector[1] - margin_top);
-  margin.emplace_back(border_vector[2] + margin_right);
-  margin.emplace_back(border_vector[3] - margin_top);
-  margin.emplace_back(border_vector[4] + margin_right);
-  margin.emplace_back(border_vector[5] + margin_bottom);
-  margin.emplace_back(border_vector[6] - margin_left);
-  margin.emplace_back(border_vector[7] + margin_bottom);
+  //  left-top                  right-top
+  //  (margin[0],margin[1])     (margin[2],margin[3])
+  //     --------------------------
+  //     | margin                 |
+  //     |   ------------------   |
+  //     |   | border         |   |
+  //     |   |                |   |
+  //     |   ------------------   |
+  //     --------------------------
+  //  left-bottom               right-bottom
+  //  (margin[6],margin[7])     (margin[4],margin[5])
+  //  border in margin
+  //  left-top = (border_x - border_left, border_y - border_top)
+  //  right-top = (border_x + border_right, border_y - border_top)
+  //  right-bottom = (border_x + border_right, border_y + border_bottom)
+  //  left-bottom = (border_x - border_left, border_y + border_bottom)
+  margin.emplace_back(border_vector[0] - ltrb_values[0]);
+  margin.emplace_back(border_vector[1] - ltrb_values[1]);
+  margin.emplace_back(border_vector[2] + ltrb_values[2]);
+  margin.emplace_back(border_vector[3] - ltrb_values[1]);
+  margin.emplace_back(border_vector[4] + ltrb_values[2]);
+  margin.emplace_back(border_vector[5] + ltrb_values[3]);
+  margin.emplace_back(border_vector[6] - ltrb_values[0]);
+  margin.emplace_back(border_vector[7] + ltrb_values[3]);
   return margin;
 }
 
-nlohmann::json DomModel::ParseNodeBasicJSON(DomNodeType node_type) {
+nlohmann::json DomModel::BuildNodeBasicJSON(DomNodeType node_type) {
   auto node_json = nlohmann::json::object();
   auto result_id = node_id_;
   if (node_type == DomNodeType::kTextNode) {
@@ -354,11 +329,11 @@ nlohmann::json DomModel::ParseNodeBasicJSON(DomNodeType node_type) {
   node_json[kNodeValue] = node_value_;
   node_json[kParentId] = parent_id_;
   node_json[kChildNodeCount] = child_node_count_;
-  node_json[kAttributes] = ParseAttributesObjectToArray();
+  node_json[kAttributes] = BuildAttributesObjectToArray();
   return node_json;
 }
 
-nlohmann::json DomModel::ParseAttributesObjectToArray() {
+nlohmann::json DomModel::BuildAttributesObjectToArray() {
   nlohmann::json attributes_array = nlohmann::json::array();
   if (!attributes_.is_object()) {
     BACKEND_LOGE(TDF_BACKEND, "DOMModel, attributes isn't object, parse error, return empty");
@@ -380,12 +355,61 @@ nlohmann::json DomModel::ParseAttributesObjectToArray() {
     }
     if (!value.is_string()) {
       // non string type need change to string type
-      value = TDFStringUtil::Characterization(value);
+      value = TDFStringUtil::Character(value);
     }
     attributes_array.emplace_back(attribute.key());
     attributes_array.emplace_back(value);
   }
   return attributes_array;
+}
+
+std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<std::string> keys) {
+  std::vector<int32_t> result;
+  if (keys.size() < 5) {
+    BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetLeftTopRightBottomValueFromStyle keys is empty");
+    return result;
+  }
+  if (!provider_ || !provider_->screen_adapter) {
+    BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetLeftTopRightBottomValueFromStyle ScreenAdapter is null");
+    return result;
+  }
+  if (!style_.is_object()) {
+    BACKEND_LOGE(TDF_BACKEND, "DOMModel, GetLeftTopRightBottomValueFromStyle, style isn't object");
+    return result;
+  }
+  int32_t left = 0, top = 0, right = 0, bottom = 0;
+  auto total_it = style_.find(keys[0]);
+  if (total_it != style_.end()) {
+    left = total_it.value();
+    top = total_it.value();
+    right = total_it.value();
+    bottom = total_it.value();
+  }
+  auto left_it = style_.find(keys[1]);
+  if (left_it != style_.end()) {
+    left = left_it.value();
+  }
+  auto top_it = style_.find(keys[2]);
+  if (top_it != style_.end()) {
+    top = top_it.value();
+  }
+  auto right_it = style_.find(keys[3]);
+  if (right_it != style_.end()) {
+    right = right_it.value();
+  }
+  auto bottom_it = style_.find(keys[4]);
+  if (bottom_it != style_.end()) {
+    bottom = bottom_it.value();
+  }
+  left = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, left);
+  top = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, top);
+  right = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, right);
+  bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, bottom);
+  result.emplace_back(left);
+  result.emplace_back(top);
+  result.emplace_back(right);
+  result.emplace_back(bottom);
+  return result;
 }
 
 }  // namespace hippy::devtools

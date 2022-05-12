@@ -29,6 +29,6 @@ void DomNodeDataRequest::Deserialize(const std::string& params) {
     return;
   }
   node_id_ = params_json[kFrontendKeyNodeId];
-  has_set_node_id_ = true;
+  SetAlreadySetValue(true);
 }
 }  // namespace hippy::devtools

@@ -62,7 +62,7 @@ void DomDomain::RegisterCallback() {
     auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
       auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
-        auto model = DomModel::CreateModelByJSON(nlohmann::json::parse(data.Serialize()));
+        auto model = DomModel::CreateModel(nlohmann::json::parse(data.Serialize()));
         model.SetDataProvider(provider);
         if (callback) {
           callback(model);
@@ -115,7 +115,7 @@ void DomDomain::GetDocument(const BaseRequest& request) {
     // cache node that has obtain
     self->CacheEntireDocumentTree(model);
     // response to frontend
-    self->ResponseResultToFrontend(request.GetId(), model.GetDocumentJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), model.BuildDocumentJSON().dump());
   });
 }
 
@@ -152,7 +152,7 @@ void DomDomain::GetBoxModel(const DomNodeDataRequest& request) {
       // if not in cache, then should send to frontend
       self->SetChildNodesEvent(model);
     }
-    self->ResponseResultToFrontend(request.GetId(), model.GetBoxModelJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), model.BuildBoxModelJSON().dump());
   });
 }
 
@@ -175,7 +175,7 @@ void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     auto node_id = self->SearchNearlyCacheNode(model.GetRelationTree());
     if (node_id != kInvalidNodeId) {
-      self->ResponseResultToFrontend(request.GetId(), DomModel::GetNodeForLocation(node_id).dump());
+      self->ResponseResultToFrontend(request.GetId(), DomModel::BuildNodeForLocation(node_id).dump());
     } else {
       self->ResponseErrorToFrontend(request.GetId(), kErrorFailCode,
                                     "DOMDomain, GetNodeForLocation, nodeId is invalid");
@@ -202,7 +202,7 @@ void DomDomain::SetChildNodesEvent(DomModel model) {
   if (model.GetChildren().empty()) {
     return;
   }
-  SendEventToFrontend(InspectEvent(kEventMethodSetChildNodes, model.GetChildNodesJSON().dump()));
+  SendEventToFrontend(InspectEvent(kEventMethodSetChildNodes, model.BuildChildNodesJSON().dump()));
   // SendEvent only replenishes one layer of child node data, so only one layer is cached here
   element_node_children_count_cache_[model.GetNodeId()] = model.GetChildren().size();
   for (auto& child : model.GetChildren()) {
