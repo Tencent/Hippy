@@ -30,6 +30,8 @@ public class DevtoolsUtil {
   private static final String SCREEN_HEIGHT = "height";
   private static final String SCREEN_SCALE = "screenScale";
   private static final String FRAME_CALLBACK_ID = "frameCallbackId";
+  private static final float DEFAULT_SCALE = 0.5f;
+  private static final int DEFAULT_QUALITY = 80;
   private static HashMap<Integer, ViewTreeObserver.OnDrawListener> sDrawListeners = new HashMap<>();
 
   public static void addFrameCallback(List params, @NonNull View view, @NonNull final Promise promise) {
@@ -81,14 +83,13 @@ public class DevtoolsUtil {
     if (!isEnableDrawingCache) {
       view.setDrawingCacheEnabled(true);
     }
-    float scale = 0.5f;
     Bitmap bitmap = view.getDrawingCache();
-    String base64 = bitmapToBase64Str(bitmap, scale);
+    String base64 = bitmapToBase64Str(bitmap, DEFAULT_SCALE);
     HippyMap resultMap = new HippyMap();
     resultMap.pushString(SCREEN_SHOT, base64);
-    resultMap.pushInt(SCREEN_WIDTH, (int) (view.getWidth() * scale));
-    resultMap.pushInt(SCREEN_HEIGHT, (int) (view.getHeight() * scale));
-    resultMap.pushDouble(SCREEN_SCALE, view.getResources().getDisplayMetrics().density * scale);
+    resultMap.pushInt(SCREEN_WIDTH, (int) (view.getWidth() * DEFAULT_SCALE));
+    resultMap.pushInt(SCREEN_HEIGHT, (int) (view.getHeight() * DEFAULT_SCALE));
+    resultMap.pushDouble(SCREEN_SCALE, view.getResources().getDisplayMetrics().density * DEFAULT_SCALE);
     promise.resolve(resultMap);
     view.setDrawingCacheEnabled(isEnableDrawingCache);
   }
@@ -102,15 +103,14 @@ public class DevtoolsUtil {
           .createScaledBitmap(bitmap, (int) (bitmap.getWidth() * scale),
             (int) (bitmap.getHeight() * scale), false);
         baos = new ByteArrayOutputStream();
-        int quality = 80;
-        scaleBitmap.compress(CompressFormat.JPEG, quality, baos);
+        scaleBitmap.compress(CompressFormat.JPEG, DEFAULT_QUALITY, baos);
         baos.flush();
         baos.close();
         byte[] bitmapBytes = baos.toByteArray();
         result = Base64.encodeToString(bitmapBytes, Base64.NO_WRAP);
       }
     } catch (IOException e) {
-      LogUtils.e(TAG, "bitmapToBase64Str, exception1=", e);
+      LogUtils.e(TAG, "bitmapToBase64Str, scale exception:", e);
     } finally {
       try {
         if (baos != null) {
@@ -118,7 +118,7 @@ public class DevtoolsUtil {
           baos.close();
         }
       } catch (IOException e) {
-        LogUtils.e(TAG, "bitmapToBase64Str, exception2=", e);
+        LogUtils.e(TAG, "bitmapToBase64Str, close exception:", e);
       }
     }
     return result;

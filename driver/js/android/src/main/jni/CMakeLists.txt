@@ -32,7 +32,6 @@ if (${ANDROID_STL} STREQUAL "c++_static")
   string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++abi.a")
 endif()
 
-
 # region ABI_COMPILE_OPTIONS
 set(ABI_COMPILE_OPTIONS
         -fomit-frame-pointer
@@ -137,9 +136,6 @@ message("JNI_SRC: ${JNI_SRC}")
 # endregion
 
 set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
-if (TDF_SERVICE_ENABLED STREQUAL "1")
-  list(APPEND HIPPY_DEPS devtools_backend)
-endif()
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
@@ -197,6 +193,7 @@ if (TDF_SERVICE_ENABLED STREQUAL "1")
   if (${JS_ENGINE} STREQUAL "V8")
     add_definitions(-DJS_ENGINE_V8=1)
   endif()
+  list(APPEND HIPPY_DEPS devtools_backend)
   add_definitions(-DTDF_SERVICE_ENABLED=1)
   include_directories(${DEVTOOLS_DIR}/include)
   add_subdirectory(${DEVTOOLS_DIR} devtools_backend)
