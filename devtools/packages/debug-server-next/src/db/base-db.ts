@@ -33,4 +33,11 @@ export abstract class BaseDB<T = unknown> {
    */
   public abstract upsert(field: string, value: string | Object);
   public abstract delete(field: string);
+
+  /**
+   * redis list operate
+   */
+  public abstract rPush(value: string | Object);
+  public abstract getList(): Promise<T[]>;
+  public abstract clearList();
 }

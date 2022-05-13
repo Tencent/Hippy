@@ -134,7 +134,9 @@ export const onHMRServerConnection = (ws: WebSocket, wsUrlParams: HMRWsParams) =
 
       const msgStr = JSON.stringify(emitJSON);
       log.verbose('receive HMR msg from PC: %s', msgStr);
-      if (emitJSON.messages?.length) publisher.publish(msgStr);
+      setTimeout(() => {
+        if (emitJSON.messages?.length) publisher.publish(msgStr);
+      }, 1000);
     } catch (e) {
       log.error('decodeHMRData failed: ', (e as any)?.stack || e);
     }

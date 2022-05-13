@@ -120,7 +120,6 @@ export class SocketServer {
     });
 
     const { clientRole } = wsUrlParams;
-    log.info('%s connected', clientRole);
     if ([ClientRole.JSRuntime, ClientRole.VueDevtools].includes(clientRole)) {
       onVueClientConnection(ws, wsUrlParams as JSRuntimeWsUrlParams | DevtoolsWsUrlParams);
       return;

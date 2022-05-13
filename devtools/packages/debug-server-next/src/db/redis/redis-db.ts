@@ -68,73 +68,103 @@ export class RedisDB<T> extends BaseDB<T> {
   }
 
   public async get(field: string): Promise<T> {
-    return new Promise((resolve) => {
-      const op = async () => {
-        const hashmap: Record<string, string> = await RedisDB.client.hGetAll(this.key);
-        const item = hashmap[field];
-        try {
-          const itemObj: T = JSON.parse(item);
-          return resolve(itemObj);
-        } catch (e) {
-          log.error('parse redis hashmap error, key: %s, field: %s, value: %s', this.key, field, item);
-          return resolve(null);
-        }
-      };
-      if (RedisDB.isInited) return op();
-      RedisDB.opQueue.push(op);
+    return this.queueWrap<T>(async (resolve) => {
+      const hashmap: Record<string, string> = await RedisDB.client.hGetAll(this.key);
+      const item = hashmap[field];
+      try {
+        const itemObj: T = JSON.parse(item);
+        return resolve(itemObj);
+      } catch (e) {
+        log.error('parse redis hashmap error, key: %s, field: %s, value: %s', this.key, field, item);
+        return resolve(null);
+      }
     });
   }
 
   public async getAll(): Promise<T[]> {
-    return new Promise((resolve) => {
-      const op = async () => {
-        const hashmap: Record<string, string> = await RedisDB.client.hGetAll(this.key);
-        const result = Object.values(hashmap)
-          .map((item) => {
-            let itemObj: T;
-            try {
-              itemObj = JSON.parse(item);
-            } catch (e) {
-              log.error('parse redis hashmap fail, key: %s', item);
-            }
-            return itemObj;
-          })
-          .filter((v) => v);
-        resolve(result);
-      };
-      if (RedisDB.isInited) return op();
-      RedisDB.opQueue.push(op);
+    return this.queueWrap<T[]>(async (resolve) => {
+      const hashmap: Record<string, string> = await RedisDB.client.hGetAll(this.key);
+      const result = Object.values(hashmap)
+        .map((item) => {
+          let itemObj: T;
+          try {
+            itemObj = JSON.parse(item);
+          } catch (e) {
+            log.error('parse redis hashmap fail, key: %s', item);
+          }
+          return itemObj;
+        })
+        .filter((v) => v);
+      resolve(result);
     });
   }
 
   public async upsert(field: string, value: string | Object) {
-    return new Promise((resolve, reject) => {
-      const op = async () => {
-        let strValue = value;
-        if (typeof value !== 'string') strValue = JSON.stringify(value);
-        try {
-          await RedisDB.client.hSet(this.key, field, strValue);
-          resolve(null);
-        } catch (e) {
-          reject(e);
-        }
-      };
-      if (RedisDB.isInited) return op();
-      RedisDB.opQueue.push(op);
+    return this.queueWrap(async (resolve, reject) => {
+      let strValue = value;
+      if (typeof value !== 'string') strValue = JSON.stringify(value);
+      try {
+        await RedisDB.client.hSet(this.key, field, strValue);
+        resolve(null);
+      } catch (e) {
+        reject(e);
+      }
     });
   }
 
   public async delete(field: string) {
+    return this.queueWrap(async (resolve, reject) => {
+      try {
+        await RedisDB.client.hDel(this.key, field);
+        resolve(null);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  public async rPush(value) {
+    return this.queueWrap(async (resolve, reject) => {
+      try {
+        let strValue = value;
+        if (typeof value !== 'string') strValue = JSON.stringify(value);
+        await RedisDB.client.rPush(this.key, strValue);
+        resolve(null);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  public async getList(): Promise<T[]> {
+    return this.queueWrap<T[]>(async (resolve, reject) => {
+      try {
+        const list: T[] = await RedisDB.client.lRange(this.key, 0, -1);
+        resolve(list || []);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  public async clearList() {
+    return this.queueWrap(async (resolve, reject) => {
+      try {
+        // will clear list if start greater than end
+        await RedisDB.client.lTrim(this.key, 1, 0);
+        resolve(null);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  /**
+   * wrap all operate after redis client connected
+   */
+  private async queueWrap<T>(op): Promise<T> {
     return new Promise((resolve, reject) => {
-      const op = async () => {
-        try {
-          await RedisDB.client.hDel(this.key, field);
-          resolve(null);
-        } catch (e) {
-          reject(e);
-        }
-      };
-      if (RedisDB.isInited) return op();
+      if (RedisDB.isInited) return op(resolve, reject);
       RedisDB.opQueue.push(op);
     });
   }

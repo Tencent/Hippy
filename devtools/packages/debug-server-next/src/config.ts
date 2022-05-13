@@ -35,6 +35,7 @@ export const config: Config = {
     url: `redis://:${process.env.REDIS_PWD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
     debugTargetTable: 'tdf:debugtargets',
     bundleTable: 'tdf:bundles',
+    logTablePrefix: 'tdf:logs:',
   },
   isCluster: process.env.IS_CLUSTER === 'true',
   cos: {
@@ -64,6 +65,7 @@ interface Config {
     url: string;
     debugTargetTable: string;
     bundleTable: string;
+    logTablePrefix: string;
   };
   isCluster: boolean;
   cos: {
