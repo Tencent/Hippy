@@ -3,7 +3,7 @@
 import path from 'path';
 import moduleAlias from 'module-alias';
 moduleAlias.addAliases({
-  '@': __dirname,
+  '@debug-server-next': __dirname,
 });
 import yargs from 'yargs';
 import dotenv from 'dotenv';

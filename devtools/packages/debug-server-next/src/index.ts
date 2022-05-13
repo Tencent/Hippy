@@ -21,7 +21,7 @@
 /* eslint-disable import/first -- should add module alias before use */
 import moduleAlias from 'module-alias';
 moduleAlias.addAliases({
-  '@': __dirname,
+  '@debug-server-next': __dirname,
 });
 import { DevtoolsEnv, LogLevel } from '@debug-server-next/@types/enum';
 import { DebugAppArgv } from '@debug-server-next/@types/app';
