@@ -19,16 +19,17 @@
  */
 
 #include "module/request/dom_node_data_request.h"
+#include "devtools_base/parse_json_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
 
 void DomNodeDataRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
-  if (!params_json.is_object() || params_json.find(kFrontendKeyNodeId) == params_json.end()) {
+  if (!params_json.is_object()) {
     return;
   }
-  node_id_ = params_json[kFrontendKeyNodeId];
+  node_id_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyNodeId, 0);
   SetAlreadySetValue(true);
 }
 }  // namespace hippy::devtools

@@ -140,7 +140,7 @@ nlohmann::json CssModel::BuildComputedStyle() {
     }
     auto value = prop.value();
     if (!value.is_string()) {
-      value = TDFStringUtil::Character(value);
+      value = TDFStringUtil::ToString(value);
     }
     computed_styles.emplace_back(BuildStylePropertyJson(TDFStringUtil::UnCamelize(key), value));
   }
@@ -167,14 +167,13 @@ nlohmann::json CssModel::BuildCssStyle() {
       continue;
     }
     auto css_name = TDFStringUtil::UnCamelize(prop.key());
-    auto css_value = prop.value();
-    if (!css_value.is_string()) {
-      css_value = TDFStringUtil::Character(css_value);
+    auto prop_value = prop.value();
+    if (!prop_value.is_string()) {
+      prop_value = TDFStringUtil::ToString(prop_value);
     }
     // css_value can be numbers or strings, so stringstream is used
-    std::stringstream css_text_stream;
-    css_text_stream << css_name << ":" << css_value;
-    std::string css_text = css_text_stream.str();
+    std::string css_value = prop_value;
+    std::string css_text = css_name + ":" + css_value;
     auto source_range =
         BuildRangeJson(0, all_of_css_text.length(), 0, all_of_css_text.length() + css_text.length() + 1);
     auto css_property = BuildCssPropertyJson(css_name, css_value, source_range);

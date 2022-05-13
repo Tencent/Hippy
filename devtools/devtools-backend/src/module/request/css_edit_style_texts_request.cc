@@ -19,14 +19,15 @@
  */
 
 #include "module/request/css_edit_style_texts_request.h"
+#include "devtools_base/parse_json_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
 void CssEditStyleTextsRequest::Deserialize(const std::string& params) {
   auto params_json = nlohmann::json::parse(params);
-  if (!params_json.is_object() || params_json.find(kFrontendKeyEdits) == params_json.end()) {
+  if (!params_json.is_object()) {
     return;
   }
-  edits_ = params_json[kFrontendKeyEdits];
+  edits_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyEdits, nlohmann::json::array());
 }
 }  // namespace hippy::devtools

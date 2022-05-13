@@ -358,7 +358,7 @@ nlohmann::json DomModel::BuildAttributesObjectToArray() {
     }
     if (!value.is_string()) {
       // non string type need change to string type
-      value = TDFStringUtil::Character(value);
+      value = TDFStringUtil::ToString(value);
     }
     attributes_array.emplace_back(attribute.key());
     attributes_array.emplace_back(value);
@@ -380,6 +380,7 @@ std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<s
     BACKEND_LOGE(TDF_BACKEND, "DOMModel, GetLeftTopRightBottomValueFromStyle, style isn't object");
     return result;
   }
+  // keys [width, left_width, top_width, right_width, bottom_width]
   int32_t left = 0, top = 0, right = 0, bottom = 0;
   auto total_it = style_.find(keys[0]);
   if (total_it != style_.end()) {

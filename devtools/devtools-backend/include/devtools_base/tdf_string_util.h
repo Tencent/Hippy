@@ -68,14 +68,13 @@ class TDFStringUtil {
    * @return
    */
   template <typename T>
-  static std::string Character(T value) {
+  static std::string ToString(T value) {
     std::stringstream temp_stream;
     temp_stream << value;
     return temp_stream.str();
   }
 
   static std::string AdaptProtocolName(std::string domain_name);
-
 };
 
 }  // namespace hippy::devtools
