@@ -39,7 +39,7 @@
 	},
 	"types": "dist/@types/index.d.ts",
 	"dependencies": {
-		"@hippy/chrome-devtools": "^0.0.1",
+		"@hippy/chrome-devtools": "^0.0.2",
 		"@hippy/chrome-devtools-extensions": "^0.0.1",
 		"@hippy/devtools-protocol": "^0.0.1",
 		"@hippy/hippy-hmr-plugin": "^0.1.0",
