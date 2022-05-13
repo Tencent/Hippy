@@ -20,6 +20,7 @@
 
 #include "module/model/screen_shot_model.h"
 #include "api/devtools_backend_service.h"
+#include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "devtools_base/transform_string_util.hpp"
 #include "module/inspect_props.h"
@@ -31,24 +32,29 @@ void ScreenShotModel::SetScreenShotRequest(const ScreenShotRequest &req) {
 }
 
 void ScreenShotModel::ReqScreenShotToResponse() {
-  ReqScreenShot([this](const std::string &image, int32_t width, int32_t height) {
-    if (response_callback_) {
-      response_callback_(ScreenShotResponse(image, width, height));
+  ReqScreenShot([DEVTOOLS_WEAK_THIS](const std::string &image, int32_t width, int32_t height) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(ScreenShotModel)
+    std::lock_guard<std::recursive_mutex> lock(self->mutex_);
+    if (self->response_callback_) {
+      self->response_callback_(ScreenShotResponse(image, width, height));
     }
     BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToResponse end");
   });
 }
 
 void ScreenShotModel::ReqScreenShotToSendEvent() {
-  ReqScreenShot([this](const std::string &image_base64, int32_t width, int32_t height) {
-    if (send_event_callback_) {
-      send_event_callback_(ScreenShotResponse(image_base64, width, height));
+  ReqScreenShot([DEVTOOLS_WEAK_THIS](const std::string &image_base64, int32_t width, int32_t height) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(ScreenShotModel)
+    std::lock_guard<std::recursive_mutex> lock(self->mutex_);
+    if (self->send_event_callback_) {
+      self->send_event_callback_(ScreenShotResponse(image_base64, width, height));
     }
     BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToSendEvent end");
   });
 }
 
 void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen_shot_callback) {
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
   if (!has_set_request_) {
     return;
   }

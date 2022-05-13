@@ -24,7 +24,6 @@
 #include <asl.h>
 #include <string>
 #include <mutex>
-#include "base/logging.h"
 
 #import "HippyAssert.h"
 #import "HippyBridge.h"

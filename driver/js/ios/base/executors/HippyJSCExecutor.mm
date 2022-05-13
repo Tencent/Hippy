@@ -833,7 +833,6 @@ static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t modul
     [_performanceLogger appendStopForTag:HippyPLRAMNativeRequires];
 }
 
-#if TDF_SERVICE_ENABLED
 - (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge {
     if (![bridge.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
         return @"";
@@ -860,6 +859,5 @@ static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t modul
     }
     return [devInfo assembleFullWSURL];
 }
-#endif
 
 @end

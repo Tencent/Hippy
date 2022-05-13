@@ -32,7 +32,7 @@ namespace hippy::devtools {
 /**
  * @brief screenshot model
  */
-class ScreenShotModel : public BaseModel {
+class ScreenShotModel : public BaseModel, public std::enable_shared_from_this<ScreenShotModel> {
  public:
   ScreenShotModel() : has_set_request_(false) {}
   ~ScreenShotModel() = default;
@@ -64,5 +64,6 @@ class ScreenShotModel : public BaseModel {
   ScreenShotRequest request_;
   ScreenShotCallback response_callback_;
   ScreenShotCallback send_event_callback_;
+  std::recursive_mutex mutex_;
 };
 }  // namespace hippy::devtools

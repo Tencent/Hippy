@@ -27,10 +27,11 @@
 
 namespace hippy::devtools {
 
-class FramePollModel : public BaseModel {
+class FramePollModel : public BaseModel, public std::enable_shared_from_this<FramePollModel> {
  public:
   using ResponseHandler = std::function<void()>;
-  FramePollModel();
+  FramePollModel() = default;
+  void InitTask();
   void SetResponseHandler(ResponseHandler handler) { response_handler_ = handler; }
   void StartPoll();
   void StopPoll();
@@ -46,6 +47,7 @@ class FramePollModel : public BaseModel {
   bool frame_is_dirty_ = true;
   std::shared_ptr<TaskRunner> refresh_task_runner_;
   std::function<void()> refresh_task_;
+  std::recursive_mutex mutex_;
 };
 
 }  // namespace hippy::devtools
