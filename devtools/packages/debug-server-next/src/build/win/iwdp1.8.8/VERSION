@@ -1,0 +1,4 @@
+ios-webkit-debug-proxy@1afef78d636586cee28cdfc395294d6b41516bbb v1.8.8
+libimobiledevice@b5d575c118ecfc2afcb12739433e916527182327 v1.3.1 # broken ipv6 support, commits 604a0a 9a7f686 574d7f8 4059a8c were reverted
+libplist@93dbf11118cc84eb37a500b59b683255462f5ba2 v2.2.1
+libusbmuxd@c7d7d1a03f65a27be2eddb13d1f2b0c0e7a60ec6 v2.0.3 # broken ipv6 support, commits d75d298 ee02dea f71bb40 were reverted 

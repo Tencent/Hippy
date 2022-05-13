@@ -1,0 +1,24 @@
+{
+    "version": "1.8.8",
+    "description": "A DevTools proxy (Chrome Remote Debugging Protocol) for iOS devices (Safari Remote Web Inspector).",
+    "homepage": "https://github.com/google/ios-webkit-debug-proxy",
+    "license": "BSD-3-Clause",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/google/ios-webkit-debug-proxy/releases/download/v1.8.8/ios-webkit-debug-proxy-1.8.8-win64-bin.zip",
+            "hash": "f630a632d33f8bc9fb9b402afafecd42a5de486df7b42fd720827da065658e95"
+        }
+    },
+    "bin": "ios_webkit_debug_proxy.exe",
+    "checkver": {
+        "url": "https://github.com/google/ios-webkit-debug-proxy/releases",
+        "regex": "/ios-webkit-debug-proxy-([\\d.]+)-win64-bin.zip"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/google/ios-webkit-debug-proxy/releases/download/v$version/ios-webkit-debug-proxy-$version-win64-bin.zip"
+            }
+        }
+    }
+}
