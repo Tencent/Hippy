@@ -18,5 +18,5 @@
  * limitations under the License.
  */
  
-import addon from '@/build/mac/arm64/Tunnel.node';
+import addon from '@debug-server-next/build/mac/arm64/Tunnel.node';
 global.addon = addon;
