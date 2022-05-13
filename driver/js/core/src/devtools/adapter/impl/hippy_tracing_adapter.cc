@@ -20,19 +20,29 @@
 
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include <string>
+#ifdef JS_ENGINE_V8
 #include "devtools/trace_control.h"
+#endif
 
 namespace hippy {
 namespace devtools {
 void HippyTracingAdapter::StartTracing() {
+#ifdef JS_ENGINE_V8
   TraceControl::GetInstance().StartTracing();
+#endif
 }
 
 void HippyTracingAdapter::StopTracing(TracingDataCallback callback) {
+#ifdef JS_ENGINE_V8
   TraceControl::GetInstance().StopTracing();
   if (callback) {
     callback(TraceControl::GetInstance().GetTracingContent());
   }
+#elif
+  if (callback) {
+    callback("");
+  }
+#endif
 }
 }  // namespace devtools
 }  // namespace hippy

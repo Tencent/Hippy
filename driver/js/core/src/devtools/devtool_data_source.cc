@@ -25,13 +25,13 @@
 #include <utility>
 #ifdef JS_ENGINE_V8
 #include "core/runtime/v8/runtime.h"
+#include "devtools/trace_control.h"
 #endif
 #include "devtools/adapter/hippy_dom_tree_adapter.h"
 #include "devtools/adapter/hippy_elements_request_adapter.h"
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
-#include "devtools/trace_control.h"
 #include "dom/dom_manager.h"
 
 namespace hippy {

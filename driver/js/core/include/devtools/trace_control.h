@@ -53,9 +53,9 @@ class TraceControl {
   v8::platform::tracing::TracingController *v8_trace_control_ = nullptr;
   v8::platform::tracing::TraceBuffer *trace_buffer_ = nullptr;
   v8::platform::tracing::TraceWriter *trace_writer_ = nullptr;
+#endif
   std::ofstream trace_file_;
   bool OpenCacheFile();
-#endif
   std::string cache_file_dir_;
   std::string cache_file_path_;
   bool tracing_has_start_ = false;

@@ -18,19 +18,19 @@
  * limitations under the License.
  */
 
+#if JS_ENGINE_V8
+
 #include "devtools/trace_control.h"
 
 #include <fstream>
 #include <sstream>
 #include <utility>
-
 #include "base/logging.h"
 
 namespace hippy {
 namespace devtools {
 constexpr const char *kCacheFileName = "/v8_trace.json";
 
-#ifdef JS_ENGINE_V8
 void TraceControl::SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control) {
   if (tracing_control) {
     v8_trace_control_ = static_cast<v8::platform::tracing::TracingController *>(tracing_control);
@@ -51,14 +51,12 @@ bool TraceControl::OpenCacheFile() {
   trace_file_.open(cache_file_path_);
   return trace_file_.is_open();
 }
-#endif
 
 void TraceControl::SetFileCacheDir(std::string file_cache_dir) {
   cache_file_dir_ = std::move(file_cache_dir);
 }
 
 void TraceControl::StartTracing() {
-#ifdef JS_ENGINE_V8
   if (v8_trace_control_) {
     if (tracing_has_start_) {
       StopTracing();
@@ -74,14 +72,12 @@ void TraceControl::StartTracing() {
     control_has_init_ = true;
     tracing_has_start_ = true;
   }
-#endif
 }
 
 void TraceControl::ClosePreviousBuffer() {
   if (!control_has_init_) {
     return;
   }
-#ifdef JS_ENGINE_V8
   if (trace_buffer_) {
     trace_buffer_->Flush();
   }
@@ -91,7 +87,6 @@ void TraceControl::ClosePreviousBuffer() {
   if (trace_file_) {
     trace_file_.seekp(-2, std::ios::end);
   }
-#endif
 }
 
 std::string TraceControl::GetTracingContent() {
@@ -107,7 +102,6 @@ std::string TraceControl::GetTracingContent() {
 }
 
 void TraceControl::StopTracing() {
-#ifdef JS_ENGINE_V8
   if (v8_trace_control_) {
     v8_trace_control_->StopTracing();
     if (trace_writer_ != nullptr) {
@@ -117,7 +111,8 @@ void TraceControl::StopTracing() {
     trace_file_.close();
     tracing_has_start_ = false;
   }
-#endif
 }
 }  // namespace devtools
 }  // namespace hippy
+
+#endif
