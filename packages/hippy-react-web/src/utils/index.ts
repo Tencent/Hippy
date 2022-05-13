@@ -61,7 +61,6 @@ const useStable = <T>(getInitialValue: () => T): T => {
 };
 
 const getViewRefNode = (ref: any) => {
-  console.log('ref', ref);
   if (ref?.current?.node) {
     return ref.current.node as HTMLElement;
   }
