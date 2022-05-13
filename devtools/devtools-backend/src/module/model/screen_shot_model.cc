@@ -32,22 +32,22 @@ void ScreenShotModel::SetScreenShotRequest(const ScreenShotRequest &req) {
 }
 
 void ScreenShotModel::ReqScreenShotToResponse() {
-  ReqScreenShot([DEVTOOLS_WEAK_THIS](const std::string &image, int32_t width, int32_t height) {
+  ReqScreenShot([DEVTOOLS_WEAK_THIS, response_callback = response_callback_](const std::string &image, int32_t width,
+                                                                             int32_t height) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(ScreenShotModel)
-    std::lock_guard<std::recursive_mutex> lock(self->mutex_);
-    if (self->response_callback_) {
-      self->response_callback_(ScreenShotResponse(image, width, height));
+    if (response_callback) {
+      response_callback(ScreenShotResponse(image, width, height));
     }
     BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToResponse end");
   });
 }
 
 void ScreenShotModel::ReqScreenShotToSendEvent() {
-  ReqScreenShot([DEVTOOLS_WEAK_THIS](const std::string &image_base64, int32_t width, int32_t height) {
+  ReqScreenShot([DEVTOOLS_WEAK_THIS, event_callback = send_event_callback_](const std::string &image_base64,
+                                                                            int32_t width, int32_t height) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(ScreenShotModel)
-    std::lock_guard<std::recursive_mutex> lock(self->mutex_);
-    if (self->send_event_callback_) {
-      self->send_event_callback_(ScreenShotResponse(image_base64, width, height));
+    if (event_callback) {
+      event_callback(ScreenShotResponse(image_base64, width, height));
     }
     BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToSendEvent end");
   });

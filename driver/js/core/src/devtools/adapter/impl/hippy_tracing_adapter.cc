@@ -38,7 +38,7 @@ void HippyTracingAdapter::StopTracing(TracingDataCallback callback) {
   if (callback) {
     callback(TraceControl::GetInstance().GetTracingContent());
   }
-#elif
+#else
   if (callback) {
     callback("");
   }
