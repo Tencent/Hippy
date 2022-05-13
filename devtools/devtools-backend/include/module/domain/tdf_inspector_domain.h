@@ -37,7 +37,7 @@ namespace hippy::devtools {
 /**
  * @brief UIInspect domain relative with DOM、Render、Layer Tree
  */
-class TdfInspectorDomain : public BaseDomain {
+class TdfInspectorDomain : public BaseDomain, public std::enable_shared_from_this<TdfInspectorDomain> {
  public:
   explicit TdfInspectorDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string GetDomainName() override;

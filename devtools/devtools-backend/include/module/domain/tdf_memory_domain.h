@@ -28,7 +28,7 @@
 
 namespace hippy::devtools {
 
-class TdfMemoryDomain : public BaseDomain {
+class TdfMemoryDomain : public BaseDomain, public std::enable_shared_from_this<TdfMemoryDomain> {
  public:
   explicit TdfMemoryDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;

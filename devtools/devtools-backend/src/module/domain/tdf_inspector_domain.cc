@@ -21,6 +21,7 @@
 #include "module/domain/tdf_inspector_domain.h"
 #include <utility>
 #include "api/devtools_backend_service.h"
+#include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
 
@@ -61,14 +62,15 @@ void TdfInspectorDomain::GetDomTree(const BaseRequest& request) {
     return;
   }
   BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetDomTree start");
-  dom_tree_adapter->GetDomTree([this, request](bool is_success, const DomNodeMetas& metas) {
+  dom_tree_adapter->GetDomTree([DEVTOOLS_WEAK_THIS, request](bool is_success, const DomNodeMetas& metas) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
     BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetDomTree end");
     if (is_success) {
       nlohmann::json result_json = nlohmann::json::object();
       result_json[kFrontendKeyItree] = nlohmann::json::parse(metas.Serialize());
-      ResponseResultToFrontend(request.GetId(), result_json.dump());
+      self->ResponseResultToFrontend(request.GetId(), result_json.dump());
     } else {
-      ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get dom tree failed, is_success false.");
+      self->ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get dom tree failed, is_success false.");
     }
   });
 }
@@ -80,14 +82,15 @@ void TdfInspectorDomain::GetRenderTree(const BaseRequest& request) {
     return;
   }
   BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom start");
-  render_tree_adapter->GetRenderTree([this, request](bool is_success, const RenderNodeMetas& metas) {
+  render_tree_adapter->GetRenderTree([DEVTOOLS_WEAK_THIS, request](bool is_success, const RenderNodeMetas& metas) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
     BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom end %d", is_success ? 1 : 0);
     if (is_success) {
       nlohmann::json result_json = nlohmann::json::object();
       result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize());
-      ResponseResultToFrontend(request.GetId(), result_json.dump());
+      self->ResponseResultToFrontend(request.GetId(), result_json.dump());
     } else {
-      ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get render tree failed, is_success false.");
+      self->ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get render tree failed, is_success false.");
     }
   });
 }
@@ -96,8 +99,9 @@ void TdfInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
   BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetScreenshot start");
   // use the latest GetScreenShot request params as the screenshot params
   screen_shot_model_->SetScreenShotRequest(request);
-  screen_shot_model_->SetResponseScreenShotCallback([this, request](const ScreenShotResponse& response) {
-    ResponseResultToFrontend(request.GetId(), response.ToJsonString());
+  screen_shot_model_->SetResponseScreenShotCallback([DEVTOOLS_WEAK_THIS, request](const ScreenShotResponse& response) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
+    self->ResponseResultToFrontend(request.GetId(), response.ToJsonString());
   });
   screen_shot_model_->ReqScreenShotToResponse();
 }
@@ -111,14 +115,16 @@ void TdfInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectReque
   }
   BACKEND_LOGD(TDF_BACKEND, "GetSelectedRenderObject start");
   render_tree_adapter->GetSelectedRenderObject(
-      request.GetRenderId(), [this, request](bool is_success, const RenderDiagnosticMetas& metas) {
+      request.GetRenderId(), [DEVTOOLS_WEAK_THIS, request](bool is_success, const RenderDiagnosticMetas& metas) {
+        DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
         BACKEND_LOGD(TDF_BACKEND, "GetSelectedRenderObject response");
         if (is_success) {
           nlohmann::json result_json = nlohmann::json::object();
           result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize());
-          ResponseResultToFrontend(request.GetId(), result_json.dump());
+          self->ResponseResultToFrontend(request.GetId(), result_json.dump());
         } else {
-          ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "GetSelectedRenderObject failed, is_success false.");
+          self->ResponseErrorToFrontend(request.GetId(), kErrorFailCode,
+                                        "GetSelectedRenderObject failed, is_success false.");
         }
       });
 }
@@ -130,15 +136,17 @@ void TdfInspectorDomain::EnableUpdateNotification(const BaseRequest& request) { 
 void TdfInspectorDomain::DisableUpdateNotification(const BaseRequest& request) { frame_poll_model_->StopPoll(); }
 
 void TdfInspectorDomain::HandleScreenShotUpdatedNotification() {
-  screen_shot_model_->SetSendEventScreenShotCallback([this](const ScreenShotResponse& response) {
-    SendEventToFrontend(InspectEvent(kScreenShotUpdated, response.ToJsonString()));
+  screen_shot_model_->SetSendEventScreenShotCallback([DEVTOOLS_WEAK_THIS](const ScreenShotResponse& response) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
+    self->SendEventToFrontend(InspectEvent(kScreenShotUpdated, response.ToJsonString()));
   });
 }
 
 void TdfInspectorDomain::HandleFramePollModelRefreshNotification() {
-  frame_poll_model_->SetResponseHandler([this]() {
-    screen_shot_model_->ReqScreenShotToSendEvent();
-    SendRenderTreeUpdatedEvent();
+  frame_poll_model_->SetResponseHandler([DEVTOOLS_WEAK_THIS]() {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
+    self->screen_shot_model_->ReqScreenShotToSendEvent();
+    self->SendRenderTreeUpdatedEvent();
   });
 }
 
@@ -147,9 +155,11 @@ void TdfInspectorDomain::SendRenderTreeUpdatedEvent() {
   if (!render_tree_adapter) {
     return;
   }
-  render_tree_adapter->GetRenderTree([this](bool is_success, const RenderNodeMetas& metas) {
+  render_tree_adapter->GetRenderTree([DEVTOOLS_WEAK_THIS](bool is_success, const RenderNodeMetas& metas) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
     if (is_success) {
-      SendEventToFrontend(InspectEvent(kRenderTreeUpdated, tdf_inspector_model_->GetRenderTree(metas.Serialize())));
+      self->SendEventToFrontend(
+          InspectEvent(kRenderTreeUpdated, self->tdf_inspector_model_->GetRenderTree(metas.Serialize())));
     }
   });
 }

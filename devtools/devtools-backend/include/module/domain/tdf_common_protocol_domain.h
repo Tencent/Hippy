@@ -29,7 +29,7 @@ namespace hippy::devtools {
 /**
  * @brief common domain where other domain don't handle
  */
-class TdfCommonProtocolDomain : public BaseDomain {
+class TdfCommonProtocolDomain : public BaseDomain, public std::enable_shared_from_this<TdfCommonProtocolDomain> {
  public:
   explicit TdfCommonProtocolDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
