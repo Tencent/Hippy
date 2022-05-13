@@ -45,7 +45,6 @@ DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   devtools_config.tunnel = hippy::devtools::Tunnel::kTcp;
   devtools_config.ws_url = ws_url;
   devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config);
-  devtools_service_->InitVMNotification();
   all_services.push_back(devtools_service_);
   runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>();
 }
@@ -71,8 +70,8 @@ void DevtoolDataSource::SetContextName(const std::string &context_name) {
   devtools_service_->GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 
-void DevtoolDataSource::SetV8RequestHandler(HippyVMRequestAdapter::VMRequestHandler request_handler) {
-  devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVMRequestAdapter>(request_handler);
+void DevtoolDataSource::SetV8RequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler) {
+  devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
 }
 
 void DevtoolDataSource::SendV8Response(const std::string& data) {
@@ -84,7 +83,7 @@ void DevtoolDataSource::SendV8Response(const std::string& data) {
   }
 }
 
-#ifdef OS_ANDROID
+#ifdef JS_ENGINE_V8
 void DevtoolDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController *tracingControl) {
   TraceControl::GetInstance().SetGlobalTracingController(tracingControl);
 }

@@ -20,17 +20,15 @@
 
 #include "devtools/adapter/hippy_vm_request_adapter.h"
 #include <string>
+#include <utility>
 
 namespace hippy {
 namespace devtools {
-HippyVMRequestAdapter::HippyVMRequestAdapter(VMRequestHandler request_handler) : request_handler_(request_handler) {}
+HippyVmRequestAdapter::HippyVmRequestAdapter(VmRequestHandler request_handler) : request_handler_(std::move(request_handler)) {}
 
-void HippyVMRequestAdapter::SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) {
+void HippyVmRequestAdapter::SendMsgToVm(std::string msg) {
   if (request_handler_) {
     request_handler_(msg);
-  }
-  if (sendFinishCallback) {
-    sendFinishCallback();
   }
 }
 }  // namespace devtools

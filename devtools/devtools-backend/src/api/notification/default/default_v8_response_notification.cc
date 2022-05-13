@@ -22,10 +22,10 @@
 #include <string>
 
 namespace hippy::devtools {
-DefaultVMResponseAdapter::DefaultVMResponseAdapter(ResponseHandler response_handler)
+DefaultVmResponseAdapter::DefaultVmResponseAdapter(ResponseHandler response_handler)
     : response_handler_(std::move(response_handler)) {}
 
-void DefaultVMResponseAdapter::ResponseToFrontend(std::string data) {
+void DefaultVmResponseAdapter::ResponseToFrontend(std::string data) {
   if (response_handler_) {
     response_handler_(data);
   }

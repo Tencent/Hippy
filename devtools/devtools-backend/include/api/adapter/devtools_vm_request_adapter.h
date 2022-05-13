@@ -26,16 +26,14 @@ namespace hippy::devtools {
 /**
  * Request encapsulation of upper layer execution engine，like v8、 jsc virtual machine
  */
-class VMRequestAdapter {
+class VmRequestAdapter {
  public:
-  using SendFinishCallback = std::function<void()>;
 
   /**
-   * send message to virtual machine
+   * @brief send message to virtual machine
    * @param msg  message data
-   * @param callback  on send finish callback
    */
-  virtual void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) = 0;
-  virtual ~VMRequestAdapter(){}
+  virtual void SendMsgToVm(std::string msg) = 0;
+  virtual ~VmRequestAdapter(){}
 };
 }  // namespace hippy::devtools

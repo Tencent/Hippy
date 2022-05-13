@@ -56,8 +56,9 @@ class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBacke
    */
   std::shared_ptr<NotificationCenter> GetNotificationCenter() { return data_channel_->GetNotificationCenter(); }
 
-  void InitVMNotification();
  private:
+  void InitJsEnvironment();
+
   std::shared_ptr<DataChannel> data_channel_;
   std::shared_ptr<TunnelService> tunnel_service_;
   std::shared_ptr<DomainDispatch> domain_dispatch_;

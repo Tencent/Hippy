@@ -136,7 +136,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
   return false;
 }
 
-void DomainDispatch::DispatchToVM(const std::string& data) {
+void DomainDispatch::DispatchToVm(const std::string& data) {
 #ifdef JS_ENGINE_V8
   BACKEND_LOGD(TDF_BACKEND, "JSDebugger, params=%s.", data.c_str());
   // if not in debug mode, then not send msg to v8
@@ -146,7 +146,7 @@ void DomainDispatch::DispatchToVM(const std::string& data) {
   }
   auto vm_request = data_channel_->GetProvider()->vm_request_adapter;
   if (vm_request) {
-    vm_request->SendMsgToVM(data, nullptr);
+    vm_request->SendMsgToVm(data);
   }
 #endif
 }

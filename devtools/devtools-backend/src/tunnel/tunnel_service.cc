@@ -55,7 +55,7 @@ void TunnelService::Connect() {
 void TunnelService::HandleReceiveData(const std::string& msg) {
   auto is_inspect_domain = dispatch_->ReceiveDataFromFrontend(msg);
   if (!is_inspect_domain) {  // others send to VM if use CDP
-    dispatch_->DispatchToVM(msg);
+    dispatch_->DispatchToVm(msg);
   }
 }
 

@@ -35,7 +35,7 @@ namespace hippy::devtools {
   */
 struct NotificationCenter {
   std::shared_ptr<LogNotification> log_notification;
-  std::shared_ptr<VMResponseNotification> vm_response_notification;
+  std::shared_ptr<VmResponseNotification> vm_response_notification;
   std::shared_ptr<NetworkNotification> network_notification;
   std::shared_ptr<RuntimeNotification> runtime_notification;
   std::shared_ptr<ElementsResponseNotification> elements_notification;

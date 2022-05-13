@@ -36,13 +36,7 @@ void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
   tdf::base::DomValue domValue;
   std::function func = [dom_id = dom_id_, node_id, is_root, depth, callback] {
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
-    if (is_root) {
-      auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-      hippy::devtools::DomainMetas metas = DevToolsUtil::GetDomDomainData(root_node, depth, dom_manager);
-      callback(metas);
-      return;
-    }
-    auto node = dom_manager->GetNode(static_cast<uint32_t>(node_id));
+    auto node = dom_manager->GetNode(is_root ? dom_manager->GetRootId() : static_cast<uint32_t>(node_id));
     assert(node != nullptr);
     hippy::devtools::DomainMetas metas = DevToolsUtil::GetDomDomainData(node, depth, dom_manager);
     callback(metas);

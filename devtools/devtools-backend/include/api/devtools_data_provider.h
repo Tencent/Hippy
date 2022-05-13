@@ -43,7 +43,7 @@ struct DataProvider {
   std::shared_ptr<MemoryAdapter> memory_adapter;
   std::shared_ptr<ScreenAdapter> screen_adapter;
   std::shared_ptr<TracingAdapter> tracing_adapter;
-  std::shared_ptr<VMRequestAdapter> vm_request_adapter;
+  std::shared_ptr<VmRequestAdapter> vm_request_adapter;
   std::shared_ptr<ElementsRequestAdapter> elements_request_adapter;
   std::shared_ptr<DomTreeAdapter> dom_tree_adapter;
   std::shared_ptr<RuntimeAdapter> runtime_adapter;

@@ -42,7 +42,7 @@ void TdfRuntimeDomain::Resume(const BaseRequest& request) {
   }
   auto vm_request = GetDataProvider()->vm_request_adapter;
   if (vm_request) {
-    vm_request->SendMsgToVM(kCmdChromeSocketClose, nullptr);
+    vm_request->SendMsgToVm(kCmdChromeSocketClose);
   }
 #endif
 }
