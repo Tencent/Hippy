@@ -84,7 +84,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
 
     /**
      * Get a {@link WasmModule} given a transfer_id previously provided by
-     * erializer.Delegate#getWasmModuleTransferId
+     * serializer.Delegate#getWasmModuleTransferId
      *
      * @param deserializer current deserializer
      * @param transfer_id  transfer id
