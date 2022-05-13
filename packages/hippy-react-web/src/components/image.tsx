@@ -211,5 +211,9 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
 Image.displayName = 'Image';
 // @ts-ignore
 Image.resizeMode = ImageResizeMode;
+// @ts-ignore
+Image.getSize = ImageLoader.getSize;
+// @ts-ignore
+Image.prefetch = ImageLoader.prefetch;
 
 export default Image;
