@@ -47,25 +47,25 @@ class CssModel : public BaseModel {
    * @brief css method to getMatchedStyles
    * @return style json
    */
-  nlohmann::json BuildMatchedStylesJSON();
+  nlohmann::json BuildMatchedStylesResponseJson();
 
   /**
    * @brief css method to getComputedStyle
    * @return style json
    */
-  nlohmann::json BuildComputedStyleJSON();
+  nlohmann::json BuildComputedStyleResponseJson();
 
   /**
    * @brief css method to getInlineStyles
    * @return style json
    */
-  static nlohmann::json BuildInlineStylesJSON();
+  static nlohmann::json BuildInlineStylesResponseJson();
 
   /**
    * @brief css method to setStyleTexts, it will effect the display
    * @return style json
    */
-  nlohmann::json UpdateDomTreeAndGetStyleTextJSON(const nlohmann::json& text);
+  nlohmann::json UpdateDomTreeAndGetStyleTextJson(const nlohmann::json& text);
 
   void SetWidth(double width) { width_ = width; }
   constexpr double GetWidth() const { return width_; }
@@ -87,10 +87,10 @@ class CssModel : public BaseModel {
   nlohmann::json BuildCssStyle();
   std::vector<hippy::devtools::CssStyleMetas> BuildStyleTextValue(const std::string& text_value);
   bool ContainsStyleKey(const std::string& key);
-  static nlohmann::json BuildStylePropertyJSON(const std::string& name, const std::string& value);
-  static nlohmann::json BuildCssPropertyJSON(const std::string& name, const std::string& value,
+  static nlohmann::json BuildStylePropertyJson(const std::string& name, const std::string& value);
+  static nlohmann::json BuildCssPropertyJson(const std::string& name, const std::string& value,
                                              const nlohmann::json& source_range);
-  static nlohmann::json BuildRangeJSON(int32_t start_line, int32_t start_column, int32_t end_line, int32_t end_column);
+  static nlohmann::json BuildRangeJson(int32_t start_line, int32_t start_column, int32_t end_line, int32_t end_column);
   static std::string ConvertValueToEnum(const std::vector<std::string>& options, const std::string& value);
 
   nlohmann::json style_ = nlohmann::json::object();

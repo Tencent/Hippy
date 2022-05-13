@@ -77,7 +77,7 @@ void CssDomain::GetMatchedStylesForNode(const CssNodeDataRequest& request) {
   }
   css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](CssModel model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
-    self->ResponseResultToFrontend(request.GetId(), model.BuildMatchedStylesJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), model.BuildMatchedStylesResponseJson().dump());
   });
 }
 
@@ -93,7 +93,7 @@ void CssDomain::GetComputedStyleForNode(const CssNodeDataRequest& request) {
   }
   css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](CssModel model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
-    self->ResponseResultToFrontend(request.GetId(), model.BuildComputedStyleJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), model.BuildComputedStyleResponseJson().dump());
   });
 }
 
@@ -108,7 +108,7 @@ void CssDomain::GetInlineStylesForNode(const CssNodeDataRequest& request) {
   }
   css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](const CssModel& model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
-    self->ResponseResultToFrontend(request.GetId(), CssModel::BuildInlineStylesJSON().dump());
+    self->ResponseResultToFrontend(request.GetId(), CssModel::BuildInlineStylesResponseJson().dump());
   });
 }
 
@@ -136,7 +136,7 @@ void CssDomain::SetStyleTexts(const CssEditStyleTextsRequest& request) {
       DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
       auto style_texts = self->style_text_map_[request.GetId()];
       auto request_call_back_count = self->request_call_back_count_map_[request.GetId()];
-      auto style_json = model.UpdateDomTreeAndGetStyleTextJSON(edit_value);
+      auto style_json = model.UpdateDomTreeAndGetStyleTextJson(edit_value);
       if (!style_json.is_null()) {
         style_texts.push_back(style_json);
       }

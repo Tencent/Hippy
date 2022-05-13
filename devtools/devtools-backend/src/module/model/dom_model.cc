@@ -84,7 +84,7 @@ DomModel DomModel::CreateModel(const nlohmann::json& json) {
   return model;
 }
 
-nlohmann::json DomModel::BuildDocumentJSON() {
+nlohmann::json DomModel::BuildDocumentJson() {
   auto document_json = nlohmann::json::object();
   auto root_json = nlohmann::json::object();
   // document root
@@ -98,7 +98,7 @@ nlohmann::json DomModel::BuildDocumentJSON() {
 
   auto child_json = nlohmann::json::array();
   for (auto& child : children_) {
-    child_json.emplace_back(child.BuildNodeJSON(DomNodeType::kElementNode));
+    child_json.emplace_back(child.BuildNodeJson(DomNodeType::kElementNode));
   }
   root_json[kChildren] = child_json;
   document_json[kRoot] = root_json;
@@ -106,7 +106,7 @@ nlohmann::json DomModel::BuildDocumentJSON() {
   return document_json;
 }
 
-nlohmann::json DomModel::BuildBoxModelJSON() {
+nlohmann::json DomModel::BuildBoxModelJson() {
   auto result_json = nlohmann::json::object();
   auto box_model_json = nlohmann::json::object();
   auto border = BuildBoxModelBorder();
@@ -131,25 +131,25 @@ nlohmann::json DomModel::BuildNodeForLocation(int32_t node_id) {
   return node_json;
 }
 
-nlohmann::json DomModel::BuildChildNodesJSON() {
+nlohmann::json DomModel::BuildChildNodesJson() {
   auto node_json = nlohmann::json::object();
   node_json[kParentId] = node_id_;
   auto node_children_json = nlohmann::json::array();
   for (auto& child : children_) {
-    node_children_json.emplace_back(child.BuildNodeJSON(DomNodeType::kElementNode));
+    node_children_json.emplace_back(child.BuildNodeJson(DomNodeType::kElementNode));
   }
   node_json[kNodes] = node_children_json;
   return node_json;
 }
 
-nlohmann::json DomModel::BuildNodeJSON(DomNodeType node_type) {
-  auto node_json = BuildNodeBasicJSON(node_type);
+nlohmann::json DomModel::BuildNodeJson(DomNodeType node_type) {
+  auto node_json = BuildNodeBasicJson(node_type);
   auto child_json = nlohmann::json::array();
   if (!node_value_.empty()) {
-    child_json.emplace_back(BuildTextNodeJSON());
+    child_json.emplace_back(BuildTextNodeJson());
   }
   for (auto& child : children_) {
-    child_json.emplace_back(child.BuildNodeJSON(node_type));
+    child_json.emplace_back(child.BuildNodeJson(node_type));
   }
   if (!child_json.empty()) {
     node_json[kChildren] = child_json;
@@ -157,8 +157,8 @@ nlohmann::json DomModel::BuildNodeJSON(DomNodeType node_type) {
   return node_json;
 }
 
-nlohmann::json DomModel::BuildTextNodeJSON() {
-  auto node_json = BuildNodeBasicJSON(DomNodeType::kTextNode);
+nlohmann::json DomModel::BuildTextNodeJson() {
+  auto node_json = BuildNodeBasicJson(DomNodeType::kTextNode);
   node_json[kChildNodeCount] = 0;
   node_json[kChildren] = nlohmann::json::array();
   return node_json;
@@ -317,7 +317,7 @@ nlohmann::json DomModel::BuildBoxModelMargin(const nlohmann::json& border) {
   return margin;
 }
 
-nlohmann::json DomModel::BuildNodeBasicJSON(DomNodeType node_type) {
+nlohmann::json DomModel::BuildNodeBasicJson(DomNodeType node_type) {
   auto node_json = nlohmann::json::object();
   auto result_id = node_id_;
   if (node_type == DomNodeType::kTextNode) {

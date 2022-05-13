@@ -60,19 +60,19 @@ class DomModel : public BaseModel {
    * @brief dom method to getDocument
    * @return json struct
    */
-  nlohmann::json BuildDocumentJSON();
+  nlohmann::json BuildDocumentJson();
 
   /**
    * @brief dom method to getBoxModel
    * @return json struct
    */
-  nlohmann::json BuildBoxModelJSON();
+  nlohmann::json BuildBoxModelJson();
 
   /**
    * dom method to setChildNodes
    * @return json struct
    */
-  nlohmann::json BuildChildNodesJSON();
+  nlohmann::json BuildChildNodesJson();
 
   static nlohmann::json BuildNodeForLocation(int32_t node_id);
 
@@ -124,13 +124,13 @@ class DomModel : public BaseModel {
   std::vector<DomModel>& GetChildren() { return children_; }
 
  private:
-  nlohmann::json BuildNodeJSON(DomNodeType node_type);
-  nlohmann::json BuildTextNodeJSON();
+  nlohmann::json BuildNodeJson(DomNodeType node_type);
+  nlohmann::json BuildTextNodeJson();
   nlohmann::json BuildBoxModelBorder();
   nlohmann::json BuildBoxModelPadding(const nlohmann::json& border);
   nlohmann::json BuildBoxModelContent(const nlohmann::json& padding);
   nlohmann::json BuildBoxModelMargin(const nlohmann::json& border);
-  nlohmann::json BuildNodeBasicJSON(DomNodeType node_type);
+  nlohmann::json BuildNodeBasicJson(DomNodeType node_type);
   nlohmann::json BuildAttributesObjectToArray();
   // return [left, top, right, bottom]
   // keys [width, left_width, top_width, right_width, bottom_width]

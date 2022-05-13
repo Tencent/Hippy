@@ -74,24 +74,24 @@ CssModel CssModel::CreateModel(const nlohmann::json& json) {
   return model;
 }
 
-nlohmann::json CssModel::BuildMatchedStylesJSON() {
+nlohmann::json CssModel::BuildMatchedStylesResponseJson() {
   auto matched_styles_json = nlohmann::json::object();
   matched_styles_json[kInlineStyleKey] = BuildCssStyle();
   return matched_styles_json;
 }
 
-nlohmann::json CssModel::BuildComputedStyleJSON() {
+nlohmann::json CssModel::BuildComputedStyleResponseJson() {
   auto computed_style_json = nlohmann::json::object();
   computed_style_json[kComputedStyleKey] = BuildComputedStyle();
   return computed_style_json;
 }
 
-nlohmann::json CssModel::BuildInlineStylesJSON() {
+nlohmann::json CssModel::BuildInlineStylesResponseJson() {
   // inline style use be in GetMatchedStylesJSON, so don't handle now
   return nlohmann::json::object();
 }
 
-nlohmann::json CssModel::UpdateDomTreeAndGetStyleTextJSON(const nlohmann::json& text) {
+nlohmann::json CssModel::UpdateDomTreeAndGetStyleTextJson(const nlohmann::json& text) {
   if (!provider_) {
     return nlohmann::json::object();
   }
@@ -131,25 +131,25 @@ nlohmann::json CssModel::BuildComputedStyle() {
     }
     // width and height are not taken from style, but from the actual render result
     if (key == kWidth) {
-      computed_styles.emplace_back(BuildStylePropertyJSON(TDFStringUtil::UnCamelize(kWidth), std::to_string(width_)));
+      computed_styles.emplace_back(BuildStylePropertyJson(TDFStringUtil::UnCamelize(kWidth), std::to_string(width_)));
       continue;
     }
     if (key == kHeight) {
-      computed_styles.emplace_back(BuildStylePropertyJSON(TDFStringUtil::UnCamelize(kHeight), std::to_string(height_)));
+      computed_styles.emplace_back(BuildStylePropertyJson(TDFStringUtil::UnCamelize(kHeight), std::to_string(height_)));
       continue;
     }
     auto value = prop.value();
     if (!value.is_string()) {
       value = TDFStringUtil::Character(value);
     }
-    computed_styles.emplace_back(BuildStylePropertyJSON(TDFStringUtil::UnCamelize(key), value));
+    computed_styles.emplace_back(BuildStylePropertyJson(TDFStringUtil::UnCamelize(key), value));
   }
 
   for (auto& box_model : box_model_require_map_) {
     auto style_it = style_.find(box_model.first);
     if (style_it == style_.end()) {
       computed_styles.emplace_back(
-          BuildStylePropertyJSON(TDFStringUtil::UnCamelize(box_model.first), box_model.second));
+          BuildStylePropertyJson(TDFStringUtil::UnCamelize(box_model.first), box_model.second));
     }
   }
   return computed_styles;
@@ -176,8 +176,8 @@ nlohmann::json CssModel::BuildCssStyle() {
     css_text_stream << css_name << ":" << css_value;
     std::string css_text = css_text_stream.str();
     auto source_range =
-        BuildRangeJSON(0, all_of_css_text.length(), 0, all_of_css_text.length() + css_text.length() + 1);
-    auto css_property = BuildCssPropertyJSON(css_name, css_value, source_range);
+        BuildRangeJson(0, all_of_css_text.length(), 0, all_of_css_text.length() + css_text.length() + 1);
+    auto css_property = BuildCssPropertyJson(css_name, css_value, source_range);
     css_properties.emplace_back(css_property);
     all_of_css_text = all_of_css_text.append(css_text).append(";");
   }
@@ -185,7 +185,7 @@ nlohmann::json CssModel::BuildCssStyle() {
   style_json[kCssPropertiesKey] = css_properties;
   style_json[kShorthandEntriesKey] = nlohmann::json::object();
   style_json[kCssTextKey] = all_of_css_text;
-  style_json[kRangeKey] = BuildRangeJSON(0, 0, 0, all_of_css_text.length());
+  style_json[kRangeKey] = BuildRangeJson(0, 0, 0, all_of_css_text.length());
   return style_json;
 }
 
@@ -225,14 +225,14 @@ bool CssModel::ContainsStyleKey(const std::string& key) {
   return style_number_set_.find(key) != style_number_set_.end() || style_enum_map_.find(key) != style_enum_map_.end();
 }
 
-nlohmann::json CssModel::BuildStylePropertyJSON(const std::string& name, const std::string& value) {
+nlohmann::json CssModel::BuildStylePropertyJson(const std::string& name, const std::string& value) {
   auto result = nlohmann::json::object();
   result[kStyleNameKey] = name;
   result[kStyleValueKey] = value;
   return result;
 }
 
-nlohmann::json CssModel::BuildCssPropertyJSON(const std::string& name, const std::string& value,
+nlohmann::json CssModel::BuildCssPropertyJson(const std::string& name, const std::string& value,
                                               const nlohmann::json& source_range) {
   auto css_property = nlohmann::json::object();
   css_property[kStyleNameKey] = name;
@@ -246,7 +246,7 @@ nlohmann::json CssModel::BuildCssPropertyJSON(const std::string& name, const std
   return css_property;
 }
 
-nlohmann::json CssModel::BuildRangeJSON(int32_t start_line, int32_t start_column, int32_t end_line,
+nlohmann::json CssModel::BuildRangeJson(int32_t start_line, int32_t start_column, int32_t end_line,
                                         int32_t end_column) {
   auto range_json = nlohmann::json::object();
   range_json[kStyleStartLineKey] = start_line;
