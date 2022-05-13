@@ -34,6 +34,7 @@ export interface DebugAppArgv {
   version?: boolean;
   iWDPStartPort?: number;
   iWDPEndPort?: number;
+  enableIOS?: boolean;
 }
 
 declare global {

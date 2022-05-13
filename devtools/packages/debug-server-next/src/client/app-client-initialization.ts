@@ -26,7 +26,7 @@ import { TunnelAppClient } from './tunnel-app-client';
 import { WSAppClient } from './ws-app-client';
 
 export const initAppClient = () => {
-  const { tunnel } = global.debugAppArgv;
+  const { tunnel, enableIOS } = global.debugAppArgv;
   const DefaultCtor = tunnel === DebugTunnel.WS ? WSAppClient : TunnelAppClient;
   appClientManager.addAndroidAppClientOption({
     useAllDomain: true,
@@ -39,10 +39,12 @@ export const initAppClient = () => {
     Ctor: DefaultCtor,
     platform: DevicePlatform.IOS,
   });
-  appClientManager.addIOSAppClientOption({
-    useAllDomain: false,
-    ignoreDomains: customDomains,
-    Ctor: IWDPAppClient,
-    platform: DevicePlatform.IOS,
-  });
+  if(enableIOS) {
+    appClientManager.addIOSAppClientOption({
+      useAllDomain: false,
+      ignoreDomains: customDomains,
+      Ctor: IWDPAppClient,
+      platform: DevicePlatform.IOS,
+    });
+  }
 };

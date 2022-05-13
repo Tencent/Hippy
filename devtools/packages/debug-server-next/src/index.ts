@@ -41,6 +41,7 @@ export const startDebugServer = (options?: DebugAppArgv) => {
     env: DevtoolsEnv.Hippy,
     iWDPPort: 9000,
     iWDPStartPort: 9200,
+    enableIOS: true,
     iWDPEndPort: 9300,
     ...(options || {}),
   };

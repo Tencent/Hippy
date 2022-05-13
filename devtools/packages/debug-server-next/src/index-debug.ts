@@ -40,6 +40,11 @@ const { argv } = yargs
     default: true,
     describe: 'Auto open chrome debug page',
   })
+  .option('enableIOS', {
+    type: 'boolean',
+    default: true,
+    describe: 'Enable debug iOS by chrome, by default is enabled. Notice Safari and Chrome could not work at the same time, so if you want debug iOS by safari, you must disable chrome by set false.',
+  })
   .option('log', {
     type: 'string',
     default: LogLevel.Info,
