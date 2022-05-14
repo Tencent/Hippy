@@ -41,6 +41,7 @@
 
 @property (nonatomic, copy) NSNumber *rootTag;
 @property (nonatomic, weak) HippyBridge *bridge;
+@property (nonatomic, copy) NSString *tagName;
 
 /**
  * check if it is layzily-load type
