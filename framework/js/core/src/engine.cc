@@ -44,11 +44,14 @@ Engine::~Engine() {
 
 void Engine::TerminateRunner() {
   TDF_BASE_DLOG(INFO) << "~TerminateRunner";
-  std::lock_guard<std::mutex> lock(runner_mutex_);
-  if (js_runner_) {
-    js_runner_->Terminate();
-    js_runner_ = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(js_runner_mutex_);
+    if (js_runner_) {
+      js_runner_->Terminate();
+      js_runner_ = nullptr;
+    }
   }
+
   if (worker_task_runner_) {
     worker_task_runner_->Terminate();
     worker_task_runner_ = nullptr;
