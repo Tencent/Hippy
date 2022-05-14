@@ -196,7 +196,10 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         RemoveCBFunc(uri);
       }
     };
-    scope->GetTaskRunner()->PostTask(js_task);
+    auto runner = scope->GetTaskRunner();
+    if (runner) {
+      runner->PostTask(js_task);
+    }
   };
   loader->RequestUntrustedContent(uri, cb);
   info.GetReturnValue()->SetUndefined();
