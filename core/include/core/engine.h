@@ -55,6 +55,7 @@ class Engine {
 
   void TerminateRunner();
   inline std::shared_ptr<JavaScriptTaskRunner> GetJSRunner() {
+    std::lock_guard<std::mutex> lock(js_runner_mutex_);
     return js_runner_;
   }
   inline std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner() {
@@ -73,6 +74,6 @@ class Engine {
   std::shared_ptr<VM> vm_;
   std::unique_ptr<RegisterMap> map_;
   std::mutex cnt_mutex_;
-  std::mutex runner_mutex_;
+  std::mutex js_runner_mutex_;
   uint32_t scope_cnt_;
 };
