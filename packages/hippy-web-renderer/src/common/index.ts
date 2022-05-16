@@ -57,6 +57,12 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
       animationProcess(key, object[key], element);
       continue;
     }
+    if (isFontSize(key) && element.tagName === 'span') {
+      const newValue = transformForSize(object[key]);
+      styleUpdateWithCheck(element, key, newValue);
+      styleUpdateWithCheck(element, 'line-height', newValue);
+      continue;
+    }
     if (isLayout(key, object[key])) {
       const newValue = transformForSize(object[key]);
       styleUpdateWithCheck(element, key, newValue);
@@ -162,12 +168,17 @@ function isLayout(key: string, value: number) {
 function isZIndex(key: string) {
   return key.startsWith('zIndex') || key.startsWith('z-index');
 }
+
 function isBackground(key) {
   return key.startsWith('background');
 }
 
 function transformForSize(value) {
   return !isNaN(value) ? `${value}px` : value;
+}
+
+function isFontSize(key) {
+  return key.startsWith('fontSize');
 }
 
 function borderStyleProcess(el: HTMLElement, style: { [key: string]: any }) {
