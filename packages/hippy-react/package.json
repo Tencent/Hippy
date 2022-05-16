@@ -1,6 +1,6 @@
 {
   "name": "@hippy/react",
-  "version": "2.13.8",
+  "version": "2.13.9",
   "description": "Hippy react framework",
   "main": "dist/index.js",
   "homepage": "http://hippyjs.org",
