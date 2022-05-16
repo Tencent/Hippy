@@ -47,12 +47,11 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
   notification_center->runtime_notification = std::make_shared<DefaultRuntimeNotification>(tunnel_service_);
 
   if (devtools_config.framework == Framework::kHippy) {
-    InitJsEnvironment();
+    domain_dispatch_->RegisterJSDebuggerDomainListener();
   }
 }
 
-void DevtoolsBackendService::InitJsEnvironment() {
-  domain_dispatch_->RegisterJSDebuggerDomainListener();
+void DevtoolsBackendService::Create() {
   data_channel_->GetNotificationCenter()->vm_response_notification =
       std::make_shared<DefaultVmResponseAdapter>([DEVTOOLS_WEAK_THIS](const std::string &data) {
         DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsBackendService)

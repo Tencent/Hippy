@@ -70,11 +70,11 @@ void DevtoolDataSource::SetContextName(const std::string &context_name) {
   devtools_service_->GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 
-void DevtoolDataSource::SetV8RequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler) {
+void DevtoolDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler) {
   devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
 }
 
-void DevtoolDataSource::SendV8Response(const std::string& data) {
+void DevtoolDataSource::SendVmResponse(const std::string& data) {
   for (auto& devtools_service : all_services) {
     auto service = devtools_service.lock();
     if (service) {
@@ -93,10 +93,11 @@ void DevtoolDataSource::SetFileCacheDir(const std::string& file_dir) {
 }
 #endif
 
-void DevtoolDataSource::SetRuntimeAdapterDebugMode(bool debug_mode) {
-  runtime_adapter_->SetDebugMode(debug_mode);
+void DevtoolDataSource::SetRuntimeDebugMode(bool debug_mode) {
+  if (runtime_adapter_) {
+    runtime_adapter_->SetDebugMode(debug_mode);
+  }
 }
-
 }  // namespace devtools
 }  // namespace hippy
 

@@ -41,6 +41,8 @@ class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBacke
  public:
   explicit DevtoolsBackendService(const DevtoolsConfig& devtools_config);
 
+  void Create();
+
   void Destroy(bool is_reload);
 
   /**
@@ -55,9 +57,7 @@ class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBacke
    * @return NotificationCenter
    */
   std::shared_ptr<NotificationCenter> GetNotificationCenter() { return data_channel_->GetNotificationCenter(); }
-
  private:
-  void InitJsEnvironment();
 
   std::shared_ptr<DataChannel> data_channel_;
   std::shared_ptr<TunnelService> tunnel_service_;

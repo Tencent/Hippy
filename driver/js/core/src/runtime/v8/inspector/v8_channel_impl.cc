@@ -40,7 +40,7 @@ void sendResponseToDevTools(v8_inspector::StringView stringView) {
   }
   auto data_chars = reinterpret_cast<const char16_t*>(stringView.characters16());
   auto result = base::StringViewUtils::ToU8StdStr(tdf::base::unicode_string_view(data_chars, stringView.length()));
-  DEVTOOLS_JS_REGISTER_RECEIVE_V8_RESPONSE(result);
+  DEVTOOLS_JS_REGISTER_RECEIVE_VM_RESPONSE(result);
 }
 
 void V8ChannelImpl::sendResponse(

@@ -32,6 +32,9 @@
 
 namespace hippy {
 namespace devtools {
+/**
+ *  dom node operation util class
+ */
 class DevToolsUtil {
  public:
   static hippy::devtools::DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
