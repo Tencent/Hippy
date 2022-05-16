@@ -93,7 +93,7 @@ class Focusable extends React.Component<FocusableProps, FocusableState> {
 
     let nativeStyle = style;
     if (type !== 'Text') {
-      const childStyle = child.memoizedProps.style;
+      const childStyle = child?.memoizedProps?.style;
       nativeStyle = { ...nativeStyle, ...childStyle };
     }
     Object.assign(nativeStyle, isFocus ? focusStyle : noFocusStyle);
