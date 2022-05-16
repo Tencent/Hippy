@@ -54,6 +54,9 @@ void FrameCodec::Decode(void *data, int32_t len) {
   if (len <= 0) {
     return;
   }
+  if (len > kMaxDataSize) {
+    return;
+  }
   int32_t stream_buffer_len = stream_buffer_.size();
   while ( stream_buffer_len + len >= kHeaderSize) {
     // header don't need join
