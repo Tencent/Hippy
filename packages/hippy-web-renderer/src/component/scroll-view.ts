@@ -292,6 +292,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     if (this.pagingEnabled) {
       return;
     }
+    this.handleScroll();
     this.onMomentumScrollEnd(this.buildScrollEvent(this.dom!));
   }
 
