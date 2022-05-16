@@ -100,6 +100,14 @@ function backgroundProcess(backgroundData: any, element: HTMLElement) {
     } else if (key === 'backgroundSize') {
       styleUpdateWithCheck(element, key, backgroundData.backgroundSize);
     }
+    if (key === 'linearGradient') {
+      const angle = `${backgroundData.linearGradient.angle ?? '0'}deg`;
+      let gradientStyle = `${angle} `;
+      backgroundData.linearGradient.colorStopList.forEach((item: {ratio: number, color: number}) => {
+        gradientStyle += `,${convertHexToRgba(item.color)} ${item.ratio * 100}%`;
+      });
+      styleUpdateWithCheck(element, 'background', `linear-gradient(${gradientStyle})`);
+    }
   }
   if (Object.keys(backgroundData).length > 0) {
     styleUpdateWithCheck(element, 'backgroundRepeat', 'no-repeat');
@@ -170,7 +178,7 @@ function isZIndex(key: string) {
 }
 
 function isBackground(key) {
-  return key.startsWith('background');
+  return key.startsWith('background') || key.startsWith('linearGradient');
 }
 
 function transformForSize(value) {
