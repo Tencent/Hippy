@@ -302,7 +302,7 @@ public class Serializer extends PrimitiveValueSerializer {
       writeValue(entry.getValue());
     }
     writeTag(SerializationTag.END_JS_MAP);
-    writer.putVarint(2 * count);
+    writer.putVarint(2L * count);
   }
 
   private void writeJSSet(@NonNull JSSet value) {

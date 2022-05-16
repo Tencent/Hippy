@@ -45,6 +45,7 @@ import java.util.ArrayList;
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Adapter<HippyRecyclerViewHolder>
         implements IRecycleItemTypeChange, IStickyItemsProvider, IItemLayoutParams {
 
+    private static final int STICK_ITEM_VIEW_TYPE_BASE = -100000;
     protected final HippyEngineContext hpContext;
     protected final HRCV hippyRecyclerView;
     protected final HippyItemTypeHelper hippyItemTypeHelper;
@@ -255,7 +256,14 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         //在调用onCreateViewHolder之前，必然会调用getItemViewType，所以这里把position记下来
         //用在onCreateViewHolder的时候来创建View，不然onCreateViewHolder是无法创建RenderNode到View的
         setPositionToCreate(position);
-        return getChildNodeByAdapterPosition(position).getItemViewType();
+        ListItemRenderNode node = getChildNodeByAdapterPosition(position);
+        if (node == null) {
+            return 0;
+        }
+        if (node.shouldSticky()) {
+            return STICK_ITEM_VIEW_TYPE_BASE - position;
+        }
+        return node.getItemViewType();
     }
 
     protected void setPositionToCreate(int position) {
@@ -398,9 +406,9 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     }
 
     public void resetPullHeaderPositionIfNeeded(int offsetY) {
-        if (offsetY == 0) {
-            ListItemRenderNode renderNode = getChildNodeByAdapterPosition(0);
-            if (renderNode != null && renderNode.isPullHeader()) {
+        ListItemRenderNode renderNode = getChildNodeByAdapterPosition(0);
+        if (renderNode != null && renderNode.isPullHeader()) {
+            if (headerEventHelper != null && offsetY <= headerEventHelper.getVisibleHeight()) {
                 headerEventHelper.resetPullHeaderPositionIfNeeded();
             }
         }
