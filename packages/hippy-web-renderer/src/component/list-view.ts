@@ -263,6 +263,7 @@ export class ListView extends HippyView<HTMLDivElement> {
           rowHeight: this.getChildHeight.bind(this),
           renderRow: this.getChildDom.bind(this),
           onRowsRendered: this.handleOnRowsRendered.bind(this),
+          onScroll: this.handleScroll.bind(this),
           initialScrollTop: this.initialContentOffset ?? 0,
           overScanCount: 2,
         });
@@ -454,19 +455,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 
   private handleScroll() {
-    window.requestAnimationFrame(() => {
-      if (this.stickyListViewItem) {
-        const stickyIndex = this.childData.findIndex(item => item === this.stickyListViewItem);
-        if (stickyIndex !== -1) {
-          const offset = this.virtualList.getRowOffset(stickyIndex);
-          if (this.virtualList.getOffset() > offset) {
-            this.moveStickyRowToContainer();
-          } else if (this.stickyContainer && this.stickyContainer.childNodes.length > 0) {
-            this.removeStickyRowToContainer();
-          }
-        }
-      }
-    });
+    window.requestAnimationFrame(this.listStickyCheck.bind(this));
     this.dom && eventThrottle(
       this.lastTimestamp,
       this.scrollEventThrottle,
@@ -485,6 +474,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.dirtyListItems.length > 0 && requestAnimationFrame(() => {
       this.checkDirtyChild();
     });
+    this.handleScroll();
     this.dom && this.onMomentumScrollEnd(this.buildScrollEvent());
   }
 
@@ -522,6 +512,22 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
   private buildScrollEvent() {
     return { contentOffset: { x: 0, y: this.virtualList.getOffset() } };
+  }
+
+  private listStickyCheck() {
+    if (!this.stickyListViewItem) {
+      return;
+    }
+    const stickyIndex = this.childData.findIndex(item => item === this.stickyListViewItem);
+    if (stickyIndex === -1) {
+      return;
+    }
+    const offset = this.virtualList.getRowOffset(stickyIndex);
+    if (this.virtualList.getOffset() > offset) {
+      this.moveStickyRowToContainer();
+    } else if (this.stickyContainer && this.stickyContainer.childNodes.length > 0) {
+      this.removeStickyRowToContainer();
+    }
   }
 }
 
