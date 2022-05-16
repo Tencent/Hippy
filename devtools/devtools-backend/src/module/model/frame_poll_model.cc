@@ -45,23 +45,18 @@ void FramePollModel::InitTask() {
 }
 
 void FramePollModel::StartPoll() {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (!provider_) {
+    BACKEND_LOGE(TDF_BACKEND, "StartPoll provider is null");
+    return;
+  }
   AddFrameCallback();
-  ScheduleRefreshTimer();
-  frame_is_dirty_ = true;
-}
-
-void FramePollModel::ScheduleRefreshTimer() {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
   refresh_task_runner_->Clear();
   refresh_task_runner_->PostDelayedTask(refresh_task_, TimeDelta::FromMilliseconds(kRefreshIntervalMilliSeconds));
 }
 
 void FramePollModel::AddFrameCallback() {
-  if (!provider_) {
-    BACKEND_LOGE(TDF_BACKEND, "AddFrameCallback provider is null");
-    return;
-  }
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  frame_is_dirty_ = true;
   if (!had_add_frame_callback_) {
     if (provider_->screen_adapter) {
       frame_callback_handler_ = provider_->screen_adapter->AddPostFrameCallback([DEVTOOLS_WEAK_THIS]() {
@@ -76,9 +71,11 @@ void FramePollModel::AddFrameCallback() {
 }
 
 void FramePollModel::StopPoll() {
-  std::lock_guard<std::recursive_mutex> lock(mutex_);
+  if (!provider_) {
+    BACKEND_LOGE(TDF_BACKEND, "StopPoll provider is null");
+    return;
+  }
   RemoveFrameCallback();
-  frame_is_dirty_ = true;
   refresh_task_runner_->Clear();
 }
 

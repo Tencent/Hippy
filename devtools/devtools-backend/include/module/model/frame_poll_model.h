@@ -40,7 +40,6 @@ class FramePollModel : public BaseModel, public std::enable_shared_from_this<Fra
  private:
   void RemoveFrameCallback();
   void AddFrameCallback();
-  void ScheduleRefreshTimer();
   bool had_add_frame_callback_ = false;
   uint64_t frame_callback_handler_ = 0;
   ResponseHandler response_handler_;
