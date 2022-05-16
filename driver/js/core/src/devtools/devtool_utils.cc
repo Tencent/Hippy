@@ -336,7 +336,8 @@ void DevToolsUtil::AppendDomKeyValue(std::string& node_str, bool& first_object, 
 void DevToolsUtil::PostDomTask(int32_t dom_id, std::function<void()> func) {
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
   if (dom_manager) {
-    dom_manager->PostTask(func);
+    std::vector<std::function<void()>> ops = {func};
+    dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
   }
 }
 }  // namespace devtools

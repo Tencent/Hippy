@@ -130,7 +130,7 @@ void UIManagerModule::SetContextName(const hippy::napi::CallbackInfo &info) {
   unicode_string_view unicode_context_name;
   bool flag = context->GetValueString(ctx_context_name, &unicode_context_name);
   if (scope->GetDevtoolsDataSource() && flag) {
-    auto context_name = StringViewUtils::ToU8StdStr(unicode_context_name);
+    auto context_name = hippy::base::StringViewUtils::ToU8StdStr(unicode_context_name);
     scope->GetDevtoolsDataSource()->SetContextName(context_name);
   }
 #endif
