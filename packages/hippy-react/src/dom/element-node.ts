@@ -52,7 +52,7 @@ interface DirectionMap {
 }
 
 interface AttributeUpdateOption {
-  isBatchUpdate?: boolean
+  notToNative?: boolean
 }
 
 interface DegreeUnit {
@@ -376,7 +376,7 @@ class ElementNode extends ViewNode {
       attributeQueue.forEach((attributeList) => {
         if (Array.isArray(attributeList)) {
           const [key, value]: (string | any)[] = attributeList;
-          this.setAttribute(key, value, { isBatchUpdate: true });
+          this.setAttribute(key, value, { notToNative: true });
         }
       });
       updateChild(this);
@@ -497,13 +497,13 @@ class ElementNode extends ViewNode {
         value = true;
       }
       if (key === undefined) {
-        !options.isBatchUpdate && updateChild(this);
+        !options.notToNative && updateChild(this);
         return;
       }
       const isNeedReturn = this.parseAttributeProp(key, value);
       if (isNeedReturn) return;
       this.parseAnimationStyleProp(this.style);
-      !options.isBatchUpdate && updateChild(this);
+      !options.notToNative && updateChild(this);
     } catch (e) {
       // noop
     }
@@ -514,7 +514,7 @@ class ElementNode extends ViewNode {
   }
 
   /* istanbul ignore next */
-  public setStyle(property: string, value: string | number | HippyTypes.Transform, isBatchUpdate = false) {
+  public setStyle(property: string, value: string | number | HippyTypes.Transform, notToNative = false) {
     if (value === null) {
       delete (this.style as any)[property];
       return;
@@ -539,7 +539,7 @@ class ElementNode extends ViewNode {
       return;
     }
     (this.style as any)[p] = v;
-    if (!isBatchUpdate) {
+    if (!notToNative) {
       updateChild(this);
     }
   }

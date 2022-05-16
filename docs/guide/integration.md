@@ -126,12 +126,12 @@ export default function app() {
 
 ### hippy-react npm 脚本
 
-最后在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/package.json#L13) 中补上几个快速的 npm 脚本就可以了，这里以 `hippy:`开头做好了范例，这里顺道做了一个到 [hippy-debug-server](//www.npmjs.com/package/hippy-debug-server) 的快速启动命令。
+最后在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/package.json#L13) 中补上几个快速的 npm 脚本就可以了，这里以 `hippy:`开头做好了范例，这里顺道做了一个到 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 的快速启动命令。
 
 ```json
   "scripts": {
-    "hippy:debug": "hippy-debug --live", // live 参数会开启 live-reload 监听
-    "hippy:dev": "webpack --config ./scripts/hippy-webpack.dev.js",
+    "hippy:debug": "hippy-debug",
+    "hippy:dev": "hippy-dev --config ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   }
@@ -290,14 +290,14 @@ app.$start((/* app */) => {
 setApp(app);
 ```
 
-### hippy-vue npm script
+### hippy-vue npm 脚本
 
-最后在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/package.json#L13) 中补上几个快速的 npm 脚本就可以了，这里以 `hippy:`开头做好了范例，这里顺道做了一个到 [hippy-debug-server](//www.npmjs.com/package/hippy-debug-server) 的快速启动命令。
+最后在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/package.json#L13) 中补上几个快速的 npm 脚本就可以了，这里以 `hippy:`开头做好了范例，这里顺道做了一个到 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 的快速启动命令。
 
 ```json
   "scripts": {
-    "hippy:debug": "hippy-debug --live", // live 参数会开启 live-reload 监听
-    "hippy:dev": "webpack --config ./scripts/hippy-webpack.dev.js",
+    "hippy:debug": "hippy-debug",
+    "hippy:dev": "hippy-dev --config ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   },

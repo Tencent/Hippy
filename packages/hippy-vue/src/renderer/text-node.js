@@ -35,6 +35,8 @@ export default class TextNode extends ViewNode {
 
   setText(text) {
     this.text = text;
-    this.parentNode.setText(text);
+    if (typeof this.parentNode.setText === 'function') {
+      this.parentNode.setText(text);
+    }
   }
 }

@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.adapter.font;
 
+import androidx.annotation.Nullable;
+
 @SuppressWarnings("SameReturnValue")
 public interface HippyFontScaleAdapter {
 
@@ -23,5 +25,9 @@ public interface HippyFontScaleAdapter {
   @SuppressWarnings("unused")
   CharSequence getEmoticonText(CharSequence text, int fontSize);
 
+  @Nullable
   String getCustomFontFilePath(String fontFamilyName, int style);
+
+  @Nullable
+  String getCustomDefaultFontFamily();
 }
