@@ -90,7 +90,7 @@ function handleEventListeners(eventNodes = [], sceneBuilder) {
     if (eventNode) {
       const { id, eventList } = eventNode;
       eventList.forEach((eventAttribute) => {
-        const { name, type, isCapture, listener } = eventAttribute;
+        const { name, type, listener } = eventAttribute;
         let nativeEventName;
         if (isNativeGesture(name)) {
           nativeEventName = nativeEventMap[name];
@@ -98,13 +98,10 @@ function handleEventListeners(eventNodes = [], sceneBuilder) {
           nativeEventName = translateToNativeEventName(name);
         }
         if (type === eventHandlerType.REMOVE) {
-          console.log('RemoveEventListener', id, nativeEventName, isCapture);
           sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
         }
         if (type === eventHandlerType.ADD) {
-          console.log('RemoveEventListener', id, nativeEventName, isCapture);
           sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
-          console.log('AddEventListener', id, nativeEventName, isCapture);
           sceneBuilder.AddEventListener(id, nativeEventName, listener);
         }
       });

@@ -233,7 +233,6 @@ function getEventName(key: string) {
 function createEventListener(name): (event) => void {
   return (event) => {
     const { id,  currentId, params } = event;
-    console.log('callback event', id, JSON.stringify(params));
     if (isNativeGesture(name)) {
       const dispatcherEvent = {
         id, name, currentId,
