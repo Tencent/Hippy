@@ -54,6 +54,7 @@ using StringViewUtils = hippy::base::StringViewUtils;
 constexpr char kNodePropertyPid[] = "pId";
 constexpr char kNodePropertyIndex[] = "index";
 constexpr char kNodePropertyViewName[] = "name";
+constexpr char kNodePropertyTagName[] = "tagName";
 constexpr char kNodePropertyProps[] = "props";
 constexpr char kNodePropertyStyle[] = "style";
 
@@ -128,7 +129,7 @@ std::tuple<bool, std::string, unicode_string_view>
 GetNodeTagName(const std::shared_ptr<Ctx> &context,
                const std::shared_ptr<CtxValue> &node) {
   // parse tag_name
-  std::shared_ptr<CtxValue> tag_name_value = context->GetProperty(node, kNodePropertyViewName);
+  std::shared_ptr<CtxValue> tag_name_value = context->GetProperty(node, kNodePropertyTagName);
   if (!tag_name_value) {
     return std::make_tuple(false, "Get property tag name failed", "");
   }
