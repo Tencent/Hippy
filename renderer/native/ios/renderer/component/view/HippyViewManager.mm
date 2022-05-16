@@ -69,9 +69,9 @@
     return nil;
 }
 
-HIPPY_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
-    params:(NSDictionary *__nonnull)params
-    callback:(HippyResponseSenderBlock)callback) {
+RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
+                                      params:(NSDictionary *__nonnull)params
+                                    callback:(HippyResponseSenderBlock)callback) {
   [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
     UIView *view = viewRegistry[hippyTag];
     if (view == nil) {
