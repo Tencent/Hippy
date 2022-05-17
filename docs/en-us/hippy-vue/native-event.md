@@ -1,15 +1,15 @@
-# 终端事件
+# terminal event
 
-有一些事件不是发给单个 UI，而是发给整个业务的，例如屏幕的翻转、网络的变化等等，我们称之它为 `终端事件`。
+Some events are not sent to a single UI, but to the whole business, such as the flip of the screen, the change of the network, etc., we call it `terminal events`.
 
-在 hippy-vue 中，所有终端事件都是分发到 Vue 的实例上（范例中实例名为 `app`），通过 Vue 的内部事件机制进行分发的。
+In hippy-vue, all terminal events are distributed to the instance of vue (named `app` in the example) through Vue's internal event mechanism.
 
-# 事件监听器
+# event listener
 
-这里监听 rotate 的事件，里面有回调参数 result。
+Listen for the rotate event here, which has the callback parameter result.
 
 ```js
-// 将入口文件中 setApp() 时保存的 Vue 实例取出来。
+// Take out the Vue instance saved during setApp() in the entry file.
 const app = getApp();
 
 export default {
@@ -19,36 +19,36 @@ export default {
     }
   },
   mounted() {
-    // 通过 app 监听 rotate 事件，并通过 this.listener 在事件发生时触发回调。
+    // Listen to the rotate event through the app, and trigger a callback when the event occurs through this.listener.
     app.$on('rotate', this.listener);
   }
 }
 
 ```
 
-# 事件触发
+# Event Trigger
 
-如果需要手动发送事件，可以通过 `app.$emit` 触发。
+If you need to send events manually, you can trigger through `app.$`.
 
 ```js
 const app = getApp();
 app.$emit('rotate', { width: 100, height: 100 });
 ```
 
-# 事件卸载
+# Event Offload
 
-如果不需要使用的时候记得调用一下移除监听的方法，一般放在组件的卸载生命周期中执行。
+If you don't need to use remember to call the remove listening method, generally on the component of the uninstall life cycle.
 
 ```js
 const app = getApp();
 app.$off('rotate', this.listener);
 ```
 
-# 实例销毁事件
+# Instance Destroy Event
 
-`最低支持版本 2.3.4`
+`minimum supported version 2.3.4`
 
-当 hippy js 引擎或者 context 被销毁时会触发该事件，hippy 业务可以通过监听 `destroyInstance` 事件做一些离开时的操作，但回调函数不能使用 `async`
+This event will be triggered when the hippy js engine or context is destroyed. The hippy business can do some operations when leaving by monitoring the `destroyInstance` event, but the callback function cannot use `async`
 
 ```jsx
 Hippy.on('destroyInstance', () => {
@@ -56,15 +56,15 @@ Hippy.on('destroyInstance', () => {
 });
 ```
 
-# 容器大小改变事件
+# Container Size Change Event
 
-`只有 Android 支持`
+`Android only`
 
-当容器大小改变时，如屏幕旋转、折叠屏切换等，会触发该事件
+When the container size changes, such as screen rotation, folding screen switch, etc., will trigger the event
 
 ```jsx
 app.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
-    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
+    // oldWidth: old width；oldHeight: old height；width: new width; height: new height
     console.log('size', oldWidth, oldHeight, width, height);
 });
 ```
