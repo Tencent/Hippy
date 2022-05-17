@@ -99,6 +99,8 @@
  */
 typedef void (^HippyResponseSenderBlock)(NSArray *response);
 
+typedef void (^RenderUIResponseSenderBlock)(id response);
+
 /**
  * The type of a block that is capable of sending an error response to a
  * bridged operation. Use this for returning error information to JS.

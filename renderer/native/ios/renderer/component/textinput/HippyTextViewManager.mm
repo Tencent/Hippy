@@ -125,19 +125,14 @@ RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
 
 // clang-format off
 RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
-                  callback:(HippyResponseSenderBlock)callback ) {
+                  callback:(RenderUIResponseSenderBlock)callback ) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
-        if (view == nil) return ;
-        if (![view isKindOfClass:[HippyBaseTextInput class]]) {
-            //HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
-        }
         NSString *stringValue = [view value];
         if (nil == stringValue) {
             stringValue = @"";
         }
-        NSArray *callBack = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:stringValue forKey:@"text"]];
-        callback(callBack);
+        callback([NSDictionary dictionaryWithObject:stringValue forKey:@"text"]);
     }];
 }
 // clang-format on

@@ -96,24 +96,11 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
 
 // clang-format off
 RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
-                    callback:(HippyResponseSenderBlock)callback) {
-    [self.renderContext addUIBlock:
-     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        
+                    callback:(RenderUIResponseSenderBlock)callback) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyScrollView *view = viewRegistry[hippyTag];
-        
-        if (view == nil) return ;
-        
-        if (!view || ![view isKindOfClass:[HippyScrollView class]]) {
-//            HippyLogError(@"Cannot find HippyScrollView with tag #%@", hippyTag);
-//            return;
-        }
-        
         CGSize size = view.scrollView.contentSize;
-        callback(@[@{
-                       @"width" : @(size.width),
-                       @"height" : @(size.height)
-        }]);
+        callback(@{@"width" : @(size.width),@"height" : @(size.height)});
     }];
 }
 // clang-format on
