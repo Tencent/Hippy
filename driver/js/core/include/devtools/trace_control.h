@@ -41,13 +41,11 @@ class TraceControl {
   void SetFileCacheDir(std::string file_cache_dir);
   std::string GetTracingContent();
 
- protected:
-  TraceControl() = default;
-  TraceControl(TraceControl &&) = delete;
   TraceControl(const TraceControl &) = delete;
   void operator=(const TraceControl &) = delete;
 
  private:
+  TraceControl() = default;
   void ClosePreviousBuffer();
 #ifdef JS_V8
   v8::platform::tracing::TracingController *v8_trace_control_ = nullptr;

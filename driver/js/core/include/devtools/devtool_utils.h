@@ -20,10 +20,6 @@
 
 #pragma once
 
-#ifdef JS_V8
-#include "core/runtime/v8/runtime.h"
-#endif
-
 #include "api/adapter/data/dom_node_location.h"
 #include "api/adapter/data/dom_node_metas.h"
 #include "api/adapter/data/domain_metas.h"
@@ -44,35 +40,23 @@ class DevToolsUtil {
 
   static DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
 
-  static DomainMetas GetDomDomainData(
-      const std::shared_ptr<DomNode>& dom_node,
-      uint32_t depth,
-      const std::shared_ptr<DomManager>& dom_manager);
+  static DomainMetas GetDomDomainData(const std::shared_ptr<DomNode>& dom_node,
+                                      uint32_t depth,
+                                      const std::shared_ptr<DomManager>& dom_manager);
 
-  static DomNodeLocation GetNodeIdByDomLocation(
-      const std::shared_ptr<DomNode>& dom_node,
-      double x,
-      double y);
+  static DomNodeLocation GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node, double x, double y);
 
   static void PostDomTask(int32_t dom_id, std::function<void()> func);
 
  private:
-  static std::shared_ptr<DomNode>
-  GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y);
-  static bool IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node,
-                                double x,
-                                double y);
+  static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y);
+  static bool IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, double x, double y);
   static std::string ParseNodeKeyProps(
       const std::string& node_key,
-      const std::shared_ptr<
-          std::unordered_map<std::string, std::shared_ptr<DomValue>>>&
-          node_props);
+      const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& node_props);
   static std::string ParseNodeProps(
-      const std::shared_ptr<
-          std::unordered_map<std::string, std::shared_ptr<DomValue>>>&
-          node_props);
-  static std::string ParseNodeProps(
-      const std::unordered_map<std::string, DomValue>& node_props);
+      const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& node_props);
+  static std::string ParseNodeProps(const std::unordered_map<std::string, DomValue>& node_props);
   static std::string ParseDomValue(const DomValue& value);
   static void AppendDomKeyValue(std::string& node_str,
                                 bool& first_object,

@@ -23,10 +23,12 @@
 #include <string>
 
 #include "api/adapter/devtools_screen_adapter.h"
+#include "hippy_elements_request_adapter.h"
 
 namespace hippy {
 namespace devtools {
-class HippyScreenAdapter : public hippy::devtools::ScreenAdapter {
+class HippyScreenAdapter : public hippy::devtools::ScreenAdapter,
+                           public std::enable_shared_from_this<HippyScreenAdapter> {
  public:
   explicit HippyScreenAdapter(int32_t dom_id) : dom_id_(dom_id) {}
 
@@ -36,12 +38,13 @@ class HippyScreenAdapter : public hippy::devtools::ScreenAdapter {
 
   void RemovePostFrameCallback(uint64_t id) override;
 
-  inline double GetScreenScale() override { return screen_scale; }
+  inline double GetScreenScale() override { return screen_scale_; }
 
  private:
   int32_t dom_id_;
-  int32_t frame_callback_id_;
-  static double screen_scale;
+  uint64_t frame_callback_id_;
+  double screen_scale_ = 1.0;
+  hippy::dom::DomArgument makeFrameCallbackArgument(uint64_t id) const;
 };
 }  // namespace devtools
 }  // namespace hippy

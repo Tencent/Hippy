@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <string>
 #include "api/adapter/devtools_tracing_adapter.h"
 
 namespace hippy {

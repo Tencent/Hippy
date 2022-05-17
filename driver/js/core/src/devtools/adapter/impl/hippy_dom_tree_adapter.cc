@@ -51,9 +51,7 @@ void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas meta
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
     if (dom_manager) {
       auto node = dom_manager->GetNode(static_cast<uint32_t>(node_id));
-      node->UpdateProperties(style_map,
-                             std::unordered_map<std::string,
-                                                std::shared_ptr<tdf::base::DomValue>>{});
+      node->UpdateProperties(style_map, std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>{});
       is_success = true;
     }
     callback(is_success);

@@ -21,6 +21,7 @@
 #pragma once
 
 #include <string>
+
 #include "api/adapter/devtools_vm_request_adapter.h"
 
 namespace hippy {
@@ -28,8 +29,12 @@ namespace devtools {
 class HippyVmRequestAdapter : public hippy::devtools::VmRequestAdapter {
  public:
   using VmRequestHandler = std::function<void(std::string)>;
-  explicit HippyVmRequestAdapter(VmRequestHandler request_handler);
-  void SendMsgToVm(std::string msg) override;
+  explicit HippyVmRequestAdapter(VmRequestHandler request_handler) : request_handler_(std::move(request_handler)) {}
+  inline void SendMsgToVm(std::string msg) override {
+    if (request_handler_) {
+      request_handler_(msg);
+    }
+  }
 
  private:
   VmRequestHandler request_handler_;
