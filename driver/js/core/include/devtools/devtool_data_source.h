@@ -63,7 +63,7 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
 
  private:
 #ifdef JS_V8
-  void SendVmData(v8_inspector::StringView stringView);
+  void SendVmData(v8_inspector::StringView string_view);
 #endif
 
   int32_t dom_id_;

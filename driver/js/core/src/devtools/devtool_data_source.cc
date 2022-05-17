@@ -42,7 +42,7 @@ using hippy::devtools::DevtoolsBackendService;
 DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
-  devtools_config.tunnel = hippy::devtools::Tunnel::kTcp;
+  devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
   devtools_config.ws_url = ws_url;
   devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config);
   devtools_service_->Create();
@@ -97,12 +97,10 @@ void DevtoolDataSource::SendVmNotification(std::unique_ptr<v8_inspector::StringB
   SendVmData(message->string());
 }
 
-void DevtoolDataSource::SendVmData(v8_inspector::StringView stringView) {
-  if (stringView.is8Bit()) {
-    return;
-  }
-  auto data_chars = reinterpret_cast<const char16_t*>(stringView.characters16());
-  auto result = base::StringViewUtils::ToU8StdStr(tdf::base::unicode_string_view(data_chars, stringView.length()));
+void DevtoolDataSource::SendVmData(v8_inspector::StringView string_view) {
+  TDF_BASE_DCHECK(!string_view.is8Bit());
+  auto data_chars = reinterpret_cast<const char16_t*>(string_view.characters16());
+  auto result = base::StringViewUtils::ToU8StdStr(tdf::base::unicode_string_view(data_chars, string_view.length()));
   devtools_service_->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(result);
 }
 #endif

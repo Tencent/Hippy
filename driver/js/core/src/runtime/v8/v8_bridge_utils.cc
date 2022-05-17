@@ -179,7 +179,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
         runtime->GetEngine()->GetJSRunner();
     std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
     task->callback = [runtime, data] {
-      // 转成utf-16给v8（utf-8给v8有一些协议如 Runtime.enable 有 Message must be a valid JSON）
+      // convert to utf-16 for v8, otherwise utf-8 like some protocol Runtime.enable which cause error "message must be a valid JSON"
       auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
       global_inspector->SendMessageToV8(u16str);
     };
