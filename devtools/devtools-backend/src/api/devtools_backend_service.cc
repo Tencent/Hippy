@@ -19,8 +19,10 @@
  */
 
 #include "api/devtools_backend_service.h"
+
 #include <sstream>
 #include <utility>
+
 #include "api/notification/default/default_log_notification.h"
 #include "api/notification/default/default_network_notification.h"
 #include "api/notification/default/default_runtime_notification.h"

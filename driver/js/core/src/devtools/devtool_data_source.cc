@@ -38,6 +38,7 @@
 
 namespace hippy {
 namespace devtools {
+
 using hippy::devtools::DevtoolsBackendService;
 DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;

@@ -31,13 +31,14 @@ namespace hippy::devtools {
 class LogNotification {
  public:
   /**
-   * Output log to the frontend of devtools
+   * @brief Output log to the frontend of devtools
+   * @param log_module msg module
    * @param log_message msg detail
    * @param serverity log level
    * @param file_name log file name
    * @param line_number line numbder
    */
-  virtual void PrintLog(const std::string& log_message, LogSeverity serverity, const std::string& file_name,
-                        int32_t line_number) = 0;
+  virtual void PrintLog(const std::string &log_module, const std::string &log_message, LogSeverity serverity,
+           const std::string &file_name, int32_t line_number) = 0;
 };
 }  // namespace hippy::devtools

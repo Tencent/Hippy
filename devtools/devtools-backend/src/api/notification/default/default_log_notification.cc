@@ -35,14 +35,13 @@ const char *GetNameForLogSeverity(hippy::devtools::LogSeverity severity) {
 
 DefaultLogAdapter::DefaultLogAdapter(BackendLogHandler log_handler) : log_handler_(std::move(log_handler)) {}
 
-void DefaultLogAdapter::PrintLog(const std::string &log_message, hippy::devtools::LogSeverity severity,
+void DefaultLogAdapter::PrintLog(const std::string& log_module, const std::string &log_message, hippy::devtools::LogSeverity severity,
                                  const std::string &file_name, int32_t line_number) {
   if (log_handler_) {
     auto nano_time_point = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now());
     int64_t nano_time_stamp = nano_time_point.time_since_epoch().count();
     hippy::devtools::LoggerModel logger_model;
-    logger_model.source = "TDF Core";
-    logger_model.module = "";
+    logger_model.module = log_module;
     logger_model.level = GetNameForLogSeverity(severity);
     logger_model.file_name = file_name;
     logger_model.line_number = line_number;

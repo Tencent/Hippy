@@ -24,13 +24,13 @@
 
 namespace hippy::devtools {
 /**
- * Show current page runtime data, custom protocol adapter
+ * @brief Show current page runtime data, custom protocol adapter
  */
 class RuntimeAdapter {
  public:
 
   /**
-   * is run in debug mode
+   * @brief is running in debug mode
    * @return debug mode
    */
   virtual bool IsDebug() = 0;

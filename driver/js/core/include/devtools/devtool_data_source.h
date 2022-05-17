@@ -43,7 +43,7 @@ namespace hippy {
 namespace devtools {
 
 /**
- * @brief Devtools Hippy framework imp
+ * @brief Hippy debug data source, collect debug data by adapter implement and notification
  */
 class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
  public:

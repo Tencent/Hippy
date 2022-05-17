@@ -35,7 +35,7 @@ std::string DomNodeLocation::Serialize() const {
   node_str += std::to_string(node_id_);
   if (!relation_tree_ids_.empty()) {
     node_str += ",\"hitNodeRelationTree\": [";
-    for (int i = 0; i < relation_tree_ids_.size(); ++i) {
+    for (size_t i = 0; i < relation_tree_ids_.size(); ++i) {
       node_str += std::to_string(relation_tree_ids_[i]);
       if (i < relation_tree_ids_.size() - 1) {
         node_str += ",";

@@ -19,9 +19,11 @@
  */
 
 #pragma once
+
 #include <iostream>
 #include <memory>
 #include <string>
+
 #include "api/devtools_config.h"
 #include "api/devtools_data_channel.h"
 #include "api/devtools_data_provider.h"
@@ -32,6 +34,7 @@
 #include "tunnel/tunnel_service.h"
 
 namespace hippy::devtools {
+
 /**
  * @brief Devtools backend service is a debugging back-end service, which is mainly responsible for the construction of
  * debugging channel, debugging protocol distribution and data collection of access framework of devtools. As an access
@@ -41,19 +44,25 @@ class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBacke
  public:
   explicit DevtoolsBackendService(const DevtoolsConfig& devtools_config);
 
+  /**
+   * @brief backend service create, to init necessary environment
+   */
   void Create();
 
+  /**
+   * @brief backend service destroy
+   * @param is_reload differ close or reload, if reload then the frontend will reuse
+   */
   void Destroy(bool is_reload);
 
   /**
-   * Data source required by devtools,
-   * framework needs to implement its own data adapter according to its own implementation
+   * @brief data provider interface provided by devtools, framework need to implement adapter for collecting debug data
    * @return data provider
    */
   std::shared_ptr<DataProvider> GetDataProvider() { return data_channel_->GetProvider(); }
 
   /**
-   * notification interface provided by devtools
+   * @brief notification interface provided by devtools, framework can notify to frontend by notification
    * @return NotificationCenter
    */
   std::shared_ptr<NotificationCenter> GetNotificationCenter() { return data_channel_->GetNotificationCenter(); }

@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include "api/notification/default/default_network_notification.h"
 #include <string>
 
