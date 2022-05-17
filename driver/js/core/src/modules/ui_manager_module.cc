@@ -121,11 +121,10 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
 }
 
 void UIManagerModule::SetContextName(const hippy::napi::CallbackInfo &info) {
+#if TDF_SERVICE_ENABLED
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
-
-#if TDF_SERVICE_ENABLED
   auto ctx_context_name = info[0];
   unicode_string_view unicode_context_name;
   bool flag = context->GetValueString(ctx_context_name, &unicode_context_name);
