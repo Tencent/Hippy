@@ -87,6 +87,10 @@ void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index
   }
   dom_node->SetParent(shared_from_this());
 
+  // TODO(charleeshen): 支持不同的view，需要终端注册
+  if (view_name_ == "Text") {
+    return;
+  }
   layout_node_->InsertChild(dom_node->GetLayoutNode(), (uint32_t)(index));
 }
 
@@ -222,8 +226,10 @@ LayoutResult DomNode::GetLayoutInfoFromRoot() {
 }
 
 void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
-  bool changed = layout_.left != layout_node_->GetLeft() || layout_.top != layout_node_->GetTop() ||
-                 layout_.width != layout_node_->GetWidth() || layout_.height != layout_node_->GetHeight();
+  auto not_equal = std::not_equal_to<float>();
+  bool changed = not_equal(layout_.left, layout_node_->GetLeft()) || not_equal(layout_.top, layout_node_->GetTop()) ||
+                 not_equal(layout_.width, layout_node_->GetWidth()) ||
+                 not_equal(layout_.height, layout_node_->GetHeight());
   layout_.left = layout_node_->GetLeft();
   layout_.top = layout_node_->GetTop();
   layout_.width = layout_node_->GetWidth();

@@ -76,7 +76,8 @@ void NativeRenderManager::Destroy() {
 jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_density) {
   std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
   auto hippy_render_manager = std::static_pointer_cast<HippyRenderManager>(render_manager);
-  hippy_render_manager->SetDensity(j_density);
+  float density = static_cast<float>(j_density);
+  hippy_render_manager->SetDensity(density);
   HippyRenderManager::Insert(hippy_render_manager);
   return hippy_render_manager->GetId();
 }

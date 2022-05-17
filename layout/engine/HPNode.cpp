@@ -1515,9 +1515,6 @@ void HPNode::calculateFixedItemPosition(HPNodeRef item, FlexDirection axis) {
 // offset is 0.4 then the child's absolute offset  is 0.7. if use roundf ,
 // roundf(0.7) == 1 so we need absLeft, absTop  parameter
 void HPNode::convertLayoutResult(float absLeft, float absTop, float scaleFactor) {
-  if (!hasNewLayout()) {
-    return;
-  }
   const float left = result.position[CSSLeft];
   const float top = result.position[CSSTop];
   const float width = result.dim[DimWidth];
