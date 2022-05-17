@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.header;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header;
 
 import android.view.View;
 

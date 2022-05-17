@@ -32,24 +32,24 @@ import java.util.ArrayList;
  * Created on 2020/10/14.
  */
 
-public class EasyRecyclerView extends RecyclerView {
+public class RecyclerViewBase extends RecyclerView {
 
-    protected OverPullHelper overPullHelper;
-    protected OverPullListener overPullListener;
+    protected HippyOverPullHelper overPullHelper;
+    protected HippyOverPullListener overPullListener;
     protected VelocityTracker velocityTracker;
     private boolean enableOverDrag;
 
-    public EasyRecyclerView(@NonNull Context context) {
+    public RecyclerViewBase(@NonNull Context context) {
         super(context);
         init();
     }
 
-    public EasyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public RecyclerViewBase(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public EasyRecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
+    public RecyclerViewBase(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
@@ -61,13 +61,13 @@ public class EasyRecyclerView extends RecyclerView {
         if (overPullHelper != null) {
             return overPullHelper.getOverPullState();
         }
-        return OverPullHelper.OVER_PULL_NONE;
+        return HippyOverPullHelper.OVER_PULL_NONE;
     }
 
     public boolean isOverPulling() {
         int pullState = getOverPullState();
-        return pullState == OverPullHelper.OVER_PULL_DOWN_ING || pullState == OverPullHelper.OVER_PULL_UP_ING
-                || pullState == OverPullHelper.OVER_PULL_SETTLING;
+        return pullState == HippyOverPullHelper.OVER_PULL_DOWN_ING || pullState == HippyOverPullHelper.OVER_PULL_UP_ING
+                || pullState == HippyOverPullHelper.OVER_PULL_SETTLING;
     }
 
     /**
@@ -90,7 +90,7 @@ public class EasyRecyclerView extends RecyclerView {
         return 0;
     }
 
-    public void setOverPullListener(OverPullListener listener) {
+    public void setOverPullListener(HippyOverPullListener listener) {
         overPullListener = listener;
         if (overPullHelper != null) {
             overPullHelper.setOverPullListener(listener);
@@ -105,7 +105,7 @@ public class EasyRecyclerView extends RecyclerView {
         this.enableOverDrag = enableOverDrag;
         if (enableOverDrag) {
             if (overPullHelper == null) {
-                overPullHelper = new OverPullHelper(this);
+                overPullHelper = new HippyOverPullHelper(this);
             }
             overPullHelper.setOverPullListener(overPullListener);
         } else {
