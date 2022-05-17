@@ -164,7 +164,9 @@ HIPPY_EXPORT_MODULE()
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
 #if TDF_SERVICE_ENABLED
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
-        self.pScope->CreateDevtools([wsURL UTF8String], bridge.debugMode);
+        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolDataSource>([wsURL UTF8String]);
+        devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
+        self.pScope->SetDevtoolDataSource(devtools_data_source);
 #endif
     }
 
@@ -396,7 +398,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     }
 #if TDF_SERVICE_ENABLED
     bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
-    self.pScope->DestroyDevtools(reload);
+    self.pScope->GetDevtoolsDataSource()->Destroy(reload);
 #endif
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
