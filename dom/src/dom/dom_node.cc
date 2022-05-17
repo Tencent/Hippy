@@ -134,13 +134,10 @@ void DomNode::SetLayoutOrigin(float x, float y) {
   layout_node_->SetPosition(hippy::Edge::EdgeTop, y);
 }
 
-void DomNode::AddEventListener(const std::string& name, bool use_capture, const EventCallback& cb,
-                               const CallFunctionCallback& callback) {
+void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture, const EventCallback& cb) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    current_callback_id_ += 1;
-    TDF_BASE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
     if (!event_listener_map_) {
       event_listener_map_ = std::make_shared<
           std::unordered_map<std::string, std::array<std::vector<std::shared_ptr<EventListenerInfo>>, 2>>>();
@@ -151,32 +148,30 @@ void DomNode::AddEventListener(const std::string& name, bool use_capture, const 
       dom_manager->AddEventListenerOperation(shared_from_this(), name);
     }
     if (use_capture) {
-      (*event_listener_map_)[name][kCapture].push_back(std::make_shared<EventListenerInfo>(current_callback_id_, cb));
+      (*event_listener_map_)[name][kCapture].push_back(std::make_shared<EventListenerInfo>(listener_id, cb));
     } else {
-      (*event_listener_map_)[name][kBubble].push_back(std::make_shared<EventListenerInfo>(current_callback_id_, cb));
-    }
-    if (callback) {
-      auto arg = std::make_shared<DomArgument>(DomValue(current_callback_id_));
-      callback(arg);
+      (*event_listener_map_)[name][kBubble].push_back(std::make_shared<EventListenerInfo>(listener_id, cb));
     }
   }
 }
 
-void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
+void DomNode::RemoveEventListener(const std::string& name, uint64_t listener_id) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
     if (!event_listener_map_) {
       return;
     }
+
+    // remove dom node capture function
     auto it = event_listener_map_->find(name);
     if (it == event_listener_map_->end()) {
       return;
     }
     auto capture_listeners = it->second[kCapture];
     auto capture_it = std::find_if(capture_listeners.begin(), capture_listeners.end(),
-                                   [id](const std::shared_ptr<EventListenerInfo>& item) {
-                                     if (item->id == id) {
+                                   [listener_id](const std::shared_ptr<EventListenerInfo>& item) {
+                                     if (item->id == listener_id) {
                                        return true;
                                      }
                                      return false;
@@ -184,10 +179,12 @@ void DomNode::RemoveEventListener(const std::string& name, uint32_t id) {
     if (capture_it != capture_listeners.end()) {
       capture_listeners.erase(capture_it);
     }
+
+    // remove dom node bubble function
     auto bubble_listeners = it->second[kBubble];
     auto bubble_it = std::find_if(bubble_listeners.begin(), bubble_listeners.end(),
-                                  [id](const std::shared_ptr<EventListenerInfo>& item) {
-                                    if (item->id == id) {
+                                  [listener_id](const std::shared_ptr<EventListenerInfo>& item) {
+                                    if (item->id == listener_id) {
                                       return true;
                                     }
                                     return false;

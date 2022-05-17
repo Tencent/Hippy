@@ -214,6 +214,8 @@ class JSCCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<JSValueWrapper>& wrapper) override;
 
+  virtual bool Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) override;
+
   virtual std::shared_ptr<DomValue> ToDomValue(
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<DomArgument> ToDomArgument(

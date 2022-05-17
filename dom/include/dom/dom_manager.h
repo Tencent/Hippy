@@ -36,7 +36,6 @@ class LayerOptimizedRenderManager;
 //      some_ops();
 //    });
 //    dom_manager->PostTask(Scene(std::move(ops)));
-
 class DomManager : public std::enable_shared_from_this<DomManager> {
  public:
   using DomValue = tdf::base::DomValue;
@@ -59,9 +58,9 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void EndBatch();
   // 返回0代表失败，正常id从1开始
-  void AddEventListener(uint32_t id, const std::string& name, bool use_capture, const EventCallback& cb,
-                        const CallFunctionCallback& callback);
-  void RemoveEventListener(uint32_t id, const std::string& name, uint32_t listener_id);
+  void AddEventListener(uint32_t dom_id, const std::string& event_name, uint64_t listener_id, bool use_capture,
+                        const EventCallback& cb);
+  void RemoveEventListener(uint32_t id, const std::string& name, uint64_t listener_id);
   void CallFunction(uint32_t id, const std::string& name, const DomArgument& param, const CallFunctionCallback& cb);
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
