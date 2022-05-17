@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
 import static androidx.recyclerview.widget.RecyclerView.HORIZONTAL;
 import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout.LayoutParams;
-import androidx.recyclerview.widget.EasyRecyclerView;
+import androidx.recyclerview.widget.RecyclerViewBase;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
@@ -38,20 +38,20 @@ public class StickyHeaderHelper extends OnScrollListener implements
         ViewTreeObserver.OnGlobalLayoutListener {
 
     private static final int INVALID_POSITION = -1;
-    private final IHeaderAttachListener headerAttachListener;
-    private EasyRecyclerView recyclerView;
-    private IStickyItemsProvider stickyItemsProvider;
+    private final com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener headerAttachListener;
+    private RecyclerViewBase recyclerView;
+    private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyItemsProvider stickyItemsProvider;
     private StickyViewFactory stickyViewFactory;
     private ViewHolder headerOrgViewHolder;
     private boolean orgViewHolderCanRecyclable = false;
     private View currentHeaderView;
     private int orientation;
     private int currentStickPos = -1;
-    private IHeaderHost headerHost;
-    private StickViewListener stickViewListener;
+    private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost headerHost;
+    private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickViewListener stickViewListener;
     private boolean isUpdateStickyHolderWhenLayout;
 
-    public StickyHeaderHelper(final EasyRecyclerView recyclerView,
+    public StickyHeaderHelper(final RecyclerViewBase recyclerView,
             IStickyItemsProvider stickyItemsProvider,
             IHeaderAttachListener headerAttachListener, IHeaderHost headerHost) {
         this.recyclerView = recyclerView;

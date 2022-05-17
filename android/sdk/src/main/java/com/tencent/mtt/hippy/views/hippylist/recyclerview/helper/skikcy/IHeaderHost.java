@@ -13,10 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.header;
+import android.view.View;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.FrameLayout.LayoutParams;
 
-public interface ILayoutRequester {
+/**
+ * Created by on 2021/1/12.
+ * Description
+ * HeaderView的宿主，用于HeaderView的挂载，监听挂载的回调
+ */
+public interface IHeaderHost {
 
-  void requestLayout();
+    void attachHeader(View headerView, LayoutParams layoutParams);
+
+    void addOnLayoutListener(OnGlobalLayoutListener listener);
+
+    void removeOnLayoutListener(OnGlobalLayoutListener listener);
 }

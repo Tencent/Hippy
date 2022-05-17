@@ -22,8 +22,8 @@ import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_SETTLING;
 
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.OverPullHelper;
-import androidx.recyclerview.widget.OverPullListener;
+import androidx.recyclerview.widget.HippyOverPullHelper;
+import androidx.recyclerview.widget.HippyOverPullListener;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import android.view.View;
@@ -45,7 +45,7 @@ import com.tencent.mtt.hippy.views.scroll.HippyScrollViewEventHelper;
  * 各种事件的通知，通知前端view的曝光事件，用于前端的统计上报
  */
 public class RecyclerViewEventHelper extends OnScrollListener implements OnLayoutChangeListener,
-        OnAttachStateChangeListener, OverPullListener {
+        OnAttachStateChangeListener, HippyOverPullListener {
 
     public static final String INITIAL_LIST_READY = "initialListReady";
     protected final HippyRecyclerView hippyRecyclerView;
@@ -388,19 +388,19 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     @Override
     public void onOverPullStateChanged(int oldState, int newState, int offset) {
         LogUtils.d("QBRecyclerViewEventHelper", "oldState:" + oldState + ",newState:" + newState);
-        if (oldState == OverPullHelper.OVER_PULL_NONE && (isOverPulling(newState)
-                || newState == OverPullHelper.OVER_PULL_NORMAL)) {
+        if (oldState == HippyOverPullHelper.OVER_PULL_NONE && (isOverPulling(newState)
+                || newState == HippyOverPullHelper.OVER_PULL_NORMAL)) {
             getOnScrollDragStartedEvent().send(getParentView(), generateScrollEvent());
         }
         if (isOverPulling(oldState) && isOverPulling(newState)) {
             sendOnScrollEvent();
         }
-        if (newState == OverPullHelper.OVER_PULL_SETTLING && oldState != OverPullHelper.OVER_PULL_SETTLING) {
+        if (newState == HippyOverPullHelper.OVER_PULL_SETTLING && oldState != HippyOverPullHelper.OVER_PULL_SETTLING) {
             getOnScrollDragEndedEvent().send(getParentView(), generateScrollEvent());
         }
     }
 
     private boolean isOverPulling(int newState) {
-        return newState == OverPullHelper.OVER_PULL_DOWN_ING || newState == OverPullHelper.OVER_PULL_UP_ING;
+        return newState == HippyOverPullHelper.OVER_PULL_DOWN_ING || newState == HippyOverPullHelper.OVER_PULL_UP_ING;
     }
 }
