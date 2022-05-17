@@ -236,10 +236,8 @@ CreateNode(const std::shared_ptr<Ctx> &context,
     return std::make_tuple(false, std::get<1>(view_name_tuple), dom_node);
   }
 
+  // optional, only js use development
   auto tag_name_tuple = GetNodeTagName(context, node);
-  if (!std::get<0>(tag_name_tuple)) {
-    return std::make_tuple(false, std::get<1>(tag_name_tuple), dom_node);
-  }
 
   auto props_tuple = GetNodeProps(context, node);
 
