@@ -41,15 +41,22 @@ class DevToolsUtil {
   using DomNodeMetas = hippy::devtools::DomNodeMetas;
   using DomainMetas = hippy::devtools::DomainMetas;
   using DomNodeLocation = hippy::devtools::DomNodeLocation;
+
   static DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
+
   static DomainMetas GetDomDomainData(
       const std::shared_ptr<DomNode>& dom_node,
       uint32_t depth,
       const std::shared_ptr<DomManager>& dom_manager);
+
   static DomNodeLocation GetNodeIdByDomLocation(
       const std::shared_ptr<DomNode>& dom_node,
       double x,
       double y);
+
+  static void PostDomTask(int32_t dom_id, std::function<void()> func);
+
+ private:
   static std::shared_ptr<DomNode>
   GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y);
   static bool IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node,
@@ -71,7 +78,6 @@ class DevToolsUtil {
                                 bool& first_object,
                                 const std::string& node_key,
                                 const DomValue& dom_value);
-  static void PostDomTask(int32_t dom_id, std::function<void()> func);
 };
 }  // namespace devtools
 }  // namespace hippy
