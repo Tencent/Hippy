@@ -52,6 +52,8 @@ class LayoutNode {
   virtual float GetTop() = 0;
   virtual float GetRight() = 0;
   virtual float GetBottom() = 0;
+  virtual float GetStyleWidth() = 0;
+  virtual float GetStyleHeight() = 0;
   virtual float GetMargin(Edge edge) = 0;
   virtual float GetPadding(Edge edge) = 0;
   virtual float GetBorder(Edge edge) = 0;
@@ -64,6 +66,7 @@ class LayoutNode {
   virtual void SetHasNewLayout(bool has_new_layout) = 0;
   virtual void SetMeasureFunction(MeasureFunction measure_function) = 0;
   virtual void MarkDirty() = 0;
+  virtual void Print() = 0;
 
   /**
    * @brief 插入子节点

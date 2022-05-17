@@ -325,6 +325,14 @@ float YogaLayoutNode::GetBorder(Edge edge) {
   return YGNodeLayoutGetBorder(yoga_node_, ygedge);
 }
 
+float YogaLayoutNode::GetStyleWidth() {
+  return YGNodeStyleGetWidth(yoga_node_).value;
+}
+
+float YogaLayoutNode::GetStyleHeight() {
+  return YGNodeStyleGetHeight(yoga_node_).value;
+}
+
 void YogaLayoutNode::SetPosition(Edge edge, float position) {
   YGEdge ygedge = GetYGEdgeFromEdge(edge);
   YGNodeStyleSetPosition(yoga_node_, ygedge, position);
@@ -354,6 +362,8 @@ bool YogaLayoutNode::HasNewLayout() { return YGNodeGetHasNewLayout(yoga_node_); 
 void YogaLayoutNode::SetHasNewLayout(bool has_new_layout) { YGNodeSetHasNewLayout(yoga_node_, has_new_layout); }
 
 void YogaLayoutNode::MarkDirty() { YGNodeMarkDirty(yoga_node_); }
+
+void YogaLayoutNode::Print() {YGNodePrint(yoga_node_, YGPrintOptionsLayout | YGPrintOptionsStyle | YGPrintOptionsChildren);}
 
 bool YogaLayoutNode::IsDirty() { return YGNodeIsDirty(yoga_node_); }
 

@@ -129,6 +129,11 @@ void DomNode::SetLayoutSize(float width, float height) {
   layout_node_->SetHeight(height);
 }
 
+void DomNode::SetLayoutOrigin(float x, float y) {
+  layout_node_->SetPosition(hippy::Edge::EdgeLeft, x);
+  layout_node_->SetPosition(hippy::Edge::EdgeTop, y);
+}
+
 void DomNode::AddEventListener(const std::string& name, bool use_capture, const EventCallback& cb,
                                const CallFunctionCallback& callback) {
   auto dom_manager = dom_manager_.lock();

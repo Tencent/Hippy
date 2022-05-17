@@ -135,7 +135,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 //TODO 可能有更好的方法设置。最好能将HippyRootView与bridge加载bundle的行为剥离。HippyRootView就是view，和bridge没关系
 - (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
-          frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view;
+          frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view screenScale:(CGFloat)scale;
 
 /**
  * set up chrome dev tools connection
