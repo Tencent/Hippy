@@ -22,12 +22,8 @@ cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(PROJECT_NAME devtools_backend)
-#set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Os -Wall -s")
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os -Wall -s")
 project(${PROJECT_NAME})
-message("make devtools_backend so/.a")
-
-set(CMAKE_CXX_CLANG_TIDY ${ANDROID_TOOLCHAIN_ROOT}/bin/clang-tidy -checks=*)
+message("make devtools_backend")
 
 set(ABI_COMPILE_OPTIONS -fexceptions -Wno-error -frtti)
 add_compile_options(${ABI_COMPILE_OPTIONS})
@@ -49,14 +45,10 @@ file(GLOB_RECURSE DEVTOOLS_SRC
         ${DEVTOOLS_ROOT_PATH}/src/**
         ${DEVTOOLS_ROOT_PATH}/third_party/socket/src/**)
 
-if(ANDROID)
-  add_definitions(-DOS_ANDROID)
-  add_library(${PROJECT_NAME} STATIC ${DEVTOOLS_SRC})
-elseif(IOS)
-  add_definitions(-DOS_IOS)
+if(ANDROID OR IOS)
   add_library(${PROJECT_NAME} ${DEVTOOLS_SRC})
 elseif (APPLE)
-    add_subdirectory("${DEVTOOLS_ROOT_PATH}/test" unit_test)
+  add_subdirectory("${DEVTOOLS_ROOT_PATH}/test" unit_test)
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${DEVTOOLS_ROOT_PATH}/third_party/nlohmann)

@@ -1,71 +1,29 @@
-## 项目介绍
+## Introduction
 
-DevTools Backend 是调试工具的服务后端，负责分发 DevTools Frontend 的调试协议，访问技术框架的调试数据进行适配返回。
+DevTools Backend is the Backend Service of Hippy Debugging DevTools, that mainly to establish connecting channel which support websocket and tcp, distributes debugging [CDP and TDF protocol](https://devtools.qq.com/devtools-protocol/), and collect debugging data of frameworks and Renderers.
 
-## 快速上手
+## Getting started
 
-### 1、目录结构
-
-```shell
-├── CMakeLists.txt
-├── cmake // cmake目录
-│   ├── android
-│   │   └── CMakeLists.txt // Android的cmake
-│   └── ios
-│       └── CMakeLists.txt // iOS的cmake
-├── include  // 头文件
-├── src // 源码目录
-├── ios.toolchain.cmake // iOS cmake工具
-├── libs // 打包的lib库
-├── test  // 单测
-└── third_party // 第三方目录
-```
-### 2、架构层次
+### Architecture
 
 ![devtools 架构](http://imgcache.gtimg.cn/mie/act/img/public/202204/1649302251_devtools.png)
 
-1）Tunnel Service
+- Tunnel Service, /tunnel dir, to handle connecting channel with frontend, which support websocket and tcp.
+- Domain Dispatch, /module dir, to dispatch debugging [CDP and TDF protocol](https://devtools.qq.com/devtools-protocol/) by `Domain.Method`.
+- Data Provider, /api dir, to collect debugging data of frameworks and Renderers. There has two ways to inject debugging data, one is to implement `adapter` interface which received from frontend, and the other is the notification to notify frontend.
 
-/tunnel 目录，处理与 Frontend 的消息通道，抽象与 Frontend 的收发消息通道，具体实现可以是基于 TCP 的 socket 或 websocket。
+### Unit Test
 
-2）Domain Dispatch
-
-/module 目录，消息协议的分发与实现，以 chrome debug protocol 为基础，扩展自定义的 domain 协议。对于想处理的 domain 协议进行注册监听。
-
-3）DataProvider
-
-/api 目录，抽象需要采集的调试数据接口，对外提供接口实现的注入。adapter 是外部框架需要实现的数据采集接口，notification 是外部框架的通知接口。
-
-### 3、编译构建
-
-#### 1）Android 集成
-
-hippy/hippy/android/sdk/build.gradle 打开 devtools backend 开关：
+1. first install test tools: 
 
 ```shell
-                "-DSERVICE_ENABLE=1"   // DevTools 调试开关
-```
-
-#### 2）iOS集成
-
-- 运行 js/examples/ios-demo/gen_devtools_proj.sh
-
-### 4、运行单测
-
-#### 1） 安装覆盖率插件
-
-```
 brew install lcov
 ```
 
-#### 2）Terminal运行
+2. open terminal and run:
 
-```
+```shell
 cmake .
 cd test
 sh build.sh
 ```
-
-#### 3）查看覆盖率报告
-
-/devtools_backend/test/build/code_coverage_report
