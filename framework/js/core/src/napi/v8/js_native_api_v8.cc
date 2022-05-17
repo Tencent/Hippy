@@ -1354,6 +1354,31 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
   return nullptr;
 }
 
+bool V8Ctx::Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) {
+  TDF_BASE_DCHECK(lhs != nullptr && rhs != nullptr);
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_lhs = std::static_pointer_cast<V8CtxValue>(lhs);
+  std::shared_ptr<V8CtxValue> ctx_rhs = std::static_pointer_cast<V8CtxValue>(rhs);
+
+  const v8::Global<v8::Value>& global_lhs = ctx_lhs->global_value_;
+  TDF_BASE_DCHECK(!global_lhs.IsEmpty());
+  v8::Local<v8::Value> local_lhs = v8::Local<v8::Value>::New(isolate_, global_lhs);
+
+  const v8::Global<v8::Value>& global_rhs = ctx_rhs->global_value_;
+  TDF_BASE_DCHECK(!global_rhs.IsEmpty());
+  v8::Local<v8::Value> local_rhs = v8::Local<v8::Value>::New(isolate_, global_rhs);
+
+  TDF_BASE_DCHECK(!local_lhs.IsEmpty());
+
+  v8::Maybe<bool> maybe = local_lhs->Equals(context, local_rhs);
+  if(maybe.IsNothing()) {
+    return false;
+  }
+  return maybe.FromJust();
+}
+
 unicode_string_view V8Ctx::ToStringView(v8::Local<v8::String> str) const {
   TDF_BASE_DCHECK(!str.IsEmpty());
   v8::String* v8_string = v8::String::Cast(*str);
@@ -1928,5 +1953,5 @@ void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<C
   }
 }
 
-}
+}  // namespace napi
 }  // namespace hippy

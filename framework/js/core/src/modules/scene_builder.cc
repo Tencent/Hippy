@@ -281,7 +281,7 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
                              const size_t argument_count,
                              const std::shared_ptr<CtxValue> arguments[],
                              hippy::dom::EventListenerInfo& listener_info){
-  TDF_BASE_CHECK(argument_count == 2 || argument_count == 3);
+  TDF_BASE_DCHECK(argument_count == 3);
 
   int32_t dom_id;
   bool ret = context->GetValueNumber(arguments[0], &dom_id);
@@ -294,11 +294,7 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
 
   listener_info.dom_id = static_cast<uint32_t>(dom_id);
   listener_info.event_name = event_name;
-  listener_info.callback = nullptr;
-
-  if (argument_count == 3) {
-    listener_info.callback = arguments[2];
-  }
+  listener_info.callback = arguments[2];
 }
 
 std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::weak_ptr<Scope>& weak_scope) {
@@ -399,7 +395,6 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   };
   def.functions.emplace_back(std::move(add_event_listener_def));
 
-  // TODO remove event listener
   FunctionDefine<SceneBuilder> remove_event_listener_def;
   remove_event_listener_def.name = "RemoveEventListener";
   remove_event_listener_def.cb = [weak_scope](

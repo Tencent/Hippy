@@ -46,12 +46,13 @@ using TryCatch = hippy::napi::TryCatch;
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
-constexpr uint32_t kInvalidListenerId = 0;
+constexpr uint64_t kInvalidListenerId = 0;
 
-Scope::Scope(Engine* engine,
-             std::string name,
-             std::unique_ptr<RegisterMap> map)
-    : engine_(engine), context_(nullptr), name_(std::move(name)), map_(std::move(map)) {}
+Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)
+    : engine_(engine),
+      context_(nullptr),
+      name_(std::move(name)),
+      map_(std::move(map)) {}
 
 Scope::~Scope() {
   TDF_BASE_DLOG(INFO) << "~Scope";
@@ -123,12 +124,14 @@ void Scope::Initialized() {
   auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
   TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
   unicode_string_view str_view(source_code.data_, source_code.length_);
-  std::shared_ptr<CtxValue> function = context_->RunScript(
-      str_view, kHippyBootstrapJSName);
+  std::shared_ptr<CtxValue> function =
+      context_->RunScript(str_view, kHippyBootstrapJSName);
 
   bool is_func = context_->IsFunction(function);
-  TDF_BASE_CHECK(is_func) << "bootstrap return not function, len = " << source_code.length_;
-  // TODO(super): The following statement will be removed when TDF_BASE_CHECK will be cause abort
+  TDF_BASE_CHECK(is_func) << "bootstrap return not function, len = "
+                          << source_code.length_;
+  // TODO(super): The following statement will be removed when TDF_BASE_CHECK
+  // will be cause abort
   if (!is_func) {
     return;
   }
@@ -175,26 +178,97 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::AddListener(uint32_t node_id, const std::string& event_name, uint32_t listener_id) {
-  auto id_it = listener_id_map_.find(node_id);
-  if (id_it != listener_id_map_.end()) {
-    id_it->second[event_name] = listener_id; // 目前hippy上层还不支持绑定多个回调，update时替换原有回调
-  } else {
-    listener_id_map_[node_id] = std::unordered_map<std::string, uint32_t>();
-    listener_id_map_[node_id][event_name] = listener_id;
+void Scope::AddListener(const EventListenerInfo& event_listener_info,
+                        const uint64_t listener_id) {
+  uint32_t dom_id = event_listener_info.dom_id;
+  std::string event_name = event_listener_info.event_name;
+  const auto& js_function = event_listener_info.callback;
+  TDF_BASE_DCHECK(js_function != nullptr);
+
+  // bind dom event id and js function
+  auto event_node_it = bind_listener_map_.find(dom_id);
+  if (event_node_it == bind_listener_map_.end()) {
+    bind_listener_map_[dom_id] = std::unordered_map<
+        std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>();
   }
+  auto event_name_it = bind_listener_map_[dom_id].find(event_name);
+  if (event_name_it == bind_listener_map_[dom_id].end()) {
+    bind_listener_map_[dom_id][event_name] =
+        std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>();
+  }
+
+  bind_listener_map_[dom_id][event_name][listener_id] = js_function;
 }
 
-uint32_t Scope::GetListenerId(uint32_t node_id, const std::string& event_name) {
-  auto id_it = listener_id_map_.find(node_id);
-  if (id_it == listener_id_map_.end()) {
-    return kInvalidListenerId;
+void Scope::RemoveListener(const EventListenerInfo& event_listener_info,
+                           const uint64_t listener_id) {
+  uint32_t dom_id = event_listener_info.dom_id;
+  std::string event_name = event_listener_info.event_name;
+  const auto& js_function = event_listener_info.callback;
+  TDF_BASE_DCHECK(js_function != nullptr);
+
+  // unbind dom event id and js function
+  auto event_node_it = bind_listener_map_.find(dom_id);
+  if (event_node_it == bind_listener_map_.end()) {
+    return;
+  }
+  auto event_name_it = bind_listener_map_[dom_id].find(event_name);
+  if (event_name_it == bind_listener_map_[dom_id].end()) {
+    return;
+  }
+  bind_listener_map_[dom_id][event_name].erase(listener_id);
+}
+
+bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
+  uint32_t dom_id = event_listener_info.dom_id;
+  std::string event_name = event_listener_info.event_name;
+  const auto& js_function = event_listener_info.callback;
+  TDF_BASE_DCHECK(js_function != nullptr);
+
+  auto id_it = bind_listener_map_.find(dom_id);
+  if (id_it == bind_listener_map_.end()) {
+    return false;
   }
   auto name_it = id_it->second.find(event_name);
   if (name_it == id_it->second.end()) {
+    return false;
+  }
+
+  for (const auto& v : name_it->second) {
+    TDF_BASE_DCHECK(v.second != nullptr);
+    if (v.second != nullptr) {
+      bool ret = context_->Equals(v.second, js_function);
+      if (ret)
+        return true;
+    }
+  }
+
+  return false;
+}
+
+uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
+  uint32_t dom_id = event_listener_info.dom_id;
+  std::string event_name = event_listener_info.event_name;
+  const auto& js_function = event_listener_info.callback;
+  TDF_BASE_DCHECK(js_function != nullptr);
+
+  auto event_node_it = bind_listener_map_.find(dom_id);
+  if (event_node_it == bind_listener_map_.end()) {
     return kInvalidListenerId;
   }
-  return name_it->second;
+  auto event_name_it = bind_listener_map_[dom_id].find(event_name);
+  if (event_name_it == bind_listener_map_[dom_id].end()) {
+    return kInvalidListenerId;
+  }
+  for (const auto& v : bind_listener_map_[dom_id][event_name]) {
+    TDF_BASE_DCHECK(v.second != nullptr);
+    if (v.second != nullptr) {
+      bool ret = context_->Equals(v.second, js_function);
+      if (ret)
+        return v.first;
+    }
+  }
+  return kInvalidListenerId;
 }
 
 void Scope::RunJS(const unicode_string_view& data,
@@ -203,7 +277,8 @@ void Scope::RunJS(const unicode_string_view& data,
   std::weak_ptr<Ctx> weak_context = context_;
   JavaScriptTask::Function callback = [data, name, is_copy, weak_context] {
 #ifdef JS_V8
-    auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+    auto context =
+        std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
     if (context) {
       context->RunScript(data, name, false, nullptr, is_copy);
     }
@@ -235,7 +310,8 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
       [data, name, is_copy, weak_context, p = std::move(promise)]() mutable {
         std::shared_ptr<CtxValue> rst = nullptr;
 #ifdef JS_V8
-        auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+        auto context =
+            std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
         if (context) {
           rst = context->RunScript(data, name, false, nullptr, is_copy);
         }

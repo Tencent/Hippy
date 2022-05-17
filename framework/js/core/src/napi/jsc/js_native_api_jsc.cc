@@ -599,6 +599,22 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
   return nullptr;
 }
 
+bool JSCCtx::Equals(const std::shared_ptr<CtxValue>& lhs,
+                    const std::shared_ptr<CtxValue>& rhs) {
+  std::shared_ptr<JSCCtxValue> ctx_lhs =
+      std::static_pointer_cast<JSCCtxValue>(lhs);
+  std::shared_ptr<JSCCtxValue> ctx_rhs =
+      std::static_pointer_cast<JSCCtxValue>(rhs);
+
+  JSValueRef exception = nullptr;
+  bool ret = JSValueIsEqual(context_, ctx_lhs->value_, ctx_rhs->value_, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+  }
+
+  return ret;
+};
+
 std::shared_ptr<DomValue> JSCCtx::ToDomValue(const std::shared_ptr<CtxValue>& value) {
   std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
