@@ -25,26 +25,23 @@
 #include <fstream>
 #include <sstream>
 #include <utility>
+
 #include "base/logging.h"
 
 namespace hippy {
 namespace devtools {
-constexpr const char *kCacheFileName = "/v8_trace.json";
-
-void TraceControl::SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control) {
-  if (tracing_control) {
-    v8_trace_control_ = static_cast<v8::platform::tracing::TracingController *>(tracing_control);
-  }
-}
+constexpr char kCacheFileName[] = "/v8_trace.json";
+constexpr char kTraceBeginTag[] = "{\"traceEvents\":[";
+constexpr char kTraceEndTag[] = "]}";
 
 bool TraceControl::OpenCacheFile() {
-  struct timeval time;
-  gettimeofday(&time, NULL);
   if (cache_file_dir_.empty() || std::string::npos != cache_file_dir_.find("..")) {
     TDF_BASE_LOG(ERROR) << "TraceControl cache_file_dir_ is invalid";
     return false;
   }
-  if (!cache_file_path_.empty()) {
+  if (!cache_file_path_.empty()) {  // delete old file
+    trace_file_.flush();
+    trace_file_.close();
     remove(cache_file_path_.c_str());
   }
   cache_file_path_ = cache_file_dir_ + kCacheFileName;
@@ -52,8 +49,13 @@ bool TraceControl::OpenCacheFile() {
   return trace_file_.is_open();
 }
 
-void TraceControl::SetFileCacheDir(std::string file_cache_dir) {
-  cache_file_dir_ = std::move(file_cache_dir);
+void TraceControl::SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control) {
+  v8_trace_control_ = tracing_control;
+  auto trace_buffer = v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
+      v8::platform::tracing::TraceBuffer::kRingBufferChunks,
+      v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(trace_file_));
+  // trace_buffer holder by TracingController, don't destroy, if destroy app will crash
+  v8_trace_control_->Initialize(trace_buffer);
 }
 
 void TraceControl::StartTracing() {
@@ -61,31 +63,11 @@ void TraceControl::StartTracing() {
     if (tracing_has_start_) {
       StopTracing();
     }
-    OpenCacheFile();
-    trace_writer_ = v8::platform::tracing::TraceWriter::CreateJSONTraceWriter(trace_file_);
-    trace_buffer_ = v8::platform::tracing::TraceBuffer::CreateTraceBufferRingBuffer(
-        v8::platform::tracing::TraceBuffer::kRingBufferChunks, trace_writer_);
-    v8_trace_control_->Initialize(trace_buffer_);
-    ClosePreviousBuffer();
-    v8::platform::tracing::TraceConfig *traceConfig = v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
-    v8_trace_control_->StartTracing(traceConfig);
-    control_has_init_ = true;
+    if (!OpenCacheFile()) {
+      return;
+    }
+    v8_trace_control_->StartTracing(v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig());
     tracing_has_start_ = true;
-  }
-}
-
-void TraceControl::ClosePreviousBuffer() {
-  if (!control_has_init_) {
-    return;
-  }
-  if (trace_buffer_) {
-    trace_buffer_->Flush();
-  }
-  if (trace_writer_) {
-    trace_writer_->Flush();
-  }
-  if (trace_file_) {
-    trace_file_.seekp(-2, std::ios::end);
   }
 }
 
@@ -94,9 +76,13 @@ std::string TraceControl::GetTracingContent() {
   if (ifs.good()) {
     std::ostringstream buffer;
     buffer << ifs.rdbuf();
-    std::string content = buffer.str();
+    std::string tracing_content = buffer.str();
     ifs.close();
-    return content;
+    TDF_BASE_LOG(INFO) << "TraceControl content:" << tracing_content;
+    if (!tracing_content.empty() && tracing_content[0] == ',') {
+      tracing_content = tracing_content.substr(1);
+    }
+    return kTraceBeginTag + tracing_content + kTraceEndTag;
   }
   return "";
 }
@@ -104,11 +90,7 @@ std::string TraceControl::GetTracingContent() {
 void TraceControl::StopTracing() {
   if (v8_trace_control_) {
     v8_trace_control_->StopTracing();
-    if (trace_writer_ != nullptr) {
-      trace_file_ << "]}";
-    }
     trace_file_.flush();
-    trace_file_.close();
     tracing_has_start_ = false;
   }
 }

@@ -159,7 +159,7 @@ void DomainDispatch::SendDataToFrontend(int32_t id, bool is_success, const std::
   nlohmann::json rsp_json = nlohmann::json::object();
   rsp_json[kFrontendKeyId] = id;
 
-  rsp_json[is_success ? kDomainDispatchResult : kDomainDispatchError] = nlohmann::json::parse(result);
+  rsp_json[is_success ? kDomainDispatchResult : kDomainDispatchError] = nlohmann::json::parse(result, nullptr, false);
   if (rsp_handler_) {
     rsp_handler_(rsp_json.dump());
   }

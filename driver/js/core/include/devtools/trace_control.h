@@ -38,26 +38,21 @@ class TraceControl {
 #ifdef JS_V8
   void SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control);
 #endif
-  void SetFileCacheDir(std::string file_cache_dir);
   std::string GetTracingContent();
-
-  TraceControl(const TraceControl &) = delete;
-  void operator=(const TraceControl &) = delete;
+  inline void SetFileCacheDir(std::string file_cache_dir) { cache_file_dir_ = std::move(file_cache_dir); }
 
  private:
   TraceControl() = default;
-  void ClosePreviousBuffer();
+  TraceControl(const TraceControl &) = delete;
+  void operator=(const TraceControl &) = delete;
 #ifdef JS_V8
   v8::platform::tracing::TracingController *v8_trace_control_ = nullptr;
-  v8::platform::tracing::TraceBuffer *trace_buffer_ = nullptr;
-  v8::platform::tracing::TraceWriter *trace_writer_ = nullptr;
 #endif
   std::ofstream trace_file_;
   bool OpenCacheFile();
   std::string cache_file_dir_;
   std::string cache_file_path_;
   bool tracing_has_start_ = false;
-  bool control_has_init_ = false;
 };
 }  // namespace devtools
 }  // namespace hippy
