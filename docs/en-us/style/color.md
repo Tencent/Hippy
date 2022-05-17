@@ -2,11 +2,11 @@
 
 # 颜色
 
-颜色属性取值具体可以查询[CSS的颜色配置](//developer.mozilla.org/zh-CN/docs/Web/CSS/color_value).
+For the value of color attribute, you can query [color configuration of CSS](//developer.mozilla.org/en-US/docs/Web/CSS/color_value).
 
 # RGB
 
-Hippy 支持 `rgb()` and `rgba()`。
+Hippy supports`rgb()` and`rgba()`.
 
 * `'#f0f'` (#rgb)
 * `'#ff00ff'` (#rrggbb)
@@ -17,20 +17,20 @@ Hippy 支持 `rgb()` and `rgba()`。
 
 # HSL
 
-Hippy 也支持 `hsl()` and `hsla()`
+Hippy also supports`hsl()` and`hsla()`
 
 * `'hsl(360, 100%, 100%)'`
 * `'hsla(360, 100%, 100%, 1.0)'`
 
-# 透明
+# Transparency
 
- `rgba(0, 0, 0, 0)`还有另外一个简写版本:
+ `rgba(0, 0, 0, 0)` has another abbreviated version:
 
 * `'transparent'`
 
-# 颜色名字
+# Color name
 
-你也可以用下面的颜色配置
+You can also use the following color configuration
 
 * <div style="width: 250px; padding: 6px; color: black; background-color: #f0f8ff">aliceblue (#f0f8ff)</div>
 * <div style="width: 250px; padding: 6px; color: black; background-color: #faebd7">antiquewhite (#faebd7)</div>
