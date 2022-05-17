@@ -26,8 +26,7 @@ constexpr char kDefaultNodeName[] = "DefaultNode";
 constexpr char kAttributes[] = "attributes";
 constexpr char kText[] = "text";
 
-DomNodeMetas DevToolsUtil::ToDomNodeMetas(
-    const std::shared_ptr<DomNode>& dom_node) {
+DomNodeMetas DevToolsUtil::ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node) {
   DomNodeMetas metas(dom_node->GetId());
   if (!dom_node->GetTagName().empty()) {
     metas.SetNodeType(dom_node->GetTagName());
@@ -39,10 +38,9 @@ DomNodeMetas DevToolsUtil::ToDomNodeMetas(
   auto layout_result = dom_node->GetLayoutInfoFromRoot();
   metas.SetWidth(static_cast<uint32_t>(layout_result.width));
   metas.SetHeight(static_cast<uint32_t>(layout_result.height));
-  metas.SetBounds(
-      hippy::devtools::BoundRect{layout_result.left, layout_result.top,
-                                 layout_result.left + layout_result.width,
-                                 layout_result.top + layout_result.height});
+  metas.SetBounds(hippy::devtools::BoundRect{layout_result.left, layout_result.top,
+                                             layout_result.left + layout_result.width,
+                                             layout_result.top + layout_result.height});
   metas.SetStyleProps(ParseNodeProps(dom_node->GetStyleMap()));
   metas.SetTotalProps(ParseNodeProps(dom_node->GetExtStyle()));
   for (const auto& node : dom_node->GetChildren()) {
@@ -51,10 +49,9 @@ DomNodeMetas DevToolsUtil::ToDomNodeMetas(
   return metas;
 }
 
-DomainMetas DevToolsUtil::GetDomDomainData(
-    const std::shared_ptr<DomNode>& dom_node,
-    uint32_t depth,
-    const std::shared_ptr<DomManager>& dom_manager) {
+DomainMetas DevToolsUtil::GetDomDomainData(const std::shared_ptr<DomNode>& dom_node,
+                                           uint32_t depth,
+                                           const std::shared_ptr<DomManager>& dom_manager) {
   DomainMetas metas(dom_node->GetId());
   metas.SetParentId(dom_node->GetPid());
   metas.SetRootId(dom_manager->GetRootId());
@@ -88,10 +85,7 @@ DomainMetas DevToolsUtil::GetDomDomainData(
   return metas;
 }
 
-DomNodeLocation DevToolsUtil::GetNodeIdByDomLocation(
-    const std::shared_ptr<DomNode>& dom_node,
-    double x,
-    double y) {
+DomNodeLocation DevToolsUtil::GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node, double x, double y) {
   auto hit_node = GetHitNode(dom_node, x, y);
   if (hit_node == nullptr) {
     hit_node = dom_node;
@@ -107,10 +101,7 @@ DomNodeLocation DevToolsUtil::GetNodeIdByDomLocation(
   return node_location;
 }
 
-std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(
-    const std::shared_ptr<DomNode>& node,
-    double x,
-    double y) {
+std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y) {
   if (node == nullptr || !IsLocationHitNode(node, x, y)) {
     return nullptr;
   }
@@ -123,25 +114,20 @@ std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(
     if (hit_node == nullptr) {
       hit_node = new_node;
     } else if (new_node != nullptr) {
-      auto hit_node_area = hit_node->GetLayoutNode()->GetWidth() *
-                           hit_node->GetLayoutNode()->GetHeight();
-      auto new_node_area = new_node->GetLayoutNode()->GetWidth() *
-                           new_node->GetLayoutNode()->GetHeight();
+      auto hit_node_area = hit_node->GetLayoutNode()->GetWidth() * hit_node->GetLayoutNode()->GetHeight();
+      auto new_node_area = new_node->GetLayoutNode()->GetWidth() * new_node->GetLayoutNode()->GetHeight();
       hit_node = hit_node_area > new_node_area ? new_node : hit_node;
     }
   }
   return hit_node;
 }
 
-bool DevToolsUtil::IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node,
-                                     double x,
-                                     double y) {
+bool DevToolsUtil::IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, double x, double y) {
   LayoutResult layout_result = dom_node->GetLayoutInfoFromRoot();
   double self_x = static_cast<uint32_t>(layout_result.left);
   double self_y = static_cast<uint32_t>(layout_result.top);
   bool in_top_offset = (x >= self_x) && (y >= self_y);
-  bool in_bottom_offset = (x <= self_x + layout_result.width) &&
-                          (y <= self_y + layout_result.height);
+  bool in_bottom_offset = (x <= self_x + layout_result.width) && (y <= self_y + layout_result.height);
   return in_top_offset && in_bottom_offset;
 }
 
@@ -220,11 +206,7 @@ std::string DevToolsUtil::ParseDomValue(const DomValue& dom_value) {
   return node_str;
 }
 
-std::string DevToolsUtil::ParseNodeKeyProps(
-    const std::string& node_key,
-    const std::shared_ptr<
-        std::unordered_map<std::string, std::shared_ptr<DomValue>>>&
-        node_props) {
+std::string DevToolsUtil::ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props) {
   if (!node_props || node_props->empty()) {
     TDF_BASE_DLOG(INFO) << "ParseNodeKeyProps, node props is not object";
     return node_key == kAttributes ? "{}" : "";
@@ -235,8 +217,7 @@ std::string DevToolsUtil::ParseNodeKeyProps(
         continue;
       }
       if (node_key == kAttributes && node_prop.second->IsObject()) {
-        std::unordered_map<std::string, DomValue> sec =
-            node_prop.second->ToObjectChecked();
+        std::unordered_map<std::string, DomValue> sec = node_prop.second->ToObjectChecked();
         return ParseNodeProps(sec);
       }
       if (node_key == kText && node_prop.second->IsString()) {
@@ -247,10 +228,7 @@ std::string DevToolsUtil::ParseNodeKeyProps(
   return node_key == kAttributes ? "{}" : "";
 }
 
-std::string DevToolsUtil::ParseNodeProps(
-    const std::shared_ptr<
-        std::unordered_map<std::string, std::shared_ptr<DomValue>>>&
-        node_props) {
+std::string DevToolsUtil::ParseNodeProps(const NodePropsUnorderedMap& node_props) {
   if (!node_props || node_props->empty()) {
     TDF_BASE_DLOG(INFO) << "ParseNodeProps, node props is not object";
     return "{}";
@@ -264,8 +242,7 @@ std::string DevToolsUtil::ParseNodeProps(
   return node_str;
 }
 
-std::string DevToolsUtil::ParseNodeProps(
-    const std::unordered_map<std::string, DomValue>& node_props) {
+std::string DevToolsUtil::ParseNodeProps(const std::unordered_map<std::string, DomValue>& node_props) {
   if (node_props.empty()) {
     TDF_BASE_DLOG(INFO) << "ParseNodeProps, node props is not object";
     return "{}";
@@ -274,8 +251,7 @@ std::string DevToolsUtil::ParseNodeProps(
   bool first_object = true;
   for (const auto& node_prop : node_props) {
     std::string key = node_prop.first;
-    AppendDomKeyValue(node_str, first_object, node_prop.first,
-                      node_prop.second);
+    AppendDomKeyValue(node_str, first_object, node_prop.first, node_prop.second);
   }
   node_str += "}";
   return node_str;
@@ -344,8 +320,7 @@ void DevToolsUtil::AppendDomKeyValue(std::string& node_str,
 }
 
 void DevToolsUtil::PostDomTask(int32_t dom_id, std::function<void()> func) {
-  std::shared_ptr<DomManager> dom_manager =
-      DomManager::Find(static_cast<int32_t>(dom_id));
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
   if (dom_manager) {
     std::vector<std::function<void()>> ops = {func};
     dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));

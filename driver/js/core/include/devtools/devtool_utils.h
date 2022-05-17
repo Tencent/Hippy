@@ -37,6 +37,7 @@ class DevToolsUtil {
   using DomNodeMetas = hippy::devtools::DomNodeMetas;
   using DomainMetas = hippy::devtools::DomainMetas;
   using DomNodeLocation = hippy::devtools::DomNodeLocation;
+  using NodePropsUnorderedMap = std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>;
 
   static DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
 
@@ -51,11 +52,8 @@ class DevToolsUtil {
  private:
   static std::shared_ptr<DomNode> GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y);
   static bool IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, double x, double y);
-  static std::string ParseNodeKeyProps(
-      const std::string& node_key,
-      const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& node_props);
-  static std::string ParseNodeProps(
-      const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& node_props);
+  static std::string ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props);
+  static std::string ParseNodeProps(const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const std::unordered_map<std::string, DomValue>& node_props);
   static std::string ParseDomValue(const DomValue& value);
   static void AppendDomKeyValue(std::string& node_str,
