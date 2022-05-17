@@ -22,7 +22,7 @@
 
 #include <memory>
 #include <string>
-#ifdef JS_ENGINE_V8
+#ifdef JS_V8
 #include "v8/libplatform/v8-tracing.h"
 #endif
 #include "core/engine.h"
@@ -50,7 +50,7 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
   static void SendVmResponse(const std::string& data);
 
   void SetContextName(const std::string& context_name);
-#ifdef JS_ENGINE_V8
+#ifdef JS_V8
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);
 #endif

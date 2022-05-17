@@ -23,7 +23,7 @@
 #include "devtools/devtools_data_source.h"
 
 #include <utility>
-#ifdef JS_ENGINE_V8
+#ifdef JS_V8
 #include "core/runtime/v8/runtime.h"
 #include "devtools/trace_control.h"
 #endif
@@ -83,7 +83,7 @@ void DevtoolDataSource::SendVmResponse(const std::string& data) {
   }
 }
 
-#ifdef JS_ENGINE_V8
+#ifdef JS_V8
 void DevtoolDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController *tracingControl) {
   TraceControl::GetInstance().SetGlobalTracingController(tracingControl);
 }

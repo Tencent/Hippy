@@ -20,7 +20,7 @@
 
 #pragma once
 
-#ifdef JS_ENGINE_V8
+#ifdef JS_V8
 #include "core/runtime/v8/runtime.h"
 #endif
 

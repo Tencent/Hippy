@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#if JS_ENGINE_V8
+#ifdef JS_V8
 
 #include "devtools/trace_control.h"
 
