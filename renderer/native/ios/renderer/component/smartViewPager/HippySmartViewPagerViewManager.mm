@@ -77,21 +77,11 @@ RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippy
 
 // clang-format off
 RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)hippyTag
-                    callback:(HippyResponseSenderBlock)callback) {
-    [self.renderContext addUIBlock:
-     ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        
+                    callback:(RenderUIResponseSenderBlock)callback) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippySmartViewPagerView *view = viewRegistry[hippyTag];
-        
-        if (view == nil) return ;
-        
-        if (!view || ![view isKindOfClass:[HippySmartViewPagerView class]]) {
-//            HippyLogError(@"Cannot find HippySmartViewPagerView with tag #%@", hippyTag);
-//            return;
-        }
-        
         NSInteger currrentPage = [view getCurrentPage];
-        callback(@[@(currrentPage)]);
+        callback(@(currrentPage));
     }];
 }
 // clang-format on

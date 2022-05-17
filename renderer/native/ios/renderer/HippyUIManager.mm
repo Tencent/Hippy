@@ -592,29 +592,22 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     return _rootViewTag;
 }
 
-- (void)measure:(nonnull NSNumber *)hippyTag callback:(HippyResponseSenderBlock)callback {
+- (void)measure:(nonnull NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback {
     [self addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
-            // this view was probably collapsed out
-            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
-
-        // If in a <Modal>, rootView will be the root of the modal container.
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
-            //HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
             callback(@[]);
             return;
         }
-
         // By convention, all coordinates, whether they be touch coordinates, or
         // measurement coordinates are with respect to the root view.
         CGRect frame = view.frame;
         CGPoint pagePoint = [view.superview convertPoint:frame.origin toView:rootView];
-
         callback(@[
                    @(frame.origin.x),
                    @(frame.origin.y),
@@ -626,45 +619,38 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }];
 }
 
-- (void)measureInWindow:(nonnull NSNumber *)hippyTag callback:(HippyResponseSenderBlock)callback {
+- (void)measureInWindow:(nonnull NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback {
     [self addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
-            // this view was probably collapsed out
-            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
-            callback(@[]);
+            callback(@{});
             return;
         }
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
-            //HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
-            callback(@[]);
+            callback(@{});
             return;
         }
-
         CGRect windowFrame = [rootView convertRect:view.frame fromView:view.superview];
-        callback(@[@{@"width":@(CGRectGetWidth(windowFrame)),
+        callback(@{@"width":@(CGRectGetWidth(windowFrame)),
                      @"height": @(CGRectGetHeight(windowFrame)),
                      @"x":@(windowFrame.origin.x),
-                     @"y":@(windowFrame.origin.y)}]);
+                     @"y":@(windowFrame.origin.y)});
     }];
 }
 
-- (void)measureInAppWindow:(nonnull NSNumber *)hippyTag callback:(HippyResponseSenderBlock)callback {
+- (void)measureInAppWindow:(nonnull NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback {
     [self addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
-            // this view was probably collapsed out
-            //HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
-            callback(@[]);
+            callback(@{});
             return;
         }
-
         CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
-        callback(@[@{@"width":@(CGRectGetWidth(windowFrame)),
+        callback(@{@"width":@(CGRectGetWidth(windowFrame)),
                      @"height": @(CGRectGetHeight(windowFrame)),
                      @"x":@(windowFrame.origin.x),
-                     @"y":@(windowFrame.origin.y)}]);
+                     @"y":@(windowFrame.origin.y)});
     }];
 }
 
@@ -953,7 +939,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [finalParams addObject:[NSNull null]];
     }
     if (cb) {
-        HippyResponseSenderBlock senderBlock = ^(NSArray *senderParams) {
+        RenderUIResponseSenderBlock senderBlock = ^(id senderParams) {
             std::shared_ptr<DomArgument> domArgument = std::make_shared<DomArgument>([senderParams toDomArgument]);
             cb(domArgument);
         };
