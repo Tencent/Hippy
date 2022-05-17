@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.footer;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
-public interface IFooterLoadMoreListener {
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
-  void onFooterLoadMore();
+/**
+ * Created by on 2021/1/6.
+ * Description
+ */
+public interface IHeaderViewFactory {
+
+    ViewHolder getHeaderForPosition(int position);
 }

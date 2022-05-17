@@ -80,7 +80,6 @@ android {
     consumerProguardFiles 'proguard-rules.pro'
 
     buildConfigField("boolean", "ENABLE_SO_DOWNLOAD", ENABLE_SO_DOWNLOAD)
-    buildConfigField("boolean", "INCLUDE_SUPPORT_UI", INCLUDE_SUPPORT_UI)
 
     packagingOptions {
       if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -175,10 +174,6 @@ android {
 
   sourceSets{
     main {
-      if (INCLUDE_SUPPORT_UI.toBoolean() == false) {
-        java.exclude("com/tencent/mtt/supportui/**")
-      }
-
       jniLibs.srcDirs = ["${THIRD_PARTY_LIBRARY_PATH}/layout"]
     }
   }
@@ -190,9 +185,6 @@ dependencies {
   implementation 'androidx.annotation:annotation:1.0.0'
   api 'androidx.recyclerview:recyclerview:1.1.0'
   api 'androidx.viewpager:viewpager:1.0.0'
-  if (!INCLUDE_SUPPORT_UI.toBoolean()) {
-    compileOnly('com.tencent.mtt:support-ui:99.2.3')
-  }
 
   testImplementation "junit:junit:4.13.2"
   testImplementation "org.mockito:mockito-core:2.8.9"

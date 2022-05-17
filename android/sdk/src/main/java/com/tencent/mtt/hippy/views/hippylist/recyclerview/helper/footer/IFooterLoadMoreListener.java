@@ -13,23 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
 
-import android.view.View;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.footer;
 
-/**
- * Created by on 2021/1/12.
- * Description
- */
-public interface IHeaderAttachListener {
+public interface IFooterLoadMoreListener {
 
-    /**
-     * header被摘下来，需要对header进行还原或者回收对处理
-     *
-     * @param aboundHeader HeaderView对应的Holder
-     * @param currentHeaderView headerView的实体内容
-     */
-    void onHeaderDetached(ViewHolder aboundHeader, View currentHeaderView);
-
+  void onFooterLoadMore();
 }

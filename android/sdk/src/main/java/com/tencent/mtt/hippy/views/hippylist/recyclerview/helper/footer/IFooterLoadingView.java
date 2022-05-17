@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.footer;
 
-/**
- * Created by on 2020/12/29.
- * Description
- */
-public interface IStickyItemsProvider {
+import android.view.View;
 
-    boolean isStickyPosition(int position);
+public interface IFooterLoadingView {
+
+  int LOAD_STATUS_NONE = 0;
+  int LOAD_STATUS_LOADING = 1;
+  int LOAD_STATUS_FAILED = 2;
+  int LOAD_STATUS_END = 3;
+
+  View getView();
+
+  int getHeight();
+
+  void setLoadingStatus(int loadingStatus);
 }

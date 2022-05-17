@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
  * 由于Hippy的特殊需求，需要看到更多的RecyclerVew的方法和成员，这里创建和系统RecyclerView同包名。
  */
 
-public class HippyRecyclerViewBase extends EasyRecyclerView {
+public class HippyRecyclerViewBase extends RecyclerViewBase {
 
     private boolean isBatching;
 
