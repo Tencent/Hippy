@@ -25,6 +25,9 @@
 #include <memory>
 
 #include "core/runtime/v8/bridge.h"
+#if TDF_SERVICE_ENABLED
+#include "devtools/devtools_data_source.h"
+#endif
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8-inspector.h"
@@ -44,6 +47,12 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
 
   inline void SetBridge(std::shared_ptr<Bridge> bridge) { bridge_ = bridge; }
 
+#if TDF_SERVICE_ENABLED
+  inline void SetDevtoolDataSource(std::shared_ptr<hippy::devtools::DevtoolDataSource> devtools_data_source) {
+    devtools_data_source_ = devtools_data_source;
+  }
+#endif
+
   void sendResponse(
       int callId,
       std::unique_ptr<v8_inspector::StringBuffer> message) override;
@@ -54,6 +63,9 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
  private:
   friend class V8InspectorClientImpl;
   std::shared_ptr<Bridge> bridge_;
+#if TDF_SERVICE_ENABLED
+  std::shared_ptr<hippy::devtools::DevtoolDataSource> devtools_data_source_;
+#endif
 };
 
 }  // namespace inspector

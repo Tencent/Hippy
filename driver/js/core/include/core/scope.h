@@ -143,18 +143,11 @@ class Scope {
   }
 
 #if TDF_SERVICE_ENABLED
-  void CreateDevtools(const std::string& ws_url, bool is_dev_module) {
-    devtool_data_source_ = std::make_shared<hippy::devtools::DevtoolDataSource>(ws_url);
-    devtool_data_source_->SetRuntimeDebugMode(is_dev_module);
+  inline void SetDevtoolDataSource(std::shared_ptr<hippy::devtools::DevtoolDataSource> devtools_data_source) {
+    devtools_data_source_ = devtools_data_source;
   }
-  void DestroyDevtools(bool is_reload) {
-    devtool_data_source_->Destroy(is_reload);
-  }
-  std::shared_ptr<hippy::devtools::DevtoolDataSource> GetDevtoolsDataSource() {
-    return devtool_data_source_;
-  }
-  void BindDevtools(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
-    devtool_data_source_->Bind(runtime_id, dom_id, render_id);
+  inline std::shared_ptr<hippy::devtools::DevtoolDataSource> GetDevtoolsDataSource() {
+    return devtools_data_source_;
   }
 #endif
 
@@ -181,6 +174,6 @@ class Scope {
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
 #if TDF_SERVICE_ENABLED
-  std::shared_ptr<hippy::devtools::DevtoolDataSource> devtool_data_source_;
+  std::shared_ptr<hippy::devtools::DevtoolDataSource> devtools_data_source_;
 #endif
 };

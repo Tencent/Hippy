@@ -60,7 +60,8 @@ import java.nio.ByteOrder;
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
 
     private static final Object sBridgeSyncLock;
-
+    private static final String DEFAULT_LOCAL_HOST = "localhost:38989";
+    private static final String DEBUG_WEBSOCKET_URL = "ws://%s/debugger-proxy?role=android_client&clientId=%s";
     static {
         sBridgeSyncLock = new Object();
     }
@@ -153,10 +154,10 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
   private String getDebugWsUrl() {
     if (TextUtils.isEmpty(mDebugServerHost)) {
-      mDebugServerHost = "localhost:38989";
+      mDebugServerHost = DEFAULT_LOCAL_HOST;
     }
     String clientId = mContext.getDevSupportManager().getDevInstanceUUID();  // 方便区分不同的 Hippy 调试页面
-    return String.format(Locale.US, "ws://%s/debugger-proxy?role=android_client&clientId=%s", mDebugServerHost, clientId);
+    return String.format(Locale.US, DEBUG_WEBSOCKET_URL, mDebugServerHost, clientId);
   }
 
     @Override

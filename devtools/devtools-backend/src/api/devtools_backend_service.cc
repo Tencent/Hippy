@@ -52,11 +52,13 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
 }
 
 void DevtoolsBackendService::Create() {
+#ifdef JS_V8
   data_channel_->GetNotificationCenter()->vm_response_notification =
       std::make_shared<DefaultVmResponseAdapter>([DEVTOOLS_WEAK_THIS](const std::string &data) {
         DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsBackendService)
         self->tunnel_service_->SendDataToFrontend(data);
       });
+#endif
 }
 
 void DevtoolsBackendService::Destroy(bool is_reload) {

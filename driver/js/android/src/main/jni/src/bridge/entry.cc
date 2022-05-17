@@ -151,7 +151,7 @@ void DoBind(JNIEnv* j_env,
   render_manager->SetDomManager(dom_manager);
 
 #if TDF_SERVICE_ENABLED
-  scope->BindDevtools(j_framework_id, j_dom_id, j_render_id);
+  scope->GetDevtoolsDataSource()->Bind(j_framework_id, j_dom_id, j_render_id);
 #endif
 }
 

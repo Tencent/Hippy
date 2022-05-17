@@ -22,9 +22,7 @@
 
 #include <memory>
 #include <string>
-#ifdef JS_V8
-#include "v8/libplatform/v8-tracing.h"
-#endif
+
 #include "core/engine.h"
 #include "core/task/worker_task_runner.h"
 #include "devtools/adapter/hippy_runtime_adapter.h"
@@ -32,6 +30,14 @@
 #include "api/devtools_config.h"
 #include "api/devtools_backend_service.h"
 #include "module/record_logger.h"
+
+#ifdef JS_V8
+#include "v8/libplatform/v8-tracing.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wconversion"
+#include "v8/v8-inspector.h"
+#pragma clang diagnostic pop
+#endif
 
 namespace hippy {
 namespace devtools {
@@ -47,20 +53,23 @@ class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::D
   void Destroy(bool is_reload);
   void SetRuntimeDebugMode(bool debug_mode);
   void SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler);
-  static void SendVmResponse(const std::string& data);
-
   void SetContextName(const std::string& context_name);
 #ifdef JS_V8
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);
+  void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message);
+  void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message);
 #endif
 
  private:
+#ifdef JS_V8
+  void SendVmData(v8_inspector::StringView stringView);
+#endif
+
   int32_t dom_id_;
   int32_t runtime_id_;
   std::shared_ptr<HippyRuntimeAdapter> runtime_adapter_;
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
-  static std::vector<std::weak_ptr<hippy::devtools::DevtoolsBackendService>> all_services;
 };
 }  // namespace devtools
 }  // namespace hippy

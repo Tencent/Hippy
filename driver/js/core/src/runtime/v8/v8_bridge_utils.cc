@@ -166,7 +166,9 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 
 #if TDF_SERVICE_ENABLED
   DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
-  scope->CreateDevtools(StringViewUtils::ToU8StdStr(ws_url), is_dev_module);
+  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolDataSource>(StringViewUtils::ToU8StdStr(ws_url));
+  devtools_data_source->SetRuntimeDebugMode(is_dev_module);
+  scope->SetDevtoolDataSource(devtools_data_source);
   scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (!runtime || !runtime->IsDebug()) {
@@ -376,7 +378,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     runtime->GetScope()->WillExit();
 #endif
 #if TDF_SERVICE_ENABLED
-    runtime->GetScope()->DestroyDevtools(is_reload);
+    runtime->GetScope()->GetDevtoolsDataSource()->Destroy(is_reload);
 #endif
     TDF_BASE_LOG(INFO) << "SetScope nullptr";
     runtime->SetScope(nullptr);

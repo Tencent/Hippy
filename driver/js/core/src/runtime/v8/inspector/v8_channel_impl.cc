@@ -25,7 +25,6 @@
 #include <string>
 #include <sstream>
 
-#include "devtools/devtools_helper.h"
 #include "core/base/string_view_utils.h"
 #include "base/unicode_string_view.h"
 
@@ -34,20 +33,13 @@ namespace hippy::inspector {
 V8ChannelImpl::V8ChannelImpl(std::shared_ptr<Bridge> bridge)
     : bridge_(std::move(bridge)) {}
 
-void sendResponseToDevTools(v8_inspector::StringView stringView) {
-  if (stringView.is8Bit()) {
-    return;
-  }
-  auto data_chars = reinterpret_cast<const char16_t*>(stringView.characters16());
-  auto result = base::StringViewUtils::ToU8StdStr(tdf::base::unicode_string_view(data_chars, stringView.length()));
-  DEVTOOLS_JS_REGISTER_RECEIVE_VM_RESPONSE(result);
-}
-
 void V8ChannelImpl::sendResponse(
     int callId,
     std::unique_ptr<v8_inspector::StringBuffer> message) {
 #if TDF_SERVICE_ENABLED
-  sendResponseToDevTools(message->string());
+  if (devtools_data_source_) {
+    devtools_data_source_->SendVmResponse(std::move(message));
+  }
 #else
   bridge_->SendResponse(std::move(message));
 #endif
@@ -56,7 +48,9 @@ void V8ChannelImpl::sendResponse(
 void V8ChannelImpl::sendNotification(
     std::unique_ptr<v8_inspector::StringBuffer> message) {
 #if TDF_SERVICE_ENABLED
-  sendResponseToDevTools(message->string());
+  if (devtools_data_source_) {
+    devtools_data_source_->SendVmNotification(std::move(message));
+  }
 #else
   bridge_->SendNotification(std::move(message));
 #endif

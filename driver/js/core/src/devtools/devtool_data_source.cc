@@ -23,10 +23,7 @@
 #include "devtools/devtools_data_source.h"
 
 #include <utility>
-#ifdef JS_V8
-#include "core/runtime/v8/runtime.h"
-#include "devtools/trace_control.h"
-#endif
+
 #include "devtools/adapter/hippy_dom_tree_adapter.h"
 #include "devtools/adapter/hippy_elements_request_adapter.h"
 #include "devtools/adapter/hippy_screen_adapter.h"
@@ -34,18 +31,21 @@
 #include "devtools/adapter/hippy_vm_request_adapter.h"
 #include "dom/dom_manager.h"
 
+#ifdef JS_V8
+#include "core/runtime/v8/runtime.h"
+#include "devtools/trace_control.h"
+#endif
+
 namespace hippy {
 namespace devtools {
-std::vector<std::weak_ptr<hippy::devtools::DevtoolsBackendService>> DevtoolDataSource::all_services{};
 using hippy::devtools::DevtoolsBackendService;
-
 DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
-  devtools_config.tunnel = hippy::devtools::Tunnel::kTcp;
+  devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
   devtools_config.ws_url = ws_url;
   devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config);
-  all_services.push_back(devtools_service_);
+  devtools_service_->Create();
   runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>();
 }
 
@@ -66,21 +66,18 @@ void DevtoolDataSource::Destroy(bool is_reload) {
   devtools_service_->Destroy(is_reload);
 }
 
+void DevtoolDataSource::SetRuntimeDebugMode(bool debug_mode) {
+  if (runtime_adapter_) {
+    runtime_adapter_->SetDebugMode(debug_mode);
+  }
+}
+
 void DevtoolDataSource::SetContextName(const std::string &context_name) {
   devtools_service_->GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 
 void DevtoolDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler) {
   devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
-}
-
-void DevtoolDataSource::SendVmResponse(const std::string& data) {
-  for (auto& devtools_service : all_services) {
-    auto service = devtools_service.lock();
-    if (service) {
-      service->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(data);
-    }
-  }
 }
 
 #ifdef JS_V8
@@ -91,13 +88,25 @@ void DevtoolDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::Tr
 void DevtoolDataSource::SetFileCacheDir(const std::string& file_dir) {
   TraceControl::GetInstance().SetFileCacheDir(file_dir);
 }
+
+void DevtoolDataSource::SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
+  SendVmData(message->string());
+}
+
+void DevtoolDataSource::SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message) {
+  SendVmData(message->string());
+}
+
+void DevtoolDataSource::SendVmData(v8_inspector::StringView stringView) {
+  if (stringView.is8Bit()) {
+    return;
+  }
+  auto data_chars = reinterpret_cast<const char16_t*>(stringView.characters16());
+  auto result = base::StringViewUtils::ToU8StdStr(tdf::base::unicode_string_view(data_chars, stringView.length()));
+  devtools_service_->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(result);
+}
 #endif
 
-void DevtoolDataSource::SetRuntimeDebugMode(bool debug_mode) {
-  if (runtime_adapter_) {
-    runtime_adapter_->SetDebugMode(debug_mode);
-  }
-}
 }  // namespace devtools
 }  // namespace hippy
 
