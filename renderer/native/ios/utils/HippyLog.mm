@@ -24,7 +24,6 @@
 #include <asl.h>
 #include <string>
 #include <mutex>
-
 #import "HippyDefines.h"
 
 static NSString *const HippyLogFunctionStack = @"HippyLogFunctionStack";

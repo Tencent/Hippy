@@ -32,7 +32,7 @@
 #include "dom/dom_manager.h"
 
 #ifdef JS_V8
-#include "core/runtime/v8/runtime.h"
+#include "core/base/string_view_utils.h"
 #include "devtools/trace_control.h"
 #endif
 
@@ -42,7 +42,7 @@ namespace devtools {
 DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
-  devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
+  devtools_config.tunnel = hippy::devtools::Tunnel::kTcp;
   devtools_config.ws_url = ws_url;
   devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config);
   devtools_service_->Create();

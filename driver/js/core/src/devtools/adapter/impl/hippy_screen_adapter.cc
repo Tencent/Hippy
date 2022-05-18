@@ -20,7 +20,8 @@
 
 #include "devtools/adapter/hippy_screen_adapter.h"
 
-#include "devtools/devtools_util.h"
+#include "dom/dom_manager.h"
+#include "dom/dom_node.h"
 #include "dom/macro.h"
 
 namespace hippy {
@@ -44,8 +45,8 @@ uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback
     auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
     auto children = root_node->GetChildren();
     if (!children.empty()) {
-      DomArgument argument = makeFrameCallbackArgument(frame_callback_id_);
-      children[0]->CallFunction(kAddFrameCallback, argument, [callback](std::shared_ptr<DomArgument> arg) { callback(); });
+      hippy::dom::DomArgument argument = makeFrameCallbackArgument(frame_callback_id_);
+      children[0]->CallFunction(kAddFrameCallback, argument, [callback](std::shared_ptr<hippy::dom::DomArgument> arg) { callback(); });
     }
   }
   return frame_callback_id_;
@@ -57,19 +58,19 @@ void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
     auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
     auto children = root_node->GetChildren();
     if (!children.empty()) {
-      DomArgument argument = makeFrameCallbackArgument(id);
-      children[0]->CallFunction(kRemoveFrameCallback, argument, [](std::shared_ptr<DomArgument> arg) {});
+      hippy::dom::DomArgument argument = makeFrameCallbackArgument(id);
+      children[0]->CallFunction(kRemoveFrameCallback, argument, [](std::shared_ptr<hippy::dom::DomArgument> arg) {});
     }
   }
 }
 
-DomArgument HippyScreenAdapter::makeFrameCallbackArgument(uint64_t id) const {
+hippy::dom::DomArgument HippyScreenAdapter::makeFrameCallbackArgument(uint64_t id) const {
   tdf::base::DomValue::DomValueObjectType dom_value_object;
   dom_value_object[kFrameCallbackId] = tdf::base::DomValue(static_cast<int32_t>(id));
   tdf::base::DomValue::DomValueArrayType dom_value_array;
   dom_value_array.push_back(tdf::base::DomValue(dom_value_object));
   tdf::base::DomValue argument_dom_value(dom_value_array);
-  DomArgument argument(argument_dom_value);
+  hippy::dom::DomArgument argument(argument_dom_value);
   return argument;
 }
 
@@ -79,15 +80,8 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
     auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
     auto children = root_node->GetChildren();
     if (!children.empty()) {
-      tdf::base::DomValue::DomValueObjectType dom_value_object;
-      dom_value_object[kRequestMaxWidth] = tdf::base::DomValue(request.req_width);
-      dom_value_object[kRequestMaxHeight] = tdf::base::DomValue(request.req_height);
-      dom_value_object[kQuality] = tdf::base::DomValue(request.quality);
-      tdf::base::DomValue::DomValueArrayType dom_value_array;
-      dom_value_array.push_back(tdf::base::DomValue(dom_value_object));
-      tdf::base::DomValue argument_dom_value(dom_value_array);
-      hippy::dom::DomArgument argument(argument_dom_value);
-      std::function screen_shot_callback = [WEAK_THIS, callback](std::shared_ptr<DomArgument> arg) {
+      hippy::dom::DomArgument argument = makeScreenRequestArgument(request);
+      std::function screen_shot_callback = [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
         DEFINE_AND_CHECK_SELF(HippyScreenAdapter)
         tdf::base::DomValue result_dom_value;
         arg->ToObject(result_dom_value);
@@ -106,6 +100,18 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
       children[0]->CallFunction(kGetScreenShot, argument, screen_shot_callback);
     }
   }
+}
+
+hippy::dom::DomArgument HippyScreenAdapter::makeScreenRequestArgument(const ScreenRequest &request) const {
+  tdf::base::DomValue::DomValueObjectType dom_value_object;
+  dom_value_object[kRequestMaxWidth] = tdf::base::DomValue(request.req_width);
+  dom_value_object[kRequestMaxHeight] = tdf::base::DomValue(request.req_height);
+  dom_value_object[kQuality] = tdf::base::DomValue(request.quality);
+  tdf::base::DomValue::DomValueArrayType dom_value_array;
+  dom_value_array.push_back(tdf::base::DomValue(dom_value_object));
+  tdf::base::DomValue argument_dom_value(dom_value_array);
+  hippy::dom::DomArgument argument(argument_dom_value);
+  return argument;
 }
 }  // namespace devtools
 }  // namespace hippy

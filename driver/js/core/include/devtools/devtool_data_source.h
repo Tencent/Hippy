@@ -29,7 +29,6 @@
 #include "devtools/adapter/hippy_vm_request_adapter.h"
 #include "api/devtools_config.h"
 #include "api/devtools_backend_service.h"
-#include "module/record_logger.h"
 
 #ifdef JS_V8
 #include "v8/libplatform/v8-tracing.h"

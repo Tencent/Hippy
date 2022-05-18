@@ -2,6 +2,8 @@ package com.tencent.mtt.hippy.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,8 +36,8 @@ public class DevtoolsUtil {
     private static final float DEFAULT_SCALE = 0.5f;
     private static final int DEFAULT_QUALITY = 80;
     private final static HashMap<Integer, ViewTreeObserver.OnDrawListener> sDrawListeners = new HashMap<>();
+    private static WeakReference<Bitmap> sCacheBitmapRef;
 
-    @SuppressWarnings("unchecked")  // instanceof can't check for (HashMap<String, Object>) , so use SuppressWarnings
     public static void addFrameCallback(@NonNull List params, @NonNull View view, @NonNull final Promise promise) {
         NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
         if (nativeRenderer == null) {
@@ -48,7 +51,7 @@ public class DevtoolsUtil {
             return;
         }
         Object paramMap = params.get(0);
-        if (!(paramMap instanceof HashMap)) {
+        if (!(paramMap instanceof HashMap)) {  // instanceof can't check for (HashMap<String, Object>)
             return;
         }
         HashMap<String, Object> hashMap = (HashMap<String, Object>) paramMap;
@@ -66,7 +69,6 @@ public class DevtoolsUtil {
         rootView.getViewTreeObserver().addOnDrawListener(drawListener);
     }
 
-    @SuppressWarnings("unchecked")  // instanceof can't check for (HashMap<String, Object>) , so use SuppressWarnings
     public static void removeFrameCallback(@NonNull List params, @NonNull View view, @NonNull Promise promise) {
         NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
         if (nativeRenderer == null) {
@@ -80,7 +82,7 @@ public class DevtoolsUtil {
             return;
         }
         Object paramMap = params.get(0);
-        if (!(paramMap instanceof HashMap)) {
+        if (!(paramMap instanceof HashMap)) {  // instanceof can't check for (HashMap<String, Object>)
             return;
         }
         HashMap<String, Object> hashMap = (HashMap<String, Object>) paramMap;
@@ -92,14 +94,18 @@ public class DevtoolsUtil {
         if (drawListener != null) {
             rootView.getViewTreeObserver().removeOnDrawListener(drawListener);
         }
+        promise.resolve(new HippyMap());
     }
 
     public static void getScreenShot(@NonNull View view, @NonNull Promise promise) {
-        boolean isEnableDrawingCache = view.isDrawingCacheEnabled();
-        if (!isEnableDrawingCache) {
-            view.setDrawingCacheEnabled(true);
+        Bitmap bitmap = sCacheBitmapRef != null ? sCacheBitmapRef.get() : null;
+        if (bitmap == null) {
+            bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+            sCacheBitmapRef = new WeakReference<>(bitmap);
         }
-        Bitmap bitmap = view.getDrawingCache();
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.WHITE);
+        view.draw(canvas);
         String base64 = bitmapToBase64Str(bitmap);
         HippyMap resultMap = new HippyMap();
         resultMap.pushString(SCREEN_SHOT, base64);
@@ -107,30 +113,29 @@ public class DevtoolsUtil {
         resultMap.pushInt(SCREEN_HEIGHT, (int) (view.getHeight() * DEFAULT_SCALE));
         resultMap.pushDouble(SCREEN_SCALE, view.getResources().getDisplayMetrics().density * DEFAULT_SCALE);
         promise.resolve(resultMap);
-        view.setDrawingCacheEnabled(isEnableDrawingCache);
     }
 
     private static String bitmapToBase64Str(Bitmap bitmap) {
         String result = null;
-        ByteArrayOutputStream baos = null;
+        ByteArrayOutputStream outputStream = null;
         try {
             if (bitmap != null) {
                 Bitmap scaleBitmap = Bitmap
                         .createScaledBitmap(bitmap, (int) (bitmap.getWidth() * DEFAULT_SCALE),
                                 (int) (bitmap.getHeight() * DEFAULT_SCALE), false);
-                baos = new ByteArrayOutputStream();
-                scaleBitmap.compress(CompressFormat.JPEG, DEFAULT_QUALITY, baos);
-                baos.flush();
-                baos.close();
-                byte[] bitmapBytes = baos.toByteArray();
+                outputStream = new ByteArrayOutputStream();
+                scaleBitmap.compress(CompressFormat.JPEG, DEFAULT_QUALITY, outputStream);
+                outputStream.flush();
+                outputStream.close();
+                byte[] bitmapBytes = outputStream.toByteArray();
                 result = Base64.encodeToString(bitmapBytes, Base64.NO_WRAP);
             }
         } catch (IOException e) {
             LogUtils.e(TAG, "bitmapToBase64Str, scale exception:", e);
         } finally {
             try {
-                if (baos != null) {
-                    baos.close();
+                if (outputStream != null) {
+                    outputStream.close();
                 }
             } catch (IOException e) {
                 LogUtils.e(TAG, "bitmapToBase64Str, close exception:", e);

@@ -23,10 +23,6 @@
 #include "core/runtime/v8/inspector/v8_channel_impl.h"
 
 #include <string>
-#include <sstream>
-
-#include "core/base/string_view_utils.h"
-#include "base/unicode_string_view.h"
 
 namespace hippy::inspector {
 

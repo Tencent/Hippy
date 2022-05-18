@@ -27,7 +27,6 @@ namespace hippy {
 namespace devtools {
 class HippyRuntimeAdapter : public hippy::devtools::RuntimeAdapter {
  public:
-  explicit HippyRuntimeAdapter() {}
   inline void SetDebugMode(bool debug_mode) { debug_mode_ = debug_mode; }
   inline bool IsDebug() override { return debug_mode_; }
 

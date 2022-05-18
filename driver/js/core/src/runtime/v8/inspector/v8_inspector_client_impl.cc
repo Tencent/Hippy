@@ -42,8 +42,7 @@ void V8InspectorClientImpl::Reset(std::shared_ptr<Scope> scope,
   scope_ = std::move(scope);
   channel_->SetBridge(std::move(bridge));
 #if TDF_SERVICE_ENABLED
-  channel_->SetDevtoolsDataSource(scope_ ? scope_->GetDevtoolsDataSource()
-                                         : nullptr);
+  channel_->SetDevtoolsDataSource(scope_ ? scope_->GetDevtoolsDataSource() : nullptr);
 #endif
 }
 
