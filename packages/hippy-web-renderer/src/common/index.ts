@@ -104,7 +104,7 @@ function backgroundProcess(backgroundData: any, element: HTMLElement) {
       const angle = `${backgroundData.linearGradient.angle ?? '0'}deg`;
       let gradientStyle = `${angle} `;
       backgroundData.linearGradient.colorStopList.forEach((item: {ratio: number, color: number}) => {
-        gradientStyle += `,${convertHexToRgba(item.color)} ${item.ratio * 100}%`;
+        gradientStyle += `,${convertHexToRgba(item.color)}${item.ratio >= 0 ? ` ${item.ratio * 100}%` : ''}`;
       });
       styleUpdateWithCheck(element, 'background', `linear-gradient(${gradientStyle})`);
     }
@@ -137,7 +137,7 @@ function styleUpdateWithCheck(element: HTMLElement, key: string, newValue: any) 
     element.style[key] === null
     || element.style[key] === undefined
     || element.style[key] === ''
-    || element.style[key] !== newValue
+    || element.style[key] !== newValue?.trim?.()
   ) {
     const { style } = element;
     style[key] = newValue;
