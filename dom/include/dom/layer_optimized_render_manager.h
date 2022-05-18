@@ -19,6 +19,9 @@ class LayerOptimizedRenderManager : public RenderManager {
   void BeforeLayout() override;
   void AfterLayout() override;
 
+  virtual void RegisterVsyncSingal(const std::string &key, float rate, std::function<void()> vsync_callback) override;
+  virtual void UnregisterVsyncSingal(const std::string &key) override;
+  
   void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
   void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 

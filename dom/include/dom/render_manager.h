@@ -27,6 +27,9 @@ class RenderManager {
 
   virtual void BeforeLayout() = 0;
   virtual void AfterLayout() = 0;
+  
+  virtual void RegisterVsyncSingal(const std::string &key, float rate, std::function<void()> vsync_callback) = 0;
+  virtual void UnregisterVsyncSingal(const std::string &key) = 0;
 
   using DomArgument = hippy::dom::DomArgument;
   virtual void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) = 0;

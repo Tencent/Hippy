@@ -133,6 +133,18 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
     }
 }
 
+void NativeRenderManager::RegisterVsyncSingal(const std::string &key, float rate, std::function<void()> vsync_callback) {
+    if (vsync_callback) {
+        [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
+            vsync_callback();
+        } rate:rate forKey:@(key.c_str())];
+    }
+}
+
+void NativeRenderManager::UnregisterVsyncSingal(const std::string &key) {
+    [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:@(key.c_str())];
+}
+
 void NativeRenderManager::RegisterRootView(UIView *view) {
     @autoreleasepool {
         [uiManager_ registerRootView:view];
@@ -169,14 +181,6 @@ UIView *NativeRenderManager::CreateViewHierarchyFromId(int32_t id) {
 
 id<HippyRenderContext> NativeRenderManager::GetRenderContext() {
     return uiManager_;
-}
-
-void NativeRenderManager::RegisterVSyncSignal(std::function<void ()> vsync_callback, const std::string &key) {
-    [[RenderVsyncManager sharedInstance] registerVsyncObserver:vsync_callback forKey:key];
-}
-
-void NativeRenderManager::UnregiserVSyncSingal(const std::string &key) {
-    [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:key];
 }
 
 NativeRenderManager::~NativeRenderManager() {
