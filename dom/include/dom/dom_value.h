@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <ostream>
 
 namespace tdf {
 namespace base {
@@ -311,6 +312,8 @@ class DomValue final {
   inline void Deallocate();
 
   friend std::hash<DomValue>;
+  friend std::ostream& operator<<(std::ostream& os, const DomValue& dom_value);
+
 
   Type type_ = Type::kUndefined;
   NumberType number_type_ = NumberType::kNaN;
