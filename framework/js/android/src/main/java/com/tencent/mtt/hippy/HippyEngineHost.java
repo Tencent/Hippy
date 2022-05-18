@@ -33,7 +33,7 @@ public abstract class HippyEngineHost {
 
   public HippyEngineHost(Application application) {
     mApplication = application;
-    ContextHolder.setContext(mApplication);
+    ContextHolder.initAppContext(mApplication);
   }
 
   public HippyEngineManager createDebugHippyEngineManager(String debugJs) {
