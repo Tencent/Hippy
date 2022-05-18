@@ -1,6 +1,6 @@
 <!-- markdownlint-disable no-inline-html -->
 
-# 颜色
+# Color
 
 For the value of color attribute, you can query [color configuration of CSS](//developer.mozilla.org/en-US/docs/Web/CSS/color_value).
 

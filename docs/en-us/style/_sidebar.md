@@ -1,7 +1,7 @@
 <!-- docs/style/_sidebar.md -->
 
-* [layout](style/layout.md)
-* [appearance](style/appearance.md)
-* [color](style/color.md)
-* [transform](style/transform.md)
-* [setNativeProps](style/setNativeProps.md)
+* [Layout](style/layout.md)
+* [Appearance](style/appearance.md)
+* [Color](style/color.md)
+* [Transform](style/transform.md)
+* [SetNativeProps](style/setNativeProps.md)

@@ -1,116 +1,116 @@
 # Appearance
 
-Includes foreground,background,border,opacity,font and other appearance styles
+Includes foreground, background, border, opacity, font and other appearance styles.
 
 # borderColor
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
-| [color](style/color.md) |false|  Android,iOS
+| [color](style/color.md) |No|  Android,iOS
 
 # borderTopColor
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
-| [color](style/color.md) |false|   Android,iOS
+| [color](style/color.md) |No|   Android,iOS
 
 # borderBottomColor
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
-| [color](style/color.md) |false|  Android,iOS
+| [color](style/color.md) |No|  Android,iOS
 
 # borderLeftColor
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
-| [color](style/color.md) |false|   Android,iOS
+| [color](style/color.md) |No|   Android,iOS
 
 # borderRightColor
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
-| [color](style/color.md) |false|   Android,iOS
+| [color](style/color.md) |No|   Android,iOS
 
 # borderRadius
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false   |  Android,iOS
+| number |No   |  Android,iOS
 
 # borderTopLeftRadius
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  Android,iOS
+| number |No       |  Android,iOS
 
 # borderTopRightRadius
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  Android,iOS
+| number |No       |  Android,iOS
 
 # borderBottomLeftRadius
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  Android,iOS
+| number |No       |  Android,iOS
 
 # borderBottomRightRadius
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  Android,iOS
+| number |No       |  Android,iOS
 
 # borderWidth
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  Android,iOS
+| number |No       |  Android,iOS
 
 # borderTopWidth
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  iOS
+| number |No       |  iOS
 
 # borderBottomWidth
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  iOS
+| number |No       |  iOS
 
 # borderLeftWidth
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  iOS
+| number |No       |  iOS
 
 # borderRightWidth
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false       |  iOS
+| number |No       |  iOS
 
 # backgroundColor
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
-| [color](style/color.md) |false   |  Android,iOS
+| [color](style/color.md) |No   |  Android,iOS
 
 # borderStyle
 
 | Type                              | Required| Supported Platforms
 | --------------------------------- | -------- | --- |
-| enum('solid', 'dotted', 'dashed') |false   |  Android,iOS.'dotted' and 'dashed' support iOS only for the time being
+| enum('solid', 'dotted', 'dashed') |No   |  Android,iOS.'dotted' and 'dashed' only support iOS for the time being
 
 
 # boxShadow
 
 | Type   | Required| Platform|
 | ------ | -------- | --------|
-| [Hippy-React reference example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/BoxShadow/index.jsx) |false| Android, iOS. Android implementation differences (see example for details)
-| [Hippy-Vue reference example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-shadow.vue) |false| Android, iOS. Android implementation differences (see example for details)
+| [Hippy-React reference example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/BoxShadow/index.jsx) |No| Android, iOS. Android has different implementation (see example for details)
+| [Hippy-Vue reference example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-shadow.vue) |No| Android, iOS. Android has different implementation (see example for details)
 
 # color
 
@@ -118,7 +118,7 @@ Font color
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| [color](style/color.md) | false | Android,iOS
+| [color](style/color.md) | No | Android,iOS
 
 # fontFamily
 
@@ -128,7 +128,7 @@ For custom fonts, refer to [custom font instructions](guide/custom-font)
 
 | Type               | Required| Supported Platforms
 | ------ | -------- | --- |
-| string |false|  Android,iOS
+| string |No|  Android,iOS
  
 # fontSize
 
@@ -136,7 +136,7 @@ Font size
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false|  Android,iOS
+| number |No|  Android,iOS
 
 # fontWeight
 
@@ -146,21 +146,21 @@ Font weight
 
 | Type               | Required| Supported Platforms
 | ------ | -------- | --- |
-| number \| string |false|  Android,iOS
+| number \| string |No|  Android,iOS
 
 # opacity
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| number |false|  Android,iOS
+| number |No|  Android,iOS
 
 # textDecoration
 
 Same as `textDecorationLine`
 
-| Type   | Required| Supported Platforms
-| ------ | -------- | --------|
-| enum('underline', 'line-through', 'falsene')  | false | Android,iOS |
+| Type                                      | Required | Supported Platforms
+|-------------------------------------------|----------| --------|
+| enum('underline', 'line-through', 'none') | No       | Android,iOS |
 
 # textDecorationColor
 
@@ -172,7 +172,7 @@ Decoration line color for text
 
 | Type   | Required| Platform|
 | ------ | -------- | --------|
-| [color](style/color.md)  | false | iOS |
+| [color](style/color.md)  | No | iOS |
 
 # textDecorationLine
 
@@ -184,7 +184,7 @@ Decoration line type for text
 
 | Type   | Required| Platform|
 | ------ | -------- | --------|
-| enum('underline', 'line-through', 'none')  |false|  Android,iOS |
+| enum('underline', 'line-through', 'none')  |No|  Android,iOS |
 
 # textDecorationStyle
 
@@ -196,7 +196,7 @@ Decoration line style for text
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --------|
-| enum('dotted', 'dashed', 'solid')  |false|  iOS |
+| enum('dotted', 'dashed', 'solid')  |No|  iOS |
 
 # textShadowColor
 
@@ -210,7 +210,7 @@ Text shadow color
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --------|
-| [color](style/color.md)  | false | Android,iOS |
+| [color](style/color.md)  | No | Android,iOS |
 
 # textShadowOffset
 
@@ -224,7 +224,7 @@ Text shadow offset
 
 | Type   | Required| Platform|
 | ------ | -------- | --------|
-| object: { x: number, y: number }| false|  Android,iOS |
+| object: { x: number, y: number }| No|  Android,iOS |
 
 # textShadowOffsetX
 
@@ -239,7 +239,7 @@ Text shadow X-axis offset
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --------|
-| number |false|  Android,iOS |
+| number |No|  Android,iOS |
 
 # textShadowOffsetY
 
@@ -254,7 +254,7 @@ Text shadow Y-axis offset
 
 | Type   | Required| Platform|
 | ------ | -------- | --------|
-| number  |false|  Android,iOS |
+| number  |No|  Android,iOS |
 
 # textShadowRadius
 
@@ -268,7 +268,7 @@ Text shadow radius
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --------|
-| number |false|  Android,iOS |
+| number |No|  Android,iOS |
 
 # tintColor
 
@@ -277,15 +277,15 @@ Text shadow radius
 [Hippy-Vue example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
 
 
-Dye the image (when coloring the non-solid color image with transparency, the default values of 'blendmode' of Android and iOS are different)
+Tint  the image (When tinting the non-solid color image with transparency, there is a difference in the default value of 'blendmode' between Android and iOS)
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
-| [color](style/color.md) |false|   Android,iOS
+| [color](style/color.md) |No|   Android,iOS
 
 # visibility
 
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
-| enum('visible'[default]， 'hidden') | false | iOS（2.9.0）
+| enum('visible'[default]， 'hidden') | No | iOS（2.9.0）
 
