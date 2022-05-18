@@ -270,7 +270,7 @@ export function updateTransform(el: HTMLElement, position: Array<number>) {
 
 export function eventThrottle(lastExecuteTime: number, throttle: number, action: Function) {
   const timeStamp = 1000 / throttle;
-  const overThreshold = Date.now() - lastExecuteTime > timeStamp;
+  const overThreshold = Date.now() - lastExecuteTime >= timeStamp;
   if (overThreshold) {
     action?.();
   }

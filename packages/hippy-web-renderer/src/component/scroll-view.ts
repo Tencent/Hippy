@@ -198,7 +198,7 @@ export class ScrollView extends HippyView<HTMLDivElement> {
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
       onScroll: this.handleScroll.bind(this),
-      onTouchMove: this.handleScroll.bind(this),
+      onTouchMove: this.handleTouchMove.bind(this),
       onBeginSliding: this.handleBeginSliding.bind(this),
       onEndSliding: this.handleEndSliding.bind(this),
       updatePosition: this.updatePositionInfo.bind(this),
@@ -277,11 +277,19 @@ export class ScrollView extends HippyView<HTMLDivElement> {
     return calculateScrollEndPagePosition(pageUnitSize, scrollSize, originOffset);
   }
 
-  private handleScroll() {
-    this.dom && eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
+  private handleTouchMove() {
+    this.handleScroll();
+  }
+
+  private handleScroll(force = false) {
+    if (!this.dom) {
+      return;
+    }
+    !force && eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
       this.onScroll(this.buildScrollEvent(this.dom!));
       this.lastTimestamp = Date.now();
     });
+    force && this.onScroll(this.buildScrollEvent(this.dom!));
   }
 
   private handleBeginSliding() {

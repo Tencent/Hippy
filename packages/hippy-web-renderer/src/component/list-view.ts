@@ -324,7 +324,6 @@ export class ListView extends HippyView<HTMLDivElement> {
       scrollEnable: this.checkScrollEnable.bind(this),
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
-      onScroll: this.handleScroll.bind(this),
       onBeginSliding: this.handleBeginSliding.bind(this),
       onEndSliding: this.handleEndSliding.bind(this),
     });
@@ -454,9 +453,12 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.dom && this.onScrollEndDrag(this.buildScrollEvent());
   }
 
-  private handleScroll() {
+  private handleScroll(force = false) {
     window.requestAnimationFrame(this.listStickyCheck.bind(this));
-    this.dom && eventThrottle(
+    if (!this.dom) {
+      return;
+    }
+    !force && eventThrottle(
       this.lastTimestamp,
       this.scrollEventThrottle,
       () => {
@@ -464,6 +466,7 @@ export class ListView extends HippyView<HTMLDivElement> {
         this.lastTimestamp = Date.now();
       },
     );
+    force && this.onScroll(this.buildScrollEvent());
   }
 
   private handleBeginSliding() {
@@ -474,7 +477,7 @@ export class ListView extends HippyView<HTMLDivElement> {
     this.dirtyListItems.length > 0 && requestAnimationFrame(() => {
       this.checkDirtyChild();
     });
-    this.handleScroll();
+    this.handleScroll(true);
     this.dom && this.onMomentumScrollEnd(this.buildScrollEvent());
   }
 
