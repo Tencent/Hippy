@@ -432,28 +432,20 @@ function insertChild(parentNode, childNode, atIndex = -1) {
     return;
   }
   const { $options: { rootViewId, rootView } } = app;
-  // Render the root node
-  if (isLayout(parentNode, rootView) && !parentNode.isMounted) {
-    // Start real native work.
-    const translated = renderToNativeWithChildren(rootViewId, parentNode, (node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-      preCacheNode(node, node.nodeId);
-    });
-    __batchNodes.push({
-      type: NODE_OPERATION_TYPES.createNode,
-      nodes: translated,
-    });
-    endBatch(app);
-  // Render others child nodes.
-  } else if (parentNode.isMounted && !childNode.isMounted) {
-    const translated = renderToNativeWithChildren(rootViewId, childNode, (node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-      preCacheNode(node, node.nodeId);
-    });
+  const renderRootNodeCondition = isLayout(parentNode, rootView) && !parentNode.isMounted;
+  const renderOtherNodeCondition = parentNode.isMounted && !childNode.isMounted;
+  // Render the root node or other nodes
+  if (renderRootNodeCondition || renderOtherNodeCondition) {
+    const translated = renderToNativeWithChildren(
+      rootViewId,
+      renderRootNodeCondition ? parentNode : childNode,
+      (node) => {
+        if (!node.isMounted) {
+          node.isMounted = true;
+        }
+        preCacheNode(node, node.nodeId);
+      },
+    );
     __batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
