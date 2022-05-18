@@ -51,6 +51,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private NodePositionHelper nodePositionHelper;
     private ViewStickEventHelper viewStickEventHelper;
     private boolean stickEventEnable;
+    private int mInitialContentOffset;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -107,6 +108,32 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         return super.onTouchEvent(e);
     }
 
+    public void setInitialContentOffset(int initialContentOffset) {
+        mInitialContentOffset = initialContentOffset;
+    }
+
+    private int getFirstVisiblePositionByOffset(int offset) {
+        int position = 0;
+        int distanceToPosition = 0;
+        int itemCount = getAdapter().getItemCount();
+        boolean vertical = HippyListUtils.isVerticalLayout(this);
+        for (int i = 0; i < itemCount; i++) {
+            distanceToPosition += vertical ? listAdapter.getItemHeight(i) : listAdapter.getItemWidth(i);
+            if (distanceToPosition > offset) {
+                position = i;
+                break;
+            }
+        }
+        return position;
+    }
+
+    private void scrollToInitContentOffset() {
+        int position = getFirstVisiblePositionByOffset(mInitialContentOffset);
+        int positionOffset = -(mInitialContentOffset - getTotalHeightBefore(position));
+        scrollToPositionWithOffset(position, positionOffset);
+        mInitialContentOffset = 0;
+    }
+
     /**
      * 刷新数据
      */
@@ -119,6 +146,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         dispatchLayout();
         if (renderNodeCount > 0) {
             getAdapter().resetPullHeaderPositionIfNeeded(getContentOffsetY());
+            if (mInitialContentOffset > 0 && getChildCount() > 0) {
+                scrollToInitContentOffset();
+            }
         }
     }
 
