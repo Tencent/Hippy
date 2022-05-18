@@ -28,14 +28,13 @@
 #include "core/base/string_view_utils.h"
 #include "core/base/common.h"
 #include "core/napi/v8/serializer.h"
-#include "core/scope.h"
-#if TDF_SERVICE_ENABLED
-#include "devtools/devtools_macro.h"
-#endif
 #include "v8/libplatform/libplatform.h"
 #include "v8/v8.h"
 #include "core/modules/ui_manager_module.h"
 
+#if TDF_SERVICE_ENABLED
+#include "devtools/devtools_macro.h"
+#endif
 
 namespace hippy {
 namespace napi {

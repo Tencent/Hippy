@@ -166,9 +166,9 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 
 #if TDF_SERVICE_ENABLED
   DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
-  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolDataSource>(StringViewUtils::ToU8StdStr(ws_url));
+  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url));
   devtools_data_source->SetRuntimeDebugMode(is_dev_module);
-  scope->SetDevtoolDataSource(devtools_data_source);
+  scope->SetDevtoolsDataSource(devtools_data_source);
   scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (!runtime || !runtime->IsDebug()) {

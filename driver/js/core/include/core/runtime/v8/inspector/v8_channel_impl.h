@@ -48,7 +48,7 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
   inline void SetBridge(std::shared_ptr<Bridge> bridge) { bridge_ = bridge; }
 
 #if TDF_SERVICE_ENABLED
-  inline void SetDevtoolDataSource(std::shared_ptr<hippy::devtools::DevtoolDataSource> devtools_data_source) {
+  inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
     devtools_data_source_ = devtools_data_source;
   }
 #endif
@@ -64,7 +64,7 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
   friend class V8InspectorClientImpl;
   std::shared_ptr<Bridge> bridge_;
 #if TDF_SERVICE_ENABLED
-  std::shared_ptr<hippy::devtools::DevtoolDataSource> devtools_data_source_;
+  std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
 #endif
 };
 

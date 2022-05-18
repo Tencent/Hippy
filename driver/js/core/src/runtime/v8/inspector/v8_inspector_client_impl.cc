@@ -42,7 +42,8 @@ void V8InspectorClientImpl::Reset(std::shared_ptr<Scope> scope,
   scope_ = std::move(scope);
   channel_->SetBridge(std::move(bridge));
 #if TDF_SERVICE_ENABLED
-  channel_->SetDevtoolDataSource(scope_ ? scope_->GetDevtoolsDataSource() : nullptr);
+  channel_->SetDevtoolsDataSource(scope_ ? scope_->GetDevtoolsDataSource()
+                                         : nullptr);
 #endif
 }
 
@@ -50,7 +51,7 @@ void V8InspectorClientImpl::Connect(const std::shared_ptr<Bridge>& bridge) {
   channel_ = std::make_unique<V8ChannelImpl>(bridge);
   session_ = inspector_->connect(1, channel_.get(), v8_inspector::StringView());
 #if TDF_SERVICE_ENABLED
-  channel_->SetDevtoolDataSource(scope_->GetDevtoolsDataSource());
+  channel_->SetDevtoolsDataSource(scope_->GetDevtoolsDataSource());
 #endif
 }
 

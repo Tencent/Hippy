@@ -24,10 +24,10 @@
 #include "devtools/devtools_data_source.h"
 
 #define DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace_control) \
-  hippy::devtools::DevtoolDataSource::OnGlobalTracingControlGenerate(trace_control)
+  hippy::devtools::DevtoolsDataSource::OnGlobalTracingControlGenerate(trace_control)
 
 #define DEVTOOLS_INIT_VM_TRACING_CACHE(trace_dir) \
-  hippy::devtools::DevtoolDataSource::SetFileCacheDir(trace_dir)
+  hippy::devtools::DevtoolsDataSource::SetFileCacheDir(trace_dir)
 
 #else
 #define DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace_control) void(0)

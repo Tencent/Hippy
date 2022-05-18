@@ -45,10 +45,10 @@ namespace devtools {
 /**
  * @brief Hippy debug data source, collect debug data by adapter implement and notification
  */
-class DevtoolDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolDataSource> {
+class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolsDataSource> {
  public:
-  explicit DevtoolDataSource(const std::string& ws_url);
-  ~DevtoolDataSource() = default;
+  explicit DevtoolsDataSource(const std::string& ws_url);
+  ~DevtoolsDataSource() = default;
   void Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id);
   void Destroy(bool is_reload);
   void SetRuntimeDebugMode(bool debug_mode);

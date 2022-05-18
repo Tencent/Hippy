@@ -130,9 +130,9 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     // Set as needed:
     RandomAccessBundleData _randomAccessBundle;
     JSValueRef _batchedBridgeRef;
-    
+
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
-    
+
     JSGlobalContextRef _JSGlobalContextRef;
 }
 
@@ -166,7 +166,7 @@ HIPPY_EXPORT_MODULE()
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
         auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolDataSource>([wsURL UTF8String]);
         devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
-        self.pScope->SetDevtoolDataSource(devtools_data_source);
+        self.pScope->SetDevtoolsDataSource(devtools_data_source);
 #endif
     }
 
@@ -275,7 +275,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 JSStringRelease(execJSString);
             };
 #endif
-            
+
             strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
             jsContext[@"getTurboModule"] = ^id (NSString *name, NSString *args) {
                 HippyJSCExecutor *strongSelf = weakSelf;
@@ -288,7 +288,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
             };
         }
     };
-  
+
     hippy::base::RegisterFunction scopeInitializedCB = [weakSelf](void *p) {
       HippyJSCExecutor *strongSelf = weakSelf;
       if (!strongSelf) {

@@ -39,8 +39,7 @@
 namespace hippy {
 namespace devtools {
 
-using hippy::devtools::DevtoolsBackendService;
-DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
+DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
   devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
@@ -50,7 +49,7 @@ DevtoolDataSource::DevtoolDataSource(const std::string& ws_url) {
   runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>();
 }
 
-void DevtoolDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
+void DevtoolsDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
   dom_id_ = dom_id;
   runtime_id_ = runtime_id;
   auto data_provider = devtools_service_->GetDataProvider();
@@ -60,45 +59,45 @@ void DevtoolDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_
   data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(dom_id_);
   data_provider->runtime_adapter = runtime_adapter_;
-  TDF_BASE_DLOG(INFO) << "DevtoolDataSource data_provider:%p" << &devtools_service_;
+  TDF_BASE_DLOG(INFO) << "DevtoolsDataSource data_provider:%p" << &devtools_service_;
 }
 
-void DevtoolDataSource::Destroy(bool is_reload) {
+void DevtoolsDataSource::Destroy(bool is_reload) {
   devtools_service_->Destroy(is_reload);
 }
 
-void DevtoolDataSource::SetRuntimeDebugMode(bool debug_mode) {
+void DevtoolsDataSource::SetRuntimeDebugMode(bool debug_mode) {
   if (runtime_adapter_) {
     runtime_adapter_->SetDebugMode(debug_mode);
   }
 }
 
-void DevtoolDataSource::SetContextName(const std::string &context_name) {
+void DevtoolsDataSource::SetContextName(const std::string &context_name) {
   devtools_service_->GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 
-void DevtoolDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler) {
+void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler) {
   devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
 }
 
 #ifdef JS_V8
-void DevtoolDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController *tracingControl) {
+void DevtoolsDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController *tracingControl) {
   TraceControl::GetInstance().SetGlobalTracingController(tracingControl);
 }
 
-void DevtoolDataSource::SetFileCacheDir(const std::string& file_dir) {
+void DevtoolsDataSource::SetFileCacheDir(const std::string& file_dir) {
   TraceControl::GetInstance().SetFileCacheDir(file_dir);
 }
 
-void DevtoolDataSource::SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
+void DevtoolsDataSource::SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
   SendVmData(message->string());
 }
 
-void DevtoolDataSource::SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message) {
+void DevtoolsDataSource::SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message) {
   SendVmData(message->string());
 }
 
-void DevtoolDataSource::SendVmData(v8_inspector::StringView string_view) {
+void DevtoolsDataSource::SendVmData(v8_inspector::StringView string_view) {
   TDF_BASE_DCHECK(!string_view.is8Bit());
   auto data_chars = reinterpret_cast<const char16_t*>(string_view.characters16());
   auto result = base::StringViewUtils::ToU8StdStr(tdf::base::unicode_string_view(data_chars, string_view.length()));

@@ -51,6 +51,7 @@ import java.util.Map;
 @SuppressWarnings({"deprecation", "unused"})
 public abstract class HippyViewController<T extends View & HippyViewBase> implements
         View.OnFocusChangeListener {
+
     private static final String TAG = "HippyViewController";
 
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();

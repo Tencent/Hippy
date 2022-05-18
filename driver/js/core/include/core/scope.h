@@ -143,10 +143,10 @@ class Scope {
   }
 
 #if TDF_SERVICE_ENABLED
-  inline void SetDevtoolDataSource(std::shared_ptr<hippy::devtools::DevtoolDataSource> devtools_data_source) {
+  inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
     devtools_data_source_ = devtools_data_source;
   }
-  inline std::shared_ptr<hippy::devtools::DevtoolDataSource> GetDevtoolsDataSource() {
+  inline std::shared_ptr<hippy::devtools::DevtoolsDataSource> GetDevtoolsDataSource() {
     return devtools_data_source_;
   }
 #endif
@@ -174,6 +174,6 @@ class Scope {
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
 #if TDF_SERVICE_ENABLED
-  std::shared_ptr<hippy::devtools::DevtoolDataSource> devtools_data_source_;
+  std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
 #endif
 };

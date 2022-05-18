@@ -190,7 +190,7 @@ include_directories(${LAYOUT_DIR})
 include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
 
 if (TDF_SERVICE_ENABLED STREQUAL "true")
-  add_definitions(-DTDF_SERVICE_ENABLED=true)
+  add_definitions("-DTDF_SERVICE_ENABLED")
   include_directories(${DEVTOOLS_DIR}/include)
   add_subdirectory(${DEVTOOLS_DIR} devtools_backend)
   list(APPEND HIPPY_DEPS devtools_backend)
