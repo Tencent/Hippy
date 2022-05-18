@@ -28,13 +28,13 @@ namespace hippy::devtools {
 
 class LoggerModel {
  public:
-    std::string source;
-    std::string module;
-    std::string level;
-    std::string file_name;
-    int32_t line_number;
-    int64_t time_stamp;
-    std::string log_data;
+  std::string source;
+  std::string module;
+  std::string level;
+  std::string file_name;
+  int32_t line_number;
+  int64_t time_stamp;
+  std::string log_data;
 };
 
 using RecordLogOperateCallback = std::function<void(std::string&& log)>;
@@ -43,9 +43,7 @@ using RecordLogOperateCallback = std::function<void(std::string&& log)>;
  */
 class RecordLogger {
  public:
-  RecordLogger() = default;
-
-  void SetRecordLogOperateCallback(RecordLogOperateCallback callback) {
+  inline void SetRecordLogOperateCallback(RecordLogOperateCallback callback) {
     operate_callback_ = std::move(callback);
   }
 

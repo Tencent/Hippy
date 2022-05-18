@@ -25,8 +25,7 @@
 #include "v8/libplatform/v8-tracing.h"
 #endif
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class TraceControl {
  public:
   static TraceControl &GetInstance() {
@@ -54,5 +53,4 @@ class TraceControl {
   std::string cache_file_path_;
   bool tracing_has_start_ = false;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

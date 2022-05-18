@@ -23,8 +23,7 @@
 #include "devtools/trace_control.h"
 #endif
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 void HippyTracingAdapter::StartTracing() {
 #ifdef JS_V8
   TraceControl::GetInstance().StartTracing();
@@ -43,5 +42,4 @@ void HippyTracingAdapter::StopTracing(TracingDataCallback callback) {
   }
 #endif
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

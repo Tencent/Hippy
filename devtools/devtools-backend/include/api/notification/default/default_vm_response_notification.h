@@ -18,17 +18,20 @@
  * limitations under the License.
  */
 
-#include "api/notification/default/default_v8_response_notification.h"
+#pragma once
+
 #include <string>
+#include "api/notification/devtools_vm_response_notification.h"
 
 namespace hippy::devtools {
-DefaultVmResponseAdapter::DefaultVmResponseAdapter(ResponseHandler response_handler)
-    : response_handler_(std::move(response_handler)) {}
+class DefaultVmResponseAdapter : public VmResponseNotification {
+ public:
+  using ResponseHandler = std::function<void(std::string)>;
+  explicit DefaultVmResponseAdapter(ResponseHandler response_handler)
+      : response_handler_(std::move(response_handler)){};
+  void ResponseToFrontend(std::string data) override;
 
-void DefaultVmResponseAdapter::ResponseToFrontend(std::string data) {
-  if (response_handler_) {
-    response_handler_(data);
-  }
-}
-
+ private:
+  ResponseHandler response_handler_;
+};
 }  // namespace hippy::devtools

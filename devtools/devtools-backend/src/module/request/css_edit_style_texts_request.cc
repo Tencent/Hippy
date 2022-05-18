@@ -28,6 +28,6 @@ void CssEditStyleTextsRequest::Deserialize(const std::string& params) {
   if (params_json.is_discarded()) {
     return;
   }
-  edits_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyEdits, nlohmann::json::array());
+  edits_ = TdfParseJsonUtil::GetJsonValue(params_json, kFrontendKeyEdits, nlohmann::json::array());
 }
 }  // namespace hippy::devtools

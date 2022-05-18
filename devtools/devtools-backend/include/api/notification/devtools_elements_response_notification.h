@@ -24,12 +24,12 @@
 namespace hippy::devtools {
 class ElementsResponseNotification {
  public:
-
   virtual void NotifyDocumentUpdate() = 0;
 
-  void SetNeedNotifyBatchEvent(bool need_notify_batch_event) {
+  inline void SetNeedNotifyBatchEvent(bool need_notify_batch_event) {
     need_notify_batch_event_ = need_notify_batch_event;
   }
+
  protected:
   bool need_notify_batch_event_ = true;
 };

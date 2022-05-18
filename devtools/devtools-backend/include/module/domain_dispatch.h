@@ -31,13 +31,14 @@ namespace hippy::devtools {
 class BaseDomain;
 
 /**
- * @brief domain dispatch, including two parts protocol, 1. chrome debugging protocol， 2. self define protocol start with TDF_
+ * @brief domain dispatch, including two parts protocol, 1. chrome debugging protocol， 2. self define protocol start
+ * with TDF_
  */
 class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
  public:
   explicit DomainDispatch(std::shared_ptr<DataChannel> data_channel) : data_channel_(data_channel) {}
 
-  std::shared_ptr<DataChannel> GetDataChannel() { return data_channel_; }
+  inline std::shared_ptr<DataChannel> GetDataChannel() { return data_channel_; }
 
   /**
    * @brief register domain handler which can handle Domain.Method

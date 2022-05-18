@@ -27,7 +27,8 @@ namespace hippy::devtools {
 class DefaultElementsResponseAdapter : public ElementsResponseNotification {
  public:
   using DocumentUpdateHandler = std::function<void()>;
-  explicit DefaultElementsResponseAdapter(DocumentUpdateHandler document_update_Handler);
+  explicit DefaultElementsResponseAdapter(DocumentUpdateHandler document_update_Handler)
+      : document_update_Handler_(std::move(document_update_Handler)){};
   void NotifyDocumentUpdate() override;
 
  private:

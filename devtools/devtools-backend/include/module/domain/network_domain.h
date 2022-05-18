@@ -36,7 +36,7 @@ namespace hippy::devtools {
  */
 class NetworkDomain : public BaseDomain {
  public:
-  explicit NetworkDomain(std::weak_ptr<DomainDispatch> dispatch);
+  explicit NetworkDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)){};
   std::string GetDomainName() override;
   void RegisterMethods() override;
   void RegisterCallback() override;

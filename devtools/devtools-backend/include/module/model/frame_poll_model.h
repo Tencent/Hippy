@@ -30,9 +30,8 @@ namespace hippy::devtools {
 class FramePollModel : public BaseModel, public std::enable_shared_from_this<FramePollModel> {
  public:
   using ResponseHandler = std::function<void()>;
-  FramePollModel() = default;
   void InitTask();
-  void SetResponseHandler(ResponseHandler handler) { response_handler_ = handler; }
+  inline void SetResponseHandler(ResponseHandler handler) { response_handler_ = handler; }
   void StartPoll();
   void StopPoll();
   ~FramePollModel();

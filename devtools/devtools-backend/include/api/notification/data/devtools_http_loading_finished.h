@@ -38,9 +38,9 @@ class DevtoolsLoadingFinished : public Serializable {
         timestamp_(static_cast<uint64_t>(std::time(nullptr))),
         should_report_corb_blocking_(false) {}
 
-  void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
+  inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
 
-  void SetReportCorbBlocking(bool blocking) { should_report_corb_blocking_ = blocking; }
+  inline void SetReportCorbBlocking(bool blocking) { should_report_corb_blocking_ = blocking; }
   std::string Serialize() const override;
 
  private:

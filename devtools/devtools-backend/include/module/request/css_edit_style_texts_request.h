@@ -31,8 +31,8 @@ class CssEditStyleTextsRequest : public BaseRequest {
  public:
   void Deserialize(const std::string& params) override;
 
-  nlohmann::json GetEdits() const { return edits_; }
-  bool HasSetEdits() const { return !edits_.empty(); }
+  inline nlohmann::json GetEdits() const { return edits_; }
+  inline bool HasSetEdits() const { return !edits_.empty(); }
 
  private:
   nlohmann::json edits_;

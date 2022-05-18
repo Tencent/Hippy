@@ -48,7 +48,7 @@ using CssDataRequestCallback = std::function<void(int32_t node_id, CssStyleDataC
  */
 class CssDomain : public BaseDomain, public std::enable_shared_from_this<CssDomain> {
  public:
-  explicit CssDomain(std::weak_ptr<DomainDispatch> dispatch);
+  explicit CssDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)){};
   std::string GetDomainName() override;
   void RegisterMethods() override;
   void RegisterCallback() override;

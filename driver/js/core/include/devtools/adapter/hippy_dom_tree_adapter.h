@@ -24,8 +24,7 @@
 
 #include "api/adapter/devtools_dom_tree_adapter.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
  public:
   explicit HippyDomTreeAdapter(int32_t dom_id) : dom_id_(dom_id) {}
@@ -35,5 +34,4 @@ class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
  private:
   int32_t dom_id_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

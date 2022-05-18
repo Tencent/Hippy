@@ -26,8 +26,7 @@
 #include "dom/dom_argument.h"
 #include "hippy_elements_request_adapter.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class HippyScreenAdapter : public hippy::devtools::ScreenAdapter,
                            public std::enable_shared_from_this<HippyScreenAdapter> {
  public:
@@ -43,10 +42,9 @@ class HippyScreenAdapter : public hippy::devtools::ScreenAdapter,
 
  private:
   hippy::dom::DomArgument makeFrameCallbackArgument(uint64_t id) const;
-  hippy::dom::DomArgument makeScreenRequestArgument(const ScreenRequest &request) const;
+  hippy::dom::DomArgument makeScreenRequestArgument(const ScreenRequest& request) const;
   int32_t dom_id_;
   uint64_t frame_callback_id_;
   double screen_scale_ = 1.0;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

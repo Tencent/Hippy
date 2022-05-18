@@ -33,8 +33,6 @@ constexpr char kCssStyles[] = "styles";
 // default value
 constexpr uint32_t kCssStyleNodeDepth = 1;
 
-CssDomain::CssDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
-
 std::string CssDomain::GetDomainName() { return kFrontendKeyDomainNameCSS; }
 
 void CssDomain::RegisterMethods() {

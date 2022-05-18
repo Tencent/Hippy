@@ -23,8 +23,7 @@
 #include <string>
 #include "api/adapter/devtools_elements_request_adapter.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class HippyElementsRequestAdapter : public hippy::devtools::ElementsRequestAdapter {
  public:
   explicit HippyElementsRequestAdapter(int32_t dom_id) : dom_id_(dom_id) {}
@@ -34,5 +33,4 @@ class HippyElementsRequestAdapter : public hippy::devtools::ElementsRequestAdapt
  private:
   int32_t dom_id_;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

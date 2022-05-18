@@ -26,8 +26,7 @@
 #include "dom/dom_value.h"
 #include "dom/node_props.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) {
   if (!callback) {
     return;
@@ -73,5 +72,4 @@ void HippyDomTreeAdapter::GetDomTree(DumpDomTreeCallback callback) {
   };
   DevToolsUtil::PostDomTask(dom_id_, func);
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

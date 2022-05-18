@@ -23,16 +23,17 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <thread>
+#include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "socket.h"
-#include "devtools_base/common/macros.h"
 
 namespace hippy::devtools {
 constexpr char kListenHost[] = "127.0.0.1";
 constexpr int32_t kListenPort = 2345;
 
 TcpChannel::TcpChannel() {
-  // fd=0、1、2 is system stdin、stdout and stderr, so init it as -1, otherwise when first start, it will close socket fd=0 and cause fd be used
+  // fd=0、1、2 is system stdin、stdout and stderr, so init it as -1, otherwise when first start, it will close socket
+  // fd=0 and cause fd be used
   socket_fd_ = kNullSocket;
   client_fd_ = kNullSocket;
   frame_codec_ = FrameCodec();
@@ -66,9 +67,7 @@ void TcpChannel::Send(const std::string &rsp_data) {
                       hippy::devtools::kTaskFlag);
 }
 
-void TcpChannel::Close(int32_t code, const std::string &reason) {
-  SetStarting(false);
-}
+void TcpChannel::Close(int32_t code, const std::string &reason) { SetStarting(false); }
 
 bool TcpChannel::StartListen() {
   if (is_starting_) {
@@ -153,7 +152,7 @@ void TcpChannel::AcceptClient() {
   }
 }
 
-void TcpChannel::SetConnecting(bool connected, const std::string& error) {
+void TcpChannel::SetConnecting(bool connected, const std::string &error) {
   BACKEND_LOGD(TDF_BACKEND, "TcpChannel, SetConnecting connected=%d.", connected);
   if (is_connecting == connected) {
     return;

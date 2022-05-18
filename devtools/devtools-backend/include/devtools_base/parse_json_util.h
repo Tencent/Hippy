@@ -38,7 +38,7 @@ class TdfParseJsonUtil {
    * @return result value
    */
   template <typename T>
-  static T GetJSONValue(const nlohmann::json &json, const std::string &key, T default_value) {
+  static T GetJsonValue(const nlohmann::json &json, const std::string &key, T default_value) {
     if (json.contains(key)) {
       return json[key].get<T>();
     }

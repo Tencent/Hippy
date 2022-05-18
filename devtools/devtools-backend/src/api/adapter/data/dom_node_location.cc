@@ -22,7 +22,6 @@
 
 namespace hippy::devtools {
 constexpr char kNodeId[] = "nodeId";
-constexpr char kHitNodeRelationTree[] = "hitNodeRelationTree";
 
 std::string DomNodeLocation::Serialize() const {
   std::string node_str;

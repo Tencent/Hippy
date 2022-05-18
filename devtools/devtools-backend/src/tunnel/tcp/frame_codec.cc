@@ -58,10 +58,10 @@ void FrameCodec::Decode(void *data, int32_t len) {
     return;
   }
   int32_t stream_buffer_len = stream_buffer_.size();
-  while ( stream_buffer_len + len >= kHeaderSize) {
+  while (stream_buffer_len + len >= kHeaderSize) {
     // header don't need join
-    if ( stream_buffer_len > 0 &&  stream_buffer_len < kHeaderSize) {
-      int split_len = kHeaderSize -  stream_buffer_len;
+    if (stream_buffer_len > 0 && stream_buffer_len < kHeaderSize) {
+      int split_len = kHeaderSize - stream_buffer_len;
       stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data),
                             reinterpret_cast<char *>(data) + split_len);
 

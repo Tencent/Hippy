@@ -28,8 +28,7 @@
 
 #include "base/logging.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kCacheFileName[] = "/v8_trace.json";
 constexpr char kTraceBeginTag[] = "{\"traceEvents\":[";
 constexpr char kTraceEndTag[] = "]}";
@@ -94,7 +93,6 @@ void TraceControl::StopTracing() {
     tracing_has_start_ = false;
   }
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools
 
 #endif

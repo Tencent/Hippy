@@ -22,11 +22,9 @@
 
 #include "api/adapter/devtools_tracing_adapter.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 class HippyTracingAdapter : public hippy::devtools::TracingAdapter {
   void StartTracing() override;
   void StopTracing(TracingDataCallback callback) override;
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

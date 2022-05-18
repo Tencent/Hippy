@@ -36,8 +36,7 @@
 #include "devtools/trace_control.h"
 #endif
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;
@@ -53,8 +52,8 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render
   dom_id_ = dom_id;
   runtime_id_ = runtime_id;
   auto data_provider = devtools_service_->GetDataProvider();
-  std::shared_ptr<HippyDomTreeAdapter> domTreeAdapter = std::make_shared<HippyDomTreeAdapter>(dom_id_);
-  data_provider->dom_tree_adapter = domTreeAdapter;
+  std::shared_ptr<HippyDomTreeAdapter> dom_tree_adapter = std::make_shared<HippyDomTreeAdapter>(dom_id_);
+  data_provider->dom_tree_adapter = dom_tree_adapter;
   data_provider->elements_request_adapter = std::make_shared<HippyElementsRequestAdapter>(dom_id_);
   data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(dom_id_);
@@ -72,7 +71,7 @@ void DevtoolsDataSource::SetRuntimeDebugMode(bool debug_mode) {
   }
 }
 
-void DevtoolsDataSource::SetContextName(const std::string &context_name) {
+void DevtoolsDataSource::SetContextName(const std::string& context_name) {
   devtools_service_->GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 
@@ -81,7 +80,7 @@ void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHan
 }
 
 #ifdef JS_V8
-void DevtoolsDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController *tracingControl) {
+void DevtoolsDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl) {
   TraceControl::GetInstance().SetGlobalTracingController(tracingControl);
 }
 
@@ -104,8 +103,6 @@ void DevtoolsDataSource::SendVmData(v8_inspector::StringView string_view) {
   devtools_service_->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(result);
 }
 #endif
-
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools
 
 #endif

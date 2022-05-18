@@ -31,7 +31,7 @@ namespace hippy::devtools {
  */
 class BaseModel {
  public:
-  void SetDataProvider(std::shared_ptr<DataProvider> provider) { provider_ = provider; }
+  inline void SetDataProvider(std::shared_ptr<DataProvider> provider) { provider_ = provider; }
 
  protected:
   std::shared_ptr<DataProvider> provider_;

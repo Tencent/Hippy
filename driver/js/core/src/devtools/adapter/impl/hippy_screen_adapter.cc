@@ -24,8 +24,7 @@
 #include "dom/dom_node.h"
 #include "dom/macro.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kScreenShot[] = "screenShot";
 constexpr char kScreenWidth[] = "width";
 constexpr char kScreenHeight[] = "height";
@@ -46,7 +45,8 @@ uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback
     auto children = root_node->GetChildren();
     if (!children.empty()) {
       hippy::dom::DomArgument argument = makeFrameCallbackArgument(frame_callback_id_);
-      children[0]->CallFunction(kAddFrameCallback, argument, [callback](std::shared_ptr<hippy::dom::DomArgument> arg) { callback(); });
+      children[0]->CallFunction(kAddFrameCallback, argument,
+                                [callback](std::shared_ptr<hippy::dom::DomArgument> arg) { callback(); });
     }
   }
   return frame_callback_id_;
@@ -102,7 +102,7 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
   }
 }
 
-hippy::dom::DomArgument HippyScreenAdapter::makeScreenRequestArgument(const ScreenRequest &request) const {
+hippy::dom::DomArgument HippyScreenAdapter::makeScreenRequestArgument(const ScreenRequest& request) const {
   tdf::base::DomValue::DomValueObjectType dom_value_object;
   dom_value_object[kRequestMaxWidth] = tdf::base::DomValue(request.req_width);
   dom_value_object[kRequestMaxHeight] = tdf::base::DomValue(request.req_height);
@@ -113,5 +113,4 @@ hippy::dom::DomArgument HippyScreenAdapter::makeScreenRequestArgument(const Scre
   hippy::dom::DomArgument argument(argument_dom_value);
   return argument;
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

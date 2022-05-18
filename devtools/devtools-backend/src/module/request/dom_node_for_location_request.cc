@@ -33,8 +33,8 @@ void DomNodeForLocationRequest::Deserialize(const std::string& params) {
   if (params_json.is_discarded()) {
     return;
   }
-  double x = TdfParseJsonUtil::GetJSONValue(params_json, kParamsX, 0.0);
-  double y = TdfParseJsonUtil::GetJSONValue(params_json, kParamsY, 0.0);
+  double x = TdfParseJsonUtil::GetJsonValue(params_json, kParamsX, 0.0);
+  double y = TdfParseJsonUtil::GetJsonValue(params_json, kParamsY, 0.0);
   x_ = x;
   y_ = y;
   SetAlreadySetValue(true);

@@ -24,8 +24,7 @@
 
 #include "devtools/devtools_util.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,
                                                 bool is_root,
                                                 uint32_t depth,
@@ -55,5 +54,4 @@ void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, NodeLo
   };
   DevToolsUtil::PostDomTask(dom_id_, func);
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

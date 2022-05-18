@@ -20,8 +20,7 @@
 
 #include "devtools/devtools_util.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 constexpr char kDefaultNodeName[] = "DefaultNode";
 constexpr char kAttributes[] = "attributes";
 constexpr char kText[] = "text";
@@ -326,5 +325,4 @@ void DevToolsUtil::PostDomTask(int32_t dom_id, std::function<void()> func) {
     dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
   }
 }
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

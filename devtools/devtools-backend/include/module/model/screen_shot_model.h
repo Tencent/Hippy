@@ -37,8 +37,8 @@ class ScreenShotModel : public BaseModel, public std::enable_shared_from_this<Sc
   ScreenShotModel() : has_set_request_(false) {}
 
   using ScreenShotCallback = std::function<void(const ScreenShotResponse& response)>;
-  void SetResponseScreenShotCallback(ScreenShotCallback callback) { response_callback_ = callback; }
-  void SetSendEventScreenShotCallback(ScreenShotCallback callback) { send_event_callback_ = callback; }
+  inline void SetResponseScreenShotCallback(ScreenShotCallback callback) { response_callback_ = callback; }
+  inline void SetSendEventScreenShotCallback(ScreenShotCallback callback) { send_event_callback_ = callback; }
 
   /**
    * @brief set screenshot request params

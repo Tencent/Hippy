@@ -34,8 +34,8 @@ class DataChannel {
  public:
   DataChannel(std::shared_ptr<DataProvider> provider, std::shared_ptr<NotificationCenter> notification_center)
       : provider_(provider), notification_center_(notification_center) {}
-  std::shared_ptr<DataProvider> GetProvider() { return provider_; }
-  std::shared_ptr<NotificationCenter> GetNotificationCenter() { return notification_center_; }
+  inline std::shared_ptr<DataProvider> GetProvider() { return provider_; }
+  inline std::shared_ptr<NotificationCenter> GetNotificationCenter() { return notification_center_; }
 
  private:
   std::shared_ptr<DataProvider> provider_;

@@ -43,8 +43,6 @@ constexpr uint32_t kDocumentNodeDepth = 3;
 constexpr uint32_t kNormalNodeDepth = 2;
 constexpr int32_t kInvalidNodeId = -1;
 
-DomDomain::DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
-
 std::string DomDomain::GetDomainName() { return kFrontendKeyDomainNameDOM; }
 
 void DomDomain::RegisterMethods() {

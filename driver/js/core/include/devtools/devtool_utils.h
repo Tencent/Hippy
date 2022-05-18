@@ -26,8 +26,7 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 /**
  *  dom node operation util class
  */
@@ -61,5 +60,4 @@ class DevToolsUtil {
                                 const std::string& node_key,
                                 const DomValue& dom_value);
 };
-}  // namespace devtools
-}  // namespace hippy
+}  // namespace hippy::devtools

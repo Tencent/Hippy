@@ -29,7 +29,7 @@ void SelectedRenderObjectRequest::Deserialize(const std::string& params) {
   if (params_json.is_discarded()) {
     return;
   }
-  int32_t render_id = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyId, 0);
+  int32_t render_id = TdfParseJsonUtil::GetJsonValue(params_json, kFrontendKeyId, 0);
   render_id_ = render_id;
 }
 }  // namespace hippy::devtools

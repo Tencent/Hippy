@@ -29,7 +29,7 @@ void DomNodeDataRequest::Deserialize(const std::string& params) {
   if (params_json.is_discarded()) {
     return;
   }
-  node_id_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyNodeId, 0);
+  node_id_ = TdfParseJsonUtil::GetJsonValue(params_json, kFrontendKeyNodeId, 0);
   SetAlreadySetValue(true);
 }
 }  // namespace hippy::devtools

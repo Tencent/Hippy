@@ -24,10 +24,6 @@
 #include "devtools_base/logging.h"
 
 namespace hippy::devtools {
-DefaultElementsResponseAdapter::DefaultElementsResponseAdapter(DocumentUpdateHandler document_update_Handler)
-    : document_update_Handler_(std::move(document_update_Handler)) {}
 
-void DefaultElementsResponseAdapter::NotifyDocumentUpdate() {
-    document_update_Handler_();
-}
+void DefaultElementsResponseAdapter::NotifyDocumentUpdate() { document_update_Handler_(); }
 }  // namespace hippy::devtools

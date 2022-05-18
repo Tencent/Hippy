@@ -67,10 +67,10 @@ CssModel::CssModel() {
 CssModel CssModel::CreateModel(const nlohmann::json& json) {
   assert(json.is_object());
   CssModel model;
-  model.SetNodeId(TdfParseJsonUtil::GetJSONValue(json, kNodeId, 0));
-  model.SetWidth(TdfParseJsonUtil::GetJSONValue(json, kWidth, 0.0));
-  model.SetHeight(TdfParseJsonUtil::GetJSONValue(json, kHeight, 0.0));
-  model.SetStyle(TdfParseJsonUtil::GetJSONValue(json, kStyleKey, nlohmann::json::object()));
+  model.SetNodeId(TdfParseJsonUtil::GetJsonValue(json, kNodeId, 0));
+  model.SetWidth(TdfParseJsonUtil::GetJsonValue(json, kWidth, 0.0));
+  model.SetHeight(TdfParseJsonUtil::GetJsonValue(json, kHeight, 0.0));
+  model.SetStyle(TdfParseJsonUtil::GetJsonValue(json, kStyleKey, nlohmann::json::object()));
   return model;
 }
 
