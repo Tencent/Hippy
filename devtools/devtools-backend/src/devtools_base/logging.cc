@@ -33,7 +33,7 @@ namespace hippy::devtools {
 const char *const kBackendLogLevelNames[5] =
     {"INFO", "DEBUG", "WARNING", "ERROR", "FATAL"};
 static std::list<LogCallback> log_callbacks_;
-
+constexpr char kTdfBackend[] = "TDF-Backend";
 
 const char *GetNameForLogLevel(LogLevel level) {
   if (level >= DEVTOOLS_LOG_INFO && level <= DEVTOOLS_LOG_FATAL)
@@ -45,7 +45,7 @@ std::string Logger::GetTimeStamp() {
   struct timeval tv;
   time_t nowtime;
   struct tm nowtm = { 0 };
-  // YYYY-MM-DD hh.mm.ss.sss 共23位，最后一位为\0结束
+  // YYYY-MM-DD hh.mm.ss.sss 23 bit, end with \0
   static char szTime[24];
   std::chrono::system_clock::duration duration = std::chrono::system_clock::now().time_since_epoch();
   std::chrono::seconds sec = duration_cast<std::chrono::seconds>(duration);
@@ -112,7 +112,7 @@ void Logger::Log(LogLevel level, const char *file,
     default:
       break;
   }
-  __android_log_write(priority, "backend", stream.str().c_str());
+  __android_log_write(priority, kTdfBackend, stream.str().c_str());
 #else
   std::cout << timestamp << " " << stream.str();
 #endif
@@ -124,7 +124,7 @@ void Logger::Log(LogLevel level, const char *file,
   int64_t nano_time_stamp = nano_time_point.time_since_epoch().count();
 
   LoggerModel logger_model;
-  logger_model.source = "TDF Devtools";
+  logger_model.source = kTdfBackend;
   logger_model.module = module_name;
   logger_model.level = level_name;
   logger_model.file_name = file_stream.str();

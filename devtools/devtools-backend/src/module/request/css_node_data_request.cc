@@ -25,8 +25,8 @@
 namespace hippy::devtools {
 
 void CssNodeDataRequest::Deserialize(const std::string& params) {
-  auto params_json = nlohmann::json::parse(params);
-  if (!params_json.is_object()) {
+  auto params_json = nlohmann::json::parse(params, nullptr, false);
+  if (params_json.is_discarded()) {
     return;
   }
   node_id_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyNodeId, 0);

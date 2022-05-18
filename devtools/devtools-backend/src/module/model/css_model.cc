@@ -173,7 +173,7 @@ nlohmann::json CssModel::BuildCssStyle() {
     }
     // css_value can be numbers or strings, so stringstream is used
     std::string css_value = prop_value;
-    std::string css_text = css_name + ":" + css_value;
+    std::string css_text = css_name.append(":").append(css_value);
     auto source_range =
         BuildRangeJson(0, all_of_css_text.length(), 0, all_of_css_text.length() + css_text.length() + 1);
     auto css_property = BuildCssPropertyJson(css_name, css_value, source_range);

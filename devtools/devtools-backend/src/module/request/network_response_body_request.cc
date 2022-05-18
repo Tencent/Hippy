@@ -27,8 +27,8 @@ constexpr char kFrontendRequestId[] = "requestId";
 
 namespace hippy::devtools {
 void NetworkResponseBodyRequest::Deserialize(const std::string& params) {
-  auto params_json = nlohmann::json::parse(params);
-  if (!params_json.is_object()) {
+  auto params_json = nlohmann::json::parse(params, nullptr, false);
+  if (params_json.is_discarded()) {
     return;
   }
   request_id_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendRequestId, request_id_);

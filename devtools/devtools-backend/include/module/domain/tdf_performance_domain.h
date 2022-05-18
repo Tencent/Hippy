@@ -36,12 +36,18 @@ class TdfPerformanceDomain : public BaseDomain, public std::enable_shared_from_t
   void RegisterCallback() override;
 
  private:
+  /**
+   * @brief start record performance
+   */
   void Start(const BaseRequest& request);
+
+  /**
+   * @brief end record performance
+   */
   void End(const BaseRequest& request);
   void V8Tracing(const BaseRequest& request);
   void FrameTimings(const BaseRequest& request);
   void Timeline(const BaseRequest& request);
-  void ResponseError(int32_t id, const std::string& method);
 };
 
 }  // namespace hippy::devtools

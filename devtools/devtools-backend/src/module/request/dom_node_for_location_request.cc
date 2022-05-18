@@ -29,8 +29,8 @@ constexpr char kParamsX[] = "x";
 constexpr char kParamsY[] = "y";
 
 void DomNodeForLocationRequest::Deserialize(const std::string& params) {
-  auto params_json = nlohmann::json::parse(params);
-  if (!params_json.is_object()) {
+  auto params_json = nlohmann::json::parse(params, nullptr, false);
+  if (params_json.is_discarded()) {
     return;
   }
   double x = TdfParseJsonUtil::GetJSONValue(params_json, kParamsX, 0.0);

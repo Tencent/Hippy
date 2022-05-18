@@ -25,7 +25,10 @@
 namespace hippy::devtools {
 
 void SelectedRenderObjectRequest::Deserialize(const std::string& params) {
-  nlohmann::json params_json = nlohmann::json::parse(params);
+  auto params_json = nlohmann::json::parse(params, nullptr, false);
+  if (params_json.is_discarded()) {
+    return;
+  }
   int32_t render_id = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyId, 0);
   render_id_ = render_id;
 }

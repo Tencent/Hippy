@@ -66,6 +66,7 @@ void TdfPerformanceDomain::Start(const BaseRequest& request) {
 }
 
 void TdfPerformanceDomain::End(const BaseRequest& request) {
+  // just end record end, and then get tracing and timeline respectively
   BACKEND_LOGD(TDF_BACKEND, "TdfPerformanceDomain::End");
   nlohmann::json end_time_json = nlohmann::json::object();
   end_time_json["endTime"] = SteadyClockTime::NowTimeSinceEpochStr();
@@ -80,7 +81,7 @@ void TdfPerformanceDomain::V8Tracing(const BaseRequest& request) {
       self->ResponseResultToFrontend(request.GetId(), result);
     });
   } else {
-    ResponseError(request.GetId(), kPerformanceDomainMethodV8Tracing);
+    ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get v8 tracing failed, no data.");
   }
 }
 
@@ -92,7 +93,7 @@ void TdfPerformanceDomain::FrameTimings(const BaseRequest& request) {
       self->ResponseResultToFrontend(request.GetId(), frame_metas.Serialize());
     });
   } else {
-    ResponseError(request.GetId(), kPerformanceDomainMethodFrameTimings);
+    ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get frame timings failed, no data.");
   }
 }
 
@@ -104,23 +105,8 @@ void TdfPerformanceDomain::Timeline(const BaseRequest& request) {
       self->ResponseResultToFrontend(request.GetId(), time_line.Serialize());
     });
   } else {
-    ResponseError(request.GetId(), kPerformanceDomainMethodTimeline);
+    ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get time line failed, no data.");
   }
 }
 
-void TdfPerformanceDomain::ResponseError(int32_t id, const std::string& method) {
-  std::string error_msg;
-  if (kPerformanceDomainMethodStart == method) {
-    error_msg = "start failed, no data.";
-  } else if (kPerformanceDomainMethodEnd == method) {
-    error_msg = "end failed, no data.";
-  } else if (kPerformanceDomainMethodV8Tracing == method) {
-    error_msg = "get v8 tracing failed, no data.";
-  } else if (kPerformanceDomainMethodFrameTimings == method) {
-    error_msg = "get frame timings failed, no data.";
-  } else if (kPerformanceDomainMethodTimeline == method) {
-    error_msg = "get time line failed, no data.";
-  }
-  ResponseErrorToFrontend(id, kErrorFailCode, error_msg);
-}
 }  // namespace hippy::devtools

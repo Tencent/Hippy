@@ -19,7 +19,7 @@
  */
 
 #include "module/domain_dispatch.h"
-#include <regex>
+
 #include "api/devtools_backend_service.h"
 #include "devtools_base/domain_propos.h"
 #include "devtools_base/logging.h"

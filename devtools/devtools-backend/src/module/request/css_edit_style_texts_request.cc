@@ -24,8 +24,8 @@
 
 namespace hippy::devtools {
 void CssEditStyleTextsRequest::Deserialize(const std::string& params) {
-  auto params_json = nlohmann::json::parse(params);
-  if (!params_json.is_object()) {
+  auto params_json = nlohmann::json::parse(params, nullptr, false);
+  if (params_json.is_discarded()) {
     return;
   }
   edits_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyEdits, nlohmann::json::array());
