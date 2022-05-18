@@ -21,26 +21,45 @@
  */
 
 #import "RenderVsyncManager.h"
+#import "objc/runtime.h"
 #import <QuartzCore/CADisplayLink.h>
-#import <unordered_map>
 
-//
-//RenderVsyncManager &RenderVsyncManager::instance() {
-//    return RenderVsyncManager::vsync_manager_;
-//}
-//
-//RenderVsyncManager::RenderVsyncManager() {
-//    display_link_ = [CADisplayLink display]
-//}
-//
-//void RenderVsyncManager::RegisterVsyncObserver(std::function<void ()> observer) {
-//    vsync_observers_.emplace_back(observer);
-//}
+@interface CADisplayLink (Vsync)
+
+@property(nonatomic, copy)dispatch_block_t block;
+
+- (void)applyRefreshRate:(float)rate;
+
+@end
+
+@implementation CADisplayLink (Vsync)
+
+- (void)setBlock:(dispatch_block_t)block {
+    objc_setAssociatedObject(self, @selector(block), block, OBJC_ASSOCIATION_COPY);
+}
+
+- (dispatch_block_t)block {
+    return objc_getAssociatedObject(self, _cmd);
+}
+
+- (void)applyRefreshRate:(float)rate {
+    NSAssert(1 <= rate && 60 >=rate, @"vsync refresh rate must between 1 and 60");
+    if (@available(iOS 15.0, *)) {
+        CAFrameRateRange rateRange = {rate, rate, rate};
+        self.preferredFrameRateRange = rateRange;
+    }
+    else if (@available(iOS 10.0, *)) {
+        self.preferredFramesPerSecond = rate;
+    }
+    else {
+        self.frameInterval = 60.f / rate;
+    }
+}
+
+@end
 
 @interface RenderVsyncManager () {
-    std::unordered_map<std::string, std::function<void()>> _observers;
-    CADisplayLink *_vsync;
-    NSUInteger _rate;
+    NSMutableDictionary<NSString *, CADisplayLink *> *_observers;
 }
 
 @end
@@ -59,48 +78,30 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _rate = 30;
-        _vsync = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkTrigger)];
-        [self applyRefreshRate];
+        _observers = [NSMutableDictionary dictionaryWithCapacity:8];
     }
     return self;
 }
 
-- (void)applyRefreshRate {
-    NSAssert(1 <= _rate && 60 >=_rate, @"vsync refresh rate must between 1 and 60");
-    if (@available(iOS 15.0, *)) {
-        float f = static_cast<float>(_rate);
-        CAFrameRateRange rateRange = {f, f, f};
-        _vsync.preferredFrameRateRange = rateRange;
-    }
-    else if (@available(iOS 10.0, *)) {
-        _vsync.preferredFramesPerSecond = _rate;
-    }
-    else {
-        _vsync.frameInterval = 60 / _rate;
+- (void)vsyncSignalInvoked:(CADisplayLink *)displayLink {
+    dispatch_block_t block = displayLink.block;
+    if (block) {
+        block();
     }
 }
 
-- (void)displayLinkTrigger {
-    for (const auto &it : _observers) {
-        it.second();
+- (void)registerVsyncObserver:(dispatch_block_t)observer rate:(float)rate forKey:(NSString *)key {
+    if (observer && key) {
+        CADisplayLink *vsync = [CADisplayLink displayLinkWithTarget:self selector:@selector(vsyncSignalInvoked:)];
+        [vsync applyRefreshRate:rate];
+        [vsync addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+        [_observers setObject:vsync forKey:key];
     }
 }
 
-- (void)setRate:(NSUInteger)rate {
-    _rate = rate;
-    [self applyRefreshRate];
-}
-
-- (void)registerVsyncObserver:(std::function<void()>)observer forKey:(const std::string &)key {
-    _observers[key] = observer;
-    _vsync.paused = NO;
-}
-
-- (void)unregisterVsyncObserverForKey:(const std::string &)key {
-    _observers[key] = nullptr;
-    if (_observers.size() == 0) {
-        _vsync.paused = YES;
+- (void)unregisterVsyncObserverForKey:(NSString *)key {
+    if (key) {
+        [_observers removeObjectForKey:key];
     }
 }
 

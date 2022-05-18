@@ -21,34 +21,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <functional>
-#import <string>
-
-//class RenderVsyncManager {
-//
-//public:
-//    static RenderVsyncManager &instance();
-//    void RegisterVsyncObserver(std::function<void ()> observer);
-//
-//private:
-//    RenderVsyncManager() = default;
-//
-//    CADisplayLink *display_link_;
-//    static RenderVsyncManager vsync_manager_;
-//    std::vector<std::function<void ()>> vsync_observers_;
-//};
 
 @interface RenderVsyncManager : NSObject
 
-/**
- * Refresh rate. Default value is 30.
- */
-@property(nonatomic, assign)NSUInteger rate;
-
 + (instancetype)sharedInstance;
 
-- (void)registerVsyncObserver:(std::function<void()>)observer forKey:(const std::string &)key;
+- (void)registerVsyncObserver:(dispatch_block_t)observer rate:(float)rate forKey:(NSString *)key;
 
-- (void)unregisterVsyncObserverForKey:(const std::string &)key;
+- (void)unregisterVsyncObserverForKey:(NSString *)key;
 
 @end

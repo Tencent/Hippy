@@ -109,6 +109,14 @@ void LayerOptimizedRenderManager::AfterLayout() {
   render_manager_->AfterLayout();
 }
 
+void LayerOptimizedRenderManager::RegisterVsyncSingal(const std::string &key, float rate, std::function<void()> vsync_callback) {
+  render_manager_->RegisterVsyncSingal(key, rate, vsync_callback);
+}
+
+void LayerOptimizedRenderManager::UnregisterVsyncSingal(const std::string &key) {
+  render_manager_->UnregisterVsyncSingal(key);
+}
+
 void LayerOptimizedRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
                                                    const std::string &name) {
   render_manager_->AddEventListener(dom_node, name);

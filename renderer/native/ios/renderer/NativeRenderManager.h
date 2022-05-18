@@ -120,6 +120,11 @@ public:
                       const DomArgument& param,
                       uint32_t cb) override;
     
+    void RegisterVsyncSingal(const std::string &key,
+                             float rate, std::function<void()> vsync_callback) override;
+    
+    void UnregisterVsyncSingal(const std::string &key) override;
+    
     void RegisterRootView(UIView *view);
     
     void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);
@@ -135,11 +140,7 @@ public:
     UIView *CreateViewHierarchyFromId(int32_t id);
     
     id<HippyRenderContext> GetRenderContext();
-    
-    void RegisterVSyncSignal(std::function<void ()> vsync_callback, const std::string &key);
-    
-    void UnregiserVSyncSingal(const std::string &key);
-    
+        
 private:
     HippyUIManager *uiManager_;
 };
