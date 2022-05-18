@@ -29,7 +29,7 @@ class DefaultElementsResponseAdapter : public ElementsResponseNotification {
   using DocumentUpdateHandler = std::function<void()>;
   explicit DefaultElementsResponseAdapter(DocumentUpdateHandler document_update_Handler)
       : document_update_Handler_(std::move(document_update_Handler)){};
-  void NotifyDocumentUpdate() override;
+  inline void NotifyDocumentUpdate() { document_update_Handler_(); }
 
  private:
   DocumentUpdateHandler document_update_Handler_;

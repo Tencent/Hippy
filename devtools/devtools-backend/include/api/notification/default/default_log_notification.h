@@ -29,7 +29,7 @@ namespace hippy::devtools {
 class DefaultLogAdapter : public LogNotification {
  public:
   using BackendLogHandler = std::function<void(LoggerModel logger_model)>;
-  explicit DefaultLogAdapter(BackendLogHandler log_handler);
+  explicit DefaultLogAdapter(BackendLogHandler log_handler) : log_handler_(std::move(log_handler)) {}
   void PrintLog(const std::string& log_module, const std::string& log_message, LogSeverity severity,
                 const std::string& file_name, int32_t line_number) override;
 

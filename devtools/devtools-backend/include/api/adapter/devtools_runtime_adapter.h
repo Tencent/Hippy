@@ -28,7 +28,6 @@ namespace hippy::devtools {
  */
 class RuntimeAdapter {
  public:
-
   /**
    * @brief is running in debug mode
    * @return debug mode

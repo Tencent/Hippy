@@ -19,8 +19,6 @@
  */
 #pragma once
 
-#include <string>
-
 namespace hippy::devtools {
 class ElementsResponseNotification {
  public:

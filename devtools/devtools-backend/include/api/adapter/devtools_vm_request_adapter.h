@@ -28,7 +28,6 @@ namespace hippy::devtools {
  */
 class VmRequestAdapter {
  public:
-
   /**
    * @brief send message to virtual machine
    * @param msg  message data

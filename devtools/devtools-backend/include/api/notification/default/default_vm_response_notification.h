@@ -29,7 +29,12 @@ class DefaultVmResponseAdapter : public VmResponseNotification {
   using ResponseHandler = std::function<void(std::string)>;
   explicit DefaultVmResponseAdapter(ResponseHandler response_handler)
       : response_handler_(std::move(response_handler)){};
-  void ResponseToFrontend(std::string data) override;
+
+  inline void ResponseToFrontend(std::string data) {
+    if (response_handler_) {
+      response_handler_(data);
+    }
+  }
 
  private:
   ResponseHandler response_handler_;

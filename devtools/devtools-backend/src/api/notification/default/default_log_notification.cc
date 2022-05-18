@@ -33,8 +33,6 @@ const char *GetNameForLogSeverity(hippy::devtools::LogSeverity severity) {
   return kSeverityUnknown;
 }
 
-DefaultLogAdapter::DefaultLogAdapter(BackendLogHandler log_handler) : log_handler_(std::move(log_handler)) {}
-
 void DefaultLogAdapter::PrintLog(const std::string& log_module, const std::string &log_message, hippy::devtools::LogSeverity severity,
                                  const std::string &file_name, int32_t line_number) {
   if (log_handler_) {

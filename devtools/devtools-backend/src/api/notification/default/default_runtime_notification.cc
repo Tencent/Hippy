@@ -19,13 +19,11 @@
  */
 
 #include "api/notification/default/default_runtime_notification.h"
-#include <string>
 
 constexpr char kRuntimeEventUpdateContextInfo[] = "TDFRuntime.updateContextInfo";
 constexpr char kContextName[] = "contextName";
 
 namespace hippy::devtools {
-
 void DefaultRuntimeNotification::UpdateContextName(const std::string& context_name) {
   nlohmann::json params = nlohmann::json::object();
   params[kContextName] = context_name;
@@ -34,5 +32,4 @@ void DefaultRuntimeNotification::UpdateContextName(const std::string& context_na
     tunnel_service_->SendDataToFrontend(inspect_event.ToJsonString());
   }
 }
-
 }  // namespace hippy::devtools

@@ -19,7 +19,6 @@
  */
 
 #include "api/notification/default/default_network_notification.h"
-#include <string>
 
 constexpr char kDomainNetworkLoadingFinished[] = "Network.loadingFinished";
 constexpr char kDomainNetworkRequestWillBeSent[] = "Network.requestWillBeSent";
