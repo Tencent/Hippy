@@ -298,6 +298,43 @@ bool DomValue::operator<=(const DomValue& rhs) const noexcept { return !operator
 
 bool DomValue::operator>=(const DomValue& rhs) const noexcept { return !operator<(rhs); }
 
+std::ostream& operator<<(std::ostream& os, const DomValue& dom_value) {
+  if (dom_value.type_ == DomValue::Type::kUndefined) {
+    os << "undefined";
+  } else if (dom_value.type_ == DomValue::Type::kNull) {
+    os << "null";
+  } else if (dom_value.type_ == DomValue::Type::kNumber) {
+    if (dom_value.number_type_ == DomValue::NumberType::kNaN) {
+      os << "nan";
+    } else {
+      os << dom_value.ToDoubleChecked();
+    }
+  } else if (dom_value.type_ == DomValue::Type::kBoolean) {
+    os << dom_value.ToBooleanChecked();
+  } else if (dom_value.type_ == DomValue::Type::kString) {
+    os << dom_value.ToStringChecked();
+  } else if (dom_value.type_ == DomValue::Type::kObject) {
+    os << "{";
+    auto map = dom_value.ToObjectChecked();
+    size_t index = 0;
+    for (const auto& kv : map) {
+      os << kv.first << ": " << kv.second;
+      if (index != map.size() - 1) os << ",";
+      index++;
+    }
+    os << "}";
+  } else if (dom_value.type_ == DomValue::Type::kArray) {
+    os << "[ ";
+    auto arr = dom_value.ToArrayChecked();
+    for (size_t i = 0; i < arr.size(); i++) {
+      os << arr[i];
+      if (i != arr.size() - 1) os << ",";
+    }
+    os << " ]";
+  }
+  return os;
+}
+
 bool DomValue::IsUndefined() const noexcept { return type_ == Type::kUndefined; }
 
 bool DomValue::IsNull() const noexcept { return type_ == Type::kNull; }
@@ -383,7 +420,7 @@ std::string& DomValue::ToStringChecked() {
   return str_;
 }
 
-bool DomValue::ToObject(DomValue::DomValueObjectType& obj) const{
+bool DomValue::ToObject(DomValue::DomValueObjectType& obj) const {
   bool is_object = IsObject();
   obj = obj_;
   return is_object;
