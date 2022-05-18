@@ -25,7 +25,7 @@ set(PROJECT_NAME devtools_backend)
 project(${PROJECT_NAME})
 message("make devtools_backend")
 
-set(ABI_COMPILE_OPTIONS -fexceptions -Wno-error -frtti)
+set(ABI_COMPILE_OPTIONS -fexceptions -Wno-error)
 add_compile_options(${ABI_COMPILE_OPTIONS})
 
 get_filename_component(DEVTOOLS_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" REALPATH)
@@ -45,8 +45,11 @@ file(GLOB_RECURSE DEVTOOLS_SRC
         ${DEVTOOLS_ROOT_PATH}/src/**
         ${DEVTOOLS_ROOT_PATH}/third_party/socket/src/**)
 
+# aiso no rtti
+add_definitions("-DASIO_NO_TYPEID")
+
 if(IOS)
-  add_definitions(-DOS_IOS)
+  add_definitions("-DOS_IOS")
 endif()
 
 if(ANDROID OR IOS)
