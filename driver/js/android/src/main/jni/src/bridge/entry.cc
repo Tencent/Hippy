@@ -110,6 +110,12 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "(I)V",
              DestroyAnimationManager)
 
+REGISTER_JNI( // NOLINT(cert-err58-cpp)
+    "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+    "loadInstance",
+    "(J[BII)V",
+    LoadInstance)
+
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -342,17 +348,17 @@ void UpdateAnimationNode(JNIEnv* j_env,
       node_style_map;
   std::vector<std::pair<uint32_t, std::shared_ptr<tdf::base::DomValue>>>
       ani_data;
-  for (size_t i = 0; i < array.size(); i++) {
-    TDF_BASE_DCHECK(array[i].IsObject());
+  for (auto & i : array) {
+    TDF_BASE_DCHECK(i.IsObject());
     tdf::base::DomValue::DomValueObjectType node;
-    if (array[i].ToObject(node)) {
+    if (i.ToObject(node)) {
       if (node[kAnimationId].IsInt32()) {
         int32_t animation_id;
         node[kAnimationId].ToInt32(animation_id);
         tdf::base::DomValue animation_value = node[kAnimationValue];
-        ani_data.push_back(std::make_pair(
+        ani_data.emplace_back(
             static_cast<uint32_t>(animation_id),
-            std::make_shared<tdf::base::DomValue>(animation_value)));
+            std::make_shared<tdf::base::DomValue>(animation_value));
       }
     }
   }
@@ -436,6 +442,17 @@ void DestroyInstance(__unused JNIEnv* j_env,
   } else {
     hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::DESTROY_ERROR);
   }
+}
+
+void LoadInstance(JNIEnv* j_env,
+                  jobject j_obj,
+                  jlong j_runtime_id,
+                  jbyteArray j_byte_array,
+                  jint j_offset,
+                  jint j_length) {
+  auto buffer_data = JniUtils::AppendJavaByteArrayToBytes(j_env, j_byte_array, j_offset, j_length);
+  V8BridgeUtils::LoadInstance(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
+      std::move(buffer_data));
 }
 
 }  // namespace hippy
