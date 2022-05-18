@@ -15,6 +15,10 @@ Serializer::~Serializer() {
   }
 }
 
+void Serializer::WriteValue(const DomValue& dom_value) {
+  WriteObject(dom_value);
+}
+
 void Serializer::WriteHeader() {
   WriteTag(SerializationTag::kVersion);
   WriteVarint(kLatestVersion);
@@ -53,8 +57,6 @@ void Serializer::WriteUint32(uint32_t value) {
   WriteTag(SerializationTag::kUint32);
   WriteVarint<uint32_t>(value);
 }
-
-// void Serializer::WriteUint64(uint64_t value) { WriteVarint<uint64_t>(value); }
 
 void Serializer::WriteInt32(int32_t value) {
   WriteTag(SerializationTag::kInt32);
@@ -149,8 +151,7 @@ void Serializer::WriteZigZag(T value) {
   static_assert(std::is_integral<T>::value && std::is_signed<T>::value,
                 "Only signed integer types can be written as zigzag.");
   using UnsignedT = typename std::make_unsigned<T>::type;
-  WriteVarint((static_cast<UnsignedT>(value) << 1) ^ (static_cast<unsigned int>(value
-      >> (8 * sizeof(T) - 1))));
+  WriteVarint((static_cast<UnsignedT>(value) << 1) ^ (static_cast<unsigned int>(value >> (8 * sizeof(T) - 1))));
 }
 
 void Serializer::WriteOneByteString(const char* chars, size_t length) {
@@ -159,13 +160,12 @@ void Serializer::WriteOneByteString(const char* chars, size_t length) {
 }
 
 void Serializer::WriteTwoByteString(const char16_t* chars, size_t length) {
-  WriteVarint<uint32_t>(
-      hippy::base::checked_numeric_cast<size_t, uint32_t>(length * sizeof(char16_t)));
+  WriteVarint<uint32_t>(hippy::base::checked_numeric_cast<size_t, uint32_t>(length * sizeof(char16_t)));
   WriteRawBytes(chars, length * sizeof(char16_t));
 }
 
 void Serializer::WriteRawBytes(const void* source, size_t length) {
-  TDF_BASE_CHECK(length >= 0);
+  TDF_BASE_DCHECK(length >= 0);
   uint8_t* dest;
   dest = ReserveRawBytes(length);
   memcpy(dest, source, length);
@@ -204,7 +204,7 @@ void Serializer::WriteObject(const DomValue& dom_value) {
           break;
         }
         default: {
-          TDF_BASE_CHECK(false);
+          TDF_BASE_UNREACHABLE();
         }
       }
       break;
@@ -222,7 +222,7 @@ void Serializer::WriteObject(const DomValue& dom_value) {
       break;
     }
     default:
-      TDF_BASE_CHECK(true);
+      TDF_BASE_UNREACHABLE();
   }
 }
 
@@ -240,9 +240,9 @@ void Serializer::ExpandBuffer(size_t required_capacity) {
   size_t requested_capacity = std::max(required_capacity, buffer_capacity_ * 2) + 64;
   void* new_buffer = nullptr;
   new_buffer = realloc(buffer_, requested_capacity);
-  TDF_BASE_CHECK(new_buffer != NULL);
+  TDF_BASE_DCHECK(new_buffer != nullptr);
   buffer_ = reinterpret_cast<uint8_t*>(new_buffer);
   buffer_capacity_ = requested_capacity;
 }
 
-}  // namespace tdf
+}  // namespace tdf::base

@@ -129,7 +129,7 @@ void CheckArray(tdf::base::DomValue::DomValueArrayType value) {
   }
 }
 
-TEST(SerializerTest, ReadHeader) {
+TEST(DeserializerTest, ReadHeader) {
   tdf::base::Serializer serializer;
   serializer.WriteHeader();
   std::pair<uint8_t*, size_t> buffer = serializer.Release();
@@ -139,14 +139,14 @@ TEST(SerializerTest, ReadHeader) {
   EXPECT_EQ(deserializer.version_, tdf::base::kLatestVersion);
 }
 
-TEST(SerializerTest, Uint32) {
+TEST(DeserializerTest, Uint32) {
   CheckUint32(0);
   CheckUint32(1);
   CheckUint32(std::numeric_limits<uint32_t>::min());
   CheckUint32(std::numeric_limits<uint32_t>::max());
 }
 
-TEST(SerializerTest, Int32) {
+TEST(DeserializerTest, Int32) {
   CheckUint32(0);
   CheckUint32(1);
   CheckUint32(-1);
@@ -154,7 +154,7 @@ TEST(SerializerTest, Int32) {
   CheckUint32(std::numeric_limits<int32_t>::max());
 }
 
-TEST(SerializerTest, Double) {
+TEST(DeserializerTest, Double) {
   CheckDouble(0);
   CheckDouble(0.1);
   CheckDouble(0.000000000000001);
@@ -169,7 +169,7 @@ TEST(SerializerTest, Double) {
   CheckDouble(std::numeric_limits<double>::max());
 }
 
-TEST(SerializerTest, String) {
+TEST(DeserializerTest, String) {
   CheckString("");
   CheckString("a");
   CheckString("abcdefghijklmnopqrstuvwxyz");
@@ -179,7 +179,7 @@ TEST(SerializerTest, String) {
   CheckString("动态化框架");
 }
 
-TEST(SerializerTest, Map) {
+TEST(DeserializerTest, Map) {
   tdf::base::DomValue i32(1);
   tdf::base::DomValue u32(1);
   tdf::base::DomValue d(1.0);
@@ -200,7 +200,7 @@ TEST(SerializerTest, Map) {
   CheckMap(object2);
 }
 
-TEST(SerializerTest, Object) {
+TEST(DeserializerTest, Object) {
   tdf::base::DomValue i32(1);
   tdf::base::DomValue u32(1);
   tdf::base::DomValue d(1.0);

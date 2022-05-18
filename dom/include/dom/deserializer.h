@@ -18,6 +18,9 @@ class Deserializer {
 
   void ReadHeader();
 
+  bool ReadValue(DomValue& value);
+
+ private:
   bool ReadObject(DomValue& value);
 
   bool PeekTag(SerializationTag& tag);

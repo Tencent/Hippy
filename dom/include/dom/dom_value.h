@@ -95,7 +95,6 @@ class DomValue final {
   /**
    * @brief 构造 object 类型的 dom value
    * @param object_value DomValueObjectType 的对象
-   * @param length 字符串长度
    */
   explicit DomValue(const DomValueObjectType& object_value) : type_(Type::kObject), obj_(object_value) {}
 

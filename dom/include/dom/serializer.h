@@ -61,7 +61,10 @@ class Serializer {
 
   void WriteHeader();
 
+  void WriteValue(const DomValue& dom_value);
+
   std::pair<uint8_t*, size_t> Release();
+ private:
 
   void WriteOddball(Oddball oddball);
 

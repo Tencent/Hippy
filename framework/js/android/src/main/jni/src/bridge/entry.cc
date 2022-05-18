@@ -327,7 +327,7 @@ void UpdateAnimationNode(JNIEnv* j_env,
         (const uint8_t*)params_buffer,
         hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
-    deserializer.ReadObject(params);
+    deserializer.ReadValue(params);
   }
 
   TDF_BASE_DCHECK(params.IsArray());
