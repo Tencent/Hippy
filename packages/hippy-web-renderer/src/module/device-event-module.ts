@@ -26,13 +26,16 @@ export class DeviceEventModule extends HippyWebModule {
   private moduleListener: Array<() => void>=[];
 
   public invokeDefaultBackPressHandler() {
-    this.listen = false;
-    back();
+    setTimeout(() => {
+      this.listen = false;
+      back();
+    }, 0);
   }
 
   public init() {
-    addCacheHistoryState();
-    listenHistory(this.handleBack.bind(this));
+    // !!! exit wx window size change problem
+    // addCacheHistoryState();
+    // listenHistory(this.handleBack.bind(this));
   }
 
   public setListenBackPress(listen: boolean) {
@@ -57,10 +60,12 @@ export class DeviceEventModule extends HippyWebModule {
     }
     if (this.moduleListener.length > 0) {
       this.moduleListener.reverse()[0]();
-    } else {
+      return true;
+    } if (this.listen) {
       this.context.sendEvent('hardwareBackPress', null);
+      return true;
     }
-    return true;
+    return false;
   }
 }
 const WAIT_FLAG = 'wait';
