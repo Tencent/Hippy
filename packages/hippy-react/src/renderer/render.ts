@@ -251,26 +251,10 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1) {
     return;
   }
   const rootViewId = getRootViewId();
-  // Render the root node
-  if (isLayout(parentNode) && !parentNode.isMounted) {
-    // Start real native work.
-    const translated = renderToNativeWithChildren(
-      rootViewId,
-      childNode,
-      atIndex,
-      (node: ViewNode) => {
-        if (!node.isMounted) {
-          node.isMounted = true;
-        }
-      },
-    );
-    batchNodes.push({
-      type: NODE_OPERATION_TYPES.createNode,
-      nodes: translated,
-    });
-    // endBatch();
-    // Render others child nodes.
-  } else if (parentNode.isMounted && !childNode.isMounted) {
+  const renderRootNodeCondition = isLayout(parentNode) && !parentNode.isMounted;
+  const renderOtherNodeCondition = parentNode.isMounted && !childNode.isMounted;
+  // Render the root node or other nodes
+  if (renderRootNodeCondition || renderOtherNodeCondition) {
     const translated = renderToNativeWithChildren(
       rootViewId,
       childNode,
