@@ -1,14 +1,14 @@
-# 定时器
+# Timer
 
-[定时器](//developer.mozilla.org/en-US/Add-ons/Code_snippets/Timers)在 Javascript 中有非常广泛的应用，在 Hippy 也提供了支持。
+[timers](//developer.mozilla.org/en-US/Add-ons/Code_snippets/Timers) are widely used in Javascript and are also supported in Hippy.
 
-Hippy 端定时器用法与 Web 端 Javascript 用法一致，可以直接使用。
+The Hippy-side timer usage is consistent with the Web-side Javascript usage and can be used directly.
 
-## 方法
+## Method
 
 * [setTimeout](//developer.mozilla.org/zh-CN/docs/Web/API/Window/setTimeout)
 * [clearTimeout](//developer.mozilla.org/zh-CN/docs/Web/API/WindowTimers/clearTimeout)
 * [setInterval](//developer.mozilla.org/zh-CN/docs/Web/API/Window/setInterval)
 * [clearInterval](//developer.mozilla.org/zh-CN/docs/Web/API/window/clearInterval)
 
-> 2.6.4 及以上版本支持 [setTimeout多参数](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#%E5%8F%82%E6%95%B0) 和 [setInterval多参数](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setInterval#%E5%8F%82%E6%95%B0)
+> Version 2.6.4 and above support [setTimeout multi-parameter](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#%E5%8F%82%E6%95%B0) and [setInterval multi-parameter](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setInterval#%E5%8F%82%E6%95%B0)

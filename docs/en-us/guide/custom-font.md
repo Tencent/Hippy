@@ -1,46 +1,46 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# 自定义字体
+# Custom font
 
-# 前端
+# Front end
 
-前端使用自定义字体非常简单，和浏览器一样，使用 [font-family](https://www.w3schools.com/cssref/pr_font_font-family.asp) 样式即可。
+It's easy to use custom fonts on the front-end, just like browsers, by using the [font-family](https://www.w3schools.com/cssref/pr_font_font-family.asp) style.
 
-有两个范例：[hippy-react-demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx#L49)、[hippy-vue-demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue#L41)
+There are two examples: [hippy-react-demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx#L49), [hippy-vue-demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue#L41)
 
-但是如果要使用操作系统自带以外的字体，需要单独整合一下，继续阅读下面内容。
+However, if you want to use fonts other than those that come with the operating system, you need to integrate them separately and continue to read the following.
 
 # iOS
 
-## 整合字体文件
+## Integral font file
 
-打开 iOS 工程，新建一个 `fonts` 目录，并将字体文件拖动到该目录中。按照截图，建立字体引用即可，确保 Target 正确。
+Open the iOS project, create a `fonts` new directory, and drag the font file to that directory. Follow the screenshot and create a font reference to ensure that the Target is correct.
 
-![拷贝字体](../assets/img/copy-font.png)
+![Copy font](../assets/img/copy-font.png)
 
-然后点击项目中的字体文件，并再次确认 Target 正确。
+Then click on the font file in the project and verify that the Target is correct again.
 
-![确认字体](../assets/img/confirm-font.png)
+![Confirm font](../assets/img/confirm-font.png)
 
-## 检查项目配置
+## Check project configuration
 
-确认项目的设置的 `Build Phases` 里字体文件正确整合。
+Make sure that the font file of the project's settings is `Build Phases` properly integrated.
 
-![项目设置](../assets/img/font-project-setup.png)
+![Project settings](../assets/img/font-project-setup.png)
 
-## 将字体添加到 Info.plist
+## Add fonts to Info.plist
 
-将准确的字体文件名加入 `Info.plist` 的 `Fonts provided by application` 字段，如果没有这行的话，需要手工 `Add row` 添加一行。
+To add the exact font file name to `Info.plist` the `Fonts provided by application` field, if there is no such line, you need `Add row` to add a line manually.
 
 ![Info.plist](../assets/img/info-plist.png)
 
-## 验证字体正确性
+## Verify font correctness
 
-如果一切都正确，前端应该已经能正常显示自定义字体了，不过有的时候还是显示不了，其中最常见的，就是 Font Family 参数值不对，因为**字体文件名 !== Font Family**。
+If everything is correct, the front end should be able to display the custom font normally, but sometimes it can not be displayed. The most common one is that the Font Family parameter value is incorrect because of the **font file name!== Font Family**。
 
-有个简单办法可以进行校验，将 Font Family 全部列出来检查。
+There is a simple way to verify. List all Font families for checking.
 
-在 `AppDelegate.m` 的 `application didFinishLaunchingWithOptions` 方法中加上以下代码，在 `Debug` 菜单中打开 `Debug Area` 下 `Active Console`（按下 Command + Shift +C 可以快速打开）即可打印所有 Font Family。
+Add the following code `AppDelegate.m` to the `application didFinishLaunchingWithOptions` method of, and open it in the `Debug` menu `Debug Area``Active Console` (press Command + Shift +C to quickly open it) to print all Font families.
 
 ```objectivec
 for (NSString* family in [UIFont familyNames])
@@ -53,14 +53,14 @@ for (NSString* family in [UIFont familyNames])
 }
 ```
 
-![检查字体](../assets/img/check-font.png)
+![Check font](../assets/img/check-font.png)
 
 # Android
 
-## 整合字体文件
+## Integral font file
 
-Android 只需要在静态资源 `assets` 目录中建立 `fonts` 目录，然后把字体文件拷贝进去即可。
+Android only needs to establish the `fonts` directory in the static resource `assets` directory, and then copy the font file into it.
 
-需要注意的是，字体文件名需要和 FontFamily 一致，因为 Android 虽然也可以做字体文件名映射，但是字体和文件名一致无疑是最简单的办法。
+It's important to note that the font file name needs to be the same as the FontFamily, because Android can also do font file name mapping, but the font and file name consistency is undoubtedly the easiest way.
 
-> 官方 demo 的字体放在 [res/fonts](https://github.com/Tencent/Hippy/tree/master/examples/android-demo/res) 目录下，是因为编译脚本[将 `res` 目录下的文件直接拷贝到 `assets` 目录](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/build.gradle#L35)下了，所以 `res/assets` 就变成 `assets/assets` 目录，为了让字体目录正确拷贝进 `assets` 静态资源目录，只能让它放在 `res` 下。
+>The official demo font is placed in the [res/fonts](https://github.com/Tencent/Hippy/tree/master/examples/android-demo/res) directory because the compilation script [directly copies the files in the `res` directory to the `assets` directory](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/build.gradle#L35), so`res/assets`  becomes the `assets/assets` directory. In order to correctly copy the font directory into the `assets` static resource directory, it can only be placed in`res` the directory.

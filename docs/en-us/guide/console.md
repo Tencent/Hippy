@@ -1,6 +1,6 @@
-# 日志
+# Journal
 
-Hippy 2.10.0 之前，前端的 `console` 模块实现了基本的日志输出。 同时 `console` 与能够将前端日志输出到终端的 `ConsoleModule` 模块进行融合， 当调用 `console` 的 `log()`、`info()`、`warn()`、`error()` 四个方法时会将日志输出到 iOS 终端日志和 [Android logcat](//developer.android.com/studio/command-line/logcat)，这样跟终端日志一起输出有助于解决线上一些难以发现的问题，但要注意在线上包中屏蔽掉正常的信息日志输出。
+Before Hippy 2.10.0, the front-end `console` modules implemented basic log output. At the same time, `console` it is integrated with the module that can output the front - end log to the terminal`ConsoleModule`. When the four methods `console` of `log()`, `info()`, `warn()` and `error()` are called, the log will be output to the iOS terminal log and [Android logcat](//developer.android.com/studio/command-line/logcat). In this way, the output together with the terminal log will help to solve some problems that are difficult to find on the line. However, it is necessary to pay attention to shielding the normal information log output in the online package.
 
-Hippy 2.10.0 之后，为了修正 `console` 的调用栈定位问题，将 `console` 方法与 `ConsoleModule` 模块进行分离，调用 `console` 的 `log()`、`info()`、`warn()`、`error()` 方法不再将日志输出到终端，若需要将前端日志输出到终端，请直接使用 [HippyReact ConsoleModule](hippy-react/modules?id=consolemodule) 和 [HippyVue ConsoleModule](hippy-vue/vue-native?id=consolemodule) 说明。
+After Hippy 2.10.0, in order to correct `console` the call stack positioning problem, the `console` method  is separated from the `ConsoleModule` module. The `console` called `log()`, `info()`, `warn()` and `error()` methods no longer output the log to the terminal. If the front-end log needs to be output to the terminal, please directly use [Hippy-React ConsoleModule](hippy-react/modules?id=consolemodule) and [Hippy-Vue ConsoleModule](hippy-vue/vue-native?id=consolemodule) for description.
 

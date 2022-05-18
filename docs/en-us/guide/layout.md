@@ -1,12 +1,12 @@
-# 盒模型
+# Box model
 
-Hippy 为了方便前端开发便于理解，样式也采用了 CSS 的盒模型构建。当 Hippy 在进行布局的时候，渲染引擎会根据 CSS-Box 模型将所有元素表示为一个矩形盒子，样式配置决定这些盒子的大小，位置以及属性（颜色，背景，边框尺寸...).
+In order to facilitate front-end developer to understand, Hippy also uses CSS-Box model to build the style. When Hippy is laying out, the rendering engine will represent all elements as a rectangular box according to the CSS-Box model, and the style configuration determines the size, location, and attributes (color, background, border size ...) of these boxes.
 
-在 Hippy 中，使用标准盒模型描述这些矩形盒子中的每一个。这个模型描述了元素所占空间的内容。每个盒子有四个边：外边距边, 边框边, 内填充边 与 内容边。
+In Hippy, the standard box model is used to describe each of these rectangular boxes. This model describes the content of the space occupied by elements. Each box has four edges: an outer margin edge, a border edge, an inner fill edge, and a content edge.
 
-> PS: Hippy 的盒模型布局对应的是CSS的 `box-sizing` 属性的 `border-box` 类型，具体表现与宽高边距计算可参考[MDN文档 box-sizing](//developer.mozilla.org/zh-CN/docs/Web/CSS/box-sizing)。
+> PS: Hippy's box model layout corresponds to the 'border-box' type of the 'box-sizing' attribute of CSS. For specific performance and width height margin calculation, please refer to the [MDN Docs: box-sizing](//developer.mozilla.org/en-US/docs/Web/CSS/box-sizing).
 
-![盒模型](../assets/img/border-box.png)
+![Box model](../assets/img/border-box.png)
 
 * [width](style/layout.md?id=width)
 * [height](style/layout.md?id=height)
@@ -14,105 +14,105 @@ Hippy 为了方便前端开发便于理解，样式也采用了 CSS 的盒模型
 * [margin](style/layout.md?id=margin)
 * [border](style/layout.md?id=borderWidth)
 
-# 布局（Flex）
+# Layout (Flex)
 
-Hippy 中，为了方便移动端编写布局，所以默认支持了现在移动端最流行的 `Flex` 布局。同时，因为仅支持 `Flex` 布局，所以不需要手写 `display: flex` 即可使用
-Flex 布局与 Web 的 Flex 类似，它们都旨在提供一个更加有效的方式制定、调整和分布一个容器里的项目布局，即使他们的大小是未知或者是动态的。Flex 规定了弹性元素如何伸长或缩短以适应flex容器中的可用空间。CSS 版教程文档可以参考[这篇](http://www.w3cplus.com/css3/a-visual-guide-to-css3-flexbox-properties.html)
+In Hippy, in order to facilitate the mobile terminal to write the layout, the most popular 'Flex' layout on the mobile terminal is supported by default. At the same time, because only 'Flex' layout is supported, it can be used without handwriting 'display: flex'
+Flex layouts are similar to Web Flex. They are designed to provide a more effective way to formulate, adjust and distribute the layout of items in a container, even if their size is unknown or dynamic. Flex specifies how the elastic element extends or contracts to accommodate the available space in the Flex container. CSS tutorial documentation can be found in [This article](http://www.w3cplus.com/css3/a-visual-guide-to-css3-flexbox-properties.html)
 
 ## flexDirection
 
-flexDirection 属性指定了内部元素是如何在 flex 容器中布局的，定义了主轴的方向(水平或垂直)。
+The flexDirection attribute specifies how the internal elements are laid out in the Flex container, defining the direction of the main axis (horizontal or vertical).
 
-> 注意：Hippy 的 flexDirection 与 Web的 flex-direction Web 默认为 `row`, Hippy 默认为 `column`。
+>Note: Hippy's flexDirection is different from Web's flex-direction, Web defaults to `row`, Hippy defaults to `column`
 
 <img src="assets/img/flex-direction.png" alt="flexDirection" width="30%"/>
 <br />
 <br />
 
-| 类型   | 必需 |默认|
+| Type   | Required| Default|
 | ------ | -------- |---|
-| enum('column', 'row') | 否     |'column'|
+| enum('column', 'row') |No    |'column'|
 
 ## alignItems
 
-alignItems 定义了伸缩项目可以在伸缩容器的当前行的侧轴上对齐方式
+alignItems define how the flex item can be aligned on the side axis of the current row of the flex container
 
-* flex-start(默认值)：伸缩项目在侧轴起点边的外边距紧靠住该行在侧轴起始的边。
-* flex-end：伸缩项目在侧轴终点边的外边距靠住该行在侧轴终点的边 。
-* center：伸缩项目的外边距盒在该行的侧轴上居中放置。
-* baseline：伸缩项目根据他们的基线对齐。
-* stretch：伸缩项目拉伸填充整个伸缩容器。此值会使项目的外边距盒的尺寸在遵照「min/max-width/height」属性的限制下尽可能接近所在行的尺寸。
+* flex-start(default): the outer margin of the flex item at the start edge of the side axis is close to the edge of the line at the start of the side axis.
+* flex-end: the outer distance of the flex item at the end of the side axis is close to the edge of the line at the end of the side axis.
+* center: the outer margin box of the flex item is centered on the side axis of the row.
+* baseline: flex items are aligned to their baseline.
+* stretch: the flex item stretches to fill the entire flex container. This value causes the size of the item's outer margin box to be as close to the size of the row as possible, subject to the limits of the「min/max-width/height」 attribute.
 
-| 类型   | 必需 |默认|
+| Type   | Required| Default|
 | ------ | -------- |---|
-| enum('flex-start', 'flex-end', 'center', 'baseline', 'stretch') | 否      |'flex-start'|
+| enum('flex-start', 'flex-end', 'center', 'baseline', 'stretch') |No     |'flex-start'|
 
 ## justifyContent
 
-justifyContent 定义了伸缩项目沿着主轴线的对齐方式。
+justifyContent defines the alignment of the flex item along the main axis.
 
-* flex-start(默认值)：伸缩项目向一行的起始位置靠齐。
-* flex-end：伸缩项目向一行的结束位置靠齐。
-* center：伸缩项目向一行的中间位置靠齐。
-* space-between：伸缩项目会平均地分布在行里。第一个伸缩项目一行中的最开始位置，最后一个伸缩项目在一行中最终点位置。
-* space-around：伸缩项目会平均地分布在行里，两端保留一半的空间。
+* flex-start(default): the flex items is aligned with the start of a row.
+* flex-end: the flex item is aligned to the end of a row.
+* center: the flex item is aligned to the middle of a row.
+* space-between: the flex items are evenly distributed among the rows. The first flex item is at the beginning of a row, and the last flex item is at the end of a row.
+* space-around: the flex items are evenly distributed in rows, leaving half the space at both ends.
 
-| 类型   | 必需 |默认|
+| Type   | Required| Default|
 | ------ | -------- |---|
-| enum('flex-start', 'flex-end', 'center', 'baseline', 'stretch') | 否      |'flex-start'|
+| enum('flex-start', 'flex-end', 'center', 'space-between', 'space-around') |No     |'flex-start'|
 
 ## flex
 
-flex 属性数值, 定义了 flex 容器的子节点项可以占用容器中剩余空间的大小。默认值为0，即不占用剩余空间。如果定义了 flex 数字且为正数的时候，则
+The value of the flex attribute, which defines the size of the remaining space in the container that can be occupied by child node items of the flex container. The default value is 0, which does not occupy the remaining space. If a flex number is defined and is positive, then
 
 ```text
-每个元素占用的剩余空间=自己的 flex 数值 / 所有同一级子容器的 flex 数字之和
+The remaining space occupied by each element = its own flex value / the sum of the flex numbers of all sub containers at the same level
 ```
 
-当 flex 设置为-1的时候，默认情况会显示正常宽高。然而， 如果剩余空间不足的话，此设置了`flex: -1`的容器将会收缩到其 minWidth 的宽度与 minHeight 的高度来显示。
+Normal width and height are displayed by default when flex is set to height 1. However, if there is not enough space left, this set`flex: -1` container will shrink to its minWidth and minHeight to display.
 
-| 类型   | 必需 |默认|
+| Type   | Required| Default|
 | ------ | -------- |---|
-| number| 否      |0|
+| number| No     | 0|
 
 ## flexBasis
 
-flexBasis 设置伸缩基准值，剩余的空间按比率进行伸缩，负值无效，只能为 0 或正数。
+flexBasis sets the flex basis value, and the remaining space is flexed by a ratio. Negative values are invalid, and can only be 0 or positive.
 
-| 类型   | 必需 |默认|
-| ------ | -------- |---|
-| number, string| 否      |auto|
+| Type   | Required| Default |
+| ------ | -------- |--------|
+| number, string| No     | 'auto'   |
 
 ## flexGrow
 
-flexGrow 定义伸缩项目的扩展能力。它接受一个不带单位的值做为一个比例。主要用来决定伸缩容器剩余空间按比例应扩展多少空间。
+flexGrow defines the growth of a flex project. It accepts a value without units as a ratio. It is mainly used to determine how much space the remaining space of the flex container should be expanded proportionally.
 
-如果所有伸缩项目的 flex-grow 设置了 1，那么每个伸缩项目将设置为一个大小相等的剩余空间。如果你给其中一个伸缩项目设置了 flex-grow 值为 2，那么这个伸缩项目所占的剩余空间是其他伸缩项目所占剩余空间的两倍。
+If flex-row is set to 1 for all flex items, each flex item will be set to an equal amount of remaining space. If you set a flex-row value of 2 for one of the flex items, the remaining space occupied by that flex item is twice as large as the remaining space occupied by the other flex items.
 
-| 类型   | 必需 |默认|
+| Type   | Required| Default|
 | ------ | -------- |---|
-| number| 否      |0|
+| number| No     | 0|
 
 ## flexShrink
 
-flexShrink 定义伸缩项目收缩的能力。
+flexShrink defines the ability to flex project shrinkage.
 
-> 注意：Hippy 中 flexShrink 默认值为 0，与Web标准有差异
+>Note: the flexShrink default in Hippy is 0, which is different from the Web standard
 
-| 类型   | 必需 |默认|
+| Type   | Required| Default|
 | ------ | -------- |---|
-| number| 否      |0|
+| number| No     | 0|
 
-# 长度单位
+# Unit of length
 
-Hippy 现在暂时不支持百分比的长度值，只支持具体数值（number）。单位为 dp，具体换算公式为：
+Hippy now does not support a percentage length value for the time being, only a specific number. Unit is dp, and specific conversion formula is:
 
 ```text
-实际真机长度值 = 屏幕缩放比例 * Hippy 样式长度值
+the real machine length value = screen scaling * Hippy style length value
 ```
 
-屏幕缩放比例 可以通过 `PixelRatio.get()`(hippy-react) 或 `Vue.Native.PixelRatio`（hippy-vue） 获取，如 iPhone 8 为 2，iPhone X 为 3，以 iPhone 8 为例：
+The screen scaling can be obtained by `PixelRatio.get()` (Hippy-React) or `Vue.Native.PixelRatio` (Hippy-Vue), e.g. 2 for iPhone 8 and 3 for iPhone X. Take iPhone 8 as an example:
 
-* 屏幕真实宽度为 750px
-* PixelRatio 为 2
-* 所以 Hippy 的全屏宽度为`750/2 = 375`
+* The real screen width is 750px
+* The PixelRatio is 2
+* So the full screen width of Hippy is `750/2 = 375`
