@@ -143,8 +143,4 @@ Hippy.document = {
       throw error;
     }
   },
-  setContextName(contextName) {
-    global.ConsoleModule.debug(`setContextName contextName = ${contextName}`);
-    UIManagerModule.SetContextName(contextName);
-  },
 };
