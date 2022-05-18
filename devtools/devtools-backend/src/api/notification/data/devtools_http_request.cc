@@ -88,15 +88,15 @@ std::string Request::Serialize() const {
   result += ",\"";
   result += kHttpRequestPostDataEntries;
   result += "\":[";
-  for (auto it = post_data_entries.begin(); it != post_data_entries.end(); ++it) {
+  for (auto& entry : post_data_entries) {
     result += "{\"";
     result += kHttpRequestBytes;
     result += "\":\"";
-    result += (*it);
+    result += entry;
     result += "\"}";
-    if (it != post_data_entries.end() - 1) {
-      result += ",";
-    }
+  }
+  if (!post_data_entries.empty()) {
+    result = result.substr(0, result.length() - 1); // remove last ","
   }
   result += "],\"";
   result += kHttpRequestMixedContentType;

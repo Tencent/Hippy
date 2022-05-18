@@ -85,13 +85,13 @@ class TransformStringUtil {
   static std::string CombineNodeDefaultValue(std::string style) {
     nlohmann::json style_json = nlohmann::json::parse(style);
     if (!style_json.contains(kBorder)) {
-      style_json[kBorder] = nlohmann::json::parse(kNodeLocationDefaultValue);
+      style_json[kBorder] = nlohmann::json::parse(kNodeLocationDefaultValue,nullptr, false);
     }
     if (!style_json.contains(kMargin)) {
-      style_json[kMargin] = nlohmann::json::parse(kNodeLocationDefaultValue);
+      style_json[kMargin] = nlohmann::json::parse(kNodeLocationDefaultValue, nullptr, false);
     }
     if (!style_json.contains(kPadding)) {
-      style_json[kPadding] = nlohmann::json::parse(kNodeLocationDefaultValue);
+      style_json[kPadding] = nlohmann::json::parse(kNodeLocationDefaultValue, nullptr, false);
     }
     return style_json.dump();
   }
