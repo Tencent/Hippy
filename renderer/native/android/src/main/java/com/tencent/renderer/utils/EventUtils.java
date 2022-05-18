@@ -56,7 +56,8 @@ public class EventUtils {
     public static final String EVENT_LIST_ITEM_WILL_DISAPPEAR = "willDisappear";
 
     // On recycler view scroll to end.
-    public static final String EVENT_RECYCLER_END_REACHED = "loadMore";
+    public static final String EVENT_RECYCLER_END_REACHED = "endReached";
+    public static final String EVENT_RECYCLER_LOAD_MORE = "loadMore";
     // On recycler view first screen ready.
     public static final String EVENT_RECYCLER_LIST_READY = "initialListReady";
 

@@ -53,6 +53,7 @@ public class PreloadHelper extends RecyclerView.OnScrollListener {
 
     public void sendReachEndEvent(RecyclerView recyclerView) {
         EventUtils.send((View) recyclerView.getParent(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
+        EventUtils.send((View) recyclerView.getParent(), EventUtils.EVENT_RECYCLER_LOAD_MORE, null);
     }
 
     /**

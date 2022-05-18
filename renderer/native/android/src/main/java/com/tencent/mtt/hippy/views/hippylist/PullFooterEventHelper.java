@@ -54,5 +54,6 @@ class PullFooterEventHelper implements IFooterLoadMoreListener {
     @Override
     public void onFooterLoadMore() {
         EventUtils.send((View) recyclerView.getParent(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
+        EventUtils.send((View) recyclerView.getParent(), EventUtils.EVENT_RECYCLER_LOAD_MORE, null);
     }
 }
