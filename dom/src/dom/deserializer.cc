@@ -18,12 +18,17 @@ Deserializer::Deserializer(const uint8_t* data, size_t size) : position_(data), 
 
 Deserializer::~Deserializer() {}
 
+bool Deserializer::ReadValue(DomValue& value) {
+  bool ret = ReadObject(value);
+  return ret;
+}
+
 void Deserializer::ReadHeader() {
   if (position_ < end_ && *position_ == static_cast<uint8_t>(SerializationTag::kVersion)) {
     SerializationTag tag;
     ReadTag(tag);
     version_ = ReadVarint<uint32_t>();
-    TDF_BASE_CHECK(version_ <= kLatestVersion);
+    TDF_BASE_DCHECK(version_ <= kLatestVersion);
   }
 }
 
@@ -164,7 +169,7 @@ bool Deserializer::ReadTwoByteString(DomValue& dom_value) {
 
 bool Deserializer::ReadDenseJSArray(DomValue& dom_value) {
   uint32_t length = ReadVarint<uint32_t>();
-  TDF_BASE_CHECK(length <= static_cast<uint32_t>(end_ - position_));
+  TDF_BASE_DCHECK(length <= static_cast<uint32_t>(end_ - position_));
 
   DomValue::DomValueArrayType array;
   array.resize(length);
@@ -223,7 +228,7 @@ T Deserializer::ReadVarint() {
   unsigned shift = 0;
   bool has_another_byte;
   do {
-    TDF_BASE_CHECK(end_ > position_);
+    TDF_BASE_DCHECK(end_ > position_);
     uint8_t byte = *position_;
     if (shift < sizeof(T) * 8) {
       value |= static_cast<T>(byte & 0x7F) << shift;

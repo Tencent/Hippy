@@ -141,7 +141,7 @@ void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom
     dom_node[kProps] = props;
     dom_node_array[i] = dom_node;
   }
-  serializer_->WriteDenseJSArray(dom_node_array);
+  serializer_->WriteValue(DomValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "createNode");
@@ -188,7 +188,7 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
     dom_node[kProps] = props;
     dom_node_array[i] = dom_node;
   }
-  serializer_->WriteDenseJSArray(dom_node_array);
+  serializer_->WriteValue(DomValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "updateNode");
@@ -251,7 +251,7 @@ void HippyRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>
     }
     dom_node_array[i] = dom_node;
   }
-  serializer_->WriteDenseJSArray(dom_node_array);
+  serializer_->WriteValue(DomValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod(buffer_pair, "updateLayout");
@@ -475,7 +475,7 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const s
 
   serializer_->Release();
   serializer_->WriteHeader();
-  serializer_->WriteDenseJSArray(event_listener_ops);
+  serializer_->WriteValue(DomValue(event_listener_ops));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
   CallNativeMethod(buffer_pair, method_name);
 }

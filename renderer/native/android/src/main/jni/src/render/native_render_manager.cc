@@ -186,7 +186,7 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
     tdf::base::Deserializer deserializer((const uint8_t*) params_buffer,
                                          hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
-    deserializer.ReadObject(*params);
+    deserializer.ReadValue(*params);
   }
   callback(std::make_shared<DomArgument>(*params));
 }
@@ -218,7 +218,7 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j
     tdf::base::Deserializer deserializer((const uint8_t*) params_buffer,
                                          hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
-    deserializer.ReadObject(*params);
+    deserializer.ReadValue(*params);
   }
 
   jboolean is_copy = JNI_TRUE;
