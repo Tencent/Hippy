@@ -45,6 +45,10 @@ file(GLOB_RECURSE DEVTOOLS_SRC
         ${DEVTOOLS_ROOT_PATH}/src/**
         ${DEVTOOLS_ROOT_PATH}/third_party/socket/src/**)
 
+if(IOS)
+  add_definitions(-DOS_IOS)
+endif()
+
 if(ANDROID OR IOS)
   add_library(${PROJECT_NAME} ${DEVTOOLS_SRC})
 elseif (APPLE)
