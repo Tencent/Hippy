@@ -26,45 +26,45 @@
 namespace hippy::devtools {
 
 /**
- * @brief TDF devtools 字符串工具类
+ * @brief Tdf devtools string tool class
  */
-class TDFStringUtil {
+class TdfStringUtil {
  public:
   /**
-   * @brief 分割字符串方法
-   * @param origin 原始字符串
-   * @param split_tag 分割字符串的标志
-   * @return 分割后的字符串数组
+   * @brief split string method
+   * @param origin origin string
+   * @param split_tag flag to split a string
+   * @return array of partitioned strings
    */
   static std::vector<std::string> SplitString(const std::string& origin, const std::string& split_tag);
 
   /**
-   * @brief 去除字符串首尾空格方法
-   * @param origin 原始字符串
-   * @return 调整后的字符串
+   * @brief method to remove whitespace at the beginning and end of a string
+   * @param origin origin string
+   * @return adjusted string
    */
   static std::string TrimmingString(const std::string& origin);
 
   /**
-   * @brief 驼峰转换方法
-   *        将 aa-bb 类型的字符串转换成驼峰 aaBb
-   * @param origin 原始字符串
-   * @return 调整后的字符串
+   * @brief hump conversion method
+   *        converts a string of type aa-bb to a hump aaBb
+   * @param origin origin string
+   * @return the adjusted string
    */
   static std::string Camelize(const std::string& origin);
 
   /**
-   * @brief 逆驼峰转换方法
-   *        将驼峰还原 aaBb -> aa-bb
-   * @param origin 原始字符串
-   * @return 调整后的字符串
+   * @brief inverse hump conversion method
+   *        restore the hump to aaBb -> aa-bb
+   * @param origin origin string
+   * @return the adjusted string
    */
   static std::string UnCamelize(const std::string& origin);
 
   /**
-   * @brief 简易字符化方法
+   * @brief simple characterization method
    * @tparam T
-   * @param value 需要字符化的对象
+   * @param value object that needs to be characterized
    * @return
    */
   template <typename T>

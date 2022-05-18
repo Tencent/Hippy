@@ -31,10 +31,10 @@ class ScreenShotRequest : public BaseRequest {
  public:
   void Deserialize(const std::string& params) override;
 
-  int32_t GetQuality() const { return quality_; }
-  int32_t GetMaxWidth() const { return max_width_; }
-  int32_t GetMaxHeight() const { return max_height_; }
-  std::string GetFormat() const { return format_; }
+  inline int32_t GetQuality() const { return quality_; }
+  inline int32_t GetMaxWidth() const { return max_width_; }
+  inline int32_t GetMaxHeight() const { return max_height_; }
+  inline std::string GetFormat() const { return format_; }
 
  private:
   std::string format_;

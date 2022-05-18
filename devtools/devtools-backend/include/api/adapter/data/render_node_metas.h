@@ -36,11 +36,10 @@ struct RenderRect {
 
 class RenderNodeMetas : public Serializable {
  public:
-  RenderNodeMetas() = default;
   RenderNodeMetas(uint64_t node_id, std::string render_name) : node_id_(node_id), render_name_(render_name) {}
-  void SetRepaintBoundary(bool is_repaint_boundary) { is_repaint_boundary_ = is_repaint_boundary; }
-  void SetNeedCompositing(bool need_compositing) { need_compositing_ = need_compositing; }
-  void SetBounds(const RenderRect& bounds) { bounds_ = bounds; }
+  inline void SetRepaintBoundary(bool is_repaint_boundary) { is_repaint_boundary_ = is_repaint_boundary; }
+  inline void SetNeedCompositing(bool need_compositing) { need_compositing_ = need_compositing; }
+  inline void SetBounds(const RenderRect& bounds) { bounds_ = bounds; }
   void AddChild(const RenderNodeMetas& meta);
   std::string Serialize() const override;
 

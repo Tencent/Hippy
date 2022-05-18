@@ -31,6 +31,6 @@ void NetworkResponseBodyRequest::Deserialize(const std::string& params) {
   if (!params_json.is_object()) {
     return;
   }
-  request_id_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendRequestId, request_id_);
+  request_id_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendRequestId, request_id_);
 }
 }  // namespace hippy::devtools

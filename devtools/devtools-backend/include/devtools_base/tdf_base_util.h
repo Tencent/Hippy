@@ -26,21 +26,21 @@
 namespace hippy::devtools {
 
 /**
- * TDF 基础工具类
+ * Tdf base tool classes
  */
-class TDFBaseUtil {
+class TdfBaseUtil {
  public:
   /**
-   * 附加屏幕系数比例
-   * @param origin_value 原始值
-   * @return 附加后的值
+   * additional screen coefficient ratio
+   * @param origin_value
+   * @return append value
    */
-  static double AddScreenScaleFactor(const std::shared_ptr<ScreenAdapter> &screen_adapter, double origin_value);
+  static double AddScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value);
 
   /**
-   * 移除屏幕系数比例
-   * @param origin_value 原始值
-   * @return 移除后的值
+   * remove screen coefficient ratio
+   * @param origin_value
+   * @return the value after removal
    */
   static double RemoveScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value);
 };

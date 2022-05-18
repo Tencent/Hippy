@@ -36,14 +36,13 @@ struct BoundRect {
 
 class DomNodeMetas : public Serializable {
  public:
-  DomNodeMetas() = default;
   explicit DomNodeMetas(uint32_t node_id) : node_id_(node_id) {}
-  void SetNodeType(std::string node_type) { node_type_ = node_type; }
-  void SetWidth(uint32_t width) { width_ = width; }
-  void SetHeight(uint32_t height) { height_ = height; }
-  void SetTotalProps(std::string total_props) { total_props_ = total_props; }
-  void SetStyleProps(std::string style_props) { style_props_ = style_props; }
-  void SetBounds(const BoundRect& bound) { bound_ = bound; }
+  inline void SetNodeType(std::string node_type) { node_type_ = node_type; }
+  inline void SetWidth(uint32_t width) { width_ = width; }
+  inline void SetHeight(uint32_t height) { height_ = height; }
+  inline void SetTotalProps(std::string total_props) { total_props_ = total_props; }
+  inline void SetStyleProps(std::string style_props) { style_props_ = style_props; }
+  inline void SetBounds(const BoundRect& bound) { bound_ = bound; }
   void AddChild(const DomNodeMetas& meta);
   std::string Serialize() const override;
 

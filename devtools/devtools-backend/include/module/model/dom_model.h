@@ -47,8 +47,6 @@ enum class DomNodeType {
  */
 class DomModel : public BaseModel {
  public:
-  DomModel() = default;
-
   /**
    * @brief create dom model by json
    * @param json dom json struct
@@ -76,52 +74,52 @@ class DomModel : public BaseModel {
 
   static nlohmann::json BuildNodeForLocation(int32_t node_id);
 
-  constexpr void SetNodeId(int32_t node_id) { node_id_ = node_id; }
-  constexpr int32_t GetNodeId() const { return node_id_; }
+  inline void SetNodeId(int32_t node_id) { node_id_ = node_id; }
+  inline int32_t GetNodeId() const { return node_id_; }
 
-  constexpr void SetBackendNodeId(int32_t backend_node_id) { backend_node_id_ = backend_node_id; }
-  constexpr int32_t GetBackendNodeId() { return backend_node_id_; }
+  inline void SetBackendNodeId(int32_t backend_node_id) { backend_node_id_ = backend_node_id; }
+  inline int32_t GetBackendNodeId() { return backend_node_id_; }
 
-  constexpr void SetParentId(int32_t parent_id) { parent_id_ = parent_id; }
-  constexpr int32_t GetParentId() { return parent_id_; }
+  inline void SetParentId(int32_t parent_id) { parent_id_ = parent_id; }
+  inline int32_t GetParentId() { return parent_id_; }
 
-  constexpr void SetRootId(int32_t root_id) { root_id_ = root_id; }
-  constexpr int32_t GetRootId() { return root_id_; }
+  inline void SetRootId(int32_t root_id) { root_id_ = root_id; }
+  inline int32_t GetRootId() { return root_id_; }
 
-  constexpr void SetX(double x) { x_ = x; }
-  constexpr double GetX() const { return x_; }
+  inline void SetX(double x) { x_ = x; }
+  inline double GetX() const { return x_; }
 
-  constexpr void SetY(double y) { y_ = y; }
-  constexpr double GetY() const { return y_; }
+  inline void SetY(double y) { y_ = y; }
+  inline double GetY() const { return y_; }
 
-  constexpr void SetWidth(double width) { width_ = width; }
-  constexpr double GetWidth() const { return width_; }
+  inline void SetWidth(double width) { width_ = width; }
+  inline double GetWidth() const { return width_; }
 
-  constexpr void SetHeight(double height) { height_ = height; }
-  constexpr double GetHeight() const { return height_; }
+  inline void SetHeight(double height) { height_ = height; }
+  inline double GetHeight() const { return height_; }
 
-  void SetChildNodeCount(uint32_t child_node_count) { child_node_count_ = child_node_count; }
-  constexpr uint32_t GetChildNodeCount() { return child_node_count_; }
+  inline void SetChildNodeCount(uint32_t child_node_count) { child_node_count_ = child_node_count; }
+  inline uint32_t GetChildNodeCount() { return child_node_count_; }
 
-  void SetLocalName(const std::string& local_name) { local_name_ = local_name; }
-  std::string GetLocalName() const { return local_name_; }
+  inline void SetLocalName(const std::string& local_name) { local_name_ = local_name; }
+  inline std::string GetLocalName() const { return local_name_; }
 
-  void SetNodeName(const std::string& node_name) { node_name_ = node_name; }
-  std::string GetNodeName() const { return node_name_; }
+  inline void SetNodeName(const std::string& node_name) { node_name_ = node_name; }
+  inline std::string GetNodeName() const { return node_name_; }
 
-  void SetNodeValue(const std::string& node_value) { node_value_ = node_value; }
-  std::string GetNodeValue() const { return node_value_; }
+  inline void SetNodeValue(const std::string& node_value) { node_value_ = node_value; }
+  inline std::string GetNodeValue() const { return node_value_; }
 
-  void SetAttributes(const nlohmann::json& attributes) { attributes_ = attributes; }
-  nlohmann::json GetAttributes() const { return attributes_; }
+  inline void SetAttributes(const nlohmann::json& attributes) { attributes_ = attributes; }
+  inline nlohmann::json GetAttributes() const { return attributes_; }
 
-  void SetStyle(const nlohmann::json& style) { style_ = style; }
-  nlohmann::json GetStyle() const { return style_; }
+  inline void SetStyle(const nlohmann::json& style) { style_ = style; }
+  inline nlohmann::json GetStyle() const { return style_; }
 
-  void SetRelationTree(const nlohmann::json& relation_tree) { relation_tree_ = relation_tree; }
-  nlohmann::json GetRelationTree() const { return relation_tree_; }
+  inline void SetRelationTree(const nlohmann::json& relation_tree) { relation_tree_ = relation_tree; }
+  inline nlohmann::json GetRelationTree() const { return relation_tree_; }
 
-  std::vector<DomModel>& GetChildren() { return children_; }
+  inline std::vector<DomModel>& GetChildren() { return children_; }
 
  private:
   nlohmann::json BuildNodeJson(DomNodeType node_type);

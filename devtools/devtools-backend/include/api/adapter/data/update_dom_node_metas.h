@@ -30,7 +30,6 @@ class CssStyleMetas;
 
 class UpdateDomNodeMetas {
  public:
-  UpdateDomNodeMetas() = default;
   explicit UpdateDomNodeMetas(int32_t id, std::vector<CssStyleMetas> list) : node_id_(id), style_metas_list_(list) {}
 
   inline int32_t GetNodeId() const { return node_id_; }

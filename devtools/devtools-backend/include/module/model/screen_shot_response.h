@@ -28,7 +28,6 @@ namespace hippy::devtools {
  */
 class ScreenShotResponse {
  public:
-  ScreenShotResponse() = default;
   ScreenShotResponse(const std::string &screen_data, int32_t width, int32_t height)
       : screen_data_(screen_data), screen_width_(width), screen_height_(height) {}
 

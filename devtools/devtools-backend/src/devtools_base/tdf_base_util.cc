@@ -23,14 +23,14 @@
 
 namespace hippy::devtools {
 
-double TDFBaseUtil::AddScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
+double TdfBaseUtil::AddScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
   if (!screen_adapter) {
     return 1.f;
   }
   return origin_value * screen_adapter->GetScreenScale();
 }
 
-double TDFBaseUtil::RemoveScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
+double TdfBaseUtil::RemoveScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
   if (!screen_adapter || screen_adapter->GetScreenScale() == 0) {
     return 1.f;
   }

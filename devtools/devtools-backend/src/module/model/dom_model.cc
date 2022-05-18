@@ -61,19 +61,19 @@ constexpr int32_t kInvalidNodeId = -1;
 DomModel DomModel::CreateModel(const nlohmann::json& json) {
   assert(json.is_object());
   DomModel model;
-  model.SetNodeId(TDFParseJSONUtil::GetJSONValue(json, kNodeId, 0));
-  model.SetParentId(TDFParseJSONUtil::GetJSONValue(json, kParentId, 0));
-  model.SetRootId(TDFParseJSONUtil::GetJSONValue(json, kRootId, 0));
-  model.SetX(TDFParseJSONUtil::GetJSONValue(json, kLayoutX, 0.0));
-  model.SetY(TDFParseJSONUtil::GetJSONValue(json, kLayoutY, 0.0));
-  model.SetWidth(TDFParseJSONUtil::GetJSONValue(json, kLayoutWidth, 0.0));
-  model.SetHeight(TDFParseJSONUtil::GetJSONValue(json, kLayoutHeight, 0.0));
-  model.SetNodeName(TDFParseJSONUtil::GetJSONValue(json, kNodeName, model.GetNodeName()));
-  model.SetNodeValue(TDFParseJSONUtil::GetJSONValue(json, kNodeValue, model.GetNodeValue()));
-  model.SetLocalName(TDFParseJSONUtil::GetJSONValue(json, kLocalName, model.GetLocalName()));
-  model.SetChildNodeCount(TDFParseJSONUtil::GetJSONValue(json, kChildNodeCount, 0));
-  model.SetAttributes(TDFParseJSONUtil::GetJSONValue(json, kAttributes, nlohmann::json::object()));
-  model.SetStyle(TDFParseJSONUtil::GetJSONValue(json, kDomDataStyle, nlohmann::json::object()));
+  model.SetNodeId(TdfParseJsonUtil::GetJSONValue(json, kNodeId, 0));
+  model.SetParentId(TdfParseJsonUtil::GetJSONValue(json, kParentId, 0));
+  model.SetRootId(TdfParseJsonUtil::GetJSONValue(json, kRootId, 0));
+  model.SetX(TdfParseJsonUtil::GetJSONValue(json, kLayoutX, 0.0));
+  model.SetY(TdfParseJsonUtil::GetJSONValue(json, kLayoutY, 0.0));
+  model.SetWidth(TdfParseJsonUtil::GetJSONValue(json, kLayoutWidth, 0.0));
+  model.SetHeight(TdfParseJsonUtil::GetJSONValue(json, kLayoutHeight, 0.0));
+  model.SetNodeName(TdfParseJsonUtil::GetJSONValue(json, kNodeName, model.GetNodeName()));
+  model.SetNodeValue(TdfParseJsonUtil::GetJSONValue(json, kNodeValue, model.GetNodeValue()));
+  model.SetLocalName(TdfParseJsonUtil::GetJSONValue(json, kLocalName, model.GetLocalName()));
+  model.SetChildNodeCount(TdfParseJsonUtil::GetJSONValue(json, kChildNodeCount, 0));
+  model.SetAttributes(TdfParseJsonUtil::GetJSONValue(json, kAttributes, nlohmann::json::object()));
+  model.SetStyle(TdfParseJsonUtil::GetJSONValue(json, kDomDataStyle, nlohmann::json::object()));
   auto children_json = json.find(kChildren);
   if (children_json == json.end()) {
     return model;
@@ -170,10 +170,10 @@ nlohmann::json DomModel::BuildBoxModelBorder() {
     BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelBorder ScreenAdapter is null");
     return border;
   }
-  auto x = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, x_);
-  auto y = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, y_);
-  auto width = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, width_);
-  auto height = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, height_);
+  auto x = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, x_);
+  auto y = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, y_);
+  auto width = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, width_);
+  auto height = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, height_);
   //  left-top                  right-top
   //  (border[0],border[1])     (border[2],border[3])
   //     --------------------------
@@ -358,7 +358,7 @@ nlohmann::json DomModel::BuildAttributesObjectToArray() {
     }
     if (!value.is_string()) {
       // non string type need change to string type
-      value = TDFStringUtil::ToString(value);
+      value = TdfStringUtil::ToString(value);
     }
     attributes_array.emplace_back(attribute.key());
     attributes_array.emplace_back(value);
@@ -405,10 +405,10 @@ std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<s
   if (bottom_it != style_.end()) {
     bottom = bottom_it.value();
   }
-  left = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, left);
-  top = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, top);
-  right = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, right);
-  bottom = TDFBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, bottom);
+  left = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, left);
+  top = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, top);
+  right = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, right);
+  bottom = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, bottom);
   result.emplace_back(left);
   result.emplace_back(top);
   result.emplace_back(right);

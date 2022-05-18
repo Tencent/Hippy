@@ -25,17 +25,17 @@
 namespace hippy::devtools {
 
 /**
- * @brief TDF JSON 解析工具
+ * @brief Tdf Json parsing tool
  */
-class TDFParseJSONUtil {
+class TdfParseJsonUtil {
  public:
   /**
-   * @brief 从 JSON 结构中获取对应 key 的值
+   * @brief get the corresponding key value from the Json structure
    * @tparam T
-   * @param json JSON数据
-   * @param key 需要获取值的 key
-   * @param default_value 若不存在 key 情况下的默认值
-   * @return 结果值
+   * @param json Json data
+   * @param key the key that needs to be retrieved
+   * @param default_value default value if no key exists
+   * @return result value
    */
   template <typename T>
   static T GetJSONValue(const nlohmann::json &json, const std::string &key, T default_value) {

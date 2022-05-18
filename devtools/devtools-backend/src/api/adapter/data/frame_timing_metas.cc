@@ -20,7 +20,7 @@
 
 #include "api/adapter/data/frame_timing_metas.h"
 #include <sstream>
-#include "devtools_base/transform_string_util.hpp"
+#include "devtools_base/transform_string_util.h"
 
 namespace hippy::devtools {
 

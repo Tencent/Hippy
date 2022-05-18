@@ -100,10 +100,10 @@ class DevtoolsHttpResponse : public Serializable {
         response_(std::move(response)),
         has_extra_info_(false),
         frame_id_(response.url) {}
-  void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
-  void SetHasExtraInfo(bool has_extra_info) { has_extra_info_ = has_extra_info; }
-  void SetResourceType(ResourceType type) { type_ = type; }
-  void SetFrameId(std::string frame_id) { frame_id_ = frame_id; }
+  inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
+  inline void SetHasExtraInfo(bool has_extra_info) { has_extra_info_ = has_extra_info; }
+  inline void SetResourceType(ResourceType type) { type_ = type; }
+  inline void SetFrameId(std::string frame_id) { frame_id_ = frame_id; }
   std::string Serialize() const override;
 
  private:

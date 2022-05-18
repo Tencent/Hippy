@@ -29,11 +29,10 @@ namespace hippy::devtools {
  */
 class CssNodeDataRequest : public BaseRequest {
  public:
-  CssNodeDataRequest() {}
   void Deserialize(const std::string& params) override;
 
-  int32_t GetNodeId() const { return node_id_; }
-  bool HasSetNodeId() const { return HasAlreadySetValue(); }
+  inline int32_t GetNodeId() const { return node_id_; }
+  inline bool HasSetNodeId() const { return HasAlreadySetValue(); }
 
  private:
   int32_t node_id_;

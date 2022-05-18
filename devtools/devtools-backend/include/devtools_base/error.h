@@ -24,9 +24,10 @@ namespace hippy::devtools {
 
 typedef int ErrorType;
 
-constexpr const ErrorType kErrorNotSupport = -1;  // 当前框架不支持，如 delegate 未注入
-constexpr const ErrorType kErrorParams = -2;  // 参数异常
-constexpr const ErrorType kErrorFailCode = -3;  // 结果异常
-constexpr const ErrorType kErrorImpl = -4;  // 实现异常，如第三方框架实现适配器异常
+constexpr const ErrorType kErrorNotSupport = -1;  // the current framework does not support such as delegate injection
+constexpr const ErrorType kErrorParams = -2;      // parameters of the abnormal
+constexpr const ErrorType kErrorFailCode = -3;    // abnormal results
+constexpr const ErrorType kErrorImpl =
+    -4;  // implementation exceptions, such as an adapter exception implemented by a third-party framework
 
 }  // namespace hippy::devtools

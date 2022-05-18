@@ -35,7 +35,6 @@ namespace hippy::devtools {
 class ScreenShotModel : public BaseModel, public std::enable_shared_from_this<ScreenShotModel> {
  public:
   ScreenShotModel() : has_set_request_(false) {}
-  ~ScreenShotModel() = default;
 
   using ScreenShotCallback = std::function<void(const ScreenShotResponse& response)>;
   void SetResponseScreenShotCallback(ScreenShotCallback callback) { response_callback_ = callback; }

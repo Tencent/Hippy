@@ -25,7 +25,7 @@ namespace hippy::devtools {
 constexpr char kDomainNameTdfPrefix[] = "Tdf";
 constexpr char kDomainNameTDFProtocol[] = "TDF";
 
-std::vector<std::string> TDFStringUtil::SplitString(const std::string &origin, const std::string &split_tag) {
+std::vector<std::string> TdfStringUtil::SplitString(const std::string &origin, const std::string &split_tag) {
   if (origin.empty()) {
     return {};
   }
@@ -35,14 +35,14 @@ std::vector<std::string> TDFStringUtil::SplitString(const std::string &origin, c
   return {first, last};
 }
 
-std::string TDFStringUtil::TrimmingString(const std::string &origin) {
+std::string TdfStringUtil::TrimmingString(const std::string &origin) {
   std::string result{origin};
   result.erase(std::remove_if(result.begin(), result.end(), [](unsigned char str) { return std::isspace(str); }),
                result.end());
   return result;
 }
 
-std::string TDFStringUtil::Camelize(const std::string &origin) {
+std::string TdfStringUtil::Camelize(const std::string &origin) {
   if (origin.empty()) {
     return "";
   }
@@ -50,7 +50,7 @@ std::string TDFStringUtil::Camelize(const std::string &origin) {
   auto string_vector = SplitString(origin, "-");
   for (auto &str : string_vector) {
     if (str != *string_vector.begin()) {
-      // 驼峰第一个单词开头不用大写
+      // don't capitalize the first word of Hump
       std::transform(str.begin(), str.begin() + 1, str.begin(), ::toupper);
     }
     result_stream << str;
@@ -58,7 +58,7 @@ std::string TDFStringUtil::Camelize(const std::string &origin) {
   return result_stream.str();
 }
 
-std::string TDFStringUtil::UnCamelize(const std::string &origin) {
+std::string TdfStringUtil::UnCamelize(const std::string &origin) {
   if (origin.empty()) {
     return "";
   }
@@ -69,7 +69,7 @@ std::string TDFStringUtil::UnCamelize(const std::string &origin) {
   return result_string;
 }
 
-std::string TDFStringUtil::AdaptProtocolName(std::string domain) {
+std::string TdfStringUtil::AdaptProtocolName(std::string domain) {
   auto found = domain.find(kDomainNameTDFProtocol);
   if (std::string::npos != found) {
     domain = domain.replace(found, strlen(kDomainNameTDFProtocol), kDomainNameTdfPrefix);

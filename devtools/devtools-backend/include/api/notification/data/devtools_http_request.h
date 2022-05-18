@@ -104,14 +104,16 @@ class DevtoolsHttpRequest : public Serializable {
         type_(ResourceType::kFetch),
         frame_id_(request.url),
         has_user_gesture_(false) {}
-  void SetDocumentUrl(std::string document_url) { document_url_ = document_url; }
-  void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
-  void SetWallTime(uint64_t wall_time) { wall_time_ = wall_time; }
-  void SetInitiator(Initiator initiator) { initiator_ = initiator; }
-  void SetRedirectHasExtraInfo(bool redirect_has_extra_info) { redirect_has_extra_info_ = redirect_has_extra_info; }
-  void SetResourceType(ResourceType type) { type_ = type; }
-  void SetFrameId(std::string frame_id) { frame_id_ = frame_id; }
-  void SetHasUserGesture(bool has_user_gesture) { has_user_gesture_ = has_user_gesture; }
+  inline void SetDocumentUrl(std::string document_url) { document_url_ = document_url; }
+  inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
+  inline void SetWallTime(uint64_t wall_time) { wall_time_ = wall_time; }
+  inline void SetInitiator(Initiator initiator) { initiator_ = initiator; }
+  inline void SetRedirectHasExtraInfo(bool redirect_has_extra_info) {
+    redirect_has_extra_info_ = redirect_has_extra_info;
+  }
+  inline void SetResourceType(ResourceType type) { type_ = type; }
+  inline void SetFrameId(std::string frame_id) { frame_id_ = frame_id; }
+  inline void SetHasUserGesture(bool has_user_gesture) { has_user_gesture_ = has_user_gesture; }
   std::string Serialize() const override;
 
  private:

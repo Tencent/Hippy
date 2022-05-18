@@ -29,7 +29,7 @@ void CssNodeDataRequest::Deserialize(const std::string& params) {
   if (!params_json.is_object()) {
     return;
   }
-  node_id_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyNodeId, 0);
+  node_id_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyNodeId, 0);
   SetAlreadySetValue(true);
 }
 }  // namespace hippy::devtools

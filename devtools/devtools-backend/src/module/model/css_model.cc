@@ -67,10 +67,10 @@ CssModel::CssModel() {
 CssModel CssModel::CreateModel(const nlohmann::json& json) {
   assert(json.is_object());
   CssModel model;
-  model.SetNodeId(TDFParseJSONUtil::GetJSONValue(json, kNodeId, 0));
-  model.SetWidth(TDFParseJSONUtil::GetJSONValue(json, kWidth, 0.0));
-  model.SetHeight(TDFParseJSONUtil::GetJSONValue(json, kHeight, 0.0));
-  model.SetStyle(TDFParseJSONUtil::GetJSONValue(json, kStyleKey, nlohmann::json::object()));
+  model.SetNodeId(TdfParseJsonUtil::GetJSONValue(json, kNodeId, 0));
+  model.SetWidth(TdfParseJsonUtil::GetJSONValue(json, kWidth, 0.0));
+  model.SetHeight(TdfParseJsonUtil::GetJSONValue(json, kHeight, 0.0));
+  model.SetStyle(TdfParseJsonUtil::GetJSONValue(json, kStyleKey, nlohmann::json::object()));
   return model;
 }
 
@@ -131,25 +131,25 @@ nlohmann::json CssModel::BuildComputedStyle() {
     }
     // width and height are not taken from style, but from the actual render result
     if (key == kWidth) {
-      computed_styles.emplace_back(BuildStylePropertyJson(TDFStringUtil::UnCamelize(kWidth), std::to_string(width_)));
+      computed_styles.emplace_back(BuildStylePropertyJson(TdfStringUtil::UnCamelize(kWidth), std::to_string(width_)));
       continue;
     }
     if (key == kHeight) {
-      computed_styles.emplace_back(BuildStylePropertyJson(TDFStringUtil::UnCamelize(kHeight), std::to_string(height_)));
+      computed_styles.emplace_back(BuildStylePropertyJson(TdfStringUtil::UnCamelize(kHeight), std::to_string(height_)));
       continue;
     }
     auto value = prop.value();
     if (!value.is_string()) {
-      value = TDFStringUtil::ToString(value);
+      value = TdfStringUtil::ToString(value);
     }
-    computed_styles.emplace_back(BuildStylePropertyJson(TDFStringUtil::UnCamelize(key), value));
+    computed_styles.emplace_back(BuildStylePropertyJson(TdfStringUtil::UnCamelize(key), value));
   }
 
   for (auto& box_model : box_model_require_map_) {
     auto style_it = style_.find(box_model.first);
     if (style_it == style_.end()) {
       computed_styles.emplace_back(
-          BuildStylePropertyJson(TDFStringUtil::UnCamelize(box_model.first), box_model.second));
+          BuildStylePropertyJson(TdfStringUtil::UnCamelize(box_model.first), box_model.second));
     }
   }
   return computed_styles;
@@ -166,10 +166,10 @@ nlohmann::json CssModel::BuildCssStyle() {
     if (!ContainsStyleKey(prop.key())) {
       continue;
     }
-    auto css_name = TDFStringUtil::UnCamelize(prop.key());
+    auto css_name = TdfStringUtil::UnCamelize(prop.key());
     auto prop_value = prop.value();
     if (!prop_value.is_string()) {
-      prop_value = TDFStringUtil::ToString(prop_value);
+      prop_value = TdfStringUtil::ToString(prop_value);
     }
     // css_value can be numbers or strings, so stringstream is used
     std::string css_value = prop_value;
@@ -192,7 +192,7 @@ std::vector<CssStyleMetas> CssModel::BuildStyleTextValue(const std::string& text
   if (text_value.empty()) {
     return {};
   }
-  auto text_list = TDFStringUtil::SplitString(text_value, ";");
+  auto text_list = TdfStringUtil::SplitString(text_value, ";");
   auto update_info = std::vector<CssStyleMetas>{};
   for (auto& property : text_list) {
     auto found = property.find(":");
@@ -202,8 +202,8 @@ std::vector<CssStyleMetas> CssModel::BuildStyleTextValue(const std::string& text
     auto key = property.substr(0, found);
     auto value = property.substr(found + 1, property.length());
     // remove useless space line
-    value = TDFStringUtil::TrimmingString(value);
-    key = TDFStringUtil::Camelize(TDFStringUtil::TrimmingString(key));
+    value = TdfStringUtil::TrimmingString(value);
+    key = TdfStringUtil::Camelize(TdfStringUtil::TrimmingString(key));
     // if number type，then need change to double
     if (style_number_set_.find(key) != style_number_set_.end() && value.length()) {
       auto double_value = std::stod(value);

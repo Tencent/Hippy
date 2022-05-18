@@ -26,11 +26,10 @@
 
 namespace hippy::devtools {
 struct RenderDiagnosticMeta {
-  std::string name_;
-  std::string type_;
-  std::string value_;
-  RenderDiagnosticMeta(std::string name, std::string type, std::string value)
-      : name_(name), type_(type), value_(value) {}
+  std::string name;
+  std::string type;
+  std::string value;
+  RenderDiagnosticMeta(std::string name, std::string type, std::string value) : name(name), type(type), value(value) {}
 };
 
 class RenderDiagnosticMetas : public Serializable {

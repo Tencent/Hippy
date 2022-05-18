@@ -67,17 +67,17 @@ class CssModel : public BaseModel {
    */
   nlohmann::json UpdateDomTreeAndGetStyleTextJson(const nlohmann::json& text);
 
-  void SetWidth(double width) { width_ = width; }
-  constexpr double GetWidth() const { return width_; }
+  inline void SetWidth(double width) { width_ = width; }
+  inline double GetWidth() const { return width_; }
 
-  void SetHeight(double height) { height_ = height; }
-  constexpr double GetHeight() const { return height_; }
+  inline void SetHeight(double height) { height_ = height; }
+  inline double GetHeight() const { return height_; }
 
-  void SetNodeId(int32_t node_id) { node_id_ = node_id; }
-  constexpr int32_t GetNodeId() const { return node_id_; }
+  inline void SetNodeId(int32_t node_id) { node_id_ = node_id; }
+  inline int32_t GetNodeId() const { return node_id_; }
 
-  void SetStyle(const nlohmann::json& style) { style_ = style; }
-  nlohmann::json GetStyle() const { return style_; }
+  inline void SetStyle(const nlohmann::json& style) { style_ = style; }
+  inline nlohmann::json GetStyle() const { return style_; }
 
  private:
   void InitializeBoxModelRequireMap();

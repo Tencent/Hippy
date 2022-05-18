@@ -31,19 +31,19 @@ using ThreadId = uint32_t;
 using TimeInterval = std::chrono::time_point<std::chrono::steady_clock>;
 
 struct TraceMeta {
-  std::string name_;
-  TimeInterval timestamp_;
-  ThreadId thread_id_;
-  std::string event_;
-  int64_t group_id_ = 0;
+  std::string name;
+  TimeInterval timestamp;
+  ThreadId thread_id;
+  std::string event;
+  int64_t group_id = 0;
   TraceMeta(std::string name, TimeInterval timestamp, ThreadId thread_id, std::string event)
-      : name_(name), timestamp_(timestamp), thread_id_(thread_id), event_(event) {}
+      : name(name), timestamp(timestamp), thread_id(thread_id), event(event) {}
 };
 
 struct ThreadMeta {
-  std::string thread_name_;
-  ThreadId thread_id_;
-  ThreadMeta(std::string thread_name, ThreadId thread_id) : thread_name_(thread_name), thread_id_(thread_id) {}
+  std::string thread_name;
+  ThreadId thread_id;
+  ThreadMeta(std::string thread_name, ThreadId thread_id) : thread_name(thread_name), thread_id(thread_id) {}
 };
 
 class TraceEventMetas : public Serializable {

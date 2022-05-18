@@ -118,7 +118,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
     }
-    domain = TDFStringUtil::AdaptProtocolName(domain);
+    domain = TdfStringUtil::AdaptProtocolName(domain);
     auto handler = DomainRegister::Instance()->GetMethod(domain + kDomainClassSuffix, method);
     if (handler) {
       handler(base_domain->second, id, params);

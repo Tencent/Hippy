@@ -19,7 +19,7 @@
  */
 
 #include "api/notification/data/devtools_http_request.h"
-#include "devtools_base/transform_string_util.hpp"
+#include "devtools_base/transform_string_util.h"
 
 constexpr char kHttpRequestRequestId[] = "requestId";
 constexpr char kHttpRequestLoaderId[] = "loaderId";
@@ -101,7 +101,8 @@ std::string Request::Serialize() const {
   result += "],\"";
   result += kHttpRequestMixedContentType;
   result += "\":\"";
-  result += TransformStringUtil::ReplaceUnderLine(TransformStringUtil::ToLower(SecurityMixedContentTypeToString(mixed_content_type)));
+  result += TransformStringUtil::ReplaceUnderLine(
+      TransformStringUtil::ToLower(SecurityMixedContentTypeToString(mixed_content_type)));
   result += "\",\"";
   result += kHttpRequestInitialPriority;
   result += "\":\"";

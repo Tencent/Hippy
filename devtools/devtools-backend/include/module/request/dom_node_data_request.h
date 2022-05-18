@@ -29,7 +29,6 @@ namespace hippy::devtools {
  */
 class DomNodeDataRequest : public BaseRequest {
  public:
-  DomNodeDataRequest() {}
   void Deserialize(const std::string& params) override;
 
   int32_t GetNodeId() const { return node_id_; }

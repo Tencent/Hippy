@@ -25,9 +25,9 @@ namespace hippy::devtools {
 
 void ScreenShotRequest::Deserialize(const std::string& params) {
   nlohmann::json params_json = nlohmann::json::parse(params);
-  format_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyFormat, format_);
-  quality_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyQuality, 0);
-  max_width_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyMaxWidth, 0);
-  max_height_ = TDFParseJSONUtil::GetJSONValue(params_json, kFrontendKeyMaxHeight, 0);
+  format_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyFormat, format_);
+  quality_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyQuality, 0);
+  max_width_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyMaxWidth, 0);
+  max_height_ = TdfParseJsonUtil::GetJSONValue(params_json, kFrontendKeyMaxHeight, 0);
 }
 }  // namespace hippy::devtools

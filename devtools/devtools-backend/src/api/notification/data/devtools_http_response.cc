@@ -19,7 +19,7 @@
  */
 
 #include "api/notification/data/devtools_http_response.h"
-#include "devtools_base/transform_string_util.hpp"
+#include "devtools_base/transform_string_util.h"
 
 constexpr char kHttpResponseRequestId[] = "requestId";
 constexpr char kHttpResponseLoaderId[] = "loaderId";
@@ -50,7 +50,7 @@ constexpr char kHttpResponseProtocol[] = "protocol";
 constexpr char kHttpResponseSecurityState[] = "securityState";
 
 namespace hippy::devtools {
-std::string Response::Serialize() const{
+std::string Response::Serialize() const {
   std::string result = "{\"";
   result += kHttpResponseUrl;
   result += "\":\"";
@@ -94,7 +94,8 @@ std::string Response::Serialize() const{
   result += ",\"";
   result += kHttpResponseServiceWorkerResponseSource;
   result += "\":\"";
-  result += TransformStringUtil::ReplaceUnderLine(TransformStringUtil::ToLower(ServiceWorkerResponseSourceToString(source)));
+  result +=
+      TransformStringUtil::ReplaceUnderLine(TransformStringUtil::ToLower(ServiceWorkerResponseSourceToString(source)));
   result += "\",\"";
   result += kHttpResponseCacheStorageCacheName;
   result += "\":\"";

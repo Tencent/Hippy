@@ -29,12 +29,11 @@ namespace hippy::devtools {
  */
 class DomNodeForLocationRequest : public BaseRequest {
  public:
-  DomNodeForLocationRequest() {}
   void Deserialize(const std::string& params) override;
 
-  int32_t GetX() const { return x_; }
-  int32_t GetY() const { return y_; }
-  bool HasSetXY() const { return HasAlreadySetValue(); }
+  inline int32_t GetX() const { return x_; }
+  inline int32_t GetY() const { return y_; }
+  inline bool HasSetXY() const { return HasAlreadySetValue(); }
 
  private:
   int32_t x_;

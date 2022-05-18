@@ -24,13 +24,13 @@
 
 namespace hippy::devtools {
 /**
- * 可序列化基类
+ * @brief serializable base classes
  */
 class Serializable {
  public:
   /**
-   * 序列化接口
-   * @return 以一定规则组织结构的string格式数据
+   * @brief serialization interface
+   * @return string data organized in a regular way
    */
   virtual std::string Serialize() const = 0;
   virtual ~Serializable() {}

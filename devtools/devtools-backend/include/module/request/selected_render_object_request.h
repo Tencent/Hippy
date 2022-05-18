@@ -31,7 +31,7 @@ class SelectedRenderObjectRequest : public BaseRequest {
  public:
   void Deserialize(const std::string& params) override;
 
-  int32_t GetRenderId() const { return render_id_; }
+  inline int32_t GetRenderId() const { return render_id_; }
 
  private:
   int32_t render_id_;

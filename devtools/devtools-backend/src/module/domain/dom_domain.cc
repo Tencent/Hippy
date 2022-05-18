@@ -169,8 +169,8 @@ void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "screenAdapter is null");
     return;
   }
-  int32_t x = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX());
-  int32_t y = TDFBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY());
+  int32_t x = TdfBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX());
+  int32_t y = TdfBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY());
   location_for_node_call_back_(x, y, [DEVTOOLS_WEAK_THIS, request](const DomModel& model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     auto node_id = self->SearchNearlyCacheNode(model.GetRelationTree());

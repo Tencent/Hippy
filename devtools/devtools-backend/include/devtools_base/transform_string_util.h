@@ -33,7 +33,7 @@ namespace hippy::devtools {
 constexpr char kNodeLocationDefaultValue[] = "[0, 0, 0, 0, 0, 0, 0, 0, 0]";
 
 /**
- * @brief 负责各类型转换 string 的 util
+ * @brief responsible for converting the util of each type to string
  **/
 class TransformStringUtil {
  public:
@@ -49,8 +49,8 @@ class TransformStringUtil {
   }
 
   /**
-   * @brief 将 number 类型（包括int，long等）转成 string 类型
-   * @param number 任何类型的数字
+   * @brief convert number (int, long, etc.) to string
+   * @param number Any type of number
    */
   template <typename T>
   static std::string NumbertoString(const T& number) {
@@ -62,7 +62,7 @@ class TransformStringUtil {
   }
 
   /**
-   * @brief 处理字符串中的转义字符
+   * @brief handles escape characters in strings
    */
   static std::string HandleEscapeCharacter(std::string resource_str) {
     if (!resource_str.length()) {
@@ -72,15 +72,15 @@ class TransformStringUtil {
     std::string::size_type pos = 0;
     while ((pos = resource_str.find(original_escape_character, pos)) != std::string::npos) {
       resource_str.replace(pos, original_escape_character.length(), new_escape_character);
-      pos += 2;  // 因为替换之后，长度增长了 1，还需跳过当前被替换的字符，所以 +2
+      pos += 2;  // since the length increases by 1 after the substitution, we need to skip the current character being replaced, so +2
     }
     return resource_str;
   }
 
   /**
-   * 填充 DOM Node 默认的协议数据，保证 location 不为空
-   * @param style 单节点样式
-   * @return 包含 location 协议的数据
+   * populate the default protocol data for the DOM Node to ensure that the location is not empty
+   * @param style single-node style
+   * @return contains data for the Location protocol
    */
   static std::string CombineNodeDefaultValue(std::string style) {
     nlohmann::json style_json = nlohmann::json::parse(style);

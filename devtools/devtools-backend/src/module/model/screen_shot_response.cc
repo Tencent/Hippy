@@ -20,7 +20,7 @@
 
 #include "module/model/screen_shot_response.h"
 #include <chrono>
-#include "devtools_base/transform_string_util.hpp"
+#include "devtools_base/transform_string_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {

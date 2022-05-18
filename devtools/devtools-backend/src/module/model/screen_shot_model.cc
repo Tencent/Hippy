@@ -22,7 +22,7 @@
 #include "api/devtools_backend_service.h"
 #include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
-#include "devtools_base/transform_string_util.hpp"
+#include "devtools_base/transform_string_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {

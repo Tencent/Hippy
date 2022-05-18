@@ -32,7 +32,7 @@
 namespace hippy::devtools {
 
 /**
- * @brief CSSModel callback
+ * @brief CssModel callback
  */
 using CssStyleDataCallback = std::function<void(const CssModel& model)>;
 
@@ -44,7 +44,7 @@ using CssStyleDataCallback = std::function<void(const CssModel& model)>;
 using CssDataRequestCallback = std::function<void(int32_t node_id, CssStyleDataCallback callback)>;
 
 /**
- * @brief CSS domain
+ * @brief Css domain
  */
 class CssDomain : public BaseDomain, public std::enable_shared_from_this<CssDomain> {
  public:

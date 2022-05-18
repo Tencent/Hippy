@@ -21,7 +21,7 @@
 #include "api/adapter/data/dom_node_metas.h"
 #include <iostream>
 #include <sstream>
-#include "devtools_base/transform_string_util.hpp"
+#include "devtools_base/transform_string_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {

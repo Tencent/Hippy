@@ -29,7 +29,6 @@ namespace hippy::devtools {
  */
 class NetworkResponseBodyRequest : public BaseRequest {
  public:
-  NetworkResponseBodyRequest() = default;
   void Deserialize(const std::string& params) override;
   inline std::string GetRequestId() const { return request_id_; }
 

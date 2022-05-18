@@ -20,7 +20,7 @@
 
 #include "api/adapter/data/trace_event_metas.h"
 #include <sstream>
-#include "devtools_base/transform_string_util.hpp"
+#include "devtools_base/transform_string_util.h"
 
 namespace hippy::devtools {
 
@@ -55,18 +55,18 @@ std::string TraceEventMetas::SerializeTrace() const {
     std::string element_string = "{\"";
     element_string += kTraceName;
     element_string += "\":\"";
-    element_string += trace_meta.name_;
+    element_string += trace_meta.name;
     element_string += "\",\"";
     element_string += kTracePh;
     element_string += "\":\"";
-    element_string += trace_meta.event_;
+    element_string += trace_meta.event;
     element_string += "\",\"";
     element_string += kTracePid;
     element_string += "\":";
-    element_string += TransformStringUtil::NumbertoString(trace_meta.timestamp_.time_since_epoch().count());
+    element_string += TransformStringUtil::NumbertoString(trace_meta.timestamp.time_since_epoch().count());
     element_string += ",\"";
     std::ostringstream oss;
-    oss << trace_meta.thread_id_;
+    oss << trace_meta.thread_id;
     std::string stid = oss.str();
     element_string += kTraceTid;
     element_string += "\":";
@@ -74,7 +74,7 @@ std::string TraceEventMetas::SerializeTrace() const {
     element_string += ",\"";
     element_string += kTraceTimestamp;
     element_string += "\":\"";
-    element_string += TransformStringUtil::NumbertoString(trace_meta.timestamp_.time_since_epoch().count());
+    element_string += TransformStringUtil::NumbertoString(trace_meta.timestamp.time_since_epoch().count());
     element_string += "\"},";
     trace_result_string += element_string;
   }
@@ -91,11 +91,11 @@ std::string TraceEventMetas::SerializeThread() const {
     std::string element_string = "{\"";
     element_string += kThreadId;
     element_string += "\":\"";
-    element_string += TransformStringUtil::NumbertoString(thread_meta.thread_id_);
+    element_string += TransformStringUtil::NumbertoString(thread_meta.thread_id);
     element_string += "\",\"";
     element_string += kThreadName;
     element_string += "\":\"";
-    element_string += thread_meta.thread_name_;
+    element_string += thread_meta.thread_name;
     element_string += "\"},";
     thread_result_string += element_string;
   }
