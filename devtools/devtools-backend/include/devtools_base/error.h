@@ -27,7 +27,6 @@ typedef int ErrorType;
 constexpr const ErrorType kErrorNotSupport = -1;  // the current framework does not support such as delegate injection
 constexpr const ErrorType kErrorParams = -2;      // parameters of the abnormal
 constexpr const ErrorType kErrorFailCode = -3;    // abnormal results
-constexpr const ErrorType kErrorImpl =
-    -4;  // implementation exceptions, such as an adapter exception implemented by a third-party framework
+constexpr const ErrorType kErrorImpl = -4;  // implementation exceptions, such as an adapter exception implemented by a third-party framework
 
 }  // namespace hippy::devtools
