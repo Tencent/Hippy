@@ -226,6 +226,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
 
     protected void sendOnReachedEvent() {
         EventUtils.send(getParentView(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
+        EventUtils.send(getParentView(), EventUtils.EVENT_RECYCLER_LOAD_MORE, null);
     }
 
     protected void checkSendOnScrollEvent() {
