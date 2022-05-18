@@ -15,19 +15,44 @@
  */
 package com.tencent.mtt.hippy.utils;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.Context;
+import java.util.List;
 
 public class ContextHolder {
 
-  private static Context applicationContext = null;
+    private static Context sAppContext;
 
-  public static void setContext(Context context) {
-    if (context != null && applicationContext == null) {
-      applicationContext = context.getApplicationContext();
+    public static void initAppContext(Context context) {
+        if (context != null && sAppContext == null) {
+            sAppContext = context.getApplicationContext();
+        }
     }
-  }
 
-  public static Context getAppContext() {
-    return applicationContext;
-  }
+    public static Context getAppContext() {
+        return sAppContext;
+    }
+
+    public static boolean isAppOnBackground() {
+        if (sAppContext == null) {
+            return true;
+        }
+        ActivityManager activityManager = (ActivityManager) sAppContext
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        List<RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        if (appProcesses == null) {
+            return true;
+        }
+        int myPid = android.os.Process.myPid();
+        for (RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.pid == myPid) {
+                if (appProcess.importance == RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                    return false;
+                }
+                return true;
+            }
+        }
+        return true;
+    }
 }
