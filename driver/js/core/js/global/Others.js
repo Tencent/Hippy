@@ -21,6 +21,7 @@ function hippyRegister(appName, entryFunc) {
   if (global.__HIPPYNATIVEGLOBAL__.OS === 'ios') {
     Hippy.bridge.callNative('JSCExecutor', 'setContextName', `HippyContext: ${appName}`);
   }
+  Hippy.document.setContextName(`HippyContext: ${appName}`);
   __GLOBAL__.appRegister[appName] = {
     run: entryFunc,
   };

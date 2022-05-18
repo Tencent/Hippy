@@ -53,6 +53,8 @@
 #include "core/engine.h"
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
+#import "HippyDevInfo.h"
+#import "HippyBundleURLProvider.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
@@ -160,6 +162,10 @@ HIPPY_EXPORT_MODULE()
         self.pScope = scope;
         [self initURILoader];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
+#if TDF_SERVICE_ENABLED
+        NSString *wsURL = [self completeWSURLWithBridge:bridge];
+        self.pScope->CreateDevtools([wsURL UTF8String]);
+#endif
     }
 
     return self;
@@ -388,6 +394,10 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     if (!self.isValid) {
         return;
     }
+#if TDF_SERVICE_ENABLED
+    bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
+    self.pScope->DestroyDevtools(reload);
+#endif
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
     self.pScope->WillExit();
@@ -822,5 +832,34 @@ static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t modul
     // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"js_call");
     [_performanceLogger appendStopForTag:HippyPLRAMNativeRequires];
 }
+
+#if TDF_SERVICE_ENABLED
+- (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge {
+    if (![bridge.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
+        return @"";
+    }
+    if (![bridge isKindOfClass:[HippyBatchedBridge class]] ||
+        ![bridge.delegate shouldStartInspector:[(HippyBatchedBridge *)bridge parentBridge]]) {
+        return @"";
+    }
+    HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
+    if ([bridge.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
+        NSURL *url = [bridge.delegate inspectorSourceURLForBridge:[(HippyBatchedBridge *)bridge parentBridge]];
+        devInfo.scheme = [url scheme];
+        devInfo.ipAddress = [url host];
+        devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
+        devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
+        [devInfo parseWsURLWithURLQuery:[url query]];
+    } else {
+        HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
+        devInfo.scheme = bundleURLProvider.scheme;
+        devInfo.ipAddress = bundleURLProvider.localhostIP;
+        devInfo.port = bundleURLProvider.localhostPort;
+        devInfo.versionId = bundleURLProvider.versionId;
+        devInfo.wsURL = bundleURLProvider.wsURL;
+    }
+    return [devInfo assembleFullWSURL];
+}
+#endif
 
 @end

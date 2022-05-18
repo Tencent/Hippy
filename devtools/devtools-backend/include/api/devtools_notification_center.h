@@ -9,6 +9,7 @@
 #include "api/notification/devtools_elements_response_notification.h"
 #include "api/notification/devtools_log_notification.h"
 #include "api/notification/devtools_network_notification.h"
+#include "api/notification/devtools_runtime_notification.h"
 #include "api/notification/devtools_v8_response_notification.h"
 
 namespace tdf {
@@ -36,12 +37,18 @@ class NotificationCenter {
     network_notification_ = network_notification;
   }
   std::shared_ptr<NetworkNotification> GetNetworkNotification() { return network_notification_; }
+    
+  void SetRuntimeNotification(std::shared_ptr<RuntimeNotification> runtime_notification) {
+    runtime_notification_ = runtime_notification;
+  }
+  std::shared_ptr<RuntimeNotification> GetRuntimeNotification() { return runtime_notification_; }
 
  private:
   std::shared_ptr<LogNotification> log_notification_;
   std::shared_ptr<V8ResponseNotification> v8_response_notification_;
   std::shared_ptr<ElementsResponseNotification> elements_response_notification_;
   std::shared_ptr<NetworkNotification> network_notification_;
+  std::shared_ptr<RuntimeNotification> runtime_notification_;
 };
 }  // namespace devtools
 }  // namespace tdf

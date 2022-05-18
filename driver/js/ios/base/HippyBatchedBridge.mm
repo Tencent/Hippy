@@ -494,8 +494,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
         strongDomManager->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
         self.javaScriptExecutor.pScope->SetDomManager(strongDomManager);
 #if TDF_SERVICE_ENABLED
-        NSString *wsURL = [self completeWSURLWithBridge:self.parentBridge contextName:@""];
-        self.javaScriptExecutor.pScope->CreateDevtools([wsURL UTF8String]);
         self.javaScriptExecutor.pScope->BindDevtools(0, strongDomManager->GetId(), 0); // runtime_id for iOS is useless, set 0
         self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->SetRuntimeAdapterDebugMode(self.debugMode);
 #endif
@@ -800,35 +798,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 //    }
 }
 
-#if TDF_SERVICE_ENABLED
-- (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge contextName:(NSString *)contextName {
-     if (![bridge.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
-         return @"";
-     }
-     if (![bridge isKindOfClass:[HippyBatchedBridge class]] ||
-         ![bridge.delegate shouldStartInspector:[(HippyBatchedBridge *)bridge parentBridge]]) {
-         return @"";
-     }
-     HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
-     if ([bridge.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
-         NSURL *url = [bridge.delegate inspectorSourceURLForBridge:[(HippyBatchedBridge *)bridge parentBridge]];
-         devInfo.scheme = [url scheme];
-         devInfo.ipAddress = [url host];
-         devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
-         devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
-         [devInfo parseWsURLWithURLQuery:[url query]];
-     } else {
-         HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
-         devInfo.scheme = bundleURLProvider.scheme;
-         devInfo.ipAddress = bundleURLProvider.localhostIP;
-         devInfo.port = bundleURLProvider.localhostPort;
-         devInfo.versionId = bundleURLProvider.versionId;
-         devInfo.wsURL = bundleURLProvider.wsURL;
-     }
-     return [devInfo completeWSURLWithContextName:contextName];
- }
-#endif
-
 #pragma mark - HippyInvalidating
 
 - (void)invalidate {
@@ -853,11 +822,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         }
         [_devManager closeWebSocket:closeType];
     }
-
-#if TDF_SERVICE_ENABLED
-  bool reload = self.invalidateReason == HippyInvalidateReasonReload ? true : false;
-     self.javaScriptExecutor.pScope->DestroyDevtools(reload);
-#endif
 
     // Invalidate modules
     dispatch_group_t group = dispatch_group_create();

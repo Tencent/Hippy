@@ -94,10 +94,11 @@ static NSString *UUIDForContextName(NSString *contextName) {
     _wsURL = [debugWsURL substringFromIndex:range.location + range.length];
 }
 
-- (NSString *)completeWSURLWithContextName:(NSString *)contextName {
+- (NSString *)assembleFullWSURL {
   if (self.port.length <= 0) {
     self.port = [self.scheme isEqualToString:HippyDevWebSocketSchemeWs] ? @"80" : @"443";
   }
+  NSString *contextName = @"";
   NSString *uuid = UUIDForContextName(contextName);
   NSCharacterSet *allowedChar = [[NSCharacterSet characterSetWithCharactersInString:@"?!@#$^&%*+,:;='\"`<>()[]{}/\\| "] invertedSet];
   NSString *encodeName = [contextName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];

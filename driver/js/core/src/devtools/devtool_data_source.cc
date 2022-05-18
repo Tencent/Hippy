@@ -51,6 +51,10 @@ void DevtoolDataSource::Destroy(bool is_reload) {
   devtools_service_->Destroy(is_reload);
 }
 
+void DevtoolDataSource::SetContextName(const std::string &context_name) {
+  devtools_service_->GetNotificationCenter()->GetRuntimeNotification()->UpdateContextName(context_name);
+}
+
 void DevtoolDataSource::SetV8RequestHandler(HippyV8RequestAdapter::V8RequestHandler request_handler) {
   devtools_service_->GetDataProvider()->SetV8RequestAdapter(std::make_shared<HippyV8RequestAdapter>(request_handler));
 }

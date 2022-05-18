@@ -7,6 +7,7 @@
 #include <utility>
 #include "api/notification/default/default_log_notification.h"
 #include "api/notification/default/default_network_notification.h"
+#include "api/notification/default/default_runtime_notification.h"
 #include "api/notification/default/default_v8_response_notification.h"
 #include "devtools_base/common/worker_pool.h"
 #include "devtools_base/logging.h"
@@ -30,6 +31,7 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
   domain_dispatch_->RegisterDefaultDomainListener();
   tunnel_service_ = std::make_shared<TunnelService>(domain_dispatch_, devtools_config);
   notification_center->SetNetworkNotification(std::make_shared<DefaultNetworkNotification>(tunnel_service_));
+  notification_center->SetRuntimeNotification(std::make_shared<DefaultRuntimeNotification>(tunnel_service_));
 
   RegisterLogCallback();
   if (devtools_config.framework == Framework::kHippy) {

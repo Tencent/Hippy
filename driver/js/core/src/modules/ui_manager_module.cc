@@ -34,6 +34,7 @@
 #include "dom/dom_argument.h"
 
 REGISTER_MODULE(UIManagerModule, CallUIFunction)
+REGISTER_MODULE(UIManagerModule, SetContextName)
 
 using DomValue = tdf::base::DomValue;
 using DomArgument = hippy::dom::DomArgument;
@@ -117,4 +118,20 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
   }};
   TDF_BASE_CHECK(!dom_manager_weak.expired());
   dom_manager_weak.lock()->PostTask(hippy::dom::Scene(std::move(ops)));
+}
+
+void UIManagerModule::SetContextName(const hippy::napi::CallbackInfo &info) {
+  std::shared_ptr<Scope> scope = info.GetScope();
+  std::shared_ptr<Ctx> context = scope->GetContext();
+  TDF_BASE_CHECK(context);
+
+#if TDF_SERVICE_ENABLED
+  auto ctx_context_name = info[0];
+  unicode_string_view unicode_context_name;
+  bool flag = context->GetValueString(ctx_context_name, &unicode_context_name);
+  if (scope->GetDevtoolsDataSource() && flag) {
+    auto context_name = StringViewUtils::ToU8StdStr(unicode_context_name);
+    scope->GetDevtoolsDataSource()->SetContextName(context_name);
+  }
+#endif
 }
