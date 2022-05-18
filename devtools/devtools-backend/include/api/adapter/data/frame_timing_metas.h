@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <chrono>
 #include <string>
 #include <vector>
 #include "api/adapter/data/serializable.h"
@@ -37,7 +36,7 @@ struct FrameMeta {
 
 class FrameTimingMetas : public Serializable {
  public:
-  void AddMeta(const FrameMeta& meta);
+  inline void AddMeta(const FrameMeta& meta) { metas_.emplace_back(meta); }
   std::string Serialize() const override;
 
  private:

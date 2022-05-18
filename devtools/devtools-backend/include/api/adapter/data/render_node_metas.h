@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <chrono>
 #include <string>
 #include <vector>
 #include "api/adapter/data/serializable.h"
@@ -40,7 +39,7 @@ class RenderNodeMetas : public Serializable {
   inline void SetRepaintBoundary(bool is_repaint_boundary) { is_repaint_boundary_ = is_repaint_boundary; }
   inline void SetNeedCompositing(bool need_compositing) { need_compositing_ = need_compositing; }
   inline void SetBounds(const RenderRect& bounds) { bounds_ = bounds; }
-  void AddChild(const RenderNodeMetas& meta);
+  inline void AddChild(const RenderNodeMetas& meta) { children_.emplace_back(meta); }
   std::string Serialize() const override;
 
  private:

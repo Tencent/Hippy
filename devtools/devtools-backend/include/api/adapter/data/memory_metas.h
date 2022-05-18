@@ -37,7 +37,7 @@ struct HeapMeta {
 
 class MemoryMetas : public Serializable {
  public:
-  void AddHeapMeta(const HeapMeta& meta);
+  inline void AddHeapMeta(const HeapMeta& meta) { metas_.emplace_back(meta); }
   std::string Serialize() const override;
 
  private:

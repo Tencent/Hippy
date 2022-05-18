@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <chrono>
 #include <string>
 #include <vector>
 #include "api/adapter/data/serializable.h"
@@ -43,7 +42,7 @@ class DomNodeMetas : public Serializable {
   inline void SetTotalProps(std::string total_props) { total_props_ = total_props; }
   inline void SetStyleProps(std::string style_props) { style_props_ = style_props; }
   inline void SetBounds(const BoundRect& bound) { bound_ = bound; }
-  void AddChild(const DomNodeMetas& meta);
+  inline void AddChild(const DomNodeMetas& meta) { children_.emplace_back(meta); }
   std::string Serialize() const override;
 
  private:

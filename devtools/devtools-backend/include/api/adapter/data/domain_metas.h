@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <chrono>
 #include <string>
 #include <vector>
 #include "api/adapter/data/serializable.h"
@@ -44,7 +43,7 @@ class DomainMetas : public Serializable {
   inline void SetClassName(std::string class_name) { class_name_ = class_name; }
   inline void SetNodeValue(std::string node_value) { node_value_ = node_value; }
   inline void SetChildrenCount(uint64_t children_count) { children_count_ = children_count; }
-  void AddChild(const DomainMetas& meta);
+  inline void AddChild(const DomainMetas& meta) { children_.emplace_back(meta); }
   std::string Serialize() const override;
 
  private:

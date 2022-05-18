@@ -19,7 +19,6 @@
  */
 
 #include "api/adapter/data/render_diagnostic_metas.h"
-#include <sstream>
 #include "devtools_base/transform_string_util.h"
 
 namespace hippy::devtools {
@@ -29,13 +28,11 @@ constexpr char kDiagnosticsPropertyType[] = "type";
 constexpr char kDiagnosticsPropertyValue[] = "value";
 constexpr char kDiagnosticsProperties[] = "properties";
 
-void RenderDiagnosticMetas::AddMeta(const RenderDiagnosticMeta& meta) { metas_.emplace_back(meta); }
-
 std::string RenderDiagnosticMetas::Serialize() const {
   std::string result_string = "{\"";
   result_string += kDiagnosticsProperties;
   result_string += "\":[";
-  for (auto const& meta : metas_) {
+  for (auto& meta : metas_) {
     std::string element_string = "{\"";
     element_string += kDiagnosticsPropertyName;
     element_string += "\":\"";

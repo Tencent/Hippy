@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <chrono>
 #include <string>
 #include <vector>
 
@@ -84,7 +83,7 @@ class CssStyleMetas {
    */
   inline double ToDouble() const { return IsDouble() ? double_value_ : 0.f; }
 
-  std::string GetKey() { return key_; }
+  inline std::string GetKey() { return key_; }
 
  private:
   std::string key_;  // property name
@@ -92,5 +91,4 @@ class CssStyleMetas {
   double double_value_;
   std::string string_value_;
 };
-
 }  // namespace hippy::devtools

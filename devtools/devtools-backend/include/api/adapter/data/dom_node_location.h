@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <chrono>
 #include <string>
 #include <vector>
 #include "api/adapter/data/serializable.h"
@@ -29,7 +28,7 @@ namespace hippy::devtools {
 class DomNodeLocation : public Serializable {
  public:
   explicit DomNodeLocation(uint32_t node_id) : node_id_(node_id) {}
-  void AddRelationId(uint32_t id) { relation_tree_ids_.emplace_back(id); }
+  inline void AddRelationId(uint32_t id) { relation_tree_ids_.emplace_back(id); }
   std::string Serialize() const override;
 
  private:

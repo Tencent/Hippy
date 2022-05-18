@@ -19,7 +19,6 @@
  */
 
 #include "api/adapter/data/memory_metas.h"
-#include <sstream>
 #include "devtools_base/transform_string_util.h"
 
 namespace hippy::devtools {
@@ -31,13 +30,11 @@ constexpr char kMemoryKeyLine[] = "l";
 constexpr char kMemoryKeySize[] = "s";
 constexpr char kMemoryKeyAddress[] = "a";
 
-void MemoryMetas::AddHeapMeta(const HeapMeta& meta) { metas_.emplace_back(meta); }
-
 std::string MemoryMetas::Serialize() const {
   std::string result_string = "{\"";
   result_string += kMemoryKeyHeapMetas;
   result_string += "\":[";
-  for (const HeapMeta& meta : metas_) {
+  for (auto& meta : metas_) {
     std::string element_string = "{\"";
     element_string += kMemoryKeyType;
     element_string += "\":\"";

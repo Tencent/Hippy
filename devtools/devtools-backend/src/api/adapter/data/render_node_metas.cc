@@ -19,8 +19,6 @@
  */
 
 #include "api/adapter/data/render_node_metas.h"
-#include <iostream>
-#include <sstream>
 
 namespace hippy::devtools {
 constexpr char kRenderName[] = "name";
@@ -34,8 +32,6 @@ constexpr char kRight[] = "right";
 constexpr char kNodeId[] = "id";
 constexpr char kBounds[] = "bounds";
 constexpr char kChild[] = "child";
-
-void RenderNodeMetas::AddChild(const RenderNodeMetas& meta) { children_.emplace_back(meta); }
 
 std::string RenderNodeMetas::Serialize() const { return ToJsonString(); }
 
@@ -61,19 +57,15 @@ std::string RenderNodeMetas::ToJsonString() const {
   node_str += ",\"top\":";
   node_str += std::to_string(static_cast<int>(bounds_.top));
   node_str += "}";
-
   if (!children_.empty()) {
     node_str += ",\"child\": [";
-    for (auto it = children_.begin(); it != children_.end(); ++it) {
-      auto format_str = (*it).ToJsonString();
-      node_str += format_str;
-      if (it != children_.end() - 1) {
-        node_str += ",";
-      }
+    for (auto& child : children_) {
+      node_str += child.ToJsonString();
+      node_str += ",";
     }
+    node_str = node_str.substr(0, node_str.length() - 1); // remove last ","
     node_str += "]";
   }
-
   node_str += "}";
   return node_str;
 }

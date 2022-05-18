@@ -34,7 +34,7 @@ struct RenderDiagnosticMeta {
 
 class RenderDiagnosticMetas : public Serializable {
  public:
-  void AddMeta(const RenderDiagnosticMeta& meta);
+  inline void AddMeta(const RenderDiagnosticMeta& meta) { metas_.emplace_back(meta); }
   std::string Serialize() const override;
 
  private:

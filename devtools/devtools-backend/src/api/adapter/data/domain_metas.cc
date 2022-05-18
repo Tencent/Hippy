@@ -19,8 +19,6 @@
  */
 
 #include "api/adapter/data/domain_metas.h"
-#include <iostream>
-#include <sstream>
 
 namespace hippy::devtools {
 constexpr char kWidth[] = "width";
@@ -38,8 +36,6 @@ constexpr char kAttributes[] = "attributes";
 constexpr char kLayoutX[] = "x";
 constexpr char kLayoutY[] = "y";
 constexpr char kStyle[] = "style";
-
-void DomainMetas::AddChild(const DomainMetas& meta) { children_.emplace_back(meta); }
 
 std::string DomainMetas::Serialize() const {
   std::string node_str = "{\"";
@@ -104,13 +100,11 @@ std::string DomainMetas::Serialize() const {
   node_str += std::to_string(static_cast<int>(children_count_));
   if (!children_.empty()) {
     node_str += ",\"children\": [";
-    for (auto it = children_.begin(); it != children_.end(); ++it) {
-      auto format_str = (*it).Serialize();
-      node_str += format_str;
-      if (it != children_.end() - 1) {
-        node_str += ",";
-      }
+    for (auto& child : children_) {
+      node_str += child.Serialize();
+      node_str += ",";
     }
+    node_str = node_str.substr(0, node_str.length() - 1); // remove last ","
     node_str += "]";
   }
   node_str += "}";

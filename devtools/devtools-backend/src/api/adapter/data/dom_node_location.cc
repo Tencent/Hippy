@@ -19,8 +19,6 @@
  */
 
 #include "api/adapter/data/dom_node_location.h"
-#include <iostream>
-#include <sstream>
 
 namespace hippy::devtools {
 constexpr char kNodeId[] = "nodeId";
@@ -46,5 +44,4 @@ std::string DomNodeLocation::Serialize() const {
   node_str += "}";
   return node_str;
 }
-
 }  // namespace hippy::devtools

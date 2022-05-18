@@ -19,24 +19,18 @@
  */
 
 #include "api/adapter/data/trace_event_metas.h"
-#include <sstream>
 #include "devtools_base/transform_string_util.h"
 
 namespace hippy::devtools {
-
 constexpr char kTraceEvents[] = "traceEvents";
 constexpr char kTraceName[] = "name";
 constexpr char kTracePh[] = "ph";
 constexpr char kTracePid[] = "pid";
 constexpr char kTraceTid[] = "tid";
 constexpr char kTraceTimestamp[] = "ts";
-
 constexpr char kThreadMetas[] = "threadMetas";
 constexpr char kThreadName[] = "name";
 constexpr char kThreadId[] = "tid";
-
-void TraceEventMetas::AddTraceMeta(const TraceMeta& meta) { trace_metas_.emplace_back(meta); }
-void TraceEventMetas::AddThreadMeta(const ThreadMeta& meta) { thread_metas_.emplace_back(meta); }
 
 std::string TraceEventMetas::Serialize() const {
   std::string result_string = "{";
@@ -65,12 +59,9 @@ std::string TraceEventMetas::SerializeTrace() const {
     element_string += "\":";
     element_string += TransformStringUtil::NumbertoString(trace_meta.timestamp.time_since_epoch().count());
     element_string += ",\"";
-    std::ostringstream oss;
-    oss << trace_meta.thread_id;
-    std::string stid = oss.str();
     element_string += kTraceTid;
     element_string += "\":";
-    element_string += stid;
+    element_string += std::to_string(trace_meta.thread_id);
     element_string += ",\"";
     element_string += kTraceTimestamp;
     element_string += "\":\"";
@@ -103,5 +94,4 @@ std::string TraceEventMetas::SerializeThread() const {
   thread_result_string += !thread_metas_.empty() ? "]" : "[]";
   return thread_result_string;
 }
-
 }  // namespace hippy::devtools

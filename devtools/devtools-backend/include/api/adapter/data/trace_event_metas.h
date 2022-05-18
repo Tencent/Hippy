@@ -48,8 +48,8 @@ struct ThreadMeta {
 
 class TraceEventMetas : public Serializable {
  public:
-  void AddTraceMeta(const TraceMeta &meta);
-  void AddThreadMeta(const ThreadMeta &meta);
+  inline void AddTraceMeta(const TraceMeta &meta) { trace_metas_.emplace_back(meta); }
+  inline void AddThreadMeta(const ThreadMeta &meta) { thread_metas_.emplace_back(meta); }
   std::string Serialize() const override;
 
  private:

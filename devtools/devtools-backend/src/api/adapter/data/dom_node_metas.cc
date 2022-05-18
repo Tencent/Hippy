@@ -19,8 +19,6 @@
  */
 
 #include "api/adapter/data/dom_node_metas.h"
-#include <iostream>
-#include <sstream>
 #include "devtools_base/transform_string_util.h"
 #include "module/inspect_props.h"
 
@@ -41,8 +39,6 @@ constexpr char kBgColor[] = "bgColor";
 constexpr char kText[] = "text";
 constexpr char kBase64[] = "base64";
 constexpr char kDomRelativeRenderId[] = "domRelativeRenderId";
-
-void DomNodeMetas::AddChild(const DomNodeMetas& meta) { children_.emplace_back(meta); }
 
 std::string DomNodeMetas::Serialize() const {
   std::string node_str;
@@ -101,16 +97,13 @@ std::string DomNodeMetas::Serialize() const {
   node_str += "}";
   if (!children_.empty()) {
     node_str += ",\"child\": [";
-    for (auto it = children_.begin(); it != children_.end(); ++it) {
-      auto format_str = (*it).Serialize();
-      node_str += format_str;
-      if (it != children_.end() - 1) {
-        node_str += ",";
-      }
+    for (auto& child : children_) {
+      node_str += child.Serialize();
+      node_str += ",";
     }
+    node_str = node_str.substr(0, node_str.length() - 1); // remove last ","
     node_str += "]";
   }
-
   node_str += "}";
   return node_str;
 }

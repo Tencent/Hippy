@@ -30,8 +30,6 @@ constexpr char kFrameKeyRaster[] = "raster";
 constexpr char kMemoryKeyBegin[] = "b";
 constexpr char kMemoryKeyEnd[] = "e";
 
-void FrameTimingMetas::AddMeta(const FrameMeta& meta) { metas_.emplace_back(meta); }
-
 std::string FrameTimingMetas::Serialize() const {
   std::string result_string = "{\"";
   result_string += kFrameKeyFrameTimings;
