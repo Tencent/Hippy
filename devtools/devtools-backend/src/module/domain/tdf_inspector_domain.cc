@@ -67,7 +67,7 @@ void TdfInspectorDomain::GetDomTree(const BaseRequest& request) {
     BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetDomTree end");
     if (is_success) {
       nlohmann::json result_json = nlohmann::json::object();
-      result_json[kFrontendKeyItree] = nlohmann::json::parse(metas.Serialize());
+      result_json[kFrontendKeyItree] = nlohmann::json::parse(metas.Serialize(), nullptr, false);
       self->ResponseResultToFrontend(request.GetId(), result_json.dump());
     } else {
       self->ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get dom tree failed, is_success false.");
@@ -87,7 +87,7 @@ void TdfInspectorDomain::GetRenderTree(const BaseRequest& request) {
     BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom end %d", is_success ? 1 : 0);
     if (is_success) {
       nlohmann::json result_json = nlohmann::json::object();
-      result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize());
+      result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize(), nullptr, false);
       self->ResponseResultToFrontend(request.GetId(), result_json.dump());
     } else {
       self->ResponseErrorToFrontend(request.GetId(), kErrorFailCode, "get render tree failed, is_success false.");
@@ -120,7 +120,7 @@ void TdfInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectReque
         BACKEND_LOGD(TDF_BACKEND, "GetSelectedRenderObject response");
         if (is_success) {
           nlohmann::json result_json = nlohmann::json::object();
-          result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize());
+          result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize(), nullptr, false);
           self->ResponseResultToFrontend(request.GetId(), result_json.dump());
         } else {
           self->ResponseErrorToFrontend(request.GetId(), kErrorFailCode,

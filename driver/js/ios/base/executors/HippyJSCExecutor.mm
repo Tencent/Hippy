@@ -164,7 +164,7 @@ HIPPY_EXPORT_MODULE()
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
 #if TDF_SERVICE_ENABLED
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
-        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolDataSource>([wsURL UTF8String]);
+        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
         devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
         self.pScope->SetDevtoolsDataSource(devtools_data_source);
 #endif

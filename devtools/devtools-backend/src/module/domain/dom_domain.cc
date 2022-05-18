@@ -62,7 +62,7 @@ void DomDomain::RegisterCallback() {
     auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
     if (elements_request_adapter) {
       auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
-        auto model = DomModel::CreateModel(nlohmann::json::parse(data.Serialize()));
+        auto model = DomModel::CreateModel(nlohmann::json::parse(data.Serialize(), nullptr, false));
         model.SetDataProvider(provider);
         if (callback) {
           callback(model);
@@ -81,7 +81,7 @@ void DomDomain::RegisterCallback() {
       auto node_callback = [callback, provider = self->GetDataProvider()](const DomNodeLocation& metas) {
         DomModel model;
         model.SetDataProvider(provider);
-        nlohmann::json data = nlohmann::json::parse(metas.Serialize());
+        nlohmann::json data = nlohmann::json::parse(metas.Serialize(), nullptr, false);
         model.SetNodeId(data[kFrontendKeyNodeId]);
         if (data.find(kParamsHitNodeRelationTree) != data.end()) {
           model.SetRelationTree(data[kParamsHitNodeRelationTree]);
