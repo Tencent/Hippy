@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 HIPPY_EXTERN id domValueToOCType(const tdf::base::DomValue *const pDomValue);
 
+extern tdf::base::DomValue OCTypeToDomValue(id value);
+
 HIPPY_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> &domValuesObject);
 
 extern std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary);
