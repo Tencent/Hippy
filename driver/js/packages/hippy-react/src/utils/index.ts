@@ -27,10 +27,9 @@ let defaultBubbles = false;
  */
 function trace(...context: any[]) {
   // In production build or silent
-  if (process.env.NODE_ENV === 'production' || silent) {
-    return;
+  if (isTraceEnabled()) {
+    console.log(...context);
   }
-  console.log(...context);
 }
 
 /**
@@ -116,6 +115,14 @@ function setSilent(silentArg: boolean): void {
 }
 
 /**
+ * is Trace silent
+ * @returns {boolean}
+ */
+function isTraceEnabled(): boolean {
+  return process.env.NODE_ENV !== 'production' && !silent;
+}
+
+/**
  * set bubbles config, default is false
  * @param bubbles
  */
@@ -193,6 +200,7 @@ export {
   isFunction,
   isNumber,
   setSilent,
+  isTraceEnabled,
   setBubbles,
   isGlobalBubble,
   convertImgUrl,

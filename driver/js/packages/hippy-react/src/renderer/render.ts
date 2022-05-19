@@ -29,7 +29,7 @@ import {
   eventHandlerType,
   nativeEventMap,
 } from '../utils/node';
-import { deepCopy, trace, warn } from '../utils';
+import { deepCopy, isTraceEnabled, trace, warn } from '../utils';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -105,6 +105,23 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
 }
 
 /**
+ * print nodes operation log
+ * @param {HippyTypes.TranslatedNodes[]} nodes
+ * @param {string} nodeType
+ */
+function printNodesOperation(nodes: HippyTypes.TranslatedNodes[], nodeType: string): void {
+  if (isTraceEnabled()) {
+    const printedNodes: (HippyTypes.NativeNode & HippyTypes.ReferenceInfo)[] = [];
+    nodes.forEach((node) => {
+      const [domNode, referenceNode] = (node || []) as HippyTypes.TranslatedNodes;
+      const printedNode = Object.assign({}, domNode, referenceNode);
+      printedNodes.push(printedNode);
+    });
+    trace(...componentName, nodeType, printedNodes);
+  }
+}
+
+/**
  * batch Updates from js to native
  * @param {number} rootViewId
  */
@@ -114,21 +131,21 @@ function batchUpdate(rootViewId: number): void {
   chunks.forEach((chunk) => {
     switch (chunk.type) {
       case NODE_OPERATION_TYPES.createNode:
-        trace(...componentName, 'createNode', chunk.nodes);
+        printNodesOperation(chunk.nodes, 'createNode');
         sceneBuilder.Create(chunk.nodes);
         handleEventListeners(chunk.eventNodes, sceneBuilder);
         break;
       case NODE_OPERATION_TYPES.updateNode:
-        trace(...componentName, 'updateNode', chunk.nodes);
+        printNodesOperation(chunk.nodes, 'updateNode');
         sceneBuilder.Update(chunk.nodes);
         handleEventListeners(chunk.eventNodes, sceneBuilder);
         break;
       case NODE_OPERATION_TYPES.deleteNode:
-        trace(...componentName, 'deleteNode', chunk.nodes);
+        printNodesOperation(chunk.nodes, 'deleteNode');
         sceneBuilder.Delete(chunk.nodes);
         break;
       case NODE_OPERATION_TYPES.moveNode:
-        trace(...componentName, 'moveNode', chunk.nodes);
+        printNodesOperation(chunk.nodes, 'moveNode');
         sceneBuilder.Move(chunk.nodes);
         break;
       default:
