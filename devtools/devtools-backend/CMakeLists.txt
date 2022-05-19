@@ -54,6 +54,9 @@ add_definitions("-DASIO_NO_EXCEPTIONS=1")
 # JSON noexception
 add_definitions("-DJSON_NOEXCEPTION")
 
+# websocketpp noexception
+add_definitions("-D_WEBSOCKETPP_NO_EXCEPTIONS_")
+
 if(IOS)
   add_definitions("-DOS_IOS")
 endif()

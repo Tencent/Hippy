@@ -37,7 +37,8 @@ WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
   ws_client_.set_access_channels(websocketpp::log::alevel::fail);
   ws_client_.set_error_channels(websocketpp::log::elevel::all);
   // Initialize ASIO
-  ws_client_.init_asio();
+  websocketpp::lib::error_code error_code;
+  ws_client_.init_asio(error_code);
   ws_client_.start_perpetual();
 }
 
@@ -80,7 +81,8 @@ void WebSocketChannel::Send(const std::string& rsp_data) {
     unset_messages_.emplace_back(rsp_data);
     return;
   }
-  ws_client_.send(connection_hdl_, rsp_data, websocketpp::frame::opcode::text);
+  websocketpp::lib::error_code error_code;
+  ws_client_.send(connection_hdl_, rsp_data, websocketpp::frame::opcode::text, error_code);
 }
 
 void WebSocketChannel::Close(int32_t code, const std::string& reason) {
@@ -89,7 +91,8 @@ void WebSocketChannel::Close(int32_t code, const std::string& reason) {
     return;
   }
   BACKEND_LOGD(TDF_BACKEND, "close websocket, code: %d, reason: %s", code, reason.c_str());
-  ws_client_.close(connection_hdl_, code, reason);
+  websocketpp::lib::error_code error_code;
+  ws_client_.close(connection_hdl_, code, reason, error_code);
   ws_client_.stop_perpetual();
 }
 
@@ -111,7 +114,8 @@ void WebSocketChannel::HandleSocketInit(const websocketpp::connection_hdl& handl
 }
 
 void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl& handle) {
-  auto con = ws_client_.get_con_from_hdl(handle);
+  websocketpp::lib::error_code error_code;
+  auto con = ws_client_.get_con_from_hdl(handle, error_code);
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
@@ -130,7 +134,8 @@ void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl
     return;
   }
   for (auto& message : unset_messages_) {
-    ws_client_.send(connection_hdl_, message, websocketpp::frame::opcode::text);
+    websocketpp::lib::error_code error_code;
+    ws_client_.send(connection_hdl_, message, websocketpp::frame::opcode::text, error_code);
   }
   unset_messages_.clear();
 }
@@ -146,7 +151,8 @@ void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_
 }
 
 void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hdl& handle) {
-  auto con = ws_client_.get_con_from_hdl(handle);
+  websocketpp::lib::error_code error_code;
+  auto con = ws_client_.get_con_from_hdl(handle, error_code);
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
