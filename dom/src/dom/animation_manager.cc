@@ -48,21 +48,23 @@ AnimationManager::AnimationManager(const std::shared_ptr<DomManager>& dom_manage
   id_ = global_ani_manager_key.fetch_add(1);
 }
 
-void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-  for (const std::shared_ptr<DomNode>& node : nodes) {
-    ParseAnimation(node);
+void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
+  for (const std::shared_ptr<DomInfo>& node : nodes) {
+    ParseAnimation(node->domNode);
   }
 }
 
-void AnimationManager::OnDomNodeUpdate(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-  for (const std::shared_ptr<DomNode>& node : nodes) {
-    ParseAnimation(node);
+void AnimationManager::OnDomNodeUpdate(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
+  for (const std::shared_ptr<DomInfo>& node : nodes) {
+    ParseAnimation(node->domNode);
   }
 }
 
-void AnimationManager::OnDomNodeDelete(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-  for (const std::shared_ptr<DomNode>& node : nodes) {
-    DeleteAnimation(node);
+void AnimationManager::OnDomNodeMove(const std::vector<std::shared_ptr<DomInfo>>& nodes) {}
+
+void AnimationManager::OnDomNodeDelete(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
+  for (const std::shared_ptr<DomInfo>& node : nodes) {
+    DeleteAnimation(node->domNode);
   }
 }
 

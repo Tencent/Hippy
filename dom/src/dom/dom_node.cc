@@ -21,13 +21,12 @@ constexpr char kLayoutHeightKey[] = "height";
 
 using DomValueObjectType = tdf::base::DomValue::DomValueObjectType;
 
-DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name, std::string view_name,
+DomNode::DomNode(uint32_t id, uint32_t pid, std::string tag_name, std::string view_name,
                  std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
                  std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
                  const std::shared_ptr<DomManager>& dom_manager)
     : id_(id),
       pid_(pid),
-      index_(index),
       tag_name_(std::move(tag_name)),
       view_name_(std::move(view_name)),
       style_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(style_map))),
@@ -41,10 +40,9 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name,
   layout_node_ = hippy::dom::CreateLayoutNode();
 }
 
-DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
+DomNode::DomNode(uint32_t id, uint32_t pid)
     : id_(id),
       pid_(pid),
-      index_(index),
       is_virtual_(false),
       current_callback_id_(0),
       func_cb_map_(nullptr),
@@ -94,12 +92,76 @@ void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index
   layout_node_->InsertChild(dom_node->GetLayoutNode(), (uint32_t)(index));
 }
 
+int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
+  auto it = children_.begin();
+  std::shared_ptr<RefInfo> refInfo = dom_info->refInfo;
+  if (refInfo) {
+    while (it != children_.end()) {
+      if (refInfo->ref_id == it->get()->GetId()) {
+        break;
+      }
+      it++;
+    }
+    if (it == children_.end()) {
+      children_.push_back(dom_info->domNode);
+    } else {
+      if (refInfo->relative_to_ref == RelativeType::kFront) {
+        children_.insert(it, dom_info->domNode);
+      } else {
+        children_.insert(++it, dom_info->domNode);
+      }
+    }
+  } else {
+    children_.push_back(dom_info->domNode);
+  }
+  dom_info->domNode->SetParent(shared_from_this());
+  int32_t index = dom_info->domNode->GetRealIndex();
+  layout_node_->InsertChild(dom_info->domNode->GetLayoutNode(), static_cast<uint32_t>(index));
+  return index;
+}
+
+int32_t DomNode::GetChildIndex(uint32_t id) {
+  int32_t index = -1;
+  auto it = children_.begin();
+  while (it != children_.end()) {
+    index++;
+    if (it->get()->GetId() == id) {
+      break;
+    }
+    it++;
+  }
+  return index;
+}
+
+int32_t DomNode::GetRealIndex() {
+  auto parent = parent_.lock();
+  if (parent) {
+    return parent->GetChildIndex(id_);
+  }
+  return -1;
+}
+
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   auto child = children_[hippy::base::checked_numeric_cast<int32_t, unsigned long>(index)];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
   layout_node_->RemoveChild(child->GetLayoutNode());
   return child;
+}
+
+std::shared_ptr<DomNode> DomNode::RemoveChildById(uint32_t id) {
+  auto it = children_.begin();
+  while (it != children_.end()) {
+    auto child = *it;
+    if (id == child->GetId()) {
+      child->SetParent(nullptr);
+      children_.erase(it);
+      layout_node_->RemoveChild(child->GetLayoutNode());
+      return child;
+    }
+    it++;
+  }
+  return nullptr;
 }
 
 void DomNode::DoLayout() {

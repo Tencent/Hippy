@@ -22,16 +22,34 @@ constexpr uint32_t kCapture = 0;
 constexpr uint32_t kBubble = 1;
 constexpr uint32_t kInvalidId = 0;
 constexpr int32_t kInvalidIndex = -1;
+enum RelativeType {
+  kFront = -1,
+  kDefault = 0,
+  kBack = 1,
+};
+
+struct RefInfo {
+  uint32_t ref_id;
+  int32_t relative_to_ref = RelativeType::kDefault;
+  RefInfo(uint32_t id, int32_t rlf): ref_id(id), relative_to_ref(rlf){}
+
+};
+
+struct DomInfo {
+  std::shared_ptr<DomNode> domNode;
+  std::shared_ptr<RefInfo> refInfo;
+  DomInfo(std::shared_ptr<DomNode> node, std::shared_ptr<RefInfo> ref) : domNode(node), refInfo(ref) {}
+};
 
 class DomNode : public std::enable_shared_from_this<DomNode> {
  public:
   using DomValue = tdf::base::DomValue;
 
-  DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name, std::string view_name,
-          std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
-          std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
-          const std::shared_ptr<DomManager>& dom_manager);
-  DomNode(uint32_t id, uint32_t pid, int32_t index);
+  DomNode(uint32_t id, uint32_t pid, std::string tag_name, std::string view_name,
+          std::unordered_map<std::string, std::shared_ptr<DomValue>> &&style_map,
+          std::unordered_map<std::string, std::shared_ptr<DomValue>> &&dom_ext_map,
+          const std::shared_ptr<DomManager> &dom_manager);
+  DomNode(uint32_t id, uint32_t pid);
   ~DomNode();
 
   // 层级优化后的RenderNode信息
@@ -69,12 +87,16 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
   inline void SetIndex(int32_t index) { index_ = index; }
   inline int32_t GetIndex() const { return index_; }
+  int32_t GetRealIndex();
+  int32_t GetChildIndex(uint32_t id);
 
   int32_t IndexOf(const std::shared_ptr<DomNode>& child);
   std::shared_ptr<DomNode> GetChildAt(size_t index);
-  const std::vector<std::shared_ptr<DomNode>>& GetChildren() { return children_; }
-  void AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index);
+  const std::vector<std::shared_ptr<DomNode>> &GetChildren() { return children_; }
+  void AddChildAt(const std::shared_ptr<DomNode> &dom_node, int32_t index);
+  int32_t AddChildByRefInfo(const std::shared_ptr<DomInfo> &dom_node);
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
+  std::shared_ptr<DomNode> RemoveChildById(uint32_t id);
   void DoLayout();
   void DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes);
   void HandleEvent(const std::shared_ptr<DomEvent>& event);

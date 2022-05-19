@@ -9,9 +9,10 @@ class RootNode : public DomNode {
  public:
   RootNode(uint32_t id);
 
-  void CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
+  void CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager);
   void DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager);
@@ -26,6 +27,7 @@ class RootNode : public DomNode {
     static constexpr int kOpCreate = 1;
     static constexpr int kOpUpdate = 2;
     static constexpr int kOpDelete = 3;
+    static constexpr int kOpMove = 4;
 
     int32_t op;
     std::vector<std::shared_ptr<DomNode>> nodes;

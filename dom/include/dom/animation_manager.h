@@ -13,11 +13,12 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
 
  public:
   AnimationManager(const std::shared_ptr<DomManager>& dom_manager);
-  void OnDomNodeCreate(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
+  void OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
 
-  void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
+  void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
+  void OnDomNodeMove(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
 
-  void OnDomNodeDelete(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
+  void OnDomNodeDelete(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
 
   void OnAnimationUpdate(const std::vector<std::pair<uint32_t, std::shared_ptr<tdf::base::DomValue>>>& ani_data);
 

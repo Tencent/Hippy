@@ -46,6 +46,8 @@ using CallbackInfo = hippy::napi::CallbackInfo;
 using DomEvent = hippy::dom::DomEvent;
 using DomManager = hippy::dom::DomManager;
 using DomNode = hippy::dom::DomNode;
+using RefInfo = hippy::dom::RefInfo;
+using DomInfo = hippy::dom::DomInfo;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -56,6 +58,8 @@ constexpr char kNodePropertyIndex[] = "index";
 constexpr char kNodePropertyViewName[] = "name";
 constexpr char kNodePropertyProps[] = "props";
 constexpr char kNodePropertyStyle[] = "style";
+constexpr char kNodePropertyRefId[] = "refId";
+constexpr char kNodePropertyRelativeToRef[] = "relativeToRef";
 
 const int32_t kInvalidValue = -1;
 
@@ -210,6 +214,38 @@ GetNodeProps(const std::shared_ptr<Ctx> &context, const std::shared_ptr<CtxValue
   return std::make_tuple(true, "", std::move(style_map), std::move(dom_ext_map));
 }
 
+std::tuple<bool, std::string, int32_t> GetNodeRefId(
+    const std::shared_ptr<Ctx> &context,
+    const std::shared_ptr<CtxValue> &node) {
+  std::shared_ptr<CtxValue> id_value =
+      context->GetProperty(node, kNodePropertyRefId);
+  if (!id_value) {
+    return std::make_tuple(false, "Get property ref id failed", kInvalidValue);
+  }
+  int32_t id;
+  bool flag = context->GetValueNumber(id_value, &id);
+  if (!flag) {
+    return std::make_tuple(false, "Get ref id value failed", kInvalidValue);
+  }
+  return std::make_tuple(true, "", id);
+}
+
+std::tuple<bool, std::string, int32_t> GetNodeRelativeToRef(
+    const std::shared_ptr<Ctx> &context,
+    const std::shared_ptr<CtxValue> &node) {
+  std::shared_ptr<CtxValue> id_value =
+      context->GetProperty(node, kNodePropertyRelativeToRef);
+  if (!id_value) {
+    return std::make_tuple(false, "Get relative to ref failed", kInvalidValue);
+  }
+  int32_t id;
+  bool flag = context->GetValueNumber(id_value, &id);
+  if (!flag) {
+    return std::make_tuple(false, "Get relative to ref value failed", kInvalidValue);
+  }
+  return std::make_tuple(true, "", id);
+}
+
 std::tuple<bool, std::string, std::shared_ptr<DomNode>>
 CreateNode(const std::shared_ptr<Ctx> &context,
            const std::shared_ptr<CtxValue> &node,
@@ -223,11 +259,6 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   auto pid_tuple = GetNodePid(context, node);
   if (!std::get<0>(pid_tuple)) {
     return std::make_tuple(false, std::get<1>(pid_tuple), dom_node);
-  }
-
-  auto index_tuple = GetNodeIndex(context, node);
-  if (!std::get<0>(index_tuple)) {
-    return std::make_tuple(false, std::get<1>(index_tuple), dom_node);
   }
 
   auto view_name_tuple = GetNodeViewName(context, node);
@@ -249,7 +280,6 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   TDF_BASE_CHECK(!scope->GetDomManager().expired());
   dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple),
                                        std::get<2>(pid_tuple),
-                                       std::get<2>(index_tuple),
                                        std::move(u8_tag_name),
                                        std::move(u8_view_name),
                                        std::move(std::get<2>(props_tuple)),
@@ -258,15 +288,63 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   return std::make_tuple(true, "", dom_node);
 }
 
-std::tuple<bool, std::string, std::vector<std::shared_ptr<DomNode>>> HandleJsValue(
+std::tuple<bool, std::string, std::shared_ptr<RefInfo>> CreateRefInfo(
+    const std::shared_ptr<Ctx> &context,
+    const std::shared_ptr<CtxValue> &node,
+    const std::shared_ptr<Scope> &scope) {
+  std::shared_ptr<RefInfo> ref_info = nullptr;
+  auto ref_id_tuple = GetNodeRefId(context, node);
+  if (!std::get<0>(ref_id_tuple)) {
+    return std::make_tuple(false, std::get<1>(ref_id_tuple), ref_info);
+  }
+
+  auto relative_to_ref_tuple = GetNodeRelativeToRef(context, node);
+  if (!std::get<0>(relative_to_ref_tuple)) {
+    return std::make_tuple(false, std::get<1>(relative_to_ref_tuple), ref_info);
+  }
+  ref_info = std::make_shared<RefInfo>(std::get<2>(ref_id_tuple),
+                                       std::get<2>(relative_to_ref_tuple));
+  return std::make_tuple(true, "", ref_info);
+}
+
+std::tuple<bool, std::string, std::shared_ptr<DomInfo>> CreateDomInfo(
+    const std::shared_ptr<Ctx> &context,
+    const std::shared_ptr<CtxValue> &node,
+    const std::shared_ptr<Scope> &scope) {
+  std::shared_ptr<DomInfo> dom_info = nullptr;
+  std::shared_ptr<DomNode> dom_node = nullptr;
+  std::shared_ptr<RefInfo> ref_info = nullptr;
+  uint32_t len = context->GetArrayLength(node);
+  if (len > 0) {
+    auto dom_node_tuple =
+        CreateNode(context, context->CopyArrayElement(node, 0), scope);
+    if (!std::get<0>(dom_node_tuple)) {
+      return std::make_tuple(false, "get dom node info error.", dom_info);
+    }
+    dom_node = std::get<2>(dom_node_tuple);
+    if (len == 2) {
+      auto ref_info_tuple =
+          CreateRefInfo(context, context->CopyArrayElement(node, 1), scope);
+      if (std::get<0>(ref_info_tuple)) {
+        ref_info = std::get<2>(ref_info_tuple);
+      }
+    }
+  } else {
+    return std::make_tuple(false, "dom info length error.", dom_info);
+  }
+  dom_info = std::make_shared<DomInfo>(dom_node, ref_info);
+  return std::make_tuple(true, "", dom_info);
+}
+
+std::tuple<bool, std::string, std::vector<std::shared_ptr<DomInfo>>> HandleJsValue(
     const std::shared_ptr<Ctx> &context,
     const std::shared_ptr<CtxValue> &nodes,
     const std::shared_ptr<Scope> &scope) {
   uint32_t len = context->GetArrayLength(nodes);
-  std::vector<std::shared_ptr<DomNode>> dom_nodes;
+  std::vector<std::shared_ptr<DomInfo>> dom_nodes;
   for (uint32_t i = 0; i < len; ++i) {
-    std::shared_ptr<CtxValue> node = context->CopyArrayElement(nodes, i);
-    auto tuple = CreateNode(context, node, scope);
+    std::shared_ptr<CtxValue> domInfo = context->CopyArrayElement(nodes, i);
+    auto tuple = CreateDomInfo(context, domInfo, scope);
     if (!std::get<0>(tuple)) {
       return std::make_tuple(false, std::move(std::get<1>(tuple)), std::move(dom_nodes));
     }
@@ -338,6 +416,49 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   };
   def.functions.emplace_back(std::move(update_func_def));
 
+  FunctionDefine<SceneBuilder> move_func_def;
+  move_func_def.name = "Move";
+  move_func_def.cb = [weak_scope](SceneBuilder *builder, size_t argument_count,
+                                  const std::shared_ptr<CtxValue> arguments[])
+      -> std::shared_ptr<CtxValue> {
+    auto scope = weak_scope.lock();
+    if (scope) {
+      auto weak_dom_manager = scope->GetDomManager();
+      std::shared_ptr<CtxValue> nodes = arguments[0];
+      std::shared_ptr<Ctx> context = scope->GetContext();
+      TDF_BASE_CHECK(context);
+      auto len = context->GetArrayLength(nodes);
+      std::vector<std::shared_ptr<DomInfo>> dom_infos;
+      for (uint32_t i = 0; i < len; ++i) {
+        std::shared_ptr<CtxValue> info = context->CopyArrayElement(nodes, i);
+        auto length = context->GetArrayLength(info);
+        if (length > 0) {
+          auto node = context->CopyArrayElement(info, 0);
+          auto id_tuple = GetNodeId(context, node);
+          if (!std::get<0>(id_tuple)) {
+            return nullptr;
+          }
+
+          auto pid_tuple = GetNodePid(context, node);
+          if (!std::get<0>(pid_tuple)) {
+            return nullptr;
+          }
+          if (length >= 2) {
+            auto ref_info_tuple = CreateRefInfo(
+                context, context->CopyArrayElement(info, 1), scope);
+            dom_infos.push_back(std::make_shared<DomInfo>(
+                std::make_shared<DomNode>(std::get<2>(id_tuple),
+                                          std::get<2>(pid_tuple)),
+                std::get<2>(ref_info_tuple)));
+          }
+        }
+      }
+      builder->Move(weak_dom_manager, std::move(dom_infos));
+    }
+    return nullptr;
+  };
+  def.functions.emplace_back(std::move(move_func_def));
+
   FunctionDefine<SceneBuilder> delete_func_def;
   delete_func_def.name = "Delete";
   delete_func_def.cb = [weak_scope](
@@ -350,30 +471,29 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
       std::shared_ptr<CtxValue> nodes = arguments[0];
       std::shared_ptr<Ctx> context = scope->GetContext();
       TDF_BASE_CHECK(context);
-
       auto len = context->GetArrayLength(nodes);
-      std::vector<std::shared_ptr<DomNode>> dom_nodes;
+      std::vector<std::shared_ptr<DomInfo>> dom_infos;
       for (uint32_t i = 0; i < len; ++i) {
-        std::shared_ptr<CtxValue> node = context->CopyArrayElement(nodes, i);
-        auto id_tuple = GetNodeId(context, node);
-        if (!std::get<0>(id_tuple)) {
-          return nullptr;
-        }
+        std::shared_ptr<CtxValue> info = context->CopyArrayElement(nodes, i);
+        auto length = context->GetArrayLength(info);
+        if (length > 0) {
+          auto node = context->CopyArrayElement(info, 0);
+          auto id_tuple = GetNodeId(context, node);
+          if (!std::get<0>(id_tuple)) {
+            return nullptr;
+          }
 
-        auto pid_tuple = GetNodePid(context, node);
-        if (!std::get<0>(pid_tuple)) {
-          return nullptr;
+          auto pid_tuple = GetNodePid(context, node);
+          if (!std::get<0>(pid_tuple)) {
+            return nullptr;
+          }
+          dom_infos.push_back(std::make_shared<DomInfo>(
+              std::make_shared<DomNode>(std::get<2>(id_tuple),
+                                        std::get<2>(pid_tuple)),
+              nullptr));
         }
-
-        auto index_tuple = GetNodeIndex(context, node);
-        if (!std::get<0>(index_tuple)) {
-          return nullptr;
-        }
-        dom_nodes.push_back(std::make_shared<DomNode>(std::get<2>(id_tuple),
-                                                      std::get<2>(pid_tuple),
-                                                      std::get<2>(index_tuple)));
       }
-      builder->Delete(weak_dom_manager, std::move(dom_nodes));
+      builder->Delete(weak_dom_manager, std::move(dom_infos));
     }
     return nullptr;
   };
