@@ -2,7 +2,7 @@
 
 # Custom font
 
-# Front end
+# Front-end
 
 It's easy to use custom fonts on the front-end, just like browsers, by using the [font-family](https://www.w3schools.com/cssref/pr_font_font-family.asp) style.
 
@@ -12,7 +12,7 @@ However, if you want to use fonts other than those that come with the operating 
 
 # iOS
 
-## Integral font file
+## Integrate font file
 
 Open the iOS project, create a `fonts` new directory, and drag the font file to that directory. Follow the screenshot and create a font reference to ensure that the Target is correct.
 
@@ -36,7 +36,7 @@ To add the exact font file name to `Info.plist` the `Fonts provided by applicati
 
 ## Verify font correctness
 
-If everything is correct, the front end should be able to display the custom font normally, but sometimes it can not be displayed. The most common one is that the Font Family parameter value is incorrect because of the **font file name!== Font Family**。
+If everything is correct, the front-end should be able to display the custom font normally, but sometimes it can not be displayed. The most common one is that the Font Family parameter value is incorrect because of the **font file name!== Font Family**。
 
 There is a simple way to verify. List all Font families for checking.
 
@@ -57,7 +57,7 @@ for (NSString* family in [UIFont familyNames])
 
 # Android
 
-## Integral font file
+## Integrate font file
 
 Android only needs to establish the `fonts` directory in the static resource `assets` directory, and then copy the font file into it.
 

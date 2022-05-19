@@ -6,7 +6,7 @@
 * [布局与单位](guide/layout.md)
 * [Network request](guide/network-request.md)
 * [Timer](guide/timer.md)
-* [Journal](guide/console.md)
+* [Log](guide/console.md)
 * [Exception capture](guide/exception.md)
 * [Custom font](guide/custom-font.md)
 * [动态加载](guide/dynamic-import.md)

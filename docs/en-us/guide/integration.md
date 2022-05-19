@@ -1,14 +1,14 @@
 # Getting Started
 
-Hippy uses' monorepo 'for code management to unify the versions of the front end and terminal. The front - end can directly introduce the corresponding NPM package, and the terminal can access it through publishing branch source code or through the corresponding package management Warehouse.
+Hippy uses `monorepo` for code management to unify the versions of the front-end and native. The front-end can directly introduce the corresponding NPM package, and the native can access it through publishing branch source code or through the corresponding package management Warehouse.
 
-Hippy already provides a complete [front - end and terminal paradigm](//github.com/Tencent/Hippy/tree/master/examples) to start App development directly based on our existing paradigm. For a quick experience of Hippy, follow [the README steps](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) to run DEMO. If you want to integrate Hippy into an existing App, continue to read the following`Terminal access` chapter.
+Hippy already provides a complete [front-end and native paradigm](//github.com/Tencent/Hippy/tree/master/examples) to start App development directly based on our existing paradigm. For a quick experience of Hippy, follow [the README steps](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) to run DEMO. If you want to integrate Hippy into an existing App, continue to read the following `native access` chapter.
 
-# Terminal access
+# native access
 
-If you want to access Hippy to an existing terminal project, refer to the [Android integration](android/integration.md) and [iOS integration](ios/integration.md) tutorials.
+If you want to access Hippy to an existing native project, refer to the [Android integration](android/integration.md) and [iOS integration](ios/integration.md) tutorials.
 
-# Front - end access
+# front-end access
 
 Hippy supports both React and Vue UI frameworks, which are implemented through the [@hippy/react](//www.npmjs.com/package/@hippy/react) and [@hippy/vue](//www.npmjs.com/package/@hippy/vue) packages.
 
@@ -32,7 +32,7 @@ use `npm i` to install the following npm packages.
 
 ### Prepare hippy-react compile time dependencies
 
-Take the official [example project](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) as an example, you need to use `npm i -D` to prepare the following dependencies.Of course, developers can choose according to their needs:
+Take the official [example project](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) as an example, you need to use `npm i -D` to prepare the following dependencies. Of course, developers can choose according to their needs:
 
 Required:
 
@@ -41,7 +41,7 @@ Required:
 | @babel/plugin-proposal-class-properties | Babel plugin - supports class properties that are still in draft               |
 | @babel/preset-env                       | Babel plugin - selects polyfill according to the environment you set           |
 | @babel/preset-react                     | Babel plugin - translation JSX to JS                                           |
-| @hippy/debug-server                     | Hippy front-terminal debugging service                                         |
+| @hippy/debug-server                     | Hippy front-native debugging service                                         |
 | @babel/core                             | Babel core - translation program for converting high version ES to ES6 and Es5 |
 | babel-loader                            | Webpack plugin - load Babel's translated code                                  |
 | webpack                                 | Webpack                                                                        |
@@ -62,20 +62,20 @@ Optional:
 
 At present, hippy-react is `Webpack 4` built, and the configuration is all placed in the [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/scripts) directory. In fact, it is only the configuration file of [webpack](//webpack.js.org/). It is recommended to read  the contents of  [webpack](//webpack.js.org/)'s official website first, and then modify it after having a certain foundation.
 
-#### Compilation configuration for development and debugging of hippy-react terminal
+#### Compilation configuration for development and debugging of hippy-react native
 
-This configuration shows a minimal configuration for running Hippy on the terminal.
+This configuration shows a minimal configuration for running Hippy on the native.
 
 | Configuration file                                                     | Description       |
 | ------------------------------------------------------------ | ---------- |
 | [hippy-webpack.dev.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.dev.js) |Configuration for debugging|
 
-#### Terminal online package configuration
+#### native online package configuration
 
 There are two main differences between online packages and development and debugging packages:
 
 1. Turn on production mode, remove debug information, and turn off `watch` (watch mode listens for file changes and repackages).
-2. More than one Hippy service is likely to run in the terminal, so the shared part is separated into a `vendor` package, which can effectively reduce the volume of the service package. [DllPlugin](//webpack.js.org/plugins/dll-plugin/) and [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) are used to realize this. It should be noted that the generated `vendor` package does not need to be specially updated under normal circumstances, but if it is updated, pay attention to upward compatibility, and do not cause service crash due to subcontracting.
+2. More than one Hippy service is likely to run in the native, so the shared part is separated into a `vendor` package, which can effectively reduce the volume of the service package. [DllPlugin](//webpack.js.org/plugins/dll-plugin/) and [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) are used to realize this. It should be noted that the generated `vendor` package does not need to be specially updated under normal circumstances, but if it is updated, pay attention to upward compatibility, and do not cause service crash due to subcontracting.
 
 | Configuration file                                                     | Description                                                 |
 | ------------------------------------------------------------ |-------------------------------------------------------------|
@@ -98,7 +98,7 @@ import { Hippy } from '@hippy/react';
 import App from './app';
 
 new Hippy({
-  appName: 'Demo',  // Service name assigned by terminal
+  appName: 'Demo',  // Service name assigned by native
   entryPage: App,   //  Corresponding to the component when the service is started
   silent: false,    // Set to true to turn off the framework log output
 }).start();
@@ -145,7 +145,7 @@ Please refer to the special [hippy-react to Web section](hippy-react/web.md).
 
 [[hippy-vue introduces](hippy-vue/introduction.md) [[example project]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)
 
-The hippy-vue is relatively simple. The hippy-vue is just the rendering layer of [Vue](//vuejs.org) on the terminal, and the components are basically consistent with the browser. You can [create a Web project](//cli.vuejs.org/zh/guide/creating-a-project.html) through the [vue-cli](//cli.vuejs.org/), and then add some hippy-vue content to render the web page directly to the terminal.
+The hippy-vue is relatively simple. The hippy-vue is just the rendering layer of [Vue](//vuejs.org) on the native, and the components are basically consistent with the browser. You can [create a Web project](//cli.vuejs.org/zh/guide/creating-a-project.html) through the [vue-cli](//cli.vuejs.org/), and then add some hippy-vue content to render the web page directly to the native.
 
 ### Prepare hippy-vue runtime dependencies
 
@@ -154,7 +154,7 @@ Please use to `npm i` install the following npm packages to ensure proper workin
 | Package name                        | Description                                |
 | --------------------------- |--------------------------------------------|
 | @hippy/vue                   | hippy-vue runtime core                     |
-| @hippy/vue-native-components | Extended terminal components for hippy-vue |
+| @hippy/vue-native-components | Extended native components for hippy-vue |
 | @hippy/vue-router            | Migration of vue-router on hippy-vue |
 
 ### hippy-vue compile-time dependencies
@@ -165,7 +165,7 @@ Required:
 
 | Package name                 | Description                                                                   |
 | -------------------- |-------------------------------------------------------------------------------|
-| @hippy/debug-server   | Hippy front terminal debugging service                                        |
+| @hippy/debug-server   | Hippy front native debugging service                                        |
 | @hippy/vue-css-loader | Conversion from CSS text of hippy-vue to JS syntax tree                       |
 | @babel/preset-env                       | Babel plugin - selects polyfill according to the environment you set          |
 | @babel/core                             | Babel core - translation program for converting high version ES to ES6 and Es5 |
@@ -188,20 +188,20 @@ Optional:
 
 At present, hippy-vue is `Webpack 4` built (upgrading to `weppack 5` is not recommended for the time being`). All the configurations are placed in the [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) directory. In fact, it is only the configuration file of [webpack](//webpack.js.org/). It is recommended to read  the contents of  [webpack](//webpack.js.org/)'s official website first, and then modify it after having a certain foundation.
 
-#### Compilation configuration for development and debugging of hippy-vue terminal
+#### Compilation configuration for development and debugging of hippy-vue native
 
-This configuration shows a minimal configuration for running Hippy on the terminal.
+This configuration shows a minimal configuration for running Hippy on the native.
 
 | Configuration file                                                     | Description       |
 | ------------------------------------------------------------ | ---------- |
 | [hippy-webpack.dev.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.dev.js) |Configuration for debugging|
 
-#### hippy-vue terminal online package configuration 
+#### hippy-vue native online package configuration 
 
 There are two main differences between online packages and development and debugging packages:
 
 1. Turn on production mode, remove debug information, and turn off `watch` (watch mode listens for file changes and repackages).
-2. More than one Hippy service is likely to run in the terminal, so the shared part is separated into a `vendor` package, which can effectively reduce the volume of the service package. [DllPlugin](//webpack.js.org/plugins/dll-plugin/) and [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) are used to realize this. It should be noted that the generated `vendor` package does not need to be specially updated under normal circumstances, but if it is updated, pay attention to upward compatibility, and do not cause service crash due to subcontracting.
+2. More than one Hippy service is likely to run in the native, so the shared part is separated into a `vendor` package, which can effectively reduce the volume of the service package. [DllPlugin](//webpack.js.org/plugins/dll-plugin/) and [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) are used to realize this. It should be noted that the generated `vendor` package does not need to be specially updated under normal circumstances, but if it is updated, pay attention to upward compatibility, and do not cause service crash due to subcontracting.
 
 | Configuration file                                                     | Description                                                 |
 | ------------------------------------------------------------ |-------------------------------------------------------------|
@@ -217,7 +217,7 @@ If you carefully observe the webpack configuration, you can see that the configu
 
 ### hippy-vue entry file
 
-The project initialized by hippy pocket cli has its own [Web portal file](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main.js), which can be reserved for starting Web pages. However, due to the different startup parameters of hippy-vue, a special [terminal entry files](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main-native.js) are required to load some modules used on the terminal.
+The project initialized by hippy pocket cli has its own [Web portal file](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main.js), which can be reserved for starting Web pages. However, due to the different startup parameters of hippy-vue, a special [native entry files](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/main-native.js) are required to load some modules used on the native.
 
 ```js
 import Vue from 'vue';
@@ -232,7 +232,7 @@ import { setApp } from './util';
 
 Vue.config.productionTip = false;
 
-// Hippy terminal component extension middleware can use terminal extension components such as modal, view pager, tab host and UL refresh.
+// Hippy native component extension middleware can use native extension components such as modal, view pager, tab host and UL refresh.
 Vue.use(HippyVueNativeComponents);
 Vue.use(VueRouter);
 
@@ -242,7 +242,7 @@ const router = new VueRouter(routes);
  * Declare an app, which is generated synchronously
  */
 const app = new Vue({
-  // App name specified by the terminal
+  // App name specified by the native
   appName: 'Demo',
   // The root node must be ID. the screen will be triggered when the root node is mounted
   rootView: '#root',
@@ -271,21 +271,21 @@ const app = new Vue({
 /**
  * $start is the callback triggered after Hippy starts
  * Vue will finish rendering the first screen of VDOM before Hippy starts, so the first screen performance is very high
- * In $start, you can notify the terminal that the startup has been completed and start sending messages to the front end.
+ * In $start, you can notify the native that the startup has been completed and start sending messages to the front-end.
  */
 app.$start((/* app */) => {
-  // Here are some things that need to be done after Hippy starts, such as notifying the terminal that the front-end is ready to start sending messages.
+  // Here are some things that need to be done after Hippy starts, such as notifying the native that the front-end is ready to start sending messages.
   // setApp(app);
 });
 
 /**
- * Save the app to accept events from the terminal through the app later.
+ * Save the app to accept events from the native through the app later.
  *
  * It was put in $start before, but there is a problem. Because the execution of $start is too slow,
  * if getapp() is used on the home page, it may lead to undefined and listening failure. So I moved it out.
  *
- * However, the terminal event still needs to wait until $start, that is, after the hippy is started, 
- * because the front bridge has not been established and the front end of the terminal message cannot be accepted.
+ * However, the native event still needs to wait until $start, that is, after the hippy is started, 
+ * because the front bridge has not been established and the front-end of the native message cannot be accepted.
  */
 setApp(app);
 ```

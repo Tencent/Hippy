@@ -16,7 +16,7 @@ In Hippy, the standard box model is used to describe each of these rectangular b
 
 # Layout (Flex)
 
-In Hippy, in order to facilitate the mobile terminal to write the layout, the most popular 'Flex' layout on the mobile terminal is supported by default. At the same time, because only 'Flex' layout is supported, it can be used without handwriting 'display: flex'
+In Hippy, in order to facilitate the mobile native to write the layout, the most popular 'Flex' layout on the mobile native is supported by default. At the same time, because only 'Flex' layout is supported, it can be used without handwriting 'display: flex'
 Flex layouts are similar to Web Flex. They are designed to provide a more effective way to formulate, adjust and distribute the layout of items in a container, even if their size is unknown or dynamic. Flex specifies how the elastic element extends or contracts to accommodate the available space in the Flex container. CSS tutorial documentation can be found in [This article](http://www.w3cplus.com/css3/a-visual-guide-to-css3-flexbox-properties.html)
 
 ## flexDirection

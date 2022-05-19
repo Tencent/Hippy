@@ -107,7 +107,7 @@ Includes foreground, background, border, opacity, font and other appearance styl
 
 # boxShadow
 
-| Type   | Required| Platform|
+| Type   | Required| Supported Platforms|
 | ------ | -------- | --------|
 | [Hippy-React reference example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/BoxShadow/index.jsx) |No| Android, iOS. Android has different implementation (see example for details)
 | [Hippy-Vue reference example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-shadow.vue) |No| Android, iOS. Android has different implementation (see example for details)
@@ -170,7 +170,7 @@ Same as `textDecorationLine`
 
 Decoration line color for text
 
-| Type   | Required| Platform|
+| Type   | Required| Supported Platforms|
 | ------ | -------- | --------|
 | [color](style/color.md)  | No | iOS |
 
@@ -182,7 +182,7 @@ Decoration line color for text
 
 Decoration line type for text
 
-| Type   | Required| Platform|
+| Type   | Required| Supported Platforms|
 | ------ | -------- | --------|
 | enum('underline', 'line-through', 'none')  |No|  Android,iOS |
 
@@ -222,14 +222,14 @@ Text shadow color
 
 Text shadow offset
 
-| Type   | Required| Platform|
+| Type   | Required| Supported Platforms|
 | ------ | -------- | --------|
 | object: { x: number, y: number }| No|  Android,iOS |
 
 # textShadowOffsetX
 
 * Minimum supported version 2.10.0
-* Note that the Hippy-Vue class style only supports the combined writing method 'text shadow offset: 1px 1px', and does not support splitting
+* Note that the Hippy-Vue class style only supports the combined write format 'text shadow offset: 1px 1px', and does not support splitting
 
 [Hippy-React example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx)
 
@@ -244,7 +244,7 @@ Text shadow X-axis offset
 # textShadowOffsetY
 
 > * Minimum supported version 2.10.0
->* Note that the Hippy-Vue class style only supports the combined writing method `text-shadow-offset: 1px 1px`, and does not support splitting
+>* Note that the Hippy-Vue class style only supports the combined write format `text-shadow-offset: 1px 1px`, and does not support splitting
 
 [Hippy-React example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/Text/index.jsx)
 
@@ -252,7 +252,7 @@ Text shadow X-axis offset
 
 Text shadow Y-axis offset
 
-| Type   | Required| Platform|
+| Type   | Required| Supported Platforms|
 | ------ | -------- | --------|
 | number  |No|  Android,iOS |
 
@@ -277,7 +277,7 @@ Text shadow radius
 [Hippy-Vue example](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
 
 
-Tint  the image (When tinting the non-solid color image with transparency, there is a difference in the default value of 'blendmode' between Android and iOS)
+Tint the image (When tinting the non-solid color image with transparency, there is a difference in the default value of 'blendmode' between Android and iOS)
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
@@ -285,7 +285,7 @@ Tint  the image (When tinting the non-solid color image with transparency, there
 
 # visibility
 
-| Type   | Required| Supported Platforms
-| ------ | -------- | --- |
-| enum('visible'[default]， 'hidden') | No | iOS（2.9.0）
+| Type                               | Required| Supported Platforms
+|------------------------------------| -------- | --- |
+| enum('visible'[default], 'hidden') | No | iOS（2.9.0）
 

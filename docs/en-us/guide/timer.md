@@ -1,8 +1,8 @@
 # Timer
 
-[timers](//developer.mozilla.org/en-US/Add-ons/Code_snippets/Timers) are widely used in Javascript and are also supported in Hippy.
+[Timers](//developer.mozilla.org/en-US/Add-ons/Code_snippets/Timers) are widely used in Javascript and are also supported in Hippy.
 
-The Hippy-side timer usage is consistent with the Web-side Javascript usage and can be used directly.
+The Hippy timer usage is consistent with the Web Javascript usage and can be used directly.
 
 ## Method
 
