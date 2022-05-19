@@ -24,7 +24,6 @@
 #include <memory>
 #include <string>
 #include "module/domain/base_domain.h"
-#include "module/domain_register.h"
 #include "module/model/frame_poll_model.h"
 #include "module/model/screen_shot_model.h"
 #include "module/model/tdf_inspector_model.h"

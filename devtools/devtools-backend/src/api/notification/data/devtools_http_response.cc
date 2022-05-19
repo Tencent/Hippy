@@ -42,7 +42,6 @@ constexpr char kHttpResponseFromDiskCache[] = "fromDiskCache";
 constexpr char kHttpResponseFromServiceWorker[] = "fromServiceWorker";
 constexpr char kHttpResponseFromPrefetchCache[] = "fromPrefetchCache";
 constexpr char kHttpResponseEncodedDataLength[] = "encodedDataLength";
-constexpr char kHttpResponseTiming[] = "timing";
 constexpr char kHttpResponseServiceWorkerResponseSource[] = "serviceWorkerResponseSource";
 constexpr char kHttpResponseResponseTime[] = "responseTime";
 constexpr char kHttpResponseCacheStorageCacheName[] = "cacheStorageCacheName";

@@ -42,7 +42,6 @@ constexpr char kHttpRequestMixedContentType[] = "mixedContentType";
 constexpr char kHttpRequestInitialPriority[] = "initialPriority";
 constexpr char kHttpRequestReferrerPolicy[] = "referrerPolicy";
 constexpr char kHttpRequestIsLinkPreload[] = "isLinkPreload";
-constexpr char kHttpRequestTrustTokenParams[] = "trustTokenParams";
 constexpr char kHttpRequestIsSameSite[] = "isSameSite";
 constexpr char kHttpRequestType[] = "type";
 constexpr char kHttpRequestBytes[] = "bytes";
@@ -96,7 +95,7 @@ std::string Request::Serialize() const {
     result += "\"}";
   }
   if (!post_data_entries.empty()) {
-    result = result.substr(0, result.length() - 1); // remove last ","
+    result = result.substr(0, result.length() - 1);  // remove last ","
   }
   result += "],\"";
   result += kHttpRequestMixedContentType;

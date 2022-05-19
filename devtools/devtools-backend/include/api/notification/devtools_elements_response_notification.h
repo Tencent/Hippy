@@ -23,6 +23,7 @@ namespace hippy::devtools {
 class ElementsResponseNotification {
  public:
   virtual void NotifyDocumentUpdate() = 0;
+  virtual ~ElementsResponseNotification() {}
 
   inline void SetNeedNotifyBatchEvent(bool need_notify_batch_event) {
     need_notify_batch_event_ = need_notify_batch_event;

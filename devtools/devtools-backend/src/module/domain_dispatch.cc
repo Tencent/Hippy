@@ -33,6 +33,7 @@
 #include "module/domain/tdf_memory_domain.h"
 #include "module/domain/tdf_performance_domain.h"
 #include "module/domain/tdf_runtime_domain.h"
+#include "module/domain_register.h"
 #include "module/inspect_props.h"
 #include "nlohmann/json.hpp"
 #include "tunnel/tunnel_service.h"

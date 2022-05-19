@@ -75,7 +75,7 @@ std::string TdfStringUtil::AdaptProtocolName(std::string domain) {
     domain = domain.replace(found, strlen(kDomainNameTDFProtocol), kDomainNameTdfPrefix);
   } else {  // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
     std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
-    domain[0] = toupper(domain[0]);
+    domain[0] = static_cast<char>(toupper(domain[0]));
   }
   return domain;
 }

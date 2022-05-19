@@ -40,6 +40,8 @@ class BaseDomain {
  public:
   explicit BaseDomain(std::weak_ptr<DomainDispatch> dispatch) : dispatch_(dispatch) {}
 
+  virtual ~BaseDomain() {}
+
   /**
    * @brief domain name
    */

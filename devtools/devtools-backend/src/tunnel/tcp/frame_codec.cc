@@ -39,12 +39,12 @@ void FrameCodec::Encode(void *data, int32_t len, uint8_t flag) {
   }
   auto *header = reinterpret_cast<Header *>(malloc(sizeof(struct Header)));
   header->flag = flag;
-  header->body_length = htonl(len);
+  header->body_length = static_cast<int32_t>(htonl(len));
   int32_t data_len = len + kHeaderSize;
   void *frame = malloc(static_cast<size_t>(len + kHeaderSize));
   memcpy(frame, header, kHeaderSize);
   free(header);
-  memcpy(reinterpret_cast<char *>(frame) + kHeaderSize, data, len);
+  memcpy(reinterpret_cast<char *>(frame) + kHeaderSize, data, static_cast<size_t>(len));
   encode_callback_(frame, data_len);
   free(frame);
 }
@@ -57,7 +57,7 @@ void FrameCodec::Decode(void *data, int32_t len) {
   if (len > kMaxDataSize) {
     return;
   }
-  int32_t stream_buffer_len = stream_buffer_.size();
+  int32_t stream_buffer_len = static_cast<int32_t>(stream_buffer_.size());
   while (stream_buffer_len + len >= kHeaderSize) {
     // header don't need join
     if (stream_buffer_len > 0 && stream_buffer_len < kHeaderSize) {
@@ -77,11 +77,11 @@ void FrameCodec::Decode(void *data, int32_t len) {
       header = (struct Header *)temp;
     }
     int32_t total_len = header->GetBodySize() + kHeaderSize;
-    if (stream_buffer_.size() + len < total_len) {
+    if (stream_buffer_.size() + static_cast<unsigned long>(len) < static_cast<unsigned long>(total_len)) {
       break;
     }
     // use absolute data
-    int32_t split_len = total_len - stream_buffer_.size();
+    int32_t split_len = static_cast<int32_t>(static_cast<unsigned long>(total_len) - stream_buffer_.size());
     stream_buffer_.insert(stream_buffer_.end(), reinterpret_cast<char *>(data),
                           reinterpret_cast<char *>(data) + split_len);
     if (decode_callback_) {

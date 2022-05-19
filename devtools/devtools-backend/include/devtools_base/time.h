@@ -64,7 +64,7 @@ class SteadyClockTime {
       default:
         break;
     }
-    return duration;
+    return static_cast<uint64_t>(duration);
   }
 
   /**

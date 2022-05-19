@@ -52,8 +52,6 @@ constexpr char kStyleStartLineKey[] = "startLine";
 constexpr char kStyleStartColumnKey[] = "startColumn";
 constexpr char kStyleEndLineKey[] = "endLine";
 constexpr char kStyleEndColumnKey[] = "endColumn";
-constexpr char kUpdateNodeIdKey[] = "id";
-constexpr char kUpdateNodeInfoKey[] = "updateInfo";
 constexpr char kDefaultLength[] = "0";
 constexpr char kDefaultDisplay[] = "block";
 constexpr char kDefaultPosition[] = "relative";
@@ -174,8 +172,8 @@ nlohmann::json CssModel::BuildCssStyle() {
     // css_value can be numbers or strings, so stringstream is used
     std::string css_value = prop_value;
     std::string css_text = css_name + ":" + css_value;
-    auto source_range =
-        BuildRangeJson(0, all_of_css_text.length(), 0, all_of_css_text.length() + css_text.length() + 1);
+    auto source_range = BuildRangeJson(0, static_cast<int32_t>(all_of_css_text.length()), 0,
+                                       static_cast<int32_t>(all_of_css_text.length() + css_text.length() + 1));
     auto css_property = BuildCssPropertyJson(css_name, css_value, source_range);
     css_properties.emplace_back(css_property);
     all_of_css_text = all_of_css_text.append(css_text).append(";");
@@ -184,7 +182,7 @@ nlohmann::json CssModel::BuildCssStyle() {
   style_json[kCssPropertiesKey] = css_properties;
   style_json[kShorthandEntriesKey] = nlohmann::json::object();
   style_json[kCssTextKey] = all_of_css_text;
-  style_json[kRangeKey] = BuildRangeJson(0, 0, 0, all_of_css_text.length());
+  style_json[kRangeKey] = BuildRangeJson(0, 0, 0, static_cast<int32_t>(all_of_css_text.length()));
   return style_json;
 }
 

@@ -33,7 +33,8 @@
   auto __##Domain##Function##__ = [] {                                                            \
     DomainRegister::Instance()->RegisterDomain(&Domain::Function, #Domain, #Function, Request()); \
     return 0;                                                                                     \
-  }();
+  };                                                                                              \
+  __##Domain##Function##__();
 
 class DomainRegister {
  public:
@@ -54,8 +55,9 @@ class DomainRegister {
             class = typename std::enable_if<std::is_base_of<hippy::devtools::BaseRequest, Request>::value>::type>
   void RegisterDomain(Function Domain::*member_fn, const std::string& domain_name, const std::string& function_name,
                       Request request) {
-    InvokerHandler invoker = [member_fn, function_name, request](std::shared_ptr<hippy::devtools::BaseDomain> baseDomain,
-                                                                 int32_t id, const std::string& params) mutable {
+    InvokerHandler invoker = [member_fn, function_name, request](
+                                 std::shared_ptr<hippy::devtools::BaseDomain> baseDomain, int32_t id,
+                                 const std::string& params) mutable {
       request.SetId(id);
       request.Deserialize(params);
       Domain* domain = reinterpret_cast<Domain*>(baseDomain.get());

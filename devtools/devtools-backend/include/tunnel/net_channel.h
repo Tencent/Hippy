@@ -31,6 +31,8 @@ class NetChannel {
  public:
   using ReceiveDataHandler = std::function<void(const std::string& msg, uint8_t flag)>;
 
+  virtual ~NetChannel() {}
+
   /**
    * @brief connect to frontend
    * @param handler to receive msg from frontend

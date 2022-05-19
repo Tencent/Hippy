@@ -25,9 +25,6 @@ set(PROJECT_NAME devtools_backend)
 project(${PROJECT_NAME})
 message("make devtools_backend")
 
-set(ABI_COMPILE_OPTIONS -Wno-error)
-add_compile_options(${ABI_COMPILE_OPTIONS})
-
 get_filename_component(DEVTOOLS_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" REALPATH)
 set(BACKEND_INCLUDE_DIR ${DEVTOOLS_ROOT_PATH}/include)
 set(THIRD_PARTY_INCLUDE ${DEVTOOLS_ROOT_PATH}/third_party/socket/include)

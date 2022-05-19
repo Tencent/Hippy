@@ -92,7 +92,7 @@ void WebSocketChannel::Close(int32_t code, const std::string& reason) {
   }
   BACKEND_LOGD(TDF_BACKEND, "close websocket, code: %d, reason: %s", code, reason.c_str());
   websocketpp::lib::error_code error_code;
-  ws_client_.close(connection_hdl_, code, reason, error_code);
+  ws_client_.close(connection_hdl_, static_cast<websocketpp::close::status::value>(code), reason, error_code);
   ws_client_.stop_perpetual();
 }
 

@@ -28,6 +28,7 @@ namespace hippy::devtools {
  */
 class VmResponseNotification {
  public:
+  virtual ~VmResponseNotification() {}
   /**
    * Message sending from virtual machine
    * @param data msg

@@ -23,9 +23,18 @@
 #include <vector>
 #include "tunnel/net_channel.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
 #define ASIO_STANDALONE
 #include "websocketpp/client.hpp"
 #include "websocketpp/config/asio_client.hpp"
+#pragma clang diagnostic pop
 
 using WSClient = websocketpp::client<websocketpp::config::asio_client>;
 using WSMessagePtr = websocketpp::config::asio_tls_client::message_type::ptr;

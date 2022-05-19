@@ -35,8 +35,8 @@ void DomNodeForLocationRequest::Deserialize(const std::string& params) {
   }
   double x = TdfParseJsonUtil::GetJsonValue(params_json, kParamsX, 0.0);
   double y = TdfParseJsonUtil::GetJsonValue(params_json, kParamsY, 0.0);
-  x_ = x;
-  y_ = y;
+  x_ = static_cast<int32_t>(x);
+  y_ = static_cast<int32_t>(y);
   SetAlreadySetValue(true);
 }
 }  // namespace hippy::devtools

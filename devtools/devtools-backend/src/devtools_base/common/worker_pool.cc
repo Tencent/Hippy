@@ -31,7 +31,7 @@ std::mutex WorkerPool::creation_mutex_;
 
 std::shared_ptr<WorkerPool> WorkerPool::instance_ = nullptr;
 
-WorkerPool::WorkerPool(int size) : size_(size), index_(0) { CreateWorker(size); }
+WorkerPool::WorkerPool(int size) : index_(0), size_(size) { CreateWorker(size); }
 
 WorkerPool::~WorkerPool() {}
 
@@ -75,7 +75,7 @@ void WorkerPool::Resize(int size) {
     // save all runners that need to be reallocated
     std::list<std::vector<std::shared_ptr<TaskRunner>>> groups;
     for (int i = 0; i < size_; ++i) {
-      groups.splice(groups.end(), workers_[i]->RetainActive());
+      groups.splice(groups.end(), workers_[static_cast<unsigned long>(i)]->RetainActive());
     }
 
     index_ = size_;
@@ -84,15 +84,15 @@ void WorkerPool::Resize(int size) {
     std::map<int32_t, std::array<void*, Worker::kWorkerKeysMax>> migration_specific_map;
     while (it != groups.end()) {
       auto group = *it;
-      auto new_worker = workers_[index_];
+      auto new_worker = workers_[static_cast<unsigned long>(index_)];
       new_worker->Bind(group);
       for (auto vec_it = group.begin(); vec_it != group.end(); ++vec_it) {
         auto runner = (*vec_it);
         auto id = runner->GetId();
         auto orig_worker = runner->worker_.lock();
         if (orig_worker) {
-          new_worker->UpdateSpecificKeys(id, std::move(orig_worker->GetMovedSpecificKeys(id)));
-          new_worker->UpdateSpecific(id, std::move(orig_worker->GetMovedSpecific(id)));
+          new_worker->UpdateSpecificKeys(id, orig_worker->GetMovedSpecificKeys(id));
+          new_worker->UpdateSpecific(id, orig_worker->GetMovedSpecific(id));
         }
       }
       // use rr
@@ -110,10 +110,10 @@ void WorkerPool::Resize(int size) {
     std::list<std::vector<std::shared_ptr<TaskRunner>>> groups;
     for (int i = size_ - 1; i > size - 1; --i) {
       // handle running runner on thread
-      groups.splice(groups.end(), workers_[i]->UnBind());
+      groups.splice(groups.end(), workers_[static_cast<unsigned long>(i)]->UnBind());
     }
     for (int i = 0; i < size; ++i) {
-      groups.splice(groups.end(), workers_[i]->RetainActive());
+      groups.splice(groups.end(), workers_[static_cast<unsigned long>(i)]->RetainActive());
     }
 
     if (index_ >= size) {
@@ -123,14 +123,14 @@ void WorkerPool::Resize(int size) {
     auto it = groups.begin();
     while (it != groups.end()) {
       auto group = *it;
-      auto new_worker = workers_[index_];
+      auto new_worker = workers_[static_cast<unsigned long>(index_)];
       new_worker->Bind(*it);
       for (auto vec_it = group.begin(); vec_it != group.end(); ++vec_it) {
         auto runner = (*vec_it);
         auto id = runner->GetId();
         auto orig_worker = runner->worker_.lock();
         if (orig_worker) {
-          new_worker->UpdateSpecificKeys(id, std::move(orig_worker->GetMovedSpecificKeys(id)));
+          new_worker->UpdateSpecificKeys(id, orig_worker->GetMovedSpecificKeys(id));
           new_worker->UpdateSpecific(id, orig_worker->GetMovedSpecific(id));
         }
       }
@@ -141,7 +141,7 @@ void WorkerPool::Resize(int size) {
 
     for (int i = size_ - 1; i > size - 1; --i) {
       // handle running runner on thread
-      workers_[i]->Terminate();
+      workers_[static_cast<unsigned long>(i)]->Terminate();
       workers_.pop_back();
     }
   }
@@ -173,9 +173,9 @@ void WorkerPool::AddTaskRunner(std::shared_ptr<TaskRunner> runner) {
       BindWorker(*it, group);
       runner->SetCv((*it)->cv_);
     } else {
-      workers_[index_]->Bind(group);
-      BindWorker(workers_[index_], group);
-      runner->SetCv(workers_[index_]->cv_);
+      workers_[static_cast<unsigned long>(index_)]->Bind(group);
+      BindWorker(workers_[static_cast<unsigned long>(index_)], group);
+      runner->SetCv(workers_[static_cast<unsigned long>(index_)]->cv_);
       index_ == (size_ - 1) ? 0 : ++index_;
     }
   }

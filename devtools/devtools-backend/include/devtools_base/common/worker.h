@@ -43,7 +43,7 @@ class Worker : public Thread {
   };
 
   explicit Worker(const std::string &name = "");
-  ~Worker();
+  virtual ~Worker();
 
   void Run();
   void Terminate();

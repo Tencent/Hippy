@@ -28,6 +28,7 @@ namespace hippy::devtools {
  */
 class RuntimeNotification {
  public:
+  virtual ~RuntimeNotification() {}
   /**
    * @brief update current context name
    * @param context_name new context name

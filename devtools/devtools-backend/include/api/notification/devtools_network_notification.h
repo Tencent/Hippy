@@ -32,6 +32,7 @@ namespace hippy::devtools {
  */
 class NetworkNotification {
  public:
+  virtual ~NetworkNotification() {}
   /**
    * Fired when page is about to send HTTP request.
    * @see https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-requestWillBeSent

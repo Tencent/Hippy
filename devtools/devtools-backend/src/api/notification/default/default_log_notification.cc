@@ -24,7 +24,8 @@
 
 namespace hippy::devtools {
 
-constexpr char *const kLogSeverityNames[hippy::devtools::TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR", "FATAL"};
+constexpr const char *kLogSeverityNames[hippy::devtools::TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR",
+                                                                                    "FATAL"};
 constexpr char kSeverityUnknown[] = "UNKNOWN";
 const char *GetNameForLogSeverity(hippy::devtools::LogSeverity severity) {
   if (severity >= hippy::devtools::TDF_LOG_INFO && severity < hippy::devtools::TDF_LOG_NUM_SEVERITIES) {
@@ -33,8 +34,9 @@ const char *GetNameForLogSeverity(hippy::devtools::LogSeverity severity) {
   return kSeverityUnknown;
 }
 
-void DefaultLogAdapter::PrintLog(const std::string& log_module, const std::string &log_message, hippy::devtools::LogSeverity severity,
-                                 const std::string &file_name, int32_t line_number) {
+void DefaultLogAdapter::PrintLog(const std::string &log_module, const std::string &log_message,
+                                 hippy::devtools::LogSeverity severity, const std::string &file_name,
+                                 int32_t line_number) {
   if (log_handler_) {
     auto nano_time_point = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now());
     int64_t nano_time_stamp = nano_time_point.time_since_epoch().count();

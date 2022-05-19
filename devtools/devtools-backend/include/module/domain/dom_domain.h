@@ -41,7 +41,7 @@ class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDoma
       std::function<void(int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback)>;
   using LocationForNodeDataCallback = std::function<void(double x, double y, DomDataCallback callback)>;
 
-  explicit DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)){};
+  explicit DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
   void RegisterCallback() override;

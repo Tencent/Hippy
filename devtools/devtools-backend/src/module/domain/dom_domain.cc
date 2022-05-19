@@ -167,8 +167,10 @@ void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "screenAdapter is null");
     return;
   }
-  int32_t x = TdfBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX());
-  int32_t y = TdfBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY());
+  int32_t x =
+      static_cast<int32_t>(TdfBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX()));
+  int32_t y =
+      static_cast<int32_t>(TdfBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY()));
   location_for_node_call_back_(x, y, [DEVTOOLS_WEAK_THIS, request](const DomModel& model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     auto node_id = self->SearchNearlyCacheNode(model.GetRelationTree());
@@ -190,7 +192,7 @@ void DomDomain::SetInspectedNode(const BaseRequest& request) {
 void DomDomain::HandleDocumentUpdate() { SendEventToFrontend(InspectEvent(kEventMethodDocumentUpdated, "{}")); }
 
 void DomDomain::CacheEntireDocumentTree(DomModel root_model) {
-  element_node_children_count_cache_[root_model.GetNodeId()] = root_model.GetChildren().size();
+  element_node_children_count_cache_[root_model.GetNodeId()] = static_cast<uint32_t>(root_model.GetChildren().size());
   for (auto& child : root_model.GetChildren()) {
     CacheEntireDocumentTree(child);
   }
@@ -202,9 +204,9 @@ void DomDomain::SetChildNodesEvent(DomModel model) {
   }
   SendEventToFrontend(InspectEvent(kEventMethodSetChildNodes, model.BuildChildNodesJson().dump()));
   // SendEvent only replenishes one layer of child node data, so only one layer is cached here
-  element_node_children_count_cache_[model.GetNodeId()] = model.GetChildren().size();
+  element_node_children_count_cache_[model.GetNodeId()] = static_cast<uint32_t>(model.GetChildren().size());
   for (auto& child : model.GetChildren()) {
-    element_node_children_count_cache_[child.GetNodeId()] = child.GetChildren().size();
+    element_node_children_count_cache_[child.GetNodeId()] = static_cast<uint32_t>(child.GetChildren().size());
   }
 }
 

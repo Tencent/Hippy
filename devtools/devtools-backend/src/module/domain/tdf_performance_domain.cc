@@ -27,12 +27,6 @@
 
 namespace hippy::devtools {
 
-constexpr char kPerformanceDomainMethodStart[] = "start";
-constexpr char kPerformanceDomainMethodEnd[] = "end";
-constexpr char kPerformanceDomainMethodV8Tracing[] = "v8Tracing";
-constexpr char kPerformanceDomainMethodFrameTimings[] = "frameTimings";
-constexpr char kPerformanceDomainMethodTimeline[] = "timeline";
-
 std::string TdfPerformanceDomain::GetDomainName() { return kFrontendKeyDomainNameTDFPerformance; }
 
 void TdfPerformanceDomain::RegisterMethods() {

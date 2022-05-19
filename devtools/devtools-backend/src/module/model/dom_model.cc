@@ -55,8 +55,6 @@ constexpr char kMainFrame[] = "main_frame";
 constexpr char kDomDataStyle[] = "style";
 constexpr char kDocumentName[] = "#document";
 constexpr int32_t kDocumentNodeId = -3;
-constexpr int32_t kDocumentChildNodeCount = 1;
-constexpr int32_t kInvalidNodeId = -1;
 
 DomModel DomModel::CreateModel(const nlohmann::json& json) {
   assert(json.is_object());
@@ -71,7 +69,7 @@ DomModel DomModel::CreateModel(const nlohmann::json& json) {
   model.SetNodeName(TdfParseJsonUtil::GetJsonValue(json, kNodeName, model.GetNodeName()));
   model.SetNodeValue(TdfParseJsonUtil::GetJsonValue(json, kNodeValue, model.GetNodeValue()));
   model.SetLocalName(TdfParseJsonUtil::GetJsonValue(json, kLocalName, model.GetLocalName()));
-  model.SetChildNodeCount(TdfParseJsonUtil::GetJsonValue(json, kChildNodeCount, 0));
+  model.SetChildNodeCount(static_cast<uint32_t>(TdfParseJsonUtil::GetJsonValue(json, kChildNodeCount, 0)));
   model.SetAttributes(TdfParseJsonUtil::GetJsonValue(json, kAttributes, nlohmann::json::object()));
   model.SetStyle(TdfParseJsonUtil::GetJsonValue(json, kDomDataStyle, nlohmann::json::object()));
   auto children_json = json.find(kChildren);
@@ -405,10 +403,10 @@ std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<s
   if (bottom_it != style_.end()) {
     bottom = bottom_it.value();
   }
-  left = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, left);
-  top = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, top);
-  right = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, right);
-  bottom = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, bottom);
+  left = static_cast<int32_t>(TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, left));
+  top = static_cast<int32_t>(TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, top));
+  right = static_cast<int32_t>(TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, right));
+  bottom = static_cast<int32_t>(TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, bottom));
   result.emplace_back(left);
   result.emplace_back(top);
   result.emplace_back(right);

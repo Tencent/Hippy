@@ -23,21 +23,21 @@
 #include <array>
 #include <atomic>
 
-#include "devtools_base/logging.h"
 #include "devtools_base/common/worker.h"
+#include "devtools_base/logging.h"
 
 namespace hippy::devtools {
 inline namespace runner {
 std::atomic<int32_t> global_task_runner_id{0};
 
 TaskRunner::TaskRunner(bool is_excl, int32_t priority, const std::string& name)
-    : is_terminated_(false),
+    : cv_(nullptr),
+      is_terminated_(false),
       is_excl_(is_excl),
       name_(name),
       has_sub_runner_(false),
       priority_(priority),
-      time_(TimeDelta::Zero()),
-      cv_(nullptr) {
+      time_(TimeDelta::Zero()) {
   id_ = global_task_runner_id.fetch_add(1);
 }
 
@@ -68,7 +68,7 @@ void TaskRunner::AddSubTaskRunner(std::shared_ptr<TaskRunner> sub_runner, bool i
     if (is_task_running) {
       worker->SetStackingMode(true);
       while (has_sub_runner_) {
-        BACKEND_LOGW(TDF_BACKEND, "run task begin, has_sub_runner_ = %b",has_sub_runner_);
+        BACKEND_LOGW(TDF_BACKEND, "run task begin, has_sub_runner_ = %b", has_sub_runner_);
         worker->RunTask();
         BACKEND_LOGW(TDF_BACKEND, "run task end");
       }

@@ -115,7 +115,7 @@ const char *socket_addr_to_string(struct sockaddr *addr,
     return NULL;
   }
 
-  if (inet_ntop(addr->sa_family, addrdata, addr_out, addr_out_size)) {
+  if (inet_ntop(addr->sa_family, addrdata, addr_out, static_cast<socklen_t>(addr_out_size))) {
     return addr_out;
   }
 #endif
@@ -377,7 +377,7 @@ int socket_connect_addr(struct sockaddr *addr, uint16_t port) {
 #endif
 
   do {
-    if (connect(sfd, addr, addrlen) != -1) {
+    if (connect(sfd, addr, static_cast<socklen_t>(addrlen)) != -1) {
       break;
     }
 #ifdef WIN32
@@ -683,7 +683,7 @@ int socket_receive_timeout(int fd, void *data, size_t length, int flags,
     return res;
   }
   // if we get here, there _is_ data available
-  result = recv(fd, data, length, flags);
+  result = static_cast<int>(recv(fd, data, length, flags));
   if (res > 0 && result == 0) {
     // but this is an error condition
     if (verbose >= 3)
@@ -709,5 +709,5 @@ int socket_send(int fd, void *data, size_t length) {
 #ifdef MSG_NOSIGNAL
   flags |= MSG_NOSIGNAL;
 #endif
-  return send(fd, data, length, flags);
+  return static_cast<int>(send(fd, data, length, flags));
 }

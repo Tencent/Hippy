@@ -125,7 +125,7 @@ void CssDomain::SetStyleTexts(const CssEditStyleTextsRequest& request) {
   auto request_call_back_count = edits.size();
   // use id not object to record style data
   style_text_map_[request.GetId()] = style_texts;
-  request_call_back_count_map_[request.GetId()] = request_call_back_count;
+  request_call_back_count_map_[request.GetId()] = static_cast<unsigned int>(request_call_back_count);
 
   for (auto& edit : edits.items()) {
     auto edit_value = edit.value();

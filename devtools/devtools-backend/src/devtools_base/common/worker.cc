@@ -25,8 +25,8 @@
 #include <atomic>
 #include <map>
 
-#include "devtools_base/logging.h"
 #include "devtools_base/common/worker_pool.h"
+#include "devtools_base/logging.h"
 
 namespace hippy::devtools {
 inline namespace runner {
@@ -35,7 +35,7 @@ thread_local int32_t local_worker_id;
 thread_local bool is_task_running = false;
 thread_local std::shared_ptr<TaskRunner> local_runner;
 
-Worker::Worker(const std::string& name) : Thread(name), name_(name), is_terminated_(false), is_stacking_mode_(false) {
+Worker::Worker(const std::string& name) : Thread(name), is_terminated_(false), is_stacking_mode_(false), name_(name) {
   cv_ = std::make_shared<std::condition_variable>();
 }
 
@@ -96,7 +96,7 @@ void Worker::Run() {
 void Worker::Sort() {
   if (!running_groups_.empty()) {
     running_groups_.sort([](const auto& lhs, const auto& rhs) {
-//      TDF_BASE_DCHECK(!lhs.empty() && !rhs.empty());
+      //      TDF_BASE_DCHECK(!lhs.empty() && !rhs.empty());
       int64_t left = lhs[0]->GetPriority() * lhs[0]->GetTime().ToNanoseconds();
       int64_t right = rhs[0]->GetPriority() * rhs[0]->GetTime().ToNanoseconds();
       if (left < right) {
@@ -129,7 +129,7 @@ void Worker::BindGroup(int father_id, std::shared_ptr<TaskRunner> child) {
     }
   }
   if (!has_found) {
-    std::lock_guard<std::mutex> lock(balance_mutex_);
+    std::lock_guard<std::mutex> balance_lock(balance_mutex_);
     for (group_it = pending_groups_.begin(); group_it != pending_groups_.end(); ++group_it) {
       for (auto runner_it = group_it->begin(); runner_it != group_it->end(); ++runner_it) {
         if ((*runner_it)->GetId() == father_id) {
@@ -179,7 +179,7 @@ void Worker::UnBind(std::shared_ptr<TaskRunner> runner) {
     }
   }
   if (!has_found) {
-    std::lock_guard<std::mutex> lock(balance_mutex_);
+    std::lock_guard<std::mutex> balance_lock(balance_mutex_);
     for (auto group_it = pending_groups_.begin(); group_it != pending_groups_.end(); ++group_it) {
       for (auto runner_it = group_it->begin(); runner_it != group_it->end(); ++runner_it) {
         if ((*runner_it)->GetId() == runner->GetId()) {
@@ -303,11 +303,11 @@ int32_t Worker::WorkerKeyCreate(int32_t task_runner_id, std::function<void(void*
     return -1;
   }
   auto array = map_it->second;
-  for (auto i = 0; i < array.size(); ++i) {
+  for (unsigned long i = 0; i < array.size(); ++i) {
     if (!array[i].is_used) {
       array[i].is_used = true;
       array[i].destruct = destruct;
-      return i;
+      return static_cast<int32_t>(i);
     }
   }
   return -1;
@@ -321,11 +321,12 @@ bool Worker::WorkerKeyDelete(int32_t task_runner_id, int32_t key) {
     return false;
   }
   auto array = map_it->second;
-  if (key >= array.size() || !array[key].is_used) {
+  auto unsign_key = static_cast<unsigned long>(key);
+  if (unsign_key >= array.size() || !array[unsign_key].is_used) {
     return false;
   }
-  array[key].is_used = false;
-  array[key].destruct = nullptr;
+  array[unsign_key].is_used = false;
+  array[unsign_key].destruct = nullptr;
   return true;
 }
 
@@ -337,10 +338,11 @@ bool Worker::WorkerSetSpecific(int32_t task_runner_id, int32_t key, void* p) {
     return false;
   }
   auto array = map_it->second;
-  if (key >= array.size()) {
+  auto unsign_key = static_cast<unsigned long>(key);
+  if (unsign_key >= array.size()) {
     return false;
   }
-  array[key] = p;
+  array[unsign_key] = p;
   return true;
 }
 
@@ -352,10 +354,11 @@ void* Worker::WorkerGetSpecific(int32_t task_runner_id, int32_t key) {
     return nullptr;
   }
   auto array = map_it->second;
-  if (key >= array.size()) {
+  auto unsign_key = static_cast<unsigned long>(key);
+  if (unsign_key >= array.size()) {
     return nullptr;
   }
-  return array[key];
+  return array[unsign_key];
 }
 
 void Worker::WorkerDestroySpecific(int32_t task_runner_id) {
@@ -372,7 +375,7 @@ void Worker::WorkerDestroySpecificNoLock(int32_t task_runner_id) {
   }
   auto key_array = key_array_it->second;
   auto specific_array = specific_it->second;
-  for (auto i = 0; i < specific_array.size(); ++i) {
+  for (unsigned long i = 0; i < specific_array.size(); ++i) {
     auto destruct = key_array[i].destruct;
     void* data = specific_array[i];
     if (destruct != nullptr && data != nullptr) {

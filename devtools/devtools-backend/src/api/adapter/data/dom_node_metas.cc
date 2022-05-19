@@ -24,17 +24,8 @@
 
 namespace hippy::devtools {
 constexpr char kNodeType[] = "nodeType";
-constexpr char kId[] = "id";
-constexpr char kBorderLeft[] = "borderLeft";
-constexpr char kBorderTop[] = "borderTop";
-constexpr char kBorderRight[] = "borderRight";
-constexpr char kBorderBottom[] = "borderBottom";
-constexpr char kTotalProps[] = "total_props";
 constexpr char kFlexNodeStyle[] = "flexNodeStyle";
-constexpr char kBounds[] = "bounds";
-constexpr char kChild[] = "child";
 constexpr char kAttributes[] = "attributes";
-constexpr char kStyle[] = "style";
 constexpr char kBgColor[] = "bgColor";
 constexpr char kText[] = "text";
 constexpr char kBase64[] = "base64";
@@ -101,7 +92,7 @@ std::string DomNodeMetas::Serialize() const {
       node_str += child.Serialize();
       node_str += ",";
     }
-    node_str = node_str.substr(0, node_str.length() - 1); // remove last ","
+    node_str = node_str.substr(0, node_str.length() - 1);  // remove last ","
     node_str += "]";
   }
   node_str += "}";

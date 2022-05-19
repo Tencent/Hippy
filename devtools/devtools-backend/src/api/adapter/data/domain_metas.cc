@@ -25,7 +25,6 @@ constexpr char kWidth[] = "width";
 constexpr char kHeight[] = "height";
 constexpr char kRootId[] = "rootId";
 constexpr char kNodeId[] = "nodeId";
-constexpr char kChildren[] = "children";
 constexpr char kChildNodeCount[] = "childNodeCount";
 constexpr char kNodeName[] = "nodeName";
 constexpr char kLocalName[] = "localName";
@@ -104,7 +103,7 @@ std::string DomainMetas::Serialize() const {
       node_str += child.Serialize();
       node_str += ",";
     }
-    node_str = node_str.substr(0, node_str.length() - 1); // remove last ","
+    node_str = node_str.substr(0, node_str.length() - 1);  // remove last ","
     node_str += "]";
   }
   node_str += "}";

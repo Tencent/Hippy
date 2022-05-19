@@ -20,54 +20,43 @@
 
 #include "devtools_base/logging.h"
 #include <chrono>
-#include <sstream>
 #include <list>
+#include <sstream>
 
 #ifdef OS_ANDROID
-#include <android/log.h>
+#  include <android/log.h>
 #else
 
 #endif
 
 namespace hippy::devtools {
-const char *const kBackendLogLevelNames[5] =
-    {"INFO", "DEBUG", "WARNING", "ERROR", "FATAL"};
+const char *const kBackendLogLevelNames[5] = {"INFO", "DEBUG", "WARNING", "ERROR", "FATAL"};
 static std::list<LogCallback> log_callbacks_;
 constexpr char kTdfBackend[] = "TDF-Backend";
 
 const char *GetNameForLogLevel(LogLevel level) {
-  if (level >= DEVTOOLS_LOG_INFO && level <= DEVTOOLS_LOG_FATAL)
-    return kBackendLogLevelNames[level];
+  if (level >= DEVTOOLS_LOG_INFO && level <= DEVTOOLS_LOG_FATAL) return kBackendLogLevelNames[level];
   return "UNKNOWN";
 }
 
 std::string Logger::GetTimeStamp() {
   struct timeval tv;
   time_t nowtime;
-  struct tm nowtm = { 0 };
+  struct tm nowtm = {0};
   // YYYY-MM-DD hh.mm.ss.sss 23 bit, end with \0
   static char szTime[24];
   std::chrono::system_clock::duration duration = std::chrono::system_clock::now().time_since_epoch();
-  std::chrono::seconds sec = duration_cast<std::chrono::seconds>(duration);
+  std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
   nowtime = sec.count();
   localtime_r(&nowtime, &nowtm);
-  snprintf(szTime,
-          sizeof(szTime),
-           "%04d-%02d-%02d %02d.%02d.%02d.%03d",
-          nowtm.tm_year + 1900,
-          nowtm.tm_mon + 1,
-          nowtm.tm_mday,
-          nowtm.tm_hour,
-          nowtm.tm_min,
-          nowtm.tm_sec,
-          (tv.tv_usec / 1000));
+  snprintf(szTime, sizeof(szTime), "%04d-%02d-%02d %02d.%02d.%02d.%03ld", nowtm.tm_year + 1900, nowtm.tm_mon + 1,
+           nowtm.tm_mday, nowtm.tm_hour, nowtm.tm_min, nowtm.tm_sec, (tv.tv_usec / 1000));
   szTime[23] = 0;
   std::string time(szTime);
   return time;
 }
 
-void Logger::Log(LogLevel level, const char *file,
-                 int line, const char *module, const char *format, ...) {
+void Logger::Log(LogLevel level, const char *file, int line, const char *module, const char *format, ...) {
   char log[1024];
   va_list args;
   int len = 0;
@@ -80,7 +69,7 @@ void Logger::Log(LogLevel level, const char *file,
     return;
   }
 
-  std::string message(log, len);
+  std::string message(log, static_cast<unsigned long>(len));
   std::string timestamp = GetTimeStamp();
   std::string level_name = GetNameForLogLevel(level);
   std::string module_name(module);
@@ -88,11 +77,9 @@ void Logger::Log(LogLevel level, const char *file,
   const char *slash = strrchr(file, '/');
   const char *filename = slash ? slash + 1 : file;
   std::ostringstream stream;
-  stream << "[" << module_name << "][" << level_name << "][" << filename << ":"
-         << line << "]" << message << std::endl;
+  stream << "[" << module_name << "][" << level_name << "][" << filename << ":" << line << "]" << message << std::endl;
 #ifdef OS_ANDROID
-  android_LogPriority
-      priority = (level < 0) ? ANDROID_LOG_VERBOSE : ANDROID_LOG_UNKNOWN;
+  android_LogPriority priority = (level < 0) ? ANDROID_LOG_VERBOSE : ANDROID_LOG_UNKNOWN;
   switch (level) {
     case DEVTOOLS_LOG_INFO:
       priority = ANDROID_LOG_INFO;
@@ -136,12 +123,10 @@ void Logger::Log(LogLevel level, const char *file,
   DispatchToCallbacks(logger_model);
 }
 
-void Logger::RegisterCallback(const LogCallback& callback) {
-  log_callbacks_.push_back(callback);
-}
+void Logger::RegisterCallback(const LogCallback &callback) { log_callbacks_.push_back(callback); }
 
-void Logger::DispatchToCallbacks(const LoggerModel& logger_model) {
-  for (auto const& callback : log_callbacks_) {
+void Logger::DispatchToCallbacks(const LoggerModel &logger_model) {
+  for (auto const &callback : log_callbacks_) {
     callback(logger_model);
   }
 }
