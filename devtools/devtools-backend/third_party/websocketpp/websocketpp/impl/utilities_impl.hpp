@@ -34,33 +34,19 @@
 namespace websocketpp {
 namespace utility {
 
-inline std::string to_lower(std::string const & in) {
-    std::string out = in;
-    std::transform(out.begin(),out.end(),out.begin(),::tolower);
-    return out;
-}
-
 inline std::string to_hex(std::string const & input) {
-    std::string output;
-    std::string hex = "0123456789ABCDEF";
-
-    for (size_t i = 0; i < input.size(); i++) {
-        output += hex[(input[i] & 0xF0) >> 4];
-        output += hex[input[i] & 0x0F];
-        output += " ";
-    }
-
-    return output;
+    return to_hex(input.c_str(), input.size());
 }
 
 inline std::string to_hex(uint8_t const * input, size_t length) {
     std::string output;
-    std::string hex = "0123456789ABCDEF";
+    output.reserve(length * 3);
+    char const * hex = "0123456789ABCDEF";
 
     for (size_t i = 0; i < length; i++) {
         output += hex[(input[i] & 0xF0) >> 4];
         output += hex[input[i] & 0x0F];
-        output += " ";
+        output += ' ';
     }
 
     return output;

@@ -220,6 +220,7 @@ void connection<config>::ping(std::string const& payload, lib::error_code& ec) {
     ec = lib::error_code();
 }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template<typename config>
 void connection<config>::ping(std::string const & payload) {
     lib::error_code ec;
@@ -228,6 +229,7 @@ void connection<config>::ping(std::string const & payload) {
         throw exception(ec);
     }
 }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
 template<typename config>
 void connection<config>::handle_pong_timeout(std::string payload,
@@ -291,6 +293,7 @@ void connection<config>::pong(std::string const& payload, lib::error_code& ec) {
     ec = lib::error_code();
 }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template<typename config>
 void connection<config>::pong(std::string const & payload) {
     lib::error_code ec;
@@ -299,6 +302,7 @@ void connection<config>::pong(std::string const & payload) {
         throw exception(ec);
     }
 }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
 template <typename config>
 void connection<config>::close(close::status::value const code,
@@ -322,6 +326,7 @@ void connection<config>::close(close::status::value const code,
     ec = this->send_close_frame(code,tr,false,close::status::terminal(code));
 }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template<typename config>
 void connection<config>::close(close::status::value const code,
     std::string const & reason)
@@ -332,6 +337,7 @@ void connection<config>::close(close::status::value const code,
         throw exception(ec);
     }
 }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
 /// Trigger the on_interrupt handler
 /**
@@ -474,6 +480,7 @@ void connection<config>::add_subprotocol(std::string const & value,
     m_requested_subprotocols.push_back(value);
 }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template <typename config>
 void connection<config>::add_subprotocol(std::string const & value) {
     lib::error_code ec;
@@ -482,6 +489,7 @@ void connection<config>::add_subprotocol(std::string const & value) {
         throw exception(ec);
     }
 }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
 
 template <typename config>
@@ -510,8 +518,10 @@ void connection<config>::select_subprotocol(std::string const & value,
     }
 
     m_subprotocol = value;
+    ec = lib::error_code();
 }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template <typename config>
 void connection<config>::select_subprotocol(std::string const & value) {
     lib::error_code ec;
@@ -520,6 +530,7 @@ void connection<config>::select_subprotocol(std::string const & value) {
         throw exception(ec);
     }
 }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
 
 template <typename config>
@@ -540,111 +551,202 @@ connection<config>::get_response_header(std::string const & key) const {
     return m_response.get_header(key);
 }
 
-// TODO: EXCEPTION_FREE
+template <typename config>
+void connection<config>::set_status(http::status_code::value code,
+    lib::error_code & ec)
+{
+    if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
+        ec = error::make_error_code(error::invalid_state);
+        return;
+    }
+    ec = m_response.set_status(code);
+}
+
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template <typename config>
 void connection<config>::set_status(http::status_code::value code)
 {
-    if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
-        throw exception("Call to set_status from invalid state",
-                      error::make_error_code(error::invalid_state));
+    lib::error_code ec;
+    this->set_status(code, ec);
+    if (ec) {
+        throw exception("Call to set_status from invalid state", ec);
     }
-    m_response.set_status(code);
+}
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
+
+template <typename config>
+void connection<config>::set_status(http::status_code::value code,
+    std::string const & msg, lib::error_code & ec)
+{
+    if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
+        ec = error::make_error_code(error::invalid_state);
+        return;
+    }
+
+    ec = m_response.set_status(code,msg);
 }
 
-// TODO: EXCEPTION_FREE
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template <typename config>
 void connection<config>::set_status(http::status_code::value code,
     std::string const & msg)
 {
+    lib::error_code ec;
+    this->set_status(code, msg);
+    if (ec) {
+        throw exception("Call to set_status from invalid state", ec);
+    }
+}
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
+
+template <typename config>
+void connection<config>::set_body(std::string const & value,
+    lib::error_code & ec)
+{
     if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
-        throw exception("Call to set_status from invalid state",
-                      error::make_error_code(error::invalid_state));
+        ec = error::make_error_code(error::invalid_state);
+        return;
     }
 
-    m_response.set_status(code,msg);
+    ec = m_response.set_body(value);
 }
 
-// TODO: EXCEPTION_FREE
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template <typename config>
 void connection<config>::set_body(std::string const & value) {
+    lib::error_code ec;
+    this->set_body(value, ec);
+    if (ec) {
+        throw exception("Call to set_body from invalid state", ec);
+    }
+}
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
+
+#ifdef _WEBSOCKETPP_MOVE_SEMANTICS_
+template <typename config>
+void connection<config>::set_body(std::string && value,
+    lib::error_code & ec)
+{
     if (m_internal_state != istate::PROCESS_HTTP_REQUEST) {
-        throw exception("Call to set_status from invalid state",
-                      error::make_error_code(error::invalid_state));
+        ec = error::make_error_code(error::invalid_state);
+        return;
     }
 
-    m_response.set_body(value);
+    ec = m_response.set_body(std::move(value));
 }
 
-// TODO: EXCEPTION_FREE
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
+template <typename config>
+void connection<config>::set_body(std::string && value) {
+    lib::error_code ec;
+    this->set_body(std::move(value), ec);
+    if (ec) {
+        throw exception("Call to set_body from invalid state", ec);
+    }
+}
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
+#endif // _WEBSOCKETPP_MOVE_SEMANTICS_
+
+template <typename config>
+void connection<config>::append_header(std::string const & key,
+    std::string const & val, lib::error_code & ec)
+{
+    if (m_is_server) {
+        if (m_internal_state == istate::PROCESS_HTTP_REQUEST) {
+            // we are setting response headers for an incoming server connection
+            ec = m_response.append_header(key, val);
+        } else {
+            ec = error::make_error_code(error::invalid_state);
+        }
+    } else {
+        if (m_internal_state == istate::USER_INIT) {
+            // we are setting initial headers for an outgoing client connection
+            ec = m_request.append_header(key, val);
+        } else {
+            ec = error::make_error_code(error::invalid_state);
+        }
+    }
+}
+
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template <typename config>
 void connection<config>::append_header(std::string const & key,
     std::string const & val)
 {
+    lib::error_code ec;
+    this->append_header(key, val, ec);
+    if (ec) {
+        throw exception("Call to append_header from invalid state", ec);
+    }
+}
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
+
+template <typename config>
+void connection<config>::replace_header(std::string const & key,
+    std::string const & val, lib::error_code & ec)
+{
     if (m_is_server) {
         if (m_internal_state == istate::PROCESS_HTTP_REQUEST) {
             // we are setting response headers for an incoming server connection
-            m_response.append_header(key,val);
+            ec = m_response.replace_header(key, val);
         } else {
-            throw exception("Call to append_header from invalid state",
-                      error::make_error_code(error::invalid_state));
+            ec = error::make_error_code(error::invalid_state);
         }
     } else {
         if (m_internal_state == istate::USER_INIT) {
             // we are setting initial headers for an outgoing client connection
-            m_request.append_header(key,val);
+            ec = m_request.replace_header(key, val);
         } else {
-            throw exception("Call to append_header from invalid state",
-                      error::make_error_code(error::invalid_state));
+            ec = error::make_error_code(error::invalid_state);
         }
     }
 }
 
-// TODO: EXCEPTION_FREE
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template <typename config>
 void connection<config>::replace_header(std::string const & key,
     std::string const & val)
 {
-    if (m_is_server) {
-        if (m_internal_state == istate::PROCESS_HTTP_REQUEST) {
-            // we are setting response headers for an incoming server connection
-            m_response.replace_header(key,val);
-        } else {
-            throw exception("Call to replace_header from invalid state",
-                        error::make_error_code(error::invalid_state));
-        }
-    } else {
-        if (m_internal_state == istate::USER_INIT) {
-            // we are setting initial headers for an outgoing client connection
-            m_request.replace_header(key,val);
-        } else {
-            throw exception("Call to replace_header from invalid state",
-                        error::make_error_code(error::invalid_state));
-        }
+    lib::error_code ec;
+    this->replace_header(key, val, ec);
+    if (ec) {
+        throw exception("Call to replace_header from invalid state", ec);
     }
 }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
-// TODO: EXCEPTION_FREE
 template <typename config>
-void connection<config>::remove_header(std::string const & key)
+void connection<config>::remove_header(std::string const & key,
+    lib::error_code & ec)
 {
     if (m_is_server) {
         if (m_internal_state == istate::PROCESS_HTTP_REQUEST) {
             // we are setting response headers for an incoming server connection
-            m_response.remove_header(key);
+            ec = m_response.remove_header(key);
         } else {
-            throw exception("Call to remove_header from invalid state",
-                        error::make_error_code(error::invalid_state));
+            ec = error::make_error_code(error::invalid_state);
         }
     } else {
         if (m_internal_state == istate::USER_INIT) {
             // we are setting initial headers for an outgoing client connection
-            m_request.remove_header(key);
+            ec = m_request.remove_header(key);
         } else {
-            throw exception("Call to remove_header from invalid state",
-                        error::make_error_code(error::invalid_state));
+            ec = error::make_error_code(error::invalid_state);
         }
     }
 }
+
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
+template <typename config>
+void connection<config>::remove_header(std::string const & key)
+{
+    lib::error_code ec;
+    this->remove_header(key, ec);
+    if (ec) {
+        throw exception("Call to remove_header from invalid state", ec);
+    }
+}
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
 /// Defer HTTP Response until later
 /**
@@ -698,6 +800,7 @@ void connection<config>::send_http_response(lib::error_code & ec) {
     ec = lib::error_code();
 }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
 template <typename config>
 void connection<config>::send_http_response() {
     lib::error_code ec;
@@ -706,6 +809,7 @@ void connection<config>::send_http_response() {
         throw exception(ec);
     }
 }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
 
 
@@ -848,12 +952,14 @@ void connection<config>::handle_read_handshake(lib::error_code const & ec,
     }
 
     size_t bytes_processed = 0;
-    try {
-        bytes_processed = m_request.consume(m_buf,bytes_transferred);
-    } catch (http::exception &e) {
-        // All HTTP exceptions will result in this request failing and an error
+    lib::error_code consume_ec;
+
+    bytes_processed = m_request.consume(m_buf, bytes_transferred, consume_ec);
+    if (consume_ec) {
+        // All HTTP errors will result in this request failing and an error
         // response being returned. No more bytes will be read in this con.
-        m_response.set_status(e.m_error_code,e.m_error_msg);
+        m_response.set_status(http::error::get_status_code(http::error::value(consume_ec.value())));
+        log_err(log::elevel::fatal,"Fatal error reading request: ",consume_ec);
         this->write_http_response_error(error::make_error_code(error::http_parse_error));
         return;
     }
@@ -925,6 +1031,15 @@ void connection<config>::handle_read_handshake(lib::error_code const & ec,
             this->write_http_response(handshake_ec);
         }
     } else {
+        // The HTTP parser reported that it was not ready and wants more data.
+        // Assert that it actually consumed all the data present before overwriting
+        // the buffer. This should always be the case.
+        if (bytes_transferred != bytes_processed) {
+            m_elog->write(log::elevel::fatal,"Assertion Failed: HTTP request parser failed to consume all bytes from a read request.");
+            this->terminate(make_error_code(error::general));
+            return;
+        }
+
         // read at least 1 more byte
         transport_con_type::async_read_at_least(
             1,
@@ -1197,7 +1312,7 @@ lib::error_code connection<config>::process_handshake_request() {
                 return error::make_error_code(error::http_connection_ended);
             }
         } else {
-            set_status(http::status_code::upgrade_required);
+            m_response.set_status(http::status_code::upgrade_required);
             return error::make_error_code(error::upgrade_required);
         }
 
@@ -1302,6 +1417,7 @@ void connection<config>::write_http_response(lib::error_code const & ec) {
     }
 
     if (m_response.get_status_code() == http::status_code::uninitialized) {
+        lib::error_code status_ec;
         m_response.set_status(http::status_code::internal_server_error);
         m_ec = error::make_error_code(error::general);
     } else {
@@ -1583,12 +1699,15 @@ void connection<config>::handle_read_http_response(lib::error_code const & ec,
     }
     
     size_t bytes_processed = 0;
-    // TODO: refactor this to use error codes rather than exceptions
-    try {
-        bytes_processed = m_response.consume(m_buf,bytes_transferred);
-    } catch (http::exception & e) {
-        m_elog->write(log::elevel::rerror,
-            std::string("error in handle_read_http_response: ")+e.what());
+
+    lib::error_code consume_ec;
+
+    bytes_processed = m_response.consume(m_buf, bytes_transferred, consume_ec);
+    if (consume_ec) {
+        // An HTTP error while reading a response doesn't give us many options other than log
+        // and terminate.
+        m_response.set_status(http::error::get_status_code(http::error::value(consume_ec.value())));
+        log_err(log::elevel::rerror,"error in handle_read_http_response: ",consume_ec);
         this->terminate(make_error_code(error::general));
         return;
     }
@@ -1648,6 +1767,15 @@ void connection<config>::handle_read_http_response(lib::error_code const & ec,
 
         this->handle_read_frame(lib::error_code(), m_buf_cursor);
     } else {
+        // The HTTP parser reported that it was not ready and wants more data.
+        // Assert that it actually consumed all the data present before overwriting
+        // the buffer. This should always be the case.
+        if (bytes_transferred != bytes_processed) {
+            m_elog->write(log::elevel::fatal,"Assertion Failed: HTTP response parser failed to consume all bytes from a read request.");
+            this->terminate(make_error_code(error::general));
+            return;
+        }
+
         transport_con_type::async_read_at_least(
             1,
             m_buf,
@@ -1703,6 +1831,12 @@ void connection<config>::terminate(lib::error_code const & ec) {
     // Cancel close handshake timer
     if (m_handshake_timer) {
         m_handshake_timer->cancel();
+        m_handshake_timer.reset();
+    }
+
+    // Cancel ping timer
+    if (m_ping_timer) {
+        m_ping_timer->cancel();
         m_handshake_timer.reset();
     }
 
@@ -1779,13 +1913,18 @@ void connection<config>::handle_terminate(terminate_status tstat,
     // call the termination handler if it exists
     // if it exists it might (but shouldn't) refer to a bad memory location.
     // If it does, we don't care and should catch and ignore it.
+    // todo: there has to be a better way to do this.
     if (m_termination_handler) {
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
         try {
             m_termination_handler(type::get_shared());
         } catch (std::exception const & e) {
             m_elog->write(log::elevel::warn,
                 std::string("termination_handler call failed. Reason was: ")+e.what());
         }
+#else
+        m_termination_handler(type::get_shared());
+#endif
     }
 }
 
@@ -1968,11 +2107,11 @@ void connection<config>::process_control_frame(typename config::message_type::pt
             }
         }
     } else if (op == frame::opcode::PONG) {
-        if (m_pong_handler) {
-            m_pong_handler(m_connection_hdl, msg->get_payload());
-        }
         if (m_ping_timer) {
             m_ping_timer->cancel();
+        }
+        if (m_pong_handler) {
+            m_pong_handler(m_connection_hdl, msg->get_payload());
         }
     } else if (op == frame::opcode::CLOSE) {
         m_alog->write(log::alevel::devel,"got close frame");
@@ -2122,6 +2261,13 @@ lib::error_code connection<config>::send_close_frame(close::status::value code,
     }
 
     m_state = session::state::closing;
+
+    // Cancel any outstanding ping timers. Once we are in state closing the
+    // library no longer processes non-close frames, so any pongs will be
+    // dropped.
+    if (m_ping_timer) {
+        m_ping_timer->cancel();
+    }
 
     if (ack) {
         m_was_clean = true;

@@ -195,10 +195,6 @@ protected:
         }
         m_socket.reset(new socket_type(*service, *m_context));
 
-        if (m_socket_init_handler) {
-            m_socket_init_handler(m_hdl, get_socket());
-        }
-
         m_io_service = service;
         m_strand = strand;
         m_is_server = is_server;
@@ -234,19 +230,33 @@ protected:
     void pre_init(init_handler callback) {
         // TODO: is this the best way to check whether this function is 
         //       available in the version of OpenSSL being used?
-        // TODO: consider case where host is an IP address
 #if OPENSSL_VERSION_NUMBER >= 0x90812f
         if (!m_is_server) {
             // For clients on systems with a suitable OpenSSL version, set the
             // TLS SNI hostname header so connecting to TLS servers using SNI
             // will work.
-            long res = SSL_set_tlsext_host_name(
-                get_socket().native_handle(), m_uri->get_host().c_str());
-            if (!(1 == res)) {
-                callback(socket::make_error_code(socket::error::tls_failed_sni_hostname));
+            std::string const & host = m_uri->get_host();
+            lib::asio::error_code ec_addr;
+            
+            // run the hostname through make_address to check if it is a valid IP literal
+            lib::asio::ip::address addr = lib::asio::ip::make_address(host, ec_addr);
+            
+            // If the parsing as an IP literal fails, proceed to register the hostname
+            // with the TLS handshake via SNI.
+            // The SNI applies only to DNS host names, not for IP addresses
+            // See RFC3546 Section 3.1
+            if (ec_addr) {
+                long res = SSL_set_tlsext_host_name(
+                    get_socket().native_handle(), host.c_str());
+                if (!(1 == res)) {
+                    callback(socket::make_error_code(socket::error::tls_failed_sni_hostname));
+                }
             }
         }
 #endif
+        if (m_socket_init_handler) {
+            m_socket_init_handler(m_hdl, get_socket());
+        }
 
         callback(lib::error_code());
     }

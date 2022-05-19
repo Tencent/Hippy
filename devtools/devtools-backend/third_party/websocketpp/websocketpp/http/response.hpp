@@ -77,21 +77,24 @@ public:
      * the ready flag will be set. Further calls to consume once ready will be
      * ignored.
      *
-     * Consume will throw an http::exception in the case of an error. Typical
-     * error reasons include malformed responses, incomplete responses, and max
-     * header size being reached.
+     * As of 0.9.0, consume will return a status code describing the output of 
+     * the operation. Earlier versions threw an `http::exception`. The status
+     * code will be zero/default constructed on success and non-zero on error.
+     * Typical error reasons include malformed responses, incomplete responses,
+     * and max header size being reached.
      *
-     * @param buf Pointer to byte buffer
-     * @param len Size of byte buffer
+     * @since 0.9.0 Added ec parameter
+     *
+     * @param [in] buf Pointer to byte buffer
+     * @param [in] len Size of byte buffer
+     * @param [out] ec A status code describing the outcome of the operation.
      * @return Number of bytes processed.
      */
-    size_t consume(char const * buf, size_t len);
+    size_t consume(char const * buf, size_t len, lib::error_code & ec);
 
     /// Process bytes in the input buffer (istream version)
     /**
      * Process bytes from istream s. Returns the number of bytes processed. 
-     * Bytes left unprocessed means bytes left over after the final header
-     * delimiters.
      *
      * Consume is a streaming processor. It may be called multiple times on one
      * response and the full headers need not be available before processing can
@@ -99,15 +102,40 @@ public:
      * the ready flag will be set. Further calls to consume once ready will be
      * ignored.
      *
-     * Consume will throw an http::exception in the case of an error. Typical
-     * error reasons include malformed responses, incomplete responses, and max
-     * header size being reached.
+     * As of 0.9.0, consume will return a status code describing the output of 
+     * the operation. Earlier versions threw an `http::exception`. The status
+     * code will be zero/default constructed on success and non-zero on error.
+     * Typical error reasons include malformed responses, incomplete responses,
+     * and max header size being reached.
      *
-     * @param buf Pointer to byte buffer
-     * @param len Size of byte buffer
+     * **WARNING:** If not all the bytes were needed to complete the HTTP
+     * request those bytes will still be removed from the istream and discarded.
+     * If this happens an error `istream_overread` will be returned. This means
+     * that the response read was successful but that some unrelated data was
+     * lost. If you don't care about these bytes you can ignore the error.
+     *
+     * If there is an HTTP processing error and an istream overread in the same
+     * call only the HTTP processing error will be returned. 
+     *
+     * If you might need bytes after the header in the istream you should NOT
+     * use this wrapper and instead read data out of the istream directly and
+     * pass it to consume(char const *, size_t, lib::error_code). This method
+     * allows you to retain overread data.
+     * 
+     * @deprecated 0.9.0 This overload is dangerous in that it can overread the
+     * stream and there isn't a good way to recover bytes lost this way. As of
+     * 0.9.0 an error is raised when this situation happens, but generally, it
+     * would be better for the calling application to read the stream itself and
+     * call consume(char const *, size_t, lib::error_code) instead which provides
+     * a better method of identifying and recovering from overreads.
+     *
+     * @since 0.9.0 Added ec parameter
+     *
+     * @param s pointer to an istream to read from
+     * @param [out] ec A status code describing the outcome of the operation.
      * @return Number of bytes processed.
      */
-    size_t consume(std::istream & s);
+    size_t consume(std::istream & s, lib::error_code & ec);
 
     /// Returns true if the response is ready.
     /**
@@ -132,10 +160,12 @@ public:
      * use set_status(status_code::value,std::string) overload to set both
      * values explicitly.
      *
+     * @since 0.9.0 Added return value
+     *
      * @param code Code to set
-     * @param msg Message to set
+     * @return A status code describing the outcome of the operation.
      */
-    void set_status(status_code::value code);
+    lib::error_code set_status(status_code::value code);
 
     /// Set response status code and message
     /**
@@ -143,10 +173,13 @@ public:
      * use set_status(status_code::value) to set the code and have the standard
      * message be automatically set.
      *
+     * @since 0.9.0 Added return value
+     *
      * @param code Code to set
      * @param msg Message to set
+     * @return A status code describing the outcome of the operation.
      */
-    void set_status(status_code::value code, std::string const & msg);
+    lib::error_code set_status(status_code::value code, std::string const & msg);
 
     /// Return the response status code
     status_code::value get_status_code() const {
@@ -159,10 +192,10 @@ public:
     }
 private:
     /// Helper function for consume. Process response line
-    void process(std::string::iterator begin, std::string::iterator end);
+    lib::error_code process(std::string::iterator begin, std::string::iterator end);
 
     /// Helper function for processing body bytes
-    size_t process_body(char const * buf, size_t len);
+    size_t process_body(char const * buf, size_t len, lib::error_code & ec);
 
     enum state {
         RESPONSE_LINE = 0,

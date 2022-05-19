@@ -38,11 +38,16 @@ namespace websocketpp {
 namespace http {
 namespace parser {
 
-inline void parser::set_version(std::string const & version) {
+inline lib::error_code parser::set_version(std::string const & version) {
+    // todo: validation?
     m_version = version;
+
+    return lib::error_code();
 }
 
 inline std::string const & parser::get_header(std::string const & key) const {
+    // This find is case insensitive due to the case insensitive comparator
+    // templated into header_list.
     header_list::const_iterator h = m_headers.find(key);
 
     if (h == m_headers.end()) {
@@ -64,11 +69,11 @@ inline bool parser::get_header_as_plist(std::string const & key,
     return this->parse_parameter_list(it->second,out);
 }
 
-inline void parser::append_header(std::string const & key, std::string const &
+inline lib::error_code parser::append_header(std::string const & key, std::string const &
     val)
 {
     if (std::find_if(key.begin(),key.end(),is_not_token_char) != key.end()) {
-        throw exception("Invalid header name",status_code::bad_request);
+        return error::make_error_code(error::invalid_header_name);
     }
 
     if (this->get_header(key).empty()) {
@@ -76,32 +81,51 @@ inline void parser::append_header(std::string const & key, std::string const &
     } else {
         m_headers[key] += ", " + val;
     }
+    return lib::error_code();
 }
 
-inline void parser::replace_header(std::string const & key, std::string const &
+inline lib::error_code parser::replace_header(std::string const & key, std::string const &
     val)
 {
-    m_headers[key] = val;
-}
-
-inline void parser::remove_header(std::string const & key) {
-    m_headers.erase(key);
-}
-
-inline void parser::set_body(std::string const & value) {
-    if (value.size() == 0) {
-        remove_header("Content-Length");
-        m_body.clear();
-        return;
+    if (std::find_if(key.begin(),key.end(),is_not_token_char) != key.end()) {
+        return error::make_error_code(error::invalid_header_name);
     }
 
-    // TODO: should this method respect the max size? If so how should errors
-    // be indicated?
+    m_headers[key] = val;
+    return lib::error_code();
+}
+
+inline lib::error_code parser::remove_header(std::string const & key)
+{
+    if (std::find_if(key.begin(),key.end(),is_not_token_char) != key.end()) {
+        return error::make_error_code(error::invalid_header_name);
+    }
+
+    m_headers.erase(key);
+    return lib::error_code();
+}
+
+inline lib::error_code parser::set_body(std::string const & value) {
+    lib::error_code ec;
+    if (value.size() == 0) {
+        ec = remove_header("Content-Length");
+        if (ec) { return ec; }
+
+        m_body.clear();
+        return lib::error_code();
+    }
+
+    if (value.size() > m_body_bytes_max) {
+        return error::make_error_code(error::body_too_large);
+    }
 
     std::stringstream len;
     len << value.size();
-    replace_header("Content-Length", len.str());
+    ec = replace_header("Content-Length", len.str());
+    if (ec) { return ec; }
+
     m_body = value;
+    return lib::error_code();
 }
 
 inline bool parser::parse_parameter_list(std::string const & in,
@@ -116,7 +140,7 @@ inline bool parser::parse_parameter_list(std::string const & in,
     return (it == in.begin());
 }
 
-inline bool parser::prepare_body() {
+inline bool parser::prepare_body(lib::error_code & ec) {
     if (!get_header("Content-Length").empty()) {
         std::string const & cl_header = get_header("Content-Length");
         char * end;
@@ -127,38 +151,44 @@ inline bool parser::prepare_body() {
         m_body_bytes_needed = std::strtoul(cl_header.c_str(),&end,10);
         
         if (m_body_bytes_needed > m_body_bytes_max) {
-            throw exception("HTTP message body too large",
-                status_code::request_entity_too_large);
+            ec = error::make_error_code(error::body_too_large);
+            return false;
         }
         
         m_body_encoding = body_encoding::plain;
+        ec = lib::error_code();
         return true;
     } else if (get_header("Transfer-Encoding") == "chunked") {
-        // TODO
+        // ec = error::make_error_code(error::unsupported_transfer_encoding);
+        // TODO: support for chunked transfers? Is that too much HTTP logic?
         //m_body_encoding = body_encoding::chunked;
         return false;
     } else {
+        ec = lib::error_code();
         return false;
     }
 }
 
-inline size_t parser::process_body(char const * buf, size_t len) {
+inline size_t parser::process_body(char const * buf, size_t len,
+    lib::error_code & ec)
+{
     if (m_body_encoding == body_encoding::plain) {
         size_t processed = (std::min)(m_body_bytes_needed,len);
         m_body.append(buf,processed);
         m_body_bytes_needed -= processed;
+        ec = lib::error_code();
         return processed;
     } else if (m_body_encoding == body_encoding::chunked) {
-        // TODO: 
-        throw exception("Unexpected body encoding",
-            status_code::internal_server_error);
+        ec = error::make_error_code(error::unsupported_transfer_encoding);
+        return 0;
+        // TODO: support for chunked transfers?
     } else {
-        throw exception("Unexpected body encoding",
-            status_code::internal_server_error);
+        ec = error::make_error_code(error::unknown_transfer_encoding);
+        return 0;
     }
 }
 
-inline void parser::process_header(std::string::iterator begin,
+inline lib::error_code parser::process_header(std::string::iterator begin,
     std::string::iterator end)
 {
     std::string::iterator cursor = std::search(
@@ -169,11 +199,13 @@ inline void parser::process_header(std::string::iterator begin,
     );
 
     if (cursor == end) {
-        throw exception("Invalid header line",status_code::bad_request);
+        return error::make_error_code(error::body_too_large);
     }
 
-    append_header(strip_lws(std::string(begin,cursor)),
-                  strip_lws(std::string(cursor+sizeof(header_separator)-1,end)));
+    // any error from append header represents our final error status
+    return append_header(
+        strip_lws(std::string(begin,cursor)),
+        strip_lws(std::string(cursor+sizeof(header_separator)-1,end)));
 }
 
 inline header_list const & parser::get_headers() const {

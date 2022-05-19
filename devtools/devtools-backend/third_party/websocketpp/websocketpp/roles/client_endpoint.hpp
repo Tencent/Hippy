@@ -92,10 +92,14 @@ public:
             return connection_ptr();
         }
 
-        connection_ptr con = endpoint_type::create_connection();
+        connection_ptr con = endpoint_type::create_connection(ec);
 
         if (!con) {
-            ec = error::make_error_code(error::con_creation_failed);
+            // if the transport doesn't have a more specific error, set
+            // a generic one.
+            if (!ec) {
+                ec = error::make_error_code(error::con_creation_failed);
+            }
             return con;
         }
 

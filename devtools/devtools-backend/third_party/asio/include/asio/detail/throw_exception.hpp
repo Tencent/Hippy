@@ -41,6 +41,14 @@ void throw_exception(const Exception& e)
 {
   throw e;
 }
+#else
+
+template <typename Exception>
+void throw_exception(const Exception& e)
+{
+    std::cerr << "app throw exception, exception info: " << e.what() << std::endl;
+}
+
 # endif // !defined(ASIO_NO_EXCEPTIONS)
 
 #endif // defined(ASIO_HAS_BOOST_THROW_EXCEPTION)

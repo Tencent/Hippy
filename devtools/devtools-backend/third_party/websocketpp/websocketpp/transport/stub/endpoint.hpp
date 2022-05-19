@@ -89,6 +89,14 @@ public:
     bool is_secure() const {
         return false;
     }
+
+    /// Tests whether or not the transport is currently listening for new connections
+    /**
+     * Server roles only 
+     */
+    bool is_listening() const {
+        return false;
+    }
 protected:
     /// Initialize logging
     /**
@@ -103,7 +111,7 @@ protected:
      * @param a A pointer to the access logger to use.
      * @param e A pointer to the error logger to use.
      */
-    void init_logging(alog_type * a, elog_type * e) {}
+    void init_logging(lib::shared_ptr<alog_type>, lib::shared_ptr<elog_type>) {}
 
     /// Initiate a new connection
     /**
@@ -114,6 +122,14 @@ protected:
      */
     void async_connect(transport_con_ptr tcon, uri_ptr u, connect_handler cb) {
         cb(make_error_code(error::not_implemented));
+    }
+
+    /// Accept a new connection
+    /**
+     * Server roles only
+     */
+    void async_accept(transport_con_ptr tcon, accept_handler cb, std::error_code & ec) {
+        ec = make_error_code(error::not_implemented);
     }
 
     /// Initialize a connection

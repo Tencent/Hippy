@@ -88,9 +88,11 @@
     #endif
     
     #ifndef __GNUC__
-        // GCC as of version 4.9 (latest) does not support std::put_time yet.
+        // GCC as of version 4.9 does not support std::put_time yet.
         // so ignore it
         #define _WEBSOCKETPP_PUTTIME_
+
+        // todo: std::put_time may be present in version 5+
     #endif
 #else
     // In the absence of a blanket define, try to use compiler versions or

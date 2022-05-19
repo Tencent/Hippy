@@ -82,7 +82,7 @@ typedef lib::function<void(connection_hdl)> fail_handler;
 /**
  * The interrupt handler is called when a connection receives an interrupt
  * request from the application. Interrupts allow the application to trigger a
- * handler to be run in the absense of a WebSocket level handler trigger (like
+ * handler to be run in the absence of a WebSocket level handler trigger (like
  * a new message).
  *
  * This is typically used by another application thread to schedule some tasks
@@ -687,22 +687,22 @@ public:
      */
     lib::error_code send(message_ptr msg);
 
-    /// Asyncronously invoke handler::on_inturrupt
+    /// Asynchronously invoke handler::on_interrupt
     /**
-     * Signals to the connection to asyncronously invoke the on_inturrupt
+     * Signals to the connection to asynchronously invoke the on_interrupt
      * callback for this connection's handler once it is safe to do so.
      *
-     * When the on_inturrupt handler callback is called it will be from
+     * When the on_interrupt handler callback is called it will be from
      * within the transport event loop with all the thread safety features
      * guaranteed by the transport to regular handlers
      *
-     * Multiple inturrupt signals can be active at once on the same connection
+     * Multiple interrupt signals can be active at once on the same connection
      *
      * @return An error code
      */
     lib::error_code interrupt();
     
-    /// Transport inturrupt callback
+    /// Transport interrupt callback
     void handle_interrupt();
     
     /// Pause reading of new data
@@ -865,7 +865,7 @@ public:
     // Subprotocol negotiation //
     /////////////////////////////
 
-    /// Gets the negotated subprotocol
+    /// Gets the negotiated subprotocol
     /**
      * Retrieves the subprotocol that was negotiated during the handshake. This
      * method is valid in the open handler and later.
@@ -888,26 +888,25 @@ public:
      * Adds a subprotocol to the list to send with the opening handshake. This
      * may be called multiple times to request more than one. If the server
      * supports one of these, it may choose one. If so, it will return it
-     * in it's handshake reponse and the value will be available via
+     * in it's handshake response and the value will be available via
      * get_subprotocol(). Subprotocol requests should be added in order of
      * preference.
      *
-     * @param request The subprotocol to request
-     * @param ec A reference to an error code that will be filled in the case of
-     * errors
+     * @param[in] request The subprotocol to request
+     * @param[out] ec A status code describing the outcome of the operation
      */
     void add_subprotocol(std::string const & request, lib::error_code & ec);
 
-    /// Adds the given subprotocol string to the request list
+    /// Adds the given subprotocol string to the request list (exception)
     /**
      * Adds a subprotocol to the list to send with the opening handshake. This
      * may be called multiple times to request more than one. If the server
      * supports one of these, it may choose one. If so, it will return it
-     * in it's handshake reponse and the value will be available via
+     * in it's handshake response and the value will be available via
      * get_subprotocol(). Subprotocol requests should be added in order of
      * preference.
      *
-     * @param request The subprotocol to request
+     * @param[in] request The subprotocol to request
      */
     void add_subprotocol(std::string const & request);
 
@@ -920,13 +919,12 @@ public:
      *
      * This member function is valid on server endpoints/connections only
      *
-     * @param value The subprotocol to select
-     * @param ec A reference to an error code that will be filled in the case of
-     * errors
+     * @param[in] value The subprotocol to select
+     * @param[out] ec A status code describing the outcome of the operation
      */
     void select_subprotocol(std::string const & value, lib::error_code & ec);
 
-    /// Select a subprotocol to use
+    /// Select a subprotocol to use (exception)
     /**
      * Indicates which subprotocol should be used for this connection. Valid
      * only during the validate handler callback. Subprotocol selected must have
@@ -935,7 +933,7 @@ public:
      *
      * This member function is valid on server endpoints/connections only
      *
-     * @param value The subprotocol to select
+     * @param[in] value The subprotocol to select
      */
     void select_subprotocol(std::string const & value);
 
@@ -947,7 +945,7 @@ public:
     /**
      * Retrieve the value of a header from the handshake HTTP request.
      *
-     * @param key Name of the header to get
+     * @param[in] key Name of the header to get
      * @return The value of the header
      */
     std::string const & get_request_header(std::string const & key) const;
@@ -967,7 +965,7 @@ public:
     /**
      * Retrieve the value of a header from the handshake HTTP request.
      *
-     * @param key Name of the header to get
+     * @param[in] key Name of the header to get
      * @return The value of the header
      */
     std::string const & get_response_header(std::string const & key) const;
@@ -996,7 +994,7 @@ public:
         return m_response.get_status_msg();
     }
     
-    /// Set response status code and message
+    /// Set response status code and message (exception free)
     /**
      * Sets the response status code to `code` and looks up the corresponding
      * message for standard codes. Non-standard codes will be entered as Unknown
@@ -1006,13 +1004,18 @@ public:
      * This member function is valid only from the http() and validate() handler
      * callbacks.
      *
-     * @param code Code to set
-     * @param msg Message to set
-     * @see websocketpp::http::response::set_status
+     * @since 0.9.0
+     * 
+     * @param[in] code Code to set
+     * @param[in] msg Message to set
+     * @param[out] ec A status code describing the outcome of the operation
+     * @see websocketpp::http::parser::response::set_status
+     * @see websocketpp::http::status_code::value (list of valid codes)
      */
-    void set_status(http::status_code::value code);
+    void set_status(http::status_code::value code, lib::error_code & ec);
 
-    /// Set response status code and message
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
+    /// Set response status code and message (exception)
     /**
      * Sets the response status code and message to independent custom values.
      * use set_status(status_code::value) to set the code and have the standard
@@ -1021,13 +1024,53 @@ public:
      * This member function is valid only from the http() and validate() handler
      * callbacks.
      *
-     * @param code Code to set
-     * @param msg Message to set
-     * @see websocketpp::http::response::set_status
+     * @param[in] code Code to set
+     * @param[in] msg Message to set
+     * @throw websocketpp::exception
+     * @see websocketpp::http::parser::response::set_status()
+     * @see websocketpp::http::status_code::value (list of valid codes)
+     */
+    void set_status(http::status_code::value code);
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
+
+    /// Set response status code and message (exception free)
+    /**
+     * Sets the response status code and message to independent custom values.
+     * use set_status(status_code::value) to set the code and have the standard
+     * message be automatically set.
+     *
+     * This member function is valid only from the http() and validate() handler
+     * callbacks.
+     *
+     * @since 0.9.0
+     * 
+     * @param[in] code Code to set
+     * @param[in] msg Message to set
+     * @param[out] ec A status code describing the outcome of the operation
+     * @see websocketpp::http::response::set_status()
+     * @see websocketpp::http::status_code::value (list of valid codes)
+     */
+    void set_status(http::status_code::value code, std::string const & msg,
+        lib::error_code & ec);
+
+    /// Set response status code and message (exception)
+    /**
+     * Sets the response status code and message to independent custom values.
+     * use set_status(status_code::value) to set the code and have the standard
+     * message be automatically set.
+     *
+     * This member function is valid only from the http() and validate() handler
+     * callbacks.
+     *
+     * @param[in] code Code to set
+     * @param[in] msg Message to set
+     * @throw websocketpp::exception
+     * @see websocketpp::http::parser::response::set_status()
+     * @see websocketpp::http::status_code::value (list of valid codes)
      */
     void set_status(http::status_code::value code, std::string const & msg);
 
-    /// Set response body content
+    /// Set response body content (exception free)
     /**
      * Set the body content of the HTTP response to the parameter string. Note
      * set_body will also set the Content-Length HTTP header to the appropriate
@@ -1037,51 +1080,159 @@ public:
      * This member function is valid only from the http() and validate() handler
      * callbacks.
      *
-     * @param value String data to include as the body content.
+     * @since 0.9.0
+     *
+     * @param[in] value String data to include as the body content.
+     * @param[out] ec A status code describing the outcome of the operation
      * @see websocketpp::http::response::set_body
+     * @see set_body(std::string const &) (exception version)
      */
-    void set_body(std::string const & value);
+    void set_body(std::string const & value, lib::error_code & ec);
 
-    /// Append a header
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
+    /// Set response body content (exception)
     /**
-     * If a header with this name already exists the value will be appended to
-     * the existing header to form a comma separated list of values. Use
-     * `connection::replace_header` to overwrite existing values.
+     * Set the body content of the HTTP response to the parameter string. Note
+     * set_body will also set the Content-Length HTTP header to the appropriate
+     * value. If you want the Content-Length header to be something else set it
+     * to something else after calling set_body
      *
      * This member function is valid only from the http() and validate() handler
-     * callbacks, or to a client connection before connect has been called.
+     * callbacks.
      *
-     * @param key Name of the header to set
-     * @param val Value to add
-     * @see replace_header
-     * @see websocketpp::http::parser::append_header
+     * @param[in] value String data to include as the body content.
+     * @throw websocketpp::exception
+     * @see websocketpp::http::response::set_body
+     * @see set_body(std::string const &, lib::error_code &)
+     *      (exception free version)
+     */
+    void set_body(std::string const & value);
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
+
+#ifdef _WEBSOCKETPP_MOVE_SEMANTICS_
+    /// @copydoc websocketpp::connection::set_body(std::string const &, lib::error_code &)
+    void set_body(std::string && value, lib::error_code & ec);
+
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
+    /// @copydoc websocketpp::connection::set_body(std::string const &)
+    void set_body(std::string && value);
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
+#endif // _WEBSOCKETPP_MOVE_SEMANTICS_
+
+    /// Append a header (exception free)
+    /**
+     * Set the value of a header in the handshake HTTP request or response. If
+     * a header with this name already exists the value will be appended to the
+     * existing header to form a comma separated list of values. Use
+     * `connection::replace_header` to overwrite existing values.
+     *
+     * *When can this member function be called?*
+     *  - Servers: Valid from the http and validate handlers
+     *  - Clients: Valid before websocketpp::client::connect() has been called
+     *
+     * @since 0.9.0
+     *
+     * @param[in] key Name of the header to set
+     * @param[in] val Value to add
+     * @param[out] ec A status code describing the outcome of the operation
+     * @see connection::replace_header
+     * @see websocketpp::http::parser::parser::append_header
+     * @see append_header(std::string const &, std::string const &)
+     *      (exception version)
+     */
+    void append_header(std::string const & key, std::string const & val,
+        lib::error_code & ec);
+
+    /// Append a header (exception)
+    /**
+     * Set the value of a header in the handshake HTTP request or response. If
+     * a header with this name already exists the value will be appended to the
+     * existing header to form a comma separated list of values. Use
+     * `connection::replace_header` to overwrite existing values.
+     *
+     * *When can this member function be called?*
+     *  - Servers: Valid from the http and validate handlers
+     *  - Clients: Valid before websocketpp::client::connect() has been called
+     *
+     * @param[in] key Name of the header to set
+     * @param[in] val Value to add
+     * @throw websocketpp::exception
+     * @see connection::replace_header
+     * @see websocketpp::http::parser::parser::append_header
+     * @see append_header(std::string const &, std::string const &,
+     *      lib::error_code &) (exception free version)
      */
     void append_header(std::string const & key, std::string const & val);
 
-    /// Replace a header
+    /// Replace a header (exception free)
     /**
-     * If a header with this name already exists the old value will be replaced
+     * Set the value of a header in the handshake HTTP request or response. If
+     * a header with this name already exists the old value will be replaced
      * Use `connection::append_header` to append to a list of existing values.
      *
-     * This member function is valid only from the http() and validate() handler
-     * callbacks, or to a client connection before connect has been called.
+     * *When can this member function be called?*
+     *  - Servers: Valid from the http and validate handlers
+     *  - Clients: Valid before websocketpp::client::connect() has been called
      *
-     * @param key Name of the header to set
-     * @param val Value to set
-     * @see append_header
-     * @see websocketpp::http::parser::replace_header
+     * @param[in] key Name of the header to set
+     * @param[in] val Value to set
+     * @param[out] ec A status code describing the outcome of the operation
+     * @see connection::append_header
+     * @see websocketpp::http::parser::parser::replace_header
+     * @see replace_header(std::string const &, std::string const &)
+     *      (exception version)
+     */
+    void replace_header(std::string const & key, std::string const & val,
+        lib::error_code & ec);
+
+    /// Replace a header (exception)
+    /**
+     * Set the value of a header in the handshake HTTP request or response. If
+     * a header with this name already exists the old value will be replaced
+     * Use `connection::append_header` to append to a list of existing values.
+     *
+     * *When can this member function be called?*
+     *  - Servers: Valid from the http and validate handlers
+     *  - Clients: Valid before websocketpp::client::connect() has been called
+     *
+     * @param[in] key Name of the header to set
+     * @param[in] val Value to set
+     * @throw websocketpp::exception
+     * @see connection::append_header
+     * @see websocketpp::http::parser::parser::replace_header
+     * @see replace_header(std::string const & key, std::string const & val,
+     *      lib::error_code & ec) (exception free version)
      */
     void replace_header(std::string const & key, std::string const & val);
 
-    /// Remove a header
+    /// Remove a header (exception free)
     /**
-     * Removes a header from the response.
+     * Removes a header from the handshake HTTP request or response.
      *
-     * This member function is valid only from the http() and validate() handler
-     * callbacks, or to a client connection before connect has been called.
+     * *When can this member function be called?*
+     *  - Servers: Valid from the http and validate handlers
+     *  - Clients: Valid before websocketpp::client::connect() has been called
      *
-     * @param key The name of the header to remove
-     * @see websocketpp::http::parser::remove_header
+     * @param[in] key The name of the header to remove
+     * @param[out] ec A status code describing the outcome of the operation
+     * @see websocketpp::http::parser::parser::remove_header
+     * @see remove_header(std::string const &) (exception version)
+     */
+    void remove_header(std::string const & key, lib::error_code & ec);
+
+    /// Remove a header (exception)
+    /**
+     * Removes a header from the handshake HTTP request or response.
+     *
+     * *When can this member function be called?*
+     *  - Servers: Valid from the http and validate handlers
+     *  - Clients: Valid before websocketpp::client::connect() has been called
+     *
+     * @param[in] key The name of the header to remove
+     * @throw websocketpp::exception
+     * @see websocketpp::http::parser::parser::remove_header
+     * @see remove_header(std::string const &, lib::error_code &) 
+     *      (exception free version)
      */
     void remove_header(std::string const & key);
 
@@ -1125,8 +1276,8 @@ public:
     /// Defer HTTP Response until later (Exception free)
     /**
      * Used in the http handler to defer the HTTP response for this connection
-     * until later. Handshake timers will be canceled and the connection will be
-     * left open until `send_http_response` or an equivalent is called.
+     * until later. Handshake timers will be canceled and the connection will
+     * be left open until `send_http_response` or an equivalent is called.
      *
      * Warning: deferred connections won't time out and as a result can tie up
      * resources.
@@ -1389,7 +1540,7 @@ private:
     /**
      * If no arguments are present no close code/reason will be specified.
      *
-     * Note: the close code/reason values provided here may be overrided by
+     * Note: the close code/reason values provided here may be overridden by
      * other settings (such as silent close).
      *
      * @param code The close code to send
@@ -1403,7 +1554,7 @@ private:
     /**
      * If no arguments are present no close code/reason will be specified.
      *
-     * Note: the close code/reason values provided here may be overrided by
+     * Note: the close code/reason values provided here may be overridden by
      * other settings (such as silent close).
      *
      * The ack flag determines what to do in the case of a blank status and
@@ -1573,7 +1724,7 @@ private:
      */
     size_t m_send_buffer_size;
 
-    /// buffer holding the various parts of the current message being writen
+    /// buffer holding the various parts of the current message being written
     /**
      * Lock m_write_lock
      */

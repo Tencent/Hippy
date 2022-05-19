@@ -72,11 +72,14 @@ public:
      * error reasons include malformed requests, incomplete requests, and max
      * header size being reached.
      *
-     * @param buf Pointer to byte buffer
-     * @param len Size of byte buffer
+     * @since 0.9.0 Added ec parameter
+     * 
+     * @param [in] buf Pointer to byte buffer
+     * @param [in] len Size of byte buffer
+     * @param [out] ec A status code describing the outcome of the operation.
      * @return Number of bytes processed.
      */
-    size_t consume(char const * buf, size_t len);
+    size_t consume(char const * buf, size_t len, lib::error_code & ec);
 
     /// Returns whether or not the request is ready for reading.
     bool ready() const {
@@ -89,16 +92,32 @@ public:
     /// Returns the raw request headers only (similar to an HTTP HEAD request)
     std::string raw_head() const;
 
-    /// Set the HTTP method. Must be a valid HTTP token
-    void set_method(std::string const & method);
+    /// Set the HTTP method.
+    /**
+     * Must be a valid HTTP token
+     *
+     * @since 0.9.0 added return value and removed exception
+     * 
+     * @param [in] method The value to set the method to.
+     * @return A status code describing the outcome of the operation.
+     */
+    lib::error_code set_method(std::string const & method);
 
     /// Return the request method
     std::string const & get_method() const {
         return m_method;
     }
 
-    /// Set the HTTP uri. Must be a valid HTTP uri
-    void set_uri(std::string const & uri);
+    /// Set the HTTP uri.
+    /**
+     * Must be a valid HTTP uri
+     * 
+     * @since 0.9.0 Return value added
+     * 
+     * @param uri The URI to set
+     * @return A status code describing the outcome of the operation.
+     */
+    lib::error_code set_uri(std::string const & uri);
 
     /// Return the requested URI
     std::string const & get_uri() const {
@@ -107,7 +126,14 @@ public:
 
 private:
     /// Helper function for message::consume. Process request line
-    void process(std::string::iterator begin, std::string::iterator end);
+    /**
+     * @since 0.9.0 (ec parameter added, exceptions removed)
+     *
+     * @param [in] begin An iterator to the beginning of the sequence.
+     * @param [in] end An iterator to the end of the sequence.
+     * @return A status code describing the outcome of the operation.
+     */
+    lib::error_code process(std::string::iterator begin, std::string::iterator end);
 
     lib::shared_ptr<std::string>    m_buf;
     std::string                     m_method;

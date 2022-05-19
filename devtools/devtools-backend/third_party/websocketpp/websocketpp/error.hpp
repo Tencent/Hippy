@@ -143,7 +143,10 @@ enum value {
     http_parse_error,
     
     /// Extension negotiation failed
-    extension_neg_failed
+    extension_neg_failed,
+
+    /// General transport error, consult more specific transport error code
+    transport_error
 }; // enum value
 
 
@@ -221,6 +224,8 @@ public:
                 return "HTTP parse error";
             case error::extension_neg_failed:
                 return "Extension negotiation failed";
+            case error::transport_error:
+                return "An error occurred in the underlying transport. Consult transport error code for more details.";
             default:
                 return "Unknown";
         }

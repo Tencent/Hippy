@@ -57,11 +57,22 @@ namespace websocketpp {
  * is a pointer to the transport connection component of the connection. When
  * complete, `handler` should be called with the the connection's
  * `connection_hdl` and any error that occurred.
+ * note: optional, client transports only
  *
+ * **async_accept**\n
+ * todo:
+ * note: optional, server transports only
+ * 
  * **init_logging**
  * `void init_logging(const lib::shared_ptr<alog_type>& a, const lib::shared_ptr<elog_type>& e)`\n
  * Called once after construction to provide pointers to the endpoint's access
  * and error loggers. These may be stored and used to log messages or ignored.
+ * 
+ * 
+ * **is_listening**
+ * `bool is_listening()`
+ * Server roles only. Called to determine if the server is listening and that calls to
+ * start_accept / async_accept are valid.
  */
 namespace transport {
 

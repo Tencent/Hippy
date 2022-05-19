@@ -28,6 +28,8 @@
 #ifndef WEBSOCKETPP_ENDPOINT_HPP
 #define WEBSOCKETPP_ENDPOINT_HPP
 
+#include <websocketpp/transport/base/endpoint.hpp>
+
 #include <websocketpp/connection.hpp>
 
 #include <websocketpp/logger/levels.hpp>
@@ -109,7 +111,7 @@ public:
 
 
     /// Destructor
-    ~endpoint<connection,config>() {}
+    ~endpoint() {}
 
     #ifdef _WEBSOCKETPP_DEFAULT_DELETE_FUNCTIONS_
         // no copy constructor because endpoints are not copyable
@@ -476,7 +478,7 @@ public:
      * can produce one additional type of error, the bad_connection error, that
      * indicates that the conversion from connection_hdl to connection_ptr
      * failed due to the connection not existing anymore. Each method has a
-     * default and an exception free varient.
+     * default and an exception free variant.
      */
 
     void interrupt(connection_hdl hdl, lib::error_code & ec);
@@ -566,7 +568,6 @@ public:
      * @param [in] hdl The handle identifying the connection to send via.
      * @param [in] payload The payload string to generated the message with
      * @param [in] op The opcode to generated the message with.
-     * @param [out] ec A code to fill in for errors
      */
     void send(connection_hdl hdl, std::string const & payload,
         frame::opcode::value op);
@@ -649,6 +650,7 @@ public:
         return con;
     }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
     /// Retrieves a connection_ptr from a connection_hdl (exception version)
     connection_ptr get_con_from_hdl(connection_hdl hdl) {
         lib::error_code ec;
@@ -658,8 +660,9 @@ public:
         }
         return con;
     }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 protected:
-    connection_ptr create_connection();
+    connection_ptr create_connection(lib::error_code & ec);
 
     lib::shared_ptr<alog_type> m_alog;
     lib::shared_ptr<elog_type> m_elog;

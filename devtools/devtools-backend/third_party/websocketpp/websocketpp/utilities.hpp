@@ -128,13 +128,6 @@ typename T::const_iterator ci_find_substr(T const & haystack,
         needle, needle+size, my_equal<typename T::value_type>(loc) );
 }
 
-/// Convert a string to lowercase
-/**
- * @param [in] in The string to convert
- * @return The converted string
- */
-std::string to_lower(std::string const & in);
-
 /// Replace all occurrances of a substring with another
 /**
  * @param [in] subject The string to search in

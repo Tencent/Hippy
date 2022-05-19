@@ -201,6 +201,7 @@ public:
         ec = lib::error_code();
     }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
     /// initialize asio transport with external io_service
     /**
      * Initialize the ASIO transport policy for this endpoint using the provided
@@ -214,6 +215,7 @@ public:
         init_asio(ptr,ec);
         if (ec) { throw exception(ec); }
     }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
     /// Initialize asio transport with internal io_service (exception free)
     /**
@@ -239,6 +241,7 @@ public:
         m_external_io_service = false;
     }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
     /// Initialize asio transport with internal io_service
     /**
      * This method of initialization will allocate and use an internally managed
@@ -261,6 +264,7 @@ public:
         service.release();
         m_external_io_service = false;
     }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
     /// Sets the tcp pre bind handler
     /**
@@ -449,20 +453,6 @@ public:
         ec = lib::error_code();
     }
 
-
-
-    /// Set up endpoint for listening manually
-    /**
-     * Bind the internal acceptor using the settings specified by the endpoint e
-     *
-     * @param ep An endpoint to read settings from
-     */
-    void listen(lib::asio::ip::tcp::endpoint const & ep) {
-        lib::error_code ec;
-        listen(ep,ec);
-        if (ec) { throw exception(ec); }
-    }
-
     /// Set up endpoint for listening with protocol and port (exception free)
     /**
      * Bind the internal acceptor using the given internet protocol and port.
@@ -485,26 +475,6 @@ public:
         listen(ep,ec);
     }
 
-    /// Set up endpoint for listening with protocol and port
-    /**
-     * Bind the internal acceptor using the given internet protocol and port.
-     * The endpoint must have been initialized by calling init_asio before
-     * listening.
-     *
-     * Common options include:
-     * - IPv6 with mapped IPv4 for dual stack hosts lib::asio::ip::tcp::v6()
-     * - IPv4 only: lib::asio::ip::tcp::v4()
-     *
-     * @param internet_protocol The internet protocol to use.
-     * @param port The port to listen on.
-     */
-    template <typename InternetProtocol>
-    void listen(InternetProtocol const & internet_protocol, uint16_t port)
-    {
-        lib::asio::ip::tcp::endpoint ep(internet_protocol, port);
-        listen(ep);
-    }
-
     /// Set up endpoint for listening on a port (exception free)
     /**
      * Bind the internal acceptor using the given port. The IPv6 protocol with
@@ -521,22 +491,6 @@ public:
         listen(lib::asio::ip::tcp::v6(), port, ec);
     }
 
-    /// Set up endpoint for listening on a port
-    /**
-     * Bind the internal acceptor using the given port. The IPv6 protocol with
-     * mapped IPv4 for dual stack hosts will be used. If you need IPv4 only use
-     * the overload that allows specifying the protocol explicitly.
-     *
-     * The endpoint must have been initialized by calling init_asio before
-     * listening.
-     *
-     * @param port The port to listen on.
-     * @param ec Set to indicate what error occurred, if any.
-     */
-    void listen(uint16_t port) {
-        listen(lib::asio::ip::tcp::v6(), port);
-    }
-
     /// Set up endpoint for listening on a host and service (exception free)
     /**
      * Bind the internal acceptor using the given host and service. More details
@@ -546,6 +500,13 @@ public:
      *
      * The endpoint must have been initialized by calling init_asio before
      * listening.
+     *
+     * Once listening the underlying io_service will be kept open indefinitely.
+     * Calling endpoint::stop_listening will stop the endpoint from accepting
+     * new connections. See the documentation for stop listening for more details
+     * about shutting down Asio Transport based endpoints.
+     *
+     * @see stop_listening(lib::error_code &)
      *
      * @param host A string identifying a location. May be a descriptive name or
      * a numeric address string.
@@ -570,33 +531,17 @@ public:
         listen(*endpoint_iterator,ec);
     }
 
-    /// Set up endpoint for listening on a host and service
-    /**
-     * Bind the internal acceptor using the given host and service. More details
-     * about what host and service can be are available in the Asio
-     * documentation for ip::basic_resolver_query::basic_resolver_query's
-     * constructors.
-     *
-     * The endpoint must have been initialized by calling init_asio before
-     * listening.
-     *
-     * @param host A string identifying a location. May be a descriptive name or
-     * a numeric address string.
-     * @param service A string identifying the requested service. This may be a
-     * descriptive name or a numeric string corresponding to a port number.
-     * @param ec Set to indicate what error occurred, if any.
-     */
-    void listen(std::string const & host, std::string const & service)
-    {
-        lib::error_code ec;
-        listen(host,service,ec);
-        if (ec) { throw exception(ec); }
-    }
-
     /// Stop listening (exception free)
     /**
-     * Stop listening and accepting new connections. This will not end any
-     * existing connections.
+     * Stop listening and accepting new connections.
+     *
+     * If the endpoint needs to shut down fully (i.e. close all connections)
+     * this member function is necessary but not sufficient. In addition to
+     * stopping listening, individual connections will need to be ended via 
+     * their respective connection::close.
+     *
+     * For more details on clean closing, please refer to @ref clean_close
+     * "Cleanly closing Asio Transport based endpoints"
      *
      * @since 0.3.0-alpha4
      * @param ec A status code indicating an error, if any.
@@ -615,6 +560,87 @@ public:
         ec = lib::error_code();
     }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
+    // if exceptions are avaliable, define listen overloads that use them
+
+    /// Set up endpoint for listening manually
+    /**
+     * Bind the internal acceptor using the settings specified by the endpoint e
+     *
+     * @param ep An endpoint to read settings from
+     */
+    void listen(lib::asio::ip::tcp::endpoint const & ep) {
+        lib::error_code ec;
+        listen(ep,ec);
+        if (ec) { throw exception(ec); }
+    }
+
+    /// Set up endpoint for listening with protocol and port
+    /**
+     * Bind the internal acceptor using the given internet protocol and port.
+     * The endpoint must have been initialized by calling init_asio before
+     * listening.
+     *
+     * Common options include:
+     * - IPv6 with mapped IPv4 for dual stack hosts lib::asio::ip::tcp::v6()
+     * - IPv4 only: lib::asio::ip::tcp::v4()
+     *
+     * @param internet_protocol The internet protocol to use.
+     * @param port The port to listen on.
+     */
+    template <typename InternetProtocol>
+    void listen(InternetProtocol const & internet_protocol, uint16_t port)
+    {
+        lib::asio::ip::tcp::endpoint ep(internet_protocol, port);
+        listen(ep);
+    }
+
+    /// Set up endpoint for listening on a port
+    /**
+     * Bind the internal acceptor using the given port. The IPv6 protocol with
+     * mapped IPv4 for dual stack hosts will be used. If you need IPv4 only use
+     * the overload that allows specifying the protocol explicitly.
+     *
+     * The endpoint must have been initialized by calling init_asio before
+     * listening.
+     *
+     * @param port The port to listen on.
+     * @param ec Set to indicate what error occurred, if any.
+     */
+    void listen(uint16_t port) {
+        listen(lib::asio::ip::tcp::v6(), port);
+    }
+
+    /// Set up endpoint for listening on a host and service
+    /**
+     * Bind the internal acceptor using the given host and service. More 
+     * details about what host and service can be are available in the Asio
+     * documentation for ip::basic_resolver_query::basic_resolver_query's
+     * constructors.
+     *
+     * The endpoint must have been initialized by calling init_asio before
+     * listening.
+     *
+     * Once listening the underlying io_service will be kept open indefinitely.
+     * Calling endpoint::stop_listening will stop the endpoint from accepting
+     * new connections. See the documentation for stop listening for more
+     * details about shutting down Asio Transport based endpoints.
+     *
+     * @see stop_listening()
+     *
+     * @param host A string identifying a location. May be a descriptive name 
+     * or a numeric address string.
+     * @param service A string identifying the requested service. This may be a
+     * descriptive name or a numeric string corresponding to a port number.
+     * @param ec Set to indicate what error occurred, if any.
+     */
+    void listen(std::string const & host, std::string const & service)
+    {
+        lib::error_code ec;
+        listen(host,service,ec);
+        if (ec) { throw exception(ec); }
+    }
+
     /// Stop listening
     /**
      * Stop listening and accepting new connections. This will not end any
@@ -627,6 +653,7 @@ public:
         stop_listening(ec);
         if (ec) { throw exception(ec); }
     }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 
     /// Check if the endpoint is listening
     /**
@@ -799,6 +826,7 @@ public:
         }
     }
 
+#ifndef _WEBSOCKETPP_NO_EXCEPTIONS_
     /// Accept the next connection attempt and assign it to con.
     /**
      * @param tcon The connection to accept into.
@@ -809,6 +837,7 @@ public:
         async_accept(tcon,callback,ec);
         if (ec) { throw exception(ec); }
     }
+#endif // _WEBSOCKETPP_NO_EXCEPTIONS_
 protected:
     /// Initialize logging
     /**
