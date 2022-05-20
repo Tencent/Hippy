@@ -4,7 +4,7 @@ project("dom")
 set(LAYOUT_ENGINE "Taitank")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPATH)
-get_filename_component(CORE_DIR "${PROJECT_ROOT_DIR}/framework/js/core/" REALPATH)
+get_filename_component(CORE_DIR "${PROJECT_ROOT_DIR}/driver/js/core/" REALPATH)
 get_filename_component(THIRD_DIR "${PROJECT_ROOT_DIR}/third_party/" REALPATH)
 
 message("LAYOUT_ENGINE:" ${LAYOUT_ENGINE})
