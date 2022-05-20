@@ -3,7 +3,7 @@ name: '[iOS] build iOS native example'
 on:
   pull_request:
     paths:
-      - 'framework/js/ios/**'
+      - 'driver/js/ios/**'
       - 'ios/**'
     branches:
       # Pull request events to main branch
@@ -27,4 +27,4 @@ jobs:
           # https://github.com/actions/virtual-environments/issues/4180
           # Xcode_13 will be selected on October, 18, so we need to set to xcode13 manually before that day.
           sudo xcode-select --switch '/Applications/Xcode_13.0.app/'
-          pushd framework/js/examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd
+          pushd driver/js/examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd

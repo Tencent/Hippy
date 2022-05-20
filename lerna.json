@@ -1,7 +1,7 @@
 {
   "npmClient": "npm",
   "packages": [
-    "framework/js/packages/*"
+    "driver/js/packages/*"
   ],
   "version": "2.2.1"
 }

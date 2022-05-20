@@ -34,21 +34,20 @@
 
 /dom/ @churchill-zhang @ilikethese
 
-/framework/js/core/ @churchill-zhang @zoomchan-cxj
-/framework/js/core/js/ @zoomchan-cxj
+/driver/js/core/ @churchill-zhang @zoomchan-cxj
+/driver/js/core/js/ @zoomchan-cxj
 
-/framework/js/android/ @siguangli @churchill-zhang
-/framework/js/ios/ @ozonelmy @churchill-zhang
-/ios/ @ozonelmy @churchill-zhang
+/driver/js/android/ @siguangli @churchill-zhang
+/driver/js/ios/ @ozonelmy @churchill-zhang
 
-/framework/js/examples/android-demo/ @siguangli
-/framework/js/examples/android-demo/res/ @zoomchan-cxj
-/framework/js/examples/ios-demo/ @ozonelmy
-/framework/js/examples/ios-demo/res/ @zoomchan-cxj
-/framework/js/examples/hippy-react-demo/ @zoomchan-cxj
-/framework/js/examples/hippy-vue-demo/ @zoomchan-cxj
+/driver/js/examples/android-demo/ @siguangli
+/driver/js/examples/android-demo/res/ @zoomchan-cxj
+/driver/js/examples/ios-demo/ @ozonelmy
+/driver/js/examples/ios-demo/res/ @zoomchan-cxj
+/driver/js/examples/hippy-react-demo/ @zoomchan-cxj
+/driver/js/examples/hippy-vue-demo/ @zoomchan-cxj
 
-/framework/js/packages/ @zoomchan-cxj
+/driver/js/packages/ @zoomchan-cxj
 
 /gradle/ @siguangli @medns
 /layout/ @ilikethese

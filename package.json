@@ -14,12 +14,12 @@
     "markdownlint": "markdownlint --config .markdownlintrc.json \"./@(README|README.zh_CN|PUBLISH.zh_CN).md\" \"./docs/**/*.md\"",
     "coverage": "nyc ava",
     "codecov": "cat ./coverage/lcov.info | codecov",
-    "lint": "eslint --fix \"framework/js/packages/**/*.@(js|ts|tsx|vue)\" \"framework/js/examples/hippy-react-demo/**/*.@(js|jsx)\" \"framework/js/examples/hippy-vue-demo/**/*.@(js|vue)\" \"./scripts/**/*.js\" \"framework/js/core/js/**/*.js\"",
-    "clean": "rimraf ./framework/js/packages/*/node_modules ./framework/js/examples/hippy-react-demo/node_modules ./framework/js/examples/hippy-vue-demo/node_modules",
+    "lint": "eslint --fix \"driver/js/packages/**/*.@(js|ts|tsx|vue)\" \"driver/js/examples/hippy-react-demo/**/*.@(js|jsx)\" \"driver/js/examples/hippy-vue-demo/**/*.@(js|vue)\" \"./scripts/**/*.js\" \"driver/js/core/js/**/*.js\"",
+    "clean": "rimraf ./driver/js/packages/*/node_modules ./driver/js/examples/hippy-react-demo/node_modules ./driver/js/examples/hippy-vue-demo/node_modules",
     "init": "npm install && npx lerna bootstrap && npm run build",
     "init:example": "node ./scripts/init-example.js",
     "test": "ava",
-    "watch": "watch \"npm run build\" ./framework/js/packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
+    "watch": "watch \"npm run build\" ./driver/js/packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
     "publish": "npx lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs",
     "prepare": "is-ci || husky install"
@@ -91,10 +91,10 @@
     "core": "node_modules/vue/src/core",
     "shared": "node_modules/vue/src/shared",
     "sfc": "node_modules/vue/src/sfc",
-    "he": "framework/js/packages/hippy-vue/util/entity-decoder",
-    "@vue": "framework/js/packages/hippy-vue/src",
-    "@router": "framework/js/packages/hippy-vue-router/src",
-    "@css-loader": "framework/js/packages/hippy-vue-css-loader/src",
-    "@native-components": "framework/js/packages/hippy-vue-native-components/src"
+    "he": "driver/js/packages/hippy-vue/util/entity-decoder",
+    "@vue": "driver/js/packages/hippy-vue/src",
+    "@router": "driver/js/packages/hippy-vue-router/src",
+    "@css-loader": "driver/js/packages/hippy-vue-css-loader/src",
+    "@native-components": "driver/js/packages/hippy-vue-native-components/src"
   }
 }

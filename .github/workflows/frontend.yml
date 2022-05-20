@@ -3,9 +3,9 @@ name: '[front-end] check js code'
 on:
   pull_request:
     paths:
-      - 'framework/js/packages/**'
-      - 'framework/js/examples/hippy-*-demo/**'
-      - 'framework/js/core/js/**/*.js'
+      - 'driver/js/packages/**'
+      - 'driver/js/examples/hippy-*-demo/**'
+      - 'driver/js/core/js/**/*.js'
       - 'package*.json'
       - 'scripts/**/*.js'
     branches:
