@@ -27,6 +27,7 @@
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
+#include "devtools_base/common/macros.h"
 #include "dom/dom_manager.h"
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
@@ -35,6 +36,8 @@
 #endif
 
 namespace hippy::devtools {
+
+constexpr char kDomTreeUpdated[] = "DomTreeUpdated";
 
 DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;
@@ -59,6 +62,11 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render
 
 void DevtoolsDataSource::Destroy(bool is_reload) {
   devtools_service_->Destroy(is_reload);
+  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  auto root_node = hippy_dom_->root_node.lock();
+  if (dom_manager && root_node) {
+    dom_manager->RemoveEventListener(hippy_dom_->root_node, root_node->GetId(), kDomTreeUpdated, listener_id_);
+  }
 }
 
 void DevtoolsDataSource::SetRuntimeDebugMode(bool debug_mode) {
@@ -75,8 +83,17 @@ void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHan
   devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
 }
 
-void DevtoolsDataSource::SetRootNode(std::weak_ptr<RootNode> root_node) {
-  hippy_dom_->root_node = root_node;
+void DevtoolsDataSource::SetRootNode(std::weak_ptr<RootNode> weak_root_node) {
+  hippy_dom_->root_node = weak_root_node;
+
+  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  listener_id_ = hippy::dom::FetchListenerId();
+  auto root_node = weak_root_node.lock();
+  dom_manager->AddEventListener(weak_root_node, root_node->GetId(), kDomTreeUpdated,
+                                listener_id_, true, [DEVTOOLS_WEAK_THIS](std::shared_ptr<DomEvent> &event) {
+                                  DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+                                  self->devtools_service_->GetNotificationCenter()->dom_tree_notification->NotifyDocumentUpdate();
+                                });
 }
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)

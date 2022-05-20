@@ -23,14 +23,14 @@
 #include <memory>
 #include <string>
 
+#include "api/devtools_backend_service.h"
+#include "api/devtools_config.h"
 #include "core/engine.h"
 #include "core/task/worker_task_runner.h"
 #include "dom/root_node.h"
 #include "devtools/adapter/hippy_runtime_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
 #include "devtools/hippy_dom_data.h"
-#include "api/devtools_config.h"
-#include "api/devtools_backend_service.h"
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "v8/libplatform/v8-tracing.h"
@@ -40,8 +40,7 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief Hippy debug data source, collect debug data by adapter implement and notification
@@ -55,7 +54,7 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   void SetRuntimeDebugMode(bool debug_mode);
   void SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler);
   void SetContextName(const std::string& context_name);
-  void SetRootNode(std::weak_ptr<RootNode> root_node);
+  void SetRootNode(std::weak_ptr<RootNode> weak_root_node);
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
@@ -70,9 +69,8 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
 #endif
 
   std::shared_ptr<HippyDomData> hippy_dom_;
+  uint64_t listener_id_;
   std::shared_ptr<HippyRuntimeAdapter> runtime_adapter_;
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
 };
-}  // namespace devtools
-}  // namespace hippy
-
+}  // namespace hippy::devtools
