@@ -59,9 +59,9 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
    > `npm run build`: Build each front-end sdk package.  
 
 2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Start the Xcode and build the iOS app with `open framework/js/examples/ios-demo/HippyDemo.xcodeproj`.
+3. Start the Xcode and build the iOS app with `open driver/js/examples/ios-demo/HippyDemo.xcodeproj`.
 
-> If `Step 2` throw error, you can `cd` to `framework/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+> If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
 >
 > More details for [iOS SDK integration](https://hippyjs.org/#/ios/integration?id=ios-%e9%9b%86%e6%88%90).
 
@@ -82,11 +82,11 @@ Before build the android app, please make sure the SDK and NDK is installed, And
    > `npm run build`: Build each front-end sdk package.  
 
 2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Open the `framework/js/examples/android-demo` with Android Studio.
+3. Open the `driver/js/examples/android-demo` with Android Studio.
 4. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
 5. Open the project with Android Studio, run and install the apk.
 
-> If `Step 2` throw error, you can `cd` to `framework/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+> If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
 >
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 >
@@ -99,9 +99,9 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] debug` at root directory.
 4. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev` at root directory.
 
-> Or you can `cd` to `framework/js/examples/hippy-react-demo` or `framework/js/examples/hippy-vue-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
+> Or you can `cd` to `driver/js/examples/hippy-react-demo` or `driver/js/examples/hippy-vue-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
 >
-> On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `framework/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
+> On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `driver/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
 >
 > More details for debugging can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
 
