@@ -1,9 +1,31 @@
-cmake_minimum_required(VERSION 3.4.1)
+#
+# Tencent is pleased to support the open source community by making
+# Hippy available.
+#
+# Copyright (C) 2022 THL A29 Limited, a Tencent company.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+cmake_minimum_required(VERSION 3.14)
 
 project("hippy")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN on)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS off)
 
 if (${ANDROID_STL} STREQUAL "c++_static")
   string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++_static.a")
@@ -12,14 +34,13 @@ endif()
 
 # region ABI_COMPILE_OPTIONS
 set(ABI_COMPILE_OPTIONS
-        -fno-rtti
+        -fomit-frame-pointer
         -fno-threadsafe-statics
-        -fvisibility-inlines-hidden
-        -std=c++14
-        --param=ssp-buffer-size=4
-        -Werror
-        -fno-exceptions
         -fno-strict-aliasing
+        -fno-short-enums
+        -fno-unique-section-names
+        -fno-trigraphs
+        -Werror
         -Wall
         -Wextra
         -Wextra-semi
@@ -36,40 +57,24 @@ set(ABI_COMPILE_OPTIONS
         -Wheader-hygiene
         -Wshadow
         -Wno-unused-parameter
-        -Wno-missing-field-initializers
+        -Wno-trigraphs
+        --param=ssp-buffer-size=4
         -pipe
-        -fPIC
-        -Wno-unused-local-typedefs
-        -funwind-tables
-        -fstack-protector
-        -fno-short-enums
-        -Os
-        -g
-        -fdata-sections
-        -ffunction-sections
-        -fomit-frame-pointer)
+        -Os)
 
 message("ANDROID_ABI: ${ANDROID_ABI}")
 if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
   set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -march=armv7-a
-          -mtune=generic-armv7-a
-          -mfpu=vfpv3-d16
-          -mfloat-abi=softfp
-          -mthumb)
+          -mfloat-abi=softfp)
 elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
   # (Empty)
 elseif (${ANDROID_ABI} STREQUAL "x86")
   set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -march=i686
-          -mtune=intel
           -m32
           -mssse3
           -mfpmath=sse)
 elseif (${ANDROID_ABI} STREQUAL "x86_64")
   set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -march=x86-64
-          -mtune=intel
           -m64
           -mpopcnt
           -msse4.2)
@@ -78,45 +83,60 @@ else()
 endif()
 
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS} -fvisibility=hidden)
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 endif()
 
 message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
 add_compile_options(${ABI_COMPILE_OPTIONS})
 # endregion
 
+# region base path
 get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../core" REALPATH)
+get_filename_component(RENDER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../renderer" REALPATH)
 get_filename_component(DOM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../dom" REALPATH)
 get_filename_component(LAYOUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../layout" REALPATH)
-get_filename_component(RENDER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../renderer" REALPATH)
+# endregion
 
-# region subdirectory
-add_subdirectory(${CORE_SRC_DIR}/third_party/base base_out)
-add_subdirectory(${DOM_SRC_DIR} dom_out)
-add_subdirectory(${RENDER_DIR}/native/android/src/main/jni render_out)
+# region dependencies
+set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud.com")
+set(INFA_PACKAGES_DOMAIN "hippy")
+
+# region v8
 set(ENABLE_INSPECTOR true)
 if (${JS_ENGINE} STREQUAL "V8")
   get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
-  add_subdirectory(${V8_COMPONENT_PATH})
+  if (EXISTS "${V8_COMPONENT_PATH}/CMakeLists.txt")
+    add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
+  else()
+    include(FetchContent)
+    FetchContent_Declare(V8
+            URL "${INFA_PACKAGES_URL}/${INFA_PACKAGES_DOMAIN}/third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz")
+    FetchContent_MakeAvailable(V8)
+  endif()
 endif()
 # endregion
+
+add_subdirectory(${CORE_SRC_DIR}/third_party/base ${CMAKE_CURRENT_BINARY_DIR}/third_party/base)
+add_subdirectory(${DOM_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/dom)
+add_subdirectory(${RENDER_DIR}/native/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/native/android/src/main/jni)
+# endregion
+
 
 # region global definitions
 if (${ENABLE_INSPECTOR} STREQUAL "true")
   add_definitions("-DENABLE_INSPECTOR")
 endif()
 add_definitions("-DOS_ANDROID")
-add_definitions("-DANDROID")
 add_definitions("-DANDROID_NATIVE_RENDER")
 # endregion
 
 # region source
 file(GLOB_RECURSE CORE_SRC ${CORE_SRC_DIR}/src/*.cc)
+file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 if (${ENABLE_INSPECTOR} STREQUAL "false")
   file(GLOB_RECURSE INSPECTOR_SRC ${CORE_SRC_DIR}/src/runtime/v8/inspector/*)
   list(REMOVE_ITEM CORE_SRC ${INSPECTOR_SRC})
 endif()
-file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
 message("CORE_SRC: ${CORE_SRC}")
@@ -137,10 +157,13 @@ if (${JS_ENGINE} STREQUAL "V8")
   if (${V8_LINKING_MODE} STREQUAL "shared")
     add_library(v8 SHARED IMPORTED)
   elseif (${V8_LINKING_MODE} STREQUAL "static")
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,${V8_LIBRARY_NAME}")
+    if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
+      string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,${V8_LIBRARY_NAME}")
+    endif()
     add_library(v8 STATIC IMPORTED)
   else()
-    message(FATAL_ERROR "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
+    message(FATAL_ERROR
+            "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
   endif()
   set_property(TARGET v8 PROPERTY IMPORTED_LOCATION ${V8_LIBRARY_PATH}/${V8_LIBRARY_NAME})
   list(APPEND HIPPY_DEPS v8)
@@ -170,13 +193,17 @@ include_directories(${LAYOUT_DIR})
 include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
+if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
+  set_target_properties(${CMAKE_PROJECT_NAME}
+          PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
+endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
-set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
   foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
     add_custom_command(
             TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+            COMMAND ${CMAKE_COMMAND} -E
+              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
   endforeach()
 endif()
