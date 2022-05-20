@@ -28,10 +28,11 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    ```java
         // 初始化 hippy 引擎
         HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
-        // 可选：是否设置为debug模式，默认为false。设置true为调试模式，所有jsbundle都是从debug server上下载
+        // 可选：是否设置为 debug 模式，默认为 false。设置 true 为调试模式，所有 jsbundle 都将从 debug server 上下载
         initParams.debugMode = true;
         initParams.debugServerHost = "localhost:38989";
-        initParams.debugBundleName="idex.bubdle";
+        // 可选参数 Hippy Server 的 jsbundle 名字，默认为 "index.bundle"。debugMode = true 时有效
+        initParams.debugBundleName="index.bubdle";
    ```
 
 2. **iOS**：
