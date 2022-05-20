@@ -133,7 +133,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
     }
 }
 
-void NativeRenderManager::RegisterVsyncSingal(const std::string &key, float rate, std::function<void()> vsync_callback) {
+void NativeRenderManager::RegisterVsyncSignal(const std::string &key, float rate, std::function<void()> vsync_callback) {
     if (vsync_callback) {
         [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
             vsync_callback();
@@ -141,7 +141,7 @@ void NativeRenderManager::RegisterVsyncSingal(const std::string &key, float rate
     }
 }
 
-void NativeRenderManager::UnregisterVsyncSingal(const std::string &key) {
+void NativeRenderManager::UnregisterVsyncSignal(const std::string &key) {
     [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:@(key.c_str())];
 }
 

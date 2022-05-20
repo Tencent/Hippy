@@ -294,6 +294,12 @@ void HippyRenderManager::AfterLayout() {
   HandleListenerOps(event_listener_ops_, "updateEventListener");
 }
 
+void HippyRenderManager::RegisterVsyncSignal(const std::string &key, float rate, std::function<void()> vsync_callback) {
+}
+
+void HippyRenderManager::UnregisterVsyncSignal(const std::string &key) {
+}
+
 void HippyRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
   event_listener_ops_.emplace_back(ListenerOp(true, dom_node, name));
 }
