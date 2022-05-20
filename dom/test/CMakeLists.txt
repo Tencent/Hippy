@@ -10,7 +10,7 @@ add_compile_options(
 
 set(CMAKE_CXX_STANDARD 17)
 set(DOM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../dom)
-set(CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../framework/js/core/)
+set(CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../driver/js/core/)
 set(LAYOUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../layout)
 set(JSON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/)
 
