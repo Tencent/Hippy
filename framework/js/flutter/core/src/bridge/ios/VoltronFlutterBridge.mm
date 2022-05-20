@@ -142,8 +142,8 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     std::u16string cModule = NSStringToU16(module);
     std::u16string cMethod = NSStringToU16(method);
     std::u16string cCallId = NSStringToU16(callId);
-    void* buf = CopyData(data);
-    self.platformRuntime->CallDart(cModule, cMethod, cCallId, buf, (uint32_t)[data length], true,
+    
+    self.platformRuntime->CallDart(cModule, cMethod, cCallId, std::move(CopyToStr(data)), true,
                                     nullptr);
     return nil;
 }
@@ -159,16 +159,14 @@ const char* getStrCopy(const char* origin, NSInteger len) {
     return (char *)buf;
 }
 
-static void* CopyData(NSData* data) {
+static std::string CopyToStr(NSData* data) {
   if (!data) {
     return nullptr;
   }
   unsigned long len = [data length];
   if (len > 0) {
     const void* origin_buf = [data bytes];
-    void* buf = (void *)malloc((size_t)(len));
-    memcpy(buf, origin_buf, (size_t)(len));
-    return buf;
+    return (const char*)origin_buf;
   }
     
   return nullptr;

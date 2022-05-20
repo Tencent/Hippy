@@ -39,8 +39,8 @@ class FFIJSBridgeRuntime : public JSBridgeRuntime {
  public:
   explicit FFIJSBridgeRuntime(int32_t engine_id);
   ~FFIJSBridgeRuntime() override = default;
-  void CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId, void* paramsData,
-                uint32_t paramsLen, bool bridgeParamJson, std::function<void()> callback) override;
+  void CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
+                std::string params, bool bridgeParamJson, std::function<void()> callback) override;
   void ReportJSONException(const char* jsonValue) override;
   void ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) override;
   void SendResponse(const uint16_t* source, int len) override;
