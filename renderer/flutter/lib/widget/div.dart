@@ -147,7 +147,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     var engineMonitor = widget._viewModel.context.engineMonitor;
     if (!(engineMonitor.hasAddPostFrameCall)) {
       engineMonitor.hasAddPostFrameCall = true;
-      WidgetsBinding.instance?.addPostFrameCallback((duration) {
+      WidgetsBinding.instance.addPostFrameCallback((duration) {
         LogUtils.dWidget(
           "div",
           'addPostFrameCallback ${widget._viewModel.id.toString()}',

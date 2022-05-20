@@ -134,6 +134,14 @@ void VoltronRenderManager::AfterLayout() {
   TDF_BASE_DLOG(INFO) << "RunLayoutFinish";
 }
 
+void VoltronRenderManager::RegisterVsyncSingal(const std::string &key, float rate, std::function<void()> vsync_callback) {
+
+}
+
+void VoltronRenderManager::UnregisterVsyncSingal(const std::string &key) {
+
+}
+
 void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node,
                                         const std::string &name,
                                         const DomArgument &param,

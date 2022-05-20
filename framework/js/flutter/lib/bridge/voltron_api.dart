@@ -22,9 +22,8 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:typed_data';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -278,7 +277,7 @@ class VoltronApi {
     return result.toNativeUtf16();
   }
 
-  static Future createInstance(int engineId, int rootId, Size rootSize,
+  static Future createInstance(int engineId, int rootId, ui.Size rootSize,
       VoltronMap params, CommonCallback callback) async {
     var action = "loadInstance";
     var stopwatch = Stopwatch();

@@ -161,7 +161,7 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
   }
 
   void showOrDismissDialog() {
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       LogUtils.dWidget("ModalWidget", "container build inner, can show:$canDialogShow");
       if (canDialogShow) {
         showDialog();

@@ -19,6 +19,7 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodel.dart';
@@ -103,8 +104,7 @@ class _TextInputWidgetState extends FRState<TextInputWidget> {
       textAlign: inputModel.textAlign,
       textAlignVertical: inputModel.textAlignVertical,
       maxLength: inputModel.maxLength > 0 ? inputModel.maxLength : null,
-      // ignore: deprecated_member_use
-      maxLengthEnforced: inputModel.maxLength > 0,
+      maxLengthEnforcement: inputModel.maxLength > 0 ? MaxLengthEnforcement.enforced : MaxLengthEnforcement.none,
       obscureText: inputModel.obscureText,
       enabled: inputModel.editable,
       cursorColor: Color(inputModel.cursorColor),

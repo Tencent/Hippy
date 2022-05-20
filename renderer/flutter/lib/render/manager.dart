@@ -121,8 +121,8 @@ mixin RenderExecutorDelegate {
   void postFrameCallback() {
     WidgetsFlutterBinding.ensureInitialized();
     if (_dispatchRunnable.isNotEmpty) {
-      WidgetsBinding.instance?.addPostFrameCallback(doFrame);
-      WidgetsBinding.instance?.scheduleFrame();
+      WidgetsBinding.instance.addPostFrameCallback(doFrame);
+      WidgetsBinding.instance.scheduleFrame();
     }
   }
 

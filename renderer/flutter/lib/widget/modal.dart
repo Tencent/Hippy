@@ -55,7 +55,7 @@ class _ModalContainerWidgetState extends FRState<ModalContainerWidget> {
           barrierColor: renderViewModel.barrierColor,
         );
       }, builder: (context, modalViewModel, widget) {
-        WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           if (modalViewModel.canShowDialog) {
             showDialog();
           } else {
