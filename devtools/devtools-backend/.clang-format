@@ -2,17 +2,17 @@ Language: Cpp
 BasedOnStyle: Google
 ColumnLimit: 120
 
-# 自动识别代码中的指针对齐方式，如果希望强制统一，则可以改为 false
+# Automatically recognizes pointer alignment in code, if want to unify, then can change to false
 DerivePointerAlignment: true
 
-# 默认对齐到类型名
+# Align to the type name
 PointerAlignment: Left
 
 # Only sort headers in each include block
 SortIncludes: true
 IncludeBlocks: Preserve
 
-# 让 #if/#else/#endif 宏中的内容保持缩进，比如：
+# Let #if/#else/#endif define keep indentation
 #   #if defined(WIN)
 #   #  include <windows.h>
 #   #else
