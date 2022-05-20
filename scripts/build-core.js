@@ -131,18 +131,18 @@ function getAbsolutePath(relativePath) {
 function getAllRequiredFiles(platform) {
   return new Promise((resole) => {
     const rl = readline.createInterface({
-      input: fs.createReadStream(getAbsolutePath(`../framework/js/core/js/entry/${platform}/hippy.js`)),
+      input: fs.createReadStream(getAbsolutePath(`../driver/js/core/js/entry/${platform}/hippy.js`)),
     });
     const filePaths = [
-      getAbsolutePath('../framework/js/core/js/bootstrap.js'),
-      getAbsolutePath(`../framework/js/core/js/entry/${platform}/hippy.js`),
-      getAbsolutePath('../framework/js/core/js/modules/ExceptionHandle.js'),
+      getAbsolutePath('../driver/js/core/js/bootstrap.js'),
+      getAbsolutePath(`../driver/js/core/js/entry/${platform}/hippy.js`),
+      getAbsolutePath('../driver/js/core/js/modules/ExceptionHandle.js'),
     ];
 
     rl.on('line', (line) => {
       if (line.split('//')[0].indexOf('require') > -1) {
         const entry = line.split('(\'')[1].split('\')')[0];
-        filePaths.push(getAbsolutePath(`../framework/js/core/js/entry/${platform}/${entry}`));
+        filePaths.push(getAbsolutePath(`../driver/js/core/js/entry/${platform}/${entry}`));
       }
     });
     rl.on('close', () => {
@@ -225,6 +225,6 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../framework/js/ios/base'));
-generateCpp('android', getAbsolutePath('../framework/js/android/src/main/jni/src/bridge/'));
-generateCpp('flutter', getAbsolutePath('../framework/js/flutter/core/src/bridge/'));
+generateCpp('ios', getAbsolutePath('../driver/js/ios/base'));
+generateCpp('android', getAbsolutePath('../driver/js/android/src/main/jni/src/bridge/'));
+generateCpp('flutter', getAbsolutePath('../driver/js/flutter/core/src/bridge/'));

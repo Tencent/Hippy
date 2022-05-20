@@ -13,7 +13,7 @@ export default {
   extensions: false,
   compileEnhancements: false,
   files: [
-    'framework/js/packages/**/__tests__/*.test.js',
+    'driver/js/packages/**/__tests__/*.test.js',
   ],
   require: [
     'esm', // Use ES modules in NodeJS.

@@ -7,7 +7,7 @@ packages/hippy-vue/types
 packages/hippy-debug-server/webpack-dev-server/client
 packages/hippy-debug-server/webpack-dev-server/lib
 packages/hippy-vue-loader/lib
-framework/js/packages/hippy-vue/types
-framework/js/packages/hippy-debug-server/webpack-dev-server/client
-framework/js/packages/hippy-debug-server/webpack-dev-server/lib
-framework/js/packages/hippy-vue-loader/lib
+driver/js/packages/hippy-vue/types
+driver/js/packages/hippy-debug-server/webpack-dev-server/client
+driver/js/packages/hippy-debug-server/webpack-dev-server/lib
+driver/js/packages/hippy-vue-loader/lib

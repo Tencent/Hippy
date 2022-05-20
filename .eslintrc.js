@@ -141,7 +141,7 @@ module.exports = {
           ['core', resolveVue('core')],
           ['shared', resolveVue('shared')],
           ['sfc', resolveVue('sfc')],
-          ['he', path.resolve(__dirname, './framework/js/packages/hippy-vue/src/util/entity-decoder')],
+          ['he', path.resolve(__dirname, './driver/js/packages/hippy-vue/src/util/entity-decoder')],
         ],
       },
     },
