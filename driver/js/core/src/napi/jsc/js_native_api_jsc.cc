@@ -757,9 +757,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>
     std::string str = wrapper->ToStringChecked();
     unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()), str.length());
     return CreateString(str_view);
-  } else if (wrapper->IsInt32()) {
-    return CreateNumber(wrapper->ToInt32Checked());
-  } else if (wrapper->IsDouble()) {
+  } else if (wrapper->IsNumber()) {
     return CreateNumber(wrapper->ToDoubleChecked());
   } else if (wrapper->IsBoolean()) {
     return CreateBoolean(wrapper->ToBooleanChecked());
