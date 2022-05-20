@@ -120,10 +120,10 @@ public:
                       const DomArgument& param,
                       uint32_t cb) override;
     
-    void RegisterVsyncSingal(const std::string &key,
+    void RegisterVsyncSignal(const std::string &key,
                              float rate, std::function<void()> vsync_callback) override;
     
-    void UnregisterVsyncSingal(const std::string &key) override;
+    void UnregisterVsyncSignal(const std::string &key) override;
     
     void RegisterRootView(UIView *view);
     
