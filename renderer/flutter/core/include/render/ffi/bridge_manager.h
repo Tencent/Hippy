@@ -30,14 +30,12 @@
 #include "render/ffi/common_header.h"
 
 namespace voltron {
-
 using hippy::DomManager;
-// using VisitRenderCallback = std::function<void(const
-// std::weak_ptr<VoltronRenderManager>&)>;
 using NativeCallback = std::function<void(const EncodableValue &)>;
 
 class BridgeRuntime {
 public:
+
   virtual ~BridgeRuntime() = default;
   explicit BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {};
 

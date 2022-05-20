@@ -26,6 +26,10 @@
 
 using voltron::StandardMessageCodec;
 using voltron::EncodableValue;
+using voltron::Sp;
+using voltron::BridgeRuntime;
+using voltron::BridgeManager;
+using voltron::VoltronRenderManager;
 
 #ifdef __cplusplus
 extern "C" {

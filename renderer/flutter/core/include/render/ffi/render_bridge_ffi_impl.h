@@ -33,11 +33,6 @@
 extern "C" {
 #endif
 
-using voltron::Sp;
-using voltron::BridgeRuntime;
-using voltron::BridgeManager;
-using voltron::VoltronRenderManager;
-
 EXTERN_C int32_t RegisterCallFunc(int32_t type, void *func);
 
 EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id,

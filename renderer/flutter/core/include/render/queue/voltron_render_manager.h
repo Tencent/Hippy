@@ -29,17 +29,14 @@
 
 namespace voltron {
 
-using hippy::CallFunctionCallback;
-using hippy::LayoutDiffMapKey;
-using hippy::LayoutResult;
-using hippy::RenderManager;
-using hippy::LayoutNode;
-
 constexpr char kEnableScale[] = "enableScale";
 
-class VoltronRenderManager : public RenderManager,
+ class VoltronRenderManager : public hippy::RenderManager,
                              private VoltronRenderTaskRunner {
 public:
+  using LayoutNode = hippy::LayoutNode;
+  using DomArgument = hippy::DomArgument;
+
   explicit VoltronRenderManager(int32_t root_id, int32_t engine_id);
   ~VoltronRenderManager() override;
   void CreateRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) override;
