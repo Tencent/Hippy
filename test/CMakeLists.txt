@@ -18,7 +18,7 @@ FetchContent_MakeAvailable(googletest)
 
 set(PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(DOM_DIR ${PROJECT_ROOT_DIR}/dom)
-set(CORE_DIR ${PROJECT_ROOT_DIR}/framework/js/core)
+set(CORE_DIR ${PROJECT_ROOT_DIR}/driver/js/core)
 set(LAYOUT_DIR ${PROJECT_ROOT_DIR}/layout)
 set(JSON_DIR ${PROJECT_ROOT_DIR}/third_party)
 

@@ -32,9 +32,9 @@ task clean(type: Delete) {
 }
 
 project.afterEvaluate {
-    delete 'framework/js/examples/android-demo/src/main/assets'
+    delete 'driver/js/examples/android-demo/src/main/assets'
     copy{
-        from "framework/js/examples/android-demo/res"
-        into "framework/js/examples/android-demo/src/main/assets"
+        from "driver/js/examples/android-demo/res"
+        into "driver/js/examples/android-demo/src/main/assets"
     }
 }

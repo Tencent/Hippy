@@ -11,28 +11,28 @@ layout/build
 layout/cproject
 layout/.project
 layout/.settings
-framework/js/examples/*/res/vendor-manifest.json
-framework/js/android/src/main/jni/.vs
-framework/js/android/maven-auth.properties
-framework/js/android/local.properties
-framework/js/android/.cxx/*
-framework/js/android/libs/armeabi-v7a/libhippybridge.so
-framework/js/android/libs/arm64-v8a/libhippybridge.so
-framework/js/android/libs/x86/libhippybridge.so
-framework/js/android/libs/x86_64/libhippybridge.so
-framework/js/examples/android-demo/src/main/assets/
-framework/js/examples/android-demo/libs/*
-framework/js/examples/android-demo/maven-auth.properties
-framework/js/examples/android-demo/.cxx/
-framework/js/examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
-framework/js/examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
-framework/js/examples/hippy-react-demo/package-lock.json
-framework/js/examples/hippy-vue-demo/package-lock.json
+driver/js/examples/*/res/vendor-manifest.json
+driver/js/android/src/main/jni/.vs
+driver/js/android/maven-auth.properties
+driver/js/android/local.properties
+driver/js/android/.cxx/*
+driver/js/android/libs/armeabi-v7a/libhippybridge.so
+driver/js/android/libs/arm64-v8a/libhippybridge.so
+driver/js/android/libs/x86/libhippybridge.so
+driver/js/android/libs/x86_64/libhippybridge.so
+driver/js/examples/android-demo/src/main/assets/
+driver/js/examples/android-demo/libs/*
+driver/js/examples/android-demo/maven-auth.properties
+driver/js/examples/android-demo/.cxx/
+driver/js/examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
+driver/js/examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
+driver/js/examples/hippy-react-demo/package-lock.json
+driver/js/examples/hippy-vue-demo/package-lock.json
 
-framework/js/android/cmake-build-debug/*
-framework/js/android/src/main/jni/cmake-build-debug/*
-framework/js/packages/hippy-vue-loader/remote-debug-profile/*
-framework/js/packages/hippy-debug-server/webpack-dev-server/client
+driver/js/android/cmake-build-debug/*
+driver/js/android/src/main/jni/cmake-build-debug/*
+driver/js/packages/hippy-vue-loader/remote-debug-profile/*
+driver/js/packages/hippy-debug-server/webpack-dev-server/client
 
 docs/assets/*.png
 docs/assets/*.jpg
@@ -41,25 +41,6 @@ docs/assets/*.ico
 docs/assets/*.js
 docs/assets/*.css
 
-examples/*/res/vendor-manifest.json
-android/sdk/src/main/jni/.vs
-android/sdk/maven-auth.properties
-android/sdk/local.properties
-android/sdk/.cxx/*
-android/sdk/libs/armeabi-v7a/libhippybridge.so
-android/sdk/libs/arm64-v8a/libhippybridge.so
-android/sdk/libs/x86/libhippybridge.so
-android/sdk/libs/x86_64/libhippybridge.so
-examples/android-demo/example/src/main/assets/
-examples/android-demo/example/libs/*
-examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
-examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
-examples/hippy-react-demo/package-lock.json
-examples/hippy-vue-demo/package-lock.json
-examples/android-demo/maven-auth.properties
-examples/android-demo/example/.cxx/
-packages/hippy-vue-loader/remote-debug-profile/*
-packages/hippy-debug-server/webpack-dev-server/client
 
 android/cmake-build-debug/*
 android/src/main/jni/cmake-build-debug/*
@@ -78,5 +59,5 @@ build/
 .externalNativeBuild
 
 # core
-framework/js/core/ARM
+driver/js/core/ARM
 .vs/
