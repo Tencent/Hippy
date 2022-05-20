@@ -32,6 +32,9 @@ void FramePollModel::InitTask() {
   refresh_task_ = [DEVTOOLS_WEAK_THIS]() {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(FramePollModel)
     std::lock_guard<std::recursive_mutex> lock(self->mutex_);
+    if (!self->frame_is_dirty_ && self->provider_ && self->provider_->screen_adapter) {
+      self->frame_is_dirty_ = !self->provider_->screen_adapter->SupportDirtyCallback();
+    }
     if (self->frame_is_dirty_) {
       if (self->response_handler_) {
         self->response_handler_();

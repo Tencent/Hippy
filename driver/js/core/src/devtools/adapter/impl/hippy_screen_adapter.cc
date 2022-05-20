@@ -46,7 +46,11 @@ uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback
     if (!children.empty()) {
       hippy::dom::DomArgument argument = makeFrameCallbackArgument(frame_callback_id_);
       children[0]->CallFunction(kAddFrameCallback, argument,
-                                [callback](std::shared_ptr<hippy::dom::DomArgument> arg) { callback(); });
+                                [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
+                                  DEFINE_AND_CHECK_SELF(HippyScreenAdapter)
+                                  self->supportDirtyCallback = true;
+                                  callback();
+                                });
     }
   }
   return frame_callback_id_;

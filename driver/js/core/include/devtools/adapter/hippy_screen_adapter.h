@@ -39,6 +39,7 @@ class HippyScreenAdapter : public hippy::devtools::ScreenAdapter,
   void RemovePostFrameCallback(uint64_t id) override;
 
   inline double GetScreenScale() override { return screen_scale_; }
+  inline bool SupportDirtyCallback() override { return supportDirtyCallback; }
 
  private:
   hippy::dom::DomArgument makeFrameCallbackArgument(uint64_t id) const;
@@ -46,5 +47,6 @@ class HippyScreenAdapter : public hippy::devtools::ScreenAdapter,
   int32_t dom_id_;
   uint64_t frame_callback_id_;
   double screen_scale_ = 1.0;
+  bool supportDirtyCallback = false;
 };
 }  // namespace hippy::devtools

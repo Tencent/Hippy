@@ -76,5 +76,7 @@ class ScreenAdapter {
    * @return scale factor
    */
   virtual double GetScreenScale() { return 1.0f; }
+
+  virtual bool SupportDirtyCallback() {return false; }
 };
 }  // namespace hippy::devtools
