@@ -324,7 +324,7 @@ Hippy's key features, high performance reusable list components, on the native s
 | Props                  | Description                                                         | Type                                                        | Supported Platform |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | horizontal       | Specifies whether `ul` is laid out horizontally. `default: undefined` | `any`   | `Android`    |
-| initialContentOffset  | The initial offset value. In the list of initialization can specify the scroll distance, avoid flashing caused by series method of scrollT after oinitialization. Android supports after version `2.8.0 `  | `number`  | `Android、iOS` |
+| initialContentOffset  | The initial offset value. In the list of initialization can specify the scroll distance, avoid flashing caused by series method of scrollT after oinitialization. Android supports after version ` 2.8.0 `  | `number`  | `Android、iOS` |
 | bounces | Whether to open the rebound effect, default `true` | `boolean`                                                  | `iOS`    |
 | overScrollEnabled | Whether to open the rebound effect, default `true` | `boolean`                                                  | `Android`    |
 | rowShouldSticky  | Sets whether `ul` needs to turn on the hover ability, used in conjunction with `li` 's `sticky`. `default: false` | `boolean`  | `Android、iOS`
@@ -334,7 +334,7 @@ Hippy's key features, high performance reusable list components, on the native s
 | preloadItemNumber     | Specifies the number of rows that will call the `endReached` function when the list scrolls.| `number` | `Android、iOS` |
 | exposureEventEnabled | The switch to enable Android exposure ability, if you want to use the `appear` and `disappear` related events, Android needs to set the switch (iOS need not set), `default: true` | `boolean` | `Android`
 | endReached | When all the data has been rendered and the list is scrolled to the last one, the `endReached` callback is called. | `Function`                                                  | `Android、iOS`    |
-| editable | Whether it is editable or not, set to `true` when sideslip deletion is enabled. `minimum support version 2.9.0 `| `boolean`                                                  | `iOS`    |
+| editable | Whether it is editable or not, set to `true` when sideslip deletion is enabled. ` minimum support version 2.9.0 `| `boolean`                                                  | `iOS`    |
 | delText | Sideslip to delete text. `minimum support version 2.9.0` | `string`                                                  | `iOS`    |
 
 ## Event
