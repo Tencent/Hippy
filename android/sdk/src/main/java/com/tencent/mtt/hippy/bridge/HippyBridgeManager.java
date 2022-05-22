@@ -55,4 +55,6 @@ public interface HippyBridgeManager {
       BridgeTransferType transferType);
 
   HippyThirdPartyAdapter getThirdPartyAdapter();
+
+  HippyBridge getHippyBridge();
 }

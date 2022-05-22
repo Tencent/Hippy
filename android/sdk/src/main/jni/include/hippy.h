@@ -25,6 +25,7 @@
 #include "bridge/entry.h"
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
+#include "bridge/performance.h"
 #include "bridge/runtime.h"
 #include "bridge/serializer.h"
 #include "jni/exception_handler.h"

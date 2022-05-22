@@ -19,6 +19,10 @@ package com.tencent.mtt.hippy.bridge;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.bridge.heap.HeapCodeStatistics;
+import com.tencent.mtt.hippy.bridge.heap.HeapSpaceStatistics;
+import com.tencent.mtt.hippy.bridge.heap.HeapStatistics;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
@@ -56,6 +60,7 @@ import com.tencent.mtt.hippy.utils.FileUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 @SuppressWarnings({"unused", "JavaJniMissingFunction"})
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
@@ -290,6 +295,23 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         runScript(mV8RuntimeId, script);
     }
 
+    @Override
+    public boolean getHeapStatistics(Callback<HeapStatistics> callback) {
+        return getHeapStatistics(mV8RuntimeId, callback);
+    }
+    @Override
+    public boolean getHeapCodeStatistics(Callback<HeapCodeStatistics> callback) {
+        return getHeapCodeStatistics(mV8RuntimeId, callback);
+    }
+    @Override
+    public boolean getHeapSpaceStatisticsList(Callback<ArrayList<HeapSpaceStatistics>> callback) {
+        return getHeapSpaceStatisticsList(mV8RuntimeId, callback);
+    }
+    @Override
+    public boolean writeHeapSnapshot(String filePath, Callback<Integer> callback) {
+        return writeHeapSnapshot(mV8RuntimeId, filePath, callback);
+    }
+
     public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, V8InitParams v8InitParams);
@@ -301,6 +323,12 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
+    // [Heap]
+    public native boolean getHeapCodeStatistics(long runtimeId, Callback<HeapCodeStatistics> callback);
+    public native boolean getHeapStatistics(long runtimeId, Callback<HeapStatistics> callback);
+    public native boolean getHeapSpaceStatisticsList(long runtimeId, Callback<ArrayList<HeapSpaceStatistics>> callback);
+    public native boolean writeHeapSnapshot(long runtimeId, String filePath, Callback<Integer> callback);
+
     public native void callFunction(String action, long runtimeId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);
 
@@ -308,6 +336,12 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             byte[] buffer, int offset, int length);
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
+
+    // [Heap]
+    public native HeapCodeStatistics getHeapCodeStatistics(long runtimeId);
+    public native HeapStatistics getHeapStatistics(long runtimeId);
+    public native HeapSpaceStatistics[] getHeapSpaceStatisticsList(long runtimeId);
+    public native int writeHeapSnapshot(long runtimeId, String filePath);
 
     public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
         callNatives(moduleName, moduleFunc, callId, ByteBuffer.wrap(buffer));
