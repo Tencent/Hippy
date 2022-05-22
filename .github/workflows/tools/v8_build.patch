@@ -1,5 +1,5 @@
 diff --git a/config/android/BUILD.gn b/config/android/BUILD.gn
-index 233e8b0e7..d78a09e0b 100644
+index 233e8b0e7..d2286cd77 100644
 --- a/config/android/BUILD.gn
 +++ b/config/android/BUILD.gn
 @@ -105,9 +105,7 @@ config("runtime_library") {
@@ -13,7 +13,7 @@ index 233e8b0e7..d78a09e0b 100644
  
    defines = [
      "__GNU_SOURCE=1",  # Necessary for clone().
-@@ -117,7 +115,25 @@ config("runtime_library") {
+@@ -117,20 +115,31 @@ config("runtime_library") {
    lib_dirs = [ android_libcpp_lib_dir ]
  
    libs = []
@@ -40,6 +40,19 @@ index 233e8b0e7..d78a09e0b 100644
  
    # arm builds of libc++ starting in NDK r12 depend on unwind.
    if (current_cpu == "arm") {
+     libs += [ "unwind" ]
+   }
+ 
+-  # Manually link the libgcc.a that the cross compiler uses. This is
+-  # absolute because the linker will look inside the sysroot if it's not.
+-  libs += [
+-    rebase_path(android_libgcc_file),
+-    "c",
+-  ]
+-
+   if (current_cpu == "arm" && arm_version == 6) {
+     libs += [ "atomic" ]
+   }
 diff --git a/config/sysroot.gni b/config/sysroot.gni
 index 701c66082..bc33b7cd1 100644
 --- a/config/sysroot.gni
@@ -53,18 +66,3 @@ index 701c66082..bc33b7cd1 100644
  } else if (is_linux && use_sysroot) {
    # By default build against a sysroot image downloaded from Cloud Storage
    # during gclient runhooks.
-diff --git a/config/compiler/BUILD.gn b/config/compiler/BUILD.gn
-index 219a2be0e..7d9a95ffc 100644
---- a/config/compiler/BUILD.gn
-+++ b/config/compiler/BUILD.gn
-@@ -1261,10 +1261,6 @@ config("compiler_deterministic") {
-         "-Xclang",
-         ".",
-       ]
--    } else {
--      # -ffile-compilation-dir is an alias for both -fdebug-compilation-dir=
--      # and -fcoverage-compilation-dir=.
--      cflags += [ "-ffile-compilation-dir=." ]
-     }
-     if (!is_win) {
-       # We don't use clang -cc1as on Windows (yet? https://crbug.com/762167)
