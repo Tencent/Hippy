@@ -2,7 +2,7 @@
 
 除了UI界面以外，APP开发中还会出现调用设备功能的场景，比如获取当前网络状态、发起HTTP网络请求等。SDK已经封装了一些常用功能，但自定义功能模块也是十分方便的。
 
-> **注意：自定义模块的名称和方法中不要带上 `Hippy` 几个字（不区分大小写），否则在 iOS 上可能会碰到找不到模块或方法的问题。**
+> **注意：自定义模块及其方法的名称中不要带上 `Hippy` 几个字（不区分大小写），否则在 iOS 上可能会碰到找不到模块或方法的问题。**
 
 > 功能扩展中类和方法的导出和UI组件的类和方法的导出十分相似，建议先阅读UI组件扩展再来阅读功能扩展文章。
 
@@ -11,7 +11,7 @@
 使用 `HIPPY_EXPORT_MODULE()` 扩展自定义功能后，每次APP启动时都会创建一个功能实例，并且以后前端调用组件功能使用的都是这个实例，可以理解为单例的意思。
 >功能没有属性这个概念，不要试图去给功能绑定属性。
 
-每个功能都有类似于UI组件对应的方法导出, 同样也对应callNative、callNativeWithCallbackId、callNativeWithPromise三分钟调用方式。
+每个功能都有类似于UI组件对应的方法导出, 同样也对应`callNative`、`callNativeWithCallbackId`、`callNativeWithPromise`三种调用方式。
 
 我们将SDK中的功能模块分为两种类型：
 
@@ -58,7 +58,7 @@ HIPPY_EXPORT_METHOD(click) {
 
 * 实现 `[MyModule addEventObserverForName:]` 与 `[MyModule removeEventObserverForName:]` 方法用以开启、关闭对某个事件的监听行为
 
-    >这两个方法在基类 `HippyEventObserverModule` 中已经实现但未作任何处理，需要MyModule根据也无需要自行实现。同时这一步是否需要实现取决于前端是否有对应的MyModule.addListener()操作，即希望终端监听某个事件。若无，则终端可以不实现。
+    >这两个方法在基类 `HippyEventObserverModule` 中已经实现但未作任何处理，需要MyModule根据需要自行实现。同时这一步是否需要实现取决于前端是否有对应的MyModule.addListener()操作，即希望终端监听某个事件。若无，则终端可以不实现。
 
 * 事件发生后通知前端
 

@@ -1,40 +1,40 @@
-# JSI 模式
+# JSI Mode
 
-> 最低支持版本 2.11.0
+> Min support version: 2.11.0
 
-JavaScript Interface(JSI) 模式提供了一种无需经历编解码（序列化）过程的跨 VM （同步）互调用解决方案，使得 js 可以和 native 直接通信。传统互调用所传递的对象会全部序列化，但并非所有成员都被访问，在特定场景下导致了不必要的开销与冗余。通过 JSI，js 侧可以获取 C++ 定义的对象（HostObject)，并调用该对象上的方法。
+The JavaScript Interface (JSI) pattern provides a cross-VM (synchronous) intercall solution without going through the codec (serialization) process, allowing js to communicate directly with native. Objects passed by traditional intercalls are serialised in their entirety, but not all members are accessed, leading to unnecessary overhead and redundancy in certain scenarios. With JSI, the js side can fetch a C++-defined object (HostObject) and call the methods on that object.
 
-## 架构图
+## JSI Structure
 
 <br />
-<img src="assets/img/jsi_structure.png" alt="jsi架构图" width="40%"/>
+<img src="assets/img/jsi_structure.png" alt="JSI Structure" width="40%"/>
 <br />
 <br />
 
-## 不适用场景
+## Not Applicable Scenarios
 
-JSI 并非适用于所有场景:
+JSI is not suitable for all scenarios:
 
-* 所需读取的成员占比越少，JSI 表现出的性能越优异。
-* 随着所需读取的成员占比上升，JNI 调用次数的增加，所累计的耗时也随之上涨，反而不如编解码实现性能优异。
-* 同步调用简化了编码，耗时更稳定，但会阻塞 JS 执行，不适用于复杂逻辑。
+* The lower the percentage of members to be read, the better the performance of JSI.
+* As the percentage of members to be read rises, the cumulative time consumed increases as the number of JNI calls increases, which is not as good as the codec implementation.
+* Synchronous calls simplify coding process and are more stable, but they block JS execution and are not suitable for complex logic.
 
-## 接入说明
+## Instructions
 
-### 客户端
+### Native
 
 #### Android
 
-* 通过设置引擎初始化参数开启JSI能力
+* Enable JSI capability by setting engine initialization parameters
 
 ```java
     HippyEngine.EngineInitParams initParams = new HippyEngine.EngineInitParams();
     initParams.enableTurbo = true;
 ```
 
-* 定义Module
+* Define Module
 
-> 跟普通NativeModule类似，区别在于需要添加注解表明是同步调用 `@HippyMethod(isSync = true)`
+> Similar to a normal NativeModule, except that you need to annotate `@HippyMethod(isSync = true)` to indicate that it is a synchronous call
 
 ```java
 @HippyNativeModule(name = "demoTurbo")
@@ -49,16 +49,16 @@ public class DemoJavaTurboModule extends HippyNativeModuleBase {
 }
 ```
 
-> 支持的数据类型说明：
+> Supported types
 
 <br />
-<img src="assets/img/jsi_type_android.png" alt="数据类型" width="100%"/>
+<img src="assets/img/jsi_type_android.png" alt="Supported types" width="100%"/>
 <br />
 <br />
 
-更多示例可参考类[DemoJavaTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/turbo/DemoJavaTurboModule.java)
+For more demo, refer to [DemoJavaTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent /mtt/hippy/example/module/turbo/DemoJavaTurboModule.java)
 
-* 注册TurboModule模块，跟NativeModule注册方法完全一致
+* Registering `TurboModule` is the same as registering `NativeModule`
 
 ```java
 public class MyAPIProvider implements HippyAPIProvider {
@@ -80,11 +80,11 @@ public class MyAPIProvider implements HippyAPIProvider {
 
 #### iOS
 
-* 通过设置引擎初始化参数开启JSI能力
-iOS有两种方式去打开关闭enableTurbo能力，如下：
+* Enable JSI capability by setting engine initialization parameters
+  iOS has two ways to turn on/off the enableTurbo capability, as follows.
 
 ```objc
-// 方式一：bridge初始化时通过配置参数设置生效
+// Way 1: bridge initialization takes effect by setting the configuration parameters
 NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
 HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
                                                   bundleURL:[NSURL fileURLWithPath:commonBundlePath]
@@ -92,7 +92,7 @@ HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
                                               launchOptions:launchOptions
                                                 executorKey:@"Demo"];
 
-// 方式二：bridge初始化完成后，设置属性生效
+// way two: after bridge initialization is complete, set the properties to take effect
 HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:nil
                                                     businessURL:nil
                                                      moduleName:@"Demo" 
@@ -105,13 +105,13 @@ rootView.bridge.enableTurbo = YES;
 
 ```
 
-* 定义Module
+* Define Module
 
-> 继承HippyOCTurboModule，实现协议HippyTurboModule。
+> Inherit HippyOCTurboModule, implement the protocol HippyTurboModule.
 
-目前iOS端仅支持继承关系来实现JSI能力，后续会考虑升级，只需实现协议HippyTurboModule就能实现能力。
+Currently, iOS side only supports JSI capabilities via inheritance, the subsequent version will consider to enhance, to achieve the ability by only implementing `HippyTurboModule` .
 
-具体使用与实现协议如下：
+Specific use and implementation of the protocol is as follows:
 
 ```obj
 
@@ -119,10 +119,10 @@ rootView.bridge.enableTurbo = YES;
 
 ...
 
-// 注册模块
+// Register the module
 HIPPY_EXPORT_TURBO_MODULE(TurboConfig)
 
-// 注册交互函数
+// Register interactive functions
 HIPPY_EXPORT_TURBO_METHOD(getInfo) {
     return self.strInfo;
 }
@@ -137,27 +137,27 @@ HIPPY_EXPORT_TURBO_METHOD(setInfo:(NSString *)string) {
 
 ```
 
-> 支持的数据类型说明：
+> Description of supported data types.
 
-| Objec类型  | Js类型  |
-|:----------|:----------|
-| BOOL    | Bool    |
-| NSInteger    | Number    |
-| NSUInteger    | Number    |
-| CGDouble    | Number    |
-| CGFloat    | Number    |
-| NSString    | String    |
-| NSArray    | Array    |
-| NSDictionary    | Object    |
-| Promise    | Function    |
-| NULL    | null    |
-
-
-
-更多示例可参考类[DemoIOSTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/turbomodule/TurboBaseModule.mm)
+| Object type  | Js type |
+|:-------------|:----------|
+| BOOL         | Bool |
+| NSInteger    | Number |
+| NSUInteger   | Number |
+| CGDouble     | Number |
+| CGFloat      | Number |
+| NSString     | String |
+| NSArray      | Array |
+| NSDictionary | Object |
+| Promise      | Function |
+| NULL         | null |
 
 
-## 使用例子
+
+More examples can be found in class [DemoIOSTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/turbomodule/TurboBaseModule. mm)
+
+
+## Usage examples
 
 [Android Demo](https://github.com/Tencent/Hippy/blob/master/examples/android-demo)
 
