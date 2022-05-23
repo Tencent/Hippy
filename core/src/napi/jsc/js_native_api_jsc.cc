@@ -60,7 +60,7 @@ JSValueRef JsCallbackFunc(JSContextRef ctx,
   JsCallback cb = fn_data->callback_;
   std::shared_ptr<JSCCtx> context =
       std::static_pointer_cast<JSCCtx>(scope->GetContext());
-  CallbackInfo info(scope);
+  CallbackInfo info{scope};
   for (size_t i = 0; i < argumentCount; i++) {
     info.AddValue(
         std::make_shared<JSCCtxValue>(context->GetCtxRef(), arguments[i]));
@@ -194,8 +194,6 @@ unicode_string_view JSCTryCatch::GetExceptionMsg() {
   }
   return "";
 }
-
-void DetachThread() {}
 
 void JSCVM::RegisterUncaughtExceptionCallback() {}
 
@@ -420,7 +418,7 @@ void JSCCtx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
 void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
                                    hippy::base::RegisterFunction fn,
                                    void* data) {
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
 }
 
 std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const unicode_string_view& name) {
@@ -429,10 +427,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const unicode_string_view& name) {
 
 std::shared_ptr<CtxValue> JSCCtx::RunScript(
     const unicode_string_view& data,
-    const unicode_string_view& file_name,
-    bool is_use_code_cache,
-    unicode_string_view* cache,
-    bool is_copy) {
+    const unicode_string_view& file_name) {
   if (StringViewUtils::IsEmpty(data)) {
     return nullptr;
   }
@@ -528,7 +523,7 @@ std::shared_ptr<JSValueWrapper> JSCCtx::ToJsValueWrapper(
     return std::make_shared<JSValueWrapper>(ret);
   }
 
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
   return nullptr;
 }
 
@@ -577,7 +572,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
     }
     return std::make_shared<JSCCtxValue>(context_, obj_ref);
   }
-  TDF_BASE_NOTIMPLEMENTED();
+  TDF_BASE_UNIMPLEMENTED();
   return nullptr;
 }
 

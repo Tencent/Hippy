@@ -22,13 +22,10 @@
 
 #include "core/modules/timer_module.h"
 
-#include <memory>
-
 #include "base/logging.h"
 #include "core/base/common.h"
 #include "core/base/string_view_utils.h"
 #include "core/modules/module_register.h"
-#include "core/napi/callback_info.h"
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
 
@@ -72,7 +69,7 @@ void TimerModule::ClearInterval(const napi::CallbackInfo& info) {
     return;
   }
 
-  TaskId task_id = argument1;
+  TaskId task_id = hippy::base::checked_numeric_cast<int32_t, TaskId>(argument1);
   Cancel(task_id, scope);
   info.GetReturnValue()->Set(context->CreateNumber(task_id));
 }

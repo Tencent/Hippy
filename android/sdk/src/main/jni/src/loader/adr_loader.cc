@@ -1,4 +1,3 @@
-#include <__bit_reference>
 /*
  *
  * Tencent is pleased to support the open source community by making
@@ -26,8 +25,6 @@
 #include <future>
 
 #include "bridge/runtime.h"
-#include "core/base/string_view_utils.h"
-#include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
@@ -176,6 +173,7 @@ bool ADRLoader::LoadByHttp(const unicode_string_view& uri,
     j_env->CallVoidMethod(bridge_->GetObj(),
                           instance->GetMethods().j_fetch_resource_method_id,
                           j_relative_path, id);
+    JNIEnvironment::ClearJEnvException(j_env);
     j_env->DeleteLocalRef(j_relative_path);
     return true;
   }
@@ -191,7 +189,7 @@ void OnResourceReady(JNIEnv* j_env,
                      jlong j_request_id) {
   TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(JniUtils::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
         << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
@@ -232,7 +230,8 @@ void OnResourceReady(JNIEnv* j_env,
     return;
   }
 
-  u8string str(reinterpret_cast<const char8_t_*>(buff), JniUtils::CheckedNumericCast<jlong, size_t>(len));
+  u8string str(reinterpret_cast<const char8_t_ *>(buff),
+               hippy::base::checked_numeric_cast<jlong, size_t>(len));
   cb(std::move(str));
 }
 

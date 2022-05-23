@@ -24,6 +24,7 @@
 
 #include <string>
 
+#include "core/core.h"
 #include "jni/jni_env.h"
 
 namespace hippy {
@@ -40,18 +41,20 @@ void V8ChannelImpl::sendResponse(
   }
 
   const uint16_t* source = message->string().characters16();
-  int len = message->string().length();
+  auto len = hippy::base::checked_numeric_cast<size_t, jsize>(
+      message->string().length() * sizeof(*source));
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
-  jbyteArray msg = j_env->NewByteArray(len * sizeof(*source));
+  jbyteArray msg = j_env->NewByteArray(len);
   j_env->SetByteArrayRegion(
-      msg, 0, len * sizeof(*source),
+      msg, 0, len,
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
   if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
     j_env->CallVoidMethod(bridge_->GetObj(),
                           instance->GetMethods().j_inspector_channel_method_id,
                           msg);
+    JNIEnvironment::ClearJEnvException(j_env);
   }
 
   j_env->DeleteLocalRef(msg);
@@ -64,18 +67,20 @@ void V8ChannelImpl::sendNotification(
   }
 
   const uint16_t* source = message->string().characters16();
-  int len = message->string().length();
+  auto len = hippy::base::checked_numeric_cast<size_t, jsize>(
+      message->string().length() * sizeof(*source));
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
-  jbyteArray msg = j_env->NewByteArray(len * sizeof(*source));
+  jbyteArray msg = j_env->NewByteArray(len);
   j_env->SetByteArrayRegion(
-      msg, 0, len * sizeof(*source),
+      msg, 0, len,
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
   if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
     j_env->CallVoidMethod(bridge_->GetObj(),
                           instance->GetMethods().j_inspector_channel_method_id,
                           msg);
+    JNIEnvironment::ClearJEnvException(j_env);
   }
 
   j_env->DeleteLocalRef(msg);

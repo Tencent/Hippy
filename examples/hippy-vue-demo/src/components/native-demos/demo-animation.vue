@@ -182,6 +182,7 @@ export default {
 <style scoped>
 #animation-demo {
   overflow: scroll;
+  margin: 7px;
 }
 
 #animation-demo .vote-icon {

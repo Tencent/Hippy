@@ -21,10 +21,12 @@
  */
 
 #import "HippyDevInfo.h"
+#import "HippyUtils.h"
+#import <UIKit/UIDevice.h>
 
 NSString *const HippyDevWebSocketSchemeWs = @"ws";
 NSString *const HippyDevWebSocketSchemeWss = @"wss";
-NSString *const HippyDevWebSocketInfoDebugURL = @"debugURL=";
+NSString *const HippyDevWebSocketInfoDebugURL = @"debugUrl=";
 
 @implementation HippyDevInfo
 
@@ -59,6 +61,14 @@ NSString *const HippyDevWebSocketInfoDebugURL = @"debugURL=";
         return;
     }
     _wsURL = [debugWsURL substringFromIndex:range.location + range.length];
+}
+
++ (NSString *)debugClientIdWithBridge:(HippyBridge *)bridge {
+    if (!bridge) {
+        return @"";
+    }
+    NSString *deviceName = [[UIDevice currentDevice] name];
+    return HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, bridge]);
 }
 
 @end

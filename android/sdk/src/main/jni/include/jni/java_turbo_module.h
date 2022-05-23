@@ -26,13 +26,10 @@
 
 #include <string>
 
-#include "convert_utils.h"
-#include "core/napi/js_native_turbo.h"
-#include "core/napi/v8/js_native_turbo_v8.h"
-#include "hippy.h"
+#include "core/core.h"
 
-#ifndef HIPPYJSI_JAVATURBOMODULE_H
-#define HIPPYJSI_JAVATURBOMODULE_H
+#include "convert_utils.h"
+#include "scoped_java_ref.h"
 
 class JavaTurboModule : public hippy::napi::HippyTurboModule {
  public:
@@ -42,7 +39,7 @@ class JavaTurboModule : public hippy::napi::HippyTurboModule {
 
   std::shared_ptr<JavaRef> impl_;
 
-  jclass impl_j_clazz_;
+  std::shared_ptr<JavaRef> impl_j_clazz_;
 
   // methodName, signature
   std::unordered_map<std::string, MethodInfo> method_map_;
@@ -60,11 +57,7 @@ class JavaTurboModule : public hippy::napi::HippyTurboModule {
       hippy::napi::TurboEnv &,
       const std::shared_ptr<hippy::napi::CtxValue> &prop_name) override;
 
-  virtual void DeleteGlobalRef(const std::shared_ptr<JNIArgs> &jni_args);
-
   static void Init();
 
   static void Destroy();
 };
-
-#endif  // HIPPYJSI_JAVATURBOMODULE_H

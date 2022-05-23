@@ -48,6 +48,8 @@ void Thread::Start() {
   pthread_attr_t attr;
   memset(&attr, 0, sizeof(attr));
   int result = pthread_attr_init(&attr);
+  TDF_BASE_CHECK(result == 0) << "pthread_attr_init() returns " << result;
+  // TODO(super): The following statement will be removed when TDF_BASE_CHECK will be cause abort
   if (result != 0) {
     return;
   }
@@ -62,8 +64,8 @@ void Thread::Start() {
   }
 
   result = pthread_create(&thread_, &attr, ThreadEntry, this);
+  TDF_BASE_CHECK(result == 0) << "pthread_create() returns " << result;
   thread_id_.InitId(thread_);
-  HIPPY_USE(result);
 }
 
 void Thread::Join() const {
@@ -86,14 +88,14 @@ static void SetThreadName(const char* name) {
 
 static void* ThreadEntry(void* arg) {
   if (arg == nullptr) {
-    return nullptr;
+    return reinterpret_cast<void*>(+false);
   }
 
   auto* thread = reinterpret_cast<Thread*>(arg);
   SetThreadName(thread->name());
   thread->Run();
 
-  return nullptr;
+  return reinterpret_cast<void*>(+true);
 }
 
 ThreadId Thread::GetCurrent() {

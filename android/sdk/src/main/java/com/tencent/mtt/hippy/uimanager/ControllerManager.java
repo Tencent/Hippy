@@ -21,6 +21,9 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.HippyAPIProvider;
@@ -64,19 +67,33 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   }
 
   private void processControllers(List<HippyAPIProvider> hippyPackages) {
+    addControllers(hippyPackages);
+    mControllerRegistry.addControllerHolder(NodeProps.ROOT_NODE,
+        new ControllerHolder(new HippyViewGroupController(), false));
+  }
+
+  /**
+   * Add view controllers defined in {@link HippyAPIProvider}.
+   *
+   * @param hippyPackages API providers need to be added.
+   */
+  public void addControllers(List<HippyAPIProvider> hippyPackages) {
+    if (hippyPackages == null) {
+      return;
+    }
     for (HippyAPIProvider hippyPackage : hippyPackages) {
       List<Class<? extends HippyViewController>> components = hippyPackage.getControllers();
       if (components != null) {
         for (Class hippyComponent : components) {
           HippyController hippyNativeModule = (HippyController) hippyComponent
-              .getAnnotation(HippyController.class);
+            .getAnnotation(HippyController.class);
           assert hippyNativeModule != null;
           String name = hippyNativeModule.name();
           String[] names = hippyNativeModule.names();
           boolean lazy = hippyNativeModule.isLazyLoad();
           try {
             ControllerHolder holder = new ControllerHolder(
-                (HippyViewController) hippyComponent.newInstance(), lazy);
+              (HippyViewController) hippyComponent.newInstance(), lazy);
             mControllerRegistry.addControllerHolder(name, holder);
             if (names.length > 0) {
               for (String s : names) {
@@ -89,8 +106,6 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
         }
       }
     }
-    mControllerRegistry.addControllerHolder(NodeProps.ROOT_NODE,
-        new ControllerHolder(new HippyViewGroupController(), false));
   }
 
   public void destroy() {
@@ -174,6 +189,10 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   public void updateLayout(String name, int id, int x, int y, int width, int height) {
     HippyViewController component = mControllerRegistry.getViewController(name);
     component.updateLayout(id, x, y, width, height, mControllerRegistry);
+  }
+
+  public void addFakeRootView(@NonNull HippyRootView rootView) {
+    mControllerRegistry.addRootView(rootView);
   }
 
   @Override
@@ -279,7 +298,13 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       hippyViewController.onBatchComplete(view);
     }
   }
-
+	public void onBatchStart(String className, int id) {
+		HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
+		View view = mControllerRegistry.getView(id);
+		if (view != null) {
+			hippyViewController.onBatchStart(view);
+		}
+	}
   public void deleteChildRecursive(ViewGroup viewParent, View child, int childIndex) {
     if (viewParent == null || child == null) {
       return;

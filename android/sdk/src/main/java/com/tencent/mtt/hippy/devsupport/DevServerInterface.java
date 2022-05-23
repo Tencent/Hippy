@@ -26,6 +26,8 @@ public interface DevServerInterface {
 
   void loadRemoteResource(String url, DevServerCallBack serverCallBack);
 
+  String createDebugUrl(String host, String debugClientId, String componentName);
+
   void setDevServerCallback(DevServerCallBack devServerCallback);
 
   void attachToHost(HippyRootView view);

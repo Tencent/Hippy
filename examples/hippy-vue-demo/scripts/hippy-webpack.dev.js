@@ -2,17 +2,15 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
-const HippyHMRPlugin = require('@hippy/hippy-hmr-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
 const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/index.js');
 if (fs.existsSync(hippyVueCssLoaderPath)) {
-  /* eslint-disable-next-line no-console */
   console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
   cssLoader = hippyVueCssLoaderPath;
 } else {
-  /* eslint-disable-next-line no-console */
   console.warn('* Using the @hippy/vue-css-loader defined in package.json');
 }
 
@@ -20,16 +18,13 @@ let vueLoader = '@hippy/vue-loader';
 let VueLoaderPlugin;
 const hippyVueLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib');
 if (fs.existsSync(hippyVueLoaderPath)) {
-  /* eslint-disable-next-line no-console */
   console.warn(`* Using the @hippy/vue-loader in ${hippyVueLoaderPath}`);
   vueLoader = hippyVueLoaderPath;
   VueLoaderPlugin = require(path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib/plugin'));
 } else {
-  /* eslint-disable-next-line no-console */
   console.warn('* Using the @hippy/vue-loader defined in package.json');
   VueLoaderPlugin = require('@hippy/vue-loader/lib/plugin');
 }
-
 
 module.exports = {
   mode: 'development',
@@ -39,16 +34,25 @@ module.exports = {
     aggregateTimeout: 1500,
   },
   devServer: {
-    port: 38988,
+    // remote debug server address
+    remote: {
+      protocol: 'http',
+      host: '127.0.0.1',
+      port: 38989,
+    },
+    // support inspect vue components, store and router, by default is disabled
+    vueDevtools: false,
+    // support debug multiple project with only one debug server, by default is set false.
+    multiple: false,
     // by default hot and liveReload option are true, you could set only liveReload to true
     // to use live reload
     hot: true,
     liveReload: true,
-    devMiddleware: {
-      writeToDisk: true,
-    },
     client: {
       overlay: false,
+    },
+    devMiddleware: {
+      writeToDisk: true,
     },
   },
   entry: {
@@ -60,8 +64,6 @@ module.exports = {
     strictModuleExceptionHandling: true,
     path: path.resolve('./dist/dev/'),
     globalObject: '(0, eval)("this")',
-    // CDN path can be configured to load children bundles from remote server
-    // publicPath: 'https://xxx/hippy/hippyVueDemo/',
   },
   plugins: [
     new VueLoaderPlugin(),
@@ -84,10 +86,7 @@ module.exports = {
     //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
     //   filename: '[file].map',
     // }),
-    new HippyHMRPlugin({
-      // HMR [hash].hot-update.json will fetch from this path
-      hotManifestPublicPath: 'http://localhost:38989/',
-    }),
+    new CleanWebpackPlugin(),
   ],
   module: {
     rules: [
@@ -170,11 +169,9 @@ module.exports = {
       // Remove the section if you don't use it
       const hippyVuePath = path.resolve(__dirname, '../../../packages/hippy-vue');
       if (fs.existsSync(path.resolve(hippyVuePath, 'dist/index.js'))) {
-        /* eslint-disable-next-line no-console */
         console.warn(`* Using the @hippy/vue in ${hippyVuePath} as vue alias`);
         aliases.vue = hippyVuePath;
       } else {
-        /* eslint-disable-next-line no-console */
         console.warn('* Using the @hippy/vue defined in package.json');
       }
 
@@ -182,11 +179,9 @@ module.exports = {
       // Remove the section if you don't use it
       const hippyVueRouterPath = path.resolve(__dirname, '../../../packages/hippy-vue-router');
       if (fs.existsSync(path.resolve(hippyVueRouterPath, 'dist/index.js'))) {
-        /* eslint-disable-next-line no-console */
         console.warn(`* Using the @hippy/vue-router in ${hippyVueRouterPath} as vue-router alias`);
         aliases['vue-router'] = hippyVueRouterPath;
       } else {
-        /* eslint-disable-next-line no-console */
         console.warn('* Using the @hippy/vue-router defined in package.json');
       }
 
@@ -194,11 +189,9 @@ module.exports = {
       // Remove the section if you don't use it
       const hippyVueNativeComponentsPath = path.resolve(__dirname, '../../../packages/hippy-vue-native-components');
       if (fs.existsSync(path.resolve(hippyVueNativeComponentsPath, 'dist/index.js'))) {
-        /* eslint-disable-next-line no-console */
         console.warn(`* Using the @hippy/vue-native-components in ${hippyVueNativeComponentsPath}`);
         aliases['@hippy/vue-native-components'] = hippyVueNativeComponentsPath;
       } else {
-        /* eslint-disable-next-line no-console */
         console.warn('* Using the @hippy/vue-native-components defined in package.json');
       }
 

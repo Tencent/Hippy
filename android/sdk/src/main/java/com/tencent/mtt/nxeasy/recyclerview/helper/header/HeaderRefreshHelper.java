@@ -147,12 +147,7 @@ public class HeaderRefreshHelper implements OnTouchListener {
     headerRefreshView.onStartDrag();
   }
 
-  /**
-   * 下拉之后，当正在刷新的时候，将位置从下拉到的位置恢复规定的位置的动画
-   *
-   * @param destHeight 规定的高度
-   */
-  private void smoothScrollTo(int fromHeight, int destHeight) {
+  private void smoothScrollTo(int fromHeight, int destHeight, int duration) {
     endAnimation();
     animator = ValueAnimator.ofInt(fromHeight, destHeight);
     animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -172,7 +167,16 @@ public class HeaderRefreshHelper implements OnTouchListener {
         }
       }
     });
-    animator.setDuration(DURATION).start();
+    animator.setDuration(duration).start();
+  }
+
+  /**
+   * 下拉之后，当正在刷新的时候，将位置从下拉到的位置恢复规定的位置的动画
+   *
+   * @param destHeight 规定的高度
+   */
+  private void smoothScrollTo(int fromHeight, int destHeight) {
+    smoothScrollTo(fromHeight, destHeight, DURATION);
   }
 
   void gotoRefresh() {
@@ -279,6 +283,13 @@ public class HeaderRefreshHelper implements OnTouchListener {
       animator.removeAllUpdateListeners();
       animator.end();
       animator = null;
+    }
+  }
+
+  public void resetHeaderViewPosition() {
+    if (refreshStatus == IHeaderRefreshView.HEADER_STATUS_FOLDED) {
+      setVisibleHeight(0);
+      smoothScrollTo(getVisibleHeight(), 0, 0);
     }
   }
 }

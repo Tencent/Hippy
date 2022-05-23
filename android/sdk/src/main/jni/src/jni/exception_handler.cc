@@ -22,7 +22,6 @@
 
 #include "jni/exception_handler.h"
 
-#include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
@@ -44,6 +43,7 @@ void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime
                               ->GetMethods()
                               .j_report_exception_method_id,
                           j_exception, j_stack_trace);
+    JNIEnvironment::ClearJEnvException(j_env);
   }
 
   j_env->DeleteLocalRef(j_exception);

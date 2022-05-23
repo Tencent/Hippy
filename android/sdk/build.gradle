@@ -36,7 +36,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.0.4'
+    classpath 'com.android.tools.build:gradle:7.1.3'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -86,7 +86,7 @@ android {
       if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi/*'
       }
-      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean() && !INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi-v7a/*'
       }
       if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
@@ -101,16 +101,6 @@ android {
     }
   }
 
-  def V8_COMPONENT_DEBUG
-  def V8_COMPONENT_RELEASE
-  if (V8_COMPONENT == 'auto') {
-    V8_COMPONENT_DEBUG = 'third_party/v8/stable/official-release'
-    V8_COMPONENT_RELEASE = 'third_party/v8/stable/x5-lite'
-  } else {
-    V8_COMPONENT_DEBUG = V8_COMPONENT
-    V8_COMPONENT_RELEASE = V8_COMPONENT
-  }
-
   buildTypes {
     release {
       minifyEnabled false
@@ -123,7 +113,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
-                  "-DV8_COMPONENT=$V8_COMPONENT_RELEASE",
+                  "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -151,7 +141,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
-                  "-DV8_COMPONENT=$V8_COMPONENT_DEBUG",
+                  "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -198,8 +188,8 @@ dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
   //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
-  //noinspection GradleDependency
-  implementation 'androidx.recyclerview:recyclerview:1.1.0'
+  api 'androidx.recyclerview:recyclerview:1.1.0'
+  api 'androidx.viewpager:viewpager:1.0.0'
   if (!INCLUDE_SUPPORT_UI.toBoolean()) {
     compileOnly('com.tencent.mtt:support-ui:99.2.3')
   }
@@ -231,6 +221,14 @@ project.tasks.whenTaskAdded { task ->
   if (task.name == 'mergeDebugNativeLibs') {
     task.finalizedBy dealAfterMergeDebugNativeLibs
   }
+
+  if (task.name == 'stripReleaseDebugSymbols') {
+    task.finalizedBy dealAfterStripReleaseDebugSymbols
+  }
+
+  if (task.name == 'stripDebugDebugSymbols') {
+    task.finalizedBy dealAfterStripDebugDebugSymbols
+  }
 }
 
 def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
@@ -248,16 +246,6 @@ def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
       delete "$mergedNativeLibsPath/x86_64/$filename"
     }
   }
-  delete "$mergedNativeLibsPath/armeabi"
-  if (INCLUDE_ABI_ARMEABI.toBoolean()) {
-    copy {
-      from "$mergedNativeLibsPath/armeabi-v7a"
-      into "$mergedNativeLibsPath/armeabi"
-    }
-    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
-      delete "$mergedNativeLibsPath/armeabi-v7a"
-    }
-  }
 }
 
 def MERGED_NATIVE_LIBS_PATH = "$buildDir/intermediates/merged_native_libs"
@@ -270,6 +258,32 @@ task dealAfterMergeReleaseNativeLibs() {
 task dealAfterMergeDebugNativeLibs() {
   doLast {
     dealAfterMergeNativeLibs("$MERGED_NATIVE_LIBS_PATH/debug/out/lib")
+  }
+}
+
+def dealAfterStripSymbols(strippedNativeLibsPath) {
+  delete "$strippedNativeLibsPath/armeabi"
+  if (INCLUDE_ABI_ARMEABI.toBoolean()) {
+    copy {
+      from "$strippedNativeLibsPath/armeabi-v7a"
+      into "$strippedNativeLibsPath/armeabi"
+    }
+    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      delete "$strippedNativeLibsPath/armeabi-v7a"
+    }
+  }
+}
+
+def STRIPPED_NATIVE_LIBS_PATH = "$buildDir/intermediates/stripped_native_libs"
+task dealAfterStripReleaseDebugSymbols() {
+  doLast {
+    dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/release/out/lib")
+  }
+}
+
+task dealAfterStripDebugDebugSymbols() {
+  doLast {
+    dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/debug/out/lib")
   }
 }
 

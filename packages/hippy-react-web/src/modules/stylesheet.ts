@@ -30,6 +30,16 @@ if (onePixel === 0) {
 const StyleSheet = {
   create: styleObj => styleObj,
   hairlineWidth: onePixel,
+  compose: (style: any, style2: Record<string, any>) => {
+    let cloneStyle = {};
+    if (Array.isArray(style)) {
+      cloneStyle = [...style, style2];
+    }
+    if (String(style) === '[object Object]') {
+      cloneStyle = { ...style, ...style2 };
+    }
+    return cloneStyle;
+  },
 };
 
 export default StyleSheet;

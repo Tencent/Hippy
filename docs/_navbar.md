@@ -1,8 +1,8 @@
 * 起步
   * [Hippy 概述](/README?id=hippy-%e6%a6%82%e8%bf%b0)
   * [开始接入](guide/integration.md)
+  * [架构](structure/introduction.md)
   * [调试](guide/debug.md)
-  * [C++ Core 架构](core/introduction.md)
   * [布局与单位](guide/layout.md)
   * [网络请求](guide/network-request.md)
   * [定时器](guide/timer.md)
@@ -12,6 +12,7 @@
   * [动态加载](guide/dynamic-import.md)
   * [JSI 模式](guide/jsi.md)
   * [技术支持](guide/support.md)
+  * [隐私政策](guide/privacy.md)
 
 * Android
   * [Android 集成](android/integration.md)
@@ -57,6 +58,6 @@
   * [变形](style/transform.md)
   * [更改终端属性](style/setNativeProps.md)
   
-* 更新日志
-  * [2.x](https://github.com/Tencent/Hippy/wiki/Hippy-v2.x-ChangeLog)
+* 日志
+  * [版本发布](https://github.com/Tencent/Hippy/releases)
 

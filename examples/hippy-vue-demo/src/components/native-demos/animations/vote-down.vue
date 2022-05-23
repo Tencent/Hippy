@@ -57,7 +57,7 @@ const face2 = {
         duration: 250,
         delay: 750,
         timingFunction: 'ease_bezier',
-        repeatCount: -1,
+        repeatCount: -1, // 'loop' string supported above 2.12.2
       },
     ],
   },
@@ -152,7 +152,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 .vote-face {
   width: 40px;
   height: 40px;

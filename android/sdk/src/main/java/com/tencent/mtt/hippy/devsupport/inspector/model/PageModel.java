@@ -2,6 +2,7 @@ package com.tencent.mtt.hippy.devsupport.inspector.model;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.text.TextUtils;
@@ -65,11 +66,10 @@ public class PageModel {
         mOnDrawListener = new ViewTreeObserver.OnDrawListener() {
           @Override
           public void onDraw() {
-            LogUtils.d(TAG, "HippyRootView, onDraw");
             if (mFrameUpdateListenerRef != null) {
               FrameUpdateListener listener = mFrameUpdateListenerRef.get();
               if (listener != null) {
-                listener.onFrameUpdate(context);
+                listener.onFrameUpdate();
               }
             }
           }
@@ -101,7 +101,9 @@ public class PageModel {
         LogUtils.e(TAG, "stopScreenCast error none hippyRootView");
         return;
       }
-      hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
+      if (mOnDrawListener != null) {
+        hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
+      }
     }
   }
 
@@ -149,6 +151,7 @@ public class PageModel {
         screenBitmap = bitmap;
       }
       Canvas canvas = new Canvas(bitmap);
+      canvas.drawColor(Color.WHITE);
       hippyRootView.draw(canvas);
       if (scale != 1.0f) {
         Matrix matrix = new Matrix();
@@ -221,6 +224,6 @@ public class PageModel {
   }
 
   public interface FrameUpdateListener {
-    void onFrameUpdate(HippyEngineContext context);
+    void onFrameUpdate();
   }
 }

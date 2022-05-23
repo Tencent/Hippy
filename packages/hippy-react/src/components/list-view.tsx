@@ -34,7 +34,7 @@ type DataItem = any;
 interface ListViewProps {
   /**
    * Render specific number of rows of data.
-   * Set equal to dataShource.length in most case.
+   * Set equal to dataSource.length in most case.
    */
   numberOfRows: number;
 
@@ -138,10 +138,10 @@ interface ListViewProps {
    *  Called when the row first layouting or layout changed.
    *
    * @param {Object} evt - Layout event data
-   * @param {number} evt.nativeEvent.x - The position X of component
-   * @param {number} evt.nativeEvent.y - The position Y of component
-   * @param {number} evt.nativeEvent.width - The width of component
-   * @param {number} evt.nativeEvent.hegiht - The height of component
+   * @param {number} evt.x - The position X of component
+   * @param {number} evt.y - The position Y of component
+   * @param {number} evt.width - The width of component
+   * @param {number} evt.height - The height of component
    * @param {number} index - Index of data.
    */
   onRowLayout?: (evt: HippyTypes.LayoutEvent, index: number) => void;
@@ -245,18 +245,6 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
   private static defaultProps = {
     numberOfRows: 0,
   };
-  private instance: HTMLUListElement | Fiber | null = null;
-  private pullHeader: PullHeader | null = null;
-  private pullFooter: PullFooter | null = null;
-
-  public constructor(props: ListViewProps) {
-    super(props);
-    this.handleInitialListReady = this.handleInitialListReady.bind(this);
-    this.state = {
-      initialListReady: false,
-    };
-  }
-
   /**
    * change key
    */
@@ -267,6 +255,17 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       return iosAttrMap[functionName];
     }
     return functionName;
+  }
+  private instance: HTMLUListElement | Fiber | null = null;
+  private pullHeader: PullHeader | null = null;
+  private pullFooter: PullFooter | null = null;
+
+  public constructor(props: ListViewProps) {
+    super(props);
+    this.handleInitialListReady = this.handleInitialListReady.bind(this);
+    this.state = {
+      initialListReady: false,
+    };
   }
 
   public componentDidMount() {
@@ -426,15 +425,13 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       }
       const appearEventList = [onAppear, onDisappear, onWillAppear, onWillDisappear];
       nativeProps.exposureEventEnabled = appearEventList.some(func => typeof func === 'function');
-      nativeProps.numberOfRows = itemList.length;
+      if (Device.platform.OS === 'ios') {
+        nativeProps.numberOfRows = itemList.length;
+      }
       (nativeProps as ListViewProps).initialListSize = initialListSize;
       (nativeProps as ListViewProps).style = {
-        overflow: 'scroll',
         ...style,
       };
-    }
-    if (!nativeProps.onLoadMore && nativeProps.onEndReached) {
-      nativeProps.onLoadMore = nativeProps.onEndReached;
     }
 
     return (

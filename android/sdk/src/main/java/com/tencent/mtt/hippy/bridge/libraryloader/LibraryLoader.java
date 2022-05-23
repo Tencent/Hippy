@@ -16,7 +16,9 @@
 
 package com.tencent.mtt.hippy.bridge.libraryloader;
 
+import android.text.TextUtils;
 import com.tencent.mtt.hippy.BuildConfig;
+import com.tencent.mtt.hippy.adapter.soloader.HippySoLoaderAdapter;
 
 public class LibraryLoader {
 
@@ -25,18 +27,30 @@ public class LibraryLoader {
       "hippy", "flexbox"
   };
 
-  public static synchronized void loadLibraryIfNeed() {
+  public static void loadLibraryIfNeed(HippySoLoaderAdapter soLoaderAdapter) {
     if (hasLoaded || BuildConfig.ENABLE_SO_DOWNLOAD) {
       return;
     }
-
-    try {
-      for (String name : SO_NAME_LIST) {
-        System.loadLibrary(name);
+    synchronized (LibraryLoader.class) {
+      if (hasLoaded) {
+        return;
       }
-      hasLoaded = true;
-    } catch (Throwable e) {
-      e.printStackTrace();
+      try {
+        for (String name : SO_NAME_LIST) {
+          String tinkerSoPath = null;
+          if (soLoaderAdapter != null) {
+            tinkerSoPath = soLoaderAdapter.loadSoPath(name);
+          }
+          if (!TextUtils.isEmpty(tinkerSoPath)) {
+            System.load(tinkerSoPath);
+          } else {
+            System.loadLibrary(name);
+          }
+        }
+        hasLoaded = true;
+      } catch (Throwable e) {
+        e.printStackTrace();
+      }
     }
   }
 }

@@ -141,7 +141,7 @@ class Navigator extends React.Component<NavigatorProps, {}> {
   public constructor(props: NavigatorProps) {
     super(props);
     const { initialRoute } = props;
-    if (initialRoute && initialRoute.component) {
+    if (initialRoute?.component) {
       const hippy = new Hippy({
         appName: initialRoute.routeName,
         entryPage: initialRoute.component,
@@ -202,7 +202,7 @@ class Navigator extends React.Component<NavigatorProps, {}> {
    * @param {Object} route - New router
    */
   public push(route: Route) {
-    if (route && route.component) {
+    if (route?.component) {
       if (!this.routeList[route.routeName]) {
         const hippy = new Hippy({
           appName: route.routeName,

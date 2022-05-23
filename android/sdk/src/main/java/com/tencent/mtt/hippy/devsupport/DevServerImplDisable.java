@@ -25,7 +25,7 @@ public class DevServerImplDisable implements DevServerInterface {
   final DevServerHelper mFetchHelper;
 
   DevServerImplDisable(HippyGlobalConfigs configs, String serverHost) {
-    mFetchHelper = new DevServerHelper(configs, serverHost);
+    mFetchHelper = new DevServerHelper(configs, serverHost, null);
   }
 
   @Override
@@ -55,6 +55,11 @@ public class DevServerImplDisable implements DevServerInterface {
         }
       }
     }, url);
+  }
+
+  @Override
+  public String createDebugUrl(String host, String debugClientId, String componentName) {
+    return null;
   }
 
   @Override

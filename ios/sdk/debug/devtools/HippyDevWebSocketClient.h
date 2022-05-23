@@ -50,7 +50,9 @@ typedef NS_ENUM(unsigned int, HippyDevWebSocketState) {
 @property(nonatomic, weak)id<HippyDevClientProtocol> delegate;
 @property(nonatomic, readonly)HippyDevWebSocketState state;
 
-- (instancetype)initWithDevInfo:(HippyDevInfo *)devInfo contextName:(NSString *)contextName;
+- (instancetype)initWithDevInfo:(HippyDevInfo *)devInfo
+                    contextName:(NSString *)contextName
+                       clientId:(NSString *)clientId;
 
 - (void)sendData:(id)data;
 

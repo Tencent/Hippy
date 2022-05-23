@@ -47,7 +47,7 @@ function getElementFromFiberRef(ref: Fiber | Element) {
   }
   // FIXME: should not use the private _reactInternalFiber
   const internalFiber = (ref as any)._reactInternalFiber || (ref as any)._reactInternals;
-  if (internalFiber && internalFiber.child) {
+  if (internalFiber?.child) {
     let targetNode = internalFiber.child;
     while (targetNode && !(targetNode.stateNode instanceof Element)) {
       targetNode = targetNode.child;
@@ -159,7 +159,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
 function measureInWindowByMethod(
   method: string,
   ref: Fiber,
-  callback?: (layout: HippyTypes.LayoutContent | string) => void,
+  callback?: (layout: HippyTypes.LayoutEvent | string) => void,
 ) {
   const nodeId = getNodeIdByRef(ref);
   return new Promise((resolve, reject) => {
@@ -170,7 +170,7 @@ function measureInWindowByMethod(
       }
       return reject(new Error(`${method} cannot get nodeId`));
     }
-    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: HippyTypes.LayoutContent | string) => {
+    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: HippyTypes.LayoutEvent | string) => {
       if (callback && isFunction(callback)) {
         callback(layout);
       }
@@ -192,7 +192,7 @@ function measureInWindowByMethod(
  * @param {Fiber | Element} ref - ref that need to measure.
  * @param {Function} callback
  */
-function measureInWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutContent | string) => void) {
+function measureInWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutEvent | string) => void) {
   return measureInWindowByMethod('measureInWindow', ref, callback);
 }
 
@@ -203,7 +203,7 @@ function measureInWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutConten
  * @param {Fiber | Element} ref - ref that need to measure.
  * @param {Function} callback
  */
-function measureInAppWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutContent | string) => void) {
+function measureInAppWindow(ref: Fiber, callback?: (layout: HippyTypes.LayoutEvent | string) => void) {
   if (Device.platform.OS === 'android') {
     return measureInWindowByMethod('measureInWindow', ref, callback);
   }

@@ -22,9 +22,6 @@
 
 #include "core/base/task_runner.h"
 
-#include <memory>
-#include <utility>
-
 #include "base/logging.h"
 #include "core/base/base_time.h"
 #include "core/base/macros.h"
@@ -65,8 +62,7 @@ void TaskRunner::Run() {
 void TaskRunner::Terminate() {
   {
     std::unique_lock<std::mutex> lock(mutex_);
-    TDF_BASE_DLOG(INFO)
-        << "TaskRunner::Terminate task_queue_ size = " << task_queue_.size();
+    TDF_BASE_DLOG(INFO) << "TaskRunner::Terminate task_queue_ size = " << task_queue_.size();
     if (is_terminated_) {
       TDF_BASE_DLOG(INFO) << "TaskRunner has been terminated";
       return;
@@ -142,16 +138,15 @@ std::shared_ptr<Task> TaskRunner::GetNext() {
     }
 
     if (is_terminated_) {
-      hippy::napi::DetachThread();
       TDF_BASE_DLOG(INFO) << "TaskRunner terminate";
       return nullptr;
     }
 
     if (task_queue_.empty() && !delayed_task_queue_.empty()) {
       const DelayedEntry& delayed_task = delayed_task_queue_.top();
-      DelayedTimeInMs wait_in_msseconds = delayed_task.first - now;
+      DelayedTimeInMs wait_in_ms = delayed_task.first - now;
       bool notified =
-          cv_.wait_for(lock, std::chrono::milliseconds(wait_in_msseconds)) ==
+          cv_.wait_for(lock, std::chrono::milliseconds(wait_in_ms)) ==
           std::cv_status::timeout;
       HIPPY_USE(notified);
     } else {

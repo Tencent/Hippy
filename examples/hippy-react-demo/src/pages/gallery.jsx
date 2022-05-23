@@ -16,7 +16,6 @@ const SKIN_COLOR = {
   textWhite: '#fff',
 };
 
-
 const styles = StyleSheet.create({
   rowContainer: {
     alignItems: 'center',
@@ -57,10 +56,13 @@ export class Gallery extends Component {
     if (Platform.OS === 'android') {
       BackAndroid.addListener(() => {
         console.log('BackAndroid');
-        if (history.index === 0) {
+        if (history.index !== 0) {
           history.goBack();
           return true;
         }
+        // if returned to root route, you can decide whether to exit app,
+        // such as using popup
+        // BackAndroid.exitApp();
         return false;
       });
     }

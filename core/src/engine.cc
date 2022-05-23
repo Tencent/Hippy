@@ -22,12 +22,8 @@
 
 #include "core/engine.h"
 
-#include <memory>
-#include <mutex>  // NOLINT(build/c++11)
-
 #include "core/scope.h"
 #include "core/task/javascript_task.h"
-#include "core/task/javascript_task_runner.h"
 
 constexpr uint32_t Engine::kDefaultWorkerPoolSize = 1;
 
@@ -48,11 +44,14 @@ Engine::~Engine() {
 
 void Engine::TerminateRunner() {
   TDF_BASE_DLOG(INFO) << "~TerminateRunner";
-  std::lock_guard<std::mutex> lock(runner_mutex_);
-  if (js_runner_) {
-    js_runner_->Terminate();
-    js_runner_ = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(js_runner_mutex_);
+    if (js_runner_) {
+      js_runner_->Terminate();
+      js_runner_ = nullptr;
+    }
   }
+
   if (worker_task_runner_) {
     worker_task_runner_->Terminate();
     worker_task_runner_ = nullptr;

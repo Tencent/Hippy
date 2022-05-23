@@ -20,6 +20,7 @@
 
 /* eslint-disable no-bitwise */
 // @ts-nocheck
+import normalizeCSSColor from 'normalize-css-color';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
 import normalizeValue from './normalize-value';
@@ -31,6 +32,35 @@ const displayValue = typeof window !== 'undefined' && !('flex' in window.documen
 function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return Object.prototype.hasOwnProperty.call(obj, name);
 }
+
+const processColor = (color?: HippyTypes.color): string | number | undefined => {
+  if (!color) return color;
+
+  let int32Color: any = normalizeCSSColor(color);
+  if (int32Color === undefined || int32Color === null) {
+    return undefined;
+  }
+
+  int32Color = ((int32Color << 24) | (int32Color >>> 8)) >>> 0;
+
+  return int32Color;
+};
+
+export const normalizeColor = (color?: HippyTypes.color, opacity = 1): void | string => {
+  if (!color) return;
+
+  if (typeof color === 'string') {
+    return color;
+  }
+  const colorInt: any = processColor(color);
+
+  const r = (colorInt >> 16) & 255;
+  const g = (colorInt >> 8) & 255;
+  const b = colorInt & 255;
+  const a = ((colorInt >> 24) & 255) / 255;
+  const alpha = (a * opacity).toFixed(2);
+  return `rgba(${r},${g},${b},${alpha})`;
+};
 
 // { scale: 2 } => 'scale(2)'
 // { translateX: 20 } => 'translateX(20px)'
@@ -77,18 +107,6 @@ function resolveTransform(transformArray: any[]): any {
   return transform;
 }
 
-function is8DigitHexColor(color: string) {
-  return color && color.length === 9 && color[0] === '#';
-}
-
-function transformHexToRgba(color: number) {
-  const red = (color & 0xff000000) >>> 24;
-  const green = (color & 0x00ff0000) >> 16;
-  const blue = (color & 0x0000ff00) >> 8;
-  const alpha = (color & 0x000000ff);
-  return `rbga(${red},${green},${blue},${alpha})`;
-}
-
 function isNumeric(num: unknown) {
   if (typeof num === 'number' && Number.isFinite(num)) {
     return true;
@@ -132,6 +150,17 @@ interface WebStyle {
   borderRightColors?: HippyTypes.colors;
   backgroundColor?: HippyTypes.color;
   backgroundColors?: HippyTypes.colors;
+  backgroundImage?: string;
+  boxShadow?: string;
+  boxShadowRadius?: number | string;
+  boxShadowOffsetX?: number | string;
+  boxShadowOffsetY?: number | string;
+  boxShadowSpread?: number | string;
+  boxShadowColor?: HippyTypes.color;
+  textShadow?: string;
+  textShadowOffset?: { x: number, y: number };
+  textShadowRadius?: number | string;
+  textShadowColor?: HippyTypes.color;
 }
 
 function handleBoxStyle(webStyle: WebStyle) {
@@ -192,36 +221,64 @@ function handleSpecialColor(webStyle: WebStyle) {
   });
 }
 
-function handle8BitHexColor(webStyle: WebStyle) {
-  // covert color from hex to rgba
-  if (is8DigitHexColor(webStyle.backgroundColor)) {
-    webStyle.backgroundColor = transformHexToRgba(webStyle.backgroundColor);
-  }
-
-  if (is8DigitHexColor(webStyle.color)) {
-    webStyle.color = transformHexToRgba(webStyle.color);
-  }
-
-  if (is8DigitHexColor(webStyle.borderColor)) {
-    webStyle.borderColor = transformHexToRgba(webStyle.borderColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderTopColor)) {
-    webStyle.borderTopColor = transformHexToRgba(webStyle.borderTopColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderBottomColor)) {
-    webStyle.borderBottomColor = transformHexToRgba(webStyle.borderBottomColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderLeftColor)) {
-    webStyle.borderLeftColor = transformHexToRgba(webStyle.borderLeftColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderRightColor)) {
-    webStyle.borderRightColor = transformHexToRgba(webStyle.borderRightColor);
+function handleBoxShadow(webStyle: WebStyle) {
+  const {
+    boxShadowOffsetX = 0,
+    boxShadowOffsetY = 0,
+    boxShadowRadius = 0,
+    boxShadowSpread = 0,
+    boxShadowColor,
+  } = webStyle;
+  const offsetX = toPx(boxShadowOffsetX);
+  const offsetY = toPx(boxShadowOffsetY);
+  const radius = toPx(boxShadowRadius);
+  const spread = toPx(boxShadowSpread);
+  if (boxShadowColor && offsetX && offsetY) {
+    webStyle.boxShadow = `${offsetX} ${offsetY} ${radius} ${spread} ${boxShadowColor}`;
   }
 }
+
+function handleTextShadow(style: WebStyle) {
+  const { textShadowColor, textShadowOffset = { x: 0, y: 0 }, textShadowRadius } = style;
+  const { x, y } = textShadowOffset;
+  const offsetX = toPx(x);
+  const offsetY = toPx(y);
+  const radius = toPx(textShadowRadius);
+  if (x && y) {
+    style.textShadow = `${offsetX} ${offsetY} ${radius} ${textShadowColor}`;
+  }
+}
+
+const handleLinearBackground = (style: WebStyle) => {
+  if (style.backgroundImage) {
+    const { backgroundImage } = style;
+    // remove linear-gradient tail semicolon.
+    if (backgroundImage.startsWith('linear-gradient') && backgroundImage.endsWith(';')) {
+      style.backgroundImage = backgroundImage.substring(0, backgroundImage.length - 1);
+    }
+  }
+};
+
+const handlePropertyColor = (style: WebStyle) => {
+  const colorProps = {
+    backgroundColor: true,
+    color: true,
+    borderColor: true,
+    borderTopColor: true,
+    borderRightColor: true,
+    borderBottomColor: true,
+    borderLeftColor: true,
+    shadowColor: true,
+    textDecorationColor: true,
+    textShadowColor: true,
+  };
+  const propertyList = Object.keys(colorProps);
+  propertyList.forEach((property) => {
+    if (property !== null && style[property]) {
+      style[property] = normalizeColor(style[property]);
+    }
+  });
+};
 
 function hackWebStyle(webStyle_: any) {
   const webStyle = webStyle_;
@@ -268,8 +325,7 @@ function hackWebStyle(webStyle_: any) {
     webStyle.height = '1px';
   }
   handleSpecialColor(webStyle);
-  // convert 8bit color from hex rgba
-  handle8BitHexColor(webStyle);
+  handlePropertyColor(webStyle);
 
   Object.keys(webStyle)
     .forEach((key) => {
@@ -306,10 +362,14 @@ function hackWebStyle(webStyle_: any) {
       webStyle.transform = finalTransformStyleResult;
     }
   }
+  // handle shadow
+  handleBoxShadow(webStyle);
+  handleTextShadow(webStyle);
+  handleLinearBackground(webStyle);
 }
 
 function formatWebStyle(style: any) {
-  const webStyle = {};
+  const webStyle: Record<string, any> = {};
 
   if (Array.isArray(style)) {
     style.forEach((itemStyle) => {

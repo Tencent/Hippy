@@ -51,9 +51,17 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    */
   private static final long MAX_UINT32_VALUE = 4294967295L;
   /**
+   * Unsigned int min value.
+   */
+  private static final long MIN_UINT32_VALUE = 0L;
+  /**
    * Small string max length, used for SSO(Short / Small String Optimization).
    */
   private static final int SSO_SMALL_STRING_MAX_LENGTH = 32;
+  /**
+   * ISO-8859-1(Latin1) max char
+   */
+  private static final char ISO_8859_1_MAX_CHAR = 0xff;
 
   protected PrimitiveValueSerializer(BinaryWriter writer) {
     super();
@@ -101,11 +109,11 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
   }
 
   protected void writeTag(ArrayBufferViewTag tag) {
-    writer.putByte(tag.getTag());
+    writer.putVarint(tag.getTag());
   }
 
   protected void writeTag(ErrorTag tag) {
-    writer.putByte(tag.getTag());
+    writer.putVarint(tag.getTag());
   }
 
   /**
@@ -122,7 +130,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
         writeInt32((int) value);
       } else if (value instanceof Long) {
         long longValue = (long) value;
-        if (longValue <= MAX_UINT32_VALUE) {
+        if (longValue <= MAX_UINT32_VALUE && longValue >= MIN_UINT32_VALUE) {
           writeTag(SerializationTag.UINT32);
           writer.putVarint(longValue);
         } else {
@@ -304,11 +312,11 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     // Designed to take advantage of
     // https://wiki.openjdk.java.net/display/HotSpot/RangeCheckElimination
     if (length > SSO_SMALL_STRING_MAX_LENGTH) {
-      for (char c; i < length && (c = stringWriteBuffer[i]) < 0x80; i++) {
+      for (char c; i < length && (c = stringWriteBuffer[i]) <= ISO_8859_1_MAX_CHAR; i++) {
         writer.putByte((byte) c);
       }
     } else {
-      for (char c; i < length && (c = value.charAt(i)) < 0x80; i++) {
+      for (char c; i < length && (c = value.charAt(i)) <= ISO_8859_1_MAX_CHAR; i++) {
         writer.putByte((byte) c);
       }
     }
@@ -320,7 +328,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
 
     // region two byte string, universal path
     writeTag(SerializationTag.TWO_BYTE_STRING);
-    writer.putVarint(length * 2);
+    writer.putVarint(length * 2L);
     if (length > SSO_SMALL_STRING_MAX_LENGTH) {
       for (i = 0; i < length; i++) {
         char c = stringWriteBuffer[i];

@@ -29,7 +29,6 @@ export default class DynamicImportDemo extends React.Component {
   }
 
   onAsyncComponentLoad() {
-    /* eslint-disable-next-line no-console */
     console.log('load async component');
     /**
      *  在支持动态加载的终端版本，可添加 magic comment 'webpackMode: "lazy"'，也可以不加，默认采用lazy模式;
@@ -60,7 +59,7 @@ export default class DynamicImportDemo extends React.Component {
      *  import 出错时需在catch里做对应的降级方案
      */
     if (process.env.NODE_ENV === 'development') {
-      import(/* webpackMode: "lazy",customChunkPath: "http://127.0.0.1:38989/", webpackChunkName: "asyncComponentFromHttp" */'./AsyncComponentHttp')
+      import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromHttp" */'./AsyncComponentHttp')
         .then((component) => {
           this.setState({
             AsyncComponentFromHttp: component.default || component,

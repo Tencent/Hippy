@@ -23,7 +23,7 @@
 #include "jni/jni_register.h"
 
 #include "base/unicode_string_view.h"
-#include "core/base/string_view_utils.h"
+#include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/uri.h"
 
@@ -80,7 +80,9 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
       methods.push_back(method);
     }
 
-    j_env->RegisterNatives(j_class, methods.data(), JniUtils::CheckedNumericCast<size_t, jint>(methods.size()));
+    j_env->RegisterNatives(j_class,
+                           methods.data(),
+                           hippy::base::checked_numeric_cast<size_t, jint>(methods.size()));
   }
   return true;
 }

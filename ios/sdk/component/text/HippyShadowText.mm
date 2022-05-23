@@ -42,6 +42,8 @@ CGFloat const HippyTextAutoSizeWidthErrorMargin = 0.05f;
 CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 
+static const CGFloat gDefaultFontSize = 14.f;
+
 @implementation HippyShadowText
 // MTTlayout
 static MTTSize x5MeasureFunc(
@@ -261,15 +263,14 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 /**
                  * For RichText, a view, which is top aligment by default, should be center alignment to text,
                  */
-
+                
+                //rect for attachment at its line fragment
                 CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-                CGRect usedOriginRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location effectiveRange:nil];
-                CGFloat lineHeight = usedOriginRect.size.height;
-                CGFloat Roundedheight = x5RoundPixelValue(height);
-                CGFloat originY = usedOriginRect.origin.y + (lineHeight - Roundedheight) / 2;
-                CGRect childFrame = { { x5RoundPixelValue(glyphRect.origin.x),
-                                        x5RoundPixelValue(originY) },
-                    { x5RoundPixelValue(width), Roundedheight } };
+                CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
+                CGFloat roundedHeight = x5RoundPixelValue(height);
+                CGFloat roundedWidth = x5RoundPixelValue(width);
+                CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
+                CGRect childFrame = CGRectMake(location.x, positionY, roundedWidth, roundedHeight);
                 NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
                 BOOL childIsTruncated = NSIntersectionRange(range, truncatedGlyphRange).length != 0;
 
@@ -357,6 +358,10 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     if (_fontSize && !isnan(_fontSize)) {
         fontSize = @(_fontSize);
     }
+    else if (nil == fontSize) {
+        //default font size is 14
+        fontSize = @(gDefaultFontSize);
+    }
     if (_fontWeight) {
         fontWeight = _fontWeight;
     }
@@ -382,6 +387,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
+    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
     for (HippyShadowView *child in [self hippySubviews]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             HippyShadowText *shadowText = (HippyShadowText *)child;
@@ -395,7 +401,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             [child setTextComputed];
         } else {
             // MTTlayout
-            NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
             MTTDirection nodeDirection = (NSWritingDirectionRightToLeft == direction) ? DirectionRTL : DirectionLTR;
             nodeDirection = self.layoutDirection != DirectionInherit ? self.layoutDirection : nodeDirection;
             MTTNodeDoLayout(child.nodeRef, NAN, NAN, nodeDirection);
@@ -441,6 +446,14 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     [self _addAttribute:NSKernAttributeName withValue:letterSpacing toAttributedString:attributedString];
     [self _addAttribute:HippyHippyTagAttributeName withValue:self.hippyTag toAttributedString:attributedString];
     [self _setParagraphStyleOnAttributedString:attributedString fontLineHeight:font.lineHeight heightOfTallestSubview:heightOfTallestSubview];
+    if (NSWritingDirectionRightToLeft == direction) {
+        NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding)]};
+        [attributedString addAttributes:dic range:NSMakeRange(0, [attributedString length])];
+    }
+    else {
+        NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionLeftToRight | NSWritingDirectionOverride)]};
+        [attributedString addAttributes:dic range:NSMakeRange(0, [attributedString length])];
+    }
 
     // create a non-mutable attributedString for use by the Text system which avoids copies down the line
     _cachedAttributedString = [[NSAttributedString alloc] initWithAttributedString:attributedString];
@@ -521,7 +534,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             maxHeight = ceilf(heightOfTallestSubview);
         }
         paragraphStyle.minimumLineHeight = lineHeight;
-        paragraphStyle.maximumLineHeight = maxHeight;
+//        paragraphStyle.maximumLineHeight = maxHeight;
         [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:(NSRange) { 0, attributedString.length }];
 
         /**

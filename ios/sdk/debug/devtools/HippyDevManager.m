@@ -42,7 +42,10 @@
     self = [super init];
     if (self) {
         _bridge = bridge;
-        _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevInfo:devInfo contextName:contextName];
+        NSString *clientId = [HippyDevInfo debugClientIdWithBridge:_bridge];
+        _devWSClient = [[HippyDevWebSocketClient alloc] initWithDevInfo:devInfo
+                                                            contextName:contextName
+                                                               clientId:clientId];
         _devWSClient.delegate = self;
         [HippyInspector sharedInstance].devManager = self;
     }
@@ -77,6 +80,12 @@
         NSData *data = [NSJSONSerialization dataWithJSONObject:rspObject options:0 error:nil];
         [devClient sendData:data];
     }];
+}
+
+- (void)dealloc {
+    if (_devWSClient && DevWebSocketState_CLOSED != [_devWSClient state]) {
+        [_devWSClient closeWithCode:HippyDevCloseTypeClosePage reason:@"socket was closed because dev manager dealloc"];
+    }
 }
 
 @end

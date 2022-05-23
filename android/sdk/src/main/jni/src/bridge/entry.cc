@@ -35,7 +35,6 @@
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"
-#include "core/base/string_view_utils.h"
 #include "core/core.h"
 #include "jni/turbo_module_manager.h"
 #include "jni/exception_handler.h"
@@ -49,9 +48,9 @@ namespace hippy {
 namespace bridge {
 
 REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cpp)
-                    "initNativeLogHandler",
-                    "(Lcom/tencent/mtt/hippy/IHippyNativeLogHandler;)V",
-                    InitNativeLogHandler)
+                    "setNativeLogHandler",
+                    "(Lcom/tencent/mtt/hippy/adapter/HippyLogAdapter;)V",
+                    setNativeLogHandler)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
@@ -70,6 +69,11 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "(JZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
              DestroyInstance)
 
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
+             "runScript",
+             "(JLjava/lang/String;)V",
+             RunScript)
+
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
@@ -85,20 +89,26 @@ std::mutex inspector_mutex;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
 
+constexpr char kLogTag[] = "native";
+
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
     reuse_engine_map;
 static std::mutex engine_mutex;
+static std::mutex log_mutex;
+static bool is_inited = false;
 
-static const int64_t kDefaultEngineId = -1;
-static const int64_t kDebuggerEngineId = -9999;
-static const uint32_t kRuntimeSlotIndex = 0;
+constexpr int64_t kDefaultEngineId = -1;
+constexpr int64_t kDebuggerEngineId = -9999;
+constexpr uint32_t kRuntimeSlotIndex = 0;
+// -1 means single isolate multi-context mode
+constexpr int32_t kReuseRuntimeId = -1;
 
 enum INIT_CB_STATE {
   RUN_SCRIPT_ERROR = -1,
   SUCCESS = 0,
 };
 
-void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
+void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
   if (!j_logger) {
     return;
   }
@@ -109,35 +119,63 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
   }
 
   jmethodID j_method =
-      j_env->GetMethodID(j_cls, "onReceiveNativeLogMessage", "(Ljava/lang/String;)V");
+      j_env->GetMethodID(j_cls, "onReceiveLogMessage", "(ILjava/lang/String;Ljava/lang/String;)V");
   if (!j_method) {
     return;
   }
   std::shared_ptr<JavaRef> logger = std::make_shared<JavaRef>(j_env, j_logger);
-  tdf::base::LogMessage::SetDelegate([logger, j_method](
-                                         const std::ostringstream& stream,
-                                         tdf::base::LogSeverity severity) {
-    std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-    JNIEnv* j_env = instance->AttachCurrentThread();
+  {
+    std::lock_guard<std::mutex> lock(log_mutex);
+    if (!is_inited) {
+      tdf::base::LogMessage::InitializeDelegate([logger, j_method](
+          const std::ostringstream& stream,
+          tdf::base::LogSeverity severity) {
+        std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+        JNIEnv* j_env = instance->AttachCurrentThread();
 
-    std::string str = stream.str();
-    jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
-    j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
-    j_env->DeleteLocalRef(j_logger_str);
-  });
+        std::string str = stream.str();
+        jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
+        jstring j_tag_str = j_env->NewStringUTF(kLogTag);
+        jint j_level = static_cast<jint>(severity);
+        j_env->CallVoidMethod(logger->GetObj(), j_method, j_level, j_tag_str, j_logger_str);
+        JNIEnvironment::ClearJEnvException(j_env);
+        j_env->DeleteLocalRef(j_tag_str);
+        j_env->DeleteLocalRef(j_logger_str);
+      });
+      is_inited = true;
+    }
+  }
 }
 
-bool RunScript(const std::shared_ptr<Runtime>& runtime,
-               const unicode_string_view& file_name,
-               bool is_use_code_cache,
-               const unicode_string_view& code_cache_dir,
-               const unicode_string_view& uri,
-               AAssetManager* asset_manager) {
-  TDF_BASE_LOG(INFO) << "RunScript begin, file_name = " << file_name
-                      << ", is_use_code_cache = " << is_use_code_cache
-                      << ", code_cache_dir = " << code_cache_dir
-                      << ", uri = " << uri
-                      << ", asset_manager = " << asset_manager;
+void RunScript(JNIEnv* j_env, __unused jobject, jlong j_runtime_id, jstring j_script) {
+  TDF_BASE_DLOG(INFO) << "RunScript, j_runtime_id = " << j_runtime_id;
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl RunScript, j_runtime_id invalid";
+    return;
+  }
+  const unicode_string_view script = JniUtils::ToStrView(j_env, j_script);
+  TDF_BASE_DLOG(INFO) << "RunScript, script = " << script;
+  auto runner = runtime->GetEngine()->GetJSRunner();
+  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+  task->callback = [runtime, script{std::move(script)}] () mutable {
+    auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(runtime->GetScope()->GetContext());
+    auto ret = context->RunScript(script, "");
+  };
+  runner->PostTask(task);
+}
+
+bool RunScriptInternal(const std::shared_ptr<Runtime>& runtime,
+                       const unicode_string_view& file_name,
+                       bool is_use_code_cache,
+                       const unicode_string_view& code_cache_dir,
+                       const unicode_string_view& uri,
+                       AAssetManager* asset_manager) {
+  TDF_BASE_LOG(INFO) << "RunScriptInternal begin, file_name = " << file_name
+                     << ", is_use_code_cache = " << is_use_code_cache
+                     << ", code_cache_dir = " << code_cache_dir
+                     << ", uri = " << uri
+                     << ", asset_manager = " << asset_manager;
   unicode_string_view script_content;
   bool read_script_flag;
   unicode_string_view code_cache_content;
@@ -204,7 +242,7 @@ bool RunScript(const std::shared_ptr<Runtime>& runtime,
   auto ret = std::static_pointer_cast<hippy::napi::V8Ctx>(
                  runtime->GetScope()->GetContext())
                  ->RunScript(script_content, file_name, is_use_code_cache,
-                             &code_cache_content);
+                             &code_cache_content, true);
   if (is_use_code_cache) {
     if (!StringViewUtils::IsEmpty(code_cache_content)) {
       std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
@@ -253,7 +291,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jobject j_cb) {
   TDF_BASE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
                       << j_runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(JniUtils::CheckedNumericCast<jlong, int32_t>(j_runtime_id));
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
         << "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid";
@@ -304,8 +342,8 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                     j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
                     time_begin] {
     TDF_BASE_DLOG(INFO) << "runScriptFromUri enter";
-    bool flag = RunScript(runtime, script_name, j_can_use_code_cache,
-                          code_cache_dir, uri, aasset_manager);
+    bool flag = RunScriptInternal(runtime, script_name, j_can_use_code_cache,
+                                  code_cache_dir, uri, aasset_manager);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
                         std::chrono::system_clock::now())
                         .time_since_epoch()
@@ -347,15 +385,23 @@ void HandleUncaughtJsError(v8::Local<v8::Message> message,
     return;
   }
 
-  std::shared_ptr<hippy::napi::V8Ctx> ctx =
-      std::static_pointer_cast<hippy::napi::V8Ctx>(
-          runtime->GetScope()->GetContext());
-  TDF_BASE_LOG(ERROR) << "HandleUncaughtJsError error desc = "
+  auto scope = runtime->GetScope();
+  if (!scope) {
+    return;
+  }
+  auto context = scope->GetContext();
+  if (!context) {
+    return;
+  }
+  std::shared_ptr<hippy::napi::V8Ctx> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+  TDF_BASE_LOG(ERROR) << "HandleUncaughtJsError, runtime_id = "
+                      << runtime->GetId()
+                      << ", desc = "
                       << ctx->GetMsgDesc(message)
                       << ", stack = " << ctx->GetStackInfo(message);
   ExceptionHandler::ReportJsException(runtime, ctx->GetMsgDesc(message),
                                       ctx->GetStackInfo(message));
-  ctx->ThrowExceptionToJS(
+  ctx->HandleUncaughtException(
       std::make_shared<hippy::napi::V8CtxValue>(isolate, error));
 
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
@@ -372,7 +418,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jobject j_vm_init_param) {
   TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
-                     << ", j_bridge_param_json = "
+                     << ", j_enable_v8_serialization = "
                      << static_cast<uint32_t>(j_enable_v8_serialization)
                      << ", j_is_dev_module = "
                      << static_cast<uint32_t>(j_is_dev_module)
@@ -382,24 +428,28 @@ jlong InitInstance(JNIEnv* j_env,
                                 j_enable_v8_serialization, j_is_dev_module);
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
-  RegisterFunction vm_cb = [runtime_id](void* vm) {
+  int64_t group = j_group_id;
+  RegisterFunction vm_cb = [group, runtime_id](void* vm) {
     V8VM* v8_vm = reinterpret_cast<V8VM*>(vm);
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
+    if (group == kDefaultEngineId) {
+      TDF_BASE_LOG(INFO) << "isolate->SetData runtime_id = " << runtime_id;
+      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
+    } else {
+      TDF_BASE_LOG(INFO) << "isolate->SetData runtime_id = " << kReuseRuntimeId;
+      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(kReuseRuntimeId));
+    }
     isolate->AddMessageListener(HandleUncaughtJsError);
-    isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
   };
 
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
   engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
 
-  unicode_string_view global_config =
-      JniUtils::JByteArrayToStrView(j_env, j_global_config);
-
-  TDF_BASE_LOG(INFO) << "global_config = " << global_config;
+  unicode_string_view global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
+  TDF_BASE_DLOG(INFO) << "global_config = " << global_config;
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  std::shared_ptr<JavaRef> save_object =
-      std::make_shared<JavaRef>(j_env, j_callback);
+  std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_callback);
 
   RegisterFunction context_cb = [runtime, global_config,
                                  runtime_id](void* scopeWrapper) {
@@ -449,17 +499,18 @@ jlong InitInstance(JNIEnv* j_env,
   scope_cb_map->insert(
       std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
 
-  int64_t group = j_group_id;
   std::shared_ptr<V8VMInitParam> param;
   if (j_vm_init_param) {
     param = std::make_shared<V8VMInitParam>();
     jclass cls = j_env->GetObjectClass(j_vm_init_param);
     jfieldID init_field = j_env->GetFieldID(cls,"initialHeapSize","J");
     param->initial_heap_size_in_bytes =
-            JniUtils::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, init_field));
+        hippy::base::checked_numeric_cast<jlong, size_t>(j_env->GetLongField(j_vm_init_param,
+                                                                             init_field));
     jfieldID max_field = j_env->GetFieldID(cls,"maximumHeapSize","J");
     param->maximum_heap_size_in_bytes =
-            JniUtils::CheckedNumericCast<jlong, size_t>(j_env->GetLongField(j_vm_init_param, max_field));
+        hippy::base::checked_numeric_cast<jlong, size_t>(j_env->GetLongField(j_vm_init_param,
+                                                                             max_field));
     TDF_BASE_CHECK(param->initial_heap_size_in_bytes <= param->maximum_heap_size_in_bytes);
   }
   std::shared_ptr<Engine> engine;
@@ -488,10 +539,6 @@ jlong InitInstance(JNIEnv* j_env,
       engine = std::get<std::shared_ptr<Engine>>(it->second);
       runtime->SetEngine(engine);
       std::get<uint32_t>(it->second) += 1;
-      std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
-      v8::Isolate* isolate = v8_vm->isolate_;
-      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(-1));
-      // -1 means single isolate multi-context mode
       TDF_BASE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
                           << ", use_count = " << engine.use_count();
     } else {
@@ -529,7 +576,8 @@ void DestroyInstance(__unused JNIEnv* j_env,
   }
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [runtime, runtime_id] {
+  std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
+  task->callback = [runtime, runtime_id, cb] {
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
 #ifdef ENABLE_INSPECTOR
     if (runtime->IsDebug()) {
@@ -542,11 +590,10 @@ void DestroyInstance(__unused JNIEnv* j_env,
 #else
     runtime->GetScope()->WillExit();
 #endif
-    TDF_BASE_LOG(INFO) << "SetScope nullptr";
-    runtime->SetScope(nullptr);
     TDF_BASE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
     TDF_BASE_LOG(INFO) << "js destroy end";
+    hippy::bridge::CallJavaMethod(cb->GetObj(), INIT_CB_STATE::SUCCESS);
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerEngineId) {
@@ -574,7 +621,6 @@ void DestroyInstance(__unused JNIEnv* j_env,
       TDF_BASE_DLOG(FATAL) << "engine not find";
     }
   }
-  hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   TDF_BASE_DLOG(INFO) << "destroy end";
 }
 

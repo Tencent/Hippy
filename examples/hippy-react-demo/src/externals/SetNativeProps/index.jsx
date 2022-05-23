@@ -24,8 +24,8 @@ const styleObj = StyleSheet.create({
   nativeDemo1Point: {
     height: 80,
     width: 80,
-    color: '#ff0000',
-    backgroundColor: '#ff0000',
+    color: '#4cccfa',
+    backgroundColor: '#4cccfa',
     position: 'absolute',
     left: 0,
   },
@@ -39,8 +39,8 @@ const styleObj = StyleSheet.create({
   nativeDemo2Point: {
     height: 80,
     width: 80,
-    color: '#ff0000',
-    backgroundColor: '#ff0000',
+    color: '#4cccfa',
+    backgroundColor: '#4cccfa',
     position: 'absolute',
     left: 0,
   },
@@ -78,7 +78,6 @@ export default class SetNativePropsDemo extends React.Component {
   onTouchDown1(e) {
     const { page_x: pageX } = e;
     const position = pageX - 40;
-    /* eslint-disable-next-line no-console */
     console.log('touchdown x', pageX, position, screenWidth);
     if (this.demo1PointDom) {
       this.demo1PointDom.setNativeProps({
@@ -92,7 +91,6 @@ export default class SetNativePropsDemo extends React.Component {
   onTouchMove1(e) {
     const { page_x: pageX } = e;
     const position = pageX - 40;
-    /* eslint-disable-next-line no-console */
     console.log('touchmove x', pageX, position, screenWidth);
     if (this.demo1PointDom) {
       this.demo1PointDom.setNativeProps({
@@ -106,7 +104,6 @@ export default class SetNativePropsDemo extends React.Component {
   onTouchDown2(e) {
     const { page_x: pageX } = e;
     const position = pageX - 40;
-    /* eslint-disable-next-line no-console */
     console.log('touchdown x', pageX, position, screenWidth);
     this.setState({
       demo2Left: position,
@@ -116,7 +113,6 @@ export default class SetNativePropsDemo extends React.Component {
   onTouchMove2(e) {
     const { page_x: pageX } = e;
     const position = pageX - 40;
-    /* eslint-disable-next-line no-console */
     console.log('touchmove x', pageX, position, screenWidth);
     this.setState({
       demo2Left: position,

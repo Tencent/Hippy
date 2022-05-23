@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.devsupport;
 
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
 import java.util.UUID;
 
 @SuppressWarnings({"unused"})
@@ -24,12 +25,16 @@ public class DevSupportManager {
 
   final DevServerInterface mDevImp;
   final boolean mSupportDev;
-  private UUID mInstanceUUID = UUID.randomUUID();
+  private final Inspector mInspector;
+  private String mDebugComponentName;
+  // to differ hippy page
+  private final UUID mInstanceUUID = UUID.randomUUID();
 
   public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
-      String bundleName) {
-    this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
+      String bundleName, String remoteServerUrl) {
+    this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName, remoteServerUrl);
     mSupportDev = enableDev;
+    mInspector = new Inspector();
   }
 
   public DevServerInterface getDevImp() {
@@ -52,6 +57,10 @@ public class DevSupportManager {
     return mDevImp.createResourceUrl(resName);
   }
 
+  public String createDebugUrl(String host) {
+    return mDevImp.createDebugUrl(host, mInstanceUUID.toString(), mDebugComponentName);
+  }
+
   public void handleException(Throwable throwable) {
     mDevImp.handleException(throwable);
   }
@@ -60,11 +69,19 @@ public class DevSupportManager {
     mDevImp.loadRemoteResource(url, serverCallBack);
   }
 
-	public String getDevInstanceUUID() {
-	  return mInstanceUUID.toString();
-  }
-
   public boolean isSupportDev() {
 	  return mSupportDev;
+  }
+
+  public void setDebugComponentName(String debugComponentName) {
+    mDebugComponentName = debugComponentName;
+  }
+
+  public String getDebugInstanceId() {
+    return mInstanceUUID.toString();
+  }
+
+  public Inspector getInspector() {
+    return mInspector;
   }
 }

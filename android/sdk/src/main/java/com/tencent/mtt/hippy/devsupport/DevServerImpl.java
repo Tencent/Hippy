@@ -21,6 +21,7 @@ import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -33,6 +34,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
+import java.util.UUID;
 
 @SuppressWarnings({"unused"})
 public class DevServerImpl implements View.OnClickListener, DevServerInterface,
@@ -51,8 +53,9 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
   private final Stack<DevFloatButton> mDebugButtonStack;
   private final LiveReloadController mLiveReloadController;
 
-  DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName) {
-    mFetchHelper = new DevServerHelper(configs, serverHost);
+  DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName,
+    String remoteServerUrl) {
+    mFetchHelper = new DevServerHelper(configs, serverHost, remoteServerUrl);
     mServerConfig = new DevServerConfig(serverHost, bundleName);
     mDebugButtonStack = new Stack<>();
     mHostButtonMap = new HashMap<>();
@@ -141,6 +144,12 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
         }
       }
     }, url);
+  }
+
+  @Override
+  public String createDebugUrl(String host, String debugClientId, String componentName) {
+    return mFetchHelper.createDebugURL(host, !TextUtils.isEmpty(componentName) ? componentName :
+      mServerConfig.getBundleName(), debugClientId);
   }
 
   @Override

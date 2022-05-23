@@ -1,6 +1,41 @@
 <template>
-  <div id="div-demo">
+  <div
+    id="div-demo"
+    @scroll="onOuterScroll"
+  >
     <div>
+      <div v-if="Vue.Native.Platform !== 'ios'">
+        <label>水波纹效果: </label>
+        <div :style="{ ...imgRectangle, ...imgRectangleExtra}">
+          <demo-ripple-div
+            :position-y="offsetY"
+            :wrapper-style="imgRectangle"
+            :native-background-android="{ borderless: true, color: '#666666' }"
+          >
+            <p :style="{ color: 'white', maxWidth: 200 }">
+              外层背景图，内层无边框水波纹，受外层影响始终有边框
+            </p>
+          </demo-ripple-div>
+        </div>
+        <demo-ripple-div
+          :position-y="offsetY"
+          :wrapper-style="circleRipple"
+          :native-background-android="{ borderless: true, color: '#666666', rippleRadius: 100 }"
+        >
+          <p :style="{ color: 'black', textAlign: 'center' }">
+            无边框圆形水波纹
+          </p>
+        </demo-ripple-div>
+        <demo-ripple-div
+          :position-y="offsetY"
+          :wrapper-style="squareRipple"
+          :native-background-android="{ borderless: false, color: '#666666' }"
+        >
+          <p :style="{ color: '#fff' }">
+            带背景色水波纹
+          </p>
+        </demo-ripple-div>
+      </div>
       <label>背景图效果:</label>
       <div
         :style="demo1Style"
@@ -71,7 +106,6 @@
         class="div-demo-3"
         :showsVerticalScrollIndicator="false"
       >
-        <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-column">
           <p class="text-block">
             A
@@ -95,15 +129,22 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import defaultImage from '../../assets/defaultSource.jpg';
+import DemoRippleDiv from './demo-ripple-div.vue';
 
 export default {
+  components: {
+    'demo-ripple-div': DemoRippleDiv,
+  },
   data() {
     /**
      * demo1 needs to use variable base64 DefaultImage，so inline style mode is a must.
      * if image path is remote address, declaration style class .div-demo-1 can be used.
      */
     return {
+      Vue,
+      offsetY: 0,
       demo1Style: {
         display: 'flex',
         height: '40px',
@@ -113,11 +154,44 @@ export default {
          *  declaration css style supports 'background-image': `url('https://xxxx')` format and remote address only.
          */
         backgroundImage: `${defaultImage}`,
+        backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: '10px',
         marginBottom: '10px',
+      },
+      imgRectangle: {
+        width: '260px',
+        height: '56px',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      imgRectangleExtra: {
+        marginTop: '20px',
+        backgroundImage: `${defaultImage}`,
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+      },
+      circleRipple: {
+        marginTop: '30px',
+        width: '150px',
+        height: '56px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: '3px',
+        borderColor: '#40b883',
+      },
+      squareRipple: {
+        marginBottom: '20px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '150px',
+        height: '150px',
+        backgroundColor: '#40b883',
+        marginTop: '30px',
+        borderRadius: '12px',
+        overflow: 'hidden',
       },
     };
   },
@@ -128,6 +202,9 @@ export default {
     }, 1000);
   },
   methods: {
+    onOuterScroll(e) {
+      this.offsetY = e.offsetY;
+    },
     onScroll(e) {
       console.log('onScroll', e);
     },
@@ -149,11 +226,10 @@ export default {
 
 <style scoped>
 
-  /* Common CSS Styles */
-
   #div-demo {
     flex: 1;
     overflow-y: scroll;
+    margin: 7px;
   }
 
   .display-flex {
@@ -205,10 +281,8 @@ export default {
 
   .div-demo-1-text {
     color: white;
-    margin-left: 10px;
   }
 
-  /* flex-direction is necessary for horizontal scrolling for Native */
   .div-demo-2 {
     overflow-x: scroll;
     margin: 10px;
@@ -216,6 +290,7 @@ export default {
   }
 
   .div-demo-3 {
+    width: 150px;
     overflow-y: scroll;
     margin: 10px;
     height: 320px;

@@ -57,7 +57,7 @@ public class TextNode extends StyleNode {
   protected float mLineSpacingMultiplier = UNSET;
   protected float mLineSpacingExtra;
 
-  private int mColor = Color.BLACK;
+  protected int mColor = Color.BLACK;
   private final boolean mIsBackgroundColorSet = false;
   private int mBackgroundColor;
   private String mFontFamily = null;
@@ -518,8 +518,8 @@ public class TextNode extends StyleNode {
     sb.append(text);
     int end = sb.length();
     if (start <= end) {
-
-      ops.add(new SpanOperation(start, end, new ForegroundColorSpan(textNode.mColor)));
+      ops
+        .add(new SpanOperation(start, end, createForegroundColorSpan(textNode.mColor, textNode)));
       if (textNode.mIsBackgroundColorSet) {
         ops.add(new SpanOperation(start, end, new BackgroundColorSpan(textNode.mBackgroundColor)));
       }
@@ -537,11 +537,13 @@ public class TextNode extends StyleNode {
         }
         ops.add(new SpanOperation(start, end, new AbsoluteSizeSpan(fontSize)));
       }
-
-      if (textNode.mFontStyle != UNSET || textNode.mFontWeight != UNSET
-          || textNode.mFontFamily != null) {
+      String fontFamily = textNode.mFontFamily;
+      if (fontFamily == null && mFontScaleAdapter != null) {
+        fontFamily = mFontScaleAdapter.getCustomDefaultFontFamily();
+      }
+      if (textNode.mFontStyle != UNSET || textNode.mFontWeight != UNSET || fontFamily != null) {
         ops.add(new SpanOperation(start, end,
-            new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, textNode.mFontFamily,
+            new HippyStyleSpan(textNode.mFontStyle, textNode.mFontWeight, fontFamily,
                 mFontScaleAdapter)));
       }
       if (textNode.mIsUnderlineTextDecorationSet) {
@@ -596,6 +598,10 @@ public class TextNode extends StyleNode {
         domNode.markUpdateSeen();
       }
     }
+  }
+
+  protected HippyForegroundColorSpan createForegroundColorSpan(int color, TextNode textNode) {
+    return new HippyForegroundColorSpan(color);
   }
 
   private static final FlexNodeAPI.MeasureFunction TEXT_MEASURE_FUNCTION = new FlexNodeAPI.MeasureFunction() {

@@ -14,10 +14,7 @@
         <span>翻到下一页</span>
       </button>
       <p class="toolbar-text">
-        当前第 {{ currentSlideNum + 1 }} 页，
-      </p>
-      <p class="toolbar-text">
-        滚屏状态：{{ state }}
+        当前第 {{ currentSlideNum + 1 }} 页
       </p>
     </div>
     <!--
@@ -100,9 +97,7 @@ export default {
       }
     },
     onDragging(evt) {
-      // FIXME: Android 该事件存在 bug，往后翻 nextSlide 依然是当前的 index，往前翻正常。
-      /* eslint-disable-next-line no-console */
-      console.log('Current offset is', evt.offset, 'and will into slide', evt.nextSlide + 1);
+      console.log('Current offset is', evt.offset, 'and will into slide', evt.nextSlide);
     },
     onDropped(evt) {
       // 更细当前页码

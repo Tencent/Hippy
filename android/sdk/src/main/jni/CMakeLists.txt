@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.14)
 
 project("hippy")
 
@@ -44,6 +44,7 @@ set(ABI_COMPILE_OPTIONS
         -Wall
         -Wextra
         -Wextra-semi
+        -Wconversion
         -Wimplicit-fallthrough
         -Wloop-analysis
         -Wmissing-field-initializers
@@ -89,13 +90,26 @@ message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
 add_compile_options(${ABI_COMPILE_OPTIONS})
 # endregion
 
-# region subdirectory
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base out)
+# region dependencies
+set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud.com")
+set(INFA_PACKAGES_DOMAIN "hippy")
+
+# region v8
 set(ENABLE_INSPECTOR true)
 if (${JS_ENGINE} STREQUAL "V8")
   get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
-  add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
+  if (EXISTS "${V8_COMPONENT_PATH}/CMakeLists.txt")
+    add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
+  else()
+    include(FetchContent)
+    FetchContent_Declare(V8
+            URL "${INFA_PACKAGES_URL}/${INFA_PACKAGES_DOMAIN}/third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz")
+    FetchContent_MakeAvailable(V8)
+  endif()
 endif()
+# endregion
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base out)
 # endregion
 
 # region global definitions
@@ -123,6 +137,7 @@ set(HIPPY_DEPS android log tdf_base)
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
+  add_definitions("-DJS_V8")
   # region remove jsc code
   file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
   message("JSC_SRC: ${JSC_SRC}")
@@ -137,7 +152,8 @@ if (${JS_ENGINE} STREQUAL "V8")
     endif()
     add_library(v8 STATIC IMPORTED)
   else()
-    message(FATAL_ERROR "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
+    message(FATAL_ERROR
+            "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
   endif()
   set_property(TARGET v8 PROPERTY IMPORTED_LOCATION ${V8_LIBRARY_PATH}/${V8_LIBRARY_NAME})
   list(APPEND HIPPY_DEPS v8)
@@ -149,6 +165,7 @@ if (${JS_ENGINE} STREQUAL "V8")
     add_definitions(${DEFINITION})
   endforeach()
 elseif (${JS_ENGINE} STREQUAL "JSC")
+  add_definitions("-DJS_JSC")
   # region remove v8 code
   file(GLOB_RECURSE V8_SRC ${CORE_SRC_DIR}/src/napi/v8/*)
   message("V8_SRC: ${V8_SRC}")
@@ -165,7 +182,8 @@ include_directories(${CORE_SRC_DIR}/third_party/base/include)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
+  set_target_properties(${CMAKE_PROJECT_NAME}
+          PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
 endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
 
@@ -173,6 +191,7 @@ if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
   foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
     add_custom_command(
             TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+            COMMAND ${CMAKE_COMMAND} -E
+              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
   endforeach()
 endif()

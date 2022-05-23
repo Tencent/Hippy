@@ -2,12 +2,13 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace tdf {
 namespace base {
 
-enum LogSeverity {
-  TDF_LOG_DEBUG,
-  TDF_LOG_INFO = 0,
+enum LogSeverity: int32_t {
+  TDF_LOG_INFO,
   TDF_LOG_WARNING,
   TDF_LOG_ERROR,
   TDF_LOG_FATAL,

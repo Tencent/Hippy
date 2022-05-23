@@ -47,7 +47,6 @@ export default {
     onTouchDown1(evt) {
       evt.stopPropagation();
       const position = evt.touches[0].clientX - 40;
-      /* eslint-disable-next-line no-console */
       console.log('touchdown x', position, this.screenWidth);
       this.demon1Point.setNativeProps({
         style: {
@@ -58,7 +57,6 @@ export default {
     onTouchMove1(evt) {
       evt.stopPropagation();
       const position = evt.touches[0].clientX - 40;
-      /* eslint-disable-next-line no-console */
       console.log('touchmove x', position, this.screenWidth);
       this.demon1Point.setNativeProps({
         style: {
@@ -69,13 +67,11 @@ export default {
     onTouchDown2(evt) {
       evt.stopPropagation();
       this.demon2Left = evt.touches[0].clientX - 40;
-      /* eslint-disable-next-line no-console */
       console.log('touchdown x', this.demon2Left, this.screenWidth);
     },
     onTouchMove2(evt) {
       evt.stopPropagation();
       this.demon2Left = evt.touches[0].clientX - 40;
-      /* eslint-disable-next-line no-console */
       console.log('touchmove x', this.demon2Left, this.screenWidth);
     },
   },
@@ -90,29 +86,29 @@ export default {
   }
   .native-demo-1-drag {
     height: 80px;
-    background-color: #4c9afa;
+    background-color: #40b883;
     position: relative;
     marginTop: 10px
   }
   .native-demo-1-point {
     height: 80px;
     width: 80px;
-    color: #ff0000;
-    background-color: #ff0000;
+    color: #40ee94;
+    background-color: #40ee94;
     position: absolute;
     left: 0;
   }
   .native-demo-2-drag {
     height: 80px;
-    background-color: #4c9afa;
+    background-color: #40b883;
     position: relative;
     marginTop: 10px;
   }
   .native-demo-2-point {
     height: 80px;
     width: 80px;
-    color: #ff0000;
-    background-color: #ff0000;
+    color: #40ee94;
+    background-color: #40ee94;
     position: absolute;
     left: 0;
   }

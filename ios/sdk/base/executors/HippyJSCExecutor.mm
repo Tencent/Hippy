@@ -34,6 +34,7 @@
 #import "HippyBridge+Private.h"
 #import "HippyDefines.h"
 #import "HippyDevMenu.h"
+#import "HippyDevInfo.h"
 #import "HippyJavaScriptLoader.h"
 #import "HippyLog.h"
 #import "HippyPerformanceLogger.h"
@@ -58,9 +59,6 @@
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
 NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey = @"HippyJavaScriptContextCreatedNotificationBridgeKey";
-
-HIPPY_EXTERN NSString *const HippyFBJSContextClassKey = @"_HippyFBJSContextClassKey";
-HIPPY_EXTERN NSString *const HippyFBJSValueClassKey = @"_HippyFBJSValueClassKey";
 
 struct __attribute__((packed)) ModuleData {
     uint32_t offset;
@@ -219,6 +217,12 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 if (customObjects) {
                     [deviceInfo addEntriesFromDictionary:customObjects];
                 }
+            }
+            if ([strongSelf.bridge isKindOfClass:[HippyBatchedBridge class]]) {
+                HippyBridge *clientBridge = [(HippyBatchedBridge *)strongSelf.bridge parentBridge];
+                NSString *clientId = [HippyDevInfo debugClientIdWithBridge:clientBridge];
+                NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
+                [deviceInfo addEntriesFromDictionary:debugInfo];
             }
             NSError *JSONSerializationError = nil;
             NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:&JSONSerializationError];
@@ -383,16 +387,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
 }
 
 - (void)setUp {
-    [self executeBlockOnJavaScriptQueue:^{
-        if (!self.valid) {
-            return;
-        }
-        NSMutableDictionary *threadDictionary = [[NSThread currentThread] threadDictionary];
-        if (!threadDictionary[HippyFBJSContextClassKey] || !threadDictionary[HippyFBJSValueClassKey]) {
-            threadDictionary[HippyFBJSContextClassKey] = [JSContext class];
-            threadDictionary[HippyFBJSValueClassKey] = [JSValue class];
-        }
-    }];
 }
 
 /** Installs synchronous hooks that don't require a weak reference back to the HippyJSCExecutor. */
@@ -654,7 +648,7 @@ static void handleJsExcepiton(std::shared_ptr<Scope> scope) {
   std::shared_ptr<hippy::napi::JSCCtxValue> exception = std::static_pointer_cast<hippy::napi::JSCCtxValue>(context->GetException());
   if (exception) {
     if (!context->IsExceptionHandled()) {
-      context->ThrowExceptionToJS(exception);
+      context->HandleUncaughtException(exception);
     }
     std::u16string exceptionStr = StringViewUtils::Convert(context->GetExceptionMsg(exception), unicode_string_view::Encoding::Utf16).utf16_value();
     NSString *err = [NSString stringWithCharacters:(const unichar *)exceptionStr.c_str() length:(exceptionStr.length())];

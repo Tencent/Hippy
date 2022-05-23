@@ -5,19 +5,19 @@ import App from './app.vue';
 import routes from './routes';
 import { setApp } from './util';
 
-// 禁止终端调试信息输出，取消注释即可使用。
+// 是否输出终端调试信息
 // Vue.config.silent = true;
 
 Vue.config.productionTip = false;
 
-// Hippy 终端组件扩展中间件，可以使用 modal、view-pager、tab-host、ul-refresh 等原生组件了。
+// Hippy 终端组件扩展中间件，可以使用 modal、view-pager、tab-host、ul-refresh 等原生组件。
 Vue.use(HippyVueNativeComponents);
 Vue.use(VueRouter);
 
 const router = new VueRouter(routes);
 
 /**
- * 声明一个 app，这是同步生成的
+ * 声明一个 app
  */
 const app = new Vue({
   // 终端指定的 App 名称

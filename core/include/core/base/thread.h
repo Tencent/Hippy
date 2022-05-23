@@ -34,15 +34,15 @@ class Thread {
   class Options {
    public:
     Options() : name_("hippy:<unknown>"), stack_size_(0) {}
-    explicit Options(const char* name, int stack_size = 0)
+    explicit Options(const char* name, size_t stack_size = 0)
         : name_(name), stack_size_(stack_size) {}
 
     const char* name() const { return name_; }
-    int stack_size() const { return stack_size_; }
+    size_t stack_size() const { return stack_size_; }
 
    private:
     const char* name_;
-    int stack_size_;
+    size_t stack_size_;
   };
 
  public:
@@ -63,7 +63,7 @@ class Thread {
 
  protected:
   char name_[kMaxThreadNameLength]{};
-  int stack_size_;
+  size_t stack_size_;
   pthread_t thread_{};
 
   ThreadId thread_id_;

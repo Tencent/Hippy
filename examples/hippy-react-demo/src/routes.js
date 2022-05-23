@@ -1,5 +1,3 @@
-
-
 import * as components from './components';
 import * as modules from './modules';
 import * as externals from './externals';
@@ -135,6 +133,14 @@ export default [
     path: '/WebView',
     name: 'WebView 组件',
     component: PAGE_LIST.WebView,
+    meta: {
+      style: 1,
+    },
+  },
+  {
+    path: '/RippleViewAndroid',
+    name: 'RippleViewAndroid 组件',
+    component: PAGE_LIST.RippleViewAndroid,
     meta: {
       style: 1,
     },

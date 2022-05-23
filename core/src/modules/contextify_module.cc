@@ -27,15 +27,15 @@
 #include <string>
 
 #include "base/logging.h"
-#include "core/base/string_view_utils.h"
 #include "core/base/uri_loader.h"
 #include "core/modules/module_register.h"
-#include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
-#include "core/napi/js_native_api_types.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/common_task.h"
 #include "core/task/javascript_task.h"
+#if JS_V8
+#include "core/napi/v8/js_native_api_v8.h"
+#endif
 
 REGISTER_MODULE(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
 REGISTER_MODULE(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
@@ -50,8 +50,11 @@ using UriLoader = hippy::base::UriLoader;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) { // NOLINT(readability-convert-member-functions-to-static)
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
+#ifdef JS_V8
+  auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(info.GetScope()->GetContext());
+#else
+  auto context = info.GetScope()->GetContext();
+#endif
   TDF_BASE_CHECK(context);
 
   unicode_string_view key;
@@ -66,8 +69,11 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
       hippy::GetNativeSourceCode(StringViewUtils::ToU8StdStr(key));
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
   unicode_string_view str_view(source_code.data_, source_code.length_);
-  std::shared_ptr<CtxValue> ret =
-      context->RunScript(str_view, key, false, nullptr, false);
+#ifdef JS_V8
+  auto ret = context->RunScript(str_view, key, false, nullptr, false);
+#else
+  auto ret = context->RunScript(str_view, key);
+#endif
   if (try_catch->HasCaught()) {
     TDF_BASE_DLOG(ERROR) << "GetNativeSourceCode error = "
                          << try_catch->GetExceptionMsg();
@@ -176,7 +182,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         }
       } else {
         unicode_string_view err_msg = uri + " not found";
-        error = ctx->CreateJsError(unicode_string_view(err_msg));
+        error = ctx->CreateError(unicode_string_view(err_msg));
       }
 
       std::shared_ptr<CtxValue> function = weak_function.lock();
@@ -190,7 +196,10 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         RemoveCBFunc(uri);
       }
     };
-    scope->GetTaskRunner()->PostTask(js_task);
+    auto runner = scope->GetTaskRunner();
+    if (runner) {
+      runner->PostTask(js_task);
+    }
   };
   loader->RequestUntrustedContent(uri, cb);
   info.GetReturnValue()->SetUndefined();

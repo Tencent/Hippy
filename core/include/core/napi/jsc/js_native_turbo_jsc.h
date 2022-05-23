@@ -28,14 +28,14 @@ namespace hippy {
 namespace napi {
 
 class ObjcTurboEnv : public TurboEnv {
-  public:
-    ObjcTurboEnv(std::shared_ptr<Ctx> ctx);
-    ~ObjcTurboEnv();
+ public:
+  ObjcTurboEnv(std::shared_ptr <Ctx> ctx);
+  ~ObjcTurboEnv();
 
-    std::shared_ptr<CtxValue> CreateObject(const std::shared_ptr<HostObject> &hostObject) override;
-    std::shared_ptr<CtxValue> CreateFunction( const std::shared_ptr<CtxValue> &name,
+  std::shared_ptr <CtxValue> CreateObject(const std::shared_ptr <HostObject> &hostObject) override;
+  std::shared_ptr <CtxValue> CreateFunction(const std::shared_ptr <CtxValue> &name,
                                             int paramCount,
-                                             HostFunctionType func) override;
+                                            HostFunctionType func) override;
 };
 
 }  // namespace napi
