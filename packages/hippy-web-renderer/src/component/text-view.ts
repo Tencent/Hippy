@@ -19,14 +19,14 @@
  */
 import { EllipsizeMode, InnerNodeTag, NodeProps } from '../types';
 import { setElementStyle } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 const HippyEllipsizeModeMap = {
   head: { 'text-overflow': 'ellipsis', direction: 'rtl' },
   clip: { 'text-overflow': 'clip' },
   middle: { 'text-overflow': 'ellipsis' },
   tail: { 'text-overflow': 'ellipsis' },
 };
-export class TextView extends HippyView<HTMLSpanElement> {
+export class TextView extends HippyWebView<HTMLSpanElement> {
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.TEXT;
