@@ -1,8 +1,8 @@
 # Exception capture
 
-Hippy can catch unexpected errors that are not handled in JS code by listening `uncaughtException` for events.
+Hippy can catch unexpected errors that are not handled in JS code by listening `uncaughtException` events.
 
-!> currently `uncaughtException` unable to catch `Promise` errors in
+!> currently `uncaughtException` unable to catch errors in `Promise`.
 
 Usage:
 
