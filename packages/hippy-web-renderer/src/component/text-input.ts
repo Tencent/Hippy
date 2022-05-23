@@ -19,15 +19,19 @@
  */
 import { KeyboardType, NodeProps, ReturnKeyType, HippyBaseView, HippyCallBack, InnerNodeTag, UIProps } from '../types';
 import { convertHexToRgba } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 
-export class TextInput extends HippyView<HTMLInputElement | HTMLTextAreaElement> {
+export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaElement> {
   private placeholderTextColorStyle;
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.TEXT_INPUT;
     this.dom = document.createElement('input');
     this.init();
+  }
+
+  public defaultStyle() {
+    return { ...super.defaultStyle(), outline: 'none', fontFamily: '' };
   }
 
   public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {

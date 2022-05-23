@@ -19,12 +19,7 @@
  */
 
 import { HippyWebEngineContext, HippyWebModule } from '../base';
-import {
-  HippyBaseView, HippyCallBack,
-  InnerNodeTag,
-  NodeData,
-  UIProps,
-} from '../types';
+import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
 import { setElementStyle } from '../common';
 import { mergeDeep } from '../third-lib/loadsh.js';
 
@@ -111,14 +106,11 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   public async deleteNode(rootViewId: string, data: Array<{ id: number }>) {
-    console.log('delete begin', Object.keys(this.viewDictionary).length);
-
     for (let i = 0; i < data.length; i++) {
       const deleteItem = data[i];
       const deleteComponent = this.findViewById(deleteItem.id);
       await this.componentDeleteProcess(deleteComponent);
     }
-    console.log('delete finish', Object.keys(this.viewDictionary).length);
   }
 
   public updateNode(rootViewId: string, data: Array<{ id: number, props: UIProps }>) {
@@ -242,7 +234,7 @@ export class UIManagerModule extends HippyWebModule {
       if (typeof component[key] === 'function') {
         continue;
       }
-      component[key] = props[key];
+      component.updateProperty?.(key, props[key]);
     }
   }
 

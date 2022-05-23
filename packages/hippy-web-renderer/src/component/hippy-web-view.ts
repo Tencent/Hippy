@@ -23,7 +23,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps, HippyTransferData } from '../types';
 
-export class HippyView<T extends HTMLElement> implements HippyBaseView {
+export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
   public id!: number;
   public pId!: number;
@@ -43,6 +43,10 @@ export class HippyView<T extends HTMLElement> implements HippyBaseView {
     this.handleOnTouchCancel = this.handleOnTouchCancel.bind(this);
     this.handleOnTouchEnd = this.handleOnTouchEnd.bind(this);
     this.handleOnTouchMove = this.handleOnTouchMove.bind(this);
+  }
+
+  public updateProperty(key: string, value: any) {
+    this[key] = value;
   }
 
   public set onClick(value: boolean) {
@@ -125,7 +129,7 @@ export class HippyView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public defaultStyle(): {[key: string]: any} {
-    return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box', outline: 'none', fontFamily: '' };
+    return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box' };
   }
 
   public onAttachedToWindow() {
