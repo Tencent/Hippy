@@ -39,6 +39,7 @@
 
 /driver/js/android/ @siguangli @churchill-zhang
 /driver/js/ios/ @ozonelmy @churchill-zhang
+/driver/js/flutter/ @lvfen @battleAgain
 
 /driver/js/examples/android-demo/ @siguangli
 /driver/js/examples/android-demo/res/ @zoomchan-cxj
@@ -54,5 +55,6 @@
 
 /renderer/native/android/ @siguangli
 /renderer/native/ios/ @ozonelmy
+/renderer/flutter/ @lvfen @battleAgain
 
 /scripts/ @zoomchan-cxj
