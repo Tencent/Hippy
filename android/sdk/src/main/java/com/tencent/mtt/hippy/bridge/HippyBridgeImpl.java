@@ -36,6 +36,7 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -332,6 +333,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     @SuppressWarnings("unused")
     public void fetchResourceWithUri(final String uri, final long resId) {
+        final WeakReference<BridgeCallback> callbackWeakReference = new WeakReference<>(mBridgeCallback);
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -363,8 +365,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                             buffer.put(resBytes);
                             onResourceReady(buffer, mV8RuntimeId, resId);
                         } catch (Throwable e) {
-                            if (mBridgeCallback != null) {
-                                mBridgeCallback.reportException(e);
+                            BridgeCallback callback = callbackWeakReference.get();
+                            if (callback != null) {
+                                callback.reportException(e);
                             }
                             onResourceReady(null, mV8RuntimeId, resId);
                         }
