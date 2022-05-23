@@ -85,7 +85,7 @@ const eventListener = (domEvent: any) => {
   const eventPath = getResponderPaths(domEvent);
   const [responderId] = eventPath.idPath;
   if (touchEvent.includes(eventType)) {
-    const [touches = {}] = domEvent?.changedTouches || [];
+    const [touches = {}] = domEvent?.changedTouches ?? [];
     if (responderListenersMap.has(responderId)) {
       const touchEvent: TouchEvent = {
         pageX: touches.pageX,
