@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.EasyLinearLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.View;
-import androidx.recyclerview.widget.RecyclerView;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
@@ -33,6 +32,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 
 /**
  * Created  on 2020/12/22.
@@ -201,6 +201,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         if (recyclerView != null && HippyListUtils.isVerticalLayout(recyclerView)) {
             recyclerView.setEnableOverPull(flag);
         }
+    }
+
+    @HippyControllerProps(name = "initialContentOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+    public void setInitialContentOffset(HRW viewWrapper, int offset) {
+        viewWrapper.getRecyclerView().setInitialContentOffset((int) PixelUtil.dp2px(offset));
     }
 
     @Override

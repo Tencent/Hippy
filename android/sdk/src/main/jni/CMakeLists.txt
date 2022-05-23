@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.14)
 
 project("hippy")
 
@@ -90,30 +90,32 @@ message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
 add_compile_options(${ABI_COMPILE_OPTIONS})
 # endregion
 
-# region subdirectory
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base out)
+# region dependencies
+set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud.com")
+set(INFA_PACKAGES_DOMAIN "hippy")
+
+# region v8
 set(ENABLE_INSPECTOR true)
 if (${JS_ENGINE} STREQUAL "V8")
   get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
-  add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
+  if (EXISTS "${V8_COMPONENT_PATH}/CMakeLists.txt")
+    add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
+  else()
+    include(FetchContent)
+    FetchContent_Declare(V8
+            URL "${INFA_PACKAGES_URL}/${INFA_PACKAGES_DOMAIN}/third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz")
+    FetchContent_MakeAvailable(V8)
+  endif()
 endif()
 # endregion
 
-# region global definitions
-if (${ENABLE_INSPECTOR} STREQUAL "true")
-  add_definitions("-DENABLE_INSPECTOR")
-endif()
-add_definitions("-DOS_ANDROID")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base out)
 # endregion
 
 # region source
 get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core" REALPATH)
 file(GLOB_RECURSE CORE_SRC ${CORE_SRC_DIR}/src/*.cc)
 file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
-if (${ENABLE_INSPECTOR} STREQUAL "false")
-  file(GLOB_RECURSE INSPECTOR_SRC ${PROJECT_SOURCE_DIR}/src/inspector/*)
-  list(REMOVE_ITEM JNI_SRC ${INSPECTOR_SRC})
-endif()
 
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
 message("CORE_SRC: ${CORE_SRC}")
@@ -125,33 +127,17 @@ set(HIPPY_DEPS android log tdf_base)
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
   add_definitions("-DJS_V8")
+  if (DEFINED V8_WITHOUT_INSPECTOR)
+    add_definitions("-DV8_WITHOUT_INSPECTOR")
+    file(GLOB_RECURSE INSPECTOR_SRC ${PROJECT_SOURCE_DIR}/src/inspector/*)
+    list(REMOVE_ITEM JNI_SRC ${INSPECTOR_SRC})
+  endif()
   # region remove jsc code
   file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
   message("JSC_SRC: ${JSC_SRC}")
   list(REMOVE_ITEM CORE_SRC ${JSC_SRC})
   # endregion
   # region library
-  set(ANDROID_READELF
-          "${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-readelf${ANDROID_TOOLCHAIN_SUFFIX}")
-  execute_process(
-          COMMAND ${ANDROID_READELF} ${V8_LIBRARY_PATH}/${V8_LIBRARY_NAME}
-          RESULT_VARIABLE CHECKER_RESULT
-          ERROR_VARIABLE CHECKER_ERROR
-          OUTPUT_QUIET
-  )
-  if (NOT ${CHECKER_RESULT} STREQUAL "0")
-    set(ERROR_MESSAGE "The V8 library file(${V8_LIBRARY_NAME}) format was not recognized.\n")
-    if (${V8_COMPONENT_PATH} MATCHES ${PROJECT_SOURCE_DIR})
-      string(APPEND ERROR_MESSAGE
-              "Did you forget to fetch files from the Git Large File Storage (LFS)? "
-              "Try running the following command in the project root to fetch files.\n"
-              "$ git lfs fetch\n")
-    endif()
-    string(APPEND ERROR_MESSAGE
-            "The checker(llvm-readelf) output as follows: "
-            ${CHECKER_ERROR})
-    message(FATAL_ERROR ${ERROR_MESSAGE})
-  endif()
   if (${V8_LINKING_MODE} STREQUAL "shared")
     add_library(v8 SHARED IMPORTED)
   elseif (${V8_LINKING_MODE} STREQUAL "static")
