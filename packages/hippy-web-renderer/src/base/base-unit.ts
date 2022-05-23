@@ -18,13 +18,21 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
+import { HippyWebEngineContext } from './context';
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
+export class HippyWebUnit {
+  name = '';
+}
 
-export * from './base';
-export * from './types';
+export class HippyWebModule extends HippyWebUnit {
+  context: HippyWebEngineContext;
+  mode: 'sequential' | 'normal' = 'normal';
+  constructor(context: HippyWebEngineContext) {
+    super();
+    this.context = context;
+  }
+  init() { };
+}
+export class HippyWebComponent extends HippyWebUnit {
+
+}

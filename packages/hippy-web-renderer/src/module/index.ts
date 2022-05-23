@@ -17,14 +17,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AnimationModule } from './animation-module';
+import { ClipboardModule } from './clipboard-module';
+import { DeviceEventModule } from './device-event-module';
+import { ImageLoadModule } from './image-load-module';
+import { NetInfoModule } from './netinfo-module';
+import { NetworkModule } from './network-module';
+import { StorageModule } from './storage-module';
+import { UIManagerModule } from './ui-manager-module';
+import { WebSocketModule } from './websocket-module';
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
-
-export * from './base';
-export * from './types';
+export const CORE_MODULES = {
+  AnimationModule,
+  ClipboardModule,
+  DeviceEventModule,
+  ImageLoadModule,
+  NetInfoModule,
+  NetworkModule,
+  StorageModule,
+  UIManagerModule,
+  WebSocketModule,
+};

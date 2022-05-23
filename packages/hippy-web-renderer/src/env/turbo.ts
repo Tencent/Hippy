@@ -18,13 +18,20 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
+import { HippyWebModule } from '../base/base-unit';
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
+export const getTurboModule = <T extends HippyWebModule>(moduleName): T | undefined => {
+  const { engine } = Hippy.web;
+  const mod = engine.modules[moduleName];
+  if (mod === null || mod === undefined) {
+    console.warn(`Turbo module: ${moduleName} is not found`);
+  }
+  return mod as T;
+};
 
-export * from './base';
-export * from './types';
+export const turboPromise = func => function (...args) {
+  return new Promise((resolve, reject) => {
+    const promise = { resolve, reject };
+    func.apply(null, [...args, promise]);
+  });
+};

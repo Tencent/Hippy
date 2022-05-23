@@ -18,13 +18,12 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
-
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
-
-export * from './base';
-export * from './types';
+export const dynamicLoad = (/* path, encode, cb */) => {
+  console.warn('dynamicLoad is unsupported');
+  // let requestPath = path || '';
+  // const isSchema = ['https://', 'http://', '//'].some(schema => requestPath.indexOf(schema) === 0);
+  // if (!isSchema) {
+  //   requestPath = global.__HIPPYCURDIR__ + path;
+  // }
+  // ContextifyModule.LoadUntrustedContent(requestPath, encode, cb);
+};

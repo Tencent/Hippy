@@ -18,13 +18,38 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
+import { HippyWebModule } from '../base';
+import { HippyCallBack } from '../types';
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
+export class ImageLoadModule extends HippyWebModule {
+  public name = 'ImageLoaderModule';
 
-export * from './base';
-export * from './types';
+  public getSize(url: string, callBack: HippyCallBack) {
+    if (!url) {
+      callBack.reject(`image url not support ${url}`);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      callBack.resolve({ width: img.width, height: img.height });
+    };
+    img.src = url;
+  }
+
+  public prefetch(url: string) {
+    if (!url) {
+      return;
+    }
+    const img = new Image();
+    img.src = url;
+  }
+
+  public initialize() {
+
+  }
+
+  public destroy() {
+
+  }
+}

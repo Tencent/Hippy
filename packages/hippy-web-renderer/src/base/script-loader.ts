@@ -18,13 +18,29 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
+export function scriptLoader(scripts: string[]) {
+  return new Promise<void>((resolve) => {
+    let count = scripts.length;
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
+    function urlCallback() {
+      return function () {
+        // console.log(url + ' was loaded (' + --count + ' more scripts remaining).');
+        count = count - 1;
+        if (count < 1) {
+          resolve();
+        }
+      };
+    }
 
-export * from './base';
-export * from './types';
+    function loadScript(url) {
+      const s = document.createElement('script');
+      s.setAttribute('src', url);
+      s.onload = urlCallback();
+      document.body.appendChild(s);
+    }
+
+    for (const script of scripts) {
+      loadScript(script);
+    }
+  });
+}

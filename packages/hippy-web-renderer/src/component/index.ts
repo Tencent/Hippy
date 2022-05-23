@@ -18,13 +18,32 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
+import { Image } from './image';
+import { ListView, ListViewItem } from './list-view';
+import { Modal } from './modal';
+import { RefreshWrapper, RefreshWrapperItemView } from './refresh-wrapper';
+import { ScrollView } from './scroll-view';
+import { TextInput } from './text-input';
+import { View } from './view';
+import { ViewPager, ViewPagerItem } from './view-pager';
+import { WebView } from './web-view';
+import { TextView } from './text-view';
+import { HippyWebView } from './hippy-web-view';
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
+export {
+  Image,
+  ListView,
+  Modal,
+  RefreshWrapper,
+  ScrollView,
+  TextInput,
+  View,
+  ViewPager,
+  WebView,
+  TextView as Text,
+  ListViewItem,
+  ViewPagerItem,
+  RefreshWrapperItemView,
+  HippyWebView,
+};
 
-export * from './base';
-export * from './types';

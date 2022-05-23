@@ -18,13 +18,14 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
+declare global {
+  interface HippyDeviceInfo {
+    vibrate: any,
+    cancelVibrate: any,
+  }
+}
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
-
-export * from './base';
-export * from './types';
+export const device: Partial<HippyDeviceInfo> = {
+  vibrate: () => {},
+  cancelVibrate: () => {},
+};

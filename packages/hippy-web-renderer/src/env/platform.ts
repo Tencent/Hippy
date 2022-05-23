@@ -18,13 +18,8 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
-
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
-
-export * from './base';
-export * from './types';
+const Localization = { country: '', language: '', direction: 0 };
+export const platform = () => ({
+  OS: __HIPPYNATIVEGLOBAL__.Platform.OS,
+  Localization: __HIPPYNATIVEGLOBAL__.Platform.Localization || Localization,
+});

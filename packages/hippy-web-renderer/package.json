@@ -6,11 +6,23 @@
   "homepage": "http://hippyjs.org",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-web-render",
   "license": "Apache-2.0",
+  "types": "types/index.d.ts",
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
   },
   "keywords": [
     "Hippy",
     "Web"
-  ]
+  ],
+  "scripts": {
+    "watch": "parcel",
+    "build": "parcel build"
+  },
+  "dependencies": {
+    "@types/hammerjs": "^2.0.41",
+    "hammerjs": "^2.0.8",
+    "morphdom": "^2.3.1",
+    "resize-observer-polyfill": "^1.5.1",
+    "whatwg-fetch": "^3.6.2"
+  }
 }

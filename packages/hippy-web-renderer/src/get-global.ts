@@ -18,13 +18,18 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
+export const getGlobal = (): typeof globalThis => {
+  let win;
+  if (typeof window !== 'undefined') {
+    win = window;
+  } else if (typeof global !== 'undefined') {
+    win = global;
+  } else if (typeof self !== 'undefined') {
+    win = self;
+  } else {
+    win = {} as any;
+  }
+  return win;
+};
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
-
-export * from './base';
-export * from './types';
+export default getGlobal();

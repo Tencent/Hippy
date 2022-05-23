@@ -18,13 +18,13 @@
  * limitations under the License.
  */
 
-import './env';
-import { CORE_MODULES } from './module';
-import * as Components from './component';
-import { HippyWebEngine } from './base/engine';
+import { HippyWebEngine } from './engine';
 
-HippyWebEngine.coreModules = CORE_MODULES;
-HippyWebEngine.coreComponents = Components as any;
-
-export * from './base';
-export * from './types';
+export const createCallNatives = (engine: HippyWebEngine) => (
+  moduleName: string,
+  methodName: string,
+  callId: string,
+  params: any[] = [],
+) => {
+  engine.invokeModuleMethod(moduleName, methodName, callId, params);
+};
