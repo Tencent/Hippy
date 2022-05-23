@@ -166,8 +166,8 @@ static std::string CopyToStr(NSData* data) {
   unsigned long len = [data length];
   if (len > 0) {
     const void* origin_buf = [data bytes];
-    std::string copy_str((const char*)origin_buf, [data length]);
-    return std::move(copy_str);
+    std::string copy_str(reinterpret_cast<const char*>(origin_buf), [data length]);
+    return copy_str;
   }
     
   return nullptr;

@@ -42,7 +42,7 @@ set(LINKED_LIBS
 
 if ("${BUILD_SHARED_LIB}" STREQUAL "true")
     #add base sub
-    set(FRAMEWORK_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../framework/js/core)
+    set(FRAMEWORK_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../driver/js/core)
     add_subdirectory(${FRAMEWORK_CORE_DIR}/third_party/base base)
     set(LINKED_LIBS ${LINKED_LIBS} tdf_base tdf_base_common)
     include_directories(${FRAMEWORK_CORE_DIR}/third_party/base/include)

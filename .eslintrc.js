@@ -5,7 +5,7 @@ function resolveVue(p) {
 }
 
 function resolvePackage(src, extra = 'src') {
-  return path.resolve(__dirname, './framework/js/packages/', src, extra);
+  return path.resolve(__dirname, './driver/js/packages/', src, extra);
 }
 
 module.exports = {
