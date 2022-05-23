@@ -1,52 +1,52 @@
-# 自定义适配器
+# Custom Adapters
 
-Android App 开发中存在很多第三方基础库。
+There are many third-party base libraries in Android App development.
 
-比如图片缓存系统常用的有：Picasso、Glide、Fresco 等。
+For example, in image caching system: Picasso, Glide, Fresco, etc.
 
-Hippy SDK 如果在代码中直接集成这些第三方基础库，很有可能与你的项目实际情况冲突。为了解决这个矛盾点，Hippy SDK 将所有基础能力接口化，抽象为 Adapter，方便业务注入实现，同时大多数基础能力我们也默认实现了一个最简单的方案。
+If these third-party base libraries are integrated directly in the Hippy SDK, it is likely to conflict with the actual situation of your project. In order to solve this contradiction, Hippy SDK will interface all the basic capabilities, abstracted as Adapter, to facilitate the implementation of business injection. Meanwhile, for most of the basic capabilities, we also implement a default yet simplest solution.
 
-Hippy SDK 现在所提供的 Adapter 包括：
+Hippy SDK now provides these Adapters:
 
-- `HippyImageLoaderAdapter`：图片加载 Adapter。
-- `HippyHttpAdapter`：Http 请求 Adapter。
-- `HippyExceptionHandlerAdapter`：引擎和 JS 异常处理 Adapter。
-- `HippySharedPreferencesAdapter`：SharedPreferences Adapter。
-- `HippyStorageAdapter`：数据库（KEY-VALUE）Adapter。
-- `HippyExecutorSupplierAdapter`：线程池 Adapter。
-- `HippyEngineMonitorAdapter`：Hippy 引擎状态监控 Adapter。
+- `HippyImageLoaderAdapter`: image loading Adapter.
+- `HippyHttpAdapter`: Http request Adapter.
+- `HippyExceptionHandlerAdapter`: engine and JS exception handling Adapter.
+- `HippySharedPreferencesAdapter`: SharedPreferences Adapter.
+- `HippyStorageAdapter`: database (KEY-VALUE) Adapter.
+- `HippyExecutorSupplierAdapter`: thread pool Adapter.
+- `HippyEngineMonitorAdapter`: Hippy engine state monitor Adapter.
 
 # HippyImageLoaderAdapter
 
-由于图片加载复杂度较高，实现需要增加 SDK 包大小，而且每个 App 都有自己的图片加载机制，所以 `SDK不提供默认实现`。
+Due to the high complexity of image loading, the implementation will increase the size of the SDK package. As each App has its own image loading mechanism, **SDK does not provide a default implementation**.
 
 ## HippyImageRequestListener
 
-图片加载回调接口。主要包括以下方法：
+Image loading callback interface. Mainly includes the following methods.
 
-- `onRequestStart`：图片加载开始。
-- `onRequestSuccess`：图片加载成功。
-- `onRequestFail`：图片加载失败。
+- `onRequestStart`: image loading start.
+- `onRequestSuccess`: image loading success.
+- `onRequestFail`: image loading failed.
 
 ## HippyDrawableTarget
 
-图片包装接口。提供的接口主要包括：
+Image wrapper interface. Mainly includes the following methods.
 
-- `getBitmap`：SDK 会通过此方法获取图片拉取后的 Bitmap。
-- `onDrawableAttached`：图片渲染上屏后 SDK 会回调该方法。
-- `onDrawableDetached`：图片离屏后 SDK 会回调该方法。
+- `getBitmap`: The SDK will get the Bitmap after the image is pulled by this method.
+- `onDrawableAttached`: The SDK will call back this method after the image is rendered on the screen.
+- `onDrawableDetached`: SDK will call back this method after the image is off-screen.
 
 ## fetchImage
 
-异步拉图接口。Url 如果以 `Http`、`Https`、`File` 开头会调用此接口。
+Asynchronous pull image interface. url will be called if it starts with `Http`, `Https`, `File`.
 
-参数：
+Parameters.
 
-- `url` String : 图片地址。
-- `requestListener` HippyImageRequestListener：图片异步拉取回调。
-- `param` Object：一些特殊场景定制参数，正常情况下无需关注。
+- `url` String : The image address.
+- `requestListener` HippyImageRequestListener : Image asynchronous pull callback.
+- `param` Object : Some special scenario custom parameters, no need to pay attention to under normal circumstances.
 
-示例如下：
+Examples are as follows.
 
 ``` java
 public class ImageLoaderAdapter implements HippyImageLoaderAdapter
@@ -55,7 +55,7 @@ public class ImageLoaderAdapter implements HippyImageLoaderAdapter
     @Override
     public void fetchImage(String url, final HippyImageRequestListener requestListener, Object param)
     {
-        // 这里采用Glide库来拉取图片
+        // Here the Glide library is used to pull images
         Glide
             .with(ContextHolder.getAppContext())
             .load(url)
@@ -68,7 +68,7 @@ public class DrawableTarget extends SimpleTarget<Bitmap> implements HippyDrawabl
 {
 
     HippyImageRequestListener mListener;
-    Bitmap                    mBitmap;
+    Bitmap mBitmap;
 
     public DrawableTarget(HippyImageRequestListener listener)
     {
@@ -109,14 +109,14 @@ public class DrawableTarget extends SimpleTarget<Bitmap> implements HippyDrawabl
     public void onResourceReady(Bitmap bitmap, GlideAnimation<? super Bitmap> glideAnimation)
     {
         this.mBitmap = bitmap;
-        // 通知Hippy SDK图片拉取成功
+        // notify Hippy SDK image pulling success
         mListener.onRequestSuccess(this);
     }
 
     @Override
     public void onLoadFailed(Exception e, Drawable errorDrawable)
     {
-        // 通知Hippy SDK图片拉取失败
+        // Notify Hippy SDK that the image pull failed
         mListener.onRequestFail(e, null);
     }
 }
@@ -124,14 +124,14 @@ public class DrawableTarget extends SimpleTarget<Bitmap> implements HippyDrawabl
 
 ## getImage
 
-同步拉图接口。主要针对 `assets`、`base64` 等图片拉取场景会调用此接口。
+Synchronous pulling interface. This interface will be called mainly for `assets`, `base64` and other image pulling scenarios.
 
-参数：
+Parameters.
 
-- `url` string : 图片地址或者base64信息。
-- `param` Object：一些特殊场景定制参数，正常情况下无需关注。
+- `url` string : the image address or base64 information.
+- `param` Object : Some special scenario custom parameters, no need to pay attention under normal circumstances.
 
-示例如下：
+Examples are as follows.
 
 ``` java
 @Override
@@ -146,7 +146,7 @@ public HippyDrawableTarget getImage(String url, Object param)
 
 public class LocalHippyDrawable implements HippyDrawableTarget
 {
-    String  mUrl;
+    String mUrl;
     Context mContext;
 
     public void setUrl(String url)
@@ -231,28 +231,29 @@ public class LocalHippyDrawable implements HippyDrawableTarget
 
 # HippyHttpAdapter
 
-Hippy SDK 提供默认的实现 `DefaultHttpAdapter`。如果 `DefaultHttpAdapter`无法满足你的需求，请参考 `DefaultHttpAdapter`代码接入 `HippyHttpAdapter` 实现。
+Hippy SDK provides a default implementation of `DefaultHttpAdapter`. If `DefaultHttpAdapter` does not meet your needs, please refer to the `DefaultHttpAdapter` code to access the `HippyHttpAdapter` implementation.
 
 # HippyExceptionHandlerAdapter
 
-Hippy SDK 提供默认空实现 `DefaultExceptionHandler`。当你的业务基于 Hippy 上线后，必然会出现一些JS异常，监控这些异常对于线上质量具有很重要的意义。Hippy SDK 会抓取这些 JS 异常，然后通过 `HippyExceptionHandlerAdapter` 抛给使用者。
+Hippy SDK provides a default empty implementation of `DefaultExceptionHandler`. Hippy SDK will catch these JS exceptions and then throw them to the user through `HippyExceptionHandlerAdapter`.
 
 ## handleJsException
 
-处理抓取到的JS异常。JS 异常不会导致引擎不可运行，但可能导致用户感知或者业务逻辑出现问题，是线上质量的最重要衡量标准。
+JS exceptions do not cause the engine to be inoperable, but may cause problems with user perception or business logic, and are the most important measure of online quality.
 
 # HippySharedPreferencesAdapter
 
-Hippy SDK 提供默认的实现 `DefaultSharedPreferencesAdapter`。大多数场景也不需要进行扩展。
+Hippy SDK provides a default implementation of `DefaultSharedPreferencesAdapter`. Most scenarios also do not need to be extended.
 
 # HippyStorageAdapter
 
-Hippy SDK 提供默认的实现 `DefaultStorageAdapter`。
+Hippy SDK provides a default implementation of `DefaultStorageAdapter`.
 
 # HippyExecutorSupplierAdapter
 
-Hippy SDK 提供默认的实现 `DefaultExecutorSupplierAdapter`。
+Hippy SDK provides a default implementation of `DefaultExecutorSupplierAdapter`.
 
 # HippyEngineMonitorAdapter
 
-Hippy SDK 提供默认空实现 `DefaultEngineMonitorAdapter`。当你需要查看引擎加载速度和模块加载速度时，可以通过此Adapter获取到相关信息。
+Hippy SDK provides a default empty implementation of `DefaultEngineMonitorAdapter`. When you need to see the engine loading speed and module loading speed, you can get the relevant information through this Adapter.
+
