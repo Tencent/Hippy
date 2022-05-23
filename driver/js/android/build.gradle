@@ -1,3 +1,25 @@
+/*
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 apply plugin: 'com.android.library'
 apply from: './mavencentral.gradle'
 
@@ -64,7 +86,7 @@ android {
       if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi/*'
       }
-      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean() && !INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi-v7a/*'
       }
       if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
@@ -86,8 +108,9 @@ android {
       externalNativeBuild {
         cmake {
           arguments "-DJS_ENGINE=V8",
-                  "-DANDROID_CPP_FEATURES=rtti exceptions",
+                  "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
                   "-DANDROID_PLATFORM=android-21",
+                  "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
                   "-DV8_COMPONENT=$V8_COMPONENT",
@@ -113,8 +136,9 @@ android {
       externalNativeBuild {
         cmake {
           arguments "-DJS_ENGINE=V8",
-                  "-DANDROID_CPP_FEATURES=rtti exceptions",
+                  "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
                   "-DANDROID_PLATFORM=android-21",
+                  "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
                   "-DV8_COMPONENT=$V8_COMPONENT",
@@ -199,6 +223,14 @@ project.tasks.whenTaskAdded { task ->
   if (task.name == 'mergeDebugNativeLibs') {
     task.finalizedBy dealAfterMergeDebugNativeLibs
   }
+
+  if (task.name == 'stripReleaseDebugSymbols') {
+    task.finalizedBy dealAfterStripReleaseDebugSymbols
+  }
+
+  if (task.name == 'stripDebugDebugSymbols') {
+    task.finalizedBy dealAfterStripDebugDebugSymbols
+  }
 }
 
 def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
@@ -216,16 +248,6 @@ def dealAfterMergeNativeLibs(mergedNativeLibsPath) {
       delete "$mergedNativeLibsPath/x86_64/$filename"
     }
   }
-  delete "$mergedNativeLibsPath/armeabi"
-  if (INCLUDE_ABI_ARMEABI.toBoolean()) {
-    copy {
-      from "$mergedNativeLibsPath/armeabi-v7a"
-      into "$mergedNativeLibsPath/armeabi"
-    }
-    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
-      delete "$mergedNativeLibsPath/armeabi-v7a"
-    }
-  }
 }
 
 def MERGED_NATIVE_LIBS_PATH = "$buildDir/intermediates/merged_native_libs"
@@ -241,9 +263,23 @@ task dealAfterMergeDebugNativeLibs() {
   }
 }
 
+def STRIPPED_NATIVE_LIBS_PATH = "$buildDir/intermediates/stripped_native_libs"
+task dealAfterStripReleaseDebugSymbols() {
+  doLast {
+    dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/release/out/lib")
+  }
+}
+
+task dealAfterStripDebugDebugSymbols() {
+  doLast {
+    dealAfterStripSymbols("$STRIPPED_NATIVE_LIBS_PATH/debug/out/lib")
+  }
+}
+
 def dealAfterAssemble(buildType) {
   file("$OUTPUT_PATH/$buildType").deleteDir()
-
+  File target = file("$OUTPUT_PATH/$ARCHIVES_BASE_NAME" + ".aar")
+  delete target
   file(OUTPUT_PATH).list().each{fileName ->
     if (fileName.contains(buildType + ".aar")) {
       copy {
@@ -256,6 +292,7 @@ def dealAfterAssemble(buildType) {
         include 'classes.jar'
         rename 'classes.jar', 'hippy.jar'
       }
+      file("$OUTPUT_PATH/$fileName").renameTo(target)
     }
   }
 }
