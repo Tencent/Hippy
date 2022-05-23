@@ -122,7 +122,6 @@ Widget generateByViewModel(
 class BoxWidget extends FRStatefulWidget {
   final RenderViewModel _viewModel;
   final Widget child;
-  final bool isInfinitySize;
 
   /// 动画属性
   final VoltronMap? animationProperty;
@@ -130,7 +129,6 @@ class BoxWidget extends FRStatefulWidget {
   BoxWidget(
     this._viewModel, {
     required this.child,
-    this.isInfinitySize = false,
     this.animationProperty,
   }) : super(_viewModel);
 
@@ -149,7 +147,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     var engineMonitor = widget._viewModel.context.engineMonitor;
     if (!(engineMonitor.hasAddPostFrameCall)) {
       engineMonitor.hasAddPostFrameCall = true;
-      WidgetsBinding.instance?.addPostFrameCallback((duration) {
+      WidgetsBinding.instance.addPostFrameCallback((duration) {
         LogUtils.dWidget(
           "div",
           'addPostFrameCallback ${widget._viewModel.id.toString()}',
@@ -167,11 +165,6 @@ class _BoxWidgetState extends FRState<BoxWidget> {
         widget._viewModel.height;
     var width = animationProperty?.get<num>(NodeProps.kWidth)?.toDouble() ??
         widget._viewModel.width;
-    if (widget.isInfinitySize) {
-      height ??= double.infinity;
-      width ??= double.infinity;
-    }
-
     if (widget._viewModel.noSize) {
       LogUtils.d(
         "BoxWidget",
@@ -190,34 +183,29 @@ class _BoxWidgetState extends FRState<BoxWidget> {
 
     var current = widget.child;
 
-    var innerBoxConstraints =
-        BoxConstraints.tightFor(width: width, height: height);
-
-    if (width != null && height != null) {
-      innerBoxConstraints = widget._viewModel.getInnerBoxConstraints(
-        width,
-        height,
-      );
-    }
-
-    current = SizedBox(
-      width: width,
-      height: height,
-      child: UnconstrainedBox(
-        child: ConstrainedBox(
-          constraints: innerBoxConstraints,
-          child: current,
-        ),
-      ),
-    );
-
     final color = animationProperty?.get<Color>(NodeProps.kBackgroundColor) ??
         widget._viewModel.backgroundColor;
     final decoration = widget._viewModel.getDecoration(backgroundColor: color);
     if (decoration != null) {
-      current = DecoratedBox(decoration: decoration, child: current);
+      current = Container(
+        width: width,
+        height: height,
+        decoration: decoration,
+        child: current,
+      );
     } else if (color != null) {
-      current = ColoredBox(color: color, child: current);
+      current = Container(
+        width: width,
+        height: height,
+        color: color,
+        child: current,
+      );
+    } else {
+      current = SizedBox(
+        width: width,
+        height: height,
+        child: current,
+      );
     }
 
     var opacity = animationProperty?.get<num>(NodeProps.kOpacity)?.toDouble() ??

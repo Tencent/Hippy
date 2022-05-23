@@ -43,10 +43,55 @@ void voltron::VoltronRenderManager::CreateRenderNode(
 
 void VoltronRenderManager::UpdateRenderNode(
     std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  for (const auto& n : nodes) {
+    if (n->GetTagName() == "Text") {
+      MarkTextDirty(n->GetId());
+    }
+  }
   for (const auto &node : nodes) {
     RunUpdateDomNode(node);
   }
 }
+
+void VoltronRenderManager::MarkTextDirty(uint32_t node_id) {
+  auto dom_manager = GetDomManager();
+  TDF_BASE_DCHECK(dom_manager);
+  if (dom_manager) {
+    auto node = dom_manager->GetNode(node_id);
+    TDF_BASE_DCHECK(node);
+    if (node) {
+      auto diff_style = node->GetDiffStyle();
+      if (diff_style) {
+        MarkDirtyProperty(diff_style, hippy::dom::kFontStyle, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kLetterSpacing, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kColor, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kFontSize, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kFontFamily, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kFontWeight, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kTextDecorationLine, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kTextShadowOffset, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kTextShadowRadius, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kTextShadowColor, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kLineHeight, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kTextAlign, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kText, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, kEnableScale, node->GetLayoutNode());
+        MarkDirtyProperty(diff_style, hippy::dom::kNumberOfLines, node->GetLayoutNode());
+      }
+    }
+  }
+}
+
+void VoltronRenderManager::MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff_style,
+                                             const char *prop_name,
+                                             std::shared_ptr<LayoutNode> layout_node) {
+  TDF_BASE_DCHECK(layout_node != nullptr);
+  if (diff_style->find(prop_name) != diff_style->end()) {
+    layout_node->MarkDirty();
+    return;
+  }
+}
+
 
 void VoltronRenderManager::DeleteRenderNode(
     std::vector<std::shared_ptr<DomNode>> &&nodes) {
@@ -87,6 +132,14 @@ void VoltronRenderManager::BeforeLayout() {
 void VoltronRenderManager::AfterLayout() {
   RunLayoutFinish();
   TDF_BASE_DLOG(INFO) << "RunLayoutFinish";
+}
+
+void VoltronRenderManager::RegisterVsyncSingal(const std::string &key, float rate, std::function<void()> vsync_callback) {
+
+}
+
+void VoltronRenderManager::UnregisterVsyncSingal(const std::string &key) {
+
 }
 
 void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node,

@@ -44,16 +44,22 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
       value: widget._viewModel,
       child: Selector<ScrollViewRenderViewModel, ScrollViewRenderViewModel>(
         selector: (context, viewModel) {
-          return ScrollViewRenderViewModel.copy(viewModel.id, viewModel.rootId,
-              viewModel.name, viewModel.context, viewModel);
+          return ScrollViewRenderViewModel.copy(
+            viewModel.id,
+            viewModel.rootId,
+            viewModel.name,
+            viewModel.context,
+            viewModel,
+          );
         },
         builder: (context, viewModel, _) {
-          return PositionWidget(viewModel,
-              child: Selector0<ScrollViewDetailRenderViewModel>(
-                selector: (context) =>
-                    viewModel.scrollViewDetailRenderViewModel,
-                builder: (context, viewModel, _) => scrollView(viewModel),
-              ));
+          return PositionWidget(
+            viewModel,
+            child: Selector0<ScrollViewDetailRenderViewModel>(
+              selector: (context) => viewModel.scrollViewDetailRenderViewModel,
+              builder: (context, viewModel, _) => scrollView(viewModel),
+            ),
+          );
         },
       ),
     );

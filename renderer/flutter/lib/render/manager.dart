@@ -61,7 +61,6 @@ mixin InstanceLifeCycleDelegate {
 }
 
 mixin RenderExecutorDelegate {
-  bool _hasAddFrameCallback = false;
   bool _isDestroyed = false;
   bool _isDispatchUiFrameEnqueued = false;
   bool _layoutBeforeFlag = false;
@@ -117,18 +116,13 @@ mixin RenderExecutorDelegate {
     if (!_isDispatchUiFrameEnqueued) {
       _isDispatchUiFrameEnqueued = true;
     }
-
-    postFrameCallback();
   }
 
   void postFrameCallback() {
-    if (!_hasAddFrameCallback) {
-      WidgetsFlutterBinding.ensureInitialized();
-      WidgetsBinding.instance?.addPersistentFrameCallback(doFrame);
-      _hasAddFrameCallback = true;
-    }
+    WidgetsFlutterBinding.ensureInitialized();
     if (_dispatchRunnable.isNotEmpty) {
-      WidgetsBinding.instance?.scheduleFrame();
+      WidgetsBinding.instance.addPostFrameCallback(doFrame);
+      WidgetsBinding.instance.scheduleFrame();
     }
   }
 
@@ -151,17 +145,15 @@ mixin RenderExecutorDelegate {
 
     _paddingNullUiTasks.clear();
     _uiTasks.clear();
+
+    if (_dispatchRunnable.isNotEmpty) {
+      postFrameCallback();
+    }
   }
 
   void notifyDom();
 
   void flushPendingBatches() {
-    if (isPause) {
-      _isDispatchUiFrameEnqueued = false;
-    } else {
-      postFrameCallback();
-    }
-
     var iterator = _dispatchRunnable.iterator;
     var shouldBatch = _dispatchRunnable.isNotEmpty;
     var startTime = currentTimeMillis();
@@ -185,6 +177,12 @@ mixin RenderExecutorDelegate {
 
     if (deleteList.isNotEmpty) {
       deleteList.forEach(_dispatchRunnable.remove);
+    }
+
+    if (isPause) {
+      _isDispatchUiFrameEnqueued = false;
+    } else {
+      postFrameCallback();
     }
 
     if (shouldBatch) {

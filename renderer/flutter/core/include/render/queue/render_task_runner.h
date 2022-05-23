@@ -28,14 +28,16 @@
 
 namespace voltron {
 
-using hippy::CallFunctionCallback;
-using hippy::DomArgument;
-using hippy::DomManager;
-using hippy::DomNode;
-using tdf::base::DomValue;
-
 class VoltronRenderTaskRunner {
 public:
+  using DomArgument = hippy::DomArgument;
+  using DomManager = hippy::DomManager;
+  using DomNode = hippy::DomNode;
+  using DomValue = tdf::base::DomValue;
+  using DomEvent = hippy::DomEvent;
+  using LayoutSize = hippy::LayoutSize;
+  using LayoutMeasureMode = hippy::LayoutMeasureMode;
+
   explicit VoltronRenderTaskRunner(int32_t engine_id, int32_t root_id);
   virtual ~VoltronRenderTaskRunner();
   void RunCreateDomNode(const Sp<DomNode> &node);
@@ -54,6 +56,7 @@ public:
                     const std::unique_ptr<EncodableValue> &params);
   void RunAddEventListener(const int32_t &node_id, const String &event_name);
   void RunRemoveEventListener(const int32_t &node_id, const String &event_name);
+  Sp<DomManager> GetDomManager() const;
 
 private:
   void ConsumeQueue();

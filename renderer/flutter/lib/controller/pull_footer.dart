@@ -67,10 +67,10 @@ class ListPullFooterViewController extends BaseGroupController<ListPullFooterVie
       if (listViewModel is ListViewModel) {
         // delay to keep data update first
         Future.delayed(const Duration(milliseconds: 0), () {
-          WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             listViewModel.refreshEventDispatcher.loadingCompleted();
             // fire postFrameCallback
-            WidgetsBinding.instance?.scheduleFrame();
+            WidgetsBinding.instance.scheduleFrame();
           });
         });
       }

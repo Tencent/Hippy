@@ -118,7 +118,7 @@ class RootWidgetViewModel extends ChangeNotifier {
 
   void notifyChange() {
     notifyListeners();
-    WidgetsBinding.instance?.scheduleFrame();
+    WidgetsBinding.instance.scheduleFrame();
   }
 
   // RootView上添加View了，说明jsBundle正常工作了
@@ -240,7 +240,7 @@ class VoltronWidget extends StatefulWidget {
   }
 }
 
-class _VoltronWidgetState extends State<VoltronWidget> {
+class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateMixin {
   Size? oldSize;
   final RootWidgetViewModel viewModel = RootWidgetViewModel();
 
@@ -254,17 +254,18 @@ class _VoltronWidgetState extends State<VoltronWidget> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback(doFirstFrame);
+    WidgetsBinding.instance.addPostFrameCallback(doFirstFrame);
     // viewModel!.executor = doFrame;
     viewModel._wrapper = () => context;
     hasDispose = false;
+    AnimationController controller = AnimationController(vsync: this);
   }
 
   @override
   void didUpdateWidget(VoltronWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.loader != oldWidget.loader) {
-      WidgetsBinding.instance?.addPostFrameCallback(doFirstFrame);
+      WidgetsBinding.instance.addPostFrameCallback(doFirstFrame);
     }
   }
 

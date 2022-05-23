@@ -64,29 +64,31 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
   }
 
   Widget viewPager(ViewPagerRenderViewModel viewModel) {
-    LogUtils.dWidget("view_pager", "build view pager, children:${viewModel.children.length}");
+    LogUtils.dWidget("view_pager",
+        "build view pager, children:${viewModel.children.length}");
     if (viewModel.children.isEmpty) {
       return Container();
     } else {
       // viewPortFraction必须大于0
-      var viewPortFraction = viewModel.pageMargin > 0 ? viewModel.pageMargin : 1.0;
+      var viewPortFraction =
+          viewModel.pageMargin > 0 ? viewModel.pageMargin : 1.0;
       var controller = PageController(
         initialPage: viewModel.initialPage,
         viewportFraction: viewPortFraction,
       );
       changeController(controller);
-      var physics = viewModel.scrollEnabled
-          ? viewModel.bounces
-              ? const BouncingScrollPhysics()
-              : const ClampingScrollPhysics()
-          : const NeverScrollableScrollPhysics();
+      var physics = getScrollPhysics(viewModel);
       var overflow = viewModel.overflow;
-      // 创建viewpager时需要回调一下js当前的Page，防止数据不一致的问题
-      onPageChanged(viewModel.initialPage);
+      if (widget._viewModel.firstRender) {
+        // 创建viewpager时需要回调一下js当前的Page，防止数据不一致的问题
+        widget._viewModel.firstRender = false;
+        onPageChanged(viewModel.initialPage);
+      }
       return NotificationListener<ScrollNotification>(
         onNotification: onScrollNotification,
         child: PageView.builder(
-          scrollDirection: viewModel.isVertical ? Axis.vertical : Axis.horizontal,
+          scrollDirection:
+              viewModel.isVertical ? Axis.vertical : Axis.horizontal,
           itemBuilder: (context, index) {
             if (index < 0 || index >= viewModel.children.length) {
               return Container();
@@ -107,6 +109,14 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
     }
   }
 
+  ScrollPhysics getScrollPhysics(ViewPagerRenderViewModel viewModel) {
+    return viewModel.scrollEnabled
+        ? viewModel.bounces
+            ? const BouncingScrollPhysics()
+            : const ClampingScrollPhysics()
+        : const NeverScrollableScrollPhysics();
+  }
+
   void changeController(PageController controller) {
     widget._viewModel.setController(controller);
   }
@@ -121,8 +131,12 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
     return false;
   }
 
-  Widget pageChild(BuildContext context, RenderViewModel childViewModel, String overflow,
-      double viewPortFraction) {
+  Widget pageChild(
+    BuildContext context,
+    RenderViewModel childViewModel,
+    String overflow,
+    double viewPortFraction,
+  ) {
     var content = generateByViewModel(context, childViewModel);
 
     content = Stack(
@@ -172,13 +186,13 @@ class _ViewPagerItemWidgetState extends FRState<ViewPagerItemWidget> {
         builder: (context, viewModel, child) {
           return BoxWidget(
             viewModel,
-            child: Selector<ViewPagerItemRenderViewModel, DivContainerViewModel>(
+            child:
+                Selector<ViewPagerItemRenderViewModel, DivContainerViewModel>(
               selector: (context, viewModel) => DivContainerViewModel(
                 viewModel,
               ),
               builder: (context, viewModel, _) => DivContainerWidget(viewModel),
             ),
-            isInfinitySize: true,
           );
         },
       ),

@@ -42,12 +42,16 @@ class _QrWidgetState extends FRState<QrWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-        value: widget.renderViewModel,
-        child: Consumer<QrRenderViewModel>(
-          builder: (context, viewModel, widget) {
-            return PositionWidget(viewModel, child: qrView(viewModel));
-          },
-        ));
+      value: widget.renderViewModel,
+      child: Consumer<QrRenderViewModel>(
+        builder: (context, viewModel, widget) {
+          return PositionWidget(
+            viewModel,
+            child: qrView(viewModel),
+          );
+        },
+      ),
+    );
   }
 
   Widget qrView(QrRenderViewModel viewModel) {
