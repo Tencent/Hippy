@@ -55,7 +55,7 @@ using bytes = std::string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using StringViewUtils = hippy::base::StringViewUtils;
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 extern std::mutex inspector_mutex;
 extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
