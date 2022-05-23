@@ -95,7 +95,6 @@ set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud
 set(INFA_PACKAGES_DOMAIN "hippy")
 
 # region v8
-set(ENABLE_INSPECTOR true)
 if (${JS_ENGINE} STREQUAL "V8")
   get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
   if (EXISTS "${V8_COMPONENT_PATH}/CMakeLists.txt")
