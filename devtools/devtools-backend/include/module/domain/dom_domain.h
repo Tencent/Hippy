@@ -29,6 +29,7 @@
 #include "module/request/base_request.h"
 #include "module/request/dom_node_data_request.h"
 #include "module/request/dom_node_for_location_request.h"
+#include "module/request/dom_push_nodes_request.h"
 
 namespace hippy::devtools {
 /**
@@ -54,6 +55,7 @@ class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDoma
   void GetNodeForLocation(const DomNodeForLocationRequest& request);
   void RemoveNode(const BaseRequest& request);
   void SetInspectedNode(const BaseRequest& request);
+  void PushNodesByBackendIdsToFrontend(DomPushNodesRequest& request);
   void HandleDocumentUpdate();
   void CacheEntireDocumentTree(DomModel root_model);
   void SetChildNodesEvent(DomModel model);
@@ -61,6 +63,8 @@ class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDoma
 
   // <node_id, children_size>
   std::map<int32_t, uint32_t> element_node_children_count_cache_;
+  // <backend_id, node_id>
+  std::map<int32_t, int32_t> backend_node_id_map_;
   DomDataRequestCallback dom_data_call_back_;
   LocationForNodeDataCallback location_for_node_call_back_;
 };
