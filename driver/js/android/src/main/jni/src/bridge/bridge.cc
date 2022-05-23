@@ -5,7 +5,7 @@
 
 namespace hippy {
 
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
 void ADRBridge::SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
   if (message->string().is8Bit()) {
     return;
