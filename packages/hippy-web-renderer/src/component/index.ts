@@ -28,7 +28,7 @@ import { View } from './view';
 import { ViewPager, ViewPagerItem } from './view-pager';
 import { WebView } from './web-view';
 import { TextView } from './text-view';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 
 export {
   Image,
@@ -44,6 +44,6 @@ export {
   ListViewItem,
   ViewPagerItem,
   RefreshWrapperItemView,
-  HippyView,
+  HippyWebView,
 };
 
