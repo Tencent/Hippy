@@ -35,11 +35,11 @@
         }
         const engine = Hippy.web.engine;
         await engine.load([
-          "http://localhost:38989/index.bundle?platform=android&dev=1&hot=1&minify=0",
+          "http://10.35.3.88:8011/index.bundle.js?platform=android&dev=1&hot=1&minify=0",
         ]);
         engine.start({
           id: "test-app",
-          name: "battle",
+          name: "hero-hot-list",
           params: { path: "/home",singleModule:true },
         });
       })();
