@@ -1,21 +1,21 @@
-# 自定义界面组件
+# Custom UI components
 
-App 开发中有可能使用到大量的UI组件，Hippy SDK 已包括其中常用的部分，如`View`、`Text`、`Image` 等，但这极有可能无法满足你的需求，这就需要对 UI 组件进行扩展封装。
+App development may use a large number of UI components, Hippy SDK has included the commonly used parts, such as `View`, `Text`, `Image`, etc., but it is highly likely that they can not meet your needs, which requires to extend and encapsulate UI components.
 
-# 组件扩展
+# Component extensions
 
-我们将以MyView为例，从头介绍如何扩展组件。
+We will take `MyView` as an example and introduce how to extend components from scratch.
 
-扩展组件包括：
+To extend a component, you should:
 
-1. 扩展 HippyViewController。
-2. 实现 createViewImpl方法、
-3. 实现 Props 设置方法。
-4. 手势事件处理。
-5. 注册 HippyViewController。
+1. extend `HippyViewController`,
+2. implement the `createViewImpl` method
+3. implement the `Props` setting method,
+4. handle gesture events,
+5. register `HippyViewController`.
 
-`HippyViewController` 是一个视图管理的基类（如果是ViewGroup的组件，基类为 `HippyGroupController`）。
-在这个例子中我们需要创建一个 `MyViewController` 类，它继承 `HippyViewController<MyView>`。`MyView` 是被管理的UI组件类型，他应该是一个 Android View 或者 ViewGroup。 `@HippyController` 注解用来定义导出给JS使用时的组件信息。
+`HippyViewController` is a base class for view management (if it is a `ViewGroup` component, the base class is `HippyGroupController`).
+In this example we need to create a `MyViewController` class, which inherits `HippyViewController<MyView>`. `MyView` is the type of UI component being managed, and it should be an `Android View` or `ViewGroup`. The `@HippyController` annotation is used to define the component information when exported for use by JS.
 
 ```java
 @HippyController(name = "MyView")
@@ -25,30 +25,30 @@ public class MyViewController extends HippyViewController<MyView>
 }
 ```
 
-## 实现 createViewImpl 方法
+## Implement the createViewImpl method
 
-当需要创建对视图时，引擎会调用 `createViewImpl` 方法。
+The engine calls the `createViewImpl` method when a pair of views needs to be created.
 
-```java
+``` java
 @Override
 protected View createViewImpl(Context context)
 {
-    // context实际类型为HippyInstanceContext
+    // context is actually of type HippyInstanceContext
     return new MyView(context);
 }
 ```
 
-## 实现属性 Props 方法
+## Implement the properties Props method
 
-需要接收 JS 设置的属性，需要实现带有 `@HippyControllerProps` 注解的方法。
+Need to receive properties set by JS, and implement the methods with `@HippyControllerProps` annotation.
 
-`@HippyControllerProps` 可用参数包括：
+`@HippyControllerProps` available parameters:
 
-- `name`（必须）：导出给JS的属性名称。
-- `defaultType`（必须）：默认的数据类型。取值包括 `HippyControllerProps.BOOLEAN`、`HippyControllerProps.NUMBER`、`HippyControllerProps.STRING`、`HippyControllerProps.DEFAULT`、`HippyControllerProps.ARRAY`、`HippyControllerProps.MAP`。
-- `defaultBoolean`：当 defaultType 为 HippyControllerProps.BOOLEAN 时，设置后有效。
-- `defaultNumber`：当 defaultType 为 HippyControllerProps.NUMBER 时，设置后有效。
-- `defaultString`：当 defaultType 为 HippyControllerProps.STRING 时，设置后有效。
+- `name` (required): the name of the property exported to JS.
+- `defaultType` (required): the default data type. Values include `HippyControllerProps.BOOLEAN`, `HippyControllerProps.NUMBER`, `HippyControllerProps.STRING`, `HippyControllerProps.DEFAULT`, `HippyControllerProps.ARRAY`, `HippyControllerProps.MAP`.
+- `defaultBoolean`: valid when defaultType is HippyControllerProps.BOOLEAN
+- `defaultNumber`: valid when defaultType is HippyControllerProps.NUMBER
+- ``defaultString``: valid when defaultType is HippyControllerProps.STRING
 
 ```java
 @HippyControllerProps(name = "text", defaultType = HippyControllerProps.STRING, defaultString = "")
@@ -58,11 +58,11 @@ public void setText(MyView textView, String text)
 }
 ```
 
-# 手势事件处理
+# Gesture event handling
 
-Hippy手势处理，复用了 Android 系统手势处理机制。扩展组件时，需要在控件的 `onTouchEvent` 添加部分代码，JS才能正常收到 `onTouchDown`、`onTouchMove`、`onTouchEnd` 事件。事件的详细介绍，参考 Hippy 事件机制。
+Hippy gesture handling  reuses the Android gesture handling mechanism. When extending a component, you need to add some code to the `onTouchEvent` of the component in order for JS to receive `onTouchDown`, `onTouchMove`, `onTouchEnd` events properly. For a detailed description of events, refer to Hippy event mechanism.
 
-```java
+``` java
 @Override
 public NativeGestureDispatcher getGestureDispatcher()
 {
@@ -87,11 +87,11 @@ public boolean onTouchEvent(MotionEvent event)
 }
 ```
 
-## 注册 HippyViewController
+## Register HippyViewController
 
-需要在 `HippyPackage` 的 `getControllers` 方法中添加这个Controller，这样它才能在JS中被访问到。
+This Controller needs to be added to the `getControllers` method of the `HippyPackage` so that it can be accessed in JS.
 
-```java
+``` java
 @Override
 public List<Class<? extends HippyViewController>> getControllers()
 {
@@ -101,11 +101,11 @@ public List<Class<? extends HippyViewController>> getControllers()
 }
 ```
 
-# 更多特性
+# More features
 
-## 处理组件方法调用
+## Handling component method calls
 
-在有些场景，JS需要调用组件的一些方法，比如 `MyView` 的 `changeColor`。这个时候需要在 `HippyViewController`重载 `dispatchFunction` 方法来处理JS的方法调用。
+In some scenarios, JS needs to call some of the component's methods, such as `MyView`'s `changeColor`. This time you need to override the `dispatchFunction` method in `HippyViewController` to handle the JS method calls.
 
 ```java
 public void dispatchFunction(MyView view, String functionName, HippyArray var)
@@ -121,10 +121,9 @@ public void dispatchFunction(MyView view, String functionName, HippyArray var)
 }
 ```
 
-## 事件回调
+## Event callbacks
 
-Hippy SDK 提供了一个基类 `HippyViewEvent`，其中封装了UI事件发送的逻辑，只需调用 `send` 方法即可发送事件到JS对应的组件上。比如我要在 MyView 的 onAttachedToWindow 的时候发送事件到前端的控件上面。
-示例如下：
+Hippy SDK provides a base class `HippyViewEvent`, which encapsulates the logic of sending UI events. Just call the `send` method to send the event to the JS corresponding component. For example, if I want to send an event to the front-end components on `MyView`'s `onAttachedToWindow`.
 
 ```java
 @Override
@@ -138,16 +137,16 @@ protected void onAttachedToWindow() {
 }
 ```
 
-## HippyViewController 的回调函数
+## HippyViewController's callback function
 
-- `onAfterUpdateProps`：属性更新完成后回调。
-- `onBatchComplete`：一次上屏操作完成后回调（适用于 ListView 类似的组件，驱动 Adapte r刷新等场景）。
-- `onViewDestroy`：视图被删除前回调（适用于类似回收视图注册的全局监听等场景）。
-- `onManageChildComplete`：在 `HippyGroupController` 添加、删除子试图完成后回调。
+- `onAfterUpdateProps`: Callback after the property update is complete.
+- `onBatchComplete`: callback after an up-screen operation is completed (for ListView-like components, driving scenarios like Adapter refresh).
+- `onViewDestroy`: callback before the view is deleted (for scenarios like global listeners that recycle view registrations, etc.).
+- `onManageChildComplete`: Callback after `HippyGroupController` has finished adding or removing child views.
 
-# 混淆说明
+# Obfuscation instructions
 
-扩展组件的 `Controller` 类名和属性设置方法方法名不能混淆，可以增加混淆例外。
+The `Controller` class name and property setting method name of the extended component cannot be obfuscated, but you can add obfuscation exceptions.
 
 ```java
 -keep class * extends com.tencent.mtt.hippy.uimanager.HippyGroupController{ public *;}

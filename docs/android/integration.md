@@ -20,8 +20,7 @@
 
 2. 本地集成
 
-   - [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程运行 Gradle Task `other => assembleRelease` 或者 `other => assembleDebug` 后会在 `android\sdk\build\outputs\aar` 目录下生成 `release` 或者 `debug` 模式的 
-   `android-sdk.aar`，将 `android-sdk.aar` 拷贝到你项目的 `libs` 目录下。
+   - [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程运行 Gradle Task `other => assembleRelease` 或者 `other => assembleDebug` 后会在 `android\sdk\build\outputs\aar` 目录下生成 `release` 或者 `debug` 模式的`android-sdk.aar`，将 `android-sdk.aar` 拷贝到你项目的 `libs` 目录下。
 
      !> 通过 `assembleRelease` task 生成的 AAR 默认不携带 `inspector` 模块，不能在前端通过 Devtools 对代码进行调试，若需要集成 `inspector`，请执行 `assembleDebug` task
 
@@ -49,4 +48,4 @@
 
 4. 继承 `HippyImageLoader` 并实现自己的图片加载器，具体可以参考 [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程中 `MyImageLoader` 实现。
 
-5. 在宿主 APP 工程中增加引擎初始化与 `hippyRootView` 挂载逻辑，具体可以参考 [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程中 MyActivity 实现
+5. 在宿主 APP 工程中增加引擎初始化与 `hippyRootView` 挂载逻辑，具体可以参考 [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程中 `MyActivity` 实现
