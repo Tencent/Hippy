@@ -143,7 +143,7 @@ class StringViewUtils {
       case unicode_string_view::Encoding::Latin1: {
         u8string u8;
         for (const auto& ch : str_view.latin1_value()){
-          if (ch < 0x80) {
+          if (static_cast<uint8_t>(ch) < 0x80) {
             u8 += ch;
           } else {
             u8 += (0xc0 | ch >> 6);

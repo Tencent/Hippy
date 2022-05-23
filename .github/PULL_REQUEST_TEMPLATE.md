@@ -1,6 +1,8 @@
-Before submitting a new pull request, please make sure:
+# Pre-PR Checklist
 
-- [ ] Test cases have been added/updated/passed for the code you will submit.
-- [ ] Documentation has added or updated.
-- [ ] Commit message is following the [Convention Commit](https://conventionalcommits.org/) guideline with maximum 72 characters.
-- [ ] Squash the repeat code commits, short patches are welcome.
+- [x] I added/updated relevant documentation.
+- [x] I followed the [Convention Commit](https://conventionalcommits.org/) guideline with maximum 72 characters to submit commit message.
+- [x] I squashed the repeated code commits.
+- [x] I signed the [CLA].
+- [x] I added/updated test cases to check the change I am making.
+- [x] All existing and new tests are passing.
