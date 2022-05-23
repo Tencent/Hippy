@@ -113,11 +113,10 @@ export class HippyWebEngine {
 
   start(options: HippyWebEngineStartOptions) {
     this.instance = options;
-    hippyBridge('loadInstance', options);
-
     Object.keys(this.modules).forEach((key) => {
       this.modules[key]?.init();
     });
+    hippyBridge('loadInstance', options);
     this.eventBus.publish('loaded');
   }
 
@@ -178,16 +177,6 @@ export class HippyWebEngine {
       console.error(e);
     }
   }
-
-  // flushPendingQueue(moduleName: string) {
-  //   this.pendingModules[moduleName] = false;
-  //   const queue = this.pendingQueue.filter(para => para[0] === moduleName);
-  //   while (queue.length > 0) {
-  //     const para = queue.shift();
-  //     // resend commands
-  //     global.hippyCallNatives(para[0], para[1], para[2], para[3]);
-  //   }
-  // }
 }
 
 

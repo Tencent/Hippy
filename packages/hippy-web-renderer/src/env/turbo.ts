@@ -23,7 +23,7 @@ import { HippyWebModule } from '../base/base-unit';
 export const getTurboModule = <T extends HippyWebModule>(moduleName): T | undefined => {
   const { engine } = Hippy.web;
   const mod = engine.modules[moduleName];
-  if (mod == null) {
+  if (mod === null || mod === undefined) {
     console.warn(`Turbo module: ${moduleName} is not found`);
   }
   return mod as T;
