@@ -31,7 +31,7 @@
 #include "jni/scoped_java_ref.h"
 #endif
 
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
 #include "core/runtime/v8/bridge.h"

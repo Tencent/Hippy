@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8-inspector.h"
@@ -15,7 +15,7 @@ class Bridge {
   Bridge() = default;
   virtual ~Bridge() = default;
 
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
   virtual void SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) = 0;
   virtual void SendNotification(std::unique_ptr<v8_inspector::StringBuffer> message) = 0;
 #endif
