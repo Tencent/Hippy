@@ -20,7 +20,7 @@
 import { VirtualizedList } from '../third-lib/virtual-list.js';
 import { NodeProps, InnerNodeTag } from '../types';
 import { setElementStyle } from '../common';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 import {
   eventThrottle,
   GESTURE_CAPTURE_THRESHOLD,
@@ -28,7 +28,7 @@ import {
   touchMoveCalculate,
 } from './scrollable';
 
-export class ListView extends HippyView<HTMLDivElement> {
+export class ListView extends HippyWebView<HTMLDivElement> {
   public static intersectionObserverElement(
     parentElement: Element,
     callBack: (entries: Array<IntersectionObserverEntry>) => void,
@@ -534,7 +534,7 @@ export class ListView extends HippyView<HTMLDivElement> {
   }
 }
 
-export class ListViewItem extends HippyView<HTMLDivElement> {
+export class ListViewItem extends HippyWebView<HTMLDivElement> {
   public height = 0;
   public isDirty = false;
   private dirtyListener: ((component: ListViewItem) => void) | null = null;
