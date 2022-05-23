@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-export const dynamicLoad = (path, encode, cb) => {
+export const dynamicLoad = (/* path, encode, cb */) => {
   console.warn('dynamicLoad is unsupported');
   // let requestPath = path || '';
   // const isSchema = ['https://', 'http://', '//'].some(schema => requestPath.indexOf(schema) === 0);
