@@ -21,9 +21,9 @@
 import { ImageResizeMode, NodeProps, InnerNodeTag, UIProps, HippyBaseView } from '../types';
 import { convertHexToRgbaArray, setElementStyle } from '../common';
 import { Color, Solver } from '../third-lib/color-transform.js';
-import { HippyView } from './hippy-view';
+import { HippyWebView } from './hippy-web-view';
 
-export class Image extends HippyView<HTMLImageElement> {
+export class Image extends HippyWebView<HTMLImageElement> {
   private isLoadSuccess = false;
   public constructor(context, id, pId) {
     super(context, id, pId);
