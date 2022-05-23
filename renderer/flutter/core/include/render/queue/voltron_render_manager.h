@@ -51,8 +51,8 @@ public:
   void BeforeLayout() override;
   void AfterLayout() override;
 
-  void RegisterVsyncSingal(const std::string &key, float rate, std::function<void()> vsync_callback) override;
-  void UnregisterVsyncSingal(const std::string &key) override;
+  void RegisterVsyncSignal(const std::string &key, float rate, std::function<void()> vsync_callback) override;
+  void UnregisterVsyncSignal(const std::string &key) override;
 
   void AddEventListener(std::weak_ptr<DomNode> dom_node,
                         const std::string &name) override;

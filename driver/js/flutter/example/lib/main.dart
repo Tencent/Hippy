@@ -265,14 +265,14 @@ class _MyWidgetInspector with WidgetInspectorService {
           'flutter',
         ));
         pubRootDirectories.add(dir.replaceFirst(
-          'framework/js/flutter/example',
+          'driver/js/flutter/example',
           'renderer/flutter',
         ));
         break;
       }
-      if (dir.contains('framework/js/flutter')) {
+      if (dir.contains('driver/js/flutter')) {
         pubRootDirectories.add(dir.replaceFirst(
-          'framework/js/flutter',
+          'driver/js/flutter',
           'renderer/flutter',
         ));
         break;
