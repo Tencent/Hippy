@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.header;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -23,7 +23,7 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
-import com.tencent.mtt.nxeasy.recyclerview.helper.AnimatorListenerBase;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.AnimatorListenerBase;
 
 public class HeaderRefreshHelper implements OnTouchListener {
 
@@ -36,10 +36,10 @@ public class HeaderRefreshHelper implements OnTouchListener {
   /// header 被下拉过程中显示出来
   private boolean isHeaderDragShowing;
   private int refreshStatus = -1;
-  private IHeaderRefreshListener headerRefreshListener;
+  private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header.IHeaderRefreshListener headerRefreshListener;
   private ValueAnimator animator;
-  private ILayoutRequester layoutRequester;
-  private IHeaderStatusListener headerStatusListener;
+  private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header.ILayoutRequester layoutRequester;
+  private com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header.IHeaderStatusListener headerStatusListener;
 
   public void setEnable(boolean enable) {
     this.enable = enable;

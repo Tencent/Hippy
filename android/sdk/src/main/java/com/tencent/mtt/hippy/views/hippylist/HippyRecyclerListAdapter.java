@@ -20,7 +20,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
-import androidx.recyclerview.widget.IItemLayoutParams;
+import androidx.recyclerview.widget.ItemLayoutParams;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
@@ -34,7 +34,7 @@ import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
-import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IStickyItemsProvider;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyItemsProvider;
 import java.util.ArrayList;
 
 /**
@@ -43,7 +43,7 @@ import java.util.ArrayList;
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Adapter<HippyRecyclerViewHolder>
-        implements IRecycleItemTypeChange, IStickyItemsProvider, IItemLayoutParams {
+        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams {
 
     private static final int STICK_ITEM_VIEW_TYPE_BASE = -100000;
     protected final HippyEngineContext hpContext;
