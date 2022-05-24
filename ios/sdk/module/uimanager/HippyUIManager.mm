@@ -1511,6 +1511,7 @@ static UIView *_jsResponder;
                 [container insertHippySubview:subview atIndex:index];
                 index++;
             }
+            [container clearSortedSubviews];
             [container didUpdateHippySubviews];
         }];
 
