@@ -20,7 +20,7 @@
 
 #pragma once
 
-#if TDF_SERVICE_ENABLED
+#if ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 
 #define DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace_control) \

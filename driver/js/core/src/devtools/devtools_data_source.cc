@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-#if TDF_SERVICE_ENABLED
 
 #include "devtools/devtools_data_source.h"
 
@@ -104,5 +103,3 @@ void DevtoolsDataSource::SendVmData(v8_inspector::StringView string_view) {
 }
 #endif
 }  // namespace hippy::devtools
-
-#endif

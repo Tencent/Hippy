@@ -162,7 +162,7 @@ HIPPY_EXPORT_MODULE()
         self.pScope = scope;
         [self initURILoader];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
-#if TDF_SERVICE_ENABLED
+#if ENABLE_INSPECTOR
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
         auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
         devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
@@ -396,7 +396,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     if (!self.isValid) {
         return;
     }
-#if TDF_SERVICE_ENABLED
+#if ENABLE_INSPECTOR
     bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
     self.pScope->GetDevtoolsDataSource()->Destroy(reload);
 #endif

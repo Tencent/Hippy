@@ -164,7 +164,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   runtime->SetGroupId(group);
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
 
-#if TDF_SERVICE_ENABLED
+#if ENABLE_INSPECTOR
   DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
   auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url));
   devtools_data_source->SetRuntimeDebugMode(is_dev_module);
@@ -366,7 +366,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id, is_reload] {
-    TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
+    TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id << "is_reload" << is_reload;
 #ifndef V8_WITHOUT_INSPECTOR
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
@@ -377,7 +377,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
 #else
     runtime->GetScope()->WillExit();
 #endif
-#if TDF_SERVICE_ENABLED
+#if ENABLE_INSPECTOR
     runtime->GetScope()->GetDevtoolsDataSource()->Destroy(is_reload);
 #endif
     TDF_BASE_LOG(INFO) << "SetScope nullptr";
