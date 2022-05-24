@@ -38,6 +38,7 @@
 #import "HippyDefaultImageProvider.h"
 #import "HippyRedBox.h"
 #import "HippyAssert.h"
+#import "MyViewManager.h"
 
 @interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
@@ -103,7 +104,8 @@
     
     //4.set frameworkProxy for bridge.If bridge cannot handle frameworkProxy protocol, it will forward to {self}
     bridge.frameworkProxy = self;
-    
+    bridge.renderManager->RegisterExtraComponent(@{@"MyView": [MyViewManager class]});
+
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];
 }
@@ -147,7 +149,7 @@
         _nativeRenderManager->SetFrameworkProxy(self);
         _nativeRenderManager->RegisterRootView(rootView);
         _nativeRenderManager->SetDomManager(_domManager);
-        
+        _nativeRenderManager->RegisterExtraComponent(@{@"MyView": [MyViewManager class]});
         _domManager->SetRenderManager(_nativeRenderManager);
     }
 }

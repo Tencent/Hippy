@@ -201,6 +201,8 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (id)dispatchFunction:(const std::string &)functionName viewName:(const std::string &)viewName viewTag:(int32_t)hippyTag
                   params:(const tdf::base::DomValue &)params callback:(hippy::CallFunctionCallback)cb;
 
+- (void)registerExtraComponent:(NSDictionary<NSString *, Class> *)extraComponent;
+
 /**
  * register event for specific view
  *

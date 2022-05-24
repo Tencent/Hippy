@@ -133,16 +133,26 @@ void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node, const st
     }
 }
 
+void NativeRenderManager::RegisterExtraComponent(NSDictionary<NSString *, Class> *extraComponent) {
+    @autoreleasepool {
+        [uiManager_ registerExtraComponent:extraComponent];
+    }
+}
+
 void NativeRenderManager::RegisterVsyncSignal(const std::string &key, float rate, std::function<void()> vsync_callback) {
-    if (vsync_callback) {
-        [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
-            vsync_callback();
-        } rate:rate forKey:@(key.c_str())];
+    @autoreleasepool {
+        if (vsync_callback) {
+            [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
+                vsync_callback();
+            } rate:rate forKey:@(key.c_str())];
+        }
     }
 }
 
 void NativeRenderManager::UnregisterVsyncSignal(const std::string &key) {
-    [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:@(key.c_str())];
+    @autoreleasepool {
+        [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:@(key.c_str())];
+    }
 }
 
 void NativeRenderManager::RegisterRootView(UIView *view) {
