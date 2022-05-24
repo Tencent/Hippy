@@ -120,6 +120,8 @@ public:
                       const DomArgument& param,
                       uint32_t cb) override;
     
+    void RegisterExtraComponent(NSDictionary<NSString *, Class> *extraComponent);
+    
     void RegisterVsyncSignal(const std::string &key,
                              float rate, std::function<void()> vsync_callback) override;
     

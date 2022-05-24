@@ -154,6 +154,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     std::weak_ptr<DomManager> _domManager;
     std::mutex _shadowQueueLock;
     NSMutableDictionary<NSString *, id> *_viewManagers;
+    NSDictionary<NSString *, Class> *_extraComponent;
     HippyAnimator *_animator;
 }
 
@@ -679,6 +680,10 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                           @"Text": Init(HippyTextManager),
                           @"Modal": Init(HippyModalHostViewManager)
                  } mutableCopy];
+        if (_extraComponent) {
+            [_viewManagers addEntriesFromDictionary:_extraComponent];
+            _extraComponent = nil;
+        }
     }
     id object = [_viewManagers objectForKey:viewName];
     if (object_isClass(object)) {
@@ -976,6 +981,10 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         RenderFatal(error);
         return nil;
     }
+}
+
+- (void)registerExtraComponent:(NSDictionary<NSString *, Class> *)extraComponent {
+    _extraComponent = extraComponent;
 }
 
 #pragma mark -
