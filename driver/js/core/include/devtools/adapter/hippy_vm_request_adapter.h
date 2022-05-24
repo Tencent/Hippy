@@ -21,18 +21,23 @@
 #pragma once
 
 #include <string>
+
 #include "api/adapter/devtools_vm_request_adapter.h"
 
 namespace hippy {
 namespace devtools {
-class HippyVMRequestAdapter : public hippy::devtools::VMRequestAdapter {
+class HippyVmRequestAdapter : public hippy::devtools::VmRequestAdapter {
  public:
-  using VMRequestHandler = std::function<void(std::string)>;
-  explicit HippyVMRequestAdapter(VMRequestHandler request_handler);
-  void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) override;
+  using VmRequestHandler = std::function<void(std::string)>;
+  explicit HippyVmRequestAdapter(VmRequestHandler request_handler) : request_handler_(std::move(request_handler)) {}
+  inline void SendMsgToVm(std::string msg) override {
+    if (request_handler_) {
+      request_handler_(msg);
+    }
+  }
 
  private:
-  VMRequestHandler request_handler_;
+  VmRequestHandler request_handler_;
 };
 }  // namespace devtools
 }  // namespace hippy
