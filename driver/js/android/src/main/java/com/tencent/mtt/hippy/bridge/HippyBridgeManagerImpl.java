@@ -68,6 +68,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     static final int FUNCTION_ACTION_DESTROY_INSTANCE = 4;
     static final int FUNCTION_ACTION_CALLBACK = 5;
     static final int FUNCTION_ACTION_CALL_JSMODULE = 6;
+    static final int FUNCTION_ACTION_ON_WEBSOCKET_MESSAGE = 7;
 
     public static final int BRIDGE_TYPE_SINGLE_THREAD = 2;
     public static final int BRIDGE_TYPE_NORMAL = 1;
@@ -95,6 +96,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     HippyEngine.ModuleListener mLoadModuleListener;
     private TurboModuleManager mTurboModuleManager;
     private HippyEngine.V8InitParams v8InitParams;
+    private NativeCallback mCallback;
 
     public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
             int bridgeType, boolean enableV8Serialization, boolean isDevModule,
@@ -119,48 +121,20 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     private void handleCallFunction(Message msg) {
-        String action = null;
-        int instanceId = 0;
-        switch (msg.arg2) {
-            case FUNCTION_ACTION_LOAD_INSTANCE: {
-                action = "loadInstance";
-                break;
-            }
-            case FUNCTION_ACTION_RESUME_INSTANCE: {
-                action = "resumeInstance";
-                break;
-            }
-            case FUNCTION_ACTION_PAUSE_INSTANCE: {
-                action = "pauseInstance";
-                break;
-            }
-            case FUNCTION_ACTION_DESTROY_INSTANCE: {
-                action = "destroyInstance";
-                break;
-            }
-            case FUNCTION_ACTION_CALLBACK: {
-                action = "callBack";
-                break;
-            }
-            case FUNCTION_ACTION_CALL_JSMODULE: {
-                action = "callJsModule";
-                break;
-            }
+        if (mCallback == null) {
+            mCallback = new NativeCallback(mHandler) {
+                @Override
+                public void Call(long result, Message message, String action, String reason) {
+                    if (result != 0) {
+                        String info = "CallFunction error: action=" + action
+                                + ", result=" + result + ", reason=" + reason;
+                        reportException(new Throwable(info));
+                    }
+                }
+            };
         }
 
-        final int actinCode = msg.arg2;
-        final int rootViewId = instanceId;
-        NativeCallback callback = new NativeCallback(mHandler) {
-            @Override
-            public void Call(long result, Message message, String action, String reason) {
-                if (result != 0) {
-                    String info = "CallFunction error: actinCode=" + actinCode
-                            + ", result=" + result + ", reason=" + reason;
-                    reportException(new Throwable(info));
-                }
-            }
-        };
-
+        int functionId = msg.arg2;
         PrimitiveValueSerializer serializer = (msg.obj instanceof JSValue) ?
                 recommendSerializer : compatibleSerializer;
 
@@ -185,7 +159,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 buffer.put(bytes);
             }
 
-            mHippyBridge.callFunction(action, callback, buffer);
+            mHippyBridge.callFunction(functionId, mCallback, buffer);
         } else {
             if (enableV8Serialization) {
                 if (safeHeapWriter == null) {
@@ -200,12 +174,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 ByteBuffer buffer = safeHeapWriter.chunked();
                 int offset = buffer.arrayOffset() + buffer.position();
                 int length = buffer.limit() - buffer.position();
-                mHippyBridge.callFunction(action, callback, buffer.array(), offset, length);
+                mHippyBridge.callFunction(functionId, mCallback, buffer.array(), offset, length);
             } else {
                 mStringBuilder.setLength(0);
                 byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
                         StandardCharsets.UTF_16LE);
-                mHippyBridge.callFunction(action, callback, bytes);
+                mHippyBridge.callFunction(functionId, mCallback, bytes);
             }
         }
     }
