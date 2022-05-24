@@ -19,7 +19,6 @@
 //
 
 import 'package:flutter/material.dart';
-
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:gradient_like_css/gradient_like_css.dart';
 
@@ -29,6 +28,7 @@ import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import '../util/gradient_util.dart';
+import '../viewmodel.dart';
 import '../widget.dart';
 
 int _kRenderModelInstanceId = 1;
@@ -72,6 +72,12 @@ class RenderViewModel extends ChangeNotifier {
 
   // 背景色
   Color? backgroundColor;
+  Object? backgroundImage = '';
+  String backgroundImgSize = enumValueToString(ImageResizeMode.auto);
+
+  String backgroundPositionX = "";
+  String backgroundPositionY = "";
+  String backgroundImgRepeat = "";
 
   // 透明度
   double? opacity;
@@ -159,12 +165,13 @@ class RenderViewModel extends ChangeNotifier {
 
   double? get height => _height;
 
-  bool get noPosition =>
-      _x == null || _y == null || _x == double.nan || _y == double.nan;
+  bool get noPosition => _x == null || _y == null || _x == double.nan || _y == double.nan;
 
   bool get noSize =>
       _width == null ||
       _height == null ||
+      (_width ?? 0.0).isNaN ||
+      (_height ?? 0.0).isNaN ||
       _width == double.nan ||
       _height == double.nan ||
       (_width ?? 0.0) <= 0.0 ||
@@ -213,6 +220,11 @@ class RenderViewModel extends ChangeNotifier {
     _dispatcher = viewModel.gestureDispatcher;
     accessibilityLabel = viewModel.accessibilityLabel;
     backgroundColor = viewModel.backgroundColor;
+    backgroundImage = viewModel.backgroundImage;
+    backgroundImgSize = viewModel.backgroundImgSize;
+    backgroundPositionX = viewModel.backgroundPositionX;
+    backgroundPositionY = viewModel.backgroundPositionY;
+    backgroundImgRepeat = viewModel.backgroundImgRepeat;
     opacity = viewModel.opacity;
     borderRadius = viewModel.borderRadius;
     topLeftBorderRadius = viewModel.topLeftBorderRadius;
@@ -259,14 +271,34 @@ class RenderViewModel extends ChangeNotifier {
 
   @override
   bool operator ==(Object other) {
+    var sizeEqual = false;
+    if (other is RenderViewModel) {
+      var x = _x;
+      var layoutX = other.layoutX;
+      var y = _y;
+      var layoutY = other.layoutY;
+      var w = width;
+      var layoutW = other.width;
+      var h = height;
+      var layoutH = other.height;
+      var xEqual = x == layoutX || (x != null && x.isNaN && layoutX != null && layoutX.isNaN);
+      var yEqual = y == layoutY || (y != null && y.isNaN && layoutY != null && layoutY.isNaN);
+      var wEqual = w == layoutW || (w != null && w.isNaN && layoutW != null && layoutW.isNaN);
+      var hEqual = h == layoutH || (h != null && h.isNaN && layoutH != null && layoutH.isNaN);
+      sizeEqual = xEqual && yEqual && wEqual && hEqual;
+    }
+
     return other is RenderViewModel &&
         display == other.display &&
-        _x == other.layoutX &&
-        _y == other.layoutY &&
-        width == other.width &&
-        height == other.height &&
+        sizeEqual &&
         accessibilityLabel == other.accessibilityLabel &&
         backgroundColor == other.backgroundColor &&
+        overflow == other.overflow &&
+        backgroundImage == other.backgroundImage &&
+        backgroundImgSize == other.backgroundImgSize &&
+        backgroundImgRepeat == other.backgroundImgRepeat &&
+        backgroundPositionX == other.backgroundPositionX &&
+        backgroundPositionY == other.backgroundPositionY &&
         opacity == other.opacity &&
         borderRadius == other.borderRadius &&
         topLeftBorderRadius == other.topLeftBorderRadius &&
@@ -318,6 +350,12 @@ class RenderViewModel extends ChangeNotifier {
       parent.hashCode |
       accessibilityLabel.hashCode |
       backgroundColor.hashCode |
+      overflow.hashCode |
+      backgroundImage.hashCode |
+      backgroundImgSize.hashCode |
+      backgroundImgRepeat.hashCode |
+      backgroundPositionX.hashCode |
+      backgroundPositionY.hashCode |
       opacity.hashCode |
       borderRadius.hashCode |
       topLeftBorderRadius.hashCode |
@@ -376,8 +414,7 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   NativeGestureDispatcher createDispatcher() {
-    return NativeGestureDispatcher(
-        rootId: rootId, id: id, context: _renderContext);
+    return NativeGestureDispatcher(rootId: rootId, id: id, context: _renderContext);
   }
 
   void updateLayout(double x, double y, double width, double height) {
@@ -426,13 +463,13 @@ class RenderViewModel extends ChangeNotifier {
 
   void setClickable(bool flag) {
     if (!handleGestureBySelf()) {
-      _dispatcher.clickable = flag;
+      setGestureType(GestureType.click, flag);
     }
   }
 
   void setLongClickable(bool flag) {
     if (!handleGestureBySelf()) {
-      _dispatcher.longClickable = flag;
+      setGestureType(GestureType.longClick, flag);
     }
   }
 
@@ -532,12 +569,67 @@ class RenderViewModel extends ChangeNotifier {
     return "$idDesc: (x[$_x], y[$_y], w[$_width], h[$_height])";
   }
 
+  /// if not a container with child(exp View, ScrollView), add padding for border in box model
+  bool get withBoxPadding => true;
+
+  EdgeInsets? getInnerBoxMargin() {
+    var computedBorderTopWidth = 0.0;
+    var computedBorderRightWidth = 0.0;
+    var computedBorderBottomWidth = 0.0;
+    var computedBorderLeftWidth = 0.0;
+    var originBorderWidth = borderWidth;
+    if (originBorderWidth != null && originBorderWidth > 0) {
+      computedBorderTopWidth = originBorderWidth;
+      computedBorderRightWidth = originBorderWidth;
+      computedBorderBottomWidth = originBorderWidth;
+      computedBorderLeftWidth = originBorderWidth;
+    }
+    var originBorderTopWidth = borderTopWidth;
+    var originBorderRightWidth = borderRightWidth;
+    var originBorderBottomWidth = borderBottomWidth;
+    var originBorderLeftWidth = borderLeftWidth;
+    if (originBorderTopWidth != null && originBorderTopWidth > 0) {
+      computedBorderTopWidth = originBorderTopWidth;
+    }
+    if (originBorderRightWidth != null && originBorderRightWidth > 0) {
+      computedBorderRightWidth = originBorderRightWidth;
+    }
+    if (originBorderBottomWidth != null && originBorderBottomWidth > 0) {
+      computedBorderBottomWidth = originBorderBottomWidth;
+    }
+    if (originBorderLeftWidth != null && originBorderLeftWidth > 0) {
+      computedBorderLeftWidth = originBorderLeftWidth;
+    }
+    if (computedBorderTopWidth > 0 ||
+        computedBorderRightWidth > 0 ||
+        computedBorderBottomWidth > 0 ||
+        computedBorderLeftWidth > 0) {
+      return EdgeInsets.only(
+        top: computedBorderTopWidth,
+        right: computedBorderRightWidth,
+        bottom: computedBorderBottomWidth,
+        left: computedBorderLeftWidth,
+      );
+    }
+    return null;
+  }
+
+  Decoration? getForegroundDecoration() {
+    var border = getBorder();
+    var radius = getBorderRadius();
+    var showRadius = radius != null && (border == null || border.isUniform);
+    return BoxDecoration(
+      borderRadius: showRadius ? radius : null,
+      border: border,
+    );
+  }
+
   Decoration? getDecoration({Color? backgroundColor}) {
     return toDecoration(decorationColor: backgroundColor);
   }
 
   BorderRadius? get toBorderRadius {
-    return _toRadius();
+    return getBorderRadius();
   }
 
   Object? _getGradientSide(String? side) {
@@ -592,14 +684,14 @@ class RenderViewModel extends ChangeNotifier {
       var angle = linearGradientMap.get<String>("angle");
       var colorStopList = linearGradientMap.get<VoltronArray>("colorStopList");
       if (angle != null && colorStopList != null) {
-        return GradientUtil.generateHippyLinearGradient(
-            w, h, angle, colorStopList);
+        return GradientUtil.generateHippyLinearGradient(w, h, angle, colorStopList);
       }
     }
     return null;
   }
 
-  Gradient? _generateGradient(Object? data) {
+  Gradient? _generateGradient() {
+    var data = backgroundImage;
     if (data is! VoltronMap) {
       /// check if it is hippy linear gradient
       return _generateHippyGradient();
@@ -653,10 +745,8 @@ class RenderViewModel extends ChangeNotifier {
       // hippy box-shadow
       result.add(
         BoxShadow(
-          color: Color(localBoxShadowColor)
-              .withOpacity(localBoxShadowOpacity ?? 1),
-          offset:
-              Offset(localBoxShadowOffsetX ?? 0, localBoxShadowOffsetY ?? 0),
+          color: Color(localBoxShadowColor).withOpacity(localBoxShadowOpacity ?? 1),
+          offset: Offset(localBoxShadowOffsetX ?? 0, localBoxShadowOffsetY ?? 0),
           blurRadius: localBoxShadowRadius,
           spreadRadius: localBoxShadowSpread ?? 0.0,
         ),
@@ -667,40 +757,26 @@ class RenderViewModel extends ChangeNotifier {
 
   Decoration? toDecoration({
     Color? decorationColor,
-    Object? backgroundImg,
-    String? backgroundImgSize,
-    String? backgroundImgRepeat,
-    String? backgroundImgPositionX,
-    String? backgroundImgPositionY,
   }) {
-    var radius = _toRadius();
+    var radius = getBorderRadius();
     var color = decorationColor ?? backgroundColor;
     var boxShadow = _generateBoxShadow();
-    var gradient = _generateGradient(backgroundImg);
-    var image = _toImage(
-      backgroundImg,
-      backgroundImgSize,
-      backgroundImgRepeat,
-      backgroundImgPositionX,
-      backgroundImgPositionY,
-    );
-    var border = _toBorder();
-    var showRadius = radius != null && (border == null || border.isUniform);
+    var gradient = _generateGradient();
+    var image = _generateBackgroundImage();
     return BoxDecoration(
-      borderRadius: showRadius ? radius : null,
+      borderRadius: radius,
       image: image,
       color: color,
-      border: border,
       gradient: gradient,
       boxShadow: boxShadow,
     );
   }
 
-  BorderRadius? _toRadius() {
-    var topLeftRadius = _generateRadius(topLeftBorderRadius);
-    var topRightRadius = _generateRadius(topRightBorderRadius);
-    var bottomLeftRadius = _generateRadius(bottomLeftBorderRadius);
-    var bottomRightRadius = _generateRadius(bottomRightBorderRadius);
+  BorderRadius? getBorderRadius() {
+    var topLeftRadius = _generateSideBorderRadius(topLeftBorderRadius);
+    var topRightRadius = _generateSideBorderRadius(topRightBorderRadius);
+    var bottomLeftRadius = _generateSideBorderRadius(bottomLeftBorderRadius);
+    var bottomRightRadius = _generateSideBorderRadius(bottomRightBorderRadius);
     if (topLeftRadius == Radius.zero &&
         topRightRadius == Radius.zero &&
         bottomLeftRadius == Radius.zero &&
@@ -716,7 +792,7 @@ class RenderViewModel extends ChangeNotifier {
     );
   }
 
-  Radius _generateRadius(double? radius) {
+  Radius _generateSideBorderRadius(double? radius) {
     if (radius != null && radius > 0) {
       return Radius.circular(radius);
     }
@@ -729,28 +805,18 @@ class RenderViewModel extends ChangeNotifier {
     return Radius.zero;
   }
 
-  DecorationImage? _toImage(
-      Object? backgroundImg,
-      String? backgroundImgSize,
-      String? backgroundImgRepeat,
-      backgroundImgPositionX,
-      backgroundImgPositionY) {
-    if (backgroundImg is! String || backgroundImg == '') return null;
+  DecorationImage? _generateBackgroundImage() {
+    var bgImg = backgroundImage;
+    if (bgImg is! String || bgImg == '') return null;
     var imgFit = resizeModeToBoxFit(backgroundImgSize);
-    const alignMap = {
-      'left': -1.0,
-      'center': 0.0,
-      'right': 1.0,
-      'top': -1.0,
-      'bottom': 1.0
-    };
-    var alignX = alignMap[backgroundImgPositionX] ?? -1.0;
-    var alignY = alignMap[backgroundImgPositionY] ?? -1.0;
+    const alignMap = {'left': -1.0, 'center': 0.0, 'right': 1.0, 'top': -1.0, 'bottom': 1.0};
+    var alignX = alignMap[backgroundPositionX] ?? -1.0;
+    var alignY = alignMap[backgroundPositionY] ?? -1.0;
     var alignment = Alignment(alignX, alignY);
     // 背景图不为空使用背景图
     return DecorationImage(
       alignment: alignment,
-      image: getImage(backgroundImg),
+      image: getImage(bgImg),
       repeat: resizeModeToImageRepeat(backgroundImgRepeat),
       scale: 1.0,
       fit: imgFit,
@@ -795,7 +861,7 @@ class RenderViewModel extends ChangeNotifier {
     return BorderSide.none;
   }
 
-  Border? _toBorder() {
+  Border? getBorder() {
     var topSide = _generateBorderSide(borderTopWidth, borderTopColor);
     var bottomSide = _generateBorderSide(borderBottomWidth, borderBottomColor);
     var leftSide = _generateBorderSide(borderLeftWidth, borderLeftColor);
@@ -825,13 +891,10 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   bool get isOverflowClip {
-    var radius = _toRadius();
-    var isOverflowhidden =
-        overflow == enumValueToString(ContainOverflow.hidden);
-    if (isOverflowhidden && radius != null) {
-      return true;
-    }
-    return false;
+    var radius = getBorderRadius();
+    var isOverflowHidden = overflow == enumValueToString(ContainOverflow.hidden);
+    var isOverflowScroll = this is ScrollViewRenderViewModel;
+    return (isOverflowHidden || isOverflowScroll) && radius != null;
   }
 }
 
@@ -854,8 +917,7 @@ class Transition {
     transitionDuration = params.get(NodeProps.kTransitionDuration) ?? 0;
     final originTransitionTimingFunction =
         params.get(NodeProps.kTransitionTimingFunction) ?? TimingFunction.kEase;
-    transitionTimingFunction =
-        resizeModeToCurve(originTransitionTimingFunction);
+    transitionTimingFunction = resizeModeToCurve(originTransitionTimingFunction);
     transitionDelay = params.get(NodeProps.kTransitionDelay) ?? 0;
   }
 
@@ -876,13 +938,10 @@ class Transition {
       transitionDelay.hashCode;
 
   void update(VoltronMap params) {
-    transitionDuration =
-        params.get(NodeProps.kTransitionDuration) ?? transitionDuration;
-    final originTransitionTimingFunction =
-        params.get(NodeProps.kTransitionTimingFunction);
+    transitionDuration = params.get(NodeProps.kTransitionDuration) ?? transitionDuration;
+    final originTransitionTimingFunction = params.get(NodeProps.kTransitionTimingFunction);
     if (originTransitionTimingFunction != null) {
-      transitionTimingFunction =
-          resizeModeToCurve(originTransitionTimingFunction);
+      transitionTimingFunction = resizeModeToCurve(originTransitionTimingFunction);
     }
     transitionDelay = params.get(NodeProps.kTransitionDelay) ?? transitionDelay;
   }
@@ -908,12 +967,10 @@ class CssAnimation {
   /// 属性动画的tweenSequenceMap，用于生成AnimatedBuilder动画的计算(Map<String, AnimationTweenSequence>)
   VoltronMap animationTweenSequenceMap = VoltronMap();
 
-  CssAnimation(this.totalDuration, this.canRepeat, this.isDisable,
-      this.playCount, this.direction);
+  CssAnimation(this.totalDuration, this.canRepeat, this.isDisable, this.playCount, this.direction);
 
   /// 获取动画属性当前renderViewModel对应值的策略Map
-  Map<String, dynamic> _getAnimationStartValueStrategyMap(
-      RenderViewModel viewModel) {
+  Map<String, dynamic> _getAnimationStartValueStrategyMap(RenderViewModel viewModel) {
     final strategyMap = {
       NodeProps.kWidth: viewModel.width,
       NodeProps.kHeight: viewModel.height,
@@ -938,11 +995,9 @@ class CssAnimation {
     return strategyMap;
   }
 
-  CssAnimation.initByTransition(
-      VoltronMap transitionMap, RenderViewModel viewModel) {
+  CssAnimation.initByTransition(VoltronMap transitionMap, RenderViewModel viewModel) {
     final startValueStrategyMap = _getAnimationStartValueStrategyMap(viewModel);
-    final transitionTotalDuration =
-        AnimationUtil.getTransitionTotalDuration(transitionMap);
+    final transitionTotalDuration = AnimationUtil.getTransitionTotalDuration(transitionMap);
     for (final key in transitionMap.keySet()) {
       final transition = transitionMap.get<Transition>(key);
       if (transition == null) {
@@ -956,8 +1011,7 @@ class CssAnimation {
       final curve = transition.transitionTimingFunction;
       final formatKey = _specialKeyStrategyMap[key] ?? key;
       final tweenList = VoltronArray();
-      final animationTween =
-          AnimationTween(startValueStrategyMap[formatKey], null, 100.0);
+      final animationTween = AnimationTween(startValueStrategyMap[formatKey], null, 100.0);
       tweenList.push<AnimationTween>(animationTween);
       final animationTweenSequence =
           AnimationTweenSequence(tweenList, startInterval, endInterval, curve);
@@ -966,22 +1020,18 @@ class CssAnimation {
     totalDuration = Duration(milliseconds: transitionTotalDuration);
   }
 
-  CssAnimation.initByAnimation(VoltronMap animation,
-      List<VoltronMap> propertyMapSortList, RenderViewModel viewModel) {
+  CssAnimation.initByAnimation(
+      VoltronMap animation, List<VoltronMap> propertyMapSortList, RenderViewModel viewModel) {
     final animationDirection =
-        animation.get<String>(NodeProps.kAnimationDirection) ??
-            AnimationDirection.kNormal;
-    final animationIterationCount =
-        animation.get(NodeProps.kAnimationIterationCount);
-    final animationDuration =
-        animation.get<int>(NodeProps.kAnimationDuration) ?? 0;
+        animation.get<String>(NodeProps.kAnimationDirection) ?? AnimationDirection.kNormal;
+    final animationIterationCount = animation.get(NodeProps.kAnimationIterationCount);
+    final animationDuration = animation.get<int>(NodeProps.kAnimationDuration) ?? 0;
     final animationDelay = animation.get<int>(NodeProps.kAnimationDelay) ?? 0;
     final animationTotalDuration = animationDuration + animationDelay;
     final startInterval = animationDelay / animationTotalDuration;
     const endInterval = 1.0;
     final originTimingFunction =
-        animation.get<String>(NodeProps.kAnimationTimingFunction) ??
-            TimingFunction.kEase;
+        animation.get<String>(NodeProps.kAnimationTimingFunction) ?? TimingFunction.kEase;
     final curve = resizeModeToCurve(originTimingFunction);
     final sortListLength = propertyMapSortList.length;
 
@@ -989,23 +1039,13 @@ class CssAnimation {
     for (var i = 0; i < sortListLength - 1; i++) {
       final startValue = propertyMapSortList[i];
       AnimationUtil.handleUpdateAnimationTweenSequence(
-          animationTweenSequenceMap,
-          startValue,
-          startInterval,
-          endInterval,
-          curve);
+          animationTweenSequenceMap, startValue, startInterval, endInterval, curve);
       final endValue = propertyMapSortList[i + 1];
       AnimationUtil.handleUpdateAnimationTweenSequence(
-          animationTweenSequenceMap,
-          endValue,
-          startInterval,
-          endInterval,
-          curve,
-          false);
+          animationTweenSequenceMap, endValue, startInterval, endInterval, curve, false);
     }
     // 2.剔除无效的AnimationTweenSequence
-    AnimationUtil.handleRemoveInvalidAnimationTweenSequence(
-        animationTweenSequenceMap);
+    AnimationUtil.handleRemoveInvalidAnimationTweenSequence(animationTweenSequenceMap);
     totalDuration = Duration(milliseconds: animationTotalDuration);
     if (animationIterationCount == AnimationIterationCount.kInfinite) {
       canRepeat = true;
@@ -1016,8 +1056,7 @@ class CssAnimation {
   }
 
   CssAnimation copy() {
-    final cssAnimation =
-        CssAnimation(totalDuration, canRepeat, isDisable, playCount, direction);
+    final cssAnimation = CssAnimation(totalDuration, canRepeat, isDisable, playCount, direction);
     for (final entry in animationTweenSequenceMap.entrySet()) {
       final key = entry.key;
       final value = entry.value;
@@ -1054,16 +1093,13 @@ class CssAnimation {
       return null;
     }
 
-    final list = animationTweenSequenceMap
-        .get<AnimationTweenSequence>(propertyName)
-        ?.itemList;
+    final list = animationTweenSequenceMap.get<AnimationTweenSequence>(propertyName)?.itemList;
     return list;
   }
 
   /// 更新transition动画属性值，按照start => end => start的循环顺序更新属性值
   void updateTransitionAnimation<T>(String key, T value) {
-    final tweenSequence =
-        animationTweenSequenceMap.get<AnimationTweenSequence>(key);
+    final tweenSequence = animationTweenSequenceMap.get<AnimationTweenSequence>(key);
     final tween = tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
     if (tween == null) {
       return;
@@ -1084,10 +1120,8 @@ class CssAnimation {
     // 当transition动画播放完毕，且不需要重复播放时，更新动画属性状态，避免动画被二次播放
     final keyList = animationTweenSequenceMap.keySet();
     for (final key in keyList) {
-      final tweenSequence =
-          animationTweenSequenceMap.get<AnimationTweenSequence>(key);
-      final tween =
-          tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
+      final tweenSequence = animationTweenSequenceMap.get<AnimationTweenSequence>(key);
+      final tween = tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
       if (tween == null) {
         return;
       }
@@ -1114,8 +1148,7 @@ class AnimationTweenSequence {
   /// 动画效果
   Curve curve;
 
-  AnimationTweenSequence(
-      this.itemList, this.startInterval, this.endInterval, this.curve);
+  AnimationTweenSequence(this.itemList, this.startInterval, this.endInterval, this.curve);
 
   AnimationTweenSequence copy() {
     final newTweenList = VoltronArray();
@@ -1126,8 +1159,7 @@ class AnimationTweenSequence {
       }
     }
 
-    return AnimationTweenSequence(
-        newTweenList, startInterval, endInterval, curve);
+    return AnimationTweenSequence(newTweenList, startInterval, endInterval, curve);
   }
 
   @override
@@ -1141,10 +1173,7 @@ class AnimationTweenSequence {
 
   @override
   int get hashCode =>
-      itemList.hashCode |
-      startInterval.hashCode |
-      endInterval.hashCode |
-      curve.hashCode;
+      itemList.hashCode | startInterval.hashCode | endInterval.hashCode | curve.hashCode;
 }
 
 /// 动画Tween，用于指定动画属性的开始值、结束值和权重
@@ -1178,10 +1207,7 @@ class AnimationTween {
 
   @override
   int get hashCode =>
-      startValue.hashCode |
-      endValue.hashCode |
-      weight.hashCode |
-      totalWeight.hashCode;
+      startValue.hashCode | endValue.hashCode | weight.hashCode | totalWeight.hashCode;
 }
 
 class BoundingClientRect {
@@ -1240,9 +1266,7 @@ class TransformOrigin {
 
   @override
   bool operator ==(Object other) {
-    return other is TransformOrigin &&
-        offset == other.offset &&
-        alignment == other.alignment;
+    return other is TransformOrigin && offset == other.offset && alignment == other.alignment;
   }
 
   @override

@@ -20,10 +20,11 @@
 //
 
 import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:tencent_voltron_render/voltron_render.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 import 'page_test.dart';
 
@@ -62,8 +63,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
     // return MaterialApp(
-    //   title: 'Kraken Browser',
-    //   // theme: ThemeData.dark(),
     //   home: VoltronPage(),
     // );
   }

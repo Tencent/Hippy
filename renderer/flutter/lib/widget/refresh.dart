@@ -80,22 +80,43 @@ class _RefreshWrapperWidgetState extends FRState<RefreshWrapperWidget> {
       header = generateByViewModel(context, headerModel);
     }
     var listChild = content;
-    listChild.pushExtraInfo(RefreshWrapperController.kWrapperKey, (context, child) {
-      return SmartRefresher(
-        enablePullDown: true,
-        controller: viewModel.controller,
-        onRefresh: () {
-          viewModel.dispatcher.startRefresh();
-        },
-        header: header == null
-            ? null
-            : CustomHeader(
-                height: headerModel?.height ?? 0,
-                builder: (context, status) {
-                  return header!;
-                },
-              ),
-        child: child,
+    listChild.pushExtraInfo(RefreshWrapperController.kWrapperKey, ({
+      required context,
+      required child,
+      footerModel,
+    }) {
+      Widget? footer;
+      if (footerModel != null) {
+        footer = generateByViewModel(context, footerModel);
+      }
+      return RefreshConfiguration(
+        headerTriggerDistance: headerModel?.height ?? 0,
+        footerTriggerDistance: footerModel?.height ?? 0,
+        child: SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: footerModel != null,
+          controller: viewModel.dispatcher.refreshController,
+          onRefresh: () {
+            viewModel.dispatcher.startRefresh();
+          },
+          header: header == null
+              ? null
+              : CustomHeader(
+                  height: headerModel?.height ?? 0,
+                  builder: (context, status) => header!,
+                ),
+          footer: footer == null
+              ? null
+              : CustomFooter(
+                  height: footerModel?.height ?? 0,
+                  builder: (context, status) => footer!,
+                  loadStyle: LoadStyle.HideAlways,
+                ),
+          onLoading: () {
+            viewModel.dispatcher.loadingCompleted();
+          },
+          child: child,
+        ),
       );
     });
     var list = generateByViewModel(context, listChild);

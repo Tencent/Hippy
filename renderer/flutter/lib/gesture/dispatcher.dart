@@ -35,18 +35,12 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   final RenderContext _context;
   NativeGestureProcessor? _gestureProcessor;
 
-  bool clickable = false;
-  bool longClickable = false;
   bool interceptTouchEvent = false;
 
   bool listenAttachedToWindow = false;
   bool listenDetachedFromWindow = false;
 
   bool get enableScroll => false;
-
-  bool get canClick => clickable;
-
-  bool get canLongClick => longClickable;
 
   final HashSet<GestureType> _gestureTypes = HashSet();
 
@@ -109,13 +103,13 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   }
 
   void handleClick() {
-    if (clickable) {
+    if (needHandle(GestureType.click)) {
       NativeGestureHandle.handleClick(_context, _id, _rootId);
     }
   }
 
   void handleLongClick() {
-    if (longClickable) {
+    if (needHandle(GestureType.longClick)) {
       NativeGestureHandle.handleLongClick(_context, _id, _rootId);
     }
   }
