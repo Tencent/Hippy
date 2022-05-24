@@ -263,6 +263,19 @@ task dealAfterMergeDebugNativeLibs() {
   }
 }
 
+def dealAfterStripSymbols(strippedNativeLibsPath) {
+  delete "$strippedNativeLibsPath/armeabi"
+  if (INCLUDE_ABI_ARMEABI.toBoolean()) {
+    copy {
+      from "$strippedNativeLibsPath/armeabi-v7a"
+      into "$strippedNativeLibsPath/armeabi"
+    }
+    if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      delete "$strippedNativeLibsPath/armeabi-v7a"
+    }
+  }
+}
+
 def STRIPPED_NATIVE_LIBS_PATH = "$buildDir/intermediates/stripped_native_libs"
 task dealAfterStripReleaseDebugSymbols() {
   doLast {
