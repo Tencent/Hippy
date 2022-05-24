@@ -254,8 +254,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       throw new RuntimeException(
           "Hippy: loadModule debugMode=true, loadParams.jsAssetsPath and jsFilePath both null!");
     }
-
-    mEngineContext.setComponentName(loadParams.componentName);
+    if (mEngineContext != null) {
+      mEngineContext.setComponentName(loadParams.componentName);
+    }
     if (loadParams.jsParams == null) {
       loadParams.jsParams = new HippyMap();
     }
