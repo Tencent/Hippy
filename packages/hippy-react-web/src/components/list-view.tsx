@@ -20,7 +20,7 @@
 /* eslint-disable react/display-name */
 import React, { useCallback, useEffect, useRef, useState, useImperativeHandle } from 'react';
 import animateScrollTo from 'animated-scroll-to';
-import MListView from 'rmc-list-view';
+import MListView from '@hippy/rmc-list-view';
 import MPullToRefresh from 'rmc-pull-to-refresh';
 import StyleSheet from '../modules/stylesheet';
 import { formatWebStyle } from '../adapters/transfer';
