@@ -4,7 +4,7 @@ install! 'cocoapods', :deterministic_uuids => false, :disable_input_output_paths
 pre_install do |installer|
     system("rm -rf devtools_backend")
     system("mkdir devtools_backend")
-    system("cmake ../../../../devtools/devtools-backend/CMakeLists.txt -B ./devtools_backend -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=./ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DENABLE_BITCODE=YES -DENABLE_ARC=YES -DTDF_SERVICE_ENABLED=YES")
+    system("cmake ../../../../devtools/devtools-backend/CMakeLists.txt -B ./devtools_backend -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=./ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DENABLE_BITCODE=YES -DENABLE_ARC=YES -DENABLE_INSPECTOR=YES")
 end
 
 workspace 'HippyDemo.xcworkspace'
