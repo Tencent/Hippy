@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(OS_ANDROID)
+#if defined(ANDROID)
 #include "devtools_base/common/logging.h"
 
 #include <android/log.h>

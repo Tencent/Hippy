@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "devtools/devtools_util.h"
+#include "devtools/devtools_utils.h"
 
 namespace hippy::devtools {
 void HippyElementsRequestAdapter::GetDomainData(int32_t node_id,

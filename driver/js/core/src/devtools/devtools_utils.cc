@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "devtools/devtools_util.h"
+#include "devtools/devtools_utils.h"
 
 namespace hippy::devtools {
 constexpr char kDefaultNodeName[] = "DefaultNode";

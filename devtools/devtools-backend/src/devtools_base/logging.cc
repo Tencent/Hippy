@@ -23,7 +23,7 @@
 #include <list>
 #include <sstream>
 
-#ifdef OS_ANDROID
+#ifdef ANDROID
 #  include <android/log.h>
 #else
 
@@ -40,14 +40,14 @@ const char *GetNameForLogLevel(LogLevel level) {
 }
 
 std::string Logger::GetTimeStamp() {
-  struct timeval tv;
+  struct timeval tv{};
   time_t nowtime;
-  struct tm nowtm = {0};
+  struct tm nowtm{};
   // YYYY-MM-DD hh.mm.ss.sss 23 bit, end with \0
   static char szTime[24];
   std::chrono::system_clock::duration duration = std::chrono::system_clock::now().time_since_epoch();
   std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
-  nowtime = sec.count();
+  nowtime = static_cast<long>(sec.count());
   localtime_r(&nowtime, &nowtm);
   snprintf(szTime, sizeof(szTime), "%04d-%02d-%02d %02d.%02d.%02d.%03ld", nowtm.tm_year + 1900, nowtm.tm_mon + 1,
            nowtm.tm_mday, nowtm.tm_hour, nowtm.tm_min, nowtm.tm_sec, (tv.tv_usec / 1000));
@@ -59,7 +59,7 @@ std::string Logger::GetTimeStamp() {
 void Logger::Log(LogLevel level, const char *file, int line, const char *module, const char *format, ...) {
   char log[1024];
   va_list args;
-  int len = 0;
+  int len;
 
   va_start(args, format);
   len = vsnprintf(log, sizeof(log), format, args);
@@ -78,7 +78,7 @@ void Logger::Log(LogLevel level, const char *file, int line, const char *module,
   const char *filename = slash ? slash + 1 : file;
   std::ostringstream stream;
   stream << "[" << module_name << "][" << level_name << "][" << filename << ":" << line << "]" << message << std::endl;
-#ifdef OS_ANDROID
+#ifdef ANDROID
   android_LogPriority priority = (level < 0) ? ANDROID_LOG_VERBOSE : ANDROID_LOG_UNKNOWN;
   switch (level) {
     case DEVTOOLS_LOG_INFO:

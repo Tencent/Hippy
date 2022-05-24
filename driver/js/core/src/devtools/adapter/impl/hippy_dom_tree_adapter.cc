@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "devtools/devtools_util.h"
+#include "devtools/devtools_utils.h"
 #include "dom/dom_value.h"
 #include "dom/node_props.h"
 

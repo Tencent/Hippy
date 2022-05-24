@@ -584,7 +584,7 @@ int socket_check_fd(int fd, fd_mode fdm, unsigned int timeout) {
   do {
     if (timeout > 0) {
       to.tv_sec = (time_t) (timeout / 1000);
-      to.tv_usec = (time_t) ((timeout - (to.tv_sec * 1000)) * 1000);
+      to.tv_usec = (time_t) ((timeout - static_cast<unsigned long>(to.tv_sec) * 1000) * 1000);
       pto = &to;
     } else {
       pto = NULL;
