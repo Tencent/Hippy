@@ -83,7 +83,7 @@ using StringViewUtils = hippy::base::StringViewUtils;
 using HippyFile = hippy::base::HippyFile;
 using V8VM = hippy::napi::V8VM;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 std::mutex inspector_mutex;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
