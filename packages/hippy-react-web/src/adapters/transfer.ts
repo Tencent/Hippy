@@ -374,9 +374,8 @@ function formatWebStyle(style: any) {
   if (Array.isArray(style)) {
     style.forEach((itemStyle) => {
       Object.assign(webStyle, itemStyle);
-
-      hackWebStyle(webStyle);
     });
+    hackWebStyle(webStyle);
   } else {
     Object.assign(webStyle, style);
 
