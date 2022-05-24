@@ -20,7 +20,7 @@
 
 import React from 'react';
 // @ts-ignore
-import MListView, { DataSource } from 'rmc-list-view';
+import MListView, { DataSource } from '@hippy/rmc-list-view';
 
 import { formatWebStyle } from '../adapters/transfer';
 import applyLayout from '../adapters/apply-layout';

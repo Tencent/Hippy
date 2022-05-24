@@ -67,7 +67,7 @@ const builds = {
         'bezier-easing',
         'debounce',
         'swiper',
-        'rmc-list-view',
+        '@hippy/rmc-list-view',
       ].find(ext => id.startsWith(ext));
     },
   },
