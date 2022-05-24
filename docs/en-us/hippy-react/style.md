@@ -1,10 +1,10 @@
-# 样式
+# Style
 
-Hippy 的所有样式支持由终端直接提供，基本和浏览器一致，但暂不支持百分比布局，但可以使用最新的 Flex 弹性布局。
+All style support of Hippy is directly provided by the native, which is basically the same as that of the browser. It does not support percentage layout, but the latest Flex flexible layout can be used.
 
-# 内联样式
+# Inline style
 
-最简单的方式，我们可以用内联样式，直接定义容器如`View`，`Text`等的样式，用双括号包裹，示例代码如下：
+The easiest way. We can use inline styles to directly define the styles of containers such as `View`, `Text`, etc., and wrap them in double brackets. The example code is as follows:
 
 ```jsx  
 import React from 'react';
@@ -12,15 +12,15 @@ import { View  } from '@hippy/react';
 
 function InlineStyleDemo() {
   return (
-    // 显示一个宽为100pt，高为100pt，背景颜色为红色的正方形在屏幕上
+    // Display a square with a width of 100pt, a height of 100pt, and a red background color on the screen
     return <View style={{ width: 100, height: 100, backgroundColor: 'red' }}/>;
   )
 }
 ```
 
-# 外部样式
+# External style
 
-当然，为了代码的整洁，我们更加推荐将样式用 [StyleSheet](hippy-react/modules.md?id=stylesheet) 统一管理，类似 HTML 编程指定 DOM 的 Class 后，再统一在 CSS 书写 Class 对应的样式，示例代码如下：
+Of course, in order to keep the code clean, we recommend using [StyleSheet](hippy-react/modules.md?id=stylesheet) to manage the styles in a unified manner. After specifying the Class of the DOM similar to HTML programming, write the styles corresponding to the Class in CSS uniformly. The example code is as follows:
 
 ```jsx  
 import React from 'react';
@@ -28,7 +28,7 @@ import { View, StyleSheet, Text } from '@hippy/react';
 
 class StyleSheetDemo extends React.Component {
   render() {
-    // 显示一个红色背景色，字体为白色的按钮
+    // Displays a button with a red background color and a white font
     return (
       <View style={styles.buttonContainer}>
         <Text style={styles.buttonText} numberOfLines={1}/>

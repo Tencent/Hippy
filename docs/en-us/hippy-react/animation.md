@@ -1,32 +1,32 @@
-# 动画方案
+# Animation scheme
 
-## 原理
+## Principle
 
-Hippy 的动画则是完全由前端传入动画参数，由终端控制每一帧的计算和排版更新，减少了前端端与终端的通信次数，因此也大大减少动画的卡顿。
+The parameters of the animation in Hippy are completely passed in by the front end, and then the native controls the calculation and typesetting update of each frame, which reduces the number of communications between the front end and the native, and thus greatly reduces animation freezes.
 
-## 酷炫的效果
+## Cool effect
 
-* 关注动画
+* Follow animation
 
-<img src="assets/img/follow_animation.gif" alt="关注动画" width="30%"/>
+<img src="assets/img/follow_animation.gif" alt="Follow animation" width="30%"/>
 
-* 点赞微笑动画
+* Smile animation
 
-<img src="assets/img/smile_animation.gif" alt="点赞微笑" width="30%"/>
+<img src="assets/img/smile_animation.gif" alt="Smile animation" width="30%"/>
 
-* 进度条动画
+* PK animation
 
-<img src="assets/img/pk_animation.gif" alt="PK进度条动画" width="30%"/>
+<img src="assets/img/pk_animation.gif" alt="PK animation" width="30%"/>
 
-## 让我们开始吧
+## Let's get started
 
-在 Hippy 上实现一个动画分为三个步骤：
+There are three steps to implementing an animation on Hippy:
 
-1. 通过 Animation 或 AnimationSet 定义动画
-2. 在 render() 时，将动画设置到需要产生动画效果的控件属性上
-3. 通过 Animation 的 start 方法启动动画，与通过 destroy 方法停止并销毁动画；
+1. Define animation with Animation or AnimationSet;
+2. When you render(), animate the control properties that you want to animate;
+3. Start the Animation through the start method of the animation, and stop and destroy the animation through the destroy method;
 
-## 示例代码
+## Example code
 
 ```js
 import { Animation, StyleSheet } from "@hippy/react";
@@ -34,22 +34,22 @@ import React, { Component } from "react";
 
 export default class AnimationExample extends Component {
   componentDidMount() {
-    // 动画参数的设置
+    // Set animation parameters
     this.verticalAnimation = new Animation({
-      startValue: 0, // 动画开始值
-      toValue: 100, // 动画结束值
-      duration: 500, // 动画持续时长
-      delay: 360, // 至动画真正开始的延迟时间
-      mode: "timing", // 动画模式，现在只支持timing
-      timingFunction: "linear", // 动画缓动函数
+      startValue: 0, // Animation start value
+      toValue: 100, // Animation end value
+      duration: 500, // Animation duration
+      delay: 360, // The delay time when the animation actually starts
+      mode: "timing", // Animation mode, now only supports timing
+      timingFunction: "linear", // Animation easing function
     });
     this.horizonAnimation = new Animation({
-      startValue: 0, // 开始值
-      toValue: 100, // 动画结束值
-      duration: 500, // 动画持续时长
-      delay: 360, // 至动画真正开始的延迟时间
-      mode: "timing", // 动画模式，现在只支持timing
-      timingFunction: "linear", // 动画缓动函数
+      startValue: 0, // Animation start value
+      toValue: 100, // Animation end value
+      duration: 500, // Animation duration
+      delay: 360, // The delay time when the animation actually starts
+      mode: "timing", // Animation mode, now only supports timing
+      timingFunction: "linear", // Animation easing function
     });
     this.scaleAnimationSet = new AnimationSet({
       children: [
@@ -62,7 +62,7 @@ export default class AnimationExample extends Component {
             mode: "timing",
             timingFunction: "linear",
           }),
-          follow: false, // 配置子动画的执行是否跟随执行
+          follow: false, // Configure whether the execution of the sub-animation follows the execution
         },
         {
           animation: new Animation({
@@ -80,7 +80,7 @@ export default class AnimationExample extends Component {
   }
 
   componentWillUnmount() {
-    // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
+    // If the animation is not destroyed, you need to ensure that the animation is destroyed here, so as not to consume power when the animation runs in the background
     this.scaleAnimationSet && this.scaleAnimationSet.destroy();
     this.horizonAnimation && this.horizonAnimation.destroy();
     this.verticalAnimation && this.verticalAnimation.destroy();
@@ -112,7 +112,7 @@ export default class AnimationExample extends Component {
               this.verticalAnimation.start();
             }}
           >
-            <Text style={styles.buttonText}>水平位移动画</Text>
+            <Text style={styles.buttonText}>Horizontal displacement animation</Text>
           </View>
           <View
             style={styles.button}
@@ -120,7 +120,7 @@ export default class AnimationExample extends Component {
               this.horizonAnimation.start();
             }}
           >
-            <Text style={styles.buttonText}>垂直位移动画</Text>
+            <Text style={styles.buttonText}>Vertical displacement animation</Text>
           </View>
           <View
             style={styles.button}
@@ -128,7 +128,7 @@ export default class AnimationExample extends Component {
               this.scaleAnimationSet.start();
             }}
           >
-            <Text style={styles.buttonText}>图形形变动画</Text>
+            <Text style={styles.buttonText}>Graphic deformation animation</Text>
           </View>
         </View>
       </View>
@@ -136,59 +136,59 @@ export default class AnimationExample extends Component {
   }
 }
 
-// 样式代码省略
+// Style code omitted
 ```
 
-`Animation` 和 `AnimationSet` 都是赋予 hippy 组件的单个样式属性（如 width，height，left，right）动画能力的模块。
+`Animation` and`AnimationSet` are modules that give the hippy component the ability to animate individual style properties (such as width, height, left, right).
 
-`Animation`与`AnimationSet`的不同点在于`Animation`只是单个动画模块，`AnimationSet`为多个`Animation`的动画模块组合，支持同步执行或顺序执行多个`Animation`动画
+`Animation`the`AnimationSet` difference between and is that it is`Animation` only a single animation module`AnimationSet`, which is a`Animation` combination of multiple animation modules and supports synchronous execution or sequential execution of multiple`Animation` animations.
 
-Hippy 的动画能力支持位移，变形，旋转等功能，且因为动画对应的是样式属性，与支持动画集合`AnimationSet`，所以可以更加灵活地制作出炫丽的动画效果~
+Hippy's animation ability supports functions such as displacement, deformation, rotation, etc., and because animation corresponds to style attributes and supports animation collection`AnimationSet`, it can more flexibly produce dazzling animation effects ~
 
-## 属性
+## Property
 
-Animation 支持的动画配置包括：
+Animation configurations supported by animation include:
 
-* mode ：动画模式，当前仅支持“timing”模式，即随时间改变控件的属性，默认配置即为"timing"；
-* delay ：动画延迟开始的时间，单位为毫秒，默认为 0，即动画 start 之后立即执行；
-* startValue ：动画开始时的值，可为 Number 类型或一个 Animation 的对象，如果指定为一个 Animation 时，代表本动画的初始值为其指定的动画结束或中途 cancel 后的所处的动画值（这种场景通常用于 AnimationSet 中实现多个连续变化的动画）；
-* toValue ：动画结束时候的值，类型只能为 Number；
-* valueType ：动画的开始和结束值的单位类型，默认为空，代表动画起止的单位是普通数值，另外可取值有：
+* mode: Animation mode, currently only supports "timing" mode, that is, the attribute of the control is changed with time, and the default configuration is "timing";
+* delay: The time when the animation delay starts, in milliseconds, and the default value is 0, that is, it is executed immediately after the animation starts;
+* startValue ： The value at the start of the animation. Can be a Number type or an Animation . If it is an Animation, it means that the initial value of the animation is the animation value after the specified animation ends or is canceled in the middle(this kind of scene is usually used to implement multiple continuously changing animations in an AnimationSet);
+* toValue: The value at the end of the animation, the type can only be Number;
+* valueType: The unit type for the animation's start and end values. The default value is empty, which means that the unit of animation start and end is a common value. Other possible values are:
 
-  * “rad” ：代表动画参数的起止值为弧度；
-  * “deg” ：代表动画参数的起止值为度数；
-  * “color” ：代表动画参数的起止值为颜色；
+  * "rad": Indicates that the start and stop values of animation parameters are radians;
+  * "deg": Indicates that the start and stop values of animation parameters are degrees;
+  * "color": Indicates that the start and stop values of animation parameters are color;
 
-* duration ：动画的持续时间，单位为毫秒，默认为 0；
+* duration: The duration of the animation, in milliseconds, the default is 0;
 
-* timingFunction ：动画插值器类型，默认为“linear”，可选值包括：
+* timingFunction ：The animation interpolator type, the default is "linear", optional values include:
 
-  * “linear”：使用线性插值器，动画将匀速进行；
-  * “ease-in”：使用加速插值器，动画速度将随时间逐渐增加；
-  * “ease-out”：使用减速插值器，动画速度将随时间逐渐减小；
-  * “ease-in-out”：使用加减速插值器，动画速度前半段先随时间逐渐增加，后半段速度将逐渐减小；
-  * “cubic-bezier”：(最低支持版本 2.9.0)使用自定义贝塞尔曲线，与 [css transition-timing-function 的 cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) 一致；
+  * "animation": With a linear interpolator, the animation will proceed at a constant speed;
+  * "ease in": With an acceleration interpolator, the animation speed will gradually increase over time;
+  * "ease out": With a deceleration interpolator, the animation speed will gradually decrease with time;
+  * “ease-in-out”：With an acceleration and deceleration interpolator, the animation speed will gradually increase with time in the first half, and gradually decrease in the second half;
+  * “cubic-bezier”：(Minimum supported version 2.9.0) With a custom Bezier curve, consistent with the [transition-timing-function](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function);
 
-* repeatCount ：动画的重复次数，默认为 0，即不重复播放，为"loop"时代表无限循环播放；
+* repeatCount ： The number of repetitions of the animation. The default is 0, which means no repeat playback. When it is "loop", it means infinite loop playback;
 
-AnimationSet 为实现动画集合添加了 3 个属性
+AnimationSet adds 3 properties to implement the animation Collection:
 
-* children ：接收一个 Array，用于指定子动画，该 Array 的每个元素包括：
-  * animation：子动画对应的 Animation 对象；
-  * follow：配置子动画的执行是否跟随执行，为 `true` 代表该子动画会等待上一个子动画执行完成后在开始，为 `false` 则代表和上一个子动画同时开始，默认为 `false`；
+* children: Receives an Array that specifies a child animation, and each element of the Array includes:
+  * animation: The Animation object corresponding to the sub - Animation;
+  * follow: Configure whether the execution of the sub - animation follows the execution. If it is`true`, the sub - animation will start after the execution of the previous sub - animation is completed; if it is, the sub - animation will start at the`false` same time as the previous sub - animation. The default value is`false`;
 
-## 方法
+## Method
 
-除了动画配置，Animation 与 AnimationSet 都提供了一系列控制和监听动画过程的方法：
+In addition to animation configuration, both Animation and AnimationSet provide a series of methods to control and monitor the animation process:
 
-* start() ：启动动画，注意，如果调用该方法前，动画尚未经过 render 赋值给相应控件或者该动画已经 destroy，那 start 将不会生效；
-* destroy()：停止并销毁一个动画；
-* updateAnimation(newConfig) ：(仅 Animation 具有) 修改动画的配置参数，注意，如果动画已经 start 或 destroy，更新操作将不会生效，该方法接收的 newConfig 参数结构与 Animation 构造函数中动画配置参数一致；
-* removeEventListener()：撤销所有注册的动画监听；
+* start(): Start animation. note that if the animation has not been render and assigned to the correspond control or the animation has been destroyed before calling this method, start will not take effect;
+* destroy(): Stop and destroy an animation;
+* updateAnimation(newConfig) ：(Only for Animation) Modify the configuration parameters of the animation. Note that if the animation has been started or destroyed, the update operation will not take effect. The newConfig parameter structure received by this method is consistent with the animation configuration parameters in the Animation constructor;
+* removeEventListener()： Cancel all registered animation listeners;
 
-## 回调
+## Callback
 
-* onAnimationStart(callback)：注册一个动画的监听回调，在动画开始时将会回调 callback；
-* onAnimationEnd(callback)：注册一个动画的监听回调，在动画结束时将会回调 callback；
-* onAnimationCancel(callback)：注册一个动画的监听回调，在动画被取消时将会回调 callback，取消的情况包括：尚未 start 或尚未结束的动画被 destroy 时；
-* onAnimationRepeat(callback)：注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调；
+* onAnimationStart(callback)： Register an animation listener callback, which will be called back when the animation starts;
+* onAnimationEnd(callback)： Register an animation listener callback, which will be called back when the animation ends;
+* onAnimationCancel(callback)： Register an animation listener callback, the callback will be called back when the animation is canceled; the cancellation includes: when the animation that has not yet started or has not ended is destroyed;
+* onAnimationRepeat(callback)： Register an animation listener callback, which will be called back when the animation starts to repeat the next time；

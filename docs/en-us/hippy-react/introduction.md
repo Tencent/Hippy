@@ -1,16 +1,16 @@
-# hippy-react 介绍
+# Introduction to hippy-react
 
-hippy-react 是基于 Facebook React 的官方自定义渲染器 [react-reconciler](//www.npmjs.com/package/react-reconciler) 重新开发的 React 到终端的渲染层，可以使用 React 的全部特性。
+hippy-react is a React-to-native rendering layer redeveloped based on Facebook React's official custom renderer [react- reconciler](//www.npmjs.com/package/react-reconciler), which can use all of React's features.
 
-在语法上 hippy-react 更加接近底层终端，使用了类似 [React Native](//facebook.github.io/react-native/) 的语法。
+In terms of syntax, hippy-react is closer to the underlying native, using a syntax similar to [React Native](//facebook.github.io/react-native/).
 
-# 架构图
+# Architecture diagram
 
 <img src="assets/img/hippy-react.png" alt="hippy-react 架构图" width="70%"/>
 <br />
 <br />
 
-# 初始化
+# Initialization
 
 ```javascript
 import { Hippy, View } from '@hippy/react';
@@ -27,7 +27,7 @@ new Hippy({
 
 class App extends Component {
   constructor(props) {
-    // 终端给前端的初始化参数，终端可以将一些启动需要的自定义属性放到入口文件props里
+    // Initialization parameters from native to front end.The native can put some custom properties required for startup into the entry file props
     super(props);
   }
 
