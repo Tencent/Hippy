@@ -14,33 +14,13 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
+/**
+ * Created by on 2020/12/29.
+ * Description
+ */
+public interface IStickyItemsProvider {
 
-public class AnimatorListenerBase implements AnimatorListener {
-
-  public AnimatorListenerBase() {
-  }
-
-  @Override
-  public void onAnimationStart(Animator animation) {
-
-  }
-
-  @Override
-  public void onAnimationEnd(Animator animation) {
-
-  }
-
-  @Override
-  public void onAnimationCancel(Animator animation) {
-
-  }
-
-  @Override
-  public void onAnimationRepeat(Animator animation) {
-
-  }
+    boolean isStickyPosition(int position);
 }

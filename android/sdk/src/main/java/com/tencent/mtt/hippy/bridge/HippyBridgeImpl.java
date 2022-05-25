@@ -337,6 +337,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (mContext == null) {
+                    return;
+                }
                 DevSupportManager devManager = mContext.getDevSupportManager();
                 if (TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
                     LogUtils.e("HippyBridgeImpl",

@@ -1,6 +1,5 @@
 package com.tencent.mtt.supportui.views.viewpager;
 
-import com.tencent.mtt.hippy.utils.LogUtils;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -128,7 +127,6 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 
 	/* private */ ViewPagerAdapter						mAdapter;
 	/* private */ int									mCurItem;
-	/* private */ int									mLastItem                       = INVALID_SCREEN;
 	// Index
 	// of
 	// currently
@@ -561,11 +559,6 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			mMinPage = Integer.MIN_VALUE;
 			mMaxPage = Integer.MAX_VALUE;
 		}
-
-		if (newState == SCROLL_STATE_IDLE) {
-			mLastItem = mCurItem;
-		}
-
 		mScrollState = newState;
 	}
 
@@ -2439,33 +2432,10 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		}
 		final ItemInfo ii = infoForCurrentScrollPosition();
 		final float marginOffset = (float) mPageMargin / size;
-		int targetPage = ii.position;
-		final float offsetBaseRight = (((float) pos / size) - (ii.offset + ii.sizeFactor)) / (ii.sizeFactor + marginOffset);
-		final float offsetBaseLeft = (((float) pos / size) - ii.offset) / (ii.sizeFactor + marginOffset);
-
-		if (mLastItem == INVALID_SCREEN) {
-			mLastItem = mCurItem;
-		}
-
-		if (offsetBaseLeft == 0) {
-			if (targetPage == mLastItem) {
-				pageOffset = 0;
-			} else {
-				pageOffset = (targetPage < mLastItem) ? -1.0f : 1.0f;
-			}
-		} else {
-			if (targetPage >= mLastItem) {
-				pageOffset = offsetBaseLeft;
-				targetPage = ii.position + 1;
-			} else {
-				pageOffset = offsetBaseRight;
-			}
-		}
-
+		final int currentPage = ii.position;
+		pageOffset = (((float) pos / size) - ii.offset) / (ii.sizeFactor + marginOffset);
 		mCalledSuper = false;
-		pageOffset = (float)(Math.round(pageOffset*1000))/1000;
-		LogUtils.d(TAG, "pageScrolled: targetPage=" + targetPage + ", pageOffset=" + pageOffset);
-		onPageScrolled(targetPage, pageOffset, offsetPixels);
+		onPageScrolled(currentPage, pageOffset, offsetPixels);
 		if (!mCalledSuper)
 		{
 			throw new IllegalStateException("onPageScrolled did not call superclass implementation");
@@ -3894,29 +3864,29 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		}
 	}
 
-  @Override
-  public boolean canScrollHorizontally(int direction) {
-    if (!mScrollEnabled) {
-      return false;
-    }
-    return horizontalCanScroll(direction);
-  }
+	@Override
+	public boolean canScrollHorizontally(int direction) {
+		if (!mScrollEnabled) {
+			return false;
+		}
+		return horizontalCanScroll(direction);
+	}
 
-  @Override
-  public boolean canScrollVertically(int direction) {
-    if (!mScrollEnabled) {
-      return false;
-    }
-    return verticalCanScroll(direction);
-  }
+	@Override
+	public boolean canScrollVertically(int direction) {
+		if (!mScrollEnabled) {
+			return false;
+		}
+		return verticalCanScroll(direction);
+	}
 
 	protected boolean onStartDrag(boolean left) {
-    if (left) {
-      return horizontalCanScroll(1);
-    } else {
-      return horizontalCanScroll(-1);
-    }
-  }
+		if (left) {
+			return horizontalCanScroll(1);
+		} else {
+			return horizontalCanScroll(-1);
+		}
+	}
 
 	/**
 	 * Start a fake drag of the pager.

@@ -1,4 +1,4 @@
-package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
 /**
  * Created by on 2021/8/24.
