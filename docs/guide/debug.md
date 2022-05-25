@@ -207,6 +207,8 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 <br />
 <br />
 
+!> 请勿在生产环境引入 HMR 相关的配置
+
 当开发者修改了前端代码后，我们可以通过 `Hot Module Replacement (HMR)` 保留状态刷新组件视图，或通过 `live-reload` 重载业务实例，步骤如下：
 
 ## Hippy-Vue
@@ -381,10 +383,12 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 
 <video width="80%" controls>
   <source src="../assets/img/hippy-vue-devtools-x2.mp4" type="video/mp4">
-  Vue Devtools示例(您的浏览器不支持webm视频格式)
+  Vue Devtools示例(您的浏览器不支持mp4视频格式)
 </video>
 
-1. 安装 vue-devtools 依赖：
+使用配置：
+
+1. 安装 vue devtools 依赖：
 
    ```bash
    npm i @hippy/vue@^2.13.7 @hippy/vue-router@^2.13.7
@@ -404,7 +408,84 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
       // 默认为 false，开启后将通过 remote 字段指定的远程调试服务分发 vue 调试指令
       vueDevtools: true
     },
+   }
    ```
+
+!> Vue Devtools 的配置会在业务运行时中注入调试代码，可能会有一定的性能影响，请勿在生产环境引入。
+
+# React Devtools
+
+> 客户端最低支持版本 2.13.7
+> 前端最低支持版本 2.13.8
+
+支持调试 React 组件树、组件状态、路由以及性能等
+
+<video width="80%" controls>
+  <source src="../assets/img/hippy-react-devtools.mp4" type="video/mp4">
+  React Devtools示例(您的浏览器不支持mp4视频格式)
+</video>
+
+使用配置：
+
+1. 安装 react devtools 依赖：
+
+   ```bash
+   npm i @hippy/react@^2.13.8
+   npm i @hippy/debug-server-next@latest -D
+   ```
+
+2. 开启 react devtools
+
+   ```js
+   module.exports = {
+    devServer: {
+       remote: {
+         protocol: 'https',
+         host: 'devtools.qq.com',
+         port: 443,
+       },
+      // 默认为 false，开启后将通过 remote 字段指定的远程调试服务分发 react 调试指令
+      reactDevtools: true
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(jsx?)$/,
+          // 必须添加下面这一行，让 babel 忽略 react-devtools 插件
+          exclude: /@hippy\/hippy-react-devtools-plugin/,
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                sourceType: 'unambiguous',
+                presets: [
+                  '@babel/preset-react',
+                  [
+                    '@babel/preset-env',
+                    {
+                      targets: {
+                        chrome: 57,
+                        ios: 9,
+                      },
+                    },
+                  ],
+                ],
+                plugins: [
+                  ['@babel/plugin-proposal-class-properties'],
+                  ['@babel/plugin-proposal-decorators', { legacy: true }],
+                  ['@babel/plugin-transform-runtime', { regenerator: true }],
+                  require.resolve('react-refresh/babel'),
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    },
+   }
+   ```
+
+!> React Devtools 的配置会在业务运行时中注入调试代码，可能会有一定的性能影响，请勿在生产环境引入。
 
 # 打包编译 API
 
@@ -521,10 +602,10 @@ webpack(webpackConfig, (err, stats) => {
 
 > 最低支持版本 2.13.1
 
-|  平台   | HMR & Live-Reload | Elements | Log | Sources | Memory |
-|:-------:|:---:|:-------:|:---:|:------:|:------:|
-| Android |  ✅  |    ✅    |  ✅  |   ✅    |   ✅    |
-|   iOS   |  ✅  |    ✅    |  ❌  |   ❌    |   ❌    |
+|  平台   | HMR & Live-Reload | React Devtools | Vue Devtools | Elements | Log | Sources | Memory |
+|:-------:|:---:|:-------:| :-: | :-: |:---:|:------:|:------:|
+| Android |  ✅  |    ✅    |    ✅    |    ✅    |  ✅  |   ✅    |   ✅    |
+|   iOS   |  ✅  |    ✅    |    ✅    |    ✅    |  ❌  |   ❌    |   ❌    |
 
 <br />
 <br />
