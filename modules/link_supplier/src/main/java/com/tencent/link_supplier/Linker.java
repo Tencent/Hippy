@@ -70,10 +70,10 @@ public class Linker implements LinkHelper {
     }
 
     @Override
-    public void createRenderer(String renderMode) throws RuntimeException {
+    public void createRenderer(RenderMode mode) throws RuntimeException {
         try {
             Class rendererClass = Class
-                    .forName("com.tencent.renderer." + renderMode);
+                    .forName("com.tencent.renderer." + mode.renderClassName);
             mRenderProxy = (RenderProxy) (rendererClass.newInstance());
         } catch (Throwable e) {
             e.printStackTrace();

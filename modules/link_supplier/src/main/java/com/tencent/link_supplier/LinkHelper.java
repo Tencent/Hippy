@@ -27,12 +27,16 @@ import com.tencent.link_supplier.proxy.renderer.RenderProxy;
  */
 public interface LinkHelper {
 
-    class RenderMode {
-        public static final String NATIVE_RENDER = "NativeRenderer";
-        public static final String TDF_RENDER = "TDFRenderer";
-        public static final String  FLUTTER_RENDER = "";
-    }
+    enum RenderMode {
+        NATIVE_RENDER("NativeRenderer"),
+        TDF_RENDER("TDFRenderer"),
+        FLUTTER_RENDER("");
 
+        public final String renderClassName;
+        RenderMode(String renderClassName) {
+            this.renderClassName= renderClassName;
+        }
+    }
     /**
      * Get renderer instance
      *
@@ -60,9 +64,9 @@ public interface LinkHelper {
     /**
      * Create renderer
      *
-     * @param renderMode {@link RenderMode}
+     * @param mode {@link RenderMode}
      */
-    void createRenderer(String renderMode);
+    void createRenderer(RenderMode mode);
 
     /**
      * Create dom holder, will call native jni {@link Linker#createDomInstance()}
