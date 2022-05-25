@@ -30,9 +30,9 @@ import android.view.ViewGroup;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderAttachListener;
-import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IHeaderHost;
-import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickyHeaderHelper;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHeaderHelper;
 
 /**
  * Created  on 2020/12/22. Description

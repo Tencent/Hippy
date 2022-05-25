@@ -95,7 +95,6 @@ set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud
 set(INFA_PACKAGES_DOMAIN "hippy")
 
 # region v8
-set(ENABLE_INSPECTOR true)
 if (${JS_ENGINE} STREQUAL "V8")
   get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
   if (EXISTS "${V8_COMPONENT_PATH}/CMakeLists.txt")
@@ -112,21 +111,10 @@ endif()
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base out)
 # endregion
 
-# region global definitions
-if (${ENABLE_INSPECTOR} STREQUAL "true")
-  add_definitions("-DENABLE_INSPECTOR")
-endif()
-add_definitions("-DOS_ANDROID")
-# endregion
-
 # region source
 get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core" REALPATH)
 file(GLOB_RECURSE CORE_SRC ${CORE_SRC_DIR}/src/*.cc)
 file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
-if (${ENABLE_INSPECTOR} STREQUAL "false")
-  file(GLOB_RECURSE INSPECTOR_SRC ${PROJECT_SOURCE_DIR}/src/inspector/*)
-  list(REMOVE_ITEM JNI_SRC ${INSPECTOR_SRC})
-endif()
 
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
 message("CORE_SRC: ${CORE_SRC}")
@@ -138,6 +126,11 @@ set(HIPPY_DEPS android log tdf_base)
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
   add_definitions("-DJS_V8")
+  if (DEFINED V8_WITHOUT_INSPECTOR)
+    add_definitions("-DV8_WITHOUT_INSPECTOR")
+    file(GLOB_RECURSE INSPECTOR_SRC ${PROJECT_SOURCE_DIR}/src/inspector/*)
+    list(REMOVE_ITEM JNI_SRC ${INSPECTOR_SRC})
+  endif()
   # region remove jsc code
   file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
   message("JSC_SRC: ${JSC_SRC}")

@@ -416,7 +416,6 @@ public class BackgroundDrawable extends BaseDrawable
 	  mShadowPaint.setAntiAlias(true);
 	  mShadowPaint.setAlpha(opacity);
 	  mShadowPaint.setShadowLayer(mShadowRadius, mShadowOffsetX, mShadowOffsetY, mShadowColor);
-	  mShadowPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_ATOP));
 	  canvas.drawRoundRect(mShadowRect, borderRadius, borderRadius, mShadowPaint);
   }
 

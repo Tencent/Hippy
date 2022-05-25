@@ -638,10 +638,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
 	public void setShadowRadius(float radius)
 	{
 		getBackGround().setShadowRadius(Math.abs(radius));
-		if (radius != 0)
-		{
-			setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-		}
+		
 		invalidate();
 	}
 

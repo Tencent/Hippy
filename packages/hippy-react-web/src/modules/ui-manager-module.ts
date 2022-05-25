@@ -92,7 +92,7 @@ const UIManager = {
       const y = top - relativeRect.top;
       return { x, y, height, width };
     }
-    return -1;
+    return '-1';
   },
   getElementFromFiberRef() {
     warn('UIManagerModule.getElementFromFiberRef is unsupported');

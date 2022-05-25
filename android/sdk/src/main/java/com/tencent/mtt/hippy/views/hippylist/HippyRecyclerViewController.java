@@ -16,9 +16,11 @@
 
 package com.tencent.mtt.hippy.views.hippylist;
 
+import static com.tencent.mtt.hippy.dom.node.NodeProps.OVER_PULL;
+
 import android.content.Context;
 import android.view.ViewGroup;
-import androidx.recyclerview.widget.EasyLinearLayoutManager;
+import androidx.recyclerview.widget.HippyLinearLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.View;
 import com.tencent.mtt.hippy.HippyInstanceContext;
@@ -97,30 +99,26 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @Override
     protected View createViewImpl(Context context, HippyMap iniProps) {
-        return new HippyRecyclerViewWrapper(context, initDefault(context, iniProps, new HippyRecyclerView(context)));
+        HippyRecyclerView hippyRecyclerView = initDefault(context, iniProps, new HippyRecyclerView(context));
+        boolean overPull = iniProps != null && iniProps.getBoolean(OVER_PULL);
+        hippyRecyclerView.setEnableOverPull(HippyListUtils.isVerticalLayout(hippyRecyclerView) && overPull);
+        return new HippyRecyclerViewWrapper(context, hippyRecyclerView);
     }
 
     public static HippyRecyclerView initDefault(Context context, HippyMap iniProps, HippyRecyclerView recyclerView) {
-        LinearLayoutManager layoutManager = new EasyLinearLayoutManager(context);
+        LinearLayoutManager layoutManager = new HippyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
         boolean enableScrollEvent = false;
-        boolean enableOverPull = true;
         if (iniProps != null) {
             if (iniProps.containsKey(HORIZONTAL)) {
                 layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
             }
             enableScrollEvent = iniProps.getBoolean("onScroll");
-            if (iniProps.containsKey(NodeProps.OVER_PULL)) {
-                enableOverPull = iniProps.getBoolean(NodeProps.OVER_PULL);
-            }
         }
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHippyEngineContext(((HippyInstanceContext) context).getEngineContext());
         recyclerView.initRecyclerView();
         recyclerView.getRecyclerViewEventHelper().setOnScrollEventEnable(enableScrollEvent);
-        if (HippyListUtils.isVerticalLayout(recyclerView)) {
-            recyclerView.setEnableOverPull(enableOverPull);
-        }
         return recyclerView;
     }
 
@@ -195,7 +193,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         }
     }
 
-    @HippyControllerProps(name = NodeProps.OVER_PULL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+    @HippyControllerProps(name = OVER_PULL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
     public void setBounces(HRW viewWrapper, boolean flag) {
         HippyRecyclerView recyclerView = viewWrapper.getRecyclerView();
         if (recyclerView != null && HippyListUtils.isVerticalLayout(recyclerView)) {

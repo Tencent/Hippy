@@ -13,9 +13,16 @@ println("signing.secretKeyRingFile=" + ext["signing.secretKeyRingFile"])
 println("ossrhUsername=" + ossrhUsername)
 println("ossrhPassword=" + ossrhPassword)
 
+
+task androidSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
 publishing {
     publications {
         mavenAar(MavenPublication) {
+            artifact(androidSourcesJar)
             artifact("$buildDir/outputs/aar/android-sdk.aar")
             groupId PUBLISH_GROUP_ID
             artifactId PUBLISH_ARTIFACT_ID
