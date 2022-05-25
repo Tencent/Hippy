@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
+
+
+### Bug Fixes
+
+* **android:** call engine context method NullPointerException ([0c34965](https://github.com/Tencent/Hippy/commit/0c34965a3ce829a00d55b23bd82e0efff6f0b344))
+* **android:** mBridgeCallback leaked in fetchResourceWithUri ([6ae7813](https://github.com/Tencent/Hippy/commit/6ae7813ae5d706aca34e4486d649c51f863a2a95))
+* **core:** fix deadlock bug ([f08708f](https://github.com/Tencent/Hippy/commit/f08708fad63832ad87c92806d5184585493b8c60))
+* **core:** fix iOS warning ([018f529](https://github.com/Tencent/Hippy/commit/018f5296717c77b172d8d8e3c0593bcda4068da4))
+* **core:** fix memory leak in multi-context mode ([c5447e1](https://github.com/Tencent/Hippy/commit/c5447e18e2498e5e12817ef32adcc8a41dc92ebc))
+* **hippy-react-web:** change rmc-list-view to hippy domain ([c9e28f4](https://github.com/Tencent/Hippy/commit/c9e28f460ff25c34a8e94e30d017dbe7743c752f))
+* **ios:** fix hippy view reuse bug ([253fe78](https://github.com/Tencent/Hippy/commit/253fe7865b515c428a1232fc767b258923e989d2))
+* **ios:** reduce GPU usage by reducing off-screen rendering ([#1902](https://github.com/Tencent/Hippy/issues/1902)) ([4f5a0b2](https://github.com/Tencent/Hippy/commit/4f5a0b27c4e040a0fe33b24f08ec9f596489a24b))
+
+
+
+
+
 ## [2.13.9](https://github.com/Tencent/Hippy/compare/2.13.8...2.13.9) (2022-05-16)
 
 

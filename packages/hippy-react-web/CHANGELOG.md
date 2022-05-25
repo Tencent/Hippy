@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** change rmc-list-view to hippy domain ([c9e28f4](https://github.com/Tencent/Hippy/commit/c9e28f460ff25c34a8e94e30d017dbe7743c752f))
+
+
+
+
+
 ## [2.13.9](https://github.com/Tencent/Hippy/compare/2.13.8...2.13.9) (2022-05-16)
 
 **Note:** Version bump only for package @hippy/react-web
