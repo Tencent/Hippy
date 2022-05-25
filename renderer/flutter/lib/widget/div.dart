@@ -24,12 +24,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../common.dart';
 import '../controller.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
-import 'animation.dart';
 import 'base.dart';
 
 class DivWidget extends FRStatefulWidget {
@@ -101,8 +99,10 @@ class DivContainerWidget extends FRBaseStatelessWidget {
   }
 }
 
-Widget generateByViewModel(BuildContext context, RenderViewModel renderViewModel) {
-  ControllerManager? controllerManager = renderViewModel.context.renderManager.controllerManager;
+Widget generateByViewModel(
+    BuildContext context, RenderViewModel renderViewModel) {
+  ControllerManager? controllerManager =
+      renderViewModel.context.renderManager.controllerManager;
   var controller = controllerManager.findController(renderViewModel.name);
   if (controller != null) {
     var widget = controller.createWidget(context, renderViewModel);
@@ -116,13 +116,9 @@ class BoxWidget extends FRStatefulWidget {
   final RenderViewModel _viewModel;
   final Widget child;
 
-  /// 动画属性
-  final VoltronMap? animationProperty;
-
   BoxWidget(
     this._viewModel, {
     required this.child,
-    this.animationProperty,
   }) : super(_viewModel);
 
   @override
@@ -136,7 +132,6 @@ class _BoxWidgetState extends FRState<BoxWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final animationProperty = widget.animationProperty;
     var engineMonitor = widget._viewModel.context.engineMonitor;
     if (!(engineMonitor.hasAddPostFrameCall)) {
       engineMonitor.hasAddPostFrameCall = true;
@@ -150,17 +145,16 @@ class _BoxWidgetState extends FRState<BoxWidget> {
       });
     }
     if (!kReleaseMode && debugProfileBuildsEnabled) {
-      Timeline.startSync('[b]_BoxWidgetState', arguments: timelineArgumentsIndicatingLandmarkEvent);
+      Timeline.startSync('[b]_BoxWidgetState',
+          arguments: timelineArgumentsIndicatingLandmarkEvent);
     }
 
-    var height =
-        animationProperty?.get<num>(NodeProps.kHeight)?.toDouble() ?? widget._viewModel.height;
-    var width =
-        animationProperty?.get<num>(NodeProps.kWidth)?.toDouble() ?? widget._viewModel.width;
+    final width = widget._viewModel.width;
+    final height = widget._viewModel.height;
     if (widget._viewModel.noSize) {
       LogUtils.d(
         "BoxWidget",
-        "build box widget error, wrong size:(${widget._viewModel.width}, ${widget._viewModel.height}), node:${widget._viewModel.idDesc}",
+        "build box widget error, wrong size:($width, $height), node:${widget._viewModel.idDesc}",
       );
       if (!kReleaseMode && debugProfileBuildsEnabled) Timeline.finishSync();
       return const SizedBox(
@@ -198,8 +192,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     }
 
     /// 3. add background - color, image, gradient, box-shadow ...
-    final color = animationProperty?.get<Color>(NodeProps.kBackgroundColor) ??
-        widget._viewModel.backgroundColor;
+    final color = widget._viewModel.backgroundColor;
     final decoration = widget._viewModel.getDecoration(backgroundColor: color);
     if (decoration != null) {
       // use DecoratedBox, [Container] insets its child by the widths of the borders; this widget does not
@@ -226,8 +219,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     );
 
     /// 5. add opacity
-    var opacity =
-        animationProperty?.get<num>(NodeProps.kOpacity)?.toDouble() ?? widget._viewModel.opacity;
+    final opacity = widget._viewModel.opacity;
     if (opacity != null) {
       current = Opacity(
         child: current,
@@ -241,13 +233,18 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     if (widget._viewModel.gestureDispatcher.needListener()) {
       current = Listener(
         behavior: HitTestBehavior.opaque,
-        onPointerDown: (event) => widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
-        onPointerCancel: (event) => widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
-        onPointerMove: (event) => widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
-        onPointerUp: (event) => widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
+        onPointerDown: (event) =>
+            widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
+        onPointerCancel: (event) =>
+            widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
+        onPointerMove: (event) =>
+            widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
+        onPointerUp: (event) =>
+            widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onLongPress: () => widget._viewModel.gestureDispatcher.handleLongClick(),
+          onLongPress: () =>
+              widget._viewModel.gestureDispatcher.handleLongClick(),
           onTap: () => widget._viewModel.gestureDispatcher.handleClick(),
           child: current,
         ),
@@ -255,12 +252,9 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     }
 
     // fix: GestureDetector fails, https://github.com/flutter/flutter/issues/6606
-    final animationTransform = animationProperty?.get<Matrix4>(NodeProps.kTransform);
-    final transform = animationTransform ?? widget._viewModel.transform;
+    final transform = widget._viewModel.transform;
     if (transform != null) {
-      final animationTransformOrigin =
-          animationProperty?.get<TransformOrigin>(NodeProps.kTransformOrigin);
-      final transformOrigin = animationTransformOrigin ?? widget._viewModel.transformOrigin;
+      final transformOrigin = widget._viewModel.transformOrigin;
       final origin = transformOrigin.offset;
       final alignment = transformOrigin.alignment;
       current = Transform(
@@ -302,6 +296,47 @@ class PositionWidget extends FRBaseStatelessWidget {
     required this.child,
   }) : super(_viewModel.name, _viewModel.context, key: key);
 
+  Widget positionChild(Widget child, [bool isStackLayout = false]) {
+    if (isStackLayout) {
+      return stackChild(child);
+    } else {
+      return commonChild(child);
+    }
+  }
+
+  Widget commonChild(Widget child) {
+    final margin = EdgeInsets.only(
+      top: _viewModel.layoutY ?? 0.0,
+      left: _viewModel.layoutX ?? 0.0,
+    );
+    if (margin.isNonNegative) {
+      return BoxWidget(
+        _viewModel,
+        child: child,
+      );
+    }
+
+    return Container(
+      alignment: Alignment.topLeft,
+      margin: margin,
+      child: BoxWidget(
+        _viewModel,
+        child: child,
+      ),
+    );
+  }
+
+  Widget stackChild(Widget child) {
+    return Positioned(
+      top: _viewModel.layoutY,
+      left: _viewModel.layoutX,
+      child: BoxWidget(
+        _viewModel,
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!kReleaseMode && debugProfileBuildsEnabled) {
@@ -333,10 +368,10 @@ class PositionWidget extends FRBaseStatelessWidget {
           ),
         );
       } else {
-        result = AnimationWidget(node, _viewModel, true);
+        result = positionChild(node, true);
       }
     } else {
-      result = AnimationWidget(node, _viewModel);
+      result = positionChild(node);
     }
 
     if (!kReleaseMode && debugProfileBuildsEnabled) Timeline.finishSync();
