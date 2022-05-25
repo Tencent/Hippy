@@ -11,6 +11,7 @@
 #include "core/base/common.h"
 #include "core/base/task_runner.h"
 #include "core/task/common_task.h"
+#include "core/task/delegate_task.h"
 #include "dom/dom_action_interceptor.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_event.h"
@@ -74,6 +75,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   static bool Erase(int32_t id);
   static bool Erase(const std::shared_ptr<DomManager>& dom_manager);
   void AddInterceptor(std::shared_ptr<DomActionInterceptor> interceptor);
+  inline void SetDelegateRunner(const DelegateRunner& runner) { delegate_runner_ = runner; }
 
  private:
   int32_t id_;
@@ -82,6 +84,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   std::weak_ptr<RenderManager> render_manager_;
   std::weak_ptr<TaskRunner> delegate_task_runner_;
   std::shared_ptr<TaskRunner> dom_task_runner_;
+  // render implementation may need DomTask run in special thread (render's ui thread)
+  DelegateRunner delegate_runner_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
 
   void HandleEvent(const std::shared_ptr<DomEvent>& event);

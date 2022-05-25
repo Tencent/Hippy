@@ -55,6 +55,9 @@
 #include "loader/adr_loader.h"
 #include "bridge/bridge.h"
 #include "render/native_render_manager.h"
+#ifdef ENABLE_TDF_RENDER
+#include "render/tdf_render_bridge.h"
+#endif
 
 namespace hippy::bridge {
 
@@ -134,8 +137,7 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
-  std::shared_ptr<HippyRenderManager>
-      render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_render_id));
+  std::shared_ptr<RenderManager> render_manager = RenderManager::Find(static_cast<int32_t>(j_render_id));
 
   float density = render_manager->GetDensity();
   uint32_t root_id = dom_manager->GetRootId();
@@ -452,6 +454,9 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   ConvertUtils::Init();
   TurboModuleManager::Init();
   NativeRenderManager::Init();
+#ifdef ENABLE_TDF_RENDER
+  TDFRenderBridge::Init();
+#endif
 
   return JNI_VERSION_1_4;
 }
@@ -464,6 +469,9 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   ConvertUtils::Destroy();
   TurboModuleManager::Destroy();
   NativeRenderManager::Destroy();
+#ifdef ENABLE_TDF_RENDER
+  TDFRenderBridge::Destroy();
+#endif
 
   JNIEnvironment::DestroyInstance();
 }

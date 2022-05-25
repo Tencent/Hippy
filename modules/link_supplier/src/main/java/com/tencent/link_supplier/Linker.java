@@ -70,17 +70,13 @@ public class Linker implements LinkHelper {
     }
 
     @Override
-    public void createRenderer(RenderMode mode) throws RuntimeException {
-        switch (mode) {
-            case TDF_RENDER:
-                // TODO: Create TDF renderer.
-                break;
-            case FLUTTER_RENDER:
-                // TODO: Create Flutter renderer.
-                break;
-            case NATIVE_RENDER:
-            default:
-                mRenderProxy = createNativeRenderer();
+    public void createRenderer(String renderMode) throws RuntimeException {
+        try {
+            Class rendererClass = Class
+                    .forName("com.tencent.renderer." + renderMode);
+            mRenderProxy = (RenderProxy) (rendererClass.newInstance());
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
         if (mRenderProxy == null) {
             throw new RuntimeException(
@@ -168,17 +164,6 @@ public class Linker implements LinkHelper {
         @Override
         public void destroy() {
             destroyAnimationManager(mInstanceId);
-        }
-    }
-
-    private RenderProxy createNativeRenderer() {
-        try {
-            Class nativeRendererClass = Class
-                    .forName("com.tencent.renderer.NativeRenderer");
-            return (RenderProxy) (nativeRendererClass.newInstance());
-        } catch (Throwable e) {
-            e.printStackTrace();
-            return null;
         }
     }
 

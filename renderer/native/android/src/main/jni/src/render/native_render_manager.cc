@@ -74,12 +74,12 @@ void NativeRenderManager::Destroy() {
 }
 
 jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_density) {
-  std::shared_ptr<RenderManager> render_manager = std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
-  auto hippy_render_manager = std::static_pointer_cast<HippyRenderManager>(render_manager);
+  std::shared_ptr<RenderManager> render_manager =
+      std::make_shared<HippyRenderManager>(std::make_shared<JavaRef>(j_env, j_object));
   float density = static_cast<float>(j_density);
-  hippy_render_manager->SetDensity(density);
-  HippyRenderManager::Insert(hippy_render_manager);
-  return hippy_render_manager->GetId();
+  render_manager->SetDensity(density);
+  RenderManager::Insert(render_manager);
+  return render_manager->GetId();
 }
 
 void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_instance_id) {
@@ -88,8 +88,7 @@ void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_insta
 
 void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
                     jfloat j_width, jfloat j_height) {
-  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
-          static_cast<int32_t>(j_instance_id));
+  std::shared_ptr<RenderManager> render_manager = RenderManager::Find(static_cast<int32_t>(j_instance_id));
   if (!render_manager) {
     TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_instance_id invalid";
     return;
@@ -116,8 +115,7 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
 
 void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_node_id,
                     jfloat j_width, jfloat j_height, jboolean j_is_sync) {
-  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
-          static_cast<int32_t>(j_instance_id));
+  std::shared_ptr<RenderManager> render_manager = RenderManager::Find(static_cast<int32_t>(j_instance_id));
   if (!render_manager) {
     TDF_BASE_DLOG(WARNING) << "UpdateNodeSize j_instance_id invalid";
     return;
@@ -152,8 +150,7 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
 void DoCallBack(JNIEnv *j_env, jobject j_object,
                 jint j_instance_id, jint j_result, jstring j_func_name, jint j_node_id,
                 jlong j_cb_id, jbyteArray j_buffer, jint j_offset, jint j_length) {
-  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(
-          static_cast<int32_t>(j_instance_id));
+  std::shared_ptr<RenderManager> render_manager = RenderManager::Find(static_cast<int32_t>(j_instance_id));
   if (!render_manager) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack j_instance_id invalid";
     return;
@@ -193,7 +190,7 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
 
 void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j_dom_id, jstring j_event_name,
                      jbyteArray j_buffer, jint j_offset, jint j_length, jboolean j_use_capture, jboolean j_use_bubble) {
-  std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_instance_id));
+  std::shared_ptr<RenderManager> render_manager = RenderManager::Find(static_cast<int32_t>(j_instance_id));
   if (!render_manager) {
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent j_instance_id invalid";
     return;

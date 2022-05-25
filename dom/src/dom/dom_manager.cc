@@ -253,8 +253,9 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
 }
 
 void DomManager::PostTask(const Scene&& scene) {
-  std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
+  auto task = std::make_shared<DelegateTask>();
   task->func_ = [scene = std::move(scene)] { scene.Build(); };
+  task->delegate_runner_ = delegate_runner_;
   dom_task_runner_->PostTask(std::move(task));
 }
 

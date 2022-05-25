@@ -114,7 +114,8 @@ android {
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
                   "-DV8_COMPONENT=$V8_COMPONENT",
-                  "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
+                  "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL",
+                  "-DENABLE_TDF_RENDER=${ENABLE_TDF_RENDER}"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
             abiFilters 'armeabi-v7a'
@@ -142,7 +143,8 @@ android {
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
                   "-DV8_COMPONENT=$V8_COMPONENT",
-                  "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
+                  "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL",
+                  "-DENABLE_TDF_RENDER=${ENABLE_TDF_RENDER}"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
             abiFilters 'armeabi-v7a'

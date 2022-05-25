@@ -49,42 +49,8 @@ constexpr char kNumberOfLines[] = "numberOfLines";
 namespace hippy {
 inline namespace dom {
 
-static std::unordered_map<int32_t, std::shared_ptr<HippyRenderManager>> hippy_render_manager_map;
-static std::mutex mutex;
-static std::atomic<int32_t> global_hippy_render_manager_key{0};
-
 HippyRenderManager::HippyRenderManager(std::shared_ptr<JavaRef> render_delegate)
-    : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<tdf::base::Serializer>()) {
-  id_ = global_hippy_render_manager_key.fetch_add(1);
-}
-
-void HippyRenderManager::Insert(const std::shared_ptr<HippyRenderManager>& render_manager) {
-  std::lock_guard<std::mutex> lock(mutex);
-  hippy_render_manager_map[render_manager->id_] = render_manager;
-}
-
-std::shared_ptr<HippyRenderManager> HippyRenderManager::Find(int32_t id) {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = hippy_render_manager_map.find(id);
-  if (it == hippy_render_manager_map.end()) {
-    return nullptr;
-  }
-  return it->second;
-}
-
-bool HippyRenderManager::Erase(int32_t id) {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = hippy_render_manager_map.find(id);
-  if (it == hippy_render_manager_map.end()) {
-    return false;
-  }
-  hippy_render_manager_map.erase(it);
-  return true;
-}
-
-bool HippyRenderManager::Erase(const std::shared_ptr<HippyRenderManager>& render_manager) {
-  return HippyRenderManager::Erase(render_manager->id_);
-}
+    : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<tdf::base::Serializer>()) {}
 
 void HippyRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
   serializer_->Release();
@@ -350,9 +316,9 @@ void HippyRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std:
   j_env->DeleteLocalRef(j_class);
 }
 
-float HippyRenderManager::DpToPx(float dp) const { return dp * density_; }
+float HippyRenderManager::DpToPx(float dp) const { return dp * GetDensity(); }
 
-float HippyRenderManager::PxToDp(float px) const { return px / density_; }
+float HippyRenderManager::PxToDp(float px) const { return px / GetDensity(); }
 
 void HippyRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
@@ -487,7 +453,7 @@ void HippyRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const s
 }
 
 void HippyRenderManager::MarkTextDirty(uint32_t node_id) {
-  auto dom_manager = dom_manager_.lock();
+  auto dom_manager = GetDomManager();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
     auto node = dom_manager->GetNode(node_id);
