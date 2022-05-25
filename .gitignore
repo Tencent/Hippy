@@ -38,5 +38,6 @@ examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 examples/hippy-react-demo/package-lock.json
 examples/hippy-vue-demo/package-lock.json
 
+packages/**/package-lock.json
 packages/hippy-vue-loader/remote-debug-profile/*
 packages/hippy-debug-server/webpack-dev-server/client
