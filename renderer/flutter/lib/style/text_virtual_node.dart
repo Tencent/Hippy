@@ -65,6 +65,8 @@ class TextVirtualNode extends VirtualNode {
 
   bool get enableScale => _enableScale;
 
+  final List<PlaceholderDimensions> _placeholderDimensions = [];
+
   String get _text {
     if (_whiteSpace == null || _whiteSpace == 'normal' || _whiteSpace == 'nowrap') {
       // 连续的空白符会被合并，换行符会被当作空白符来处理
@@ -347,6 +349,12 @@ class TextVirtualNode extends VirtualNode {
             var styleNode = node;
             childrenSpan.add(styleNode.createSpan(useChild: useChild));
           } else if (node is ImageVirtualNode) {
+            _placeholderDimensions.add(
+              PlaceholderDimensions(
+                size: Size(node.mWidth, node.mHeight),
+                alignment: node.verticalAlignment,
+              ),
+            );
             childrenSpan.add(node.createSpan());
           } else {
             // throw StateError("${node.name} is not support in Text");
@@ -428,8 +436,10 @@ class TextVirtualNode extends VirtualNode {
       textAlign: _textAlign,
       ellipsis: kEllipsis,
       textScaleFactor: _generateTextScale(),
-    )..layout(maxWidth: maxWidth);
-
+    );
+    painter.setPlaceholderDimensions(_placeholderDimensions);
+    painter.layout(maxWidth: maxWidth);
+    return painter;
     return painter;
   }
 
