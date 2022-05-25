@@ -140,33 +140,33 @@ public class HippyImageViewController extends HippyViewController<HippyImageView
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = "onLoad", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "load", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnLoad(HippyImageView hippyImageView, boolean enable) {
         hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD.ordinal(), enable);
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = "onLoadEnd", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "loadEnd", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnLoadEnd(HippyImageView hippyImageView, boolean enable) {
         hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD_END.ordinal(), enable);
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = "onLoadStart", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "loadStart", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnLoadStart(HippyImageView hippyImageView, boolean enable) {
         hippyImageView
                 .setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD_START.ordinal(), enable);
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = "onProgress", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "progress", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnLoadProgress(HippyImageView hippyImageView, boolean enable) {
         hippyImageView
                 .setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD_PROGRESS.ordinal(), enable);
     }
 
     @SuppressWarnings("unused")
-    @HippyControllerProps(name = "onError", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "error", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnError(HippyImageView hippyImageView, boolean enable) {
         hippyImageView.setImageEventEnable(HippyImageView.ImageEvent.ON_LOAD_ERROR.ordinal(), enable);
     }
