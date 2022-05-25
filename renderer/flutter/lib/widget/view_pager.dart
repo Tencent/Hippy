@@ -43,17 +43,8 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
-      child: Selector<ViewPagerRenderViewModel, ViewPagerRenderViewModel>(
-        selector: (context, viewModel) {
-          return ViewPagerRenderViewModel.copy(
-            id: viewModel.id,
-            instanceId: viewModel.rootId,
-            className: viewModel.name,
-            context: viewModel.context,
-            viewModel: viewModel,
-          );
-        },
-        builder: (context, viewModel, widget) {
+      child: Consumer<ViewPagerRenderViewModel>(
+        builder: (context, viewModel, child) {
           return PositionWidget(
             viewModel,
             child: viewPager(viewModel),
@@ -64,14 +55,12 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
   }
 
   Widget viewPager(ViewPagerRenderViewModel viewModel) {
-    LogUtils.dWidget("view_pager",
-        "build view pager, children:${viewModel.children.length}");
+    LogUtils.dWidget("view_pager", "build view pager, children:${viewModel.children.length}");
     if (viewModel.children.isEmpty) {
       return Container();
     } else {
       // viewPortFraction必须大于0
-      var viewPortFraction =
-          viewModel.pageMargin > 0 ? viewModel.pageMargin : 1.0;
+      var viewPortFraction = viewModel.pageMargin > 0 ? viewModel.pageMargin : 1.0;
       var controller = PageController(
         initialPage: viewModel.initialPage,
         viewportFraction: viewPortFraction,
@@ -87,8 +76,7 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
       return NotificationListener<ScrollNotification>(
         onNotification: onScrollNotification,
         child: PageView.builder(
-          scrollDirection:
-              viewModel.isVertical ? Axis.vertical : Axis.horizontal,
+          scrollDirection: viewModel.isVertical ? Axis.vertical : Axis.horizontal,
           itemBuilder: (context, index) {
             if (index < 0 || index >= viewModel.children.length) {
               return Container();
@@ -186,8 +174,7 @@ class _ViewPagerItemWidgetState extends FRState<ViewPagerItemWidget> {
         builder: (context, viewModel, child) {
           return BoxWidget(
             viewModel,
-            child:
-                Selector<ViewPagerItemRenderViewModel, DivContainerViewModel>(
+            child: Selector<ViewPagerItemRenderViewModel, DivContainerViewModel>(
               selector: (context, viewModel) => DivContainerViewModel(
                 viewModel,
               ),

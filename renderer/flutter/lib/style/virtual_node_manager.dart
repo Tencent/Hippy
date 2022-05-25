@@ -11,55 +11,11 @@ abstract class VirtualNode with StyleMethodPropConsumer {
 
   MethodPropProvider get provider;
 
-  // Boolean mDirty = true;
   List<VirtualNode> mChildren = [];
   VirtualNode? mParent;
 
-  // protected List<String> mGestureTypes;
-
   VirtualNode(this.mId, this.mPid, this.mIndex);
 
-//   public int getId() {
-//     return mId;
-//   }
-//
-//   public int getAncestorId() {
-//     VirtualNode parent = mParent;
-//     int id = mId;
-//     while (parent != null) {
-//       id = parent.getId();
-//       parent = parent.mParent;
-//     }
-//     return id;
-//   }
-//
-//   protected abstract void createSpanOperation(List<SpanOperation> ops,
-//       SpannableStringBuilder builder, boolean useChild);
-//
-//   public void addGesture(String event) {
-//     if (mGestureTypes == null) {
-//       mGestureTypes = new ArrayList<>();
-//     }
-//     mGestureTypes.add(event);
-//   }
-//
-//   public void removeGesture(String event) {
-//     if (mGestureTypes != null) {
-//       mGestureTypes.remove(event);
-//     }
-//   }
-//
-//   public boolean isDirty() {
-//     return mDirty;
-//   }
-//
-//   public void markDirty() {
-//     if (mParent != null) {
-//       mParent.markDirty();
-//     }
-//     mDirty = true;
-//   }
-//
   void removeChild(VirtualNode child) {
     mChildren.remove(child);
   }
@@ -68,7 +24,7 @@ abstract class VirtualNode with StyleMethodPropConsumer {
     if (child.mParent != null) {
       return;
     }
-    mChildren[index] = child;
+    mChildren.insert(index, child);
     child.mParent = this;
   }
 
@@ -76,30 +32,7 @@ abstract class VirtualNode with StyleMethodPropConsumer {
     return mChildren[index];
   }
 
-//
   int get childCount => mChildren.length;
-//
-//   protected static class SpanOperation {
-//
-//   private final int mStart;
-//   private final int mEnd;
-//   private final Object mWhat;
-//
-//   @SuppressWarnings("unused")
-//   SpanOperation(int start, int end, Object what) {
-//   mStart = start;
-//   mEnd = end;
-//   mWhat = what;
-//   }
-//
-//   public void execute(SpannableStringBuilder builder) {
-//   int spanFlags = Spannable.SPAN_EXCLUSIVE_INCLUSIVE;
-//   if (mStart == 0) {
-//   spanFlags = Spannable.SPAN_INCLUSIVE_INCLUSIVE;
-//   }
-//   builder.setSpan(mWhat, mStart, mEnd, spanFlags);
-//   }
-//   }
 }
 
 class VirtualNodeManager {
@@ -110,8 +43,6 @@ class VirtualNodeManager {
   List<int> mUpdateNodes = [];
 
   RenderContext context;
-
-  // RenderManager
 
   VirtualNodeManager(this.context);
 

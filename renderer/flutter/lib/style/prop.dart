@@ -181,7 +181,7 @@ class NodeProps {
   static const String kOnScrollEndDrag = "onScrollEndDrag";
   static const String kOnMomentumScrollBegin = "onMomentumScrollBegin";
   static const String kOnMomentumScrollEnd = "onMomentumScrollEnd";
-  static const String kOnScrollEnable = "onScrollEnable";
+  static const String kOnScrollEnable = "onScroll";
   static const String kScrollEnable = "scrollEnabled";
   static const String kScrollEventThrottle = "scrollEventThrottle";
 
@@ -201,7 +201,7 @@ class NodeProps {
 
   static const String kViewClassName = "View";
   static const String kTextClassName = "Text";
-  static const String kImageClassName = "Text";
+  static const String kImageClassName = "Image";
 
   /// 节点样式，包含内联样式
   static const String kStyle = "style";

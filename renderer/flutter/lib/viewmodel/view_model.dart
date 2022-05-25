@@ -401,7 +401,9 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   void update() {
-    notifyListeners();
+    if (!isDispose && !isDestroy) {
+      notifyListeners();
+    }
   }
 
   void onInit() {

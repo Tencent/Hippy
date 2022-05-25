@@ -90,6 +90,7 @@ class ImageRenderViewModel extends RenderViewModel {
       img.resolve(const ImageConfiguration()).addListener(
             ImageStreamListener(
               (image, flag) {
+                if (isDispose) return;
                 if (!dispatchedEvent.contains(NodeProps.kOnLoad) && src == curSrc) {
                   imageEventDispatcher.handleOnLoad();
                   imageEventDispatcher.handleOnLoadEnd();
@@ -105,6 +106,7 @@ class ImageRenderViewModel extends RenderViewModel {
                 }
               },
               onChunk: (event) {
+                if (isDispose) return;
                 var total = event.expectedTotalBytes;
                 var loaded = event.cumulativeBytesLoaded;
                 if (loaded > 0 && total is int && total > 0) {
@@ -115,6 +117,7 @@ class ImageRenderViewModel extends RenderViewModel {
                 }
               },
               onError: (exception, stackTrace) {
+                if (isDispose) return;
                 if (src == curSrc) {
                   imageEventDispatcher.handleOnError();
                   imageEventDispatcher.handleOnLoadEnd();

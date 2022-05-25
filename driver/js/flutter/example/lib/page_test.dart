@@ -84,64 +84,73 @@ class _PageTestWidgetState extends State<PageTestWidget> {
   void initState() {
     super.initState();
     _bundle = widget.bundle ?? kIndexPath;
-    DeviceInfoPlugin().iosInfo.then((deviceData) {
-      var initParams = EngineInitParams();
-      initParams.debugMode = widget.debugMode;
-      initParams.enableLog = true;
-      initParams.coreJSAssetsPath = kVendorPath;
-      initParams.codeCacheTag = "common";
-      initParams.providers = [];
-      initParams.engineMonitor = Monitor();
-      _loaderManager = VoltronJSLoaderManager.createLoaderManager(
-        initParams,
-        (statusCode, msg) {
-          LogUtils.i(
-            'loadEngine',
-            'code($statusCode), msg($msg)',
-          );
-          if (statusCode == EngineStatus.ok) {
-            setState(() {
-              pageStatus = PageStatus.success;
-            });
-          } else {
-            setState(() {
-              pageStatus = PageStatus.error;
-            });
-          }
-        },
-      );
-      var loadParams = ModuleLoadParams();
-      loadParams.componentName = "Demo";
-      loadParams.codeCacheTag = "Demo";
-      if (_bundle.startsWith('http://') || _bundle.startsWith('https://')) {
-        loadParams.jsHttpPath = _bundle;
-      } else {
-        loadParams.jsAssetsPath = _bundle;
+    _initVoltronData();
+  }
+
+  _initVoltronData() async {
+    IosDeviceInfo? deviceData;
+    if (Platform.isIOS) {
+      try {
+        deviceData = await DeviceInfoPlugin().iosInfo;
+      } catch (err) {
+        setState(() {
+          pageStatus = PageStatus.error;
+        });
       }
-      loadParams.jsParams = VoltronMap();
-      loadParams.jsParams?.push(
-        "msgFromNative",
-        "Hi js developer, I come from native code!",
-      );
-      if (Platform.isIOS) {
-        loadParams.jsParams?.push(
-          "isSimulator",
-          !deviceData.isPhysicalDevice,
+    }
+    var initParams = EngineInitParams();
+    initParams.debugMode = widget.debugMode;
+    initParams.enableLog = true;
+    initParams.coreJSAssetsPath = kVendorPath;
+    initParams.codeCacheTag = "common";
+    initParams.providers = [];
+    initParams.engineMonitor = Monitor();
+    _loaderManager = VoltronJSLoaderManager.createLoaderManager(
+      initParams,
+      (statusCode, msg) {
+        LogUtils.i(
+          'loadEngine',
+          'code($statusCode), msg($msg)',
         );
-      }
-      _jsLoader = _loaderManager.createLoader(
-        loadParams,
-        moduleListener: (status, msg, viewModel) {
-          LogUtils.i(
-            "flutterRender",
-            "loadModule status($status), msg ($msg)",
-          );
-        },
+        if (statusCode == EngineStatus.ok) {
+          setState(() {
+            pageStatus = PageStatus.success;
+          });
+        } else {
+          setState(() {
+            pageStatus = PageStatus.error;
+          });
+        }
+      },
+    );
+    var loadParams = ModuleLoadParams();
+    loadParams.componentName = "Demo";
+    loadParams.codeCacheTag = "Demo";
+    if (_bundle.startsWith('http://') || _bundle.startsWith('https://')) {
+      loadParams.jsHttpPath = _bundle;
+    } else {
+      loadParams.jsAssetsPath = _bundle;
+    }
+    loadParams.jsParams = VoltronMap();
+    loadParams.jsParams?.push(
+      "msgFromNative",
+      "Hi js developer, I come from native code!",
+    );
+    if (deviceData != null) {
+      loadParams.jsParams?.push(
+        "isSimulator",
+        !deviceData.isPhysicalDevice,
       );
-    }).catchError((err) {
-      pageStatus = PageStatus.error;
-      setState(() {});
-    });
+    }
+    _jsLoader = _loaderManager.createLoader(
+      loadParams,
+      moduleListener: (status, msg, viewModel) {
+        LogUtils.i(
+          "flutterRender",
+          "loadModule status($status), msg ($msg)",
+        );
+      },
+    );
   }
 
   @override

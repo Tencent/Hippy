@@ -79,10 +79,14 @@ class ScrollViewRenderViewModel extends ScrollableModel {
       [this.isHorizontal = false])
       : super(id, instanceId, className, context);
 
-  ScrollViewRenderViewModel.copy(int id, int instanceId, String className, RenderContext context,
-      ScrollViewRenderViewModel viewModel,
-      [this.isHorizontal = false])
-      : super.copy(id, instanceId, className, context, viewModel) {
+  ScrollViewRenderViewModel.copy(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    ScrollViewRenderViewModel viewModel, [
+    this.isHorizontal = false,
+  ]) : super.copy(id, instanceId, className, context, viewModel) {
     pagingEnable = viewModel.pagingEnable;
     flingEnable = viewModel.flingEnable;
     scrollAnimationEndEventEnable = viewModel.scrollAnimationEndEventEnable;

@@ -337,7 +337,7 @@ class TextVirtualNode extends VirtualNode {
       );
     }
 
-    var childrenSpan = <TextSpan>[];
+    var childrenSpan = <InlineSpan>[];
 
     if (useChild) {
       for (var i = 0; i < childCount; i++) {
@@ -346,6 +346,8 @@ class TextVirtualNode extends VirtualNode {
           if (node is TextVirtualNode) {
             var styleNode = node;
             childrenSpan.add(styleNode.createSpan(useChild: useChild));
+          } else if (node is ImageVirtualNode) {
+            childrenSpan.add(node.createSpan());
           } else {
             // throw StateError("${node.name} is not support in Text");
           }
