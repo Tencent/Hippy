@@ -127,17 +127,6 @@ class RenderViewModel extends ChangeNotifier {
 
   int zIndex = 0;
 
-  /// 动画相关
-  CssAnimation? transition;
-  CssAnimation? animation;
-  String? animationFillMode;
-
-  // animation动画播放结束后，animationFillModel为'none'时，需要设置的属性集
-  VoltronMap? animationEndPropertyMap;
-
-  // 需要根据animation规则操作的动画属性Map(key: String, value: AnimationPropertyOption(如：禁止设置属性值))
-  VoltronMap? animationPropertyOptionMap;
-
   Map<String, Object> _extraInfo = {};
 
   // 手势事件相关
@@ -262,11 +251,6 @@ class RenderViewModel extends ChangeNotifier {
     transform = viewModel.transform?.clone();
     transformOrigin = viewModel.transformOrigin.copy();
     backgroundColor = viewModel.backgroundColor;
-    animation = viewModel.animation;
-    transition = viewModel.transition;
-    animationFillMode = viewModel.animationFillMode;
-    animationEndPropertyMap = viewModel.animationEndPropertyMap;
-    animationPropertyOptionMap = viewModel.animationPropertyOptionMap;
   }
 
   @override
@@ -331,11 +315,6 @@ class RenderViewModel extends ChangeNotifier {
         nextFocusRightId == other.nextFocusRightId &&
         focusable == other.focusable &&
         zIndex == other.zIndex &&
-        animation == other.animation &&
-        transition == other.transition &&
-        animationFillMode == other.animationFillMode &&
-        animationEndPropertyMap == other.animationEndPropertyMap &&
-        animationPropertyOptionMap == other.animationPropertyOptionMap &&
         transform == other.transform &&
         transformOrigin == other.transformOrigin;
   }
@@ -389,11 +368,6 @@ class RenderViewModel extends ChangeNotifier {
       nextFocusRightId.hashCode |
       focusable.hashCode |
       zIndex.hashCode |
-      animation.hashCode |
-      transition.hashCode |
-      animationFillMode.hashCode |
-      animationEndPropertyMap.hashCode |
-      animationPropertyOptionMap.hashCode |
       transform.hashCode |
       transformOrigin.hashCode;
 
@@ -423,24 +397,7 @@ class RenderViewModel extends ChangeNotifier {
     _y = y;
     _width = width;
     _height = height;
-    updateAnimation(NodeProps.kLeft, x);
-    updateAnimation(NodeProps.kTop, y);
-    updateAnimation(NodeProps.kWidth, width);
-    updateAnimation(NodeProps.kHeight, height);
     LogUtils.dRender("render view model, after update layout($this)");
-  }
-
-  void updateAnimation<T>(String key, T value) {
-    // 1.处理css animation动画属性值的更新
-    // TODO
-    // final animationPropertyTweenSequenceItemList = animation?.getHasPropertyTweenSequenceItemList(key) ?? null;
-    // if (animationPropertyTweenSequenceItemList != null) {
-    //   AnimationUtil.handleUpdateTweenSequenceItemListFirstNotNullValue(animationPropertyTweenSequenceItemList, value);
-    //   return;
-    // }
-
-    // 2.处理css transition动画属性值的更新
-    transition?.updateTransitionAnimation(key, value);
   }
 
   void update() {
@@ -885,329 +842,12 @@ class RenderViewModel extends ChangeNotifier {
     return side == BorderSide.none;
   }
 
-  /// animation动画播放完毕，将isDisable的标志位设置为true，使该animation关联的属性都不起效
-  void clearAnimation() {
-    animation?.isDisable = true;
-  }
-
   bool get isOverflowClip {
     var radius = getBorderRadius();
     var isOverflowHidden = overflow == enumValueToString(ContainOverflow.hidden);
     var isOverflowScroll = this is ScrollViewRenderViewModel;
     return (isOverflowHidden || isOverflowScroll) && radius != null;
   }
-}
-
-/// css的transition动画属性
-class Transition {
-  // 动画属性名
-  String transitionProperty = '';
-
-  // 动画持续时间(单位：毫秒)
-  int transitionDuration = 0;
-
-  // 动画效果
-  Curve transitionTimingFunction = Curves.ease;
-
-  // 动画效果延迟时间(单位：毫秒)
-  int transitionDelay = 0;
-
-  Transition(String transitionProperty, VoltronMap params) {
-    transitionProperty = transitionProperty;
-    transitionDuration = params.get(NodeProps.kTransitionDuration) ?? 0;
-    final originTransitionTimingFunction =
-        params.get(NodeProps.kTransitionTimingFunction) ?? TimingFunction.kEase;
-    transitionTimingFunction = resizeModeToCurve(originTransitionTimingFunction);
-    transitionDelay = params.get(NodeProps.kTransitionDelay) ?? 0;
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is Transition &&
-        transitionProperty == other.transitionProperty &&
-        transitionDuration == other.transitionDuration &&
-        transitionTimingFunction == other.transitionTimingFunction &&
-        transitionDelay == other.transitionDelay;
-  }
-
-  @override
-  int get hashCode =>
-      transitionProperty.hashCode |
-      transitionDuration.hashCode |
-      transitionTimingFunction.hashCode |
-      transitionDelay.hashCode;
-
-  void update(VoltronMap params) {
-    transitionDuration = params.get(NodeProps.kTransitionDuration) ?? transitionDuration;
-    final originTransitionTimingFunction = params.get(NodeProps.kTransitionTimingFunction);
-    if (originTransitionTimingFunction != null) {
-      transitionTimingFunction = resizeModeToCurve(originTransitionTimingFunction);
-    }
-    transitionDelay = params.get(NodeProps.kTransitionDelay) ?? transitionDelay;
-  }
-}
-
-/// 遵循W3C transition和animation动画规则的Animation属性
-class CssAnimation {
-  /// 是否可以重复播放
-  bool canRepeat = false;
-
-  /// 是否已经被禁止播放
-  bool isDisable = false;
-
-  /// 播放次数
-  int playCount = 1;
-
-  /// 播放方向
-  String direction = AnimationDirection.kNormal;
-
-  /// 运行完所有动画所需要的时间(包含动画延迟播放的时间)，用于计算各属性动画tween的interval
-  late Duration totalDuration;
-
-  /// 属性动画的tweenSequenceMap，用于生成AnimatedBuilder动画的计算(Map<String, AnimationTweenSequence>)
-  VoltronMap animationTweenSequenceMap = VoltronMap();
-
-  CssAnimation(this.totalDuration, this.canRepeat, this.isDisable, this.playCount, this.direction);
-
-  /// 获取动画属性当前renderViewModel对应值的策略Map
-  Map<String, dynamic> _getAnimationStartValueStrategyMap(RenderViewModel viewModel) {
-    final strategyMap = {
-      NodeProps.kWidth: viewModel.width,
-      NodeProps.kHeight: viewModel.height,
-      NodeProps.kTop: viewModel.layoutY,
-      NodeProps.kLeft: viewModel.layoutX,
-      NodeProps.kOpacity: viewModel.opacity,
-      NodeProps.kBackgroundColor: viewModel.backgroundColor,
-      NodeProps.kTransform: viewModel.transform,
-      NodeProps.kTransformOrigin: viewModel.transformOrigin,
-    };
-
-    return strategyMap;
-  }
-
-  /// 获取特殊动画属性需要转换key值的策略Map
-  Map<String, String> get _specialKeyStrategyMap {
-    final strategyMap = {
-      NodeProps.kRight: NodeProps.kLeft,
-      NodeProps.kBottom: NodeProps.kTop,
-    };
-
-    return strategyMap;
-  }
-
-  CssAnimation.initByTransition(VoltronMap transitionMap, RenderViewModel viewModel) {
-    final startValueStrategyMap = _getAnimationStartValueStrategyMap(viewModel);
-    final transitionTotalDuration = AnimationUtil.getTransitionTotalDuration(transitionMap);
-    for (final key in transitionMap.keySet()) {
-      final transition = transitionMap.get<Transition>(key);
-      if (transition == null) {
-        continue;
-      }
-
-      final delay = transition.transitionDelay;
-      final duration = transition.transitionDuration;
-      final startInterval = delay / transitionTotalDuration;
-      final endInterval = (delay + duration) / transitionTotalDuration;
-      final curve = transition.transitionTimingFunction;
-      final formatKey = _specialKeyStrategyMap[key] ?? key;
-      final tweenList = VoltronArray();
-      final animationTween = AnimationTween(startValueStrategyMap[formatKey], null, 100.0);
-      tweenList.push<AnimationTween>(animationTween);
-      final animationTweenSequence =
-          AnimationTweenSequence(tweenList, startInterval, endInterval, curve);
-      animationTweenSequenceMap.push(key, animationTweenSequence);
-    }
-    totalDuration = Duration(milliseconds: transitionTotalDuration);
-  }
-
-  CssAnimation.initByAnimation(
-      VoltronMap animation, List<VoltronMap> propertyMapSortList, RenderViewModel viewModel) {
-    final animationDirection =
-        animation.get<String>(NodeProps.kAnimationDirection) ?? AnimationDirection.kNormal;
-    final animationIterationCount = animation.get(NodeProps.kAnimationIterationCount);
-    final animationDuration = animation.get<int>(NodeProps.kAnimationDuration) ?? 0;
-    final animationDelay = animation.get<int>(NodeProps.kAnimationDelay) ?? 0;
-    final animationTotalDuration = animationDuration + animationDelay;
-    final startInterval = animationDelay / animationTotalDuration;
-    const endInterval = 1.0;
-    final originTimingFunction =
-        animation.get<String>(NodeProps.kAnimationTimingFunction) ?? TimingFunction.kEase;
-    final curve = resizeModeToCurve(originTimingFunction);
-    final sortListLength = propertyMapSortList.length;
-
-    // 1.按照百分比的排列顺序，使用快慢指针关联属性前后的变化值，同时处理CSS属性值转换为Flutter属性值
-    for (var i = 0; i < sortListLength - 1; i++) {
-      final startValue = propertyMapSortList[i];
-      AnimationUtil.handleUpdateAnimationTweenSequence(
-          animationTweenSequenceMap, startValue, startInterval, endInterval, curve);
-      final endValue = propertyMapSortList[i + 1];
-      AnimationUtil.handleUpdateAnimationTweenSequence(
-          animationTweenSequenceMap, endValue, startInterval, endInterval, curve, false);
-    }
-    // 2.剔除无效的AnimationTweenSequence
-    AnimationUtil.handleRemoveInvalidAnimationTweenSequence(animationTweenSequenceMap);
-    totalDuration = Duration(milliseconds: animationTotalDuration);
-    if (animationIterationCount == AnimationIterationCount.kInfinite) {
-      canRepeat = true;
-    } else if (animationIterationCount.runtimeType == int) {
-      playCount = animationIterationCount;
-    }
-    direction = animationDirection;
-  }
-
-  CssAnimation copy() {
-    final cssAnimation = CssAnimation(totalDuration, canRepeat, isDisable, playCount, direction);
-    for (final entry in animationTweenSequenceMap.entrySet()) {
-      final key = entry.key;
-      final value = entry.value;
-      if (value is AnimationTweenSequence) {
-        cssAnimation.animationTweenSequenceMap.push(key, value.copy());
-      }
-    }
-
-    return cssAnimation;
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is CssAnimation &&
-        totalDuration == other.totalDuration &&
-        canRepeat == other.canRepeat &&
-        isDisable == other.isDisable &&
-        playCount == other.playCount &&
-        direction == other.direction &&
-        animationTweenSequenceMap == other.animationTweenSequenceMap;
-  }
-
-  @override
-  int get hashCode =>
-      totalDuration.hashCode |
-      canRepeat.hashCode |
-      isDisable.hashCode |
-      playCount.hashCode |
-      direction.hashCode |
-      animationTweenSequenceMap.hashCode;
-
-  VoltronArray? getHasPropertyTweenSequenceItemList(String propertyName) {
-    if (isDisable) {
-      return null;
-    }
-
-    final list = animationTweenSequenceMap.get<AnimationTweenSequence>(propertyName)?.itemList;
-    return list;
-  }
-
-  /// 更新transition动画属性值，按照start => end => start的循环顺序更新属性值
-  void updateTransitionAnimation<T>(String key, T value) {
-    final tweenSequence = animationTweenSequenceMap.get<AnimationTweenSequence>(key);
-    final tween = tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
-    if (tween == null) {
-      return;
-    }
-
-    if (tween.startValue == null) {
-      tween.startValue = value;
-    } else if (tween.endValue == null) {
-      tween.endValue = value;
-    } else {
-      tween.startValue = tween.endValue;
-      tween.endValue = value;
-    }
-  }
-
-  /// 更新所有transition动画属性值(将endValue赋值给startValue)
-  void updateAllTransitionAnimationValue() {
-    // 当transition动画播放完毕，且不需要重复播放时，更新动画属性状态，避免动画被二次播放
-    final keyList = animationTweenSequenceMap.keySet();
-    for (final key in keyList) {
-      final tweenSequence = animationTweenSequenceMap.get<AnimationTweenSequence>(key);
-      final tween = tweenSequence?.itemList.getLastItemByOrder<AnimationTween>();
-      if (tween == null) {
-        return;
-      }
-
-      final endValue = tween.endValue;
-      if (endValue != null) {
-        tween.startValue = endValue;
-      }
-    }
-  }
-}
-
-/// 动画TweenSequence，用于指定动画属性连续变化值
-class AnimationTweenSequence {
-  /// item: AnimationTween
-  VoltronArray itemList;
-
-  /// 动画开始间隔
-  double startInterval;
-
-  /// 动画结束间隔
-  double endInterval;
-
-  /// 动画效果
-  Curve curve;
-
-  AnimationTweenSequence(this.itemList, this.startInterval, this.endInterval, this.curve);
-
-  AnimationTweenSequence copy() {
-    final newTweenList = VoltronArray();
-    final originTweenList = itemList.toList();
-    for (final item in originTweenList) {
-      if (item is AnimationTween) {
-        newTweenList.push(item.copy());
-      }
-    }
-
-    return AnimationTweenSequence(newTweenList, startInterval, endInterval, curve);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is AnimationTweenSequence &&
-        itemList == other.itemList &&
-        startInterval == other.startInterval &&
-        endInterval == other.endInterval &&
-        curve == other.curve;
-  }
-
-  @override
-  int get hashCode =>
-      itemList.hashCode | startInterval.hashCode | endInterval.hashCode | curve.hashCode;
-}
-
-/// 动画Tween，用于指定动画属性的开始值、结束值和权重
-class AnimationTween {
-  /// 动画开始值
-  dynamic startValue;
-
-  /// 动画结束值
-  dynamic endValue;
-
-  /// Tween的权重(在限定播放时间里的播放时长权重，详见TweenSequence的weight用法)
-  double? weight;
-
-  /// 当前累计的weight值，用于animation计算下一帧动画的weight值
-  double? totalWeight;
-
-  AnimationTween(this.startValue, this.endValue, [this.weight]);
-
-  AnimationTween copy() {
-    return AnimationTween(startValue, endValue, weight);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is AnimationTween &&
-        startValue == other.startValue &&
-        endValue == other.endValue &&
-        weight == other.weight &&
-        totalWeight == other.totalWeight;
-  }
-
-  @override
-  int get hashCode =>
-      startValue.hashCode | endValue.hashCode | weight.hashCode | totalWeight.hashCode;
 }
 
 class BoundingClientRect {

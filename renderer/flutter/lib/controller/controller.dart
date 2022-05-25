@@ -85,11 +85,6 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
             ControllerMethodProp(setBorderBottomColor, Colors.transparent.value),
         NodeProps.kBorderStyle: ControllerMethodProp(setBorderStyle, ''),
         NodeProps.kBoxShadow: ControllerMethodProp(setBoxShadow, null),
-        NodeProps.kTransition: ControllerMethodProp(setTransition, null),
-        NodeProps.kAnimation: ControllerMethodProp(setAnimation, null),
-        NodeProps.kAnimationEndPropertyMap: ControllerMethodProp(setAnimationEndPropertyMap, null),
-        NodeProps.kAnimationPropertyOptionMap:
-            ControllerMethodProp(setAnimationPropertyOptionMap, null),
         NodeProps.kFocusable: ControllerMethodProp(setFocusable, false),
         NodeProps.kRequestFocus: ControllerMethodProp(requestFocus, false),
         NodeProps.kZIndex: ControllerMethodProp(setZIndex, 0),
@@ -114,14 +109,12 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   void setTransform(T viewModel, VoltronArray? transformArray) {
     final transform = TransformUtil.getTransformMatrix4(transformArray);
     viewModel.transform = transform;
-    viewModel.updateAnimation<Matrix4?>(NodeProps.kTransform, transform);
   }
 
   @ControllerProps(NodeProps.kTransformOrigin)
   void setTransformOrigin(T viewModel, VoltronMap? transformOriginMap) {
     final transformOrigin = TransformOrigin(transformOriginMap);
     viewModel.transformOrigin = transformOrigin;
-    viewModel.updateAnimation<TransformOrigin>(NodeProps.kTransformOrigin, transformOrigin);
   }
 
   /// zIndex
@@ -184,7 +177,6 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   void setBackgroundColor(T viewModel, int? backgroundColor) {
     final color = backgroundColor == null ? null : Color(backgroundColor);
     viewModel.backgroundColor = color;
-    viewModel.updateAnimation<Color?>(NodeProps.kBackgroundColor, color);
   }
 
   @ControllerProps(NodeProps.kOverflow)
@@ -224,7 +216,6 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   @ControllerProps(NodeProps.kOpacity)
   void setOpacity(T viewModel, double opacity) {
     viewModel.opacity = opacity;
-    viewModel.updateAnimation<double>(NodeProps.kOpacity, opacity);
   }
 
   @ControllerProps(NodeProps.kBorderRadius)
@@ -330,40 +321,6 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   @ControllerProps(NodeProps.kBoxShadow)
   void setBoxShadow(T viewModel, VoltronArray? data) {
     viewModel.boxShadow = data;
-  }
-
-  @ControllerProps(NodeProps.kTransition)
-  void setTransition(T viewModel, VoltronArray? value) {
-    final transitionMap = AnimationUtil.getTransitionMap(value);
-    if (transitionMap == null) {
-      return;
-    }
-
-    viewModel.transition = CssAnimation.initByTransition(transitionMap, viewModel);
-  }
-
-  @ControllerProps(NodeProps.kAnimation)
-  void setAnimation(T viewModel, VoltronMap? value) {
-    final animationPropertyMap = value?.get<VoltronMap>(NodeProps.kAnimationKeyFramePropertyMap);
-    if (value == null || animationPropertyMap == null) {
-      return;
-    }
-
-    final propertyMapSortList =
-        AnimationUtil.getAnimationPropertyListSortByKeyframeSelector(animationPropertyMap);
-    viewModel.animation = CssAnimation.initByAnimation(value, propertyMapSortList, viewModel);
-    viewModel.animationFillMode =
-        value.get<String>(NodeProps.kAnimationFillModel) ?? AnimationFillMode.kNone;
-  }
-
-  @ControllerProps(NodeProps.kAnimationEndPropertyMap)
-  void setAnimationEndPropertyMap(T viewModel, VoltronMap? value) {
-    viewModel.animationEndPropertyMap = VoltronMap.copy(value);
-  }
-
-  @ControllerProps(NodeProps.kAnimationPropertyOptionMap)
-  void setAnimationPropertyOptionMap(T viewModel, VoltronMap? value) {
-    viewModel.animationPropertyOptionMap = VoltronMap.copy(value);
   }
 
   @ControllerProps(NodeProps.kFocusable)
