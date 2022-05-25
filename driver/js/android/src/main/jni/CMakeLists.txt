@@ -87,7 +87,6 @@ if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
 endif()
 
 message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
-add_compile_options(${ABI_COMPILE_OPTIONS})
 # endregion
 
 # region base path
@@ -133,6 +132,13 @@ file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
 message("CORE_SRC: ${CORE_SRC}")
 message("JNI_SRC: ${JNI_SRC}")
+
+include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${CORE_SRC_DIR}/include)
+include_directories(${CORE_SRC_DIR}/third_party/base/include)
+include_directories(${DOM_SRC_DIR}/include)
+include_directories(${LAYOUT_DIR})
+include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
 # endregion
 
 set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
@@ -153,6 +159,12 @@ if (${JS_ENGINE} STREQUAL "V8")
   # region library
   if (${V8_LINKING_MODE} STREQUAL "shared")
     add_library(v8 SHARED IMPORTED)
+    foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
+      add_custom_command(
+              TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+              COMMAND ${CMAKE_COMMAND} -E
+              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+    endforeach()
   elseif (${V8_LINKING_MODE} STREQUAL "static")
     if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
       string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,${V8_LIBRARY_NAME}")
@@ -182,13 +194,6 @@ else()
   message(FATAL_ERROR "${JS_ENGINE} is not supported")
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${CORE_SRC_DIR}/include)
-include_directories(${CORE_SRC_DIR}/third_party/base/include)
-include_directories(${DOM_SRC_DIR}/include)
-include_directories(${LAYOUT_DIR})
-include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
-
 if (ENABLE_INSPECTOR STREQUAL "true")
   add_definitions("-DENABLE_INSPECTOR")
   include_directories(${DEVTOOLS_DIR}/include)
@@ -201,17 +206,9 @@ else ()
 endif ()
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE ${ABI_COMPILE_OPTIONS})
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
   set_target_properties(${CMAKE_PROJECT_NAME}
           PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
 endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
-
-if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
-  foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
-    add_custom_command(
-            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E
-              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
-  endforeach()
-endif()
