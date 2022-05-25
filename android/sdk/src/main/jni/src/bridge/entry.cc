@@ -462,7 +462,7 @@ jlong InitInstance(JNIEnv* j_env,
       TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
       return;
     }
-#ifdef ENABLE_INSPECTOR
+#ifdef V8_WITHOUT_INSPECTOR
     if (runtime->IsDebug()) {
       std::lock_guard<std::mutex> lock(inspector_mutex);
       if (!global_inspector) {
@@ -579,7 +579,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
   task->callback = [runtime, runtime_id, cb] {
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
-#ifdef ENABLE_INSPECTOR
+#ifdef V8_WITHOUT_INSPECTOR
     if (runtime->IsDebug()) {
       std::lock_guard<std::mutex> lock(inspector_mutex);
       global_inspector->DestroyContext();
