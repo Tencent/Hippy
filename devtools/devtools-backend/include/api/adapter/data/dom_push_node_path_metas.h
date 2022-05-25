@@ -21,21 +21,18 @@
 #pragma once
 
 #include <string>
-
-#include "api/adapter/devtools_dom_tree_adapter.h"
-#include "devtools/hippy_dom_data.h"
+#include <vector>
+#include "api/adapter/data/serializable.h"
 
 namespace hippy::devtools {
-class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
+class DomPushNodePathMetas : public Serializable {
  public:
-  explicit HippyDomTreeAdapter(std::shared_ptr<HippyDomData> hippy_dom) : hippy_dom_(hippy_dom) {}
-  void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
-  void GetDomTree(DumpDomTreeCallback callback) override;
-  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
-  void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) override;
+  inline void SetHitNodeId(uint32_t hit_node_id) { hit_node_id_ = hit_node_id; }
+  inline void AddRelationNodeId(uint32_t id) { relation_nodes_.emplace_back(id); }
+  std::string Serialize() const override;
 
  private:
-  std::shared_ptr<HippyDomData> hippy_dom_;
+  uint32_t hit_node_id_;
+  std::vector<uint32_t> relation_nodes_;
 };
 }  // namespace hippy::devtools

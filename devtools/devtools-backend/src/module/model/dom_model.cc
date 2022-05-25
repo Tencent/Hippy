@@ -151,6 +151,12 @@ nlohmann::json DomModel::BuildPushNodeIdsJson(std::vector<int32_t>& node_ids) {
   return result;
 }
 
+nlohmann::json DomModel::BuildPushNodeByPathJson(int32_t hit_node_id) {
+  auto result = nlohmann::json::object();
+  result[kNodeId] = hit_node_id;
+  return result;
+}
+
 nlohmann::json DomModel::BuildNodeJson(DomNodeType node_type) {
   auto node_json = BuildNodeBasicJson(node_type);
   auto child_json = nlohmann::json::array();

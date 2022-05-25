@@ -74,6 +74,8 @@ class DomModel : public BaseModel {
 
   static nlohmann::json BuildPushNodeIdsJson(std::vector<int32_t>& node_ids);
 
+  static nlohmann::json BuildPushNodeByPathJson(int32_t hit_node_id);
+
   static nlohmann::json BuildNodeForLocation(int32_t node_id);
 
   inline void SetNodeId(int32_t node_id) { node_id_ = node_id; }

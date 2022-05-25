@@ -101,6 +101,25 @@ DomNodeLocation DevToolsUtil::GetNodeIdByDomLocation(const std::shared_ptr<DomNo
   return node_location;
 }
 
+DomPushNodePathMetas DevToolsUtil::GetPushNodeByPath(const std::shared_ptr<DomNode>& dom_node,
+                                                     std::vector<std::map<std::string, int32_t>> path) {
+  auto temp_node = dom_node;
+  DomPushNodePathMetas metas;
+  for (auto& path_it : path) {
+    auto node_tag_name_id_it = path_it.begin();
+    auto tag_name = node_tag_name_id_it->first;
+    auto child_number = node_tag_name_id_it->second;
+    auto child_node = temp_node->GetChildAt(static_cast<size_t>(child_number));
+    if (!child_node || strcasecmp(child_node->GetTagName().c_str(), tag_name.c_str()) != 0) {
+      continue;
+    }
+    temp_node = child_node;
+    metas.AddRelationNodeId(child_node->GetId());
+  }
+  metas.SetHitNodeId(temp_node->GetId());
+  return metas;
+}
+
 std::shared_ptr<DomNode> DevToolsUtil::GetHitNode(const std::shared_ptr<DomNode>& node, double x, double y) {
   if (node == nullptr || !IsLocationHitNode(node, x, y)) {
     return nullptr;

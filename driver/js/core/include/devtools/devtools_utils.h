@@ -22,6 +22,7 @@
 
 #include "api/adapter/data/dom_node_location.h"
 #include "api/adapter/data/dom_node_metas.h"
+#include "api/adapter/data/dom_push_node_path_metas.h"
 #include "api/adapter/data/domain_metas.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
@@ -46,6 +47,9 @@ class DevToolsUtil {
                                       const std::shared_ptr<DomManager>& dom_manager);
 
   static DomNodeLocation GetNodeIdByDomLocation(const std::shared_ptr<DomNode>& dom_node, double x, double y);
+
+  static DomPushNodePathMetas GetPushNodeByPath(const std::shared_ptr<DomNode>& dom_node,
+                                                std::vector<std::map<std::string, int32_t>> path);
 
   static void PostDomTask(int32_t dom_id, std::function<void()> func);
 
