@@ -730,7 +730,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     if (_borderWidthLayer) {
         [_borderWidthLayer removeFromSuperlayer];
     }
-    if ([self needsUpdateCornerRadiusManully]) {
+    if ([self needsUpdateCornerRadiusManully] && ![self isAllCornerRadiussEqualToCornerRadius]) {
         CGRect contentRect = self.bounds;
 #ifdef HippyLog
         CGFloat width = CGRectGetWidth(contentRect);
@@ -769,6 +769,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         [self.layer addSublayer:borderLayer];
     } else {
         self.layer.mask = nil;
+        self.layer.cornerRadius = _borderRadius;
     }
 }
 
@@ -826,7 +827,6 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 - (void)setBorderRadius:(CGFloat)borderRadius {
     _borderRadius = borderRadius;
-    _needsUpdateBorderRadiusManully = YES;
 }
 
 - (void)setBackgroundSize:(NSString *)backgroundSize {
@@ -835,6 +835,19 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 - (BOOL)needsUpdateCornerRadiusManully {
     return _needsUpdateBorderRadiusManully;
+}
+
+- (BOOL)isAllCornerRadiussEqualToCornerRadius {
+#define CornerRadiusCompare(x) (x != CGFLOAT_MAX && fabs(_borderRadius - x) > CGFLOAT_EPSILON)
+    if (_needsUpdateBorderRadiusManully) {
+        if (CornerRadiusCompare(_borderTopLeftRadius) ||
+            CornerRadiusCompare(_borderTopRightRadius) ||
+            CornerRadiusCompare(_borderBottomLeftRadius) ||
+            CornerRadiusCompare(_borderBottomRightRadius)) {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 - (BorderRadiusStruct)properBorderRadius {
