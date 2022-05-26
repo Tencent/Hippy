@@ -120,7 +120,14 @@ class _AddNodeOpTask extends _NodeOpTask {
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
     var composePropMap = VoltronMap.fromMap(propMap);
     composePropMap.pushAll(VoltronMap.fromMap(styleMap));
-    virtualNodeManager.createNode(_nodeId, parentId, childIndex, className, composePropMap);
+    virtualNodeManager.createNode(
+      _instanceId,
+      _nodeId,
+      parentId,
+      childIndex,
+      className,
+      composePropMap,
+    );
     if (virtualNodeManager.hasVirtualParent(_nodeId)) return;
     renderManager.addUITask(() {
       renderManager.createNode(
