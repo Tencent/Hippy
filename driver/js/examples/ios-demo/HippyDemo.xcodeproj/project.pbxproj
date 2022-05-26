@@ -2451,9 +2451,9 @@
 					"$(SRCROOT)/../../../../dom/include",
 					"$(SRCROOT)/../../../../devtools/devtools-backend",
 					"$(SRCROOT)/../../../../devtools/devtools-backend/include",
-					"$(SRCROOT)/../../../../devtools/devtools-backend/third_party/websocketpp",
-					"$(SRCROOT)/../../../../devtools/devtools-backend/third_party/asio/include",
-					"$(SRCROOT)/../../../../devtools/devtools-backend/third_party/nlohmann",
+					"$(SRCROOT)/../../../../third_party/websocketpp",
+					"$(SRCROOT)/../../../../third_party/asio/asio/include",
+					"$(SRCROOT)/../../../../third_party/nlohmannjson/single_include",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -2486,9 +2486,9 @@
 					"$(SRCROOT)/../../../../dom/include",
 					"$(SRCROOT)/../../../../devtools/devtools-backend",
 					"$(SRCROOT)/../../../../devtools/devtools-backend/include",
-					"$(SRCROOT)/../../../../devtools/devtools-backend/third_party/websocketpp",
-					"$(SRCROOT)/../../../../devtools/devtools-backend/third_party/asio/include",
-					"$(SRCROOT)/../../../../devtools/devtools-backend/third_party/nlohmann",
+					"$(SRCROOT)/../../../../third_party/websocketpp",
+					"$(SRCROOT)/../../../../third_party/asio/asio/include",
+					"$(SRCROOT)/../../../../third_party/nlohmannjson/single_include",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
