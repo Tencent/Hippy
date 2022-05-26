@@ -59,5 +59,6 @@ renderer/flutter/example/ios/.symlinks/*
 renderer/native/android/src/main/jni/lib/*
 
 dom/lib/*
+
 devtools/devtools-backend/lib/*
 devtools/devtools-backend/test/build/*

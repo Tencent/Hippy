@@ -31,7 +31,7 @@ set(BACKEND_INCLUDE_DIR ${DEVTOOLS_ROOT_PATH}/include)
 message("DEVTOOLS_ROOT_PATH : ${DEVTOOLS_ROOT_PATH}")
 
 # add include directories
-include_directories(${BACKEND_INCLUDE_DIR} ${DEVTOOLS_ROOT_PATH}/third_party/socket/include)
+include_directories(${BACKEND_INCLUDE_DIR})
 
 set(WEBSOCKETPP_PATH ${THIRD_PARTY_PATH}/websocketpp)
 set(ASIO_PATH ${THIRD_PARTY_PATH}/asio/asio/include)
