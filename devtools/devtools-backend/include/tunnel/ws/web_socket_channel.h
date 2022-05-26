@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "tunnel/net_channel.h"
+#include "devtools_base/logging.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -67,3 +68,15 @@ class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_
   std::vector<std::string> unset_messages_{};
 };
 }  // namespace hippy::devtools
+
+namespace asio {
+namespace detail {
+/**
+ * implement asio no-exception function
+ */
+template<typename Exception>
+inline void throw_exception(const Exception &e) {
+  BACKEND_LOGE(TDF_BACKEND, " asio exception:%s", e.what());
+}
+} // namespace detail
+} // namespace asio

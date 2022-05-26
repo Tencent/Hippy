@@ -46,8 +46,8 @@ file(GLOB_RECURSE DEVTOOLS_SRC
 add_definitions("-DASIO_NO_TYPEID")
 
 # asio noexception
-add_compile_options("-fexceptions")
-#add_definitions("-DASIO_NO_EXCEPTIONS")
+add_compile_options("-fno-exceptions")
+add_definitions("-DASIO_NO_EXCEPTIONS")
 
 # json noexception
 add_definitions("-DJSON_NOEXCEPTION")
