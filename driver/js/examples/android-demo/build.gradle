@@ -4,14 +4,12 @@ Properties gradleProperties = new Properties()
 def propFileDir = "$projectDir.absolutePath/../../android/gradle.properties"
 def propFile = new File(propFileDir)
 def verifyReleaseAar = false
-def includeSupportui = true
 def include_abi_armeabi_v7a = true
 def include_abi_arm64_v8a = true
 def include_abi_x86 = true
 def include_abi_x86_64 = true
 if (propFile.exists()) {
     gradleProperties.load(propFile.newDataInputStream())
-    includeSupportui = gradleProperties.getProperty('INCLUDE_SUPPORT_UI')
     include_abi_armeabi_v7a = gradleProperties.getProperty('INCLUDE_ABI_ARMEABI_V7A')
     include_abi_arm64_v8a = gradleProperties.getProperty('INCLUDE_ABI_ARM64_V8A')
     include_abi_x86 = gradleProperties.getProperty('INCLUDE_ABI_X86')
@@ -19,13 +17,13 @@ if (propFile.exists()) {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion COMPILE_SDK_VERSION as int
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
-        minSdkVersion 19
+        minSdkVersion MIN_SDK_VERSION as int
         // noinspection ExpiredTargetSdkVersion
         //noinspection OldTargetApi
-        targetSdkVersion 30
+        targetSdkVersion TARGET_SDK_VERSION as int
         ndk  {
             if (include_abi_armeabi_v7a.toBoolean()) {
                 abiFilters 'armeabi-v7a'
@@ -70,7 +68,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.3'
+        classpath "com.android.tools.build:gradle:$VERSION_AGP"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -116,7 +114,4 @@ dependencies {
     // noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    if (!includeSupportui.toBoolean()) {
-        implementation 'com.tencent.mtt:support-ui:99.2.3'
-    }
 }
