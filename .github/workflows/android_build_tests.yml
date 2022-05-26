@@ -1,0 +1,38 @@
+name: '[android] build tests'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+      - v3.0-dev
+      - v3.0
+    paths:
+      - 'driver/js/android/**'
+      - 'driver/js/core/**'
+      - 'layout/android/**'
+      - 'renderer/native/android/**'
+      - 'gradle/**'
+      - 'build.gradle'
+      - 'gradle.properties'
+      - 'settings.gradle'
+
+jobs:
+  android_build_tests:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+      with:
+        lfs: true
+    - name: Debug Build
+      run: |
+        ./gradlew example::assembleDebug
+    - name: Release Build
+      run: |
+        ./gradlew example::assembleRelease
