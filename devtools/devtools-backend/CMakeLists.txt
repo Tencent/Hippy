@@ -55,7 +55,7 @@ add_definitions("-DJSON_NOEXCEPTION")
 add_definitions("-D_WEBSOCKETPP_NO_EXCEPTIONS_")
 
 if(IOS)
-  add_definitions("-DOS_IOS")
+  add_definitions("-DIOS")
 endif()
 
 if(ANDROID OR IOS)
