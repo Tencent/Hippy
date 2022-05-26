@@ -96,8 +96,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 1. Follow [Build the iOS simulator with js demo](https://github.com/Tencent/Hippy#build-the-ios-simulator-with-js-demo) or [Build the Android app with js demo](https://github.com/Tencent/Hippy#build-the-android-app-with-js-demo) first to build the App.
 2. Run `npm run init:example [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] debug` at root directory.
-4. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev` at root directory.
+3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev` at root directory.
 
 > Or you can `cd` to `examples/hippy-react-demo` or `examples/hippy-vue-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
 >

@@ -108,16 +108,15 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
 
    !> Node 17+ 在 Windows 和 Linux 上不再支持 `md4` hash，此处为了兼容 webpack 的 hash 算法，通过 `cross-env-os` 设置环境变量解决
 
-4. 运行 `npm run hippy:debug` 开启调试服务
-5. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
+4. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
 
    <img src="../assets/img/hippy-dev-output.png" alt="hippy dev 输出" width="50%" alt="编译输出">
 
-6. <span id="config-bundle">粘贴 bundleUrl 并点击开始按钮</span>
+5. <span id="config-bundle">粘贴 bundleUrl 并点击开始按钮</span>
 
     <img src="../assets/img/ios-remote-debug-config.png" alt="iOS 远程调试配置" width="40%">
 
-7. 使用调试器开始调试
+6. 使用调试器开始调试
    - Safari DevTools：在 Mac 上打开 Safari 的开发菜单（`预置` -> `高级` -> `显示开发菜单`），然后按下图指引开始调试。Safari 调试器支持 iOS 设备，支持 `HMR & Live-Reload, Log, Sources, Memory` 等能力。
    
       <img src="../assets/img/safari-dev-process.png" alt="Safari 调试器" width="80%"/>
@@ -148,7 +147,7 @@ iOS 调试支持模拟器和真机两种方式，由于 JSBundle 和调试协议
 
 1. 点击 [Xcode on Mac AppStore](//apps.apple.com/cn/app/xcode/id497799835?l=en&mt=12) 下载安装 Xcode。
 2. 使用 Xcode 打开[Hippy iOS 范例工程](//github.com/Tencent/Hippy/tree/master/examples/ios-demo) 中的 `HippyDemo.xcodeproj` 工程文件，并点击运行，正常情况下应该可以启动模拟器，并运行之前内置的 Hippy 前端代码。
-3. 打开 `examples` 下的前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
+3. 打开 `examples` 下的前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译和调试服务。
 4. 回到模拟器，[粘贴 bundleUrl](guide/debug.md#config-bundle) 并启动调试
 5. 当 JS 源码文件发生改动时，如已开启 HMR 或 Live-Reload，编译结束后会自动刷新；否则需要按 `Command + R` 或 `Command + D` 键调起 Reload 面板刷新
 
@@ -178,7 +177,7 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。*编译如果出现问题请参考 [#39](//github.com/Tencent/Hippy/issues/39)*。
 4. 回到手机上，首先确保手机的 `USB 调试模式` 已经打开 -- 一般在关于手机页面里连续点击 `Build` 可以进入`开发者模式`，再进入`开发者模式`界面后打开 `USB 调试模式`。
 5. 执行 `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` 确保 38389 端口不被占用。
-6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译，并另开一个终端窗口，运行 `npm run hippy:debug` 启动调试服务。
+6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译和调试服务。
 7. 回到手机上，[粘贴 bundleUrl](guide/debug.md#config-bundle) 并启动调试
 8. 当 JS 源码文件发生改动时，如已开启 HMR 或 Live-Reload，编译结束后会自动刷新；否则需要按 `Command + R` 或 `Command + D` 键调起 Reload 面板刷新
 
@@ -268,7 +267,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
    } 
    ```
   
-4. 启动开发：`npm run hippy:debug`，`npm run hippy:dev`
+4. 启动开发：`npm run hippy:dev`
 
 5. **如果安卓设备断连，需要手动用 adb 转发端口：**`adb reverse tcp:38989 tcp:38989`。
 
@@ -363,7 +362,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
    }
    ```
 
-4. 执行 `npm run hippy:debug` 和 `npm run hippy:dev` 命令。
+4. 执行 `npm run hippy:dev` 命令。
 
 5. **如果安卓设备断连，需要手动用adb转发端口：** `adb reverse tcp:38989 tcp:38989`。
 
