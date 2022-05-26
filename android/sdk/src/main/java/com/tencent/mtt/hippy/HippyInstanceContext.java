@@ -98,12 +98,6 @@ public final class HippyInstanceContext extends ContextWrapper {
   }
 
   void notifyInstanceDestroy() {
-    if (mModuleParams != null) {
-      @SuppressWarnings("rawtypes") Map map = mModuleParams.nativeParams;
-      if (map != null) {
-        map.clear();
-      }
-    }
     if (mDestroyListeners != null && mDestroyListeners.size() > 0) {
       Iterable<InstanceDestroyListener> listeners = mDestroyListeners.getNotifyListeners();
       for (InstanceDestroyListener l : listeners) {
