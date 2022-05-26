@@ -33,11 +33,11 @@
 #pragma clang diagnostic ignored "-Wshadow"
 #define ASIO_STANDALONE
 #include "websocketpp/client.hpp"
-#include "websocketpp/config/asio_client.hpp"
+#include "websocketpp/config/asio_no_tls_client.hpp"
 #pragma clang diagnostic pop
 
 using WSClient = websocketpp::client<websocketpp::config::asio_client>;
-using WSMessagePtr = websocketpp::config::asio_tls_client::message_type::ptr;
+using WSMessagePtr = websocketpp::config::asio_client::message_type::ptr;
 using WSThread = websocketpp::lib::shared_ptr<websocketpp::lib::thread>;
 
 namespace hippy::devtools {

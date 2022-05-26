@@ -26,15 +26,15 @@ project(${PROJECT_NAME})
 message("make devtools_backend")
 
 get_filename_component(DEVTOOLS_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" REALPATH)
+get_filename_component(THIRD_PARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/" REALPATH)
 set(BACKEND_INCLUDE_DIR ${DEVTOOLS_ROOT_PATH}/include)
-set(THIRD_PARTY_INCLUDE ${DEVTOOLS_ROOT_PATH}/third_party/socket/include)
 message("DEVTOOLS_ROOT_PATH : ${DEVTOOLS_ROOT_PATH}")
 
 # add include directories
-include_directories(${BACKEND_INCLUDE_DIR} ${THIRD_PARTY_INCLUDE})
+include_directories(${BACKEND_INCLUDE_DIR} ${DEVTOOLS_ROOT_PATH}/third_party/socket/include)
 
-set(WEBSOCKETPP_PATH ${DEVTOOLS_ROOT_PATH}/third_party/websocketpp)
-set(ASIO_PATH ${DEVTOOLS_ROOT_PATH}/third_party/asio/include)
+set(WEBSOCKETPP_PATH ${THIRD_PARTY_PATH}/websocketpp)
+set(ASIO_PATH ${THIRD_PARTY_PATH}/asio/asio/include)
 include_directories(${WEBSOCKETPP_PATH} ${ASIO_PATH})
 
 # add library
@@ -46,9 +46,10 @@ file(GLOB_RECURSE DEVTOOLS_SRC
 add_definitions("-DASIO_NO_TYPEID")
 
 # asio noexception
-add_definitions("-DASIO_NO_EXCEPTIONS=1")
+add_compile_options("-fexceptions")
+#add_definitions("-DASIO_NO_EXCEPTIONS")
 
-# JSON noexception
+# json noexception
 add_definitions("-DJSON_NOEXCEPTION")
 
 # websocketpp noexception
@@ -64,4 +65,4 @@ elseif (APPLE)
   add_subdirectory("${DEVTOOLS_ROOT_PATH}/test" unit_test)
 endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${DEVTOOLS_ROOT_PATH}/third_party/nlohmann)
+target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_PATH}/nlohmannjson/single_include)
