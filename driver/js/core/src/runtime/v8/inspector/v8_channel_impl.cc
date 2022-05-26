@@ -32,24 +32,16 @@ V8ChannelImpl::V8ChannelImpl(std::shared_ptr<Bridge> bridge)
 void V8ChannelImpl::sendResponse(
     int callId,
     std::unique_ptr<v8_inspector::StringBuffer> message) {
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   if (devtools_data_source_) {
     devtools_data_source_->SendVmResponse(std::move(message));
   }
-#else
-  bridge_->SendResponse(std::move(message));
-#endif
 }
 
 void V8ChannelImpl::sendNotification(
     std::unique_ptr<v8_inspector::StringBuffer> message) {
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   if (devtools_data_source_) {
     devtools_data_source_->SendVmNotification(std::move(message));
   }
-#else
-  bridge_->SendNotification(std::move(message));
-#endif
 }
 
 }  // namespace hippy

@@ -33,7 +33,7 @@ constexpr char kHippyBridgeName[] = "hippyBridge";
 constexpr char kHippyNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kHippyCallNativeKey[] = "hippyCallNatives";
 
-#ifndef V8_WITHOUT_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
@@ -89,7 +89,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
       TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
       return;
     }
-#ifndef V8_WITHOUT_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
       if (!global_inspector) {
         global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
@@ -368,7 +368,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
   task->callback = [runtime, runtime_id, is_reload] {
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id << "is_reload" << is_reload;
-#ifndef V8_WITHOUT_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, runtime->GetBridge());
@@ -464,7 +464,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
         unicode_string_view::Encoding::Utf16);
     if (runtime->IsDebug() &&
         action.utf16_value() == u"onWebsocketMsg") {
-#ifndef V8_WITHOUT_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
       runtime::global_inspector->SendMessageToV8(
