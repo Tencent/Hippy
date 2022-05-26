@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy;
 
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
@@ -24,11 +25,15 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public interface HippyEngineContext {
 
   String getComponentName();
+
+  @Nullable
+  Map<String, Object> getNativeParams();
 
   HippyGlobalConfigs getGlobalConfigs();
 
