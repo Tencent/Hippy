@@ -16,6 +16,8 @@ on:
       - 'build.gradle'
       - 'gradle.properties'
       - 'settings.gradle'
+      - 'gradlew'
+      - 'gradlew.bat'
 
 jobs:
   android_build_tests:
