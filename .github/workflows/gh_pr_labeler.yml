@@ -29,3 +29,8 @@ jobs:
       if: ${{ startsWith(github.event.pull_request.title, 'fix') }}
       with:
         labels: bug
+    - name: Label ci if related to continuous integration
+      uses: actions-ecosystem/action-add-labels@v1
+      if: ${{ startsWith(github.event.pull_request.title, 'ci') }}
+      with:
+        labels: ci
