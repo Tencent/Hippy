@@ -16,6 +16,10 @@ build
 coverage
 dist
 node_modules
+caches
+daemon
+native
+wrapper
 
 layout/out
 layout/build
