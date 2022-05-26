@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 14.x ]
+        node: [ 14.x, 17.x ]
     steps:
       - name: Build Test Bypass
         run: |
