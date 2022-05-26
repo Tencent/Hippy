@@ -1,19 +1,33 @@
 android:
   - 'android/**/*'
+  - 'gradle/**/*'
+  - 'build.gradle'
+  - 'gradlew'
+  - 'gradlew.bat'
+  - 'build.gradle'
+  - 'gradle.properties'
+  - 'settings.gradle'
 ios:
   - 'ios/**/*'
-core/layout:
+  - 'hippy.podspec'
+core:
   - 'core/**/*'
+layout:
   - 'layout/**/*'
 demo:
   - 'examples/**/*'
-frontend:
+js:
   - 'packages/**/*'
   - 'static/**/*'
   - '**/*.js'
+  - '**/*.jsx'
   - '**/*.ts'
+  - '**/*.tsx'
+  - 'tsconfig.json'
 documentation:
   - 'docs/**/*'
   - '**/*.md'
 dependencies:
   - '**/third_party/**'
+ci:
+  - '.github/**/*'
