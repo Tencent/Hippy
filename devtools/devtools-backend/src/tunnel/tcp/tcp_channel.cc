@@ -25,7 +25,7 @@
 #include <thread>
 #include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
-#include "socket.h"
+#include "devtools_base/socket.h"
 
 namespace hippy::devtools {
 constexpr char kListenHost[] = "127.0.0.1";
