@@ -95,8 +95,7 @@ Windows 用户者需要以下软件:
 
 1. 先按照 **[使用 JS 范例来构建 iOS App]** 和 **[使用 JS 范例来构建 Android App]** 步骤执行。
 2. 根目录执行 `npm run init:example [hippy-react-demo|hippy-vue-demo]`。
-3. 根目录执行 `npm run debugexample [hippy-react-demo|hippy-vue-demo] debug`。
-4. 根目录执行 `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev`。
+3. 根目录执行 `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev`。
 
 > 你也可以 `cd` 到 `examples/hippy-react-demo` 或者 `examples/hippy-vue-demo` 目录去分别执行 `npm run hippy:debug` 和 `npm run hippy:dev`。
 >
