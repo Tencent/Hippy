@@ -150,7 +150,7 @@ void DoBind(JNIEnv* j_env,
   dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
   render_manager->SetDomManager(dom_manager);
 
-#if ENABLE_INSPECTOR
+#ifdef ENABLE_INSPECTOR
   scope->GetDevtoolsDataSource()->Bind(j_framework_id, j_dom_id, j_render_id);
 #endif
 }

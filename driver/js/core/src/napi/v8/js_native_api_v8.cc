@@ -28,7 +28,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/base/common.h"
 #include "core/napi/v8/serializer.h"
-#if ENABLE_INSPECTOR
+#ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_macro.h"
 #endif
 #include "v8/libplatform/libplatform.h"
@@ -252,7 +252,7 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
 #endif
       TDF_BASE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
-#if ENABLE_INSPECTOR
+#ifdef ENABLE_INSPECTOR
       auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform_->GetTracingController());
       DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace);
 #endif
