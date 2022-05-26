@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - main
+      - v3.0-dev
 
 jobs:
   pull_request_labeler:
