@@ -26,7 +26,7 @@ jobs:
           node-version: ${{ matrix.node }}
           registry-url: https://npm.pkg.github.com
       - name: install
-        run: npm install && lerna bootstrap --no-ci
+        run: npm install && lerna bootstrap
       - name: lint & build
         run: npm run lint & npm run build
       - name: test
