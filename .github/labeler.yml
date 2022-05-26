@@ -1,27 +1,27 @@
 android:
-  - 'driver/js/android/*'
-  - 'renderer/native/android/*'
+  - 'driver/js/android/**/*'
+  - 'renderer/native/android/**/*'
 ios:
-  - 'driver/js/ios/*'
-  - 'renderer/native/ios/*'
+  - 'driver/js/ios/**/*'
+  - 'renderer/native/ios/**/*'
 flutter:
-  - 'driver/js/flutter/*'
-  - 'renderer/flutter/*'
+  - 'driver/js/flutter/**/*'
+  - 'renderer/flutter/**/*'
 core:
-  - 'driver/js/core/*'
+  - 'driver/js/core/**/*'
 layout:
-  - 'layout/*'
+  - 'layout/**/*'
 demo:
-  - 'driver/js/examples/*'
+  - 'driver/js/examples/**/*'
 frontend:
-  - 'driver/js/packages/*'
-  - 'static/*'
+  - 'driver/js/packages/**/*'
+  - 'static/**/*'
   - '**/*.js'
   - '**/*.ts'
 documentation:
-  - 'docs/*'
+  - 'docs/**/*'
   - '**/*.md'
 dependencies:
   - '**/third_party/**'
 modules:
-  - 'modules/*'
+  - 'modules/**/*'
