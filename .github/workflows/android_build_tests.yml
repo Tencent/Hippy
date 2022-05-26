@@ -35,6 +35,3 @@ jobs:
     - name: Debug Build
       run: |
         ./gradlew example::assembleDebug
-    - name: Release Build
-      run: |
-        ./gradlew example::assembleRelease
