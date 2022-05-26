@@ -1,47 +1,47 @@
 
-# hippy-vue 介绍
+# hippy-vue Introduction
 
-hippy-vue 基于官方 Vue 2.x 源代码，通过改写 [node-ops](//github.com/Tencent/Hippy/blob/master/packages/hippy-vue/src/runtime/node-ops.js) 外挂实现自定义渲染层，但不仅仅是个到终端的渲染层，还同时实现前端组件到终端的映射、CSS 语法解析。和其它跨端框架不同，它尽力将 Web 端的开发体验带到终端上来，同时保持了对 Web 生态的兼容。
+hippy-vue is based on the official vue 2.x source code, and implements a custom rendering layer by rewriting the [node-ops](//github.com/Tencent/Hippy/blob/master/packages/hippy-vue/src/runtime/node-ops.js) plug-in, but it is not only a rendering layer to the terminal, but also realizes the mapping of front-end components to the terminal and CSS syntax parsing. Unlike other cross-end frameworks, it strives to bring the Web-side development experience to the terminal while maintaining compatibility with the Web ecosystem.
 
-> Vue 3 提供了更好的 [createRenderer()](//github.com/vuejs/vue-next/blob/v3.0.0-alpha.0/packages/runtime-core/src/renderer.ts#L154) 方法可以自定义渲染器，未来就不需要 node-ops 那种外挂的方式了。届时 hippy-vue 也会通过 Typescript 重写。
+> Vue 3 provides a better [createRenderer()](//github.com/vuejs/vue-next/blob/v3.0.0-alpha.0/packages/runtime-core/src/renderer.ts#L154) method to customize the render, eliminating the need for node-ops plug-ins in the future. Hippy-vue will also be rewritten by Typescript.
 
-# 架构图
+# Architecture Diagram
 
-<img src="assets/img/hippy-vue.png" alt="hippy-vue 架构图" width="80%"/>
+<img src="assets/img/hippy-vue.png" alt="hippy-vue architecture diagram" width="80%"/>
 <br />
 <br />
 
-# 初始化
+# Initialization
 
 ```javascript
 import Vue from '@hippy/vue';
 import App from './app.vue';
 const app = new Vue({
-  // 终端指定的 App 名称
+  // App name specified by terminal
   appName: 'Demo',
   rootView: '#root',
-  // 渲染入口
+  // Render entrance
   render: h => h(App),
 });
 
 /**
-  * $start 是 Hippy 启动完以后触发的回调
-  * @param {Function} callback - 引擎加载成功后回调函数
-  *  @param {Object} instance - 业务vue实例对象
-  *  @param {Object} initialProps - 终端给前端的初始化参数，终端可以将一些启动需要的自定义属性放到入口文件里
+  * $start is a callback triggered after Hippy is started
+  *  @param {Function} callback - callback function after successful engine loading
+  *  @param {Object} instance - instance object of vue
+  *  @param {Object} initialProps - initial parameters given from terminal to front-end, some customer attributes needed to startup can be put in the entry file.
   */
 app.$start((instance, initialProps) => {
   console.log('instance', instance, 'initialProps', initialProps);
 });
 ```   
 
-# 样式
+# Style
 
-标准 Hippy 中长度单位是不允许带有单位的，不过为了和浏览器保持兼容，hippy-vue 采取了 1px = 1pt 的方案进行换算，把 CSS 单位中的 px 直接去掉变成了 Hippy 中不带单位的数字。
+Standard Hippy does not allow units of length - but for browser compatibility, hippy-vue uses the 1px = 1pt conversion scheme - which removes the px from the CSS unit and turns it into a number without units in Hippy.
 
-不过依然存在一些问题，类似 rem、vh 这样的相对单位如果写进 Hippy 业务里了，及时发现避免更重要大的风险可能更重要一些，所以现在只转换 px 单位，别的单位任由终端层报错。
+However, there are still some problems. If relative units such as rem and vh are written into Hippy business, it may be more important to find and avoid more significant risks in time. Therefore, only px units are converted now, and other units are allowed to be reported errors at the terminal level.
 
-HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者做定制化修改 CSS 样式，如
+HippyVue provides `beforeLoadStyle` Vue options hook function, for developers to do custom modify CSS styles, such as
 
 ```js
     new Vue({
@@ -49,7 +49,7 @@ HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者
       beforeLoadStyle(decl) {
          let { type, property, value } = decl;
          console.log('property|value', property, value); // => height, 1rem
-          // 比如可以对 rem 单位进行处理
+          // For example, process the rem units 
          if(typeof value === 'string' && /rem$/.test(value)) {
              // ...value = xxx
          } 
@@ -58,10 +58,10 @@ HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者
     });
 ```
 
-# CSS 选择器和 scope 的支持
+# CSS selector and support for scope
 
-目前已经实现了基本的 `ID`、`Class`、`Tag` 选择器，而且可以支持基本的嵌套关系，其余选择器和 scoped 还未支持。
+At present, the basic `ID`、`Class`、`Tag` selectors have been implemented, and the basic nesting relationship can be supported. The rest selectors and scoped are not supported yet.
 
-# 转 Web
+# Switch to Web
 
-未来 Hippy 会采用 `WebRenderer` 方案，增加基于公共通信协议的转换层，业务开发者可以使用同一套 Hippy 语法开发的业务代码，映射成 JS 实现的组件和模块，上层无论使用 React，Vue 或者其他第三方框架，都可以实现兼容，敬请期待。
+In the future, Hippy will adopt the `WebRenderer` solution and add a conversion layer based on the public communication protocol. The business developers can use the business codes developed by the same Hippy syntax to map them into the components and modules implemented by JS. The upper layer can be compatible with React, Vue or other third-party frameworks. Please look forward to it.

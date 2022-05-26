@@ -1,7 +1,7 @@
-# 路由
+# router
 
-vue-router 通过小幅度修改官方路由，实现了 [@hippy/vue-router](//www.npmjs.com/package/@hippy/vue-router)，提供一样的接口。
+Vue-router implements [@hippy/vue-router](//www.npmjs.com/package/@hippy/vue-router) by slightly modifying the official router and provides the same interface.
 
-文档可以直接进行参考：[vue-router 官方网站](//router.vuejs.org/) 。
+The documentation can be directly referenced: [vue-router official website](//router.vuejs.org/).
 
-但不支持页面切换时的动画效果，因为 `<transition>` 组件尚未实现。
+Animations for page switching are not supported because the `<transition>` component is not yet implemented.
