@@ -6,13 +6,13 @@
 
 #include "dom/dom_node.h"
 #include "base/macros.h"
-#include "dom/render_manager.h"
+#include "dom/extend_render_manager.h"
 #include "dom/serializer.h"
 
 namespace hippy {
 inline namespace dom {
 
-class HippyRenderManager : public RenderManager {
+class HippyRenderManager : public ExtendRenderManager {
  public:
   HippyRenderManager(std::shared_ptr<JavaRef> render_delegate);
 

@@ -20,22 +20,22 @@
  *
  */
 
-#include "dom/render_manager.h"
+#include "dom/extend_render_manager.h"
 
 namespace hippy {
 inline namespace dom {
-static std::unordered_map<int32_t, std::shared_ptr<RenderManager>> render_manager_map;
+static std::unordered_map<int32_t, std::shared_ptr<ExtendRenderManager>> render_manager_map;
 static std::mutex mutex;
 static std::atomic<int32_t> global_render_manager_key{0};
 
-int32_t RenderManager::GenerateRenderId() { return global_render_manager_key.fetch_add(1); }
+int32_t ExtendRenderManager::GenerateRenderId() { return global_render_manager_key.fetch_add(1); }
 
-void RenderManager::Insert(const std::shared_ptr<RenderManager>& render_manager) {
+void ExtendRenderManager::Insert(const std::shared_ptr<ExtendRenderManager>& render_manager) {
   std::lock_guard<std::mutex> lock(mutex);
   render_manager_map[render_manager->GetId()] = render_manager;
 }
 
-std::shared_ptr<RenderManager> RenderManager::Find(int32_t id) {
+std::shared_ptr<ExtendRenderManager> ExtendRenderManager::Find(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
   const auto it = render_manager_map.find(id);
   if (it == render_manager_map.end()) {
@@ -44,7 +44,7 @@ std::shared_ptr<RenderManager> RenderManager::Find(int32_t id) {
   return it->second;
 }
 
-bool RenderManager::Erase(int32_t id) {
+bool ExtendRenderManager::Erase(int32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
   const auto it = render_manager_map.find(id);
   if (it == render_manager_map.end()) {
@@ -54,8 +54,8 @@ bool RenderManager::Erase(int32_t id) {
   return true;
 }
 
-bool RenderManager::Erase(const std::shared_ptr<RenderManager>& render_manager) {
-  return RenderManager::Erase(render_manager->GetId());
+bool ExtendRenderManager::Erase(const std::shared_ptr<ExtendRenderManager>& render_manager) {
+  return ExtendRenderManager::Erase(render_manager->GetId());
 }
 
 }  // namespace dom

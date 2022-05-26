@@ -16,7 +16,6 @@
 package com.tencent.mtt.hippy;
 
 import static com.tencent.link_supplier.LinkHelper.RenderMode.NATIVE_RENDER;
-import static com.tencent.link_supplier.LinkHelper.RenderMode.TDF_RENDER;
 
 import android.content.Context;
 import android.content.ContextWrapper;
