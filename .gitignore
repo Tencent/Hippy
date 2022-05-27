@@ -1,18 +1,28 @@
 *.log
-renderer/flutter/example/ios/.symlinks/*
+*.iml
+
 .DS_Store
 .nyc_output
 .vscode
+.vs
+.idea
+.gradle
+.externalNativeBuild
+.cxx
+
+local.properties
+maven-auth.properties
+build
 coverage
 dist
 node_modules
+
 layout/out
 layout/build
 layout/cproject
 layout/.project
 layout/.settings
-driver/js/examples/*/res/vendor-manifest.json
-driver/js/android/src/main/jni/.vs
+
 driver/js/android/maven-auth.properties
 driver/js/android/local.properties
 driver/js/android/.cxx/*
@@ -20,6 +30,11 @@ driver/js/android/libs/armeabi-v7a/libhippybridge.so
 driver/js/android/libs/arm64-v8a/libhippybridge.so
 driver/js/android/libs/x86/libhippybridge.so
 driver/js/android/libs/x86_64/libhippybridge.so
+driver/js/android/cmake-build-debug/*
+driver/js/android/src/main/jni/.vs
+driver/js/android/src/main/jni/cmake-build-debug/*
+
+driver/js/examples/*/res/vendor-manifest.json
 driver/js/examples/android-demo/src/main/assets/
 driver/js/examples/android-demo/libs/*
 driver/js/examples/android-demo/maven-auth.properties
@@ -29,8 +44,6 @@ driver/js/examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 driver/js/examples/hippy-react-demo/package-lock.json
 driver/js/examples/hippy-vue-demo/package-lock.json
 
-driver/js/android/cmake-build-debug/*
-driver/js/android/src/main/jni/cmake-build-debug/*
 driver/js/packages/hippy-vue-loader/remote-debug-profile/*
 driver/js/packages/hippy-debug-server/webpack-dev-server/client
 
@@ -41,23 +54,9 @@ docs/assets/*.ico
 docs/assets/*.js
 docs/assets/*.css
 
-
-android/cmake-build-debug/*
-android/src/main/jni/cmake-build-debug/*
-
-dom/lib/*
 renderer/flutter/core/lib/*
-
+renderer/flutter/example/ios/.symlinks/*
 renderer/native/android/src/main/jni/lib/*
 
-# android
-*.iml
-local.properties
-.idea/
-.gradle/
-build/
-.externalNativeBuild
+dom/lib/*
 
-# core
-driver/js/core/ARM
-.vs/

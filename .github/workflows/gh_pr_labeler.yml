@@ -1,0 +1,36 @@
+name: '[gh] pull request labeler'
+
+on:
+  pull_request_target:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+
+jobs:
+  pull_request_labeler:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+    - name: Label with labeler
+      uses: actions/labeler@v4
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+    - name: Label enhancement if feat
+      uses: actions-ecosystem/action-add-labels@v1
+      if: ${{ startsWith(github.event.pull_request.title, 'feat') }}
+      with:
+        labels: enhancement
+    - name: Label bug if fix
+      uses: actions-ecosystem/action-add-labels@v1
+      if: ${{ startsWith(github.event.pull_request.title, 'fix') }}
+      with:
+        labels: bug
+    - name: Label ci if related to continuous integration
+      uses: actions-ecosystem/action-add-labels@v1
+      if: ${{ startsWith(github.event.pull_request.title, 'ci') }}
+      with:
+        labels: ci

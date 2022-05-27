@@ -1,0 +1,20 @@
+name: '[docs] markdown documents format lint'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+      - v3.0-dev
+      - v3.0
+    paths-ignore:
+      - '*.md'
+      - 'docs/**/*.md'
+
+jobs:
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Lint Bypass
+      run: |
+        echo "No lint required"

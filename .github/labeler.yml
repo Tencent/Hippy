@@ -1,0 +1,51 @@
+android:
+  - 'driver/js/android/**/*'
+  - 'renderer/native/android/**/*'
+  - 'layout/android/**'
+  - 'gradle/**/*'
+  - 'build.gradle'
+  - 'gradlew'
+  - 'gradlew.bat'
+  - 'build.gradle'
+  - 'gradle.properties'
+  - 'settings.gradle'
+ios:
+  - 'driver/js/ios/**/*'
+  - 'renderer/native/ios/**/*'
+  - 'layout/ios/**/*'
+  - 'renderer/native/ios/**/*'
+  - 'hippy.podspec'
+flutter:
+  - 'driver/js/flutter/**/*'
+  - 'renderer/flutter/**/*'
+js:
+  - 'driver/js/packages/**/*'
+  - 'static/**/*'
+  - '**/*.js'
+  - '**/*.jsx'
+  - '**/*.ts'
+  - '**/*.tsx'
+  - 'tsconfig.json'
+driver:
+  - 'driver/**/*'
+dom:
+  - 'dom/**/*'
+renderer:
+  - 'renderer/**/*'
+core:
+  - 'driver/js/core/**/*'
+layout:
+  - 'layout/**/*'
+demo:
+  - 'driver/js/examples/**/*'
+documentation:
+  - 'docs/**/*'
+  - '**/*.md'
+dependencies:
+  - '**/third_party/**'
+modules:
+  - 'modules/**/*'
+devtools:
+  - 'devtools/**/*'
+ci:
+  - '.github/**/*'
