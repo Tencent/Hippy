@@ -23,6 +23,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           lfs: true
+          submodules: true
       - name: Build
         run: |
-          pushd driver/js/examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd
+          pushd driver/js/examples/ios-demo && pod install && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' -workspace 'HippyDemo.xcworkspace' && popd
