@@ -1,9 +1,0 @@
-[submodule "devtools/devtools-backend/third_party/nlohmann"]
-	path = devtools/devtools-backend/third_party/nlohmann
-	url = https://github.com/nlohmann/json.git
-[submodule "devtools/devtools-backend/third_party/websocketpp"]
-	path = devtools/devtools-backend/third_party/websocketpp
-	url = https://github.com/zaphoyd/websocketpp.git
-[submodule "devtools/devtools-backend/third_party/asio"]
-	path = devtools/devtools-backend/third_party/asio
-	url = https://github.com/chriskohlhoff/asio.git
