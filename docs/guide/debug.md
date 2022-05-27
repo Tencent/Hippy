@@ -416,8 +416,8 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 
 # React Devtools
 
-> 客户端最低支持版本 2.13.7
-> 前端最低支持版本 2.13.8
+> 客户端最低支持版本 2.13.7<br />
+> 前端最低支持版本 2.14.0
 
 支持调试 React 组件树、组件状态、路由以及性能等
 
@@ -431,7 +431,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 1. 安装 react devtools 依赖：
 
    ```bash
-   npm i @hippy/react@^2.13.8
+   npm i @hippy/react@^2.14.0
    npm i @hippy/debug-server-next@latest -D
    ```
 
