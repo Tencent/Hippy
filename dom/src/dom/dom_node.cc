@@ -75,9 +75,9 @@ int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
       auto child = children_[i];
       if (ref_info->ref_id == child->GetId()) {
         if (ref_info->relative_to_ref == RelativeType::kFront) {
-          children_.insert(children_.begin() + i, dom_info->dom_node);
+          children_.insert(children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i), dom_info->dom_node);
         } else {
-          children_.insert(children_.begin() + i + 1, dom_info->dom_node);
+          children_.insert(children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i + 1), dom_info->dom_node);
         }
         break;
       }
