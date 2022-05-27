@@ -33,7 +33,7 @@
 #include "jni/jni_utils.h"
 #include "jni/scoped_java_ref.h"
 #include "loader/adr_loader.h"
-#ifndef V8_WITHOUT_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 #include "core/runtime/v8/inspector/v8_channel_impl.h"
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif

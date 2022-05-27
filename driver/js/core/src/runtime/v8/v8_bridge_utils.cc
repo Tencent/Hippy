@@ -10,6 +10,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/serializer.h"
+#include "devtools/devtools_macro.h"
 
 namespace hippy::runtime {
 
@@ -32,7 +33,7 @@ constexpr char kHippyBridgeName[] = "hippyBridge";
 constexpr char kHippyNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kHippyCallNativeKey[] = "hippyCallNatives";
 
-#ifndef V8_WITHOUT_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
@@ -55,7 +56,9 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const std::shared_ptr<V8VMInitParam>& param,
                                     std::shared_ptr<Bridge> bridge,
                                     const RegisterFunction& scope_cb,
-                                    const RegisterFunction& call_native_cb) {
+                                    const RegisterFunction& call_native_cb,
+                                    const unicode_string_view& data_dir,
+                                    const unicode_string_view& ws_url) {
   std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(enable_v8_serialization,
                                                                is_dev_module);
   runtime->SetBridge(std::move(bridge));
@@ -86,7 +89,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
       TDF_BASE_DLOG(ERROR) << "register hippyCallNatives, scope error";
       return;
     }
-#ifndef V8_WITHOUT_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
       if (!global_inspector) {
         global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
@@ -160,6 +163,30 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
+
+#ifdef ENABLE_INSPECTOR
+  DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
+  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url));
+  devtools_data_source->SetRuntimeDebugMode(is_dev_module);
+  scope->SetDevtoolsDataSource(devtools_data_source);
+#ifndef V8_WITHOUT_INSPECTOR
+  scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
+    std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+    if (!runtime || !runtime->IsDebug()) {
+      TDF_BASE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
+      return;
+    }
+    std::shared_ptr<JavaScriptTaskRunner> runner = runtime->GetEngine()->GetJSRunner();
+    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+    task->callback = [runtime, data] {
+      // convert to utf-16 for v8, otherwise utf-8 like some protocol Runtime.enable which cause error "message must be a valid JSON"
+      auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
+      global_inspector->SendMessageToV8(u16str);
+    };
+    runner->PostTask(task);
+  });
+#endif
+#endif
 
   return runtime_id;
 }
@@ -329,7 +356,7 @@ void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
   TDF_BASE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
-bool V8BridgeUtils::DestroyInstance(int64_t runtime_id,  const std::function<void()>& callback) {
+bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void()>& callback, bool is_reload) {
   TDF_BASE_DLOG(INFO) << "DestroyInstance begin, runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(
       hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
@@ -339,9 +366,9 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id,  const std::function<voi
   }
 
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [runtime, runtime_id] {
-    TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
-#ifndef V8_WITHOUT_INSPECTOR
+  task->callback = [runtime, runtime_id, is_reload] {
+    TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id << "is_reload" << is_reload;
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, runtime->GetBridge());
@@ -350,6 +377,9 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id,  const std::function<voi
     }
 #else
     runtime->GetScope()->WillExit();
+#endif
+#ifdef ENABLE_INSPECTOR
+    runtime->GetScope()->GetDevtoolsDataSource()->Destroy(is_reload);
 #endif
     TDF_BASE_LOG(INFO) << "SetScope nullptr";
     runtime->SetScope(nullptr);
@@ -434,7 +464,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
         unicode_string_view::Encoding::Utf16);
     if (runtime->IsDebug() &&
         action.utf16_value() == u"onWebsocketMsg") {
-#ifndef V8_WITHOUT_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
       runtime::global_inspector->SendMessageToV8(

@@ -53,6 +53,8 @@
 #include "core/engine.h"
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
+#import "HippyDevInfo.h"
+#import "HippyBundleURLProvider.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
@@ -128,9 +130,9 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     // Set as needed:
     RandomAccessBundleData _randomAccessBundle;
     JSValueRef _batchedBridgeRef;
-    
+
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
-    
+
     JSGlobalContextRef _JSGlobalContextRef;
 }
 
@@ -160,6 +162,12 @@ HIPPY_EXPORT_MODULE()
         self.pScope = scope;
         [self initURILoader];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
+#ifdef ENABLE_INSPECTOR
+        NSString *wsURL = [self completeWSURLWithBridge:bridge];
+        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
+        devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
+        self.pScope->SetDevtoolsDataSource(devtools_data_source);
+#endif
     }
 
     return self;
@@ -267,7 +275,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 JSStringRelease(execJSString);
             };
 #endif
-            
+
             strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
             jsContext[@"getTurboModule"] = ^id (NSString *name, NSString *args) {
                 HippyJSCExecutor *strongSelf = weakSelf;
@@ -280,7 +288,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
             };
         }
     };
-  
+
     hippy::base::RegisterFunction scopeInitializedCB = [weakSelf](void *p) {
       HippyJSCExecutor *strongSelf = weakSelf;
       if (!strongSelf) {
@@ -388,6 +396,10 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     if (!self.isValid) {
         return;
     }
+#ifdef ENABLE_INSPECTOR
+    bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
+    self.pScope->GetDevtoolsDataSource()->Destroy(reload);
+#endif
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
     self.pScope->WillExit();
@@ -821,6 +833,33 @@ static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t modul
 
     // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"js_call");
     [_performanceLogger appendStopForTag:HippyPLRAMNativeRequires];
+}
+
+- (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge {
+    if (![bridge.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
+        return @"";
+    }
+    if (![bridge isKindOfClass:[HippyBatchedBridge class]] ||
+        ![bridge.delegate shouldStartInspector:[(HippyBatchedBridge *)bridge parentBridge]]) {
+        return @"";
+    }
+    HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
+    if ([bridge.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
+        NSURL *url = [bridge.delegate inspectorSourceURLForBridge:[(HippyBatchedBridge *)bridge parentBridge]];
+        devInfo.scheme = [url scheme];
+        devInfo.ipAddress = [url host];
+        devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
+        devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
+        [devInfo parseWsURLWithURLQuery:[url query]];
+    } else {
+        HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
+        devInfo.scheme = bundleURLProvider.scheme;
+        devInfo.ipAddress = bundleURLProvider.localhostIP;
+        devInfo.port = bundleURLProvider.localhostPort;
+        devInfo.versionId = bundleURLProvider.versionId;
+        devInfo.wsURL = bundleURLProvider.wsURL;
+    }
+    return [devInfo assembleFullWSURL];
 }
 
 @end

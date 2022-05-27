@@ -56,6 +56,7 @@ using StringViewUtils = hippy::base::StringViewUtils;
 constexpr char kNodePropertyPid[] = "pId";
 constexpr char kNodePropertyIndex[] = "index";
 constexpr char kNodePropertyViewName[] = "name";
+constexpr char kNodePropertyTagName[] = "tagName";
 constexpr char kNodePropertyProps[] = "props";
 constexpr char kNodePropertyStyle[] = "style";
 constexpr char kNodePropertyRefId[] = "refId";
@@ -132,7 +133,7 @@ std::tuple<bool, std::string, unicode_string_view>
 GetNodeTagName(const std::shared_ptr<Ctx> &context,
                const std::shared_ptr<CtxValue> &node) {
   // parse tag_name
-  std::shared_ptr<CtxValue> tag_name_value = context->GetProperty(node, kNodePropertyViewName);
+  std::shared_ptr<CtxValue> tag_name_value = context->GetProperty(node, kNodePropertyTagName);
   if (!tag_name_value) {
     return std::make_tuple(false, "Get property tag name failed", "");
   }
@@ -266,10 +267,8 @@ CreateNode(const std::shared_ptr<Ctx> &context,
     return std::make_tuple(false, std::get<1>(view_name_tuple), dom_node);
   }
 
+  // optional, only js use development
   auto tag_name_tuple = GetNodeTagName(context, node);
-  if (!std::get<0>(tag_name_tuple)) {
-    return std::make_tuple(false, std::get<1>(tag_name_tuple), dom_node);
-  }
 
   auto props_tuple = GetNodeProps(context, node);
 

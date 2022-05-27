@@ -493,6 +493,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     if (strongDomManager) {
         strongDomManager->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
         self.javaScriptExecutor.pScope->SetDomManager(strongDomManager);
+#ifdef ENABLE_INSPECTOR
+        hippy::DomManager::Insert(strongDomManager);
+        self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, strongDomManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+        self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->SetRuntimeDebugMode(self.debugMode);
+#endif
     }
 }
 
@@ -516,7 +521,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                 devInfo.versionId = bundleURLProvider.versionId;
                 devInfo.wsURL = bundleURLProvider.wsURL;
             }
-            _devManager = [[HippyDevManager alloc] initWithBridge:self.parentBridge devInfo:devInfo contextName:name];
         }
     }
 }

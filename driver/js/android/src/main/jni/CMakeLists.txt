@@ -95,6 +95,7 @@ get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cor
 get_filename_component(RENDER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../renderer" REALPATH)
 get_filename_component(DOM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../dom" REALPATH)
 get_filename_component(LAYOUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../layout" REALPATH)
+get_filename_component(DEVTOOLS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../devtools/devtools-backend" REALPATH)
 # endregion
 
 # region dependencies
@@ -187,6 +188,17 @@ include_directories(${CORE_SRC_DIR}/third_party/base/include)
 include_directories(${DOM_SRC_DIR}/include)
 include_directories(${LAYOUT_DIR})
 include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
+
+if (ENABLE_INSPECTOR STREQUAL "true")
+  add_definitions("-DENABLE_INSPECTOR")
+  include_directories(${DEVTOOLS_DIR}/include)
+  add_subdirectory(${DEVTOOLS_DIR} ${CMAKE_CURRENT_BINARY_DIR}/devtools/devtools-backend)
+  list(APPEND HIPPY_DEPS devtools_backend)
+else ()
+  file(GLOB_RECURSE DEVTOOLS_BACKEND_SRC ${CORE_SRC_DIR}/src/devtools/*)
+  message("DEVTOOLS_BACKEND_SRC: ${DEVTOOLS_BACKEND_SRC}")
+  list(REMOVE_ITEM CORE_SRC ${DEVTOOLS_BACKEND_SRC})
+endif ()
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")

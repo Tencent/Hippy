@@ -24,28 +24,24 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.utils.DevtoolsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
-import com.tencent.mtt.hippy.views.list.HippyListAdapter;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
-
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
-
 import com.tencent.renderer.component.text.VirtualNode;
 import java.io.File;
 import java.util.ArrayList;
@@ -620,6 +616,19 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull List params, @NonNull Promise promise) {
+        switch (functionName) {
+            case DevtoolsUtil.GET_SCREEN_SHOT:
+                DevtoolsUtil.getScreenShot(view, promise);
+                break;
+            case DevtoolsUtil.ADD_FRAME_CALLBACK:
+                DevtoolsUtil.addFrameCallback(params, view, promise);
+                break;
+            case DevtoolsUtil.REMOVE_FRAME_CALLBACK:
+                DevtoolsUtil.removeFrameCallback(params, view, promise);
+                break;
+            default:
+                break;
+        }
     }
 
     public void onBatchComplete(@NonNull T view) {

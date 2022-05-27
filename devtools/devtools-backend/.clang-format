@@ -1,0 +1,21 @@
+Language: Cpp
+BasedOnStyle: Google
+ColumnLimit: 120
+
+# Automatically recognizes pointer alignment in code, if want to unify, then can change to false
+DerivePointerAlignment: true
+
+# Align to the type name
+PointerAlignment: Left
+
+# Only sort headers in each include block
+SortIncludes: true
+IncludeBlocks: Preserve
+
+# Let #if/#else/#endif define keep indentation
+#   #if defined(WIN)
+#   #  include <windows.h>
+#   #else
+#   #  include <curl.h>
+#   #endif
+IndentPPDirectives: AfterHash

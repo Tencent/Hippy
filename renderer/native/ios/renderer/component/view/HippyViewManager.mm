@@ -69,6 +69,47 @@
     return nil;
 }
 
+RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
+                                      params:(NSDictionary *__nonnull)params
+                                    callback:(HippyResponseSenderBlock)callback) {
+  [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    UIView *view = viewRegistry[hippyTag];
+    if (view == nil) {
+      callback(@[]);
+      return;
+    }
+
+    CGFloat viewWidth = view.frame.size.width;
+    CGFloat viewHeight = view.frame.size.height;
+    int maxWidth = [params[@"maxWidth"] intValue];
+    int maxHeight = [params[@"maxHeight"] intValue];
+    CGFloat scale = 1.f;
+    if (viewWidth != 0 && viewHeight != 0 && maxWidth > 0 && maxHeight > 0) {
+      CGFloat scaleX = maxWidth / viewWidth;
+      CGFloat scaleY = maxHeight / viewHeight;
+      scale = MIN(scaleX, scaleY);
+    }
+    UIGraphicsBeginImageContextWithOptions(view.frame.size, YES, scale);
+    [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:YES];
+    UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    if (resultImage) {
+      int quality = [params[@"quality"] intValue];
+      NSData *imageData = UIImageJPEGRepresentation(resultImage, (quality > 0 ? quality : 80) / 100.f);
+      NSString *base64String = [imageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+      NSDictionary *srceenShotDict = @{
+          @"width": @(int(resultImage.size.width * resultImage.scale)),
+          @"height": @(int(resultImage.size.height * resultImage.scale)),
+          @"screenShot": base64String.length ? base64String : @"",
+          @"screenScale": @(resultImage.scale)
+      };
+      callback(@[srceenShotDict]);
+    } else {
+      callback(@[]);
+    }
+  }];
+}
+
 #pragma mark - ShadowView properties
 HIPPY_EXPORT_SHADOW_PROPERTY(visibility, NSString)
 

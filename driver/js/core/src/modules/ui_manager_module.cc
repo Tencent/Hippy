@@ -26,7 +26,6 @@
 #include <tuple>
 
 #include "core/modules/module_register.h"
-#include "core/base/string_view_utils.h"
 #include "core/task/javascript_task.h"
 #include "dom/node_props.h"
 #include "dom/dom_node.h"

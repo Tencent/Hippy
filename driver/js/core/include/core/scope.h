@@ -36,6 +36,9 @@
 #include "dom/dom_manager.h"
 #include "dom/render_manager.h"
 #include "dom/scene_builder.h"
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
+#endif
 
 class JavaScriptTaskRunner;
 class ModuleBase;
@@ -139,6 +142,15 @@ class Scope {
     return render_manager_;
   }
 
+#ifdef ENABLE_INSPECTOR
+  inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+    devtools_data_source_ = devtools_data_source;
+  }
+  inline std::shared_ptr<hippy::devtools::DevtoolsDataSource> GetDevtoolsDataSource() {
+    return devtools_data_source_;
+  }
+#endif
+
  private:
   friend class Engine;
   void Initialized();
@@ -161,4 +173,7 @@ class Scope {
   std::shared_ptr<UriLoader> loader_;
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
+#ifdef ENABLE_INSPECTOR
+  std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
+#endif
 };

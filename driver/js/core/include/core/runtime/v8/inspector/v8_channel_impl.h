@@ -25,6 +25,9 @@
 #include <memory>
 
 #include "core/runtime/v8/bridge.h"
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
+#endif
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8-inspector.h"
@@ -44,6 +47,12 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
 
   inline void SetBridge(std::shared_ptr<Bridge> bridge) { bridge_ = bridge; }
 
+#ifdef ENABLE_INSPECTOR
+  inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+    devtools_data_source_ = devtools_data_source;
+  }
+#endif
+
   void sendResponse(
       int callId,
       std::unique_ptr<v8_inspector::StringBuffer> message) override;
@@ -54,6 +63,9 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
  private:
   friend class V8InspectorClientImpl;
   std::shared_ptr<Bridge> bridge_;
+#ifdef ENABLE_INSPECTOR
+  std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
+#endif
 };
 
 }  // namespace inspector
