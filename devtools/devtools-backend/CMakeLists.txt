@@ -26,7 +26,6 @@ set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_CXX_STANDARD 17)
 
 get_filename_component(DEVTOOLS_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" REALPATH)
-get_filename_component(THIRD_PARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/third_party/" REALPATH)
 set(BACKEND_INCLUDE_DIR ${DEVTOOLS_ROOT_PATH}/include)
 message("DEVTOOLS_ROOT_PATH : ${DEVTOOLS_ROOT_PATH}")
 
@@ -78,8 +77,6 @@ endif()
 
 if(ANDROID OR IOS)
   add_library(${PROJECT_NAME} ${DEVTOOLS_SRC})
-elseif (APPLE)
-  add_subdirectory("${DEVTOOLS_ROOT_PATH}/test" unit_test)
 endif()
 
 # FetchContent nlohmann_json
