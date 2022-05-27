@@ -75,6 +75,7 @@ public:
      * @param id Target view container to which views move
      */
     void MoveRenderNode(std::vector<int32_t>&& ids, int32_t pid, int32_t id) override;
+    void MoveRenderNode(std::vector<std::shared_ptr<hippy::DomNode>>&& nodes) override;
     
     /**
      * Invoked after batched operations completed
