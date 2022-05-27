@@ -44,9 +44,15 @@ typedef NS_ENUM(NSUInteger, HippyCreationType) {
 
 @class HippyShadowView;
 
-HIPPY_EXTERN CGRect getShadowViewRectFromDomNode(HippyShadowView *shadowView);
-
 typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
+
+typedef UIView *(^HippyViewCreationBlock)(HippyShadowView *shadowView);
+typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
+
+extern NSString *const HippyShadowViewDiffInsertion;
+extern NSString *const HippyShadowViewDiffRemove;
+extern NSString *const HippyShadowViewDiffUpdate;
+extern NSString *const HippyShadowViewDiffTag;
 
 /**
  * ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
@@ -103,6 +109,7 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  * set to NO in HippyUIManager after the layout pass is done and all frames have been extracted to be applied to the
  * corresponding UIViews.
  */
+//TODO delete this variable
 @property (nonatomic, assign, getter=isNewView) BOOL newView;
 
 /**
@@ -148,6 +155,8 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  */
 - (void)recusivelySetCreationTypeToInstant;
 
+- (UIView *)createView:(HippyViewCreationBlock)creationBlock insertChildren:(HippyViewInsertionBlock)insertionBlock;
+
 - (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager;
 - (std::weak_ptr<hippy::DomManager>)domManager;
 
@@ -173,6 +182,8 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
 
 - (void)amendLayoutBeforeMount;
 
+- (NSDictionary *)diffAnotherShadowView:(HippyShadowView *)shadowView;
+
 /**
  * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example
  * HippyShadowText has children which it does not want CSSLayout to lay out so in the eyes of
@@ -194,21 +205,6 @@ typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegist
  */
 - (void)didUpdateHippySubviews NS_REQUIRES_SUPER;
 - (void)didSetProps:(NSArray<NSString *> *)changedProps NS_REQUIRES_SUPER;
-
-/**
- * Computes the recursive offset, meaning the sum of all descendant offsets -
- * this is the sum of all positions inset from parents. This is not merely the
- * sum of `top`/`left`s, as this function uses the *actual* positions of
- * children, not the style specified positions - it computes this based on the
- * resulting layout. It does not yet compensate for native scroll view insets or
- * transforms or anchor points.
- */
-- (CGRect)measureLayoutRelativeToAncestor:(HippyShadowView *)ancestor;
-
-/**
- * Checks if the current shadow view is a descendant of the provided `ancestor`
- */
-- (BOOL)viewIsDescendantOf:(HippyShadowView *)ancestor;
 
 - (NSDictionary *)mergeProps:(NSDictionary *)props;
 

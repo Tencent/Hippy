@@ -20,25 +20,16 @@
  * limitations under the License.
  */
 
-#import "HippyWaterfallItemView.h"
-#import "UIView+Hippy.h"
+#import "HippyWatefallItemShadowView.h"
 
-@implementation HippyWaterfallItemView
+@implementation HippyWatefallItemShadowView
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    if (self = [super initWithFrame:frame]) {
-        self.clipsToBounds = YES;
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.creationType = HippyCreationTypeLazily;
     }
     return self;
-}
-
-- (void)hippySetFrame:(CGRect)frame {
-    [super hippySetFrame:frame];
-    self.frame = self.bounds;
-}
-
-- (void)dealloc {
-    
 }
 
 @end

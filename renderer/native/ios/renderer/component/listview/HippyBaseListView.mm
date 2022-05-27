@@ -288,21 +288,36 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
+        HippyBaseListViewCell *hpCell = (HippyBaseListViewCell *)cell;
+        hpCell.shadowView.cell = nil;
+    }
+}
+
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
     HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag];
-    if (!cellView) {
+    UIView *cellView = nil;
+    if (cell.shadowView.cell) {
         cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
+    }
+    else {
+        cellView = [self.renderContext updateShadowView:cell.shadowView withAnotherShadowView:cellShadowView];
+        if (nil == cellView) {
+            cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
+        }
     }
     NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
+    cell.shadowView = cellShadowView;
+    cell.shadowView.cell = cell;
     return cell;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    HippyWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     return cell;
 }
 

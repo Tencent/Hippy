@@ -464,6 +464,85 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     return view;
 }
 
+- (UIView *)updateShadowView:(HippyShadowView *)shadowView withAnotherShadowView:(HippyShadowView *)anotherShadowView {
+    UIView *result = [self viewForHippyTag:anotherShadowView.hippyTag];
+    if (result) {
+        return result;
+    }
+    if (nil == shadowView) {
+        return nil;
+    }
+    if (![shadowView.viewName isEqualToString:anotherShadowView.viewName]) {
+        return nil;
+    }
+    NSDictionary *diffResult = [shadowView diffAnotherShadowView:anotherShadowView];
+    if (nil == diffResult) {
+        return nil;
+    }
+    NSDictionary *update = diffResult[HippyShadowViewDiffUpdate];
+    NSDictionary *insert = diffResult[HippyShadowViewDiffInsertion];
+    NSArray *remove = diffResult[HippyShadowViewDiffRemove];
+    NSDictionary *tags = diffResult[HippyShadowViewDiffTag];
+    for (NSNumber *tag in remove) {
+        UIView *view = [self viewForHippyTag:tag];
+        [view.superview clearSortedSubviews];
+        [view.superview removeHippySubview:view];
+    }
+    result = [shadowView createView:^UIView *(HippyShadowView *shadowView) {
+        NSNumber *hippyTag = shadowView.hippyTag;
+        UIView *view = nil;
+        NSNumber *originTag = update[hippyTag];
+        if (originTag) {
+            HippyShadowView *originShadowView = [self shadowViewForHippyTag:originTag];
+            view = [self viewForHippyTag:originTag];
+            if (view) {
+                HippyComponentData *componentData = [self componentDataForViewName:originShadowView.viewName];
+                NSDictionary *oldProps = originShadowView.props;
+                NSDictionary *newProps = shadowView.props;
+                newProps = [self mergeProps:newProps oldProps:oldProps];
+                [componentData setProps:newProps forView:view];
+                [view.layer removeAllAnimations];
+            }
+            else {
+                view = [self createViewFromShadowView:shadowView];
+            }
+        }
+        else if (insert[hippyTag]) {
+            view = [self viewForHippyTag:hippyTag];
+            if (nil == view) {
+                view = [self createViewFromShadowView:shadowView];
+            }
+        }
+        else if (tags[hippyTag]) {
+            NSNumber *oldSubTag = tags[hippyTag];
+            view = [self viewForHippyTag:oldSubTag];
+            if (view == nil) {
+                view = [self createViewFromShadowView:shadowView];
+            } else {
+                [view sendDetachedFromWindowEvent];
+                [view.layer removeAllAnimations];
+                view.hippyTag = hippyTag;
+                self->_viewRegistry[hippyTag] = view;
+                [view sendAttachedToWindowEvent];
+            }
+        }
+        if (!CGRectEqualToRect(view.frame, shadowView.frame)) {
+            [view hippySetFrame:shadowView.frame];
+        }
+        return view;
+    } insertChildren:^(UIView *container, NSArray<UIView *> *children) {
+        NSInteger index = 0;
+        for (UIView *subview in children) {
+            [container removeHippySubview:subview];
+            [container insertHippySubview:subview atIndex:index];
+            index++;
+        }
+        [container clearSortedSubviews];
+        [container didUpdateHippySubviews];
+    }];
+    return result;
+}
+
 - (NSDictionary *)createShadowViewFromNode:(const std::shared_ptr<hippy::DomNode> &)domNode{
     if (domNode) {
         NSNumber *hippyTag = @(domNode->GetId());
@@ -511,7 +590,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                            properties:(NSDictionary *)props
                              viewName:(NSString *)viewName {
     UIView *view = [self viewForHippyTag:hippyTag];
-
     BOOL canBeRetrievedFromCache = YES;
     if (view && [view respondsToSelector:@selector(canBeRetrievedFromViewCache)]) {
         canBeRetrievedFromCache = [view canBeRetrievedFromViewCache];
@@ -658,7 +736,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 #pragma mark Render Context Implementation
 #define Init(Component) NSClassFromString(@#Component)
 - (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName {
-    //TODO 需要接口接收自定义ViewManager:MyView
     if (!_viewManagers) {
         _viewManagers = [@{@"View": Init(HippyViewManager),
                           @"WaterfallItem": Init(HippyWaterfallItemViewManager),

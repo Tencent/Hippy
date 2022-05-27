@@ -31,8 +31,7 @@
 #import "HippyUIManager.h"
 #import "UIView+Render.h"
 #import "HippyListTableView.h"
-
-#define CELL_TAG 10089
+#import "HippyWaterfallViewCell.h"
 
 static NSString *kCellIdentifier = @"cellIdentifier";
 
@@ -40,23 +39,6 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 
 typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDraging, ScrollStateScrolling };
 
-@implementation HippyCollectionViewCell
-
-- (UIView *)cellView {
-    return [self.contentView viewWithTag:CELL_TAG];
-}
-
-- (void)setCellView:(UIView *)cellView {
-    UIView *selfCellView = [self cellView];
-    if (selfCellView != cellView) {
-        [selfCellView removeFromSuperview];
-        cellView.tag = CELL_TAG;
-        cellView.frame = CGRectMake(0, 0, CGRectGetWidth(cellView.frame), CGRectGetHeight(cellView.frame));
-        [self.contentView addSubview:cellView];
-    }
-}
-
-@end
 
 @interface HippyWaterfallView () <HippyInvalidating, HippyRefreshDelegate, HippyListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
@@ -124,7 +106,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (Class)listItemClass {
-    return [HippyCollectionViewCell class];
+    return [HippyWaterfallViewCell class];
 }
 
 - (NSString *)compoentItemName {
@@ -272,7 +254,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+    HippyWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
     return cell;
 }
 
@@ -300,17 +282,28 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if ([cell isKindOfClass:[HippyWaterfallViewCell class]]) {
+        HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
+        hpCell.shadowView.cell = nil;
+    }
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    HippyCollectionViewCell *hpCell = (HippyCollectionViewCell *)cell;
+    HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
-    //TODO use reusable view here
-    UIView *view = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
-    if (!view) {
-        view = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
+    UIView *cellView = nil;
+    if (hpCell.shadowView.cell) {
+        cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
     }
-    hpCell.cellView = view;
+    else {
+        cellView = [self.renderContext updateShadowView:hpCell.shadowView withAnotherShadowView:shadowView];
+        if (nil == cellView) {
+            cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
+        }
+    }
+    hpCell.cellView = cellView;
+    hpCell.shadowView = shadowView;
+    hpCell.shadowView.cell = hpCell;
 }
 
 #pragma mark - HippyCollectionViewDelegateWaterfallLayout

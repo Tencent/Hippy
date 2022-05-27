@@ -22,11 +22,16 @@
 
 #import "HippyWaterfallItemViewManager.h"
 #import "HippyWaterfallItemView.h"
+#import "HippyWatefallItemShadowView.h"
 
 @implementation HippyWaterfallItemViewManager
 
 - (UIView *)view {
     return [HippyWaterfallItemView new];
+}
+
+- (HippyShadowView *)shadowView {
+    return [[HippyWatefallItemShadowView alloc] init];
 }
 
 @end
