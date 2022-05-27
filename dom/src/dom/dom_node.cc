@@ -116,7 +116,7 @@ void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto dom_manager = dom_manager_.lock();
   TDF_BASE_DCHECK(dom_manager);
   if (dom_manager) {
-    dom_manager->HandleEvent(std::move(event));
+    dom_manager->HandleEvent(event);
   }
 }
 
@@ -228,7 +228,7 @@ LayoutResult DomNode::GetLayoutInfoFromRoot() {
 }
 
 void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
-  auto not_equal = std::not_equal_to<float>();
+  auto not_equal = std::not_equal_to<>();
   bool changed = not_equal(layout_.left, layout_node_->GetLeft()) || not_equal(layout_.top, layout_node_->GetTop()) ||
                  not_equal(layout_.width, layout_node_->GetWidth()) ||
                  not_equal(layout_.height, layout_node_->GetHeight());
@@ -267,7 +267,7 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
     layout_param[kLayoutWidthKey] = DomValue(layout_.width);
     layout_param[kLayoutHeightKey] = DomValue(layout_.height);
     DomValueObjectType layout_obj;
-    layout_obj[kLayoutLayoutKey] = std::move(layout_param);
+    layout_obj[kLayoutLayoutKey] = layout_param;
     auto event =
         std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(), std::make_shared<DomValue>(std::move(layout_obj)));
     HandleEvent(event);
@@ -314,7 +314,7 @@ CallFunctionCallback DomNode::GetCallback(const std::string& name, uint32_t id) 
 
 bool DomNode::HasEventListeners() { return event_listener_map_ != nullptr && !event_listener_map_->empty(); }
 
-void DomNode::EmplaceStyleMap(const std::string key, const DomValue& value) {
+void DomNode::EmplaceStyleMap(const std::string& key, const DomValue& value) {
   auto iter = style_map_->find(key);
   if (iter != style_map_->end()) {
     iter->second = std::make_shared<DomValue>(value);
@@ -363,7 +363,7 @@ void DomNode::UpdateDiff(const std::unordered_map<std::string, std::shared_ptr<D
 }
 
 void DomNode::UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
-  if (update_dom_ext.size() == 0) return;
+  if (update_dom_ext.empty()) return;
 
   for (const auto& v : update_dom_ext) {
     if (this->dom_ext_map_ == nullptr) {
@@ -386,7 +386,7 @@ void DomNode::UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr
 }
 
 void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
-  if (update_style.size() == 0) return;
+  if (update_style.empty()) return;
 
   for (const auto& v : update_style) {
     if (this->style_map_ == nullptr) {

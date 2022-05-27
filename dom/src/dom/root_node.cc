@@ -137,7 +137,7 @@ void RootNode::UpdateAnimation(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     }
 }
 
-void RootNode::SyncWithRenderManager(std::shared_ptr<RenderManager> render_manager) {
+void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager) {
   FlushDomOperations(render_manager);
   FlushEventOperations(render_manager);
   DoAndFlushLayout(render_manager);
@@ -163,7 +163,7 @@ std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {
   return found->second.lock();
 }
 
-void RootNode::DoAndFlushLayout(std::shared_ptr<RenderManager> render_manager) {
+void RootNode::DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager) {
   // Before Layout
   render_manager->BeforeLayout();
   // 触发布局计算
@@ -177,7 +177,7 @@ void RootNode::DoAndFlushLayout(std::shared_ptr<RenderManager> render_manager) {
   }
 }
 
-void RootNode::FlushDomOperations(std::shared_ptr<RenderManager> render_manager) {
+void RootNode::FlushDomOperations(const std::shared_ptr<RenderManager>& render_manager) {
   for (auto& dom_operation : dom_operations_) {
     switch (dom_operation.op) {
       case DomOperation::kOpCreate:
@@ -196,7 +196,7 @@ void RootNode::FlushDomOperations(std::shared_ptr<RenderManager> render_manager)
   dom_operations_.clear();
 }
 
-void RootNode::FlushEventOperations(std::shared_ptr<RenderManager> render_manager) {
+void RootNode::FlushEventOperations(const std::shared_ptr<RenderManager>& render_manager) {
   for (auto& event_operation : event_operations_) {
     const auto& node = GetNode(event_operation.id);
     if (node == nullptr) {

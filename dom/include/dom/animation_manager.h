@@ -12,19 +12,19 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
   using DomValue = tdf::base::DomValue;
 
  public:
-  AnimationManager(std::shared_ptr<DomManager> dom_manager);
+  AnimationManager(const std::shared_ptr<DomManager>& dom_manager);
   void OnDomNodeCreate(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
 
   void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
 
   void OnDomNodeDelete(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
 
-  void OnAnimationUpdate(std::vector<std::pair<uint32_t, std::shared_ptr<tdf::base::DomValue>>> ani_data);
+  void OnAnimationUpdate(const std::vector<std::pair<uint32_t, std::shared_ptr<tdf::base::DomValue>>>& ani_data);
 
-  void DeleteAnimation(const std::shared_ptr<DomNode> node);
+  void DeleteAnimation(const std::shared_ptr<DomNode>& node);
 
   int32_t GetId() { return id_; }
-  static void Insert(const std::shared_ptr<AnimationManager> animation_manager);
+  static void Insert(const std::shared_ptr<AnimationManager>& animation_manager);
   static bool Erase(int32_t id);
 
   static std::shared_ptr<AnimationManager> Find(const int32_t id);
@@ -45,7 +45,7 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
    */
   std::map<uint32_t, std::map<uint32_t, std::string>> animation_nodes_;
   int32_t id_;
-  void ParseAnimation(const std::shared_ptr<DomNode> node);
+  void ParseAnimation(const std::shared_ptr<DomNode>& node);
   void FetchAnimationsFromObj(const DomValue& value, const std::string& prop, std::map<uint32_t, std::string>& result);
   void FetchAnimationsFromArray(const DomValue& value, std::map<uint32_t, std::string>& result);
 

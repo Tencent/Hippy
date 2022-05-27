@@ -13,8 +13,8 @@ class RootNode : public DomNode {
   void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void SyncWithRenderManager(std::shared_ptr<RenderManager> render_manager);
-  void DoAndFlushLayout(std::shared_ptr<RenderManager> render_manager);
+  void SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager);
+  void DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager);
 
   void AddEvent(uint32_t id, const std::string& event_name);
   void RemoveEvent(uint32_t id, const std::string& event_name);
@@ -43,8 +43,8 @@ class RootNode : public DomNode {
   std::vector<DomOperation> dom_operations_;
   std::vector<EventOperation> event_operations_;
 
-  void FlushDomOperations(std::shared_ptr<RenderManager> render_manager);
-  void FlushEventOperations(std::shared_ptr<RenderManager> render_manager);
+  void FlushDomOperations(const std::shared_ptr<RenderManager>& render_manager);
+  void FlushEventOperations(const std::shared_ptr<RenderManager>& render_manager);
 
   void OnDomNodeCreated(const std::shared_ptr<DomNode>& node);
   void OnDomNodeDeleted(const std::shared_ptr<DomNode>& node);

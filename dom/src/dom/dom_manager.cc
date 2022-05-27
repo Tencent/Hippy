@@ -76,7 +76,7 @@ std::shared_ptr<DomNode> DomManager::GetNode(uint32_t id) const { return root_no
 
 void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   DCHECK_RUN_THREAD()
-  for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
+  for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
     interceptor->OnDomNodeCreate(nodes);
   }
   root_node_->CreateDomNodes(std::move(nodes));
@@ -84,7 +84,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
 
 void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   DCHECK_RUN_THREAD()
-  for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
+  for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
     interceptor->OnDomNodeUpdate(nodes);
   }
   root_node_->UpdateDomNodes(std::move(nodes));
@@ -97,7 +97,7 @@ void DomManager::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) 
 
 void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   DCHECK_RUN_THREAD()
-  for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
+  for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
     interceptor->OnDomNodeDelete(nodes);
   }
   root_node_->DeleteDomNodes(std::move(nodes));
@@ -202,7 +202,7 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
       std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
       task->func_ = [capture_list = std::move(capture_list),
                      capture_target_listeners = std::move(capture_target_listeners),
-                     bubble_target_listeners = std::move(bubble_target_listeners), dom_event = std::move(event),
+                     bubble_target_listeners = std::move(bubble_target_listeners), dom_event = event,
                      event_name]() mutable {
         // 执行捕获流程
         std::queue<std::shared_ptr<DomNode>> bubble_list = {};
@@ -254,7 +254,7 @@ void DomManager::HandleEvent(const std::shared_ptr<DomEvent>& event) {
 
 void DomManager::PostTask(const Scene&& scene) {
   std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-  task->func_ = [scene = std::move(scene)] { scene.Build(); };
+  task->func_ = [scene = scene] { scene.Build(); };
   dom_task_runner_->PostTask(std::move(task));
 }
 
@@ -277,7 +277,7 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   root_node_->SyncWithRenderManager(render_manager);
 }
 
-void DomManager::AddInterceptor(std::shared_ptr<DomActionInterceptor> interceptor) {
+void DomManager::AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor) {
   interceptors_.push_back(interceptor);
 }
 

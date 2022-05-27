@@ -28,7 +28,7 @@ std::shared_ptr<AnimationManager> AnimationManager::Find(const int32_t id) {
   return nullptr;
 }
 
-void AnimationManager::Insert(const std::shared_ptr<AnimationManager> animation_manager) {
+void AnimationManager::Insert(const std::shared_ptr<AnimationManager>& animation_manager) {
   std::lock_guard<std::mutex> lock(mutex);
   ani_manager_map.insert({animation_manager->GetId(), animation_manager});
 }
@@ -43,30 +43,30 @@ bool AnimationManager::Erase(int32_t id) {
   return true;
 }
 
-AnimationManager::AnimationManager(std::shared_ptr<DomManager> dom_manager) {
+AnimationManager::AnimationManager(const std::shared_ptr<DomManager>& dom_manager) {
   dom_manager_ = dom_manager;
   id_ = global_ani_manager_key.fetch_add(1);
 }
 
 void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-  for (std::shared_ptr<DomNode> node : nodes) {
+  for (const std::shared_ptr<DomNode>& node : nodes) {
     ParseAnimation(node);
   }
 }
 
 void AnimationManager::OnDomNodeUpdate(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-  for (std::shared_ptr<DomNode> node : nodes) {
+  for (const std::shared_ptr<DomNode>& node : nodes) {
     ParseAnimation(node);
   }
 }
 
 void AnimationManager::OnDomNodeDelete(const std::vector<std::shared_ptr<DomNode>>& nodes) {
-  for (std::shared_ptr<DomNode> node : nodes) {
+  for (const std::shared_ptr<DomNode>& node : nodes) {
     DeleteAnimation(node);
   }
 }
 
-void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode> node) {
+void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
   auto dom_ext_map_ = node->GetExtStyle();
   auto useAnimation = dom_ext_map_->find(kUseAnimation);
   if (useAnimation != dom_ext_map_->end()) {
@@ -87,9 +87,9 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode> node) {
       }
     }
     DeleteAnimation(node);
-    if (ani_props.size() > 0) {
+    if (!ani_props.empty()) {
       animation_nodes_.insert({node->GetId(), ani_props});
-      for (auto prop : ani_props) {
+      for (const auto& prop : ani_props) {
         auto animation = animations_.find(prop.first);
         if (animation != animations_.end()) {
           animation->second.insert(node->GetId());
@@ -155,10 +155,10 @@ void AnimationManager::FetchAnimationsFromArray(const DomValue& value, std::map<
   }
 }
 
-void AnimationManager::DeleteAnimation(const std::shared_ptr<DomNode> dom_node) {
+void AnimationManager::DeleteAnimation(const std::shared_ptr<DomNode>& dom_node) {
   auto ani = animation_nodes_.find(dom_node->GetId());
   if (ani != animation_nodes_.end()) {
-    for (auto ani_prop : ani->second) {
+    for (const auto& ani_prop : ani->second) {
       auto node_ids = animations_.find(ani_prop.first);
       if (node_ids != animations_.end()) {
         for (auto node_id : node_ids->second) {
@@ -166,7 +166,7 @@ void AnimationManager::DeleteAnimation(const std::shared_ptr<DomNode> dom_node) 
             node_ids->second.erase(node_id);
           }
         }
-        if (node_ids->second.size() == 0) {
+        if (node_ids->second.empty()) {
           animations_.erase(ani_prop.first);
         }
       }
@@ -175,14 +175,14 @@ void AnimationManager::DeleteAnimation(const std::shared_ptr<DomNode> dom_node) 
   }
 }
 
-void AnimationManager::OnAnimationUpdate(std::vector<std::pair<uint32_t, std::shared_ptr<DomValue>>> ani_data) {
+void AnimationManager::OnAnimationUpdate(const std::vector<std::pair<uint32_t, std::shared_ptr<DomValue>>>& ani_data) {
   auto dom_manager = dom_manager_.lock();
   if (dom_manager) {
     std::vector<std::function<void()>> ops = {[WEAK_THIS, ani_data] {
       DEFINE_AND_CHECK_SELF(AnimationManager)
       std::vector<std::shared_ptr<DomNode>> update_nodes;
       auto dom_manager = self->dom_manager_.lock();
-      for (auto pair : ani_data) {
+      for (const auto& pair : ani_data) {
         uint32_t ani_id = pair.first;
         auto ani_nodes = self->animations_.find(ani_id);
         if (ani_nodes != self->animations_.end()) {
