@@ -95,7 +95,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
         mUrl = null;
         mImageType = null;
         setBackgroundDrawable(null);
-        Arrays.fill(mShouldSendImageEvent, false);
     }
 
     @Override
@@ -113,13 +112,11 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
 
     protected NativeGestureDispatcher mGestureDispatcher;
-    private final boolean[] mShouldSendImageEvent;
     private Rect mNinePatchRect;
     private NativeRender nativeRenderer;
 
     public HippyImageView(Context context) {
         super(context);
-        mShouldSendImageEvent = new boolean[ImageEvent.values().length];
         if (context instanceof NativeRenderContext) {
             int instanceId = ((NativeRenderContext) context).getInstanceId();
             nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
@@ -147,10 +144,6 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
             ((HippyContentDrawable) mContentDrawable).setNinePatchCoordinate(mNinePatchRect);
             invalidate();
         }
-    }
-
-    protected void setImageEventEnable(int index, boolean enable) {
-        mShouldSendImageEvent[index] = enable;
     }
 
     @Override
@@ -313,57 +306,45 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     @Override
     protected void handleGetImageStart() {
         // send onLoadStart event
-        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_START.ordinal()]) {
-            EventUtils.send(this, EVENT_IMAGE_LOAD_START, null);
-        }
+        EventUtils.send(this, EVENT_IMAGE_LOAD_START, null);
     }
 
     @Override
     protected void handleGetImageProgress(float total, float loaded) {
         // send onLoadStart event
-        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_PROGRESS.ordinal()]) {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("loaded", loaded);
-            params.put("total", total);
-            EventUtils.send(this, EVENT_IMAGE_LOAD_PROGRESS, params);
-        }
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("loaded", loaded);
+        params.put("total", total);
+        EventUtils.send(this, EVENT_IMAGE_LOAD_PROGRESS, params);
     }
 
     @Override
     protected void handleGetImageSuccess() {
         // send onLoad event
-        if (mShouldSendImageEvent[ImageEvent.ON_LOAD.ordinal()]) {
-            EventUtils.send(this, EVENT_IMAGE_ON_LOAD, null);
-        }
+        EventUtils.send(this, EVENT_IMAGE_ON_LOAD, null);
         // send onLoadEnd event
-        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_END.ordinal()]) {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("success", 1);
-            if (mSourceDrawable != null) {
-                Bitmap bitmap = mSourceDrawable.getBitmap();
-                if (bitmap != null) {
-                    HashMap<String, Object> imageSize = new HashMap<>();
-                    imageSize.put("width", bitmap.getWidth());
-                    imageSize.put("height", bitmap.getHeight());
-                    params.put("image", imageSize);
-                }
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("success", 1);
+        if (mSourceDrawable != null) {
+            Bitmap bitmap = mSourceDrawable.getBitmap();
+            if (bitmap != null) {
+                HashMap<String, Object> imageSize = new HashMap<>();
+                imageSize.put("width", bitmap.getWidth());
+                imageSize.put("height", bitmap.getHeight());
+                params.put("image", imageSize);
             }
-            EventUtils.send(this, EVENT_IMAGE_LOAD_END, params);
         }
+        EventUtils.send(this, EVENT_IMAGE_LOAD_END, params);
     }
 
     @Override
     protected void handleGetImageFail(Throwable throwable) {
         // send onError event
-        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_ERROR.ordinal()]) {
-            EventUtils.send(this, EVENT_IMAGE_LOAD_ERROR, null);
-        }
+        EventUtils.send(this, EVENT_IMAGE_LOAD_ERROR, null);
         // send onLoadEnd event
-        if (mShouldSendImageEvent[ImageEvent.ON_LOAD_END.ordinal()]) {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("success", 0);
-            EventUtils.send(this, EVENT_IMAGE_LOAD_END, params);
-        }
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("success", 0);
+        EventUtils.send(this, EVENT_IMAGE_LOAD_END, params);
     }
 
     private void computeMatrixParams() {
