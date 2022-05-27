@@ -115,25 +115,23 @@ int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
     children_.push_back(dom_info->dom_node);
   }
   dom_info->dom_node->SetParent(shared_from_this());
-  int32_t index = dom_info->dom_node->GetRealIndex();
-  layout_node_->InsertChild(dom_info->dom_node->GetLayoutNode(), static_cast<uint32_t>(index));
+  int32_t index = dom_info->dom_node->GetSelfIndex();
+  layout_node_->InsertChild(dom_info->dom_node->GetLayoutNode(), hippy::base::checked_numeric_cast<int32_t,uint32_t>(index));
   return index;
 }
 
 int32_t DomNode::GetChildIndex(uint32_t id) {
   int32_t index = -1;
-  auto it = children_.begin();
-  while (it != children_.end()) {
-    ++index;
-    if (it->get()->GetId() == id) {
-      break;
+  for (uint32_t i = 0; i < children_.size(); ++i) {
+    auto child = children_[i];
+    if (child && child->GetId() == id) {
+      index = static_cast<int32_t>(i);
     }
-    ++it;
   }
   return index;
 }
 
-int32_t DomNode::GetRealIndex() {
+int32_t DomNode::GetSelfIndex() {
   auto parent = parent_.lock();
   if (parent) {
     return parent->GetChildIndex(id_);

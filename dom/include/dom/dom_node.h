@@ -31,7 +31,7 @@ enum RelativeType {
 struct RefInfo {
   uint32_t ref_id;
   int32_t relative_to_ref = RelativeType::kDefault;
-  RefInfo(uint32_t id, int32_t rlf): ref_id(id), relative_to_ref(rlf){}
+  RefInfo(uint32_t id, int32_t ref): ref_id(id), relative_to_ref(ref){}
 
 };
 
@@ -87,7 +87,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline void SetIsVirtual(bool is_virtual) { is_virtual_ = is_virtual; }
   inline void SetIndex(int32_t index) { index_ = index; }
   inline int32_t GetIndex() const { return index_; }
-  int32_t GetRealIndex();
+  int32_t GetSelfIndex();
   int32_t GetChildIndex(uint32_t id);
 
   int32_t IndexOf(const std::shared_ptr<DomNode>& child);
