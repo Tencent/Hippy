@@ -126,7 +126,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
    * @param value 插入的 value
    * @example {a: 1, b: {b1: 2}} -> emplace(b1, 3) -> {a: 1, b: {b1: 3}} -> emplcace(c, 3) -> {a: 1, b: {b1: 3}, c: 3}
    */
-  void EmplaceStyleMap(const std::string key, const DomValue& value);
+  void EmplaceStyleMap(const std::string& key, const DomValue& value);
 
   void UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
                         const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);

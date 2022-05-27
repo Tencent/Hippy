@@ -73,7 +73,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   static std::shared_ptr<DomManager> Find(int32_t id);
   static bool Erase(int32_t id);
   static bool Erase(const std::shared_ptr<DomManager>& dom_manager);
-  void AddInterceptor(std::shared_ptr<DomActionInterceptor> interceptor);
+  void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
  private:
   int32_t id_;

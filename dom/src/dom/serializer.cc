@@ -33,7 +33,7 @@ std::pair<uint8_t*, size_t> Serializer::Release() {
 }
 
 void Serializer::WriteOddball(Oddball oddball) {
-  SerializationTag tag = SerializationTag::kUndefined;
+  SerializationTag tag;
   switch (oddball) {
     case Oddball::kUndefined:
       tag = SerializationTag::kUndefined;
