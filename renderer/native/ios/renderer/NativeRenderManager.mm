@@ -87,6 +87,10 @@ void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& ids,
     }
 }
 
+void NativeRenderManager::MoveRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+    //TODO implement it
+}
+
 void NativeRenderManager::EndBatch() {
     @autoreleasepool {
         [uiManager_ batch];

@@ -131,7 +131,8 @@
     auto nodesData = [self mockNodesData];
     
     //5.create dom nodes with datas
-    _domManager->CreateDomNodes(std::move(nodesData));
+    //TODO 这个demo流程需要删除
+//    _domManager->CreateDomNodes(std::move(nodesData));
     
     //6.end batch
     _domManager->EndBatch();
@@ -198,7 +199,7 @@
                 name.assign([mockNode[key] UTF8String]);
             }
         }
-        std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, index, name, name, std::move(style_map), std::move(ext_map), _domManager);
+        std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, name, name, std::move(style_map), std::move(ext_map), _domManager);
         dom_node_vector.push_back(dom_node);
     }
     return dom_node_vector;

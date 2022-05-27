@@ -130,9 +130,15 @@ function translateToNativeEventName(name) {
   return name.replace(/^(on)?/g, '').toLocaleLowerCase();
 }
 
+const relativeToRefType = {
+  BEFORE: -1,
+  AFTER: 1,
+};
+
 export {
   translateToNativeEventName,
   isNativeGesture,
+  relativeToRefType,
   eventHandlerType,
   nativeEventMap,
   recursivelyUnCacheNode,

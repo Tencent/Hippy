@@ -269,7 +269,6 @@ declare namespace HippyTypes {
   export interface NativeNode {
     id: number;
     pId: number;
-    index: number;
     name?: string;
     style?: NativeStyle;
     tagName?: string;
@@ -278,6 +277,18 @@ declare namespace HippyTypes {
       attributes?: Attributes;
     }
   }
+
+  export enum RelativeToRef {
+    BEFORE = -1,
+    AFTER = 1
+  }
+
+  export interface ReferenceInfo {
+    readonly refId?: number;
+    readonly relativeToRef?: RelativeToRef
+  }
+
+  export type TranslatedNodes = [NativeNode, ReferenceInfo];
 
   export interface EventAttribute {
     name: string;

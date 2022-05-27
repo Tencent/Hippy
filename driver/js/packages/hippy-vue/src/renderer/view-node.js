@@ -21,7 +21,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { insertChild, removeChild } from './native';
+import { relativeToRefType } from '../util/node';
+import { insertChild, removeChild, moveChild } from './native';
 
 const ROOT_VIEW_ID = 0;
 let currentNodeId = 0;
@@ -129,7 +130,12 @@ class ViewNode {
     }
     referenceNode.prevSibling = childNode;
     this.childNodes.splice(index, 0, childNode);
-    return insertChild(this, childNode, index);
+    return insertChild(
+      this,
+      childNode,
+      index,
+      { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
+    );
   }
 
   moveChild(childNode, referenceNode) {
@@ -167,12 +173,21 @@ class ViewNode {
     if (this.childNodes[oldIndex + 1]) {
       this.childNodes[oldIndex + 1].prevSibling = this.childNodes[oldIndex - 1];
     }
+    // this.childNodes.splice(oldIndex, 1);
+    // // remove old child node from native
+    // removeChild(this, childNode, oldIndex);
+    // const newIndex = this.childNodes.indexOf(referenceNode);
+    // this.childNodes.splice(newIndex, 0, childNode);
+
     this.childNodes.splice(oldIndex, 1);
-    // remove old child node from native
-    removeChild(this, childNode, oldIndex);
     const newIndex = this.childNodes.indexOf(referenceNode);
     this.childNodes.splice(newIndex, 0, childNode);
-    return insertChild(this, childNode, newIndex);
+    return moveChild(
+      this,
+      childNode,
+      newIndex,
+      { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
+    );
   }
 
   appendChild(childNode) {
@@ -191,8 +206,16 @@ class ViewNode {
       childNode.prevSibling = this.lastChild;
       this.lastChild.nextSibling = childNode;
     }
+    const referenceIndex = this.childNodes.length - 1;
+    const referenceNode = this.childNodes[referenceIndex];
     this.childNodes.push(childNode);
-    insertChild(this, childNode, this.childNodes.length - 1);
+    const index = referenceIndex + 1;
+    insertChild(
+      this,
+      childNode,
+      index,
+      referenceNode && { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.AFTER },
+    );
   }
 
   removeChild(childNode) {
@@ -247,7 +270,7 @@ class ViewNode {
   /**
    * Traverse the children and execute callback
    */
-  traverseChildren(callback) {
+  traverseChildren(callback, refInfo) {
     // Find the index and apply callback
     let index;
     if (this.parentNode) {
@@ -256,11 +279,11 @@ class ViewNode {
       index = 0;
     }
     this.index = index;
-    callback(this);
+    callback(this, refInfo);
     // Find the children
     if (this.childNodes.length) {
       this.childNodes.forEach((childNode) => {
-        this.traverseChildren.call(childNode, callback);
+        this.traverseChildren.call(childNode, callback, {});
       });
     }
   }

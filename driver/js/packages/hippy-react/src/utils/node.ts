@@ -179,6 +179,10 @@ const eventHandlerType = {
   ADD: 0,
   REMOVE: 1,
 };
+const relativeToRefType = {
+  BEFORE: -1,
+  AFTER: 1,
+};
 const eventNamesMap: EventNamesMap = {
   // onPressIn: ['onPressIn', 'onTouchDown'],
   // onPressOut: ['onPressOut', 'onTouchEnd'],
@@ -209,6 +213,7 @@ function translateToNativeEventName(name) {
 }
 
 export {
+  relativeToRefType,
   NATIVE_EVENT_INDEX,
   eventHandlerType,
   eventNamesMap,

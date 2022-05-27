@@ -25,7 +25,6 @@
  * Virtual DOM to Native DOM
  */
 
-// import { UIManagerModule } from '../../runtime/native';
 import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '../../runtime/constants';
 import {
   getApp,
@@ -34,6 +33,7 @@ import {
   isFunction,
   convertImageLocalPath,
   deepCopy,
+  isTraceEnabled,
 } from '../../util';
 import {
   isRTL,
@@ -54,9 +54,10 @@ const NODE_OPERATION_TYPES = {
   createNode: Symbol('createNode'),
   updateNode: Symbol('updateNode'),
   deleteNode: Symbol('deleteNode'),
+  moveNode: Symbol('moveNode'),
 };
 let __batchIdle = true;
-let __batchNodes = [];
+let batchNodes = [];
 
 /**
  * Convert an ordered node array into multiple fragments
@@ -114,10 +115,27 @@ function handleEventListeners(eventNodes = [], sceneBuilder) {
  */
 let __cssMap;
 
+/**
+ * print nodes operation log
+ * @param {HippyTypes.TranslatedNodes[]} nodes
+ * @param {string} nodeType
+ */
+function printNodeOperation(nodes, nodeType) {
+  if (isTraceEnabled()) {
+    const printedNodes = [];
+    nodes.forEach((node) => {
+      const [domNode, referenceNode] = node || [];
+      const printedNode = Object.assign({}, domNode, referenceNode);
+      printedNodes.push(printedNode);
+    });
+    trace(...componentName, nodeType, printedNodes);
+  }
+}
+
 function endBatch(app) {
   if (!__batchIdle) return;
   __batchIdle = false;
-  if (__batchNodes.length === 0) {
+  if (batchNodes.length === 0) {
     __batchIdle = true;
     return;
   }
@@ -128,30 +146,34 @@ function endBatch(app) {
     },
   } = app;
   $nextTick(() => {
-    const chunks = chunkNodes(__batchNodes);
+    const chunks = chunkNodes(batchNodes);
     const sceneBuilder = new global.SceneBuilder(rootViewId);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NODE_OPERATION_TYPES.createNode:
-          trace(...componentName, 'createNode', chunk.nodes);
+          printNodeOperation(chunk.nodes, 'createNode');
           sceneBuilder.Create(chunk.nodes);
           handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NODE_OPERATION_TYPES.updateNode:
-          trace(...componentName, 'updateNode', chunk.nodes);
+          printNodeOperation(chunk.nodes, 'updateNode');
           sceneBuilder.Update(chunk.nodes);
           handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NODE_OPERATION_TYPES.deleteNode:
-          trace(...componentName, 'deleteNode', chunk.nodes);
+          printNodeOperation(chunk.nodes, 'deleteNode');
           sceneBuilder.Delete(chunk.nodes);
+          break;
+        case NODE_OPERATION_TYPES.moveNode:
+          printNodeOperation(chunk.nodes, 'moveNode');
+          sceneBuilder.Move(chunk.nodes);
           break;
         default:
       }
     });
     sceneBuilder.Build();
     __batchIdle = true;
-    __batchNodes = [];
+    batchNodes = [];
   });
 }
 
@@ -386,9 +408,9 @@ function getEventAttributeAndNode(targetNode) {
 /**
  * Render Element to native
  */
-function renderToNative(rootViewId, targetNode) {
+function renderToNative(rootViewId, targetNode, refInfo = {}) {
   if (targetNode.meta.skipAddToDom) {
-    return {};
+    return [];
   }
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
@@ -414,7 +436,6 @@ function renderToNative(rootViewId, targetNode) {
   const nativeNode = {
     id: targetNode.nodeId,
     pId: (targetNode.parentNode && targetNode.parentNode.nodeId) || rootViewId,
-    index: targetNode.index,
     name: targetNode.meta.component.name,
     props: {
       ...getNativeProps(targetNode),
@@ -422,6 +443,8 @@ function renderToNative(rootViewId, targetNode) {
       style,
     },
   };
+  // convert to translatedNode
+  const translatedNode = [nativeNode, refInfo];
   processModalView(nativeNode);
   // Add nativeNode attributes info for Element debugging
   if (process.env.NODE_ENV !== 'production') {
@@ -430,7 +453,7 @@ function renderToNative(rootViewId, targetNode) {
   }
   parseViewComponent(targetNode, nativeNode, style);
   parseTextInputComponent(targetNode, style);
-  return { nativeNode, eventNode };
+  return [translatedNode, eventNode];
 }
 
 /**
@@ -438,13 +461,14 @@ function renderToNative(rootViewId, targetNode) {
  * @param {number} rootViewId - root view id
  * @param {ViewNode} node - target node to be traversed
  * @param {Function} [callback] - function called on each traversing process
- * @returns {{}}
+ * @param {Object} refInfo - referenceNode information
+ * @returns {[]}
  */
-function renderToNativeWithChildren(rootViewId, node, callback) {
+function renderToNativeWithChildren(rootViewId, node, callback, refInfo = {}) {
   const nativeLanguages = [];
   const eventLanguages = [];
-  node.traverseChildren((targetNode) => {
-    const { nativeNode, eventNode } = renderToNative(rootViewId, targetNode);
+  node.traverseChildren((targetNode, refInfo) => {
+    const [nativeNode, eventNode] = renderToNative(rootViewId, targetNode, refInfo);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
     }
@@ -454,8 +478,8 @@ function renderToNativeWithChildren(rootViewId, node, callback) {
     if (typeof callback === 'function') {
       callback(targetNode);
     }
-  });
-  return { nativeLanguages, eventLanguages };
+  }, refInfo);
+  return [nativeLanguages, eventLanguages];
 }
 
 function isLayout(node, rootView) {
@@ -475,7 +499,7 @@ function isLayout(node, rootView) {
   return node.id === rootView.slice(1 - rootView.length);
 }
 
-function insertChild(parentNode, childNode, atIndex = -1) {
+function insertChild(parentNode, childNode, atIndex = -1, refInfo = {}) {
   if (!parentNode || !childNode) {
     return;
   }
@@ -490,30 +514,23 @@ function insertChild(parentNode, childNode, atIndex = -1) {
     return;
   }
   const { $options: { rootViewId, rootView } } = app;
-  // Render the root node
-  if (isLayout(parentNode, rootView) && !parentNode.isMounted) {
+  const renderRootNodeCondition = isLayout(parentNode, rootView) && !parentNode.isMounted;
+  const renderOtherNodeCondition = parentNode.isMounted && !childNode.isMounted;
+  // Render the root node or other nodes
+  if (renderRootNodeCondition || renderOtherNodeCondition) {
     // Start real native work.
-    const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(rootViewId, parentNode, (node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-      preCacheNode(node, node.nodeId);
-    });
-    __batchNodes.push({
-      type: NODE_OPERATION_TYPES.createNode,
-      nodes: nativeLanguages,
-      eventNodes: eventLanguages,
-    });
-    endBatch(app);
-  // Render others child nodes.
-  } else if (parentNode.isMounted && !childNode.isMounted) {
-    const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(rootViewId, childNode, (node) => {
-      if (!node.isMounted) {
-        node.isMounted = true;
-      }
-      preCacheNode(node, node.nodeId);
-    });
-    __batchNodes.push({
+    const [nativeLanguages, eventLanguages] = renderToNativeWithChildren(
+      rootViewId,
+      renderRootNodeCondition ? parentNode : childNode,
+      (node) => {
+        if (!node.isMounted) {
+          node.isMounted = true;
+        }
+        preCacheNode(node, node.nodeId);
+      },
+      refInfo,
+    );
+    batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: nativeLanguages,
       eventNodes: eventLanguages,
@@ -533,14 +550,46 @@ function removeChild(parentNode, childNode, index) {
   childNode.index = index;
   const app = getApp();
   const { $options: { rootViewId } } = app;
-  const deleteNodeIds = [{
-    id: childNode.nodeId,
-    pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
-    index: childNode.index,
-  }];
-  __batchNodes.push({
+  const deleteNodeIds = [
+    [
+      {
+        id: childNode.nodeId,
+        pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
+      },
+      {},
+    ],
+  ];
+  batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
+    eventNodes: [],
+  });
+  endBatch(app);
+}
+
+function moveChild(parentNode, childNode, index, refInfo = {}) {
+  if (parentNode && parentNode.meta && isFunction(parentNode.meta.removeChild)) {
+    parentNode.meta.removeChild(parentNode, childNode);
+  }
+  if (!childNode || childNode.meta.skipAddToDom) {
+    return;
+  }
+  childNode.isMounted = false;
+  childNode.index = index;
+  const app = getApp();
+  const { $options: { rootViewId } } = app;
+  const moveNodeIds = [
+    [
+      {
+        id: childNode.nodeId,
+        pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
+      },
+      refInfo,
+    ],
+  ];
+  batchNodes.push({
+    type: NODE_OPERATION_TYPES.moveNode,
+    nodes: moveNodeIds,
     eventNodes: [],
   });
   endBatch(app);
@@ -552,9 +601,9 @@ function updateChild(parentNode) {
   }
   const app = getApp();
   const { $options: { rootViewId } } = app;
-  const  { nativeNode, eventNode } = renderToNative(rootViewId, parentNode);
+  const  [nativeNode, eventNode] = renderToNative(rootViewId, parentNode);
   if (nativeNode) {
-    __batchNodes.push({
+    batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
       nodes: [nativeNode],
       eventNodes: [eventNode],
@@ -569,8 +618,8 @@ function updateWithChildren(parentNode) {
   }
   const app = getApp();
   const { $options: { rootViewId } } = app;
-  const { nativeLanguages, eventLanguages } = renderToNativeWithChildren(rootViewId, parentNode);
-  __batchNodes.push({
+  const [nativeLanguages, eventLanguages] = renderToNativeWithChildren(rootViewId, parentNode);
+  batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: nativeLanguages,
     eventNodes: eventLanguages,
@@ -585,5 +634,6 @@ export {
   insertChild,
   removeChild,
   updateChild,
+  moveChild,
   updateWithChildren,
 };

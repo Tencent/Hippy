@@ -194,6 +194,8 @@ void HippyRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&
   CallNativeMethod(buffer_pair, "updateNode");
 }
 
+void HippyRenderManager::MoveRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {}
+
 void HippyRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();

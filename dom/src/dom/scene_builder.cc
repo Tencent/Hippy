@@ -11,7 +11,8 @@ const uint64_t kInvalidListenerId = 0;
 namespace hippy {
 inline namespace dom {
 
-void SceneBuilder::Create(const std::weak_ptr<DomManager>& dom_manager, std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void SceneBuilder::Create(const std::weak_ptr<DomManager>& dom_manager,
+                          std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   ops_.emplace_back([dom_manager, move_nodes = std::move(nodes)]() mutable {
@@ -22,7 +23,8 @@ void SceneBuilder::Create(const std::weak_ptr<DomManager>& dom_manager, std::vec
   });
 }
 
-void SceneBuilder::Update(const std::weak_ptr<DomManager>& dom_manager, std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void SceneBuilder::Update(const std::weak_ptr<DomManager>& dom_manager,
+                          std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   ops_.emplace_back([dom_manager, move_nodes = std::move(nodes)]() mutable {
@@ -33,7 +35,19 @@ void SceneBuilder::Update(const std::weak_ptr<DomManager>& dom_manager, std::vec
   });
 }
 
-void SceneBuilder::Delete(const std::weak_ptr<DomManager>& dom_manager, std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void SceneBuilder::Move(const std::weak_ptr<DomManager>& dom_manager, std::vector<std::shared_ptr<DomInfo>>&& nodes) {
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  ops_.emplace_back([dom_manager, move_nodes = std::move(nodes)]() mutable {
+    auto manager = dom_manager.lock();
+    if (manager) {
+      manager->MoveDomNodes(std::move(move_nodes));
+    }
+  });
+}
+
+void SceneBuilder::Delete(const std::weak_ptr<DomManager>& dom_manager,
+                          std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   ops_.emplace_back([dom_manager, move_nodes = std::move(nodes)]() mutable {
