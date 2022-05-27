@@ -93,7 +93,6 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   int32_t IndexOf(const std::shared_ptr<DomNode>& child);
   std::shared_ptr<DomNode> GetChildAt(size_t index);
   const std::vector<std::shared_ptr<DomNode>> &GetChildren() { return children_; }
-  void AddChildAt(const std::shared_ptr<DomNode> &dom_node, int32_t index);
   int32_t AddChildByRefInfo(const std::shared_ptr<DomInfo> &dom_node);
   std::shared_ptr<DomNode> RemoveChildAt(int32_t index);
   std::shared_ptr<DomNode> RemoveChildById(uint32_t id);

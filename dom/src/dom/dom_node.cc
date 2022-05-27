@@ -68,47 +68,21 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(size_t index) {
   return children_[index];
 }
 
-void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index) {
-  auto it = children_.begin();
-  auto insert_index = 0;
-  while (it != children_.end()) {
-    if (index < it->get()->GetIndex()) {
-      break;
-    }
-    it++;
-    insert_index++;
-  }
-  if (it == children_.end()) {
-    children_.push_back(dom_node);
-  } else {
-    children_.insert(it, dom_node);
-  }
-  dom_node->SetParent(shared_from_this());
-
-  // TODO(charleeshen): 支持不同的view，需要终端注册
-  if (view_name_ == "Text") {
-    return;
-  }
-  layout_node_->InsertChild(dom_node->GetLayoutNode(), (uint32_t)(index));
-}
-
 int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
-  auto it = children_.begin();
   std::shared_ptr<RefInfo> ref_info = dom_info->ref_info;
   if (ref_info) {
-    while (it != children_.end()) {
-      if (ref_info->ref_id == it->get()->GetId()) {
+    for (uint32_t i = 0 ; i < children_.size() ; ++i) {
+      auto child = children_[i];
+      if (ref_info->ref_id == child->GetId()) {
+        if (ref_info->relative_to_ref == RelativeType::kFront) {
+          children_.insert(children_.begin() + i, dom_info->dom_node);
+        } else {
+          children_.insert(children_.begin() + i + 1, dom_info->dom_node);
+        }
         break;
       }
-      ++it;
-    }
-    if (it == children_.end()) {
-      children_.push_back(dom_info->dom_node);
-    } else {
-      if (ref_info->relative_to_ref == RelativeType::kFront) {
-        children_.insert(it, dom_info->dom_node);
-      } else {
-        children_.insert(++it, dom_info->dom_node);
+      if (i == children_.size() - 1) {
+        children_.push_back(dom_info->dom_node);
       }
     }
   } else {
@@ -116,6 +90,10 @@ int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
   }
   dom_info->dom_node->SetParent(shared_from_this());
   int32_t index = dom_info->dom_node->GetSelfIndex();
+  // TODO(charleeshen): 支持不同的view，需要终端注册
+  if (view_name_ == "Text") {
+    return index;
+  }
   layout_node_->InsertChild(dom_info->dom_node->GetLayoutNode(), hippy::base::checked_numeric_cast<int32_t,uint32_t>(index));
   return index;
 }
@@ -126,6 +104,7 @@ int32_t DomNode::GetChildIndex(uint32_t id) {
     auto child = children_[i];
     if (child && child->GetId() == id) {
       index = static_cast<int32_t>(i);
+      break;
     }
   }
   return index;
