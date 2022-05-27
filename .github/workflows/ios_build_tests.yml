@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          lfs: true
+      - name: Build
         run: |
-          # https://github.com/actions/virtual-environments/issues/4180
-          pushd examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd
+          pushd driver/js/examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd
