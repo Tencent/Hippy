@@ -12,6 +12,7 @@ on:
       - 'driver/js/core/**'
       - 'layout/android/**'
       - 'renderer/native/android/**'
+      - 'devtools/devtools-backend/**'
       - 'gradle/**'
       - 'build.gradle'
       - 'gradle.properties'

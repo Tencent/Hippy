@@ -12,6 +12,7 @@ on:
       - 'driver/js/core/**'
       - 'layout/ios/**'
       - 'renderer/native/ios/**'
+      - 'devtools/devtools-backend/**'
       - 'hippy.podspec'
 
 jobs:
