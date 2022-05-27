@@ -50,13 +50,13 @@ AnimationManager::AnimationManager(const std::shared_ptr<DomManager>& dom_manage
 
 void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
   for (const std::shared_ptr<DomInfo>& node : nodes) {
-    ParseAnimation(node->domNode);
+    ParseAnimation(node->dom_node);
   }
 }
 
 void AnimationManager::OnDomNodeUpdate(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
   for (const std::shared_ptr<DomInfo>& node : nodes) {
-    ParseAnimation(node->domNode);
+    ParseAnimation(node->dom_node);
   }
 }
 
@@ -64,7 +64,7 @@ void AnimationManager::OnDomNodeMove(const std::vector<std::shared_ptr<DomInfo>>
 
 void AnimationManager::OnDomNodeDelete(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
   for (const std::shared_ptr<DomInfo>& node : nodes) {
-    DeleteAnimation(node->domNode);
+    DeleteAnimation(node->dom_node);
   }
 }
 

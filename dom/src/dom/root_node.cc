@@ -22,7 +22,7 @@ RootNode::RootNode(uint32_t id)
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& nodeInfo : nodes) {
-    auto node = nodeInfo->domNode;
+    auto node = nodeInfo->dom_node;
     std::shared_ptr<DomNode> parent_node = GetNode(node->GetPid());
     if (parent_node == nullptr) {
       continue;
@@ -51,14 +51,14 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
 void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_update;
   for (const auto& it : nodes) {
-    std::shared_ptr<DomNode> node = GetNode(it->domNode->GetId());
+    std::shared_ptr<DomNode> node = GetNode(it->dom_node->GetId());
     if (node == nullptr) {
       continue;
     }
     nodes_to_update.push_back(node);
     // diff props
-    auto style_diff_value = DiffUtils::DiffProps(*node->GetStyleMap(), *it->domNode->GetStyleMap());
-    auto ext_diff_value = DiffUtils::DiffProps(*node->GetExtStyle(), *it->domNode->GetExtStyle());
+    auto style_diff_value = DiffUtils::DiffProps(*node->GetStyleMap(), *it->dom_node->GetStyleMap());
+    auto ext_diff_value = DiffUtils::DiffProps(*node->GetExtStyle(), *it->dom_node->GetExtStyle());
     auto style_update = std::get<0>(style_diff_value);
     auto ext_update = std::get<0>(ext_diff_value);
     std::shared_ptr<DomValueMap> diff_value = std::make_shared<DomValueMap>();
@@ -68,8 +68,8 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     if (ext_update) {
       diff_value->insert(ext_update->begin(), ext_update->end());
     }
-    node->SetStyleMap(it->domNode->GetStyleMap());
-    node->SetExtStyleMap(it->domNode->GetExtStyle());
+    node->SetStyleMap(it->dom_node->GetStyleMap());
+    node->SetExtStyleMap(it->dom_node->GetExtStyle());
     node->SetDiffStyle(diff_value);
     auto style_delete = std::get<1>(style_diff_value);
     auto ext_delete = std::get<1>(ext_diff_value);
@@ -81,8 +81,8 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
       delete_value->insert(delete_value->end(), ext_delete->begin(), ext_delete->end());
     }
     node->SetDeleteProps(delete_value);
-    it->domNode->SetDiffStyle(diff_value);
-    it->domNode->SetDeleteProps(delete_value);
+    it->dom_node->SetDiffStyle(diff_value);
+    it->dom_node->SetDeleteProps(delete_value);
     node->ParseLayoutStyleInfo();
     auto event = std::make_shared<DomEvent>(kDomUpdated, node, nullptr);
     node->HandleEvent(event);
@@ -99,16 +99,16 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
 void RootNode::MoveDomNodes(std::vector<std::shared_ptr<DomInfo>> &&nodes) {
     std::vector<std::shared_ptr<DomNode>> nodes_to_move;
     for (const auto& nodeInfo : nodes) {
-        std::shared_ptr<DomNode> parent_node = GetNode(nodeInfo->domNode->GetPid());
+        std::shared_ptr<DomNode> parent_node = GetNode(nodeInfo->dom_node->GetPid());
         if (parent_node == nullptr) {
             continue;
         }
-        auto node = parent_node->RemoveChildById(nodeInfo->domNode->GetId());
+        auto node = parent_node->RemoveChildById(nodeInfo->dom_node->GetId());
         if (node == nullptr) {
             continue;
         }
         nodes_to_move.push_back(node);
-        parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, nodeInfo->refInfo));
+        parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, nodeInfo->ref_info));
     }
     for(const auto& node: nodes_to_move) {
         node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetRealIndex()});
@@ -121,7 +121,7 @@ void RootNode::MoveDomNodes(std::vector<std::shared_ptr<DomInfo>> &&nodes) {
 void RootNode::DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_delete;
   for (const auto & it : nodes) {
-    std::shared_ptr<DomNode> node = GetNode(it->domNode->GetId());
+    std::shared_ptr<DomNode> node = GetNode(it->dom_node->GetId());
     if (node == nullptr) {
       continue;
     }

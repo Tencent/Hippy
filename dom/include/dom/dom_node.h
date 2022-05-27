@@ -36,9 +36,9 @@ struct RefInfo {
 };
 
 struct DomInfo {
-  std::shared_ptr<DomNode> domNode;
-  std::shared_ptr<RefInfo> refInfo;
-  DomInfo(std::shared_ptr<DomNode> node, std::shared_ptr<RefInfo> ref) : domNode(node), refInfo(ref) {}
+  std::shared_ptr<DomNode> dom_node;
+  std::shared_ptr<RefInfo> ref_info;
+  DomInfo(std::shared_ptr<DomNode> node, std::shared_ptr<RefInfo> ref) : dom_node(node), ref_info(ref) {}
 };
 
 class DomNode : public std::enable_shared_from_this<DomNode> {
