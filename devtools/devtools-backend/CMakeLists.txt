@@ -18,15 +18,15 @@
   limitations under the License.
 ]]
 
-cmake_minimum_required(VERSION 3.4.1)
-set(CMAKE_CXX_STANDARD 17)
+cmake_minimum_required(VERSION 3.14)
+
+project("devtools_backend")
+
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(PROJECT_NAME devtools_backend)
-project(${PROJECT_NAME})
-message("make devtools_backend")
+set(CMAKE_CXX_STANDARD 17)
 
 get_filename_component(DEVTOOLS_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/" REALPATH)
-get_filename_component(THIRD_PARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/" REALPATH)
+get_filename_component(THIRD_PARTY_PATH "${CMAKE_CURRENT_SOURCE_DIR}/third_party/" REALPATH)
 set(BACKEND_INCLUDE_DIR ${DEVTOOLS_ROOT_PATH}/include)
 message("DEVTOOLS_ROOT_PATH : ${DEVTOOLS_ROOT_PATH}")
 
@@ -64,4 +64,4 @@ elseif (APPLE)
   add_subdirectory("${DEVTOOLS_ROOT_PATH}/test" unit_test)
 endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_PATH}/nlohmannjson/single_include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_PATH}/nlohmann/single_include)
