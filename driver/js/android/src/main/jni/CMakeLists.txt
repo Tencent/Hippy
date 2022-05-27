@@ -94,7 +94,6 @@ add_compile_options(${ABI_COMPILE_OPTIONS})
 get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../core" REALPATH)
 get_filename_component(RENDER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../renderer" REALPATH)
 get_filename_component(DOM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../dom" REALPATH)
-get_filename_component(LAYOUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../layout" REALPATH)
 # endregion
 
 # region dependencies
@@ -185,7 +184,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CORE_SRC_DIR}/include)
 include_directories(${CORE_SRC_DIR}/third_party/base/include)
 include_directories(${DOM_SRC_DIR}/include)
-include_directories(${LAYOUT_DIR})
 include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
