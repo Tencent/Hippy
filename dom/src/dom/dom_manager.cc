@@ -74,7 +74,7 @@ uint32_t DomManager::GetRootId() const { return root_node_->GetId(); }
 
 std::shared_ptr<DomNode> DomManager::GetNode(uint32_t id) const { return root_node_->GetNode(id); }
 
-void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   DCHECK_RUN_THREAD()
   for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
     interceptor->OnDomNodeCreate(nodes);
@@ -82,7 +82,7 @@ void DomManager::CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   root_node_->CreateDomNodes(std::move(nodes));
 }
 
-void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   DCHECK_RUN_THREAD()
   for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
     interceptor->OnDomNodeUpdate(nodes);
@@ -90,12 +90,20 @@ void DomManager::UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   root_node_->UpdateDomNodes(std::move(nodes));
 }
 
+void DomManager::MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
+  DCHECK_RUN_THREAD()
+  for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
+    interceptor->OnDomNodeMove(nodes);
+  }
+  root_node_->MoveDomNodes(std::move(nodes));
+}
+
 void DomManager::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   DCHECK_RUN_THREAD()
   root_node_->UpdateAnimation(std::move(nodes));
 }
 
-void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void DomManager::DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   DCHECK_RUN_THREAD()
   for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
     interceptor->OnDomNodeDelete(nodes);

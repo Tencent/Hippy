@@ -26,7 +26,7 @@ class DomNode;
 class RenderManager;
 class RootNode;
 class LayerOptimizedRenderManager;
-
+struct DomInfo;
 // This class is used to mainpulate dom. Please note that the member
 // function of this class must be run in dom thread. If you want to call
 // in other thread please use PostTask.
@@ -52,9 +52,10 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   uint32_t GetRootId() const;
   std::shared_ptr<DomNode> GetNode(uint32_t id) const;
 
-  void CreateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void UpdateDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void DeleteDomNodes(std::vector<std::shared_ptr<DomNode>>&& nodes);
+  void CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes);
   void EndBatch();
   // 返回0代表失败，正常id从1开始

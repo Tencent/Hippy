@@ -21,13 +21,12 @@ constexpr char kLayoutHeightKey[] = "height";
 
 using DomValueObjectType = tdf::base::DomValue::DomValueObjectType;
 
-DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name, std::string view_name,
+DomNode::DomNode(uint32_t id, uint32_t pid, std::string tag_name, std::string view_name,
                  std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
                  std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
                  const std::shared_ptr<DomManager>& dom_manager)
     : id_(id),
       pid_(pid),
-      index_(index),
       tag_name_(std::move(tag_name)),
       view_name_(std::move(view_name)),
       style_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(style_map))),
@@ -41,10 +40,9 @@ DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name,
   layout_node_ = hippy::dom::CreateLayoutNode();
 }
 
-DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index)
+DomNode::DomNode(uint32_t id, uint32_t pid)
     : id_(id),
       pid_(pid),
-      index_(index),
       is_virtual_(false),
       current_callback_id_(0),
       func_cb_map_(nullptr),
@@ -70,28 +68,54 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(size_t index) {
   return children_[index];
 }
 
-void DomNode::AddChildAt(const std::shared_ptr<DomNode>& dom_node, int32_t index) {
-  auto it = children_.begin();
-  auto insert_index = 0;
-  while (it != children_.end()) {
-    if (index < it->get()->GetIndex()) {
-      break;
+int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
+  std::shared_ptr<RefInfo> ref_info = dom_info->ref_info;
+  if (ref_info) {
+    for (uint32_t i = 0 ; i < children_.size() ; ++i) {
+      auto child = children_[i];
+      if (ref_info->ref_id == child->GetId()) {
+        if (ref_info->relative_to_ref == RelativeType::kFront) {
+          children_.insert(children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i), dom_info->dom_node);
+        } else {
+          children_.insert(children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i + 1), dom_info->dom_node);
+        }
+        break;
+      }
+      if (i == children_.size() - 1) {
+        children_.push_back(dom_info->dom_node);
+      }
     }
-    it++;
-    insert_index++;
-  }
-  if (it == children_.end()) {
-    children_.push_back(dom_node);
   } else {
-    children_.insert(it, dom_node);
+    children_.push_back(dom_info->dom_node);
   }
-  dom_node->SetParent(shared_from_this());
-
+  dom_info->dom_node->SetParent(shared_from_this());
+  int32_t index = dom_info->dom_node->GetSelfIndex();
   // TODO(charleeshen): 支持不同的view，需要终端注册
   if (view_name_ == "Text") {
-    return;
+    return index;
   }
-  layout_node_->InsertChild(dom_node->GetLayoutNode(), (uint32_t)(index));
+  layout_node_->InsertChild(dom_info->dom_node->GetLayoutNode(), hippy::base::checked_numeric_cast<int32_t,uint32_t>(index));
+  return index;
+}
+
+int32_t DomNode::GetChildIndex(uint32_t id) {
+  int32_t index = -1;
+  for (uint32_t i = 0; i < children_.size(); ++i) {
+    auto child = children_[i];
+    if (child && child->GetId() == id) {
+      index = static_cast<int32_t>(i);
+      break;
+    }
+  }
+  return index;
+}
+
+int32_t DomNode::GetSelfIndex() {
+  auto parent = parent_.lock();
+  if (parent) {
+    return parent->GetChildIndex(id_);
+  }
+  return -1;
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
@@ -100,6 +124,21 @@ std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
   children_.erase(children_.begin() + index);
   layout_node_->RemoveChild(child->GetLayoutNode());
   return child;
+}
+
+std::shared_ptr<DomNode> DomNode::RemoveChildById(uint32_t id) {
+  auto it = children_.begin();
+  while (it != children_.end()) {
+    auto child = *it;
+    if (id == child->GetId()) {
+      child->SetParent(nullptr);
+      children_.erase(it);
+      layout_node_->RemoveChild(child->GetLayoutNode());
+      return child;
+    }
+    it++;
+  }
+  return nullptr;
 }
 
 void DomNode::DoLayout() {

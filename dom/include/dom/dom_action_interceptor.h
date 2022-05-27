@@ -8,13 +8,15 @@
 namespace hippy {
 inline namespace dom {
 class DomNode;
+struct DomInfo;
 class DomActionInterceptor {
  public:
-  virtual void OnDomNodeCreate(const std::vector<std::shared_ptr<DomNode>>& nodes) = 0;
+  virtual void OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) = 0;
 
-  virtual void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomNode>>& nodes) = 0;
+  virtual void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomInfo>>& nodes) = 0;
+  virtual void OnDomNodeMove(const std::vector<std::shared_ptr<DomInfo>>& nodes) = 0;
 
-  virtual void OnDomNodeDelete(const std::vector<std::shared_ptr<DomNode>>& nodes) = 0;
+  virtual void OnDomNodeDelete(const std::vector<std::shared_ptr<DomInfo>>& nodes) = 0;
   virtual ~DomActionInterceptor() = default;
 };
 }  // namespace dom

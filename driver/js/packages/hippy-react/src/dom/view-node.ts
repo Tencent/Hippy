@@ -21,7 +21,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import { insertChild, removeChild } from '../renderer/render';
+import { insertChild, removeChild, moveChild } from '../renderer/render';
+import { relativeToRefType } from '../utils/node';
 
 let currentNodeId = 0;
 function getNodeId() {
@@ -99,7 +100,12 @@ class ViewNode {
     const index = this.childNodes.indexOf(referenceNode);
     childNode.parentNode = this;
     this.childNodes.splice(index, 0, childNode);
-    return insertChild(this, childNode, index);
+    return insertChild(
+      this,
+      childNode,
+      index,
+      { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
+    );
   }
 
   public moveChild(childNode: ViewNode, referenceNode: ViewNode) {
@@ -124,12 +130,21 @@ class ViewNode {
     if (referenceIndex === oldIndex) {
       return childNode;
     }
-    // remove old child and insert new child, which is like moving child
+    // // remove old child and insert new child, which is like moving child
+    // this.childNodes.splice(oldIndex, 1);
+    // removeChild(this, childNode, oldIndex);
+    // const newIndex = this.childNodes.indexOf(referenceNode);
+    // this.childNodes.splice(newIndex, 0, childNode);
+    // return insertChild(this, childNode, newIndex);
     this.childNodes.splice(oldIndex, 1);
-    removeChild(this, childNode, oldIndex);
     const newIndex = this.childNodes.indexOf(referenceNode);
     this.childNodes.splice(newIndex, 0, childNode);
-    return insertChild(this, childNode, newIndex);
+    return moveChild(
+      this,
+      childNode,
+      referenceIndex,
+      { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
+    );
   }
 
   public appendChild(childNode: ViewNode) {
@@ -143,8 +158,16 @@ class ViewNode {
       throw new Error('Can\'t append child, because it already has a different parent.');
     }
     childNode.parentNode = this;
+    const referenceIndex = this.childNodes.length - 1;
+    const referenceNode = this.childNodes[referenceIndex];
     this.childNodes.push(childNode);
-    insertChild(this, childNode, this.childNodes.length - 1);
+    const index = referenceIndex + 1;
+    insertChild(
+      this,
+      childNode,
+      index,
+      referenceNode && { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.AFTER },
+    );
   }
 
   public removeChild(childNode: ViewNode) {
@@ -189,14 +212,15 @@ class ViewNode {
    * Traverse the children and execute callback
    * @param callback - callback function
    * @param newIndex - index to be updated
+   * @param refInfo - reference node info
    */
-  public traverseChildren(callback: Function, newIndex: number | undefined = 0) {
+  public traverseChildren(callback: Function, newIndex: number | undefined = 0, refInfo) {
     this.index = !this.parentNode ? 0 : newIndex;
-    callback(this);
+    callback(this, refInfo);
     // Find the children
     if (this.childNodes.length) {
       this.childNodes.forEach((childNode, index) => {
-        this.traverseChildren.call(childNode, callback, index);
+        this.traverseChildren.call(childNode, callback, index, {});
       });
     }
   }

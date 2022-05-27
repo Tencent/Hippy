@@ -68,26 +68,21 @@ function getBeforeLoadStyle() {
 }
 
 const infoTrace = once(() => {
-  console.log('Hippy-Vue has "Vue.config.silent" set to true, to see output logs set it to false.');
+  console.log('Hippy-Vue has "Vue.config.silent" to control trace log output, to see output logs if set it to false.');
 });
 
+function isTraceEnabled() {
+  return !(process.env.NODE_ENV === 'production'
+    || (process && process.release)
+    || (_Vue && _Vue.config.silent));
+}
+
 function trace(...context) {
-  // In production build
-  if (process.env.NODE_ENV === 'production') {
-    return;
-  }
-
-  // Not in debugger mode or running in NodeJS
-  if (process && process.release) {
-    return;
-  }
-
-  // Print message while keeps silent
-  if (_Vue && _Vue.config.silent) {
+  if (isTraceEnabled()) {
+    console.log(...context);
+  } else if (_Vue && _Vue.config.silent) {
     infoTrace();
-    return;
   }
-  console.log(...context);
 }
 
 function warn(...context) {
@@ -232,6 +227,7 @@ export {
   setBeforeLoadStyle,
   getBeforeLoadStyle,
   trace,
+  isTraceEnabled,
   warn,
   capitalizeFirstLetter,
   tryConvertNumber,

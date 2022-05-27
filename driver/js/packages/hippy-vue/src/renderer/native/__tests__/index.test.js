@@ -23,6 +23,7 @@ before(() => {
     this.Create = () => {};
     this.Update = () => {};
     this.Delete = () => {};
+    this.Move = () => {};
     this.Build = () => {};
     this.AddEventListener = () => {};
     this.RemoveEventListener = () => {};
@@ -41,11 +42,10 @@ before(() => {
 test('renderToNative simple test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('div');
-  const { nativeNode, eventNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode, eventNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 1,
     pId: ROOT_VIEW_ID,
-    index: 0,
     name: 'View',
     props: {
       attributes: {
@@ -55,7 +55,7 @@ test('renderToNative simple test --debug mode', (t) => {
       style: {},
     },
     tagName: 'div',
-  });
+  }, {}]);
   t.deepEqual(eventNode, {
     id: 1,
     eventList: [],
@@ -65,16 +65,15 @@ test('renderToNative simple test --debug mode', (t) => {
 test('renderToNative simple test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('div');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 2,
     pId: ROOT_VIEW_ID,
-    index: 0,
     name: 'View',
     props: {
       style: {},
     },
-  });
+  }, {}]);
 });
 
 test('renderToNative test with children --debug mode', (t) => {
@@ -109,13 +108,12 @@ test('renderToNative test with children --debug mode', (t) => {
   parentNode.appendChild(childNode4);
   parentNode.appendChild(childNode5);
   parentNode.appendChild(childNode6);
-  const { nativeLanguages } = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
+  const [nativeLanguages] = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
   t.true(Array.isArray(nativeLanguages));
   t.deepEqual(nativeLanguages, [
-    {
+    [{
       id: 3,
       pId: ROOT_VIEW_ID,
-      index: 0,
       name: 'View',
       props: {
         attributes: {
@@ -125,11 +123,10 @@ test('renderToNative test with children --debug mode', (t) => {
         style: {},
       },
       tagName: 'div',
-    },
-    {
+    }, {}],
+    [{
       id: 4,
       pId: 3,
-      index: 0,
       name: 'View',
       props: {
         attributes: {
@@ -139,11 +136,10 @@ test('renderToNative test with children --debug mode', (t) => {
         style: {},
       },
       tagName: 'div',
-    },
-    {
+    }, {}],
+    [{
       id: 5,
       pId: 3,
-      index: 1,
       name: 'Text',
       props: {
         attributes: {
@@ -156,11 +152,10 @@ test('renderToNative test with children --debug mode', (t) => {
         },
       },
       tagName: 'p',
-    },
-    {
+    }, {}],
+    [{
       id: 6,
       pId: 3,
-      index: 2,
       name: 'Text',
       props: {
         attributes: {
@@ -173,11 +168,10 @@ test('renderToNative test with children --debug mode', (t) => {
         },
       },
       tagName: 'span',
-    },
-    {
+    }, {}],
+    [{
       id: 8,
       pId: 3,
-      index: 3,
       name: 'Image',
       props: {
         attributes: {
@@ -191,11 +185,10 @@ test('renderToNative test with children --debug mode', (t) => {
         },
       },
       tagName: 'img',
-    },
-    {
+    }, {}],
+    [{
       id: 9,
       pId: 3,
-      index: 4,
       name: 'TextInput',
       props: {
         attributes: {
@@ -213,11 +206,10 @@ test('renderToNative test with children --debug mode', (t) => {
         },
       },
       tagName: 'input',
-    },
-    {
+    }, {}],
+    [{
       id: 11,
       pId: 3,
-      index: 5,
       name: 'TextInput',
       props: {
         attributes: {
@@ -262,7 +254,7 @@ test('renderToNative test with children --debug mode', (t) => {
         },
       },
       tagName: 'textarea',
-    },
+    }, {}],
   ]);
 });
 
@@ -287,31 +279,28 @@ test('renderToNative test with children --production mode', (t) => {
   parentNode.appendChild(childNode4);
   parentNode.appendChild(childNode5);
   parentNode.appendChild(childNode6);
-  const { nativeLanguages } = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
+  const [nativeLanguages] = renderToNativeWithChildren(ROOT_VIEW_ID, parentNode);
   t.true(Array.isArray(nativeLanguages));
   t.deepEqual(nativeLanguages, [
-    {
+    [{
       id: 12,
       pId: ROOT_VIEW_ID,
-      index: 0,
       name: 'View',
       props: {
         style: {},
       },
-    },
-    {
+    }, {}],
+    [{
       id: 13,
       pId: 12,
-      index: 0,
       name: 'View',
       props: {
         style: {},
       },
-    },
-    {
+    }, {}],
+    [{
       id: 14,
       pId: 12,
-      index: 1,
       name: 'Text',
       props: {
         text: '',
@@ -319,11 +308,10 @@ test('renderToNative test with children --production mode', (t) => {
           color: 4278190080,
         },
       },
-    },
-    {
+    }, {}],
+    [{
       id: 15,
       pId: 12,
-      index: 2,
       name: 'Text',
       props: {
         text: 'Hello',
@@ -331,11 +319,10 @@ test('renderToNative test with children --production mode', (t) => {
           color: 4278190080,
         },
       },
-    },
-    {
+    }, {}],
+    [{
       id: 17,
       pId: 12,
-      index: 3,
       name: 'Image',
       props: {
         src: 'https://hippyjs.org',
@@ -343,11 +330,10 @@ test('renderToNative test with children --production mode', (t) => {
           backgroundColor: 0,
         },
       },
-    },
-    {
+    }, {}],
+    [{
       id: 18,
       pId: 12,
-      index: 4,
       name: 'TextInput',
       props: {
         keyboardType: 'numeric',
@@ -359,11 +345,10 @@ test('renderToNative test with children --production mode', (t) => {
           padding: 0,
         },
       },
-    },
-    {
+    }, {}],
+    [{
       id: 19,
       pId: 12,
-      index: 5,
       name: 'TextInput',
       props: {
         multiline: true,
@@ -375,7 +360,7 @@ test('renderToNative test with children --production mode', (t) => {
           padding: 0,
         },
       },
-    },
+    }, {}],
   ]);
 });
 
@@ -385,10 +370,9 @@ test('img attributeMaps test --debug mode', (t) => {
   const node = DocumentNode.createElement('img');
   node.setAttribute('src', 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
   node.setAttribute('alt', 'Test');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 21,
-    index: 0,
     name: 'Image',
     pId: ROOT_VIEW_ID,
     props: {
@@ -405,7 +389,7 @@ test('img attributeMaps test --debug mode', (t) => {
       },
     },
     tagName: 'img',
-  });
+  }, {}]);
 });
 
 test('img attributeMaps test --production mode', (t) => {
@@ -413,10 +397,9 @@ test('img attributeMaps test --production mode', (t) => {
   const node = DocumentNode.createElement('img');
   node.setAttribute('src', 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
   node.setAttribute('alt', 'Test');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 22,
-    index: 0,
     name: 'Image',
     pId: ROOT_VIEW_ID,
     props: {
@@ -426,17 +409,16 @@ test('img attributeMaps test --production mode', (t) => {
         backgroundColor: 0,
       },
     },
-  });
+  }, {}]);
 });
 
 test('span attributeMaps test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('span');
   node.setAttribute('text', 'Test');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 23,
-    index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
     props: {
@@ -450,17 +432,16 @@ test('span attributeMaps test --debug mode', (t) => {
       },
     },
     tagName: 'span',
-  });
+  }, {}]);
 });
 
 test('span attributeMaps test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('span');
   node.setAttribute('text', 'Test');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 24,
-    index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
     props: {
@@ -469,7 +450,7 @@ test('span attributeMaps test --production mode', (t) => {
         color: 4278190080,
       },
     },
-  });
+  }, {}]);
 });
 
 test('a href attribute test --debug mode', (t) => {
@@ -477,10 +458,9 @@ test('a href attribute test --debug mode', (t) => {
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
   node.setAttribute('href', '/test');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 25,
-    index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
     props: {
@@ -496,7 +476,7 @@ test('a href attribute test --debug mode', (t) => {
       },
     },
     tagName: 'a',
-  });
+  }, {}]);
 });
 
 test('a href attribute test --production mode', (t) => {
@@ -504,10 +484,9 @@ test('a href attribute test --production mode', (t) => {
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
   node.setAttribute('href', '/test');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 26,
-    index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
     props: {
@@ -517,7 +496,7 @@ test('a href attribute test --production mode', (t) => {
         color: 4278190318,
       },
     },
-  });
+  }, {}]);
 });
 
 test('a href attribute with http prefix test --debug mode', (t) => {
@@ -525,10 +504,9 @@ test('a href attribute with http prefix test --debug mode', (t) => {
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
   node.setAttribute('href', 'https://hippyjs.org');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 27,
-    index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
     props: {
@@ -544,7 +522,7 @@ test('a href attribute with http prefix test --debug mode', (t) => {
       },
     },
     tagName: 'a',
-  });
+  }, {}]);
 });
 
 test('a href attribute with http prefix test --production mode', (t) => {
@@ -552,10 +530,9 @@ test('a href attribute with http prefix test --production mode', (t) => {
   const node = DocumentNode.createElement('a');
   node.setAttribute('text', 'Test');
   node.setAttribute('href', 'https://hippyjs.org');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 28,
-    index: 0,
     name: 'Text',
     pId: ROOT_VIEW_ID,
     props: {
@@ -565,7 +542,7 @@ test('a href attribute with http prefix test --production mode', (t) => {
         color: 4278190318,
       },
     },
-  });
+  }, {}]);
 });
 
 test('div with overflow-X scroll test --debug mode', (t) => {
@@ -573,10 +550,9 @@ test('div with overflow-X scroll test --debug mode', (t) => {
   Native.Localization = { direction: 0 };
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 29,
-    index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
     props: {
@@ -591,12 +567,11 @@ test('div with overflow-X scroll test --debug mode', (t) => {
       },
     },
     tagName: 'div',
-  });
+  }, {}]);
   Native.Localization = { direction: 1 };
-  const { nativeNode: nativeNode2 } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode2, {
+  const [nativeNode2] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode2, [{
     id: 29,
-    index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
     props: {
@@ -611,7 +586,7 @@ test('div with overflow-X scroll test --debug mode', (t) => {
       },
     },
     tagName: 'div',
-  });
+  }, {}]);
 });
 
 test('div with overflow-X scroll test --production mode', (t) => {
@@ -619,10 +594,9 @@ test('div with overflow-X scroll test --production mode', (t) => {
   Native.Localization = { direction: 0 };
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 31,
-    index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
     props: {
@@ -632,12 +606,11 @@ test('div with overflow-X scroll test --production mode', (t) => {
         overflowX: 'scroll',
       },
     },
-  });
+  }, {}]);
   Native.Localization = { direction: 1 };
-  const { nativeNode: nativeNode2 } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode2, {
+  const [nativeNode2] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode2, [{
     id: 31,
-    index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
     props: {
@@ -647,17 +620,16 @@ test('div with overflow-X scroll test --production mode', (t) => {
         overflowX: 'scroll',
       },
     },
-  });
+  }, {}]);
 });
 
 test('div with overflowY scroll test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 32,
-    index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
     props: {
@@ -670,17 +642,16 @@ test('div with overflowY scroll test --debug mode', (t) => {
       },
     },
     tagName: 'div',
-  });
+  }, {}]);
 });
 
 test('div with overflowY scroll test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 33,
-    index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
     props: {
@@ -688,7 +659,7 @@ test('div with overflowY scroll test --production mode', (t) => {
         overflowY: 'scroll',
       },
     },
-  });
+  }, {}]);
 });
 
 test('div with overflowX and overflowY scroll test --debug mode', (t) => {
@@ -696,10 +667,9 @@ test('div with overflowX and overflowY scroll test --debug mode', (t) => {
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
   node.setStyle('overflowY', 'scroll');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 34,
-    index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
     props: {
@@ -713,7 +683,7 @@ test('div with overflowX and overflowY scroll test --debug mode', (t) => {
       },
     },
     tagName: 'div',
-  });
+  }, {}]);
 });
 
 test('div with overflowX and overflowY scroll test --production mode', (t) => {
@@ -721,10 +691,9 @@ test('div with overflowX and overflowY scroll test --production mode', (t) => {
   const node = DocumentNode.createElement('div');
   node.setStyle('overflowX', 'scroll');
   node.setStyle('overflowY', 'scroll');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 35,
-    index: 0,
     name: 'ScrollView',
     pId: ROOT_VIEW_ID,
     props: {
@@ -733,7 +702,7 @@ test('div with overflowX and overflowY scroll test --production mode', (t) => {
         overflowY: 'scroll',
       },
     },
-  });
+  }, {}]);
 });
 
 test('div with child node and overflowX scroll test --debug mode', (t) => {
@@ -742,11 +711,10 @@ test('div with child node and overflowX scroll test --debug mode', (t) => {
   const childNode = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
   node.appendChild(childNode);
-  const { nativeLanguages } = renderToNativeWithChildren(ROOT_VIEW_ID, node);
+  const  [nativeLanguages] = renderToNativeWithChildren(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguages, [
-    {
+    [{
       id: 36,
-      index: 0,
       name: 'ScrollView',
       pId: ROOT_VIEW_ID,
       props: {
@@ -759,10 +727,9 @@ test('div with child node and overflowX scroll test --debug mode', (t) => {
         },
       },
       tagName: 'div',
-    },
-    {
+    }, {}],
+    [{
       id: 37,
-      index: 0,
       name: 'View',
       pId: 36,
       props: {
@@ -775,7 +742,7 @@ test('div with child node and overflowX scroll test --debug mode', (t) => {
         },
       },
       tagName: 'div',
-    },
+    }, {}],
   ]);
 });
 
@@ -785,11 +752,10 @@ test('div with child node and overflowX scroll test --production mode', (t) => {
   const childNode = DocumentNode.createElement('div');
   node.setStyle('overflowY', 'scroll');
   node.appendChild(childNode);
-  const { nativeLanguages } = renderToNativeWithChildren(ROOT_VIEW_ID, node);
+  const [nativeLanguages] = renderToNativeWithChildren(ROOT_VIEW_ID, node);
   t.deepEqual(nativeLanguages, [
-    {
+    [{
       id: 38,
-      index: 0,
       name: 'ScrollView',
       pId: ROOT_VIEW_ID,
       props: {
@@ -797,10 +763,9 @@ test('div with child node and overflowX scroll test --production mode', (t) => {
           overflowY: 'scroll',
         },
       },
-    },
-    {
+    }, {}],
+    [{
       id: 39,
-      index: 0,
       name: 'View',
       pId: 38,
       props: {
@@ -808,7 +773,7 @@ test('div with child node and overflowX scroll test --production mode', (t) => {
           collapsable: false,
         },
       },
-    },
+    }, {}],
   ]);
 });
 
@@ -853,10 +818,9 @@ test('text element with number text test', (t) => {
 test('Image.setStyle(background-color) test --debug mode', (t) => {
   process.env.NODE_ENV = 'test';
   const imgWithoutBg = DocumentNode.createElement('img');
-  const { nativeNode: withoutBg } = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
-  t.deepEqual(withoutBg, {
+  const [withoutBg] = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
+  t.deepEqual(withoutBg, [{
     id: 48,
-    index: 0,
     pId: 10,
     name: 'Image',
     props: {
@@ -869,13 +833,12 @@ test('Image.setStyle(background-color) test --debug mode', (t) => {
       },
     },
     tagName: 'img',
-  });
+  }, {}]);
   const imgWithBg = DocumentNode.createElement('img');
   imgWithBg.setStyle('backgroundColor', '#abcdef');
-  const { nativeNode: withBg } = renderToNative(ROOT_VIEW_ID, imgWithBg);
-  t.deepEqual(withBg, {
+  const [withBg] = renderToNative(ROOT_VIEW_ID, imgWithBg);
+  t.deepEqual(withBg, [{
     id: 49,
-    index: 0,
     pId: 10,
     name: 'Image',
     props: {
@@ -888,16 +851,15 @@ test('Image.setStyle(background-color) test --debug mode', (t) => {
       },
     },
     tagName: 'img',
-  });
+  }, {}]);
 });
 
 test('Image.setStyle(background-color) test --production mode', (t) => {
   process.env.NODE_ENV = 'production';
   const imgWithoutBg = DocumentNode.createElement('img');
-  const { nativeNode: withoutBg } = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
-  t.deepEqual(withoutBg, {
+  const [withoutBg] = renderToNative(ROOT_VIEW_ID, imgWithoutBg);
+  t.deepEqual(withoutBg, [{
     id: 51,
-    index: 0,
     pId: 10,
     name: 'Image',
     props: {
@@ -905,13 +867,12 @@ test('Image.setStyle(background-color) test --production mode', (t) => {
         backgroundColor: 0,
       },
     },
-  });
+  }, {}]);
   const imgWithBg = DocumentNode.createElement('img');
   imgWithBg.setStyle('backgroundColor', '#abcdef');
-  const { nativeNode: withBg } = renderToNative(ROOT_VIEW_ID, imgWithBg);
-  t.deepEqual(withBg, {
+  const [withBg] = renderToNative(ROOT_VIEW_ID, imgWithBg);
+  t.deepEqual(withBg, [{
     id: 52,
-    index: 0,
     pId: 10,
     name: 'Image',
     props: {
@@ -919,7 +880,7 @@ test('Image.setStyle(background-color) test --production mode', (t) => {
         backgroundColor: 4289449455,
       },
     },
-  });
+  }, {}]);
 });
 
 test('img with accessibility test --debug mode', (t) => {
@@ -936,10 +897,9 @@ test('img with accessibility test --debug mode', (t) => {
   node.setAttribute('aria-valuemax', 10);
   node.setAttribute('aria-valuenow', 7);
   node.setAttribute('aria-valuetext', 'high');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 53,
-    index: 0,
     name: 'Image',
     pId: 10,
     props: {
@@ -978,7 +938,7 @@ test('img with accessibility test --debug mode', (t) => {
       },
     },
     tagName: 'img',
-  });
+  }, {}]);
 });
 
 test('img with accessibility test --production mode', (t) => {
@@ -995,10 +955,9 @@ test('img with accessibility test --production mode', (t) => {
   node.setAttribute('aria-valuemax', 10);
   node.setAttribute('aria-valuenow', 7);
   node.setAttribute('aria-valuetext', 'high');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 54,
-    index: 0,
     name: 'Image',
     pId: 10,
     props: {
@@ -1021,7 +980,7 @@ test('img with accessibility test --production mode', (t) => {
         backgroundColor: 0,
       },
     },
-  });
+  }, {}]);
 });
 
 test('div with backgroundImage local path test --debug mode', (t) => {
@@ -1029,10 +988,9 @@ test('div with backgroundImage local path test --debug mode', (t) => {
   const node = DocumentNode.createElement('div');
   const originalPath = 'assets/DefaultSource.png';
   node.setStyle('backgroundImage', originalPath);
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 55,
-    index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
     props: {
@@ -1045,7 +1003,7 @@ test('div with backgroundImage local path test --debug mode', (t) => {
       },
     },
     tagName: 'div',
-  });
+  }, {}]);
 });
 
 test('div with backgroundImage local path test --production mode', (t) => {
@@ -1053,10 +1011,9 @@ test('div with backgroundImage local path test --production mode', (t) => {
   const node = DocumentNode.createElement('div');
   const originalPath = 'assets/DefaultSource.png';
   node.setStyle('backgroundImage', originalPath);
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 56,
-    index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
     props: {
@@ -1064,7 +1021,7 @@ test('div with backgroundImage local path test --production mode', (t) => {
         backgroundImage: `hpfile://./${originalPath}`,
       },
     },
-  });
+  }, {}]);
 });
 
 test('div with accessibility test --debug mode', (t) => {
@@ -1081,10 +1038,9 @@ test('div with accessibility test --debug mode', (t) => {
   node.setAttribute('aria-valuemax', 10);
   node.setAttribute('aria-valuenow', 7);
   node.setAttribute('aria-valuetext', 'high');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 57,
-    index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
     props: {
@@ -1121,7 +1077,7 @@ test('div with accessibility test --debug mode', (t) => {
       style: {},
     },
     tagName: 'div',
-  });
+  }, {}]);
 });
 
 test('div with accessibility test --production mode', (t) => {
@@ -1138,10 +1094,9 @@ test('div with accessibility test --production mode', (t) => {
   node.setAttribute('aria-valuemax', 10);
   node.setAttribute('aria-valuenow', 7);
   node.setAttribute('aria-valuetext', 'high');
-  const { nativeNode } = renderToNative(ROOT_VIEW_ID, node);
-  t.deepEqual(nativeNode, {
+  const [nativeNode] = renderToNative(ROOT_VIEW_ID, node);
+  t.deepEqual(nativeNode, [{
     id: 58,
-    index: 0,
     name: 'View',
     pId: ROOT_VIEW_ID,
     props: {
@@ -1162,5 +1117,5 @@ test('div with accessibility test --production mode', (t) => {
       },
       style: {},
     },
-  });
+  }, {}]);
 });
