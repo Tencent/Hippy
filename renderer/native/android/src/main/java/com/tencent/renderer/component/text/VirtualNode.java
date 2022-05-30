@@ -27,6 +27,7 @@ import java.util.List;
 
 public abstract class VirtualNode {
 
+    protected final int mRootId;
     protected final int mId;
     protected final int mPid;
     protected final int mIndex;
@@ -38,7 +39,8 @@ public abstract class VirtualNode {
     @Nullable
     protected List<String> mGestureTypes;
 
-    public VirtualNode(int id, int pid, int index) {
+    public VirtualNode(int rootId, int id, int pid, int index) {
+        mRootId = rootId;
         mId = id;
         mPid = pid;
         mIndex = index;

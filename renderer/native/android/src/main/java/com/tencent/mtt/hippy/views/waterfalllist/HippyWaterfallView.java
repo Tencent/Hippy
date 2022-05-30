@@ -624,14 +624,14 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     @Override
     public void startRefreshData() {
       mHasOnRefresh = true;
-      EventUtils.send(mParentRecyclerView, EventUtils.EVENT_WATERFALL_REFRESH, null);
+      EventUtils.sendComponentEvent(mParentRecyclerView, EventUtils.EVENT_WATERFALL_REFRESH, null);
     }
 
     public void startRefreshData(boolean fromPull) {
       mHasOnRefresh = true;
       Map<String, Object> params = new HashMap<>();
       params.put("refreshFrom", fromPull ? "pull" : "command");
-      EventUtils.send(mParentRecyclerView, EventUtils.EVENT_WATERFALL_REFRESH, params);
+      EventUtils.sendComponentEvent(mParentRecyclerView, EventUtils.EVENT_WATERFALL_REFRESH, params);
     }
 
     @Override
@@ -645,7 +645,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
       if (mLoadingStatus == IRecyclerViewFooter.LOADING_STATUS_LOADING) {
         mHasOnFooterAppeared = true;
-        EventUtils.send(mParentRecyclerView, EventUtils.EVENT_WATERFALL_FOOTER_APPEARED, null);
+        EventUtils.sendComponentEvent(mParentRecyclerView, EventUtils.EVENT_WATERFALL_FOOTER_APPEARED, null);
       }
     }
 
@@ -761,7 +761,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       scrollReport.pushInt("lastVisibleRowIndex", lastVisiblePos);
       scrollReport.pushInt("scrollState", currentScrollState);
       scrollReport.pushArray("visibleRowFrames", visibleItemArray);
-      EventUtils.send(mParentRecyclerView, EventUtils.EVENT_WATERFALL_SCROLL_REPORT, scrollReport);
+      EventUtils.sendComponentEvent(mParentRecyclerView, EventUtils.EVENT_WATERFALL_SCROLL_REPORT, scrollReport);
     }
 
     protected void checkExposureForReport(int oldState, int newState) {

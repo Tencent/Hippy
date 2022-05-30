@@ -100,8 +100,8 @@ public class TextVirtualNode extends VirtualNode {
     @Nullable
     protected Map<String, Object> mUnusedProps;
 
-    public TextVirtualNode(int id, int pid, int index, @NonNull NativeRender nativeRender) {
-        super(id, pid, index);
+    public TextVirtualNode(int rootId, int id, int pid, int index, @NonNull NativeRender nativeRender) {
+        super(rootId, id, pid, index);
         mFontAdapter = nativeRender.getFontAdapter();
         if (I18nUtil.isRTL()) {
             mAlignment = Layout.Alignment.ALIGN_OPPOSITE;

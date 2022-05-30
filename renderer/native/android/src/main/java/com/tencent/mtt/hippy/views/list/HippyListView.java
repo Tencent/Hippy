@@ -512,7 +512,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     protected void sendExposureEvent(@NonNull View view, @NonNull String eventName,
             @NonNull Map<String, Object> props) {
         if (props.containsKey(eventName)) {
-            EventUtils.send(view, eventName, null);
+            EventUtils.sendComponentEvent(view, eventName, null);
         }
     }
 
@@ -813,7 +813,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
             @Nullable Map<String, Object> params) {
         View view = getCustomHeaderView();
         if (view instanceof HippyPullHeaderView) {
-            EventUtils.send(view, eventName, params);
+            EventUtils.sendComponentEvent(view, eventName, params);
         }
     }
 
@@ -821,7 +821,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
             @Nullable Map<String, Object> params) {
         View view = getCustomFooterView();
         if (view instanceof HippyPullFooterView) {
-            EventUtils.send(view, eventName, params);
+            EventUtils.sendComponentEvent(view, eventName, params);
         }
     }
 }

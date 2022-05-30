@@ -53,6 +53,6 @@ public class HippyScrollViewEventHelper {
         params.put("contentOffset", contentOffset);
         params.put("contentSize", contentSize);
         params.put("layoutMeasurement", layoutMeasurement);
-        EventUtils.send(view, eventName, params);
+        EventUtils.sendComponentEvent(view, eventName, params);
     }
 }

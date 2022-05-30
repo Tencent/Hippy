@@ -61,6 +61,7 @@ public class TextImageSpan extends ImageSpan {
     private static final int STATE_UNLOAD = 0;
     private static final int STATE_LOADING = 1;
     private static final int STATE_LOADED = 2;
+    private final int mRootId;
     private final int mId;
     private final int mAncestorId;
     private final int mWidth;
@@ -81,6 +82,7 @@ public class TextImageSpan extends ImageSpan {
             @NonNull NativeRender nativeRenderer) {
         super(drawable, source, node.mVerticalAlignment);
         mNativeRenderer = nativeRenderer;
+        mRootId = node.mRootId;
         mId = node.mId;
         mAncestorId = node.getAncestorId();
         mWidth = node.mWidth;
@@ -279,7 +281,7 @@ public class TextImageSpan extends ImageSpan {
             }
             eventName = EVENT_IMAGE_ON_LOAD;
         }
-        EventUtils.send(mId, mNativeRenderer, eventName, null);
+        mNativeRenderer.dispatchEvent(mRootId, mId, eventName, null, false, false);
     }
 
     private void doFetchImage(String url, HippyMap props, ImageLoaderAdapter adapter) {

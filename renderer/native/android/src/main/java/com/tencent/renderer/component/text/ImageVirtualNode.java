@@ -57,8 +57,9 @@ public class ImageVirtualNode extends VirtualNode {
     @NonNull
     private final NativeRender mNativeRenderer;
 
-    public ImageVirtualNode(int id, int pid, int index, @NonNull NativeRender nativeRender) {
-        super(id, pid, index);
+    public ImageVirtualNode(int rootId, int id, int pid, int index,
+            @NonNull NativeRender nativeRender) {
+        super(rootId, id, pid, index);
         mNativeRenderer = nativeRender;
     }
 

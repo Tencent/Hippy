@@ -13,7 +13,7 @@ public class WaterfallEndChecker {
   public void onScroll(HippyWaterfallView waterfallView, int y) {
     boolean currentVerticalEnd = checkVerticalEnd(waterfallView, y);
     if (!isVerticalEnd && currentVerticalEnd) {
-      EventUtils.send(waterfallView, EventUtils.EVENT_WATERFALL_END_REACHED, null);
+      EventUtils.sendComponentEvent(waterfallView, EventUtils.EVENT_WATERFALL_END_REACHED, null);
     }
     isVerticalEnd = currentVerticalEnd;
   }

@@ -78,7 +78,7 @@ public class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRef
     public void onHeaderHeightChanged(int sumOffset) {
         Map<String, Object> params = new HashMap<>();
         params.put("contentOffset", PixelUtil.px2dp(sumOffset));
-        EventUtils.send(renderNodeView, EventUtils.EVENT_LIST_HEADER_PULLING, params);
+        EventUtils.sendComponentEvent(renderNodeView, EventUtils.EVENT_LIST_HEADER_PULLING, params);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class PullHeaderEventHelper implements IHeaderRefreshListener, IHeaderRef
      */
     @Override
     public void onHeaderRefreshing(int refreshWay) {
-        EventUtils.send(renderNodeView, EventUtils.EVENT_LIST_HEADER_RELEASED, null);
+        EventUtils.sendComponentEvent(renderNodeView, EventUtils.EVENT_LIST_HEADER_RELEASED, null);
     }
 
     @Override

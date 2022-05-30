@@ -30,6 +30,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
 
+import com.tencent.renderer.utils.EventUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -51,23 +52,16 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     private final View mTargetView;
     private HashSet<String> mGestureTypes = null;
     private NativeGestureProcessor mGestureProcessor;
-    private @Nullable
-    final NativeRender mNativeRenderer;
     private static final View.OnClickListener sOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View view) {
             if (view == null) {
                 return;
             }
-            final NativeRender nativeRenderer = NativeRendererManager
-                    .getNativeRenderer(view.getContext());
-            if (nativeRenderer == null) {
-                return;
-            }
             view.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    handleClickEvent(nativeRenderer, view.getId(), ON_CLICK);
+                    handleClickEvent(view, view.getId(), ON_CLICK);
                 }
             }, TAP_TIMEOUT);
         }
@@ -78,15 +72,10 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
             if (view == null) {
                 return false;
             }
-            final NativeRender nativeRenderer = NativeRendererManager
-                    .getNativeRenderer(view.getContext());
-            if (nativeRenderer == null) {
-                return false;
-            }
             view.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    handleClickEvent(nativeRenderer, view.getId(), ON_LONG_CLICK);
+                    handleClickEvent(view, view.getId(), ON_LONG_CLICK);
                 }
             }, TAP_TIMEOUT);
             return true;
@@ -94,16 +83,11 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
     };
     private static final View.OnAttachStateChangeListener sOnAttachedToWindowListener = new View.OnAttachStateChangeListener() {
         @Override
-        public void onViewAttachedToWindow(View view) {
+        public void onViewAttachedToWindow(final View view) {
             if (view == null) {
                 return;
             }
-            final NativeRender nativeRenderer = NativeRendererManager
-                    .getNativeRenderer(view.getContext());
-            if (nativeRenderer == null) {
-                return;
-            }
-            handleAttachedToWindow(nativeRenderer, view.getId());
+            handleAttachedToWindow(view);
         }
 
         @Override
@@ -120,12 +104,7 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
             if (view == null) {
                 return;
             }
-            final NativeRender nativeRenderer = NativeRendererManager
-                    .getNativeRenderer(view.getContext());
-            if (nativeRenderer == null) {
-                return;
-            }
-            handleDetachedFromWindow(nativeRenderer, view.getId());
+            handleDetachedFromWindow(view);
         }
     };
 
@@ -145,23 +124,20 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
         return sOnDetachedFromWindowListener;
     }
 
-    public static void handleAttachedToWindow(@NonNull NativeRender nativeRenderer, int id) {
-        nativeRenderer.dispatchUIComponentEvent(id, NodeProps.ON_ATTACHED_TO_WINDOW, null);
+    public static void handleAttachedToWindow(@NonNull View view) {
+        EventUtils.sendComponentEvent(view, NodeProps.ON_ATTACHED_TO_WINDOW, null);
     }
 
-    public static void handleDetachedFromWindow(@NonNull NativeRender nativeRenderer, int id) {
-        nativeRenderer.dispatchUIComponentEvent(id, NodeProps.ON_DETACHED_FROM_WINDOW, null);
+    public static void handleDetachedFromWindow(@NonNull View view) {
+        EventUtils.sendComponentEvent(view, NodeProps.ON_DETACHED_FROM_WINDOW, null);
     }
 
-    public static void handleClickEvent(@NonNull NativeRender nativeRenderer, int id,
-            @NonNull String eventType) {
-        nativeRenderer.dispatchNativeGestureEvent(id, eventType, null);
+    public static void handleClickEvent(@NonNull View view, int nodeId, @NonNull String eventName) {
+        EventUtils.sendGestureEvent(view, nodeId, eventName, null);
     }
 
-    public static void handleTouchEvent(@NonNull NativeRender nativeRenderer, @NonNull View view,
-            int id,
-            float x,
-            float y, @NonNull String eventType) {
+    public static void handleTouchEvent(@NonNull View view, int nodeId, float x, float y,
+            @NonNull String eventName) {
         int[] location = new int[2];
         try {
             view.getLocationInWindow(location);
@@ -172,12 +148,11 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
         HashMap<String, Object> params = new HashMap<>();
         params.put(KEY_PAGE_X, PixelUtil.px2dp(location[0] + x));
         params.put(KEY_PAGE_Y, PixelUtil.px2dp(location[1] + y));
-        nativeRenderer.dispatchNativeGestureEvent(id, eventType, params);
+        EventUtils.sendGestureEvent(view, nodeId, eventName, params);
     }
 
     public NativeGestureDispatcher(View view) {
         mTargetView = view;
-        mNativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
     }
 
     public boolean handleTouchEvent(MotionEvent event) {
@@ -218,22 +193,21 @@ public class NativeGestureDispatcher implements NativeGestureProcessor.Callback 
 
     @Override
     public void handle(String type, float x, float y) {
-        if (mTargetView == null || mNativeRenderer == null) {
-            LogUtils.e(TAG,
-                    "handle: mTargetView=" + mTargetView + ", mNativeRenderer=" + mNativeRenderer);
+        if (mTargetView == null) {
+            LogUtils.e(TAG, "handle: mTargetView is null!!");
             return;
         }
         final int id = mTargetView.getId();
         switch (type) {
             case ON_PRESS_IN:
             case ON_PRESS_OUT:
-                handleClickEvent(mNativeRenderer, id, type);
+                handleClickEvent(mTargetView, id, type);
                 break;
             case ON_TOUCH_DOWN:
             case ON_TOUCH_MOVE:
             case ON_TOUCH_END:
             case ON_TOUCH_CANCEL:
-                handleTouchEvent(mNativeRenderer, mTargetView, id, x, y, type);
+                handleTouchEvent(mTargetView, id, x, y, type);
                 break;
             default:
                 LogUtils.e(TAG, "handle: Unknown event type=" + type);

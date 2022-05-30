@@ -571,7 +571,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
 
     @Nullable
-    public VirtualNode createVirtualNode(int id, int pid, int index,
+    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
             @Nullable Map<String, Object> props) {
         // The host can create customize virtual node in a derived class.
         return null;

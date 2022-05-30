@@ -16,6 +16,7 @@
 
 package com.tencent.renderer.utils;
 
+import android.content.Context;
 import android.view.View;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
 public class EventUtils {
+
     // On image loaded.
     public static final String EVENT_IMAGE_ON_LOAD = "load";
     // On image load error.
@@ -108,21 +110,73 @@ public class EventUtils {
     // On scroll view momentum end.
     public static final String EVENT_SCROLLER_MOMENTUM_END = "momentumScrollEnd";
 
+    /**
+     * Dispatch UI component event, such as onLayout, onScroll, onInitialListReady.
+     *
+     * @param view target view
+     * @param eventName target event name
+     * @param params event extra params object
+     */
     @MainThread
-    public static void send(@NonNull View view, @NonNull String eventName,
+    public static void sendComponentEvent(@NonNull View view, @NonNull String eventName,
             @Nullable Object params) {
-        if (view.getContext() instanceof NativeRenderContext) {
-            int instanceId = ((NativeRenderContext) view.getContext()).getInstanceId();
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-            send(view.getId(), nativeRenderer, eventName, params);
-        }
+        // UI component event default disable capture and bubble phase,
+        // can not enable both in native and js.
+        send(view, view.getId(), eventName, params, false, false);
+    }
+
+    /**
+     * Dispatch gesture event, such as onClick, onLongClick, onPressIn, onPressOut, onTouchDown,
+     * onTouchMove, onTouchEnd, onTouchCancel.
+     *
+     * @param view target view
+     * @param eventName target event name
+     * @param params event extra params object
+     */
+    @MainThread
+    public static void sendGestureEvent(@NonNull View view, @NonNull String eventName,
+            @Nullable Object params) {
+        // Gesture event default enable capture and bubble phase, can not disable in native,
+        // but can stop propagation in js.
+        send(view, view.getId(), eventName, params, true, true);
     }
 
     @MainThread
-    public static void send(int id, @Nullable NativeRender nativeRenderer,
-            @NonNull String eventName, @Nullable Object params) {
+    public static void sendGestureEvent(@NonNull View view, int nodeId, @NonNull String eventName,
+            @Nullable Object params) {
+        send(view, nodeId, eventName, params, true, true);
+    }
+
+    /**
+     * Dispatch custom event which capture and bubble state can set by user
+     *
+     * @param view target view
+     * @param eventName target event name
+     * @param params event extra params object
+     * @param useCapture enable event capture
+     * @param useBubble enable event bubble
+     */
+    @MainThread
+    public static void sendCustomEvent(@NonNull View view, @NonNull String eventName,
+            @Nullable Object params, boolean useCapture, boolean useBubble) {
+        send(view, view.getId(), eventName, params, useCapture, useBubble);
+    }
+
+    /**
+     * Dispatch root event, such as frameUpdate.
+     *
+     * @param rendererId renderer instance id
+     * @param rootId root node id
+     * @param eventName target event name
+     * @param params event extra params object
+     */
+    @MainThread
+    public static void sendRootEvent(int rendererId, int rootId, @NonNull String eventName,
+            @Nullable Object params) {
+        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(rendererId);
         if (nativeRenderer != null) {
-            nativeRenderer.dispatchUIComponentEvent(id, eventName.toLowerCase(), params);
+            nativeRenderer.dispatchEvent(rootId, rootId, eventName.toLowerCase(), params,
+                    false, false);
         }
     }
 
@@ -137,13 +191,28 @@ public class EventUtils {
     public static boolean checkRegisteredEvent(@NonNull View view, @NonNull String eventName) {
         if (view.getContext() instanceof NativeRenderContext) {
             int instanceId = ((NativeRenderContext) view.getContext()).getInstanceId();
+            int rootId = ((NativeRenderContext) view.getContext()).getRootId();
             NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
             if (nativeRenderer == null) {
                 return false;
             }
             RenderManager renderManager = nativeRenderer.getRenderManager();
-            return renderManager.checkRegisteredEvent(view.getId(), eventName.toLowerCase());
+            return renderManager.checkRegisteredEvent(rootId, view.getId(), eventName.toLowerCase());
         }
         return false;
+    }
+
+    private static void send(@NonNull View view, int nodeId, @NonNull String eventName,
+            @Nullable Object params, boolean useCapture, boolean useBubble) {
+        Context context = view.getContext();
+        if (context instanceof NativeRenderContext) {
+            int instanceId = ((NativeRenderContext) context).getInstanceId();
+            int rootId = ((NativeRenderContext) context).getRootId();
+            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
+            if (nativeRenderer != null) {
+                nativeRenderer.dispatchEvent(rootId, nodeId, eventName.toLowerCase(), params,
+                        useCapture, useBubble);
+            }
+        }
     }
 }

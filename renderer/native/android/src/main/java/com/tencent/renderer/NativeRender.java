@@ -16,6 +16,7 @@
 
 package com.tencent.renderer;
 
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
@@ -63,6 +64,7 @@ public interface NativeRender extends RenderExceptionHandler {
      * Get customize virtual node from host. For be able to customize some behavior of virtual node,
      * host can define his own virtual node through inherit from base virtual node.
      *
+     * @param rootId root node id
      * @param id node id
      * @param pid node parent id
      * @param index sequence number of child node in parent node
@@ -70,7 +72,7 @@ public interface NativeRender extends RenderExceptionHandler {
      * @param props node props
      */
     @Nullable
-    VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+    VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props);
 
     void onFirstViewAdded();
@@ -82,12 +84,8 @@ public interface NativeRender extends RenderExceptionHandler {
     void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
             boolean systemUiVisibilityChanged);
 
-    void dispatchUIComponentEvent(int id, String eventName, @Nullable Object param);
-
-    void dispatchNativeGestureEvent(int id, String eventName, Object params);
-
-    void dispatchCustomEvent(int id, String eventName, Object params, boolean useCapture,
-            boolean useBubble);
+    void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
+            @Nullable Object params, boolean useCapture, boolean useBubble);
 
     void doPromiseCallBack(int result, long callbackId, String functionName, int nodeId,
             Object params);

@@ -306,7 +306,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     @Override
     protected void handleGetImageStart() {
         // send onLoadStart event
-        EventUtils.send(this, EVENT_IMAGE_LOAD_START, null);
+        EventUtils.sendComponentEvent(this, EVENT_IMAGE_LOAD_START, null);
     }
 
     @Override
@@ -315,13 +315,13 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
         HashMap<String, Object> params = new HashMap<>();
         params.put("loaded", loaded);
         params.put("total", total);
-        EventUtils.send(this, EVENT_IMAGE_LOAD_PROGRESS, params);
+        EventUtils.sendComponentEvent(this, EVENT_IMAGE_LOAD_PROGRESS, params);
     }
 
     @Override
     protected void handleGetImageSuccess() {
         // send onLoad event
-        EventUtils.send(this, EVENT_IMAGE_ON_LOAD, null);
+        EventUtils.sendComponentEvent(this, EVENT_IMAGE_ON_LOAD, null);
         // send onLoadEnd event
         HashMap<String, Object> params = new HashMap<>();
         params.put("success", 1);
@@ -334,17 +334,17 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
                 params.put("image", imageSize);
             }
         }
-        EventUtils.send(this, EVENT_IMAGE_LOAD_END, params);
+        EventUtils.sendComponentEvent(this, EVENT_IMAGE_LOAD_END, params);
     }
 
     @Override
     protected void handleGetImageFail(Throwable throwable) {
         // send onError event
-        EventUtils.send(this, EVENT_IMAGE_LOAD_ERROR, null);
+        EventUtils.sendComponentEvent(this, EVENT_IMAGE_LOAD_ERROR, null);
         // send onLoadEnd event
         HashMap<String, Object> params = new HashMap<>();
         params.put("success", 0);
-        EventUtils.send(this, EVENT_IMAGE_LOAD_END, params);
+        EventUtils.sendComponentEvent(this, EVENT_IMAGE_LOAD_END, params);
     }
 
     private void computeMatrixParams() {

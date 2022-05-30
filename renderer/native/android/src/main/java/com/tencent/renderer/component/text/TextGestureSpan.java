@@ -55,7 +55,6 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
     private List<String> mGestureTypes = null;
     private NativeGestureProcessor mGestureProcessor;
     private Handler mHandler;
-    private NativeRender mNativeRenderer;
 
     public TextGestureSpan(int id) {
         mId = id;
@@ -74,10 +73,7 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
     }
 
     public boolean handleDispatchTouchEvent(View view, MotionEvent event) {
-        if (mNativeRenderer == null) {
-            mNativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
-        }
-        if (mNativeRenderer == null || mGestureTypes == null) {
+        if (mGestureTypes == null) {
             return false;
         }
         if (mTouchSlop < 0) {
@@ -114,11 +110,10 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
                     if (mGestureTypes.contains(ON_LONG_CLICK) && mHandleLongPress) {
                         handle = true;
                         NativeGestureDispatcher
-                                .handleClickEvent(mNativeRenderer, mId, ON_LONG_CLICK);
+                                .handleClickEvent(view, mId, ON_LONG_CLICK);
                     } else if (mGestureTypes.contains(ON_CLICK)) {
                         handle = true;
-                        NativeGestureDispatcher
-                                .handleClickEvent(mNativeRenderer, mId, ON_CLICK);
+                        NativeGestureDispatcher.handleClickEvent(view, mId, ON_CLICK);
                     }
                 }
                 if (mHandler != null) {
@@ -152,11 +147,14 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
 
     @Override
     public void handle(String type, float x, float y) {
+        if (mTargetView == null) {
+            return;
+        }
         switch (type) {
             case ON_PRESS_IN:
                 // fall through
             case ON_PRESS_OUT:
-                NativeGestureDispatcher.handleClickEvent(mNativeRenderer, mId, type);
+                NativeGestureDispatcher.handleClickEvent(mTargetView, mId, type);
                 break;
             case ON_TOUCH_DOWN:
                 // fall through
@@ -166,7 +164,7 @@ public class TextGestureSpan implements NativeGestureProcessor.Callback {
                 // fall through
             case ON_TOUCH_CANCEL:
                 NativeGestureDispatcher
-                        .handleTouchEvent(mNativeRenderer, mTargetView, mId, x, y, type);
+                        .handleTouchEvent(mTargetView, mId, x, y, type);
                 break;
             default:
                 LogUtils.w(TAG, "handle: Unknown event type=" + type);
