@@ -90,6 +90,8 @@ import icon from './qb_icon_new.png';
 
 可复用垂直列表功能，尤其适合大量条目的数据渲染。
 
+!> Android `2.14.0` 版本后会采用 `RecyclerView` 替换原有 `ListView`
+
 ## 参数
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
@@ -99,7 +101,7 @@ import icon from './qb_icon_new.png';
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `Android、iOS、hippy-react-web` |
 | getRowStyle           | 设置`ListViewItem`容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `Android、iOS、hippy-react-web` |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `(index: number) => number`                                    | `Android、iOS、hippy-react-web` |
-| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局 | `boolean \| undefined`   | `Android、hippy-react-web` |
+| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局，iOS 暂不支持横向 `ListView`| `boolean \| undefined`   | `Android、hippy-react-web` |
 | initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `Android、iOS` |
 | initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `Android、iOS`    |
 | onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web` |
@@ -315,7 +317,7 @@ import icon from './qb_icon_new.png';
 | onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
-| onKeyboardHeightChanged    | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `iOS`     |
+| onKeyboardHeightChanged    | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function`                                                   | `iOS`     |
 | onEndEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onLayout              | 当组件挂载或者布局变化的时候调用，参数为`nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `nativeEvent: { selection: { start, end } }`。 | `Function`                                                   | `Android、iOS`     |

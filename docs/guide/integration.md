@@ -1,8 +1,8 @@
 # 开始接入
 
-Hippy 采用 `monorepo` 进行代码管理，版本前端和终端统一，前端可以直接引入对应的 NPM 包，终端可通过发布分支源码接入或通过对应的包管理仓库引入。
+Hippy 采用 `monorepo` 进行代码管理，多仓库 SDK 统一版本，前端可以直接引入对应的 NPM 包，终端可通过发布分支源码接入或通过对应的包管理仓库引入。
 
-Hippy 已经提供了完整的[前端和终端范例](//github.com/Tencent/Hippy/tree/master/examples)，可直接基于我们现有的范例开始 App 开发。若想快速体验 Hippy，可按照 [README 步骤](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) 将 DEMO 运行起来 。 如果要在已有的 App 里整合 Hippy，请继续阅读下面的`终端集成`章节。
+Hippy 已经提供了完整的[前端和终端范例](//github.com/Tencent/Hippy/tree/master/examples)，可直接基于我们现有的范例开始 App 开发。若想快速体验 Hippy，可按照 [README 步骤](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) 将 DEMO 运行起来 。 如果要在已有的 App 里整合 Hippy，请继续阅读下面的 `终端接入` 章节。
 
 # 终端接入
 
@@ -62,7 +62,7 @@ hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone �
 
 当前 hippy-react 采用 `Webpack 4`构建，配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
 
-#### hippy-react 终端开发调试用编译配置
+#### hippy-react 开发调试编译配置
 
 该配置展示了将 Hippy 运行于终端的最小化配置。
 
@@ -70,12 +70,12 @@ hippy-react 工程暂时只能通过手工配置初始化，建议直接 clone �
 | ------------------------------------------------------------ | ---------- |
 | [hippy-webpack.dev.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.dev.js) | 调试用配置 |
 
-#### 终端线上包配置
+#### hippy-react 生产环境编译配置
 
-线上包和开发调试用包主要有两个区别：
+生产环境和开发调试的包主要有两个区别：
 
-1. 开启了 production 模式，去掉调试信息，关闭了 `watch`（watch 模式下会监听文件变动并重新打包）。
-2. 终端内很可能不止运行一个 Hippy 业务，所以将共享的部分单独拆出来做成了 `vendor` 包，这样可以有效减少业务包体积，这里使用了 [DllPlugin](//webpack.js.org/plugins/dll-plugin/) 和 [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) 来实现。需要说明的是生成的 `vendor` 包正常情况下是不需要特别更新的，但是如果更新了也要注意一下向上兼容性，不要因为分包导致业务崩溃。
+1. 生产环境开启了 production 模式，去掉调试信息，关闭了 `watch`（watch 模式下会监听文件变动并重新打包）。
+2. 终端内很可能不止运行一个 Hippy 业务，所以将共享的部分单独拆出来做成了 `vendor` 包，这样可以有效减小业务包体积，这里使用了 [DllPlugin](//webpack.js.org/plugins/dll-plugin/) 和 [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) 来实现。
 
 | 配置文件                                                     | 说明                          |
 | ------------------------------------------------------------ | ----------------------------- |
@@ -126,7 +126,7 @@ export default function app() {
 
 ### hippy-react npm 脚本
 
-最后在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/package.json#L13) 中补上几个快速的 npm 脚本就可以了，这里以 `hippy:`开头做好了范例，这里顺道做了一个到 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 的快速启动命令。
+在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/package.json#L13) 中提供了几个以 `hippy:`开头的 npm 脚本，可用来启动 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 等调试工具。
 
 ```json
   "scripts": {
@@ -186,9 +186,9 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 
 ### hippy-vue 编译配置
 
-当前 hippy-vue 采用 `Webpack 4`构建（暂时不建议升级到`Weppack 5`），配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
+当前 hippy-vue 采用 `Webpack 4`构建，配置全部放置于 [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 目录下，其实只是 [webpack](//webpack.js.org/) 的配置文件，建议先阅读 [webpack](//webpack.js.org/) 官网内容，具备一定基础后再进行修改。
 
-#### hippy-vue 终端开发调试用编译配置
+#### hippy-vue 开发调试编译配置
 
 该配置展示了将 Hippy 运行于终端的最小化配置。
 
@@ -196,12 +196,12 @@ hippy-vue 相对简单很多，hippy-vue 只是 [Vue](//vuejs.org) 在终端上�
 | ------------------------------------------------------------ | ---------- |
 | [hippy-webpack.dev.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.dev.js) | 调试用配置 |
 
-#### hippy-vue 终端线上包配置
+#### hippy-vue 生产环境编译配置
 
 线上包和开发调试用包主要有两个区别：
 
 1. 开启了 production 模式，去掉调试信息，关闭了 `watch`（watch 模式下会监听文件变动并重新打包）。
-2. 终端内很可能不止运行一个 Hippy 业务，所以将共享的部分单独拆出来做成了 `vendor` 包，这样可以有效减少业务包体积，这里使用了 [DllPlugin](//webpack.js.org/plugins/dll-plugin/) 和 [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) 来实现。需要说明的是生成的 `vendor` 包正常情况下是不需要特别更新的，但是如果更新了也要注意一下向上兼容性，不要因为分包导致业务崩溃。
+2. 终端内很可能不止运行一个 Hippy 业务，所以将共享的部分单独拆出来做成了 `vendor` 包，这样可以有效减小业务包体积，这里使用了 [DllPlugin](//webpack.js.org/plugins/dll-plugin/) 和 [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) 来实现。
 
 | 配置文件                                                     | 说明                          |
 | ------------------------------------------------------------ | ----------------------------- |
@@ -292,7 +292,7 @@ setApp(app);
 
 ### hippy-vue npm 脚本
 
-最后在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/package.json#L13) 中补上几个快速的 npm 脚本就可以了，这里以 `hippy:`开头做好了范例，这里顺道做了一个到 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 的快速启动命令。
+在 [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/package.json#L13) 中提供了几个以 `hippy:`开头的 npm 脚本，可用来启动 [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) 等调试工具。
 
 ```json
   "scripts": {

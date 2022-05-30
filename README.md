@@ -8,7 +8,7 @@ English | [简体中文](./README.zh_CN.md) | [Homepage](//tencent.github.io/Hip
 
 Hippy is a cross-platform development framework, that aims to help developers write once, and run on multiple platforms(iOS, Android, Web, and so on). Hippy is quite friendly to Web developers, especially those who are familiar with React or Vue. With Hippy, developers can create the cross-platform app easily.
 
-Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobile QQ, Mobile QQ Browser, Tencent Video App, QQ Music App, and Tencent News, reaching hundreds of millions of ordinary users.
+Hippy is now applied in [Tencent](http://www.tencent.com/) major apps such as Mobile QQ, Mobile QQ Browser, Tencent Video App, QQ Music App, and Tencent News, reaching hundreds of millions of ordinary users.
 
 ## 💯 Advantages
 
