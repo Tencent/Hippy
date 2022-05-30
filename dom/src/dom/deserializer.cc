@@ -16,7 +16,7 @@ Deserializer::Deserializer(const std::vector<const uint8_t>& data)
 
 Deserializer::Deserializer(const uint8_t* data, size_t size) : position_(data), end_(data + size) {}
 
-Deserializer::~Deserializer() {}
+Deserializer::~Deserializer() = default;
 
 bool Deserializer::ReadValue(DomValue& value) {
   bool ret = ReadObject(value);

@@ -196,6 +196,8 @@ class V8Ctx : public Ctx {
 
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) override;
 
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
+
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
 
   // Array Helpers

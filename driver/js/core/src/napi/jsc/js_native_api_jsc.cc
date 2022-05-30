@@ -802,6 +802,15 @@ bool JSCCtx::IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) {
   return (JSValueIsNull(context_, value_ref) || JSValueIsUndefined(context_, value_ref));
 }
 
+bool JSCCtx::IsObject(const std::shared_ptr<CtxValue>& value) {
+  if (!value) {
+    return false;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  return JSValueIsObject(context_, value_ref);
+}
+
 void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
   auto instance_define = hippy::MakeEventInstanceDefine(scope, dom_event);
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;

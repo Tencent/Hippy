@@ -18,6 +18,7 @@ struct EventListenerInfo {
   uint32_t dom_id;
   std::string event_name;
   std::shared_ptr<hippy::napi::CtxValue> callback;
+  bool use_capture;
 };
 class SceneBuilder {
  public:

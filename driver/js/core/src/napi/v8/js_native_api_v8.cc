@@ -1653,6 +1653,27 @@ bool V8Ctx::IsMap(const std::shared_ptr<CtxValue>& value) {
   return handle_value->IsMap();
 }
 
+bool V8Ctx::IsObject(const std::shared_ptr<CtxValue>& value) {
+  if (!value) {
+    return false;
+  }
+
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, persistent_value);
+
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+  return handle_value->IsObject();
+}
+
+
 bool V8Ctx::IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return true;

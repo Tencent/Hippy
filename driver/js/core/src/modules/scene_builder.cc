@@ -61,6 +61,7 @@ constexpr char kNodePropertyProps[] = "props";
 constexpr char kNodePropertyStyle[] = "style";
 constexpr char kNodePropertyRefId[] = "refId";
 constexpr char kNodePropertyRelativeToRef[] = "relativeToRef";
+constexpr char kEventCapture[] = "capture";
 
 const int32_t kInvalidValue = -1;
 
@@ -358,7 +359,7 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
                              const size_t argument_count,
                              const std::shared_ptr<CtxValue> arguments[],
                              hippy::dom::EventListenerInfo& listener_info){
-  TDF_BASE_DCHECK(argument_count == 3);
+  TDF_BASE_DCHECK(argument_count == 4);
 
   int32_t dom_id;
   bool ret = context->GetValueNumber(arguments[0], &dom_id);
@@ -372,6 +373,17 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
   listener_info.dom_id = static_cast<uint32_t>(dom_id);
   listener_info.event_name = event_name;
   listener_info.callback = arguments[2];
+
+  auto capture_parameter = arguments[3];
+  // capture support pass object { capture: bool }
+  if (context->IsObject(arguments[3])) {
+    capture_parameter = context->GetProperty(arguments[3], kEventCapture);
+    TDF_BASE_DCHECK(capture_parameter == nullptr);
+  }
+  bool use_capture = false;
+  ret = context->GetValueBoolean(capture_parameter, &use_capture);
+  TDF_BASE_DCHECK(ret) << "get use capture failed";
+  listener_info.use_capture = use_capture;
 }
 
 std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::weak_ptr<Scope>& weak_scope) {
