@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 
 import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.utils.ChoreographerUtils;
 import java.util.ArrayList;
 import java.util.List;
 
