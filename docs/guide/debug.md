@@ -32,7 +32,7 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
         initParams.debugMode = true;
         initParams.debugServerHost = "localhost:38989";
         // 可选参数 Hippy Server 的 jsbundle 名字，默认为 "index.bundle"。debugMode = true 时有效
-        initParams.debugBundleName="index.bubdle";
+        initParams.debugBundleName = "index.bundle";
    ```
 
 2. **iOS**：
@@ -129,15 +129,13 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
 
    ![Chrome inspect](../assets/img/chrome-inspect-process.png)
 
-> `@hippy/debug-server-next` 包含 `@hippy/debug-server` 的所有能力，是面向 Hippy 3.0 的调试工具，完全向下兼容。
-
 # 调试 Javascript
 
 尽管 Hippy 是前端框架，但依然运行在终端中，如果终端提供了后门可以直接链接调试服务，那可以直接用终端后门连接终端进行调试。
 
 这里仅以官方范例为准，讲述如何进行调试。
 
-!> 需要注意的是：官方范例为测试最新功能，将 `@hippy/react` 和 `@hippy/vue` 做了个 [alias 到 packages 目录](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.dev.js#L76)，如果调试官方范例，需要先在 Hippy 项目根目录下使用 ```npm run build``` 编译前端 SDK；或者删除范例的 `scripts` 目录中对 packages 的 alias，Hippy-Vue 范例则需要将 `vue` 和 `vue-router` 分别映射到 `@hippy/vue` 和 `@hippy/vue-router`
+!> 需要注意的是：官方范例为应用最新功能，将 `@hippy/react` 和 `@hippy/vue` 做了 [alias 到 packages 目录](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.dev.js#L76)，如果调试官方范例，需要先在 Hippy 项目根目录下运行 ```npm run build``` 编译前端 SDK；或者删除范例的 `scripts` 目录中对 packages 的 alias。
 
 ## iOS
 
@@ -162,18 +160,18 @@ iOS 调试支持模拟器和真机两种方式，由于 JSBundle 和调试协议
 2. 确保 iOS 设备和调试服务处于同一局域网内
 3. 编译 App，[粘贴 bundleUrl](guide/debug.md#config-bundle) 并启动调试
 
-!> 注意：真机调试时必须保证开发机和手机处于同一局域网内，否则会加载 JSBundle 失败。以下两种情况都不满足：<br/>
-&nbsp;&nbsp;(a) 开发机和手机分别连接公司的不同网络环境（如办公网和体验网）；<br/>
+!> 注意：真机调试时必须保证开发机和手机处于同一局域网内，否则会加载 JSBundle 失败。以下两种情况都不是同一局域网：<br/>
+&nbsp;&nbsp;(a) 开发机和手机分别连接不同的网络环境；<br/>
 &nbsp;&nbsp;(b) 开发机连接网线，手机连接 WiFi。
 
 ## Android
 
-Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端口映射功能，解决了真机到开发机的通讯问题，反而因为 ARM 模拟器运行效率问题，更加推荐使用真机进行调试。
+Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端口映射功能，解决了真机到开发机的通讯问题。由于 ARM 模拟器运行效率问题，更加推荐使用真机进行调试。
 
 具体流程：
 
 1. 下载安装 [Android Studio](//developer.android.com/studio)。
-2. 通过 Android Studio 打开[Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/examples/android-demo)，当提示 ToolChain 需要更新时全部选择拒绝，安装好 SDK、NDK、和 cmake 3.6.4。
+2. 通过 Android Studio 打开 [Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/examples/android-demo)，当提示 ToolChain 需要更新时全部选择拒绝，安装好 SDK、NDK、和 cmake 3.6.4。
 3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。*编译如果出现问题请参考 [#39](//github.com/Tencent/Hippy/issues/39)*。
 4. 回到手机上，首先确保手机的 `USB 调试模式` 已经打开 -- 一般在关于手机页面里连续点击 `Build` 可以进入`开发者模式`，再进入`开发者模式`界面后打开 `USB 调试模式`。
 5. 执行 `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` 确保 38389 端口不被占用。

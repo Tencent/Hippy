@@ -8,7 +8,7 @@
 
 Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写一套代码就直接运行于多个平台（iOS、Android 和 Web等）。Hippy 的设计是面向传统 Web 开发者的，特别是之前有过 React 和 Vue 开发经验的开发者用起来会更为顺手，Hippy 致力于让前端开发跨端 App 更加容易。
 
-到目前为止，[腾讯](http://www.tencent.com/)公司内已经有 27+ 款主流 App 在使用 Hippy 框架，包括手机QQ、QQ浏览器、腾讯视频、QQ音乐、腾讯新闻等，每日触达数亿用户。
+到目前为止，[腾讯](http://www.tencent.com/)公司内已经在主流 App 使用 Hippy 框架，包括手机QQ、QQ浏览器、腾讯视频、QQ音乐、腾讯新闻等，每日触达数亿用户。
 
 <https://user-images.githubusercontent.com/12878546/126472924-650c3ca1-62ca-4bc1-bb6e-739dbe21a277.mp4>
 
