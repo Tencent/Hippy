@@ -205,7 +205,7 @@ public class RefreshWrapper extends HippyViewGroup {
         mTansY = -1;
         bounceToHead(mRefreshWrapperItemView.getHeight());
         mState = RefreshState.Loading;
-        EventUtils.send(this, EventUtils.EVENT_REFRESH_WRAPPER_REFRESH, null);
+        EventUtils.sendComponentEvent(this, EventUtils.EVENT_REFRESH_WRAPPER_REFRESH, null);
     }
 
     public void sendOnScrollEvent(float y) {
@@ -214,7 +214,7 @@ public class RefreshWrapper extends HippyViewGroup {
             if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle) {
                 return;
             }
-            EventUtils.send(this, EventUtils.EVENT_REFRESH_WRAPPER_SCROLL, generateScrollEvent(y));
+            EventUtils.sendComponentEvent(this, EventUtils.EVENT_REFRESH_WRAPPER_SCROLL, generateScrollEvent(y));
             mLastScrollEventTimeStamp = currTime;
         }
     }
