@@ -31,7 +31,8 @@ include_directories(./)
 include_directories(${LAYOUT_DIR})
 include_directories(${JSON_DIR})
 
-file(GLOB DOM_UT_FILES dom/*.cc)
+file(GLOB DOM_UT_FILES ${DOM_DIR}/src/dom/*_ut.cc)
+message("DOM_UT_FILES:${DOM_UT_FILES}")
 
 add_executable(unit_test main.cc ${DOM_UT_FILES})
 target_link_libraries(unit_test gtest_main dom tdf_base tdf_base_common)

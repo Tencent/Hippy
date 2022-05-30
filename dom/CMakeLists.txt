@@ -46,6 +46,10 @@ elseif(${LAYOUT_ENGINE} STREQUAL "Taitank")
 else()
   message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")
 endif()
+
+# exclude test files
+file(GLOB_RECURSE DOM_UT_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/**_ut.cc)
+list(REMOVE_ITEM SRC_FILES ${DOM_UT_FILES})
 message("SRC_FILES:${SRC_FILES}")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
