@@ -8,7 +8,7 @@
 
 Hippy 是一个新生的跨端开发框架，目标是使开发者可以只写一套代码就直接运行于多个平台（iOS、Android 和 Web等）。Hippy 的设计是面向传统 Web 开发者的，特别是之前有过 React 和 Vue 开发经验的开发者用起来会更为顺手，Hippy 致力于让前端开发跨端 App 更加容易。
 
-到目前为止，[腾讯](http://www.tencent.com/)公司内已经有 27+ 款主流 App 在使用 Hippy 框架，包括手机QQ、QQ浏览器、腾讯视频、QQ音乐、腾讯新闻等，每日触达数亿用户。
+到目前为止，[腾讯](http://www.tencent.com/)公司内已经在主流 App 使用 Hippy 框架，包括手机QQ、QQ浏览器、腾讯视频、QQ音乐、腾讯新闻等，每日触达数亿用户。
 
 <https://user-images.githubusercontent.com/12878546/126472924-650c3ca1-62ca-4bc1-bb6e-739dbe21a277.mp4>
 
@@ -81,7 +81,7 @@ Windows 用户者需要以下软件:
    >
    > `npm run build`：编译每一个 JS SDK 包。
 2. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample [hippy-react-demo|hippy-vue-demo]`。
-3. 用 Android Studio 来打开终端范例工程 `driver/js/examples`。
+3. 用 Android Studio 在 `Hippy Project` 根目录打开终端范例工程 。
 4. 用 USB 数据线插上你的 Android 手机，需要确认手机已经打开 USB 调试模式（可通过在电脑 Terminal 执行 `adb devices` 判断手机是否已经连上了电脑）。
 5. 运行工程，并安装 APK。
 
@@ -95,8 +95,7 @@ Windows 用户者需要以下软件:
 
 1. 先按照 **[使用 JS 范例来构建 iOS App]** 和 **[使用 JS 范例来构建 Android App]** 步骤执行。
 2. 根目录执行 `npm run init:example [hippy-react-demo|hippy-vue-demo]`。
-3. 根目录执行 `npm run debugexample [hippy-react-demo|hippy-vue-demo] debug`。
-4. 根目录执行 `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev`。
+3. 根目录执行 `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev`。
 
 > 你也可以 `cd` 到 `driver/js/examples/hippy-react-demo` 或者 `driver/js/examples//hippy-vue-demo` 目录去分别执行 `npm run hippy:debug` 和 `npm run hippy:dev`。
 >

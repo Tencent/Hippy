@@ -23,7 +23,7 @@ Flex 布局与 Web 的 Flex 类似，它们都旨在提供一个更加有效的�
 
 flexDirection 属性指定了内部元素是如何在 flex 容器中布局的，定义了主轴的方向(水平或垂直)。
 
-> 注意：Hippy 的 flexDirection 与 Web 的 flex-direction 默认值区别， Web 默认为 `row`, Hippy 默认为 `column`。
+> 注意：Hippy 的 flexDirection 与 Web 的 flex-direction 默认值有区别， Web 默认为 `row`, Hippy 默认为 `column`。
 
 <img src="assets/img/flex-direction.png" alt="flexDirection" width="30%"/>
 <br />

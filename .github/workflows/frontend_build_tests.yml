@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 14.x ]
+        node: [ 14.x, 17.x ]
     steps:
       - uses: actions/checkout@v2
       - name: setup-node
