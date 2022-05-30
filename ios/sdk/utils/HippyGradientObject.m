@@ -327,6 +327,9 @@ static CGFloat *CreateNSNumbersToCGFloats(NSArray<NSNumber *> * locations) {
 
 HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CanvasInfo canvasInfo) {
     HippyAssert(context, @"context cannot be null for drawing linear gradient");
+    if (nil == context) {
+        return;
+    }
     CGColorSpaceRef spaceRef = CGColorSpaceCreateDeviceRGB();
     CFArrayRef colors = UIColorsToCGColors(object.colors);
     CGFloat *locations = CreateNSNumbersToCGFloats(object.locations);
