@@ -7,7 +7,7 @@ JavaScript Interface(JSI) 模式提供了一种无需经历编解码（序列化
 ## 架构图
 
 <br />
-<img src="assets/jsi_structure.png" alt="jsi架构图" width="40%"/>
+<img src="assets/img/jsi_structure.png" alt="jsi架构图" width="40%"/>
 <br />
 <br />
 
@@ -56,7 +56,7 @@ public class DemoJavaTurboModule extends HippyNativeModuleBase {
 <br />
 <br />
 
-更多示例可参考类[DemoJavaTurboModule](https://github.com/Tencent/Hippy/blob/master/driver/js/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/turbo/DemoJavaTurboModule.java)
+更多示例可参考类[DemoJavaTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/turbo/DemoJavaTurboModule.java)
 
 * 注册TurboModule模块，跟NativeModule注册方法完全一致
 
@@ -154,16 +154,20 @@ HIPPY_EXPORT_TURBO_METHOD(setInfo:(NSString *)string) {
 
 
 
-更多示例可参考类[DemoIOSTurboModule](https://github.com/Tencent/Hippy/blob/master/driver/js/examples/ios-demo/HippyDemo/turbomodule/TurboBaseModule.mm)
+更多示例可参考类[DemoIOSTurboModule](https://github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/turbomodule/TurboBaseModule.mm)
 
 
 ## 使用例子
 
-[Android Demo](https://github.com/Tencent/Hippy/blob/master/driver/js/examples/android-demo)
+[Android Demo](https://github.com/Tencent/Hippy/blob/master/examples/android-demo)
 
-[iOS Demo](https://github.com/Tencent/Hippy/blob/master/driver/js/examples/ios-demo)
+[iOS Demo](https://github.com/Tencent/Hippy/blob/master/examples/ios-demo)
 
-[HippyReact Demo](https://github.com/Tencent/Hippy/blob/master/driver/js/examples/hippy-react-demo/src/externals/Turbo/index.jsx)
+[HippyReact Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/Turbo/index.jsx)
 
-[HippyVue Demo](https://github.com/Tencent/Hippy/blob/master/driver/js/examples/hippy-vue-demo/src/components/demos/demo-turbo.vue)
+[HippyVue Demo](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-turbo.vue)
+
+
+
+
 

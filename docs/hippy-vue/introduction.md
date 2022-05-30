@@ -33,6 +33,9 @@ const app = new Vue({
 app.$start((instance, initialProps) => {
   console.log('instance', instance, 'initialProps', initialProps);
 });
+
+// 如果需要在首个 View 渲染时就获取到 initialProps，可以通过直接读取 app.$options.$superProps 
+
 ```   
 
 # 样式

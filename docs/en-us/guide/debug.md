@@ -207,7 +207,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
      "scripts": {
         "hippy:debug": "hippy-debug",
          // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
@@ -302,7 +302,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
       "scripts": {
         "hippy:debug": "hippy-debug",
         // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
       }
    }
    ```
