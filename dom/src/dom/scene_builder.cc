@@ -86,13 +86,9 @@ void SceneBuilder::AddEventListener(const std::weak_ptr<Scope>& weak_scope,
       const auto js_callback = event_listener_info.callback;
       auto root_node = scope->GetRootNode();
 
-<<<<<<< HEAD
-      dom_manager->AddEventListener(
-          dom_id, event_name, listener_id, use_capture,
-=======
+
       dom_manager->AddEventListener(root_node,
-          dom_id, event_name, listener_id, true,
->>>>>>> 84fc2058b (feat(dom): support multiple RootNodes (#2075))
+          dom_id, event_name, listener_id, use_capture,
           [weak_scope, js_callback](std::shared_ptr<DomEvent>& event) {
             auto scope = weak_scope.lock();
             if (scope == nullptr) return;
