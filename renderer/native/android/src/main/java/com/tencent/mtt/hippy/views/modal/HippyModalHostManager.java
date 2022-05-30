@@ -39,13 +39,13 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
         modalHostView.setOnRequestCloseListener(new HippyModalHostView.OnRequestCloseListener() {
             @Override
             public void onRequestClose(DialogInterface dialog) {
-                EventUtils.send(modalHostView, EVENT_MODAL_REQUEST_CLOSE, null);
+                EventUtils.sendComponentEvent(modalHostView, EVENT_MODAL_REQUEST_CLOSE, null);
             }
         });
         modalHostView.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                EventUtils.send(modalHostView, EVENT_MODAL_SHOW, null);
+                EventUtils.sendComponentEvent(modalHostView, EVENT_MODAL_SHOW, null);
             }
         });
         return modalHostView;

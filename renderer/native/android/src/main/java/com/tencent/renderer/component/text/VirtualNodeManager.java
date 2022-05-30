@@ -254,26 +254,26 @@ public class VirtualNodeManager {
     }
 
     @Nullable
-    private VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+    private VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props) {
-        VirtualNode node = mNativeRenderer.createVirtualNode(id, pid, index, className, props);
+        VirtualNode node = mNativeRenderer.createVirtualNode(rootId, id, pid, index, className, props);
         VirtualNode parent = mVirtualNodes.get(pid);
         // Only text or text child need to create virtual node.
         if (className.equals(TEXT_CLASS_NAME)) {
             if (!(node instanceof TextVirtualNode)) {
-                node = new TextVirtualNode(id, pid, index, mNativeRenderer);
+                node = new TextVirtualNode(rootId, id, pid, index, mNativeRenderer);
             }
         } else if (className.equals(IMAGE_CLASS_NAME) && parent != null) {
             if (!(node instanceof ImageVirtualNode)) {
-                node = new ImageVirtualNode(id, pid, index, mNativeRenderer);
+                node = new ImageVirtualNode(rootId, id, pid, index, mNativeRenderer);
             }
         }
         return node;
     }
 
-    public void createNode(int id, int pid, int index, @NonNull String className,
+    public void createNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props) {
-        VirtualNode node = createVirtualNode(id, pid, index, className, props);
+        VirtualNode node = createVirtualNode(rootId, id, pid, index, className, props);
         if (node == null) {
             return;
         }

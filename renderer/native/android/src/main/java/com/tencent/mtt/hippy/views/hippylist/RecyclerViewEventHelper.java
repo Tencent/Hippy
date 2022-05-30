@@ -92,7 +92,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
             hippyRecyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    EventUtils.send(getParentView(), EventUtils.EVENT_RECYCLER_LIST_READY, null);
+                    EventUtils.sendComponentEvent(getParentView(), EventUtils.EVENT_RECYCLER_LIST_READY, null);
                 }
             });
         }
@@ -225,8 +225,8 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     }
 
     protected void sendOnReachedEvent() {
-        EventUtils.send(getParentView(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
-        EventUtils.send(getParentView(), EventUtils.EVENT_RECYCLER_LOAD_MORE, null);
+        EventUtils.sendComponentEvent(getParentView(), EventUtils.EVENT_RECYCLER_END_REACHED, null);
+        EventUtils.sendComponentEvent(getParentView(), EventUtils.EVENT_RECYCLER_LOAD_MORE, null);
     }
 
     protected void checkSendOnScrollEvent() {

@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.utils.EventUtils;
 
 public class HippyViewEvent {
 
@@ -32,16 +33,6 @@ public class HippyViewEvent {
     }
 
     public void send(@NonNull View view, @Nullable Object params) {
-        if (view.getContext() instanceof NativeRenderContext) {
-            int instanceId = ((NativeRenderContext) view.getContext()).getInstanceId();
-            NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-            send(view.getId(), nativeRenderer, params);
-        }
-    }
-
-    public void send(int id, @Nullable NativeRender nativeRenderer, @Nullable Object params) {
-        if (nativeRenderer != null) {
-            nativeRenderer.dispatchUIComponentEvent(id, mEventName.toLowerCase(), params);
-        }
+        EventUtils.sendComponentEvent(view, mEventName, params);
     }
 }

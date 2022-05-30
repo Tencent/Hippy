@@ -23,6 +23,7 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_Q
 import android.content.Context;
 import android.text.Layout;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
@@ -59,7 +60,8 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 
-public class NativeRenderer extends Renderer implements NativeRender, NativeRenderProxy, NativeRenderDelegate {
+public class NativeRenderer extends Renderer implements NativeRender, NativeRenderProxy,
+        NativeRenderDelegate {
 
     private static final String TAG = "NativeRenderer";
     private static final String NODE_ID = "id";
@@ -266,48 +268,17 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     /**
      * Dispatch UI component event, such as onLayout, onScroll, onInitialListReady.
      *
-     * @param id target node id
+     * @param rootId root node id
+     * @param nodeId target node id
      * @param eventName target event name
      * @param params event extra params object
      */
     @Override
-    public void dispatchUIComponentEvent(int id, String eventName, @Nullable Object params) {
-        if (mRenderManager.checkRegisteredEvent(id, eventName)) {
-            // UI component event default disable capture and bubble phase,
-            // can not enable both in native and js.
-            mRenderProvider.dispatchEvent(id, eventName, params, false, false);
+    public void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
+            @Nullable Object params, boolean useCapture, boolean useBubble) {
+        if (mRenderManager.checkRegisteredEvent(rootId, nodeId, eventName)) {
+            mRenderProvider.dispatchEvent(rootId, nodeId, eventName, params, useCapture, useBubble);
         }
-    }
-
-    /**
-     * Dispatch gesture event, such as onClick, onLongClick, onPressIn, onPressOut, onTouchDown,
-     * onTouchMove, onTouchEnd, onTouchCancel.
-     *
-     * @param id target node id
-     * @param eventName target event name
-     * @param params event extra params object
-     */
-    @Override
-    public void dispatchNativeGestureEvent(int id, String eventName, @Nullable Object params) {
-        // Gesture event default enable capture and bubble phase, can not disable in native,
-        // but can stop propagation in js.
-        mRenderProvider.dispatchEvent(id, eventName, params, true, true);
-    }
-
-    /**
-     * Dispatch custom event which capture and bubble state can set by user
-     *
-     * @param id target node id
-     * @param eventName target event name
-     * @param params event extra params object
-     * @param useCapture enable event capture
-     * @param useBubble enable event bubble
-     */
-    @Override
-    @SuppressWarnings("unused")
-    public void dispatchCustomEvent(int id, String eventName, @Nullable Object params,
-            boolean useCapture, boolean useBubble) {
-        mRenderProvider.dispatchEvent(id, eventName, params, useCapture, useBubble);
     }
 
     @Override
@@ -386,7 +357,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             // Props may reset by framework modules, such as js AnimationModule,
             // key={animationId=xxx} => key=value
             onCreateNode(nodeId, className, props);
-            mVirtualNodeManager.createNode(nodeId, nodePid, nodeIndex, className, props);
+            mVirtualNodeManager.createNode(mRootView.getId(), nodeId, nodePid, nodeIndex, className, props);
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
                 // If the node has a virtual parent, no need to create corresponding render node,
                 // so don't add create task to the ui task queue.
@@ -680,9 +651,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     @Nullable
-    public VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props) {
-        return mRenderManager.createVirtualNode(id, pid, index, className, props);
+        return mRenderManager.createVirtualNode(rootId, id, pid, index, className, props);
     }
 
     private void onCreateNode(int nodeId, @NonNull String className,
