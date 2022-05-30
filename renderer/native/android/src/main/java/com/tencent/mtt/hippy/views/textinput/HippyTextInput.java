@@ -56,6 +56,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import com.tencent.renderer.utils.EventUtils;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +66,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         TextView.OnEditorActionListener, View.OnFocusChangeListener {
 
     private CommonBackgroundDrawable mReactBackgroundDrawable;
-    NativeRender nativeRenderer = null;
     boolean mHasAddWatcher = false;
     private String mPreviousText;
     TextWatcher mTextWatcher = null;
@@ -81,12 +81,6 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
 
     public HippyTextInput(Context context) {
         super(context);
-
-        if (context instanceof NativeRenderContext) {
-            int instanceId = ((NativeRenderContext) context).getInstanceId();
-            nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
-        }
-
         setFocusable(true);
         setFocusableInTouchMode(true);
         setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
@@ -132,11 +126,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                 hippyMap.pushString("actionName", "unknown");
                 break;
         }
-
-        if (nativeRenderer != null) {
-            nativeRenderer.dispatchUIComponentEvent(getId(), "onEditorAction", hippyMap);
-        }
-
+        EventUtils.sendComponentEvent(this, "onEditorAction", hippyMap);
         super.onEditorAction(actionCode);
     }
 
@@ -226,11 +216,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                 contentSize.pushDouble("height", mPreviousContentWidth);
                 HippyMap eventData = new HippyMap();
                 eventData.pushMap("contentSize", contentSize);
-
-                if (nativeRenderer != null) {
-                    nativeRenderer
-                            .dispatchUIComponentEvent(getId(), "onContentSizeChange", eventData);
-                }
+                EventUtils.sendComponentEvent(mEditText, "onContentSizeChange", eventData);
             }
         }
     }
@@ -331,10 +317,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                         Map<String, Object> keyboardHeightMap = new HashMap<>();
                         int height = Math.abs(screenHeight - rootViewVisibleHeight);
                         keyboardHeightMap.put("keyboardHeight", Math.round(PixelUtil.px2dp(height)));
-                        if (nativeRenderer != null) {
-                            nativeRenderer.dispatchUIComponentEvent(getId(),
-                                    "onKeyboardWillShow", keyboardHeightMap);
-                        }
+                        EventUtils.sendComponentEvent(HippyTextInput.this, "onKeyboardWillShow", keyboardHeightMap);
                     }
                     mIsKeyBoardShow = true; //键盘显示 ----s首次需要通知
                 }
@@ -342,10 +325,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                 //假设输入键盘的高度位屏幕高度20%
                 if (rootViewVisibleHeight > screenHeight * 0.8f) {
                     if (mIsKeyBoardShow) {
-                        if (nativeRenderer != null) {
-                            nativeRenderer.dispatchUIComponentEvent(getId(),
-                                    "onKeyboardWillHide", null);
-                        }
+                        EventUtils.sendComponentEvent(HippyTextInput.this, "onKeyboardWillHide", null);
                     }
                     mIsKeyBoardShow = false; //键盘没有显示
                 } else {
@@ -353,10 +333,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                         HippyMap hippyMap = new HippyMap();
                         hippyMap.pushInt("keyboardHeight",
                                 Math.abs(mLastRootViewVisibleHeight - rootViewVisibleHeight));
-                        if (nativeRenderer != null) {
-                            nativeRenderer.dispatchUIComponentEvent(getId(),
-                                    "onKeyboardWillShow", hippyMap);
-                        }
+                        EventUtils.sendComponentEvent(HippyTextInput.this, "onKeyboardWillShow", hippyMap);
                     }
                     mIsKeyBoardShow = true; //键盘显示 ----s首次需要通知
                 }
@@ -429,19 +406,13 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                         {
                             HippyMap hippyMap = new HippyMap();
                             hippyMap.pushString("text", s.toString());
-                            if (nativeRenderer != null) {
-                                nativeRenderer.dispatchUIComponentEvent(getId(),
-                                        "onChangeText", hippyMap);
-                            }
-                            LogUtils.d("robinsli", "afterTextChanged 通知前端文本变化=" + s.toString());
+                            EventUtils.sendComponentEvent(HippyTextInput.this, "onChangeText", hippyMap);
                         }
                     } else //如果设置了正则表达式
                     {
                         try {
                             //如果当前的内容不匹配正则表达式
                             if (!s.toString().matches(mValidator) && !"".equals(s.toString())) {
-                                LogUtils.d("robinsli",
-                                        "afterTextChanged 不符合正则表达式,需要设置回去=" + s.toString());
                                 //丢弃当前的内容,回退到上一次的值.上一次的值检查过,肯定是符合正则表达式的.
                                 setText(sRegrexValidBefore);
                                 //上一步的setText,将触发新一轮的beforeTextChanged,onTextChanged,afterTextChanged
@@ -463,13 +434,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                                 )) {
                                     HippyMap hippyMap = new HippyMap();
                                     hippyMap.pushString("text", s.toString());
-                                    if (nativeRenderer != null) {
-                                        nativeRenderer
-                                                .dispatchUIComponentEvent(getId(), "onChangeText",
-                                                        hippyMap);
-                                    }
-                                    LogUtils.d("robinsli",
-                                            "afterTextChanged 通知前端文本变化=" + s.toString());
+                                    EventUtils.sendComponentEvent(HippyTextInput.this, "onChangeText", hippyMap);
                                     sRegrexValidRepeat = "";
                                 }
                             }
@@ -568,9 +533,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         if ((actionId & EditorInfo.IME_MASK_ACTION) > 0 || actionId == EditorInfo.IME_NULL) {
             HippyMap hippyMap = new HippyMap();
             hippyMap.pushString("text", getText().toString());
-            if (nativeRenderer != null) {
-                nativeRenderer.dispatchUIComponentEvent(getId(), "onEndEditing", hippyMap);
-            }
+            EventUtils.sendComponentEvent(v, "onEndEditing", hippyMap);
         }
         return false;
     }
@@ -589,18 +552,11 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         HippyMap hippyMap = new HippyMap();
         hippyMap.pushString("text", getText().toString());
         if (hasFocus) {
-            if (nativeRenderer != null) {
-                nativeRenderer.dispatchUIComponentEvent(getId(), "onFocus", hippyMap);
-            }
+            EventUtils.sendComponentEvent(v, "onFocus", hippyMap);
         } else {
-            if (nativeRenderer != null) {
-                nativeRenderer.dispatchUIComponentEvent(getId(), "onBlur", hippyMap);
-            }
-            // harryguo: 屏蔽这里的onEndEditing事件。理由：失去焦点时，就只发onBlur就够了。onEndEditing不可再发，否则和那个地方（哪个地方？键盘回车或点击软键盘send、search、next...时的）的onEditorAction重复
-            // mHippyContext.getModuleManager().getJavaScriptModule(EventDispatcher.class).receiveUIComponentEvent(getId(), "onEndEditing", hippyMap);
+            EventUtils.sendComponentEvent(v, "onBlur", hippyMap);
         }
     }
-
 
     @Override
     protected void onSelectionChanged(int selStart, int selEnd) {
@@ -611,9 +567,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
             selection.pushInt("end", selEnd);
             HippyMap hippyMap = new HippyMap();
             hippyMap.pushMap("selection", selection);
-            if (nativeRenderer != null) {
-                nativeRenderer.dispatchUIComponentEvent(getId(), "onSelectionChange", hippyMap);
-            }
+            EventUtils.sendComponentEvent(this, "onSelectionChange", hippyMap);
         }
     }
 

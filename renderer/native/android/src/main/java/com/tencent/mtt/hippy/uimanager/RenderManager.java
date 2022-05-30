@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 
 import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.utils.ChoreographerUtils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,18 +35,20 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.renderer.NativeRender;
 import java.util.Map;
 
 public class RenderManager {
 
     private static final String TAG = "RenderManager";
     private final SparseArray<RenderNode> mNodes = new SparseArray<>();
+    private final SparseArray<RenderNode> mRootNodes = new SparseArray<>();
     private final List<RenderNode> mUIUpdateNodes = new ArrayList<>();
     @NonNull
     private final ControllerManager mControllerManager;
+    private final int mRendererId;
 
     public RenderManager(Renderer renderer) {
+        mRendererId = renderer.getInstanceId();
         mControllerManager = new ControllerManager(renderer);
     }
 
@@ -62,14 +65,14 @@ public class RenderManager {
     }
 
     public void createRootNode(int id) {
-        RenderNode node = new RenderNode(id, NodeProps.ROOT_NODE, mControllerManager);
-        mNodes.put(id, node);
+        RenderNode node = new RenderRootNode(id, mRendererId, NodeProps.ROOT_NODE, mControllerManager);
+        mRootNodes.put(id, node);
     }
 
     @Nullable
-    public VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props) {
-        return mControllerManager.createVirtualNode(id, pid, index, className, props);
+        return mControllerManager.createVirtualNode(rootId, id, pid, index, className, props);
     }
 
     public void destroy() {
@@ -79,7 +82,7 @@ public class RenderManager {
     public void createNode(@NonNull ViewGroup rootView, int id, int pid, int index,
             @NonNull String className, @NonNull Map<String, Object> props) {
         boolean isLazy = mControllerManager.isControllerLazy(className);
-        RenderNode parentNode = mNodes.get(pid);
+        RenderNode parentNode = getRenderNode(pid);
         if (parentNode == null) {
             LogUtils.w(TAG, "createNode: parentNode == null, pid=" + pid);
             return;
@@ -103,7 +106,7 @@ public class RenderManager {
     }
 
     public void updateLayout(int id, int left, int top, int width, int height) {
-        RenderNode node = mNodes.get(id);
+        RenderNode node = getRenderNode(id);
         if (node != null) {
             node.updateLayout(left, top, width, height);
             addUpdateNodeIfNeeded(node);
@@ -111,7 +114,7 @@ public class RenderManager {
     }
 
     public void updateEventListener(int id, @NonNull Map<String, Object> props) {
-        RenderNode node = mNodes.get(id);
+        RenderNode node = getRenderNode(id);
         if (node != null) {
             node.updateEventListener(props);
             addUpdateNodeIfNeeded(node);
@@ -119,7 +122,7 @@ public class RenderManager {
     }
 
     public void updateNode(int id, Map<String, Object> props) {
-        RenderNode node = mNodes.get(id);
+        RenderNode node = getRenderNode(id);
         if (node != null) {
             node.updateProps(props);
             addUpdateNodeIfNeeded(node);
@@ -127,15 +130,15 @@ public class RenderManager {
     }
 
     public void moveNode(int[] ids, int newPid, int oldPid) {
-        RenderNode oldParent = mNodes.get(oldPid);
-        RenderNode newParent = mNodes.get(newPid);
+        RenderNode oldParent = getRenderNode(oldPid);
+        RenderNode newParent = getRenderNode(newPid);
         if (oldParent == null || newParent == null) {
             LogUtils.w(TAG, "moveNode: oldParent=" + oldParent + ", newParent=" + newParent);
             return;
         }
         List<RenderNode> moveNodes = new ArrayList<>();
         for (int i = 0; i < ids.length; i++) {
-            RenderNode node = mNodes.get(ids[i]);
+            RenderNode node = getRenderNode(ids[i]);
             if (node != null) {
                 moveNodes.add(node);
                 oldParent.removeChild(node);
@@ -147,7 +150,7 @@ public class RenderManager {
     }
 
     public void updateExtra(int id, @Nullable Object object) {
-        RenderNode node = mNodes.get(id);
+        RenderNode node = getRenderNode(id);
         if (node != null) {
             node.updateExtra(object);
             addUpdateNodeIfNeeded(node);
@@ -155,7 +158,7 @@ public class RenderManager {
     }
 
     public void deleteNode(int id) {
-        RenderNode node = mNodes.get(id);
+        RenderNode node = getRenderNode(id);
         if (node == null) {
             return;
         }
@@ -170,7 +173,7 @@ public class RenderManager {
 
     public void dispatchUIFunction(int id, @NonNull String functionName,
             @NonNull List<Object> params, @Nullable Promise promise) {
-        RenderNode node = mNodes.get(id);
+        RenderNode node = getRenderNode(id);
         if (node != null) {
             mControllerManager
                     .dispatchUIFunction(id, node.mClassName, functionName, params, promise);
@@ -208,11 +211,15 @@ public class RenderManager {
 
     @Nullable
     public RenderNode getRenderNode(int id) {
-        return mNodes.get(id);
+        RenderNode node = mNodes.get(id);
+        if (node == null) {
+            node = mRootNodes.get(id);
+        }
+        return node;
     }
 
-    public boolean checkRegisteredEvent(int id, @NonNull String eventName) {
-        RenderNode node = mNodes.get(id);
+    public boolean checkRegisteredEvent(int rootId, int nodeId, @NonNull String eventName) {
+        RenderNode node = getRenderNode(nodeId);
         if (node != null) {
             return node.checkRegisteredEvent(eventName);
         }
@@ -228,7 +235,7 @@ public class RenderManager {
     }
 
     public void measureInWindow(int id, Promise promise) {
-        RenderNode node = mNodes.get(id);
+        RenderNode node = getRenderNode(id);
         if (node == null) {
             promise.reject("Accessing node that do not exist!");
         } else {

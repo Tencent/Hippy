@@ -45,7 +45,7 @@ public class HippyRootView extends FrameLayout {
     private GlobalLayoutListener mGlobalLayoutListener;
 
     public HippyRootView(Context context, int instanceId, int rootId) {
-        super(new NativeRenderContext(context, instanceId));
+        super(new NativeRenderContext(context, instanceId, rootId));
         setId(rootId);
         Map<String, Object> tagMap = NativeViewTag.createViewTag(NodeProps.ROOT_NODE);
         setTag(tagMap);

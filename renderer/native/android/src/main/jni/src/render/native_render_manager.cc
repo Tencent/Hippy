@@ -59,7 +59,7 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onReceivedEvent",
-             "(IILjava/lang/String;[BIIZZ)V",
+             "(IIILjava/lang/String;[BIIZZ)V",
              OnReceivedEvent)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
@@ -191,7 +191,7 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
   callback(std::make_shared<DomArgument>(*params));
 }
 
-void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j_dom_id, jstring j_event_name,
+void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j_root_id, jint j_dom_id, jstring j_event_name,
                      jbyteArray j_buffer, jint j_offset, jint j_length, jboolean j_use_capture, jboolean j_use_bubble) {
   std::shared_ptr<HippyRenderManager> render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_instance_id));
   if (!render_manager) {

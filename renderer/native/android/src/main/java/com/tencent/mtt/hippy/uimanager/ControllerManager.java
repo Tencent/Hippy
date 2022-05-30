@@ -285,11 +285,11 @@ public class ControllerManager {
     }
 
     @Nullable
-    public VirtualNode createVirtualNode(int id, int pid, int index, @NonNull String className,
+    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         if (controller != null) {
-            return controller.createVirtualNode(id, pid, index, props);
+            return controller.createVirtualNode(rootId, id, pid, index, props);
         }
         return null;
     }
