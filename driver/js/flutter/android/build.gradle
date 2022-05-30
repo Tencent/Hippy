@@ -70,7 +70,7 @@ if (V8_TAG == "latest") {
 
 android {
   compileSdkVersion 28
-  android.ndkVersion "21.4.7075529"
+  ndkVersion "21.4.7075529"
 
   defaultConfig {
     minSdkVersion 21
