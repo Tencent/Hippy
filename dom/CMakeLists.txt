@@ -1,34 +1,35 @@
-set(LIB_NAME "dom")
+cmake_minimum_required(VERSION 3.14)
 
 project("dom")
+
+set(LIB_NAME "dom")
 set(LAYOUT_ENGINE "Taitank")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPATH)
 get_filename_component(CORE_DIR "${PROJECT_ROOT_DIR}/driver/js/core/" REALPATH)
-get_filename_component(THIRD_DIR "${PROJECT_ROOT_DIR}/third_party/" REALPATH)
 
 message("LAYOUT_ENGINE:" ${LAYOUT_ENGINE})
 if (${LAYOUT_ENGINE} STREQUAL "Yoga")
-  get_filename_component(LAYOUT_DIR "${THIRD_DIR}/yoga/include" REALPATH)
-  message("ANDROID_ABI: ${ANDROID_ABI}")
-
-  add_library(yoga STATIC IMPORTED)
-  if(${ANDROID_ABI} STREQUAL "armeabi-v7a")
-    set_property(TARGET yoga PROPERTY IMPORTED_LOCATION ${THIRD_DIR}/yoga/lib/android/armeabi-v7a/libyoga.a)
-  elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
-    set_property(TARGET yoga PROPERTY IMPORTED_LOCATION ${THIRD_DIR}/yoga/lib/android/arm64-v8a/libyoga.a)
-  elseif (${ANDROID_ABI} STREQUAL "x86")
-    set_property(TARGET yoga PROPERTY IMPORTED_LOCATION ${THIRD_DIR}/yoga/lib/andriod/x86/libyoga.a)
-  elseif (${ANDROID_ABI} STREQUAL "x86_64")
-    set_property(TARGET yoga PROPERTY IMPORTED_LOCATION ${THIRD_DIR}/yoga/lib/android/x86_64/libyoga.a)
-  else()
-    message(FATAL_ERROR "${ANDROID_ABI} is not supported")
+  include(FetchContent)
+  # FetchContent yoga
+  FetchContent_Declare(
+        yoga
+        GIT_REPOSITORY https://github.com/facebook/yoga.git
+        GIT_TAG v1.19.0  # branch origin/develop
+        GIT_SHALLOW TRUE
+  )
+  FetchContent_GetProperties(yoga)
+  if(NOT yoga_POPULATED)
+    FetchContent_Populate(yoga)
+    add_subdirectory(${yoga_SOURCE_DIR} yoga)
+    include_directories(${yoga_SOURCE_DIR}/yoga)
+    set(DEPS yogacore)
   endif()
-  set(DEPS yoga)
 elseif (${LAYOUT_ENGINE} STREQUAL "Taitank")
   add_definitions("-DUSE_TAITANK")
-  get_filename_component(LAYOUT_DIR "${PROJECT_ROOT_DIR}/layout" REALPATH)
-  add_subdirectory(${LAYOUT_DIR} layout_out)
+  get_filename_component(TAITANK_LAYOUT_DIR "${PROJECT_ROOT_DIR}/layout" REALPATH)
+  add_subdirectory(${TAITANK_LAYOUT_DIR} layout_out)
+  include_directories(${TAITANK_LAYOUT_DIR})
   set(DEPS layout)
 else()
   message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")
@@ -36,8 +37,6 @@ endif()
 
 include_directories(${CORE_DIR}/include)
 include_directories(${CORE_DIR}/third_party/base/include)
-include_directories(${LAYOUT_DIR})
-include_directories(${THIRD_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/**.cc)
 if (${LAYOUT_ENGINE} STREQUAL "Yoga")
