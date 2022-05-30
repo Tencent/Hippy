@@ -19,22 +19,35 @@
 //
 
 import 'package:voltron_renderer/common.dart';
+import 'package:voltron_renderer/gesture.dart';
 import 'package:voltron_renderer/render.dart';
 import 'package:voltron_renderer/style.dart';
 
 import '../controller/text.dart';
 
 abstract class VirtualNode with StyleMethodPropConsumer {
-  final int mId;
-  final int mPid;
-  final int mIndex;
+  final int rootId;
+  final int id;
+  final int pid;
+  final int index;
+  final RenderContext _renderContext;
 
+  RenderContext get context => _renderContext;
+
+  @override
   MethodPropProvider get provider;
+
+  // 手势事件相关
+  late NativeGestureDispatcher nativeGestureDispatcher;
 
   List<VirtualNode> mChildren = [];
   VirtualNode? mParent;
+  bool dirty = false;
 
-  VirtualNode(this.mId, this.mPid, this.mIndex);
+  VirtualNode(this.rootId, this.id, this.pid, this.index, this._renderContext) {
+    nativeGestureDispatcher =
+        NativeGestureDispatcher(rootId: rootId, id: id, context: _renderContext);
+  }
 
   void removeChild(VirtualNode child) {
     mChildren.remove(child);
@@ -53,6 +66,51 @@ abstract class VirtualNode with StyleMethodPropConsumer {
   }
 
   int get childCount => mChildren.length;
+
+  void setGestureType(GestureType type, bool flag) {
+    if (flag) {
+      nativeGestureDispatcher.addGestureType(type);
+    } else {
+      nativeGestureDispatcher.removeGestureType(type);
+    }
+  }
+
+  void markDirty() {
+    mParent?.markDirty();
+    dirty = true;
+  }
+
+  void updateEvent(EventHolder holder) {
+    switch (holder.eventName) {
+      case NativeGestureHandle.kClick:
+        setGestureType(GestureType.click, holder.isAdd);
+        break;
+      case NativeGestureHandle.kLongClick:
+        setGestureType(GestureType.longClick, holder.isAdd);
+        break;
+      case NativeGestureHandle.kTouchDown:
+        setGestureType(GestureType.touchDown, holder.isAdd);
+        break;
+      case NativeGestureHandle.kTouchMove:
+        setGestureType(GestureType.touchMove, holder.isAdd);
+        break;
+      case NativeGestureHandle.kTouchEnd:
+        setGestureType(GestureType.touchEnd, holder.isAdd);
+        break;
+      case NativeGestureHandle.kTouchCancel:
+        setGestureType(GestureType.touchCancel, holder.isAdd);
+        break;
+      case NativeGestureHandle.kPressIn:
+        setGestureType(GestureType.pressIn, holder.isAdd);
+        break;
+      case NativeGestureHandle.kPressOut:
+        setGestureType(GestureType.pressOut, holder.isAdd);
+        break;
+    }
+    markDirty();
+  }
+
+  void onDelete() {}
 }
 
 class VirtualNodeManager {
@@ -116,7 +174,7 @@ class VirtualNodeManager {
     VirtualNode? parent = mVirtualNodes[pid];
     // // Only text or text child need to create virtual node.
     if (className == NodeProps.kTextClassName) {
-      node = TextVirtualNode(id, pid, index);
+      node = TextVirtualNode(rootId, id, pid, index, context);
     } else if (className == NodeProps.kImageClassName && parent != null) {
       node = ImageVirtualNode(rootId, id, pid, index, context);
     }
@@ -153,10 +211,11 @@ class VirtualNodeManager {
     if (node == null) {
       return;
     }
+    node.onDelete();
     node.mParent?.removeChild(node);
     node.mParent = null;
     for (var child in node.mChildren) {
-      deleteNode(child.mId);
+      deleteNode(child.id);
     }
     node.mChildren.clear();
     mVirtualNodes.remove(id);
@@ -203,5 +262,21 @@ class VirtualNodeManager {
         }
       });
     }
+  }
+
+  void addEvent(int rootId, int id, String eventName) {
+    VirtualNode? node = mVirtualNodes[id];
+    if (node == null) {
+      return;
+    }
+    node.updateEvent(EventHolder(eventName, isAdd: true));
+  }
+
+  void removeEvent(int rootId, int id, String eventName) {
+    VirtualNode? node = mVirtualNodes[id];
+    if (node == null) {
+      return;
+    }
+    node.updateEvent(EventHolder(eventName, isAdd: false));
   }
 }

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:voltron_renderer/style.dart';
 
@@ -14,15 +17,29 @@ final TextMethodProvider _sTextMethodProvider = TextMethodProvider();
 class TextVirtualNode extends VirtualNode {
   static const _kTag = "TextVirtualNode";
 
-  final int id;
-  final int pid;
-  final int index;
-
-  TextVirtualNode(this.id, this.pid, this.index) : super(id, pid, index);
+  TextVirtualNode(rootId, id, pid, index, renderContext)
+      : super(rootId, id, pid, index, renderContext) {
+    if (mParent != null) {
+      _tapGestureRecognizer = TapGestureRecognizer();
+      _tapGestureRecognizer?.onTapDown = (detail) {
+        _longClickTimer = Timer(const Duration(milliseconds: 500), () {
+          nativeGestureDispatcher.handleLongClick();
+        });
+        nativeGestureDispatcher.handlePressIn();
+      };
+      _tapGestureRecognizer?.onTapUp = (e) {
+        var longClickTimer = _longClickTimer;
+        if (longClickTimer != null && longClickTimer.isActive) {
+          nativeGestureDispatcher.handleClick();
+          longClickTimer.cancel();
+        }
+        nativeGestureDispatcher.handlePressOut();
+      };
+    }
+  }
 
   // 文本转换后的span，组合各种css样式
   TextSpan? span;
-  bool _dirty = false;
   double lastLayoutWidth = 0.0;
 
   // 原文本
@@ -88,6 +105,10 @@ class TextVirtualNode extends VirtualNode {
     return _sourceText ?? '';
   }
 
+  TapGestureRecognizer? _tapGestureRecognizer;
+
+  Timer? _longClickTimer;
+
   static int _parseArgument(String weight) {
     return weight.length == 3 &&
             weight.endsWith("00") &&
@@ -103,7 +124,7 @@ class TextVirtualNode extends VirtualNode {
     var fontStyle = parseFontStyle(fontStyleString);
     if (fontStyle != _fontStyle) {
       _fontStyle = fontStyle;
-      _dirty = true;
+      markDirty();
     }
   }
 
@@ -123,7 +144,7 @@ class TextVirtualNode extends VirtualNode {
   void letterSpacing(double letterSpace) {
     if (letterSpace != -1.0) {
       _letterSpacing = letterSpace;
-      _dirty = true;
+      markDirty();
     }
   }
 
@@ -131,21 +152,21 @@ class TextVirtualNode extends VirtualNode {
   // ignore: use_setters_to_change_properties
   void color(int color) {
     _color = color;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kFontSize)
   // ignore: use_setters_to_change_properties
   void fontSize(double fontSize) {
     _fontSize = fontSize;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kFontFamily)
   // ignore: use_setters_to_change_properties
   void fontFamily(String fontFamily) {
     _fontFamily = fontFamily;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kFontWeight)
@@ -154,7 +175,7 @@ class TextVirtualNode extends VirtualNode {
 
     if (fontWeight != _fontWeight) {
       _fontWeight = fontWeight;
-      _dirty = true;
+      markDirty();
     }
   }
 
@@ -203,7 +224,7 @@ class TextVirtualNode extends VirtualNode {
         _isLineThroughTextDecorationSet = true;
       }
     }
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kTextDecorationStyle)
@@ -217,27 +238,27 @@ class TextVirtualNode extends VirtualNode {
     };
 
     _textDecorationStyle = propertyMap[textDecorationStyleString] ?? TextDecorationStyle.solid;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kTextDecorationColor)
   void textDecorationColor(int textDecorationColor) {
     _textDecorationColor = textDecorationColor;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kPropShadowOffset)
   void textShadowOffset(VoltronMap offsetMap) {
     _textShadowOffsetDx = offsetMap.get(NodeProps.kPropShadowOffsetWidth)?.toDouble() ?? 0.0;
     _textShadowOffsetDy = offsetMap.get(NodeProps.kPropShadowOffsetHeight)?.toDouble() ?? 0.0;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kPropShadowRadius)
   void textShadowRadius(double textShadowRadius) {
     if (textShadowRadius != _textShadowRadius) {
       _textShadowRadius = textShadowRadius;
-      _dirty = true;
+      markDirty();
     }
   }
 
@@ -245,20 +266,20 @@ class TextVirtualNode extends VirtualNode {
   void setTextShadowColor(int textShadowColor) {
     if (textShadowColor != _textShadowColor) {
       _textShadowColor = textShadowColor;
-      _dirty = true;
+      markDirty();
     }
   }
 
   @ControllerProps(NodeProps.kLineHeight)
   void lineHeight(int lineHeight) {
     _lineHeight = (lineHeight == -1.0 ? null : lineHeight)?.toDouble();
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kTextAlign)
   void setTextAlign(String textAlign) {
     _textAlign = parseTextAlign(textAlign);
-    _dirty = true;
+    markDirty();
   }
 
   static TextAlign parseTextAlign(String textAlign) {
@@ -283,20 +304,20 @@ class TextVirtualNode extends VirtualNode {
   // ignore: use_setters_to_change_properties
   void text(String text) {
     _sourceText = text;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kWhiteSpace)
   // ignore: use_setters_to_change_properties
   void whiteSpace(String whiteSpace) {
     _whiteSpace = whiteSpace;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kTextOverflow)
   void setTextOverflow(String textOverflow) {
     _textOverflow = parseTextOverflow(textOverflow);
-    _dirty = true;
+    markDirty();
   }
 
   static TextOverflow parseTextOverflow(String textOverflow) {
@@ -316,13 +337,13 @@ class TextVirtualNode extends VirtualNode {
   @ControllerProps(NodeProps.kPropEnableScale)
   set enableScale(bool flag) {
     _enableScale = flag;
-    _dirty = true;
+    markDirty();
   }
 
   @ControllerProps(NodeProps.kNumberOfLines)
   void setNumberOfLines(int numberOfLines) {
     _numberOfLines = numberOfLines <= 0 ? 0 : numberOfLines;
-    _dirty = true;
+    markDirty();
   }
 
   TextSpan createSpan({bool useChild = true}) {
@@ -398,15 +419,16 @@ class TextVirtualNode extends VirtualNode {
           decorationColor: Color(_textDecorationColor),
         ),
         children: childrenSpan,
+        recognizer: nativeGestureDispatcher.needListener() ? _tapGestureRecognizer : null,
       );
     }
     return const TextSpan(text: "");
   }
 
   TextData createData(double width, FlexMeasureMode widthMode) {
-    if (span == null || _dirty) {
+    if (span == null || dirty) {
       span = createSpan(useChild: true);
-      _dirty = false;
+      dirty = false;
     }
     lastLayoutWidth = width;
     return TextData(
@@ -425,9 +447,9 @@ class TextVirtualNode extends VirtualNode {
   TextPainter createPainter(double width, FlexMeasureMode widthMode) {
     var unconstrainedWidth = widthMode == FlexMeasureMode.undefined || width < 0;
     var maxWidth = unconstrainedWidth ? double.infinity : width;
-    if (span == null || _dirty) {
+    if (span == null || dirty) {
       span = createSpan(useChild: true);
-      _dirty = false;
+      dirty = false;
     }
     var painter = TextPainter(
       maxLines: _numberOfLines ?? kMaxLineCount,
@@ -439,7 +461,6 @@ class TextVirtualNode extends VirtualNode {
     );
     painter.setPlaceholderDimensions(_placeholderDimensions);
     painter.layout(maxWidth: maxWidth);
-    return painter;
     return painter;
   }
 
@@ -462,6 +483,12 @@ class TextVirtualNode extends VirtualNode {
 
   @override
   MethodPropProvider get provider => _sTextMethodProvider;
+
+  @override
+  void onDelete() {
+    _longClickTimer?.cancel();
+    _tapGestureRecognizer?.dispose();
+  }
 }
 
 class TextMethodProvider extends StyleMethodPropProvider {

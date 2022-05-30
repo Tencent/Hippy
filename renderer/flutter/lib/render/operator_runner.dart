@@ -297,6 +297,8 @@ class _AddEventOpTask extends _NodeOpTask {
   @override
   void _run() {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
+    virtualNodeManager.addEvent(_instanceId, _nodeId, eventName);
+    if (virtualNodeManager.hasVirtualParent(_nodeId)) return;
     renderManager.addNulUITask(() {
       renderManager.setEventListener(_instanceId, _nodeId, eventName);
     });
@@ -309,6 +311,8 @@ class _RemoveEventOpTask extends _NodeOpTask {
   @override
   void _run() {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
+    virtualNodeManager.removeEvent(_instanceId, _nodeId, eventName);
+    if (virtualNodeManager.hasVirtualParent(_nodeId)) return;
     renderManager.addNulUITask(() {
       renderManager.removeEventListener(_instanceId, _nodeId, eventName);
     });

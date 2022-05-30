@@ -6,7 +6,6 @@ import 'package:voltron_renderer/style.dart';
 import '../common.dart';
 import '../controller.dart';
 import '../gesture.dart';
-import '../render.dart';
 import '../util.dart';
 
 class ImageVirtualNode extends VirtualNode {
@@ -15,37 +14,26 @@ class ImageVirtualNode extends VirtualNode {
 
   static ImageSpanMethodProvider sImageSpanMethodProvider = ImageSpanMethodProvider();
 
-  final int rootId;
-  final int id;
-  final int pid;
-  final int index;
-
   double mWidth = 0.0;
   double mHeight = 0.0;
 
-  final RenderContext _renderContext;
-
-  RenderContext get context => _renderContext;
-
-  // 手势事件相关
-  late NativeGestureDispatcher _dispatcher;
-
   final List<String> _imageEventTypes = [];
-
-  bool _dirty = false;
 
   String imgSrc = '';
 
   bool _isFirstLoad = true;
 
-  ImageVirtualNode(this.rootId, this.id, this.pid, this.index, this._renderContext)
-      : super(id, pid, index) {
-    _dispatcher = NativeGestureDispatcher(rootId: rootId, id: id, context: _renderContext);
-  }
-
   ui.PlaceholderAlignment _verticalAlignment = ui.PlaceholderAlignment.bottom;
 
   ui.PlaceholderAlignment get verticalAlignment => _verticalAlignment;
+
+  ImageVirtualNode(
+    rootId,
+    id,
+    pid,
+    index,
+    renderContext,
+  ) : super(rootId, id, pid, index, renderContext);
 
   // for Android
   @ControllerProps(NodeProps.kSrc)
@@ -54,7 +42,6 @@ class ImageVirtualNode extends VirtualNode {
     if (src != imgSrc) {
       imgSrc = src;
       _isFirstLoad = true;
-      _dirty = true;
     }
   }
 
@@ -68,48 +55,7 @@ class ImageVirtualNode extends VirtualNode {
     if (srcComputed != imgSrc) {
       imgSrc = srcComputed;
       _isFirstLoad = true;
-      _dirty = true;
     }
-  }
-
-  @ControllerProps(NativeGestureHandle.kClick)
-  void clickEnable(bool flag) {
-    setGestureType(GestureType.click, flag);
-  }
-
-  @ControllerProps(NativeGestureHandle.kLongClick)
-  void longClickEnable(bool flag) {
-    setGestureType(GestureType.longClick, flag);
-  }
-
-  @ControllerProps(NativeGestureHandle.kPressIn)
-  void pressInEnable(bool flag) {
-    setGestureType(GestureType.pressIn, flag);
-  }
-
-  @ControllerProps(NativeGestureHandle.kPressOut)
-  void pressOutEnable(bool flag) {
-    setGestureType(GestureType.pressOut, flag);
-  }
-
-  @ControllerProps(NativeGestureHandle.kTouchDown)
-  void touchDownEnable(bool flag) {
-    setGestureType(GestureType.touchDown, flag);
-  }
-
-  @ControllerProps(NativeGestureHandle.kTouchMove)
-  void touchUpEnable(bool flag) {
-    setGestureType(GestureType.touchMove, flag);
-  }
-
-  @ControllerProps(NativeGestureHandle.kTouchEnd)
-  void touchEndEnable(bool flag) {
-    setGestureType(GestureType.touchEnd, flag);
-  }
-
-  @ControllerProps(NativeGestureHandle.kTouchCancel)
-  void touchCancelable(bool flag) {
-    setGestureType(GestureType.touchCancel, flag);
   }
 
   @ControllerProps(NodeProps.kOnLoad)
@@ -158,27 +104,16 @@ class ImageVirtualNode extends VirtualNode {
     } else if (alignment == 'bottom') {
       _verticalAlignment = ui.PlaceholderAlignment.bottom;
     }
-    _dirty = true;
   }
 
   @ControllerProps(NodeProps.kWidth)
   void setWidth(double v) {
     mWidth = v;
-    _dirty = true;
   }
 
   @ControllerProps(NodeProps.kHeight)
   void setHeight(double v) {
     mHeight = v;
-    _dirty = true;
-  }
-
-  void setGestureType(GestureType type, bool flag) {
-    if (flag) {
-      _dispatcher.addGestureType(type);
-    } else {
-      _dispatcher.removeGestureType(type);
-    }
   }
 
   void _handleImageEvent(
@@ -260,16 +195,16 @@ class ImageVirtualNode extends VirtualNode {
         width: mWidth,
         height: mHeight,
       );
-      if (_dispatcher.needListener()) {
+      if (nativeGestureDispatcher.needListener()) {
         current = Listener(
           behavior: HitTestBehavior.opaque,
-          onPointerDown: (event) => _dispatcher.handleOnTouchEvent(event),
-          onPointerCancel: (event) => _dispatcher.handleOnTouchEvent(event),
-          onPointerMove: (event) => _dispatcher.handleOnTouchEvent(event),
-          onPointerUp: (event) => _dispatcher.handleOnTouchEvent(event),
-          child: current = GestureDetector(
-            onTap: () => _dispatcher.handleClick(),
-            onLongPress: () => _dispatcher.handleLongClick(),
+          onPointerDown: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+          onPointerCancel: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+          onPointerMove: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+          onPointerUp: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+          child: GestureDetector(
+            onTap: () => nativeGestureDispatcher.handleClick(),
+            onLongPress: () => nativeGestureDispatcher.handleLongClick(),
             child: current,
           ),
         );
@@ -280,8 +215,8 @@ class ImageVirtualNode extends VirtualNode {
         child: current,
       );
     } else {
-      return WidgetSpan(
-        child: Container(
+      return const WidgetSpan(
+        child: SizedBox(
           width: 0,
           height: 0,
         ),
