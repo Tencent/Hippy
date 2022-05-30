@@ -6,15 +6,28 @@ add_compile_options(${ABI_COMPILE_OPTIONS})
 
 set(JS_ENGINE "V8")
 set(JNI_DIR ${FRAMEWORK_DIR}/js/android/src/main/jni)
-set(V8_COMPONENT "${JNI_DIR}/third_party/v8/stable/official-release")
 
 set(FRAMEWORK_ANDROID_DEPS android log)
 
 set(ENABLE_INSPECTOR true)
+
+# region dependencies
+set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud.com")
+set(INFA_PACKAGES_DOMAIN "hippy")
+
+# region v8
 if (${JS_ENGINE} STREQUAL "V8")
-    get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
-    add_subdirectory(${V8_COMPONENT_PATH} v8)
-endif ()
+  get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
+  if (EXISTS "${V8_COMPONENT_PATH}/CMakeLists.txt")
+    add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
+  else()
+    include(FetchContent)
+    FetchContent_Declare(V8
+            URL "${INFA_PACKAGES_URL}/${INFA_PACKAGES_DOMAIN}/third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz")
+    FetchContent_MakeAvailable(V8)
+  endif()
+endif()
+# endregion
 
 # region global definitions
 if (${ENABLE_INSPECTOR} STREQUAL "true")

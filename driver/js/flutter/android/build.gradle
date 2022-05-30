@@ -59,29 +59,24 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def v8Release = "official-release"
-def v8Debug = "official-release"
-if (V8_TAG == "latest") {
-  v8Release = v8Debug
-} else if (project.hasProperty('V8_RELEASE')) {
-  v8Release = V8_RELEASE
-  v8Debug = V8_RELEASE
-}
-
 android {
   compileSdkVersion 28
-  ndkVersion "21.4.7075529"
 
   defaultConfig {
     minSdkVersion 21
 
     if (enableLocalCmake) {
-        externalNativeBuild {
-            cmake {
-               cppFlags "-std=c++17"
-               arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_shared"
-            }
+      externalNativeBuild {
+        cmake {
+          cppFlags "-std=c++17"
+          arguments "-DJS_ENGINE=V8",
+            "-DANDROID_CPP_FEATURES=no-rtti no-exceptions",
+            "-DANDROID_PLATFORM=android-21",
+            "-DANDROID_STL=$ANDROID_STL",
+            "-DV8_COMPONENT=$V8_COMPONENT",
+            "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
         }
+      }
     }
 
   }
@@ -117,7 +112,7 @@ android {
   if (enableLocalCmake) {
     externalNativeBuild {
       cmake {
-        version "3.10.2"
+        version "3.18.1"
         path "../core/CMakeLists.txt"
       }
     }
@@ -133,23 +128,3 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
-task buildSo(type: Copy) {
-  println("config local cmake:$enableLocalCmake, buildDir:$buildDir/intermediates/cmake/release/obj/")
-
-  copy {
-    from "$buildDir/intermediates/cmake/release/obj/"  // 调用 from 方法
-    into 'libs/'  // 调用 into 方法
-  }
-
-  println("$projectDir.absolutePath/src/main/jni/third_party/v8/$V8_TAG/$v8Release/libs/armeabi-v7a/libc++_shared.so")
-  copy {
-    from "$projectDir.absolutePath/src/main/jni/third_party/v8/$V8_TAG/$v8Release/libs/armeabi-v7a/libc++_shared.so"
-    into 'libs/armeabi-v7a/'
-  }
-
-  println("$projectDir.absolutePath/src/main/jni/third_party/v8/$V8_TAG/$v8Release/libs/arm64-v8a/libc++_shared.so")
-  copy {
-    from "$projectDir.absolutePath/src/main/jni/third_party/v8/$V8_TAG/$v8Release/libs/arm64-v8a/libc++_shared.so"
-    into 'libs/arm64-v8a/'
-  }
-}
