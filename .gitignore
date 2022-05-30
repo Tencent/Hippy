@@ -61,6 +61,3 @@ build/
 # core
 driver/js/core/ARM
 .vs/
-
-# temp ignore until open the source code
-renderer/tdf

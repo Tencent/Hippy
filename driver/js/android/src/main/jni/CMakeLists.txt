@@ -118,10 +118,6 @@ endif()
 add_subdirectory(${CORE_SRC_DIR}/third_party/base ${CMAKE_CURRENT_BINARY_DIR}/third_party/base)
 add_subdirectory(${DOM_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/dom)
 add_subdirectory(${RENDER_DIR}/native/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/native/android/src/main/jni)
-if(${ENABLE_TDF_RENDER} STREQUAL "true")
-  add_definitions(-DENABLE_TDF_RENDER)
-  add_subdirectory(${RENDER_DIR}/tdf/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/tdf/android/src/main/jni)
-endif()
 # endregion
 
 
@@ -139,9 +135,6 @@ message("JNI_SRC: ${JNI_SRC}")
 # endregion
 
 set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
-if(${ENABLE_TDF_RENDER} STREQUAL "true")
-  list(APPEND HIPPY_DEPS tdf_render)
-endif()
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
@@ -188,15 +181,19 @@ else()
   message(FATAL_ERROR "${JS_ENGINE} is not supported")
 endif()
 
+if(${ENABLE_TDF_RENDER} STREQUAL "true")
+  add_definitions(-DENABLE_TDF_RENDER)
+  include_directories(${RENDER_DIR}/tdf/android/src/main/jni/include)
+  add_subdirectory(${RENDER_DIR}/tdf/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/tdf/android/src/main/jni)
+  list(APPEND HIPPY_DEPS tdf_render)
+endif()
+
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${CORE_SRC_DIR}/include)
 include_directories(${CORE_SRC_DIR}/third_party/base/include)
 include_directories(${DOM_SRC_DIR}/include)
 include_directories(${LAYOUT_DIR})
 include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
-if(${ENABLE_TDF_RENDER} STREQUAL "true")
-  include_directories(${RENDER_DIR}/tdf/android/src/main/jni/include)
-endif()
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")

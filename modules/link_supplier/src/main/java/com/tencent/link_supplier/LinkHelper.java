@@ -34,7 +34,7 @@ public interface LinkHelper {
 
         public final String renderClassName;
         RenderMode(String renderClassName) {
-            this.renderClassName= renderClassName;
+            this.renderClassName = renderClassName;
         }
     }
     /**
@@ -77,6 +77,7 @@ public interface LinkHelper {
      * Create animation manager, will call native jni {@link Linker#createAnimationManager()}
      */
     void createAnimationManager();
+
     /**
      * Create dom holder with instance id, just set new id, not call native jni {@link
      * Linker#createDomInstance()}
