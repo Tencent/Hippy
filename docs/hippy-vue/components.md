@@ -265,6 +265,7 @@
 | change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS`     |
 | keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `Android、iOS`     |
 | keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
+| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS` |                                 
 | endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS`     |
 | layout              | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS`     |
 | selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `Android、iOS`     |
@@ -318,11 +319,13 @@
 
 Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被映射成 `ListView`，包含 `ListView` 所有能力。里面第一层只能包含 `<li>`。
 
+!> Android `2.14.0` 版本后会采用 `RecyclerView` 替换原有 `ListView`
+
 ## 参数
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` | `any`   | `Android`    |
+| horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` 纵向布局，iOS 暂不支持横向 `ul` | `any`   | `Android`    |
 | initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `Android、iOS` |
 | bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
 | overScrollEnabled | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `Android`    |

@@ -11,13 +11,13 @@ Hippy 2.2 版本之前只支持加载单个 js bundle 文件。随着业务越�
 
 ## 原理架构
 
-![Communication Info](../assets/dynamic_import.png)
+![Communication Info](../assets/img/dynamic_import.png)
 
 ## 范例
 
-[[React 范例]](//github.com/Tencent/Hippy/blob/master/driver/js/examples/hippy-react-demo/src/externals/DyanmicImport/index.jsx)
+[[React 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/DyanmicImport/index.jsx)
 
-[[Vue 范例]](//github.com/Tencent/Hippy/blob/master/driver/js/examples/hippy-vue-demo/src/components/demos/demo-dynamicimport.vue)
+[[Vue 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-dynamicimport.vue)
 
 ## 使用方法
 
@@ -27,7 +27,7 @@ Hippy 2.2 版本之前只支持加载单个 js bundle 文件。随着业务越�
 
 ### 使用
 
-在 [webpack 打包脚本](https://github.com/Tencent/Hippy/tree/master/driver/js/examples/hippy-vue-demo/scripts) 中引入插件
+在 [webpack 打包脚本](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 中引入插件
 
 ```javascript
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
