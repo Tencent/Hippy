@@ -1,24 +1,24 @@
 <!--  markdownlint-disable blanks-around-lists -->
 
-# 网络请求
+# Network request
 
-Hippy 直接支持 W3C 标准的 fetch 和 WebSocket 接口，可以通过这两个方法对服务器进行访问。
+Hippy directly supports the `fetch` and `WebSocket` interfaces of the W3C standard, and can access the server through these two methods.
 
 # fetch
 
-Hippy 提供了跟 W3C 标准基本一致的 [fetch](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API) 方法，可以直接参考 [MDN](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API)。
+Hippy provides a [fetch](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API) method that is basically consistent with the W3C standard. You can directly refer to [MDN](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API).
 
-> 注意：`fetch` 目前仅支持 JSON 对象的传输，别的格式暂时无法支持。
+>Note:`fetch` at present, only the transmission of JSON objects is supported, and other formats can not be supported temporarily.
 
-## 发起请求
+## Initiate request
 
-如果需要请求远程地址，只需要在 fetch 函数参数值传入地址即可，如下：
+If you need to request a remote address, you only need to pass in the address in the parameter value of the `fetch` function, as follows:
 
 ```javascript
 fetch('//mywebsite.com/mydata.json');
 ```
 
-fetch 函数也支持 HTTP 请求的配置。
+The `fetch` function also supports the configuration of HTTP requests.
 
 ```javascript
 fetch('//mywebsite.com/endpoint/', {
@@ -34,11 +34,11 @@ fetch('//mywebsite.com/endpoint/', {
 });
 ```
 
-完整的 fetch 请求属性列表可以[点击此处查看](//developer.mozilla.org/zh-CN/docs/Web/API/Request)。
+A complete list of fetch request attributes can be [Click here to view](//developer.mozilla.org/zh-CN/docs/Web/API/Request).
 
-## 处理返回值
+## Processing return values
 
-返回数据将以 [Promise](//developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise) 的形式返回，示例如下：
+The returned data will be returned to the [Promise](//developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise), for example:
 
 ```javascript
 function getMoviesFromApi() {
@@ -49,9 +49,9 @@ function getMoviesFromApi() {
 }
 ```
 
-可以使用 [async/await](//developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function) 处理 fetch 返回的数据。
+You can use [async/await](//developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function) to process the data returned by `fetch`.
 
-> 在使用 `fetch` 发起网络请求的时候，需要记得捕获错误，否则错误会被静默丢弃。
+>When using to `fetch` initiate network requests, remember to catch errors, otherwise the errors will be silently discarded.
 
 ```javascript
 async function getMoviesFromApi() {
@@ -67,79 +67,78 @@ async function getMoviesFromApi() {
 
 # WebSocket
 
-`WebSocket` 协议可以在单个TCP连接上提供全双工的通信信道，是一种长连接的网络通道。
+`Websocket` protocol can provide full duplex communication channel on a single TCP connection. It is a long connection network channel.
 
-## 方法
+## Method
 
 ### constructor
 
 `(url: string, protocals: array, extrasHeaders: object)`
-创建一个 WebSocket 对象，并开始向指定的 url 建立 Websocket 连接
+Creates a `WebSocket` object and begins to establish a `Websocket` connection to the specified url
 
-> * `url`: string - WebSocket 的连接地址，以 ws:// 或 wss:// 开头的 url；
-> * `protocals`: array - 可选字段，指定WebSocket希望采用的交流协议，array 内部的单个元素为必须为字符串类型，按优先级排序，该字段会最终组装到 WebSocket 的 Sec-WebSocket-Protocol 请求头中；
-> * `extrasHeaders`: object- 可选字段，指定建立 WebSocket 时的一些额外请求头；
+> * `url`: String. Websocket connection address, URL starting with ws:// or wss://.
+> * `protocals`: Array. Optional field. Specify the communication protocol that WebSocket wants to adopt. The single element inside array must be of String type and sorted by priority. This field will be finally assembled into the Sec-Websocket-Protocol request header of Websocket.
+> * `extrasHeaders`: Object. Optional field. Specify some additional request headers when establishing WebSocket.
 
 ### close
 
 `(code:  number, reason: string)`
-主动关闭一条WebSocket，并向对端返回指定的code和reason
+Actively close a WebSocket and return the specified code and reason to the peer
 
-> * `code`: number - 可选字段，WebSocket关闭时，返回给对端的状态码；
-> * `reason`: string- 可选字段，WebSocket关闭时，返回给对端的原因描述字符串；
+> * `code`: Number. Optional field. The status code returned to the opposite end when WebSocket is closed.
+> * `reason`: String. Optional field. The reason description string returned to the opposite end when WebSocket is closed.
 
 ### send
 
 `(data: string)`
-向对端发送一段数据，现阶段hippy仅支持发送文本数据，注意，请在明确收到 onopen 事件后才能真正发送数据，在连接尚未建立或已关闭的情况下发送数据会导致错误；
+Send a piece of data to the opposite end. At this stage, Hippy only supports sending text data. Please send data only after receiving `onopen` event. Sending data when the connection is not established or closed will cause errors.
 
-> * `data`: string- 向WebSocket对端发送的字符串数据；
+> * `data`: String. String data sent to the opposite end of WebSocket.
 
-## 属性
+## Property
 
 ### readyState
 
-`number，只读属性`
-> 当前WebSocket的状态，取值为以下4种：
-> * `0` - WebSocket正在连接中（Connecting）；
-> * `1` - WebSocket连接建立成功，当前可以收发数据（Open）；
-> * `2` - WebSocket连接正在关闭（Closing）；
-> * `3` - WebSocket连接已关闭（Closed）；
+`number, read-only attribute`
+> The current WebSocket status has the following 4 values:
+> * `0` - WebSocket is connecting(Connecting).
+> * `1` - Websocket connection is established successfully. Data can be sent and received at present(Open).
+> * `2` - Websocket connection closing(Closing).
+> * `3` - Websocket connection closed(Closed).
 
 ### url
 
-`string，只读属性`
-当前 WebSocket 使用的 url
+`string, read-only attribute`
+URL currently used by websocket
 
 ### onopen
 
-`function，只写属性`
-设置当前 WebSocket 在连接建立成功后的回调函数
+`function, write-only attribute` 
+Set the callback function of the current WebSocket after the connection is successfully established
 
 ### onclose
 
-`function，只写属性`
-设置当前WebSocket在连接关闭时的回调函数，回调函数带有一个参数（Object类型），参数属性说明如下：
+`function, write-only attribute`
+Set the callback function of the current WebSocket when the connection is closed. The callback function has a parameter (Object type). The parameter properties are described as follows:
 
-> * `code` - number，连接关闭的状态码；
-> * `reason` - string，连接关闭的原因描述；
+> * `code` Number. Status code of connection closing;
+> * `reason` String. Description of the reason why the connection was closed
 
 ### onmessage
 
-`function，只写属性`
-设置当前 WebSocket 在收到数据时的回调函数，回调函数带有一个参数（Object类型），参数属性说明如下：
+`function, write-only attribute` Set the callback function of the current WebSocket when receiving data. The callback function has a parameter (Object type). The parameter attributes are described as follows:
 
-> * `data` - string，实际收到的数据，由于当前Hippy WebSocket仅支持字符串数据的收发，这里一定为string类型；
-> * `type` - string，收到的数据的类型，当前恒定为‘text’；
+> * `data` String. The actually received data must be of string type because the current Hippy WebSocket only supports the sending and receiving of string data;
+> * `type` String. The type of data received, which is currently constant as' text ';
 
 ### onerror
 
-`function，只写属性`
-设置当前 WebSocket 在连接出现错误时的回调函数，回调函数带有一个参数（Object类型），参数属性说明如下：
+`function, write-only attribute`
+Set the callback function of current WebSocket in case of connection error. The callback function has a parameter (Object type). The parameter attribute is described as follows:
 
-> * `reason` - string，连接出现错误的的原因描述；
+> * `reason` String. Description of the cause of connection error;
 
-## 范例
+## Example
 
 ``` jsx
 import React from "react";
@@ -166,7 +165,7 @@ export default class WebSocketExpo extends React.Component {
     this.webSocekt.onmessage = (message) => {
       console.log("WebSocket onMessage: data type = " + message.type);
 
-      // text 类型的回包数据
+      // The packet return data is of type text
       if (message.type == 'text') {
         console.log("WebSocket onMessage: data type = " + message.data);
       }
@@ -174,7 +173,7 @@ export default class WebSocketExpo extends React.Component {
   }
 
   componentWillUnmount() {
-    // close 宜可不带参数 this.webSocekt.close();
+    // close should be possible without the parameter this webSocekt.close();
     this.webSocekt && this.webSocekt.close(0, "close websocket");
   }
 
@@ -192,8 +191,8 @@ export default class WebSocketExpo extends React.Component {
 
 # Cookie
 
-Hippy 在接收来自服务器的 `set-cookie` header 时，会自动种入 cookie，下次再请求同域名服务时，就自动带上之前种下的 cookie。
+When Hippy receives the `set-cookie` header from the server, it will automatically seed the cookie, and the next time it requests the same domain name service, it will automatically bring the cookie planted before.
 
-但和浏览器不同，Hippy 内提供提供了 NetworkModule 提供了对 cookie 读取和修改，详情可以参考 hippy-react 的 [NetworkModule](hippy-react/modules.md?id=networkmodule)，或者 hippy-vue 的 [Vue.Native.Cookie](/hippy-vue/vue-native.md?id=cookie) 文档。
+But different from the browser, Hippy provides `NetworkModule` to read and modify cookies. For details, please refer to the [NetworkModule](hippy-react/modules.md?id=networkmodule) document of Hippy-React or the [Vue.Native.Cookie] (/hippy-vue/vue-native.md?id=cookie) document of Hippy-Vue.
 
-> 浏览器中对 Cookie 的读写时通过 document 对象操作的，但是 Hippy 中暂时不能直接出现全局的 document，否则部分库会运行一些在浏览器中才有的 document 方法，但 Hippy 中并没有，会导致崩溃。
+>The reading and writing of cookies in the browser is operated through the document Object, but the global document can not directly appear in Hippy for the time being. Otherwise, some libraries will run some document methods that are only available in the browser, but not in Hippy, which will cause crash.

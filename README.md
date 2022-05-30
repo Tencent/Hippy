@@ -8,7 +8,7 @@ English | [简体中文](./README.zh_CN.md) | [Homepage](//tencent.github.io/Hip
 
 Hippy is a cross-platform development framework, that aims to help developers write once, and run on multiple platforms(iOS, Android, Web, and so on). Hippy is quite friendly to Web developers, especially those who are familiar with React or Vue. With Hippy, developers can create the cross-platform app easily.
 
-Hippy is now applied in 27+ [Tencent](http://www.tencent.com/) apps such as Mobile QQ, Mobile QQ Browser, Tencent Video App, QQ Music App, and Tencent News, reaching hundreds of millions of ordinary users.
+Hippy is now applied in [Tencent](http://www.tencent.com/) major apps such as Mobile QQ, Mobile QQ Browser, Tencent Video App, QQ Music App, and Tencent News, reaching hundreds of millions of ordinary users.
 
 ## 💯 Advantages
 
@@ -82,7 +82,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
    > `npm run build`: Build each front-end sdk package.  
 
 2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Open the `driver/js/examples/android-demo` with Android Studio.
+3. Open the `Hippy Project` at root directory with Android Studio.
 4. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
 5. Open the project with Android Studio, run and install the apk.
 
@@ -96,8 +96,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 
 1. Follow [Build the iOS simulator with js demo](https://github.com/Tencent/Hippy#build-the-ios-simulator-with-js-demo) or [Build the Android app with js demo](https://github.com/Tencent/Hippy#build-the-android-app-with-js-demo) first to build the App.
 2. Run `npm run init:example [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] debug` at root directory.
-4. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev` at root directory.
+3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev` at root directory.
 
 > Or you can `cd` to `driver/js/examples/hippy-react-demo` or `driver/js/examples/hippy-vue-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
 >

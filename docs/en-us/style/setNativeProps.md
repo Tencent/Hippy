@@ -1,12 +1,12 @@
-# setNativeProps
+# SetNativeProps
 
-在做一些高频动画效果时由于需要经历JS层的多次重新渲染，会出现滞后卡顿的现象，`setNativeProps`提供了`ElementNode`下"简单粗暴"的方法直接修改终端原生组件的样式来优化性能，该方法目前只能修改 `style` 样式，其余属性暂不支持。P.S. 可能产生的数据同步等逻辑上的副作用需要业务自行解决
+When doing some high-frequency animation effects, due to the need to re-render the JS layer for many times, the phenomenon of lag jam will occur.`setNativeProps` provides a "simple and crude" method under `ElementNode` to directly modify the style of the native components to optimize performance. At present, this method can only modify the `style`, and other attributes are not supported temporarily. P.S. Logical side effects such as data synchronization that may occur need to be solved by the developer
 
 ## React
 
-[[范例：SetNativeProps.jsx]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/SetNativeProps/index.jsx)
+[[Example: SetNativeProps.jsx scenario](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/SetNativeProps/index.jsx)
 
-除了element component（如div）外，React 没有直接暴露 ElementNode 给业务使用，可以通过 [React.forwardRef](https://zh-hans.reactjs.org/docs/forwarding-refs.html) 转发，或者使用 Hippy 提供的 `UIManagerModule.getElementFromFiberRef` 方法（该方法会从当前节点逐个遍历子节点直到找到 `ElementNode` 元素并返回，有一定性能损耗） 获取第一个 `ElementNode`，使用 demo 如下：
+Except for element component (such as div), React does not directly expose ElementNode for developer use. You can use [React.forwardRef]（ https://zh-hans.reactjs.org/docs/forwarding-refs.html ）forward, or use the `UIManagerModule.getElementFromFiberRef` method provided by Hippy  (this method will traverse the child nodes one by one from the current node until the 'ElementNode' element is found and returned, with a certain performance loss) obtains the first 'ElementNode'. The demo is as follows:
 
 ```javascript
  class BusinessComponent extends React.Component {
@@ -24,11 +24,10 @@
       return <CustomComponent ref={ref => this.customComRef = ref} />
    }
  }
-
-   ```
+```
 
 ## Vue
 
-[[范例：demo-set-native-props.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-set-native-props.vue)
+[[Example: demo-set-native-props.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-set-native-props.vue)
 
-Vue 如果是 HTML 元素，直接通过`$refs`可以获取到 DOM；如果是自定义组件，可以通过`$refs.x.$el` 获取，`setNativeProps`使用方法和 React 一致
+If Vue is an HTML element, you can get DOM directly through `$refs`. For custom components, you can use `$refs.x.$el` get. `setNativeProps` is used in the same way as React.
