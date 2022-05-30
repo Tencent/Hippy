@@ -6,7 +6,7 @@ DevTools Backend is the Backend Service of Hippy Debugging DevTools, that mainly
 
 ### Architecture
 
-![devtools Architecture](../../docs/assets/img/devtools-introduction.png)
+![devtools Architecture](assets/devtools-introduction.png)
 
 - Tunnel Service, /tunnel dir, to handle connecting channel with frontend, which support websocket and tcp.
 - Domain Dispatch, /module dir, to dispatch debugging [CDP and TDF protocol](https://devtools.qq.com/devtools-protocol/) by `Domain.Method`.
