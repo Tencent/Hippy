@@ -5,7 +5,6 @@ import 'package:voltron_renderer/style.dart';
 
 import '../common.dart';
 import '../controller.dart';
-import '../gesture.dart';
 import '../util.dart';
 
 class ImageVirtualNode extends VirtualNode {
@@ -245,70 +244,6 @@ class ImageSpanMethodProvider extends StyleMethodPropProvider {
           consumer.source(value);
         }
       }, VoltronArray()),
-    );
-    pushMethodProp(
-      NativeGestureHandle.kClick,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.clickEnable(value);
-        }
-      }, false),
-    );
-    pushMethodProp(
-      NativeGestureHandle.kLongClick,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.longClickEnable(value);
-        }
-      }, false),
-    );
-    pushMethodProp(
-      NativeGestureHandle.kPressIn,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.pressInEnable(value);
-        }
-      }, false),
-    );
-    pushMethodProp(
-      NativeGestureHandle.kPressOut,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.pressOutEnable(value);
-        }
-      }, false),
-    );
-    pushMethodProp(
-      NativeGestureHandle.kTouchDown,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.touchDownEnable(value);
-        }
-      }, false),
-    );
-    pushMethodProp(
-      NativeGestureHandle.kTouchMove,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.touchUpEnable(value);
-        }
-      }, false),
-    );
-    pushMethodProp(
-      NativeGestureHandle.kTouchEnd,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.touchEndEnable(value);
-        }
-      }, false),
-    );
-    pushMethodProp(
-      NativeGestureHandle.kTouchCancel,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.touchCancelable(value);
-        }
-      }, false),
     );
     pushMethodProp(
       NodeProps.kOnProgress,
