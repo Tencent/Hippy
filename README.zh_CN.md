@@ -60,7 +60,8 @@ Windows 用户者需要以下软件:
     > `npm run build`：编译每一个 JS SDK 包。
 
 2. 选择一个前端范例项目来进行编译，在项目根目录运行 `npm run buildexample [hippy-react-demo|hippy-vue-demo]`。
-3. 启动 Xcode 并且开始编译终端 App：`open driver/js/examples/ios-demo/HippyDemo.xcodeproj`。
+3. 使用 `brew install cocoapods` 安装 CocoaPods，并在 `driver/js/examples/ios-demo` 目录运行 `pod install` 配置 CocoaPods 依赖。
+4. 启动 Xcode 并且开始编译终端 App：`open driver/js/examples/ios-demo/HippyDemo.xcworkspace`。
 
 > 如果步骤2出现错误，可以先 `cd` 到 `driver/js/examples` hippy-react-demo 或者 hippy-vue-demo 目录下，执行 `npm install --legacy-peer-deps`，提前将 demo 的 NPM 包依赖先安装好。
 >
