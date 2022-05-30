@@ -18,16 +18,14 @@ package com.tencent.renderer.utils;
 
 import android.view.Choreographer;
 import androidx.annotation.MainThread;
-import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRendererManager;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 public class ChoreographerUtils {
     public static final String DO_FRAME = "frameUpdate";
-    private static boolean sPostFrameCallback = false;
-    private static Choreographer.FrameCallback sFrameCallback = null;
+    private static boolean sEnablePostFrame = false;
     private static HashMap<Integer, ArrayList<Integer>> sListeners = null;
 
     private static void handleDoFrameCallback() {
@@ -43,8 +41,21 @@ public class ChoreographerUtils {
         }
     }
 
+    private static void doPostFrame() {
+        Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
+            @Override
+            public void doFrame(long frameTimeNanos) {
+                handleDoFrameCallback();
+                if (sEnablePostFrame) {
+                    doPostFrame();
+                }
+            }
+        };
+        Choreographer.getInstance().postFrameCallback(frameCallback);
+    }
+
     @MainThread
-    public static void registerDoFrameListener(int rendererId, int rootId) {
+    public static void registerDoFrameListener(Integer rendererId, Integer rootId) {
         if (sListeners == null) {
             sListeners = new HashMap<>();
         }
@@ -56,18 +67,28 @@ public class ChoreographerUtils {
         } else {
             roots.add(rootId);
         }
-        if (sFrameCallback == null) {
-            sFrameCallback = new Choreographer.FrameCallback() {
-                @Override
-                public void doFrame(long frameTimeNanos) {
-                    handleDoFrameCallback();
-                }
-            };
+        if (!sEnablePostFrame) {
+            doPostFrame();
+            sEnablePostFrame = true;
         }
     }
 
     @MainThread
-    public static void unregisterDoFrameListener(int rendererId, int rootId) {
-
+    public static void unregisterDoFrameListener(Integer rendererId, Integer rootId) {
+        if (sListeners == null) {
+            return;
+        }
+        ArrayList<Integer> roots = sListeners.get(rendererId);
+        if (roots != null) {
+            roots.remove(rootId);
+            if (roots.isEmpty()) {
+                sListeners.remove(rendererId);
+            }
+        } else {
+            sListeners.remove(rendererId);
+        }
+        if (sListeners.isEmpty()) {
+            sEnablePostFrame = false;
+        }
     }
 }

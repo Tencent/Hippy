@@ -16,7 +16,6 @@
 
 package com.tencent.renderer;
 
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
