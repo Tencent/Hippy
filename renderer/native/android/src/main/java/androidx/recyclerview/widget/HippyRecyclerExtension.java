@@ -25,7 +25,6 @@ import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import com.tencent.mtt.hippy.views.hippylist.NodePositionHelper;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
-
 import java.util.ArrayList;
 
 /**

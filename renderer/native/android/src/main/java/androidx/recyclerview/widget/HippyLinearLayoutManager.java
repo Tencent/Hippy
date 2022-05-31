@@ -30,7 +30,7 @@ import java.util.HashMap;
  * Description
  * 精确计算内容的offset
  */
-public class EasyLinearLayoutManager extends LinearLayoutManager {
+public class HippyLinearLayoutManager extends LinearLayoutManager {
 
     /**
      * 无效的高度
@@ -44,15 +44,15 @@ public class EasyLinearLayoutManager extends LinearLayoutManager {
     protected HashMap<Integer, Integer> itemTopMarginMaps = new HashMap<>();
     protected HashMap<Integer, Integer> itemBottomMarginMaps = new HashMap<>();
 
-    public EasyLinearLayoutManager(Context context) {
+    public HippyLinearLayoutManager(Context context) {
         super(context);
     }
 
-    public EasyLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
+    public HippyLinearLayoutManager(Context context, int orientation, boolean reverseLayout) {
         super(context, orientation, reverseLayout);
     }
 
-    public EasyLinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public HippyLinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
@@ -85,8 +85,8 @@ public class EasyLinearLayoutManager extends LinearLayoutManager {
      */
     int getItemHeightFromAdapter(int position) {
         Adapter adapter = mRecyclerView.getAdapter();
-        if (adapter instanceof IItemLayoutParams) {
-            IItemLayoutParams layoutInfo = (IItemLayoutParams) adapter;
+        if (adapter instanceof ItemLayoutParams) {
+            ItemLayoutParams layoutInfo = (ItemLayoutParams) adapter;
             resetLayoutParams();
             layoutInfo.getItemLayoutParams(position, ITEM_LAYOUT_PARAMS);
             if (ITEM_LAYOUT_PARAMS.height >= 0) {

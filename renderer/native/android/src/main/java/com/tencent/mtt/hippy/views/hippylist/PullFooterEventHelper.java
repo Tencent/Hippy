@@ -18,8 +18,8 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.view.View;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
-import com.tencent.mtt.nxeasy.recyclerview.helper.footer.FooterExposureHelper;
-import com.tencent.mtt.nxeasy.recyclerview.helper.footer.IFooterLoadMoreListener;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.footer.FooterExposureHelper;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.footer.IFooterLoadMoreListener;
 import com.tencent.renderer.utils.EventUtils;
 
 /**
