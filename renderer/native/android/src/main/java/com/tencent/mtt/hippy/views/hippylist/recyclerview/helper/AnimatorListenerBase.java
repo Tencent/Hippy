@@ -14,20 +14,33 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.footer;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper;
 
-import android.view.View;
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 
-public interface IFooterLoadingView {
+public class AnimatorListenerBase implements AnimatorListener {
 
-  int LOAD_STATUS_NONE = 0;
-  int LOAD_STATUS_LOADING = 1;
-  int LOAD_STATUS_FAILED = 2;
-  int LOAD_STATUS_END = 3;
+  public AnimatorListenerBase() {
+  }
 
-  View getView();
+  @Override
+  public void onAnimationStart(Animator animation) {
 
-  int getHeight();
+  }
 
-  void setLoadingStatus(int loadingStatus);
+  @Override
+  public void onAnimationEnd(Animator animation) {
+
+  }
+
+  @Override
+  public void onAnimationCancel(Animator animation) {
+
+  }
+
+  @Override
+  public void onAnimationRepeat(Animator animation) {
+
+  }
 }

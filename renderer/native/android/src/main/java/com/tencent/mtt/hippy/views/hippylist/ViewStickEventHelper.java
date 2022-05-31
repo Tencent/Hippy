@@ -3,7 +3,7 @@ package com.tencent.mtt.hippy.views.hippylist;
 import android.view.View;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
-import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickViewListener;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickViewListener;
 
 /**
  * Created on 2021/8/24.
@@ -12,7 +12,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickViewListener;
  */
 public class ViewStickEventHelper implements StickViewListener {
 
-    public static final String ON_VIEW_SUSPEND_LISTENER = "viewSuspendListener";
+    public static final String ON_VIEW_SUSPEND_LISTENER = "onViewSuspendListener";
     public static final String IS_SHOW = "isShow";
     private View view;
 
