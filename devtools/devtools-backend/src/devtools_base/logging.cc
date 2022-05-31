@@ -49,7 +49,7 @@ std::string Logger::GetTimeStamp() {
   std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
   nowtime = static_cast<long>(sec.count());
   localtime_r(&nowtime, &nowtm);
-  snprintf(szTime, sizeof(szTime), "%04d-%02d-%02d %02d.%02d.%02d.%03ld", nowtm.tm_year + 1900, nowtm.tm_mon + 1,
+  snprintf(szTime, sizeof(szTime), "%04d-%02d-%02d %02d.%02d.%02d.%03d", nowtm.tm_year + 1900, nowtm.tm_mon + 1,
            nowtm.tm_mday, nowtm.tm_hour, nowtm.tm_min, nowtm.tm_sec, (tv.tv_usec / 1000));
   szTime[23] = 0;
   std::string time(szTime);
