@@ -16,7 +16,7 @@ It should note is that an animation itself is a View, it will drive all the chil
 
 ## Props
 
-| Props          | Description                                                         | Type                                      | Supported Platform |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | playing        | Controls whether the animation plays | boolean                                | `Android、iOS`    |
 | actions*        | Animation scheme, it is actually a style value followed by its animation scheme, please refer to the example for details. | Object                                | `Android、iOS`    |
@@ -38,7 +38,7 @@ It should note is that an animation itself is a View, it will drive all the chil
 
 > minimum supported version 2.5.2
 
-| Props          | Description                                                         | Type                                      | Supported Platform |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | start              | Called when animation starts                                  | `Function`                                                    | `Android、iOS`    |
 | end         | Called when animation ends                                   | `Function`| `Android、iOS`    |
@@ -82,7 +82,7 @@ Used for modal pop-up window, the default background is transparent, needs to ad
 
 ## Props
 
-| Props          | Description                                                         | Type                                      | Supported Platform |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | animationType         | Animation effects                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS`    |
 | supportedOrientations | Supports screen orientation reversal                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
@@ -92,7 +92,7 @@ Used for modal pop-up window, the default background is transparent, needs to ad
 
 ## Event
 
-| Event name          | Description                                                         | Type                                      | Supported Platform |
+| Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | show                | This callback function is called when `Modal` is displayed.                            | `Function`                                                   | `Android、iOS`    |
 | orientationChange   | Screen rotation direction changes                                           | `Function`                                                   | `Android、iOS`    |
@@ -108,7 +108,7 @@ A container that supports paging, its each child container component will be reg
 
 ## Props
 
-| Props                     | Description                                                         | Type                                         | Supported Platform |
+| Props                     | Description                                                         | Type                                         | Supported Platforms |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
 | bounces | Whether to open the springback effect, the default is `true` | `boolean`                                                  | `iOS`    |
 | current              | Change the current page number in real time | `number`                                     | `Android、iOS`    |
@@ -119,7 +119,7 @@ A container that supports paging, its each child container component will be reg
 
 ## Event
 
-| Event name          | Description                                                         | Type                                      | Supported Platform |
+| Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | dragging                | Called when dragged.                            | `Function`                                                   | `Android、iOS`    |
 | dropped   | Called when the drag is done. Called when a scrolling page action is detected.                                            | `Function`                                                   | `Android、iOS`    |
@@ -148,7 +148,7 @@ Dropdown refresh component, nested in `ul` as first child element
 
 ## Event
 
-| Event name          | Description                                                         | Type                                      | Supported Platform |
+| Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | idle                | Called once when the sliding distance is in the pull-header area. The parameter is contentOffset            | `Function`                                                   | `Android、iOS`    |
 | pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset                                         | `Function`   | `Android、iOS`    |
@@ -170,7 +170,7 @@ Pull-up refresh component, nested in `ul` as last child element
 
 ## Event
 
-| Event name          | Description                                                         | Type                                      | Supported Platform |
+| Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | idle                | Called once when the sliding distance is in the pull-header area. The parameter is contentOffset                           | `Function`                                                   | `Android、iOS`    |
 | pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset     | `Function`   | `Android、iOS`    |
@@ -194,7 +194,7 @@ Waterfall flow component, the child element must be `waterfall-item`, waterfall 
 
 ## Props
 
-| Props              | Description                                                  | Type       | Supported Platform |
+| Props              | Description                                                  | Type       | Supported Platforms |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
 | columnSpacing     | Horizontal spacing before each column of waterfall                                      | `number`   | `Android、iOS`    |
 | interItemSpacing  | Vertical space between items                                        | `number`   | `Android、iOS`    |
@@ -207,7 +207,7 @@ Waterfall flow component, the child element must be `waterfall-item`, waterfall 
 
 ## Event
 
-| Event name              | Description           | `type`     | Supported Platform |
+| Event name              | Description           | `type`     | Supported Platforms |
 | --------------------- | -------------- | ---------- | -------- |
 | endReached      | When all the data has been rendered, and the list is scrolled to the last one, `onEndReached` will be called.            | `Function` | `Android、iOS`    |
 | scroll          | Called when the sliding event of `WaterFall` is called. `startEdgePos` is that scroll offset from the top edge of the List; `endEdgePos` is the scroll offset from the bottom edge of the List; `firstVisibleRowIndex` is the index of the first element in the currently visible area; `lastVisibleRowIndex` is the index of the last element in the currently visible area; `visibleRowFrames` is the information (x, y, width, height) of all items in the currently visible area    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS`    |
@@ -237,7 +237,7 @@ Waterfall flow component, the child element must be `waterfall-item`, waterfall 
 
 Cell container of the waterfall component, waterfall child element
 
-| Props                  | Description                                                         | Type                                                        | Supported Platform |
+| Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | type            | Specify a function, in which the type of the corresponding entry is returned (returns the natural number of the Number type, the default is 0), the List will reuse the same type of entry, so the reasonable type split can improve the performance of the List. | `number`              | `Android、iOS`    |
 | key             | Specifies a function that returns the Key value of the corresponding entry, as described in [Vue official documentation](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |

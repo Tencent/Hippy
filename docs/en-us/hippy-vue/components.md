@@ -12,7 +12,7 @@ This component is currently mapped to the native Text component and is currently
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
 | touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
@@ -29,7 +29,7 @@ This component is mapped to the View component, and the container can be used to
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | click       | Called when the button is clicked. For example, `@click="clickHandler"` | `Function`                                | `Android、iOS`    |
 | longClick   | Called when the button is long pressed. For example, `@longClick="longClickHandler"}` | `Function`                                | `Android、iOS`    |
@@ -48,7 +48,7 @@ This component is mapped to the View component, and the container can be used to
 
 ## Props
 
-| Props               | Description                                                         | Type                                 | Supported Platform  |
+| Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | accessibilityLabel | Set the text read by a "screen reader" (an assistive function for people with visual impairment) when the user interacts with this element. By default, the literal is constructed by iterating through all the child elements and adding up all the text tags. | `string`                               | `Android、iOS`     |
 | accessible         | When this property is `true`, it indicates that the view enables an accessibility element. By default, all touchable elements are accessibility elements.| `boolean`                            | `Android、iOS`     |
@@ -70,7 +70,7 @@ This component is mapped to the View component, and the container can be used to
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | attachedToWindow   | Called when the node has been rendered and added to the container component, and since Hippy's rendering is asynchronous, this is a safe event to perform subsequent operations on. | `Function`                           | `Android、iOS`     |
 | click       | Called when the button is clicked. For example, `@click="clickHandler"` | `Function`                                | `Android、iOS`    |
@@ -136,7 +136,7 @@ Embedded web page container.
 
 ## Props
 
-| Props               | Description                                                         | Type                                 | Supported Platform  |
+| Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | src | Embedded url | `string`                               | `Android、iOS`     |
 | method | request methods, `get`、`post` | `string`   | `Android、iOS`    |
@@ -144,7 +144,7 @@ Embedded web page container.
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | load           | Called when the web page is successfully loaded | `(object: { url:string }) => void`    | `Android、iOS`     |
 | loadStart           | Called when the web page starts loading | `(object: { url:string }) => void`    | `Android、iOS`     |
@@ -163,7 +163,7 @@ Image component, same as browser.
 
 ## Props
 
-| Props          | Description                                                         | Type                                      | Supported Platform |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | src        | Picture url. Currently supported image formats are PNG, JPG, JPEG, BMP, GIF. | string                                | `Android、iOS`    |
 | capInsets | When adjusting the img size, the corners specified by the capInsets are fixed without scaling, while the middle and rest of the sides are stretched. This is useful for creating variable-sized rounded buttons, shadows, and other resources. |  `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS` | 
@@ -171,13 +171,13 @@ Image component, same as browser.
 
 ## Special props within a style
 
-| Props               | Description                                                         | Type                                 | Supported Platform  |
+| Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | resize-mode        |  Determines how to resize an image when the component size is out of proportion to the image size.  |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS`    |
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | layout      | Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS`    |
 | load        | Called when the web page is successfully loaded                | `Function`                                                   | `Android、iOS`    |
@@ -207,7 +207,7 @@ Due to differences in system component layer, if the input is in the position of
 * It can seen in iOS that the input is normally covered.
 * It can seen in Android that the page is jacked up by the keyboard, depending on the Y-axis position of the input.  
 
-We are still discussing how to address the platform differences here.
+We are still discussing how to address the platforms differences here.
 
 If there is a need for iOS to align Android keyboard jacking, it is recommended to refer to [StackOverflow](//stackoverflow.com/questions/32382892/ios-xcode-how-to-move-view-up-when-keyboard-appeals) and solve it at the business level.
 
@@ -244,7 +244,7 @@ Please refer to the Android development documentation for details.
 
 ## Props
 
-| Props                  | Description                                      | Type                                                         | Supported Platform  |
+| Props                  | Description                                      | Type                                                         | Supported Platforms  |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | caret-color           | Enter the cursor color.(can also be set to the Style property) `Minimum supported version 2.11.5`| [`color`](style/color.md)        | `Android`     |
 | defaultValue          | Provides an initial value in a text box. When the user starts typing, the value can change. In some simple use cases, you can use defaultValue instead if you don't want to keep properties and state synchronized by listening for messages and then updating the value property. | `string`                                                     | `Android、iOS`     |
@@ -260,7 +260,7 @@ Please refer to the Android development documentation for details.
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | Called when the text box loses focus.    | `Function`                                                   | `Android、iOS`     |
 | change          | Called when the contents of the text box change. The changed text is passed as a parameter. | `Function`                                                   | `Android、iOS`     |
@@ -304,7 +304,7 @@ Show the text. All the same as [p](hippy-vue/components.md?id=p)。
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
 | touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
@@ -321,7 +321,7 @@ Hippy's key features, high performance reusable list components, on the native s
 
 ## Props
 
-| Props                  | Description                                                         | Type                                                        | Supported Platform |
+| Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | horizontal       | Specifies whether `ul` is laid out horizontally. `default: undefined` | `any`   | `Android`    |
 | initialContentOffset  | The initial offset value. In the list of initialization can specify the scroll distance, avoid flashing caused by series method of scrollT after oinitialization. Android supports after version ` 2.8.0 `  | `number`  | `Android、iOS` |
@@ -339,7 +339,7 @@ Hippy's key features, high performance reusable list components, on the native s
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | endReached          | When all the data has been rendered and the list is scrolled to the last one, the `endReached` callback is called.  | `Function`                                                  | `Android、iOS`    |
 | momentumScrollBegin | Called when the `ListView` began to slide                          | `Function`                                                  | `Android、iOS`    |
@@ -380,7 +380,7 @@ ul's child nodes, the minimum granularity of the native layer node recycling and
 
 > When setting `ul`: `horizontal=true` When enabling horizontal infinite lists, explicitly set the `li` style width.
 
-| Props                  | Description                                                         | Type                                                        | Supported Platform |
+| Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | type            | Specify a function in which the type of the corresponding entry is returned (the natural number of the Number type is returned, and the default value is 0). List will reuse the entries of the same type, so reasonable type splitting can improve the performance of List. `Note: item components of the same type may not go through the complete component creation life cycle due to reuse.` | `number`              | `Android、iOS`    |
 | key             | Specify a function in which the Key value of the corresponding entry is returned. See [Vue Official Document](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
@@ -400,7 +400,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
 | touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
@@ -409,7 +409,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 
 ## Props
 
-| Props          | Description                                                         | Type                                      | Supported Platform |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | numberOfLines | Used to trim text when it is too long. The total number of lines, including line breaks caused by folding, will not exceed the limit of this property. | `number`                                  | `Android、iOS`    |
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS`    |
@@ -431,7 +431,7 @@ Show the text. All the same as [p](hippy-vue/components.md?id=p)。
 
 ## Event
 
-| Event Name          | Description                                                         | Type                                      | Supported Platform |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
 | touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
