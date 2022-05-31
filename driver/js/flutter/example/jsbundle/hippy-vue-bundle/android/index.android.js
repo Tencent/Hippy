@@ -2,7 +2,7 @@
 /*!
  * @hippy/vue-router v2.1.2
  * (Using Vue v2.6.14 and Hippy-Vue v2.2.1)
- * Build at: Mon May 23 2022 16:18:39 GMT+0800 (China Standard Time)
+ * Build at: Tue May 31 2022 16:20:00 GMT+0800 (China Standard Time)
  *
  * Tencent is pleased to support the open source community by making
  * Hippy available.
