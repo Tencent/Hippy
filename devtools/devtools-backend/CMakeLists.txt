@@ -65,6 +65,8 @@ add_definitions("-DASIO_NO_TYPEID")
 # asio noexception
 add_definitions("-DASIO_NO_EXCEPTIONS")
 
+add_definitions("-DASIO_DISABLE_ALIGNOF")
+
 # json noexception
 add_definitions("-DJSON_NOEXCEPTION")
 
