@@ -74,6 +74,7 @@ android {
             "-DANDROID_PLATFORM=android-21",
             "-DANDROID_STL=$ANDROID_STL",
             "-DV8_COMPONENT=$V8_COMPONENT",
+            "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
             "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
         }
       }

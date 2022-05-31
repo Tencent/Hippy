@@ -1,5 +1,6 @@
 set(FRAMEWORK_CORE_DIR ${FRAMEWORK_DIR}/js/core)
 set(FRAMEWORK_CORE_SRC_DIR ${FRAMEWORK_CORE_DIR}/src)
+set(DEVTOOLS_DIR "${FRAMEWORK_DIR}../devtools/devtools-backend")
 
 set(FRAMEWORK_CORE_SRC_FILES
         ${FRAMEWORK_CORE_SRC_DIR}/base/file.cc
@@ -45,4 +46,17 @@ set(FRAMEWORK_CORE_DEPS tdf_base tdf_base_common)
 
 include_directories(${FRAMEWORK_CORE_DIR}/include)
 include_directories(${FRAMEWORK_CORE_DIR}/third_party/base/include)
+
+if (ENABLE_INSPECTOR STREQUAL "true")
+  message("DEVTOOLS_DIR:" ${DEVTOOLS_DIR})
+  add_definitions("-DENABLE_INSPECTOR")
+  include_directories(${DEVTOOLS_DIR}/include)
+  add_subdirectory(${DEVTOOLS_DIR} ${CMAKE_CURRENT_BINARY_DIR}/devtools/devtools-backend)
+  set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} devtools_backend)
+else ()
+  file(GLOB_RECURSE DEVTOOLS_BACKEND_SRC ${FRAMEWORK_CORE_DIR}/src/devtools/*)
+  message("DEVTOOLS_BACKEND_SRC: ${DEVTOOLS_BACKEND_SRC}")
+  list(REMOVE_ITEM FRAMEWORK_CORE_SRC_FILES ${DEVTOOLS_BACKEND_SRC})
+  message("FRAMEWORK_CORE_SRC_FILES: ${FRAMEWORK_CORE_SRC_FILES}")
+endif ()
 

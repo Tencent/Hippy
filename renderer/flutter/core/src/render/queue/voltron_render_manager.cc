@@ -179,4 +179,8 @@ void VoltronRenderManager::Notify() {
   }
 }
 
+void VoltronRenderManager::MoveRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
+
+}
+
 } // namespace voltron

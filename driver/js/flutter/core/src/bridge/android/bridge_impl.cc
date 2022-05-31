@@ -93,7 +93,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
       param,
       bridge,
       scope_cb,
-      call_native_cb);
+      call_native_cb, unicode_string_view(""), unicode_string_view(""));
   return static_cast<int64_t>(runtime_id);
 }
 
@@ -251,7 +251,7 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, std::s
 
 void BridgeImpl::Destroy(int64_t runtimeId,
                          const std::function<void(int64_t)>& callback) {
-  V8BridgeUtils::DestroyInstance(runtimeId, []() {});
+  V8BridgeUtils::DestroyInstance(runtimeId, []() {}, false);
   callback(1);
 }
 

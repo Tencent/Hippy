@@ -35,6 +35,7 @@
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
 #include "core/runtime/v8/bridge.h"
+#include "core/core.h"
 
 class Runtime {
  public:
