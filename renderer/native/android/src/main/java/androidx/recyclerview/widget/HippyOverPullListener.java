@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
-
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+package androidx.recyclerview.widget;
 
 /**
- * Created by on 2021/1/6.
+ * Created on 2021/3/15.
  * Description
  */
-public interface IHeaderViewFactory {
+public interface HippyOverPullListener {
 
-    ViewHolder getHeaderForPosition(int position);
+    /**
+     * @param newState {@link HippyOverPullHelper#OVER_PULL_DOWN_ING}
+     * @param offset
+     */
+
+    void onOverPullStateChanged(int oldState, int newState, int offset);
 }

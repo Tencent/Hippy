@@ -24,12 +24,12 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.nxeasy.recyclerview.helper.header.HeaderRefreshHelper;
-import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshListener;
-import com.tencent.mtt.nxeasy.recyclerview.helper.header.IHeaderRefreshView;
-import com.tencent.mtt.nxeasy.recyclerview.helper.header.ILayoutRequester;
-import com.tencent.renderer.utils.EventUtils;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header.HeaderRefreshHelper;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header.IHeaderRefreshListener;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header.IHeaderRefreshView;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header.ILayoutRequester;
 
+import com.tencent.renderer.utils.EventUtils;
 import java.util.HashMap;
 import java.util.Map;
 

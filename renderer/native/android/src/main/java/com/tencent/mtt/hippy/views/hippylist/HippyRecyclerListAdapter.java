@@ -17,12 +17,11 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
 import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
-import androidx.recyclerview.widget.IItemLayoutParams;
+import androidx.recyclerview.widget.ItemLayoutParams;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
@@ -34,7 +33,7 @@ import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
-import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.IStickyItemsProvider;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyItemsProvider;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
 
@@ -44,8 +43,9 @@ import com.tencent.renderer.NativeRendererManager;
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Adapter<HippyRecyclerViewHolder>
-        implements IRecycleItemTypeChange, IStickyItemsProvider, IItemLayoutParams {
+        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams {
 
+    private static final int STICK_ITEM_VIEW_TYPE_BASE = -100000;
     protected final HRCV hippyRecyclerView;
     protected final HippyItemTypeHelper hippyItemTypeHelper;
     protected int positionToCreateHolder;
@@ -185,9 +185,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         ListItemRenderNode newNode = getChildNodeByAdapterPosition(position);
         oldNode.setLazy(true);
         newNode.setLazy(false);
-        NativeRender nativeRender = NativeRendererManager.getNativeRenderer(hippyRecyclerView.getContext());
-        if (nativeRender != null && oldNode != newNode) {
-            DiffUtils.doDiffAndPatch(nativeRender.getRenderManager().getControllerManager(),
+        if (mNativeRenderer != null && oldNode != newNode) {
+            DiffUtils.doDiffAndPatch(mNativeRenderer.getRenderManager().getControllerManager(),
                     oldNode, newNode);
         }
         newNode.setRecycleItemTypeChangeListener(this);
@@ -250,7 +249,14 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         //在调用onCreateViewHolder之前，必然会调用getItemViewType，所以这里把position记下来
         //用在onCreateViewHolder的时候来创建View，不然onCreateViewHolder是无法创建RenderNode到View的
         setPositionToCreate(position);
-        return getChildNodeByAdapterPosition(position).getItemViewType();
+        ListItemRenderNode node = getChildNodeByAdapterPosition(position);
+        if (node == null) {
+            return 0;
+        }
+        if (node.shouldSticky()) {
+            return STICK_ITEM_VIEW_TYPE_BASE - position;
+        }
+        return node.getItemViewType();
     }
 
     protected void setPositionToCreate(int position) {
@@ -393,9 +399,9 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     }
 
     public void resetPullHeaderPositionIfNeeded(int offsetY) {
-        if (offsetY == 0) {
-            ListItemRenderNode renderNode = getChildNodeByAdapterPosition(0);
-            if (renderNode != null && renderNode.isPullHeader()) {
+        ListItemRenderNode renderNode = getChildNodeByAdapterPosition(0);
+        if (renderNode != null && renderNode.isPullHeader()) {
+            if (headerEventHelper != null && offsetY <= headerEventHelper.getVisibleHeight()) {
                 headerEventHelper.resetPullHeaderPositionIfNeeded();
             }
         }
