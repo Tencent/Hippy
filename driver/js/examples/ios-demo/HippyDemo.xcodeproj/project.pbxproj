@@ -226,6 +226,8 @@
 		F48291A0274E420D00D91128 /* HPLayoutCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4829197274E420C00D91128 /* HPLayoutCache.cpp */; };
 		F4A8424227D38CF900AEFC88 /* NativeRenderManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A8423F27D38CF900AEFC88 /* NativeRenderManager.mm */; };
 		F4A8424327D38CF900AEFC88 /* HippyUIManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A8424127D38CF900AEFC88 /* HippyUIManager.mm */; };
+		F4B938F82840B58C00187AFA /* HippyWaterfallViewCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4B938F72840B58C00187AFA /* HippyWaterfallViewCell.mm */; };
+		F4B938FB2840C93C00187AFA /* HippyWatefallItemShadowView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4B938FA2840C93C00187AFA /* HippyWatefallItemShadowView.mm */; };
 		F4BD045827D5AE2500339A2C /* UIView+Render.mm in Sources */ = {isa = PBXBuildFile; fileRef = F459C45927D4F355009A7441 /* UIView+Render.mm */; };
 		F4C1CE23281131EC00CED4C4 /* NSData+DataType.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1CE22281131EC00CED4C4 /* NSData+DataType.m */; };
 		F4C1CE262811439A00CED4C4 /* UIView+Sequence.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1CE252811439A00CED4C4 /* UIView+Sequence.m */; };
@@ -740,6 +742,10 @@
 		F4A8424027D38CF900AEFC88 /* NativeRenderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderManager.h; sourceTree = "<group>"; };
 		F4A8424127D38CF900AEFC88 /* HippyUIManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyUIManager.mm; sourceTree = "<group>"; };
 		F4A8424427D38D7900AEFC88 /* HippyRenderContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyRenderContext.h; sourceTree = "<group>"; };
+		F4B938F62840B58C00187AFA /* HippyWaterfallViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyWaterfallViewCell.h; sourceTree = "<group>"; };
+		F4B938F72840B58C00187AFA /* HippyWaterfallViewCell.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyWaterfallViewCell.mm; sourceTree = "<group>"; };
+		F4B938F92840C93C00187AFA /* HippyWatefallItemShadowView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyWatefallItemShadowView.h; sourceTree = "<group>"; };
+		F4B938FA2840C93C00187AFA /* HippyWatefallItemShadowView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyWatefallItemShadowView.mm; sourceTree = "<group>"; };
 		F4BD045927D5E39F00339A2C /* HippyFrameworkProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyFrameworkProxy.h; sourceTree = "<group>"; };
 		F4C1CE21281131EB00CED4C4 /* NSData+DataType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+DataType.h"; sourceTree = "<group>"; };
 		F4C1CE22281131EC00CED4C4 /* NSData+DataType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+DataType.m"; sourceTree = "<group>"; };
@@ -1419,6 +1425,10 @@
 				F45D25E728067B6900CAB185 /* HippyCollectionViewWaterfallLayout.m */,
 				F45D25E828067B6900CAB185 /* HippyWaterfallItemViewManager.mm */,
 				F45D25E928067B6900CAB185 /* HippyWaterfallView.h */,
+				F4B938F62840B58C00187AFA /* HippyWaterfallViewCell.h */,
+				F4B938F72840B58C00187AFA /* HippyWaterfallViewCell.mm */,
+				F4B938F92840C93C00187AFA /* HippyWatefallItemShadowView.h */,
+				F4B938FA2840C93C00187AFA /* HippyWatefallItemShadowView.mm */,
 			);
 			path = waterfalllist;
 			sourceTree = "<group>";
@@ -2171,6 +2181,7 @@
 				067AB97523B5F309009D5EE2 /* MyViewManager.mm in Sources */,
 				D4B5A0862816641600ABBD9C /* event_module.cc in Sources */,
 				F4810954277062AD005C221B /* layer_optimized_render_manager.cc in Sources */,
+				F4B938F82840B58C00187AFA /* HippyWaterfallViewCell.mm in Sources */,
 				F468DE862812A95200319196 /* HippyCSSPropsDefine.m in Sources */,
 				F4C1DAAF28117C1900CED4C4 /* NSNumber+HippyNumberDeepCopy.m in Sources */,
 				F48291A0274E420D00D91128 /* HPLayoutCache.cpp in Sources */,
@@ -2185,6 +2196,7 @@
 				F45D269528067B6900CAB185 /* HippyModalCustomPresentationController.m in Sources */,
 				D84AB9C1273A618B00987D03 /* js_value_wrapper.cc in Sources */,
 				F468DE832812A95200319196 /* HippySRSIMDHelpers.m in Sources */,
+				F4B938FB2840C93C00187AFA /* HippyWatefallItemShadowView.mm in Sources */,
 				F468DE782812A95200319196 /* HippyJSCErrorHandling.m in Sources */,
 				F45D266328067B6900CAB185 /* HippyTextSelection.m in Sources */,
 				F468DE5B2812A95200319196 /* HippyAnimationModule.mm in Sources */,

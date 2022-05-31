@@ -32,6 +32,12 @@
 
 static NSString *const HippyBackgroundColorProp = @"backgroundColor";
 
+NSString *const HippyShadowViewDiffInsertion = @"HippyShadowViewDiffInsertion";
+NSString *const HippyShadowViewDiffRemove = @"HippyShadowViewDiffRemove";
+NSString *const HippyShadowViewDiffUpdate = @"HippyShadowViewDiffUpdate";
+NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
+
+
 @interface HippyShadowView () {
     HippyUpdateLifecycle _propagationLifecycle;
     HippyUpdateLifecycle _textLifecycle;
@@ -119,32 +125,6 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     }
 }
 
-- (CGRect)measureLayoutRelativeToAncestor:(HippyShadowView *)ancestor {
-    CGPoint offset = CGPointZero;
-    NSInteger depth = 30;  // max depth to search
-    HippyShadowView *shadowView = self;
-    while (depth && shadowView && shadowView != ancestor) {
-        offset.x += shadowView.frame.origin.x;
-        offset.y += shadowView.frame.origin.y;
-        shadowView = shadowView->_superview;
-        depth--;
-    }
-    if (ancestor != shadowView) {
-        return CGRectNull;
-    }
-    return (CGRect) { offset, self.frame.size };
-}
-
-- (BOOL)viewIsDescendantOf:(HippyShadowView *)ancestor {
-    NSInteger depth = 30;  // max depth to search
-    HippyShadowView *shadowView = self;
-    while (depth && shadowView && shadowView != ancestor) {
-        shadowView = shadowView->_superview;
-        depth--;
-    }
-    return ancestor == shadowView;
-}
-
 - (instancetype)init {
     if ((self = [super init])) {
         _frame = CGRectMake(0, 0, NAN, NAN);
@@ -158,6 +138,68 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
         _layoutDirection = DirectionInherit;
     }
     return self;
+}
+
+- (NSDictionary *)diffAnotherShadowView:(HippyShadowView *)shadowView {
+    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithCapacity:4];
+    [result setObject:[NSMutableDictionary dictionary] forKey:HippyShadowViewDiffInsertion];
+    [result setObject:[NSMutableArray array] forKey:HippyShadowViewDiffRemove];
+    [result setObject:[NSMutableDictionary dictionary] forKey:HippyShadowViewDiffUpdate];
+    [result setObject:[NSMutableDictionary dictionary] forKey:HippyShadowViewDiffTag];
+    if ([self.viewName isEqualToString:shadowView.viewName]) {
+        if (![self.props isEqualToDictionary:shadowView.props]) {
+            [result[@"update"] setObject:self.hippyTag forKey:shadowView.hippyTag];
+        }
+    } else {
+        return nil;
+    }
+
+    [result setObject:self.hippyTag forKey:shadowView.hippyTag];
+    [self diffAnotherShadowView:shadowView inResult:result];
+    return result;
+}
+
+- (void)diffAnotherShadowView:(HippyShadowView *)shadowView inResult:(NSMutableDictionary *)result {
+    NSUInteger originCount = [self.hippySubviews count];
+    NSUInteger comparedCount = [shadowView.hippySubviews count];
+    for (NSUInteger index = 0; index < MAX(originCount, comparedCount); index++) {
+        HippyShadowView *originShadowView = nil, *comparedShadowView = nil;
+        if (index < originCount) {
+            originShadowView = self.hippySubviews[index];
+        }
+        if (index < comparedCount) {
+            comparedShadowView = shadowView.hippySubviews[index];
+        }
+        //need to insert new shadow view
+        if (nil == originShadowView && comparedShadowView) {
+            NSMutableDictionary *insertionDic = result[HippyShadowViewDiffInsertion];
+            [insertionDic setObject:@{@"tag": self.hippyTag} forKey:[comparedShadowView hippyTag]];
+        }
+        //need to remove shadow view
+        else if (originShadowView && nil == comparedShadowView) {
+            NSMutableArray *removeArray = result[HippyShadowViewDiffRemove];
+            [removeArray removeObject:[comparedShadowView hippyTag]];
+        }
+        else if (originShadowView && comparedShadowView) {
+            if (![originShadowView.viewName isEqualToString:comparedShadowView.viewName]) {
+                NSMutableDictionary *insertDict = result[HippyShadowViewDiffInsertion];
+                [insertDict setObject:@{@"tag": self.hippyTag } forKey:comparedShadowView.hippyTag];
+
+                NSMutableArray *remove = result[HippyShadowViewDiffRemove];
+                [remove addObject:originShadowView.hippyTag];
+            } else {
+                if (![originShadowView.props isEqualToDictionary:comparedShadowView.props]) {
+                    NSMutableDictionary *updateDict = result[HippyShadowViewDiffUpdate];
+                    [updateDict setObject:originShadowView.hippyTag forKey:comparedShadowView.hippyTag];
+                }
+                [originShadowView diffAnotherShadowView:comparedShadowView inResult:result];
+                NSMutableDictionary *tagDict = result[HippyShadowViewDiffTag];
+                [tagDict setObject:originShadowView.hippyTag forKey:comparedShadowView.hippyTag];
+            }
+        }
+        else {
+        }
+    }
 }
 
 - (BOOL)isHippyRootView {
@@ -241,6 +283,19 @@ static NSString *const HippyBackgroundColorProp = @"backgroundColor";
     for (HippyShadowView *subShadowView in self.hippySubviews) {
         [subShadowView synchronousRecusivelySetCreationTypeToInstant];
     }
+}
+
+- (UIView *)createView:(HippyViewCreationBlock)creationBlock insertChildren:(HippyViewInsertionBlock)insertionBlock {
+    UIView *container = creationBlock(self);
+    NSMutableArray *children = [NSMutableArray arrayWithCapacity:[self.hippySubviews count]];
+    for (HippyShadowView *subviews in self.hippySubviews) {
+        UIView *subview = [subviews createView:creationBlock insertChildren:insertionBlock];
+        if (subview) {
+            [children addObject:subview];
+        }
+    }
+    insertionBlock(container, children);
+    return container;
 }
 
 - (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
