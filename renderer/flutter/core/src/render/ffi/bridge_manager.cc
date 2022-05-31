@@ -60,6 +60,10 @@ int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id,
     return result;
 }
 
+BridgeRuntime::BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {
+
+}
+
 std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, Sp<BridgeRuntime> runtime) {
   std::unique_lock<std::mutex> lock(bridge_mutex_);
   auto bridge_manager_iter = bridge_map_.find(engine_id);

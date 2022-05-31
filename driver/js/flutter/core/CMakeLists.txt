@@ -1,3 +1,5 @@
+set(CMAKE_SYSTEM_NAME "Android")
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     cmake_minimum_required(VERSION 3.14.0)
 elseif ((CMAKE_SYSTEM_NAME STREQUAL "Darwin") OR (CMAKE_SYSTEM_NAME STREQUAL "iOS"))
@@ -32,6 +34,7 @@ set(RENDER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../renderer/flutter/core)
 
 # 添加子模块
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    message("JS_ENGINE:" ${JS_ENGINE})
     include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/framework_platform_android.cmake)
 endif ()
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/framework_core.cmake)
@@ -61,11 +64,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
             -fno-short-enums
             -fno-unique-section-names
             -fno-trigraphs
+            -Werror
             -Wall
             -Wextra
             -Wextra-semi
             -Wconversion
             -Wimplicit-fallthrough
+            -Wimplicit-int-conversion
             -Wloop-analysis
             -Wmissing-field-initializers
             -Wunused-local-typedefs
@@ -73,7 +78,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
             -Wthread-safety
             -Wtautological-overlap-compare
             -Wunreachable-code
-            -Wenum-compare-switch
+            -Wenum-compare-conditional
             -Wheader-hygiene
             -Wshadow
             -Wno-unused-parameter

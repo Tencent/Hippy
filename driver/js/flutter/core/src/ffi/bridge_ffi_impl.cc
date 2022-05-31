@@ -148,7 +148,7 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
                                  [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
       } else {
         auto copy_params = voltron::CopyCharToChar(params, params_length);
-        std::string params_str(copy_params, params_length);
+        std::string params_str(copy_params, static_cast<unsigned int>(params_length));
         BridgeImpl::CallFunction(runtime_id, action, std::move(params_str), [callback_id, copy_params](int64_t value) {
           CallGlobalCallback(callback_id, value);
           delete copy_params;

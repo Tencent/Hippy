@@ -69,7 +69,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
     param->initial_heap_size_in_bytes = static_cast<size_t>(initial_heap_size);
     param->maximum_heap_size_in_bytes = static_cast<size_t>(maximum_heap_size);
   }
-  int32_t runtime_id = 0;
+  int64_t runtime_id = 0;
   RegisterFunction scope_cb = [runtime_id, outerCallback = callback](void *) {
     TDF_BASE_LOG(INFO) << "run scope cb";
     outerCallback(runtime_id);
@@ -89,7 +89,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
       true,
       static_cast<bool>(is_dev_module),
       global_config,
-      group_id,
+      static_cast<int32_t>(group_id),
       param,
       bridge,
       scope_cb,
@@ -105,7 +105,7 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
                                    std::function<void(int64_t)> callback) {
   TDF_BASE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
                       << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
     << "BridgeImpl RunScriptFromFile, runtime_id invalid";
@@ -187,7 +187,7 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
                                      const char16_t *asset_content_str) {
   TDF_BASE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
                       << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
     << "BridgeImpl RunScriptFromFile, runtime_id invalid";
@@ -257,7 +257,7 @@ void BridgeImpl::Destroy(int64_t runtimeId,
 
 void BridgeImpl::BindDomManager(int64_t runtime_id,
                                 const std::shared_ptr<DomManager> &dom_manager) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "Bind dom Manager failed, runtime_id invalid";
     return;

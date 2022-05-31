@@ -30,7 +30,7 @@
 namespace voltron {
 class EXPORT JSBridgeRuntime : public BridgeRuntime {
  public:
-  EXPORT JSBridgeRuntime(int32_t engine_id) : BridgeRuntime(engine_id) {};
+  EXPORT JSBridgeRuntime(int32_t engine_id);
   EXPORT virtual ~JSBridgeRuntime() = default;
 
  public:

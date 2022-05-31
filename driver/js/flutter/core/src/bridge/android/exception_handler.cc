@@ -23,7 +23,6 @@
 #include "exception_handler.h"
 
 namespace voltron {
-static const uint32_t kRuntimeKeyIndex = 0;
 
 void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime, const unicode_string_view& desc,
                                          const unicode_string_view& stack) {
