@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
-import androidx.recyclerview.widget.EasyRecyclerView;
+import androidx.recyclerview.widget.RecyclerViewBase;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 public final class StickyViewFactory implements IHeaderViewFactory {
 
-    private final EasyRecyclerView recyclerView;
+    private final RecyclerViewBase recyclerView;
 
-    public StickyViewFactory(EasyRecyclerView recyclerView) {
+    public StickyViewFactory(RecyclerViewBase recyclerView) {
         this.recyclerView = recyclerView;
     }
 

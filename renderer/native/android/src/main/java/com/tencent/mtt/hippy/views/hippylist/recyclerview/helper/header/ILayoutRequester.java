@@ -14,18 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.recyclerview.widget;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header;
 
-/**
- * Created on 2021/3/15.
- * Description
- */
-public interface OverPullListener {
+public interface ILayoutRequester {
 
-    /**
-     * @param newState {@link OverPullHelper#OVER_PULL_DOWN_ING}
-     * @param offset
-     */
-
-    void onOverPullStateChanged(int oldState, int newState, int offset);
+  void requestLayout();
 }

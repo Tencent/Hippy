@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.skikcy;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.header;
 
-/**
- * Created by on 2020/12/29.
- * Description
- */
-public interface IStickyAbleItem {
+public interface IHeaderRefreshListener {
 
-    boolean isStickyItem();
+  /**
+   * @param refreshWay 刷新触发的方式，目前只要两种方式 {@link IHeaderRefreshView#HEADER_STATUS_CLICK_TO_REFRESH}
+   *                   {@link IHeaderRefreshView#HEADER_STATUS_DRAG_TO_REFRESH}
+   */
+  void onHeaderRefreshing(int refreshWay);
 }

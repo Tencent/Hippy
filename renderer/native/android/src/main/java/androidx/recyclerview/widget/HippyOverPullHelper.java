@@ -25,7 +25,7 @@ import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
-import com.tencent.mtt.nxeasy.recyclerview.helper.AnimatorListenerBase;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.AnimatorListenerBase;
 
 /**
  * Created on 2021/3/15.
@@ -33,7 +33,7 @@ import com.tencent.mtt.nxeasy.recyclerview.helper.AnimatorListenerBase;
  * 原生recyclerView是不支持拉到最顶部，还可以继续拉动，要实现继续拉动，并且松手回弹的效果
  * recyclerView上拉回弹和下拉回弹的效果实现
  */
-public class OverPullHelper {
+public class HippyOverPullHelper {
 
     private static final int DURATION = 150;
     private final OnScrollListener listener;
@@ -51,11 +51,11 @@ public class OverPullHelper {
     private boolean enableOverDrag = true;
     private int lastOverScrollMode = -1;
     private boolean isRollBacking = false;
-    private OverPullListener overPullListener = null;
-    private EasyRecyclerView recyclerView;
+    private HippyOverPullListener overPullListener = null;
+    private RecyclerViewBase recyclerView;
     private int scrollState;
 
-    public OverPullHelper(EasyRecyclerView recyclerView) {
+    public HippyOverPullHelper(RecyclerViewBase recyclerView) {
         this.recyclerView = recyclerView;
         lastOverScrollMode = recyclerView.getOverScrollMode();
         listener = new OnScrollListener() {
@@ -79,7 +79,7 @@ public class OverPullHelper {
         return vc.getScaledTouchSlop();
     }
 
-    public void setOverPullListener(OverPullListener overPullListener) {
+    public void setOverPullListener(HippyOverPullListener overPullListener) {
         this.overPullListener = overPullListener;
     }
 

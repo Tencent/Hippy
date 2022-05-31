@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.header;
+import android.view.View;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
-public interface IHeaderRefreshListener {
+/**
+ * Created by on 2021/1/12.
+ * Description
+ */
+public interface IHeaderAttachListener {
 
-  /**
-   * @param refreshWay 刷新触发的方式，目前只要两种方式 {@link IHeaderRefreshView#HEADER_STATUS_CLICK_TO_REFRESH}
-   *                   {@link IHeaderRefreshView#HEADER_STATUS_DRAG_TO_REFRESH}
-   */
-  void onHeaderRefreshing(int refreshWay);
+    /**
+     * header被摘下来，需要对header进行还原或者回收对处理
+     *
+     * @param aboundHeader HeaderView对应的Holder
+     * @param currentHeaderView headerView的实体内容
+     */
+    void onHeaderDetached(ViewHolder aboundHeader, View currentHeaderView);
+
 }

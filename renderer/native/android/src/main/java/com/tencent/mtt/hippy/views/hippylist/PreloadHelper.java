@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
-import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.renderer.utils.EventUtils;
 
 /**

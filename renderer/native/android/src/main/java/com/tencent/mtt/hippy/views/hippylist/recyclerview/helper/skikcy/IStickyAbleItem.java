@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.nxeasy.recyclerview.helper.header;
+package com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy;
 
-public interface IHeaderStatusListener {
+/**
+ * Created by on 2020/12/29.
+ * Description
+ */
+public interface IStickyAbleItem {
 
-  void onHeaderStatusChanged(int oldStatus, int newStatus);
+    boolean isStickyItem();
 }
