@@ -372,6 +372,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     hpCell.cellView = cellView;
     hpCell.shadowView = shadowView;
     hpCell.shadowView.cell = hpCell;
+    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {

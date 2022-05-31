@@ -148,6 +148,7 @@ static NSString *const kListViewItem = @"ListViewItem";
         _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView unsetFromScrollView];
@@ -155,6 +156,7 @@ static NSString *const kListViewItem = @"ListViewItem";
         _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     }
 }
 
@@ -313,6 +315,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
     cell.shadowView = cellShadowView;
     cell.shadowView.cell = cell;
+    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
     return cell;
 }
 

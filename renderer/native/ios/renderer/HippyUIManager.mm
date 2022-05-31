@@ -450,9 +450,9 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         [view insertHippySubview:subview atIndex:index];
         index++;
     }
-    [view didUpdateHippySubviews];
     view.hippyShadowView = shadowView;
     view.renderContext = self;
+    [view clearSortedSubviews];
     [view didUpdateHippySubviews];
     NSMutableSet<HippyApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
     [shadowView collectUpdatedProperties:applierBlocks parentProperties:@{}];

@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface HippyWaterfallView : HippyTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
                                         HippyCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol, HippyScrollProtocol> {
     HippyWaterfallViewDataSource *_dataSource;
+@protected
+    NSMapTable<NSNumber *, UIView *> *_weakItemMap;
 }
 
 /**

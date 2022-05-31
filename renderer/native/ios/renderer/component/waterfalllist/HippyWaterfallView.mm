@@ -71,6 +71,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _scrollEventThrottle = 100.f;
         _dataSource = [[HippyWaterfallViewDataSource alloc] init];
         self.dataSource.itemViewName = [self compoentItemName];
+        _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
             self.collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
@@ -217,8 +218,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     return YES;
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex
-{
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView removeFromSuperview];
@@ -227,6 +227,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
         _headerRefreshView.frame = subview.hippyShadowView.frame;
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
@@ -237,7 +238,12 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _footerRefreshView.frame = subview.hippyShadowView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
+        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     }
+}
+
+- (NSArray<UIView *> *)hippySubviews {
+    return [[_weakItemMap dictionaryRepresentation] allValues];
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -304,6 +310,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     hpCell.cellView = cellView;
     hpCell.shadowView = shadowView;
     hpCell.shadowView.cell = hpCell;
+    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 
 #pragma mark - HippyCollectionViewDelegateWaterfallLayout
