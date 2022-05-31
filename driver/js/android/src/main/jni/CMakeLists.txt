@@ -22,6 +22,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project("hippy")
 
+include("../../../../../../build/cmake/InfraPackagesModule.cmake")
+
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN on)
 set(CMAKE_CXX_STANDARD 17)
@@ -98,28 +100,10 @@ get_filename_component(DEVTOOLS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../
 # endregion
 
 # region dependencies
-set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud.com")
-set(INFA_PACKAGES_DOMAIN "hippy")
-
-# region v8
-if (${JS_ENGINE} STREQUAL "V8")
-  get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
-  if (EXISTS "${V8_COMPONENT_PATH}/CMakeLists.txt")
-    add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
-  else()
-    include(FetchContent)
-    FetchContent_Declare(V8
-            URL "${INFA_PACKAGES_URL}/${INFA_PACKAGES_DOMAIN}/third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz")
-    FetchContent_MakeAvailable(V8)
-  endif()
-endif()
-# endregion
-
 add_subdirectory(${CORE_SRC_DIR}/third_party/base ${CMAKE_CURRENT_BINARY_DIR}/third_party/base)
 add_subdirectory(${DOM_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/dom)
 add_subdirectory(${RENDER_DIR}/native/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/native/android/src/main/jni)
 # endregion
-
 
 # region global definitions
 add_definitions("-DANDROID_NATIVE_RENDER")
@@ -145,6 +129,10 @@ set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
 
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
+  InfaPackage_Add(V8
+    REMOTE "third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz"
+    LOCAL "${V8_COMPONENT}"
+  )
   add_definitions("-DJS_V8")
   if (DEFINED V8_WITHOUT_INSPECTOR)
     add_definitions("-DV8_WITHOUT_INSPECTOR")
