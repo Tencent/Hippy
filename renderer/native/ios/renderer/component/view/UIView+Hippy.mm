@@ -159,6 +159,9 @@ HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     // We access the associated object directly here in case someone overrides
     // the `hippySubviews` getter method and returns an immutable array.
+    if (nil == subview) {
+        return;
+    }
     NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
     if (!subviews) {
         subviews = [NSMutableArray new];
