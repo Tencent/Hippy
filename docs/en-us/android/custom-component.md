@@ -1,8 +1,8 @@
-# Custom UI components
+# Custom UI Components
 
 App development may use a large number of UI components, Hippy SDK has included the commonly used parts, such as `View`, `Text`, `Image`, etc., but it is highly likely that they can not meet your needs, which requires to extend and encapsulate UI components.
 
-# Component extensions
+# Component Extensions
 
 We will take `MyView` as an example and introduce how to extend components from scratch.
 
@@ -58,7 +58,7 @@ public void setText(MyView textView, String text)
 }
 ```
 
-# Gesture event handling
+# Gesture Event Handling
 
 Hippy gesture handling  reuses the Android gesture handling mechanism. When extending a component, you need to add some code to the `onTouchEvent` of the component in order for JS to receive `onTouchDown`, `onTouchMove`, `onTouchEnd` events properly. For a detailed description of events, refer to Hippy event mechanism.
 
@@ -101,7 +101,7 @@ public List<Class<? extends HippyViewController>> getControllers()
 }
 ```
 
-# More features
+# More Features
 
 ## Handling component method calls
 
@@ -121,7 +121,7 @@ public void dispatchFunction(MyView view, String functionName, HippyArray var)
 }
 ```
 
-## Event callbacks
+## Event Callbacks
 
 Hippy SDK provides a base class `HippyViewEvent`, which encapsulates the logic of sending UI events. Just call the `send` method to send the event to the JS corresponding component. For example, if I want to send an event to the front-end components on `MyView`'s `onAttachedToWindow`.
 
@@ -144,7 +144,7 @@ protected void onAttachedToWindow() {
 - `onViewDestroy`: callback before the view is deleted (for scenarios like global listeners that recycle view registrations, etc.).
 - `onManageChildComplete`: Callback after `HippyGroupController` has finished adding or removing child views.
 
-# Obfuscation instructions
+# Obfuscation Instructions
 
 The `Controller` class name and property setting method name of the extended component cannot be obfuscated, but you can add obfuscation exceptions.
 

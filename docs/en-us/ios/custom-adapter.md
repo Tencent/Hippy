@@ -1,4 +1,4 @@
-# Custom adapter
+# Custom Adapters
 
 # HippyImageViewCustomLoader
 

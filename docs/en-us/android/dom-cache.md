@@ -1,4 +1,4 @@
-# Dom caching
+# Dom Cache
 
 Cache the data of DOM node opened on the last page, serialize and save it to local, deserialize local node data when opening the next page, call SDK create node interface to create the node to finish the screen. The SDK is responsible for acquiring the data of the first screen node and creating the first screen interface.
 
@@ -24,7 +24,7 @@ Cache the data of DOM node opened on the last page, serialize and save it to loc
 
   After the final real JS page is displayed, the first screen page needs to be destroyed to free up memory.
 
-## Usage.
+## Usage
 
 + `saveInstanceState` call timing
 
