@@ -104,14 +104,4 @@ hippy的方案是一个ui框架，所以在web场景下需要自己处理如：u
 
 因为 `hippy-react` 和 `hippy-vue`有较多的与环境信息中的OS参数耦合的，必须要是android或者是ios。所以Web-Renderer为了让这两个框架能够统一的运行下去，
 将环境信息中的OS参数设置成了android,并且所有的参数、事件分发的形式都是按照android的分发标准进行的。
-
-## 待办事宜
-
-    1. WaterfallView组件补充
-    2. AnimationSet模块的补充
-    3. Platform-Localization模块的补充
-    4. Dynamic-load能力的补充
-    5. List.rowShouldSticky\bounces\overScrollEnabled\showScrollIndicator\rowShouldSticky属性补充
-    6. ScrollView.scrollIndicatorInsets\showScrollIndicator\showsHorizontalScrollIndicator\showsVerticalScrollIndicator属性补充
-    7. Image.capInsets属性补充
  
