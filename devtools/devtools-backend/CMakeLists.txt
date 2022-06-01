@@ -22,7 +22,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project("devtools_backend")
 
-include("../../build/cmake/InfraPackagesModule.cmake")
+include("../../buildconfig/cmake/InfraPackagesModule.cmake")
+include("../../buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_CXX_STANDARD 17)
@@ -81,4 +82,5 @@ InfaPackage_Add(json
   LOCAL "third_party/json"
 )
 
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_link_libraries(${PROJECT_NAME} PUBLIC nlohmann_json::nlohmann_json)
