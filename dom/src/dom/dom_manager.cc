@@ -16,8 +16,12 @@
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
 
+#ifdef HIPPY_TEST
+#define DCHECK_RUN_THREAD() {}
+#else
 #define DCHECK_RUN_THREAD() \
   { TDF_BASE_DCHECK(dom_task_runner_->Id() == hippy::base::ThreadId::GetCurrent()); }
+#endif
 
 namespace hippy {
 inline namespace dom {
