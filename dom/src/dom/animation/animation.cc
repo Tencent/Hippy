@@ -36,14 +36,14 @@ static std::atomic<uint32_t> global_animation_key{1};
 CubicBezier Animation::ParseCubicBezierStr(std::string str) {
   // "cubic-bezier(.45,2.84,.38,.5)"
   std::smatch match;
-  if (std::regex_match(str,match,std::regex(kAnimationCubicBezierRegex))) {
-    if (match.size() != 4) {
+  if (std::regex_match(str, match, std::regex(kAnimationCubicBezierRegex))) {
+    if (match.size() != 5) {
       return CubicBezier(CubicBezier::kDefaultP1, CubicBezier::kDefaultP2);
     }
-    auto point1_x = std::stod(match[0]);
-    auto point1_y = std::stod(match[1]);
-    auto point2_x = std::stod(match[2]);
-    auto point2_y = std::stod(match[3]);
+    auto point1_x = std::stod(match[1]);
+    auto point1_y = std::stod(match[2]);
+    auto point2_x = std::stod(match[3]);
+    auto point2_y = std::stod(match[4]);
     return CubicBezier({point1_x, point1_y}, {point2_x, point2_y});
   }
 
@@ -134,11 +134,10 @@ double Animation::Calculate(uint64_t now) {
   auto x = cubic_bezier_.SolveCurveX(
       static_cast<double>(exec_time_ - delay_) / static_cast<double>(duration_), epsilon);
   auto y = cubic_bezier_.SampleCurveY(x);
-  auto p = CubicBezier::NormalizedPoint({x, y});
   if (type_ == ValueType::kColor) {
-    current_value_ = CalculateColor(start_value_, to_value_, p.y);
+    current_value_ = CalculateColor(start_value_, to_value_, y);
   } else {
-    current_value_ = start_value_ + p.y * (to_value_ - start_value_);
+    current_value_ = start_value_ + y * (to_value_ - start_value_);
   }
   last_begin_time_ = now;
   return current_value_;

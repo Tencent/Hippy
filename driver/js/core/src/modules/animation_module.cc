@@ -531,9 +531,8 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
 
           auto animation_manager = dom_manager->GetAnimationManager();
           auto now = hippy::base::MonotonicallyIncreasingTime();
-          auto exec_time = animation->GetExecTime();
-          exec_time += (now - animation->GetLastBeginTime());
-          animation->SetExecTime(exec_time);
+          auto delay = animation->GetDelay();
+          animation->SetExecTime(delay);
           animation->SetLastBeginTime(now);
           animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
           animation_manager->AddActiveAnimation(animation);
@@ -729,9 +728,8 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
           auto animation_manager = dom_manager->GetAnimationManager();
           animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
           auto now = hippy::base::MonotonicallyIncreasingTime();
-          auto exec_time = animation->GetExecTime();
-          exec_time += (now - animation->GetLastBeginTime());
-          animation->SetExecTime(exec_time);
+          auto delay = animation->GetDelay();
+          animation->SetExecTime(delay);
           animation->SetLastBeginTime(now);
           animation_manager->AddActiveAnimation(animation);
         }};
