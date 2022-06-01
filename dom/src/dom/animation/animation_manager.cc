@@ -15,7 +15,11 @@
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 
-constexpr char kVSyncKey[] = "AnimationVSyncKey";
+#ifdef ANDROID
+constexpr char kVSyncKey[] = "frameUpdated";
+#else
+constexpr char KVSyncKey[] = "AnimationVSyncKey"
+#endif
 
 namespace hippy {
 inline namespace dom {
@@ -179,11 +183,22 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
     if (!render_manager) {
       return;
     }
-    auto weak_dom_manager = dom_manager_;
+    auto dom_manager = dom_manager_.lock();
+    if (!dom_manager) {
+      return;
+    }
     auto weak_animation_manager = weak_from_this();
+#ifdef ANDROID
+    dom_manager->AddEventListener(dom_manager->GetRootId(),
+                                  kVSyncKey,
+                                  hippy::dom::FetchListenerId(),
+                                  false,
+                                  [weak_dom_manager = dom_manager_, weak_animation_manager]
+                                  (std::shared_ptr<DomEvent>&) {
+#else
     render_manager->RegisterVsyncSignal(kVSyncKey, 60.0,
-                                        [weak_dom_manager, weak_animation_manager]() {
-
+                                        [dom_manager_, weak_animation_manager]() {
+#endif
       auto dom_manager = weak_dom_manager.lock();
       if (!dom_manager) {
         return;
