@@ -15,7 +15,7 @@
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 
-constexpr char kVSyncKey[] = "frameUpdated";
+constexpr char kVSyncKey[] = "frameupdate";
 
 namespace hippy {
 inline namespace dom {

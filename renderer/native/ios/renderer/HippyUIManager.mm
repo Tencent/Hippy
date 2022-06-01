@@ -60,11 +60,11 @@ using DomEvent = hippy::DomEvent;
 
 using HPViewBinding = std::unordered_map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
 
-constexpr char kVSyncKey[] = "frameUpdated";
+constexpr char kVSyncKey[] = "frameupdate";
 
 @interface HippyViewsRelation : NSObject {
     HPViewBinding _viewRelation;
-    
+
 }
 
 - (void)addViewTag:(int32_t)viewTag forSuperViewTag:(int32_t)superviewTag atIndex:(int32_t)index;
@@ -1016,7 +1016,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
     }
     else if (DomValueType::kNull == type) {
-        
+
     }
     else {
         //TODO
