@@ -122,7 +122,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
       }
       // 当手指触摸listview时，让父控件交出ontouch权限,不能滚动
       setParentScrollableIfNeed(false);
-    } else if (action == MotionEvent.ACTION_UP && mDragging) {
+    } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
       if (mScrollEndDragEventEnable) {
         HippyScrollViewEventHelper.emitScrollEndDragEvent(this);
       }

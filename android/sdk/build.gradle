@@ -26,7 +26,6 @@ apply from: './mavencentral.gradle'
 ext {
   CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
   OUTPUT_PATH = "$buildDir/outputs/aar"
-  THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
   skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
 
@@ -36,7 +35,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.1.3'
+    classpath 'com.android.tools.build:gradle:7.2.0'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -170,12 +169,6 @@ android {
 
   tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
-  }
-
-  sourceSets{
-    main {
-      jniLibs.srcDirs = ["${THIRD_PARTY_LIBRARY_PATH}/layout"]
-    }
   }
 }
 

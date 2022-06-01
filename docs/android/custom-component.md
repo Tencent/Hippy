@@ -4,18 +4,18 @@ App 开发中有可能使用到大量的UI组件，Hippy SDK 已包括其中常�
 
 # 组件扩展
 
-我们将以MyView为例，从头介绍如何扩展组件。
+我们将以`MyView`为例，从头介绍如何扩展组件。
 
 扩展组件包括：
 
-1. 扩展 HippyViewController。
-2. 实现 createViewImpl方法、
-3. 实现 Props 设置方法。
+1. 扩展 `HippyViewController`。
+2. 实现 `createViewImpl方法`、
+3. 实现 `Props` 设置方法。
 4. 手势事件处理。
-5. 注册 HippyViewController。
+5. 注册 `HippyViewController`。
 
-`HippyViewController` 是一个视图管理的基类（如果是ViewGroup的组件，基类为 `HippyGroupController`）。
-在这个例子中我们需要创建一个 `MyViewController` 类，它继承 `HippyViewController<MyView>`。`MyView` 是被管理的UI组件类型，他应该是一个 Android View 或者 ViewGroup。 `@HippyController` 注解用来定义导出给JS使用时的组件信息。
+`HippyViewController` 是一个视图管理的基类（如果是`ViewGroup`的组件，基类为 `HippyGroupController`）。
+在这个例子中我们需要创建一个 `MyViewController` 类，它继承 `HippyViewController<MyView>`。`MyView` 是被管理的UI组件类型，它应该是一个 `Android View` 或者 `ViewGroup`。 `@HippyController` 注解用来定义导出给JS使用时的组件信息。
 
 ```java
 @HippyController(name = "MyView")
@@ -123,7 +123,7 @@ public void dispatchFunction(MyView view, String functionName, HippyArray var)
 
 ## 事件回调
 
-Hippy SDK 提供了一个基类 `HippyViewEvent`，其中封装了UI事件发送的逻辑，只需调用 `send` 方法即可发送事件到JS对应的组件上。比如我要在 MyView 的 onAttachedToWindow 的时候发送事件到前端的控件上面。
+Hippy SDK 提供了一个基类 `HippyViewEvent`，其中封装了UI事件发送的逻辑，只需调用 `send` 方法即可发送事件到JS对应的组件上。比如我要在 `MyView` 的 `onAttachedToWindow` 的时候发送事件到前端的控件上面。
 示例如下：
 
 ```java
@@ -141,13 +141,13 @@ protected void onAttachedToWindow() {
 ## HippyViewController 的回调函数
 
 - `onAfterUpdateProps`：属性更新完成后回调。
-- `onBatchComplete`：一次上屏操作完成后回调（适用于 ListView 类似的组件，驱动 Adapte r刷新等场景）。
+- `onBatchComplete`：一次上屏操作完成后回调（适用于 ListView 类似的组件，驱动 Adapter刷新等场景）。
 - `onViewDestroy`：视图被删除前回调（适用于类似回收视图注册的全局监听等场景）。
-- `onManageChildComplete`：在 `HippyGroupController` 添加、删除子试图完成后回调。
+- `onManageChildComplete`：在 `HippyGroupController` 添加、删除子视图完成后回调。
 
 # 混淆说明
 
-扩展组件的 `Controller` 类名和属性设置方法方法名不能混淆，可以增加混淆例外。
+扩展组件的 `Controller` 类名和属性设置方法名不能混淆，可以增加混淆例外。
 
 ```java
 -keep class * extends com.tencent.mtt.hippy.uimanager.HippyGroupController{ public *;}

@@ -22,6 +22,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project("hippy")
 
+include("../../../../../build/cmake/InfraPackagesModule.cmake")
+
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN on)
 set(CMAKE_CXX_STANDARD 14)
@@ -87,28 +89,11 @@ if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
 endif()
 
 message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
-add_compile_options(${ABI_COMPILE_OPTIONS})
 # endregion
 
 # region dependencies
-set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud.com")
-set(INFA_PACKAGES_DOMAIN "hippy")
-
-# region v8
-if (${JS_ENGINE} STREQUAL "V8")
-  get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
-  if (EXISTS "${V8_COMPONENT_PATH}/CMakeLists.txt")
-    add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
-  else()
-    include(FetchContent)
-    FetchContent_Declare(V8
-            URL "${INFA_PACKAGES_URL}/${INFA_PACKAGES_DOMAIN}/third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz")
-    FetchContent_MakeAvailable(V8)
-  endif()
-endif()
-# endregion
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base out)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base ${CMAKE_CURRENT_BINARY_DIR}/core/third_party/base)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../layout/android ${CMAKE_CURRENT_BINARY_DIR}/layout/android)
 # endregion
 
 # region source
@@ -119,12 +104,21 @@ file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
 message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
 message("CORE_SRC: ${CORE_SRC}")
 message("JNI_SRC: ${JNI_SRC}")
+
+include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${CORE_SRC_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${CORE_SRC_DIR}/third_party/base/include)
 # endregion
 
 set(HIPPY_DEPS android log tdf_base)
-
+# region js_engine
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
+  InfaPackage_Add(V8
+    REMOTE "third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz"
+    LOCAL "${V8_COMPONENT}"
+  )
   add_definitions("-DJS_V8")
   if (DEFINED V8_WITHOUT_INSPECTOR)
     add_definitions("-DV8_WITHOUT_INSPECTOR")
@@ -139,6 +133,12 @@ if (${JS_ENGINE} STREQUAL "V8")
   # region library
   if (${V8_LINKING_MODE} STREQUAL "shared")
     add_library(v8 SHARED IMPORTED)
+    foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
+      add_custom_command(
+              TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+              COMMAND ${CMAKE_COMMAND} -E
+              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
+    endforeach()
   elseif (${V8_LINKING_MODE} STREQUAL "static")
     if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
       string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,${V8_LIBRARY_NAME}")
@@ -167,24 +167,12 @@ elseif (${JS_ENGINE} STREQUAL "JSC")
 else()
   message(FATAL_ERROR "${JS_ENGINE} is not supported")
 endif()
-
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${CORE_SRC_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR})
-include_directories(${CORE_SRC_DIR}/third_party/base/include)
+# endregion
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE ${ABI_COMPILE_OPTIONS})
 if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
   set_target_properties(${CMAKE_PROJECT_NAME}
           PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
 endif()
 target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
-
-if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
-  foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
-    add_custom_command(
-            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E
-              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
-  endforeach()
-endif()

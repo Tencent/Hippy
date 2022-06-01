@@ -8,6 +8,7 @@ on:
     paths:
       - 'ios/**'
       - 'core/**'
+      - 'hippy.podspec'
 
 jobs:
   ios_build_tests:

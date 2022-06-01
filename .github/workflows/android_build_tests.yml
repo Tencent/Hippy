@@ -8,6 +8,12 @@ on:
     paths:
       - 'android/**'
       - 'core/**'
+      - 'gradle/**'
+      - 'build.gradle'
+      - 'gradle.properties'
+      - 'settings.gradle'
+      - 'gradlew'
+      - 'gradlew.bat'
 jobs:
   android_build_tests:
     runs-on: ubuntu-latest

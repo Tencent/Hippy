@@ -8,14 +8,14 @@
 
 终端扩展Module包括四步：
 
-1. 创建 HippyNativeModuleBase 的子类。
-2. 添加 HippyNativeModule 注解。
+1. 创建 `HippyNativeModuleBase` 的子类。
+2. 添加 `HippyNativeModule` 注解。
 3. 实现导出给 JS 的方法。
 4. 注册 Module。
 
 ## 创建HippyNativeModuleBase的子类
 
-首先我们需要创建TestModule类，并且继承`HippyNativeModuleBase`。
+首先我们需要创建`TestModule`类，并且继承`HippyNativeModuleBase`。
 
 ```java
 package com.tencent.mtt.hippy.example.modules;
@@ -144,7 +144,7 @@ public class ExamplePackages implements HippyPackage
 
 ## 混淆说明
 
-扩展 Module 的类名和扩展方法方法名不能混淆，可以增加混淆例外。
+扩展 Module 的类名和扩展方法名不能混淆，可以增加混淆例外。
 
 ``` java
 -keep class * extends com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase{ public *;}

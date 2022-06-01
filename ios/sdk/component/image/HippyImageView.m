@@ -219,7 +219,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     long long _totalLength;
     NSMutableData *_data;
     __weak CALayer *_borderWidthLayer;
-    BOOL _needsUpdateBorderRadius;
+    BOOL _needsUpdateBorderRadiusManully;
     CGSize _size;
 }
 
@@ -235,7 +235,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     if (self = [super init]) {
         _bridge = bridge;
         self.clipsToBounds = YES;
-        _needsUpdateBorderRadius = NO;
+        _needsUpdateBorderRadiusManully = NO;
         _borderTopLeftRadius = CGFLOAT_MAX;
         _borderTopRightRadius = CGFLOAT_MAX;
         _borderBottomLeftRadius = CGFLOAT_MAX;
@@ -730,7 +730,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     if (_borderWidthLayer) {
         [_borderWidthLayer removeFromSuperlayer];
     }
-    if ([self needsUpdateCornerRadius]) {
+    if ([self needsUpdateCornerRadiusManully] && ![self isAllCornerRadiussEqualToCornerRadius]) {
         CGRect contentRect = self.bounds;
 #ifdef HippyLog
         CGFloat width = CGRectGetWidth(contentRect);
@@ -769,6 +769,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         [self.layer addSublayer:borderLayer];
     } else {
         self.layer.mask = nil;
+        self.layer.cornerRadius = _borderRadius;
     }
 }
 
@@ -806,35 +807,47 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 - (void)setBorderTopLeftRadius:(CGFloat)borderTopLeftRadius {
     _borderTopLeftRadius = borderTopLeftRadius;
-    _needsUpdateBorderRadius = YES;
+    _needsUpdateBorderRadiusManully = YES;
 }
 
 - (void)setBorderTopRightRadius:(CGFloat)borderTopRightRadius {
     _borderTopRightRadius = borderTopRightRadius;
-    _needsUpdateBorderRadius = YES;
+    _needsUpdateBorderRadiusManully = YES;
 }
 
 - (void)setBorderBottomLeftRadius:(CGFloat)borderBottomLeftRadius {
     _borderBottomLeftRadius = borderBottomLeftRadius;
-    _needsUpdateBorderRadius = YES;
+    _needsUpdateBorderRadiusManully = YES;
 }
 
 - (void)setBorderBottomRightRadius:(CGFloat)borderBottomRightRadius {
     _borderBottomRightRadius = borderBottomRightRadius;
-    _needsUpdateBorderRadius = YES;
+    _needsUpdateBorderRadiusManully = YES;
 }
 
 - (void)setBorderRadius:(CGFloat)borderRadius {
     _borderRadius = borderRadius;
-    _needsUpdateBorderRadius = YES;
 }
 
 - (void)setBackgroundSize:(NSString *)backgroundSize {
     //do nothing
 }
 
-- (BOOL)needsUpdateCornerRadius {
-    return _needsUpdateBorderRadius;
+- (BOOL)needsUpdateCornerRadiusManully {
+    return _needsUpdateBorderRadiusManully;
+}
+
+- (BOOL)isAllCornerRadiussEqualToCornerRadius {
+#define CornerRadiusCompare(x) (x != CGFLOAT_MAX && fabs(_borderRadius - x) > CGFLOAT_EPSILON)
+    if (_needsUpdateBorderRadiusManully) {
+        if (CornerRadiusCompare(_borderTopLeftRadius) ||
+            CornerRadiusCompare(_borderTopRightRadius) ||
+            CornerRadiusCompare(_borderBottomLeftRadius) ||
+            CornerRadiusCompare(_borderBottomRightRadius)) {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 - (BorderRadiusStruct)properBorderRadius {
