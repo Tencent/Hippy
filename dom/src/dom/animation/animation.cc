@@ -50,6 +50,27 @@ CubicBezier Animation::ParseCubicBezierStr(std::string str) {
   return CubicBezier(CubicBezier::kDefaultP1, CubicBezier::kDefaultP2);
 }
 
+double Animation::CalculateColor(double start_color, double to_color, double scale) {
+  uint32_t start_value = static_cast<uint32_t>(start_color);
+  auto start_red = static_cast<uint8_t>(((start_value >> 24) & 0xff));
+  auto start_green = static_cast<uint8_t>(((start_value >> 16) & 0xff));
+  auto start_blue = static_cast<uint8_t>(((start_value >> 8)  & 0xff));
+  auto start_alpha = static_cast<uint8_t>((start_value & 0xff));
+
+  uint32_t to_value = static_cast<uint32_t>(to_color);
+  auto to_red = static_cast<uint8_t>(((to_value >> 24) & 0xff));
+  auto to_green = static_cast<uint8_t>(((to_value >> 16) & 0xff));
+  auto to_blue = static_cast<uint8_t>(((to_value >> 8)  & 0xff));
+  auto to_alpha = static_cast<uint8_t>((to_value & 0xff));
+
+  auto red = static_cast<uint8_t>(start_red + (to_red - start_red) * scale);
+  auto green = static_cast<uint8_t>(start_green + (to_green - start_green) * scale);
+  auto blue = static_cast<uint8_t>(start_blue + (to_blue - start_blue) * scale);
+  auto alpha = static_cast<uint8_t>(start_alpha + (to_alpha - start_alpha) * scale);
+  uint32_t ret = (red << 24) + (green << 16) + (blue << 8) + alpha;
+  return static_cast<double>(ret);
+}
+
 Animation::Animation(Mode mode,
                      uint64_t delay,
                      double start_value,
@@ -114,19 +135,20 @@ double Animation::Calculate(uint64_t now) {
       static_cast<double>(exec_time_ - delay_) / static_cast<double>(duration_), epsilon);
   auto y = cubic_bezier_.SampleCurveY(x);
   auto p = CubicBezier::NormalizedPoint({x, y});
-  current_value_ = start_value_ + p.y * (to_value_ - start_value_);
+  if (type_ == ValueType::kColor) {
+    current_value_ = CalculateColor(start_value_, to_value_, p.y);
+  } else {
+    current_value_ = start_value_ + p.y * (to_value_ - start_value_);
+  }
   last_begin_time_ = now;
   return current_value_;
 }
 
 void Animation::Repeat(uint64_t now) {
-  if (cnt_ == 0) {
-    return;
-  }
   last_begin_time_ = now;
   exec_time_ = 0;
   status_ = Animation::Status::kCreated;
-  if (cnt_ != -1) {
+  if (cnt_ != -1 && cnt_ > 0) {
     cnt_ -= 1;
   }
   if (on_repeat_) {
@@ -186,9 +208,15 @@ AnimationSet::AnimationSet(std::vector<AnimationSetChild>&& children, int32_t cn
 AnimationSet::AnimationSet(): AnimationSet(std::vector<AnimationSetChild>{}, 0) {}
 
 void AnimationSet::Repeat() {
+  if (cnt_ == 0) {
+    return;
+  }
   status_ = AnimationSet::Status::kCreated;
-  if (cnt_ != -1 && cnt_ != 0) {
+  if (cnt_ != -1) {
     cnt_ -= 1;
+  }
+  if (on_repeat_) {
+    on_repeat_();
   }
 }
 

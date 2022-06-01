@@ -173,7 +173,6 @@ bool AnimationManager::IsActive(uint32_t id) {
 void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& animation) {
   animation->SetStatus(Animation::Status::kRunning);
   active_animations_.push_back(animation);
-  TDF_BASE_DLOG(INFO) << "animation active cnt = " << active_animations_.size();
   if (active_animations_.size() == 1) {
     auto render_manager = render_manager_.lock();
     if (!render_manager) {
@@ -216,7 +215,6 @@ void AnimationManager::RemoveActiveAnimation(uint32_t id) {
       break;
     }
   }
-  TDF_BASE_DLOG(INFO) << "animation remove cnt = " << active_animations_.size();
   if (size == 1 && active_animations_.empty()) {
     auto dom_manager = dom_manager_.lock();
     if (dom_manager) {
@@ -333,7 +331,6 @@ void AnimationManager::UpdateAnimation() {
       update_nodes.push_back(dom_node);
     }
     auto status = animation->GetStatus();
-    TDF_BASE_DLOG(INFO) << "animation status = " << static_cast<int>(status);
     switch (status) {
       case Animation::Status::kResume: {
         animation->SetStatus(Animation::Status::kRunning);
@@ -341,7 +338,10 @@ void AnimationManager::UpdateAnimation() {
       }
       case Animation::Status::kStart: {
         animation->SetStatus(Animation::Status::kRunning);
-        cbs.push_back(animation->GetAnimationStartCb());
+        auto cb = animation->GetAnimationStartCb();
+        if (cb) {
+          cbs.push_back(cb);
+        }
         break;
       }
       case Animation::Status::kRunning: {
@@ -353,7 +353,6 @@ void AnimationManager::UpdateAnimation() {
       case Animation::Status::kDestroy:
       default:
         TDF_BASE_UNREACHABLE();
-        break;
     }
 
     auto exec_time = animation->GetExecTime();
@@ -370,14 +369,8 @@ void AnimationManager::UpdateAnimation() {
       }
     }
   }
-  auto task_runner = dom_manager->GetDelegateTaskRunner().lock();
-  if (task_runner) {
-    auto task = std::make_shared<CommonTask>();
-    task->func_ = [cbs = std::move(cbs)]() {
-      for (const auto& cb: cbs) {
-        cb();
-      }
-    };
+  for (const auto& cb: cbs) {
+    cb();
   }
   dom_manager->UpdateAnimation(std::move(update_nodes));
   dom_manager->EndBatch();

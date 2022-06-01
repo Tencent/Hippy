@@ -163,6 +163,7 @@ class Animation: public std::enable_shared_from_this<Animation> {
 
  private:
   CubicBezier ParseCubicBezierStr(std::string str);
+  double CalculateColor(double start_color, double to_color, double scale);
 
   uint32_t id_;
   Mode mode_;
@@ -211,6 +212,10 @@ class AnimationSet: public std::enable_shared_from_this<AnimationSet> {
 
   inline const std::vector<AnimationSetChild>& GetChildren() {
     return children_;
+  }
+
+  inline const int32_t GetRepeatCnt() {
+    return cnt_;
   }
 
   inline AnimationStartCb GetAnimationStartCb() {

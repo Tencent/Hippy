@@ -24,6 +24,7 @@
 
 #include <limits>
 #include <regex>
+#include <cmath>
 
 #include "base/unicode_string_view.h"
 #include "core/base/string_view_utils.h"
@@ -93,6 +94,10 @@ struct ParseAnimationResult {
   std::string func;
   int32_t cnt;
 };
+
+double DegreesToRadians(double degrees) {
+  return degrees * M_PI / 180;
+}
 
 std::shared_ptr<AnimationSet> ParseAnimationSet(
     const std::shared_ptr<Ctx>& context,
@@ -222,11 +227,12 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
       type = Animation::ValueType::kRad;
     } else if (u8_value_type == kAnimationValueTypeDeg) {
       type = Animation::ValueType::kDeg;
+      start_value = DegreesToRadians(start_value);
+      to_value = DegreesToRadians(to_value);
     } else if (u8_value_type == kAnimationValueTypeColor) {
       type = Animation::ValueType::kColor;
     } else {
-      context->ThrowException("animation value_type error");
-      return nullptr;
+      type = Animation::ValueType::kUndefined;
     }
   }
 
@@ -313,7 +319,9 @@ void StartAnimationSet(std::shared_ptr<DomManager> dom_manager, std::shared_ptr<
       uint64_t interval = real_delay - follow_exec_time;
       std::weak_ptr<Animation> weak_animation = animation;
       std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
-      std::vector<std::function<void()>> ops = {[weak_animation, weak_animation_manager] {
+      std::weak_ptr<AnimationSet> weak_animation_set = animation_set;
+      std::vector<std::function<void()>> ops = {
+          [weak_animation, weak_animation_manager, weak_animation_set] {
         auto animation_manager = weak_animation_manager.lock();
         if (!animation_manager) {
           return;
@@ -329,6 +337,12 @@ void StartAnimationSet(std::shared_ptr<DomManager> dom_manager, std::shared_ptr<
         animation_manager->AddActiveAnimation(animation);
         animation->SetLastBeginTime(now);
         animation->SetStatus(Animation::Status::kStart);
+
+        auto animation_set = weak_animation_set.lock();
+        if (!animation_set) {
+          return;
+        }
+        animation_set->SetStatus(AnimationSet::Status::kRunning);
       }};
       auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), interval);
       animation_manager->AddDelayedAnimationRecord(animation->GetId(), task);
@@ -338,14 +352,50 @@ void StartAnimationSet(std::shared_ptr<DomManager> dom_manager, std::shared_ptr<
     follow_end_time = real_delay + duration;
     follow_exec_time = exec_time;
   }
-  auto start_cb = animation_set->GetAnimationStartCb();
   animation_set->SetStartValue(start_animation->GetStartValue());
-  if (start_cb && start_animation) {
-    start_animation->AddEventListener(hippy::kAnimationStartKey, start_cb);
+  std::weak_ptr<AnimationSet> weak_animation_set = animation_set;
+  if (start_animation) {
+    auto delay = start_animation->GetDelay();
+    if (delay == 0) {
+      animation_set->SetStatus(AnimationSet::Status::kRunning);
+    }
   }
   auto end_cb = animation_set->GetAnimationEndCb();
-  if (end_cb && end_animation) {
-    end_animation->AddEventListener(hippy::kAnimationEndKey, end_cb);
+  if (end_animation) {
+    auto cnt = animation_set->GetRepeatCnt();
+    if (cnt > 0 || cnt == -1) {
+      std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
+      auto cb = [end_cb, weak_animation_set, weak_dom_manager]() {
+        if (end_cb) {
+          end_cb();
+        }
+
+        auto animation_set = weak_animation_set.lock();
+        if (!animation_set) {
+          return;
+        }
+        auto dom_manager = weak_dom_manager.lock();
+        if (!dom_manager) {
+          return;
+        }
+        auto animation_manager = dom_manager->GetAnimationManager();
+        auto now = hippy::base::MonotonicallyIncreasingTime();
+        animation_set->Repeat();
+        for (auto child: animation_set->GetChildren()) {
+          auto id = child.animation_id;
+          auto animation = animation_manager->GetAnimation(id);
+          if (animation) {
+            animation->Repeat(now);
+          }
+        }
+        StartAnimationSet(dom_manager, animation_set);
+      };
+      end_animation->AddEventListener(hippy::kAnimationEndKey, cb);
+    } else {
+      if (end_cb) {
+        end_animation->AddEventListener(hippy::kAnimationEndKey, end_cb);
+      }
+    }
   }
 }
 
@@ -997,6 +1047,10 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
           return;
       }
       StartAnimationSet(dom_manager, animation_set);
+      auto cb = animation_set->GetAnimationStartCb();
+      if (cb) {
+        cb();
+      }
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
