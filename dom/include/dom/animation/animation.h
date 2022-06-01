@@ -214,7 +214,7 @@ class AnimationSet: public std::enable_shared_from_this<AnimationSet> {
     return children_;
   }
 
-  inline const int32_t GetRepeatCnt() {
+  inline int32_t GetRepeatCnt() {
     return cnt_;
   }
 

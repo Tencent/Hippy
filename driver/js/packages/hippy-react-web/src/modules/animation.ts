@@ -24,7 +24,7 @@ import findNodeHandle from '../adapters/find-node';
 import normalizeValue from '../adapters/normalize-value';
 import { tryMakeCubicBezierEasing } from './cubic-bezier';
 
-type AnimationCB = () => void;
+type AnimationCallback = () => void;
 
 function initLeftRepeatCount(repeatCount: number | 'loop') {
   if (repeatCount === 'loop') {
@@ -303,7 +303,7 @@ export class Animation {
    * Call when animation started.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationStart(cb: AnimationCB) {
+  public onAnimationStart(cb: AnimationCallback) {
     this.onAnimationStartCallback = cb;
   }
 
@@ -311,7 +311,7 @@ export class Animation {
    * Call when animation is ended.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationEnd(cb: AnimationCB) {
+  public onAnimationEnd(cb: AnimationCallback) {
     this.onAnimationEndCallback = cb;
   }
 
@@ -319,7 +319,7 @@ export class Animation {
    * Call when animation is canceled.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationCancel(cb: AnimationCB) {
+  public onAnimationCancel(cb: AnimationCallback) {
     this.onAnimationCancelCallback = cb;
   }
 
@@ -327,7 +327,7 @@ export class Animation {
    * Call when animation is repeated.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationRepeat(cb: AnimationCB) {
+  public onAnimationRepeat(cb: AnimationCallback) {
     this.onAnimationRepeatCallback = cb;
   }
 }

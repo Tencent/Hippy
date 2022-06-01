@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-function repeatCountDict(repeatCount: number | 'loop') {
+function repeatCountDict(repeatCount: number | 'loop'): number {
   if (repeatCount === 'loop') {
     return -1;
   }

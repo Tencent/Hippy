@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,39 +20,7 @@
 
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
-import { Animation, AnimationCallback } from './animation';
 import '../global';
-
-interface AnimationInstance {
-  animationId: number;
-  follow: boolean;
-}
-
-interface AnimationChild {
-  animation: Animation;
-  follow: boolean;
-}
-
-interface AnimationSetOption {
-  children: AnimationChild[];
-  repeatCount: number;
-  virtual: any; // TODO: What's it?
-}
-
-interface AnimationSet extends Animation {
-  animationId: number;
-  animationList: AnimationInstance[];
-
-  // Fallback event handlers
-  onRNfqbAnimationStart?: Function;
-  onRNfqbAnimationEnd?: Function;
-  onRNfqbAnimationCancel?: Function;
-  onRNfqbAnimationRepeat?: Function;
-  onHippyAnimationStart?: Function;
-  onHippyAnimationEnd?: Function;
-  onHippyAnimationCancel?: Function;
-  onHippyAnimationRepeat?: Function;
-}
 
 const animationEvent = {
   START: 'animationstart',
@@ -66,9 +34,29 @@ const animationEvent = {
  *
  * It pushes the animation scheme to native at once.
  */
-class AnimationSet implements AnimationSet {
-  public constructor(config: AnimationSetOption) {
-    this.animationList = [];
+class AnimationSet implements HippyTypes.AnimationSet {
+  animationId: number;
+  animation?: HippyTypes.AnimationSetInstance;
+  animationList: HippyTypes.AnimationList;
+  onRNfqbAnimationStart?: Function | undefined;
+  onRNfqbAnimationEnd?: Function | undefined;
+  onRNfqbAnimationCancel?: Function | undefined;
+  onRNfqbAnimationRepeat?: Function | undefined;
+  onHippyAnimationStart?: Function | undefined;
+  onHippyAnimationEnd?: Function | undefined;
+  onHippyAnimationCancel?: Function | undefined;
+  onHippyAnimationRepeat?: Function | undefined;
+  onAnimationStartCallback?: HippyTypes.AnimationCallback | undefined;
+  onAnimationEndCallback?: HippyTypes.AnimationCallback | undefined;
+  onAnimationCancelCallback?: HippyTypes.AnimationCallback | undefined;
+  onAnimationRepeatCallback?: HippyTypes.AnimationCallback | undefined;
+  animationStartListener?: Function | undefined;
+  animationEndListener?: Function | undefined;
+  animationCancelListener?: Function | undefined;
+  animationRepeatListener?: Function | undefined;
+
+  public constructor(config: HippyTypes.AnimationSetOptions) {
+    this.animationList = [] as HippyTypes.AnimationList ;
     config?.children.forEach((item) => {
       this.animationList.push({
         animationId: item.animation.animationId,
@@ -193,7 +181,7 @@ class AnimationSet implements AnimationSet {
    * Call when animation started.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationStart(cb: AnimationCallback) {
+  public onAnimationStart(cb: HippyTypes.AnimationCallback) {
     this.onAnimationStartCallback = cb;
   }
 
@@ -201,7 +189,7 @@ class AnimationSet implements AnimationSet {
    * Call when animation is ended.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationEnd(cb: AnimationCallback) {
+  public onAnimationEnd(cb: HippyTypes.AnimationCallback) {
     this.onAnimationEndCallback = cb;
   }
 
@@ -209,7 +197,7 @@ class AnimationSet implements AnimationSet {
    * Call when animation is canceled.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationCancel(cb: AnimationCallback) {
+  public onAnimationCancel(cb: HippyTypes.AnimationCallback) {
     this.onAnimationCancelCallback = cb;
   }
 
@@ -217,7 +205,7 @@ class AnimationSet implements AnimationSet {
    * Call when animation is repeated.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationRepeat(cb: AnimationCallback) {
+  public onAnimationRepeat(cb: HippyTypes.AnimationCallback) {
     this.onAnimationRepeatCallback = cb;
   }
 }

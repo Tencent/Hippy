@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,88 +18,8 @@
  * limitations under the License.
  */
 
-import { HippyEventRevoker } from '../event';
-import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
 import { colorParse } from '../color';
-
-type AnimationValue = number | { animationId: number } | string;
-type AnimationCallback = () => void;
-type AnimationDirection = 'left' | 'right' | 'top' | 'bottom' | 'center';
-
-interface AnimationOptions {
-  /**
-   * Initial value at `Animation` start
-   */
-  startValue: AnimationValue;
-
-  /**
-   * End value when `Animation` end.
-   */
-  toValue: AnimationValue;
-
-  /**
-   * Animation execution time
-   */
-  duration: number;
-
-  /**
-   * Timeline mode of animation
-   */
-  mode?: 'timing';
-
-  /**
-   * Delay starting time
-   */
-  delay?: number;
-
-  /**
-   * Value type, leave it blank in most case, except use rotate/color related
-   * animation, set it to be 'deg' or 'color'.
-   */
-  valueType?: 'deg';
-
-  /**
-   * Animation start position
-   */
-  direction?: AnimationDirection;
-
-  /**
-   * Animation interpolation type
-   */
-  timingFunction?: 'linear' | 'ease' | 'bezier' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out' | (string & {});
-
-  /**
-   * Animation repeat times, use 'loop' to be always repeating.
-   */
-  repeatCount?: number;
-  animation?: any;
-  inputRange?: any[];
-  outputRange?: any[];
-  animationId?: number;
-}
-
-interface Animation extends AnimationOptions {
-  animationId: number;
-  onAnimationStartCallback?: AnimationCallback;
-  onAnimationEndCallback?: AnimationCallback;
-  onAnimationCancelCallback?: AnimationCallback;
-  onAnimationRepeatCallback?: AnimationCallback;
-  animationStartListener?: HippyEventRevoker;
-  animationEndListener?: HippyEventRevoker;
-  animationCancelListener?: HippyEventRevoker;
-  animationRepeatListener?: HippyEventRevoker;
-
-  // Fallback event handlers
-  onRNfqbAnimationStart?: Function;
-  onRNfqbAnimationEnd?: Function;
-  onRNfqbAnimationCancel?: Function;
-  onRNfqbAnimationRepeat?: Function;
-  onHippyAnimationStart?: Function;
-  onHippyAnimationEnd?: Function;
-  onHippyAnimationCancel?: Function;
-  onHippyAnimationRepeat?: Function;
-}
 
 /**
  * parse value of special value type
@@ -125,29 +45,58 @@ const animationEvent = {
  *
  * It pushes the animation scheme to native at once.
  */
-class Animation implements Animation {
-  public constructor(config: AnimationOptions) {
-    let startValue: AnimationValue;
+class Animation implements HippyTypes.Animation {
+  mode: HippyTypes.AnimationMode;
+  startValue: HippyTypes.AnimationValue;
+  toValue: HippyTypes.AnimationValue;
+  duration: number;
+  delay?: number | undefined;
+  valueType?: HippyTypes.AnimationValueType;
+  direction?: HippyTypes.AnimationDirection | undefined;
+  timingFunction?: HippyTypes.AnimationTimingFunction | undefined;
+  repeatCount?: number | undefined;
+  animation?: HippyTypes.AnimationInstance;
+  inputRange?: any[] | undefined;
+  outputRange?: any[] | undefined;
+  animationId?: number | undefined;
+  onAnimationStartCallback?: HippyTypes.AnimationCallback | undefined;
+  onAnimationEndCallback?: HippyTypes.AnimationCallback | undefined;
+  onAnimationCancelCallback?: HippyTypes.AnimationCallback | undefined;
+  onAnimationRepeatCallback?: HippyTypes.AnimationCallback | undefined;
+  animationStartListener?: Function | undefined;
+  animationEndListener?: Function | undefined;
+  animationCancelListener?: Function | undefined;
+  animationRepeatListener?: Function | undefined;
+  onRNfqbAnimationStart?: Function | undefined;
+  onRNfqbAnimationEnd?: Function | undefined;
+  onRNfqbAnimationCancel?: Function | undefined;
+  onRNfqbAnimationRepeat?: Function | undefined;
+  onHippyAnimationStart?: Function | undefined;
+  onHippyAnimationEnd?: Function | undefined;
+  onHippyAnimationCancel?: Function | undefined;
+  onHippyAnimationRepeat?: Function | undefined;
+
+  public constructor(config: HippyTypes.AnimationOptions) {
+    let startValue: HippyTypes.AnimationValue;
     if (config.startValue?.constructor && config.startValue.constructor.name === 'Animation') {
-      startValue = { animationId: (config.startValue as Animation).animationId };
+      startValue = { animationId: (config.startValue as HippyTypes.Animation).animationId };
     } else {
       const { startValue: tempStartValue } = config;
-      startValue = parseValue(config.valueType, tempStartValue as number|string);
+      startValue = parseValue(config.valueType, tempStartValue as number | string);
     }
-    const toValue = parseValue(config.valueType, config.toValue as number|string);
+    const toValue = parseValue(config.valueType, config.toValue as number | string);
     this.mode = config.mode || 'timing';
     this.delay = config.delay || 0;
     this.startValue = startValue || 0;
     this.toValue = toValue || 0;
-    this.valueType = config.valueType || 'deg';
+    this.valueType = config.valueType || undefined;
     this.duration = config.duration || 0;
     this.direction = config.direction || 'center';
     this.timingFunction = config.timingFunction || 'linear';
     this.repeatCount = repeatCountDict(config.repeatCount || 0);
     this.inputRange = config.inputRange || [];
     this.outputRange = config.outputRange || [];
-    // @ts-ignore
-    this.animation = new global.Hippy.Animation({
+    this.animation = new global.Hippy.Animation(Object.assign({
       mode: this.mode,
       delay: this.delay,
       startValue: this.startValue,
@@ -158,9 +107,7 @@ class Animation implements Animation {
       repeatCount: this.repeatCount,
       inputRange: this.inputRange,
       outputRange: this.outputRange,
-      valueType: this.valueType,
-    });
-    // @ts-ignore
+    },  (this.valueType ? { valueType: this.valueType } : {})));
     this.animationId = this.animation.getId();
     this.destroy = this.destroy.bind(this);
 
@@ -236,14 +183,6 @@ class Animation implements Animation {
   }
 
   /**
-   * Use destroy() to destroy animation.
-   */
-  public destory() {
-    warn('Animation.destory() method will be deprecated soon, please use Animation.destroy() as soon as possible');
-    this.destroy();
-  }
-
-  /**
    * Destroy the animation
    */
   public destroy() {
@@ -278,7 +217,7 @@ class Animation implements Animation {
    *
    * @param {Object} newConfig - new animation schema
    */
-  public updateAnimation(newConfig: AnimationOptions) {
+  public updateAnimation(newConfig: HippyTypes.AnimationOptions) {
     if (!this.animation) {
       throw new Error('animation has not been initialized yet');
     }
@@ -288,10 +227,10 @@ class Animation implements Animation {
     if (typeof newConfig.mode === 'string' && newConfig.mode !== this.mode) {
       throw new TypeError('Update animation mode not supported');
     }
-    (Object.keys(newConfig) as (keyof AnimationOptions)[]).forEach((prop) => {
+    (Object.keys(newConfig) as (keyof HippyTypes.AnimationOptions)[]).forEach((prop) => {
       const value = newConfig[prop];
       if (prop === 'startValue') {
-        let startValue: AnimationValue = 0;
+        let startValue: HippyTypes.AnimationValue;
         if (newConfig.startValue instanceof Animation) {
           startValue = { animationId: newConfig.startValue.animationId };
         } else {
@@ -308,6 +247,7 @@ class Animation implements Animation {
       }
     });
     this.animation.updateAnimation(Object.assign({
+      mode: this.mode,
       delay: this.delay,
       startValue: this.startValue,
       toValue: parseValue(this.valueType, this.toValue as number|string),
@@ -324,7 +264,7 @@ class Animation implements Animation {
    * Call when animation started.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationStart(cb: AnimationCallback) {
+  public onAnimationStart(cb: HippyTypes.AnimationCallback) {
     this.onAnimationStartCallback = cb;
   }
 
@@ -332,7 +272,7 @@ class Animation implements Animation {
    * Call when animation is ended.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationEnd(cb: AnimationCallback) {
+  public onAnimationEnd(cb: HippyTypes.AnimationCallback) {
     this.onAnimationEndCallback = cb;
   }
 
@@ -340,7 +280,7 @@ class Animation implements Animation {
    * Call when animation is canceled.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationCancel(cb: AnimationCallback) {
+  public onAnimationCancel(cb: HippyTypes.AnimationCallback) {
     this.onAnimationCancelCallback = cb;
   }
 
@@ -348,7 +288,7 @@ class Animation implements Animation {
    * Call when animation is repeated.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationRepeat(cb: AnimationCallback) {
+  public onAnimationRepeat(cb: HippyTypes.AnimationCallback) {
     this.onAnimationRepeatCallback = cb;
   }
 }
@@ -356,5 +296,4 @@ class Animation implements Animation {
 export default Animation;
 export {
   Animation,
-  AnimationCallback,
 };
