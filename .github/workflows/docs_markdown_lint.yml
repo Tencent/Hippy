@@ -16,8 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: markdownlint
-        uses: nosborn/github-action-markdown-cli@v1.1.1
         with:
-          config_file: .markdownlintrc.json
-          files: ./README*.md ./PUBLISH*.md ./docs/**/*.md
+          fetch-depth: 0
+      - name: setup-node
+        uses: actions/setup-node@master
+        with:
+          node-version: 14.x
+      - name: Install
+        run: |
+          npm install markdown-it@12.3.2 markdownlint-cli@0.31.1
+      - name: markdownlint
+        run: |
+          npm run markdownlint
