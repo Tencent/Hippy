@@ -42,6 +42,7 @@
 #include "dom/scene_builder.h"
 #include "core/modules/scene_builder.h"
 #include "core/modules/event_module.h"
+#include "core/modules/animation_module.h"
 #include "dom/dom_event.h"
 
 #pragma clang diagnostic push
@@ -51,6 +52,9 @@
 
 namespace hippy {
 namespace napi {
+
+constexpr char kHippyKey[] = "Hippy";
+constexpr char kGlobalKey[] = "global";
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info);
 void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info);
@@ -264,9 +268,15 @@ class V8Ctx : public Ctx {
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) override {
     auto build = hippy::RegisterSceneBuilder(scope);
     RegisterJsClass(build);
+    auto animation = hippy::RegisterAnimation(scope);
+    RegisterJsClass(animation);
+    auto animation_set = hippy::RegisterAnimationSet(scope);
+    RegisterJsClass(animation_set);
   }
 
-  virtual void RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) override;
+  virtual void RegisterDomEvent(std::weak_ptr<Scope> weak_scope,
+                                const std::shared_ptr<CtxValue> callback,
+                                std::shared_ptr<DomEvent>& dom_event) override;
   unicode_string_view ToStringView(v8::Local<v8::String> str) const;
   unicode_string_view GetMsgDesc(v8::Local<v8::Message> message);
   unicode_string_view GetStackInfo(v8::Local<v8::Message> message);
@@ -354,7 +364,10 @@ v8::Local<v8::FunctionTemplate> V8Ctx::RegisterPrototype(v8::Local<v8::FunctionT
           for (int i = 0; i < len; i++) {
             param[i] = std::make_shared<V8CtxValue>(isolate, info[i]);
           }
-          (ptr->cb)(thiz, (size_t)len, param);
+          auto ret = (ptr->cb)(thiz, static_cast<size_t>(len), param);
+          if (ret) {
+            info.GetReturnValue().Set(std::static_pointer_cast<V8CtxValue>(ret)->global_value_);
+          }
         },
         v8::External::New(isolate_, const_cast<FunctionDefine<T>*>(&func)));
     func_template->PrototypeTemplate()->Set(name, fn, v8::PropertyAttribute::DontDelete);
@@ -426,12 +439,16 @@ void V8Ctx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_d
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
-  v8::Local<v8::Object> global = context->Global();
+  auto global = context->Global();
+  auto handle_value = global->Get(context,CreateV8String(kHippyKey)).ToLocalChecked();
+  TDF_BASE_DCHECK(!handle_value.IsEmpty());
   v8::Local<v8::FunctionTemplate> func_template = NewConstructor(instance_define);
   if (!func_template.IsEmpty()) {
     auto func = func_template->GetFunction(context);
     if (!func.IsEmpty()) {
-      auto ret = global->Set(context,  CreateV8String(instance_define->name), func.ToLocalChecked());
+      auto hippy_obj = v8::Object::Cast(*handle_value);
+      auto ret = hippy_obj->Set(context,  CreateV8String(instance_define->name),
+                                func.ToLocalChecked());
       HIPPY_USE(ret);
     }
   }

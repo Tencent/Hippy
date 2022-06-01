@@ -59,6 +59,10 @@
 		D84AB9CA273A618B00987D03 /* js_native_jsc_helper.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB982273A618B00987D03 /* js_native_jsc_helper.cc */; };
 		D84AB9CC273A618B00987D03 /* js_native_api_value_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB984273A618B00987D03 /* js_native_api_value_jsc.cc */; };
 		D84AB9CD273A618B00987D03 /* js_native_api_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = D84AB985273A618B00987D03 /* js_native_api_jsc.cc */; };
+		D88F43FF284706A300989F01 /* animation_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F43FC284706A300989F01 /* animation_manager.cc */; };
+		D88F4400284706A300989F01 /* animation_math.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F43FD284706A300989F01 /* animation_math.cc */; };
+		D88F4401284706A300989F01 /* animation.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F43FE284706A300989F01 /* animation.cc */; };
+		D88F440B28470C3E00989F01 /* animation_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F440A28470C3E00989F01 /* animation_module.cc */; };
 		F0889ED581FF7516357B3726 /* libPods-HippyDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C98B5A3CF5267599CFCFF48A /* libPods-HippyDemo.a */; };
 		F400C2E3274F65FA008BD74B /* js_native_turbo_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = F400C2E2274F65FA008BD74B /* js_native_turbo_jsc.cc */; };
 		F400C2E7274F66ED008BD74B /* js_native_turbo.cc in Sources */ = {isa = PBXBuildFile; fileRef = F400C2E6274F66ED008BD74B /* js_native_turbo.cc */; };
@@ -379,6 +383,14 @@
 		D84AB982273A618B00987D03 /* js_native_jsc_helper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_jsc_helper.cc; sourceTree = "<group>"; };
 		D84AB984273A618B00987D03 /* js_native_api_value_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_value_jsc.cc; sourceTree = "<group>"; };
 		D84AB985273A618B00987D03 /* js_native_api_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_jsc.cc; sourceTree = "<group>"; tabWidth = 2; };
+		D88F43F82847068400989F01 /* animation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation.h; sourceTree = "<group>"; };
+		D88F43F92847068400989F01 /* animation_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation_manager.h; sourceTree = "<group>"; };
+		D88F43FA2847068400989F01 /* animation_math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation_math.h; sourceTree = "<group>"; };
+		D88F43FC284706A300989F01 /* animation_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_manager.cc; sourceTree = "<group>"; };
+		D88F43FD284706A300989F01 /* animation_math.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_math.cc; sourceTree = "<group>"; };
+		D88F43FE284706A300989F01 /* animation.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation.cc; sourceTree = "<group>"; };
+		D88F440528470C2000989F01 /* animation_module.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation_module.h; sourceTree = "<group>"; };
+		D88F440A28470C3E00989F01 /* animation_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_module.cc; sourceTree = "<group>"; };
 		F400C2E2274F65FA008BD74B /* js_native_turbo_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_turbo_jsc.cc; sourceTree = "<group>"; };
 		F400C2E4274F6691008BD74B /* js_native_turbo_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo_jsc.h; sourceTree = "<group>"; };
 		F400C2E5274F66E3008BD74B /* js_native_turbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo.h; sourceTree = "<group>"; };
@@ -388,8 +400,6 @@
 		F419C381274634DB003E242A /* taitank_layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = taitank_layout_node.h; sourceTree = "<group>"; tabWidth = 2; };
 		F419C382274634E9003E242A /* taitank_layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_layout_node.cc; sourceTree = "<group>"; tabWidth = 2; };
 		F42155EB2816939D00688C0D /* HippyMethodInterceptorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMethodInterceptorProtocol.h; sourceTree = "<group>"; };
-		F42155EC2816A77500688C0D /* animation_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_manager.cc; sourceTree = "<group>"; };
-		F42155EE2816A78000688C0D /* animation_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = animation_manager.h; sourceTree = "<group>"; };
 		F42155EF2816A78000688C0D /* dom_action_interceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_action_interceptor.h; sourceTree = "<group>"; };
 		F42155F02816A78000688C0D /* macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macro.h; sourceTree = "<group>"; };
 		F42EA796277C354C007874A2 /* TurboConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
@@ -961,9 +971,9 @@
 		D84AB8D9273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				D88F43F72847068400989F01 /* animation */,
 				D4B5A0832816640500ABBD9C /* scene_builder.h */,
 				D4B5A0822816640500ABBD9C /* scene.h */,
-				F42155EE2816A78000688C0D /* animation_manager.h */,
 				F42155EF2816A78000688C0D /* dom_action_interceptor.h */,
 				F42155F02816A78000688C0D /* macro.h */,
 				9252AE8C2809534100B27E50 /* root_node.h */,
@@ -996,10 +1006,10 @@
 		D84AB8E4273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
+				D88F43FB284706A300989F01 /* animation */,
 				D42D2C7A2833C84D0079B47B /* dom_listener.cc */,
 				D4B5A07E281663F400ABBD9C /* scene_builder.cc */,
 				D4B5A07F281663F400ABBD9C /* scene.cc */,
-				F42155EC2816A77500688C0D /* animation_manager.cc */,
 				9252AE8A2809532F00B27E50 /* root_node.cc */,
 				F4810953277062AD005C221B /* layer_optimized_render_manager.cc */,
 				F4E7B43B276C61EB00F17139 /* deserializer.cc */,
@@ -1064,6 +1074,7 @@
 		D84AB92A273A618B00987D03 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				D88F440528470C2000989F01 /* animation_module.h */,
 				D4B5A0882816642300ABBD9C /* event_module.h */,
 				D4B5A0892816642300ABBD9C /* scene_builder.h */,
 				D84AB92B273A618B00987D03 /* module_register.h */,
@@ -1218,6 +1229,7 @@
 		D84AB96F273A618B00987D03 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				D88F440A28470C3E00989F01 /* animation_module.cc */,
 				D4B5A0842816641600ABBD9C /* event_module.cc */,
 				D4B5A0852816641600ABBD9C /* scene_builder.cc */,
 				D84AB970273A618B00987D03 /* module_register.cc */,
@@ -1261,6 +1273,26 @@
 				D84AB985273A618B00987D03 /* js_native_api_jsc.cc */,
 			);
 			path = jsc;
+			sourceTree = "<group>";
+		};
+		D88F43F72847068400989F01 /* animation */ = {
+			isa = PBXGroup;
+			children = (
+				D88F43F82847068400989F01 /* animation.h */,
+				D88F43F92847068400989F01 /* animation_manager.h */,
+				D88F43FA2847068400989F01 /* animation_math.h */,
+			);
+			path = animation;
+			sourceTree = "<group>";
+		};
+		D88F43FB284706A300989F01 /* animation */ = {
+			isa = PBXGroup;
+			children = (
+				D88F43FC284706A300989F01 /* animation_manager.cc */,
+				D88F43FD284706A300989F01 /* animation_math.cc */,
+				D88F43FE284706A300989F01 /* animation.cc */,
+			);
+			path = animation;
 			sourceTree = "<group>";
 		};
 		E1DA5B4EDA341771CC7E3DCD /* Pods */ = {
@@ -2191,6 +2223,7 @@
 				F45D267C28067B6900CAB185 /* HippyBaseListViewDataSource.mm in Sources */,
 				F45D269528067B6900CAB185 /* HippyModalCustomPresentationController.m in Sources */,
 				D84AB9C1273A618B00987D03 /* js_value_wrapper.cc in Sources */,
+				D88F4400284706A300989F01 /* animation_math.cc in Sources */,
 				F468DE832812A95200319196 /* HippySRSIMDHelpers.m in Sources */,
 				F4B938FB2840C93C00187AFA /* HippyWatefallItemShadowView.mm in Sources */,
 				F468DE782812A95200319196 /* HippyJSCErrorHandling.m in Sources */,
@@ -2272,6 +2305,7 @@
 				F468DE732812A95200319196 /* HippyBundleURLProvider.m in Sources */,
 				F4DD3CAA2823D2940043D3A0 /* TimingAnimationCollection.mm in Sources */,
 				F45D268E28067B6900CAB185 /* HippyNavigationControllerAnimator.m in Sources */,
+				D88F43FF284706A300989F01 /* animation_manager.cc in Sources */,
 				D84AB9BB273A618B00987D03 /* common_task.cc in Sources */,
 				F45D267E28067B6900CAB185 /* UIView+HippyAnimationProtocol.mm in Sources */,
 				F45D267E28067B6900CAB185 /* UIView+HippyAnimationProtocol.mm in Sources */,
@@ -2306,6 +2340,7 @@
 				F45D268628067B6900CAB185 /* UIView+HippyEvent.mm in Sources */,
 				F468DE6A2812A95200319196 /* HippyLogging.mm in Sources */,
 				F468DE9F2812ACEA00319196 /* HippyFont.mm in Sources */,
+				D88F440B28470C3E00989F01 /* animation_module.cc in Sources */,
 				F45D268228067B6900CAB185 /* HippyView.mm in Sources */,
 				F468DE8D2812A95200319196 /* HippyDevCommand.m in Sources */,
 				D84AB9C0273A618B00987D03 /* contextify_module.cc in Sources */,
@@ -2326,6 +2361,7 @@
 				F45D265E28067B6900CAB185 /* HippyTextView.mm in Sources */,
 				F468DE842812A95200319196 /* HippyWebSocketManager.m in Sources */,
 				F468DE752812A95200319196 /* HippyJavaScriptLoader.mm in Sources */,
+				D88F4401284706A300989F01 /* animation.cc in Sources */,
 				F468DE6F2812A95200319196 /* HippyJSStackFrame.m in Sources */,
 				D84AB9B8273A618B00987D03 /* javascript_task_runner.cc in Sources */,
 				F45D268128067B6900CAB185 /* UIView+DirectionalLayout.mm in Sources */,
@@ -2347,7 +2383,6 @@
 				F45D267A28067B6900CAB185 /* HippyCollectionViewFlowLayout.m in Sources */,
 				F468DE722812A95200319196 /* HippyRootView.mm in Sources */,
 				F45D267328067B6900CAB185 /* HippyImageCache.m in Sources */,
-				F42155ED2816A77500688C0D /* animation_manager.cc in Sources */,
 				F45D267828067B6900CAB185 /* HippyBaseListViewManager.mm in Sources */,
 				F4C1DAAD28117C1900CED4C4 /* NSArray+HippyArrayDeepCopy.m in Sources */,
 				F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */,

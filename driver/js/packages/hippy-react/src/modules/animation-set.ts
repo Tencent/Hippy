@@ -18,8 +18,6 @@
  * limitations under the License.
  */
 
-import { HippyEventEmitter, HippyEventRevoker } from '../event';
-import { Bridge } from '../native';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
 import { Animation, AnimationCallback } from './animation';
@@ -56,7 +54,12 @@ interface AnimationSet extends Animation {
   onHippyAnimationRepeat?: Function;
 }
 
-const AnimationEventEmitter = new HippyEventEmitter();
+const animationEvent = {
+  START: 'animationstart',
+  END: 'animationend',
+  CANCEL: 'animationcancel',
+  REPEAT: 'animationrepeat',
+};
 
 /**
  * Better performance of Animation series solution.
@@ -66,19 +69,17 @@ const AnimationEventEmitter = new HippyEventEmitter();
 class AnimationSet implements AnimationSet {
   public constructor(config: AnimationSetOption) {
     this.animationList = [];
-    config.children.forEach((item) => {
+    config?.children.forEach((item) => {
       this.animationList.push({
         animationId: item.animation.animationId,
         follow: item.follow || false,
       });
     });
-
-    this.animationId = Bridge.callNativeWithCallbackId('AnimationModule', 'createAnimationSet', true, {
+    this.animation = new global.Hippy.AnimationSet({
       repeatCount: repeatCountDict(config.repeatCount || 0),
       children: this.animationList,
-      virtual: config.virtual,
     });
-
+    this.animationId = this.animation.getId();
     // TODO: Deprecated compatible, will remove soon.
     this.onRNfqbAnimationStart = this.onAnimationStart.bind(this);
     this.onRNfqbAnimationEnd = this.onAnimationEnd.bind(this);
@@ -94,17 +95,20 @@ class AnimationSet implements AnimationSet {
    * Remove all of animation event listener
    */
   public removeEventListener() {
-    if (this.animationStartListener) {
-      this.animationStartListener.remove();
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
     }
-    if (this.animationEndListener) {
-      this.animationEndListener.remove();
+    if (typeof this.onAnimationStartCallback === 'function') {
+      this.animation.removeEventListener(animationEvent.START);
     }
-    if (this.animationCancelListener) {
-      this.animationCancelListener.remove();
+    if (typeof this.onAnimationEndCallback === 'function') {
+      this.animation.removeEventListener(animationEvent.END);
     }
-    if (this.animationRepeatListener) {
-      this.animationRepeatListener.remove();
+    if (typeof this.onAnimationCancelCallback === 'function') {
+      this.animation.removeEventListener(animationEvent.CANCEL);
+    }
+    if (typeof this.onAnimationCancelCallback === 'function') {
+      this.animation.removeEventListener(animationEvent.REPEAT);
     }
   }
 
@@ -112,52 +116,39 @@ class AnimationSet implements AnimationSet {
    * Start animation execution
    */
   public start() {
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
     this.removeEventListener();
-
-    // Set as iOS default
-    const animationEventName = 'onAnimation';
-
     if (typeof this.onAnimationStartCallback === 'function') {
-      this.animationStartListener = AnimationEventEmitter.addListener(`${animationEventName}Start`, (animationId) => {
-        if (animationId === this.animationId) {
-          (this.animationStartListener as HippyEventRevoker).remove();
-          if (typeof this.onAnimationStartCallback === 'function') {
-            this.onAnimationStartCallback();
-          }
+      this.animation.addEventListener(animationEvent.START, () => {
+        if (typeof this.onAnimationStartCallback === 'function') {
+          this.onAnimationStartCallback();
         }
       });
     }
     if (typeof this.onAnimationEndCallback === 'function') {
-      this.animationEndListener = AnimationEventEmitter.addListener(`${animationEventName}End`, (animationId) => {
-        if (animationId === this.animationId) {
-          (this.animationEndListener as HippyEventRevoker).remove();
-          if (typeof this.onAnimationEndCallback === 'function') {
-            this.onAnimationEndCallback();
-          }
+      this.animation.addEventListener(animationEvent.END, () => {
+        if (typeof this.onAnimationEndCallback === 'function') {
+          this.onAnimationEndCallback();
         }
       });
     }
     if (typeof this.onAnimationCancelCallback === 'function') {
-      this.animationCancelListener = AnimationEventEmitter.addListener(`${animationEventName}Cancel`, (animationId) => {
-        if (animationId === this.animationId) {
-          (this.animationCancelListener as HippyEventRevoker).remove();
-          if (typeof this.onAnimationCancelCallback === 'function') {
-            this.onAnimationCancelCallback();
-          }
+      this.animation.addEventListener(animationEvent.CANCEL, () => {
+        if (typeof this.onAnimationCancelCallback === 'function') {
+          this.onAnimationCancelCallback();
         }
       });
     }
     if (typeof this.onAnimationRepeatCallback === 'function') {
-      this.animationRepeatListener = AnimationEventEmitter.addListener(`${animationEventName}Repeat`, (animationId) => {
-        if (animationId === this.animationId) {
-          if (typeof this.onAnimationRepeatCallback === 'function') {
-            this.onAnimationRepeatCallback();
-          }
+      this.animation.addEventListener(animationEvent.CANCEL, () => {
+        if (typeof this.onAnimationRepeatCallback === 'function') {
+          this.onAnimationRepeatCallback();
         }
       });
     }
-
-    Bridge.callNative('AnimationModule', 'startAnimation', this.animationId);
+    this.animation.start();
   }
 
   /**
@@ -172,24 +163,30 @@ class AnimationSet implements AnimationSet {
    * Destroy the animation
    */
   public destroy() {
-    this.removeEventListener();
-    this.animationList.forEach(item => Number.isInteger(item.animationId)
-        && Bridge.callNative('AnimationModule', 'destroyAnimation', item.animationId));
-    Bridge.callNative('AnimationModule', 'destroyAnimation', this.animationId);
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
+    this.animation.destroy();
   }
 
   /**
    * Pause the running animation
    */
   public pause() {
-    Bridge.callNative('AnimationModule', 'pauseAnimation', this.animationId);
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
+    this.animation.pause();
   }
 
   /**
    * Resume execution of paused animation
    */
   public resume() {
-    Bridge.callNative('AnimationModule', 'resumeAnimation', this.animationId);
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
+    this.animation.resume();
   }
 
   /**

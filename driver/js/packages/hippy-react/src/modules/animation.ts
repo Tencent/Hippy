@@ -18,13 +18,12 @@
  * limitations under the License.
  */
 
-import { HippyEventEmitter, HippyEventRevoker } from '../event';
-import { Bridge } from '../native';
+import { HippyEventRevoker } from '../event';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
 import { colorParse } from '../color';
 
-type AnimationValue = number | { animationId: number} | string;
+type AnimationValue = number | { animationId: number } | string;
 type AnimationCallback = () => void;
 type AnimationDirection = 'left' | 'right' | 'top' | 'bottom' | 'center';
 
@@ -47,7 +46,7 @@ interface AnimationOptions {
   /**
    * Timeline mode of animation
    */
-  mode?: 'timing'; // TODO: fill more options
+  mode?: 'timing';
 
   /**
    * Delay starting time
@@ -58,7 +57,7 @@ interface AnimationOptions {
    * Value type, leave it blank in most case, except use rotate/color related
    * animation, set it to be 'deg' or 'color'.
    */
-  valueType?: 'deg'; // TODO: fill more options
+  valueType?: 'deg';
 
   /**
    * Animation start position
@@ -74,9 +73,10 @@ interface AnimationOptions {
    * Animation repeat times, use 'loop' to be always repeating.
    */
   repeatCount?: number;
-
+  animation?: any;
   inputRange?: any[];
   outputRange?: any[];
+  animationId?: number;
 }
 
 interface Animation extends AnimationOptions {
@@ -101,8 +101,6 @@ interface Animation extends AnimationOptions {
   onHippyAnimationRepeat?: Function;
 }
 
-const AnimationEventEmitter = new HippyEventEmitter();
-
 /**
  * parse value of special value type
  * @param valueType
@@ -115,6 +113,12 @@ function parseValue(valueType: string | undefined, originalValue: number | strin
   return originalValue;
 }
 
+const animationEvent = {
+  START: 'animationstart',
+  END: 'animationend',
+  CANCEL: 'animationcancel',
+  REPEAT: 'animationrepeat',
+};
 
 /**
  * Better performance of Animation solution.
@@ -123,7 +127,7 @@ function parseValue(valueType: string | undefined, originalValue: number | strin
  */
 class Animation implements Animation {
   public constructor(config: AnimationOptions) {
-    let startValue: AnimationValue = 0;
+    let startValue: AnimationValue;
     if (config.startValue?.constructor && config.startValue.constructor.name === 'Animation') {
       startValue = { animationId: (config.startValue as Animation).animationId };
     } else {
@@ -135,15 +139,16 @@ class Animation implements Animation {
     this.delay = config.delay || 0;
     this.startValue = startValue || 0;
     this.toValue = toValue || 0;
-    this.valueType = config.valueType || undefined;
+    this.valueType = config.valueType || 'deg';
     this.duration = config.duration || 0;
     this.direction = config.direction || 'center';
     this.timingFunction = config.timingFunction || 'linear';
     this.repeatCount = repeatCountDict(config.repeatCount || 0);
     this.inputRange = config.inputRange || [];
     this.outputRange = config.outputRange || [];
-
-    this.animationId = Bridge.callNativeWithCallbackId('AnimationModule', 'createAnimation', true, this.mode, Object.assign({
+    // @ts-ignore
+    this.animation = new global.Hippy.Animation({
+      mode: this.mode,
       delay: this.delay,
       startValue: this.startValue,
       toValue: this.toValue,
@@ -153,8 +158,10 @@ class Animation implements Animation {
       repeatCount: this.repeatCount,
       inputRange: this.inputRange,
       outputRange: this.outputRange,
-    }, (this.valueType ? { valueType: this.valueType } : {})));
-
+      valueType: this.valueType,
+    });
+    // @ts-ignore
+    this.animationId = this.animation.getId();
     this.destroy = this.destroy.bind(this);
 
     // TODO: Deprecated compatible, will remove soon.
@@ -172,17 +179,20 @@ class Animation implements Animation {
    * Remove all of animation event listener
    */
   public removeEventListener() {
-    if (this.animationStartListener) {
-      this.animationStartListener.remove();
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
     }
-    if (this.animationEndListener) {
-      this.animationEndListener.remove();
+    if (typeof this.onAnimationStartCallback === 'function') {
+      this.animation.removeEventListener(animationEvent.START);
     }
-    if (this.animationCancelListener) {
-      this.animationCancelListener.remove();
+    if (typeof this.onAnimationEndCallback === 'function') {
+      this.animation.removeEventListener(animationEvent.END);
     }
-    if (this.animationRepeatListener) {
-      this.animationRepeatListener.remove();
+    if (typeof this.onAnimationCancelCallback === 'function') {
+      this.animation.removeEventListener(animationEvent.CANCEL);
+    }
+    if (typeof this.onAnimationCancelCallback === 'function') {
+      this.animation.removeEventListener(animationEvent.REPEAT);
     }
   }
 
@@ -190,51 +200,39 @@ class Animation implements Animation {
    * Start animation execution
    */
   public start() {
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
     this.removeEventListener();
-
-    // Set as iOS default
-    const animationEventName = 'onAnimation';
-
     if (typeof this.onAnimationStartCallback === 'function') {
-      this.animationStartListener = AnimationEventEmitter.addListener(`${animationEventName}Start`, (animationId) => {
-        if (animationId === this.animationId) {
-          (this.animationStartListener as HippyEventRevoker).remove();
-          if (typeof this.onAnimationStartCallback === 'function') {
-            this.onAnimationStartCallback();
-          }
+      this.animation.addEventListener(animationEvent.START, () => {
+        if (typeof this.onAnimationStartCallback === 'function') {
+          this.onAnimationStartCallback();
         }
       });
     }
     if (typeof this.onAnimationEndCallback === 'function') {
-      this.animationEndListener = AnimationEventEmitter.addListener(`${animationEventName}End`, (animationId) => {
-        if (animationId === this.animationId) {
-          (this.animationEndListener as HippyEventRevoker).remove();
-          if (typeof this.onAnimationEndCallback === 'function') {
-            this.onAnimationEndCallback();
-          }
+      this.animation.addEventListener(animationEvent.END, () => {
+        if (typeof this.onAnimationEndCallback === 'function') {
+          this.onAnimationEndCallback();
         }
       });
     }
     if (typeof this.onAnimationCancelCallback === 'function') {
-      this.animationCancelListener = AnimationEventEmitter.addListener(`${animationEventName}Cancel`, (animationId) => {
-        if (animationId === this.animationId) {
-          (this.animationCancelListener as HippyEventRevoker).remove();
-          if (typeof this.onAnimationCancelCallback === 'function') {
-            this.onAnimationCancelCallback();
-          }
+      this.animation.addEventListener(animationEvent.CANCEL, () => {
+        if (typeof this.onAnimationCancelCallback === 'function') {
+          this.onAnimationCancelCallback();
         }
       });
     }
     if (typeof this.onAnimationRepeatCallback === 'function') {
-      this.animationRepeatListener = AnimationEventEmitter.addListener(`${animationEventName}Repeat`, (animationId) => {
-        if (animationId === this.animationId) {
-          if (typeof this.onAnimationRepeatCallback === 'function') {
-            this.onAnimationRepeatCallback();
-          }
+      this.animation.addEventListener(animationEvent.CANCEL, () => {
+        if (typeof this.onAnimationRepeatCallback === 'function') {
+          this.onAnimationRepeatCallback();
         }
       });
     }
-    Bridge.callNative('AnimationModule', 'startAnimation', this.animationId);
+    this.animation.start();
   }
 
   /**
@@ -249,22 +247,30 @@ class Animation implements Animation {
    * Destroy the animation
    */
   public destroy() {
-    this.removeEventListener();
-    Bridge.callNative('AnimationModule', 'destroyAnimation', this.animationId);
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
+    this.animation.destroy();
   }
 
   /**
    * Pause the running animation
    */
   public pause() {
-    Bridge.callNative('AnimationModule', 'pauseAnimation', this.animationId);
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
+    this.animation.pause();
   }
 
   /**
    * Resume execution of paused animation
    */
   public resume() {
-    Bridge.callNative('AnimationModule', 'resumeAnimation', this.animationId);
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
+    this.animation.resume();
   }
 
   /**
@@ -273,14 +279,15 @@ class Animation implements Animation {
    * @param {Object} newConfig - new animation schema
    */
   public updateAnimation(newConfig: AnimationOptions) {
+    if (!this.animation) {
+      throw new Error('animation has not been initialized yet');
+    }
     if (typeof newConfig !== 'object') {
       throw new TypeError('Invalid arguments');
     }
-
     if (typeof newConfig.mode === 'string' && newConfig.mode !== this.mode) {
       throw new TypeError('Update animation mode not supported');
     }
-
     (Object.keys(newConfig) as (keyof AnimationOptions)[]).forEach((prop) => {
       const value = newConfig[prop];
       if (prop === 'startValue') {
@@ -300,8 +307,7 @@ class Animation implements Animation {
         });
       }
     });
-
-    Bridge.callNative('AnimationModule', 'updateAnimation', this.animationId, Object.assign({
+    this.animation.updateAnimation(Object.assign({
       delay: this.delay,
       startValue: this.startValue,
       toValue: parseValue(this.valueType, this.toValue as number|string),

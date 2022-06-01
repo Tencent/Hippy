@@ -299,6 +299,17 @@ declare namespace HippyTypes {
 
   export type EventNode = undefined | { id: number, eventList: EventAttribute[] };
 
+  export interface Animation {
+    getId: () => string;
+    pause: () => void;
+    resume: () => void;
+    start: () => void;
+    destroy: () => void;
+    updateAnimation: (animation: any) => void;
+    addEventListener: (eventName: string, cb: () => void) => void;
+    removeEventListener: (eventName: string) => void;
+  }
+
   export interface AsyncStorage {
     getAllKeys: () => Promise<string[]>;
     getItem: (key: string) => Promise<string>;
@@ -359,6 +370,9 @@ declare namespace HippyTypes {
   export type WebSocket = HippyWebSocket | any;
 
   export interface HippyConstance {
+    Animation: Animation;
+    AnimationSet: any;
+    SceneBuilder: any;
     asyncStorage: AsyncStorage;
     bridge: Bridge;
     device: {
@@ -434,7 +448,6 @@ declare namespace HippyTypes {
     __PLATFORM__: __PLATFORM__;
     __HIPPYCURDIR__?: string;
     Hippy: HippyTypes.HippyConstance;
-    SceneBuilder: any;
     WebSocket: WebSocket | any;
     ConsoleModule: ConsoleModule;
     HippyDealloc?: () => void;

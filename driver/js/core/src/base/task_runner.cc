@@ -80,7 +80,6 @@ void TaskRunner::Terminate() {
 }
 
 void TaskRunner::PostTask(std::shared_ptr<Task> task) {
-  TDF_BASE_DLOG(INFO) << "TaskRunner::PostTask task id = " << task->id_;
   std::lock_guard<std::mutex> lock(mutex_);
 
   PostTaskNoLock(std::move(task));

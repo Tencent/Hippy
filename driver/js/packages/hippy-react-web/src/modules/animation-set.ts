@@ -33,7 +33,7 @@ function initLeftRepeatCount(repeatCount: number | 'loop') {
   return repeatCount;
 }
 
-type AnimationCallback = () => void;
+type AnimationCB = () => void;
 
 export class AnimationSet {
   public constructor(config) {
@@ -205,7 +205,7 @@ export class AnimationSet {
    * Call when animation started.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationStart(cb: AnimationCallback) {
+  public onAnimationStart(cb: AnimationCB) {
     this.onAnimationStartCallback = cb;
   }
 
@@ -213,7 +213,7 @@ export class AnimationSet {
    * Call when animation is ended.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationEnd(cb: AnimationCallback) {
+  public onAnimationEnd(cb: AnimationCB) {
     this.onAnimationEndCallback = cb;
   }
 
@@ -221,7 +221,7 @@ export class AnimationSet {
    * Call when animation is canceled.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationCancel(cb: AnimationCallback) {
+  public onAnimationCancel(cb: AnimationCB) {
     this.onAnimationCancelCallback = cb;
   }
 
@@ -229,7 +229,7 @@ export class AnimationSet {
    * Call when animation is repeated.
    * @param {Function} cb - callback when animation started.
    */
-  public onAnimationRepeat(cb: AnimationCallback) {
+  public onAnimationRepeat(cb: AnimationCB) {
     this.onAnimationRepeatCallback = cb;
   }
 

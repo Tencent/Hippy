@@ -95,13 +95,18 @@
         CADisplayLink *vsync = [CADisplayLink displayLinkWithTarget:self selector:@selector(vsyncSignalInvoked:)];
         [vsync applyRefreshRate:rate];
         [vsync addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+        vsync.block = observer;
         [_observers setObject:vsync forKey:key];
     }
 }
 
 - (void)unregisterVsyncObserverForKey:(NSString *)key {
     if (key) {
-        [_observers removeObjectForKey:key];
+        CADisplayLink *vsync = [_observers objectForKey:key];
+        if (vsync) {
+            [_observers removeObjectForKey:key];
+            [vsync invalidate];
+        }
     }
 }
 

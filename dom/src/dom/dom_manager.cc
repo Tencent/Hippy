@@ -6,7 +6,7 @@
 #include <stack>
 #include <utility>
 
-#include "dom/animation_manager.h"
+#include "dom/animation/animation_manager.h"
 #include "dom/diff_utils.h"
 #include "dom/dom_action_interceptor.h"
 #include "dom/dom_event.h"
@@ -33,9 +33,16 @@ static std::mutex mutex;
 static std::atomic<int32_t> global_dom_manager_key{0};
 
 DomManager::DomManager(uint32_t root_id) {
-  root_node_ = std::make_shared<RootNode>(root_id);
-  dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
   id_ = global_dom_manager_key.fetch_add(1);
+  root_node_ = std::make_shared<RootNode>(root_id);
+  animation_manager_ = std::make_shared<AnimationManager>();
+  dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
+}
+
+void DomManager::Init() {
+  animation_manager_->SetDomManager(weak_from_this());
+  AddInterceptor(animation_manager_);
+  StartTaskRunner();
 }
 
 void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
@@ -72,6 +79,7 @@ void DomManager::SetRenderManager(std::shared_ptr<RenderManager> render_manager)
 #else
   render_manager_ = render_manager;
 #endif
+  animation_manager_->SetRenderManager(render_manager);
 }
 
 uint32_t DomManager::GetRootId() const { return root_node_->GetId(); }
@@ -268,6 +276,17 @@ void DomManager::PostTask(const Scene&& scene) {
   std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
   task->func_ = [scene = scene] { scene.Build(); };
   dom_task_runner_->PostTask(std::move(task));
+}
+
+std::shared_ptr<CommonTask> DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
+  std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
+  task->func_ = [scene = std::move(scene)] { scene.Build(); };
+  dom_task_runner_->PostDelayedTask(task, delay);
+  return task;
+}
+
+void DomManager::CancelTask(std::shared_ptr<CommonTask> task) {
+  dom_task_runner_->CancelTask(std::move(task));
 }
 
 void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
