@@ -1,8 +1,8 @@
-# Custom native module
+# Custom Native Module
 
 Sometimes JS need to access some capabilities of the corresponding native modules, such as databases, downloads, network requests, etc., it is necessary to use Module to expose the interface to JS. Hippy SDK implemented some default modules, but it is very likely that they can not meet your needs, which requires you to extend the Module package.
 
-# Module extensions
+# Module Extensions
 
 We will use TestModule as an example to extend a Module from scratch, this Module will show how the front-end call native capabilities, and return the results to the front-end.
 
@@ -13,7 +13,7 @@ Extending a native module consists of four steps:
 3. Implement the methods exported to JS,
 4. Register Module.
 
-## Create a subclass of HippyNativeModuleBase
+## 1. Create a subclass of HippyNativeModuleBase
 
 First we need to create `TestModule` class and inherit `HippyNativeModuleBase`
 
@@ -33,7 +33,7 @@ public class TestModule extends HippyNativeModuleBase
 }
 ```
 
-## Add HippyNativeModule annotation
+## 2. Add HippyNativeModule annotation
 
 HippyNativeModuleBase requires the addition of the annotation `@HippyNativeModule`.
 

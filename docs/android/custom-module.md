@@ -13,7 +13,7 @@
 3. 实现导出给 JS 的方法。
 4. 注册 Module。
 
-## 创建HippyNativeModuleBase的子类
+## 1. 创建HippyNativeModuleBase的子类
 
 首先我们需要创建`TestModule`类，并且继承`HippyNativeModuleBase`。
 
@@ -33,7 +33,7 @@ public class TestModule extends HippyNativeModuleBase
 }
 ```
 
-## 添加HippyNativeModule注解
+## 2. 添加HippyNativeModule注解
 
 HippyNativeModuleBase 要求增加注解 `@HippyNativeModule` 。
 

@@ -1,4 +1,4 @@
-# Custom module
+# Custom Modules
 
 In addition to the UI, there will also be scenarios in APP development to call device modules, such as obtaining the current network status, initiating HTTP network requests, etc. The SDK already encapsulates some common modules, but it's also convenient to customize functional modules.
 
@@ -18,7 +18,7 @@ We divide the SDK modules into two types:
 * Non-Event: When the business needs some information or needs the native to execute some instruction, just need to call the native code directly through the interface.
 * Event: When the business needs the native to monitor certain event. The native notifies the front-end when an event is triggered.
 
-# Non-Event module extension
+# Non-Event Module Extension
 
 Extending a Non-Event module component involves the following:
 
@@ -45,7 +45,7 @@ HIPPY_EXPORT_METHOD(click) {
 @end
 ```
 
-# Event type module extension
+# Event Type Module Extension
 
 In addition to all the characteristics of Non-Event modules, Event modules also have the ability to monitor and feedback events. The front-end may have a`MyModule.addListener(string eventname)` method call to drive the native to listen for an event, as well as a mechanism to receive native event callbacks. The native encapsulates these mechanisms as a base class`HippyEventObserverModule`. All Event modules must inherit from this base class and implement the necessary methods.
 Extending an Event module involves the following:

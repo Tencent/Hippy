@@ -1,4 +1,4 @@
-# ECMAScript and Java type mapping
+# ECMAScript and Java Type Mapping
 
 When called through Bridge, Bridge codec will automatically convert [source type] to [target type] for use by business modules.
 
@@ -51,7 +51,7 @@ Hippy provides two type systems in Java.
 1. com.tencent.mtt.hippy.runtime.builtins
 2. com.tencent.mtt.hippy.common
 
-## Type correction
+## Type Correction
 
 Since the ECMAScript standard does not define how the [number](https://262.ecma-international.org/#sec-ecmascript-language-types-number-type) type is stored/expressed within the VM, different VM engine implementations may store the same value differently, leading to type deviations.
 
@@ -63,7 +63,7 @@ The type system automatically completes type correction, restoring the user's or
 > For example:
 > When a `double` type can be expressed as an `int` type, the system will automatically convert to an `int` type
 
-## Old and new type interchange
+## Old and New Type Interchange
 
 Bidirectional Type conversion between old and new type systems can be done by calling the following methods.
 
