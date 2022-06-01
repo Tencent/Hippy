@@ -30,10 +30,6 @@ export class TextInput extends HippyView<HTMLInputElement | HTMLTextAreaElement>
     this.init();
   }
 
-  public defaultStyle() {
-    return { ...super.defaultStyle(), outline: 'none', fontFamily: '' };
-  }
-
   public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });

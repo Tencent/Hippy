@@ -125,7 +125,7 @@ export class HippyView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public defaultStyle(): {[key: string]: any} {
-    return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box' };
+    return { display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0, boxSizing: 'border-box', outline: 'none', fontFamily: '' };
   }
 
   public onAttachedToWindow() {
