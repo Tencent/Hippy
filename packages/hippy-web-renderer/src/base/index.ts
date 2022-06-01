@@ -35,4 +35,4 @@ Hippy.web.Engine = HippyWebEngine;
 export * from './engine';
 export * from './base-unit';
 export * from './context';
-export { HippyWebView, View }  from '../component';
+export { HippyView, View }  from '../component';

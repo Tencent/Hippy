@@ -20,7 +20,7 @@
 import { NodeProps, HippyBaseView, InnerNodeTag } from '../types';
 
 import { setElementStyle } from '../common';
-import { HippyWebView } from './hippy-web-view';
+import { HippyView } from './hippy-view';
 
 const BounceBackTime = 200;
 const BounceBackEasingFunction = 'cubic-bezier(0.645, 0.045, 0.355, 1)';
@@ -31,7 +31,7 @@ const PullOverStage = [
   { threshold: [100, Number.MAX_SAFE_INTEGER], damp: 0.2 },
 ];
 
-export class RefreshWrapper extends HippyWebView<HTMLDivElement> {
+export class RefreshWrapper extends HippyView<HTMLDivElement> {
   private pullRefresh!: PullRefresh;
   public constructor(context, id, pId) {
     super(context, id, pId);
@@ -91,7 +91,7 @@ export class RefreshWrapper extends HippyWebView<HTMLDivElement> {
     }, 500);
   }
 }
-export class RefreshWrapperItemView extends HippyWebView<HTMLDivElement> {
+export class RefreshWrapperItemView extends HippyView<HTMLDivElement> {
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.REFRESH_ITEM;

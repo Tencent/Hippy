@@ -27,7 +27,7 @@ import {
 } from '../types';
 
 import {  setElementStyle } from '../common';
-import { HippyWebView } from './hippy-web-view';
+import { HippyView } from './hippy-view';
 
 export const ANIMATION_TIME = 200;
 interface ModalAnimationData {
@@ -92,7 +92,7 @@ const DefaultLeaveAnimationMap = {
     newState: {},
   },
 };
-export class Modal extends HippyWebView<HTMLDivElement> {
+export class Modal extends HippyView<HTMLDivElement> {
   public static buildModalEntryAnimation(animationType: ModalAnimationType): ModalAnimationData {
     return DefaultEntryAnimationMap[animationType];
   }

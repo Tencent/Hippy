@@ -19,7 +19,12 @@
  */
 
 import { HippyWebEngineContext, HippyWebModule } from '../base';
-import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
+import {
+  HippyBaseView, HippyCallBack,
+  InnerNodeTag,
+  NodeData,
+  UIProps,
+} from '../types';
 import { setElementStyle } from '../common';
 import { mergeDeep } from '../third-lib/loadsh.js';
 
@@ -234,7 +239,7 @@ export class UIManagerModule extends HippyWebModule {
       if (typeof component[key] === 'function') {
         continue;
       }
-      component.updateProperty?.(key, props[key]);
+      component[key] = props[key];
     }
   }
 

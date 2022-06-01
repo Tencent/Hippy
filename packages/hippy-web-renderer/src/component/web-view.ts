@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 import {  NodeProps, HippyBaseView, InnerNodeTag  } from '../types';
-import { HippyWebView } from './hippy-web-view';
+import { HippyView } from './hippy-view';
 
-export class WebView extends HippyWebView<HTMLIFrameElement> {
+export class WebView extends HippyView<HTMLIFrameElement> {
   private isMounted = false;
   public constructor(context, id, pId) {
     super(context, id, pId);

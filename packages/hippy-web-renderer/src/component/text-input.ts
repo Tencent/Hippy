@@ -19,9 +19,9 @@
  */
 import { KeyboardType, NodeProps, ReturnKeyType, HippyBaseView, HippyCallBack, InnerNodeTag, UIProps } from '../types';
 import { convertHexToRgba } from '../common';
-import { HippyWebView } from './hippy-web-view';
+import { HippyView } from './hippy-view';
 
-export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaElement> {
+export class TextInput extends HippyView<HTMLInputElement | HTMLTextAreaElement> {
   private placeholderTextColorStyle;
   public constructor(context, id, pId) {
     super(context, id, pId);

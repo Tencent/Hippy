@@ -438,8 +438,7 @@ function getKeyFrameFromCssStyle(name) {
   for (let i = 0; i < ss.length; ++i) {
     const item = ss[i];
     if ((item.cssRules[0] as CSSKeyframesRule)?.name === name) {
-      const [rule] = item.cssRules;
-      keyFrameStyle.cssRule = rule;
+      keyFrameStyle.cssRule = item.cssRules[0];
       keyFrameStyle.styleSheet = ss[i];
       keyFrameStyle.index = 0;
     }

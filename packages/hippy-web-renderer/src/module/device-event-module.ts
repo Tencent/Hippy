@@ -68,34 +68,34 @@ export class DeviceEventModule extends HippyWebModule {
     return false;
   }
 }
-// const WAIT_FLAG = 'wait';
+const WAIT_FLAG = 'wait';
 const PUPPET_FLAG = 'puppet';
 
-// function addCacheHistoryState() {
-//   if (!(history.state && history.state.target === PUPPET_FLAG)) {
-//     window.history.pushState({ target: WAIT_FLAG, random: Math.random() }, '', location.href);
-//     window.history.pushState({ target: PUPPET_FLAG, random: Math.random() }, '', location.href);
-//   }
-// }
+function addCacheHistoryState() {
+  if (!(history.state && history.state.target === PUPPET_FLAG)) {
+    window.history.pushState({ target: WAIT_FLAG, random: Math.random() }, '', location.href);
+    window.history.pushState({ target: PUPPET_FLAG, random: Math.random() }, '', location.href);
+  }
+}
 
 function back() {
   const backCount = history?.state?.target === PUPPET_FLAG ? -3 : -2;
   history.go(backCount);
 }
 
-// function wait() {
-//   window.history.pushState({ target: PUPPET_FLAG, random: Math.random() }, '', location.href);
-// }
+function wait() {
+  window.history.pushState({ target: PUPPET_FLAG, random: Math.random() }, '', location.href);
+}
 
-// function listenHistory(onIntercept: () => boolean) {
-//   window.addEventListener('popstate', (e) => {
-//     if (!(e.state && e?.state?.target === WAIT_FLAG)) {
-//       return;
-//     }
-//     if (onIntercept()) {
-//       wait();
-//     } else {
-//       back();
-//     }
-//   }, false);
-// }
+function listenHistory(onIntercept: () => boolean) {
+  window.addEventListener('popstate', (e) => {
+    if (!(e.state && e?.state?.target === WAIT_FLAG)) {
+      return;
+    }
+    if (onIntercept()) {
+      wait();
+    } else {
+      back();
+    }
+  }, false);
+}

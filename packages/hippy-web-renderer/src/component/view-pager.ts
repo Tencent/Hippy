@@ -20,7 +20,7 @@
 import * as Hammer from 'hammerjs';
 import { NodeProps, SCROLL_STATE, HippyBaseView, InnerNodeTag, UIProps } from '../types';
 import { setElementStyle } from '../common';
-import { HippyWebView } from './hippy-web-view';
+import { HippyView } from './hippy-view';
 import {
   GESTURE_CAPTURE_THRESHOLD,
   mountTouchListener, calculateScrollEndPagePosition,
@@ -30,7 +30,7 @@ import {
 
 const ANIMATION_TIME = 200;
 
-export class ViewPager extends HippyWebView<HTMLDivElement> {
+export class ViewPager extends HippyView<HTMLDivElement> {
   private pageIndex =0;
   private scrollCaptureState = false;
   private lastPosition: [number, number] = [0, 0];
@@ -261,7 +261,7 @@ function buildPageScrollEvent(
   };
 }
 
-export class ViewPagerItem extends HippyWebView<HTMLDivElement> {
+export class ViewPagerItem extends HippyView<HTMLDivElement> {
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.VIEW_PAGER_ITEM;

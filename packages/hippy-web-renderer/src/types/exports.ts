@@ -34,7 +34,6 @@ export interface HippyBaseView {
   onAttachedToWindow?: () => void;
   onLayout?: boolean;
   updateProps?: (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) => void;
-  updateProperty?: (key: string, value: any) => void;
   beforeMount?: (parent: HippyBaseView, position: number) => Promise<void>;
   beforeChildMount?: (child: HippyBaseView, childPosition: number) => Promise<void>;
   beforeRemove?: () => Promise<void>;

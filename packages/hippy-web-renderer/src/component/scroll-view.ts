@@ -20,7 +20,7 @@
 
 import { NodeProps, HippyBaseView, InnerNodeTag, UIProps } from '../types';
 import { setElementStyle } from '../common';
-import { HippyWebView } from './hippy-web-view';
+import { HippyView } from './hippy-view';
 import {
   eventThrottle,
   GESTURE_CAPTURE_THRESHOLD,
@@ -42,7 +42,7 @@ interface HippyScrollEvent {
 
 const ANIMATION_TIME = 100;
 
-export class ScrollView extends HippyWebView<HTMLDivElement> {
+export class ScrollView extends HippyView<HTMLDivElement> {
   private lastPosition: [number, number] = [0, 0];
   private lastTimestamp = 0;
   private scrollCaptureState = false;
