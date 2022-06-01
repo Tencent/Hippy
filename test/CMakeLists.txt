@@ -16,6 +16,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+# FetchContent nlohmann_json
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
+# open hippy unit test
+add_definitions(-DHIPPY_TEST)
+
 set(PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(DOM_DIR ${PROJECT_ROOT_DIR}/dom)
 set(CORE_DIR ${PROJECT_ROOT_DIR}/driver/js/core)
@@ -27,12 +34,16 @@ add_subdirectory(${CORE_DIR}/third_party/base base_out)
 
 include_directories(${DOM_DIR}/include)
 include_directories(${CORE_DIR}/third_party/base/include)
-include_directories(./)
+include_directories(${CORE_DIR}/include)
 include_directories(${LAYOUT_DIR})
 include_directories(${JSON_DIR})
 
-file(GLOB DOM_UT_FILES ${DOM_DIR}/src/dom/*_ut.cc)
+set(COMMON_SRC_FILES ${CORE_DIR}/src/task/common_task.cc)
+file(GLOB_RECURSE CORE_SRC_FILES ${CORE_DIR}/src/base/*.cc)
+file(GLOB_RECURSE DOM_UT_FILES ${DOM_DIR}/src/dom/*_ut.cc)
+message("COMMON_SRC_FILES:${COMMON_SRC_FILES}")
+message("CORE_SRC_FILES:${CORE_SRC_FILES}")
 message("DOM_UT_FILES:${DOM_UT_FILES}")
 
-add_executable(unit_test main.cc ${DOM_UT_FILES})
-target_link_libraries(unit_test gtest_main dom tdf_base tdf_base_common)
+add_executable(unit_test main.cc ${DOM_UT_FILES} ${CORE_SRC_FILES} ${COMMON_SRC_FILES})
+target_link_libraries(unit_test gtest_main nlohmann_json tdf_base tdf_base_common dom)
