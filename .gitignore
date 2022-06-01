@@ -8,7 +8,6 @@
 .cxx
 
 build
-!/build
 coverage
 dist
 node_modules
