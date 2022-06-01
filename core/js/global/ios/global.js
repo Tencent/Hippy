@@ -14,7 +14,7 @@ __GLOBAL__.requestAnimationFrameQueue = {};
 __GLOBAL__.destroyInstanceList = {};
 __GLOBAL__._callID = 0;
 __GLOBAL__._callbackID = 0;
-__GLOBAL__._callbacks = [];
+__GLOBAL__._callbacks = {};
 __GLOBAL__._notDeleteCallbackIds = {};
 __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
 
@@ -54,24 +54,23 @@ __GLOBAL__.defineLazyObjectProperty = (object, name, descriptor) => {
   });
 };
 
-__GLOBAL__.enqueueNativeCall = (moduleID, methodID, params, onFail, onSucc) => {
-  if (onFail || onSucc) {
+__GLOBAL__.enqueueNativeCall = (moduleID, methodID, params, onSuccess, onFail) => {
+  if (onSuccess || onFail) {
     if (typeof params === 'object' && params.length > 0 && typeof params[0] === 'object' && params[0].notDelete) {
       params.shift();
-
       __GLOBAL__._notDeleteCallbackIds[__GLOBAL__._callbackID] = true;
     }
+
+    if (onSuccess) {
+      params.push(__GLOBAL__._callbackID);
+    }
+    __GLOBAL__._callbacks[__GLOBAL__._callbackID] = onSuccess;
+    __GLOBAL__._callbackID += 1;
 
     if (onFail) {
       params.push(__GLOBAL__._callbackID);
     }
     __GLOBAL__._callbacks[__GLOBAL__._callbackID] = onFail;
-    __GLOBAL__._callbackID += 1;
-
-    if (onSucc) {
-      params.push(__GLOBAL__._callbackID);
-    }
-    __GLOBAL__._callbacks[__GLOBAL__._callbackID] = onSucc;
     __GLOBAL__._callbackID += 1;
   }
 

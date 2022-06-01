@@ -4,6 +4,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  TextInput,
   Text,
   View,
 } from '@hippy/react';
@@ -16,7 +17,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    flexDirection: 'column',
     padding: 20,
   },
   button: {
@@ -37,6 +39,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 12,
     justifyContent: 'center',
+  },
+  inputStyle: {
+    width: 300,
+    marginVertical: 15,
+    placeholderTextColor: '#aaaaaa',
+    fontSize: 16,
+    color: '#242424',
+    height: 30,
+    lineHeight: 30,
+  },
+  bundleInputRow: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
   },
 });
 
@@ -71,9 +89,13 @@ export default class Debug extends Component {
     return (
       <ScrollView style={styles.container}>
         {renderSteps()}
+        <TextInput
+          editable={false}
+          style={styles.inputStyle}
+          defaultValue="BundleUrl: localhost:38989/index.bundle"></TextInput>
         <View style={styles.buttonContainer}>
           <View style={styles.button} onClick={this.clickToDebug}>
-            <Text style={styles.buttonText} numberOfLines={1}>点击调试</Text>
+            <Text style={styles.buttonText} numberOfLines={1}>本地调试</Text>
           </View>
         </View>
       </ScrollView>

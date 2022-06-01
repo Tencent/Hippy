@@ -24,8 +24,8 @@ const styleObj = StyleSheet.create({
   nativeDemo1Point: {
     height: 80,
     width: 80,
-    color: '#ff0000',
-    backgroundColor: '#ff0000',
+    color: '#4cccfa',
+    backgroundColor: '#4cccfa',
     position: 'absolute',
     left: 0,
   },
@@ -39,8 +39,8 @@ const styleObj = StyleSheet.create({
   nativeDemo2Point: {
     height: 80,
     width: 80,
-    color: '#ff0000',
-    backgroundColor: '#ff0000',
+    color: '#4cccfa',
+    backgroundColor: '#4cccfa',
     position: 'absolute',
     left: 0,
   },

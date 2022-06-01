@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL containBannerView;
 @property (nonatomic, assign) BOOL containPullHeader;
 @property (nonatomic, assign) BOOL containPullFooter;
-@property (nonatomic, assign) CFTimeInterval scrollEventThrottle; //单位毫秒
+@property (nonatomic, assign) double scrollEventThrottle; //in millisecond
 @property (nonatomic, copy) HippyDirectEventBlock onScroll;
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge;

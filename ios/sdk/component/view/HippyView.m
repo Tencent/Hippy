@@ -574,6 +574,9 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     
     __weak typeof(self) weakSelf = self;
     [self getLayerContentForColor:nil completionBlock:^(UIImage *contentImage) {
+        if (nil == contentImage) {
+            return;
+        }
         dispatch_async(dispatch_get_main_queue(), ^{
             typeof(weakSelf) strongSelf = weakSelf;
             CALayer *strongLayer = strongSelf.layer;
@@ -660,6 +663,10 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     }
     else if (self.gradientObject) {
         CGSize size = theFrame.size;
+        if (0 >= size.width || 0 >= size.height) {
+            contentBlock(nil);
+            return NO;
+        }
         CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
         info.size = size;
         info.cornerRadii = cornerRadii;

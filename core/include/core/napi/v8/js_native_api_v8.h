@@ -127,8 +127,8 @@ class V8Ctx : public Ctx {
   }
 
   ~V8Ctx() {
-    context_persistent_.Empty();
-    global_persistent_.Empty();
+    context_persistent_.Reset();
+    global_persistent_.Reset();
   }
 
   virtual bool RegisterGlobalInJs() override;

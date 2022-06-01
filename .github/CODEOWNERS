@@ -8,4 +8,46 @@
 #  https://help.github.com/en/articles/about-code-owners
 #
 
-* @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy
+* @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
+
+*.js @zoomchan-cxj
+*.java @siguangli
+*.cc @churchill-zhang @medns
+*.h @ozonelmy
+*.m @ozonelmy
+*.mm @ozonelmy
+
+/.github/ @zoomchan-cxj
+/.husky/ @zoomchan-cxj
+/docker/ @medns
+/docs/ @zoomchan-cxj
+/package.json @zoomchan-cxj
+/package-lock.json @zoomchan-cxj
+/.nycrc @zoomchan-cxj
+/.npmignore @zoomchan-cxj
+/.editorconfig @zoomchan-cxj
+/.eslintignore @zoomchan-cxj
+/.npmignore @zoomchan-cxj
+/lerna.json @zoomchan-cxj
+/tsconfig.json @zoomchan-cxj
+
+/core/ @churchill-zhang @zoomchan-cxj
+/core/js/ @zoomchan-cxj
+
+/android/ @siguangli @churchill-zhang
+/ios/ @ozonelmy @churchill-zhang
+
+/examples/android-demo/ @siguangli
+/examples/android-demo/res/ @zoomchan-cxj
+/examples/ios-demo/ @ozonelmy
+/examples/ios-demo/res/ @zoomchan-cxj
+/examples/hippy-react-demo/ @zoomchan-cxj
+/examples/hippy-vue-demo/ @zoomchan-cxj
+
+/layout/ @ilikethese
+
+/packages/ @zoomchan-cxj
+/scripts/ @zoomchan-cxj
+
+
+

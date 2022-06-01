@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ControllerRegistry {
 
@@ -35,7 +36,7 @@ public class ControllerRegistry {
   public ControllerRegistry(HippyEngineContext context) {
     mViews = new SparseArray<>();
     mRoots = new SparseArray<>();
-    mControllers = new HashMap<>();
+    mControllers = new ConcurrentHashMap<>();
     engineContext = context;
   }
 

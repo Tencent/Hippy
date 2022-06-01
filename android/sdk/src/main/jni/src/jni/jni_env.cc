@@ -29,6 +29,17 @@
 std::shared_ptr<JNIEnvironment> JNIEnvironment::instance_ = nullptr;
 std::mutex JNIEnvironment::mutex_;
 
+struct JNIEnvAutoRelease {
+  JavaVM* j_vm;
+
+  explicit JNIEnvAutoRelease(JavaVM* j_vm): j_vm(j_vm) {}
+  ~JNIEnvAutoRelease() {
+    if (j_vm) {
+      j_vm->DetachCurrentThread();
+    }
+  }
+};
+
 void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
   j_vm_ = j_vm;
 
@@ -105,15 +116,8 @@ JNIEnv* JNIEnvironment::AttachCurrentThread() {
 
     ret = j_vm_->AttachCurrentThread(&j_env, &args);
     TDF_BASE_DCHECK(JNI_OK == ret);
+    thread_local JNIEnvAutoRelease env_auto_release(j_vm_);
   }
 
   return j_env;
-}
-
-void JNIEnvironment::DetachCurrentThread() {
-  TDF_BASE_CHECK(j_vm_);
-
-  if (j_vm_) {
-    j_vm_->DetachCurrentThread();
-  }
 }

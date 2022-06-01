@@ -23,6 +23,7 @@
 import bezierEasing from 'bezier-easing';
 import findNodeHandle from '../adapters/find-node';
 import normalizeValue from '../adapters/normalize-value';
+import { warn } from '../utils';
 import { tryMakeCubicBezierEasing } from './cubic-bezier';
 
 function initLeftRepeatCount(repeatCount: number | 'loop') {
@@ -135,7 +136,6 @@ export class AnimationSet {
         }
       }, 16);
     }
-    // console.log('start animation');
   }
 
   /**
@@ -180,7 +180,6 @@ export class AnimationSet {
           this.renderNowValue(finalValue);
         }
       }, 16);
-      // console.log('resume animation');
     }
   }
 
@@ -193,7 +192,6 @@ export class AnimationSet {
       this.onAnimationCancelCallback();
     }
     this.resetState();
-    // console.log('destroy animation');
   }
 
   /**
@@ -201,7 +199,6 @@ export class AnimationSet {
    */
   public pause() {
     this.clearAnimationInterval();
-    // console.log('pause animation');
   }
 
   /**
@@ -260,7 +257,7 @@ export class AnimationSet {
         this.renderStyleAttribute(this.startValue);
       }
     } else {
-      console.warn('AnimationSet children param error');
+      warn('AnimationSet children param error');
     }
   }
 

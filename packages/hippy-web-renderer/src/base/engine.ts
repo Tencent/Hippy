@@ -112,11 +112,15 @@ export class HippyWebEngine {
 
 
   start(options: HippyWebEngineStartOptions) {
-    this.instance = options;
+    const newOptions = options;
+    if (!newOptions.params) {
+      newOptions.params = {};
+    }
+    this.instance = newOptions;
     Object.keys(this.modules).forEach((key) => {
       this.modules[key]?.init();
     });
-    hippyBridge('loadInstance', options);
+    hippyBridge('loadInstance', newOptions);
     this.eventBus.publish('loaded');
   }
 

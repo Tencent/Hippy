@@ -77,6 +77,7 @@ export default {
     display: flex;
     flex: 1;
     flex-direction: column;
+    margin: 7px;
   }
   #iframe-demo #address {
     height: 48px;

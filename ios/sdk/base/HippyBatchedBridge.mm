@@ -1126,13 +1126,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
             return nil;
         }
     }
-    if (methodID >= [moduleData.methods count]) {
+    NSArray<id<HippyBridgeMethod>> *methods = [moduleData.methods copy];
+    if (methodID >= [methods count]) {
         if (_valid) {
-            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [moduleData.methods count], (long)_valid);
+            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)_valid);
         }
         return nil;
     }
-    id<HippyBridgeMethod> method = moduleData.methods[methodID];
+    id<HippyBridgeMethod> method = methods[methodID];
     if (HIPPY_DEBUG && !method) {
         if (_valid) {
             HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
@@ -1141,15 +1142,30 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     }
 
     @try {
-        return [method invokeWithBridge:self module:moduleData.instance arguments:params];
+        BOOL shouldInvoked = YES;
+        if ([self.methodInterceptor respondsToSelector:@selector(shouldInvokeWithModuleName:methodName:arguments:argumentsValues:containCallback:)]) {
+            HippyFunctionType funcType = [method functionType];
+            BOOL containCallback = (HippyFunctionTypeCallback == funcType|| HippyFunctionTypePromise == funcType);
+            NSArray<id<HippyBridgeArgument>> *arguments = [method arguments];
+            shouldInvoked = [self.methodInterceptor shouldInvokeWithModuleName:moduleData.name
+                                                                    methodName:method.JSMethodName
+                                                                     arguments:arguments
+                                                               argumentsValues:params
+                                                               containCallback:containCallback];
+        }
+        if (shouldInvoked) {
+            return [method invokeWithBridge:self module:moduleData.instance arguments:params];
+        }
+        else {
+            return nil;
+        }
     } @catch (NSException *exception) {
         // Pass on JS exceptions
         if ([exception.name hasPrefix:HippyFatalExceptionName]) {
             @throw exception;
         }
 
-        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
-                                      method.JSMethodName, moduleData.name, params];
+        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception, method.JSMethodName, moduleData.name, params];
         NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
         if (self.parentBridge.useCommonBridge) {
             NSDictionary *errorInfo = @{ NSLocalizedDescriptionKey: message, @"module": self.parentBridge.moduleName ?: @"" };

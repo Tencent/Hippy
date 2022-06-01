@@ -1,0 +1,23 @@
+name: '[ios] build tests'
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+    paths:
+      - 'ios/**'
+      - 'core/**'
+      - 'hippy.podspec'
+
+jobs:
+  ios_build_tests:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+      - name: Build
+        run: |
+          pushd examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd

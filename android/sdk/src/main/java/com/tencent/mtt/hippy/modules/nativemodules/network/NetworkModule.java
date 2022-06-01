@@ -120,7 +120,7 @@ public class NetworkModule extends HippyNativeModuleBase {
     }
     String body = request.getString("body");
     httpRequest.setBody(body);
-
+    httpRequest.setNativeParams(mContext.getNativeParams());
     HippyGlobalConfigs configs = mContext.getGlobalConfigs();
     HippyHttpAdapter adapter;
     if (configs != null && configs.getHttpAdapter() != null) {

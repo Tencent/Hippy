@@ -26,7 +26,6 @@ apply from: './mavencentral.gradle'
 ext {
   CMAKE_PATH = "$projectDir.absolutePath/src/main/jni/CMakeLists.txt"
   OUTPUT_PATH = "$buildDir/outputs/aar"
-  THIRD_PARTY_LIBRARY_PATH = "$projectDir.absolutePath/src/main/jni/third_party"
   skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
 }
 
@@ -36,7 +35,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.1.1'
+    classpath 'com.android.tools.build:gradle:7.2.0'
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -80,13 +79,12 @@ android {
     consumerProguardFiles 'proguard-rules.pro'
 
     buildConfigField("boolean", "ENABLE_SO_DOWNLOAD", ENABLE_SO_DOWNLOAD)
-    buildConfigField("boolean", "INCLUDE_SUPPORT_UI", INCLUDE_SUPPORT_UI)
 
     packagingOptions {
       if (!INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi/*'
       }
-      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean()) {
+      if (!INCLUDE_ABI_ARMEABI_V7A.toBoolean() && !INCLUDE_ABI_ARMEABI.toBoolean()) {
         exclude 'lib/armeabi-v7a/*'
       }
       if (!INCLUDE_ABI_ARM64_V8A.toBoolean()) {
@@ -101,16 +99,6 @@ android {
     }
   }
 
-  def V8_COMPONENT_DEBUG
-  def V8_COMPONENT_RELEASE
-  if (V8_COMPONENT == 'auto') {
-    V8_COMPONENT_DEBUG = 'third_party/v8/stable/official-release'
-    V8_COMPONENT_RELEASE = 'third_party/v8/stable/x5-lite'
-  } else {
-    V8_COMPONENT_DEBUG = V8_COMPONENT
-    V8_COMPONENT_RELEASE = V8_COMPONENT
-  }
-
   buildTypes {
     release {
       minifyEnabled false
@@ -123,7 +111,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
-                  "-DV8_COMPONENT=$V8_COMPONENT_RELEASE",
+                  "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -151,7 +139,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DANDROID_STL=$ANDROID_STL",
-                  "-DV8_COMPONENT=$V8_COMPONENT_DEBUG",
+                  "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -182,27 +170,14 @@ android {
   tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
   }
-
-  sourceSets{
-    main {
-      if (INCLUDE_SUPPORT_UI.toBoolean() == false) {
-        java.exclude("com/tencent/mtt/supportui/**")
-      }
-
-      jniLibs.srcDirs = ["${THIRD_PARTY_LIBRARY_PATH}/layout"]
-    }
-  }
 }
 
 dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
   //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
-  //noinspection GradleDependency
-  implementation 'androidx.recyclerview:recyclerview:1.1.0'
-  if (!INCLUDE_SUPPORT_UI.toBoolean()) {
-    compileOnly('com.tencent.mtt:support-ui:99.2.3')
-  }
+  api 'androidx.recyclerview:recyclerview:1.1.0'
+  api 'androidx.viewpager:viewpager:1.0.0'
 
   testImplementation "junit:junit:4.13.2"
   testImplementation "org.mockito:mockito-core:2.8.9"

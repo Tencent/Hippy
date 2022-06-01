@@ -120,6 +120,8 @@ function genConfig(name) {
           'let _isServer': 'let _isServer = false',
           'process.env.VUE_VERSION': `"${VueVersion}"`,
           'process.env.HIPPY_VUE_VERSION': `"${hippyVuePackage.version}"`,
+          // enable vue-devtools if __VUE_DEVTOOLS_GLOBAL_HOOK__ exist
+          'inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__': 'global.__VUE_DEVTOOLS_GLOBAL_HOOK__',
         },
       }),
       flow(),

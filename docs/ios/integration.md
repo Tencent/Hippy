@@ -23,13 +23,28 @@
     end
     ```
 
-3. 在命令行中执行命令
+3. 配置 force load 选项
+
+    Hippy中大量使用了反射调用。若以静态链接库形式编译Hippy代码，其中未显式调用的代码将会被编译器 dead code strip。
+    因此若 App 使用静态链接库接入 hippy，务必设置 `force load` 强制加载 hippy 静态链接库所有符号。
+   
+    > 2.13.0版本开始删除了 force load。若使用静态链接库接入，需要 app 自行配置。
+
+    App可使用多种方式达到 `force load` 目的,下列方式自行选择合适的一项进行配置。并要根据实际情况自行适配
+
+    * 直接在主工程对应的 target 的 Build Settings 中的 `Other Linker Flags` 配置中设置 `*-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"*`。
+
+    * 在App工程的 Podfile 配置文件中添加 `post_install hook`，自行给 xcconfig 添加 `force load`。
+
+    * fork一份Hippy源码，并修改对应的 `hippy.podspec` 配置文件，并给 `user_target` 添加如下配置，再引用此源码。
+
+4. 在命令行中执行
 
     ```text
     pod install
     ```
 
-4. 使用 cocoapods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
+5. 使用 cocoapods 生成的 `.xcworkspace` 后缀名的工程文件来打开工程。
 
 # 使用源码直接集成
 
@@ -49,7 +64,7 @@
 
 # 编写代码开始调试或者加载业务代码
 
-Hippy 提供分包加载接口以及不分包加载接口, 所有的业务包都是通过 HippyRootView 进行承载，创建业务也就是创建 RootView。
+Hippy 提供分包加载接口以及不分包加载接口, 所有的业务包都是通过 `HippyRootView` 进行承载，创建业务也就是创建 `RootView`。
 
 ## 使用分包加载接口
 

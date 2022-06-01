@@ -56,11 +56,6 @@ static void registerTDFLogHandler() {
     static std::once_flag flag;
     std::call_once(flag, [](){
         std::function<void (const std::ostringstream &, tdf::base::LogSeverity)> logFunction = [](const std::ostringstream &stream, tdf::base::LogSeverity serverity) {
-#ifndef DEBUG
-            if (serverity <= tdf::base::LogSeverity::TDF_LOG_DEBUG) {
-                return;
-            }
-#endif
             std::string string = stream.str();
             if (string.length()) {
                 NSString *message = [NSString stringWithUTF8String:string.c_str()];
@@ -71,7 +66,7 @@ static void registerTDFLogHandler() {
                 }
             }
         };
-        tdf::base::LogMessage::SetDelegate(logFunction);
+        tdf::base::LogMessage::InitializeDelegate(logFunction);
     });
 }
 

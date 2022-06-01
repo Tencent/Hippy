@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.adapter.http;
 
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +37,8 @@ public class HippyHttpRequest {
   private String mMethod = "GET";
   private boolean mInstanceFollowRedirects = false;
   private String mBody;
+  @Nullable
+  private Map<String, Object> mNativeParams;
 
   public HippyHttpRequest() {
     //noinspection unchecked,rawtypes
@@ -47,6 +50,15 @@ public class HippyHttpRequest {
     } else {
       System.err.println("user_agent is null!");
     }
+  }
+
+  @Nullable
+  public Map<String, Object> getNativeParams() {
+    return mNativeParams;
+  }
+
+  public void setNativeParams(@Nullable Map<String, Object> nativeParams) {
+    mNativeParams = nativeParams;
   }
 
   public String getUrl() {
@@ -135,22 +147,7 @@ public class HippyHttpRequest {
       final String country = locale.getCountry();
       buffer.append("-");
       buffer.append(country.toLowerCase());
-      // add the model for the release build
-      if (android.os.Build.VERSION.SDK_INT > 3 && "REL".equals(Build.VERSION.CODENAME)) {
-        final String model = Build.MODEL;
-        if (model.length() > 0) {
-          buffer.append("; ");
-          buffer.append(model);
-        }
-      }
-      final String id = Build.ID;
-      if (id.length() > 0) {
-        buffer.append(" Build/");
-        buffer.append(id);
-      }
-
       final String base = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
-
       USER_AGENT = String.format(base, buffer);
     }
   }

@@ -20,6 +20,7 @@
 
 // @ts-nocheck
 import bezierEasing from 'bezier-easing';
+import { warn } from '../utils';
 
 const CUBIC_BEZIER_PATTERN = /^cubic-bezier\(([^,]*),([^,]*),([^,]*),([^,]*)\)$/;
 
@@ -30,8 +31,7 @@ export function tryMakeCubicBezierEasing(timingFunction: string): bezierEasing.E
     const params = matches.slice(1, 5).map(parseFloat) as [number, number, number, number];
     return bezierEasing(...params);
   } catch (e) {
-    // ignore
-    console.warn(`Invalid cubic-bezier timingFunction: ${timingFunction}`);
+    warn(`Invalid cubic-bezier timingFunction: ${timingFunction}`);
     return null;
   }
 }
