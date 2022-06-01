@@ -656,7 +656,7 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
     DomValue value;
     deserializer.ReadHeader();
     auto ret = deserializer.ReadValue(value);
-    if (!ret) {
+    if (ret) {
       scope->LoadInstance(std::make_shared<DomValue>(std::move(value)));
     } else {
       scope->GetContext()->ThrowException("LoadInstance param error");
