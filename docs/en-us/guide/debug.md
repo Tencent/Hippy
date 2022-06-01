@@ -1,6 +1,6 @@
-# Debugging
+# Debug
 
-# Hippy debugging principles
+# Hippy Debugging Principles
 
 Hippy runs directly in real device's JS engine, using WebSocket on Android to communicate with Chrome on the computer via [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) debugging, while iOS uses the built-in [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) to connect with [Safari](//www.apple.com.cn/cn/safari/) for debugging, and in the newer Hippy versions of iOS, it can also be debugged using Chrome DevTools.
 
@@ -8,7 +8,7 @@ The JS code running in Hippy can originate from a local file, or from a remote s
 
 The [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) is aimed to solve the problem of getting the JS file for debugging in native debug mode, and send the [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) back to the debugger.
 
-# Project initialization
+# Project Initialization
 
 1. run `git clone https://github.com/Tencent/Hippy.git`
 
@@ -19,7 +19,7 @@ The [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next)
 4. Run the command `npm run build` at project root to compile the front-end SDK package.
 5. Select a front-end sample project to compile, run `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]` in project root.
 
-# Native environment preparation
+# Native Environment Preparation
 
 We recommend leaving a backdoor in the native code to enter debug mode after being triggered by certain conditions, the specific code can be found in [iOS](//github.com/Tencent/Hippy/blob/master/examples/ios-demo/HippyDemo/TestModule.m#L60) and  [Android](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/module/TestModule.java#L31), where a `TestModule` is implemented and the front-end enters debug mode when its `debug` or `remoteDebug` methods are called. The native can be accessed by other means. The native opens the Hippy Debug page with the following code.
 
@@ -60,7 +60,7 @@ We recommend leaving a backdoor in the native code to enter debug mode after bei
    }
    ```
 
-# Front-end environment preparation
+# Front-end Environment Preparation
 
 1. install the next generation of debugging tools: `npm i -D @hippy/debug-server-next@latest`
 2. Modify the Webpack configuration to add the debug service address, the default is ``http://localhost:38989``
@@ -114,16 +114,17 @@ We recommend leaving a backdoor in the native code to enter debug mode after bei
     <img src="../assets/img/ios-remote-debug-config.png" alt="iOS remote debug config" width="40%">
 
 6. Start debugging with the debugger
-  - Safari DevTools: Open Safari's development menu on a Mac (`Preferences` -> `Advanced` -> `Show Development Menu`) and follow the instructions below to start debugging. The Safari debugger supports iOS devices and supports `HMR & Live-Reload, Log, Sources, Memory` and other capabilities.
+
+   - Safari DevTools: Open Safari's development menu on a Mac (`Preferences` -> `Advanced` -> `Show Development Menu`) and follow the instructions below to start debugging. The Safari debugger supports iOS devices and supports `HMR & Live-Reload, Log, Sources, Memory` and other capabilities.
 
      <img src="../assets/img/safari-dev-process.png" alt="Safari Debugger" width="80%"/>
 
-  - Chrome DevTools: Visit the debug home address printed in step 4 to start debugging. Chrome debugger supports Android & iOS devices with `HMR & Live-Reload, Elements, Log, Sources, Memory` capabilities.
+   - Chrome DevTools: Visit the debug home address printed in step 4 to start debugging. Chrome debugger supports Android & iOS devices with `HMR & Live-Reload, Elements, Log, Sources, Memory` capabilities.
 
      <img src="../assets/img/chrome-inspect.png" alt="Chrome 调试器" width="60%"/>
 
     If you don't use our debug homepage, you can also actively open DevTools at `chrome://inspect` by first making sure that the `Discover USB devices` checkbox is `unchecked`, then making sure that `Discover network targets` is checked, and that the `Configure` button popup contains the `localhost:38989` debug service address, and the words `Hippy debug tools for V8` should appear in the `Remote Target` below, click the `inspect` link below to open the Chrome debugger.
-  - 
+
     ![Chrome inspect](../assets/img/chrome-inspect-process.png)
 
 > `@hippy/debug-server-next` contains all the capabilities of `@hippy/debug-server`, a debugging tool for Hippy 3.0 that is fully backward compatible.
@@ -140,7 +141,7 @@ Here, take the official example to describe how to debug.
 
 iOS debugging supports both emulator and real iOS device. Since JSBundle and debugging protocols depend on network transfer, you need to make sure your device is on the same LAN as the development machine when debugging on real device. Therefore, we recommend using the emulator.
 
-### Emulator debugging
+### Emulator Debugging
 
 1. Click [Xcode on Mac AppStore](//apps.apple.com/cn/app/xcode/id497799835?l=en&mt=12) to download and install Xcode.
 2. use Xcode to open `HippyDemo.xcodeproj` project file in [Hippy iOS example project](//github.com/Tencent/Hippy/tree/master/examples/ios-demo), and click run. Under normal circumstances, you should be able to start simulator and run the built-in Hippy front-end code,
@@ -159,9 +160,9 @@ iOS debugging supports both emulator and real iOS device. Since JSBundle and deb
 2. Make sure the iOS device and debug service are on the same LAN
 3. Compile App，[paste bundleUrl](guide/debug.md#config-bundle) and start debugging
 
-!> Note: You must ensure that the development machine and the device are on the same LAN when debugging on the real device, otherwise the JSBundle will fail to load. Neither of the following is satisfied:
-- (a) The development machine and the real iOS device are connected to different network environments.
-- (b) The development machine is connected to the network cable and the mobile device is connected to WiFi.
+!> Note: You must ensure that the development machine and the device are on the same LAN when debugging on the real device, otherwise the JSBundle will fail to load. Neither of the following is satisfied: <br/>
+&nbsp;&nbsp;(a) The development machine and the real iOS device are connected to different network environments.<br/>
+&nbsp;&nbsp;(b) The development machine is connected to the network cable and the mobile device is connected to WiFi.
 
 ## Android
 
@@ -171,7 +172,7 @@ Specific procedure:
 
 1. Download and install [Android Studio](//developer.android.com/studio)
 2. through Android Studio open [Hippy Android example project](//github.com/Tencent/Hippy/tree/master/examples/android-demo), when prompted "ToolChain need to update", choose to reject for all options, install SDK, NDK, and cmake 3.6.4.
-3. Plug in your real Android device via the data cable and click Run in Android Studio. Normally, the device should already be running the `Hippy Demo` app.* See [#39](//github.com/Tencent/Hippy/issues/39) for compilation problems.*
+3. Plug in your real Android device via the data cable and click Run in Android Studio. Normally, the device should already be running the `Hippy Demo` app. *See [#39](//github.com/Tencent/Hippy/issues/39) for compilation problems.*
 4. Go back to your device and make sure that `USB debug mode` is turned on - you can enter `Developer mode`' by clicking `Build` in succession on the About page, and then turn on `USB debug mode` after you enter the `Developer mode` screen.
 5. Run `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` to make sure port 38389 is not occupied.
 6. Open the front-end example project [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) or [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo), use npm run hippy:dev to start building and debugging service.
@@ -190,6 +191,7 @@ Hippy implements node and property mapping from front-end to native, allowing vi
   Elements Visualization Inspection example
 </video>
 
+<br />
 <br />
 
 # HMR & Live-Reload
@@ -495,7 +497,7 @@ webpack(webpackConfig, (err, stats) => {
 });
 ```
 
-# Remote debugging
+# Remote Debugging
 
 Local debugging has two pain points.
 
@@ -510,7 +512,7 @@ Then we can consider using remote debugging for these scenarios, with the follow
 </video>
 
 
-## Front-end usage configuration
+## Front-end Usage Configuration
 
 1. Install the next generation debugging tool: `npm i -D @hippy/debug-server-next@latest`.
 
@@ -551,12 +553,12 @@ Then we can consider using remote debugging for these scenarios, with the follow
 
    where the three printed fields are:
 
-  - bundleUrl: the address of the JSBundle for remote debugging, filled in the `remoteServerUrl` field of the host App
-  - debug page: the debugging home page of the PC side
-  - bundleUrl scheme: scheme of the host App's code scanning
+   - bundleUrl: the address of the JSBundle for remote debugging, filled in the `remoteServerUrl` field of the host App
+   - debug page: the debugging home page of the PC side
+   - bundleUrl scheme: scheme of the host App's code scanning
 
 
-## Host App configuration
+## Host App Configuration
 
 Set Host App debugMode to true and pass in the bundleUrl generated by front-end Webpack for remote wireless debugging, we recommend the host to use input box or scan QR code to pass in.
 
@@ -604,7 +606,7 @@ Set Host App debugMode to true and pass in the bundleUrl generated by front-end 
 
 <br />
 
-# framework log output
+# Framework Log
 
 Both hippy-react and hippy-vue will output the information of communicating with native, including the js-native node operations, events sent/received. These logs are actually very helpful for business debugging, allowing developers to understand how the front-end framework translates code into a syntax that the native can understand. When you encounter problems, please first check the framework communication logs, as they can basically locate most of the problems.
 
