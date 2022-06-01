@@ -113,6 +113,7 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
    *   the key of props' map is animation id and value is ths name of prop.
    */
   std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::string>> node_animation_props_map_;
+  uint64_t listener_id_;
   int32_t id_;
   void ParseAnimation(const std::shared_ptr<DomNode>& node);
   void FetchAnimationsFromObject(const std::string& prop,

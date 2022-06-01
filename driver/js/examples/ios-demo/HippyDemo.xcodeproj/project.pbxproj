@@ -384,9 +384,9 @@
 		D84AB984273A618B00987D03 /* js_native_api_value_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_value_jsc.cc; sourceTree = "<group>"; };
 		D84AB985273A618B00987D03 /* js_native_api_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_jsc.cc; sourceTree = "<group>"; tabWidth = 2; };
 		D88F43F82847068400989F01 /* animation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation.h; sourceTree = "<group>"; };
-		D88F43F92847068400989F01 /* animation_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation_manager.h; sourceTree = "<group>"; };
+		D88F43F92847068400989F01 /* animation_manager.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = animation_manager.h; sourceTree = "<group>"; tabWidth = 2; };
 		D88F43FA2847068400989F01 /* animation_math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation_math.h; sourceTree = "<group>"; };
-		D88F43FC284706A300989F01 /* animation_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_manager.cc; sourceTree = "<group>"; };
+		D88F43FC284706A300989F01 /* animation_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = animation_manager.cc; sourceTree = "<group>"; tabWidth = 2; };
 		D88F43FD284706A300989F01 /* animation_math.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_math.cc; sourceTree = "<group>"; };
 		D88F43FE284706A300989F01 /* animation.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation.cc; sourceTree = "<group>"; };
 		D88F440528470C2000989F01 /* animation_module.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation_module.h; sourceTree = "<group>"; };

@@ -143,22 +143,6 @@ void NativeRenderManager::RegisterExtraComponent(NSDictionary<NSString *, Class>
     }
 }
 
-void NativeRenderManager::RegisterVsyncSignal(const std::string &key, float rate, std::function<void()> vsync_callback) {
-    @autoreleasepool {
-        if (vsync_callback) {
-            [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
-                vsync_callback();
-            } rate:rate forKey:@(key.c_str())];
-        }
-    }
-}
-
-void NativeRenderManager::UnregisterVsyncSignal(const std::string &key) {
-    @autoreleasepool {
-        [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:@(key.c_str())];
-    }
-}
-
 void NativeRenderManager::RegisterRootView(UIView *view) {
     @autoreleasepool {
         [uiManager_ registerRootView:view];

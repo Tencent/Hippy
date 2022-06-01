@@ -15,11 +15,7 @@
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 
-#ifdef ANDROID
 constexpr char kVSyncKey[] = "frameUpdated";
-#else
-constexpr char KVSyncKey[] = "AnimationVSyncKey"
-#endif
 
 namespace hippy {
 inline namespace dom {
@@ -187,18 +183,14 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
     if (!dom_manager) {
       return;
     }
+    listener_id_ = hippy::dom::FetchListenerId();
     auto weak_animation_manager = weak_from_this();
-#ifdef ANDROID
     dom_manager->AddEventListener(dom_manager->GetRootId(),
                                   kVSyncKey,
-                                  hippy::dom::FetchListenerId(),
+                                  listener_id_,
                                   false,
                                   [weak_dom_manager = dom_manager_, weak_animation_manager]
                                   (std::shared_ptr<DomEvent>&) {
-#else
-    render_manager->RegisterVsyncSignal(kVSyncKey, 60.0,
-                                        [dom_manager_, weak_animation_manager]() {
-#endif
       auto dom_manager = weak_dom_manager.lock();
       if (!dom_manager) {
         return;
@@ -212,6 +204,7 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
       }};
       dom_manager->PostTask(Scene(std::move(ops)));
     });
+    dom_manager->EndBatch();
   }
 }
 
@@ -225,9 +218,9 @@ void AnimationManager::RemoveActiveAnimation(uint32_t id) {
   }
   TDF_BASE_DLOG(INFO) << "animation remove cnt = " << active_animations_.size();
   if (size == 1 && active_animations_.empty()) {
-    auto render_manager = render_manager_.lock();
-    if (render_manager) {
-      render_manager->UnregisterVsyncSignal(kVSyncKey);
+    auto dom_manager = dom_manager_.lock();
+    if (dom_manager) {
+      dom_manager->RemoveEventListener(dom_manager->GetRootId(), kVSyncKey, listener_id_);
     }
   }
 }

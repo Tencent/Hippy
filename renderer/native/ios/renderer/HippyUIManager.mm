@@ -43,6 +43,7 @@
 #import "objc/runtime.h"
 #import "UIView+Render.h"
 #import "RenderErrorHandler.h"
+#import "RenderVsyncManager.h"
 #include <mutex>
 
 using DomValue = tdf::base::DomValue;
@@ -58,6 +59,8 @@ using CallFunctionCallback = hippy::CallFunctionCallback;
 using DomEvent = hippy::DomEvent;
 
 using HPViewBinding = std::unordered_map<int32_t, std::tuple<std::vector<int32_t>, std::vector<int32_t>>>;
+
+constexpr char kVSyncKey[] = "frameUpdated";
 
 @interface HippyViewsRelation : NSObject {
     HPViewBinding _viewRelation;
@@ -1097,6 +1100,17 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             HippyUIManager *uiManager = (HippyUIManager *)renderContext;
             [uiManager addPressEventListenerForType:name_ forView:node_id];
         }];
+    } else if (name == kVSyncKey) {
+        std::string name_ = name;
+        [self domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> node) {
+            if (node) {
+                NSString *vsyncKey = [NSString stringWithFormat:@"%p%d", self, node_id];
+                auto event = std::make_shared<hippy::DomEvent>(name_, node);
+                [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
+                    node->HandleEvent(event);
+                } rate:60 forKey:vsyncKey];
+            }
+        }];
     }
     else {
         std::string name_ = name;
@@ -1295,8 +1309,15 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             UIView *view = [uiManager viewForHippyTag:@(hippyTag)];
             [view removeViewEvent:viewEventTypeFromName(name_)];
         }];
-    }
-    else {
+    } else if (eventName == kVSyncKey) {
+       std::string name_ = eventName;
+       [self domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> node) {
+           if (node) {
+               NSString *vsyncKey = [NSString stringWithFormat:@"%p%d", self, node_id];
+               [[RenderVsyncManager sharedInstance] unregisterVsyncObserverForKey:vsyncKey];
+           }
+       }];
+   } else {
         std::string name_ = eventName;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             HippyUIManager *uiManager = (HippyUIManager *)renderContext;
