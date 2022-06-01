@@ -16,16 +16,82 @@
 
 ## 使用方法
 
-```javascript
-import { Hippy } from '@hippy/react';
-import App from './app';
+web renderer 的使用可灵活选取不同方式，但都应符合以下顺序：
 
-new Hippy({
-  appName: 'Demo',
-  entryPage: App,
-  silent: false,
-}).start();
+1. 导入 web renderer
+2. 加载业务 bundle
+3. 创建并启动 web renderer
 
+## 以 NPM 包方式使用
+
+```tsx
+// 导入 web renderer
+import { HippyCallBack, HippyWebEngine, HippyWebModule, View } from '@hippy/web-renderer';
+// 导入业务 bundle 的入口文件，需放在 web renderer 导入之后
+import './main';
+
+// 创建 web engine，如果有业务自定义模块和组件，从此处传入
+// 如果只使用官方模块和组件，则直接使用 const engine = HippyWebEngine.create() 即可
+const engine = HippyWebEngine.create({
+  modules: {
+    CustomCommonModule,
+  },
+  components: {
+    CustomPageView,
+  },
+});
+
+// 启动 web renderer
+engine.start({
+  // 挂载的 dom id
+  id: 'root',
+  // 模块名
+  name: 'hero-hot-list',
+  // 模块启动参数，业务自定义
+  params: {
+    path: '/home',
+    singleModule: true,
+    isSingleMode: true,
+    business: '',
+    data: { ...params },
+  },
+});
+```
+
+## 以 CDN 方式使用
+
+在模板文件内添加：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>Example</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="//xxx.com/lib/hippy-web-renderer/0.1.1/hippy-web-renderer.js"></script>
+    <script src="src/index.ts"></script>
+  </body>
+</html>
+```
+
+## 从外部加载现有的 Hippy bundle 文件
+
+```tsx
+
+import { HippyWebEngine } from '@hippy/web-renderer';
+
+const engine = HippyWebEngine.create();
+
+loadScript('https://xxxx.com/hippy-bundle/index.bundle.js').then(() => {
+  engine.start({
+    id: 'root',
+    name: 'example',
+  });
+});
 ```
 
 ## 限制
