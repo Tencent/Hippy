@@ -1,15 +1,15 @@
 <! -- markdownlint-disable no-duplicate-header -->
 <! -- markdownlint-disable no-blacks-blockquote -->
 
-# Dynamic loading
+# Dynamic Load
 
 ## Introduction
 
 Prior to Hippy 2.2, only a single js bundle file could be loaded. As the business becomes more complex, the increasing size of a single js file size will affect the first screen launch speed. To solve this problem, Hippy v2.2 added dynamic loading capabilities, developers can dynamically introduce sub-js bundle files on demand.
 
-` Hippy minimum version support: 2.2`
+`Hippy minimum version support: 2.2`
 
-## schematic architecture
+## Schematic architecture
 
 ![Communication Info](../assets/img/dynamic_import.png)
 
@@ -73,6 +73,7 @@ plugins: [
   }),
 ],
 ```
+
 ## Support simultaneous configuration of local/network loaded sub-packages
 
 `Network loading hippy sdk: min supported version 2.5.5`

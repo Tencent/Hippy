@@ -1,10 +1,10 @@
-# Native event
+# Native Events
 
 When the native network switches or the horizontal and vertical screens change, the native needs to send some global broadcast events to the front-end, so that the front-end can control the business state according to different states.
 
 ---
 
-# Native transmission
+# Native Transmission
 
 The native should call the following code where the event is sent:
 
@@ -19,7 +19,7 @@ The native should call the following code where the event is sent:
 }
 ```
 
-# Front-end reception
+# Front-end Reception
 
 Here is a code snippet to send an event called `rotate` to the front-end. There is a parameter in the event called `result`. Reception processing is then performed at the front-end.
 
