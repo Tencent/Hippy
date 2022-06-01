@@ -29,7 +29,13 @@
   * [定制适配器](ios/custom-adapter.md)
   * [定制界面组件](ios/custom-component.md)
   * [定制模块](ios/custom-module.md)
-
+  
+* Web
+  * [Web 集成](web/integration.md)
+  * [Web 事件](web/event.md)
+  * [定制界面组件](web/custom-component.md)
+  * [定制模块](web/custom-module.md)
+  
 * Hippy-React
   * [介绍](hippy-react/introduction.md)
   * [组件](hippy-react/components.md)
