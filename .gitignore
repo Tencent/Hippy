@@ -1,6 +1,3 @@
-*.log
-*.iml
-
 .DS_Store
 .nyc_output
 .vscode
@@ -10,15 +7,17 @@
 .externalNativeBuild
 .cxx
 
-local.properties
-maven-auth.properties
 build
 coverage
 dist
 node_modules
 
+*.log
+*.iml
+local.properties
+maven-auth.properties
+
 layout/out
-layout/build
 layout/cproject
 layout/.project
 layout/.settings
@@ -44,8 +43,6 @@ driver/js/examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 driver/js/examples/ios-demo/HippyDemo.xcworkspace/*
 driver/js/examples/ios-demo/Pods/*
 driver/js/examples/ios-demo/devtools_backend/*
-driver/js/examples/hippy-react-demo/package-lock.json
-driver/js/examples/hippy-vue-demo/package-lock.json
 
 driver/js/packages/hippy-vue-loader/remote-debug-profile/*
 driver/js/packages/hippy-debug-server/webpack-dev-server/client

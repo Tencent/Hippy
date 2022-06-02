@@ -47,7 +47,7 @@ hippy-react-web 和 hippy-react 的启动参数一致，可以共享同一个 `m
 
 # npm script
 
-hippy-react-web 使用了 [webpack-dev-server](//webpack.js.org/configuration/dev-server/) 来启动调试，可以支持全部的 Web 调试特性，而同时使用同一份配置文件换而使用 webpack 进行打包。
+hippy-react-web 使用了 [webpack-dev-server](//webpack.js.org/configuration/dev-server/) 来启动调试，可以支持全部的 Web 调试特性，而同时使用同一份配置文件换而使用 Webpack 进行打包。
 
 这里的命令其实参考了 vue-cli 生成的 Vue 项目，通过 `serve` 启动调试服务，通过 `build` 编译出 JS 包。
 

@@ -1,10 +1,10 @@
-# 定制适配器
+# Custom Adapters
 
 # HippyImageViewCustomLoader
 
-在Hippy SDK中, 前端 `<Image>` 组件默认对应的 HippyImageView 会根据 source 属性使用默认行为下载图片数据并显示。但是某些情况下，业务方希望使用自定义的图片加载逻辑（比如业务使用了缓存，或者拦截特定URL的数据），为此 SDK 提供了`HippyImageViewCustomLoader` 协议。
+In the Hippy SDK, the default `HippyImageView` will be used to download and display picture data according to source property. However, in some cases, the business side wants to use custom image loading logic (such as caching, or intercepting data for a specific URL). Thus, the SDK provides a protocol for this called `HippyImageViewCustomLoader`.
 
-用户实现此协议，自行根据图片的URL返回数据即可，HippyImageView将根据返回的数据展示图片。
+Users should implement this protocol and return data according to the URL of the picture by themselves. `HippyImageView` will display the picture according to the returned data consequently.
 
 ```objectivec
 @protocol HippyImageViewCustomLoader<HippyBridgeModule>
@@ -23,7 +23,7 @@
 @end
 ```
 
-# 协议实现
+# Protocol implementation
 
 ```objectivec
 @interface CustomImageLoader : NSObject <HippyImageViewCustomLoader>
@@ -35,14 +35,14 @@ HIPPY_EXPORT_MODULE()
 - (void)imageView:(HippyImageView *)imageView loadAtUrl:(NSURL *)url placeholderImage:(UIImage *)placeholderImage context:(void *)context progress:(void (^)(long long, long long))progressBlock completed:(void (^)(NSData *, NSURL *, NSError *))completedBlock {
 
     NSError *error = NULL;
-    // 业务方自行获取图片数据，返回数据或者错误
+    // get image data and return data or error
     NSData *imageData = getImageData(url, &error);
-    // 将结果通过block通知给
+    // pass result through block
     completedBlock(imageData, url, error);
 }
 @end
 ```
 
-业务方需要务必添加 `HIPPY_EXPORT_MODULE()` 代码以便在 hipp y框架中注册此 ImageLoader 模块，系统将自动寻找实现了`HippyImageViewCustomLoader` 协议的模块当做 ImageLoader。
+The business side must add `HIPPY_EXPORT_MODULE()` code to register this ImageLoader module in the Hippy framework, and the system will automatically find the module that implements the`HippyImageViewCustomLoader` protocol and use it as the ImageLoader.
 
-PS: 若有多个模块实现 `HippyImageViewCustomLoader` 协议，系统只会使用其中一个作为默认 ImageLoader
+P.S. if multiple modules implement the `HippyImageViewCustomLoader` protocol, only one of them will be used as the default ImageLoader.

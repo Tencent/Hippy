@@ -1,10 +1,10 @@
-# 终端事件
+# Native Events
 
-当终端网络切换，或者横竖屏改变的时候，终端需要像前端发送一些全局的广播事件，这样前端可以根据不同的状态来控制业务状态。
+When the native network is switched, or the horizontal/vertical screen display is switched, the native needs to send some global broadcast events to the front-end, so that the front-end can control the service state according to different states.
 
-# 终端发送
+# Native Sending
 
-终端在需要发送事件的地方调用代码：
+The native calls the code at the place where the events need to be sent.
 
 ```java
 HippyMap hippyMap = new HippyMap();
