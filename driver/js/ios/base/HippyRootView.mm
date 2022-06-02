@@ -37,6 +37,9 @@
 #import "HippyView.h"
 #import "UIView+Hippy.h"
 #import "HippyBundleURLProvider.h"
+#include "scope.h"
+#include "dom/dom_value.h"
+#include "HippyDomNodeUtils.h"
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
@@ -320,16 +323,19 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)runApplication:(HippyBridge *)bridge {
+    NSAssert(_contentView, @"content view must exist");
     if (_contentView == nil) {
-        assert(0);  // 这里不正常了，走到这里联系下 pennyli
         return;
     }
     NSString *moduleName = _moduleName ?: @"";
-    NSDictionary *appParameters =
-        @{ @"rootTag": _contentView.hippyTag, @"initialProps": _appProperties ?: @ {}, @"commonSDKVersion": HippySDKVersion };
-
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, appParameters);
-    [bridge enqueueJSCall:@"AppRegistry" method:@"runApplication" args:@[moduleName, appParameters] completion:NULL];
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, _appProperties);
+    NSDictionary *param = @{@"name": moduleName,
+                            @"id": _contentView.hippyTag,
+                            @"params": _appProperties ?: @{},
+                            @"version": HippySDKVersion};
+    tdf::base::DomValue value = OCTypeToDomValue(param);
+    std::shared_ptr<tdf::base::DomValue> domValue = std::make_shared<tdf::base::DomValue>(value);
+    bridge.javaScriptExecutor.pScope->LoadInstance(domValue);
 }
 
 - (void)layoutSubviews {
