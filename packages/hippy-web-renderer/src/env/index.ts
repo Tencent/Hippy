@@ -30,6 +30,8 @@ import { platform } from './platform';
 import { bridge } from './js2native';
 import { nativeBridge } from './native2js';
 import { device } from './device';
+import { getTurboModule, turboPromise } from './turbo';
+import { dynamicLoad } from './dynamic-load';
 import './global';
 
 const global = getGlobal();
@@ -52,6 +54,8 @@ global.Response = Response as any;
 global.__fetch = global.fetch;
 global.fetch = fetch as any;
 global.__WebSocket = global.WebSocket;
+global.getTurboModule = getTurboModule;
+global.dynamicLoad = dynamicLoad;
 
 // TODO:
 // global.dynamicLoad
@@ -81,7 +85,7 @@ Hippy.off = emitter.off;
 Hippy.emit = emitter.emit;
 
 Hippy.asyncStorage = asyncStorage;
-Hippy.turboPromise = global.Promise;
+Hippy.turboPromise = turboPromise;
 Hippy.document = document;
 Hippy.device.platform = platform();
 
