@@ -65,15 +65,26 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
     }
     DeleteAnimationMap(node);
     if (!animation_prop_map.empty()) {
-      node_animation_props_map_.insert({node->GetId(), animation_prop_map});
-      for (const auto& prop : animation_prop_map) {
-        auto animation = animation_nodes_map_.find(prop.first);
-        if (animation != animation_nodes_map_.end()) {
-          animation->second.insert(node->GetId());
+      auto node_id = node->GetId();
+      node_animation_props_map_.insert({node_id, animation_prop_map});
+      for (const auto& pair : animation_prop_map) {
+        auto animation_id = pair.first;
+        auto it = animation_nodes_map_.find(animation_id);
+        if (it != animation_nodes_map_.end()) {
+          it->second.insert(node_id);
         } else {
           std::set<uint32_t> nodeIds;
-          nodeIds.insert(node->GetId());
-          animation_nodes_map_.insert({prop.first, nodeIds});
+          nodeIds.insert(node_id);
+          animation_nodes_map_.insert({animation_id, nodeIds});
+        }
+        auto animation = GetAnimation(animation_id);
+        if (animation) {
+          node->EmplaceStyleMap(pair.second, DomValue(animation->GetStartValue()));
+        } else {
+          auto animation_set = GetAnimationSet(animation_id);
+          if (animation_set) {
+            node->EmplaceStyleMap(pair.second, DomValue(animation_set->GetStartValue()));
+          }
         }
       }
     }
@@ -93,19 +104,9 @@ void AnimationManager::FetchAnimationsFromObject(
         if (item.first == kAnimationId) {
           auto id = item.second;
           if (id.IsNumber()) {
-            double number_animation_id;
-            if (id.ToDouble(number_animation_id)) {
-              auto animation_id = static_cast<uint32_t>(number_animation_id);
-              result.insert({animation_id, prop});
-              auto animation = GetAnimation(animation_id);
-              if (animation) {
-                *value = DomValue(animation->GetStartValue());
-              } else {
-                auto animation_set = GetAnimationSet(animation_id);
-                if (animation_set) {
-                  *value = DomValue(animation_set->GetStartValue());
-                }
-              }
+            double animation_id;
+            if (id.ToDouble(animation_id)) {
+              result.insert({static_cast<uint32_t>(animation_id), prop});
             }
           }
         } else {
@@ -233,6 +234,7 @@ void AnimationManager::DeleteAnimationMap(const std::shared_ptr<DomNode>& dom_no
         for (auto node_id : node_ids_it->second) {
           if (node_id == dom_node_id) {
             node_ids_it->second.erase(node_id);
+            break;
           }
         }
         if (node_ids_it->second.empty()) {
@@ -240,7 +242,7 @@ void AnimationManager::DeleteAnimationMap(const std::shared_ptr<DomNode>& dom_no
         }
       }
     }
-    node_animation_props_map_.erase(dom_node->GetId());
+    node_animation_props_map_.erase(animation_it);
   }
 }
 
