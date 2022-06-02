@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.11.1)
-project(unit_test)
+
+project(hippy_unit_test)
+
+include("../buildconfig/cmake/InfraPackagesModule.cmake")
+include("../buildconfig/cmake/compiler_toolchain.cmake")
+
 set(CMAKE_CXX_STANDARD 17)
 
 add_compile_options(
@@ -9,16 +14,16 @@ add_compile_options(
 )
 
 # dependency google test
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+InfaPackage_Add(asio
+  REMOTE "test/third_party/googletest/release-1.11.0/googletest.release-1.11.0.tgz"
+  LOCAL "third_party/googletest"
 )
-FetchContent_MakeAvailable(googletest)
 
-# FetchContent nlohmann_json
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
-FetchContent_MakeAvailable(json)
+# InfaPackage nlohmann_json
+InfaPackage_Add(json
+  REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
+  LOCAL "third_party/json"
+)
 
 # open hippy unit test
 add_definitions(-DHIPPY_TEST)
