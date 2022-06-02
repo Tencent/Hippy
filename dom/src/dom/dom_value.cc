@@ -461,7 +461,7 @@ inline void DomValue::Deallocate() {
       arr_.~vector();
       break;
     case Type::kObject:
-      obj_.clear();
+      obj_.~unordered_map();
       break;
     default:
       break;
