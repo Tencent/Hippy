@@ -45,6 +45,7 @@ using CtxValue = hippy::napi::CtxValue;
 using TryCatch = hippy::napi::TryCatch;
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
+constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
 constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
 constexpr uint64_t kInvalidListenerId = 0;
 
@@ -324,7 +325,7 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
         p.set_value(rst);
       });
 
-  std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
+  auto runner = engine_->GetJSRunner();
   if (runner->IsJsThread()) {
     cb();
   } else {
@@ -334,4 +335,31 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
   }
   std::shared_ptr<CtxValue> ret = future.get();
   return ret;
+}
+
+void Scope::LoadInstance(const std::shared_ptr<DomValue>& value) {
+  std::weak_ptr<Ctx> weak_context = context_;
+  auto cb = [weak_context, value]() mutable {
+    std::shared_ptr<Ctx> context = weak_context.lock();
+    if (context) {
+      std::shared_ptr<CtxValue> fn = context->GetJsFn(kLoadInstanceFuncName);
+      bool is_fn = context->IsFunction(fn);
+      TDF_BASE_DCHECK(is_fn);
+      if (is_fn) {
+        auto param = context->CreateCtxValue(value);
+        std::shared_ptr<CtxValue> argv[] = {param};
+        context->CallFunction(fn, 1, argv);
+      } else {
+        context->ThrowException("Application entry not found");
+      }
+    }
+  };
+  auto runner = engine_->GetJSRunner();
+  if (runner->IsJsThread()) {
+    cb();
+  } else {
+    auto task = std::make_shared<JavaScriptTask>();
+    task->callback = cb;
+    runner->PostTask(task);
+  }
 }

@@ -36,11 +36,11 @@ public interface HippyBridge {
 
     void destroy(NativeCallback callback, boolean isReload);
 
-    void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
+    void callFunction(int functionId, NativeCallback callback, ByteBuffer buffer);
 
-    void callFunction(String action, NativeCallback callback, byte[] buffer);
+    void callFunction(int functionId, NativeCallback callback, byte[] buffer);
 
-    void callFunction(String action, NativeCallback callback, byte[] buffer, int offset,
+    void callFunction(int functionId, NativeCallback callback, byte[] buffer, int offset,
             int length);
 
     long getV8RuntimeId();

@@ -23,31 +23,6 @@ global.hippyBridge = (_action, _callObj) => {
   }
 
   switch (action) {
-    case 'loadInstance': {
-      if (__GLOBAL__.appRegister[callObj.name]) {
-        Object.assign(callObj.params, {
-          __instanceName__: callObj.name,
-          __instanceId__: callObj.id,
-        });
-
-        Object.assign(__GLOBAL__.appRegister[callObj.name], {
-          id: callObj.id,
-          superProps: callObj.params,
-        });
-
-        const EventModule = __GLOBAL__.jsModuleList.EventDispatcher;
-        if (EventModule && typeof EventModule.receiveNativeEvent === 'function') {
-          const params = ['@hp:loadInstance', callObj.params];
-          EventModule.receiveNativeEvent(params);
-        }
-
-        __GLOBAL__.appRegister[callObj.name].run(callObj.params);
-      } else {
-        resp = `error: ${callObj.name} is not regist in js`;
-        throw Error(resp);
-      }
-      break;
-    }
     case 'callBack': {
       if (callObj.result === 1) {
         resp = 'error: native no modules';
@@ -106,6 +81,5 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
   }
-
   return resp;
 };

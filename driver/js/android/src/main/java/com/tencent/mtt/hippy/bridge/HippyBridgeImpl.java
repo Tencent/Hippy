@@ -58,7 +58,7 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings({"unused", "JavaJniMissingFunction"})
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
-
+    private static final String TAG = "HippyBridgeImpl";
     private static final Object sBridgeSyncLock;
     private static final String DEFAULT_LOCAL_HOST = "localhost:38989";
     private static final String DEBUG_WEBSOCKET_URL = "ws://%s/debugger-proxy?role=android_client&clientId=%s";
@@ -200,16 +200,54 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         }
     }
 
+    private String getCallFunctionName(int functionId) {
+        String action = null;
+        switch (functionId) {
+            case HippyBridgeManagerImpl.FUNCTION_ACTION_LOAD_INSTANCE: {
+                action = "loadInstance";
+                break;
+            }
+            case HippyBridgeManagerImpl.FUNCTION_ACTION_RESUME_INSTANCE: {
+                action = "resumeInstance";
+                break;
+            }
+            case HippyBridgeManagerImpl.FUNCTION_ACTION_PAUSE_INSTANCE: {
+                action = "pauseInstance";
+                break;
+            }
+            case HippyBridgeManagerImpl.FUNCTION_ACTION_DESTROY_INSTANCE: {
+                action = "destroyInstance";
+                break;
+            }
+            case HippyBridgeManagerImpl.FUNCTION_ACTION_CALLBACK: {
+                action = "callBack";
+                break;
+            }
+            case HippyBridgeManagerImpl.FUNCTION_ACTION_CALL_JSMODULE: {
+                action = "callJsModule";
+                break;
+            }
+            case HippyBridgeManagerImpl.FUNCTION_ACTION_ON_WEBSOCKET_MESSAGE: {
+                action = "onWebsocketMsg";
+                break;
+            }
+            default:
+                LogUtils.w(TAG, "getCallFunctionName: Unknown function id=" + functionId);
+
+        }
+        return action;
+    }
+
     @Override
-    public void callFunction(String action, NativeCallback callback, ByteBuffer buffer) {
-        if (!mInit || TextUtils.isEmpty(action) || buffer == null || buffer.limit() == 0) {
+    public void callFunction(int functionId, NativeCallback callback, ByteBuffer buffer) {
+        String functionName = getCallFunctionName(functionId);
+        if (!mInit || TextUtils.isEmpty(functionName) || buffer == null || buffer.limit() == 0) {
             return;
         }
-
         int offset = buffer.position();
         int length = buffer.limit() - buffer.position();
         if (buffer.isDirect()) {
-            callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
+            callFunction(functionName, mV8RuntimeId, callback, buffer, offset, length);
         } else {
             /*
              * In Android's DirectByteBuffer implementation.
@@ -226,24 +264,28 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
              * {@link ByteBuffer#arrayOffset} will be ignored, treated as 0.
              */
             offset += buffer.arrayOffset();
-            callFunction(action, mV8RuntimeId, callback, buffer.array(), offset, length);
+            callFunction(functionName, mV8RuntimeId, callback, buffer.array(), offset, length);
         }
     }
 
     @Override
-    public void callFunction(String action, NativeCallback callback, byte[] buffer) {
-        callFunction(action, callback, buffer, 0, buffer.length);
+    public void callFunction(int functionId, NativeCallback callback, byte[] buffer) {
+        callFunction(functionId, callback, buffer, 0, buffer.length);
     }
 
     @Override
-    public void callFunction(String action, NativeCallback callback, byte[] buffer, int offset,
+    public void callFunction(int functionId, NativeCallback callback, byte[] buffer, int offset,
             int length) {
-        if (!mInit || TextUtils.isEmpty(action) || buffer == null || offset < 0 || length < 0
+        String functionName = getCallFunctionName(functionId);
+        if (!mInit || TextUtils.isEmpty(functionName) || buffer == null || offset < 0 || length < 0
                 || offset + length > buffer.length) {
             return;
         }
-
-        callFunction(action, mV8RuntimeId, callback, buffer, offset, length);
+        if (functionId == HippyBridgeManagerImpl.FUNCTION_ACTION_LOAD_INSTANCE) {
+            loadInstance(mV8RuntimeId, buffer, offset, length);
+        } else {
+            callFunction(functionName, mV8RuntimeId, callback, buffer, offset, length);
+        }
     }
 
     @Override
@@ -271,15 +313,18 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             long groupId, V8InitParams v8InitParams, String dataDir, String wsUrl);
 
     public native boolean runScriptFromUri(String uri, AssetManager assetManager,
-            boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
+            boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId,
+            NativeCallback callback);
 
     public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload, NativeCallback callback);
 
-    public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
+    public native void callFunction(String action, long V8RuntimeId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);
 
-    public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
+    public native void callFunction(String action, long V8RuntimeId, NativeCallback callback,
             byte[] buffer, int offset, int length);
+
+    public native void loadInstance(long V8RuntimeId, byte[] buffer, int offset, int length);
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
 
@@ -287,7 +332,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         callNatives(moduleName, moduleFunc, callId, ByteBuffer.wrap(buffer));
     }
 
-    public void callNatives(String moduleName, String moduleFunc, String callId, ByteBuffer buffer) {
+    public void callNatives(String moduleName, String moduleFunc, String callId,
+            ByteBuffer buffer) {
         if (mBridgeCallback != null) {
             mBridgeCallback.callNatives(moduleName, moduleFunc, callId, buffer);
         }
@@ -365,7 +411,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     @Override
     public void onReceiveData(String msg) {
         if (this.mIsDevModule) {
-            callFunction("onWebsocketMsg", null, msg.getBytes(StandardCharsets.UTF_16LE));
+            callFunction(HippyBridgeManagerImpl.FUNCTION_ACTION_ON_WEBSOCKET_MESSAGE, null,
+                    msg.getBytes(StandardCharsets.UTF_16LE));
         }
     }
 }
