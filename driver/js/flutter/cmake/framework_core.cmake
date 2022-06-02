@@ -32,6 +32,13 @@ if ((CMAKE_SYSTEM_NAME STREQUAL "Android") OR (CMAKE_SYSTEM_NAME STREQUAL "Windo
             ${FRAMEWORK_CORE_SRC_DIR}/napi/v8/js_native_turbo_v8.cc
             ${FRAMEWORK_CORE_SRC_DIR}/runtime/v8/v8_bridge_utils.cc
             ${FRAMEWORK_CORE_SRC_DIR}/runtime/v8/runtime.cc)
+    if (DEFINED V8_WITHOUT_INSPECTOR)
+      add_definitions("-DV8_WITHOUT_INSPECTOR")
+    else()
+      set(FRAMEWORK_CORE_SRC_FILES ${FRAMEWORK_CORE_SRC_FILES}
+              ${FRAMEWORK_CORE_SRC_DIR}/runtime/v8/inspector/v8_channel_impl.cc
+              ${FRAMEWORK_CORE_SRC_DIR}/runtime/v8/inspector/v8_inspector_client_impl.cc)
+    endif()
 
 else ()
     set(FRAMEWORK_CORE_SRC_FILES ${FRAMEWORK_CORE_SRC_FILES}
@@ -48,15 +55,24 @@ include_directories(${FRAMEWORK_CORE_DIR}/include)
 include_directories(${FRAMEWORK_CORE_DIR}/third_party/base/include)
 
 if (ENABLE_INSPECTOR STREQUAL "true")
-  message("DEVTOOLS_DIR:" ${DEVTOOLS_DIR})
+  include("../../../../buildconfig/cmake/InfraPackagesModule.cmake")
+  message("framework_core.cmake DEVTOOLS_DIR:" ${DEVTOOLS_DIR})
   add_definitions("-DENABLE_INSPECTOR")
   include_directories(${DEVTOOLS_DIR}/include)
-  add_subdirectory(${DEVTOOLS_DIR} ${CMAKE_CURRENT_BINARY_DIR}/devtools/devtools-backend)
-  set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} devtools_backend)
-else ()
-  file(GLOB_RECURSE DEVTOOLS_BACKEND_SRC ${FRAMEWORK_CORE_DIR}/src/devtools/*)
-  message("DEVTOOLS_BACKEND_SRC: ${DEVTOOLS_BACKEND_SRC}")
-  list(REMOVE_ITEM FRAMEWORK_CORE_SRC_FILES ${DEVTOOLS_BACKEND_SRC})
-  message("FRAMEWORK_CORE_SRC_FILES: ${FRAMEWORK_CORE_SRC_FILES}")
-endif ()
+#  add_subdirectory(${DEVTOOLS_DIR} devtools_backend)
+#  list(APPEND FRAMEWORK_CORE_DEPS devtools_backend)
+  InfaPackage_Add(json
+          REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
+          LOCAL "third_party/json"
+  )
+  include_directories(${json_SOURCE_DIR}/single_include)
+  set(FRAMEWORK_CORE_SRC_FILES ${FRAMEWORK_CORE_SRC_FILES}
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/devtools_data_source.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/devtools_utils.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/trace_control.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_dom_tree_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_elements_request_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_screen_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_tracing_adapter.cc)
+endif()
 
