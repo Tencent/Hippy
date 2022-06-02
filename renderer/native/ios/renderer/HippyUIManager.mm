@@ -399,6 +399,17 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 /**
  * Unregisters views from registries
  */
+
+- (void)purgeViewsFromHippyTags:(NSArray<NSNumber *> *)hippyTags {
+    for (NSNumber *hippyTag in hippyTags) {
+        UIView *view = [self viewForHippyTag:hippyTag];
+        HippyTraverseViewNodes(view, ^(id<HippyComponent> subview) {
+            NSAssert(![subview isHippyRootView], @"Root views should not be unregistered");
+            [self->_viewRegistry removeObjectForKey:[subview hippyTag]];
+        });
+    }
+}
+
 - (void)purgeChildren:(NSArray<id<HippyComponent>> *)children fromRegistry:(NSMutableDictionary<NSNumber *, id<HippyComponent>> *)registry {
     for (id<HippyComponent> child in children) {
         HippyTraverseViewNodes(registry[child.hippyTag], ^(id<HippyComponent> subview) {

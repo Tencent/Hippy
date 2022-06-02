@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
     HippyWaterfallViewDataSource *_dataSource;
 @protected
     NSMapTable<NSNumber *, UIView *> *_weakItemMap;
+    NSMutableDictionary<NSIndexPath *, NSNumber *> *_weakCachedItems;
 }
 
 /**
@@ -100,6 +101,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
+
+- (NSUInteger)maxCachedItemCount;
+
+- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen;
 
 /**
  * Initial collection view
