@@ -11,6 +11,7 @@
 #include "core/base/common.h"
 #include "core/base/task_runner.h"
 #include "core/task/common_task.h"
+#include "dom/animation/animation_manager.h"
 #include "dom/dom_action_interceptor.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_event.h"
@@ -22,11 +23,14 @@
 namespace hippy {
 inline namespace dom {
 
+class AnimationManager;
 class DomNode;
 class RenderManager;
 class RootNode;
 class LayerOptimizedRenderManager;
+
 struct DomInfo;
+
 // This class is used to mainpulate dom. Please note that the member
 // function of this class must be run in dom thread. If you want to call
 // in other thread please use PostTask.
@@ -47,8 +51,16 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   int32_t GetId() { return id_; }
 
   inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
+  inline std::shared_ptr<AnimationManager> GetAnimationManager() { return animation_manager_; }
+  inline void SetDelegateTaskRunner(std::shared_ptr<TaskRunner> runner) {
+    delegate_task_runner_ = runner;
+  }
+  inline std::weak_ptr<TaskRunner> GetDelegateTaskRunner() {
+    return delegate_task_runner_;
+  }
+
+  void Init();
   void SetRenderManager(std::shared_ptr<RenderManager> render_manager);
-  inline void SetDelegateTaskRunner(std::shared_ptr<TaskRunner> runner) { delegate_task_runner_ = runner; }
   uint32_t GetRootId() const;
   std::shared_ptr<DomNode> GetNode(uint32_t id) const;
 
@@ -68,6 +80,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void SetRootNode(const std::shared_ptr<RootNode>& root_node);
   void DoLayout();
   void PostTask(const Scene&& scene);
+  std::shared_ptr<CommonTask> PostDelayedTask(const Scene&& scene, uint64_t delay);
+  void CancelTask(std::shared_ptr<CommonTask> task);
   void StartTaskRunner() { dom_task_runner_->Start(); }
   void TerminateTaskRunner() { dom_task_runner_->Terminate(); }
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
@@ -84,6 +98,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   std::weak_ptr<TaskRunner> delegate_task_runner_;
   std::shared_ptr<TaskRunner> dom_task_runner_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
+  std::shared_ptr<AnimationManager> animation_manager_;
 
   void HandleEvent(const std::shared_ptr<DomEvent>& event);
   void AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);

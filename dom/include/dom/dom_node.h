@@ -118,7 +118,10 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void AddRenderListener(const std::string& name, const RenderCallback& cb, const CallFunctionCallback& callback);
   void RemoveRenderListener(const std::string& name, uint32_t id);
   std::vector<std::shared_ptr<DomNode::EventListenerInfo>> GetEventListener(const std::string& name, bool is_capture);
-  const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> GetStyleMap() const {
+  const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& GetStyleMap() const {
+    return style_map_;
+  }
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& GetStyleMap() {
     return style_map_;
   }
   void SetStyleMap(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style) {

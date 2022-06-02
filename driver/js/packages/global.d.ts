@@ -299,6 +299,133 @@ declare namespace HippyTypes {
 
   export type EventNode = undefined | { id: number, eventList: EventAttribute[] };
 
+  export type AnimationValue = number | { animationId: number | undefined } | string;
+  export type AnimationCallback = () => void;
+  export type AnimationDirection = 'left' | 'right' | 'top' | 'bottom' | 'center';
+  export type AnimationMode = 'timing';
+  export type AnimationValueType = 'deg' | 'rad' | 'color' | undefined;
+  export type AnimationTimingFunction = 'linear' | 'ease' | 'bezier' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out' | (string & {});
+
+  export interface AnimationOptions {
+    /**
+     * Initial value at `Animation` start
+     */
+    startValue?: AnimationValue;
+
+    /**
+     * End value when `Animation` end.
+     */
+    toValue?: AnimationValue;
+
+    /**
+     * Animation execution time
+     */
+    duration?: number;
+
+    /**
+     * Timeline mode of animation
+     */
+    mode?: AnimationMode;
+
+    /**
+     * Delay starting time
+     */
+    delay?: number;
+
+    /**
+     * Value type, leave it blank in most case, except use rotate/color related
+     * animation, set it to be 'deg' or 'color'.
+     */
+    valueType?: AnimationValueType;
+
+    /**
+     * Animation start position
+     */
+    direction?: AnimationDirection;
+
+    /**
+     * Animation interpolation type
+     */
+    timingFunction?: AnimationTimingFunction;
+
+    /**
+     * Animation repeat times, use 'loop' to be always repeating.
+     */
+    repeatCount?: number;
+    animation?: any;
+    inputRange?: any[];
+    outputRange?: any[];
+    animationId?: number;
+  }
+
+  export interface Animation extends AnimationOptions {
+    onAnimationStartCallback?: AnimationCallback;
+    onAnimationEndCallback?: AnimationCallback;
+    onAnimationCancelCallback?: AnimationCallback;
+    onAnimationRepeatCallback?: AnimationCallback;
+    animationStartListener?: Function;
+    animationEndListener?: Function;
+    animationCancelListener?: Function;
+    animationRepeatListener?: Function;
+    // Fallback event handlers
+    onRNfqbAnimationStart?: Function;
+    onRNfqbAnimationEnd?: Function;
+    onRNfqbAnimationCancel?: Function;
+    onRNfqbAnimationRepeat?: Function;
+    onHippyAnimationStart?: Function;
+    onHippyAnimationEnd?: Function;
+    onHippyAnimationCancel?: Function;
+    onHippyAnimationRepeat?: Function;
+  }
+
+  export type AnimationChildren = { animation: Animation; follow: boolean; }[];
+
+  export type AnimationList = { animationId?: number | undefined; follow?: boolean; }[];
+
+  export interface AnimationSetOptions {
+    children: AnimationChildren;
+    repeatCount: number | 'loop';
+  }
+
+  export interface AnimationSet {
+    animationId: number;
+    animationList: AnimationList;
+    // Fallback event handlers
+    onRNfqbAnimationStart?: Function;
+    onRNfqbAnimationEnd?: Function;
+    onRNfqbAnimationCancel?: Function;
+    onRNfqbAnimationRepeat?: Function;
+    onHippyAnimationStart?: Function;
+    onHippyAnimationEnd?: Function;
+    onHippyAnimationCancel?: Function;
+    onHippyAnimationRepeat?: Function;
+  }
+
+  export interface AnimationInstance {
+    getId: () => number;
+    pause: () => void;
+    resume: () => void;
+    start: () => void;
+    destroy: () => void;
+    updateAnimation: (animation: any) => void;
+    addEventListener: (eventName: string, cb: () => void) => void;
+    removeEventListener: (eventName: string) => void;
+    new (config: AnimationOptions): AnimationInstance;
+  }
+
+  export type AnimationSetInstanceOptions = { children: AnimationList; repeatCount: number; };
+
+  export interface AnimationSetInstance {
+    getId: () => number;
+    pause: () => void;
+    resume: () => void;
+    start: () => void;
+    destroy: () => void;
+    addEventListener: (eventName: string, cb: () => void) => void;
+    removeEventListener: (eventName: string) => void;
+    new (config: AnimationSetInstanceOptions): AnimationSetInstance;
+  }
+
   export interface AsyncStorage {
     getAllKeys: () => Promise<string[]>;
     getItem: (key: string) => Promise<string>;
@@ -359,6 +486,9 @@ declare namespace HippyTypes {
   export type WebSocket = HippyWebSocket | any;
 
   export interface HippyConstance {
+    Animation: AnimationInstance;
+    AnimationSet: AnimationSetInstance;
+    SceneBuilder: any;
     asyncStorage: AsyncStorage;
     bridge: Bridge;
     device: {
@@ -434,7 +564,6 @@ declare namespace HippyTypes {
     __PLATFORM__: __PLATFORM__;
     __HIPPYCURDIR__?: string;
     Hippy: HippyTypes.HippyConstance;
-    SceneBuilder: any;
     WebSocket: WebSocket | any;
     ConsoleModule: ConsoleModule;
     HippyDealloc?: () => void;

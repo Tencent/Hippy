@@ -393,21 +393,18 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             int ids = strongSelf->_domManager->GetRootId();
             auto rootNode = strongSelf->_domManager->GetNode(ids);
             rootNode->GetLayoutNode()->SetScaleFactor(scale);
-            strongSelf->_domManager->StartTaskRunner();
+            strongSelf->_domManager->Init();
             strongSelf->_domManager->SetRootSize(size.width, size.height);
 
             strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
             strongSelf->_renderManager->SetFrameworkProxy(weakProxy);
             strongSelf->_renderManager->RegisterRootView(weakView);
             strongSelf->_renderManager->SetDomManager(strongSelf->_domManager);
-            
+
             strongSelf->_domManager->SetRenderManager(strongSelf->_renderManager);
-            
+
             [strongSelf setUpDomManager:strongSelf->_domManager];
-            
-            strongSelf->_animationManager = std::make_shared<hippy::AnimationManager>(strongSelf->_domManager);
-            strongSelf->_domManager->AddInterceptor(strongSelf->_animationManager);
-            
+
             strongSelf.renderContext = strongSelf->_renderManager->GetRenderContext();
         }
     };
@@ -643,7 +640,7 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
                 dispatch_semaphore_signal(strongBridge.semaphore);
 
                 HippyAssert(!strongBridge.isLoading, @"error, common bundle loaded unfinished");
-                
+
                 if ([self.batchedBridge.javaScriptExecutor respondsToSelector:@selector(updateGlobalObjectBeforeExcuteSecondary)]) {
                     [self.batchedBridge.javaScriptExecutor updateGlobalObjectBeforeExcuteSecondary];
                 }
@@ -672,7 +669,7 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
                     }
 
                     batchedBridge.isSecondaryBundleLoading = NO;
-                    
+
                     [self.performanceLogger markStopForTag:HippySecondaryExecuteSource];
                     [self.performanceLogger markStopForTag:HippySecondaryStartup];
 

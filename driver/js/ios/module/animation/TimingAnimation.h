@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <QuartzCore/CAMediaTimingFunction.h>
 #import <UIKit/UIView.h>
-#import "dom/animation_manager.h"
+#import "dom/animation/animation_manager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
