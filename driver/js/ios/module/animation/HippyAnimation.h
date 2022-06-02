@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
-#import "dom/animation_manager.h"
+#import "dom/animation/animation_manager.h"
 
 @class HippyAnimation;
 

@@ -273,7 +273,7 @@ inline void JSValueWrapper::deallocate() {
       array_value_.~vector();
       break;
     case Type::Object:
-      object_value_.clear();
+      object_value_.~unordered_map();
       break;
     default:
       break;

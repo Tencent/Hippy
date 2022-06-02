@@ -176,7 +176,7 @@ static ValueInfo ValueForMediaTime(double startValue, double endValue, double du
             std::shared_ptr<DomValue> value = std::make_shared<DomValue>(valueInfo.targetValue);
             std::pair<uint32_t, std::shared_ptr<DomValue>> pair = std::make_pair([self.animationId unsignedIntValue], std::move(value));
             std::vector<std::pair<uint32_t, std::shared_ptr<DomValue>>> valueVector = {std::move(pair)};
-            aniManager->OnAnimationUpdate(std::move(valueVector));
+            // aniManager->OnAnimationUpdate(std::move(valueVector));
             return YES;
         }
     }

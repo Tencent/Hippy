@@ -536,15 +536,14 @@ bool V8Ctx::RegisterGlobalInJs() {
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
   v8::Local<v8::Object> global = context->Global();
-
-  return global
-      ->Set(context,
-            v8::String::NewFromOneByte(
-                isolate_, reinterpret_cast<const uint8_t*>("global"),
-                v8::NewStringType::kNormal)
-                .ToLocalChecked(),
-            global)
+  global->Set(context,v8::String::NewFromOneByte(
+      isolate_, reinterpret_cast<const uint8_t*>(kGlobalKey),
+      v8::NewStringType::kNormal).ToLocalChecked(), global)
       .FromMaybe(false);
+  v8::Local<v8::Object> hippy_obj = v8::Object::New(isolate_);
+  return global->Set(context, v8::String::NewFromOneByte(
+      isolate_, reinterpret_cast<const uint8_t*>(kHippyKey),
+      v8::NewStringType::kNormal).ToLocalChecked(), hippy_obj).FromMaybe(false);
 }
 
 bool V8Ctx::SetGlobalJsonVar(const unicode_string_view& name,
@@ -640,7 +639,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue>& object,
     const unicode_string_view& name) {
-  TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name =" << name;
+  TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name = " << name;
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(object);
   v8::HandleScope handle_scope(isolate_);
@@ -1094,14 +1093,9 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
     double v8_value = handle_value->ToNumber(context).ToLocalChecked()->Value();
     return std::make_shared<JSValueWrapper>(v8_value);
   } else if (handle_value->IsArray()) {
-    v8::Local<v8::Object> v8_value =
-        handle_value->ToObject(context).ToLocalChecked();
-    // v8::NewStringType::kInternalized
-    v8::Local<v8::Array>::Cast(handle_value);
-    v8::Local<v8::String> len_str =
-        v8::String::NewFromOneByte(isolate_,
-                                   reinterpret_cast<const uint8_t*>("length"),
-                                   v8::NewStringType::kInternalized)
+    v8::Local<v8::Object> v8_value = handle_value->ToObject(context).ToLocalChecked();
+    v8::Local<v8::String> len_str = v8::String::NewFromOneByte
+        (isolate_,  reinterpret_cast<const uint8_t*>("length"), v8::NewStringType::kInternalized)
             .ToLocalChecked();
     uint32_t len = v8_value->Get(context, len_str)
         .ToLocalChecked()
@@ -1939,8 +1933,8 @@ unicode_string_view V8Ctx::CopyFunctionName(
   return result;
 }
 
-void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
-  auto instance_define = hippy::MakeEventInstanceDefine(scope, dom_event);
+void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> weak_scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
+  auto instance_define = hippy::MakeEventInstanceDefine(weak_scope, dom_event);
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -1951,32 +1945,34 @@ void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<C
   v8::Local<v8::Object> instance = function->NewInstance(context).ToLocalChecked();
 
   // run callback with Event Object
-  if(scope.lock()) {
-    if (callback == nullptr) {
-      scope.lock()->GetContext()->ThrowException(tdf::base::unicode_string_view("callback function nullptr"));
-      return;
-    }
+  auto scope = weak_scope.lock();
+  if (!scope) {
+    return;
+  }
+  if (!callback) {
+    scope->GetContext()->ThrowException(tdf::base::unicode_string_view("callback function nullptr"));
+    return;
+  }
 
-    if (context.IsEmpty() || context->Global().IsEmpty()) {
-      scope.lock()->GetContext()->ThrowException(tdf::base::unicode_string_view("v8 context is empty"));
-      return;
-    }
+  if (context.IsEmpty() || context->Global().IsEmpty()) {
+    scope->GetContext()->ThrowException(tdf::base::unicode_string_view("v8 context is empty"));
+    return;
+  }
 
-    std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(callback);
-    v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
-    if (!handle_value->IsFunction()) {
-      scope.lock()->GetContext()->ThrowException(tdf::base::unicode_string_view("callback is not a function"));
-      return;
-    }
+  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(callback);
+  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+  if (!handle_value->IsFunction()) {
+    scope->GetContext()->ThrowException(tdf::base::unicode_string_view("callback is not a function"));
+    return;
+  }
 
-    // call the callback function
-    v8::Function* v8_fn = v8::Function::Cast(*handle_value);
-    auto param = v8::Local<v8::Value>::New(isolate_, instance);
-    v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(context, context->Global(), 1, &param);
-    if(maybe_result.IsEmpty()) {
-      scope.lock()->GetContext()->ThrowException(tdf::base::unicode_string_view("maybe_result is empty"));
-      return;
-    }
+  // call the callback function
+  v8::Function* v8_fn = v8::Function::Cast(*handle_value);
+  auto param = v8::Local<v8::Value>::New(isolate_, instance);
+  v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(context, context->Global(), 1, &param);
+  if (maybe_result.IsEmpty()) {
+    scope->GetContext()->ThrowException(tdf::base::unicode_string_view("maybe_result is empty"));
+    return;
   }
 }
 

@@ -396,7 +396,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   };
 
   FunctionDefine<SceneBuilder> create_func_def;
-  create_func_def.name = "Create";
+  create_func_def.name = "create";
   create_func_def.cb = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
@@ -412,7 +412,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   def.functions.emplace_back(std::move(create_func_def));
 
   FunctionDefine<SceneBuilder> update_func_def;
-  update_func_def.name = "Update";
+  update_func_def.name = "update";
   update_func_def.cb = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
@@ -428,7 +428,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   def.functions.emplace_back(std::move(update_func_def));
 
   FunctionDefine<SceneBuilder> move_func_def;
-  move_func_def.name = "Move";
+  move_func_def.name = "move";
   move_func_def.cb = [weak_scope](SceneBuilder *builder, size_t argument_count,
                                   const std::shared_ptr<CtxValue> arguments[])
       -> std::shared_ptr<CtxValue> {
@@ -471,7 +471,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   def.functions.emplace_back(std::move(move_func_def));
 
   FunctionDefine<SceneBuilder> delete_func_def;
-  delete_func_def.name = "Delete";
+  delete_func_def.name = "delete";
   delete_func_def.cb = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
@@ -511,7 +511,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   def.functions.emplace_back(std::move(delete_func_def));
 
   FunctionDefine<SceneBuilder> add_event_listener_def;
-  add_event_listener_def.name = "AddEventListener";
+  add_event_listener_def.name = "addEventListener";
   add_event_listener_def.cb = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
@@ -527,7 +527,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   def.functions.emplace_back(std::move(add_event_listener_def));
 
   FunctionDefine<SceneBuilder> remove_event_listener_def;
-  remove_event_listener_def.name = "RemoveEventListener";
+  remove_event_listener_def.name = "removeEventListener";
   remove_event_listener_def.cb = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
@@ -544,7 +544,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
 
 
   FunctionDefine<SceneBuilder> build_func_def;
-  build_func_def.name = "Build";
+  build_func_def.name = "build";
   build_func_def.cb = [weak_scope](
       SceneBuilder* builder,
       size_t argument_count,
@@ -562,14 +562,14 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
   };
   def.functions.emplace_back(std::move(build_func_def));
 
-  std::shared_ptr<InstanceDefine<SceneBuilder>> build = std::make_shared<
+  std::shared_ptr<InstanceDefine<SceneBuilder>> instance_define = std::make_shared<
       InstanceDefine<SceneBuilder>>(def);
   auto scope = weak_scope.lock();
   if (scope) {
-    scope->SaveClassInstance(build);
+    scope->SaveSceneBuildClassInstance(instance_define);
   }
 
-  return build;
+  return instance_define;
 }
 
 }

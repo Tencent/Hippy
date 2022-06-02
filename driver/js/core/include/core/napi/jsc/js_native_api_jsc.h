@@ -34,6 +34,7 @@
 #include "core/napi/js_native_api_types.h"
 #include "core/scope.h"
 #include "core/modules/scene_builder.h"
+#include "core/modules/animation_module.h"
 #include "dom/scene_builder.h"
 #include "core/base/string_view_utils.h"
 #include "core/modules/event_module.h"
@@ -55,9 +56,12 @@ constexpr char16_t kPrototypeStr[] = u"prototype";
 constexpr char16_t kObjectStr[] = u"Object";
 constexpr char16_t kGetStr[] = u"get";
 constexpr char16_t kSetStr[] = u"set";
+constexpr char16_t kGlobalStr[] = u"global";
+constexpr char16_t kHippyKey[] = u"Hippy";
 
 constexpr char kGetterStr[] = "getter";
 constexpr char kSetterStr[] = "setter";
+
 
 class JSCVM : public VM {
  public:
@@ -285,6 +289,11 @@ class JSCTryCatch : public TryCatch {
 inline void JSCCtx::RegisterClasses(std::weak_ptr<Scope> scope) {
   auto build = hippy::RegisterSceneBuilder(scope);
   RegisterJsClass(build);
+  auto animation = hippy::RegisterAnimation(scope);
+  RegisterJsClass(animation);
+  auto animation_set = hippy::RegisterAnimationSet(scope);
+  RegisterJsClass(animation_set);
+  
 }
 
 template <typename T>
@@ -434,6 +443,18 @@ JSObjectCallAsConstructorCallback JSCCtx::NewConstructor() {
 
 template <typename T>
 void JSCCtx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_define) {
+  JSValueRef js_error = nullptr;
+  JSStringRef hippy_ref = CreateWithCharacters(kHippyKey);
+  JSValueRef object_value_ref = JSObjectGetProperty(context_, JSContextGetGlobalObject(context_), hippy_ref, &js_error);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
+    return;
+  }
+  JSObjectRef object = JSValueToObject(context_, object_value_ref, &js_error);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
+    return;
+  }
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.attributes = kJSClassAttributeNone;
   cls_def.callAsConstructor = NewConstructor<T>();
@@ -443,10 +464,12 @@ void JSCCtx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_
   auto* data = new PrivateData<T>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};
   auto obj = JSObjectMake(context_, cls_ref, data);
   auto name_ref = JSStringCreateWithUTF8CString(name.c_str());
-  JSObjectSetProperty(context_, JSContextGetGlobalObject(context_), name_ref,
-                      obj,
-                      kJSPropertyAttributeDontDelete, nullptr);
+  JSObjectSetProperty(context_, object, name_ref, obj, kJSPropertyAttributeDontDelete, &js_error);
   JSStringRelease(name_ref);
+  if (js_error) {
+    SetException(std::make_shared<JSCCtxValue>(context_, js_error));
+    return;
+  }
   cls_def.finalize = [](JSObjectRef object) {
     delete static_cast<PrivateData<T>*>(JSObjectGetPrivate(object));
   };

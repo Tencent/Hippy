@@ -41,7 +41,6 @@ using StringViewUtils = hippy::base::StringViewUtils;
 using JSValueWrapper = hippy::base::JSValueWrapper;
 using DomValue = tdf::base::DomValue;
 
-const char16_t kGlobalStr[] = u"global";
 
 JSValueRef JsCallbackFunc(JSContextRef ctx,
                           JSObjectRef function,
@@ -260,11 +259,18 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(const std::shared_ptr<Scope>& sco
 
 bool JSCCtx::RegisterGlobalInJs() {
   JSStringRef global_ref = CreateWithCharacters(kGlobalStr);
-  // JSStringRef global_ref = JSStringCreateWithUTF8CString("global");
   JSObjectSetProperty(context_, JSContextGetGlobalObject(context_), global_ref,
                       JSContextGetGlobalObject(context_),
                       kJSPropertyAttributeDontDelete, nullptr);
   JSStringRelease(global_ref);
+  
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef hippy_obj = JSObjectMake(context_, cls_ref, nullptr);
+  JSStringRef hippy_ref = CreateWithCharacters(kHippyKey);
+  JSObjectSetProperty(context_, JSContextGetGlobalObject(context_), hippy_ref, hippy_obj, kJSPropertyAttributeDontDelete, nullptr);
+  JSClassRelease(cls_ref);
+  JSStringRelease(hippy_ref);
 
   return true;
 }
