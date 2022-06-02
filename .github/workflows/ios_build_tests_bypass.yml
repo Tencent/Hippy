@@ -10,7 +10,9 @@ on:
     paths-ignore:
       - 'driver/js/ios/**'
       - 'driver/js/core/**'
-      - 'layout/ios/**'
+      - 'dom/**'
+      - 'layout/engine/**'
+      - 'modules/ios/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
       - 'hippy.podspec'
