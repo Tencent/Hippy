@@ -18,7 +18,7 @@ Hippy SDK 现在所提供的 Adapter 包括：
 
 # HippyImageLoaderAdapter
 
-由于图片加载复杂度较高，实现需要增加 SDK 包大小，而且每个 App 都有自己的图片加载机制，所以 `SDK不提供默认实现`。
+由于图片加载复杂度较高，实现需要增加 SDK 包大小，而且每个 App 都有自己的图片加载机制，所以 **SDK不提供默认实现**。
 
 ## HippyImageRequestListener
 

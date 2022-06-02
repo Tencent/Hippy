@@ -1,7 +1,7 @@
 <!-- docs/ios/_sidebar.md -->
 
-* [iOS 集成](ios/integration.md)
-* [终端事件](ios/event.md)
-* [定制适配器](ios/custom-adapter.md)
-* [定制界面组件](ios/custom-component.md)
-* [定制模块](ios/custom-module.md)
+* [iOS Integration](ios/integration.md)
+* [Native Events](ios/event.md)
+* [Custom Adapters](ios/custom-adapter.md)
+* [Custom UI Components](ios/custom-component.md)
+* [Custom Modules](ios/custom-module.md)

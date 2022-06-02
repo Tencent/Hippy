@@ -1,26 +1,26 @@
-# 定制界面组件
+# Custom UI Components
 
-App开发中会使用大量UI组件，Hippy SDK已经包含了一些基本UI，比如 View, Text, Image 等。
-而用户若想进行自定义组件也十分简单。
+A large number of UI components are used in App development, and the Hippy SDK already contains some basic UI, such as View, Text, Image, etc.
+Also, it's easy for users to customize their own components.
 
-# 组件扩展
+# Component Extension
 
-我们以创建MyView为例，从头介绍如何扩展一个组件。
+Let's take the creation of MyView as an example to show you how to extend a component from scratch.
 
->本文仅介绍ios端工作，前端工作请查看对应的文档。
+>This article only introduces iOS work. Please check the corresponding documents for web Frontend.
 
-扩展一个UI组件需要包括以下工作：
+Extending a UI component involves the following:
 
-1. 创建对应的ViewManager
-2. 注册类并绑定前端组件
-3. 绑定View属性及方法
-4. 创建对应的shadowView和View
+1. Create the corresponding ViewManager
+2. Register classes and bind Frontend components
+3. Bind `View` properties and methods
+4. Create corresponding `shadowView` and `View`
 
-## 创建对应的ViewManager
+## Create corresponding ViewManager
 
-> ViewManager 是对应的视图管理组件，负责前端视图和终端视图直接进行属性、方法的调用。
-> SDK 中最基础的 ViewManager 是 HippyViewManager，封装了基本的方法，负责管理 HippyView。
-> 用户自定的 ViewManager 必须继承自 HippyViewManager
+>ViewManager is the corresponding view Management component, responsible for directly calling properties and methods from front-end view and native view.
+>The most basic view Manager in the SDK is the `HippyView` manager, which encapsulates the basic method and is responsible for managing the `HippyView`.
+>User-defined ViewManager must inherit from `HippyViewManager`.
 
 HippyMyViewManager.h
 
@@ -60,44 +60,44 @@ HIPPY_EXPORT_METHOD(focus:(nonnull NSNumber *)reactTag callback:(HippyResponseSe
 }
 ```
 
-## 类型导出
+## Type export
 
-`HIPPY_EXPORT_MODULE()` 将 HippyMyViewManager 类注册，前端在对 MyView 进行操作时会通过 HippyMyViewManager 进行实例对象指派。
+`HIPPY_EXPORT_MODULE()` registers the `HippyMyViewManager` class, and the front-end will assign instance objects through `HippyMyViewManager` when operating on `MyView`.
 
-`HIPPY_EXPORT_MODULE()`中的参数可选。代表的是 ViewManager 对应的View名称。
-若用户不填写，则默认使用类名称。
+Parameters of `HIPPY_EXPORT_MODULE()` are optional, representing the corresponding View name.
+If the user does not fill in parameters, default class name will be used.
 
-但是SDK中有个特殊处理逻辑，若参数中的字符串以 `Manager` 结尾，那SDK在根据字符串查找对应的 View 时会将删除结尾 `Manager` 后的字符串作为View名称
+Note: there is a special processing logic in the SDK. If the string in the parameter ends with `Manager`, the SDK will delete the tailing `Manager` and use as the View name.
 
-## 参数导出
+## Parameter export
 
-`HIPPY_EXPORT_VIEW_PROPERTY` 将终端View的参数和前端参数绑定。当前端设定参数值时，会自动调用 setter 方法设置到终端对应的参数。
-`HIPPY_REMAP_VIEW_PROPERTY()` 负责将前端对应的参数名和终端对应的参数名对应起来。以上述代码为例，前端的 opacity 参数对应终端的alpha参数。此宏一共包含三个参数，第一个为前端参数名，第二个为对应的终端参数名称，第三个为参数类型。另外，此宏在设置终端参数时使用的是keyPath方法，即终端可以使用keyPath参数。
-`HIPPY_CUSTOM_VIEW_PROPERTY()` 允许终端自行解析前端参数。SDK将前端传递过来的原始json类型数据传递给函数体（用户可以使用HippyConvert类中的方法解析对应的 数据），用户获取后自行解析。
+`HIPPY_EXPORT_VIEW_PROPERTY` binds the parameters between native view and the front-end. When the parameter value is set at front-end, the `setter` method will be automatically invoked to set the parameter to the native.
+`HIPPY_REMAP_VIEW_PROPERTY()` corresponds the parameter name between front-end and the native. Take the above code as an example, the `opacity` parameter of the front-end corresponds to the `alpha` parameter of the native. This macro contains three parameters. The first is the front-end parameter name, the second is the corresponding native parameter name, and the third is the parameter type. In addition, this macro uses `keyPath` method when setting native parameters, that is, the native can use the `keyPath` parameter.
+`HIPPY_CUSTOM_VIEW_PROPERTY()` allows native to parse the front-end parameters by itself. The SDK transfers the original JSON type data from the front-end to the function body (the user can use the method in the `HippyConvert` class to parse the corresponding data), and the user can parse the data after obtaining the data.
 
->这个方法带有两个隐藏参数-view, defaultView。view是指当前前端要求渲染的view。default指当前端渲染参数为nil时创建的一个临时view，使用其默认参数赋值。
+>This method has two hidden parameters, `view` and `defaultView`. `View` is the view that the current front-end renders. Default is a temporary view created when the front-end rendering parameter is nil, assigned with its default parameter.
 
-## 方法导出
+## Method export
 
-`HIPPY_EXPORT_METHOD` 能够使前端随时调用终端对应的方法。前端通过三种模式调用，分别是 `callNative`, `callNativeWithCallbackId`, `callNativeWithPromise`。终端调用这三种方式时，函数体写法可以参照上面的示例。
+`HIPPY_EXPORT_METHOD` enables the front-end to call native methods. There are three calling modes, `callNative`, `callNativeWithCallbackId`, `callNativeWithPromise`. You can refer to the snippet above.
 
-* callNative：此方法不需要终端返回任何值。
+* callNative: this method does not require the native to return any values.
 
-* callNativeWithCallbackId: 此方法需要终端在函数体中以单个block形式返回数据。block类型为 `HippyResponseSenderBlock`，参数为一个NSArray变量。
+* callNativeWithCallbackId: This method requires the native to return data in a single block. The block type is `HippyResponseSenderBlock` and the parameter is an `NSArray` variable.
 
-* callNativeWithPromise: 此方法对应的前端使用的是 promise 写法，对应到终端需要业务根据自身情况返回resolve block或者reject block。其中resolve block数据类型为`HippyPromiseResolveBlock`, 参数为一个可以被json化的对象。如果参数为nil，则JS端会将其转化为undefined。reject block数据类型为`HippyPromiseRejectBlock`，参数包括一个错误码，错误信息，以及错误实例对象(NSError)。
+* callNativeWithPromise: Corresponding to Promise in front-end, and the service corresponding to the native needs to return a resolve block or a reject block according to its own situation. The datatype of resolve block is`HippyPromiseResolveBlock`, and the parameter is an object that can be Jsonified. If the argument is nil, the JS side converts it to undefined. The datatype of reject block data is `HippyPromiseRejectBlock`, which includes an error code, error information, and error instance object (NSError).
 
-一个ViewManager可以管理一种类型的多个实例，为了在ViewManager中区分当前操作的是哪个View，每一个导出方法对应的第一个参数都是View对应的tag值，用户可根据这个tag值找到对应操作的view。
+A `ViewManager` can manage multiple instances of one type. In order to distinguish which View is currently operated in the `ViewManager`, the first parameter corresponding to each export method is the tag value corresponding to the View. The user can find the view corresponding to the operation according to the tag.
 
-> 由于导出方法并不会在主线程中调用，因此如果用户需要进行UI操作，则必须将其分配至主线程。推荐在导出方法中使用[self.bridge, uiManager addUIBlock:]方法。其中的block类型为`HippyViewManagerUIBlock`。
+>As the export method will not be called in the main thread, if the user needs to perform UI action, it must be assigned to the main thread. We recommend using the [self.bridge, uiManager addUIBlock:] method in the export method, where the block type should be`HippyViewManagerUIBlock`.
 
-> `typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry)`。第二个参数为字典，其中的key就是对应的view tag值，value就是对应的view。
+> `typedef void (^HippyViewManagerUIBlock)(HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry)`。The second parameter is a dictionary, in which the key is the corresponding view tag value, and the value is the corresponding view.
 
-## 创建shadowView和View
+## Create shadowView and View
 
-在OC层，HippyUIManager负责将JS层的解析结果，映射到OC层的视图层级，HippyShadowView它不是真正展现的视图，只是一个映射结果而已，每一个HippyShadowView对应一个真正的视图，但它已经完成了基本的布局。
->HippyView会根据HippyShadowView的映射结果构建真正的View视图。因此对于大多数情况下的自定义view manager来说，直接创建一个HippyShadowView即可。
+In the OC layer, the `HippyUIManager` is responsible for mapping the parsed results of the JS layer to the view level of the OC layer. The `HippyShadowView` is not the real view, but merely a mapping result. Each `HippyShadowView` corresponds to a real view, but it has completed the basic layout.
+>`HippyView` builds a true view based on the mapping results of `HippyShadowView`. Therefore, for a custom view manager in most cases, just create a `HippyShadowView`.
 
-HippyUIManager将调用[HippyMyViewManager view]方法去创建一个真正的view，用户需要实现这个方法并返回自己所需要的HippyMyView。
+The `HippyUIManager` will call the [HippyMyViewManager view] method to create a real view, and users need to implement this method and return the `HippyMyView` for their own need.
 
-到此，一个简单的HippyMyViewManager与HippyMyView创建完成。
+At this point, a simple `HippyMyViewManager` and `HippyMyView` has been created created.
