@@ -10,7 +10,9 @@ on:
     paths-ignore:
       - 'driver/js/android/**'
       - 'driver/js/core/**'
-      - 'layout/android/**'
+      - 'dom/**'
+      - 'layout/engine/**'
+      - 'modules/android/**'
       - 'renderer/native/android/**'
       - 'devtools/devtools-backend/**'
       - 'gradle/**'
