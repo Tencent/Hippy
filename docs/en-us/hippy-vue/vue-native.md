@@ -104,7 +104,7 @@ Vue.Native.AsyncStorage.setItem('itemKey', 'itemValue');
 Vue.Native.AsyncStorage.getItem('itemKey');
 ```
 
-## Method
+## Methods
 
 ### AsyncStorage.getAllKeys
 
@@ -158,7 +158,7 @@ You can monitor the rollback of Android entity keys, do actions before exiting o
 >* Minimum Supported Version 2.7.0
 >* Note: This method requires the native to intercept the event of the entity return button. Please refer to [onBackPressed method of android-demo](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
-## Method
+## Methods
 
 ### BackAndroid.addListener
 
@@ -198,7 +198,7 @@ Invoke a native method defined by a component
 
 Clipboard read-write module, but currently only supports plain text.
 
-## Method
+## Methods
 
 ### getString()
 
@@ -220,7 +220,7 @@ return value:
 
 Provides the ability to output front-end logs to iOS native logs and [Android logcat](//developer.android.com/studio/command-line/logcat)
 
-## Method
+## Methods
 
 ### ConsoleModule.log
 
@@ -247,7 +247,7 @@ Provides the ability to output front-end logs to iOS native logs and [Android lo
 
 The `set-cookie` Header returned by the fetch service in Hippy will automatically save the Cookie, which will be brought with the request next time. Then the native provides this interface so that the service can obtain or modify the saved Cookie.
 
-## Method
+## Methods
 
 ### getAll(url)
 
@@ -261,7 +261,7 @@ Return Value:
 
 ### set(url, keyValue, expireDate)
 
-Props：
+Attributes:
 
 | Props | Type     | Require | Props meaning |
 | -------- | -------- | -------- |  -------- |
@@ -294,7 +294,7 @@ Can do the corresponding operations to the remote image through this module.
 
 > Minimum Supported Version 2.7.0
 
-## Method
+## Methods
 
 ### ImageLoaderModule.getSize
 
@@ -343,7 +343,7 @@ Determine whether the device is connected to the Internet and used a mobile data
 * `CELL` - Device connected to the Internet via mobile network
 * `UNKNOWN` - Abnormal or unknown networking status 
 
-## Method
+## Methods
 
 ### NetInfo.addEventListener
 
@@ -369,7 +369,7 @@ Determine whether the device is connected to the Internet and used a mobile data
 
 Color value type conversion, obtain the `int32` type color value that can be identified by the native through the API. Can be used to pass parameters through the interface when directly comminicate with the native (such as `callNative`).
 
-| Props | Type     | Require | Props meaning |
+| Props | Type     | Require | Description |
 | --------  | -------- | -------- |  -------- |
 | color | `string` `number` | yes  | Converted color values, supported types: `rgb`,`rgba`, `hex` |
 

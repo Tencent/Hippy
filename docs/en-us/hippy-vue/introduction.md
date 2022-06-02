@@ -1,5 +1,5 @@
 
-# hippy-vue Introduction
+# hippy-vue introduction
 
 hippy-vue is based on the official vue 2.x source code, and implements a custom rendering layer by rewriting the [node-ops](//github.com/Tencent/Hippy/blob/master/packages/hippy-vue/src/runtime/node-ops.js) plug-in, but it is not only a rendering layer to the terminal, but also realizes the mapping of front-end components to the terminal and CSS syntax parsing. Unlike other cross-end frameworks, it strives to bring the Web-side development experience to the terminal while maintaining compatibility with the Web ecosystem.
 
@@ -33,6 +33,9 @@ const app = new Vue({
 app.$start((instance, initialProps) => {
   console.log('instance', instance, 'initialProps', initialProps);
 });
+
+//If you need to get the initialProps on the first View rendering, you can read app.$options.$superProps directly
+
 ```   
 
 # Style

@@ -26,7 +26,7 @@ export default {
 
 ```
 
-# Event Trigger
+# Event emit
 
 If you need to send events manually, you can call through `app.$`.
 
@@ -35,7 +35,7 @@ const app = getApp();
 app.$emit('rotate', { width: 100, height: 100 });
 ```
 
-# Event Offload
+# Event remove
 
 If you don't need to use, please remember to call the listening remove method. It is typically executed during the component's unload life cycle.
 

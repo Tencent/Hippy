@@ -6,7 +6,7 @@ Extensions are some convenient components provided by the native, which are prov
 
 ---
 
-# Animation
+# animation
 
 [[Example: demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-animation.vue)
 
@@ -14,7 +14,7 @@ This component is the animation solution of hippy-vue. It can trigger the action
 
 It should note is that an animation itself is a View, it will drive all the child nodes animation together, so if the animation needs to be controlled separately, you need to split them on the interface level.
 
-## Props
+## Attributes
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -34,7 +34,7 @@ It should note is that an animation itself is a View, it will drive all the chil
   * set `valueType` to `color`
   * set `startValue` and `toValue` to [color value](style/color.md)
 
-## Event
+## Events
 
 > minimum supported version 2.5.2
 
@@ -44,7 +44,7 @@ It should note is that an animation itself is a View, it will drive all the chil
 | end         | Called when animation ends                                   | `Function`| `Android、iOS`    |
 | repeat | Called each time the loop is played                                | `Function` | `Android`   |
 
-## Method
+## Methods
 
 > minimum supported version 2.5.2
 
@@ -80,7 +80,7 @@ It should note is that an animation itself is a View, it will drive all the chil
 
 Used for modal pop-up window, the default background is transparent, needs to add a `<div>` with background color to fill.
 
-## Props
+## Attributes
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -90,7 +90,7 @@ Used for modal pop-up window, the default background is transparent, needs to ad
 | darkStatusBarText     | Whether main body text is bright color, the default font color is black. The Modal background will be dark after changing it to true, the font color will be changed to white. | `boolean`                                                    | `Android、iOS`    |
 | transparent | Whether the background is transparent. `default: true` | `boolean`                                                    | `Android、iOS`    |
 
-## Event
+## Events
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -106,7 +106,7 @@ Used for modal pop-up window, the default background is transparent, needs to ad
 
 A container that supports paging, its each child container component will be regarded as a separate page, corresponding the native `ViewPager` component, it can only contain `<swiper-slide>` components.
 
-## Props
+## Attributes
 
 | Props                     | Description                                                         | Type                                         | Supported Platforms |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
@@ -117,7 +117,7 @@ A container that supports paging, its each child container component will be reg
 | scrollEnabled            | Specify whether ViewPager can slide, the default is true                        | `boolean`                                    | `Android、iOS`    |
 | direction            | Set viewPager scroll direction, the default is horizontal scroll, use `vertical` for vertical scroll                       | `string`                                    | `Android`    |
 
-## Event
+## Events
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -146,7 +146,7 @@ Subcontainer of the flipping component container.
 
 Dropdown refresh component, nested in `ul` as first child element
 
-## Event
+## Events
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -154,7 +154,7 @@ Dropdown refresh component, nested in `ul` as first child element
 | pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset                                         | `Function`   | `Android、iOS`    |
 | released   | Called once after the sliding beyond the distance.         | `Function`   | `Android、iOS`    |
 
-## method
+## Methods
 
 ### collapsePullHeader
 
@@ -168,7 +168,7 @@ Dropdown refresh component, nested in `ul` as first child element
 
 Pull-up refresh component, nested in `ul` as last child element
 
-## Event
+## Events
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -176,7 +176,7 @@ Pull-up refresh component, nested in `ul` as last child element
 | pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset     | `Function`   | `Android、iOS`    |
 | refresh   | Called once after the sliding beyond the distance.          | `Function`   | `Android、iOS`    |
 
-## method
+## Methods
 
 ### collapsePullFooter
 
@@ -192,7 +192,7 @@ Pull-up refresh component, nested in `ul` as last child element
 
 Waterfall flow component, the child element must be `waterfall-item`, waterfall flow component drop-down needs to use `ul-refresh-wrapper` in the outermost layer when refresh, you can use `pull-footer` in the `waterfall` to show the pull-up loading text.
 
-## Props
+## Attributes
 
 | Props              | Description                                                  | Type       | Supported Platforms |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
@@ -205,14 +205,14 @@ Waterfall flow component, the child element must be `waterfall-item`, waterfall 
 | numberOfColumns   | Number of waterfall columns, Default: 2                                               | `number`   | `Android、iOS`    |
 | preloadItemNumber | Number of items preloaded in advance before sliding to the bottom of waterfall       | `number`   | `Android、iOS`    |
 
-## Event
+## Events
 
 | Event name              | Description           | `type`     | Supported Platforms |
 | --------------------- | -------------- | ---------- | -------- |
 | endReached      | When all the data has been rendered, and the list is scrolled to the last one, `onEndReached` will be called.            | `Function` | `Android、iOS`    |
 | scroll          | Called when the sliding event of `WaterFall` is called. `startEdgePos` is that scroll offset from the top edge of the List; `endEdgePos` is the scroll offset from the bottom edge of the List; `firstVisibleRowIndex` is the index of the first element in the currently visible area; `lastVisibleRowIndex` is the index of the last element in the currently visible area; `visibleRowFrames` is the information (x, y, width, height) of all items in the currently visible area    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS`    |
 
-## Method
+## Methods
 
 ### scrollToIndex
 

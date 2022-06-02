@@ -1,4 +1,4 @@
-# router
+# Router
 
 Vue-router implements [@hippy/vue-router](//www.npmjs.com/package/@hippy/vue-router) by slightly modifying the official router and provides the same interface.
 

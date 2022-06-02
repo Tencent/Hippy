@@ -10,7 +10,7 @@ The definition of core components is consistent with the browser and Vue. It can
 
 This component is currently mapped to the native Text component and is currently used primarily for page jumps in hippy-vue-router. All the same with [p](hippy-vue/components.md?id=p).
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -27,7 +27,7 @@ This component is currently mapped to the native Text component and is currently
 
 This component is mapped to the View component, and the container can be used to place pictures and texts. But because the View can't wrap text, so you need to wrap other text components in the `<button>` to display text, this is not the same as the browser, the browser `<button>` can also wrap `<span>` components, so please pay attention to it when developing. All the same with [div](hippy-vue/components.md?id=div).
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -46,7 +46,7 @@ This component is mapped to the View component, and the container can be used to
 
 > div component container. By default, scrolling is not allowed. `overflow-y: scroll` style attribute can be added to make it switch to vertical scroll container, `overflow-x: scroll` style attribute can be added to make it switch to horizontal scroll container. On the native side this will be mapped to [ScrollView](hippy-react/components.md?id=ScrollView), so it has the same capabilities as [ScrollView](hippy-react/components.md?id=ScrollView).
 
-## Props
+## Attributes
 
 | Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
@@ -68,7 +68,7 @@ This component is mapped to the View component, and the container can be used to
 
 ---
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -87,7 +87,7 @@ This component is mapped to the View component, and the container can be used to
 | touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
 | touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS`    |
 
-## Method
+## Methods
 
 ### scrollTo
 
@@ -134,7 +134,7 @@ Container components. All the same as [div](hippy-vue/components.md?id=div)。
 
 Embedded web page container.
 
-## Props
+## Attributes
 
 | Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
@@ -142,7 +142,7 @@ Embedded web page container.
 | method | request methods, `get`、`post` | `string`   | `Android、iOS`    |
 | userAgent | Webview userAgent | `string` | `Android、iOS`|
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -161,7 +161,7 @@ Image component, same as browser.
 > * Note: Width and height must be specified in the style or it will not work. 
 > * Note: Android uses a grey background as a placeholder by default, so you can add `background-color: transparent` to make the image transparent.
 
-## Props
+## Attributes
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -175,7 +175,7 @@ Image component, same as browser.
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | resize-mode        |  Determines how to resize an image when the component size is out of proportion to the image size.  |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS`    |
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -242,7 +242,7 @@ The meaning of this parameter is：
 
 Please refer to the Android development documentation for details.
 
-## Props
+## Attributes
 
 | Props                  | Description                                      | Type                                                         | Supported Platforms  |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
@@ -258,7 +258,7 @@ Please refer to the Android development documentation for details.
 | returnKeyType         | Specifies the style of the soft keyboard's Enter key displayed.   | `enum(done, go, next, search, send)`              | `Android、iOS`     |
 | value                 | Specifies the value of the `input` component.                        | `string`                                                     | `Android、iOS`     |
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -270,7 +270,7 @@ Please refer to the Android development documentation for details.
 | layout              |  Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS`     |
 | selectionChange     | Called when the range of the input box selection text is changed.The style of the return parameters such as `{nativeEvent: { selection: { start, end } } }` | `Function`                                                   | `Android、iOS`     |
 
-## Method
+## Methods
 
 ### blur
 
@@ -302,7 +302,7 @@ Please refer to the Android development documentation for details.
 
 Show the text. All the same as [p](hippy-vue/components.md?id=p)。
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -319,7 +319,7 @@ Show the text. All the same as [p](hippy-vue/components.md?id=p)。
 
 Hippy's key features, high performance reusable list components, on the native side will be mapped to `ListView`, contains all abilities of `ListView`. The first layer inside can only contain `<li>`.
 
-## Props
+## Attributes
 
 | Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
@@ -337,7 +337,7 @@ Hippy's key features, high performance reusable list components, on the native s
 | editable | Whether it is editable or not, set to `true` when sideslip deletion is enabled. ` minimum support version 2.9.0 `| `boolean`                                                  | `iOS`    |
 | delText | Sideslip to delete text. `minimum support version 2.9.0` | `string`                                                  | `iOS`    |
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -350,7 +350,7 @@ Hippy's key features, high performance reusable list components, on the native s
 | layout      | Called when an element is mounted or the layout is changed. The parameters are: `nativeEvent: {layout: {x, y, width, height}}` where `x` and `y` are the coordinate positions relative to the parent element. | `Function`                                | `Android、iOS`    |
 | delete      | Called when a list item is sideslip and deleted. `minimum support version 2.9.0` | `(nativeEvent: { index: number}) => void`                                | `iOS`    |
 
-## Method
+## Methods
 
 ### scrollTo
 
@@ -376,7 +376,7 @@ ul's child nodes, the minimum granularity of the native layer node recycling and
 
 [[Example：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
 
-## Props
+## Attributes
 
 > When setting `ul`: `horizontal=true` When enabling horizontal infinite lists, explicitly set the `li` style width.
 
@@ -398,7 +398,7 @@ ul's child nodes, the minimum granularity of the native layer node recycling and
 
 Display text, but because there is no `display: Inline` display mode, the default is all flex.
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -407,7 +407,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
 | touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS`    |
 
-## Props
+## Attributes
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
@@ -429,7 +429,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 
 Show the text. All the same as [p](hippy-vue/components.md?id=p)。
 
-## Event
+## Events
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
