@@ -10,11 +10,11 @@ require('../../global/ConsoleModule.js'); // console
 require('../../global/UIManagerModule.js'); // Hippy.document
 require('../../global/Network.js'); // Headers fetch Response
 require('../../global/Storage.js'); // localStorageAsync
-require('../../global/Event.js'); // dealloc event
 require('../../global/flutter/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio
 require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.cancelVibrate
 require('../../global/flutter/global.js'); // __GLOBAL__
 require('../../bridge/flutter/native2js.js');
+require('../../global/Event.js'); // register global events callback
 require('../../global/flutter/requestAnimationFrame.js'); // requestAnimationFrame cancelAnimationFrame
 // require('../../global/flutter/Turbo.js'); // turbo
 

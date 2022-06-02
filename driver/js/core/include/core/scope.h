@@ -36,6 +36,7 @@
 #include "dom/dom_manager.h"
 #include "dom/render_manager.h"
 #include "dom/scene_builder.h"
+#include "dom/dom_value.h"
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #endif
@@ -59,6 +60,7 @@ class Scope {
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
   using DomManager = hippy::dom::DomManager;
+  using DomValue = tdf::base::DomValue;
   using RenderManager = hippy::dom::RenderManager;
   using UriLoader = hippy::base::UriLoader;
   using FunctionData = hippy::napi::FunctionData;
@@ -106,6 +108,8 @@ class Scope {
   std::shared_ptr<CtxValue> RunJSSync(const unicode_string_view& data,
                                       const unicode_string_view& name,
                                       bool is_copy = true);
+
+  void LoadInstance(const std::shared_ptr<DomValue>& value);
 
   inline std::shared_ptr<JavaScriptTaskRunner> GetTaskRunner() {
     return engine_->GetJSRunner();

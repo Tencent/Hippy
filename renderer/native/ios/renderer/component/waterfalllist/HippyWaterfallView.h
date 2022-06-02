@@ -28,14 +28,6 @@
 #import "HippyScrollProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
-/**
- * CollectionViewCell for HippyWaterfallView
- */
-@interface HippyCollectionViewCell : UICollectionViewCell
-
-@property (nonatomic, weak) UIView *cellView;
-
-@end
 
 @class HippyWaterfallViewDataSource;
 
@@ -45,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface HippyWaterfallView : HippyTouchesView <UICollectionViewDataSource, UICollectionViewDelegate,
                                         HippyCollectionViewDelegateWaterfallLayout, HippyScrollableProtocol, HippyScrollProtocol> {
     HippyWaterfallViewDataSource *_dataSource;
+@protected
+    NSMapTable<NSNumber *, UIView *> *_weakItemMap;
 }
 
 /**

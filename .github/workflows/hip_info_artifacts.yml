@@ -1,0 +1,71 @@
+name: '[hip] info artifacts'
+
+on:
+  workflow_dispatch:
+    inputs:
+      hip_domain:
+        description: 'HIP <domain>'
+        type: choice
+        options:
+        - hippy
+        - test
+        default: 'hippy'
+        required: true
+      hip_path:
+        description: 'HIP <path>(without domain)'
+        type: string
+
+jobs:
+  info_artifacts:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Install Requirement
+      run: |
+        pip install -U cos-python-sdk-v5
+    - name: Info artifact
+      shell: python
+      run: |
+        from qcloud_cos import CosConfig, CosS3Client
+        from os import getenv
+
+        def sizeof_fmt(num):
+          if num == 0:
+            return ""
+          for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
+              if abs(num) < 1024.0:
+                  return f"{num:3.1f}{unit}"
+              num /= 1024.0
+          return f"{num:.1f}Yi"
+
+        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
+        client = CosS3Client(config)
+
+        path = "${{ github.event.inputs.hip_domain }}/${{ github.event.inputs.hip_path }}"
+
+        if path.endswith("/") or path.endswith("\\"):
+          response = client.list_objects(
+              Bucket="${{ secrets.COS_BUCKET }}",
+              Prefix=path
+          )
+
+          with open(getenv("GITHUB_STEP_SUMMARY"), 'w', encoding='utf-8') as file:
+            file.write("Root Path: %s\n" % path)
+            file.write("| File | Size | LastModified |\n")
+            file.write("|------|------|------|\n")
+            for object in response["Contents"]:
+              file.write("| %s | %s | %s |\n" % (object["Key"], sizeof_fmt(int(object["Size"])), object["LastModified"]))
+        else:
+          response = client.get_object_tagging(
+              Bucket="${{ secrets.COS_BUCKET }}",
+              Key=path
+          )
+
+          with open(getenv("GITHUB_STEP_SUMMARY"), 'w', encoding='utf-8') as file:
+            file.write("File Path: %s\n" % path)
+            file.write("| TAG Key | TAG Value |\n")
+            file.write("|------|------|\n")
+            for tag in response["TagSet"]["Tag"]:
+              file.write("| %s | %s |\n" % (tag["Key"], tag["Value"]))

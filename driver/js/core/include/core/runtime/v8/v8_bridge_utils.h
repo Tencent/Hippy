@@ -89,11 +89,12 @@ class V8BridgeUtils {
                      std::function<void()> on_js_runner);
   static void CallNative(hippy::napi::CBDataTuple* data,
                          const std::function<void(std::shared_ptr<Runtime>,
-                                            unicode_string_view,
-                                            unicode_string_view,
-                                            unicode_string_view,
-                                            bool,
-                                            bytes)>& cb);
+                                                  unicode_string_view,
+                                                  unicode_string_view,
+                                                  unicode_string_view,
+                                                  bool,
+                                                  bytes)>& cb);
+  static void LoadInstance(int32_t runtime_id, bytes&& buffer_data);
  private:
   static std::function<void(std::shared_ptr<Runtime>,
                             unicode_string_view,

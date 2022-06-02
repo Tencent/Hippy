@@ -52,6 +52,7 @@ typedef void (^HippyViewUpdateCompletedBlock)(id<HippyRenderContext> renderConte
 
 //TODO Use a render view protocol instead of HippyShadowView in the future
 - (__kindof UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
+- (UIView *)updateShadowView:(HippyShadowView *)shadowView withAnotherShadowView:(HippyShadowView *)anotherShadowView;
 
 - (HippyAnimator *)animator;
 

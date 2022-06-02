@@ -22,6 +22,9 @@ cmake_minimum_required(VERSION 3.14)
 
 project("devtools_backend")
 
+include("../../buildconfig/cmake/InfraPackagesModule.cmake")
+include("../../buildconfig/cmake/compiler_toolchain.cmake")
+
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -32,27 +35,19 @@ message("DEVTOOLS_ROOT_PATH : ${DEVTOOLS_ROOT_PATH}")
 # add include directories
 include_directories(${BACKEND_INCLUDE_DIR})
 
-include(FetchContent)
-# FetchContent asio
-FetchContent_Declare(asio URL https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-22-1.tar.gz)
-FetchContent_GetProperties(asio)
-if(NOT asio_POPULATED)
-  FetchContent_Populate(asio)
-  include_directories(${asio_SOURCE_DIR}/asio/include)
-endif()
-
-# FetchContent websocketpp
-FetchContent_Declare(
-        websocketpp
-        GIT_REPOSITORY https://github.com/zaphoyd/websocketpp.git
-        GIT_TAG b9aeec6eaf3d5610503439b4fae3581d9aff08e8 # branch origin/develop
-        GIT_SHALLOW TRUE
+# InfaPackage asio
+InfaPackage_Add(asio
+  REMOTE "devtools/backend/third_party/asio/1.22.1/asio.tar.gz"
+  LOCAL "third_party/asio"
 )
-FetchContent_GetProperties(websocketpp)
-if(NOT websocketpp_POPULATED)
-  FetchContent_Populate(websocketpp)
-  include_directories(${websocketpp_SOURCE_DIR})
-endif()
+include_directories(${asio_SOURCE_DIR}/asio/include)
+
+# InfaPackage websocketpp
+InfaPackage_Add(websocketpp
+  REMOTE "devtools/backend/third_party/websocketpp/develop/git-repo.tgz"
+  LOCAL "third_party/websocketpp"
+)
+include_directories(${websocketpp_SOURCE_DIR})
 
 # add library
 file(GLOB_RECURSE DEVTOOLS_SRC
@@ -64,6 +59,8 @@ add_definitions("-DASIO_NO_TYPEID")
 
 # asio noexception
 add_definitions("-DASIO_NO_EXCEPTIONS")
+
+add_definitions("-DASIO_DISABLE_ALIGNOF")
 
 # json noexception
 add_definitions("-DJSON_NOEXCEPTION")
@@ -79,7 +76,11 @@ if(ANDROID OR IOS)
   add_library(${PROJECT_NAME} ${DEVTOOLS_SRC})
 endif()
 
-# FetchContent nlohmann_json
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
-FetchContent_MakeAvailable(json)
+# InfaPackage nlohmann_json
+InfaPackage_Add(json
+  REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
+  LOCAL "third_party/json"
+)
+
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_link_libraries(${PROJECT_NAME} PUBLIC nlohmann_json::nlohmann_json)

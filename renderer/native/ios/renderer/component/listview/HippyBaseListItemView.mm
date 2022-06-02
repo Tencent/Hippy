@@ -54,4 +54,8 @@
     [super setFrame:frame];
 }
 
+- (void)dealloc {
+    
+}
+
 @end

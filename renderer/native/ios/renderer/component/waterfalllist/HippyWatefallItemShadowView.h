@@ -20,25 +20,12 @@
  * limitations under the License.
  */
 
-#import "HippyWaterfallItemView.h"
-#import "UIView+Hippy.h"
+#import "HippyShadowView.h"
 
-@implementation HippyWaterfallItemView
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    if (self = [super initWithFrame:frame]) {
-        self.clipsToBounds = YES;
-    }
-    return self;
-}
-
-- (void)hippySetFrame:(CGRect)frame {
-    [super hippySetFrame:frame];
-    self.frame = self.bounds;
-}
-
-- (void)dealloc {
-    
-}
+@interface HippyWatefallItemShadowView : HippyShadowView
 
 @end
+
+NS_ASSUME_NONNULL_END
