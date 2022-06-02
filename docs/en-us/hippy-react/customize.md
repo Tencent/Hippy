@@ -1,6 +1,6 @@
-# Custom components and modules
+# Custom Component And Module
 
-# Custom component
+# Custom Components
 
 Define a custom React component by specifying the name of the native component by `nativeName` where it needs to be rendered. Take `MyView` in the native example as an example:
 
@@ -32,9 +32,9 @@ export class MyView extends React.Component {
 }
 ```
 
-# Custom module
+# Custom Modules
 
->This example only works on Android.
+> This example only works on Android.
 
 Front-end expansion modules are divided into three steps:
 

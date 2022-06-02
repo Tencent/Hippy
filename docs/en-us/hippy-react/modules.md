@@ -17,49 +17,37 @@
 
 > Note that when switching to the web, you need to use the setRef method to manually pass in the ref to run the animation normally. hippy-react-web does not support color gradient animation.
 
-## Construction parameter
+## Construction Attributes
 
-| Parameter             | Type               | Necessary| Default value| Description                                                                                                                                                                                                                                                    |
-| ---------------- | ------------------ | ---- | ------ |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| mode             | `string`           |Yes.   |  timing | Animation timeline mode                                                                                                                                                                                                                                        |
-| delay            | `number`           |Yes.   | -      | The animation delay start time, in milliseconds, the default is 0, that is, the animation will be executed immediately after the animation starts; the number of rows in the specified list is generally directly passed in the number of data source `length` |
-| startValue       |`number`,`string` |Yes.   | -      | The value at the beginning of the animation, which can be of type Number or String. If it is a color value, refer to[color](style/color.md)                                                                                                                    |
-| toValue          |`number`,`string` |Yes.   | -      | The value at the end of the animation; If it is a color value, refer to [color](style/color.md)                                                                                                                                                                |
-| valueType\*      |`number`,`string` |No.   |  null   | The type of the start and end values of the animation, the default is empty, and the unit that indicates the start and end of the animation is a common Number. PS: The parameter on the web platform only supports the number type                            |
-| duration         | `number`           |No.   | -      | Animation duration, in milliseconds(ms)                                                                                                                                                                                                                        |
-| timingFunction\* | `string`           |No.   |  linear | Animation interpolator type, support`linear``ease-in``ease-out`,,,`ease-in-out`,`cubic-bezier`                                                                                                                                                                 |
-| repeatCount      |`number`,`loop`   | No.   | -      | The number of repetitions of the animation. The default is 0, which means it will be played only once; when it is -1 or "loop", it means infinite loop playback; when repeatCount is set to n, the animation will be played n times                                        |
+| Props            | Type                                        | Required | Default value | Description                                                                                                                                                                                                                                                     |
+|------------------|---------------------------------------------|----------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| mode             | `string`                                    | yes      | timing        | Animation timeline mode                                                                                                                                                                                                                                         |
+| delay            | `number`                                    | yes      | -             | The animation delay start time, in milliseconds, the default is 0, that is, the animation will be executed immediately after the animation starts; the number of rows in the specified list is generally directly passed in the number of data source `length`. |
+| startValue       | `number`,`string`,  [color](style/color.md) | yes      | -             | The value at the beginning of the animation, which can be of type Number or String. If it is a color value, refer to[color](style/color.md).                                                                                                                    |
+| toValue          | `number`,`string`,  [color](style/color.md) | yes      | -             | The value at the end of the animation; If it is a color value, refer to [color](style/color.md).                                                                                                                                                                |
+| valueType\*      | `enum(undefined,rad,deg,color)`             | no       | null          | The type of the start and end values of the animation, the default is empty, and the unit that indicates the start and end of the animation is a common Number. PS: The parameter on the web platform only supports the number type.                            |
+| duration         | `number`                                    | no       | -             | Animation duration, in milliseconds(ms).                                                                                                                                                                                                                        |
+| timingFunction\* | `string`                                    | no       | linear        | Animation interpolator type, support`linear`,`ease-in`,`ease-out`,`ease-in-out`,`cubic-bezier`.                                                                                                                                                                 |
+| repeatCount      | `number`,`loop`                             | no       | -             | The number of repetitions of the animation. The default is 0, which means it will be played only once; when it is -1 or "loop", it means infinite loop playback; when repeatCount is set to n, the animation will be played n times.                            |
 
-- Parameter options for valueType:
+- Other options for valueType:
 
   - `rad`: Indicates that the starting and ending values of the animation parameters are in radians;
   - `deg`: Indicates that the starting and ending values of the animation parameters are in degrees;
   - `color`: Indicates that the starting and ending values of the animation parameters are color values, which can modify the background color `backgroundColor` and text color `color` (only supported by Android), refer to [examples.](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx)`Minimum supported version 2.6.0`
 
-- Parameter options for timingFunction:
+- Other options for timingFunction:
   - `linear`: With a linear interpolator, the animation will proceed at a constant speed;
   - `ease-in`: with an acceleration interpolator, the animation speed will gradually increase with time;
   - `ease-out`: With a deceleration interpolator, the animation speed will gradually decrease over time;
   - `ease-in-out`: using the acceleration and deceleration interpolator, the animation speed will gradually increase with time in the first half, and the speed will gradually decrease in the second half;
-  - `cubic-bezier`:(Minimum supported version 2.9.0) Use a custom Bezier curve, consistent with [css transition-timing-function's cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function);
+  - `cubic-bezier`: (Minimum supported version 2.9.0) Use a custom Bezier curve, consistent with [css transition-timing-function's cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function);
 
-## Method
+## Methods
 
 ### destroy
 
 `() => void` Stop and destroy an animation set. It is recommended to execute this method in the life cycle of component destruction to avoid the animation running in the background.
-
-### onAnimationEnd
-
-`(callback: () => void) => void` Register an animation listener callback, which will be called back when the animation ends.
-
-### onAnimationRepeat (Android only)
-
-`(callback: () => void) => void` Register an animation listener callback, which will be called back when the animation starts to repeat the next time.
-
-### onAnimationStart
-
-`(callback: () => void) => void` Register an animation listener callback that will be called back when the animation starts.
 
 ### pause
 
@@ -79,6 +67,22 @@
 
 >- options: Object: Instantiation parameter
 
+### onAnimationCancel
+
+`(callback: () => void) => void` Register an animation listener callback that will be called back when the animation is canceled.
+
+### onAnimationEnd
+
+`(callback: () => void) => void` Register an animation listener callback, which will be called back when the animation ends.
+
+### onAnimationRepeat (Android only)
+
+`(callback: () => void) => void` Register an animation listener callback, which will be called back when the animation starts to repeat the next time.
+
+### onAnimationStart
+
+`(callback: () => void) => void` Register an animation listener callback that will be called back when the animation starts.
+
 ---
 
 # AnimationSet
@@ -91,30 +95,18 @@ The difference between `Animation` and `AnimationSet` is that `Animation` is onl
 
 > Note that when switching to the web, you need to use the setRef method to manually pass in the ref to run the animation normally.
 
-## Construction parameter
+## Construction Attributes
 
-| Parameter        | Type                                        | Necessary| Default value| Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| ----------- | ------------------------------------------- | ---- | ------ |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| children    | `{ children: Animation, follow = false }[]` |Yes, sir.   | -      | It is used to specify the sub-animation and receives an Array. Each element of the Array includes:  + animation: The Animation object corresponding to the sub-animation;+ follow: configure whether the execution of the sub-animation follows the execution. When it is true, it means that the sub-animation will wait for the execution of the previous sub-animation to complete before starting. When it is false, it means that it starts at the same time as the previous sub-animation. The default is false. |
-| repeatCount | `number`                                    |No, not   |  -      | The number of repetitions of the AnimationSet, the default is 0, which means no repeat playback. When it is 'loop', it means infinite loop playback; when `repeatCount` is set to n, the animation will be played n times.                                                                                                                                                                                                                                                                                             |
+| Props       | Type                                        | Required | Default value | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+|-------------|---------------------------------------------|----------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| children    | `{ children: Animation, follow = false }[]` | yes      | -             | It is used to specify the sub-animation and receives an Array. Each element of the Array includes:<br/>+ animation: The Animation object corresponding to the sub-animation;<br/>+ follow: configure whether the execution of the sub-animation follows the execution. When it is true, it means that the sub-animation will wait for the execution of the previous sub-animation to complete before starting. When it is false, it means that it starts at the same time as the previous sub-animation. The default is false. |
+| repeatCount | `number`                                    | no       | -             | The number of repetitions of the AnimationSet, the default is 0, which means no repeat playback. When it is 'loop', it means infinite loop playback; when `repeatCount` is set to n, the animation will be played n times.                                                                                                                                                                                                                                                                                                     |
 
-## Method
+## Methods
 
 ### destroy
 
 `() => void` Stop and destroy an animation set. It is recommended to execute this method during the component destruction lifecycle to avoid animations running in the background.
-
-### onAnimationEnd
-
-`(callback: () => void) => void` Register a callback that listens to the animation and will be called back when the animation ends.
-
-### onAnimationRepeat
-
-`(callback: () => void) => void` Register a callback that listens to the animation, the callback will be called when the animation starts to repeat the next time.
-
-### onAnimationStart
-
-`(callback: () => void) => void` Register a callback that listens to the animation, the callback will be called back when the animation starts.
 
 ### pause
 
@@ -128,6 +120,22 @@ The difference between `Animation` and `AnimationSet` is that `Animation` is onl
 
 `() => void` Start the animation. Note: If the animation has not been assigned to the corresponding control through render or the animation has been destroyed before calling this method, start will not take effect.
 
+### onAnimationCancel
+
+`(callback: () => void) => void` Register an animation listener callback that will be called back when the animation is canceled.
+
+### onAnimationEnd
+
+`(callback: () => void) => void` Register a callback that listens to the animation and will be called back when the animation ends.
+
+### onAnimationRepeat
+
+`(callback: () => void) => void` Register a callback that listens to the animation, the callback will be called when the animation starts to repeat the next time.
+
+### onAnimationStart
+
+`(callback: () => void) => void` Register a callback that listens to the animation, the callback will be called back when the animation starts.
+
 ---
 
 # AsyncStorage
@@ -138,7 +146,7 @@ AsyncStorage is a simple, asynchronous, persistent Key-Value storage system that
 
 > You can also use the localStorage object directly. The usage method is the same as the web version of the localStorage interface. The difference is that because they are all asynchronous methods, you need to add `await` in front of the method.
 
-## Method
+## Methods
 
 ### AsyncStorage.getAllKeys
 
@@ -148,38 +156,38 @@ AsyncStorage is a simple, asynchronous, persistent Key-Value storage system that
 
 `(key: string) => Promise<string>` Get the corresponding data according to the key value.
 
-> - key: string - The target key that needs to get the value
+>- key: string - The target key that needs to get the value
 
 ### AsyncStorage.multiGet
 
 `(key: string[]) => Promise<[key: string, value: value][]>` Use multiple key arrays to request cache data in batches at one time, and the return value will be returned in the callback function in the form of a two-dimensional array of key-value pairs.
 
-> - key: string[] - The array of target keys that needs to get the value
+>- key: string[] - The array of target keys that needs to get the value
 
 ### AsyncStorage.multiRemove
 
 `(key: string[]) => void` Call this function to delete the values in AsyncStorage in batches, according to the incoming keys array.
 
-> - key: string[] - The array of target keys to delete
+>- key: string[] - The array of target keys to delete
 
 ### AsyncStorage.multiSet
 
 `(keyValuePairs: [key: string, value: value][]) => void` Call this function to store key-value objects in batches.
 
-> - keyValuePairs: [key: string, value: two][] - A two-dimensional array of stored key values to be set.
+>- keyValuePairs: [key: string, value: two][] - A two-dimensional array of stored key values to be set.
 
 ### AsyncStorage.removeItem
 
 `(key: string) => void` Delete the corresponding data according to the key value.
 
->Deleted key: string deleted target key to be deleted
+>- key: string - target key to delete.
 
 ### AsyncStorage.setItem
 
 `(key: string, value: string) => void` Set the key-value pair to be saved according to key and value.
 
-> - key: string - A string containing the name of the key you want to create/update.
-> - value: string - A string containing the value you want to give the key you are creating/updating.
+>- key: string - A string containing the name of the key you want to create/update.
+>- value: string - A string containing the value you want to give the key you are creating/updating.
 
 ---
 
@@ -189,15 +197,15 @@ AsyncStorage is a simple, asynchronous, persistent Key-Value storage system that
 
 You can listen to the fallback of the Android entity key, and perform operations or intercept the fallback of the entity key before exiting. `hippy-react-web` No.
 
->Note: This method requires the native to intercept the event of the entity's return button. Please refer to [the onBackPressed method of android-demo](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
+> Note: This method requires the native to intercept the event of the entity's return button. Please refer to [the onBackPressed method of android-demo](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
-## Method
+## Methods
 
 ### BackAndroid.addListener
 
 `(handler: () => boolean) => { remove: Function }` Listen to the Android entity key fallback event, and execute the handler callback function when triggered. Intercept the native's fallback operation when the callback function returns true. The fallback will not be intercepted when the callback function returns false. This function returns an object containing a `remove()` method. You can remove the listener by calling the `remove()` method, same as `BackAndroid.removeListener`.
 
-> Callback Function: The callback function triggered when the entity key is falled back
+> Callback Function: The callback function called when the entity key is falled back
 
 ### BackAndroid.exitApp
 
@@ -207,7 +215,7 @@ You can listen to the fallback of the Android entity key, and perform operations
 
 `(handler: () => boolean) => void` Removed BackAndroid listener for Android entity key back events.
 
-- handle: Function - It is recommended to use the object returned by `addListener` that contains the `remove()` method, or the previous BackAndroid callback function.
+>- handle: Function - It is recommended to use the object returned by `addListener` that contains the `remove()` method, or the previous BackAndroid callback function.
 
 ---
 
@@ -217,7 +225,7 @@ You can listen to the fallback of the Android entity key, and perform operations
 
 The module provides the clipboard capability on both sides of iOS/Android, and developers can use it to read or write to the clipboard. Currently, only string types are supported.
 
-## Method
+## Methods
 
 ### Clipboard.getString
 
@@ -227,7 +235,7 @@ The module provides the clipboard capability on both sides of iOS/Android, and d
 
 `(value: string) => void` Set the contents of the clipboard. `hippy-react-web: () => Promise<void>`
 
-> - value: string - Content that needs to be set to the clipboard.
+>- value: string - Content that needs to be set to the clipboard.
 
 ---
 
@@ -235,7 +243,7 @@ The module provides the clipboard capability on both sides of iOS/Android, and d
 
 Provides the ability to output front-end logs to iOS native logs and [Android logcat](//developer.android.com/studio/command-line/logcat)
 
-## Method
+## Methods
 
 ### ConsoleModule.log
 
@@ -262,7 +270,7 @@ Provides the ability to output front-end logs to iOS native logs and [Android lo
 
 Used to get the width and height of the current device.
 
-## Method
+## Methods
 
 ### Dimensions.get
 
@@ -278,7 +286,7 @@ Used to get the width and height of the current device.
 
 You can use this module to perform corresponding operations on remote images.
 
-## Method
+## Methods
 
 ### ImageLoaderModule.getSize
 
@@ -308,7 +316,7 @@ Android developers need to add the following configuration to the app's `Android
 
 `hippy-react-web` uses the experimental property NetworkInformation, see https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation for details.
 
-## Network status
+## Network Status
 
 Asynchronously determines whether the device is connected to the Internet and whether it is using a mobile data network.
 
@@ -317,14 +325,14 @@ Asynchronously determines whether the device is connected to the Internet and wh
 - `CELL` - The device is connected to the Internet through the mobile network.
 - `UNKNOWN` - The network is abnormal or the network status is unknown.
 
-## Method
+## Methods
 
 ### NetInfo.addEventListener
 
 `(eventName: string, handler: Function) => NetInfoRevoker` Add a network change listener.
 
-> - eventName: 'Change' - Event name
-> - handler: ({ network_info: String }) => any - Callback function triggered when the network changes
+>- eventName: 'Change' - Event name
+>- handler: ({ network_info: String }) => any - Callback function called when the network changes
 
 ### NetInfo.fetch
 
@@ -334,8 +342,8 @@ Asynchronously determines whether the device is connected to the Internet and wh
 
 `(eventName: string, handler: NetInfoRevoker | Function) => void` Remove Event Listener
 
-> - eventName: 'Change' - event name
-> - handler: Function - : The corresponding event listener that needs to be deleted.
+>- eventName: 'Change' - event name
+>- handler: Function - The corresponding event listener that needs to be deleted.
 
 # NetworkModule
 
@@ -345,21 +353,21 @@ For common network requests,, please refer to: [Getting Started - Network Reques
 
 `hippy-react-web` get cookie and set cookie with domain name restrictions. Refer to https for details://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#define_where_cookies_are_sent
 
-## Method
+## Methods
 
 ### NetworkModule.getCookies
 
 `(url: string) => Promise<string>` Get all cookies for the specified url
 
-> - url: string - The target url that needs to get the cookie.
+>- url: string - The target url that needs to get the cookie.
 
 ### NetworkModule.setCookie
 
 `(url: string, keyValue: string, expires?: String) => <void> Set cookie
 
-> - url: string - The target url that needs to set the cookie.
-> - keyValue: string - Key-value pair to set
-> - expires?: string - Set the timeout for cookies
+>- url: string - The target url that needs to set the cookie.
+>- keyValue: string - Key-value pair to set
+>- expires?: string - Set the timeout for cookies
 
 ---
 
@@ -367,7 +375,7 @@ For common network requests,, please refer to: [Getting Started - Network Reques
 
 Used to obtain the pixel density of the current device.
 
-## Method
+## Methods
 
 ### PixelRatio.get
 
@@ -400,12 +408,12 @@ Used to obtain the pixel density of the current device.
 
 A component used to write code to differentiate platforms. Developers develop business logic branches for different platforms based on the output value of `Platform.OS`.
 
-## Parameter
+## Attributes
 
-| Parameter         | Description                                                        | Type                                                                                                                       | Support platform|
-| ------------ |--------------------------------------------------------------------| -------------------------------------------------------------------------------------------------------------------------- | -------- |
-| OS           | Used to determine whether it is iOS or Android                     |`string`                                                                                                                   |`Android、iOS`    |
-| Localization | Output internationalization related information, `minimum supported version 2.8.0` |,`object: { country: string , language: string, direction: number }` where`direction` 0 indicates the LTR direction and 1 indicates the RTL direction|`Android、iOS、hippy-react-web(不支持 country 信息)`    |
+| Props        | Description                                                                        | Type                                                                                                                                                  | Supported Platforms                           |
+|--------------|------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| OS           | Used to determine whether it is iOS or Android                                     | `string`                                                                                                                                              | `Android、iOS`                                 |
+| Localization | Output internationalization related information, `minimum supported version 2.8.0` | ,`object: { country: string , language: string, direction: number }` where`direction` 0 indicates the LTR direction and 1 indicates the RTL direction | `Android、iOS、hippy-react-web(不支持 country 信息)` |
 
 ---
 
@@ -413,19 +421,19 @@ A component used to write code to differentiate platforms. Developers develop bu
 
 Provides an abstraction similar to CSS style sheets.
 
-## Parameter
+## Attributes
 
-| Parameter          | Description                                                                                                                                                                                                                                                                              | Type     | Support platform|
-| ------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| -------- | -------- |
-| hairlineWidth | This constant defines the thinnest width on the current platform. Can be used as a border or as a divider between two elements. However you should not consider it a reliable unit of length, as hairlineWidth may behave differently on different machines or at different resolutions. | `number` | `Android、iOS`    |
+| Props         | Description                                                                                                                                                                                                                                                                              | Type     | Supported Platforms |
+|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|---------------------|
+| hairlineWidth | This constant defines the thinnest width on the current platform. Can be used as a border or as a divider between two elements. However you should not consider it a reliable unit of length, as hairlineWidth may behave differently on different machines or at different resolutions. | `number` | `Android、iOS`       |
 
-## Method
+## Methods
 
 ### StyleSheet.create
 
 `(styleObj: Object) => styleObj`
 
-> - styleObj: Object - style object
+>- styleObj: Object - style object
 
 ---
 
@@ -433,7 +441,7 @@ Provides an abstraction similar to CSS style sheets.
 
 Provides some ability to operate UI.
 
-## Method
+## Methods
 
 ### UIManagerModule.callUIFunction
 
@@ -441,9 +449,9 @@ Call the native method defined in the component
 
 `callUIFunction(instance: ref, method: string, options: Array)`
 
-> - instance: Component reference
-> - method: Method name, such as ListView`scrollToIndex`
-> - options: The data to be passed, such as `[xIndex, yIndex, animated]` of ListView, or `[]` when it is empty
+>- instance: Component reference
+>- method: Method name, such as ListView`scrollToIndex`
+>- options: The data to be passed, such as `[xIndex, yIndex, animated]` of ListView, or `[]` when it is empty
 
 ### UIManagerModule.getElementFromFiberRef
 
@@ -451,8 +459,8 @@ Get the Element corresponding to the element Ref (similar to DOM). `hippy-react-
 
 `getElementFromFiberRef(instance: ref): ElementNode`
 
-> - instance: Component reference
-> - ElementNode： Similar to DOM, you can call methods such as setNativeProps
+>- instance: Component reference
+>- ElementNode：Similar to DOM, you can call methods such as setNativeProps
 
 ### UIManagerModule.measureInAppWindow
 

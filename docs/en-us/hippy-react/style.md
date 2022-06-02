@@ -2,7 +2,7 @@
 
 All style support of Hippy is directly provided by the native, which is basically the same as that of the browser. It does not support percentage layout, but the latest Flex flexible layout can be used.
 
-# Inline style
+# Inline Style
 
 The easiest way. We can use inline styles to directly define the styles of containers such as `View`, `Text`, etc., and wrap them in double brackets. The example code is as follows:
 
@@ -18,7 +18,7 @@ function InlineStyleDemo() {
 }
 ```
 
-# External style
+# External Style
 
 Of course, in order to keep the code clean, we recommend using [StyleSheet](hippy-react/modules.md?id=stylesheet) to manage the styles in a unified manner. After specifying the Class of the DOM similar to HTML programming, write the styles corresponding to the Class in CSS uniformly. The example code is as follows:
 

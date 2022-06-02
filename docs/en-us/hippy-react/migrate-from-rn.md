@@ -1,4 +1,4 @@
-# Migrating from React Native
+# Migrating From React Native
 
 Hippy React is basically compatible with React Native syntax, but Hippy is more cohesive than the components provided by React Native, except that some components may need to be reimplemented through the front end. There are three main differences:
 
@@ -27,13 +27,13 @@ function TouchableWithoutFeedback(props) {
 }
 ```
 
-# Animation system
+# Animation System
 
 Hippy's animation mechanism is different from React Native. The animation module of React Native is actually driven by the front end through a timer, and there is a lot of communication from the front end to the native, while Hippy has better animation performance by sending the animation scheme to the native at one time.
 
 Please Refer to [best practices for animation schemes](hippy-react/animation.md).
 
-# Gesture system
+# Gesture System
 
 Hippy's gesture events are different from React Native's PanResponder and can be applied to any component, closer to the browser's implementation.
 
