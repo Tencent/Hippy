@@ -1,5 +1,5 @@
 * Get Started
-  * [Hippy OverView](/README?id=hippy-%e6%a6%82%e8%bf%b0)
+  * [OverView](/README?id=hippy-%e6%a6%82%e8%bf%b0)
   * [Get Started](guide/integration.md)
   * [Structure](structure/introduction.md)
   * [Debug](guide/debug.md)
@@ -12,7 +12,7 @@
   * [Dynamic Load](guide/dynamic-import.md)
   * [JSI](guide/jsi.md)
   * [Tech Support](guide/support.md)
-  * [Privacy Term](guide/privacy.md)
+  * [Privacy Policy](guide/privacy.md)
 
 * Android
   * [Android Integration](android/integration.md)

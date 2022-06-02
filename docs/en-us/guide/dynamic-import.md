@@ -1,33 +1,33 @@
-<!-- markdownlint-disable no-duplicate-header  -->
-<!-- markdownlint-disable no-blacks-blockquote -->
+<! -- markdownlint-disable no-duplicate-header -->
+<! -- markdownlint-disable no-blacks-blockquote -->
 
-# 动态加载
+# Dynamic Load
 
-## 介绍
+## Introduction
 
-Hippy 2.2 版本之前只支持加载单个 js bundle 文件。随着业务越来越复杂，单个 js 文件体积愈发增加的体积会影响首屏启动速度。为了解决这个问题，Hippy 在 2.2 版本增添了动态加载能力，开发人员可以按需来动态引入子 js bundle 文件。
+Prior to Hippy 2.2, only a single js bundle file could be loaded. As the business becomes more complex, the increasing size of a single js file size will affect the first screen launch speed. To solve this problem, Hippy v2.2 added dynamic loading capabilities, developers can dynamically introduce sub-js bundle files on demand.
 
- `Hippy 最低版本支持 2.2`
+`Hippy minimum version support: 2.2`
 
-## 原理架构
+## Schematic architecture
 
 ![Communication Info](../assets/img/dynamic_import.png)
 
-## 范例
+## Examples
 
-[[React 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/DyanmicImport/index.jsx)
+[[React Paradigm]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/DyanmicImport/index.jsx)
 
-[[Vue 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-dynamicimport.vue)
+[[Vue paradigm]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-dynamicimport.vue)
 
-## 使用方法
+## Usage
 
-### 安装
+### Install
 
 `npm install -D @hippy/hippy-dynamic-import-plugin`
 
-### 使用
+### Use
 
-在 [webpack 打包脚本](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 中引入插件
+Introduce the plugin in the [webpack package script](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts)
 
 ```javascript
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
@@ -48,21 +48,21 @@ module.exports = {
 };
 ```
 
-### 降级方案
+### Degradation options
 
-在终端 SDK 不支持 dynamic import 的版本，可以使用以下两种方法阻止分包。
+In versions of the native SDK that do not support dynamic import, you can use the following two methods to prevent sub-packaging.
 
-+ 利用 Webpack 提供的 `/* webpackMode: "eager" */` magic comment 停止生成额外的chunk。具体原理可以参看 [webpack magic comment](https://webpack.js.org/api/module-methods/#magic-comments)
++ Use the `/* webpackMode: "eager" */` magic comment provided by Webpack to stop generating additional chunks. See [webpack magic comment](https://webpack.js.org/api/module-methods/#magic-comments)
 
 ```javascript
-// 在import()中增加magic comment例子如下：
-AsyncComponent: () => import(/* webpackMode: "eager" */ './dynamicImport/async-component.vue'),
+// Add magic comment in import() example as follows.
+AsyncComponent: () => import(/* webpackMode: "eager" */ '. /dynamicImport/async-component.vue'),
 ```
 
-+ 在 Webpack 配置中使用 `webpack.optimize.LimitChunkCountPlugin` 的 `maxChunks` 参数。具体原理可以参看 [webpack LimitChunkCountPlugin](https://webpack.docschina.org/plugins/limit-chunk-count-plugin/)。
++ Use the `maxChunks` parameter of the `webpack.optimize.LimitChunkCountPlugin` in the Webpack configuration. See [webpack LimitChunkCountPlugin](https://webpack.docschina.org/plugins/limit-chunk-count-plugin/) for details.
 
 ```javascript
-// 通过配置webpack.optimize.LimitChunkCountPlugin的maxChunks为1，dynamic import 会替换成 Promise.resolve
+// By configuring webpack.optimize.LimitChunkCountPlugin with maxChunks of 1, the dynamic import will be replaced with Promise.resolve
 plugins: [
   ...,
   new HippyDynamicImportPlugin(),
@@ -74,24 +74,24 @@ plugins: [
 ],
 ```
 
-## 支持同时配置本地/网络加载分包
+## Support simultaneous configuration of local/network loaded sub-packages
 
-`网络加载 hippy sdk 最低支持版本 2.5.5`
+`Network loading hippy sdk: min supported version 2.5.5`
 
-`网络加载 @hippy/hippy-dynamic-import-plugin 最低支持版本 2.0.0`
+`Network loading @hippy/hippy-dynamic-import-plugin min: supported version 2.0.0`
 
-提供以下几种模式
+The following modes are provided
 
-### 业务只加载 [本地] js bundle
+### Only load [local] js bundle
 
-与原有动态加载能力一样，直接使用 `import()` 语法即可
+Same as the original dynamic loading capability, the `import()` syntax can be used directly
 
-### 业务只加载 [远程] js bundle
+### Only load [remote] js bundle
 
-+ webpack打包脚本配置全局 `publicPath`(可选)
++ use webpack script to configure global `publicPath` (optional)
 
 ```javascript
- // webpack output 配置
+ // webpack output config
  output: {
     ...
     publicPath: 'https://xxxx/hippy/hippyVueDemo/',
@@ -99,34 +99,35 @@ plugins: [
 
 ```
 
-+ <span id="remote-bundle">在业务代码引用分包的入口配置</span> `magic comment`的 `webpackChunkName`（必须） 和 `customChunkPath`（可选），如果没有配置`customChunkPath`，会默认使用全局 `publicPath`；
-以 Hippy-Vue 为例：
++ <span id="remote-bundle">Configure `webpackChunkName` (required) and `customChunkPath` (optional) for `magic comment` at the entry point of the business code referencing the subpackage; if `customChunkPath` is not configured, it will default to the global `publicPath`.
+
++ Take Hippy-Vue as an example.
 
 ```javascript
- // Hippy-Vue 配置，
+ // Hippy-Vue configuration
  AsyncComponentFromHttp: () => import(/* customChunkPath: "https://xxx/hippy/hippyVueDemo/", webpackChunkName: "asyncComponentFromHttp" */'./dynamicImport/async-component-http.vue')
   .then(res => res)
   .catch(err => console.error('import async remote component error', err))
 ```
 
-### 业务同时加载 [本地 + 远程] js bundle
+### Business loading [local + remote] js bundle at the same time
 
-+ 去除 webpack 全局配置的 `publicPath`（publicPath 会强制在所有 bundle 前加上配置的路径，影响本地 bundle 加载）
++ Remove the Webpack global configuration `publicPath` (publicPath will force the configured path to be prepended to all bundles, affecting local bundle loading)
 
-+ 加载远程 bundle，在业务代码引用分包的入口配置 `magic comment`的`webpackChunkName`（必须） 和 `customChunkPath`（必须），以 Hippy-Vue 为例：
++ load remote bundle, configure `webpackChunkName` (required) and `customChunkPath` (required) of `magic comment` at the entry point of the business code referencing the subpackage. Take Hippy-Vue as an example.
 
 ```javascript
- // Hippy-Vue 配置
- AsyncComponentFromHttp: () => import(/* customChunkPath: "https://xxx/hippy/hippyVueDemo/", webpackChunkName: "asyncComponentFromHttp" */'./dynamicImport/async-component-http.vue')
+ // Hippy-Vue configuration
+AsyncComponentFromHttp: () => import(/* customChunkPath: "https://xxx/hippy/hippyVueDemo/", webpackChunkName: "asyncComponentFromHttp" */'./dynamicImport/async-component-http.vue')
   .then(res => res)
   .catch(err => console.error('import async remote component error', err))
 
 ```
 
-+ 加载本地 bundle，在业务代码引用分包的入口配置 `magic comment`的`webpackChunkName` （可选），以 Hippy-Vue 为例：
++ load local bundle, configure `webpackChunkName` of `magic comment` at the entry point of the business code reference sub-package (optional), take Hippy-Vue as an example.
 
 ```javascript
-// Hippy-Vue 配置
+// Hippy-Vue configuration
 AsyncComponentFromLocal: () => import(/* webpackChunkName: "asyncComponentFromLocal" */'./dynamicImport/async-component-local.vue')
 .then(res => res)
 .catch(err => console.error('import async local component error', err)),
