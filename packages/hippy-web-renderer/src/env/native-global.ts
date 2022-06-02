@@ -28,8 +28,8 @@ export function checkUpdateDimension() {
     navigationBarHeight: 0,
   };
   const windowPhysicalPixels = initData;
-  windowPhysicalPixels.width = window.screen.width;
-  windowPhysicalPixels.height = window.screen.height;
+  windowPhysicalPixels.width = window.innerWidth;
+  windowPhysicalPixels.height = window.innerHeight;
   windowPhysicalPixels.scale = window.devicePixelRatio;
   windowPhysicalPixels.fontScale = window.devicePixelRatio;
   // TODO need implement api to get statusBarHeight
@@ -38,8 +38,8 @@ export function checkUpdateDimension() {
   windowPhysicalPixels.navigationBarHeight = 0;
 
   const screenPhysicalPixels = initData;
-  screenPhysicalPixels.width = window.screen.width;
-  screenPhysicalPixels.height = window.screen.height;
+  screenPhysicalPixels.width = window.innerWidth;
+  screenPhysicalPixels.height = window.innerHeight;
   screenPhysicalPixels.scale = window.devicePixelRatio;
   screenPhysicalPixels.fontScale = window.devicePixelRatio;
   // TODO need implement api to get statusBarHeight
