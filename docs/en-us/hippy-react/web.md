@@ -16,7 +16,7 @@ Please use `npm i` to install the following npm package to ensure normal web run
 | react-dom           | react web renderer           |
 | animated-scroll-to  | Add animation when scrolling |
 | swiper              | ViewPager requires           |
-| rmc-list-view       | ListView requires            |
+| @hippy/rmc-list-view  | ListView requires            |
 | rmc-pull-to-refresh | ListView PullHeader requires |
 
 

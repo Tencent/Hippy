@@ -1,22 +1,22 @@
-# 介绍
+# Introduction
 
-# Hippy 2.x 架构
+# Hippy 2.x architecture
 
-Hippy 2.x 架构主要分成三层，UI(JS) 层 `Hippy-React` 和 `Hippy-Vue` 负责驱动 UI 指令生成；中间层 [C++ HippyCore](structure/core.md) 负责抹平平台差异性和提供高性能模块；渲染层 `Android` 和 `iOS` 负责提供终端底层模块、组件，并与布局引擎通信
-
-<br/>
-
-![2.0架构](../assets/img/2.0-structure.png)
+The Hippy 2.x architecture is mainly divide into three layers: UI(JS) layer `Hippy-React` and`Hippy-Vue` instruction generation responsible for driving UI; The middle layer [C++ HippyCore](structure/core.md) is responsible for smoothing platform differences and providing high-performance modules; Render Layers `Android` and `iOS` are responsible for providing the bottom-modules and components of the terminal and communicating with the layout engine.
 
 <br/>
+
+![2.0 architecture](../assets/img/2.0-structure.png)
+
+<br/>
 <br/>
 <br/>
 
-# Hippy 3.x 架构
+# Hippy 3.x architecture
 
-Hippy 正在进行 3.x 架构的升级，在 3.x 中业务与渲染层中的具体实现可根据用户实际场景进行切换：业务层上不再局限于 JS 驱动，还可选择（如：DSL/Dart/WASM 等）其它语言进行驱动；DOM Manager 从 Java/OC 下沉到 C++，作为中间枢纽，除了接收处理来自上层的消息进行 DOM Tree 的创建和维护外，还负责与不同渲染引擎，排版引擎和调试工具的对接通信；在渲染层中，渲染引擎除了支持现有原生（Native）渲染之外，还可以选择其他渲染 Renderer，如 Flutter(Voltron) 渲染。Hippy 3.x 能够弥补当前 Hippy 2.x 在性能，双端一致性以及组件支持方面的一些短板，敬请期待！
+Hippy is upgrading the 3.x architecture. In 3.x, the specific implementation in the business and rendering layers can be switched according to the actual user scenario: the driver layer is no longer limited to JS driver, and other languages (such as DSL/Dart/WASM, etc.) can also be selected for driving. DOM Manager sinks from Java/OC to C++, as an intermediate hub, in addition to receiving and processing the messages from the upper layer to create and maintain DOM Tree, it is also responsible for interfacing and communicating with different rendering engines, typesetting engines and debugging tools. In the rendering layer, the rendering engine can also select other rendering renderers, such as Flutter(Voltron) rendering, in addition to supporting the existing Native rendering. Hippy 3.x can make up for some shortcomings of current Hippy 2.x in performance, double-end consistency, and component support, so look forward to it!
 
 <br/>
 <div style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-<img src="assets/img/3.0-structure.png" alt="3.0架构" width="55%"/>
+<img src="assets/img/3.0-structure.png" alt="3.0 architecture" width="55%"/>
 </div>

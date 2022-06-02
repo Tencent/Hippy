@@ -142,7 +142,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         LogUtils.d("HippyHorizontalScrollView", "emitScrollBeginDragEvent");
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
       }
-    } else if (action == MotionEvent.ACTION_UP && mDragging) {
+    } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
       if (mScrollEndDragEventEnable) {
         LogUtils.d("HippyHorizontalScrollView", "emitScrollEndDragEvent");
         HippyScrollViewEventHelper.emitScrollEndDragEvent(this);

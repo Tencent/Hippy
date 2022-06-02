@@ -57,6 +57,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -258,8 +259,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       throw new RuntimeException(
           "Hippy: loadModule debugMode=true, loadParams.jsAssetsPath and jsFilePath both null!");
     }
-
-    mEngineContext.setComponentName(loadParams.componentName);
+    if (mEngineContext != null) {
+      mEngineContext.setComponentName(loadParams.componentName);
+      mEngineContext.setNativeParams(loadParams.nativeParams);
+    }
     if (loadParams.jsParams == null) {
       loadParams.jsParams = new HippyMap();
     }
@@ -938,7 +941,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
      */
     private final DomManager mDomManager;
 
-    private String componentName;
+    private String mComponentName;
+    private Map<String, Object> mNativeParams;
 
     public HippyEngineContextImpl(boolean isDevModule, String debugServerHost) {
       mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
@@ -950,12 +954,22 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     public void setComponentName(String componentName) {
-      this.componentName = componentName;
+      mComponentName = componentName;
+    }
+
+    public void setNativeParams(Map<String, Object> nativeParams) {
+      mNativeParams = nativeParams;
+    }
+
+    @Override
+    @Nullable
+    public Map<String, Object> getNativeParams() {
+      return mNativeParams;
     }
 
     @Override
     public String getComponentName() {
-      return componentName;
+      return mComponentName;
     }
 
     @Override
@@ -1100,7 +1114,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       if (mEngineLifecycleEventListeners != null) {
         mEngineLifecycleEventListeners.clear();
       }
+      if (mNativeParams != null) {
+        mNativeParams.clear();
+      }
     }
   }
-
 }

@@ -1,6 +1,6 @@
-# 布局
+# Layout
 
-Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容网页的百分比布局。
+Hippy's style layout uses Flex. It is worth noting that the `PercentFrameLayout` of web pages is not yet compatible.
 
 ---
 
@@ -8,424 +8,427 @@ Hippy 的样式排版使用了 Flex 布局。值得注意的是，尚不兼容�
 
 # alignItems
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/align-items)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/align-items)
 
-`alignItems`决定了子元素在次轴方向的排列方式（此样式设置在父元素上）。例如若子元素本来是沿着竖直方向排列的（即主轴竖直，次轴水平），则 `alignItems` 决定了它们在水平方向的排列方式。此样式和CSS中的`alignItems`表现一致，默认值为 `stretch`。
+`alignItems` determines how the child elements are arranged in the direction of the secondary axis (this style is set on the parent element). For example, if the child elements are originally arranged in a vertical direction (i.e., The primary axis is vertical and the secondary axis is horizontal), the `alignItems` determines how they are arranged in the horizontal direction. Its behavior is consistent with that on CSS `align-items`(default is`stretch`).
 
-| 类型                                                            | 必需 |
+| Type                                                            | Required|
 | --------------------------------------------------------------- | -------- |
-| enum('flex-start', 'flex-end', 'center', 'stretch', 'baseline') | 否       |
+| enum('flex-start', 'flex-end', 'center', 'stretch', 'baseline') |No       |
 
 # alignSelf
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/align-self)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/align-self)
 
-`alignSelf`决定了元素在父元素的次轴方向的排列方式（此样式设置在子元素上），其值会覆盖父元素的`alignItems`的值。其表现和 CSS 上的`align-self`一致（默认值为`auto`）。
+`alignSelf` determines how elements are arranged in the direction of the secondary axis of the parent element (this style is set on the child element), and its value overrides the value of the parent element `alignItems`. Its behavior is consistent with that on CSS `align-self`(default is`auto`).
 
-| 类型                                                                    | 必需 |
+| Type                                                                    | Required|
 | ----------------------------------------------------------------------- | -------- |
-| enum('auto', 'flex-start', 'flex-end', 'center', 'stretch', 'baseline') | 否       |
+| enum('auto', 'flex-start', 'flex-end', 'center', 'stretch', 'baseline') |No       |
 
 
 # backgroundImage
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/background-image)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/background-image)
 
-`backgroundImage` 值可以直接传入背景图片地址或渐变色。
+`backgroundImage` value can be directly passed into the background image address or gradient.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| string | 否      |
+| string |No      |
 
-> `2.8.1` 版本后支持终端本地图片能力，可通过 webpack `file-loader` 加载。
+>after the version `2.8.1`, it supports the local image capability of the native and can be loaded through Webpack `file-loader`.
 
-> 渐变色目前支持 `linear-gradient`  线性渐变 `(最低支持版本 2.8.0）` [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/orphaned/Web/CSS/linear-gradient())，支持使用 `linear-gradient([ [ [ <angle> | to [top | bottom] || [left | right] ],]? <color-stop>[, <color-stop>]+)` 格式; 其中 `angle` 支持 deg、turn、rad 单位；`color-stop` 支持设置多个颜色和百分比。DEMO： [HippyReact](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/View/index.jsx) [HippyVue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+>Gradient currently support `linear-gradient`(Minimum supported version 2.8.0) [[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient), and supports the use of `linear-gradient([ [ [ <angle> | to [top | bottom] || [left | right] ],]? <color-stop>[, <color-stop>]+)` format. Among them, `angle` supports `deg`, `turn` and `rad` units, and `color-stop` supports setting multiple colors and percentages. DEMO: [Hippy-React](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/View/index.jsx) [Hippy-Vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 > <br/>
 > <br/>
-> 注意：
+>Note:
 >
-> + Android 如果使用 `to [top | bottom] || [left | right]` 四个顶角设置渐变角度，`color-stop` 不能使用百分比；
-> + iOS `color-stop` 百分比只能从小到大依次显式设置，不能部分省略，即 `red 10%, yellow 20%, blue 50%`，不能是 `red 10%, yellow 20%, blue 10%`
+>+ Android can not use percentages for `color-stop` if you use  `to [top | bottom] || [left | right]` four top corners;
+>+ iOS `color-stop` percentage can only be explicitly set from small to large, and can not be partially omitted, that is,`red 10%, yellow 20%, blue 50%` can not be`red 10%, yellow 20%, blue 10%`
 
 # backgroundPositionX
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/background-position)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/background-position)
 
-`backgroundPositionX` 指定背景图片的初始位置的横轴X坐标。
+`backgroundPositionX` specifies the horizontal X-coordinate of the initial position of the background image.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # backgroundPositionY
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/background-position)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/background-position)
 
-`backgroundPositionY` 指定背景图片的初始位置的竖轴Y坐标。
+`backgroundPositionY` specifies the vertical Y-coordinate of the initial position of the background image.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # backgroundSize
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/background-size)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/background-size)
 
-`backgroundSize` 设置背景图片大小。
+`backgroundSize` sets the background image size.
 
-| 类型            | 必需 |
-| --------------- | -------- |
-| enum('cover', 'contain') | 否       |
+| Type                     | Required|
+|--------------------------| -------- |
+| enum('cover', 'contain') |No       |
 
 # collapsable
 
-Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失 `（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`(也可作为 View 的 Attribute 属性设置)`
+In Android, if a `View` subcomponent is used only to layout it, it may be removed from the native layout tree for optimization, so the reference to the DOM of that node is lost`(for example, the size and location information cannot be obtained by calling measureInAppWindow)`. Set this property to `false` disable this optimization to ensure that the corresponding view exists in the native structure.(It can also be set as the `Attribute` attribute of `View`)
 
-| 类型            | 必需 | 支持平台
+| Type            | Required| Supported Platforms|
 | --------------- | -------- | ---- |
-| enum('false'， 'true'[default]) | 否       | Android
+| enum('false', 'true'[default]) | No       | Android|
 
 # display
 
-Hippy 默认采用 Flex 布局。同时，因为仅支持 Flex 布局，所以不需要手写 display: flex 即可使用。
+Hippy adopts Flex by default. Also, because it only supports Flex, it can be used without handwritten `display: flex`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| enum('flex') | 否       |
+| enum('flex') |No       |
 
 # flex
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex)
 
-在 Hippy 中 flex 的表现和 CSS 有些区别。 flex 在 Hippy 中只能为整数值。
+There's a difference between flex and CSS in Hippy. Flex can only be an integer value in Hippy.
 
-| 类型   | 必需 |
+| Type   | Required|
 | ------ | -------- |
-| number | 否       |
+| number |No       |
 
 # flexBasis
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex-basis)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex-basis)
 
-`flex-basis` 指定了 flex 元素在主轴方向上的初始大小。
+`flex-basis` specifies the initial size of the flex element in the direction of the primary axis.
 
-| 类型   | 必需 |
+| Type   | Required|
 | ------ | -------- |
-| number | 否       |
+| number |No       |
 
 # flexDirection
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex-direction)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex-direction)
 
-`flexDirection` 决定了容器的子元素的排列方向：`row` 代表水平排列, `column` 代表垂直排列。其他两个参数是反向排列。
-它跟 css 的 flex-direction 定义很像，但 css 是默认值为 `row`，而 Hippy 默认是 `column`。
+`flexDirection` determines the direction in which the child elements of the container are arranged:`row` for horizontal arrangement and`column` for vertical arrangement. The other two parameters are reversed.
+It's much like css's `flex-direction` definition, but css defaults to`row`, and Hippy defaults to`column`.
 
-| 类型                                                   | 必需 |
+| Type                                                   | Required|
 | ------------------------------------------------------ | -------- |
-| enum('row', 'row-reverse', 'column', 'column-reverse') | 否       |
+| enum('row', 'row-reverse', 'column', 'column-reverse') |No       |
 
 # flexGrow
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex-grow)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex-grow)
 
-`flexGrow` 定义伸缩项目的扩展能力。它接受一个不带单位的值做为一个比例。主要用来决定伸缩容器剩余空间按比例应扩展多少空间。
+`flexGrow` defines the extensibility of the flex project. It accepts a value without units as a scale. It is mainly used to determine how much space the remaining space of the telescopic container should be expanded proportionally.
 
-如果所有伸缩项目的 `flex-grow` 设置了 `1`，那么每个伸缩项目将设置为一个大小相等的剩余空间。如果你给其中一个伸缩项目设置了 `flex-grow` 值为 `2`，那么这个伸缩项目所占的剩余空间是其他伸缩项目所占剩余空间的两倍。
+If `flex-grow` of all flex items is set to `1` then each flex item will be set to an equal amount of remaining space. If one of the flex items `flex-grow` set to `2`, the remaining space for that flex item is twice as large as the remaining space for the other flex items.
 
-| 类型   | 必需 |
+| Type   | Required|
 | ------ | -------- |
-| number | 否       |
+| number |No       |
 
 # flexShrink
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex-shrink )
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink )
 
-`注意：Hippy 中 flexShrink 默认值为 0，与Web标准有差异`
+`Note: the default value of flexsShrink in Hippy is 0, which is different from the web standard`
 
-`flexBasis` 属性指定了 flex 元素的收缩规则。flex 元素仅在默认宽度之和大于容器的时候才会发生收缩，其收缩的大小是依据 flex-shrink 的值。
+`flexBasis` property specifies the shrink rule for the flex element. Flex elements shrink only if the sum of the default widths is greater than the container, and the size of the shrink is based on the flex width shrink value.
 
-| 类型   | 必需 |
+| Type   | Required|
 | ------ | -------- |
-| number | 否       |
+| number |No       |
 
 # flexWrap
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/flex-wrap)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap)
 
-`flexWrap` 定义了子元素如何在接触到父容器底部时执行换行的行为。
+`flexWrap` defines how a child element performs line wrapping behavior when it touches the bottom of the parent container.
 
-| 类型                   | 必需 |
+| Type                   | Required|
 | ---------------------- | -------- |
-| enum('wrap', 'nowrap') | 否       |
+| enum('wrap', 'nowrap') |No       |
 
 # height
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/height)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/height)
 
-`height` 定义了容器的高度，单位为 pt
+`height` defines the height of the container in pt
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number, | 否       |
+| number, |No       |
 
 # justifyContent
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/justify-content)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/justify-content)
 
-`justifyContent` 定义了浏览器如何分配顺着父容器主轴的弹性元素之间及其周围的空间。
+`justifyContent` defines how the browser allocates space between and around elastic elements that follow the main axis of the parent container.
 
-| 类型                                                                                      | 必需 |
+| Type                                                                                      | Required|
 | ----------------------------------------------------------------------------------------- | -------- |
-| enum('flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly') | 否       |
+| enum('flex-start', 'flex-end', 'center', 'space-between', 'space-around', 'space-evenly') |No       |
 
 # left
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/left)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/left)
 
-`left` 值是指将本组件定位到距离左边多少个逻辑像素（左边的定义取决于position属性）。
+`left` value refers to how many logical pixels the component is positioned to the left (the definition of the left depends on the position attribute).
 
-它的表现和 CSS 上的 left 类似，但注意在 Hippy 上只能使用逻辑像素值（数字单位），而不能使用百分比、em或是任何其他单位。
+It behaves like `left` on CSS, but note that only logical pixel values (numerical units) can be used on Hippy, not percentages, em, or any other unit.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # lineHeight
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/line-height)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/line-height)
 
-`lineHeight` 属性用于设置多行元素的空间量，如多行文本的间距，hippy里仅支持设置具体数值。
+`lineHeight` property is used to set the amount of space for multiline elements, such as the spacing of multiline text. Hippy only supports setting specific values.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # margin
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/margin)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/margin)
 
-设置 `margin` 与同时对`marginTop`, `marginLeft`, `marginBottom`, 和 `marginRight`设置了同样的值效果一致。
+Setting `margin` has the same effect as setting the same values for `marginTop`, `marginLeft`, `marginBottom`, and `marginRight`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # marginBottom
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/margin-bottom)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/margin-bottom)
 
-`marginBottom` 和 CSS 的 `margin-bottom` 类似。
+`marginBottom` similar to CSS `margin-bottom`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # marginHorizontal
 
-设置 `marginHorizontal` 与同时设置 `marginLeft` and `marginRight`一个值效果一致.
+Setting `marginHorizontal` has the same effect as setting `marginLeft` and `marginRight` at the same time
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # marginLeft
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/margin-left)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/margin-left)
 
-`marginLeft` 与 CSS 的 `margin-left` 类似。
+`marginLeft` similar to CSS `margin-left`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # marginRight
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/margin-right)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/margin-right)
 
-`marginRight` 与 CSS 的 `margin-right` 类似。
+`marginRight` similar to CSS `margin-right`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # marginTop
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/margin-top)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/margin-top)
 
-`marginTop` 和 CSS 的 `margin-top` 类似。
+`marginTop` similar to CSS `margin-top`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # marginVertical
 
-设置 `marginVertical` 与同时设置 `marginTop` and `marginBottom`一个值效果一致。
+Setting `marginVertical` has the same effect as setting `marginTop` and `marginBottom` at the same time
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # maxHeight
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/max-height)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/max-height)
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # maxWidth
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/max-width)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/max-width)
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # minHeight
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/min-height)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/min-height)
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # minWidth
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/min-width)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/min-width)
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # overflow
 
-`overflow` 定义了子元素超过父容器宽高度后的显示情况 `overflow: hidden` 的情况会导致子元素被父容器切割超出显示范围的部分 `overflow: visible` 会让子容器正常显示全部，即使超出父容器的显示范围。
 
-!> 由于历史原因，Android 默认全部元素为 `overflow: hidden`, iOS 为 `overflow: visible`
+`overflow` defines the display of the child element after it exceeds the width and height of the parent container. The condition of `overflow: hidden` will cause the child element to be cut by the parent container. The part beyond the display range will be displayed normally by the child container, even if it exceeds the display range of the parent container.
 
-| 类型                                | 必需 |
+!> For historical reasons, Android defaults to all elements `overflow: hidden` and iOS to`overflow: visible`
+
+| Type                                | Required|
 | ----------------------------------- | -------- |
-| enum('visible', 'hidden') | 否       |
+| enum('visible', 'hidden') |No       |
 
 # padding
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/padding)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/padding)
 
-设置 `padding` 与同时设置`paddingTop`, `paddingBottom`, `paddingLeft`, 和 `paddingRight`一个值时效果一致。
+Setting `padding` has the same effect as setting `paddingTop`, `paddingBottom`, `paddingLeft`, and `paddingRight` at the same time.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| numbe | 否       |
+| numbe |No       |
 
 # paddingBottom
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/padding-bottom)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/padding-bottom)
 
-`paddingBottom` 与 CSS 的 `padding-bottom` 类似。
+`paddingBottom` similar to CSS `padding-bottom`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # paddingHorizontal
 
-设置 `paddingHorizontal` 与同时设置  `paddingLeft` 和 `paddingRight`一个值时效果一致.
+Setting `paddingHorizontal` has the same effect as setting `paddingLeft` and `paddingRight` at the same time.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # paddingLeft
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/padding-left)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/padding-left)
 
-`paddingLeft` 与 CSS 的 `padding-left` 类似。
+`paddingLeft` similar to CSS `padding-left`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # paddingRight
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/padding-right)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/padding-right)
 
-`paddingRight` 和 CSS 的 `padding-right` 类似。
+`paddingRight` similar to CSS `padding-right`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # paddingTop
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/padding-top)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/padding-top)
 
-`paddingTop` 和 CSS 的 `padding-top` 类似。
+`paddingTop` similar to CSS `padding-top`.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # paddingVertical
 
-设置 `paddingVertical` 与同时设置  `paddingTop` 和 `paddingBottom`一个值时效果一致.
+Setting `paddingVertical` has the same effect as setting `paddingTop` and `paddingBottom` at the same time.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # position
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/position)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/position)
 
-`position` 在 Hippy 里表现与 CSS基本一致, 但是所有时候都是默认为 `relative`, 所以当元素设置 `absolute` 的时候可以保证永远只对上一级父元素绝对定位。
 
-它和 CSS 的'position'属性类似，但hippy内的`position`只有`absolute`与`relative`两个属性。
+The behaves of `position` in Hippy is basically the same as that in CSS, but it defaults to 'relative' all the time. Therefore, when the element is set to 'absolute', it can always ensure that only the parent element of the upper level is absolutely positioned.
 
-| 类型                         | 必需 |
+It is similar to the `position` attribute of CSS, but there are `position` only `absolute``relative` two attributes in Hippy.
+
+| Type                         | Required|
 | ---------------------------- | -------- |
-| enum('absolute', 'relative') | 否       |
+| enum('absolute', 'relative') |No       |
 
 # right
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/right)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/right)
 
-`right` 值是指将本组件定位到距离右边多少个逻辑像素（右边的定义取决于position属性）。
+`right` value refers to how many logical pixels the component is positioned to the right (the definition of the right depends on the position attribute).
 
-它的表现和 CSS 上的right类似，但注意在React Native上只能使用逻辑像素值（数字单位），而不能使用百分比、em或是任何其他单位。
+It behaves like `right` on CSS, but note that only logical pixel values (numerical units) can be used on Hippy, not percentages, em, or any other unit.
 
-| 类型            | 必需 |
+
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # top
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/top)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/top)
 
-`top` 值是指将本组件定位到距离顶部多少个逻辑像素（顶部的定义取决于position属性）。
+`top` The value is how many logical pixels the component is positioned from the top (the definition of the top depends on the position property).
 
-它的表现和 CSS 上的top类似，但注意在React Native上只能使用逻辑像素值（数字单位），而不能使用百分比、em或是任何其他单位。
+It behaves like `top` on CSS, but note that only logical pixel values (numerical units) can be used on Hippy, not percentages, em, or any other unit.
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # width
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/width)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/width)
 
-`width`定义了容器的宽度
+`width` defines the width of the container
 
-| 类型            | 必需 |
+| Type            | Required|
 | --------------- | -------- |
-| number | 否       |
+| number |No       |
 
 # zIndex
 
-[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/z-index)
+[[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/z-index)
 
-`zIndex` 决定了容器排列的顺序。一般情况下，你无需直接使用 `zIndex`，容器元素会按照节点树的顺序依次渲染，在后面的元素会覆盖前面的元素（如果有覆盖情况的话）。`zIndex` 可以在你需要手动指定绘制层级的情况使用。
+`zIndex` determines the order in which the containers are arranged. Generally, you don't need to use `zIndex` directly. Container elements are rendered in the order of the node tree, with the following elements overwriting the previous elements (if any). zIndex levels can be used in situations where you need to manually specify drawing levels.
 
-| 类型   | 必需 |
+| Type   | Required|
 | ------ | -------- |
-| number | 否       |
+| number |No       |

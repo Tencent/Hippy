@@ -3,7 +3,7 @@ package com.tencent.mtt.hippy.views.hippylist;
 import android.view.View;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
-import com.tencent.mtt.nxeasy.recyclerview.helper.skikcy.StickViewListener;
+import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickViewListener;
 
 /**
  * Created on 2021/8/24.

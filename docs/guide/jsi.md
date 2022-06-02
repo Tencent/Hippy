@@ -34,7 +34,7 @@ JSI 并非适用于所有场景:
 
 * 定义Module
 
-> 跟普通NativeModule类似，区别在于需要添加注解表明是同步调用 `@HippyMethod(isSync = true)`
+> 跟普通NativeModule类似，区别在于需要添加以下注解表明是同步调用 `@HippyMethod(isSync = true)`
 
 ```java
 @HippyNativeModule(name = "demoTurbo")
@@ -109,7 +109,7 @@ rootView.bridge.enableTurbo = YES;
 
 > 继承HippyOCTurboModule，实现协议HippyTurboModule。
 
-目前iOS端仅支持继承关系来实现JSI能力，后续会考虑升级，只需实现协议HippyTurboModule就能实现能力。
+目前iOS端仅支持继承关系来实现JSI能力，后续会考虑升级，只需实现协议`HippyTurboModule`就能实现能力。
 
 具体使用与实现协议如下：
 

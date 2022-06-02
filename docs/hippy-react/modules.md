@@ -21,16 +21,16 @@
 
 | 参数             | 类型               | 必需 | 默认值 | 描述                                                                                                                      |
 | ---------------- | ------------------ | ---- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| mode             | `string`           | 是   | timing | 动画时间轴模式                                                                                                            |
-| delay            | `number`           | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画 start 之后立即执行；指定列表的行数，一般直接传入数据源条数 `length` 即可 |
-| startValue       | `number`, `string` | 是   | -      | 动画开始时的值，可为 Number 类型 String 类型，如果为颜色值参考 [color](style/color.md)                                    |
-| toValue          | `number`, `string` | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                                                |
-| valueType\*      | `number`, `string` | 否   | null   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通 Number。 PS: Web 平台此接口只支持 number 类型传参            |
-| duration         | `number`           | 否   | -      | 动画时长，单位为毫秒(ms)                                                                                                  |
-| timingFunction\* | `string`           | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
+| mode             | `string`           | 是   | timing | 动画时间轴模式，当前仅支持 `timing` 模式，即随时间改变控件的属性，默认配置即为 `timing`                                                                                                         |
+| delay            | `number`           | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画 start 之后立即执行 |
+| startValue       | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画开始时的值，可为 Number 类型、String 类型，颜色值 [color](style/color.md) 类型                                  |
+| toValue          | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                                                |
+| valueType\*      | `enum(undefined,rad,deg,color)` | 否   | undefined   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通数值。 PS: Web 平台此接口只支持 number 类型传参            |
+| duration         | `number`           | 否   | 0     | 动画时长，单位为毫秒(ms)                                                                                                  |
+| timingFunction\* | `string`    | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
 | repeatCount      | `number`, `loop`   | 否   | -      | 动画的重复次数，默认为 0，即只播放一次；为 -1 或者 "loop" 时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次             |
 
-- valueType 的参数选项：
+- valueType 的额外参数选项：
 
   - `rad`：代表动画参数的起止值为弧度；
   - `deg`：代表动画参数的起止值为度数；
@@ -41,25 +41,13 @@
   - `ease-in`：使用加速插值器，动画速度将随时间逐渐增加；
   - `ease-out`：使用减速插值器，动画速度将随时间逐渐减小；
   - `ease-in-out`：使用加减速插值器，动画速度前半段先随时间逐渐增加，后半段速度将逐渐减小；
-  - `cubic-bezier`：(最低支持版本 2.9.0)使用自定义贝塞尔曲线，与 [css transition-timing-function 的 cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) 一致；
+  - `cubic-bezier`：使用自定义贝塞尔曲线，与 [css transition-timing-function 的 cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) 一致；`最低支持版本2.9.0`
 
 ## 方法
 
 ### destroy
 
-`() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗。
-
-### onAnimationEnd
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
-
-### onAnimationRepeat（仅 Android 支持）
-
-`(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
-
-### onAnimationStart
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
+`() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗电。
 
 ### pause
 
@@ -79,6 +67,22 @@
 
 > - options: Object: 实例化参数
 
+### onAnimationCancel
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画被取消时将会回调 callback。
+
+### onAnimationEnd
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
+
+### onAnimationRepeat（仅 Android 支持）
+
+`(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
+
+### onAnimationStart
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
+
 ---
 
 # AnimationSet
@@ -96,25 +100,13 @@
 | 参数        | 类型                                        | 必需 | 默认值 | 描述                                                                                                                                                                                                                                                        |
 | ----------- | ------------------------------------------- | ---- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | children    | `{ children: Animation, follow = false }[]` | 是   | -      | 接收一个 Array，用于指定子动画，该 Array 的每个元素包括： + animation：子动画对应的 Animation 对象； + follow：配置子动画的执行是否跟随执行，为 true，代表该子动画会等待上一个子动画执行完成后在开始，为 false 则代表和上一个子动画同时开始，默认为 false。 |
-| repeatCount | `number`                                    | 否   | -      | 动画 Set 的重复次数，默认为 0，即不重复播放，为'loop'时代表无限循环播放； `repeatCount` 设为 n 时，则动画会播放 n 次。                                                                                                                                      |
+| repeatCount | `number`, `loop`      | 否   | -      | 动画 Set 的重复次数，默认为 0，即不重复播放，为 `loop` 时代表无限循环播放； `repeatCount` 设为 n 时，则动画会播放 n 次。                                                                                                                                      |
 
 ## 方法
 
 ### destroy
 
 `() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗。
-
-### onAnimationEnd
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
-
-### onAnimationRepeat
-
-`(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
-
-### onAnimationStart
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
 
 ### pause
 
@@ -127,6 +119,22 @@
 ### start
 
 `() => void` 启动动画。注意：如果调用该方法前，动画尚未经过 render 赋值给相应控件, 或该动画已经 destroy 的话，那 start 将不会生效；
+
+### onAnimationCancel
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画被取消时将会回调 callback。
+
+### onAnimationEnd
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
+
+### onAnimationRepeat
+
+`(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
+
+### onAnimationStart
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
 
 ---
 

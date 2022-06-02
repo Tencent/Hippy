@@ -16,7 +16,7 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 | react-dom       | react 的 Web 的渲染器              |
 | animated-scroll-to | scroll 的时候添加动画            |
 | swiper          | ViewPager 需要                    |
-| rmc-list-view   | ListView 需要                     |
+| @hippy/rmc-list-view   | ListView 需要                     |
 | rmc-pull-to-refresh | ListView PullHeader 需要      |
 
 

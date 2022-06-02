@@ -55,7 +55,7 @@ using bytes = std::string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using StringViewUtils = hippy::base::StringViewUtils;
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 extern std::mutex inspector_mutex;
 extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
@@ -116,7 +116,7 @@ void CallFunction(JNIEnv* j_env,
                     unicode_string_view::Encoding::Utf16);
     if (runtime->IsDebug() &&
         action_name.utf16_value() == u"onWebsocketMsg") {
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
       std::lock_guard<std::mutex> lock(inspector_mutex);
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));

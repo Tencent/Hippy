@@ -1,6 +1,3 @@
-*.log
-*.iml
-
 .DS_Store
 .nyc_output
 .vscode
@@ -10,15 +7,21 @@
 .externalNativeBuild
 .cxx
 
-local.properties
-maven-auth.properties
 build
 coverage
 dist
 node_modules
+caches
+daemon
+native
+wrapper
+
+*.log
+*.iml
+local.properties
+maven-auth.properties
 
 layout/out
-layout/build
 layout/cproject
 layout/.project
 layout/.settings
@@ -31,12 +34,10 @@ docs/assets/*.js
 docs/assets/*.css
 
 examples/*/res/vendor-manifest.json
-examples/android-demo/src/main/assets/
 examples/android-demo/libs/*
-examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
+examples/android-demo/src/main/assets/*
 examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
-examples/hippy-react-demo/package-lock.json
-examples/hippy-vue-demo/package-lock.json
+examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 
 packages/hippy-vue-loader/remote-debug-profile/*
 packages/hippy-debug-server/webpack-dev-server/client
