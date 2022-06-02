@@ -23,7 +23,7 @@ inline namespace testing {
 using namespace tdf::base;
 using namespace nlohmann;
 
-const char kBasePath[] = "./dom/";
+const char kBasePath[] = "./dependency/";
 
 std::shared_ptr<DomValue> JsonToDomValue(const json& json) {
   if (json.is_number_integer() || json.is_number_unsigned()) {
