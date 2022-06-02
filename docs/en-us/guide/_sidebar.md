@@ -1,7 +1,7 @@
 <!-- docs/_sidebar.md -->
 
 * [Getting Started](guide/integration.md)
-* [调试](guide/debug.md)
+* [Debug](guide/debug.md)
 * [Architecture](structure/introduction.md)
 * [布局与单位](guide/layout.md)
 * [Network request](guide/network-request.md)

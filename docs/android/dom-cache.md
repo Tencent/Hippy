@@ -8,17 +8,17 @@
 
 + `public void saveInstanceState(ArrayList<DomNodeRecord> recordList)`
 
-    这个接口由接入方实现，通过根节点遍历获取每个节点数据，序列化并保存，获取节点数据可以调用 node.getDomainData() 接口返回 DomDomainData 对象。
+    这个接口由接入方实现，通过根节点遍历获取每个节点数据，序列化并保存，获取节点数据可以调用 `node.getDomainData()` 接口返回 `DomDomainData` 对象。
 
 ### HippyEngine 新增接口
 
 + `public void saveInstanceState()`
 
-    该接口会转发消息到 dom 线程，最终获取 root dom node 节点并调用 ThirdPartyAdapter 的 saveInstanceState。
+    该接口会转发消息到 dom 线程，最终获取 root dom node 节点并调用 `ThirdPartyAdapter` 的 `saveInstanceState`。
 
 + `public void HippyRootView restoreInstanceState(ArrayList<DomNodeRecord> domNodeRecordList, HippyEngine.ModuleLoadParams loadParams, Callback<Boolean> callback)`
 
-    接入方提前读取好本地节点数据，并反序列化为 DomNodeRecord list 输入参数，**转换时需要注意把 node id 都转成负数**，不然会和正式JS页面节点有冲突。
+    接入方提前读取好本地节点数据，并反序列化为 `DomNodeRecord` list 输入参数，**转换时需要注意把 node id 都转成负数**，不然会和正式JS页面节点有冲突。
 
 + `public void destroyInstanceState(HippyRootView rootView)`
 
@@ -28,8 +28,8 @@
 
 + `saveInstanceState` 调用时机
   
-  可以由接入方决定，比如在页面退出调用引擎 destroy 方法前。
+  可以由接入方决定，比如在页面退出调用引擎 `destroy` 方法前。
 
 + `restoreInstanceState` 调用时机
 
-  按正常初始化引擎流程，在 Hippy engine 初始化完成后调用 rootView = mHippyEngine.restoreInstanceState(recordList, loadParams);
+  按正常初始化引擎流程，在 Hippy engine 初始化完成后调用 `rootView = mHippyEngine.restoreInstanceState(recordList, loadParams);`
