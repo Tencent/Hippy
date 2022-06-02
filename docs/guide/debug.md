@@ -64,7 +64,7 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
 # 前端环境准备
 
 1. 安装新一代调试工具： `npm i -D @hippy/debug-server-next@latest`
-2. 修改 webpack 配置，添加调试服务地址，默认为 `http://localhost:38989`
+2. 修改 Webpack 配置，添加调试服务地址，默认为 `http://localhost:38989`
 
    ```javascript
    module.exports = {
@@ -106,7 +106,7 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    } 
    ```
 
-   !> Node 17+ 在 Windows 和 Linux 上不再支持 `md4` hash，此处为了兼容 webpack 的 hash 算法，通过 `cross-env-os` 设置环境变量解决
+   !> Node 17+ 在 Windows 和 Linux 上不再支持 `md4` hash，此处为了兼容 Webpack 的 hash 算法，通过 `cross-env-os` 设置环境变量解决
 
 4. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
 
@@ -556,7 +556,7 @@ webpack(webpackConfig, (err, stats) => {
    其中打印三个字段表示：
 
    - bundleUrl：远程调试的 JSBundle 地址，填入宿主 App 接入的 `remoteServerUrl` 字段中
-   - deubg page：PC 端调试首页
+   - debug page：PC 端调试首页
    - bundleUrl scheme：宿主 App 扫码的 scheme
 
 
@@ -611,8 +611,8 @@ webpack(webpackConfig, (err, stats) => {
 
 # 框架日志输出
 
-无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法，当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
+无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法。当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
 
-如果需要关闭日志，可以在 hippy-react 的 new Hippy 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+如果需要关闭日志，可以在 hippy-react 的 `new Hippy` 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
 
 <img src="../assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>

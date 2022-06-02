@@ -37,7 +37,7 @@ Hippy's style layout uses Flex. It is worth noting that the `PercentFrameLayout`
 | --------------- | -------- |
 | string |No      |
 
->after the version `2.8.1`, it supports the local image capability of the native and can be loaded through webpack `file-loader`.
+>after the version `2.8.1`, it supports the local image capability of the native and can be loaded through Webpack `file-loader`.
 
 >Gradient currently support `linear-gradient`(Minimum supported version 2.8.0) [[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient), and supports the use of `linear-gradient([ [ [ <angle> | to [top | bottom] || [left | right] ],]? <color-stop>[, <color-stop>]+)` format. Among them, `angle` supports `deg`, `turn` and `rad` units, and `color-stop` supports setting multiple colors and percentages. DEMO: [Hippy-React](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/View/index.jsx) [Hippy-Vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 > <br/>

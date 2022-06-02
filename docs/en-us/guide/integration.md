@@ -1,14 +1,14 @@
 # Getting Started
 
-Hippy uses `monorepo` for code management to unify the versions of the front-end and native. The front-end can directly introduce the corresponding NPM package, and the native can access it through publishing branch source code or through the corresponding package management repository.
+Hippy uses `monorepo` for code management to unify the versions of multiple repository SDK. The front-end can directly introduce the corresponding NPM package, and the native can access it through publishing branch source code or through the corresponding package management repository.
 
 Hippy already provides a complete [front-end and native paradigm](//github.com/Tencent/Hippy/tree/master/examples) to start App development directly based on our existing paradigm. For a quick experience of Hippy, follow [the README steps](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) to run DEMO. If you want to integrate Hippy into an existing App, continue to read the following `Native access` chapter.
 
-# Native access
+# Native Integration
 
 If you want to access Hippy to an existing native project, refer to the [Android integration](android/integration.md) and [iOS integration](ios/integration.md) tutorials.
 
-# Front-end access
+# Front-end Integration
 
 Hippy supports both React and Vue UI frameworks, which are implemented through the [@hippy/react](//www.npmjs.com/package/@hippy/react) and [@hippy/vue](//www.npmjs.com/package/@hippy/vue) packages.
 
@@ -62,7 +62,7 @@ Optional:
 
 At present, hippy-react is `Webpack 4` built, and the configuration is all placed in the [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/scripts) directory. In fact, it is only the configuration file of [webpack](//webpack.js.org/). It is recommended to read  the contents of  [webpack](//webpack.js.org/)'s official website first, and then modify it after having a certain foundation.
 
-#### Compilation configuration for development and debugging of hippy-react native
+#### hippy-react development and debugging configuration
 
 This configuration shows a minimal configuration for running Hippy on the native.
 
@@ -70,12 +70,12 @@ This configuration shows a minimal configuration for running Hippy on the native
 | ------------------------------------------------------------ | ---------- |
 | [hippy-webpack.dev.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.dev.js) |Configuration for debugging|
 
-#### native online package configuration
+#### hippy-react production configuration
 
-There are two main differences between online packages and development and debugging packages:
+There are two main differences between production packages and development and debugging packages:
 
 1. Turn on production mode, remove debug information, and turn off `watch` (watch mode listens for file changes and repackages).
-2. More than one Hippy business is likely to run in the native, so the shared part is separated into a `vendor` package, which can effectively reduce the volume of the business package. [DllPlugin](//webpack.js.org/plugins/dll-plugin/) and [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) are used to realize this. It should be noted that the generated `vendor` package does not need to be specially updated under normal circumstances, but if it is updated, pay attention to upward compatibility, and do not cause business crash due to subcontracting.
+2. More than one Hippy business is likely to run in the native, so the shared part is separated into a `vendor` package, which can effectively reduce the volume of the business package. [DllPlugin](//webpack.js.org/plugins/dll-plugin/) and [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) are used to realize this.
 
 | Configuration file                                                     | Description                                                 |
 | ------------------------------------------------------------ |-------------------------------------------------------------|
@@ -85,7 +85,7 @@ There are two main differences between online packages and development and debug
 | [hippy-webpack.android.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.android.js) | Android business package configuration                       |
 | [hippy-webpack.android-vendor.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.android-vendor.js) | Android vendor package configuration                        |
 
-If you carefully observe the webpack configuration, you can see that the configuration of iOS and Android is not much different. However, due to the influence of Apple policy, only [JavaScript core](//developer.apple.com/documentation/javascriptcore)(hereinafter referred to as JSC) can be used as the running environment on iOS, and JSC follows the iOS system and can not be upgraded independently. JSC with lower version iOS can not even fully support ES6, so you need to output a copy of JS code of ES5 version. Android can use the V8 in the independently upgraded [X5](//x5.tencent.com/) as the running environment, and you can directly use ES6 code.
+If you carefully observe the Webpack configuration, you can see that the configuration of iOS and Android is not much different. However, due to the influence of Apple policy, only [JavaScript core](//developer.apple.com/documentation/javascriptcore)(hereinafter referred to as JSC) can be used as the running environment on iOS, and JSC follows the iOS system and can not be upgraded independently. JSC with lower version iOS can not even fully support ES6, so you need to output a copy of JS code of ES5 version. Android can use the V8 in the independently upgraded [X5](//x5.tencent.com/) as the running environment, and you can directly use ES6 code.
 
 !> **Special note:** the syntax that JS can use is affected by the minimum version covered by iOS. Most capabilities can be `@babel/preset-env` automatically installed by polyfill, but some features are not available. For example, if you want to use [Proxy](//caniuse.com/#feat=proxy), you can not cover iOS 10 and below.
 
@@ -126,7 +126,7 @@ export default function app() {
 
 ### hippy-react npm script
 
-Finally, just add a few fast npm scripts in [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/package.json#L13) , and here's an `hippy:` example at the beginning, and here's a quick start command to [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next).
+A few npm scripts with `hippy:` are provided in [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/package.json#L13) which can start [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) devtools.
 
 ```json
   "scripts": {
@@ -186,9 +186,9 @@ Optional:
 
 ### hippy-vue compilation configuration
 
-At present, hippy-vue is `Webpack 4` built (upgrading to `weppack 5` is not recommended for the time being`). All the configurations are placed in the [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) directory. In fact, it is only the configuration file of [webpack](//webpack.js.org/). It is recommended to read  the contents of  [webpack](//webpack.js.org/)'s official website first, and then modify it after having a certain foundation.
+At present, hippy-vue is `Webpack 4` built. All the configurations are placed in the [scripts](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) directory. In fact, it is only the configuration file of [webpack](//webpack.js.org/). It is recommended to read  the contents of  [webpack](//webpack.js.org/)'s official website first, and then modify it after having a certain foundation.
 
-#### Compilation configuration for development and debugging of hippy-vue native
+#### hippy-vue development and debugging configuration
 
 This configuration shows a minimal configuration for running Hippy on the native.
 
@@ -196,12 +196,12 @@ This configuration shows a minimal configuration for running Hippy on the native
 | ------------------------------------------------------------ | ---------- |
 | [hippy-webpack.dev.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.dev.js) |Configuration for debugging|
 
-#### hippy-vue native online package configuration 
+#### hippy-vue production configuration
 
-There are two main differences between online packages and development and debugging packages:
+There are two main differences between production packages and development and debugging packages:
 
 1. Turn on production mode, remove debug information, and turn off `watch` (watch mode listens for file changes and repackages).
-2. More than one Hippy business is likely to run in the native, so the shared part is separated into a `vendor` package, which can effectively reduce the volume of the business package. [DllPlugin](//webpack.js.org/plugins/dll-plugin/) and [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) are used to realize this. It should be noted that the generated `vendor` package does not need to be specially updated under normal circumstances, but if it is updated, pay attention to upward compatibility, and do not cause business crash due to subcontracting.
+2. More than one Hippy business is likely to run in the native, so the shared part is separated into a `vendor` package, which can effectively reduce the volume of the business package. [DllPlugin](//webpack.js.org/plugins/dll-plugin/) and [DllReferencePlugin](//webpack.js.org/plugins/dll-plugin/#dllreferenceplugin) are used to realize this.
 
 | Configuration file                                                     | Description                                                 |
 | ------------------------------------------------------------ |-------------------------------------------------------------|
@@ -211,7 +211,7 @@ There are two main differences between online packages and development and debug
 | [hippy-webpack.android.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.android.js) | Android business package configuration                       |
 | [hippy-webpack.android-vendor.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/scripts/hippy-webpack.android-vendor.js) | Android vendor package configuration                        |
 
-If you carefully observe the webpack configuration, you can see that the configuration of iOS and Android is not much different. However, due to the influence of Apple policy, only [JavaScript core](//developer.apple.com/documentation/javascriptcore)(hereinafter referred to as JSC) can be used as the running environment on iOS, and JSC follows the iOS system and can not be upgraded independently. JSC with lower version iOS can not even fully support ES6, so you need to output a copy of JS code of ES5 version. Android can use the V8 in the independently upgraded [X5](//x5.tencent.com/) as the running environment, and you can directly use ES6 code.
+If you carefully observe the Webpack configuration, you can see that the configuration of iOS and Android is not much different. However, due to the influence of Apple policy, only [JavaScript core](//developer.apple.com/documentation/javascriptcore)(hereinafter referred to as JSC) can be used as the running environment on iOS, and JSC follows the iOS system and can not be upgraded independently. JSC with lower version iOS can not even fully support ES6, so you need to output a copy of JS code of ES5 version. Android can use the V8 in the independently upgraded [X5](//x5.tencent.com/) as the running environment, and you can directly use ES6 code.
 
 !> **Special note:** the syntax that JS can use is affected by the minimum version covered by iOS. Most capabilities can be `@babel/preset-env` automatically installed by polyfill, but some features are not available. For example, if you want to use [Proxy](//caniuse.com/#feat=proxy), you can not cover iOS 10 and below.
 
@@ -292,7 +292,7 @@ setApp(app);
 
 ### hippy-vue npm script
 
-Finally, just add a few fast npm scripts in [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/package.json#L13), and here's an `hippy:` example at the beginning, and here's a quick start command to [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next).
+A few npm scripts with `hippy:` are provided in [package.json](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/package.json#L13) which can start [@hippy/debug-server-next](//www.npmjs.com/package/@hippy/debug-server-next) devtools.
 
 ```json
   "scripts": {
