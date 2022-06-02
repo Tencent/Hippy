@@ -40,7 +40,7 @@ function banner(name, version) {
 }
 
 const builds = {
-  '@hippy/web-render': {
+  '@hippy/web-renderer': {
     entry: './packages/hippy-web-renderer/src/index.ts',
     dest: './packages/hippy-web-renderer/dist/index.js',
     format: 'es',
