@@ -20,7 +20,6 @@
 
 function registerAnimation(Vue) {
   // Constants for animations
-  const MODULE_NAME = 'AnimationModule';
   const DEFAULT_OPTION = {
     valueType: undefined,
     delay: 0,
@@ -67,8 +66,11 @@ function registerAnimation(Vue) {
     fullOption.startValue = parseValue(fullOption.valueType, startValue);
     fullOption.toValue = parseValue(fullOption.valueType, toValue);
     fullOption.repeatCount = repeatCountDict(fullOption.repeatCount);
-    const animationId = Vue.Native.callNativeWithCallbackId(MODULE_NAME, 'createAnimation', true, mode, fullOption);
+    fullOption.mode = mode;
+    const animation = new global.Hippy.Animation(fullOption);
+    const animationId = animation.getId();
     return {
+      animation,
       animationId,
     };
   }
@@ -77,10 +79,15 @@ function registerAnimation(Vue) {
    * Create the animationSet
    */
   function createAnimationSet(children, repeatCount = 0) {
-    return Vue.Native.callNativeWithCallbackId(MODULE_NAME, 'createAnimationSet', true, {
+    const animation = new global.Hippy.AnimationSet({
       children,
       repeatCount,
     });
+    const animationId = animation.getId();
+    return {
+      animation,
+      animationId,
+    };
   }
 
   function repeatCountDict(repeatCount) {
@@ -93,28 +100,34 @@ function registerAnimation(Vue) {
   /**
    * Generate the styles from animation and animationSet Ids.
    */
-  function getStyle(actions, childAnimationIdList = []) {
+  function createStyle(actions,  animationIdsMap = {}) {
     const style = {};
     Object.keys(actions).forEach((key) => {
       if (Array.isArray(actions[key])) {
         // Process AnimationSet from Array.
         const actionSet = actions[key];
         const { repeatCount } = actionSet[actionSet.length - 1];
-        const animationSetActions = actionSet.map((a) => {
-          const action = createAnimation(Object.assign({}, a, { repeatCount: 0 }));
-          childAnimationIdList.push(action.animationId);
-          action.follow = true;
-          return action;
+        const animationSetActions = actionSet.map((animationChild) => {
+          const { animationId, animation } = createAnimation(Object.assign({}, animationChild, { repeatCount: 0 }));
+          Object.assign(animationIdsMap, {
+            [animationId]: animation,
+          });
+          return { animationId, follow: true };
         });
-        const animationSetId = createAnimationSet(animationSetActions, repeatCountDict(repeatCount));
+        const { animationId, animation } = createAnimationSet(animationSetActions, repeatCountDict(repeatCount));
         style[key] = {
-          animationId: animationSetId,
+          animationId,
         };
+        Object.assign(animationIdsMap, {
+          [animationId]: animation,
+        });
       } else {
         // Process standalone Animation.
         const action = actions[key];
-        const animation = createAnimation(action);
-        const { animationId } = animation;
+        const { animationId, animation } = createAnimation(action);
+        Object.assign(animationIdsMap, {
+          [animationId]: animation,
+        });
         style[key] = {
           animationId,
         };
@@ -169,8 +182,8 @@ function registerAnimation(Vue) {
       return {
         style: {},
         animationIds: [],
+        animationIdsMap: {},
         animationEventMap: {},
-        childAnimationIdList: [],
       };
     },
     watch: {
@@ -189,17 +202,12 @@ function registerAnimation(Vue) {
       },
     },
     created() {
-      const animationEventName = 'onAnimation';
-      this.childAnimationIdList = [];
       this.animationEventMap = {
-        start: `${animationEventName}Start`,
-        end: `${animationEventName}End`,
-        repeat: `${animationEventName}Repeat`,
-        cancel: `${animationEventName}Cancel`,
+        start: 'animationstart',
+        end: 'animationend',
+        repeat: 'animationrepeat',
+        cancel: 'animationcancel',
       };
-      if (Vue.getApp) {
-        this.app = Vue.getApp();
-      }
     },
     beforeMount() {
       this.create();
@@ -216,9 +224,10 @@ function registerAnimation(Vue) {
     methods: {
       create() {
         const { actions: { transform, ...actions } } = this.$props;
-        const style = getStyle(actions, this.childAnimationIdList);
+        this.animationIdsMap = {};
+        const style = createStyle(actions, this.animationIdsMap);
         if (transform) {
-          const transformAnimations = getStyle(transform, this.childAnimationIdList);
+          const transformAnimations = createStyle(transform, this.animationIdsMap);
           style.transform = Object.keys(transformAnimations).map(key => ({
             [key]: transformAnimations[key],
           }));
@@ -229,26 +238,28 @@ function registerAnimation(Vue) {
         this.style = style;
       },
       removeAnimationEvent() {
-        Object.keys(this.animationEventMap).forEach((key) => {
-          const eventName = this.animationEventMap[key];
-          if (eventName && this.app && this[`${eventName}`]) {
-            this.app.$off(eventName, this[`${eventName}`]);
+        this.animationIds.forEach((animationId) => {
+          const animation = this.animationIdsMap[animationId];
+          if (animation) {
+            Object.keys(this.animationEventMap).forEach((key) => {
+              const eventName = this.animationEventMap[key];
+              eventName && animation.removeEventListener(eventName);
+            });
           }
         });
       },
       addAnimationEvent() {
-        Object.keys(this.animationEventMap).forEach((key) => {
-          const eventName = this.animationEventMap[key];
-          if (eventName && this.app) {
-            this[`${eventName}`] = function eventHandler(animationId) {
-              if (this.animationIds.indexOf(animationId) >= 0) {
-                if (key !== 'repeat') {
-                  this.app.$off(eventName, this[`${eventName}`]);
-                }
-                this.$emit(key);
+        this.animationIds.forEach((animationId) => {
+          const animation = this.animationIdsMap[animationId];
+          if (animation) {
+            Object.keys(this.animationEventMap).forEach((key) => {
+              const eventName = this.animationEventMap[key];
+              if (eventName) {
+                animation.addEventListener(eventName, () => {
+                  this.$emit(key);
+                });
               }
-            }.bind(this);
-            this.app.$on(eventName, this[`${eventName}`]);
+            });
           }
         });
       },
@@ -257,35 +268,43 @@ function registerAnimation(Vue) {
       },
       start() {
         if (!this.$alreadyStarted) {
-          const animationIds = getAnimationIds(this.style);
-          this.animationIds = animationIds;
+          this.animationIds = getAnimationIds(this.style);
           this.$alreadyStarted = true;
           this.removeAnimationEvent();
           this.addAnimationEvent();
-          animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'startAnimation', animationId));
+          this.animationIds.forEach((animationId) => {
+            const animation = this.animationIdsMap[animationId];
+            animation && animation.start();
+          });
         } else {
           this.resume();
         }
       },
       resume() {
         const animationIds = getAnimationIds(this.style);
-        animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'resumeAnimation', animationId));
+        animationIds.forEach((animationId) => {
+          const animation = this.animationIdsMap[animationId];
+          animation && animation.resume();
+        });
       },
       pause() {
         if (!this.$alreadyStarted) {
           return;
         }
         const animationIds = getAnimationIds(this.style);
-        animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'pauseAnimation', animationId));
+        animationIds.forEach((animationId) => {
+          const animation = this.animationIdsMap[animationId];
+          animation && animation.pause();
+        });
       },
       destroy() {
         this.removeAnimationEvent();
         this.$alreadyStarted = false;
         const animationIds = getAnimationIds(this.style);
-        this.childAnimationIdList.forEach(animationId => Number.isInteger(animationId)
-            && Vue.Native.callNative(MODULE_NAME, 'destroyAnimation', animationId));
-        animationIds.forEach(animationId => Vue.Native.callNative(MODULE_NAME, 'destroyAnimation', animationId));
-        this.childAnimationIdList = [];
+        animationIds.forEach((animationId) => {
+          const animation = this.animationIdsMap[animationId];
+          animation && animation.destroy();
+        });
       },
     },
     template: `
