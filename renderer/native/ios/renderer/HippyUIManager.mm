@@ -445,7 +445,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     for (auto &event : eventNames) {
         [self addEventNameInMainThread:event forDomNodeId:[shadowView.hippyTag intValue]];
     }
-    [shadowView clearEventNames];
     return view;
 }
 
@@ -1082,6 +1081,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 #pragma mark Event Handler
 
 - (void)addEventName:(const std::string &)name forDomNodeId:(int32_t)node_id {
+    HippyShadowView *shadowView = _shadowViewRegistry[@(node_id)];
+    [shadowView addEventName:name];
     if (name == hippy::kClickEvent) {
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             HippyUIManager *uiManager = (HippyUIManager *)renderContext;
@@ -1172,8 +1173,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }];
     }
     else {
-        HippyShadowView *shadowView = _shadowViewRegistry[@(hippyTag)];
-        [shadowView addEventName:hippy::kClickEvent];
     }
 }
 
@@ -1199,8 +1198,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }];
     }
     else {
-        HippyShadowView *shadowView = _shadowViewRegistry[@(hippyTag)];
-        [shadowView addEventName:hippy::kLongClickEvent];
     }
 }
 
@@ -1228,8 +1225,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }];
     }
     else {
-        HippyShadowView *shadowView = _shadowViewRegistry[@(hippyTag)];
-        [shadowView addEventName:type];
     }
 }
 
@@ -1273,8 +1268,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }];
     }
     else {
-        HippyShadowView *shadowView = _shadowViewRegistry[@(hippyTag)];
-        [shadowView addEventName:type];
     }
 }
 
@@ -1301,8 +1294,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }];
     }
     else {
-        HippyShadowView *shadowView = _shadowViewRegistry[@(hippyTag)];
-        [shadowView addEventName:type];
     }
 }
 
@@ -1369,8 +1360,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }
     }
     else {
-        HippyShadowView *shadowView = _shadowViewRegistry[@(node_id)];
-        [shadowView addEventName:name];
     }
 }
 
