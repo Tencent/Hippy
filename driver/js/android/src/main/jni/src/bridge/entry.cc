@@ -52,8 +52,8 @@
 #include "jni/uri.h"
 #include "jni/jni_utils.h"
 #include "loader/adr_loader.h"
-#include "render/hippy_render_manager.h"
 #include "render/native_render_manager.h"
+#include "render/native_render_jni.h"
 
 namespace hippy::bridge {
 
@@ -139,8 +139,8 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
-  std::shared_ptr<HippyRenderManager>
-      render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_render_id));
+  std::shared_ptr<NativeRenderManager>
+      render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
 
   float density = render_manager->GetDensity();
   uint32_t root_id = dom_manager->GetRootId();
@@ -478,7 +478,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Init();
   ConvertUtils::Init();
   TurboModuleManager::Init();
-  NativeRenderManager::Init();
+  NativeRenderJni::Init();
 
   return JNI_VERSION_1_4;
 }
@@ -490,7 +490,7 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Destroy();
   ConvertUtils::Destroy();
   TurboModuleManager::Destroy();
-  NativeRenderManager::Destroy();
+  NativeRenderJni::Destroy();
 
   JNIEnvironment::DestroyInstance();
 }
