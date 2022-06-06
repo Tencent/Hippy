@@ -38,9 +38,6 @@ static NSString *const kListViewItem = @"ListViewItem";
 @interface HippyBaseListView () <HippyRefreshDelegate> {
     __weak UIView *_rootView;
     BOOL _isInitialListReady;
-    NSTimeInterval _lastScrollDispatchTime;
-    HippyHeaderRefresh *_headerRefreshView;
-    HippyFooterRefresh *_footerRefreshView;
     NSArray<UICollectionViewCell *> *_previousVisibleCells;
     BOOL _manualScroll;
 }
@@ -265,6 +262,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
        willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
     [cellShadowView recusivelySetCreationTypeToInstant];
+    [self itemViewForCollectionViewCell:cell indexPath:indexPath];
     NSInteger index = [self.dataSource flatIndexForIndexPath:indexPath];
     if (self.onRowWillDisplay) {
         self.onRowWillDisplay(@{
@@ -293,35 +291,32 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
         HippyBaseListViewCell *hpCell = (HippyBaseListViewCell *)cell;
-        hpCell.shadowView.cell = nil;
+        [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
+        hpCell.cellView = nil;
     }
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
+}
+
+- (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
     HippyShadowView *cellShadowView = [self.dataSource cellForIndexPath:indexPath];
-    HippyBaseListViewCell *cell = (HippyBaseListViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    UIView *cellView = nil;
-    if (cell.shadowView.cell) {
-        cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
+    HippyBaseListViewCell *hpCell = (HippyBaseListViewCell *)cell;
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellShadowView.hippyTag];
+    if (cellView) {
+        [_cachedItems removeObjectForKey:indexPath];
     }
     else {
-        cellView = [self.renderContext updateShadowView:cell.shadowView withAnotherShadowView:cellShadowView];
-        if (nil == cellView) {
-            cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
-        }
+        cellView = [self.renderContext createViewRecursivelyFromShadowView:cellShadowView];
     }
     NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
-    cell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
-    cell.shadowView = cellShadowView;
-    cell.shadowView.cell = cell;
+    //TODO HippyBaseListViewCell.shadow and HippyShadowView.cell can remove
+    hpCell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
+    hpCell.shadowView = cellShadowView;
+    hpCell.shadowView.cell = hpCell;
     [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
-    return cell;
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView itemViewForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyWaterfallViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:kCellIdentifier forIndexPath:indexPath];
-    return cell;
 }
 
 - (void)tableViewDidLayoutSubviews:(HippyListTableView *)tableView {
@@ -347,30 +342,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 #pragma mark - Scroll
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (self.onScroll) {
-        double ti = CACurrentMediaTime();
-        double timeDiff = (ti - _lastScrollDispatchTime) * 1000.f;
-        if (timeDiff > self.scrollEventThrottle) {
-            NSDictionary *eventData = [self scrollBodyData];
-            _lastScrollDispatchTime = ti;
-            self.onScroll(eventData);
-        }
-    }
-
-    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
-        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
-            [scrollViewListener scrollViewDidScroll:scrollView];
-        }
-    }
-
-    [_headerRefreshView scrollViewDidScroll];
-    [_footerRefreshView scrollViewDidScroll];
-}
-
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     if (self.onScrollBeginDrag) {
-        self.onScrollBeginDrag([self scrollBodyData]);
+        self.onScrollBeginDrag([self scrollEventDataWithState:ScrollStateDraging]);
     }
     _manualScroll = YES;
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
@@ -382,7 +356,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
     if (self.onMomentumScrollBegin) {
-        self.onMomentumScrollBegin([self scrollBodyData]);
+        self.onMomentumScrollBegin([self scrollEventDataWithState:ScrollStateScrolling]);
     }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewWillBeginDecelerating:)]) {
@@ -413,7 +387,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 
     if (self.onScrollEndDrag) {
-        self.onScrollEndDrag([self scrollBodyData]);
+        self.onScrollEndDrag([self scrollEventDataWithState:ScrollStateDraging]);
     }
 
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
@@ -429,7 +403,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     });
 
     if (self.onMomentumScrollEnd) {
-        self.onMomentumScrollEnd([self scrollBodyData]);
+        self.onMomentumScrollEnd([self scrollEventDataWithState:ScrollStateStop]);
     }
 
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
@@ -471,7 +445,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     }
 }
 
-- (NSDictionary *)scrollBodyData {
+- (NSDictionary *)scrollEventDataWithState:(HippyScrollState)state {
     return @{ @"contentOffset": @ { @"x": @(self.collectionView.contentOffset.x), @"y": @(self.collectionView.contentOffset.y) } };
 }
 

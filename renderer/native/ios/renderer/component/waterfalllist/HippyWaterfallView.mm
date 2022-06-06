@@ -37,16 +37,10 @@ static NSString *kCellIdentifier = @"cellIdentifier";
 
 static NSString *kWaterfallItemName = @"WaterfallItem";
 
-typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDraging, ScrollStateScrolling };
-
-
 @interface HippyWaterfallView () <HippyInvalidating, HippyRefreshDelegate, HippyListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
-    HippyHeaderRefresh *_headerRefreshView;
-    HippyFooterRefresh *_footerRefreshView;
     UIColor *_backgroundColor;
-    double _lastOnScrollEventTimeInterval;
     BOOL _manualScroll;
 }
 
@@ -72,7 +66,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         _dataSource = [[HippyWaterfallViewDataSource alloc] init];
         self.dataSource.itemViewName = [self compoentItemName];
         _weakItemMap = [NSMapTable strongToWeakObjectsMapTable];
-        _weakCachedItems = [NSMutableDictionary dictionaryWithCapacity:[self maxCachedItemCount]];
+        _cachedItems = [NSMutableDictionary dictionaryWithCapacity:[self maxCachedItemCount]];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
         [self initCollectionView];
         if (@available(iOS 11.0, *)) {
@@ -184,6 +178,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (NSUInteger)differenceFromIndexPath:(NSIndexPath *)indexPath1 againstAnother:(NSIndexPath *)indexPath2 {
+    NSAssert([NSThread mainThread], @"must be in main thread");
     long diffCount = 0;
     for (NSUInteger index = MIN([indexPath1 section], [indexPath2 section]); index < MAX([indexPath1 section], [indexPath2 section]); index++) {
         diffCount += [_collectionView numberOfItemsInSection:index];
@@ -201,11 +196,11 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen {
-    NSInteger cachedCount = [_weakCachedItems count];
-    NSInteger cachedCountToRemove = MAX(cachedCount - [self maxCachedItemCount], 0);
+    NSUInteger cachedCount = [_cachedItems count];
+    NSInteger cachedCountToRemove = cachedCount > [self maxCachedItemCount] ? cachedCount - [self maxCachedItemCount] : 0;
     if (0 != cachedCountToRemove) {
         NSArray<NSIndexPath *> *visibleIndexPaths = [_collectionView indexPathsForVisibleItems];
-        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_weakCachedItems allKeys] sortedArrayWithOptions:(NSSortConcurrent) usingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+        NSArray<NSIndexPath *> *sortedCachedItemKey = [[_cachedItems allKeys] sortedArrayWithOptions:(NSSortConcurrent) usingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
             NSIndexPath *ip1 = obj1;
             NSIndexPath *ip2 = obj2;
             NSUInteger ip1Diff = [self differenceFromIndexPath:ip1 againstVisibleIndexPaths:visibleIndexPaths];
@@ -229,10 +224,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 - (void)purgeFurthestIndexPathsFromScreen {
     NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
     //purge view
-    NSArray<NSNumber *> *objects = [_weakCachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
+    NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
     [self.renderContext purgeViewsFromHippyTags:objects];
     //purge cache
-    [_weakCachedItems removeObjectsForKeys:furthestIndexPaths];
+    [_cachedItems removeObjectsForKeys:furthestIndexPaths];
 }
 
 - (void)setContentInset:(UIEdgeInsets)contentInset {
@@ -266,7 +261,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)reloadData {
-    [_weakCachedItems removeAllObjects];
     [self.collectionView reloadData];
 }
 
@@ -354,7 +348,11 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     if ([cell isKindOfClass:[HippyWaterfallViewCell class]]) {
         HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
         if (hpCell.cellView) {
-            [_weakCachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
+            if (_cachedItems[indexPath]) {
+                NSLog(@"22");
+            }
+            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
+            hpCell.cellView = nil;
         }
     }
 }
@@ -362,9 +360,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
     HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
+    [shadowView recusivelySetCreationTypeToInstant];
     UIView *cellView = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
     if (cellView) {
-        [_weakCachedItems removeObjectForKey:indexPath];
+        [_cachedItems removeObjectForKey:indexPath];
     }
     else {
         cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
@@ -431,8 +430,15 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
             _onScroll(eventData);
         }
     }
+    for (NSObject<UIScrollViewDelegate> *scrollViewListener in [self scrollListeners]) {
+        if ([scrollViewListener respondsToSelector:@selector(scrollViewDidScroll:)]) {
+            [scrollViewListener scrollViewDidScroll:scrollView];
+        }
+    }
+    //TODO cancel timer when component is removed from hippy view
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(purgeFurthestIndexPathsFromScreen) object:nil];
-    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:3];
+    static const NSTimeInterval delayForPurgeView = 3.0f;
+    [self performSelector:@selector(purgeFurthestIndexPathsFromScreen) withObject:nil afterDelay:delayForPurgeView];
     [_headerRefreshView scrollViewDidScroll];
     [_footerRefreshView scrollViewDidScroll];
 }
@@ -628,10 +634,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)cleanUpCachedItems {
     //purge view
-    NSArray<NSNumber *> *objects = [_weakCachedItems allValues];
+    NSArray<NSNumber *> *objects = [_cachedItems allValues];
     [self.renderContext purgeViewsFromHippyTags:objects];
     //purge cache
-    [_weakCachedItems removeAllObjects];
+    [_cachedItems removeAllObjects];
 }
 
 @end

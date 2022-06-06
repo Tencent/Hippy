@@ -415,6 +415,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         HippyTraverseViewNodes(registry[child.hippyTag], ^(id<HippyComponent> subview) {
             NSAssert(![subview isHippyRootView], @"Root views should not be unregistered");
             if ([subview conformsToProtocol:@protocol(HippyInvalidating)]) {
+                //TODO HippyInvalidating belong to hippy, remove it
                 [(id<HippyInvalidating>)subview invalidate];
             }
             [registry removeObjectForKey:subview.hippyTag];
