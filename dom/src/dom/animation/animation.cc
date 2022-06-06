@@ -1,178 +1,79 @@
-/*
- *
- * Tencent is pleased to support the open source community by making
- * Hippy available.
- *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
- * All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
 #include "dom/animation/animation.h"
 
-#include <cmath>
-#include <utility>
-#include <regex>
-
 #include "core/base/base_time.h"
-
+#include "base/logging.h"
+#include "dom/animation/animation_manager.h"
+#include "dom/dom_manager.h"
 
 namespace hippy {
+inline namespace animation {
 
-static std::atomic<uint32_t> global_animation_key{1};
+constexpr int32_t kLoopCnt = -1;
 
-CubicBezier Animation::ParseCubicBezierStr(std::string str) {
-  // "cubic-bezier(.45,2.84,.38,.5)"
-  std::smatch match;
-  if (std::regex_match(str, match, std::regex(kAnimationCubicBezierRegex))) {
-    if (match.size() != 5) {
-      return CubicBezier(CubicBezier::kDefaultP1, CubicBezier::kDefaultP2);
-    }
-    auto point1_x = std::stod(match[1]);
-    auto point1_y = std::stod(match[2]);
-    auto point2_x = std::stod(match[3]);
-    auto point2_y = std::stod(match[4]);
-    return CubicBezier({point1_x, point1_y}, {point2_x, point2_y});
-  }
+std::atomic<uint32_t> Animation::animation_id_{1};
 
-  return CubicBezier(CubicBezier::kDefaultP1, CubicBezier::kDefaultP2);
-}
-
-double Animation::CalculateColor(double start_color, double to_color, double scale) {
-  uint32_t start_value = static_cast<uint32_t>(start_color);
-  auto start_red = static_cast<uint8_t>(((start_value >> 24) & 0xff));
-  auto start_green = static_cast<uint8_t>(((start_value >> 16) & 0xff));
-  auto start_blue = static_cast<uint8_t>(((start_value >> 8)  & 0xff));
-  auto start_alpha = static_cast<uint8_t>((start_value & 0xff));
-
-  uint32_t to_value = static_cast<uint32_t>(to_color);
-  auto to_red = static_cast<uint8_t>(((to_value >> 24) & 0xff));
-  auto to_green = static_cast<uint8_t>(((to_value >> 16) & 0xff));
-  auto to_blue = static_cast<uint8_t>(((to_value >> 8)  & 0xff));
-  auto to_alpha = static_cast<uint8_t>((to_value & 0xff));
-
-  auto red = static_cast<uint8_t>(start_red + (to_red - start_red) * scale);
-  auto green = static_cast<uint8_t>(start_green + (to_green - start_green) * scale);
-  auto blue = static_cast<uint8_t>(start_blue + (to_blue - start_blue) * scale);
-  auto alpha = static_cast<uint8_t>(start_alpha + (to_alpha - start_alpha) * scale);
-  uint32_t ret = (red << 24) + (green << 16) + (blue << 8) + alpha;
-  return static_cast<double>(ret);
-}
-
-Animation::Animation(Mode mode,
+Animation::Animation(int32_t cnt,
                      uint64_t delay,
-                     double start_value,
-                     double to_value,
-                     ValueType type,
+                     uint64_t last_begin_time,
                      uint64_t duration,
-                     std::string func,
-                     int32_t cnt,
+                     uint64_t exec_time,
+                     double start_value,
                      AnimationStartCb on_start,
                      AnimationEndCb on_end,
                      AnimationCancelCb on_cancel,
-                     AnimationRepeatCb on_repeat)
-    : mode_(mode), delay_(delay), start_value_(start_value), to_value_(to_value), type_(type),
-      duration_(duration), func_(std::move(func)), cnt_(cnt), set_id_(hippy::kInvalidAnimationSetId),
-      on_start_(std::move(on_start)), on_end_(std::move(on_end)), on_cancel_(std::move(on_cancel)),
-      on_repeat_(std::move(on_repeat)), last_begin_time_(0), cubic_bezier_(),
-      current_value_(start_value), status_(Status::kCreated), exec_time_(0) {
-  id_ = global_animation_key.fetch_add(1);
+                     AnimationRepeatCb on_repeat,
+                     bool is_set,
+                     Status status,
+                     std::weak_ptr<hippy::AnimationManager> animation_manager)
+    : id_(animation_id_.fetch_add(1)),
+      cnt_(cnt),
+      delay_(delay),
+      last_begin_time_(last_begin_time),
+      duration_(duration),
+      exec_time_(exec_time),
+      start_value_(start_value),
+      on_start_(on_start),
+      on_end_(on_end),
+      on_cancel_(on_cancel),
+      on_repeat_(on_repeat),
+      status_(status),
+      is_set_(is_set),
+      animation_manager_(animation_manager) {}
 
-  if (func_ == kAnimationTimingFunctionLinear) {
-    cubic_bezier_ = CubicBezier(CubicBezier::kLinearP1, CubicBezier::kLinearP2);
-  } else if (func_ == kAnimationTimingFunctionEaseIn) {
-    cubic_bezier_ = CubicBezier(CubicBezier::kEaseInP1, CubicBezier::kEaseInP2);;
-  } else if (func_ == kAnimationTimingFunctionEaseOut) {
-    cubic_bezier_ = CubicBezier(CubicBezier::kEaseOutP1, CubicBezier::kEaseOutP2);
-  } else if (func_ == kAnimationTimingFunctionEaseInOut) {
-    cubic_bezier_ = CubicBezier(CubicBezier::kEaseInEaseOutP1, CubicBezier::kEaseInEaseOutP2);
-  } else if (func_ == kAnimationTimingFunctionCubicBezier) {
-    cubic_bezier_ = CubicBezier(CubicBezier::kDefaultP1, CubicBezier::kDefaultP2);
-  } else {
-    cubic_bezier_ = std::move(ParseCubicBezierStr(func_));
-  }
+Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double start_value) :
+    Animation(
+        cnt,
+        delay,
+        hippy::base::MonotonicallyIncreasingTime(),
+        duration,
+        0,
+        start_value,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        false,
+        Status::kCreated,
+        {}) {}
+
+Animation::Animation(int32_t cnt) : Animation(cnt,
+                                              0,
+                                              hippy::base::MonotonicallyIncreasingTime(),
+                                              0,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              nullptr,
+                                              nullptr,
+                                              nullptr,
+                                              true,
+                                              Status::kCreated,
+                                              {}) {
 }
 
-Animation::Animation(Mode mode,
-                     uint64_t delay,
-                     double start_value,
-                     double to_value,
-                     ValueType type,
-                     uint64_t duration,
-                     std::string func,
-                     int32_t cnt) : Animation(mode, delay, start_value, to_value, type, duration,
-                                              func, cnt, nullptr, nullptr,
-                                              nullptr, nullptr) {
-}
+Animation::Animation() : Animation(0, 0, 0, 0) {}
 
-Animation::Animation() : Animation(Mode::kTiming,
-                                   0,
-                                   0,
-                                   0,
-                                   ValueType::kRad,
-                                   0,
-                                   kAnimationTimingFunctionLinear,
-                                   0) {}
-
-Animation::~Animation() = default;
-
-double Animation::Calculate(uint64_t now) {
-  exec_time_ += (now - last_begin_time_);
-  auto epsilon = cubic_bezier_.SolveEpsilon(duration_);
-  auto x = cubic_bezier_.SolveCurveX(
-      static_cast<double>(exec_time_ - delay_) / static_cast<double>(duration_), epsilon);
-  auto y = cubic_bezier_.SampleCurveY(x);
-  if (type_ == ValueType::kColor) {
-    current_value_ = CalculateColor(start_value_, to_value_, y);
-  } else {
-    current_value_ = start_value_ + y * (to_value_ - start_value_);
-  }
-  last_begin_time_ = now;
-  return current_value_;
-}
-
-void Animation::Repeat(uint64_t now) {
-  last_begin_time_ = now;
-  exec_time_ = 0;
-  status_ = Animation::Status::kCreated;
-  if (cnt_ != -1 && cnt_ > 0) {
-    cnt_ -= 1;
-  }
-  if (on_repeat_) {
-    on_repeat_();
-  }
-}
-
-void Animation::Update(Mode mode,
-                       uint64_t delay,
-                       double start_value,
-                       double to_value,
-                       ValueType type,
-                       uint64_t duration,
-                       std::string func,
-                       int32_t cnt) {
-  mode_ = mode;
-  delay_ = delay;
-  start_value_ = start_value;
-  to_value_ = to_value;
-  type_ = type;
-  duration_ = duration;
-  func_ = std::move(func);
-  cubic_bezier_ = std::move(ParseCubicBezierStr(func_));
-  cnt_ = cnt;
-}
+Animation::~Animation() {}
 
 void Animation::AddEventListener(const std::string& event, AnimationCb cb) {
   if (event == kAnimationStartKey) {
@@ -183,6 +84,8 @@ void Animation::AddEventListener(const std::string& event, AnimationCb cb) {
     on_cancel_ = std::move(cb);
   } else if (event == kAnimationRepeatKey) {
     on_repeat_ = std::move(cb);
+  } else {
+    TDF_BASE_DLOG(WARNING) << "event error, event = " << event;
   }
 }
 
@@ -195,54 +98,322 @@ void Animation::RemoveEventListener(const std::string& event) {
     on_cancel_ = nullptr;
   } else if (event == kAnimationRepeatKey) {
     on_repeat_ = nullptr;
+  } else {
+    TDF_BASE_DLOG(WARNING) << "event error, event = " << event;
   }
 }
 
-AnimationSet::AnimationSet(std::vector<AnimationSetChild>&& children, int32_t cnt)
-    : children_(std::move(children)), cnt_(cnt), status_(AnimationSet::Status::kCreated),
-    start_value_(0) {
-  id_ = global_animation_key.fetch_add(1);
-}
-
-AnimationSet::AnimationSet(): AnimationSet(std::vector<AnimationSetChild>{}, 0) {}
-
-void AnimationSet::Repeat() {
-  if (cnt_ == 0) {
+void Animation::Start() {
+  auto animation_manager = animation_manager_.lock();
+  auto animation = animation_manager->GetAnimation(id_);
+  if (!animation) {
     return;
   }
-  status_ = AnimationSet::Status::kCreated;
-  if (cnt_ != -1) {
+  auto status = animation->GetStatus();
+  switch (status) {
+    case Animation::Status::kCreated:
+      animation->SetStatus(Animation::Status::kStart);
+      break;
+    case Animation::Status::kStart:
+    case Animation::Status::kRunning:
+    case Animation::Status::kPause:
+    case Animation::Status::kResume:
+    case Animation::Status::kEnd:
+    case Animation::Status::kDestroy:
+    default:return;
+  }
+  auto now = hippy::base::MonotonicallyIncreasingTime();
+  last_begin_time_ = now;
+  if (delay_ == 0) {
+    if (animation->IsSet()) {
+      auto set = std::static_pointer_cast<AnimationSet>(animation);
+      for (auto& child: set->GetChildren()) {
+        child->SetExecTime(set->GetDelay());
+      }
+    }
+    animation_manager->AddActiveAnimation(animation);
+    if (on_start_) {
+      on_start_();
+    }
+  } else {
+    std::weak_ptr<Animation> weak_animation = animation;
+    std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
+    auto dom_manager = animation_manager->GetDomManager().lock();
+    if (!dom_manager) {
+      return;
+    }
+    std::vector<std::function<void()>> ops = {[weak_animation, weak_animation_manager] {
+      auto animation = weak_animation.lock();
+      if (!animation) {
+        return;
+      }
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
+        return;
+      }
+      auto dom_manager = animation_manager->GetDomManager().lock();
+      if (!dom_manager) {
+        return;
+      }
+
+      auto now = hippy::base::MonotonicallyIncreasingTime();
+      auto delay = animation->GetDelay();
+      animation->SetExecTime(delay); // reduce latency impact of task_runner
+      animation->SetLastBeginTime(now);
+      animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
+      if (animation->IsSet()) {
+        auto set = std::static_pointer_cast<AnimationSet>(animation);
+        for (auto& child: set->GetChildren()) {
+          child->SetExecTime(set->GetDelay());
+        }
+      }
+      animation_manager->AddActiveAnimation(animation);
+      auto on_start = animation->GetAnimationStartCb();
+      if (on_start) {
+        on_start();
+      }
+    }};
+    auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay_);
+    animation_manager->AddDelayedAnimationRecord(id_, task);
+  }
+}
+
+void Animation::Run(uint64_t now) {
+  switch (status_) {
+    case Animation::Status::kResume: {
+      status_ = Animation::Status::kRunning;
+      break;
+    }
+    case Animation::Status::kStart: {
+      status_ = Animation::Status::kRunning;
+      if (on_start_) {
+        on_start_();
+      }
+      break;
+    }
+    case Animation::Status::kRunning: {
+      break;
+    }
+    case Animation::Status::kCreated:
+    case Animation::Status::kPause:
+    case Animation::Status::kEnd:
+    case Animation::Status::kDestroy:
+    default:TDF_BASE_UNREACHABLE();
+  }
+
+  if (exec_time_ >= delay_ + duration_) {
+    status_ = Animation::Status::kEnd;
+    auto animation_manager = animation_manager_.lock();
+    if (animation_manager) {
+      animation_manager->RemoveActiveAnimation(id_);
+    }
+    if (on_end_) {
+      on_end_();
+    }
+    if (cnt_ > 0 || cnt_ == hippy::kLoopCnt) {
+      Repeat(now);
+    }
+  }
+}
+
+void Animation::Destroy() {
+  auto animation_manager = animation_manager_.lock();
+  if (!animation_manager) {
+    return;
+  }
+  auto dom_manager = animation_manager->GetDomManager().lock();
+  if (!dom_manager) {
+    return;
+  }
+  auto animation = animation_manager->GetAnimation(id_);
+  if (!animation) {
+    return;
+  }
+  auto status = animation->GetStatus();
+  switch (status) {
+    case Animation::Status::kCreated:
+    case Animation::Status::kStart:
+    case Animation::Status::kRunning:
+    case Animation::Status::kPause:
+    case Animation::Status::kResume:
+    case Animation::Status::kEnd:
+      animation->SetStatus(Animation::Status::kDestroy);
+      break;
+    case Animation::Status::kDestroy:
+    default:
+      return;
+  }
+  animation_manager->RemoveActiveAnimation(id_);
+  animation_manager->RemoveAnimation(animation);
+  if (status == Animation::Status::kRunning) {
+    auto on_cancel = animation->GetAnimationCancelCb();
+    if (on_cancel) {
+      auto task_runner = dom_manager->GetDelegateTaskRunner().lock();
+      if (task_runner) {
+        auto task = std::make_shared<CommonTask>();
+        task->func_ = [on_cancel = std::move(on_cancel)]() {
+          on_cancel();
+        };
+        task_runner->PostTask(std::move(task));
+      }
+    }
+  }
+}
+
+void Animation::Pause() {
+  auto animation_manager = animation_manager_.lock();
+  if (!animation_manager) {
+    return;
+  }
+  auto animation = animation_manager->GetAnimation(id_);
+  if (!animation) {
+    return;
+  }
+  auto status = animation->GetStatus();
+  switch (status) {
+    case Animation::Status::kStart:
+    case Animation::Status::kRunning:
+    case Animation::Status::kResume:animation->SetStatus(Animation::Status::kPause);
+      break;
+    case Animation::Status::kCreated:
+    case Animation::Status::kPause:
+    case Animation::Status::kEnd:
+    case Animation::Status::kDestroy:
+    default:return;
+  }
+  animation_manager->RemoveActiveAnimation(id_);
+  animation_manager->CancelDelayedAnimation(id_);
+  animation_manager->RemoveDelayedAnimationRecord(id_);
+  auto now = hippy::base::MonotonicallyIncreasingTime();
+  exec_time_ += (now - last_begin_time_);
+  last_begin_time_ = now;
+}
+
+void Animation::Resume() {
+  auto animation_manager = animation_manager_.lock();
+  if (!animation_manager) {
+    return;
+  }
+  auto dom_manager = animation_manager->GetDomManager().lock();
+  if (!dom_manager) {
+    return;
+  }
+  auto animation = animation_manager->GetAnimation(id_);
+  if (!animation) {
+    return;
+  }
+  auto status = animation->GetStatus();
+  switch (status) {
+    case Animation::Status::kPause:animation->SetStatus(Animation::Status::kResume);
+      break;
+    case Animation::Status::kCreated:
+    case Animation::Status::kStart:
+    case Animation::Status::kRunning:
+    case Animation::Status::kResume:
+    case Animation::Status::kEnd:
+    case Animation::Status::kDestroy:
+    default:return;
+  }
+  auto exec_time = animation->GetExecTime();
+  auto delay = animation->GetDelay();
+  auto duration = animation->GetDuration();
+  if (exec_time < delay) {
+    auto interval = delay - exec_time;
+    std::weak_ptr<Animation> weak_animation = animation;
+    std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
+    std::vector<std::function<void()>> ops = {[weak_animation, weak_animation_manager] {
+      auto animation = weak_animation.lock();
+      if (!animation) {
+        return;
+      }
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
+        return;
+      }
+      animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
+      auto now = hippy::base::MonotonicallyIncreasingTime();
+      auto delay = animation->GetDelay();
+      animation->SetExecTime(delay);
+      animation->SetLastBeginTime(now);
+      animation_manager->AddActiveAnimation(animation);
+    }};
+    auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), interval);
+    animation_manager->AddDelayedAnimationRecord(id_, task);
+  } else if (exec_time >= delay && exec_time < delay + duration) {
+    auto now = hippy::base::MonotonicallyIncreasingTime();
+    last_begin_time_ = now;
+    animation_manager->AddActiveAnimation(animation);
+  }
+}
+
+void Animation::Repeat(uint64_t now) {
+  last_begin_time_ = now;
+  exec_time_ = 0;
+  status_ = Animation::Status::kCreated;
+  if (cnt_ > 1) {
     cnt_ -= 1;
+    if (on_repeat_) {
+      on_repeat_();
+    }
+  } else if (cnt_ == kLoopCnt) {
+    if (on_repeat_) {
+      on_repeat_();
+    }
+  } else { // animation is done
+    cnt_ -= 1;
+    return;
   }
-  if (on_repeat_) {
-    on_repeat_();
+  auto animation_manager = animation_manager_.lock();
+  if (!animation_manager) {
+    return;
   }
+  auto self = animation_manager->GetAnimation(id_);
+  if (delay_ == 0) {
+    self->SetExecTime(0);
+    self->SetLastBeginTime(now);
+    if (self->IsSet()) {
+      auto set = std::static_pointer_cast<AnimationSet>(self);
+      for (auto& child: set->GetChildren()) {
+        child->SetExecTime(set->GetDelay());
+      }
+    }
+    animation_manager->AddActiveAnimation(self);
+  } else {
+    auto dom_manager = animation_manager->GetDomManager().lock();
+    if (!dom_manager) {
+      return;
+    }
+    std::weak_ptr<Animation> weak_animation = self;
+    auto weak_dom_manager = dom_manager;
+    std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
+    std::vector<std::function<void()>> ops = {[weak_animation, weak_animation_manager] {
+      auto animation = weak_animation.lock();
+      if (!animation) {
+        return;
+      }
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
+        return;
+      }
+      auto now = hippy::base::MonotonicallyIncreasingTime();
+      auto delay = animation->GetDelay();
+      animation->SetExecTime(delay);
+      animation->SetLastBeginTime(now);
+      animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
+      if (animation->IsSet()) {
+        auto set = std::static_pointer_cast<AnimationSet>(animation);
+        for (auto& child: set->GetChildren()) {
+          child->SetExecTime(set->GetDelay());
+        }
+      }
+      animation_manager->AddActiveAnimation(animation);
+    }};
+    auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay_);
+    animation_manager->AddDelayedAnimationRecord(id_, task);
+    status_ = Animation::Status::kStart;
+  }
+
 }
 
-void AnimationSet::AddEventListener(const std::string& event, AnimationCb cb) {
-  if (event == kAnimationStartKey) {
-    on_start_ = std::move(cb);
-  } else if (event == kAnimationEndKey) {
-    on_end_ = std::move(cb);
-  } else if (event == kAnimationCancelKey) {
-    on_cancel_ = std::move(cb);
-  } else if (event == kAnimationRepeatKey) {
-    on_repeat_ = std::move(cb);
-  }
 }
-
-void AnimationSet::RemoveEventListener(const std::string& event) {
-  if (event == kAnimationStartKey) {
-    on_start_ = nullptr;
-  } else if (event == kAnimationEndKey) {
-    on_end_ = nullptr;
-  } else if (event == kAnimationCancelKey) {
-    on_cancel_ = nullptr;
-  } else if (event == kAnimationRepeatKey) {
-    on_repeat_ = nullptr;
-  }
 }
-
-}
-
-

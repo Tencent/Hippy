@@ -23,11 +23,12 @@
 #pragma once
 
 #include "core/napi/js_native_api_types.h"
-#include "dom/animation/animation.h"
+#include "dom/animation/cubic_bezier_animation.h"
+#include "dom/animation/animation_set.h"
 
 namespace hippy {
 
-std::shared_ptr<hippy::napi::InstanceDefine<Animation>>
+std::shared_ptr<hippy::napi::InstanceDefine<CubicBezierAnimation>>
 RegisterAnimation(const std::weak_ptr<Scope>& weak_scope);
 
 std::shared_ptr<hippy::napi::InstanceDefine<AnimationSet>>
