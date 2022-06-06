@@ -6,8 +6,6 @@ get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../..
 get_filename_component(JNI_DIR "${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni" REALPATH)
 get_filename_component(DOM_DIR "${PROJECT_ROOT_DIR}/dom" REALPATH)
 get_filename_component(LAYOUT_DIR "${PROJECT_ROOT_DIR}/layout" REALPATH)
-get_filename_component(CORE_SRC_DIR "${PROJECT_ROOT_DIR}/driver/js/core" REALPATH)
-get_filename_component(V8_SRC_DIR "${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni/${V8_COMPONENT}" REALPATH)
 
 include_directories(${DOM_DIR}/include)
 include_directories(${JNI_DIR}/include)
