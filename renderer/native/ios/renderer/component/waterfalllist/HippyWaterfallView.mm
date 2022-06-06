@@ -348,9 +348,6 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     if ([cell isKindOfClass:[HippyWaterfallViewCell class]]) {
         HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
         if (hpCell.cellView) {
-            if (_cachedItems[indexPath]) {
-                NSLog(@"22");
-            }
             [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
             hpCell.cellView = nil;
         }
