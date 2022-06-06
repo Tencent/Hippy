@@ -47,6 +47,7 @@ using AnimationSetChild = hippy::AnimationSet::AnimationSetChild;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
+using CubicBezierAnimation = hippy::CubicBezierAnimation;
 using DomEvent = hippy::dom::DomEvent;
 using DomManager = hippy::dom::DomManager;
 using DomNode = hippy::dom::DomNode;
@@ -59,7 +60,7 @@ using CtxValue = hippy::napi::CtxValue;
 namespace hippy {
 
 constexpr uint32_t kAnimationUpdateArgc = 1;
-constexpr uint32_t kInvalidAnimationId = 0;
+
 constexpr uint32_t kAddEventListenerArgc = 2;
 constexpr uint32_t kAddEventListenerEventNameIndex = 0;
 constexpr uint32_t kAddEventListenerCbIndex = 1;
@@ -84,12 +85,12 @@ constexpr char kAnimationValueTypeColor[] = "color";
 constexpr char kAnimationIdKey[] = "animationId";
 
 struct ParseAnimationResult {
-  Animation::Mode mode;
+  CubicBezierAnimation::Mode mode;
   uint64_t delay;
   uint32_t animation_id;
   double start_value;
   double to_value;
-  Animation::ValueType type;
+  CubicBezierAnimation::ValueType type;
   uint64_t duration;
   std::string func;
   int32_t cnt;
@@ -149,8 +150,8 @@ std::shared_ptr<AnimationSet> ParseAnimationSet(
     set_children.emplace_back(AnimationSetChild{static_cast<uint32_t>(id), follow});
   }
   AnimationSet ret{
-    std::move(set_children),
-    repeat_cnt
+      std::move(set_children),
+      repeat_cnt
   };
   return std::make_shared<AnimationSet>(std::move(ret));
 }
@@ -187,7 +188,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
 
   double start_value;
   auto start_value_obj = context->GetProperty(animation_obj, kAnimationStartValueKey);
-  uint32_t animation_id = kInvalidAnimationId;
+  uint32_t animation_id = hippy::kInvalidAnimationId;
   flag = context->GetValueNumber(start_value_obj, &start_value);
   if (!flag) {
     auto animation_id_obj = context->GetProperty(start_value_obj, kAnimationIdKey);
@@ -215,7 +216,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
 
   unicode_string_view value_type;
   auto value_type_obj = context->GetProperty(animation_obj, kAnimationValueTypeKey);
-  Animation::ValueType type = Animation::ValueType::kUndefined;
+  CubicBezierAnimation::ValueType type = CubicBezierAnimation::ValueType::kUndefined;
   if (!context->IsNullOrUndefined(value_type_obj)) {
     flag = context->GetValueString(value_type_obj, &value_type);
     if (!flag) {
@@ -224,15 +225,15 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
     }
     auto u8_value_type = StringViewUtils::ToU8StdStr(value_type);
     if (u8_value_type == kAnimationValueTypeRad) {
-      type = Animation::ValueType::kRad;
+      type = CubicBezierAnimation::ValueType::kRad;
     } else if (u8_value_type == kAnimationValueTypeDeg) {
-      type = Animation::ValueType::kDeg;
+      type = CubicBezierAnimation::ValueType::kDeg;
       start_value = DegreesToRadians(start_value);
       to_value = DegreesToRadians(to_value);
     } else if (u8_value_type == kAnimationValueTypeColor) {
-      type = Animation::ValueType::kColor;
+      type = CubicBezierAnimation::ValueType::kColor;
     } else {
-      type = Animation::ValueType::kUndefined;
+      type = CubicBezierAnimation::ValueType::kUndefined;
     }
   }
 
@@ -262,7 +263,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   }
 
   ParseAnimationResult ret{
-      Animation::Mode::kTiming,
+      CubicBezierAnimation::Mode::kTiming,
       static_cast<uint64_t>(delay),
       animation_id,
       start_value,
@@ -276,136 +277,20 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
 }
 
 // start 和 resume 会调用 StartAnimationSet
-void StartAnimationSet(std::shared_ptr<DomManager> dom_manager, std::shared_ptr<AnimationSet> animation_set) {
+void StartAnimationSet(std::shared_ptr<DomManager> dom_manager,
+                       std::shared_ptr<AnimationSet> animation_set) {
   auto animation_manager = dom_manager->GetAnimationManager();
   auto children = animation_set->GetChildren();
-  uint64_t follow_end_time = 0;  // follow_end_time 为上一个动画给下一个 follow 动画带来的延迟时间
-  uint64_t follow_exec_time = 0; // follow 的上一个动画已执行时间
-  uint64_t real_delay = 0;
-  std::shared_ptr<Animation> start_animation;
-  std::shared_ptr<Animation> end_animation;
-  uint64_t min_delay = std::numeric_limits<uint64_t>::max();
-  uint64_t max_delay = 0;
-  auto now = hippy::base::MonotonicallyIncreasingTime();
-  for (const auto& child: children) {
-    auto animation = animation_manager->GetAnimation(child.animation_id);
-    animation->SetLastBeginTime(now);
-    if (!animation) {
-      continue;
-    }
-    auto delay = animation->GetDelay();
-    auto exec_time = animation->GetExecTime();
-    if (child.follow) {
-      real_delay = follow_end_time + delay;
-    } else {
-      real_delay = delay;
-      follow_exec_time = 0;
-    }
-    if (min_delay > real_delay) {
-      min_delay = real_delay;
-      start_animation = animation;
-    }
-    if (max_delay <= real_delay) {
-      max_delay = real_delay;
-      end_animation = animation;
-    }
-    auto duration = animation->GetDuration();
-    if (exec_time >= delay + duration) { // 该动画已经执行完了
-      follow_end_time = real_delay + duration;
-      follow_exec_time = exec_time;
-      continue;
-    }
-    if (follow_exec_time < real_delay) {
-      uint64_t interval = real_delay - follow_exec_time;
-      std::weak_ptr<Animation> weak_animation = animation;
-      std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
-      std::weak_ptr<AnimationSet> weak_animation_set = animation_set;
-      std::vector<std::function<void()>> ops = {
-          [weak_animation, weak_animation_manager, weak_animation_set] {
-        auto animation_manager = weak_animation_manager.lock();
-        if (!animation_manager) {
-          return;
-        }
-        auto animation = weak_animation.lock();
-        if (!animation) {
-          return;
-        }
-        animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
-        auto now = hippy::base::MonotonicallyIncreasingTime();
-        auto delay = animation->GetDelay();
-        animation->SetExecTime(delay);
-        animation_manager->AddActiveAnimation(animation);
-        animation->SetLastBeginTime(now);
-        animation->SetStatus(Animation::Status::kStart);
 
-        auto animation_set = weak_animation_set.lock();
-        if (!animation_set) {
-          return;
-        }
-        animation_set->SetStatus(AnimationSet::Status::kRunning);
-      }};
-      auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), interval);
-      animation_manager->AddDelayedAnimationRecord(animation->GetId(), task);
-    } else { // exec_time >= delay 说明正在执行
-      animation_manager->AddActiveAnimation(animation);
-    }
-    follow_end_time = real_delay + duration;
-    follow_exec_time = exec_time;
-  }
-  animation_set->SetStartValue(start_animation->GetStartValue());
-  std::weak_ptr<AnimationSet> weak_animation_set = animation_set;
-  if (start_animation) {
-    auto delay = start_animation->GetDelay();
-    if (delay == 0) {
-      animation_set->SetStatus(AnimationSet::Status::kRunning);
-    }
-  }
-  auto end_cb = animation_set->GetAnimationEndCb();
-  if (end_animation) {
-    auto cnt = animation_set->GetRepeatCnt();
-    if (cnt > 0 || cnt == -1) {
-      std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
-      auto cb = [end_cb, weak_animation_set, weak_dom_manager]() {
-        if (end_cb) {
-          end_cb();
-        }
-
-        auto animation_set = weak_animation_set.lock();
-        if (!animation_set) {
-          return;
-        }
-        auto dom_manager = weak_dom_manager.lock();
-        if (!dom_manager) {
-          return;
-        }
-        auto animation_manager = dom_manager->GetAnimationManager();
-        auto now = hippy::base::MonotonicallyIncreasingTime();
-        animation_set->Repeat();
-        for (auto child: animation_set->GetChildren()) {
-          auto id = child.animation_id;
-          auto animation = animation_manager->GetAnimation(id);
-          if (animation) {
-            animation->Repeat(now);
-          }
-        }
-        StartAnimationSet(dom_manager, animation_set);
-      };
-      end_animation->AddEventListener(hippy::kAnimationEndKey, cb);
-    } else {
-      if (end_cb) {
-        end_animation->AddEventListener(hippy::kAnimationEndKey, end_cb);
-      }
-    }
-  }
 }
 
-std::shared_ptr<InstanceDefine<Animation>>
+std::shared_ptr<InstanceDefine<CubicBezierAnimation>>
 RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
-  InstanceDefine<Animation> def;
+  InstanceDefine<CubicBezierAnimation> def;
   def.name = "Animation";
   def.constructor = [weak_scope](size_t argument_count,
                                  const std::shared_ptr<CtxValue> arguments[])
-                                     -> std::shared_ptr<Animation> {
+      -> std::shared_ptr<CubicBezierAnimation> {
 
     auto scope = weak_scope.lock();
     if (!scope) {
@@ -415,45 +300,36 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!result) {
       return nullptr;
     }
-    auto animation = std::make_shared<Animation>(result->mode, result->delay, result->start_value,
-                                                 result->to_value, result->type, result->duration,
-                                                 result->func, result->cnt);
+    auto animation =
+        std::make_shared<CubicBezierAnimation>(result->mode, result->delay, result->start_value,
+                                               result->to_value, result->type, result->duration,
+                                               result->func, result->cnt, result->animation_id);
     auto weak_dom_manager = scope->GetDomManager();
     auto dom_manager = weak_dom_manager.lock();
     if (!dom_manager) {
       return nullptr;
     }
-    // 避免多线程问题，此处从js线程拷贝到dom线程
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, animation_copy = *animation,
-                                               related_id = result->animation_id] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    // To avoid multi-threading problems, copy from js thread to dom thread here
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, animation_copy = *animation,
+                                                  related_id = result->animation_id] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
-      auto copy = std::make_shared<Animation>(std::move(animation_copy));
-      /*
-       * * startValue ：动画开始时的值，可为 Number 类型或一个 Animation 的对象，格式为 { animationId: xxx }
-       * 如果指定为一个 Animation 时，代表本动画的初始值为其指定的动画结束或中途 cancel 后的所处的动画值；
-       */
-      if (related_id != kInvalidAnimationId) {
-        auto related_animation = animation_manager->GetAnimation(related_id);
-        if (!related_animation) {
-          return;
-        }
-        auto start_value = related_animation->GetCurrentValue();
-        copy->SetStartValue(start_value);
-      }
+      auto copy = std::make_shared<CubicBezierAnimation>(std::move(animation_copy));
+      copy->SetAnimationManager(weak_animation_manager);
+      copy->Init();
       animation_manager->AddAnimation(copy);
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return animation;
   };
 
-  FunctionDefine<Animation> id_func_def;
+  FunctionDefine<CubicBezierAnimation> id_func_def;
   id_func_def.name = "getId";
   id_func_def.cb = [weak_scope](
-      Animation* animation,
+      CubicBezierAnimation* animation,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     if (!animation) {
@@ -468,10 +344,10 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
   };
   def.functions.emplace_back(std::move(id_func_def));
 
-  FunctionDefine<Animation> start_func_def;
+  FunctionDefine<CubicBezierAnimation> start_func_def;
   start_func_def.name = "start";
   start_func_def.cb = [weak_scope](
-      Animation* animation,
+      CubicBezierAnimation* animation,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     if (!animation) {
@@ -487,58 +363,15 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation->GetId();
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
       auto animation = animation_manager->GetAnimation(id);
-      if (!animation) {
-        return;
-      }
-      auto status = animation->GetStatus();
-      switch (status) {
-        case Animation::Status::kCreated:
-          animation->SetStatus(Animation::Status::kStart);
-          break;
-        case Animation::Status::kStart:
-        case Animation::Status::kRunning:
-        case Animation::Status::kPause:
-        case Animation::Status::kResume:
-        case Animation::Status::kEnd:
-        case Animation::Status::kDestroy:
-        default:
-          return;
-      }
-      auto now = hippy::base::MonotonicallyIncreasingTime();
-      animation->SetLastBeginTime(now);
-      auto delay = animation->GetDelay();
-      if (delay == 0) {
-        animation_manager->AddActiveAnimation(animation);
-      } else {
-        std::weak_ptr<Animation> weak_animation = animation;
-        std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
-        std::vector<std::function<void()>> ops = {[weak_animation, weak_dom_manager] {
-          auto animation = weak_animation.lock();
-          if (!animation) {
-            return;
-          }
-          auto dom_manager = weak_dom_manager.lock();
-          if (!dom_manager) {
-            return;
-          }
-
-          auto animation_manager = dom_manager->GetAnimationManager();
-          auto now = hippy::base::MonotonicallyIncreasingTime();
-          auto delay = animation->GetDelay();
-          animation->SetExecTime(delay);
-          animation->SetLastBeginTime(now);
-          animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
-          animation_manager->AddActiveAnimation(animation);
-        }};
-        auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay);
-        animation_manager->AddDelayedAnimationRecord(id, task);
+      if (animation) {
+        animation->Start();
       }
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
@@ -546,10 +379,10 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
   };
   def.functions.emplace_back(std::move(start_func_def));
 
-  FunctionDefine<Animation> destroy_func_def;
+  FunctionDefine<CubicBezierAnimation> destroy_func_def;
   destroy_func_def.name = "destroy";
   destroy_func_def.cb = [weak_scope](
-      Animation* animation,
+      CubicBezierAnimation* animation,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     if (!animation) {
@@ -565,44 +398,15 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation->GetId();
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
       auto animation = animation_manager->GetAnimation(id);
-      if (!animation) {
-        return;
-      }
-      auto status = animation->GetStatus();
-      switch (status) {
-        case Animation::Status::kCreated:
-        case Animation::Status::kStart:
-        case Animation::Status::kRunning:
-        case Animation::Status::kPause:
-        case Animation::Status::kResume:
-        case Animation::Status::kEnd:
-          animation->SetStatus(Animation::Status::kDestroy);
-          break;
-        case Animation::Status::kDestroy:
-        default:
-          return;
-      }
-      animation_manager->RemoveAnimation(animation);
-      animation_manager->RemoveActiveAnimation(id);
-      if (status == Animation::Status::kRunning) {
-        auto on_cancel = animation->GetAnimationCancelCb();
-        if (on_cancel) {
-          auto task_runner = dom_manager->GetDelegateTaskRunner().lock();
-          if (task_runner) {
-            auto task = std::make_shared<CommonTask>();
-            task->func_ = [on_cancel = std::move(on_cancel)]() {
-              on_cancel();
-            };
-            task_runner->PostTask(std::move(task));
-          }
-        }
+      if (animation) {
+        animation->Destroy();
       }
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
@@ -610,10 +414,10 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
   };
   def.functions.emplace_back(std::move(destroy_func_def));
 
-  FunctionDefine<Animation> pause_func_def;
+  FunctionDefine<CubicBezierAnimation> pause_func_def;
   pause_func_def.name = "pause";
   pause_func_def.cb = [weak_scope](
-      Animation* animation,
+      CubicBezierAnimation* animation,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     if (!animation) {
@@ -629,48 +433,26 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation->GetId();
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
       auto animation = animation_manager->GetAnimation(id);
-      if (!animation) {
-        return;
+      if (animation) {
+        animation->Pause();
       }
-      auto status = animation->GetStatus();
-      switch (status) {
-        case Animation::Status::kStart:
-        case Animation::Status::kRunning:
-        case Animation::Status::kResume:
-          animation->SetStatus(Animation::Status::kPause);
-          break;
-        case Animation::Status::kCreated:
-        case Animation::Status::kPause:
-        case Animation::Status::kEnd:
-        case Animation::Status::kDestroy:
-        default:
-          return;
-      }
-      animation_manager->RemoveActiveAnimation(id);
-      animation_manager->CancelDelayedAnimation(id);
-      animation_manager->RemoveDelayedAnimationRecord(id);
-      auto now = hippy::base::MonotonicallyIncreasingTime();
-      auto exec_time = animation->GetExecTime();
-      exec_time += (now - animation->GetLastBeginTime());
-      animation->SetExecTime(exec_time);
-      animation->SetLastBeginTime(now);
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
   };
   def.functions.emplace_back(std::move(pause_func_def));
 
-  FunctionDefine<Animation> resume_func_def;
+  FunctionDefine<CubicBezierAnimation> resume_func_def;
   resume_func_def.name = "resume";
   resume_func_def.cb = [weak_scope](
-      Animation* animation,
+      CubicBezierAnimation* animation,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     if (!animation) {
@@ -686,59 +468,15 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation->GetId();
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
       auto animation = animation_manager->GetAnimation(id);
-      if (!animation) {
-        return;
-      }
-      auto status = animation->GetStatus();
-      switch (status) {
-        case Animation::Status::kPause:
-          animation->SetStatus(Animation::Status::kResume);
-          break;
-        case Animation::Status::kCreated:
-        case Animation::Status::kStart:
-        case Animation::Status::kRunning:
-        case Animation::Status::kResume:
-        case Animation::Status::kEnd:
-        case Animation::Status::kDestroy:
-        default:
-          return;
-      }
-      auto exec_time = animation->GetExecTime();
-      auto delay = animation->GetDelay();
-      auto duration = animation->GetDuration();
-      if (exec_time < delay) {
-        auto interval = delay - exec_time;
-        std::weak_ptr<Animation> weak_animation = animation;
-        std::vector<std::function<void()>> ops = {[weak_animation, weak_dom_manager] {
-          auto animation = weak_animation.lock();
-          if (!animation) {
-            return;
-          }
-          auto dom_manager = weak_dom_manager.lock();
-          if (!dom_manager) {
-            return;
-          }
-          auto animation_manager = dom_manager->GetAnimationManager();
-          animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
-          auto now = hippy::base::MonotonicallyIncreasingTime();
-          auto delay = animation->GetDelay();
-          animation->SetExecTime(delay);
-          animation->SetLastBeginTime(now);
-          animation_manager->AddActiveAnimation(animation);
-        }};
-        auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), interval);
-        animation_manager->AddDelayedAnimationRecord(id, task);
-      } else if (exec_time >= delay && exec_time < delay + duration) {
-        auto now = hippy::base::MonotonicallyIncreasingTime();
-        animation->SetLastBeginTime(now);
-        animation_manager->AddActiveAnimation(animation);
+      if (animation) {
+        animation->Resume();
       }
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
@@ -746,11 +484,10 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
   };
   def.functions.emplace_back(std::move(resume_func_def));
 
-
-  FunctionDefine<Animation> update_func_def;
+  FunctionDefine<CubicBezierAnimation> update_func_def;
   update_func_def.name = "updateAnimation";
   update_func_def.cb = [weak_scope](
-      Animation* animation,
+      CubicBezierAnimation* animation,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     if (!animation) {
@@ -773,48 +510,42 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation->GetId();
-    std::vector<std::function<void()>> ops = {[id, weak_dom_manager, copy = *result] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[id, weak_animation_manager, copy = *result] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
+      auto animation = animation_manager->GetAnimation(id);
+      if (!animation) {
+        return;
+      }
       if (animation_manager->IsActive(id)) {
         return;
       }
-      animation_manager->RemoveActiveAnimation(id);
-      animation_manager->CancelDelayedAnimation(id);
-      animation_manager->RemoveDelayedAnimationRecord(id);
-      auto animation = animation_manager->GetAnimation(id);
-      auto related_id = copy.animation_id;
-      if (related_id != kInvalidAnimationId) {
-        auto related_animation = animation_manager->GetAnimation(related_id);
-        if (!related_animation) {
-          return;
-        }
-        auto start_value = related_animation->GetCurrentValue();
-        animation->SetStartValue(start_value);
+      if (animation->IsSet()) {
+        return;
       }
-      animation->Update(copy.mode,
-                        copy.delay,
-                        copy.start_value,
-                        copy.to_value,
-                        copy.type,
-                        copy.duration,
-                        copy.func,
-                        copy.cnt);
-      animation->SetExecTime(0);
-      animation->SetStatus(Animation::Status::kCreated);
+      auto cubic_bezier_animation = std::static_pointer_cast<CubicBezierAnimation>(animation);
+      cubic_bezier_animation->Update(copy.mode,
+                                     copy.delay,
+                                     copy.start_value,
+                                     copy.to_value,
+                                     copy.type,
+                                     copy.duration,
+                                     copy.func,
+                                     copy.cnt,
+                                     copy.animation_id);
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
   };
   def.functions.emplace_back(std::move(update_func_def));
 
-  FunctionDefine<Animation> add_event_listener_func_def;
+  FunctionDefine<CubicBezierAnimation> add_event_listener_func_def;
   add_event_listener_func_def.name = "addEventListener";
   add_event_listener_func_def.cb = [weak_scope](
-      Animation* animation,
+      CubicBezierAnimation* animation,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     if (!animation) {
@@ -854,13 +585,13 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       }
       context->CallFunction(func, 0, nullptr);
     };
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id, event_name, cb] {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name, cb] {
       // run in dom thread
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
       auto animation = animation_manager->GetAnimation(id);
       if (!animation) {
         return;
@@ -872,10 +603,10 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
   };
   def.functions.emplace_back(std::move(add_event_listener_func_def));
 
-  FunctionDefine<Animation> remove_listener_func_def;
+  FunctionDefine<CubicBezierAnimation> remove_listener_func_def;
   remove_listener_func_def.name = "removeEventListener";
   remove_listener_func_def.cb = [weak_scope](
-      Animation* animation,
+      CubicBezierAnimation* animation,
       size_t argument_count,
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     if (!animation) {
@@ -902,12 +633,12 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("event_name error");
       return nullptr;
     }
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id, event_name] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
       auto animation = animation_manager->GetAnimation(id);
       if (!animation) {
         return;
@@ -919,8 +650,8 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
   };
   def.functions.emplace_back(std::move(remove_listener_func_def));
 
-  std::shared_ptr<InstanceDefine<Animation>>
-      instance_define = std::make_shared<InstanceDefine<Animation>>(def);
+  std::shared_ptr<InstanceDefine<CubicBezierAnimation>>
+      instance_define = std::make_shared<InstanceDefine<CubicBezierAnimation>>(def);
   auto scope = weak_scope.lock();
   if (scope) {
     scope->SaveHippyAnimationClassInstance(instance_define);
@@ -935,7 +666,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
   def.name = "AnimationSet";
   def.constructor = [weak_scope](size_t argument_count,
                                  const std::shared_ptr<CtxValue> arguments[])
-                                     -> std::shared_ptr<AnimationSet> {
+      -> std::shared_ptr<AnimationSet> {
     auto scope = weak_scope.lock();
     if (!scope) {
       return nullptr;
@@ -949,35 +680,16 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!result) {
       return nullptr;
     }
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, copy = *result]() mutable {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, copy = *result]() mutable {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
       auto set = std::make_shared<AnimationSet>(std::move(copy));
-      auto set_id = set->GetId();
-      uint64_t min_delay = std::numeric_limits<uint64_t>::max();
-      std::shared_ptr<Animation> start_animation;
-      for (auto &child: set->GetChildren()) {
-        auto animation = animation_manager->GetAnimation(child.animation_id);
-        if (!animation) {
-          continue;;
-        }
-        animation->SetAnimationSetId(set_id);
-        if (!child.follow) {
-          auto delay = animation->GetDelay();
-          if (delay <= min_delay) {
-            start_animation = animation;
-            min_delay = delay;
-          }
-        }
-      }
-      if (start_animation) {
-        set->SetStartValue(start_animation->GetStartValue());
-      }
-      animation_manager->AddAnimationSet(set);
-
+      set->SetAnimationManager(weak_animation_manager);
+      set->Init();
+      animation_manager->AddAnimation(set);
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return result;
@@ -1020,35 +732,17 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation_set->GetId();
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
-      auto animation_set = animation_manager->GetAnimationSet(id);
+      auto animation_set = animation_manager->GetAnimation(id);
       if (!animation_set) {
         return;
       }
-      auto status = animation_set->GetStatus();
-      switch (status) {
-        case AnimationSet::Status::kCreated:
-          animation_set->SetStatus(AnimationSet::Status::kStart);
-          break;
-        case AnimationSet::Status::kStart:
-        case AnimationSet::Status::kRunning:
-        case AnimationSet::Status::kPause:
-        case AnimationSet::Status::kResume:
-        case AnimationSet::Status::kEnd:
-        case AnimationSet::Status::kDestroy:
-        default:
-          return;
-      }
-      StartAnimationSet(dom_manager, animation_set);
-      auto cb = animation_set->GetAnimationStartCb();
-      if (cb) {
-        cb();
-      }
+      animation_set->Start();
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
@@ -1065,7 +759,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto scope = weak_scope.lock();
-    if (scope) {
+    if (!scope) {
       return nullptr;
     }
     auto weak_dom_manager = scope->GetDomManager();
@@ -1074,54 +768,18 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation_set->GetId();
-    std::vector<std::function<void()>> ops = {[id, weak_dom_manager] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
-        return;
-      }
-      auto animation_manager = dom_manager->GetAnimationManager();
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
+      auto animation_manager = weak_animation_manager.lock();
       if (!animation_manager) {
         return;
       }
-      auto animation_set = animation_manager->GetAnimationSet(id);
+      auto animation_set = animation_manager->GetAnimation(id);
       if (!animation_set) {
         return;
       }
 
-      auto status = animation_set->GetStatus();
-      switch (status) {
-        case AnimationSet::Status::kCreated:
-        case AnimationSet::Status::kStart:
-        case AnimationSet::Status::kRunning:
-        case AnimationSet::Status::kPause:
-        case AnimationSet::Status::kResume:
-        case AnimationSet::Status::kEnd:
-          animation_set->SetStatus(AnimationSet::Status::kDestroy);
-          break;
-        case AnimationSet::Status::kDestroy:
-        default:
-          return;
-      }
-
-      animation_manager->RemoveAnimationSet(id);
-      for (const auto& child : animation_set->GetChildren()) {
-        auto animation = animation_manager->GetAnimation(child.animation_id);
-        if (animation) {
-          animation_manager->RemoveActiveAnimation(child.animation_id);
-          animation_manager->RemoveAnimation(animation);
-        }
-      }
-      if (status == AnimationSet::Status::kRunning) {
-        auto on_cancel = animation_set->GetAnimationCancelCb();
-        if (on_cancel) {
-          auto task_runner = dom_manager->GetDelegateTaskRunner().lock();
-          if (task_runner) {
-            auto task = std::make_shared<CommonTask>();
-            task->func_ = [on_cancel = std::move(on_cancel)]() {on_cancel();};
-            task_runner->PostTask(std::move(task));
-          }
-        }
-      }
+      animation_set->Destroy();
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
@@ -1147,46 +805,17 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation_set->GetId();
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
-      auto animation_set = animation_manager->GetAnimationSet(id);
+      auto animation_set = animation_manager->GetAnimation(id);
       if (!animation_set) {
         return;
       }
-
-      auto status = animation_set->GetStatus();
-      switch (status) {
-        case AnimationSet::Status::kStart:
-        case AnimationSet::Status::kRunning:
-        case AnimationSet::Status::kResume:
-          animation_set->SetStatus(AnimationSet::Status::kPause);
-          break;
-        case AnimationSet::Status::kCreated:
-        case AnimationSet::Status::kPause:
-        case AnimationSet::Status::kEnd:
-        case AnimationSet::Status::kDestroy:
-        default:
-          return;
-      }
-
-      auto now = hippy::base::MonotonicallyIncreasingTime();
-      for (const auto& child : animation_set->GetChildren()) {
-        auto animation_id = child.animation_id;
-        auto animation = animation_manager->GetAnimation(animation_id);
-        if (animation) {
-          animation_manager->RemoveActiveAnimation(animation_id);
-          animation_manager->CancelDelayedAnimation(animation_id);
-          animation_manager->RemoveDelayedAnimationRecord(animation_id);
-          auto exec_time = animation->GetExecTime();
-          exec_time += (now - animation->GetLastBeginTime());
-          animation->SetExecTime(exec_time);
-          animation->SetLastBeginTime(now);
-        }
-      }
+      animation_set->Pause();
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
@@ -1212,37 +841,22 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     auto id = animation_set->GetId();
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
-      auto animation_set = animation_manager->GetAnimationSet(id);
+      auto animation_set = animation_manager->GetAnimation(id);
       if (!animation_set) {
         return;
       }
-      auto status = animation_set->GetStatus();
-      switch (status) {
-        case AnimationSet::Status::kPause:
-          animation_set->SetStatus(AnimationSet::Status::kResume);
-          break;
-        case AnimationSet::Status::kCreated:
-        case AnimationSet::Status::kStart:
-        case AnimationSet::Status::kRunning:
-        case AnimationSet::Status::kResume:
-        case AnimationSet::Status::kEnd:
-        case AnimationSet::Status::kDestroy:
-        default:
-          return;
-      }
-      StartAnimationSet(dom_manager, animation_set);
+      animation_set->Resume();
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
   };
   def.functions.emplace_back(std::move(resume_func_def));
-
 
   FunctionDefine<AnimationSet> add_event_listener_func_def;
   add_event_listener_func_def.name = "addEventListener";
@@ -1287,18 +901,17 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       }
       context->CallFunction(func, 0, nullptr);
     };
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id, event_name, cb] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name, cb] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
-      auto animation_set = animation_manager->GetAnimationSet(id);
+      auto animation_set = animation_manager->GetAnimation(id);
       if (!animation_set) {
         return;
       }
-      animation_set->AddEventListener(StringViewUtils::ToU8StdStr(event_name),
-                                      std::move(cb));
+      animation_set->AddEventListener(StringViewUtils::ToU8StdStr(event_name), std::move(cb));
     }};
     dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
@@ -1337,13 +950,13 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     std::weak_ptr<Ctx> weak_context = context;
-    std::vector<std::function<void()>> ops = {[weak_dom_manager, id, event_name] {
-      auto dom_manager = weak_dom_manager.lock();
-      if (!dom_manager) {
+    std::weak_ptr<AnimationManager> weak_animation_manager = dom_manager->GetAnimationManager();
+    std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name] {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
         return;
       }
-      auto animation_manager = dom_manager->GetAnimationManager();
-      auto animation_set = animation_manager->GetAnimationSet(id);
+      auto animation_set = animation_manager->GetAnimation(id);
       if (!animation_set) {
         return;
       }
