@@ -652,7 +652,6 @@
 		F468DE142812A95200319196 /* HippyPerformanceLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyPerformanceLogger.h; sourceTree = "<group>"; };
 		F468DE152812A95200319196 /* HippyBatchedBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyBatchedBridge.mm; sourceTree = "<group>"; };
 		F468DE162812A95200319196 /* HippyBridgeDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBridgeDelegate.h; sourceTree = "<group>"; };
-		F468DE172812A95200319196 /* HippyInvalidating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyInvalidating.h; sourceTree = "<group>"; };
 		F468DE192812A95200319196 /* HippyJSCExecutor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJSCExecutor.mm; sourceTree = "<group>"; };
 		F468DE1A2812A95200319196 /* HippyJSCErrorHandling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyJSCErrorHandling.m; sourceTree = "<group>"; };
 		F468DE1B2812A95200319196 /* HippyJSCExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSCExecutor.h; sourceTree = "<group>"; };
@@ -745,6 +744,7 @@
 		F4829197274E420C00D91128 /* HPLayoutCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HPLayoutCache.cpp; sourceTree = "<group>"; };
 		F4829198274E420C00D91128 /* HPUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPUtil.h; sourceTree = "<group>"; };
 		F4829199274E420C00D91128 /* HPStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPStyle.h; sourceTree = "<group>"; };
+		F487A001284E28AA0068A9F6 /* HippyInvalidating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyInvalidating.h; sourceTree = "<group>"; };
 		F4A8423E27D38CF900AEFC88 /* HippyUIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyUIManager.h; sourceTree = "<group>"; };
 		F4A8423F27D38CF900AEFC88 /* NativeRenderManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderManager.mm; sourceTree = "<group>"; };
 		F4A8424027D38CF900AEFC88 /* NativeRenderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderManager.h; sourceTree = "<group>"; };
@@ -1836,7 +1836,6 @@
 				F468DE142812A95200319196 /* HippyPerformanceLogger.h */,
 				F468DE152812A95200319196 /* HippyBatchedBridge.mm */,
 				F468DE162812A95200319196 /* HippyBridgeDelegate.h */,
-				F468DE172812A95200319196 /* HippyInvalidating.h */,
 				F468DE1D2812A95200319196 /* HippyKeyCommands.m */,
 				F468DE1F2812A95200319196 /* native_source_code_ios.cc */,
 				F468DE202812A95200319196 /* HippyEventDispatcher.h */,
@@ -1976,6 +1975,7 @@
 			children = (
 				F45D25AA28067B6900CAB185 /* component */,
 				F468DE922812ACE900319196 /* HippyAnimationType.h */,
+				F487A001284E28AA0068A9F6 /* HippyInvalidating.h */,
 				F468DE952812ACE900319196 /* HippyAutoInsetsProtocol.h */,
 				F468DE942812ACE900319196 /* HippyComponent.h */,
 				F468DE932812ACE900319196 /* HippyComponentData.h */,

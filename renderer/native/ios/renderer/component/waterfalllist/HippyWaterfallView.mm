@@ -132,6 +132,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 }
 
 - (void)invalidate {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [_scrollListeners removeAllObjects];
 }
 
