@@ -5,6 +5,8 @@
 
 #include "base/macros.h"
 #include "dom/animation/animation.h"
+#include "dom/animation/cubic_bezier_animation.h"
+#include "dom/animation/animation_set.h"
 #include "dom/dom_action_interceptor.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_value.h"
@@ -15,12 +17,17 @@ inline namespace dom {
 class DomManager;
 class RenderManager;
 
-class AnimationManager : public DomActionInterceptor, public std::enable_shared_from_this<AnimationManager> {
+class AnimationManager
+    : public DomActionInterceptor, public std::enable_shared_from_this<AnimationManager> {
   using DomValue = tdf::base::DomValue;
   using Animation = hippy::Animation;
 
  public:
   AnimationManager();
+
+  inline std::weak_ptr<DomManager> GetDomManager() {
+    return dom_manager_;
+  }
 
   inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) {
     dom_manager_ = dom_manager;
@@ -52,23 +59,6 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
     }
   }
 
-  inline void AddAnimationSet(std::shared_ptr<AnimationSet> set) {
-    if (set) {
-      animation_set_map_[set->GetId()] = set;
-    }
-  }
-
-  inline std::shared_ptr<AnimationSet> GetAnimationSet(uint32_t id) {
-    return animation_set_map_[id];
-  }
-
-  inline void RemoveAnimationSet(uint32_t id) {
-    auto it = animation_set_map_.find(id);
-    if (it != animation_set_map_.end()) {
-      animation_set_map_.erase(it);
-    }
-  }
-
   inline void AddDelayedAnimationRecord(uint32_t id, std::weak_ptr<CommonTask> task) {
     delayed_animation_task_map_[id] = task;
   }
@@ -97,7 +87,6 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
  private:
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
-  std::unordered_map<uint32_t, std::shared_ptr<AnimationSet>> animation_set_map_;
   std::unordered_map<uint32_t, std::shared_ptr<Animation>> animation_map_;
   std::unordered_map<uint32_t, std::weak_ptr<CommonTask>> delayed_animation_task_map_;
   std::vector<std::shared_ptr<Animation>> active_animations_;
@@ -121,7 +110,9 @@ class AnimationManager : public DomActionInterceptor, public std::enable_shared_
                                  std::unordered_map<uint32_t, std::string>& result);
   void FetchAnimationsFromArray(DomValue& value,
                                 std::unordered_map<uint32_t, std::string>& result);
-  void RepeatAnimation(std::shared_ptr<Animation> animation, uint64_t now);
+  void UpdateCubicBezierAnimation(std::shared_ptr<CubicBezierAnimation> animation,
+                                  uint64_t now,
+                                  std::vector<std::shared_ptr<DomNode>>& update_nodes);
 
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(AnimationManager);
 };
