@@ -14,9 +14,8 @@ constexpr char kAnimationTimingFunctionEaseIn[] = "ease-in";
 constexpr char kAnimationTimingFunctionEaseOut[] = "ease-out";
 constexpr char kAnimationTimingFunctionEaseInOut[] = "ease-in-out";
 constexpr char kAnimationTimingFunctionCubicBezier[] = "cubic-bezier";
-constexpr char kAnimationCubicBezierRegex[] = "^cubic-bezier\\(([^,]*),([^,]*),([^,]*),([^,]*)\\)$";
-constexpr uint32_t kInvalidAnimationId = 0;
-constexpr uint32_t kInvalidAnimationSetId = 0;
+constexpr char kAnimationCubicBezierRegex[] = \
+    "^cubic-bezier\\((\\d*.\\d+|\\d+),(\\d*.\\d+|\\d+),(\\d*.\\d+|\\d+),(\\d*.\\d+|\\d+)\\)$";
 
 class CubicBezierAnimation : public Animation {
  public:
@@ -50,17 +49,9 @@ class CubicBezierAnimation : public Animation {
     return related_id_;
   }
 
-  inline void SetAnimationSetId(uint32_t id) {
-    set_id_ = id;
-  }
-
-  inline uint32_t GetAnimationSetId() {
-    return set_id_;
-  }
-
   void Init();
 
-  double Calculate(uint64_t time);
+  virtual double Calculate(uint64_t time) override;
 
   void Update(Mode mode,
               uint64_t delay,
@@ -83,7 +74,6 @@ class CubicBezierAnimation : public Animation {
   std::string func_;
   CubicBezier cubic_bezier_{};
   uint32_t related_id_;
-  uint32_t set_id_;
 };
 
 }

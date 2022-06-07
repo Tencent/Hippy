@@ -3,7 +3,7 @@
 #include <atomic>
 #include <functional>
 #include <string>
-
+#include <vector>
 
 namespace hippy {
 
@@ -19,6 +19,9 @@ constexpr char kAnimationEndKey[] = "animationend";
 constexpr char kAnimationCancelKey[] = "animationcancel";
 constexpr char kAnimationRepeatKey[] = "animationrepeat";
 
+constexpr uint32_t kInvalidAnimationId = 0;
+constexpr uint32_t kInvalidAnimationParentId = 0;
+
 class Animation {
  public:
   enum class Status {
@@ -30,6 +33,7 @@ class Animation {
   using AnimationEndCb = std::function<void()>;
   using AnimationCancelCb = std::function<void()>;
   using AnimationRepeatCb = std::function<void()>;
+  using AnimationOnRun = std::function<void(double current)>;
 
  public:
   Animation(int32_t cnt,
@@ -42,7 +46,8 @@ class Animation {
             AnimationEndCb on_end,
             AnimationCancelCb on_cancel,
             AnimationRepeatCb on_repeat,
-            bool is_set,
+            uint32_t parent_id,
+            std::shared_ptr<std::vector<std::shared_ptr<Animation>>> children,
             Status status,
             std::weak_ptr<hippy::AnimationManager> animation_manager);
   Animation(
@@ -52,7 +57,7 @@ class Animation {
       double start_value);
   Animation(int32_t cnt);
   Animation();
-  ~Animation();
+  virtual ~Animation();
 
   inline uint32_t GetId() {
     return id_;
@@ -114,8 +119,27 @@ class Animation {
     return on_repeat_;
   }
 
-  inline bool IsSet() {
-    return is_set_;
+  inline uint32_t GetParentId() {
+    return parent_id_;
+  }
+
+  inline void SetParentId(uint32_t id) {
+    parent_id_ = id;
+  }
+
+  inline bool HasChildren() {
+    if (!children_ || children_->empty()) {
+      return false;
+    }
+    return true;
+  }
+
+  inline std::shared_ptr<std::vector<std::shared_ptr<Animation>>> GetChildren() {
+    return children_;
+  }
+
+  inline void SetChildren(std::shared_ptr<std::vector<std::shared_ptr<Animation>>> children) {
+    children_ = children;
   }
 
   inline Status GetStatus() {
@@ -134,10 +158,12 @@ class Animation {
     animation_manager_ = animation_manager;
   }
 
+  virtual double Calculate(uint64_t time);
+
   void AddEventListener(const std::string& event, AnimationCb cb);
   void RemoveEventListener(const std::string& event);
   void Start();
-  void Run(uint64_t now);
+  void Run(uint64_t now, AnimationOnRun on_run);
   void Destroy();
   void Pause();
   void Resume();
@@ -155,7 +181,8 @@ class Animation {
   AnimationEndCb on_end_;
   AnimationCancelCb on_cancel_;
   AnimationRepeatCb on_repeat_;
-  bool is_set_;
+  uint32_t parent_id_;
+  std::shared_ptr<std::vector<std::shared_ptr<Animation>>> children_;
   Status status_;
   std::weak_ptr<hippy::AnimationManager> animation_manager_{};
 

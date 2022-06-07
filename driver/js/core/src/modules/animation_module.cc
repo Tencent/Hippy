@@ -523,7 +523,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       if (animation_manager->IsActive(id)) {
         return;
       }
-      if (animation->IsSet()) {
+      if (animation->HasChildren()) {
         return;
       }
       auto cubic_bezier_animation = std::static_pointer_cast<CubicBezierAnimation>(animation);
