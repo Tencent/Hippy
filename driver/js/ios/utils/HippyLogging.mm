@@ -26,24 +26,16 @@
 #include "logging.h"
 
 static BOOL getFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber) {
-    //[VERBOSE0:worker_task_runner.cc(84)] WorkerThread create
-    static NSString *prefixString = @"[VERBOSE0:";
-    @try {
-        if ([message hasPrefix:prefixString] && fileName && lineNumber) {
-            NSUInteger messageLength = [message length];
-            NSUInteger fileNameStartLocation = [prefixString length];
-            NSUInteger firstParenthesisPosition = [message rangeOfString:@"(" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
-            NSUInteger secondParenthesisPosition = [message rangeOfString:@")" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
-            NSString *name = [message substringWithRange:NSMakeRange(fileNameStartLocation, firstParenthesisPosition - fileNameStartLocation)];
-            NSString *line = [message substringWithRange:NSMakeRange(firstParenthesisPosition + 1, secondParenthesisPosition - firstParenthesisPosition - 1)];
-            *fileName = [name copy];
-            *lineNumber = [line intValue];
-            return YES;
-        }
-    } @catch (NSException *exception) {
-        return NO;
-    }
-    return NO;
+    //[INFO:cubic_bezier_animation.cc(146)] animation exec_time_ = 514, delay = 500, duration = 1000
+    NSUInteger messageLength = [message length];
+    static NSUInteger fileNameStartLocation = 0;
+    NSUInteger firstParenthesisPosition = [message rangeOfString:@"(" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
+    NSUInteger secondParenthesisPosition = [message rangeOfString:@")" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
+    NSString *name = [message substringWithRange:NSMakeRange(fileNameStartLocation, firstParenthesisPosition - fileNameStartLocation)];
+    NSString *line = [message substringWithRange:NSMakeRange(firstParenthesisPosition + 1, secondParenthesisPosition - firstParenthesisPosition - 1)];
+    *fileName = [name copy];
+    *lineNumber = [line intValue];
+    return YES;
 }
 
 static void registerTDFLogHandler() {
