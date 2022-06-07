@@ -138,3 +138,5 @@ export default class AnimationExample extends Component {
 
 // Style code omitted
 ```
+
+For detailed usage, please refer to [Animation module description](../hippy-react/modules.md?id=animation)
