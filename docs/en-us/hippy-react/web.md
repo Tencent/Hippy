@@ -1,55 +1,53 @@
 <!-- markdownlint-disable no-duplicate-header -->
-# 转 Web
+# Adapt To The Web
 
-hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 库来将 Hippy 应用转译、运行在浏览器中。
+Hippy apps react translates and runs hippy applications in browsers through the [@hippy/React apps web library](//www.npmjs.com/package/@hippy/react-web).
 
-> @hippy/react-web 2.14.0 开始支持较为完整的转 Web 能力
+> After version 2.14.0, @hippy/react-web supports relatively complete adaptation to the Web.
 
-# 安装运行时依赖
+# Install Runtime Dependencies
 
-请使用 `npm i` 安装以下 npm 包，保证转 Web 运行时正常。
+Please use `npm i` to install the following npm package to ensure normal web runtime adaptation.
 
-| 包名            | 说明                              |
-| --------------- | --------------------------------- |
-| react           | react 版本 >= v16.8.0      |
-| hippy-react-web | hippy-react 转 Web 适配器    |
-| react-dom       | react 的 Web 的渲染器              |
-| animated-scroll-to | scroll 的时候添加动画            |
-| swiper          | ViewPager 需要                    |
-| rmc-list-view   | ListView 需要                     |
-| rmc-pull-to-refresh | ListView PullHeader 需要      |
+| Package name        | Description                  |
+|---------------------|------------------------------|
+| react               | React version>= v16.8.0      |
+| hippy-react-web     | Web adapter for hippy-react  |
+| react-dom           | react web renderer           |
+| animated-scroll-to  | Add animation when scrolling |
+| swiper              | ViewPager requires           |
+| @hippy/rmc-list-view  | ListView requires            |
+| rmc-pull-to-refresh | ListView PullHeader requires |
 
 
-# 编译时依赖
+# Compile Time Dependencies
 
-以官方提供的 [范例工程](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 范例工程为例，需要使用 `npm i -D` 准备好以下依赖，当然开发者可以根据需要自行选择：
+Take the officially provided [Example Project](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) example project as an example, you need to use `npm i -D` to prepare the following dependencies. Of course, the developer You can choose according to your needs:
 
-| 包名                | 说明                          |
-| ------------------- | ----------------------------- |
-| css-loader          | Webpack 插件 - 内联样式转 CSS |
-| html-webpack-plugin | Webpack 插件 - 生成首页 html  |
-| style-loader        | Webpack 插件 - 内联样式       |
-| webpack-dev-server  | Webpack 网页端调试服务        |
+| Package name        | Description                             |
+|---------------------|-----------------------------------------|
+| css-loader          | Webpack plugin - Inline styles to CSS   |
+| html-webpack-plugin | Webpack plugin - Generate homepage html |
+| style-loader        | Webpack plugin - Inline styles          |
+| webpack-dev-server  | Webpack webside debugging service       |
 
-# 终端开发调试用编译配置
+# Compiling Configuration For Native Development And Debugging
 
-该配置展示了将 Hippy 运行于 Web 的最小化配置，并未包含分包等内容，开发者可以自行扩展。
+This configuration shows the minimum configuration for running Hippy on the web, and does not include subcontracting and other content, and developers can expand by themselves. The main difference with hippy-react is to make an [alias](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.web.js#L80) from hippy-react to hippy-react-web, so that it can run directly without modifying the code.
 
-和 hippy-react 的主要区别在于做了一个 hippy-react 到 hippy-react-web 的 [alias](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.web.js#L80)，使之可以不用修改代码直接运行。
+| Configuration file                                                                                                    | Description                 |
+|-----------------------------------------------------------------------------------------------------------------------|-----------------------------|
+| [hippy-webpack.web.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.web.js) | Configuration for debugging |
 
-| 配置文件                                                     | 说明       |
-| ------------------------------------------------------------ | ---------- |
-| [hippy-webpack.web.js](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/scripts/hippy-webpack.web.js) | 调试用配置 |
+# Entry File
 
-# 入口文件
+hippy-react-web and hippy-react have the same startup parameters and can share the same `main.js` entry file.
 
-hippy-react-web 和 hippy-react 的启动参数一致，可以共享同一个 `main.js` 入口文件。
+# Npm Script
 
-# npm script
+hippy-react-web uses [webpack-dev-server](//webpack.js.org/configuration/dev-server/) to start debugging, which supports all web debugging features. At the same time, use the same configuration file and use webpack for packaging.
 
-hippy-react-web 使用了 [webpack-dev-server](//webpack.js.org/configuration/dev-server/) 来启动调试，可以支持全部的 Web 调试特性，而同时使用同一份配置文件换而使用 Webpack 进行打包。
-
-这里的命令其实参考了 vue-cli 生成的 Vue 项目，通过 `serve` 启动调试服务，通过 `build` 编译出 JS 包。
+The command here actually refers to the Vue project generated by vue-cli, starts the debugging service through `serve`, and compiles the JavaScript package through `build`.
 
 ```json
   "scripts": {
@@ -58,10 +56,10 @@ hippy-react-web 使用了 [webpack-dev-server](//webpack.js.org/configuration/de
   }
 ```
 
-# 启动调试
+# Start Debugging
 
-执行 `npm run serve` 后就会启动 Web 调试，但要注意默认生成的 HTML 文件名是从 `package.json` 的 `name` 字段定义，而不是默认的 `index.html`，所以对于官方范例，需要使用 `http://localhost:8080/hippy-react-demo.html` 来访问调试用页面。
+Web debugging will start after executing `npm run serve`, but note that the default generated HTML file name is defined from the `name` field of `package.json`, not the default `index.html`, so for the official example , you need to use `http://localhost:8080/hippy-react-demo.html` to access the debugging page.
 
-# 转 Web 新方案
+# New Scheme For Adapting To The Web
 
-未来 Hippy 会采用 `WebRenderer` 方案，增加基于公共通信协议的转换层，业务开发者可以使用同一套 Hippy 语法开发的业务代码，映射成 JS 实现的组件和模块，上层无论使用 React，Vue 或者其他第三方框架，都可以实现兼容，敬请期待。
+In the future, Hippy will adopt the `WebRenderer` scheme to add a conversion layer based on common communication protocols. Business developers can use the same set of Hippy syntax to map business code to components and modules implemented in JavaScript. Whether the upper layer uses React, Vue or other third-party frameworks, it can be compatible, so stay tuned.
