@@ -29,7 +29,7 @@ if (NOT DEFINED DEFAULT_INFA_DOMAIN)
     set(DEFAULT_INFA_DOMAIN "hippy")
 endif()
 
-macro(InfaPackage_Add packageName)
+macro(InfraPackage_Add packageName)
     string(TOLOWER ${ARGV0} packageNameLower)
     if("${packageNameLower}" STREQUAL "")
         message(FATAL_ERROR "Empty packageName not allowed for InfaPackage_Add()")
