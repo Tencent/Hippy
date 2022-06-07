@@ -403,7 +403,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                 }
             };
             strongSelf->_domManager->PostTask(hippy::Scene({func}));
-            strongSelf->_domManager->SetRootSize(size.width, size.height);
 
             strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
             strongSelf->_renderManager->SetFrameworkProxy(weakProxy);
