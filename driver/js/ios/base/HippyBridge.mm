@@ -399,6 +399,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             std::function<void()> func = [weakDomManager, size](){
                 auto domManager = weakDomManager.lock();
                 if (domManager) {
+                    domManager->GetAnimationManager()->SetDomManager(weakDomManager);
                     domManager->SetRootSize(size.width, size.height);
                 }
             };
