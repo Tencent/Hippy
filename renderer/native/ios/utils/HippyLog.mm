@@ -83,8 +83,6 @@ HippyLogFunction HippyDefaultLogFunction
 
 void HippySetLogFunction(HippyLogFunction logFunction) {
     HippyCurrentLogFunction = logFunction;
-    //TODO 这个方法应该是由app自行调用，注册tdf log delegate
-    //registerTDFLogHandler();
 }
 
 HippyLogFunction HippyGetLogFunction() {
