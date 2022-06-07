@@ -63,6 +63,15 @@ public class EventUtils {
     // On recycler view first screen ready.
     public static final String EVENT_RECYCLER_LIST_READY = "initialListReady";
 
+    // On pull footer view released.
+    public static final String EVENT_PULL_FOOTER_RELEASED = "footerReleased";
+    // On pull footer view pulling.
+    public static final String EVENT_PULL_FOOTER_PULLING = "footerPulling";
+    // On pull header view pulling.
+    public static final String EVENT_PULL_HEADER_PULLING = "headerPulling";
+    // On pull header view released.
+    public static final String EVENT_PULL_HEADER_RELEASED = "headerReleased";
+
     // On modal view request close.
     public static final String EVENT_MODAL_REQUEST_CLOSE = "requestClose";
     // On modal view show.

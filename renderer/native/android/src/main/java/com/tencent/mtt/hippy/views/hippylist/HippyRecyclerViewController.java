@@ -211,6 +211,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         viewWrapper.getRecyclerView().setInitialContentOffset((int) PixelUtil.dp2px(offset));
     }
 
+    @HippyControllerProps(name = "itemViewCacheSize", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+    public void setItemViewCacheSize(HRW viewWrapper, int size) {
+        viewWrapper.getRecyclerView().setItemViewCacheSize(Math.max(size, 2));
+    }
+
     @Override
     public void onAfterUpdateProps(HRW viewWrapper) {
         super.onAfterUpdateProps(viewWrapper);
@@ -244,7 +249,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                 break;
             }
             case COLLAPSE_PULL_HEADER: {
-                getAdapter(view).getHeaderEventHelper().onHeaderRefreshFinish();
+                getAdapter(view).onHeaderRefreshCompleted();
                 break;
             }
             case COLLAPSE_PULL_HEADER_WITH_OPTIONS: {
@@ -261,18 +266,15 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                     view.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            PullHeaderEventHelper helper = adapter.getHeaderEventHelper();
-                            if (helper != null) {
-                                helper.onHeaderRefreshFinish();
-                            }
+                            adapter.onHeaderRefreshCompleted();
                         }
                     }, time);
                 } else {
-                    adapter.getHeaderEventHelper().onHeaderRefreshFinish();
+                    adapter.onHeaderRefreshCompleted();
                 }
             }
             case EXPAND_PULL_HEADER: {
-                getAdapter(view).getHeaderEventHelper().onHeaderRefresh();
+                getAdapter(view).onHeaderRefreshCompleted();
                 break;
             }
         }

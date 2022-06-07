@@ -25,25 +25,28 @@
 #include <mutex>
 #include "logging.h"
 
-static BOOL getFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber) {
-    //[VERBOSE0:worker_task_runner.cc(84)] WorkerThread create
-    static NSString *prefixString = @"[VERBOSE0:";
-    @try {
-        if ([message hasPrefix:prefixString] && fileName && lineNumber) {
-            NSUInteger messageLength = [message length];
-            NSUInteger fileNameStartLocation = [prefixString length];
-            NSUInteger firstParenthesisPosition = [message rangeOfString:@"(" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
-            NSUInteger secondParenthesisPosition = [message rangeOfString:@")" options:(0) range:NSMakeRange(fileNameStartLocation, messageLength - fileNameStartLocation)].location;
-            NSString *name = [message substringWithRange:NSMakeRange(fileNameStartLocation, firstParenthesisPosition - fileNameStartLocation)];
-            NSString *line = [message substringWithRange:NSMakeRange(firstParenthesisPosition + 1, secondParenthesisPosition - firstParenthesisPosition - 1)];
-            *fileName = [name copy];
-            *lineNumber = [line intValue];
-            return YES;
-        }
-    } @catch (NSException *exception) {
+static BOOL GetFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber) {
+    //[INFO:cubic_bezier_animation.cc(146)] animation exec_time_ = 514, delay = 500, duration = 1000
+    NSUInteger locationOfColon = [message rangeOfString:@":"].location;
+    if (NSNotFound == locationOfColon) {
         return NO;
     }
-    return NO;
+    NSUInteger locationOfLeftBracket = [message rangeOfString:@"("].location;
+    if (NSNotFound == locationOfLeftBracket) {
+        return NO;
+    }
+    if (locationOfLeftBracket <= locationOfColon) {
+        return NO;
+    }
+    NSString *name = [message substringWithRange:NSMakeRange(locationOfColon + 1, locationOfLeftBracket - locationOfColon - 1)];
+    *fileName = [name copy];
+    NSUInteger locationOfRightBracket = [message rangeOfString:@")"].location;
+    if (NSNotFound == locationOfRightBracket || locationOfRightBracket <= locationOfLeftBracket) {
+        return YES;
+    }
+    NSString *number = [message substringWithRange:NSMakeRange(locationOfLeftBracket + 1, locationOfLeftBracket - locationOfColon - 1)];
+    *lineNumber = [number intValue];
+    return YES;
 }
 
 static void registerTDFLogHandler() {
@@ -55,7 +58,7 @@ static void registerTDFLogHandler() {
                 NSString *message = [NSString stringWithUTF8String:string.c_str()];
                 NSString *fileName = nil;
                 int lineNumber = 0;
-                if (getFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
+                if (GetFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
                     _HippyLogNativeInternal(HippyLogLevelInfo, [fileName UTF8String], lineNumber, @"%@", message);
                 }
             }
