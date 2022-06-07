@@ -15,31 +15,34 @@
  */
 
 package com.tencent.mtt.hippy.uimanager;
+
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.common.HippyMap;
-
 import java.util.Map;
 
-@SuppressWarnings({"deprecation", "unused"})
 public class PullHeaderRenderNode extends ListItemRenderNode {
 
-  public PullHeaderRenderNode(int id, @Nullable Map<String, Object> props, @NonNull String className,
-          @Nullable ViewGroup rootView, @NonNull ControllerManager componentManager,
-          boolean isLazyLoad) {
-    super(id, props, className, rootView, componentManager, isLazyLoad);
-  }
+    public PullHeaderRenderNode(int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @Nullable ViewGroup rootView,
+            @NonNull ControllerManager componentManager, boolean isLazyLoad) {
+        super(id, props, className, rootView, componentManager, isLazyLoad);
+    }
 
-  @Override
-  public int getItemViewType() {
-    return this.getClassName().hashCode();
-  }
+    @Override
+    public boolean shouldSticky() {
+        return false;
+    }
 
-  @Override
-  public boolean isPullHeader() {
-    return true;
-  }
+    @Override
+    public int getItemViewType() {
+        return this.getClassName().hashCode();
+    }
+
+    @Override
+    public boolean isPullHeader() {
+        return true;
+    }
 }
