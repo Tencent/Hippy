@@ -167,6 +167,14 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
   TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
   auto dom_manager = std::make_shared<DomManager>(static_cast<uint32_t>(j_root_id));
   dom_manager->Init();
+  std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
+  dom_manager->PostTask(hippy::Scene({[weak_dom_manager]{
+    auto dom_manager = weak_dom_manager.lock();
+    if (!dom_manager) {
+      return;
+    }
+    dom_manager->GetAnimationManager()->SetDomManager(weak_dom_manager);
+  }}));
   DomManager::Insert(dom_manager);
   return dom_manager->GetId();
 }
@@ -174,31 +182,20 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
 jint CreateAnimationManager(JNIEnv* j_env,
                             __unused jobject j_obj,
                             jint j_dom_id) {
-//  TDF_BASE_DCHECK(j_dom_id <= std::numeric_limits<std::int32_t>::max());
-//  std::shared_ptr<DomManager> dom_manager = DomManager::Find(j_dom_id);
-//  std::shared_ptr<AnimationManager> ani_manager =
-//      std::make_shared<AnimationManager>(dom_manager);
-//  // AnimationManager::Insert(ani_manager);
-//  dom_manager->AddInterceptor(ani_manager);
-//  return ani_manager->GetId();
   return 0;
 }
 
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
-//  auto dom_manager = DomManager::Find(j_dom_id);
-//  if (dom_manager) {
-//    dom_manager->TerminateTaskRunner();
-//    DomManager::Erase(static_cast<int32_t>(j_dom_id));
-//  }
+  auto dom_manager = DomManager::Find(j_dom_id);
+  if (dom_manager) {
+    dom_manager->TerminateTaskRunner();
+    DomManager::Erase(static_cast<int32_t>(j_dom_id));
+  }
 }
 
 void DestroyAnimationManager(JNIEnv* j_env,
                              __unused jobject j_obj,
                              jint j_ani_id) {
-//  auto ani_manager = AnimationManager::Find(j_ani_id);
-//  if (ani_manager) {
-//    AnimationManager::Erase(static_cast<int32_t>(j_ani_id));
-//  }
 }
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
@@ -330,47 +327,6 @@ void UpdateAnimationNode(JNIEnv* j_env,
                          jbyteArray j_params,
                          jint j_offset,
                          jint j_length) {
-//  TDF_BASE_LOG(INFO) << "UpdateAnimationNode begin, j_dom_manager_id = "
-//                     << static_cast<uint32_t>(j_ani_manager_id)
-//                     << ", j_offset = " << static_cast<uint32_t>(j_offset)
-//                     << ", j_length = " << static_cast<uint32_t>(j_length);
-//  std::shared_ptr<AnimationManager> ani_manager =
-//      AnimationManager::Find(static_cast<int32_t>(j_ani_manager_id));
-//
-//  tdf::base::DomValue params;
-//  if (j_params != nullptr && j_length > 0) {
-//    jbyte params_buffer[j_length];
-//    j_env->GetByteArrayRegion(j_params, j_offset, j_length, params_buffer);
-//    tdf::base::Deserializer deserializer(
-//        (const uint8_t*)params_buffer,
-//        hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
-//    deserializer.ReadHeader();
-//    deserializer.ReadValue(params);
-//  }
-//
-//  TDF_BASE_DCHECK(params.IsArray());
-//  tdf::base::DomValue::DomValueArrayType array = params.ToArrayChecked();
-//  std::unordered_map<
-//      int32_t,
-//      std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>
-//      node_style_map;
-//  std::vector<std::pair<uint32_t, std::shared_ptr<tdf::base::DomValue>>>
-//      ani_data;
-//  for (size_t i = 0; i < array.size(); i++) {
-//    TDF_BASE_DCHECK(array[i].IsObject());
-//    tdf::base::DomValue::DomValueObjectType node;
-//    if (array[i].ToObject(node)) {
-//      if (node[kAnimationId].IsInt32()) {
-//        int32_t animation_id;
-//        node[kAnimationId].ToInt32(animation_id);
-//        tdf::base::DomValue animation_value = node[kAnimationValue];
-//        ani_data.push_back(std::make_pair(
-//            static_cast<uint32_t>(animation_id),
-//            std::make_shared<tdf::base::DomValue>(animation_value)));
-//      }
-//    }
-//  }
-//  ani_manager->OnAnimationUpdate(ani_data);
 }
 
 jlong InitInstance(JNIEnv* j_env,

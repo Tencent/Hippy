@@ -36,12 +36,11 @@ DomManager::DomManager(uint32_t root_id) {
   id_ = global_dom_manager_key.fetch_add(1);
   root_node_ = std::make_shared<RootNode>(root_id);
   animation_manager_ = std::make_shared<AnimationManager>();
+  interceptors_.push_back(animation_manager_);
   dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
 }
 
 void DomManager::Init() {
-  animation_manager_->SetDomManager(weak_from_this());
-  AddInterceptor(animation_manager_);
   StartTaskRunner();
 }
 
