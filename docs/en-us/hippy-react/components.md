@@ -39,8 +39,8 @@ import icon from './qb_icon_new.png';
 />
 ```
 
->* 本地图片可通过[加载时定义 Loader](//webpack.js.org/concepts/loaders/#inline)，或者 webpack 配置 `url-loader` 转换成 base64 加载。
->* `2.8.1` 版本后支持终端本地图片能力，可通过配置 webpack `file-loader` 加载。
+>* 本地图片可通过[加载时定义 Loader](//webpack.js.org/concepts/loaders/#inline)，或者 Webpack 配置 `url-loader` 转换成 base64 加载。
+>* `2.8.1` 版本后支持终端本地图片能力，可通过配置 Webpack `file-loader` 加载。
 
 ## 参数
 
