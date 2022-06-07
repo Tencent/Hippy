@@ -44,8 +44,6 @@ typedef NS_ENUM(NSUInteger, CellShowState) { CellNotShowState, CellHalfShowState
 
 @interface HippyBaseListViewCell : HippyWaterfallViewCell
 
-@property (nonatomic, weak) UIView<ViewAppearStateProtocol> *cellView;
-
 - (void)setCellShowState:(CellShowState)cellShowState NS_REQUIRES_SUPER;
 
 - (CellShowState)cellShowState;
