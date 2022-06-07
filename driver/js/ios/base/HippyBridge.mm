@@ -41,6 +41,7 @@
 #import "HippyImageDataLoader.h"
 #import "HippyDefaultImageProvider.h"
 #import "HippyAssert.h"
+#import "scene.h"
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptWillStartLoadingNotification = @"HippyJavaScriptWillStartLoadingNotification";
@@ -394,6 +395,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             auto rootNode = strongSelf->_domManager->GetNode(ids);
             rootNode->GetLayoutNode()->SetScaleFactor(scale);
             strongSelf->_domManager->Init();
+            std::weak_ptr<hippy::DomManager> weakDomManager = strongSelf->_domManager;
+            std::function<void()> func = [weakDomManager, size](){
+                auto domManager = weakDomManager.lock();
+                if (domManager) {
+                    domManager->SetRootSize(size.width, size.height);
+                }
+            };
+            strongSelf->_domManager->PostTask(hippy::Scene({func}));
             strongSelf->_domManager->SetRootSize(size.width, size.height);
 
             strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
