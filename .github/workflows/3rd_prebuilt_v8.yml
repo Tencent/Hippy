@@ -64,6 +64,16 @@ jobs:
         fetch v8
         cd v8
         git checkout ${{ github.event.inputs.v8_revision }}
+    - name: Fetch patch
+      uses: actions/checkout@v2
+      with:
+        path: ${{ github.repository }}
+    - name: Apply patch
+      if: github.event.inputs.v8_revision != '7.7.229'
+      working-directory: ./v8
+      continue-on-error: true
+      run: |
+        git apply ../${{ github.repository }}/.github/workflows/tools/v8_remove_requests_revision.patch
     - name: Sync third_party
       working-directory: ./v8
       run: |
@@ -85,17 +95,11 @@ jobs:
           rm -rf third_party/android_ndk
           ln -s $ANDROID_NDK_HOME third_party/android_ndk
         fi
-    - name: Fetch patch
-      uses: actions/checkout@v2
-      if: github.event.inputs.v8_revision == '7.7.229'
-      with:
-        path: ${{ github.repository }}
-        lfs: true
-    - name: Apply patch
+    - name: Apply 7.7.229 build patch
       if: github.event.inputs.v8_revision == '7.7.229'
       working-directory: ./v8/build
       run: |
-        git apply ../../${{ github.repository }}/.github/workflows/tools/v8_build.patch
+        git apply ../../${{ github.repository }}/.github/workflows/tools/v8_7_7_229_build.patch
     - name: Generate ${{ matrix.arch }}
       working-directory: ./v8
       run: |
