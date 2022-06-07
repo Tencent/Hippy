@@ -182,22 +182,13 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
                                   kVSyncKey,
                                   listener_id_,
                                   false,
-                                  [weak_dom_manager = dom_manager_, weak_animation_manager]
-                                      (std::shared_ptr<DomEvent>&) {
-                                    auto dom_manager = weak_dom_manager.lock();
-                                    if (!dom_manager) {
-                                      return;
-                                    }
-                                    std::vector<std::function<void()>>
-                                        ops = {[weak_animation_manager] {
-                                      auto animation_manager = weak_animation_manager.lock();
-                                      if (!animation_manager) {
-                                        return;
-                                      }
-                                      animation_manager->UpdateAnimation();
-                                    }};
-                                    dom_manager->PostTask(Scene(std::move(ops)));
-                                  });
+                                  [weak_animation_manager](std::shared_ptr<DomEvent>&) {
+      auto animation_manager = weak_animation_manager.lock();
+      if (!animation_manager) {
+        return;
+      }
+      animation_manager->UpdateAnimation();
+    });
     dom_manager->EndBatch();
   }
 }
