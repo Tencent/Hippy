@@ -35,15 +35,15 @@ message("DEVTOOLS_ROOT_PATH : ${DEVTOOLS_ROOT_PATH}")
 # add include directories
 include_directories(${BACKEND_INCLUDE_DIR})
 
-# InfaPackage asio
-InfaPackage_Add(asio
+# InfraPackage asio
+InfraPackage_Add(asio
   REMOTE "devtools/backend/third_party/asio/1.22.1/asio.tar.gz"
   LOCAL "third_party/asio"
 )
 include_directories(${asio_SOURCE_DIR}/asio/include)
 
-# InfaPackage websocketpp
-InfaPackage_Add(websocketpp
+# InfraPackage websocketpp
+InfraPackage_Add(websocketpp
   REMOTE "devtools/backend/third_party/websocketpp/develop/git-repo.tgz"
   LOCAL "third_party/websocketpp"
 )
@@ -76,8 +76,8 @@ if(ANDROID OR IOS)
   add_library(${PROJECT_NAME} ${DEVTOOLS_SRC})
 endif()
 
-# InfaPackage nlohmann_json
-InfaPackage_Add(json
+# InfraPackage nlohmann_json
+InfraPackage_Add(json
   REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
   LOCAL "third_party/json"
 )
