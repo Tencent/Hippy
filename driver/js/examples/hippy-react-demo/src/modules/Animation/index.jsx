@@ -227,7 +227,7 @@ export default class AnimationExample extends React.Component {
     });
     this.horizonAnimation.onHippyAnimationRepeat(() => {
       /* eslint-disable-next-line no-console */
-      console.log('on animation end!!!');
+      console.log('on animation repeat!!!');
     });
   }
 

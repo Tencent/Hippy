@@ -138,7 +138,7 @@ class Animation implements HippyTypes.Animation {
     if (typeof this.onAnimationCancelCallback === 'function') {
       this.animation.removeEventListener(animationEvent.CANCEL);
     }
-    if (typeof this.onAnimationCancelCallback === 'function') {
+    if (typeof this.onAnimationRepeatCallback === 'function') {
       this.animation.removeEventListener(animationEvent.REPEAT);
     }
   }
@@ -173,7 +173,7 @@ class Animation implements HippyTypes.Animation {
       });
     }
     if (typeof this.onAnimationRepeatCallback === 'function') {
-      this.animation.addEventListener(animationEvent.CANCEL, () => {
+      this.animation.addEventListener(animationEvent.REPEAT, () => {
         if (typeof this.onAnimationRepeatCallback === 'function') {
           this.onAnimationRepeatCallback();
         }
