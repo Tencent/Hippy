@@ -1,15 +1,15 @@
 # Gesture System
 
-Gesture system of hippy is relatively more convenient to use. The main difference is that it does not need to rely on other event components. All components including View, Text, Image or various custom controls can listen to click events and touch events;
+Gesture system of hippy is relatively more convenient to use. The main difference is that it does not need to rely on other event components. All components including View, Text, Image or various custom controls can listen to click events and touch events.
 
 ## Click Events
 
 Click events include four types: long press, click, press and finger lift, which are notified by the following four interfaces:
 
-1. onClick: this function is called when the control is clicked;
-2. onPressIn: this function is called when the user starts to touch the screen (that is, when the user presses the finger) when the control is long pressed or clicked;
-3. onPressOut: this function is called when the user finishes touching the screen (that is, when the user lifts his finger) when the control is long pressed or clicked;
-4. onLongClick： this function is called when the control is long pressed;
+1. onClick: this function is called when the control is clicked.
+2. onPressIn: this function is called when the user starts to touch the screen (that is, when the user presses the finger) when the control is long pressed or clicked.
+3. onPressOut: this function is called when the user finishes touching the screen (that is, when the user lifts his finger) when the control is long pressed or clicked.
+4. onLongClick： this function is called when the control is long pressed.
 
 ### Example
 
@@ -32,7 +32,7 @@ render()
                   this.setState({pressedIn: false})
               }}
         >
-            click button
+            button
         </View>
     );
 }
@@ -42,19 +42,19 @@ render()
 
 Touch events are handled similarly to click events and can be used on any React component. Touch events are mainly composed of the following callback functions:
 
-1. onTouchDown(event)： When the user starts to press the finger on the control, this function is called back and the touch screen point information is passed in as a parameter;
-2. onTouchMove(event)： When the user moves the finger in the control, this function is called continuously and the touch point information of the control is informed through the event parameter;
-3. onTouchEnd(event)： When the touch screen operation ends, this function is called back when the user lifts his finger on the control, and the event parameter will also notify the current touch screen point information;
-4. onTouchCancel(event)： This function will be called back when a system event interrupts the touch screen during the user's touch screen process, such as incoming phone calls, component changes (such as setting hidden), sliding gestures of other components, and will inform the front-end touch screen point information through event parameter;
+1. onTouchDown(event)： When the user starts to press the finger on the control, this function is called back and the touch screen point information is passed in as a parameter.
+2. onTouchMove(event)： When the user moves the finger in the control, this function is called continuously and the touch point information of the control is informed through the event parameter.
+3. onTouchEnd(event)： When the touch screen operation ends, this function is called back when the user lifts his finger on the control, and the event parameter will also notify the current touch screen point information.
+4. onTouchCancel(event)： This function will be called back when a system event interrupts the touch screen during the user's touch screen process, such as incoming phone calls, component changes (such as setting hidden), sliding gestures of other components, and will inform the front-end touch screen point information through event parameter.
 
 Note: If onTouchCancel is called, onTouchEnd will not be called.
 
 The above callback functions all take a parameter event, which contains the following structure:
 
-- name: the name of the touch event,, corresponding to "onTouchDown,""onTouchMove,""onTouchEnd" and "onTouchCancel" respectively;
-- id: the id of the target control that receives touch events. That is, the id of the control where the touch point is located;
-- Page_x: the horizontal coordinate of the touch screen point relative to the root element;
-- Page_y: the vertical coordinate of the touch screen point relative to the root element;
+- name: the name of the touch event,, corresponding to "onTouchDown,""onTouchMove,""onTouchEnd" and "onTouchCancel" respectively.
+- id: the id of the target control that receives touch events. That is, the id of the control where the touch point is located.
+- Page_x: the horizontal coordinate of the touch screen point relative to the root element.
+- Page_y: the vertical coordinate of the touch screen point relative to the root element.
 
 The x and y coordinates in the above structure have been converted to units independent of screen resolution. For example, the event parameter structure of the onTouchDonw callback is as follows:
 
@@ -71,12 +71,12 @@ The x and y coordinates in the above structure have been converted to units inde
 
 [[Event bubble example]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
 
-Both click events and touch events can be defined in the callback function whether the event needs to be bubbled to the upper component. When a click or touch event occurs, the native will look for the lowest-level control declared under the touch screen point to handle the event:
+Both click events and touch events can be defined in the callback function whether the event needs to be bubbled to the upper component. When a click or touch event occurs, the native will look for the lowest-level control declared under the touch screen point to handle the event.
 
 > HippyReact does not bubble by default
 
-1. Return `true` or `no return value`: After the View processing the event, it will no longer continue to bubble, and the entire gesture event processing ends;
-2. Return `false`: After the View processing the event, it will continue to bubble up one level. If it finds a parent control that also sets the corresponding event handler, it will call the function and decide whether to continue to bubble according to its return value. . If the root node is reached during the upward bubbling process, the event bubbling ends;
+1. Return `true` or `no return value`: After the View processing the event, it will no longer continue to bubble, and the entire gesture event processing ends.
+2. Return `false`: After the View processing the event, it will continue to bubble up one level. If it finds a parent control that also sets the corresponding event handler, it will call the function and decide whether to continue to bubble according to its return value. . If the root node is reached during the upward bubbling process, the event bubbling ends.
 
 After version `2.11.2`, the callback functions of the `onClick` and `onTouchEvent` events have added the `Event` instance parameter, which includes the `target` attribute (the actual emitting node of the event) and the `currentTarget` attribute (the node that listens for the event), `stopPropagation` method. `stopPropagation` can stop bubbling after global bubbling is enabled, and it takes precedence over the callback function `return return value`, which is gradually discarded after `return return value`.
 
@@ -194,8 +194,8 @@ render()
 
 In some scenarios, the parent control needs to intercept the gesture events of the child control first, so Hippy also provides a gesture event interception mechanism, which is controlled by two properties of the parent control: `onInterceptTouchEvent` and `onInterceptPullUpEvent`. These two properties are only valid for components that can contain child controls. Controls such as `<Image/>` do not support these two properties:
 
-- onInterceptTouchEvent： This property determines whether the parent control intercepts gesture events of all child controls, true is intercepted, false is not intercepted (default is false). When the parent control sets this property to true, all its child controls will not receive any touch event and click event callbacks, regardless of whether event handlers are set. When pressing, moving, raising a finger, and clicking and long-pressing occur in the parent control area, the native sends events to the parent control for processing by default. If the child control is already processing touch events before the parent control sets onInterceptTouchEvent to true, then the child control will receive an onTouchCancel callback (if the child control has registered this function);
-- onInterceptPullUpEvent： The function of this property is similar to onInterceptTouchEvent, but the conditions for determining whether the parent control intercepts the event are slightly different.When the value is true, when the user slides the finger up in the current parent control area, all subsequent touch events will be intercepted and processed by the parent control. All child controls will not receive any touch event callbacks, regardless of whether the event handler is set; if the child controls are already processing touch events before the interception takes effect, the child controls will receive an onTouchCancel callback. When false, the parent control will not intercept events, the default is false;
+- onInterceptTouchEvent： This property determines whether the parent control intercepts gesture events of all child controls, true is intercepted, false is not intercepted (default is false). When the parent control sets this property to true, all its child controls will not receive any touch event and click event callbacks, regardless of whether event handlers are set. When pressing, moving, raising a finger, and clicking and long-pressing occur in the parent control area, the native sends events to the parent control for processing by default. If the child control is already processing touch events before the parent control sets onInterceptTouchEvent to true, then the child control will receive an onTouchCancel callback (if the child control has registered this function).
+- onInterceptPullUpEvent： The function of this property is similar to onInterceptTouchEvent, but the conditions for determining whether the parent control intercepts the event are slightly different.When the value is true, when the user slides the finger up in the current parent control area, all subsequent touch events will be intercepted and processed by the parent control. All child controls will not receive any touch event callbacks, regardless of whether the event handler is set; if the child controls are already processing touch events before the interception takes effect, the child controls will receive an onTouchCancel callback. When false, the parent control will not intercept events, the default is false.
 
 Note that due to the different interception conditions of these two properties, after the onInterceptTouchEvent flag is set to true, all touch events of the child control will be invalid, while onInterceptPullUpEvent will not affect the click event of the child control.
 

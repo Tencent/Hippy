@@ -19,29 +19,29 @@
 
 ## Construction Attributes
 
-| Props            | Type                                        | Required | Default value | Description                                                                                                                                                                                                                                                     |
-|------------------|---------------------------------------------|----------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| mode             | `string`                                    | yes      | timing        | Animation timeline mode                                                                                                                                                                                                                                         |
-| delay            | `number`                                    | yes      | -             | The animation delay start time, in milliseconds, the default is 0, that is, the animation will be executed immediately after the animation starts; the number of rows in the specified list is generally directly passed in the number of data source `length`. |
-| startValue       | `number`,`string`,  [color](style/color.md) | yes      | -             | The value at the beginning of the animation, which can be of type Number or String. If it is a color value, refer to[color](style/color.md).                                                                                                                    |
-| toValue          | `number`,`string`,  [color](style/color.md) | yes      | -             | The value at the end of the animation; If it is a color value, refer to [color](style/color.md).                                                                                                                                                                |
-| valueType\*      | `enum(undefined,rad,deg,color)`             | no       | null          | The type of the start and end values of the animation, the default is empty, and the unit that indicates the start and end of the animation is a common Number. PS: The parameter on the web platform only supports the number type.                            |
-| duration         | `number`                                    | no       | -             | Animation duration, in milliseconds(ms).                                                                                                                                                                                                                        |
-| timingFunction\* | `string`                                    | no       | linear        | Animation interpolator type, support`linear`,`ease-in`,`ease-out`,`ease-in-out`,`cubic-bezier`.                                                                                                                                                                 |
-| repeatCount      | `number`,`loop`                             | no       | -             | The number of repetitions of the animation. The default is 0, which means it will be played only once; when it is -1 or "loop", it means infinite loop playback; when repeatCount is set to n, the animation will be played n times.                            |
+| Props            | Type                                        | Required | Default value | Description                                                                                                                                                                                                                                                    |
+|------------------|---------------------------------------------|----------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| mode             | `string`                                    | yes      | timing        | Animation timeline mode                                                                                                                                                                                                                                        |
+| delay            | `number`                                    | yes      | -             | The animation delay start time, in milliseconds, the default is 0, that is, the animation will be executed immediately after the animation starts; the number of rows in the specified list is generally directly passed in the number of data source`length`. |
+| startValue       | `number`,`string`,  [color](style/color.md) | yes      | -             | The value at the beginning of the animation, which can be of type Number or String. If it is a color value, refer to [color](style/color.md).                                                                                                                  |
+| toValue          | `number`,`string`,  [color](style/color.md) | yes      | -             | The value at the end of the animation; If it is a color value, refer to [color](style/color.md).                                                                                                                                                               |
+| valueType\*      | `enum(undefined,rad,deg,color)`             | no       | null          | The type of the start and end values of the animation, the default is empty, and the unit that indicates the start and end of the animation is a common Number. PS: The parameter on the web platform only supports the number type.                           |
+| duration         | `number`                                    | no       | -             | Animation duration, in milliseconds(ms).                                                                                                                                                                                                                       |
+| timingFunction\* | `string`                                    | no       | linear        | Animation interpolator type, support`linear`,`ease-in`,`ease-out`,`ease-in-out`,`cubic-bezier`.                                                                                                                                                                |
+| repeatCount      | `number`,`loop`                             | no       | -             | The number of repetitions of the animation. The default is 0, which means it will be played only once; when it is -1 or "loop", it means infinite loop playback; when repeatCount is set to n, the animation will be played n times.                           |
 
 - Other options for valueType:
 
-  - `rad`: Indicates that the starting and ending values of the animation parameters are in radians;
-  - `deg`: Indicates that the starting and ending values of the animation parameters are in degrees;
-  - `color`: Indicates that the starting and ending values of the animation parameters are color values, which can modify the background color `backgroundColor` and text color `color` (only supported by Android), refer to [examples.](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx)`Minimum supported version 2.6.0`
+  - `rad`: Indicates that the starting and ending values of the animation parameters are in radians.
+  - `deg`: Indicates that the starting and ending values of the animation parameters are in degrees.
+  - `color`: Indicates that the starting and ending values of the animation parameters are color values, which can modify the background color `backgroundColor` and text color `color` (only supported by Android), refer to [examples.](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `Minimum supported version 2.6.0`
 
 - Other options for timingFunction:
-  - `linear`: With a linear interpolator, the animation will proceed at a constant speed;
-  - `ease-in`: with an acceleration interpolator, the animation speed will gradually increase with time;
-  - `ease-out`: With a deceleration interpolator, the animation speed will gradually decrease over time;
-  - `ease-in-out`: using the acceleration and deceleration interpolator, the animation speed will gradually increase with time in the first half, and the speed will gradually decrease in the second half;
-  - `cubic-bezier`: (Minimum supported version 2.9.0) Use a custom Bezier curve, consistent with [css transition-timing-function's cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function);
+  - `linear`: With a linear interpolator, the animation will proceed at a constant speed.
+  - `ease-in`: with an acceleration interpolator, the animation speed will gradually increase with time.
+  - `ease-out`: With a deceleration interpolator, the animation speed will gradually decrease over time.
+  - `ease-in-out`: using the acceleration and deceleration interpolator, the animation speed will gradually increase with time in the first half, and the speed will gradually decrease in the second half.
+  - `cubic-bezier`: (Minimum supported version 2.9.0) Use a custom Bezier curve, consistent with [css transition-timing-function's cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function).
 
 ## Methods
 
@@ -59,7 +59,7 @@
 
 ### start
 
-`() => void` Start the animation. Note: If the animation has not been assigned to the corresponding control through render before calling this method, or the animation has been destroy, then start will not take effect;
+`() => void` Start the animation. Note: If the animation has not been assigned to the corresponding control through render before calling this method, or the animation has been destroy, then start will not take effect.
 
 ### updateAnimation
 
@@ -156,19 +156,19 @@ AsyncStorage is a simple, asynchronous, persistent Key-Value storage system that
 
 `(key: string) => Promise<string>` Get the corresponding data according to the key value.
 
->- key: string - The target key that needs to get the value
+>- key: string - The target key that needs to get the value.
 
 ### AsyncStorage.multiGet
 
 `(key: string[]) => Promise<[key: string, value: value][]>` Use multiple key arrays to request cache data in batches at one time, and the return value will be returned in the callback function in the form of a two-dimensional array of key-value pairs.
 
->- key: string[] - The array of target keys that needs to get the value
+>- key: string[] - The array of target keys that needs to get the value.
 
 ### AsyncStorage.multiRemove
 
 `(key: string[]) => void` Call this function to delete the values in AsyncStorage in batches, according to the incoming keys array.
 
->- key: string[] - The array of target keys to delete
+>- key: string[] - The array of target keys to delete.
 
 ### AsyncStorage.multiSet
 
@@ -205,7 +205,7 @@ You can listen to the fallback of the Android entity key, and perform operations
 
 `(handler: () => boolean) => { remove: Function }` Listen to the Android entity key fallback event, and execute the handler callback function when triggered. Intercept the native's fallback operation when the callback function returns true. The fallback will not be intercepted when the callback function returns false. This function returns an object containing a `remove()` method. You can remove the listener by calling the `remove()` method, same as `BackAndroid.removeListener`.
 
-> Callback Function: The callback function called when the entity key is falled back
+> Callback Function: The callback function called when the entity key is falled back.
 
 ### BackAndroid.exitApp
 
@@ -278,7 +278,7 @@ Used to get the width and height of the current device.
 
 > - target: 'window' |'Screen' - Specify to measure Hippy Root View or screen size.
 > - Android special instructions: Due to historical problems, the statusBarHeight in screen mode is calculated in actual pixels, and in window mode, it has been corrected to dp units.
-> - navigatorBarHeight: Android bottom navigatorBar height; Minimum supported version 2.3.4
+> - navigatorBarHeight: Android bottom navigatorBar height. Minimum supported version 2.3.4.
 
 ---
 
@@ -292,13 +292,13 @@ You can use this module to perform corresponding operations on remote images.
 
 `(url: string) => Promise<{width, height}>` Get the image size (the image will be preloaded at the same time).
 
-> - url - image address
+> - url - image address.
 
 ### ImageLoaderModule.prefetch
 
 `(url: string) => void` For preloading images.
 
-> -  url - image address
+>- url - image address.
 
 ---
 
@@ -331,8 +331,8 @@ Asynchronously determines whether the device is connected to the Internet and wh
 
 `(eventName: string, handler: Function) => NetInfoRevoker` Add a network change listener.
 
->- eventName: 'Change' - Event name
->- handler: ({ network_info: String }) => any - Callback function called when the network changes
+>- eventName: 'Change' - Event name.
+>- handler: ({ network_info: String }) => any - Callback function called when the network changes.
 
 ### NetInfo.fetch
 
@@ -342,7 +342,7 @@ Asynchronously determines whether the device is connected to the Internet and wh
 
 `(eventName: string, handler: NetInfoRevoker | Function) => void` Remove Event Listener
 
->- eventName: 'Change' - event name
+>- eventName: 'Change' - event name.
 >- handler: Function - The corresponding event listener that needs to be deleted.
 
 # NetworkModule
@@ -366,8 +366,8 @@ For common network requests,, please refer to: [Getting Started - Network Reques
 `(url: string, keyValue: string, expires?: String) => <void> Set cookie
 
 >- url: string - The target url that needs to set the cookie.
->- keyValue: string - Key-value pair to set
->- expires?: string - Set the timeout for cookies
+>- keyValue: string - Key-value pair to set.
+>- expires?: string - Set the timeout for cookies.
 
 ---
 
@@ -410,10 +410,10 @@ A component used to write code to differentiate platforms. Developers develop bu
 
 ## Attributes
 
-| Props        | Description                                                                        | Type                                                                                                                                                  | Supported Platforms                           |
-|--------------|------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
-| OS           | Used to determine whether it is iOS or Android                                     | `string`                                                                                                                                              | `Android、iOS`                                 |
-| Localization | Output internationalization related information, `minimum supported version 2.8.0` | ,`object: { country: string , language: string, direction: number }` where`direction` 0 indicates the LTR direction and 1 indicates the RTL direction | `Android、iOS、hippy-react-web(不支持 country 信息)` |
+| Props        | Description                                                                         | Type                                                                                                                                                  | Supported Platforms                                                 |
+|--------------|-------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| OS           | Used to determine whether it is iOS or Android.                                     | `string`                                                                                                                                              | `Android、iOS`                                                       |
+| Localization | Output internationalization related information, `minimum supported version 2.8.0`. | `object: { country: string , language: string, direction: number }` where`direction` 0 indicates the LTR direction and 1 indicates the RTL direction. | `Android、iOS、hippy-react-web(does not support country information)` |
 
 ---
 
@@ -433,7 +433,7 @@ Provides an abstraction similar to CSS style sheets.
 
 `(styleObj: Object) => styleObj`
 
->- styleObj: Object - style object
+>- styleObj: Object - style object.
 
 ---
 
@@ -449,9 +449,9 @@ Call the native method defined in the component
 
 `callUIFunction(instance: ref, method: string, options: Array)`
 
->- instance: Component reference
->- method: Method name, such as ListView`scrollToIndex`
->- options: The data to be passed, such as `[xIndex, yIndex, animated]` of ListView, or `[]` when it is empty
+>- instance: Component reference.
+>- method: Method name, such as ListView`scrollToIndex`.
+>- options: The data to be passed, such as `[xIndex, yIndex, animated]` of ListView, or `[]` when it is empty.
 
 ### UIManagerModule.getElementFromFiberRef
 
@@ -459,8 +459,8 @@ Get the Element corresponding to the element Ref (similar to DOM). `hippy-react-
 
 `getElementFromFiberRef(instance: ref): ElementNode`
 
->- instance: Component reference
->- ElementNode：Similar to DOM, you can call methods such as setNativeProps
+>- instance: Component reference.
+>- ElementNode：Similar to DOM, you can call methods such as setNativeProps.
 
 ### UIManagerModule.measureInAppWindow
 
