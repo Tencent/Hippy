@@ -143,11 +143,12 @@ class StringViewUtils {
       case unicode_string_view::Encoding::Latin1: {
         u8string u8;
         for (const auto& ch : str_view.latin1_value()){
-          if (ch < 0x80) {
-            u8 += ch;
+          auto c = static_cast<uint8_t>(ch);
+          if (c < 0x80) {
+            u8 += c;
           } else {
-            u8 += (0xc0 | ch >> 6);
-            u8 += (0x80 | (ch & 0x3f));
+            u8 += (0xc0 | c >> 6);
+            u8 += (0x80 | (c & 0x3f));
           }
         }
         return unicode_string_view(std::move(u8));
