@@ -29,7 +29,6 @@
 #include "core/base/base_time.h"
 #include "dom/animation/animation_manager.h"
 
-
 namespace hippy {
 inline namespace animation {
 
@@ -72,22 +71,21 @@ double CubicBezierAnimation::CalculateColor(double start_color, double to_color,
 }
 
 CubicBezierAnimation::CubicBezierAnimation(Mode mode,
-                     uint64_t delay,
-                     double start_value,
-                     double to_value,
-                     ValueType type,
-                     uint64_t duration,
-                     std::string func,
-                     int32_t cnt,
-                     uint32_t related_id)
+                                           uint64_t delay,
+                                           double start_value,
+                                           double to_value,
+                                           ValueType type,
+                                           uint64_t duration,
+                                           std::string func,
+                                           int32_t cnt,
+                                           uint32_t related_id)
     : Animation(cnt, delay, duration, start_value),
       mode_(mode),
       to_value_(to_value),
       current_value_(start_value),
       type_(type),
       func_(std::move(func)),
-      related_id_(related_id),
-      set_id_(kInvalidAnimationSetId) {
+      related_id_(related_id) {
   if (func_ == kAnimationTimingFunctionLinear) {
     cubic_bezier_ = CubicBezier(CubicBezier::kLinearP1, CubicBezier::kLinearP2);
   } else if (func_ == kAnimationTimingFunctionEaseIn) {
@@ -104,13 +102,13 @@ CubicBezierAnimation::CubicBezierAnimation(Mode mode,
 }
 
 CubicBezierAnimation::CubicBezierAnimation() : CubicBezierAnimation(Mode::kTiming,
-                                   0,
-                                   0,
-                                   0,
-                                   ValueType::kRad,
-                                   0,
-                                   kAnimationTimingFunctionLinear,
-                                   0) {}
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    ValueType::kRad,
+                                                                    0,
+                                                                    kAnimationTimingFunctionLinear,
+                                                                    0) {}
 
 CubicBezierAnimation::~CubicBezierAnimation() = default;
 
@@ -130,7 +128,7 @@ void CubicBezierAnimation::Init() {
     if (!related_animation) {
       return;
     }
-    if (related_animation->IsSet()) {
+    if (related_animation->HasChildren()) {
       return;
     }
     auto animation = std::static_pointer_cast<CubicBezierAnimation>(related_animation);
@@ -143,8 +141,6 @@ double CubicBezierAnimation::Calculate(uint64_t now) {
   auto epsilon = cubic_bezier_.SolveEpsilon(duration_);
   auto x = cubic_bezier_.SolveCurveX(
       static_cast<double>(exec_time_ - delay_) / static_cast<double>(duration_), epsilon);
-  TDF_BASE_DLOG(INFO) << "animation exec_time_ = " <<  exec_time_ << ", delay = " << delay_
-      << ", duration = " << duration_;
   auto y = cubic_bezier_.SampleCurveY(x);
   if (type_ == ValueType::kColor) {
     current_value_ = CalculateColor(start_value_, to_value_, y);
@@ -156,14 +152,14 @@ double CubicBezierAnimation::Calculate(uint64_t now) {
 }
 
 void CubicBezierAnimation::Update(Mode mode,
-                       uint64_t delay,
-                       double start_value,
-                       double to_value,
-                       ValueType type,
-                       uint64_t duration,
-                       std::string func,
-                       int32_t cnt,
-                       uint32_t related_id) {
+                                  uint64_t delay,
+                                  double start_value,
+                                  double to_value,
+                                  ValueType type,
+                                  uint64_t duration,
+                                  std::string func,
+                                  int32_t cnt,
+                                  uint32_t related_id) {
   mode_ = mode;
   delay_ = delay;
   start_value_ = start_value;

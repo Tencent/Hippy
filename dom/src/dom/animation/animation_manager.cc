@@ -240,21 +240,14 @@ void AnimationManager::DeleteAnimationMap(const std::shared_ptr<DomNode>& dom_no
   }
 }
 
-void AnimationManager::UpdateCubicBezierAnimation(std::shared_ptr<CubicBezierAnimation> animation,
-                                                  uint64_t now,
+void AnimationManager::UpdateCubicBezierAnimation(double current,
+                                                  uint32_t related_animation_id,
                                                   std::vector<std::shared_ptr<DomNode>>& update_nodes) {
   auto dom_manager = dom_manager_.lock();
   if (!dom_manager) {
     return;
   }
-  auto value = animation->Calculate(now);
-  auto animation_id = animation->GetId();
-  auto animation_set_id = animation->GetAnimationSetId();
-  auto id = animation_set_id;
-  if (id == hippy::kInvalidAnimationSetId) {
-    id = animation_id;
-  }
-  auto dom_nodes_it = animation_nodes_map_.find(id);
+  auto dom_nodes_it = animation_nodes_map_.find(related_animation_id);
   if (dom_nodes_it == animation_nodes_map_.end()) {
     return;
   }
@@ -264,7 +257,7 @@ void AnimationManager::UpdateCubicBezierAnimation(std::shared_ptr<CubicBezierAni
       continue;
     }
     auto props = node_props_it->second;
-    auto prop_it = props.find(id);
+    auto prop_it = props.find(related_animation_id);
     if (prop_it == props.end()) {
       continue;
     }
@@ -272,9 +265,10 @@ void AnimationManager::UpdateCubicBezierAnimation(std::shared_ptr<CubicBezierAni
     if (!dom_node) {
       continue;
     }
-    DomValue prop_value(value);
+    DomValue prop_value(current);
     dom_node->EmplaceStyleMap(prop_it->second, prop_value);
-    TDF_BASE_DLOG(INFO) << "animation key = " << prop_it->second << ", value = " << prop_value;
+//    TDF_BASE_DLOG(INFO) << "animation related_animation_id = " << related_animation_id
+//                        << ", key = " << prop_it->second << ", value = " << prop_value;
     std::unordered_map<std::string, std::shared_ptr<DomValue>> diff_value = {
         {prop_it->second, std::make_shared<DomValue>(std::move(prop_value))}
     };
@@ -282,7 +276,6 @@ void AnimationManager::UpdateCubicBezierAnimation(std::shared_ptr<CubicBezierAni
         std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(diff_value)));
     update_nodes.push_back(dom_node);
   }
-  animation->Run(now);
 }
 
 void AnimationManager::UpdateAnimation() {
@@ -293,35 +286,18 @@ void AnimationManager::UpdateAnimation() {
 
   auto now = hippy::base::MonotonicallyIncreasingTime();
   std::vector<std::shared_ptr<DomNode>> update_nodes;
-  // todo for : crash 问题
   for (uint32_t i = 0; i < active_animations_.size(); ++i) {
     auto animation = active_animations_[i];
-    if (animation->IsSet()) {
-      auto set = std::static_pointer_cast<AnimationSet>(animation);
-      auto set_exec_time = set->GetExecTime();
-      auto set_last_begin_time = set->GetLastBeginTime();
-      for (auto& child: set->GetChildren()) {
-        auto cubic_bezier_animation = std::static_pointer_cast<CubicBezierAnimation>(child);
-        cubic_bezier_animation->SetStatus(Animation::Status::kRunning);
-        cubic_bezier_animation->SetLastBeginTime(set_last_begin_time);
-        auto exec_time = cubic_bezier_animation->GetExecTime();
-        auto delay = cubic_bezier_animation->GetDelay();
-        auto duration = cubic_bezier_animation->GetDuration();
-        if (exec_time >= delay && exec_time < delay + duration) {
-          UpdateCubicBezierAnimation(cubic_bezier_animation, now, update_nodes);
-        } else if (exec_time < delay) {
-          cubic_bezier_animation->SetExecTime(set_exec_time);
-        }
-      }
-      set->SetExecTime(set_exec_time + (now - set_last_begin_time));
-      set->SetLastBeginTime(now);
-      set->Run(now);
-    } else {
-      auto cubic_bezier_animation = std::static_pointer_cast<CubicBezierAnimation>(animation);
-      cubic_bezier_animation->SetStatus(Animation::Status::kRunning);
-      UpdateCubicBezierAnimation(cubic_bezier_animation, now, update_nodes);
+    auto animation_id = animation->GetId();
+    auto parent_id = animation->GetParentId();
+    auto related_animation_id = parent_id;
+    if (related_animation_id == hippy::kInvalidAnimationParentId) {
+      related_animation_id = animation_id;
     }
-
+    // on_run is called synchronously
+    animation->Run(now, [this, related_animation_id, &update_nodes](double current) {
+      UpdateCubicBezierAnimation(current, related_animation_id, update_nodes);
+    });
   }
   dom_manager->UpdateAnimation(std::move(update_nodes));
   dom_manager->EndBatch();

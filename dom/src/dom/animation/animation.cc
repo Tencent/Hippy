@@ -22,7 +22,8 @@ Animation::Animation(int32_t cnt,
                      AnimationEndCb on_end,
                      AnimationCancelCb on_cancel,
                      AnimationRepeatCb on_repeat,
-                     bool is_set,
+                     uint32_t parent_id,
+                     std::shared_ptr<std::vector<std::shared_ptr<Animation>>> children,
                      Status status,
                      std::weak_ptr<hippy::AnimationManager> animation_manager)
     : id_(animation_id_.fetch_add(1)),
@@ -37,7 +38,8 @@ Animation::Animation(int32_t cnt,
       on_cancel_(on_cancel),
       on_repeat_(on_repeat),
       status_(status),
-      is_set_(is_set),
+      parent_id_(parent_id),
+      children_(children),
       animation_manager_(animation_manager) {}
 
 Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double start_value) :
@@ -52,7 +54,8 @@ Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double star
         nullptr,
         nullptr,
         nullptr,
-        false,
+        kInvalidAnimationParentId,
+        nullptr,
         Status::kCreated,
         {}) {}
 
@@ -66,7 +69,9 @@ Animation::Animation(int32_t cnt) : Animation(cnt,
                                               nullptr,
                                               nullptr,
                                               nullptr,
-                                              true,
+                                              kInvalidAnimationParentId,
+                                              std::make_shared<
+                                                  std::vector<std::shared_ptr<Animation>>>(),
                                               Status::kCreated,
                                               {}) {
 }
@@ -74,6 +79,10 @@ Animation::Animation(int32_t cnt) : Animation(cnt,
 Animation::Animation() : Animation(0, 0, 0, 0) {}
 
 Animation::~Animation() {}
+
+double Animation::Calculate(uint64_t time) {
+  return start_value_;
+}
 
 void Animation::AddEventListener(const std::string& event, AnimationCb cb) {
   if (event == kAnimationStartKey) {
@@ -111,24 +120,26 @@ void Animation::Start() {
   }
   auto status = animation->GetStatus();
   switch (status) {
-    case Animation::Status::kCreated:
+    case Animation::Status::kCreated: {
       animation->SetStatus(Animation::Status::kStart);
       break;
+    }
     case Animation::Status::kStart:
     case Animation::Status::kRunning:
     case Animation::Status::kPause:
     case Animation::Status::kResume:
     case Animation::Status::kEnd:
     case Animation::Status::kDestroy:
-    default:return;
+    default: {
+      return;
+    }
   }
   auto now = hippy::base::MonotonicallyIncreasingTime();
   last_begin_time_ = now;
   if (delay_ == 0) {
-    if (animation->IsSet()) {
-      auto set = std::static_pointer_cast<AnimationSet>(animation);
-      for (auto& child: set->GetChildren()) {
-        child->SetExecTime(set->GetDelay());
+    if (HasChildren()) {
+      for (auto& child: *children_) {
+        child->SetExecTime(delay_);
       }
     }
     animation_manager->AddActiveAnimation(animation);
@@ -161,10 +172,9 @@ void Animation::Start() {
       animation->SetExecTime(delay); // reduce latency impact of task_runner
       animation->SetLastBeginTime(now);
       animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
-      if (animation->IsSet()) {
-        auto set = std::static_pointer_cast<AnimationSet>(animation);
-        for (auto& child: set->GetChildren()) {
-          child->SetExecTime(set->GetDelay());
+      if (animation->HasChildren()) {
+        for (auto& child: *animation->GetChildren()) {
+          child->SetExecTime(delay);
         }
       }
       animation_manager->AddActiveAnimation(animation);
@@ -178,7 +188,7 @@ void Animation::Start() {
   }
 }
 
-void Animation::Run(uint64_t now) {
+void Animation::Run(uint64_t now, AnimationOnRun on_run) {
   switch (status_) {
     case Animation::Status::kResume: {
       status_ = Animation::Status::kRunning;
@@ -199,6 +209,31 @@ void Animation::Run(uint64_t now) {
     case Animation::Status::kEnd:
     case Animation::Status::kDestroy:
     default:TDF_BASE_UNREACHABLE();
+  }
+
+  if (HasChildren()) {
+    for (auto& child: *children_) {
+      child->SetStatus(Animation::Status::kRunning);
+      child->SetLastBeginTime(last_begin_time_);
+      auto exec_time = child->GetExecTime();
+      auto delay = child->GetDelay();
+      auto duration = child->GetDuration();
+      if (exec_time >= delay && exec_time < delay + duration) {
+        if (!child->HasChildren()) {
+          if (on_run) {
+            on_run(child->Calculate(now));
+          }
+        }
+      } else if (exec_time < delay) {
+        child->SetExecTime(exec_time_);
+      }
+    }
+    exec_time_ += now - (last_begin_time_);
+    last_begin_time_ = now;
+  } else {
+    if (on_run) {
+      on_run(Calculate(now));
+    }
   }
 
   if (exec_time_ >= delay_ + duration_) {
@@ -236,12 +271,10 @@ void Animation::Destroy() {
     case Animation::Status::kRunning:
     case Animation::Status::kPause:
     case Animation::Status::kResume:
-    case Animation::Status::kEnd:
-      animation->SetStatus(Animation::Status::kDestroy);
+    case Animation::Status::kEnd:animation->SetStatus(Animation::Status::kDestroy);
       break;
     case Animation::Status::kDestroy:
-    default:
-      return;
+    default:return;
   }
   animation_manager->RemoveActiveAnimation(id_);
   animation_manager->RemoveAnimation(animation);
@@ -371,10 +404,9 @@ void Animation::Repeat(uint64_t now) {
   if (delay_ == 0) {
     self->SetExecTime(0);
     self->SetLastBeginTime(now);
-    if (self->IsSet()) {
-      auto set = std::static_pointer_cast<AnimationSet>(self);
-      for (auto& child: set->GetChildren()) {
-        child->SetExecTime(set->GetDelay());
+    if (self->HasChildren()) {
+      for (auto& child: *self->GetChildren()) {
+        child->SetExecTime(self->GetDelay());
       }
     }
     animation_manager->AddActiveAnimation(self);
@@ -400,10 +432,9 @@ void Animation::Repeat(uint64_t now) {
       animation->SetExecTime(delay);
       animation->SetLastBeginTime(now);
       animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
-      if (animation->IsSet()) {
-        auto set = std::static_pointer_cast<AnimationSet>(animation);
-        for (auto& child: set->GetChildren()) {
-          child->SetExecTime(set->GetDelay());
+      if (animation->HasChildren()) {
+        for (auto& child: *animation->GetChildren()) {
+          child->SetExecTime(delay);
         }
       }
       animation_manager->AddActiveAnimation(animation);
@@ -412,7 +443,6 @@ void Animation::Repeat(uint64_t now) {
     animation_manager->AddDelayedAnimationRecord(id_, task);
     status_ = Animation::Status::kStart;
   }
-
 }
 
 }
