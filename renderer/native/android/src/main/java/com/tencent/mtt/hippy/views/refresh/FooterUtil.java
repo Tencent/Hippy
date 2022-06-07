@@ -36,8 +36,8 @@ public class FooterUtil {
 
   public static void sendFooterReleasedEvent(HippyPullFooterView footerView) {
     IFooterContainer footerContainer = null;
-    if (footerView.getParentView() instanceof IFooterContainer) {
-      footerContainer = (IFooterContainer) footerView.getParentView();
+    if (footerView.getRecyclerView() instanceof IFooterContainer) {
+      footerContainer = (IFooterContainer) footerView.getRecyclerView();
     }
     int curState = footerContainer != null
       ? footerContainer.getFooterState() : HippyListView.REFRESH_STATE_IDLE;
@@ -56,7 +56,7 @@ public class FooterUtil {
 
   public static void checkFooterBinding(RecyclerViewBase list, View view) {
     if (view instanceof HippyPullFooterView) {
-      ((HippyPullFooterView) view).setParentView(list);
+      ((HippyPullFooterView) view).setRecyclerView(list);
     }
   }
 
