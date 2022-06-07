@@ -54,8 +54,6 @@ typedef void (^HippyViewUpdateCompletedBlock)(id<HippyRenderContext> renderConte
 
 - (void)purgeViewsFromHippyTags:(NSArray<NSNumber *> *)hippyTag;
 
-- (UIView *)updateShadowView:(HippyShadowView *)shadowView withAnotherShadowView:(HippyShadowView *)anotherShadowView;
-
 - (HippyAnimator *)animator;
 
 - (void)addUIBlock:(HippyRenderUIBlock)block;
