@@ -42,23 +42,3 @@ static const NSInteger CellTag = 10089;
 }
 
 @end
-
-@implementation HippyShadowView (WaterfallViewCell)
-
-- (void)setCell:(HippyWaterfallViewCell *)cell {
-    if (cell) {
-        NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
-        [hashTable addObject:cell];
-        objc_setAssociatedObject(self, @selector(cell), hashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    else {
-        objc_setAssociatedObject(self, @selector(cell), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-}
-
-- (HippyWaterfallViewCell *)cell {
-    NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
-    return [hashTable anyObject];
-}
-
-@end

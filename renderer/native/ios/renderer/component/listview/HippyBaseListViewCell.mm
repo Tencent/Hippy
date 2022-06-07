@@ -22,8 +22,6 @@
 
 #import "HippyBaseListViewCell.h"
 
-#define CELL_TAG 10101
-
 @interface HippyBaseListViewCell () {
     CellShowState _cellShowState;
     CellShowState _previousShowState;
@@ -53,33 +51,27 @@
     return self;
 }
 
-- (UIView<ViewAppearStateProtocol> *)cellView {
-    return [self.contentView viewWithTag:CELL_TAG];
-}
-
-- (void)setCellView:(UIView<ViewAppearStateProtocol> *)cellView {
-    // simulate a hierarchical change in order to invoke -didMoveToWindow of subviews.
-    UIView<ViewAppearStateProtocol> *selfCellView = [self cellView];
-    [selfCellView removeFromSuperview];
-    cellView.tag = CELL_TAG;
-    [self.contentView addSubview:cellView];
-}
-
 - (void)setCellShowState:(CellShowState)cellShowState {
+    UIView<ViewAppearStateProtocol> *itemView = (UIView<ViewAppearStateProtocol> *)self.cellView;
+    NSAssert(nil == itemView || [itemView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+             @"list view's item view must conform to protocol 'ViewAppearStateProtocol'");
+    if (itemView && ![itemView conformsToProtocol:@protocol(ViewAppearStateProtocol)]) {
+        return;
+    }
     if (_cellShowState != cellShowState) {
         if (CellNotShowState == cellShowState) {
             if (CellNotShowState != _cellShowState) {
-                [self.cellView cellAppearStateChanged:CellDidDisappearState];
+                [itemView cellAppearStateChanged:CellDidDisappearState];
             }
         } else if (CellFullShowState == cellShowState) {
             if (CellFullShowState != _cellShowState) {
-                [self.cellView cellAppearStateChanged:CellDidAppearState];
+                [itemView cellAppearStateChanged:CellDidAppearState];
             }
         } else if (CellHalfShowState == cellShowState) {
             if (CellNotShowState == _cellShowState) {
-                [self.cellView cellAppearStateChanged:CellWillAppearState];
+                [itemView cellAppearStateChanged:CellWillAppearState];
             } else if (CellFullShowState == _cellShowState) {
-                [self.cellView cellAppearStateChanged:CellWillDisappearState];
+                [itemView cellAppearStateChanged:CellWillDisappearState];
             }
         }
         _previousShowState = _cellShowState;

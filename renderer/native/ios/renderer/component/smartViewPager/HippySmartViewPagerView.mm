@@ -380,8 +380,6 @@ static NSString *const kListViewItem = @"ListViewItem";
         cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
     }
     hpCell.cellView = cellView;
-    hpCell.shadowView = shadowView;
-    hpCell.shadowView.cell = hpCell;
     [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 

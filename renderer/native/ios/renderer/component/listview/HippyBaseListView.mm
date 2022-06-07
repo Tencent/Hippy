@@ -313,9 +313,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of HippyBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     //TODO HippyBaseListViewCell.shadow and HippyShadowView.cell can remove
-    hpCell.cellView = (UIView<ViewAppearStateProtocol> *)cellView;
-    hpCell.shadowView = cellShadowView;
-    hpCell.shadowView.cell = hpCell;
+    hpCell.cellView = cellView;
     [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 

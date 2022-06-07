@@ -367,8 +367,6 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
     }
     hpCell.cellView = cellView;
-    hpCell.shadowView = shadowView;
-    hpCell.shadowView.cell = hpCell;
     [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
 }
 
