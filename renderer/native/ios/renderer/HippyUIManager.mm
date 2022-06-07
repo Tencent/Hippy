@@ -1036,12 +1036,19 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         }];
     } else if (name == kVSyncKey) {
         std::string name_ = name;
+        auto weakDomManager = self.domManager;
         [self domNodeForHippyTag:node_id resultNode:^(std::shared_ptr<DomNode> node) {
             if (node) {
                 NSString *vsyncKey = [NSString stringWithFormat:@"%p%d", self, node_id];
                 auto event = std::make_shared<hippy::DomEvent>(name_, node);
                 [[RenderVsyncManager sharedInstance] registerVsyncObserver:^{
-                    node->HandleEvent(event);
+                    auto domManager = weakDomManager.lock();
+                    if (domManager) {
+                        std::function<void()> func = [node, event](){
+                            node->HandleEvent(event);
+                        };
+                        domManager->PostTask(hippy::Scene({func}));
+                    }
                 } rate:60 forKey:vsyncKey];
             }
         }];
