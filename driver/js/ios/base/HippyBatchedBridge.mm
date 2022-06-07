@@ -783,6 +783,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)didReceiveCreationOfRootView:(NSNotification *)notification {
+    //TODO delete codes
 //    id manager = [[notification userInfo] objectForKey:HippyUIManagerKey];
 //    HippyUIManager *uiManager = (HippyUIManager *)self.renderContext;
 //    if (self.isValid && manager == uiManager) {
