@@ -1,9 +1,9 @@
 // Copyright 2020 Tencent
 #pragma once
-#include <codecvt>
 #include <cassert>
+#include <codecvt>
 #include <sstream>
-
+#include <mutex>
 
 #include "log_level.h"
 #include "macros.h"
@@ -21,8 +21,8 @@ inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view&
   switch (encoding) {
     case unicode_string_view::Encoding::Latin1: {
       std::string u8;
-      for (const auto& ch : str_view.latin1_value()){
-        if (ch < 0x80) {
+      for (const auto& ch: str_view.latin1_value()) {
+        if (static_cast<uint8_t>(ch) < 0x80) {
           u8 += ch;
         } else {
           u8 += (0xc0 | ch >> 6);
@@ -70,17 +70,25 @@ class LogMessage {
   LogMessage(LogSeverity severity, const char* file, int line, const char* condition);
   ~LogMessage();
 
-  inline static void SetDelegate(
+  inline static void InitializeDelegate(
       std::function<void(const std::ostringstream&, LogSeverity)> delegate) {
+    if (!delegate) {
+      return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (delegate_) {
+      abort(); // delegate can only be initialized once
+    }
     delegate_ = delegate;
   }
-
-  inline static auto GetDelegate() { return delegate_; }
 
   std::ostringstream& stream() { return stream_; }
 
  private:
   static std::function<void(const std::ostringstream&, LogSeverity)> delegate_;
+  static std::function<void(const std::ostringstream&, LogSeverity)> default_delegate_;
+  static std::mutex mutex_;
 
   std::ostringstream stream_;
   const LogSeverity severity_;

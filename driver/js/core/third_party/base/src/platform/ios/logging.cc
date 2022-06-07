@@ -42,6 +42,7 @@ std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::delegate
     abort();
   }
 };
+std::mutex LogMessage::mutex_;
 
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
     : severity_(severity), file_(file), line_(line) {
@@ -59,9 +60,14 @@ LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const c
 LogMessage::~LogMessage() {
   stream_ << std::endl;
 
+  if (severity_ >= TDF_LOG_FATAL) {
+    abort();
+  }
+
   if (delegate_) {
     delegate_(stream_, severity_);
-    return;
+  } else {
+    default_delegate_(stream_, severity_);
   }
 }
 
