@@ -20,7 +20,7 @@ enum LogSeverity {
 #define LOG_0 LOG_ERROR
 #endif
 
-// LOG_DFATAL is LOG_FATAL in debug mode, ERROR in normal mode
+// TDF_LOG_DFATAL is TDF_LOG_FATAL in debug mode, ERROR in normal mode
 #ifdef NDEBUG
 constexpr LogSeverity TDF_LOG_DFATAL = TDF_LOG_ERROR;
 #else
