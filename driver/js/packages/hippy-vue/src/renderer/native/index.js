@@ -99,11 +99,11 @@ function handleEventListeners(eventNodes = [], sceneBuilder) {
           nativeEventName = translateToNativeEventName(name);
         }
         if (type === eventHandlerType.REMOVE) {
-          sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
+          sceneBuilder.removeEventListener(id, nativeEventName, listener);
         }
         if (type === eventHandlerType.ADD) {
-          sceneBuilder.RemoveEventListener(id, nativeEventName, listener);
-          sceneBuilder.AddEventListener(id, nativeEventName, listener);
+          sceneBuilder.removeEventListener(id, nativeEventName, listener);
+          sceneBuilder.addEventListener(id, nativeEventName, listener);
         }
       });
     }
@@ -147,31 +147,31 @@ function endBatch(app) {
   } = app;
   $nextTick(() => {
     const chunks = chunkNodes(batchNodes);
-    const sceneBuilder = new global.SceneBuilder(rootViewId);
+    const sceneBuilder = new global.Hippy.SceneBuilder(rootViewId);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NODE_OPERATION_TYPES.createNode:
           printNodeOperation(chunk.nodes, 'createNode');
-          sceneBuilder.Create(chunk.nodes);
+          sceneBuilder.create(chunk.nodes);
           handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NODE_OPERATION_TYPES.updateNode:
           printNodeOperation(chunk.nodes, 'updateNode');
-          sceneBuilder.Update(chunk.nodes);
+          sceneBuilder.update(chunk.nodes);
           handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NODE_OPERATION_TYPES.deleteNode:
           printNodeOperation(chunk.nodes, 'deleteNode');
-          sceneBuilder.Delete(chunk.nodes);
+          sceneBuilder.delete(chunk.nodes);
           break;
         case NODE_OPERATION_TYPES.moveNode:
           printNodeOperation(chunk.nodes, 'moveNode');
-          sceneBuilder.Move(chunk.nodes);
+          sceneBuilder.move(chunk.nodes);
           break;
         default:
       }
     });
-    sceneBuilder.Build();
+    sceneBuilder.build();
     __batchIdle = true;
     batchNodes = [];
   });

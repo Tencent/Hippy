@@ -19,14 +19,14 @@ before(() => {
     Platform: {
     },
   };
-  global.SceneBuilder = function SceneBuilder() {
-    this.Create = () => {};
-    this.Update = () => {};
-    this.Delete = () => {};
-    this.Move = () => {};
-    this.Build = () => {};
-    this.AddEventListener = () => {};
-    this.RemoveEventListener = () => {};
+  global.Hippy.SceneBuilder = function SceneBuilder() {
+    this.create = () => {};
+    this.update = () => {};
+    this.delete = () => {};
+    this.move = () => {};
+    this.build = () => {};
+    this.addEventListener = () => {};
+    this.removeEventListener = () => {};
   };
   setApp({
     $options: {
