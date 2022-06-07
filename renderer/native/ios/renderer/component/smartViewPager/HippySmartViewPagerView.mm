@@ -352,6 +352,18 @@ static NSString *const kListViewItem = @"ListViewItem";
     return shadowView.frame.size;
 }
 
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
+    if ([cell isKindOfClass:[HippyWaterfallViewCell class]]) {
+        HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
+        if (hpCell.cellView) {
+            NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
+            NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
+            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:adjustIndexPath];
+            hpCell.cellView = nil;
+        }
+    }
+}
+
 - (void)collectionView:(UICollectionView *)collectionView
        willDisplayCell:(UICollectionViewCell *)cell
     forItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -359,23 +371,16 @@ static NSString *const kListViewItem = @"ListViewItem";
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
     HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
-    UIView *cellView = nil;
-    if (hpCell.shadowView.cell) {
-        cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
+    [shadowView recusivelySetCreationTypeToInstant];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
+    if (cellView) {
+        [_cachedItems removeObjectForKey:adjustIndexPath];
     }
     else {
-        cellView = [self.renderContext updateShadowView:hpCell.shadowView withAnotherShadowView:shadowView];
-        if (nil == cellView) {
-            cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
-        }
+        cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
     }
     hpCell.cellView = cellView;
-    hpCell.shadowView = shadowView;
-    hpCell.shadowView.cell = hpCell;
     [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
 }
 
 - (void)tableViewDidLayoutSubviews:(HippyListTableView *)tableView {

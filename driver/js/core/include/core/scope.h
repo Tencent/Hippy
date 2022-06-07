@@ -34,6 +34,8 @@
 #include "core/napi/js_native_api_types.h"
 #include "core/task/worker_task_runner.h"
 #include "dom/animation/animation_manager.h"
+#include "dom/animation/cubic_bezier_animation.h"
+#include "dom/animation/animation_set.h"
 #include "dom/dom_manager.h"
 #include "dom/render_manager.h"
 #include "dom/scene_builder.h"
@@ -95,7 +97,7 @@ class Scope {
   }
 
   inline void SaveHippyAnimationClassInstance(
-      std::shared_ptr<InstanceDefine<hippy::Animation>> instance) {
+      std::shared_ptr<InstanceDefine<hippy::CubicBezierAnimation>> instance) {
     animation_holder_ = instance;
   }
 
@@ -188,7 +190,7 @@ class Scope {
       bind_listener_map_; // bind js function and dom event listener id
   std::vector<std::unique_ptr<FunctionData>> function_data_;
   std::shared_ptr<InstanceDefine<hippy::SceneBuilder>> scene_build_holder_;
-  std::shared_ptr<InstanceDefine<hippy::Animation>> animation_holder_;
+  std::shared_ptr<InstanceDefine<hippy::CubicBezierAnimation>> animation_holder_;
   std::shared_ptr<InstanceDefine<hippy::AnimationSet>> animation_set_holder_;
   std::unique_ptr<BindingData> binding_data_;
   std::unique_ptr<ScopeWrapper> wrapper_;

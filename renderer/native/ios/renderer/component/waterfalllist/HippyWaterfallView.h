@@ -29,7 +29,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyWaterfallViewDataSource;
+@class HippyWaterfallViewDataSource, HippyHeaderRefresh, HippyFooterRefresh;
+
+typedef NS_ENUM(NSInteger, HippyScrollState) {
+    ScrollStateStop,
+    ScrollStateDraging,
+    ScrollStateScrolling
+};
 
 /**
  * HippyWaterfallView is a waterfall component, internal implementation is UICollectionView
@@ -39,6 +45,10 @@ NS_ASSUME_NONNULL_BEGIN
     HippyWaterfallViewDataSource *_dataSource;
 @protected
     NSMapTable<NSNumber *, UIView *> *_weakItemMap;
+    NSMutableDictionary<NSIndexPath *, NSNumber *> *_cachedItems;
+    double _lastOnScrollEventTimeInterval;
+    HippyHeaderRefresh *_headerRefreshView;
+    HippyFooterRefresh *_footerRefreshView;
 }
 
 /**
@@ -100,6 +110,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) HippyDirectEventBlock onFooterAppeared;
 @property (nonatomic, copy) HippyDirectEventBlock onRefresh;
 @property (nonatomic, copy) HippyDirectEventBlock onExposureReport;
+
+- (NSUInteger)maxCachedItemCount;
+
+- (NSArray<NSIndexPath *> *)findFurthestIndexPathsFromScreen;
 
 /**
  * Initial collection view

@@ -16,7 +16,7 @@ namespace {
 const char* const kLogSeverityNames[TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR", "FATAL"};
 
 const char* GetNameForLogSeverity(LogSeverity severity) {
-  if (severity >= LOG_INFO && severity < TDF_LOG_NUM_SEVERITIES) return kLogSeverityNames[severity];
+  if (severity >= TDF_LOG_INFO && severity < TDF_LOG_NUM_SEVERITIES) return kLogSeverityNames[severity];
   return "UNKNOWN";
 }
 
@@ -35,23 +35,17 @@ const char* StripPath(const char* path) {
 
 }  // namespace
 
-std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::delegate_ = [](const std::ostringstream& stream, LogSeverity severity) {
+std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::delegate_ = nullptr;
+std::function<void(const std::ostringstream&, LogSeverity)> LogMessage::default_delegate_ = [](
+    const std::ostringstream& stream, LogSeverity severity) {
   syslog(LOG_ALERT, "tdf: %s", stream.str().c_str());
-
-  if (severity >= TDF_LOG_FATAL) {
-    abort();
-  }
 };
+std::mutex LogMessage::mutex_;
 
 LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const char* condition)
     : severity_(severity), file_(file), line_(line) {
-  stream_ << "[";
-  if (severity >= LOG_INFO)
-    stream_ << GetNameForLogSeverity(severity);
-  else
-    stream_ << "VERBOSE" << -severity;
-  stream_ << ":" << (severity > LOG_INFO ? StripDots(file_) : StripPath(file_)) << "(" << line_
-          << ")] ";
+      stream_ << "[" << GetNameForLogSeverity(severity) << ":" << (severity > TDF_LOG_INFO ? StripDots(file_) : StripPath(file_))
+        << "(" << line_ << ")] ";
 
   if (condition) stream_ << "Check failed: " << condition << ". ";
 }
@@ -59,13 +53,18 @@ LogMessage::LogMessage(LogSeverity severity, const char* file, int line, const c
 LogMessage::~LogMessage() {
   stream_ << std::endl;
 
+  if (severity_ >= TDF_LOG_FATAL) {
+    abort();
+  }
+
   if (delegate_) {
     delegate_(stream_, severity_);
-    return;
+  } else {
+    default_delegate_(stream_, severity_);
   }
 }
 
-int GetVlogVerbosity() { return std::max(-1, LOG_INFO - GetMinLogLevel()); }
+int GetVlogVerbosity() { return std::max(-1, TDF_LOG_INFO - GetMinLogLevel()); }
 
 bool ShouldCreateLogMessage(LogSeverity severity) { return severity >= GetMinLogLevel(); }
 
