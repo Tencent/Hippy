@@ -60,7 +60,7 @@ static void registerTDFLogHandler() {
                 }
             }
         };
-        tdf::base::LogMessage::SetDelegate(logFunction);
+        tdf::base::LogMessage::InitializeDelegate(logFunction);
     });
 }
 

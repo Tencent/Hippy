@@ -124,6 +124,9 @@ using ADRBridge = hippy::ADRBridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
 
+static std::mutex log_mutex;
+static bool is_initialized = false;
+
 enum INIT_CB_STATE {
   DESTROY_ERROR = -2,
   RUN_SCRIPT_ERROR = -1,
@@ -214,18 +217,24 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
     return;
   }
   std::shared_ptr<JavaRef> logger = std::make_shared<JavaRef>(j_env, j_logger);
-  tdf::base::LogMessage::SetDelegate([logger, j_method](
-      const std::ostringstream& stream,
-      tdf::base::LogSeverity severity) {
-    std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-    JNIEnv* j_env = instance->AttachCurrentThread();
+  {
+    std::lock_guard<std::mutex> lock(log_mutex);
+    if (!is_initialized) {
+      tdf::base::LogMessage::InitializeDelegate([logger, j_method](
+          const std::ostringstream& stream,
+          tdf::base::LogSeverity severity) {
+        std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+        JNIEnv* j_env = instance->AttachCurrentThread();
 
-    std::string str = stream.str();
-    jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
-    j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
-    JNIEnvironment::ClearJEnvException(j_env);
-    j_env->DeleteLocalRef(j_logger_str);
-  });
+        std::string str = stream.str();
+        jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
+        j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
+        JNIEnvironment::ClearJEnvException(j_env);
+        j_env->DeleteLocalRef(j_logger_str);
+      });
+      is_initialized = true;
+    }
+  }
 }
 
 jboolean RunScriptFromUri(JNIEnv* j_env,
