@@ -105,7 +105,7 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
                                    std::function<void(int64_t)> callback) {
   TDF_BASE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
                       << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(runtime_id));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
     << "BridgeImpl RunScriptFromFile, runtime_id invalid";
@@ -187,7 +187,7 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
                                      const char16_t *asset_content_str) {
   TDF_BASE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
                       << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(runtime_id));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING)
     << "BridgeImpl RunScriptFromFile, runtime_id invalid";
@@ -257,7 +257,7 @@ void BridgeImpl::Destroy(int64_t runtimeId,
 
 void BridgeImpl::BindDomManager(int64_t runtime_id,
                                 const std::shared_ptr<DomManager> &dom_manager) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(runtime_id));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     TDF_BASE_DLOG(WARNING) << "Bind dom Manager failed, runtime_id invalid";
     return;
