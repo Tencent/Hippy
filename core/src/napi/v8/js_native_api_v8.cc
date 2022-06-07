@@ -269,7 +269,13 @@ void V8VM::PlatformDestroy() {
   platform_ = nullptr;
 
   v8::V8::Dispose();
+#if (V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION == 8 && \
+     V8_BUILD_NUMBER >= 124) ||                        \
+    (V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION > 8) || (V8_MAJOR_VERSION > 9)
+  v8::V8::DisposePlatform();
+#else
   v8::V8::ShutdownPlatform();
+#endif
 }
 
 std::shared_ptr<Ctx> V8VM::CreateContext() {
