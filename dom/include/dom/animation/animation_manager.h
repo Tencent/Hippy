@@ -110,8 +110,8 @@ class AnimationManager
                                  std::unordered_map<uint32_t, std::string>& result);
   void FetchAnimationsFromArray(DomValue& value,
                                 std::unordered_map<uint32_t, std::string>& result);
-  void UpdateCubicBezierAnimation(std::shared_ptr<CubicBezierAnimation> animation,
-                                  uint64_t now,
+  void UpdateCubicBezierAnimation(double current,
+                                  uint32_t related_animation_id,
                                   std::vector<std::shared_ptr<DomNode>>& update_nodes);
 
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(AnimationManager);

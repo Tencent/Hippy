@@ -33,9 +33,8 @@ void AnimationSet::Init() {
       continue;
     }
     animation_manager->RemoveAnimation(animation);
-    auto cubic_bezier_animation = std::static_pointer_cast<CubicBezierAnimation>(animation);
-    cubic_bezier_animation->SetAnimationSetId(id_);
-    children_.emplace_back(animation);
+    animation->SetParentId(id_);
+    children_->push_back(animation);
     auto delay = animation->GetDelay();
     if (child.follow) {
       real_delay = begin_time + delay;
@@ -58,8 +57,7 @@ void AnimationSet::Init() {
     }
   }
   if (begin_animation_) {
-    auto cubic_bezier_animation = std::static_pointer_cast<CubicBezierAnimation>(begin_animation_);
-    start_value_ = cubic_bezier_animation->GetStartValue();
+    start_value_ = begin_animation_->GetStartValue();
     delay_ = begin_animation_->GetDelay();
   }
 }
