@@ -22,8 +22,6 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.Dimensions;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
-import com.tencent.mtt.hippy.modules.nativemodules.animation.AnimationFrameModule;
-import com.tencent.mtt.hippy.modules.nativemodules.animation.AnimationModule;
 import com.tencent.mtt.hippy.modules.nativemodules.audio.AudioPlayerModule;
 import com.tencent.mtt.hippy.modules.nativemodules.clipboard.ClipboardModule;
 import com.tencent.mtt.hippy.modules.nativemodules.debug.DevMenu;
@@ -68,12 +66,6 @@ public class HippyCoreAPI implements HippyAPIProvider {
         return new ExceptionModule(context);
       }
     });
-    modules.put(AnimationModule.class, new Provider<HippyNativeModuleBase>() {
-      @Override
-      public HippyNativeModuleBase get() {
-        return new AnimationModule(context);
-      }
-    });
     modules.put(StorageModule.class, new Provider<HippyNativeModuleBase>() {
       @Override
       public HippyNativeModuleBase get() {
@@ -84,12 +76,6 @@ public class HippyCoreAPI implements HippyAPIProvider {
       @Override
       public HippyNativeModuleBase get() {
         return new NetInfoModule(context);
-      }
-    });
-    modules.put(AnimationFrameModule.class, new Provider<HippyNativeModuleBase>() {
-      @Override
-      public HippyNativeModuleBase get() {
-        return new AnimationFrameModule(context);
       }
     });
     modules.put(ImageLoaderModule.class, new Provider<HippyNativeModuleBase>() {
