@@ -63,7 +63,7 @@ void FFIJSBridgeRuntime::ReportJSException(std::u16string &description_stream, s
 }
 
 void FFIJSBridgeRuntime::SendResponse(const uint16_t* source, int len) {
-  if (len < 0) {
+  if (len <= 0) {
     return;
   }
   std::u16string sour_str(reinterpret_cast<const char16_t *>(source),
@@ -78,7 +78,7 @@ void FFIJSBridgeRuntime::SendResponse(const uint16_t* source, int len) {
 }
 
 void FFIJSBridgeRuntime::SendNotification(const uint16_t* source, int len) {
-  if (len < 0) {
+  if (len <= 0) {
     return;
   }
   std::u16string sour_str(reinterpret_cast<const char16_t *>(source),
