@@ -317,7 +317,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                         Map<String, Object> keyboardHeightMap = new HashMap<>();
                         int height = Math.abs(screenHeight - rootViewVisibleHeight);
                         keyboardHeightMap.put("keyboardHeight", Math.round(PixelUtil.px2dp(height)));
-                        EventUtils.sendComponentEvent(HippyTextInput.this, "onKeyboardWillShow", keyboardHeightMap);
+                        EventUtils.sendComponentEvent(HippyTextInput.this, "keyboardWillShow", keyboardHeightMap);
                     }
                     mIsKeyBoardShow = true; //键盘显示 ----s首次需要通知
                 }
@@ -325,7 +325,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                 //假设输入键盘的高度位屏幕高度20%
                 if (rootViewVisibleHeight > screenHeight * 0.8f) {
                     if (mIsKeyBoardShow) {
-                        EventUtils.sendComponentEvent(HippyTextInput.this, "onKeyboardWillHide", null);
+                        EventUtils.sendComponentEvent(HippyTextInput.this, "keyboardWillHide", null);
                     }
                     mIsKeyBoardShow = false; //键盘没有显示
                 } else {
@@ -333,7 +333,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                         HippyMap hippyMap = new HippyMap();
                         hippyMap.pushInt("keyboardHeight",
                                 Math.abs(mLastRootViewVisibleHeight - rootViewVisibleHeight));
-                        EventUtils.sendComponentEvent(HippyTextInput.this, "onKeyboardWillShow", hippyMap);
+                        EventUtils.sendComponentEvent(HippyTextInput.this, "keyboardWillShow", hippyMap);
                     }
                     mIsKeyBoardShow = true; //键盘显示 ----s首次需要通知
                 }
@@ -406,7 +406,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                         {
                             HippyMap hippyMap = new HippyMap();
                             hippyMap.pushString("text", s.toString());
-                            EventUtils.sendComponentEvent(HippyTextInput.this, "onChangeText", hippyMap);
+                            EventUtils.sendComponentEvent(HippyTextInput.this, "changetext", hippyMap);
                         }
                     } else //如果设置了正则表达式
                     {
@@ -434,7 +434,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
                                 )) {
                                     HippyMap hippyMap = new HippyMap();
                                     hippyMap.pushString("text", s.toString());
-                                    EventUtils.sendComponentEvent(HippyTextInput.this, "onChangeText", hippyMap);
+                                    EventUtils.sendComponentEvent(HippyTextInput.this, "changetext", hippyMap);
                                     sRegrexValidRepeat = "";
                                 }
                             }
@@ -533,7 +533,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         if ((actionId & EditorInfo.IME_MASK_ACTION) > 0 || actionId == EditorInfo.IME_NULL) {
             HippyMap hippyMap = new HippyMap();
             hippyMap.pushString("text", getText().toString());
-            EventUtils.sendComponentEvent(v, "onEndEditing", hippyMap);
+            EventUtils.sendComponentEvent(v, "endediting", hippyMap);
         }
         return false;
     }
@@ -552,9 +552,9 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         HippyMap hippyMap = new HippyMap();
         hippyMap.pushString("text", getText().toString());
         if (hasFocus) {
-            EventUtils.sendComponentEvent(v, "onFocus", hippyMap);
+            EventUtils.sendComponentEvent(v, "focus", hippyMap);
         } else {
-            EventUtils.sendComponentEvent(v, "onBlur", hippyMap);
+            EventUtils.sendComponentEvent(v, "blur", hippyMap);
         }
     }
 
@@ -567,7 +567,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
             selection.pushInt("end", selEnd);
             HippyMap hippyMap = new HippyMap();
             hippyMap.pushMap("selection", selection);
-            EventUtils.sendComponentEvent(this, "onSelectionChange", hippyMap);
+            EventUtils.sendComponentEvent(this, "selectionchange", hippyMap);
         }
     }
 
