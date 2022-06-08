@@ -487,23 +487,28 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
       v8::Local<v8::Context> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(
           runtime->GetScope()->GetContext())->context_persistent_.Get(isolate);
       hippy::napi::V8TryCatch try_catch(true, context);
-      v8::ValueDeserializer deserializer(
-          isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
-          buffer_data_.length());
-      TDF_BASE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
-      v8::MaybeLocal<v8::Value> ret = deserializer.ReadValue(ctx);
-      if (!ret.IsEmpty()) {
-        params = std::make_shared<hippy::napi::V8CtxValue>(
-            isolate, ret.ToLocalChecked());
+      v8::MaybeLocal<v8::Value> ret;
+      if (buffer_data_.length() > 0) {
+          v8::ValueDeserializer deserializer(
+                  isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
+                  buffer_data_.length());
+          TDF_BASE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
+          ret = deserializer.ReadValue(ctx);
+          if (!ret.IsEmpty()) {
+              params = std::make_shared<hippy::napi::V8CtxValue>(
+                      isolate, ret.ToLocalChecked());
+          } else {
+              unicode_string_view msg;
+              if (try_catch.HasCaught()) {
+                  msg = try_catch.GetExceptionMsg();
+              } else {
+                  msg = u"deserializer error";
+              }
+              cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
+              return;
+          }
       } else {
-        unicode_string_view msg;
-        if (try_catch.HasCaught()) {
-          msg = try_catch.GetExceptionMsg();
-        } else {
-          msg = u"deserializer error";
-        }
-        cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
-        return;
+          params = context->CreateString("");
       }
     } else {
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
