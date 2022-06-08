@@ -7,1290 +7,1319 @@
 // For
 //     com/tencent/smtt/flexbox/FlexNodeStyle
 
-#ifndef com_tencent_smtt_flexbox_FlexNodeStyle_JNI
-#define com_tencent_smtt_flexbox_FlexNodeStyle_JNI
+#pragma once
 
 #include <jni.h>
+
 #include "FlexNodeUtil.h"
 
 // Step 1: forward declarations.
-namespace {
-const char kFlexNodeStyleClassPath[] = "com/tencent/smtt/flexbox/FlexNodeStyle";
+static const char kFlexNodeStyleClassPath[] = "com/tencent/smtt/flexbox/FlexNodeStyle";
 // Leaking this jclass as we cannot use LazyInstance from some threads.
-
-}  // namespace
 
 // Step 2: method stubs.
 
-static jlong FlexNodeStyleNew(JNIEnv* env, const
-    base::android::JavaParamRef<jobject>& jcaller);
+static jlong FlexNodeStyleNew(JNIEnv* env, const base::android::JavaParamRef<jobject>& jcaller);
 
 JNI_GENERATOR_EXPORT jlong
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleNew(JNIEnv*
-    env, jobject jcaller) {
-  return FlexNodeStyleNew(env, base::android::JavaParamRef<jobject>(env,
-      jcaller));
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleNew(JNIEnv* env, jobject jcaller) {
+  return FlexNodeStyleNew(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleFree(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleFree(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleFree");
-  return native->FlexNodeStyleFree(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleFree(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeSetFlexNode(JNIEnv* env,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeSetFlexNode(
+    JNIEnv* env,
     jobject jcaller,
     jlong nativeFlexNodeStyle,
     jlong node) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "SetFlexNode", 0);
-  return native->SetFlexNode(env, base::android::JavaParamRef<jobject>(env,
-      jcaller),  node);
+  return native->SetFlexNode(env, base::android::JavaParamRef<jobject>(env, jcaller), node);
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetDirection(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetDirection(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetDirection", 0);
-  return native->FlexNodeStyleGetDirection(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleGetDirection(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetDirection(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetDirection(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint direction) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetDirection");
-  return native->FlexNodeStyleSetDirection(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), direction);
+  return native->FlexNodeStyleSetDirection(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                           direction);
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexDirection(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexDirection(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetFlexDirection", 0);
   return native->FlexNodeStyleGetFlexDirection(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                               base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexDirection(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexDirection(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint flexDirection) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetFlexDirection");
-  return native->FlexNodeStyleSetFlexDirection(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), flexDirection);
+  return native->FlexNodeStyleSetFlexDirection(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), flexDirection);
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetJustifyContent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetJustifyContent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetJustifyContent", 0);
   return native->FlexNodeStyleGetJustifyContent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                                base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetJustifyContent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetJustifyContent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint justifyContent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetJustifyContent");
-  return native->FlexNodeStyleSetJustifyContent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), justifyContent);
+  return native->FlexNodeStyleSetJustifyContent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), justifyContent);
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignItems(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignItems(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetAlignItems", 0);
   return native->FlexNodeStyleGetAlignItems(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                            base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignItems(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignItems(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint alignItems) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetAlignItems");
-  return native->FlexNodeStyleSetAlignItems(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), alignItems);
+  return native->FlexNodeStyleSetAlignItems(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                            alignItems);
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignSelf(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignSelf(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetAlignSelf", 0);
-  return native->FlexNodeStyleGetAlignSelf(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleGetAlignSelf(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignSelf(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignSelf(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint alignSelf) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetAlignSelf");
-  return native->FlexNodeStyleSetAlignSelf(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), alignSelf);
+  return native->FlexNodeStyleSetAlignSelf(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                           alignSelf);
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignContent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignContent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetAlignContent", 0);
   return native->FlexNodeStyleGetAlignContent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                              base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignContent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignContent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint alignContent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetAlignContent");
-  return native->FlexNodeStyleSetAlignContent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), alignContent);
+  return native->FlexNodeStyleSetAlignContent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), alignContent);
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPositionType(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPositionType(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetPositionType", 0);
   return native->FlexNodeStyleGetPositionType(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                              base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPositionType(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPositionType(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint positionType) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetPositionType");
-  return native->FlexNodeStyleSetPositionType(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), positionType);
+  return native->FlexNodeStyleSetPositionType(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), positionType);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexWrap(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexWrap(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint wrapType) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetFlexWrap");
-  return native->FlexNodeStyleSetFlexWrap(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), wrapType);
+  return native->FlexNodeStyleSetFlexWrap(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                          wrapType);
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexWrap(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexWrap(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetFlexWrap", 0);
-  return native->FlexNodeStyleGetFlexWrap(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleGetFlexWrap(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetOverflow(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetOverflow(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetOverflow", 0);
-  return native->FlexNodeStyleGetOverflow(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleGetOverflow(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetOverflow(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetOverflow(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint overflow) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetOverflow");
-  return native->FlexNodeStyleSetOverflow(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), overflow);
+  return native->FlexNodeStyleSetOverflow(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                          overflow);
 }
 
-JNI_GENERATOR_EXPORT jint
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetDisplay(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT jint Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetDisplay(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetDisplay", 0);
-  return native->FlexNodeStyleGetDisplay(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleGetDisplay(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetDisplay(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetDisplay(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint display) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetDisplay");
-  return native->FlexNodeStyleSetDisplay(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), display);
+  return native->FlexNodeStyleSetDisplay(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                         display);
 }
 
 JNI_GENERATOR_EXPORT jfloat
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlex(JNIEnv*
-    env, jobject jcaller,
-    jlong nativeFlexNodeStyle) {
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlex(JNIEnv* env,
+                                                                       jobject jcaller,
+                                                                       jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetFlex", 0);
-  return native->FlexNodeStyleGetFlex(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleGetFlex(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlex(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlex(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat flex) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetFlex");
-  return native->FlexNodeStyleSetFlex(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), flex);
+  return native->FlexNodeStyleSetFlex(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                      flex);
 }
 
 JNI_GENERATOR_EXPORT jfloat
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexGrow(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexGrow(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetFlexGrow", 0);
-  return native->FlexNodeStyleGetFlexGrow(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleGetFlexGrow(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexGrow(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexGrow(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat flexGrow) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetFlexGrow");
-  return native->FlexNodeStyleSetFlexGrow(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), flexGrow);
+  return native->FlexNodeStyleSetFlexGrow(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                          flexGrow);
 }
 
 JNI_GENERATOR_EXPORT jfloat
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexShrink(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexShrink(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetFlexShrink", 0);
   return native->FlexNodeStyleGetFlexShrink(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                            base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexShrink(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexShrink(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat flexShrink) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetFlexShrink");
-  return native->FlexNodeStyleSetFlexShrink(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), flexShrink);
+  return native->FlexNodeStyleSetFlexShrink(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                            flexShrink);
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexBasis(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexBasis(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetFlexBasis", NULL);
-  return native->FlexNodeStyleGetFlexBasis(env,
-      base::android::JavaParamRef<jobject>(env, jcaller)).Release();
+  return native->FlexNodeStyleGetFlexBasis(env, base::android::JavaParamRef<jobject>(env, jcaller))
+      .Release();
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasis(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasis(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat flexBasis) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetFlexBasis");
-  return native->FlexNodeStyleSetFlexBasis(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), flexBasis);
+  return native->FlexNodeStyleSetFlexBasis(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                           flexBasis);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasisPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasisPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetFlexBasisPercent");
-  return native->FlexNodeStyleSetFlexBasisPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), percent);
+  return native->FlexNodeStyleSetFlexBasisPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), percent);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasisAuto(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasisAuto(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetFlexBasisAuto");
   return native->FlexNodeStyleSetFlexBasisAuto(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                               base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMargin(JNIEnv*
-    env, jobject jcaller,
-    jlong nativeFlexNodeStyle,
-    jint edge) {
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMargin(JNIEnv* env,
+                                                                         jobject jcaller,
+                                                                         jlong nativeFlexNodeStyle,
+                                                                         jint edge) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetMargin", NULL);
-  return native->FlexNodeStyleGetMargin(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge).Release();
+  return native
+      ->FlexNodeStyleGetMargin(env, base::android::JavaParamRef<jobject>(env, jcaller), edge)
+      .Release();
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMargin(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMargin(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge,
     jfloat margin) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMargin");
-  return native->FlexNodeStyleSetMargin(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge, margin);
+  return native->FlexNodeStyleSetMargin(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                        edge, margin);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMarginPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMarginPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMarginPercent");
-  return native->FlexNodeStyleSetMarginPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge, percent);
+  return native->FlexNodeStyleSetMarginPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), edge, percent);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMarginAuto(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMarginAuto(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMarginAuto");
-  return native->FlexNodeStyleSetMarginAuto(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge);
+  return native->FlexNodeStyleSetMarginAuto(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                            edge);
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPadding(JNIEnv*
-    env, jobject jcaller,
-    jlong nativeFlexNodeStyle,
-    jint edge) {
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPadding(JNIEnv* env,
+                                                                          jobject jcaller,
+                                                                          jlong nativeFlexNodeStyle,
+                                                                          jint edge) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetPadding", NULL);
-  return native->FlexNodeStyleGetPadding(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge).Release();
+  return native
+      ->FlexNodeStyleGetPadding(env, base::android::JavaParamRef<jobject>(env, jcaller), edge)
+      .Release();
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPadding(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPadding(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge,
     jfloat padding) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetPadding");
-  return native->FlexNodeStyleSetPadding(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge, padding);
+  return native->FlexNodeStyleSetPadding(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                         edge, padding);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPaddingPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPaddingPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetPaddingPercent");
-  return native->FlexNodeStyleSetPaddingPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge, percent);
+  return native->FlexNodeStyleSetPaddingPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), edge, percent);
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetBorder(JNIEnv*
-    env, jobject jcaller,
-    jlong nativeFlexNodeStyle,
-    jint edge) {
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetBorder(JNIEnv* env,
+                                                                         jobject jcaller,
+                                                                         jlong nativeFlexNodeStyle,
+                                                                         jint edge) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetBorder", NULL);
-  return native->FlexNodeStyleGetBorder(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge).Release();
+  return native
+      ->FlexNodeStyleGetBorder(env, base::android::JavaParamRef<jobject>(env, jcaller), edge)
+      .Release();
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetBorder(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetBorder(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge,
     jfloat border) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetBorder");
-  return native->FlexNodeStyleSetBorder(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge, border);
+  return native->FlexNodeStyleSetBorder(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                        edge, border);
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPosition(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPosition(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetPosition", NULL);
-  return native->FlexNodeStyleGetPosition(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge).Release();
+  return native
+      ->FlexNodeStyleGetPosition(env, base::android::JavaParamRef<jobject>(env, jcaller), edge)
+      .Release();
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPosition(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPosition(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge,
     jfloat position) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetPosition");
-  return native->FlexNodeStyleSetPosition(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge, position);
+  return native->FlexNodeStyleSetPosition(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                          edge, position);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPositionPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPositionPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jint edge,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetPositionPercent");
-  return native->FlexNodeStyleSetPositionPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), edge, percent);
+  return native->FlexNodeStyleSetPositionPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), edge, percent);
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetWidth(JNIEnv*
-    env, jobject jcaller,
-    jlong nativeFlexNodeStyle) {
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetWidth(JNIEnv* env,
+                                                                        jobject jcaller,
+                                                                        jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetWidth", NULL);
-  return native->FlexNodeStyleGetWidth(env,
-      base::android::JavaParamRef<jobject>(env, jcaller)).Release();
+  return native->FlexNodeStyleGetWidth(env, base::android::JavaParamRef<jobject>(env, jcaller))
+      .Release();
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidth(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidth(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat width) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetWidth");
-  return native->FlexNodeStyleSetWidth(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), width);
+  return native->FlexNodeStyleSetWidth(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                       width);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidthPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidthPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetWidthPercent");
-  return native->FlexNodeStyleSetWidthPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), percent);
+  return native->FlexNodeStyleSetWidthPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), percent);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidthAuto(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidthAuto(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetWidthAuto");
-  return native->FlexNodeStyleSetWidthAuto(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+  return native->FlexNodeStyleSetWidthAuto(env, base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetHeight(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetHeight(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetHeight", NULL);
-  return native->FlexNodeStyleGetHeight(env,
-      base::android::JavaParamRef<jobject>(env, jcaller)).Release();
+  return native->FlexNodeStyleGetHeight(env, base::android::JavaParamRef<jobject>(env, jcaller))
+      .Release();
 }
 
-JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeight(JNIEnv*
-    env, jobject jcaller,
+JNI_GENERATOR_EXPORT void Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeight(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat height) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetHeight");
-  return native->FlexNodeStyleSetHeight(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), height);
+  return native->FlexNodeStyleSetHeight(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                        height);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeightPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeightPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetHeightPercent");
-  return native->FlexNodeStyleSetHeightPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), percent);
+  return native->FlexNodeStyleSetHeightPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), percent);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeightAuto(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeightAuto(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetHeightAuto");
   return native->FlexNodeStyleSetHeightAuto(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                            base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMinWidth(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMinWidth(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetMinWidth", NULL);
-  return native->FlexNodeStyleGetMinWidth(env,
-      base::android::JavaParamRef<jobject>(env, jcaller)).Release();
+  return native->FlexNodeStyleGetMinWidth(env, base::android::JavaParamRef<jobject>(env, jcaller))
+      .Release();
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinWidth(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinWidth(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat minWidth) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMinWidth");
-  return native->FlexNodeStyleSetMinWidth(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), minWidth);
+  return native->FlexNodeStyleSetMinWidth(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                          minWidth);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinWidthPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinWidthPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMinWidthPercent");
-  return native->FlexNodeStyleSetMinWidthPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), percent);
+  return native->FlexNodeStyleSetMinWidthPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), percent);
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMinHeight(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMinHeight(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetMinHeight", NULL);
-  return native->FlexNodeStyleGetMinHeight(env,
-      base::android::JavaParamRef<jobject>(env, jcaller)).Release();
+  return native->FlexNodeStyleGetMinHeight(env, base::android::JavaParamRef<jobject>(env, jcaller))
+      .Release();
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinHeight(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinHeight(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat minHeight) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMinHeight");
-  return native->FlexNodeStyleSetMinHeight(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), minHeight);
+  return native->FlexNodeStyleSetMinHeight(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                           minHeight);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinHeightPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinHeightPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMinHeightPercent");
-  return native->FlexNodeStyleSetMinHeightPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), percent);
+  return native->FlexNodeStyleSetMinHeightPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), percent);
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMaxWidth(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMaxWidth(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetMaxWidth", NULL);
-  return native->FlexNodeStyleGetMaxWidth(env,
-      base::android::JavaParamRef<jobject>(env, jcaller)).Release();
+  return native->FlexNodeStyleGetMaxWidth(env, base::android::JavaParamRef<jobject>(env, jcaller))
+      .Release();
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxWidth(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxWidth(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat maxWidth) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMaxWidth");
-  return native->FlexNodeStyleSetMaxWidth(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), maxWidth);
+  return native->FlexNodeStyleSetMaxWidth(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                          maxWidth);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxWidthPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxWidthPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMaxWidthPercent");
-  return native->FlexNodeStyleSetMaxWidthPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), percent);
+  return native->FlexNodeStyleSetMaxWidthPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), percent);
 }
 
 JNI_GENERATOR_EXPORT jobject
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMaxHeight(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMaxHeight(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetMaxHeight", NULL);
-  return native->FlexNodeStyleGetMaxHeight(env,
-      base::android::JavaParamRef<jobject>(env, jcaller)).Release();
+  return native->FlexNodeStyleGetMaxHeight(env, base::android::JavaParamRef<jobject>(env, jcaller))
+      .Release();
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxHeight(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxHeight(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat maxheight) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMaxHeight");
-  return native->FlexNodeStyleSetMaxHeight(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), maxheight);
+  return native->FlexNodeStyleSetMaxHeight(env, base::android::JavaParamRef<jobject>(env, jcaller),
+                                           maxheight);
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxHeightPercent(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxHeightPercent(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat percent) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetMaxHeightPercent");
-  return native->FlexNodeStyleSetMaxHeightPercent(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), percent);
+  return native->FlexNodeStyleSetMaxHeightPercent(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), percent);
 }
 
 JNI_GENERATOR_EXPORT jfloat
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAspectRatio(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAspectRatio(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleGetAspectRatio", 0);
   return native->FlexNodeStyleGetAspectRatio(env,
-      base::android::JavaParamRef<jobject>(env, jcaller));
+                                             base::android::JavaParamRef<jobject>(env, jcaller));
 }
 
 JNI_GENERATOR_EXPORT void
-    Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAspectRatio(JNIEnv*
-    env, jobject jcaller,
+Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAspectRatio(
+    JNIEnv* env,
+    jobject jcaller,
     jlong nativeFlexNodeStyle,
     jfloat aspectRatio) {
   FlexNodeStyle* native = reinterpret_cast<FlexNodeStyle*>(nativeFlexNodeStyle);
   CHECK_NATIVE_PTR(env, jcaller, native, "FlexNodeStyleSetAspectRatio");
-  return native->FlexNodeStyleSetAspectRatio(env,
-      base::android::JavaParamRef<jobject>(env, jcaller), aspectRatio);
+  return native->FlexNodeStyleSetAspectRatio(
+      env, base::android::JavaParamRef<jobject>(env, jcaller), aspectRatio);
 }
 
-static base::android::ScopedJavaLocalRef<jobject>
-    Java_FlexNodeStyle_createFlexValue(JNIEnv* env, jfloat value,
-    jint unit) {
+static base::android::ScopedJavaLocalRef<jobject> Java_FlexNodeStyle_createFlexValue(JNIEnv* env,
+                                                                                     jfloat value,
+                                                                                     jint unit) {
+  jclass clazz = env->FindClass(kFlexNodeStyleClassPath);
+  jmethodID method_id = env->GetStaticMethodID(clazz, "createFlexValue",
+                                               "("
+                                               "F"
+                                               "I"
+                                               ")"
+                                               "Ljava/lang/Object;");
+  jobject ret = env->CallStaticObjectMethod(clazz, method_id, value, (unit));
 
-     jclass clazz = env->FindClass(kFlexNodeStyleClassPath);
-     jmethodID method_id = env->GetStaticMethodID(clazz, "createFlexValue", "("
-"F"
-"I"
-")"
-"Ljava/lang/Object;");
-  jobject ret =
-      env->CallStaticObjectMethod(clazz,
-          method_id, value, (unit));
-
-  env->DeleteLocalRef( clazz );
-  //env->DeleteLocalRef( method_id );
+  env->DeleteLocalRef(clazz);
+  // env->DeleteLocalRef( method_id );
   return base::android::ScopedJavaLocalRef<jobject>(env, ret);
 }
 
 // Step 3: RegisterNatives.
 
 static const JNINativeMethod kMethodsFlexNodeStyle[] = {
-    { "nativeFlexNodeStyleNew",
-"("
-")"
-"J",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleNew)
-    },
-    { "nativeFlexNodeStyleFree",
-"("
-"J"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleFree)
-    },
-    { "nativeSetFlexNode",
-"("
-"J"
-"J"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeSetFlexNode)
-    },
-    { "nativeFlexNodeStyleGetDirection",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetDirection)
-    },
-    { "nativeFlexNodeStyleSetDirection",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetDirection)
-    },
-    { "nativeFlexNodeStyleGetFlexDirection",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexDirection)
-    },
-    { "nativeFlexNodeStyleSetFlexDirection",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexDirection)
-    },
-    { "nativeFlexNodeStyleGetJustifyContent",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetJustifyContent)
-    },
-    { "nativeFlexNodeStyleSetJustifyContent",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetJustifyContent)
-    },
-    { "nativeFlexNodeStyleGetAlignItems",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignItems)
-    },
-    { "nativeFlexNodeStyleSetAlignItems",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignItems)
-    },
-    { "nativeFlexNodeStyleGetAlignSelf",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignSelf)
-    },
-    { "nativeFlexNodeStyleSetAlignSelf",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignSelf)
-    },
-    { "nativeFlexNodeStyleGetAlignContent",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignContent)
-    },
-    { "nativeFlexNodeStyleSetAlignContent",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignContent)
-    },
-    { "nativeFlexNodeStyleGetPositionType",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPositionType)
-    },
-    { "nativeFlexNodeStyleSetPositionType",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPositionType)
-    },
-    { "nativeFlexNodeStyleSetFlexWrap",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexWrap)
-    },
-    { "nativeFlexNodeStyleGetFlexWrap",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexWrap)
-    },
-    { "nativeFlexNodeStyleGetOverflow",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetOverflow)
-    },
-    { "nativeFlexNodeStyleSetOverflow",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetOverflow)
-    },
-    { "nativeFlexNodeStyleGetDisplay",
-"("
-"J"
-")"
-"I",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetDisplay)
-    },
-    { "nativeFlexNodeStyleSetDisplay",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetDisplay)
-    },
-    { "nativeFlexNodeStyleGetFlex",
-"("
-"J"
-")"
-"F",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlex)
-    },
-    { "nativeFlexNodeStyleSetFlex",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlex)
-    },
-    { "nativeFlexNodeStyleGetFlexGrow",
-"("
-"J"
-")"
-"F",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexGrow)
-    },
-    { "nativeFlexNodeStyleSetFlexGrow",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexGrow)
-    },
-    { "nativeFlexNodeStyleGetFlexShrink",
-"("
-"J"
-")"
-"F",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexShrink)
-    },
-    { "nativeFlexNodeStyleSetFlexShrink",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexShrink)
-    },
-    { "nativeFlexNodeStyleGetFlexBasis",
-"("
-"J"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexBasis)
-    },
-    { "nativeFlexNodeStyleSetFlexBasis",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasis)
-    },
-    { "nativeFlexNodeStyleSetFlexBasisPercent",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasisPercent)
-    },
-    { "nativeFlexNodeStyleSetFlexBasisAuto",
-"("
-"J"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasisAuto)
-    },
-    { "nativeFlexNodeStyleGetMargin",
-"("
-"J"
-"I"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMargin)
-    },
-    { "nativeFlexNodeStyleSetMargin",
-"("
-"J"
-"I"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMargin)
-    },
-    { "nativeFlexNodeStyleSetMarginPercent",
-"("
-"J"
-"I"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMarginPercent)
-    },
-    { "nativeFlexNodeStyleSetMarginAuto",
-"("
-"J"
-"I"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMarginAuto)
-    },
-    { "nativeFlexNodeStyleGetPadding",
-"("
-"J"
-"I"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPadding)
-    },
-    { "nativeFlexNodeStyleSetPadding",
-"("
-"J"
-"I"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPadding)
-    },
-    { "nativeFlexNodeStyleSetPaddingPercent",
-"("
-"J"
-"I"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPaddingPercent)
-    },
-    { "nativeFlexNodeStyleGetBorder",
-"("
-"J"
-"I"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetBorder)
-    },
-    { "nativeFlexNodeStyleSetBorder",
-"("
-"J"
-"I"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetBorder)
-    },
-    { "nativeFlexNodeStyleGetPosition",
-"("
-"J"
-"I"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPosition)
-    },
-    { "nativeFlexNodeStyleSetPosition",
-"("
-"J"
-"I"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPosition)
-    },
-    { "nativeFlexNodeStyleSetPositionPercent",
-"("
-"J"
-"I"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPositionPercent)
-    },
-    { "nativeFlexNodeStyleGetWidth",
-"("
-"J"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetWidth)
-    },
-    { "nativeFlexNodeStyleSetWidth",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidth)
-    },
-    { "nativeFlexNodeStyleSetWidthPercent",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidthPercent)
-    },
-    { "nativeFlexNodeStyleSetWidthAuto",
-"("
-"J"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidthAuto)
-    },
-    { "nativeFlexNodeStyleGetHeight",
-"("
-"J"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetHeight)
-    },
-    { "nativeFlexNodeStyleSetHeight",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeight)
-    },
-    { "nativeFlexNodeStyleSetHeightPercent",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeightPercent)
-    },
-    { "nativeFlexNodeStyleSetHeightAuto",
-"("
-"J"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeightAuto)
-    },
-    { "nativeFlexNodeStyleGetMinWidth",
-"("
-"J"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMinWidth)
-    },
-    { "nativeFlexNodeStyleSetMinWidth",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinWidth)
-    },
-    { "nativeFlexNodeStyleSetMinWidthPercent",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinWidthPercent)
-    },
-    { "nativeFlexNodeStyleGetMinHeight",
-"("
-"J"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMinHeight)
-    },
-    { "nativeFlexNodeStyleSetMinHeight",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinHeight)
-    },
-    { "nativeFlexNodeStyleSetMinHeightPercent",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinHeightPercent)
-    },
-    { "nativeFlexNodeStyleGetMaxWidth",
-"("
-"J"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMaxWidth)
-    },
-    { "nativeFlexNodeStyleSetMaxWidth",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxWidth)
-    },
-    { "nativeFlexNodeStyleSetMaxWidthPercent",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxWidthPercent)
-    },
-    { "nativeFlexNodeStyleGetMaxHeight",
-"("
-"J"
-")"
-"Ljava/lang/Object;",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMaxHeight)
-    },
-    { "nativeFlexNodeStyleSetMaxHeight",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxHeight)
-    },
-    { "nativeFlexNodeStyleSetMaxHeightPercent",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxHeightPercent)
-    },
-    { "nativeFlexNodeStyleGetAspectRatio",
-"("
-"J"
-")"
-"F",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAspectRatio)
-    },
-    { "nativeFlexNodeStyleSetAspectRatio",
-"("
-"J"
-"F"
-")"
-"V",
-    reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAspectRatio)
-    },
+    {"nativeFlexNodeStyleNew",
+     "("
+     ")"
+     "J",
+     reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleNew)},
+    {"nativeFlexNodeStyleFree",
+     "("
+     "J"
+     ")"
+     "V",
+     reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleFree)},
+    {"nativeSetFlexNode",
+     "("
+     "J"
+     "J"
+     ")"
+     "V",
+     reinterpret_cast<void*>(Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeSetFlexNode)},
+    {"nativeFlexNodeStyleGetDirection",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetDirection)},
+    {"nativeFlexNodeStyleSetDirection",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetDirection)},
+    {"nativeFlexNodeStyleGetFlexDirection",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexDirection)},
+    {"nativeFlexNodeStyleSetFlexDirection",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexDirection)},
+    {"nativeFlexNodeStyleGetJustifyContent",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetJustifyContent)},
+    {"nativeFlexNodeStyleSetJustifyContent",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetJustifyContent)},
+    {"nativeFlexNodeStyleGetAlignItems",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignItems)},
+    {"nativeFlexNodeStyleSetAlignItems",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignItems)},
+    {"nativeFlexNodeStyleGetAlignSelf",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignSelf)},
+    {"nativeFlexNodeStyleSetAlignSelf",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignSelf)},
+    {"nativeFlexNodeStyleGetAlignContent",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAlignContent)},
+    {"nativeFlexNodeStyleSetAlignContent",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAlignContent)},
+    {"nativeFlexNodeStyleGetPositionType",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPositionType)},
+    {"nativeFlexNodeStyleSetPositionType",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPositionType)},
+    {"nativeFlexNodeStyleSetFlexWrap",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexWrap)},
+    {"nativeFlexNodeStyleGetFlexWrap",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexWrap)},
+    {"nativeFlexNodeStyleGetOverflow",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetOverflow)},
+    {"nativeFlexNodeStyleSetOverflow",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetOverflow)},
+    {"nativeFlexNodeStyleGetDisplay",
+     "("
+     "J"
+     ")"
+     "I",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetDisplay)},
+    {"nativeFlexNodeStyleSetDisplay",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetDisplay)},
+    {"nativeFlexNodeStyleGetFlex",
+     "("
+     "J"
+     ")"
+     "F",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlex)},
+    {"nativeFlexNodeStyleSetFlex",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlex)},
+    {"nativeFlexNodeStyleGetFlexGrow",
+     "("
+     "J"
+     ")"
+     "F",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexGrow)},
+    {"nativeFlexNodeStyleSetFlexGrow",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexGrow)},
+    {"nativeFlexNodeStyleGetFlexShrink",
+     "("
+     "J"
+     ")"
+     "F",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexShrink)},
+    {"nativeFlexNodeStyleSetFlexShrink",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexShrink)},
+    {"nativeFlexNodeStyleGetFlexBasis",
+     "("
+     "J"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetFlexBasis)},
+    {"nativeFlexNodeStyleSetFlexBasis",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasis)},
+    {"nativeFlexNodeStyleSetFlexBasisPercent",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasisPercent)},
+    {"nativeFlexNodeStyleSetFlexBasisAuto",
+     "("
+     "J"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetFlexBasisAuto)},
+    {"nativeFlexNodeStyleGetMargin",
+     "("
+     "J"
+     "I"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMargin)},
+    {"nativeFlexNodeStyleSetMargin",
+     "("
+     "J"
+     "I"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMargin)},
+    {"nativeFlexNodeStyleSetMarginPercent",
+     "("
+     "J"
+     "I"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMarginPercent)},
+    {"nativeFlexNodeStyleSetMarginAuto",
+     "("
+     "J"
+     "I"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMarginAuto)},
+    {"nativeFlexNodeStyleGetPadding",
+     "("
+     "J"
+     "I"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPadding)},
+    {"nativeFlexNodeStyleSetPadding",
+     "("
+     "J"
+     "I"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPadding)},
+    {"nativeFlexNodeStyleSetPaddingPercent",
+     "("
+     "J"
+     "I"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPaddingPercent)},
+    {"nativeFlexNodeStyleGetBorder",
+     "("
+     "J"
+     "I"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetBorder)},
+    {"nativeFlexNodeStyleSetBorder",
+     "("
+     "J"
+     "I"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetBorder)},
+    {"nativeFlexNodeStyleGetPosition",
+     "("
+     "J"
+     "I"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetPosition)},
+    {"nativeFlexNodeStyleSetPosition",
+     "("
+     "J"
+     "I"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPosition)},
+    {"nativeFlexNodeStyleSetPositionPercent",
+     "("
+     "J"
+     "I"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetPositionPercent)},
+    {"nativeFlexNodeStyleGetWidth",
+     "("
+     "J"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetWidth)},
+    {"nativeFlexNodeStyleSetWidth",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidth)},
+    {"nativeFlexNodeStyleSetWidthPercent",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidthPercent)},
+    {"nativeFlexNodeStyleSetWidthAuto",
+     "("
+     "J"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetWidthAuto)},
+    {"nativeFlexNodeStyleGetHeight",
+     "("
+     "J"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetHeight)},
+    {"nativeFlexNodeStyleSetHeight",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeight)},
+    {"nativeFlexNodeStyleSetHeightPercent",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeightPercent)},
+    {"nativeFlexNodeStyleSetHeightAuto",
+     "("
+     "J"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetHeightAuto)},
+    {"nativeFlexNodeStyleGetMinWidth",
+     "("
+     "J"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMinWidth)},
+    {"nativeFlexNodeStyleSetMinWidth",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinWidth)},
+    {"nativeFlexNodeStyleSetMinWidthPercent",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinWidthPercent)},
+    {"nativeFlexNodeStyleGetMinHeight",
+     "("
+     "J"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMinHeight)},
+    {"nativeFlexNodeStyleSetMinHeight",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinHeight)},
+    {"nativeFlexNodeStyleSetMinHeightPercent",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMinHeightPercent)},
+    {"nativeFlexNodeStyleGetMaxWidth",
+     "("
+     "J"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMaxWidth)},
+    {"nativeFlexNodeStyleSetMaxWidth",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxWidth)},
+    {"nativeFlexNodeStyleSetMaxWidthPercent",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxWidthPercent)},
+    {"nativeFlexNodeStyleGetMaxHeight",
+     "("
+     "J"
+     ")"
+     "Ljava/lang/Object;",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetMaxHeight)},
+    {"nativeFlexNodeStyleSetMaxHeight",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxHeight)},
+    {"nativeFlexNodeStyleSetMaxHeightPercent",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetMaxHeightPercent)},
+    {"nativeFlexNodeStyleGetAspectRatio",
+     "("
+     "J"
+     ")"
+     "F",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleGetAspectRatio)},
+    {"nativeFlexNodeStyleSetAspectRatio",
+     "("
+     "J"
+     "F"
+     ")"
+     "V",
+     reinterpret_cast<void*>(
+         Java_com_tencent_smtt_flexbox_FlexNodeStyle_nativeFlexNodeStyleSetAspectRatio)},
 };
 
 static bool RegisterNativesImpl(JNIEnv* env) {
-
   const int kMethodsFlexNodeStyleSize = arraysize(kMethodsFlexNodeStyle);
-   jclass clazz = env->FindClass(kFlexNodeStyleClassPath);
-  if (env->RegisterNatives(clazz,
-                           kMethodsFlexNodeStyle,
-                           kMethodsFlexNodeStyleSize) < 0) {
+  jclass clazz = env->FindClass(kFlexNodeStyleClassPath);
+  if (env->RegisterNatives(clazz, kMethodsFlexNodeStyle, kMethodsFlexNodeStyleSize) < 0) {
     return false;
   }
-  env->DeleteLocalRef( clazz );
+  env->DeleteLocalRef(clazz);
   return true;
 }
-
-#endif  // com_tencent_smtt_flexbox_FlexNodeStyle_JNI

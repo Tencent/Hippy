@@ -1,4 +1,23 @@
-/* eslint-disable import/no-unresolved */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
@@ -12,18 +31,27 @@ import {
   isPlainObject,
   mergeOptions,
   extend,
+  devtools,
 } from 'core/util/index';
-import { patch } from './patch';
+import config from 'core/config';
 import {
+  registerBuiltinElements,
   registerElement,
   getElementMap,
   mustUseProp,
   isReservedTag,
   isUnknownElement,
 } from '../elements';
-import { setApp, isFunction, trace } from '../util';
+import {
+  getApp,
+  setApp,
+  isFunction,
+  trace,
+  setBeforeLoadStyle,
+} from '../util';
 import DocumentNode from '../renderer/document-node';
 import { Event } from '../renderer/native/event';
+import { patch } from './patch';
 import Native, { HippyRegister } from './native';
 import * as iPhone from './iphone';
 import * as platformDirectives from './directives';
@@ -84,48 +112,59 @@ Vue.prototype.$mount = function $mount(el, hydrating) {
 /**
  * Register the Hippy-Vue app to Native.
  *
- * @param {function} callback - Callback after register completed.
+ * @param {function} afterCallback - Callback after register completed.
+ * @param {function} beforeCallback - Callback before register completed.
  */
-Vue.prototype.$start = function $start(callback) {
+Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
   setApp(this);
-  let self = this;
+
+  // beforeLoadStyle is a hidden option for pre-process
+  // the style declaration globally.
+  if (isFunction(this.$options.beforeLoadStyle)) {
+    setBeforeLoadStyle(this.$options.beforeLoadStyle);
+  }
 
   // register native components into Vue.
   getElementMap().forEach((entry) => {
     Vue.component(entry.meta.component.name, entry.meta.component);
   });
 
+  // Register the entry point into Hippy
+  // The callback will be execute when Native trigger loadInstance
+  // or runApplication event.
   HippyRegister.regist(this.$options.appName, (superProps) => {
     const { __instanceId__: rootViewId } = superProps;
-    self.$options.$superProps = superProps;
-    self.$options.rootViewId = rootViewId;
-
+    this.$options.$superProps = superProps;
+    this.$options.rootViewId = rootViewId;
     trace(...componentName, 'Start', this.$options.appName, 'with rootViewId', rootViewId, superProps);
-
-    if (self.$el) {
-      self.$destroy();
-      // FIXME: Seems memory leak for hippy.
-      //        Because old instance should be destroyed.
-      const AppConstructor = Vue.extend(self.$options);
-      self = new AppConstructor(self.$options);
-      setApp(self);
+    // Destroy the old instance and set the new one when restart the app
+    if (this.$el) {
+      this.$destroy();
+      const AppConstructor = Vue.extend(this.$options);
+      const newApp = new AppConstructor(this.$options);
+      setApp(newApp);
     }
-
-    self.$mount();
-
+    // Call the callback before $mount
+    if (isFunction(beforeCallback)) {
+      beforeCallback(this, superProps);
+    }
+    // Draw the app.
+    this.$mount();
+    // Draw the iPhone status bar background.
+    // It should execute after $mount, otherwise this.$el will be undefined.
     if (Native.Platform === 'ios') {
       const statusBar = iPhone.drawStatusBar(this.$options);
       if (statusBar) {
-        if (!self.$el.childNodes.length) {
-          self.$el.appendChild(statusBar);
+        if (!this.$el.childNodes.length) {
+          this.$el.appendChild(statusBar);
         } else {
-          self.$el.insertBefore(statusBar, self.$el.childNodes[0]);
+          this.$el.insertBefore(statusBar, this.$el.childNodes[0]);
         }
       }
     }
-
-    if (isFunction(callback)) {
-      callback(self, superProps);
+    // Call the callback after $mount
+    if (isFunction(afterCallback)) {
+      afterCallback(this, superProps);
     }
   });
 };
@@ -143,6 +182,7 @@ function initComputed(Comp) {
   Object.keys(computed).forEach(key => defineComputed(Comp.prototype, key, computed[key]));
 }
 
+// Override component for avoid built-in component warning.
 Vue.component = function component(id, definition) {
   if (!definition) {
     return this.options.components[id];
@@ -155,6 +195,7 @@ Vue.component = function component(id, definition) {
   return definition;
 };
 
+// Override extend for avoid built-in component warning.
 Vue.extend = function hippyExtend(extendOptions) {
   extendOptions = extendOptions || {};
   const Super = this;
@@ -163,9 +204,7 @@ Vue.extend = function hippyExtend(extendOptions) {
   if (cachedCtors[SuperId]) {
     return cachedCtors[SuperId];
   }
-
   const name = extendOptions.name || Super.options.name;
-
   const Sub = function VueComponent(options) {
     this._init(options);
   };
@@ -175,7 +214,6 @@ Vue.extend = function hippyExtend(extendOptions) {
   Sub.cid = cid;
   Sub.options = mergeOptions(Super.options, extendOptions);
   Sub.super = Super;
-
   // For props and computed properties, we define the proxy getters on
   // the Vue instances at extension time, on the extended prototype. This
   // avoids Object.defineProperty calls for each instance created.
@@ -185,12 +223,10 @@ Vue.extend = function hippyExtend(extendOptions) {
   if (Sub.options.computed) {
     initComputed(Sub);
   }
-
   // allow further extension/mixin/plugin usage
   Sub.extend = Super.extend;
   Sub.mixin = Super.mixin;
   Sub.use = Super.use;
-
   // create asset registers, so extended classes
   // can have their private assets too.
   ASSET_TYPES.forEach((type) => {
@@ -200,14 +236,12 @@ Vue.extend = function hippyExtend(extendOptions) {
   if (name) {
     Sub.options.components[name] = Sub;
   }
-
   // keep a reference to the super options at extension time.
   // later at instantiation we can check if Super's options have
   // been updated.
   Sub.superOptions = Super.options;
   Sub.extendOptions = extendOptions;
   Sub.sealedOptions = extend({}, Sub.options);
-
   // cache constructor
   cachedCtors[SuperId] = Sub;
   return Sub;
@@ -216,4 +250,24 @@ Vue.extend = function hippyExtend(extendOptions) {
 // Binding Native Properties
 Vue.Native = Native;
 
-export default Vue;
+Vue.getApp = getApp;
+
+// Register the built-in elements
+Vue.use(registerBuiltinElements);
+
+if (config.devtools && devtools) {
+  devtools.emit('init', Vue);
+}
+
+// proxy Vue constructor to add Hippy Vue instance to global.__VUE_ROOT_INSTANCES__
+const ProxyedVue = new Proxy(Vue, {
+  construct(Target, args) {
+    const vm = new Target(...args);
+    if (process.env.NODE_ENV === 'development') {
+      if (!global.__VUE_ROOT_INSTANCES__) global.__VUE_ROOT_INSTANCES__ = [];
+      if (args && args.length && args[0].appName) global.__VUE_ROOT_INSTANCES__.push(vm);
+    }
+    return vm;
+  },
+});
+export default ProxyedVue;

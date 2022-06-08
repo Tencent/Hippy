@@ -1,6 +1,27 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// @ts-nocheck
 import React from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import applyLayout from '../adapters/apply-layout';
+import View from './view';
 
 const styles = {
   initial: {
@@ -24,7 +45,6 @@ const styles = {
     fontFamily: 'inherit',
     fontSize: 'inherit',
     whiteSpace: 'inherit',
-    // display: 'inline',
   },
   singleLineStyle: {
     maxWidth: '100%',
@@ -43,27 +63,32 @@ const styles = {
  * @noInheritDoc
  */
 export class Text extends React.Component {
-  constructor(props) {
+  private static childContextTypes = {
+    isInAParentText: () => {},
+  };
+
+  public constructor(props) {
     super(props);
     this.state = {};
   }
 
-
-  getChildContext() {
+  public getChildContext() {
     return { isInAParentText: true };
   }
 
-  render() {
+  public render() {
     let { style } = this.props;
     const { isInAParentText } = this.context;
-    const { numberOfLines } = this.props;
+    const { numberOfLines, ellipsizeMode } = this.props;
     if (style) {
       style = formatWebStyle(style);
     }
+
+    const textOverflow = ellipsizeMode === 'clip' ? 'clip' : 'ellipsis';
     const baseStyle = {
+      textOverflow,
       overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      display: '-webkit-box',
+      display: numberOfLines > 1 ? '-webkit-box' : 'inline',
       WebkitBoxOrient: 'vertical',
       WebkitLineClamp: numberOfLines ? numberOfLines.toString() : '0',
     };
@@ -72,17 +97,19 @@ export class Text extends React.Component {
       style: formatWebStyle([styles.initial,
         isInAParentText === true && styles.isInAParentText,
         newStyle,
-        numberOfLines === 1 && styles.singleLineStyle,
+        numberOfLines === 1 && Object.assign({}, styles.singleLineStyle, { textOverflow }),
         isInAParentText === true && { display: 'inline' },
       ]),
     });
     delete newProps.numberOfLines;
-    delete newProps.onLayout;
-    if (isInAParentText) return <span {...newProps} />;
+    delete newProps.ellipsizeMode;
+    delete newProps.enableScale;
+
+    if (isInAParentText) return <View {...newProps} />;
     return (
-      <div {...newProps} />
+      <View {...newProps} />
     );
   }
 }
 
-export default applyLayout(Text);
+export default Text;

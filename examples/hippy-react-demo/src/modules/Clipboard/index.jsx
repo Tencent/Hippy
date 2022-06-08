@@ -5,7 +5,7 @@ import {
   View,
   StyleSheet,
   Clipboard,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   itemTitle: {
@@ -49,7 +49,7 @@ export default class ClipboardDemo extends React.Component {
     this.state = {
       hasCopied: false,
       text: 'Winter is coming',
-      clipboardText: '快点上面的按钮啊魂淡',
+      clipboardText: '点击上面的按钮',
     };
   }
 
@@ -80,10 +80,14 @@ export default class ClipboardDemo extends React.Component {
         <View
           style={styles.button}
           onClick={async () => {
-            const str = await Clipboard.getString();
-            this.setState({
-              clipboardText: str,
-            });
+            try {
+              const str = await Clipboard.getString();
+              this.setState({
+                clipboardText: str,
+              });
+            } catch (err) {
+              console.error(err);
+            }
           }}
         >
           <Text style={styles.buttonText}>点击获取剪贴板内容</Text>

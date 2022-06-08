@@ -1,13 +1,8 @@
-/* eslint-disable */
-
-(function (event_type, err) {
-  try {
-    if (global.__GLOBAL__ && global.__GLOBAL__.globalErrorHandle && global.__GLOBAL__.globalErrorHandle.uncaughtException) {
-      global.__GLOBAL__.globalErrorHandle.uncaughtException(err);
-    } else {
-      console.error(event_type, err);
-    }
-  } catch(e) {
-    console.error(e);
+(function exceptionHandler(eventName, err) {
+  if (global.Hippy) {
+    global.Hippy.emit('uncaughtException', err);
+  } else {
+    /* eslint-disable-next-line no-console */
+    console.error(eventName, err);
   }
 });

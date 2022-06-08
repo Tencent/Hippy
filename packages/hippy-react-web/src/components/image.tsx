@@ -1,8 +1,53 @@
-import React from 'react';
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { useState, useEffect, useRef } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import { View } from './view';
-import applyLayout from '../adapters/apply-layout';
-import ImageLoader from '../adapters/image-loader';
+import ImageLoader, { LoadError } from '../adapters/image-loader';
+import { LayoutEvent } from '../types';
+import { TouchEvent } from '../modules/use-responder-events/types';
+import useResponderEvents from '../modules/use-responder-events';
+import useElementLayout from '../modules/use-element-layout';
+import { isFunc, noop } from '../utils';
+
+
+type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center' | 'none';
+interface ImageProps {
+  style: HippyTypes.Style;
+  tintColor?: HippyTypes.color;
+  children?: any;
+  onError?: LoadError;
+  defaultSource?: string;
+  source?: { uri: string };
+  capInsets?: any;
+  resizeMode?: ImageResizeMode;
+  onLoad?: (e: { width: number; height: number; url: string }) => void;
+  onLayout?: (e: LayoutEvent) => void;
+  onLoadStart?: Function;
+  onLoadEnd?: Function;
+  onProgress?: Function;
+  onTouchDown?: (e: TouchEvent) => void;
+  onTouchMove?: (e: TouchEvent) => void;
+  onTouchEnd?: (e: TouchEvent) => void;
+  onTouchCancel?: (e: TouchEvent) => void;
+}
 
 const ImageResizeMode = {
   center: 'center',
@@ -15,48 +60,43 @@ const ImageResizeMode = {
 
 const styles = {
   root: {
-    flexBasis: 'auto',
-    overflow: 'hidden',
-    zIndex: 0,
+    position: 'relative',
+    display: 'inline-block',
+  },
+  absolute: {
+    position: 'absolute',
+  },
+  placeholder: {
+    width: '100%',
+    height: '100%',
+    top: '0',
+    left: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   image: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'transparent',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'cover',
+    display: 'block',
     height: '100%',
     width: '100%',
   },
 };
 
-const resizeModeStyles = {
+const resizeModeStyles: Record<ImageResizeMode, any> = {
   center: {
-    backgroundSize: 'auto',
+    objectFit: 'contain',
   },
   contain: {
-    backgroundSize: 'contain',
+    objectFit: 'contain',
   },
   cover: {
-    backgroundSize: 'cover',
-    backgroundPosition: 'center top',
-  },
-  none: {
-    backgroundPosition: '0 0',
-    backgroundSize: 'auto',
-  },
-  repeat: {
-    backgroundPosition: '0 0',
-    backgroundRepeat: 'repeat',
-    backgroundSize: 'auto',
+    objectFit: 'cover',
   },
   stretch: {
-    backgroundSize: '100% 100%',
+    objectFit: 'fill',
   },
+  none: {},
 };
 
 const svgDataUriPattern = /^(data:image\/svg\+xml;utf8,)(.*)/;
@@ -85,95 +125,79 @@ const resolveAssetUri = (source: string | { uri: string }) => {
  * static resources, temporary local images, and images from local disk, such as the camera roll.
  * @noInheritDoc
  */
-export class Image extends React.Component {
-  static get resizeMode() {
-    return {
-      contain: 'contain',
-      cover: 'cover',
-      stretch: 'stretch',
-      center: 'center',
-      repeat: 'repeat',
-    };
-  }
+const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) => {
+  const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd = noop, resizeMode = 'none', children, style = {} } = props;
 
+  const imgRef = useRef<null | HTMLImageElement>(null);
+  const { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onLayout } = props;
+  useResponderEvents(imgRef, { onTouchCancel, onTouchDown, onTouchEnd, onTouchMove });
+  useElementLayout(imgRef, onLayout);
 
-  componentDidMount() {
-    const {
-      source,
-      onLoadStart,
-    } = this.props;
-    if (onLoadStart) {
-      onLoadStart();
-    }
-    ImageLoader.load(source.uri, this.onLoad, this.onError);
-  }
+  const [imgSource, setImgSource] = useState(defaultSource ? { uri: defaultSource } : source);
 
-  onLoad(e) {
-    const { onLoad, onLoadEnd } = this.props;
-    if (onLoad) {
-      const imageInfo = e.path[0];
-      onLoad({
-        width: imageInfo.naturalWidth,
-        height: imageInfo.naturalHeight,
-        url: imageInfo.src,
-      });
+  const onImageLoad = () => {
+    if (onLoad && isFunc(onLoad)) {
+      const imgInfo = { width: 0, height: 0, url: source.uri };
+      if (imgRef.current) {
+        const { width, height } = imgRef.current;
+        imgInfo.width = width;
+        imgInfo.height = height;
+      }
+      onLoad(imgInfo);
     }
     onLoadEnd();
-  }
+  };
 
-  onError() {
-    const { onError, onLoadEnd, source } = this.props;
-    if (onError) {
+  const onImageLoadError = () => {
+    if (onError && isFunc(onError)) {
       onError({
         nativeEvent: {
-          error: `Failed to load resource ${resolveAssetUri(source)} (404)`,
+          error: `Failed to load resource ${resolveAssetUri(source)}`,
         },
       });
     }
     onLoadEnd();
+  };
+
+  // load source url when provide defaultSource
+  if (imgSource.uri !== source.uri) {
+    ImageLoader.load(source.uri, () => {
+      setImgSource(source);
+      onImageLoad();
+    }, onImageLoadError);
   }
 
-  render() {
-    let {
-      style,
-    } = this.props;
-    const {
-      source, sources, resizeMode, children,
-    } = this.props;
-    if (style) {
-      style = formatWebStyle(style);
+  const imgStyle = formatWebStyle(style);
+  const baseStyle = formatWebStyle([styles.image, resizeModeStyles[resizeMode]]);
+
+  useEffect(() => {
+    if (onLoadStart) {
+      onLoadStart();
     }
-    const newProps = Object.assign({}, this.props, {
-      style: formatWebStyle([styles.root, style]),
-    });
+  }, [source]);
 
-    if (source) {
-      newProps.src = source.uri;
-    } else if (sources && Array.isArray(sources)) {
-      newProps.src = sources[0].uri;
-    }
+  React.useImperativeHandle(ref, () => ({
+    getSize: ImageLoader.getSize,
+    prefetch: ImageLoader.prefetch,
+  }));
 
+  return (
+    <img
+      src={imgSource.uri}
+      style={formatWebStyle([baseStyle, imgStyle]) }
+      ref={imgRef} onError={onImageLoadError}
+      onLoad={onImageLoad}>
+      {children}
+    </img>
+  );
+});
 
-    const finalResizeMode = resizeMode || newProps.style.resizeMode || ImageResizeMode.cover;
+Image.displayName = 'Image';
+// @ts-ignore
+Image.resizeMode = ImageResizeMode;
+// @ts-ignore
+Image.getSize = ImageLoader.getSize;
+// @ts-ignore
+Image.prefetch = ImageLoader.prefetch;
 
-    delete newProps.source;
-    delete newProps.sources;
-    delete newProps.onLoad;
-    delete newProps.onLayout;
-    return (
-      <View {...newProps}>
-        <View
-          style={[
-            styles.image,
-            resizeModeStyles[finalResizeMode],
-            { backgroundImage: `url(${newProps.src}` },
-          ]}
-        />
-        {children}
-      </View>
-    );
-  }
-}
-
-
-export default applyLayout(Image);
+export default Image;

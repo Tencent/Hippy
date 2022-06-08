@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy;
 
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
@@ -23,106 +24,55 @@ import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 
-/**
- * FileName: HippyEngineContext
- * Description：
- * History：
- */
-public interface HippyEngineContext
-{
-	/**
-	 * Get global configs
-	 *
-	 * @return
-	 */
-	public HippyGlobalConfigs getGlobalConfigs();
+import java.util.List;
+import java.util.Map;
 
-	/**
-	 * Get module manager
-	 *
-	 * @return
-	 */
-	public HippyModuleManager getModuleManager();
+@SuppressWarnings("unused")
+public interface HippyEngineContext {
 
-	/**
-	 * Get java and js bridge manager
-	 *
-	 * @return
-	 */
-	public HippyBridgeManager getBridgeManager();
+  String getComponentName();
 
-	/**
-	 * Get development mode support manager
-	 *
-	 * @return
-	 */
-	public DevSupportManager getDevSupportManager();
+  @Nullable
+  Map<String, Object> getNativeParams();
 
-	/**
-	 * Get thread excutor
-	 *
-	 * @return
-	 */
-	public ThreadExecutor getThreadExecutor();
+  HippyGlobalConfigs getGlobalConfigs();
 
-	/**
-	 * Get dom nodes manager
-	 *
-	 * @return
-	 */
-	public DomManager getDomManager();
+  HippyModuleManager getModuleManager();
 
-	/**
-	 * Get ui views manager
-	 *
-	 * @return
-	 */
-	public RenderManager getRenderManager();
+  HippyBridgeManager getBridgeManager();
 
-	/**
-	 * Get business instance ID
-	 *
-	 * @param id
-	 * @return
-	 */
-	public HippyRootView getInstance(int id);
+  DevSupportManager getDevSupportManager();
 
-	/**
-	 * Add business instance status change listener
-	 *
-	 * @param listener
-	 */
-	public void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+  ThreadExecutor getThreadExecutor();
 
-	/**
-	 * Remove business instance status change listener
-	 *
-	 * @param listener
-	 */
-	public void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
+  DomManager getDomManager();
 
-	/**
-	 * Add engine lifecycle event listener
-	 *
-	 * @param listener
-	 */
-	public void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+  RenderManager getRenderManager();
 
-	/**
-	 * Remove engine lifecycle event listener
-	 *
-	 * @param listener
-	 */
-	public void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+  HippyRootView getInstance(int id);
 
-	/**
-	 * Handle exception information
-	 *
-	 * @param throwable
-	 */
-	public void handleException(Throwable throwable);
+  void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-	TimeMonitor getStartTimeMonitor();
+  void removeInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
 
-	int getEngineId();
+  void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+
+  void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+
+  void handleException(Throwable throwable);
+
+  TimeMonitor getStartTimeMonitor();
+
+  int getEngineId();
+
+  /**
+   * Add API providers after initializing hippy engine.<rb/>
+   *
+   * @apiNote This method should be used before
+   * {@link HippyEngine#loadModule(HippyEngine.ModuleLoadParams)}, otherwise APIs or views
+   * defined in this providers maybe registered after use.
+   *
+   * @param apiProviders The Api providers need to be registered.
+   */
+  void addApiProviders(List<HippyAPIProvider> apiProviders);
 }

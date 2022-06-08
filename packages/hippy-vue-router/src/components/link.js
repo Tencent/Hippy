@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { createRoute, isSameRoute, isIncludedRoute } from '../util/route';
 
 // work around weird flow bug
@@ -68,27 +88,29 @@ export default {
     const globalActiveClass = router.options.linkActiveClass;
     const globalExactActiveClass = router.options.linkExactActiveClass;
     // Support global empty active class
+    // eslint-disable-next-line eqeqeq
     const activeClassFallback = globalActiveClass == null
       ? 'router-link-active'
       : globalActiveClass;
+    // eslint-disable-next-line eqeqeq
     const exactActiveClassFallback = globalExactActiveClass == null
       ? 'router-link-exact-active'
       : globalExactActiveClass;
+    // eslint-disable-next-line eqeqeq
     const activeClass = this.activeClass == null
       ? activeClassFallback
       : this.activeClass;
+    // eslint-disable-next-line eqeqeq
     const exactActiveClass = this.exactActiveClass == null
       ? exactActiveClassFallback
       : this.exactActiveClass;
     const compareTarget = location.path
       ? createRoute(null, location, null, router)
       : route;
-
     classes[exactActiveClass] = isSameRoute(current, compareTarget);
     classes[activeClass] = this.exact
       ? classes[exactActiveClass]
       : isIncludedRoute(current, compareTarget);
-
     const handler = (e) => {
       if (guardEvent(e)) {
         if (this.replace) {
@@ -98,18 +120,17 @@ export default {
         }
       }
     };
-
     const on = { click: guardEvent };
     if (Array.isArray(this.event)) {
-      this.event.forEach((e) => { on[e] = handler; });
+      this.event.forEach((e) => {
+        on[e] = handler;
+      });
     } else {
       on[this.event] = handler;
     }
-
     const data = {
       class: classes,
     };
-
     if (this.tag === 'a') {
       data.on = on;
       data.attrs = { href };

@@ -1,17 +1,35 @@
-//
-//  HPNetWork.h
-//  Hippy
-//
-//  Created by pennyli on 2018/1/9.
-//  Copyright © 2018年 pennyli. All rights reserved.
-//
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #import <Foundation/Foundation.h>
 #import "HippyBridgeModule.h"
 
 @interface HippyNetWork : NSObject <HippyBridgeModule, NSURLSessionDataDelegate>
-//子类覆盖实现，返回NSURLProtocol代理
-- (NSArray<Class> *) protocolClasses;
-//如果已经存在对应的value值，那这个方法将追加value而不是覆盖
+
+/// override it for customer protocols
+- (NSArray<Class> *)protocolClasses;
+/**
+ * extra headers in http header
+ * value will be added to key if key already exists.
+ */
 - (NSDictionary<NSString *, NSString *> *)extraHeaders;
 @end

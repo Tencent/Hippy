@@ -6,7 +6,7 @@ import {
   StyleSheet,
   callNative,
   HippyEventEmitter,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   text: {
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   normalText: {
     fontSize: 14,
     lineHeight: 18,
-    fontColor: 'black',
+    color: 'black',
   },
 });
 

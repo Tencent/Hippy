@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, display_none) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -80,11 +79,9 @@ TEST(HippyTest, display_none) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, display_none_fixed_size) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -134,11 +131,9 @@ TEST(HippyTest, display_none_fixed_size) {
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, display_none_with_margin) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -192,11 +187,9 @@ TEST(HippyTest, display_none_with_margin) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, display_none_with_child) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -284,11 +277,9 @@ TEST(HippyTest, display_none_with_child) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, display_none_with_position) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -338,5 +329,4 @@ TEST(HippyTest, display_none_with_position) {
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }

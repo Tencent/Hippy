@@ -5,7 +5,7 @@ import {
   NetInfo,
   Text,
   NetworkModule,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   text: {
@@ -47,43 +47,35 @@ export default class NetInfoExample extends React.Component {
       NetInfo.removeEventListener('change', this.listener);
     }
 
-    fetch('https://m.baidu.com', {
-      headers: {
-        Refer: 'https://now.qq.com',
-        Cookie: ['harry=guo5', 'xxx=5'],
-      },
-    }).then((responseJson) => {
-      // eslint-disable-next-line no-console
-      console.error(responseJson);
+    fetch('https://hippyjs.org').then((responseJson) => {
+      console.log('成功', responseJson);
       self.setState({
         infoText: `成功: ${responseJson.body}`,
       });
       return responseJson;
-    }).catch((error) => {
-      self.setState({
-        infoText: `收到错误: ${error}`,
+    })
+      .catch((error) => {
+        self.setState({
+          infoText: `收到错误: ${error}`,
+        });
+        console.error('收到错误:', error);
       });
-      // eslint-disable-next-line no-console
-      console.error(error);
-    });
 
     /**
-     * hippy sdk 1.3.0+ setCookie 设置指定url下的Cookie
-     * @param url 指定url，其实也就是指定作用域，如：http://3g.qq.com
-     * @param keyValue cookie key-value键值对集合，多个以分号";"隔开，如：name=harryguo。或者：name=harryguo;gender=male
+     * hippy 设置指定url下的Cookie
+     * @param url指定网址，如：https://hippyjs.org
+     * @param keyValue cookie key-value键值对集合，多个以分号";"隔开，如：name=someone。或者：name=someone;gender=male
      * @param expires 默认为空 过期时间，格式与http协议头response里的Set-Cookie相同，如：Thu, 08-Jan-2020 00:00:00 GMT
-     * 注意：指定expires的时候，只能设置一个cookie；如果不指定expires的时候，可以设置多个cookie：name=harryguo;gender=male
+     * 注意：指定expires的时候，只能设置一个cookie；如果不指定expires的时候，可以设置多个cookie：name=someone;gender=male
      */
-    // setCookie("http://3g.qq.com", "name=harryguo", "Thu, 08-Jan-2020 00:00:00 GMT");
-    NetworkModule.setCookie('http://3gxx.qq.com', 'name=harryguo;gender=male');
+    NetworkModule.setCookie('https://hippyjs.org', 'name=someone;gender=male');
 
     /**
-     * hippy sdk 1.3.0+ getCookie 获取指定url下的所有cookie
-     * @param url 指定url，其实也就是指定作用域，如：http://3g.qq.com
+     * hippy 获取指定url下的所有cookie
+     * @param url指定网址，如：https://hippyjs.org
      * @return 指定url下的所有cookie，如：eqid=deleted;bd_traffictrace=012146;BDSVRTM=418
      */
-    NetworkModule.getCookies('http://3gxx.qq.com').then((cookie) => {
-      // eslint-disable-next-line no-console
+    NetworkModule.getCookies('https://hippyjs.org').then((cookie) => {
       console.log(`cookie: ${cookie}`);
     });
   }

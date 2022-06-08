@@ -1,6 +1,30 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// @ts-nocheck
 import bezierEasing from 'bezier-easing';
 import findNodeHandle from '../adapters/find-node';
 import normalizeValue from '../adapters/normalize-value';
+import { tryMakeCubicBezierEasing } from './cubic-bezier';
+
+type AnimationCallback = () => void;
 
 function initLeftRepeatCount(repeatCount: number | 'loop') {
   if (repeatCount === 'loop') {
@@ -9,8 +33,10 @@ function initLeftRepeatCount(repeatCount: number | 'loop') {
   return repeatCount;
 }
 
+const isDef = v => v !== undefined;
+
 export class Animation {
-  constructor(config) {
+  public constructor(config) {
     this.initNowAnimationState(config);
     this.onHippyAnimationStart = this.onAnimationStart.bind(this);
     this.onHippyAnimationEnd = this.onAnimationEnd.bind(this);
@@ -18,7 +44,7 @@ export class Animation {
     this.onHippyAnimationRepeat = this.onAnimationRepeat.bind(this);
   }
 
-  initNowAnimationState(config) {
+  public initNowAnimationState(config) {
     this.mode = config.mode || 'timing';
     this.delay = config.delay || 0;
     this.startValue = config.startValue || 0;
@@ -42,35 +68,35 @@ export class Animation {
     }
   }
 
-  setRef(ref) {
+  public setRef(ref) {
     if (ref) {
       this.refNode = findNodeHandle(ref);
     }
   }
 
-  setStyleAttribute(styleAttribute) {
+  public setStyleAttribute(styleAttribute) {
     if (styleAttribute) {
       this.styleAttribute = styleAttribute;
     }
   }
 
-  setTransformStyleAttribute(styleAttribute) {
+  public setTransformStyleAttribute(styleAttribute) {
     if (styleAttribute) {
       this.transformStyleAttribute = styleAttribute;
     }
   }
 
-  clearAnimationInterval() {
+  public clearAnimationInterval() {
     this.animationRunningFlag = false;
     if (this.animationInterval) window.clearInterval(this.animationInterval);
   }
 
-  resetState() {
+  public resetState() {
     this.nowValue = this.startValue;
     this.nowLeftDuration = this.duration;
   }
 
-  renderStyleAttribute(finalValue) {
+  public renderStyleAttribute(finalValue) {
     if (!this.refNode) return;
     if (this.styleAttribute) {
       this.refNode.style[this.styleAttribute.toString()] = normalizeValue(
@@ -87,7 +113,7 @@ export class Animation {
     }
   }
 
-  getNowValue() {
+  public getNowValue() {
     const { timingFunction, nowPercentage, valueDistance } = this;
     switch (timingFunction) {
       case 'linear':
@@ -100,25 +126,30 @@ export class Animation {
         return this.startValue + valueDistance * 0.5
           * (Math.sin((nowPercentage - 0.5) * Math.PI) + 1);
       case 'easebezierEasing':
-        // TODO Once Hippy native supports custom bazier params, will fix here to accept params
+        // NOTE: custom bazier implemented in default, this options consider deprecated.
         return this.startValue + valueDistance * bezierEasing(0.42, 0, 1, 1);
-      default:
+      default: {
+        const cubicBezierEasing = tryMakeCubicBezierEasing(timingFunction);
+        if (cubicBezierEasing) {
+          return this.startValue + valueDistance * cubicBezierEasing(nowPercentage);
+        }
         return this.startValue + valueDistance * nowPercentage;
+      }
     }
   }
 
-  calculateNowValue() {
+  public calculateNowValue() {
     this.nowLeftDuration -= 16;
     this.nowPercentage = 1 - (this.nowLeftDuration / this.duration);
     return this.getNowValue();
   }
 
-  renderNowValue(finalValue) {
+  public renderNowValue(finalValue) {
     this.nowValue = finalValue;
     this.renderStyleAttribute(finalValue);
   }
 
-  endAnimation() {
+  public endAnimation() {
     if (this.onAnimationEndCallback) {
       this.onAnimationEndCallback();
     }
@@ -128,7 +159,7 @@ export class Animation {
     this.clearAnimationInterval();
   }
 
-  repeatAnimation() {
+  public repeatAnimation() {
     this.nowLeftDuration = this.duration;
     this.nowPercentage = 0;
     if (this.leftRepeatCount > 0) this.leftRepeatCount -= 1;
@@ -140,7 +171,7 @@ export class Animation {
   /**
    * Start animation execution
    */
-  start() {
+  public start() {
     this.clearAnimationInterval();
     if (this.refNode) {
       this.resetState();
@@ -157,13 +188,11 @@ export class Animation {
         if (this.leftDelayCount > 0) {
           this.leftDelayCount -= 16;
         } else {
-          if (finalValue <= this.toValue && this.toValue >= this.startValue) {
+          if (this.toValue >= this.startValue) {
             finalValue = this.calculateNowValue();
-            if (finalValue > this.toValue) finalValue = this.toValue;
             this.renderNowValue(finalValue);
-          } else if (finalValue >= this.toValue && this.startValue >= this.toValue) {
+          } else if (this.startValue >= this.toValue) {
             finalValue = this.calculateNowValue();
-            if (finalValue < this.toValue) finalValue = this.toValue;
             this.renderNowValue(finalValue);
           }
           if (this.nowLeftDuration <= 0) {
@@ -177,33 +206,30 @@ export class Animation {
         }
       }, 16);
     }
-    // console.log('start animation');
   }
 
   /**
    * Destroy the animation
    */
-  destroy() {
+  public destroy() {
     this.clearAnimationInterval();
     if (!this.endAnimationFlag && this.onAnimationCancelCallback) {
       this.onAnimationCancelCallback();
     }
     this.resetState();
-    // console.log('destroy animation');
   }
 
   /**
    * Pause the running animation
    */
-  pause() {
+  public pause() {
     this.clearAnimationInterval();
-    // console.log('pause animation');
   }
 
   /**
    * Resume execution of paused animation
    */
-  resume() {
+  public resume() {
     this.clearAnimationInterval();
     if (this.refNode) {
       let finalValue = this.nowValue;
@@ -230,42 +256,41 @@ export class Animation {
           this.renderNowValue(finalValue);
         }
       }, 16);
-      // console.log('resume animation');
     }
   }
 
   /**
    * Update to new animation scheme
    *
-   * @param {Object} newConfig - new animation schema
+   * @param {Object} param - new animation schema
    */
-  updateAnimation(param) {
+  public updateAnimation(param) {
     if (param && this.refNode && !this.animationRunningFlag) {
       const {
         startValue, toValue, duration, timingFunction, repeatCount,
         mode, delay, valueType, direction,
       } = param;
-      if (startValue) {
+      if (isDef(startValue)) {
         this.renderStyleAttribute(startValue);
       }
-      if (mode) this.mode = mode;
-      if (delay) {
+      if (isDef(mode)) this.mode = mode;
+      if (isDef(delay)) {
         this.delay = delay;
         this.leftDelayCount = this.delay;
       }
-      if (startValue) {
+      if (isDef(startValue)) {
         this.startValue = startValue;
         this.nowValue = this.startValue;
       }
-      if (toValue) this.toValue = toValue;
-      if (valueType) this.valueType = valueType;
-      if (duration) {
+      if (isDef(toValue)) this.toValue = toValue;
+      if (isDef(valueType)) this.valueType = valueType;
+      if (isDef(duration)) {
         this.duration = duration;
         this.nowLeftDuration = this.duration;
       }
-      if (direction) this.direction = direction;
-      if (timingFunction) this.timingFunction = timingFunction;
-      if (repeatCount) {
+      if (isDef(direction)) this.direction = direction;
+      if (isDef(timingFunction)) this.timingFunction = timingFunction;
+      if (isDef(repeatCount)) {
         this.initRepeatCount = initLeftRepeatCount(repeatCount || 0);
         this.leftRepeatCount = this.initRepeatCount;
       }

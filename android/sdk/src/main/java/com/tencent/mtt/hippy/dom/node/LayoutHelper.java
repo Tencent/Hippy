@@ -25,107 +25,78 @@ import com.tencent.mtt.hippy.common.HippyHandlerThread;
 import com.tencent.mtt.hippy.common.HippyThreadRunnable;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/12/12 18:00
- * @version: V1.0
- */
+@SuppressWarnings({"unused"})
+public class LayoutHelper {
 
-public class LayoutHelper
-{
-	private HippyHandlerThread	mHandlerThread;
-	private Picture				mPicture	= new Picture();
+  private HippyHandlerThread mHandlerThread;
+  private final Picture mPicture = new Picture();
 
-	public  LayoutHelper()
-	{
-		mHandlerThread = new HippyHandlerThread("text-warm-thread");
-	}
+  public LayoutHelper() {
+    mHandlerThread = new HippyHandlerThread("text-warm-thread");
+  }
 
-	public void release()
-	{
-		if (mHandlerThread != null)
-		{
-			mHandlerThread.quit();
-		}
-		mHandlerThread = null;
-	}
+  public void release() {
+    if (mHandlerThread != null) {
+      mHandlerThread.quit();
+    }
+    mHandlerThread = null;
+  }
 
-	public void postWarmLayout(Layout layout)
-	{
-		if (mHandlerThread != null && mHandlerThread.isThreadAlive())
-			mHandlerThread.runOnQueue(new HippyThreadRunnable<Layout>(layout)
-			{
-				@Override
-				public void run(Layout param)
-				{
-					warmUpLayout(param);
-				}
-			});
-	}
+  public void postWarmLayout(Layout layout) {
+    if (mHandlerThread != null && mHandlerThread.isThreadAlive()) {
+      mHandlerThread.runOnQueue(new HippyThreadRunnable<Layout>(layout) {
+        @Override
+        public void run(Layout param) {
+          warmUpLayout(param);
+        }
+      });
+    }
+  }
 
-	private int getHeight(Layout layout)
-	{
-		if (layout == null)
-		{
-			return 0;
-		}
+  private int getHeight(Layout layout) {
+    if (layout == null) {
+      return 0;
+    }
 
-		int extra = 0;
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH && layout instanceof StaticLayout)
-		{
-			int above = layout.getLineAscent(layout.getLineCount() - 1);
-			int below = layout.getLineDescent(layout.getLineCount() - 1);
-			float originalSize = (below - above - layout.getSpacingAdd()) / layout.getSpacingMultiplier();
-			float ex = below - above - originalSize;
-			if (ex >= 0)
-			{
-				extra = (int) (ex + 0.5);
-			}
-			else
-			{
-				extra = -(int) (-ex + 0.5);
-			}
-		}
-		return layout.getHeight() - extra;
-	}
+    int extra = 0;
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH
+        && layout instanceof StaticLayout) {
+      int above = layout.getLineAscent(layout.getLineCount() - 1);
+      int below = layout.getLineDescent(layout.getLineCount() - 1);
+      float originalSize = (below - above - layout.getSpacingAdd()) / layout.getSpacingMultiplier();
+      float ex = below - above - originalSize;
+      if (ex >= 0) {
+        extra = (int) (ex + 0.5);
+      } else {
+        extra = -(int) (-ex + 0.5);
+      }
+    }
+    return layout.getHeight() - extra;
+  }
 
-	private int getWidth(Layout layout)
-	{
-		if (layout == null)
-		{
-			return 0;
-		}
+  private int getWidth(Layout layout) {
+    if (layout == null) {
+      return 0;
+    }
 
-		// Supplying VERY_WIDE will make layout.getWidth() return a very large value.
-		int count = layout.getLineCount();
-		int maxWidth = 0;
+    // Supplying VERY_WIDE will make layout.getWidth() return a very large value.
+    int count = layout.getLineCount();
+    int maxWidth = 0;
 
-		for (int i = 0; i < count; i++)
-		{
-			maxWidth = Math.max(maxWidth, (int) layout.getLineRight(i));
-		}
+    for (int i = 0; i < count; i++) {
+      maxWidth = Math.max(maxWidth, (int) layout.getLineRight(i));
+    }
 
-		return maxWidth;
-	}
+    return maxWidth;
+  }
 
-	private boolean warmUpLayout(Layout layout)
-	{
-		boolean result;
-		try
-		{
-			Canvas canvas = mPicture.beginRecording(getWidth(layout), getHeight(layout));
-			layout.draw(canvas);
-			mPicture.endRecording();
-			result = true;
-		}
-		catch (Exception e)
-		{
-			LogUtils.e("TextNode", "warmUpTextLayoutCache error", e);
-			result = false;
-		}
-		return result;
-	}
-
-
+  private void warmUpLayout(Layout layout) {
+    try {
+      Canvas canvas = mPicture.beginRecording(getWidth(layout), getHeight(layout));
+      layout.draw(canvas);
+      mPicture.endRecording();
+    } catch (Exception e) {
+      LogUtils.e("TextNode", "warmUpTextLayoutCache error", e);
+    }
+  }
 }

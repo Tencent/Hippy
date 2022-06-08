@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hippy</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Hippy - A Cross-Platform Development Framework">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="alternate" hreflang="x-default" href="https://hippyjs.org/#/">
+  <link rel="alternate" hreflang="zh" href="https://cn.hippyjs.org/#/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Hippy">
+  <meta property="og:description" content="Hippy - A Cross-Platform Development Framework">
+  <meta property="og:image" content="assets/img/hippy-logo.svg">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Hippy">
+  <meta name="twitter:description" content="Hippy - A Cross-Platform Development Framework">
+  <meta name="twitter:image" content="assets/img/hippy-logo.svg">
+  <link rel="icon" href="assets/img/hippy-logo.ico">
+  <link rel="stylesheet" href="assets/css/vue.css" title="vue">
+  <style>
+      #custom-homepage {
+          flex: 1;
+          text-align: center;
+          position: relative;
+          padding: 40px 0px 0;
+      }
+      #custom-homepage .custom-homepage-container {
+          margin-top: 25px;
+      }
+      #hippy {
+          color: inherit;
+          font-size: 3rem;
+          font-weight: 300;
+          position: relative;
+          text-align: center;
+          margin: 0;
+          display: inline-block;
+      }
+      #hippy .anchor {
+          display: block;
+          text-decoration: none;
+      }
+      #hippy .anchor span {
+          color: #34495e;
+          font-weight: normal;
+      }
+      .custom-homepage-container .sub-title {
+          font-size: 1.4rem;
+          text-align: center;
+          margin: 2rem 0;
+      }
+      .custom-homepage-container .sub-title span {
+          display: inline-block;
+          line-height: 2.2rem;
+      }
+      .custom-homepage-container .btn-container a {
+          border-radius: 2rem;
+          font-weight: normal;
+          border: 1px solid #2d6feb;
+          box-sizing: border-box;
+          color: #2d6feb;
+          display: inline-block;
+          font-size: 1.05rem;
+          letter-spacing: .1rem;
+          margin: .5rem 1rem;
+          padding: .75em 2rem;
+          text-decoration: none;
+          transition: all .15s ease;
+      }
+      .custom-homepage-container .btn-container a:last-child {
+          background-color: #2d6feb;
+          border: 1px solid #2d6feb;
+          color: #fff;
+      }
+      .custom-homepage-container .btn-container a:first-child:hover {
+          color: #868686;
+          border: 1px solid #868686;
+      }
+      .custom-homepage-container .btn-container a:last-child:hover {
+          color: #c8c8c8;
+          background-color: #006cd4;
+      }
+      #custom-homepage .features {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: flex-start;
+          align-content: stretch;
+          justify-content: center;
+      }
+      #custom-homepage .feature {
+          flex-grow: 1;
+          flex-basis: 30%;
+          margin: 0 7px;
+          justify-content: center;
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          flex-wrap: wrap;
+      }
+      #custom-homepage .feature p {
+          color: #4e6e8e;
+          max-width: 80%;
+      }
+      @media (max-width: 920px) {
+          #custom-homepage .features {
+              justify-content: center;
+              align-items: center;
+              flex-direction: column;
+          }
+          #custom-homepage .feature {
+              flex-shrink: 0;
+              max-width: 100%;
+              padding: 0 2.5rem;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div id="app">Loading ...</div>
+  <script>
+    window.$docsify = {
+      name: 'Hippy',
+      repo: 'https://github.com/Tencent/Hippy',
+      formatUpdated: '{MM}/{DD} {HH}:{mm}',
+      themeColor: '#2d6feb',
+      auto2top: true,
+      coverpage: false,
+      loadSidebar: true,
+      loadNavbar: true,
+      mergeNavbar: true,
+      maxLevel: 4,
+      subMaxLevel: 1,
+      search: {
+        depth: 6,
+          // 支持本地化
+        placeholder: {
+            '/': '🔍 搜索'
+        },
+        noData: {
+            '/': '找不到结果',
+        }
+      }
+    }
+  </script>
+  <script src="assets/js/docsify.min.js"></script>
+  <script src="assets/js/prism-jsx.min.js" defer></script>
+  <script src="assets/js/prism-json.min.js" defer></script>
+  <script src="assets/js/prism-css.min.js" defer></script>
+  <script src="assets/js/prism-java.min.js" defer></script>
+  <script src="assets/js/prism-objectivec.min.js" defer></script>
+  <script src="assets/js/prism-bash.min.js" defer></script>
+  <script src="assets/js/prism-cpp.min.js" defer></script>
+  <script src="assets/js/search.min.js" defer></script>
+  <script src="https://cdn-go.cn/aegis/aegis-sdk/latest/aegis.min.26.js"></script>
+  <script>
+    const aegis = new Aegis({
+        id: 'cTTfdMjcwAwMLaMdCq',
+        reportApiSpeed: true, // 接口测速
+        reportAssetSpeed: true // 静态资源测速
+    });
+  </script>
+</body>
+</html>

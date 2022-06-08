@@ -1,18 +1,34 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #import "HippyJavaScriptLoader.h"
+#import "HippyComponent.h"
 
 @class HippyBridge;
 @protocol HippyBridgeModule;
 
 @protocol HippyBridgeDelegate <NSObject>
+
+@optional
 
 /**
  * The location of the JavaScript source file. When running from the packager
@@ -22,7 +38,19 @@
  */
 - (NSURL *)sourceURLForBridge:(HippyBridge *)bridge;
 
-@optional
+- (void)componentWillBePurged:(id<HippyComponent>)component;
+
+/**
+ * Called and inject Object before Hippy execute JS source code
+ * object will be mounted at JS Global Object.
+ */
+- (NSDictionary *)objectsBeforeExecuteCode;
+
+/**
+ * Called and update Object before Hippy execute secondary JS source code. call on HippyBridgeQueue
+ * object will be mounted at JS Global Object.
+ */
+- (NSDictionary *)objectsBeforeExecuteSecondaryCode;
 
 /**
  * The bridge will attempt to load the JS source code from the location specified
@@ -87,15 +115,26 @@
  * location specified by the `sourceURLForBridge:` method, however, if you want
  * to handle loading the JS yourself, you can do so by implementing this method.
  */
-- (void)loadSourceForBridge:(HippyBridge *)bridge
-                 onProgress:(HippySourceLoadProgressBlock)onProgress
-                 onComplete:(HippySourceLoadBlock)loadCallback;
+- (void)loadSourceForBridge:(HippyBridge *)bridge onProgress:(HippySourceLoadProgressBlock)onProgress onComplete:(HippySourceLoadBlock)loadCallback;
 
 /**
  * Similar to loadSourceForBridge:onProgress:onComplete: but without progress
  * reporting.
  */
-- (void)loadSourceForBridge:(HippyBridge *)bridge
-                  withBlock:(HippySourceLoadBlock)loadCallback;
+- (void)loadSourceForBridge:(HippyBridge *)bridge withBlock:(HippySourceLoadBlock)loadCallback;
+
+- (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion;
+
+//chrome dev tools inspector delegate
+
+/**
+ * ask delegate should bridge start a web inspector
+ */
+- (BOOL)shouldStartInspector:(HippyBridge *)bridge;
+
+/**
+ * ask delegate URL for web inspector
+ */
+- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge;
 
 @end

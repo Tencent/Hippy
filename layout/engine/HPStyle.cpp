@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +16,28 @@
  */
 
 #include "HPStyle.h"
+
 #include <string.h>
+
 #include <iostream>
 
 typedef float CSSValue[CSS_PROPS_COUNT];
 typedef CSSDirection CSSFrom[CSS_PROPS_COUNT];
 
-const char flex_direction_str[][20] = { "row", "row-reverse", "column",
-    "column-reverse" };
+const char flex_direction_str[][20] = {"row", "row-reverse", "column", "column-reverse"};
 
-const char flex_wrap[][20] { "nowrap", "wrap", "wrap-reverse", };
+const char flex_wrap[][20]{
+    "nowrap",
+    "wrap",
+    "wrap-reverse",
+};
 
-//	flex-start | flex-end | center | baseline | stretch
-const char FlexAlignString[][40] = { "Auto", "flex-start", "center", "flex-end",
-    "stretch", "baseline", "space-between", "space-around ", "space-evenly" };
+// flex-start | flex-end | center | baseline | stretch
+const char FlexAlignString[][40] = {"Auto",          "flex-start",    "center",
+                                    "flex-end",      "stretch",       "baseline",
+                                    "space-between", "space-around ", "space-evenly"};
 
-const char PositionTypeString[][20] = { "relative", "absolute" };
+const char PositionTypeString[][20] = {"relative", "absolute"};
 
 /*
  const char OverflowTypeString[][20] {
@@ -42,16 +49,16 @@ const char PositionTypeString[][20] = { "relative", "absolute" };
 HPStyle::HPStyle() {
   nodeType = NodeTypeDefault;
   direction = DirectionInherit;
-  flexDirection = FLexDirectionColumn;  //but web initial value: FLexDirectionRow
+  flexDirection = FLexDirectionColumn;  // but web initial value: FLexDirectionRow
   alignSelf = FlexAlignAuto;
-  alignItems = FlexAlignStretch;  //initial value: stretch
-  alignContent = FlexAlignStart;  //but web initial value: stretch
+  alignItems = FlexAlignStretch;  // initial value: stretch
+  alignContent = FlexAlignStart;  // but web initial value: stretch
   justifyContent = FlexAlignStart;
   positionType = PositionTypeRelative;
   displayType = DisplayTypeFlex;
   overflowType = OverflowVisible;
 
-  dim[DimWidth] = VALUE_UNDEFINED;  //initial value :	auto
+  dim[DimWidth] = VALUE_UNDEFINED;  // initial value : auto
   dim[DimHeight] = VALUE_UNDEFINED;
   minDim[DimWidth] = VALUE_UNDEFINED;
   minDim[DimHeight] = VALUE_UNDEFINED;
@@ -65,32 +72,30 @@ HPStyle::HPStyle() {
   position[CSSStart] = VALUE_AUTO;
   position[CSSEnd] = VALUE_AUTO;
 
-
-  //CSS margin default value is 0
-  memset((void *) margin, 0, sizeof(float) * CSS_PROPS_COUNT);
-  //Why use 0xFF, memset fill byte as 0xFF , then marginForm[0] == CSSNone (-1)
-  memset((void *) marginFrom, 0xFF, sizeof(CSSDirection) * CSS_PROPS_COUNT);
+  // CSS margin default value is 0
+  memset(reinterpret_cast<void *>(margin), 0, sizeof(float) * CSS_PROPS_COUNT);
+  // Why use 0xFF, memset fill byte as 0xFF , then marginForm[0] == CSSNone (-1)
+  memset(reinterpret_cast<void *>(marginFrom), 0xFF, sizeof(CSSDirection) * CSS_PROPS_COUNT);
   ASSERT(marginFrom[0] == CSSNONE);
-  memset((void *) padding, 0, sizeof(float) * CSS_PROPS_COUNT);
-  memset((void *) paddingFrom, 0xFF, sizeof(CSSDirection) * CSS_PROPS_COUNT);
-  memset((void *) border, 0, sizeof(float) * CSS_PROPS_COUNT);
-  memset((void *) borderFrom, 0xFF, sizeof(CSSDirection) * CSS_PROPS_COUNT);
+  memset(reinterpret_cast<void *>(padding), 0, sizeof(float) * CSS_PROPS_COUNT);
+  memset(reinterpret_cast<void *>(paddingFrom), 0xFF, sizeof(CSSDirection) * CSS_PROPS_COUNT);
+  memset(reinterpret_cast<void *>(border), 0, sizeof(float) * CSS_PROPS_COUNT);
+  memset(reinterpret_cast<void *>(borderFrom), 0xFF, sizeof(CSSDirection) * CSS_PROPS_COUNT);
 
   flexWrap = FlexNoWrap;
-  flexGrow = 0;   //no grow
-  flexShrink = 0;  //no shrink, but web initial value 1
+  flexGrow = 0;    // no grow
+  flexShrink = 0;  // no shrink, but web initial value 1
   flex = VALUE_UNDEFINED;
-  flexBasis = VALUE_AUTO;  //initial auto
+  flexBasis = VALUE_AUTO;  // initial auto
   itemSpace = 0;
   lineSpace = 0;
 }
 
 HPStyle::~HPStyle() {
-  // TODO Auto-generated destructor stub
+  // TODO(ianwang): Auto-generated destructor stub
 }
 
-std::string edge2String(int type, CSSValue& edges, CSSFrom& edgesFrom) {
-
+std::string edge2String(int type, CSSValue &edges, CSSFrom &edgesFrom) {
   std::string prefix = "";
   if (type == 0) {  // margin
     prefix = "margin";
@@ -101,7 +106,7 @@ std::string edge2String(int type, CSSValue& edges, CSSFrom& edgesFrom) {
   }
 
   std::string styles;
-  char str[60] = { 0 };
+  char str[60] = {0};
   bool hasHorizontal = false;
   bool hasVertical = false;
   bool hasCSSAll = false;
@@ -172,20 +177,20 @@ std::string edge2String(int type, CSSValue& edges, CSSFrom& edgesFrom) {
 
 std::string HPStyle::toString() {
   std::string styles;
-  char str[60] = { 0 };
+  char str[60] = {0};
   if (flexDirection != FLexDirectionColumn) {
     snprintf(str, 50, "flex-direction:%s; ", flex_direction_str[flexDirection]);
     styles += str;
   }
 
-  //flexWrap
+  // flexWrap
   memset(str, 0, sizeof(str));
   if (flexWrap != FlexNoWrap) {
     snprintf(str, 50, "flex-wrap:%s; ", flex_wrap[flexWrap]);
     styles += str;
   }
 
-  //flexBasis
+  // flexBasis
   memset(str, 0, sizeof(str));
   if (isDefined(flexBasis)) {
     snprintf(str, 50, "flex-basis:%0.f; ", flexBasis);
@@ -319,10 +324,10 @@ std::string HPStyle::toString() {
 /*
  * priority:
  *[CSSStart, CSSEnd]
- *[CSSTop,CSSLeft,CSSBottom,CSSRight] > [CSSHorizontal, CSSVertical] > CSSAll > CSSNONE
+ *[CSSTop,CSSLeft,CSSBottom,CSSRight] > [CSSHorizontal, CSSVertical] > CSSAll >
+ *CSSNONE
  */
-bool setEdges(CSSDirection dir, float value, CSSValue& edges,
-              CSSFrom& edgesFrom) {
+bool setEdges(CSSDirection dir, float value, CSSValue &edges, CSSFrom &edgesFrom) {
   bool hasSet = false;
   if (dir == CSSStart || dir == CSSEnd) {
     if (!FloatIsEqual(edges[dir], value)) {
@@ -385,8 +390,8 @@ bool setEdges(CSSDirection dir, float value, CSSValue& edges,
   return hasSet;
 }
 
-//Allow set value as auto (VALUE_AUTO), is NAN.
-//then margin is calculated in layout follow W3C regulars
+// Allow set value as auto (VALUE_AUTO), is NAN.
+// then margin is calculated in layout follow W3C regulars
 bool HPStyle::setMargin(CSSDirection dir, float value) {
   return setEdges(dir, value, margin, marginFrom);
 }
@@ -449,12 +454,9 @@ bool HPStyle::isDimensionAuto(FlexDirection axis) {
   return isUndefined(dim[axisDim[axis]]);
 }
 
-
-//axis must be get from resolveMainAxis or resolveCrossAxis in HPNode
+// axis must be get from resolveMainAxis or resolveCrossAxis in HPNode
 float HPStyle::getStartBorder(FlexDirection axis) {
-  if (isRowDirection(axis)
-      && isDefined(border[CSSStart])
-      && borderFrom[CSSStart] != CSSNONE) {
+  if (isRowDirection(axis) && isDefined(border[CSSStart]) && borderFrom[CSSStart] != CSSNONE) {
     return border[CSSStart];
   }
   if (isDefined(border[axisStart[axis]])) {
@@ -464,9 +466,7 @@ float HPStyle::getStartBorder(FlexDirection axis) {
 }
 
 float HPStyle::getEndBorder(FlexDirection axis) {
-  if (isRowDirection(axis)
-      && isDefined(border[CSSEnd])
-      && borderFrom[CSSEnd] != CSSNONE) {
+  if (isRowDirection(axis) && isDefined(border[CSSEnd]) && borderFrom[CSSEnd] != CSSNONE) {
     return border[CSSEnd];
   }
   if (isDefined(border[axisEnd[axis]])) {
@@ -476,9 +476,7 @@ float HPStyle::getEndBorder(FlexDirection axis) {
 }
 
 float HPStyle::getStartPadding(FlexDirection axis) {
-  if (isRowDirection(axis)
-      && isDefined(padding[CSSStart])
-      && paddingFrom[CSSStart] != CSSNONE) {
+  if (isRowDirection(axis) && isDefined(padding[CSSStart]) && paddingFrom[CSSStart] != CSSNONE) {
     return padding[CSSStart];
   } else if (isDefined(padding[axisStart[axis]])) {
     return padding[axisStart[axis]];
@@ -487,9 +485,7 @@ float HPStyle::getStartPadding(FlexDirection axis) {
 }
 
 float HPStyle::getEndPadding(FlexDirection axis) {
-  if (isRowDirection(axis)
-      && isDefined(padding[CSSEnd])
-      && paddingFrom[CSSEnd] != CSSNONE) {
+  if (isRowDirection(axis) && isDefined(padding[CSSEnd]) && paddingFrom[CSSEnd] != CSSNONE) {
     return padding[CSSEnd];
   } else if (isDefined(padding[axisEnd[axis]])) {
     return padding[axisEnd[axis]];
@@ -497,11 +493,9 @@ float HPStyle::getEndPadding(FlexDirection axis) {
   return 0.0f;
 }
 
-//auto margins are treated as zero
+// auto margins are treated as zero
 float HPStyle::getStartMargin(FlexDirection axis) {
-  if (isRowDirection(axis)
-      && isDefined(margin[CSSStart])
-      && marginFrom[CSSStart] != CSSNONE) {
+  if (isRowDirection(axis) && isDefined(margin[CSSStart]) && marginFrom[CSSStart] != CSSNONE) {
     return margin[CSSStart];
   }
   if (isDefined(margin[axisStart[axis]])) {
@@ -510,11 +504,9 @@ float HPStyle::getStartMargin(FlexDirection axis) {
   return 0.0f;
 }
 
-//auto margins are treated as zero
+// auto margins are treated as zero
 float HPStyle::getEndMargin(FlexDirection axis) {
-  if (isRowDirection(axis)
-      && isDefined(margin[CSSEnd])
-      && marginFrom[CSSEnd] != CSSNONE) {
+  if (isRowDirection(axis) && isDefined(margin[CSSEnd]) && marginFrom[CSSEnd] != CSSNONE) {
     return margin[CSSEnd];
   }
   if (isDefined(margin[axisEnd[axis]])) {
@@ -558,4 +550,3 @@ float HPStyle::getFlexBasis() {
 
   return VALUE_AUTO;
 }
-

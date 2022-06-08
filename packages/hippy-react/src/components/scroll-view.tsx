@@ -1,13 +1,35 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-underscore-dangle */
 
 import React from 'react';
-import Style from '@localTypes/style';
-import View from './view';
 import * as StyleSheet from '../modules/stylesheet';
 import { callUIFunction } from '../modules/ui-manager-module';
+import Element from '../dom/element-node';
 import { warn } from '../utils';
+import { isRTL } from '../utils/i18n';
+import View from './view';
 
 interface ScrollViewProps {
+  style?: HippyTypes.Style;
   /**
    * When true, the scroll view's children are arranged horizontally in a row
    * instead of vertically in a column.
@@ -46,7 +68,7 @@ interface ScrollViewProps {
    * These styles will be applied to the scroll view content container which wraps all
    * of the child views.
    */
-  contentContainerStyle?: Style;
+  contentContainerStyle?: HippyTypes.Style;
 
   /**
    * This controls how often the scroll event will be fired while scrolling
@@ -78,12 +100,12 @@ interface ScrollViewProps {
   /**
    * Called when the momentum scroll starts (scroll which occurs as the ScrollView starts gliding).
    */
-  onMomentumScrollBegin?(): void;
+  onMomentumScrollBegin?: () => void;
 
   /**
    * Called when the momentum scroll ends (scroll which occurs as the ScrollView glides to a stop).
    */
-  onMomentumScrollEnd?(): void;
+  onMomentumScrollEnd?: () => void;
 
   /**
    * Fires at most once per frame during scrolling.
@@ -93,18 +115,17 @@ interface ScrollViewProps {
    * @param {number} evt.contentOffset.x - Offset X of scrolling.
    * @param {number} evt.contentOffset.y - Offset Y of scrolling.
    */
-  onScroll?(evt: { contentOffset: { x: number, y: number }}): void;
+  onScroll?: (evt: { contentOffset: { x: number, y: number }}) => void;
 
   /**
    * Called when the user begins to drag the scroll view.
    */
-  onScrollBeginDrag?(): void;
+  onScrollBeginDrag?: () => void;
 
   /**
    * Called when the user stops dragging the scroll view and it either stops or begins to glide.
    */
-  onScrollEndDrag?(): void;
-  style?: Style;
+  onScrollEndDrag?: () => void;
 }
 
 const styles = StyleSheet.create({
@@ -121,11 +142,11 @@ const styles = StyleSheet.create({
     overflow: 'scroll',
   },
   contentContainerVertical: {
-    collapse: false,
+    collapsable: false,
     flexDirection: 'column',
   },
   contentContainerHorizontal: {
-    collapse: false,
+    collapsable: false,
     flexDirection: 'row',
   },
 });
@@ -137,7 +158,7 @@ const styles = StyleSheet.create({
  * @noInheritDoc
  */
 class ScrollView extends React.Component<ScrollViewProps, {}> {
-  private instance: HTMLDivElement | null = null;
+  private instance: Element | HTMLDivElement | null = null;
 
   /**
    * Scrolls to a given x, y offset, either immediately, with a smooth animation.
@@ -162,19 +183,19 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
     x_ = x_ || 0;
     y_ = y_ || 0;
     animated_ = !!animated_;
-    callUIFunction(this.instance, 'scrollTo', [x_, y_, animated_]);
+    callUIFunction(this.instance as Element, 'scrollTo', [x_, y_, animated_]);
   }
 
   /**
    * Scrolls to a given x, y offset, with specific duration of animation.
    *
    * @param {number} x - Scroll to horizon position X.
-   * @param {number} y - Scroll To veritical position Y.
+   * @param {number} y - Scroll To vertical position Y.
    * @param {number} duration - Duration of animation execution time, with ms unit.
    *                            By default is 1000ms.
    */
   public scrollToWithDuration(x = 0, y = 0, duration = 1000) {
-    callUIFunction(this.instance, 'scrollToWithOptions', [{ x, y, duration }]);
+    callUIFunction(this.instance as Element, 'scrollToWithOptions', [{ x, y, duration }]);
   }
 
   /**
@@ -192,16 +213,26 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
       contentContainerStyle,
     ];
     const newStyle = horizontal
-      ? Object.assign({}, style, styles.baseHorizontal)
-      : Object.assign({}, style, styles.baseVertical);
+      ? Object.assign({}, styles.baseHorizontal, style)
+      : Object.assign({}, styles.baseVertical, style);
+
+    if (horizontal) {
+      newStyle.flexDirection = isRTL() ? 'row-reverse' : 'row';
+    }
+
     return (
+      // @ts-ignore
       <div
         nativeName="ScrollView"
-        ref={(ref) => { this.instance = ref; }}
+        ref={(ref) => {
+          this.instance = ref;
+        }}
         {...this.props}
+        // @ts-ignore
         style={newStyle}
       >
-        <View style={contentContainerStyle_}>
+        <View
+          style={contentContainerStyle_}>
           {children}
         </View>
       </div>

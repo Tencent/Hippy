@@ -15,21 +15,15 @@
  */
 package com.tencent.mtt.hippy.adapter;
 
-/**
- * @author: edsheng
- * @date: 2018/7/9 10:32
- * @version: V1.0
- */
-public interface HippyLogAdapter
-{
-	void log(String tag, String msg);
+import androidx.annotation.NonNull;
 
-	void init(int rootId, String module);
+public interface HippyLogAdapter {
 
-	void upload(callBack callBack);
+  int LOG_SEVERITY_DEBUG = -1;
+  int LOG_SEVERITY_INFO = 0;
+  int LOG_SEVERITY_WARNING = 1;
+  int LOG_SEVERITY_ERROR = 2;
+  int LOG_SEVERITY_FATAL = 3;
 
-	public interface callBack
-	{
-		void onSuccess();
-	}
+  void onReceiveLogMessage(int level, @NonNull String tag, @NonNull String msg);
 }

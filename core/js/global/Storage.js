@@ -51,7 +51,8 @@ Hippy.asyncStorage = {
           return null;
         }
         return r[0][1];
-      }).catch(err => convertErrors(err));
+      })
+      .catch(err => convertErrors(err));
   },
   removeItem(key) {
     return Hippy.bridge.callNativeWithPromise('StorageModule', 'multiRemove', [key]);

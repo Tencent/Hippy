@@ -1,10 +1,10 @@
 // Most nodes test is executed in node-ops.test.js
 // here just test the lacked testing for ViewNode for coverage.
 
-import test from 'ava';
+import test, { before } from 'ava';
 import ViewNode from '../view-node';
 
-test.before(() => {
+before(() => {
   global.__GLOBAL__ = {
     nodeId: 101,
   };
@@ -24,6 +24,16 @@ test('set isMounted test', (t) => {
   t.is(node.isMounted, false);
   node.isMounted = true;
   t.is(node.isMounted, true);
+});
+
+test('append exist child test', (t) => {
+  const parentNode = new ViewNode();
+  const childNode = new ViewNode();
+  const childNode2 = new ViewNode();
+  parentNode.appendChild(childNode);
+  parentNode.appendChild(childNode2);
+  parentNode.appendChild(childNode);
+  t.is(parentNode.lastChild, childNode);
 });
 
 test('findChild test', (t) => {

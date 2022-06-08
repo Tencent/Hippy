@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 /**
  * moduleCallList/callback/type：
  *  0 : native call callback, delete cache from moduleCallList immediately

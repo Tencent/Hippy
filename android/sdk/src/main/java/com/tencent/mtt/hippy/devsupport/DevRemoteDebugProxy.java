@@ -15,19 +15,13 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import android.content.Context;
+@SuppressWarnings("unused")
+public interface DevRemoteDebugProxy {
 
-/**
- * FileName: DevRemoteDebugProxy
- * Description：
- * History：
- */
-public interface DevRemoteDebugProxy
-{
-	void destroy();
+  void destroy();
 
-	interface OnReceiveDataListener
-	{
-		public void onReceiveData(String mesg);
-	}
+  interface OnReceiveDataListener {
+
+    void onReceiveData(String mesg);
+  }
 }

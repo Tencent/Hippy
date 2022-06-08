@@ -16,10 +16,8 @@
 package com.tencent.mtt.hippy.modules.javascriptmodules;
 
 /**
- * FileName: HippyJavaScriptModule
- * Description：
- * History：
+ * FileName: HippyJavaScriptModule Description： History：
  */
-public interface HippyJavaScriptModule
-{
+public interface HippyJavaScriptModule {
+
 }

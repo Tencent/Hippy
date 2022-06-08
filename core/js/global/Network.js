@@ -1,8 +1,12 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 global.Headers = class Headers {
   constructor(initValues) {
     this._headers = {};
     if (typeof initValues === 'object') {
-      Object.entries(initValues).forEach(([key, value]) => {
+      Object.keys(initValues).forEach((key) => {
+        const value = initValues[key];
         if (value instanceof Array) {
           value.forEach((oneData) => {
             this.append(key, oneData);
@@ -105,7 +109,7 @@ global.fetch = (url, options) => {
 
   const opts = options || {};
 
-  let reqHeads = [];
+  let reqHeads = {};
   if (opts.headers) {
     if (opts.headers instanceof Headers) {
       reqHeads = opts.headers.getAll();
@@ -120,7 +124,7 @@ global.fetch = (url, options) => {
   const reqOptions = {
     method: opts.method || 'GET',
     url,
-    headers: reqHeads || [],
+    headers: reqHeads || {},
     body: opts.body || '',
   };
 

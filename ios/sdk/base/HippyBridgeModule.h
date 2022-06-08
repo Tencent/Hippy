@@ -1,10 +1,23 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #import <Foundation/Foundation.h>
@@ -60,10 +73,14 @@ extern dispatch_queue_t HippyJSThread;
  * will be used as the JS module name. If omitted, the JS module name will
  * match the Objective-C class name.
  */
-#define HIPPY_EXPORT_MODULE(js_name) \
-HIPPY_EXTERN void HippyRegisterModule(Class); \
-+ (NSString *)moduleName { return @#js_name; } \
-+ (void)load { HippyRegisterModule(self); }
+#define HIPPY_EXPORT_MODULE(js_name)              \
+    HIPPY_EXTERN void HippyRegisterModule(Class); \
+    +(NSString *)moduleName {                     \
+        return @ #js_name;                        \
+    }                                             \
+    +(void)load {                                 \
+        HippyRegisterModule(self);                \
+    }
 
 // Implemented by HIPPY_EXPORT_MODULE
 + (NSString *)moduleName;
@@ -141,8 +158,7 @@ HIPPY_EXTERN void HippyRegisterModule(Class); \
  * native method implementation calls the respective block.
  *
  */
-#define HIPPY_EXPORT_METHOD(method) \
-  HIPPY_REMAP_METHOD(, method)
+#define HIPPY_EXPORT_METHOD(method) HIPPY_REMAP_METHOD(, method)
 
 /**
  * Similar to HIPPY_EXPORT_METHOD but lets you set the JS name of the exported
@@ -152,9 +168,9 @@ HIPPY_EXTERN void HippyRegisterModule(Class); \
  *   executeQuery:(NSString *)query parameters:(NSDictionary *)parameters)
  * { ... }
  */
-#define HIPPY_REMAP_METHOD(js_name, method) \
-  HIPPY_EXTERN_REMAP_METHOD(js_name, method) \
-  - (void)method
+#define HIPPY_REMAP_METHOD(js_name, method)    \
+    HIPPY_EXTERN_REMAP_METHOD(js_name, method) \
+    -(void)method
 
 /**
  * Use this macro in a private Objective-C implementation file to automatically
@@ -184,35 +200,32 @@ HIPPY_EXTERN void HippyRegisterModule(Class); \
  * This will now expose MyModule and the method to JavaScript via
  * `NativeModules.MyModule.doSomething`
  */
-#define HIPPY_EXTERN_MODULE(objc_name, objc_supername) \
-  HIPPY_EXTERN_REMAP_MODULE(, objc_name, objc_supername)
+#define HIPPY_EXTERN_MODULE(objc_name, objc_supername) HIPPY_EXTERN_REMAP_MODULE(, objc_name, objc_supername)
 
 /**
  * Like HIPPY_EXTERN_MODULE, but allows setting a custom JavaScript name.
  */
 #define HIPPY_EXTERN_REMAP_MODULE(js_name, objc_name, objc_supername) \
-  objc_name : objc_supername \
-  @end \
-  @interface objc_name (HippyExternModule) <HippyBridgeModule> \
-  @end \
-  @implementation objc_name (HippyExternModule) \
-  HIPPY_EXPORT_MODULE(js_name)
+    objc_name:                                                        \
+    objc_supername @                                                  \
+    end @interface objc_name(HippyExternModule)<HippyBridgeModule>    \
+    @end                                                              \
+    @implementation objc_name (HippyExternModule)                     \
+    HIPPY_EXPORT_MODULE(js_name)
 
 /**
  * Use this macro in accordance with HIPPY_EXTERN_MODULE to export methods
  * of an external module.
  */
-#define HIPPY_EXTERN_METHOD(method) \
-  HIPPY_EXTERN_REMAP_METHOD(, method)
+#define HIPPY_EXTERN_METHOD(method) HIPPY_EXTERN_REMAP_METHOD(, method)
 
 /**
  * Like HIPPY_EXTERN_REMAP_METHOD, but allows setting a custom JavaScript name.
  */
-#define HIPPY_EXTERN_REMAP_METHOD(js_name, method) \
-  + (NSArray<NSString *> *)Hippy_CONCAT(__hippy_export__, \
-    Hippy_CONCAT(js_name, Hippy_CONCAT(__LINE__, __COUNTER__))) { \
-    return @[@#js_name, @#method]; \
-  }
+#define HIPPY_EXTERN_REMAP_METHOD(js_name, method)                                                                       \
+    +(NSArray<NSString *> *)Hippy_CONCAT(__hippy_export__, Hippy_CONCAT(js_name, Hippy_CONCAT(__LINE__, __COUNTER__))) { \
+        return @[@ #js_name, @ #method];                                                                                 \
+    }
 
 /**
  * Injects methods into JS.  Entries in this array are used in addition to any

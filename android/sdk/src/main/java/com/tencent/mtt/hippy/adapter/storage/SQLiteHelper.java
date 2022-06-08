@@ -20,142 +20,116 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: SQLiteHelper
- * Description：
- * History：
- */
-public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper
-{
+public class SQLiteHelper extends SQLiteOpenHelper implements IHippySQLiteHelper {
 
-	private static final String	TABLE_STORAGE			= "hippy_engine_storage";
-	private static final int	SLEEP_TIME_MS			= 30;
-	private static final String	DATABASE_NAME			= "HippyStorage";
-	private static final int	DATABASE_VERSION		= 1;
-	private static final String	STATEMENT_CREATE_TABLE	= "CREATE TABLE IF NOT EXISTS " + TABLE_STORAGE + " (" + COLUMN_KEY + " TEXT PRIMARY KEY,"
-																+ COLUMN_VALUE + " TEXT NOT NULL)";
-	private long				mMaximumDatabaseSize	= 50L * 1024L * 1024L;
-	private SQLiteDatabase		mDb;
-	private Context				mContext;
+  private static final String TABLE_STORAGE = "hippy_engine_storage";
+  private static final int SLEEP_TIME_MS = 30;
+  private static final String DATABASE_NAME = "HippyStorage";
+  private static final int DATABASE_VERSION = 1;
+  @SuppressWarnings("SyntaxError")
+  private static final String STATEMENT_CREATE_TABLE =
+      "CREATE TABLE IF NOT EXISTS " + TABLE_STORAGE + " (" + COLUMN_KEY + " TEXT PRIMARY KEY,"
+          + COLUMN_VALUE + " TEXT NOT NULL)";
+  private SQLiteDatabase mDb;
+  private final Context mContext;
 
-	public SQLiteHelper(Context context)
-	{
-		super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		mContext = context;
-	}
+  public SQLiteHelper(Context context) {
+    super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    mContext = context;
+  }
 
-	@Override
-	public void onCreate(SQLiteDatabase db)
-	{
-		db.execSQL(STATEMENT_CREATE_TABLE);
-	}
+  @Override
+  public void onCreate(SQLiteDatabase db) {
+    db.execSQL(STATEMENT_CREATE_TABLE);
+  }
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-	{
-		if (oldVersion != newVersion)
-		{
-			deleteDatabase();
-			onCreate(db);
-		}
-	}
+  @Override
+  public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    if (oldVersion != newVersion) {
+      boolean ret = deleteDatabase();
+      LogUtils.d("SQLiteHelper", "onUpgrade: deleteDatabase ret=" + ret);
+      onCreate(db);
+    }
+  }
 
-	@Override
-	public synchronized SQLiteDatabase getDatabase()
-	{
-		ensureDatabase();
-		return mDb;
-	}
+  @Override
+  public synchronized SQLiteDatabase getDatabase() {
+    ensureDatabase();
+    return mDb;
+  }
 
-	@Override
-	public String getTableName()
-	{
-		return TABLE_STORAGE;
-	}
+  @Override
+  public String getTableName() {
+    return TABLE_STORAGE;
+  }
 
-	@Override
-	public void onDestroy() {
-		closeDatabase();
-	}
+  @Override
+  public void onDestroy() {
+    closeDatabase();
+  }
 
-	synchronized void ensureDatabase()
-	{
-		if (mDb != null && mDb.isOpen())
-		{
-			return;
-		}
+  synchronized void ensureDatabase() {
+    if (mDb != null && mDb.isOpen()) {
+      return;
+    }
 
-		SQLiteException lastSQLiteException = null;
-		for (int tries = 0; tries < 2; tries++)
-		{
-			try
-			{
-				if (tries > 0)
-				{
-					deleteDatabase();
-				}
-				mDb = getWritableDatabase();
-				break;
-			}
-			catch (SQLiteException e)
-			{
-				lastSQLiteException = e;
-			}
-			try
-			{
-				Thread.sleep(SLEEP_TIME_MS);
-			}
-			catch (InterruptedException ie)
-			{
-				Thread.currentThread().interrupt();
-			}
-		}
-		if (mDb == null)
-		{
-			throw lastSQLiteException;
-		}
-		createTableIfNotExists(mDb);
-		mDb.setMaximumSize(mMaximumDatabaseSize);
-	}
+    SQLiteException lastSQLiteException = null;
+    for (int tries = 0; tries < 2; tries++) {
+      try {
+        if (tries > 0) {
+          boolean ret = deleteDatabase();
+          LogUtils.d("SQLiteHelper", "ensureDatabase: deleteDatabase ret=" + ret);
+        }
+        mDb = getWritableDatabase();
+        break;
+      } catch (SQLiteException e) {
+        lastSQLiteException = e;
+      }
+      try {
+        Thread.sleep(SLEEP_TIME_MS);
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    if (mDb == null && lastSQLiteException != null) {
+      throw lastSQLiteException;
+    }
+    createTableIfNotExists(mDb);
+    long mMaximumDatabaseSize = 50L * 1024L * 1024L;
+    mDb.setMaximumSize(mMaximumDatabaseSize);
+  }
 
-	private synchronized boolean deleteDatabase()
-	{
-		closeDatabase();
-		return mContext.deleteDatabase(DATABASE_NAME);
-	}
+  private synchronized boolean deleteDatabase() {
+    closeDatabase();
+    return mContext.deleteDatabase(DATABASE_NAME);
+  }
 
-	private synchronized void closeDatabase()
-	{
-		if (mDb != null && mDb.isOpen())
-		{
-			mDb.close();
-			mDb = null;
-		}
-	}
+  private synchronized void closeDatabase() {
+    if (mDb != null && mDb.isOpen()) {
+      mDb.close();
+      mDb = null;
+    }
+  }
 
-	private void createTableIfNotExists(SQLiteDatabase db)
-	{
-		Cursor cursor = null;
-		try
-		{
-			cursor = db.rawQuery("SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '" + TABLE_STORAGE + "'", null);
-			if (cursor != null && cursor.getCount() > 0)
-			{
-				return;
-			}
-			db.execSQL(STATEMENT_CREATE_TABLE);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			if (cursor != null)
-			{
-				cursor.close();
-			}
-		}
-	}
+  @SuppressWarnings("TryFinallyCanBeTryWithResources")
+  private void createTableIfNotExists(SQLiteDatabase db) {
+    Cursor cursor = null;
+    try {
+      cursor = db.rawQuery(
+          "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '" + TABLE_STORAGE + "'",
+          null);
+      if (cursor != null && cursor.getCount() > 0) {
+        return;
+      }
+      db.execSQL(STATEMENT_CREATE_TABLE);
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+  }
 }

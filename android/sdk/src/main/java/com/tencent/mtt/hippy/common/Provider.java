@@ -16,11 +16,9 @@
 package com.tencent.mtt.hippy.common;
 
 /**
- * FileName: Provider
- * Description：
- * History：
+ * FileName: Provider Description： History：
  */
-public interface Provider<T>
-{
-    T get();
+public interface Provider<T> {
+
+  T get();
 }

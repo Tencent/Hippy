@@ -15,100 +15,47 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.image;
 
-import android.graphics.Bitmap;
-
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
 import com.tencent.mtt.hippy.adapter.image.HippyImageLoader;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 
-/**
- * Created by leonardgong on 2018/1/4 0004.
- */
-
+@SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "ImageLoaderModule")
-public class ImageLoaderModule extends HippyNativeModuleBase
-{
-	HippyImageLoader mImageAdapter;
+public class ImageLoaderModule extends HippyNativeModuleBase {
 
-	public ImageLoaderModule(HippyEngineContext context)
-	{
-		super(context);
-		mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
-	}
+  final HippyImageLoader mImageAdapter;
 
-	@HippyMethod(name = "getSize")
-	public void getSize(final String url, final Promise promise)
-	{
-		if (mImageAdapter != null)
-		{
-			mImageAdapter.fetchImage(url, new HippyImageLoader.Callback()
-			{
-				@Override
-				public void onRequestStart(HippyDrawable hippyDrawable)
-				{
-				}
+  public ImageLoaderModule(HippyEngineContext context) {
+    super(context);
+    mImageAdapter = context.getGlobalConfigs().getImageLoaderAdapter();
+  }
 
-				@Override
-				public void onRequestSuccess(HippyDrawable hippyDrawable)
-				{
-					if (hippyDrawable != null)
-					{
-						Bitmap bitmap = hippyDrawable.getBitmap();
-						if (bitmap != null)
-						{
-							int width = bitmap.getWidth();
-							int height = bitmap.getHeight();
-							HippyMap resultMap = new HippyMap();
-							resultMap.pushInt("width", width);
-							resultMap.pushInt("height", height);
-							promise.resolve(resultMap);
-						}
-						else
-						{
-							promise.reject("bitmap is null " + hippyDrawable.getSource());
-						}
-						hippyDrawable.onDrawableDetached();
-					}
-					else
-					{
-						promise.reject("fetch image fail " + url);
-					}
-				}
+  @HippyMethod(name = "getSize")
+  public void getSize(final String url, final Promise promise) {
+    if (mImageAdapter != null) {
+      mImageAdapter.getSize(url, promise);
+    }
+  }
 
-				@Override
-				public void onRequestFail(Throwable throwable, String source)
-				{
-					promise.reject("fetch image fail " + source);
-				}
-			}, null);
-		}
-	}
+  @HippyMethod(name = "prefetch")
+  public void prefetch(String url) {
+    mImageAdapter.fetchImage(url, new HippyImageLoader.Callback() {
+      @Override
+      public void onRequestStart(HippyDrawable hippyDrawable) {
+      }
 
-	@HippyMethod(name = "prefetch")
-	public void prefetch(String url)
-	{
-		mImageAdapter.fetchImage(url, new HippyImageLoader.Callback()
-		{
-			@Override
-			public void onRequestStart(HippyDrawable hippyDrawable)
-			{
-			}
+      @Override
+      public void onRequestSuccess(HippyDrawable hippyDrawable) {
+        hippyDrawable.onDrawableDetached();
+      }
 
-			@Override
-			public void onRequestSuccess(HippyDrawable hippyDrawable)
-			{
-				hippyDrawable.onDrawableDetached();
-			}
-
-			@Override
-			public void onRequestFail(Throwable throwable, String source)
-			{
-			}
-		}, null);
-	}
+      @Override
+      public void onRequestFail(Throwable throwable, String source) {
+      }
+    }, null);
+  }
 }

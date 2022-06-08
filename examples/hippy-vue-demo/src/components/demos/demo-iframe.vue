@@ -1,25 +1,41 @@
 <template>
-  <div id="iframe-demo">
+  <div
+    id="iframe-demo"
+    :style="iframeStyle"
+  >
     <label>地址栏：</label>
     <input
       id="address"
-      name="url"
       ref="input"
+      name="url"
       returnKeyType="go"
       :value="displayUrl"
       @endEditing="goToUrl"
       @keyup="onKeyUp"
+    >
+    <iframe
+      id="iframe"
+      ref="iframe"
+      :src="url"
+      method="get"
+      @load="onLoad"
+      @loadStart="onLoadStart"
+      @loadEnd="onLoadEnd"
     />
-    <iframe id="iframe" ref="iframe" :src="url" @load="onLoad" />
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
+
 export default {
   data() {
     return {
-      url: 'https://v.qq.com',
-      displayUrl: 'https://v.qq.com',
+      url: 'https://hippyjs.org',
+      displayUrl: 'https://hippyjs.org',
+      iframeStyle: {
+        'min-height': Vue.Native ? 100 : '100vh',
+      },
     };
   },
   methods: {
@@ -31,6 +47,14 @@ export default {
       if (url !== this.url) {
         this.displayUrl = url;
       }
+    },
+    onLoadStart(evt) {
+      const { url } = evt;
+      console.log('onLoadStart', url);
+    },
+    onLoadEnd(evt) {
+      const { url } = evt;
+      console.log('onLoadEnd', url);
     },
     // Web compatible
     onKeyUp(evt) {
@@ -53,7 +77,7 @@ export default {
     display: flex;
     flex: 1;
     flex-direction: column;
-    min-height: 100vh;
+    margin: 7px;
   }
   #iframe-demo #address {
     height: 48px;

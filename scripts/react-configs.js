@@ -1,16 +1,12 @@
-const path              = require('path');
-const replace           = require('rollup-plugin-replace');
-const alias             = require('rollup-plugin-alias');
-const node              = require('rollup-plugin-node-resolve');
-const commonjs          = require('rollup-plugin-commonjs');
-const typescript        = require('@wessberg/rollup-plugin-ts');
+const path = require('path');
+const typescript = require('rollup-plugin-typescript2');
+const replace = require('@rollup/plugin-replace');
+// const alias = require('@rollup/plugin-alias');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
 
 const hippyReactPackage = require('../packages/hippy-react/package.json');
 const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');
-
-const aliases = {
-  '@localTypes': path.resolve('./types'),
-};
 
 function banner(name, version) {
   const startYear = 2017;
@@ -46,30 +42,32 @@ function banner(name, version) {
 }
 
 const builds = {
-  'hippy-react': {
+  '@hippy/react': {
     entry: './packages/hippy-react/src/index.ts',
     dest: './packages/hippy-react/dist/index.js',
     format: 'es',
-    banner: banner('hippy-react', hippyReactPackage.version),
+    banner: banner('@hippy/react', hippyReactPackage.version),
     external(id) {
       return !![
         'react',
         'react-reconciler',
+        '@hippy/react-reconciler',
       ].find(ext => id.startsWith(ext));
     },
   },
-  'hippy-react-web': {
+  '@hippy/react-web': {
     entry: './packages/hippy-react-web/src/index.ts',
     dest: './packages/hippy-react-web/dist/index.js',
     format: 'es',
-    banner: banner('hippy-react-web', hippyReactWebPackage.version),
+    banner: banner('@hippy/react-web', hippyReactWebPackage.version),
     external(id) {
       return !![
         'react',
         'react-dom',
-        'bezier-easing',
-        'debounce',
+        'animated-scroll-to',
         'swiper',
+        '@hippy/rmc-list-view',
+        'rmc-pull-to-refresh',
       ].find(ext => id.startsWith(ext));
     },
   },
@@ -82,23 +80,36 @@ function genConfig(name) {
     external: opts.external,
     plugins: [
       replace({
-        'process.env.HIPPY_REACT_VERSION': `"${hippyReactPackage.version}"`,
+        preventAssignment: true,
+        values: {
+          'process.env.HIPPY_REACT_VERSION': `"${hippyReactPackage.version}"`,
+          'process.env.HIPPY_REACT_WEB_VERSION': `"${hippyReactWebPackage.version}"`,
+        },
       }),
-      typescript({
-        transpileOnly: true,
-      }),
-      node(),
+      nodeResolve(),
       commonjs(),
-      alias({
-        resolve: ['.ts', '.tsx'],
-        ...aliases,
+      typescript({
+        tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+        tsconfigOverride: {
+          compilerOptions: {
+            declaration: false,
+            declarationMap: false,
+          },
+          exclude: ['**/__tests__/*.test.*'],
+        },
       }),
     ].concat(opts.plugins || []),
     output: {
+      name,
       file: opts.dest,
       format: opts.format,
       banner: opts.banner,
-      name,
+      exports: 'auto',
+    },
+    onwarn: (msg, warn) => {
+      if (!/Circular/.test(msg)) {
+        warn(msg);
+      }
     },
   };
 

@@ -1,25 +1,23 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import HippyVueNativeComponents from 'hippy-vue-native-components';
+import HippyVueNativeComponents from '@hippy/vue-native-components';
 import App from './app.vue';
 import routes from './routes';
 import { setApp } from './util';
 
-// 禁止终端调试信息输出，取消注释即可使用。
+// 是否输出终端调试信息
 // Vue.config.silent = true;
 
 Vue.config.productionTip = false;
 
-debugger;
-
-// Hippy 终端组件扩展中间件，可以使用 modal、view-pager、tab-host、ul-refresh 等原生组件了。
+// Hippy 终端组件扩展中间件，可以使用 modal、view-pager、tab-host、ul-refresh 等原生组件。
 Vue.use(HippyVueNativeComponents);
 Vue.use(VueRouter);
 
 const router = new VueRouter(routes);
 
 /**
- * 声明一个 app，这是同步生成的
+ * 声明一个 app
  */
 const app = new Vue({
   // 终端指定的 App 名称
@@ -41,7 +39,7 @@ const app = new Vue({
       backgroundColor: 4283416717,
 
       // 状态栏背景图，要注意这个会根据容器尺寸拉伸。
-      // backgroundImage: 'https://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+      // backgroundImage: 'https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png',
     },
   },
   // 路由
@@ -50,14 +48,21 @@ const app = new Vue({
 
 /**
  * $start 是 Hippy 启动完以后触发的回调
- * Vue 会在 Hippy 启动之前完成首屏 VDOM 的渲染，所以首屏性能非常高
- * 在 $start 里可以通知终端说已经启动完成，可以开始给前端发消息了。
+ * @param {Function} callback - 引擎加载成功后回调函数
+ *  @param {Object} instance - 业务vue实例对象
+ *  @param {Object} initialProps - 终端给前端的初始化参数
  */
-app.$start((/* app */) => {
+app.$start((instance, initialProps) => {
+  console.log('instance', instance, 'initialProps', initialProps);
   // 这里干一点 Hippy 启动后的需要干的事情，比如通知终端前端已经准备完毕，可以开始发消息了。
   // setApp(app);
+  // listen Android back press
+  Vue.Native.BackAndroid.addListener(() => {
+    console.log('backAndroid');
+    // set true interrupts native back
+    return true;
+  });
 });
-
 /**
  * 保存 app 供后面通过 app 接受来自终端的事件。
  *

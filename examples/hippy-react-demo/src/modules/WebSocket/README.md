@@ -14,7 +14,7 @@ export default class WebSocketExpo extends React.Component {
     }
 
     componentWillMount() {
-        this.webSocekt = new WebSocket("ws://websocket.test.qq.com/websocket");
+        this.webSocekt = new WebSocket("ws://websocket.xxx.com/websocket");
         this.webSocekt.onopen = () => {
             this._webSocketOpened = true;
             console.log("WebSocket onOpen");

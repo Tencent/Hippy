@@ -1,19 +1,28 @@
-/**
- * Copyright (c) 2017-present, Tencent, Inc.
- * All rights reserved.
- * Author: ianwang <ianwang@tencent.com>
- * Created on: 2017-12-30
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-#ifndef FLEXLINE_H_
-#define FLEXLINE_H_
+#pragma once
+
 #include <vector>
 
 #include "MTTFlex.h"
-using namespace std;
 
 class MTTNode;
-typedef MTTNode * MTTNodeRef;
+typedef MTTNode* MTTNodeRef;
 
 enum FlexSign {
   PositiveFlexibility,
@@ -21,45 +30,38 @@ enum FlexSign {
 };
 
 class FlexLine {
-public:
-	FlexLine(MTTNodeRef container);
-	void addItem(MTTNodeRef item);
-	bool isEmpty();
-	FlexSign Sign() const {
-	  return sumHypotheticalMainSize < containerMainInnerSize
-	             ? PositiveFlexibility
-	             : NegativeFlexibility;
-	}
-	void SetContainerMainInnerSize(float size) {
-		 containerMainInnerSize = size;
-	}
-	void FreezeViolations(vector<MTTNode*>& violations);
-	void FreezeInflexibleItems(FlexLayoutAction layoutAction);
-	bool ResolveFlexibleLengths();
-	void alignItems();
+ public:
+  explicit FlexLine(MTTNodeRef container);
+  void addItem(MTTNodeRef item);
+  bool isEmpty();
+  FlexSign Sign() const {
+    return sumHypotheticalMainSize < containerMainInnerSize ? PositiveFlexibility
+                                                            : NegativeFlexibility;
+  }
+  void SetContainerMainInnerSize(float size) { containerMainInnerSize = size; }
+  void FreezeViolations(std::vector<MTTNode*>& violations);
+  void FreezeInflexibleItems(FlexLayoutAction layoutAction);
+  bool ResolveFlexibleLengths();
+  void alignItems();
 
-public:
-	vector<MTTNodeRef> items;
-	MTTNodeRef flexContainer;
-	//inner size in container main axis
-	float containerMainInnerSize;
-	//container main axis
-	FlexDirection mainAxis;
+ public:
+  std::vector<MTTNodeRef> items;
+  MTTNodeRef flexContainer;
+  // inner size in container main axis
+  float containerMainInnerSize;
+  // accumulate item's Hypothetical MainSize in this line(include item's margin)
+  float sumHypotheticalMainSize;
+  // accumulate flex grow of items in this line
+  float totalFlexGrow;
+  float totalFlexShrink;
+  // accumulate item's flexShrink * item 's mainSize
+  float totalWeightedFlexShrink;
 
-	//accumulate item's Hypothetical MainSize in this line(include item's margin)
-	float sumHypotheticalMainSize;
-	//accumulate flex grow of items in this line
-	float totalFlexGrow;
-	float totalFlexShrink;
-	//accumulate item's flexShrink * item 's mainSize
-	float totalWeightedFlexShrink;
+  // this line's cross size:if this is a single line, may be determined by
+  // container's style otherwise  determined by the largest item 's cross size.
+  float lineCrossSize;
 
-	//this line's cross size:if this is a single line, may be determined by container's style
-	//otherwise  determined by the largest item 's cross size.
-	float lineCrossSize;
-
-	//init in FreezeInflexibleItems...
-	float initialFreeSpace;
-	float remainingFreeSpace;
+  // init in FreezeInflexibleItems...
+  float initialFreeSpace;
+  float remainingFreeSpace;
 };
-#endif

@@ -23,51 +23,52 @@ import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: UtilsModule
- * Description：harryguo 现在只有一个vibrate 震动
- * History：
- */
+@SuppressWarnings({"unused"})
 @HippyNativeModule(name = "UtilsModule")
-public class UtilsModule extends HippyNativeModuleBase
-{
-	private Vibrator mVibrator;
-	public UtilsModule(HippyEngineContext context)
-	{
-		super(context);
-	}
+public class UtilsModule extends HippyNativeModuleBase {
 
-	@HippyMethod(name = "vibrate")
-	public void vibrate(HippyArray patternHippy, int repeat)
-	{
-		if (mVibrator == null)
-			mVibrator = (Vibrator) mContext.getGlobalConfigs().getContext().getSystemService(Context.VIBRATOR_SERVICE);
-		if (mVibrator != null) {
-			long[] pattern = null;
-			if (patternHippy != null && patternHippy.size() > 0) {
-				pattern = new long[patternHippy.size()];
-				try {
-					for (int i = 0; i < patternHippy.size(); i++)
-					{
-						pattern[i] = (Integer) patternHippy.get(i);
-					}
-				} catch (Exception e) {}
-			}
-			// 默认一秒
-			if (pattern == null || pattern.length == 0)
-				pattern = new long[]{1000};
-			mVibrator.vibrate(pattern, repeat);
-		}
-	}
+  private Vibrator mVibrator;
 
-	@HippyMethod(name = "cancel")
-	public void cancel()
-	{
-		if (mVibrator == null)
-			mVibrator = (Vibrator) mContext.getGlobalConfigs().getContext().getSystemService(Context.VIBRATOR_SERVICE);
-		if (mVibrator != null) {
-			mVibrator.cancel();
-		}
-	}
+  public UtilsModule(HippyEngineContext context) {
+    super(context);
+  }
+
+  @HippyMethod(name = "vibrate")
+  public void vibrate(HippyArray patternHippy, int repeat) {
+    if (mVibrator == null) {
+      mVibrator = (Vibrator) mContext.getGlobalConfigs().getContext()
+          .getSystemService(Context.VIBRATOR_SERVICE);
+    }
+    if (mVibrator != null) {
+      long[] pattern = null;
+      if (patternHippy != null && patternHippy.size() > 0) {
+        pattern = new long[patternHippy.size()];
+        try {
+          for (int i = 0; i < patternHippy.size(); i++) {
+            pattern[i] = (Integer) patternHippy.get(i);
+          }
+        } catch (Exception e) {
+          LogUtils.d("UtilsModule", "vibrate: " + e.getMessage());
+        }
+      }
+      // 默认一秒
+      if (pattern == null || pattern.length == 0) {
+        pattern = new long[]{1000};
+      }
+      mVibrator.vibrate(pattern, repeat);
+    }
+  }
+
+  @HippyMethod(name = "cancel")
+  public void cancel() {
+    if (mVibrator == null) {
+      mVibrator = (Vibrator) mContext.getGlobalConfigs().getContext()
+          .getSystemService(Context.VIBRATOR_SERVICE);
+    }
+    if (mVibrator != null) {
+      mVibrator.cancel();
+    }
+  }
 }

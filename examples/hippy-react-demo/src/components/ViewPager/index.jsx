@@ -1,7 +1,10 @@
 import React from 'react';
 import {
-  StyleSheet, View, Platform, Text, ViewPager,
-} from 'hippy-react';
+  StyleSheet,
+  View,
+  Text,
+  ViewPager,
+} from '@hippy/react';
 import { CirclePagerView, SquarePagerView, TrianglePagerView } from '../../shared/PagerItemView';
 
 const DEFAULT_DOT_RADIUS = 6;
@@ -56,7 +59,6 @@ const styles = StyleSheet.create({
 export default class PagerExample extends React.Component {
     state = {
       selectedIndex: 0,
-      width: 0,
     };
 
     constructor(props) {
@@ -65,36 +67,19 @@ export default class PagerExample extends React.Component {
     }
 
     onPageSelected(pageData) {
+      console.log('onPageSelected', pageData.position);
       this.setState({
         selectedIndex: pageData.position,
       });
     }
 
-    setPage(idx) {
-      this.scrollTo(idx, true);
+    onPageScrollStateChanged(pageScrollState) {
+      console.log('onPageScrollStateChanged', pageScrollState);
     }
 
-    setPageWithoutAnimation(idx) {
-      this.scrollTo(idx, false);
+    onPageScroll({ offset, position }) {
+      console.log('onPageScroll', offset, position);
     }
-
-    // 外部调用执行滑动
-    scrollTo(idx, animated) {
-      const { selectedIndex, width } = this.state;
-      if (idx !== selectedIndex) {
-        if (Platform.OS === 'ios') {
-          this.viewpager.scrollTo({
-            x: idx * width,
-            animated: !!animated,
-          });
-        } else if (animated) {
-          this.viewpager.setPage(idx);
-        } else {
-          this.viewpager.setPageWithoutAnimation(idx);
-        }
-      }
-    }
-
     render() {
       const { selectedIndex } = this.state;
       return (
@@ -113,29 +98,34 @@ export default class PagerExample extends React.Component {
             </View>
           </View>
           <ViewPager
-            ref={(ref) => { this.viewpager = ref; }}
+            ref={(ref) => {
+              this.viewpager = ref;
+            }}
             style={styles.container}
             initialPage={0}
             keyboardDismissMode="none"
             scrollEnabled
             onPageSelected={this.onPageSelected}
+            onPageScroll={this.onPageScroll}
           >
             {
               [
-                SquarePagerView(),
-                TrianglePagerView(),
-                CirclePagerView(),
+                SquarePagerView('squarePager'),
+                TrianglePagerView('TrianglePager'),
+                CirclePagerView('CirclePager'),
               ]
             }
           </ViewPager>
           <View style={styles.dotContainer}>
             {
-              new Array(PAGE_COUNT).fill(0).map((n, i) => {
-                const isSelect = i === selectedIndex;
-                return (
-                  <View style={[styles.dot, isSelect ? styles.selectDot : null]} />
-                );
-              })
+              new Array(PAGE_COUNT).fill(0)
+                .map((n, i) => {
+                  const isSelect = i === selectedIndex;
+                  return (
+                  // eslint-disable-next-line react/jsx-key
+                  <View style={[styles.dot, isSelect ? styles.selectDot : null]} key={`dot_${i}`}/>
+                  );
+                })
             }
           </View>
         </View>

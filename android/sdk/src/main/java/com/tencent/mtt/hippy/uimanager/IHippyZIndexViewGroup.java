@@ -15,13 +15,10 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
-/**
- * Created by leonardgong on 2018/1/9 0009.
- */
+@SuppressWarnings({"unused"})
+public interface IHippyZIndexViewGroup {
 
-public interface IHippyZIndexViewGroup
-{
-    int getZIndexMappedChildIndex(int index);
+  int getZIndexMappedChildIndex(int index);
 
-    void updateDrawingOrder();
+  void updateDrawingOrder();
 }

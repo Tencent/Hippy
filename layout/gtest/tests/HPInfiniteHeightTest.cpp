@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 // This test isn't correct from the Flexbox standard standpoint,
 // because percentages are calculated with parent constraints.
 // However, we need to make sure we fail gracefully in this case, not returning NaN
 TEST(HippyTest, percent_absolute_position_infinite_height) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 300);
@@ -36,7 +35,7 @@ TEST(HippyTest, percent_absolute_position_infinite_height) {
   HPNodeStyleSetPosition(root_child1, CSSLeft, 60);
   HPNodeStyleSetPosition(root_child1, CSSTop, 0);
   HPNodeStyleSetWidth(root_child1, 60);
-//  HPNodeStyleSetHeight(root_child1, 0);
+  //  HPNodeStyleSetHeight(root_child1, 0);
   HPNodeInsertChild(root, root_child1, 1);
   HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED);
 
@@ -56,5 +55,4 @@ TEST(HippyTest, percent_absolute_position_infinite_height) {
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }

@@ -15,19 +15,14 @@
  */
 package com.tencent.mtt.hippy;
 
-/**
- * FileName: HippyInstanceLifecycleEventListener
- * Description：
- * History：
- */
-public interface HippyInstanceLifecycleEventListener
-{
+@SuppressWarnings({"unused"})
+public interface HippyInstanceLifecycleEventListener {
 
-	void onInstanceLoad(int instanceId);
+  void onInstanceLoad(int instanceId);
 
-	void onInstanceResume(int instanceId);
+  void onInstanceResume(int instanceId);
 
-	void onInstancePause(int instanceId);
+  void onInstancePause(int instanceId);
 
-	void onInstanceDestroy(int instanceId);
+  void onInstanceDestroy(int instanceId);
 }

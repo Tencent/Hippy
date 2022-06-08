@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 using namespace ::testing;
 
@@ -29,10 +29,7 @@ class HippyTest_HadOverflowTests : public Test {
     HPNodeStyleSetFlexWrap(root, FlexNoWrap);
   }
 
-  ~HippyTest_HadOverflowTests() {
-    HPNodeFreeRecursive(root);
-
-  }
+  ~HippyTest_HadOverflowTests() { HPNodeFreeRecursive(root); }
 
   HPNodeRef root;
 };

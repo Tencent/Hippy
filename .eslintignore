@@ -1,3 +1,9 @@
-node_modules
-dist
+node_modules*
+docs/
+dist/
 coverage
+// TODO: ts-lint check hippy-vue/types in future
+packages/hippy-vue/types
+packages/hippy-debug-server/webpack-dev-server/client
+packages/hippy-debug-server/webpack-dev-server/lib
+packages/hippy-vue-loader/lib

@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 __GLOBAL__.appRegister = {};
 __GLOBAL__.nodeIdCache = {};
 __GLOBAL__.nodeTreeCache = {};
@@ -5,15 +8,13 @@ __GLOBAL__.IosNodeTree = {};
 __GLOBAL__.nodeParamCache = {};
 __GLOBAL__.moduleCallId = 0;
 __GLOBAL__.moduleCallList = {};
-__GLOBAL__.DimensionsStore = {}; // TODO: Able to delete
 __GLOBAL__.canRequestAnimationFrame = true;
 __GLOBAL__.requestAnimationFrameId = 0;
 __GLOBAL__.requestAnimationFrameQueue = {};
-__GLOBAL__.const = {}; // TODO: Able to delete
 __GLOBAL__.destroyInstanceList = {};
 __GLOBAL__._callID = 0;
 __GLOBAL__._callbackID = 0;
-__GLOBAL__._callbacks = [];
+__GLOBAL__._callbacks = {};
 __GLOBAL__._notDeleteCallbackIds = {};
 __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
 
@@ -44,7 +45,6 @@ __GLOBAL__.defineLazyObjectProperty = (object, name, descriptor) => {
     }
     return value;
   };
-
   Object.defineProperty(object, name, {
     get: getValue,
     set: setValue,
@@ -53,24 +53,23 @@ __GLOBAL__.defineLazyObjectProperty = (object, name, descriptor) => {
   });
 };
 
-__GLOBAL__.enqueueNativeCall = (moduleID, methodID, params, onFail, onSucc) => {
-  if (onFail || onSucc) {
+__GLOBAL__.enqueueNativeCall = (moduleID, methodID, params, onSuccess, onFail) => {
+  if (onSuccess || onFail) {
     if (typeof params === 'object' && params.length > 0 && typeof params[0] === 'object' && params[0].notDelete) {
       params.shift();
-
       __GLOBAL__._notDeleteCallbackIds[__GLOBAL__._callbackID] = true;
     }
+
+    if (onSuccess) {
+      params.push(__GLOBAL__._callbackID);
+    }
+    __GLOBAL__._callbacks[__GLOBAL__._callbackID] = onSuccess;
+    __GLOBAL__._callbackID += 1;
 
     if (onFail) {
       params.push(__GLOBAL__._callbackID);
     }
     __GLOBAL__._callbacks[__GLOBAL__._callbackID] = onFail;
-    __GLOBAL__._callbackID += 1;
-
-    if (onSucc) {
-      params.push(__GLOBAL__._callbackID);
-    }
-    __GLOBAL__._callbacks[__GLOBAL__._callbackID] = onSucc;
     __GLOBAL__._callbackID += 1;
   }
 
@@ -81,8 +80,9 @@ __GLOBAL__.enqueueNativeCall = (moduleID, methodID, params, onFail, onSucc) => {
   __GLOBAL__._queue[2].push(params);
 
   if (typeof nativeFlushQueueImmediate !== 'undefined') {
-    nativeFlushQueueImmediate(__GLOBAL__._queue);
+    const originalQueue = [...__GLOBAL__._queue];
     __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
+    nativeFlushQueueImmediate(originalQueue);
   }
 };
 
@@ -129,12 +129,18 @@ __GLOBAL__.loadModule = (name, moduleID) => {
 };
 
 __GLOBAL__.genMethod = (moduleID, methodID, type) => {
-  let fn = null;
+  let fn;
   if (type === 'promise') {
     fn = (...args) => new Promise((resolve, reject) => {
-      __GLOBAL__.enqueueNativeCall(moduleID, methodID, args,
-        (data) => { resolve(data); },
-        (errorData) => { reject(errorData); });
+      __GLOBAL__.enqueueNativeCall(
+        moduleID, methodID, args,
+        (data) => {
+          resolve(data);
+        },
+        (errorData) => {
+          reject(errorData);
+        },
+      );
     });
   } else if (type === 'sync') {
     fn = (...args) => nativeCallSyncHook(moduleID, methodID, args);
@@ -170,13 +176,11 @@ if (typeof nativeModuleProxy !== 'undefined') {
   __GLOBAL__.NativeModules = nativeModuleProxy;
 } else {
   const bridgeConfig = __fbBatchedBridgeConfig;
-
   ((bridgeConfig && bridgeConfig.remoteModuleConfig) || []).forEach((config, moduleID) => {
     const info = __GLOBAL__.genModule(config, moduleID);
     if (!info) {
       return;
     }
-
     if (info.module) {
       __GLOBAL__.NativeModules[info.name] = info.module;
     } else {

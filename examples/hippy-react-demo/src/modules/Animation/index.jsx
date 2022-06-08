@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const SKIN_COLOR = {
   mainLight: '#4c9afa',
@@ -15,7 +15,6 @@ const SKIN_COLOR = {
   textWhite: '#fff',
 };
 
-// 样式填写
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 10,
@@ -46,6 +45,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
   },
+  colorText: {
+    fontSize: 14,
+    color: 'white',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+  },
   buttonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -64,21 +69,21 @@ export default class AnimationExample extends React.Component {
 
   componentWillMount() {
     this.horizonAnimation = new Animation({
-      startValue: 150,            // 开始值
-      toValue: 20,                // 动画结束值
-      duration: 1000,             // 动画持续时长
-      delay: 500,                 // 至动画真正开始的延迟时间
-      mode: 'timing',             // 动画模式
-      timingFunction: 'ease-in',  // 动画缓动函数
+      startValue: 150, // 开始值
+      toValue: 20, // 动画结束值
+      duration: 1000, // 动画持续时长
+      delay: 500, // 至动画真正开始的延迟时间
+      mode: 'timing', // 动画模式
+      timingFunction: 'linear', // 动画缓动函数
       repeatCount: 'loop',
     });
     this.verticalAnimation = new Animation({
-      startValue: 80,             // 动画开始值
-      toValue: 40,                // 动画结束值
-      duration: 1000,             // 动画持续时长
-      delay: 0,                   // 至动画真正开始的延迟时间
-      mode: 'timing',             // 动画模式
-      timingFunction: 'linear',   // 动画缓动函数,
+      startValue: 80, // 动画开始值
+      toValue: 40, // 动画结束值
+      duration: 1000, // 动画持续时长
+      delay: 0, // 至动画真正开始的延迟时间
+      mode: 'timing', // 动画模式
+      timingFunction: 'linear', // 动画缓动函数,
       repeatCount: 'loop',
     });
 
@@ -93,7 +98,7 @@ export default class AnimationExample extends React.Component {
             mode: 'timing',
             timingFunction: 'linear',
           }),
-          follow: false,   // 配置子动画的执行是否跟随执行
+          follow: false, // 配置子动画的执行是否跟随执行
         },
         {
           animation: new Animation({
@@ -109,6 +114,93 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
+    this.bgColorAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 'red',
+            toValue: 'yellow',
+            valueType: 'color', // 颜色动画需显式指定color单位
+            duration: 1000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 'yellow',
+            toValue: 'blue',
+            duration: 1000,
+            valueType: 'color',
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+    // TODO iOS暂不支持文字颜色渐变动画
+    this.txtColorAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 'white',
+            toValue: 'yellow',
+            valueType: 'color', // 颜色动画需显式指定color单位
+            duration: 1000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 'yellow',
+            toValue: 'white',
+            duration: 1000,
+            valueType: 'color',
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+
+    // timingFunction cubic-bezier 范例
+    this.cubicBezierScaleAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 0,
+            toValue: 1,
+            duration: 1000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'cubic-bezier(.45,2.84,.38,.5)',
+          }),
+          follow: false,
+        },
+        {
+          animation: new Animation({
+            startValue: 1,
+            toValue: 0,
+            duration: 1000,
+            mode: 'timing',
+            timingFunction: 'cubic-bezier(.17,1.45,.78,.14)',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
   }
 
   componentDidMount() {
@@ -117,6 +209,9 @@ export default class AnimationExample extends React.Component {
       this.verticalAnimation.setRef(this.verticalRef);
       this.horizonAnimation.setRef(this.horizonRef);
       this.scaleAnimationSet.setRef(this.scaleRef);
+      this.bgColorAnimationSet.setRef(this.bgColorRef);
+      this.txtColorAnimationSet.setRef(this.textColorRef);
+      this.cubicBezierScaleAnimationSet.setRef(this.cubicBezierScaleRef);
     }
     this.horizonAnimation.onHippyAnimationStart(() => {
       /* eslint-disable-next-line no-console */
@@ -136,15 +231,24 @@ export default class AnimationExample extends React.Component {
     });
   }
 
-  componentWillUnmount() {  // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
-    if (this.scaleAnimationSet) {
-      this.scaleAnimationSet.destroy();
-    }
+  componentWillUnmount() { // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
     if (this.horizonAnimation) {
       this.horizonAnimation.destroy();
     }
     if (this.verticalAnimation) {
       this.verticalAnimation.destroy();
+    }
+    if (this.scaleAnimationSet) {
+      this.scaleAnimationSet.destroy();
+    }
+    if (this.bgColorAnimationSet) {
+      this.bgColorAnimationSet.destroy();
+    }
+    if (this.txtColorAnimationSet) {
+      this.txtColorAnimationSet.destroy();
+    }
+    if (this.cubicBezierScaleAnimationSet) {
+      this.cubicBezierScaleAnimationSet.destroy();
     }
   }
 
@@ -188,7 +292,9 @@ export default class AnimationExample extends React.Component {
         </View>
         <View style={styles.showArea}>
           <View
-            ref={(ref) => { this.horizonRef = ref; }}
+            ref={(ref) => {
+              this.horizonRef = ref;
+            }}
             style={[styles.square, {
               transform: [{
                 translateX: this.horizonAnimation,
@@ -196,30 +302,38 @@ export default class AnimationExample extends React.Component {
             }]}
           />
         </View>
-        <Text style={styles.title}>垂直位移动画</Text>
+        <Text style={styles.title}>高度形变动画</Text>
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
-            onClick={() => { this.verticalAnimation.start(); }}
+            onClick={() => {
+              this.verticalAnimation.start();
+            }}
           >
             <Text style={styles.buttonText}>开始</Text>
           </View>
           <View
             style={[styles.button]}
-            onClick={() => { this.verticalAnimation.pause(); }}
+            onClick={() => {
+              this.verticalAnimation.pause();
+            }}
           >
             <Text style={styles.buttonText}>暂停</Text>
           </View>
           <View
             style={styles.button}
-            onClick={() => { this.verticalAnimation.resume(); }}
+            onClick={() => {
+              this.verticalAnimation.resume();
+            }}
           >
             <Text style={styles.buttonText}>继续</Text>
           </View>
         </View>
         <View style={styles.showArea}>
           <View
-            ref={(ref) => { this.verticalRef = ref; }}
+            ref={(ref) => {
+              this.verticalRef = ref;
+            }}
             style={[styles.square, {
               height: this.verticalAnimation,
             }]}
@@ -229,29 +343,127 @@ export default class AnimationExample extends React.Component {
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
-            onClick={() => { this.scaleAnimationSet.start(); }}
+            onClick={() => {
+              this.scaleAnimationSet.start();
+            }}
           >
             <Text style={styles.buttonText}>开始</Text>
           </View>
           <View
             style={[styles.button]}
-            onClick={() => { this.scaleAnimationSet.pause(); }}
+            onClick={() => {
+              this.scaleAnimationSet.pause();
+            }}
           >
             <Text style={styles.buttonText}>暂停</Text>
           </View>
           <View
             style={styles.button}
-            onClick={() => { this.scaleAnimationSet.resume(); }}
+            onClick={() => {
+              this.scaleAnimationSet.resume();
+            }}
           >
             <Text style={styles.buttonText}>继续</Text>
           </View>
         </View>
         <View style={[styles.showArea, { marginVertical: 20 }]}>
           <View
-            ref={(ref) => { this.scaleRef = ref; }}
+            ref={(ref) => {
+              this.scaleRef = ref;
+            }}
             style={[styles.square, {
               transform: [{
                 scale: this.scaleAnimationSet,
+              }],
+            }]}
+          />
+        </View>
+        <Text style={styles.title}>颜色渐变动画（文字渐变仅Android支持）</Text>
+        <View style={styles.buttonContainer}>
+          <View
+              style={styles.button}
+              onClick={() => {
+                this.bgColorAnimationSet.start();
+                this.txtColorAnimationSet.start();
+              }}
+          >
+            <Text style={styles.buttonText}>开始</Text>
+          </View>
+          <View
+              style={[styles.button]}
+              onClick={() => {
+                this.bgColorAnimationSet.pause();
+                this.txtColorAnimationSet.pause();
+              }}
+          >
+            <Text style={styles.buttonText}>暂停</Text>
+          </View>
+          <View
+              style={styles.button}
+              onClick={() => {
+                this.bgColorAnimationSet.resume();
+                this.txtColorAnimationSet.resume();
+              }}
+          >
+            <Text style={styles.buttonText}>继续</Text>
+          </View>
+        </View>
+        <View style={[styles.showArea, { marginVertical: 20 }]}>
+          <View
+              ref={(ref) => {
+                this.bgColorRef = ref;
+              }}
+              style={[styles.square, {
+                justifyContent: 'center',
+                alignItems: 'center',
+              },
+              {
+                backgroundColor: this.bgColorAnimationSet,
+              }]}
+
+          ><Text ref={(ref) => {
+            this.textColorRef = ref;
+          }} style={[styles.colorText, {
+            // TODO iOS暂不支持文字颜色渐变动画
+            color: Platform.OS === 'android' ? this.txtColorAnimationSet : 'white',
+          }]}>颜色渐变背景和文字</Text></View>
+        </View>
+
+        <Text style={styles.title}>贝塞尔曲线动画</Text>
+        <View style={styles.buttonContainer}>
+          <View
+              style={styles.button}
+              onClick={() => {
+                this.cubicBezierScaleAnimationSet.start();
+              }}
+          >
+            <Text style={styles.buttonText}>开始</Text>
+          </View>
+          <View
+              style={[styles.button]}
+              onClick={() => {
+                this.cubicBezierScaleAnimationSet.pause();
+              }}
+          >
+            <Text style={styles.buttonText}>暂停</Text>
+          </View>
+          <View
+              style={styles.button}
+              onClick={() => {
+                this.cubicBezierScaleAnimationSet.resume();
+              }}
+          >
+            <Text style={styles.buttonText}>继续</Text>
+          </View>
+        </View>
+        <View style={[styles.showArea, { marginVertical: 20 }]}>
+          <View
+            ref={(ref) => {
+              this.cubicBezierScaleRef = ref;
+            }}
+            style={[styles.square, {
+              transform: [{
+                scale: this.cubicBezierScaleAnimationSet,
               }],
             }]}
           />

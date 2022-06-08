@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +16,24 @@
  */
 
 #include "HPLayoutCache.h"
+
 #include "HPUtil.h"
 
 #ifdef __DEBUG__
-#include <string>
 #include <iostream>
+#include <string>
 #endif
 
 HPLayoutCache::HPLayoutCache() {
   initCache();
 }
 
-HPLayoutCache::~HPLayoutCache() {
+HPLayoutCache::~HPLayoutCache() {}
 
-}
-
-void HPLayoutCache::cacheResult(HPSize availableSize, HPSize resultSize,
+void HPLayoutCache::cacheResult(HPSize availableSize,
+                                HPSize resultSize,
                                 HPSizeMode measureMode,
                                 FlexLayoutAction layoutAction) {
-
   if (layoutAction == LayoutActionLayout) {
     cachedLayout.availableSize = availableSize;
     cachedLayout.widthMeasureMode = measureMode.widthMeasureMode;
@@ -42,10 +42,8 @@ void HPLayoutCache::cacheResult(HPSize availableSize, HPSize resultSize,
     cachedLayout.layoutAction = layoutAction;
   } else {
     cachedMeasures[nextMeasureIndex].availableSize = availableSize;
-    cachedMeasures[nextMeasureIndex].widthMeasureMode = measureMode
-        .widthMeasureMode;
-    cachedMeasures[nextMeasureIndex].heightMeasureMode = measureMode
-        .heightMeasureMode;
+    cachedMeasures[nextMeasureIndex].widthMeasureMode = measureMode.widthMeasureMode;
+    cachedMeasures[nextMeasureIndex].heightMeasureMode = measureMode.heightMeasureMode;
     cachedMeasures[nextMeasureIndex].resultSize = resultSize;
     cachedMeasures[nextMeasureIndex].layoutAction = layoutAction;
     nextMeasureIndex = (nextMeasureIndex + 1) % MAX_MEASURES_COUNT;
@@ -62,22 +60,23 @@ static inline bool OldSizeIsUndefinedAndStillFits(MeasureMode sizeMode,
                                                   float size,
                                                   MeasureMode lastSizeMode,
                                                   float lastResultSize) {
-
-  return sizeMode == MeasureModeAtMost && lastSizeMode == MeasureModeUndefined
-      && (size >= lastResultSize || FloatIsEqual(size, lastResultSize));
+  return sizeMode == MeasureModeAtMost && lastSizeMode == MeasureModeUndefined &&
+         (size >= lastResultSize || FloatIsEqual(size, lastResultSize));
 }
 
-static inline bool NewMeasureSizeIsStricterAndStillValid(
-    MeasureMode sizeMode, float size, MeasureMode lastSizeMode, float lastSize,
-    float lastResultSize) {
-  return lastSizeMode == MeasureModeAtMost && sizeMode == MeasureModeAtMost
-      && lastSize > size
-      && (lastResultSize <= size || FloatIsEqual(size, lastResultSize));
+static inline bool NewMeasureSizeIsStricterAndStillValid(MeasureMode sizeMode,
+                                                         float size,
+                                                         MeasureMode lastSizeMode,
+                                                         float lastSize,
+                                                         float lastResultSize) {
+  return lastSizeMode == MeasureModeAtMost && sizeMode == MeasureModeAtMost && lastSize > size &&
+         (lastResultSize <= size || FloatIsEqual(size, lastResultSize));
 }
 
-MeasureResult* HPLayoutCache::useMeasureCacheIfPossible(
-    HPSize availableSize, HPSizeMode measureMode, FlexLayoutAction layoutAction,
-    bool isMeasureNode) {
+MeasureResult* HPLayoutCache::useMeasureCacheIfPossible(HPSize availableSize,
+                                                        HPSizeMode measureMode,
+                                                        FlexLayoutAction layoutAction,
+                                                        bool isMeasureNode) {
   if (nextMeasureIndex <= 0) {
     return nullptr;
   }
@@ -89,54 +88,48 @@ MeasureResult* HPLayoutCache::useMeasureCacheIfPossible(
     }
 
     bool widthCanUse = false;
-    widthCanUse = cacheMeasure.widthMeasureMode == measureMode.widthMeasureMode
-        && FloatIsEqual(cacheMeasure.availableSize.width, availableSize.width);
+    widthCanUse = cacheMeasure.widthMeasureMode == measureMode.widthMeasureMode &&
+                  FloatIsEqual(cacheMeasure.availableSize.width, availableSize.width);
 
     if (isMeasureNode) {
       if (!widthCanUse) {
         widthCanUse = SizeIsExactAndMatchesOldMeasuredSize(
-            measureMode.widthMeasureMode, availableSize.width,
-            cacheMeasure.resultSize.width);
+            measureMode.widthMeasureMode, availableSize.width, cacheMeasure.resultSize.width);
       }
 
       if (!widthCanUse) {
         widthCanUse = OldSizeIsUndefinedAndStillFits(
-            measureMode.widthMeasureMode, availableSize.width,
-            cacheMeasure.widthMeasureMode, cacheMeasure.resultSize.width);
+            measureMode.widthMeasureMode, availableSize.width, cacheMeasure.widthMeasureMode,
+            cacheMeasure.resultSize.width);
       }
 
       if (!widthCanUse) {
         widthCanUse = NewMeasureSizeIsStricterAndStillValid(
-            measureMode.widthMeasureMode, availableSize.width,
-            cacheMeasure.widthMeasureMode, cacheMeasure.availableSize.width,
-            cacheMeasure.resultSize.width);
+            measureMode.widthMeasureMode, availableSize.width, cacheMeasure.widthMeasureMode,
+            cacheMeasure.availableSize.width, cacheMeasure.resultSize.width);
       }
     }
 
     bool heightCanUse = false;
-    heightCanUse = cacheMeasure.heightMeasureMode
-        == measureMode.heightMeasureMode
-        && FloatIsEqual(cacheMeasure.availableSize.height,
-                        availableSize.height);
+    heightCanUse = cacheMeasure.heightMeasureMode == measureMode.heightMeasureMode &&
+                   FloatIsEqual(cacheMeasure.availableSize.height, availableSize.height);
 
     if (isMeasureNode) {
       if (!heightCanUse) {
         heightCanUse = SizeIsExactAndMatchesOldMeasuredSize(
-            measureMode.heightMeasureMode, availableSize.height,
-            cacheMeasure.resultSize.height);
+            measureMode.heightMeasureMode, availableSize.height, cacheMeasure.resultSize.height);
       }
 
       if (!heightCanUse) {
         heightCanUse = OldSizeIsUndefinedAndStillFits(
-            measureMode.heightMeasureMode, availableSize.height,
-            cacheMeasure.heightMeasureMode, cacheMeasure.resultSize.height);
+            measureMode.heightMeasureMode, availableSize.height, cacheMeasure.heightMeasureMode,
+            cacheMeasure.resultSize.height);
       }
 
       if (!heightCanUse) {
         heightCanUse = NewMeasureSizeIsStricterAndStillValid(
-            measureMode.heightMeasureMode, availableSize.height,
-            cacheMeasure.heightMeasureMode, cacheMeasure.availableSize.height,
-            cacheMeasure.resultSize.height);
+            measureMode.heightMeasureMode, availableSize.height, cacheMeasure.heightMeasureMode,
+            cacheMeasure.availableSize.height, cacheMeasure.resultSize.height);
       }
     }
 
@@ -153,15 +146,14 @@ MeasureResult* HPLayoutCache::useMeasureCacheIfPossible(
 
 MeasureResult* HPLayoutCache::useLayoutCacheIfPossible(HPSize availableSize,
                                                        HPSizeMode measureMode) {
-
   if (isUndefined(cachedLayout.availableSize.width) ||
-  isUndefined(cachedLayout.availableSize.height)) {
+      isUndefined(cachedLayout.availableSize.height)) {
     return nullptr;
   }
 
-  if (HPSizeIsEqual(cachedLayout.availableSize, availableSize)
-      && cachedLayout.widthMeasureMode == measureMode.widthMeasureMode
-      && cachedLayout.heightMeasureMode == measureMode.heightMeasureMode) {
+  if (HPSizeIsEqual(cachedLayout.availableSize, availableSize) &&
+      cachedLayout.widthMeasureMode == measureMode.widthMeasureMode &&
+      cachedLayout.heightMeasureMode == measureMode.heightMeasureMode) {
 #ifdef __DEBUG__
     HPLogd("cache: action:%d\n", LayoutActionLayout);
 #endif
@@ -171,22 +163,20 @@ MeasureResult* HPLayoutCache::useLayoutCacheIfPossible(HPSize availableSize,
   return nullptr;
 }
 
-MeasureResult* HPLayoutCache::getCachedMeasureResult(
-    HPSize availableSize, HPSizeMode measureMode, FlexLayoutAction layoutAction,
-    bool isMeasureNode) {
+MeasureResult* HPLayoutCache::getCachedMeasureResult(HPSize availableSize,
+                                                     HPSizeMode measureMode,
+                                                     FlexLayoutAction layoutAction,
+                                                     bool isMeasureNode) {
   if (isMeasureNode) {
-    MeasureResult* result = useLayoutCacheIfPossible(availableSize,
-                                                     measureMode);
+    MeasureResult* result = useLayoutCacheIfPossible(availableSize, measureMode);
     if (result != nullptr) {
       return result;
     }
-    return useMeasureCacheIfPossible(availableSize, measureMode, layoutAction,
-                                     isMeasureNode);
+    return useMeasureCacheIfPossible(availableSize, measureMode, layoutAction, isMeasureNode);
   } else if (layoutAction == LayoutActionLayout) {
     return useLayoutCacheIfPossible(availableSize, measureMode);
   } else {
-    return useMeasureCacheIfPossible(availableSize, measureMode, layoutAction,
-                                     isMeasureNode);
+    return useMeasureCacheIfPossible(availableSize, measureMode, layoutAction, isMeasureNode);
   }
 
   return nullptr;
@@ -201,7 +191,7 @@ void HPLayoutCache::initCache() {
   cachedLayout.resultSize = {VALUE_UNDEFINED, VALUE_UNDEFINED};
   cachedLayout.widthMeasureMode = MeasureModeUndefined;
   cachedLayout.heightMeasureMode = MeasureModeUndefined;
-  for(uint32_t i = 0 ; i < MAX_MEASURES_COUNT; i++) {
+  for (uint32_t i = 0; i < MAX_MEASURES_COUNT; i++) {
     cachedMeasures[i].availableSize = {VALUE_UNDEFINED, VALUE_UNDEFINED};
     cachedMeasures[i].resultSize = {VALUE_UNDEFINED, VALUE_UNDEFINED};
     cachedMeasures[i].widthMeasureMode = MeasureModeUndefined;
@@ -213,4 +203,3 @@ void HPLayoutCache::initCache() {
 void HPLayoutCache::clearCache() {
   initCache();
 }
-

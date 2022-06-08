@@ -5,7 +5,7 @@ import {
   StyleSheet,
   View,
   Text,
-} from 'hippy-react';
+} from '@hippy/react';
 
 const styles = StyleSheet.create({
   container_style: {
@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
   input_style: {
     width: 300,
     marginVertical: 10,
-    placeholderTextColor: '#aaaaaa',
     fontSize: 16,
     color: '#242424',
     height: 30,
@@ -32,8 +31,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
+    width: 200,
     borderColor: '#4c9afa',
     borderWidth: 1,
+    marginTop: 5,
+    marginBottom: 5,
   },
 });
 
@@ -44,12 +46,22 @@ export default class TextInputExpo extends Component {
       textContent: '',
     };
     this.changeInputContent = this.changeInputContent.bind(this);
+    this.focus = this.focus.bind(this);
+    this.blur = this.blur.bind(this);
   }
 
   changeInputContent() {
     this.setState({
       textContent: `当前时间毫秒：${Date.now()}`,
     });
+  }
+
+  focus() {
+    this.input.focus();
+  }
+
+  blur() {
+    this.input.blur();
   }
 
   render() {
@@ -61,15 +73,26 @@ export default class TextInputExpo extends Component {
     );
     return (
       <ScrollView style={styles.container_style}>
-        {renderTitle('email')}
+        {renderTitle('text')}
         <TextInput
+          ref={(ref) => {
+            this.input = ref;
+          }}
           style={styles.input_style}
-          keyboardType="email"
-          placeholder="email"
+          caretColor='yellow'
+          underlineColorAndroid='grey'
+          placeholderTextColor='#4c9afa'
+          placeholder="text"
           defaultValue={textContent}
         />
         <View style={styles.button} onClick={this.changeInputContent}>
           <Text>点击改变输入框内容</Text>
+        </View>
+        <View style={styles.button} onClick={this.focus}>
+          <Text>Focus</Text>
+        </View>
+        <View style={styles.button} onClick={this.blur}>
+          <Text>Blur</Text>
         </View>
         {renderTitle('numeric')}
         <TextInput
@@ -87,10 +110,12 @@ export default class TextInputExpo extends Component {
         <TextInput
           style={styles.input_style}
           keyboardType="password"
-          placeholder="password"
+          placeholder="Password"
+          multiline={false}
         />
         {renderTitle('maxLength')}
         <TextInput
+          caretColor={'yellow'}
           style={styles.input_style}
           placeholder="maxLength=5"
           maxLength={5}

@@ -1,4 +1,4 @@
-import { callNative, callNativeWithPromise } from 'hippy-react';
+import { callNative, callNativeWithPromise } from '@hippy/react';
 
 /*
  自定义module
@@ -10,7 +10,6 @@ const TestModule = {
   helloNative(msg) {
     callNative('TestModule', 'helloNative', msg);
   },
-  // 这个是需要终端回调的
   helloNativeWithPromise(msg) {
     return callNativeWithPromise('TestModule', 'helloNativeWithPromise', msg);
   },

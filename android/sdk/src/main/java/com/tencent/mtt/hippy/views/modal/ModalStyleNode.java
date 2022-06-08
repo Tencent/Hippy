@@ -20,6 +20,8 @@ import android.graphics.Point;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.smtt.flexbox.FlexNode;
+
+@SuppressWarnings({"unused"})
 class ModalStyleNode extends StyleNode {
 
   @Override

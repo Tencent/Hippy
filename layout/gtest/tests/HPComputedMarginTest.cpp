@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, computed_layout_margin) {
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
-  //HPNodeStyleSetMarginPercent(root, CSSStart, 10);
-  //TODO:: not support percent. ianwang .2018.01.13
+  // HPNodeStyleSetMarginPercent(root, CSSStart, 10);
+  // TODO:: not support percent. ianwang .2018.01.13
   HPNodeStyleSetMargin(root, CSSStart, 10);
 
   HPNodeDoLayout(root, 100, 100);

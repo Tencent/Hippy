@@ -14,41 +14,58 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
-static HPSize _measureMax(HPNodeRef node, float width, MeasureMode widthMode,
-                          float height, MeasureMode heightMode,
-                          void * layoutContext) {
-  int* measureCount = (int*) node->getContext();
+static HPSize _measureMax(HPNodeRef node,
+                          float width,
+                          MeasureMode widthMode,
+                          float height,
+                          MeasureMode heightMode,
+                          void* layoutContext) {
+  int* measureCount = (int*)node->getContext();
   (*measureCount)++;
 
-  return HPSize { .width = widthMode == MeasureModeUndefined ? 10 : width,
-      .height = heightMode == MeasureModeUndefined ? 10 : height, };
+  return HPSize{
+      .width = widthMode == MeasureModeUndefined ? 10 : width,
+      .height = heightMode == MeasureModeUndefined ? 10 : height,
+  };
 }
 
-static HPSize _measureMin(HPNodeRef node, float width, MeasureMode widthMode,
-                          float height, MeasureMode heightMode,
-                          void * layoutContext) {
-  int* measureCount = (int*) node->getContext();
+static HPSize _measureMin(HPNodeRef node,
+                          float width,
+                          MeasureMode widthMode,
+                          float height,
+                          MeasureMode heightMode,
+                          void* layoutContext) {
+  int* measureCount = (int*)node->getContext();
   *measureCount = *measureCount + 1;
-  return HPSize { .width =
-      widthMode == MeasureModeUndefined
-          || (widthMode == MeasureModeAtMost && width > 10) ? 10 : width,
+  return HPSize{
+      .width = widthMode == MeasureModeUndefined || (widthMode == MeasureModeAtMost && width > 10)
+                   ? 10
+                   : width,
       .height =
-          heightMode == MeasureModeUndefined
-              || (heightMode == MeasureModeAtMost && height > 10) ? 10 : height, };
+          heightMode == MeasureModeUndefined || (heightMode == MeasureModeAtMost && height > 10)
+              ? 10
+              : height,
+  };
 }
 
-static HPSize _measure_84_49(HPNodeRef node, float width, MeasureMode widthMode,
-                             float height, MeasureMode heightMode,
-                             void * layoutContext) {
-  int* measureCount = (int*) node->getContext();
+static HPSize _measure_84_49(HPNodeRef node,
+                             float width,
+                             MeasureMode widthMode,
+                             float height,
+                             MeasureMode heightMode,
+                             void* layoutContext) {
+  int* measureCount = (int*)node->getContext();
   if (measureCount) {
     (*measureCount)++;
   }
 
-  return HPSize { .width = 84.f, .height = 49.f, };
+  return HPSize{
+      .width = 84.f,
+      .height = 49.f,
+  };
 }
 
 TEST(HippyTest, measure_once_single_flexible_child) {

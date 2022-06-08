@@ -15,56 +15,73 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-import android.app.Activity;
-
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
+import com.tencent.mtt.hippy.devsupport.inspector.Inspector;
+import java.util.UUID;
 
-/**
- * @author: edsheng
- * @date: 2017/11/14 18:39
- * @version: V1.0
- */
+@SuppressWarnings({"unused"})
+public class DevSupportManager {
 
-public class DevSupportManager
-{
+  final DevServerInterface mDevImp;
+  final boolean mSupportDev;
+  private final Inspector mInspector;
+  private String mDebugComponentName;
+  // to differ hippy page
+  private final UUID mInstanceUUID = UUID.randomUUID();
 
-	DevServerInterface	mDevImp	= null;
-	boolean				mSupportDev;
+  public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
+      String bundleName, String remoteServerUrl) {
+    this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName, remoteServerUrl);
+    mSupportDev = enableDev;
+    mInspector = new Inspector();
+  }
 
-	public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost, String bundleName)
-	{
-		this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
-		mSupportDev = enableDev;
-	}
+  public DevServerInterface getDevImp() {
+    return this.mDevImp;
+  }
 
-	public boolean supportDev()
-	{
-		return mSupportDev;
-	}
+  public void setDevCallback(DevServerCallBack devCallback) {
+    mDevImp.setDevServerCallback(devCallback);
+  }
 
-	public void setDevCallback(DevServerCallBack devCallback)
-	{
-		mDevImp.setDevServerCallback(devCallback);
-	}
+  public void attachToHost(HippyRootView view) {
+    mDevImp.attachToHost(view);
+  }
 
-	public void attachToHost(HippyRootView view)
-	{
-		mDevImp.attachToHost(view);
-	}
+  public void detachFromHost(HippyRootView view) {
+    mDevImp.detachFromHost(view);
+  }
 
-	public void detachFromHost(HippyRootView view)
-	{
-		mDevImp.detachFromHost(view);
-	}
+  public String createResourceUrl(String resName) {
+    return mDevImp.createResourceUrl(resName);
+  }
 
-	public void init(DevRemoteDebugProxy remoteDebugManager)
-	{
-		mDevImp.reload(remoteDebugManager);
-	}
+  public String createDebugUrl(String host) {
+    return mDevImp.createDebugUrl(host, mInstanceUUID.toString(), mDebugComponentName);
+  }
 
-	public void handleException(Throwable throwable)
-	{
-		mDevImp.handleException(throwable);
-	}
+  public void handleException(Throwable throwable) {
+    mDevImp.handleException(throwable);
+  }
+
+  public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
+    mDevImp.loadRemoteResource(url, serverCallBack);
+  }
+
+  public boolean isSupportDev() {
+	  return mSupportDev;
+  }
+
+  public void setDebugComponentName(String debugComponentName) {
+    mDebugComponentName = debugComponentName;
+  }
+
+  public String getDebugInstanceId() {
+    return mInstanceUUID.toString();
+  }
+
+  public Inspector getInspector() {
+    return mInspector;
+  }
 }

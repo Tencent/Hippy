@@ -1,12 +1,27 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable import/prefer-default-export */
-/* eslint-disable class-methods-use-this */
 /* eslint-disable prefer-destructuring */
-/* eslint-disable key-spacing */
 /* eslint-disable no-cond-assign */
-/* eslint-disable arrow-body-style */
 /* eslint-disable no-useless-escape */
-/* eslint-disable max-len */
-/* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
 
 /**
@@ -15,6 +30,10 @@
 class SelectorCore {
   lookupSort(sorter, base) {
     sorter.sortAsUniversal(base || this);
+  }
+
+  removeSort(sorter, base) {
+    sorter.removeAsUniversal(base || this);
   }
 }
 
@@ -43,9 +62,7 @@ class SimpleSelectorSequence extends SimpleSelector {
   constructor(selectors) {
     super();
     this.specificity = selectors.reduce((sum, sel) => sel.specificity + sum, 0);
-    this.head = selectors.reduce((prev, curr) => {
-      return !prev || (curr.rarity > prev.rarity) ? curr : prev;
-    }, null);
+    this.head = selectors.reduce((prev, curr) => (!prev || (curr.rarity > prev.rarity) ? curr : prev), null);
     this.dynamic = selectors.some(sel => sel.dynamic);
     this.selectors = selectors;
   }
@@ -69,6 +86,10 @@ class SimpleSelectorSequence extends SimpleSelector {
   lookupSort(sorter, base) {
     this.head.lookupSort(sorter, base || this);
   }
+
+  removeSort(sorter, base) {
+    this.head.removeSort(sorter, base || this);
+  }
 }
 
 /**
@@ -86,7 +107,9 @@ class UniversalSelector extends SimpleSelector {
     return `*${this.combinator}`;
   }
 
-  match() { return true; }
+  match() {
+    return true;
+  }
 }
 
 /**
@@ -112,6 +135,10 @@ class IdSelector extends SimpleSelector {
   lookupSort(sorter, base) {
     sorter.sortById(this.id, base || this);
   }
+
+  removeSort(sorter, base) {
+    sorter.removeById(this.id, base || this);
+  }
 }
 
 
@@ -132,11 +159,15 @@ class TypeSelector extends SimpleSelector {
   }
 
   match(node) {
-    return node.cssType === this.cssType;
+    return node.tagName === this.cssType;
   }
 
   lookupSort(sorter, base) {
     sorter.sortByType(this.cssType, base || this);
+  }
+
+  removeSort(sorter, base) {
+    sorter.removeByType(this.cssType, base || this);
   }
 }
 
@@ -162,6 +193,10 @@ class ClassSelector extends SimpleSelector {
 
   lookupSort(sorter, base) {
     sorter.sortByClass(this.className, base || this);
+  }
+
+  removeSort(sorter, base) {
+    sorter.removeByClass(this.className, base || this);
   }
 }
 
@@ -293,6 +328,10 @@ class InvalidSelector extends SimpleSelector {
   }
 
   lookupSort() {
+    return null;
+  }
+
+  removeSort() {
     return null;
   }
 }
@@ -427,6 +466,10 @@ class Selector extends SelectorCore {
     this.last.lookupSort(sorter, this);
   }
 
+  removeSort(sorter) {
+    this.last.removeSort(sorter, this);
+  }
+
   accumulateChanges(node, map) {
     if (!this.dynamic) {
       return this.match(node);
@@ -485,11 +528,12 @@ Selector.SiblingGroup = SiblingGroup;
  * Rule Set
  */
 class RuleSet {
-  constructor(selectors, declarations) {
+  constructor(selectors, declarations, hash) {
     selectors.forEach((sel) => {
-      sel.ruleSet = this;                    // FIXME: It makes circular dependency
+      sel.ruleSet = this; // FIXME: It makes circular dependency
       return null;
     });
+    this.hash = hash;
     this.selectors = selectors;
     this.declarations = declarations;
   }
@@ -502,6 +546,10 @@ class RuleSet {
 
   lookupSort(sorter) {
     this.selectors.forEach(sel => sel.lookupSort(sorter));
+  }
+
+  removeSort(sorter) {
+    this.selectors.forEach(sel => sel.removeSort(sorter));
   }
 }
 

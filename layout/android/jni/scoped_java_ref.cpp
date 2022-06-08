@@ -4,43 +4,42 @@
 
 #include "scoped_java_ref.h"
 
-//#include "base/android/jni_android.h"
-//#include "base/logging.h"
+// #include "base/android/jni_android.h"
+// #include "base/logging.h"
 #define DCHECK(a)
-#define DCHECK_EQ(a,b)
+#define DCHECK_EQ(a, b)
 
 namespace base {
 namespace android {
 namespace {
 
-//const int kDefaultLocalFrameCapacity = 16;
+// const int kDefaultLocalFrameCapacity = 16;
 
 }  // namespace
 
 ScopedJavaLocalFrame::ScopedJavaLocalFrame(JNIEnv* env) : env_(env) {
-  //int failed = env_->PushLocalFrame(kDefaultLocalFrameCapacity);
-  //DCHECK(!failed);
+  // int failed = env_->PushLocalFrame(kDefaultLocalFrameCapacity);
+  // DCHECK(!failed);
 }
 
-ScopedJavaLocalFrame::ScopedJavaLocalFrame(JNIEnv* env, int capacity)
-    : env_(env) {
-  //int failed = env_->PushLocalFrame(capacity);
-  //DCHECK(!failed);
+ScopedJavaLocalFrame::ScopedJavaLocalFrame(JNIEnv* env, int capacity) : env_(env) {
+  // int failed = env_->PushLocalFrame(capacity);
+  // DCHECK(!failed);
 }
 
 ScopedJavaLocalFrame::~ScopedJavaLocalFrame() {
   env_->PopLocalFrame(nullptr);
 }
 
-//#if DCHECK_IS_ON()
+// #if DCHECK_IS_ON()
 // This constructor is inlined when DCHECKs are disabled; don't add anything
 // else here.
-//JavaRef<jobject>::JavaRef(JNIEnv* env, jobject obj) : obj_(obj) {
+// JavaRef<jobject>::JavaRef(JNIEnv* env, jobject obj) : obj_(obj) {
 //  if (obj) {
 //    DCHECK(env && env->GetObjectRefType(obj) == JNILocalRefType);
 //  }
-//}
-//#endif
+// }
+// #endif
 JNIEnv* AttachCurrentThread() {
   return GetJNIEnv();
 }

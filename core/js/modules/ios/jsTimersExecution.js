@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 let performanceNow;
 
 if (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') {

@@ -3,11 +3,12 @@
 // Most nodes test is executed in node-ops.test.js
 // here just test the lacked testing for ElementNode for coverage.
 
-import test from 'ava';
+import test, { before } from 'ava';
 import ElementNode from '../element-node';
 import DocumentNode from '../document-node';
+import ListNode from '../list-node';
 
-test.before(() => {
+before(() => {
   global.__GLOBAL__ = {
     nodeId: 101,
   };
@@ -29,12 +30,48 @@ test('Element.setAttribute("text") test', (t) => {
   }, TypeError);
 });
 
-test('Element.setAttribute("caretColor") test', (t) => {
+test('text-input color attribute test', (t) => {
   const caretColorNode = new ElementNode('div');
   caretColorNode.setAttribute('caretColor', '#abcdef');
   t.is(caretColorNode.attributes['caret-color'], 4289449455);
   caretColorNode.setAttribute('caret-color', '#abc');
   t.is(caretColorNode.attributes['caret-color'], 4289379276);
+  caretColorNode.setAttribute('placeholderTextColor', '#abcdef');
+  t.is(caretColorNode.attributes.placeholderTextColor, 4289449455);
+  caretColorNode.setAttribute('placeholder-text-color', '#abcdef');
+  t.is(caretColorNode.attributes.placeholderTextColor, 4289449455);
+  caretColorNode.setAttribute('underlineColorAndroid', '#abc');
+  t.is(caretColorNode.attributes.underlineColorAndroid, 4289379276);
+  caretColorNode.setAttribute('underline-color-android', '#abc');
+  t.is(caretColorNode.attributes.underlineColorAndroid, 4289379276);
+});
+
+test('Element.setNativeProps test', (t) => {
+  const node = new ElementNode('p');
+  node.setNativeProps({ abc: 'abc' });
+  t.is(node.style.abc, undefined);
+  node.setNativeProps({ style: { abc: 'abc' } });
+  t.is(node.style.abc, 'abc');
+  node.setNativeProps({ style: { bcd: '123' } });
+  t.is(node.style.bcd, 123);
+  node.setNativeProps({ style: { fontWeight: '100' } });
+  t.is(node.style.fontWeight, '100');
+  node.setNativeProps({ style: { fontWeight: 200 } });
+  t.is(node.style.fontWeight, '200');
+  node.setNativeProps({ style: { fontWeight: 'bold' } });
+  t.is(node.style.fontWeight, 'bold');
+  node.setNativeProps({ style: { width: '100px' } });
+  t.is(node.style.width, 100);
+  node.setNativeProps({ style: { height: '100.201px' } });
+  t.is(node.style.height, 100.201);
+  node.setNativeProps({ style: { cde: {} } });
+  t.deepEqual(node.style.cde, {});
+  node.setNativeProps({ style: { caretColor: '#abcdef' } });
+  t.is(node.style['caret-color'], 4289449455);
+  node.setNativeProps({ style: { placeholderTextColor: '#abcdef' } });
+  t.is(node.style.placeholderTextColor, 4289449455);
+  node.setNativeProps({ style: { underlineColorAndroid: '#abcdef' } });
+  t.is(node.style.underlineColorAndroid, 4289449455);
 });
 
 test('Element.hasAttribute test', (t) => {
@@ -49,6 +86,8 @@ test('Element.removeAttribute test', (t) => {
   const testNode = new ElementNode('div');
   const key = 'test';
   testNode.setAttribute(key, '123');
+  t.is(testNode.getAttribute(key), '123');
+  testNode.setAttribute(key, 123);
   t.is(testNode.getAttribute(key), 123);
   testNode.removeAttribute(key);
   t.is(testNode.getAttribute(key), undefined);
@@ -76,7 +115,7 @@ test('Element.addEventListener and removeEventListener test', (t) => {
 
 test('Element.dispatchEvent test', (t) => {
   const parentNode = new ElementNode('div');
-  const childNode =  new ElementNode('div');
+  const childNode = new ElementNode('div');
   const key = 'test';
   const event = DocumentNode.createEvent(key);
   parentNode.appendChild(childNode);
@@ -137,5 +176,87 @@ test('Element.setStyle test', (t) => {
   node.setStyle('cde', {});
   t.deepEqual(node.style.cde, {});
   node.setStyle('caretColor', '#abcdef');
-  t.is(node.attributes['caret-color'], 4289449455);
+  t.is(node.style['caret-color'], 4289449455);
+  node.setStyle('caret-color', '#abcdef');
+  t.is(node.style['caret-color'], 4289449455);
+  node.setStyle('placeholderTextColor', '#abcdef');
+  t.is(node.style.placeholderTextColor, 4289449455);
+  node.setStyle('placeholder-text-color', '#abcdef');
+  t.is(node.style.placeholderTextColor, 4289449455);
+  node.setStyle('underlineColorAndroid', '#abcdef');
+  t.is(node.style.underlineColorAndroid, 4289449455);
+  node.setStyle('underline-color-android', '#abcdef');
+  t.is(node.style.underlineColorAndroid, 4289449455);
+  node.setStyle('backgroundImage', 'linear-gradient(to top right, red, yellow, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: 'totopright', colorStopList: [{ color: 4294901760 }, { color: 4294967040 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(90deg, red, 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '90', colorStopList: [{ color: 4294901760 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(red, yellow 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '180', colorStopList: [{ color: 4294901760 }, { color: 4294967040, ratio: 0.1 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(10.12341234deg, red, yellow 10%, blue 10%)');
+  t.deepEqual(node.style.linearGradient, { angle: '10.12', colorStopList: [{ color: 4294901760 }, { color: 4294967040, ratio: 0.1 }, { color: 4278190335, ratio: 0.1 }] });
+  node.setStyle('backgroundImage', 'linear-gradient(10.12341234deg, rgba(55, 11, 43, 0.5) 5%, rgb(55, 13, 43) 10%,  rgba(55, 11, 43, 0.1) 23%)');
+  t.deepEqual(node.style.linearGradient, { angle: '10.12', colorStopList: [{ ratio: 0.05, color: 2151090987 }, { ratio: 0.1, color: 4281797931 }, { ratio: 0.23, color: 439814955 }] });
+  node.setStyle('textShadowRadius', 1);
+  t.deepEqual(node.style.textShadowRadius, 1);
+  node.setStyle('textShadowColor', '#abcdef');
+  t.deepEqual(node.style.textShadowColor, 4289449455);
+  node.setStyle('textShadowOffsetX', 1);
+  node.setStyle('textShadowOffsetY', 2);
+  t.deepEqual(node.style.textShadowOffset, { width: 1, height: 2 });
+  node.setStyle('textShadowOffsetX', 10);
+  t.deepEqual(node.style.textShadowOffset, { width: 10, height: 2 });
+  node.setStyle('textShadowOffset', { x: 11, y: 8 });
+  t.deepEqual(node.style.textShadowOffset, { width: 11, height: 8 });
+});
+
+test('Element.setStyle with pre-processed style test', (t) => {
+  const node = new ElementNode('div');
+  node.beforeLoadStyle = (decl) => {
+    const { property, value } = decl;
+    return {
+      property: property.slice(0, decl.property.length - 2),
+      value: value.slice(0, decl.value.length - 2),
+    };
+  };
+  node.setStyle('backgroundColor', 'white');
+  node.setStyle('width', '100px');
+  t.is(node.style.backgroundCol, 'whi');
+  t.is(node.style.wid, 100);
+});
+
+test('Element.dispatchEvent with polyfill event', (t) => {
+  const node = new ListNode('ul');
+  let called = false;
+  const callback = (event) => {
+    called = true;
+    return event;
+  };
+
+  t.is(called, false);
+  t.is(node._emitter, null);
+  t.is(node.removeEventListener('loadMore', callback), null);
+  node.addEventListener('loadMore', callback);
+  t.true(!!node._emitter);
+  let event = DocumentNode.createEvent('loadMore');
+  node.dispatchEvent(event);
+  t.is(called, true);
+  node.removeEventListener('loadMore', callback);
+  t.true(!!node._emitter);
+
+  called = false;
+  t.is(called, false);
+  node.addEventListener('endReached', callback);
+  event = DocumentNode.createEvent('endReached');
+  node.dispatchEvent(event);
+  t.is(called, true);
+  node.removeEventListener('endReached', callback);
+});
+
+test('Element.setAttribute("nativeBackgroundAndroid") test', (t) => {
+  const nbaNode = new ElementNode('div');
+  nbaNode.setAttribute('nativeBackgroundAndroid', { color: '#00000011' });
+  t.is(nbaNode.attributes.nativeBackgroundAndroid.color, 285212672);
+  nbaNode.setAttribute('nativeBackgroundAndroid', { color: 'rgba(0,0,0,0.07)' });
+  t.is(nbaNode.attributes.nativeBackgroundAndroid.color, 301989888);
 });

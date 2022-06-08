@@ -1,10 +1,28 @@
-/* eslint-disable react/prefer-stateless-function */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import React from 'react';
-import Style from '@localTypes/style';
-import { FocusEvent } from '@localTypes/event';
-import { Fiber } from 'react-reconciler';
+import { Fiber } from '@hippy/react-reconciler';
+import { callUIFunction } from '../modules/ui-manager-module';
 import { LayoutableProps, ClickableProps, TouchableProps } from '../types';
+import { Color, colorParse } from '../color';
 
 interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   /**
@@ -40,7 +58,8 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
   nextFocusUpId?: string | Fiber;
   nextFocusLeftId?: string | Fiber;
   nextFocusRightId?: string | Fiber;
-  style?: Style;
+  style?: HippyTypes.Style;
+  nativeBackgroundAndroid?: { color: Color, borderless: boolean, rippleRadius: number }
 
   /**
    * The focus event occurs when the component is focused.
@@ -48,7 +67,7 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
    * @param {Object} evt - Focus event data
    * @param {boolean} evt.focus - Focus status
    */
-  onFocus?(evt: FocusEvent): void;
+  onFocus?: (evt: HippyTypes.FocusEvent) => void;
 }
 
 /**
@@ -61,18 +80,38 @@ interface ViewProps extends LayoutableProps, ClickableProps, TouchableProps {
  * @noInheritDoc
  */
 class View extends React.Component<ViewProps, {}> {
-  /**
-   * @ignore
-   */
-  render() {
+  private instance: HTMLDivElement | Fiber | null = null;
+
+  // startRipple
+  public setPressed(pressed: boolean) {
+    callUIFunction(this.instance as Fiber, 'setPressed', [pressed]);
+  }
+
+  // setRippleSpot
+  public setHotspot(x: number, y: number) {
+    callUIFunction(this.instance as Fiber, 'setHotspot', [x, y]);
+  }
+
+  public render() {
     const { collapsable, style = {}, ...nativeProps } = this.props;
-    const nativeStyle: Style = style;
+    const nativeStyle: HippyTypes.Style = style;
+    const { nativeBackgroundAndroid } = nativeProps;
     if (typeof collapsable === 'boolean') {
       nativeStyle.collapsable = collapsable;
     }
-
+    if (typeof nativeBackgroundAndroid?.color !== 'undefined') {
+      nativeBackgroundAndroid.color = colorParse(nativeBackgroundAndroid.color);
+    }
     return (
-      <div nativeName="View" style={nativeStyle} {...nativeProps} />
+      <div
+        ref={(ref) => {
+          this.instance = ref;
+        }}
+        nativeName="View"
+        // @ts-ignore
+        style={nativeStyle}
+        {...nativeProps}
+      />
     );
   }
 }

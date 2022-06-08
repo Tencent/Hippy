@@ -15,31 +15,29 @@
  */
 package com.tencent.mtt.hippy.adapter;
 
-/**
- * @author: edsheng
- * @date: 2018/7/9 10:36
- * @version: V1.0
- */
-public class DefaultLogAdapter implements HippyLogAdapter
-{
+import androidx.annotation.NonNull;
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-	@Override
-	public void log(String tag, String msg)
-	{
+public class DefaultLogAdapter implements HippyLogAdapter {
 
-	}
-
-	@Override
-	public void init(int rootId, String module)
-	{
-
-	}
-
-	@Override
-	public void upload(callBack callBack)
-	{
-		callBack.onSuccess();
-	}
-
-
+    @Override
+    public void onReceiveLogMessage(int level, @NonNull String tag, @NonNull String msg) {
+        switch (level) {
+            case LOG_SEVERITY_INFO:
+                LogUtils.i(tag, msg);
+                break;
+            case LOG_SEVERITY_WARNING:
+                LogUtils.w(tag, msg);
+                break;
+            case LOG_SEVERITY_ERROR:
+                // fall through
+            case LOG_SEVERITY_FATAL:
+                LogUtils.e(tag, msg);
+                break;
+            case LOG_SEVERITY_DEBUG:
+                // fall through
+            default:
+                LogUtils.d(tag, msg);
+        }
+    }
 }

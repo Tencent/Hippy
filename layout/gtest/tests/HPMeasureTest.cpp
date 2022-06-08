@@ -14,39 +14,55 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
-static HPSize _measure(HPNodeRef node, float width, MeasureMode widthMode,
-                       float height, MeasureMode heightMode,
-                       void * layoutContext) {
-  int* measureCount = (int*) node->getContext();
+static HPSize _measure(HPNodeRef node,
+                       float width,
+                       MeasureMode widthMode,
+                       float height,
+                       MeasureMode heightMode,
+                       void* layoutContext) {
+  int* measureCount = (int*)node->getContext();
   if (measureCount) {
     (*measureCount)++;
   }
 
-  return HPSize { .width = 10, .height = 10, };
+  return HPSize{
+      .width = 10,
+      .height = 10,
+  };
 }
 
-static HPSize _simulate_wrapping_text(HPNodeRef node, float width,
-                                      MeasureMode widthMode, float height,
+static HPSize _simulate_wrapping_text(HPNodeRef node,
+                                      float width,
+                                      MeasureMode widthMode,
+                                      float height,
                                       MeasureMode heightMode,
-                                      void * layoutContext) {
+                                      void* layoutContext) {
   if (widthMode == MeasureModeUndefined || width >= 68) {
-    return HPSize { .width = 68, .height = 16 };
+    return HPSize{.width = 68, .height = 16};
   }
 
-  return HPSize { .width = 50, .height = 32, };
+  return HPSize{
+      .width = 50,
+      .height = 32,
+  };
 }
 
-static HPSize _measure_assert_negative(HPNodeRef node, float width,
-                                       MeasureMode widthMode, float height,
+static HPSize _measure_assert_negative(HPNodeRef node,
+                                       float width,
+                                       MeasureMode widthMode,
+                                       float height,
                                        MeasureMode heightMode,
-                                       void * layoutContext) {
+                                       void* layoutContext) {
   EXPECT_GE(width, 0);
   EXPECT_GE(height, 0);
 
-  return HPSize { .width = 0, .height = 0, };
+  return HPSize{
+      .width = 0,
+      .height = 0,
+  };
 }
 
 TEST(HippyTest, dont_measure_single_grow_shrink_child) {
@@ -59,7 +75,7 @@ TEST(HippyTest, dont_measure_single_grow_shrink_child) {
   const HPNodeRef root_child0 = HPNodeNew();
   root_child0->setContext(&measureCount);
   HPNodeSetMeasureFunc(root_child0, _measure);
-//  HPNodeSetMeasureFunc(root_child0, _measure);;
+  //  HPNodeSetMeasureFunc(root_child0, _measure);;
   HPNodeStyleSetFlexGrow(root_child0, 1);
   HPNodeStyleSetFlexShrink(root_child0, 1);
   HPNodeInsertChild(root, root_child0, 0);
@@ -103,7 +119,7 @@ TEST(HippyTest, dont_measure_when_min_equals_max) {
   const HPNodeRef root_child0 = HPNodeNew();
   root_child0->setContext(&measureCount);
   HPNodeSetMeasureFunc(root_child0, _measure);
-//  HPNodeSetMeasureFunc(root_child0, _measure);;
+  //  HPNodeSetMeasureFunc(root_child0, _measure);;
   HPNodeStyleSetMinWidth(root_child0, 10);
   HPNodeStyleSetMaxWidth(root_child0, 10);
   HPNodeStyleSetMinHeight(root_child0, 10);
@@ -132,7 +148,7 @@ TEST(HippyTest, dont_measure_when_min_equals_max_percentages) {
   const HPNodeRef root_child0 = HPNodeNew();
   root_child0->setContext(&measureCount);
   HPNodeSetMeasureFunc(root_child0, _measure);
-//  HPNodeSetMeasureFunc(root_child0, _measure);;
+  //  HPNodeSetMeasureFunc(root_child0, _measure);;
   HPNodeStyleSetMinWidth(root_child0, 10);
   HPNodeStyleSetMaxWidth(root_child0, 10);
   HPNodeStyleSetMinHeight(root_child0, 10);
@@ -157,7 +173,7 @@ TEST(HippyTest, measure_nodes_with_margin_auto_and_stretch) {
 
   const HPNodeRef root_child0 = HPNodeNew();
   HPNodeSetMeasureFunc(root_child0, _measure);
-//  HPNodeSetMeasureFunc(root_child0, _measure);;
+  //  HPNodeSetMeasureFunc(root_child0, _measure);;
   HPNodeStyleSetMarginAuto(root_child0, CSSLeft);
   HPNodeInsertChild(root, root_child0, 0);
 
@@ -181,7 +197,7 @@ TEST(HippyTest, dont_measure_when_min_equals_max_mixed_width_percent) {
 
   const HPNodeRef root_child0 = HPNodeNew();
   root_child0->setContext(&measureCount);
-//  HPNodeSetMeasureFunc(root_child0, _measure);;
+  //  HPNodeSetMeasureFunc(root_child0, _measure);;
   HPNodeSetMeasureFunc(root_child0, _measure);
   HPNodeStyleSetMinWidth(root_child0, 10);
   HPNodeStyleSetMaxWidth(root_child0, 10);
@@ -236,7 +252,7 @@ TEST(HippyTest, measure_enough_size_should_be_in_single_line) {
   const HPNodeRef root_child0 = HPNodeNew();
   HPNodeStyleSetAlignSelf(root_child0, FlexAlignStart);
   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);
-//   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);;
+  //   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);;
 
   HPNodeInsertChild(root, root_child0, 0);
 
@@ -255,7 +271,7 @@ TEST(HippyTest, measure_not_enough_size_should_wrap) {
   const HPNodeRef root_child0 = HPNodeNew();
   HPNodeStyleSetAlignSelf(root_child0, FlexAlignStart);
   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);
-//   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);;
+  //   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);;
   HPNodeInsertChild(root, root_child0, 0);
 
   HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED);
@@ -276,7 +292,7 @@ TEST(HippyTest, measure_zero_space_should_grow) {
 
   const HPNodeRef root_child0 = HPNodeNew();
   HPNodeStyleSetFlexDirection(root_child0, FLexDirectionColumn);
-//  HPNodeStyleSetPadding(root_child0, YGEdgeAll, 100);
+  //  HPNodeStyleSetPadding(root_child0, YGEdgeAll, 100);
 
   HPNodeStyleSetPadding(root_child0, CSSLeft, 100);
   HPNodeStyleSetPadding(root_child0, CSSTop, 100);
@@ -298,7 +314,6 @@ TEST(HippyTest, measure_zero_space_should_grow) {
 }
 
 TEST(HippyTest, measure_flex_direction_row_and_padding) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetPadding(root, CSSLeft, 25);
@@ -336,14 +351,12 @@ TEST(HippyTest, measure_flex_direction_row_and_padding) {
   ASSERT_FLOAT_EQ(5, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, measure_flex_direction_column_and_padding) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetMargin(root, CSSTop, 20);
-//  HPNodeStyleSetPadding(root, YGEdgeAll, 25);
+  //  HPNodeStyleSetPadding(root, YGEdgeAll, 25);
   HPNodeStyleSetPadding(root, CSSLeft, 25);
   HPNodeStyleSetPadding(root, CSSTop, 25);
   HPNodeStyleSetPadding(root, CSSRight, 25);
@@ -378,11 +391,9 @@ TEST(HippyTest, measure_flex_direction_column_and_padding) {
   ASSERT_FLOAT_EQ(5, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, measure_flex_direction_row_no_padding) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetMargin(root, CSSTop, 20);
@@ -416,11 +427,9 @@ TEST(HippyTest, measure_flex_direction_row_no_padding) {
   ASSERT_FLOAT_EQ(5, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, measure_flex_direction_row_no_padding_align_items_flexstart) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetMargin(root, CSSTop, 20);
@@ -430,7 +439,7 @@ TEST(HippyTest, measure_flex_direction_row_no_padding_align_items_flexstart) {
 
   const HPNodeRef root_child0 = HPNodeNew();
   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);
-//   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);;
+  //   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);;
   HPNodeInsertChild(root, root_child0, 0);
 
   const HPNodeRef root_child1 = HPNodeNew();
@@ -455,14 +464,12 @@ TEST(HippyTest, measure_flex_direction_row_no_padding_align_items_flexstart) {
   ASSERT_FLOAT_EQ(5, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, measure_with_fixed_size) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetMargin(root, CSSTop, 20);
-//  HPNodeStyleSetPadding(root, YGEdgeAll, 25);
+  //  HPNodeStyleSetPadding(root, YGEdgeAll, 25);
   HPNodeStyleSetPadding(root, CSSLeft, 25);
   HPNodeStyleSetPadding(root, CSSTop, 25);
   HPNodeStyleSetPadding(root, CSSRight, 25);
@@ -472,7 +479,7 @@ TEST(HippyTest, measure_with_fixed_size) {
 
   const HPNodeRef root_child0 = HPNodeNew();
   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);
-//   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);;
+  //   HPNodeSetMeasureFunc(root_child0, _simulate_wrapping_text);;
   HPNodeStyleSetWidth(root_child0, 10);
   HPNodeStyleSetHeight(root_child0, 10);
   HPNodeInsertChild(root, root_child0, 0);
@@ -499,14 +506,12 @@ TEST(HippyTest, measure_with_fixed_size) {
   ASSERT_FLOAT_EQ(5, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, measure_with_flex_shrink) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetMargin(root, CSSTop, 20);
-//  HPNodeStyleSetPadding(root, YGEdgeAll, 25);
+  //  HPNodeStyleSetPadding(root, YGEdgeAll, 25);
   HPNodeStyleSetPadding(root, CSSLeft, 25);
   HPNodeStyleSetPadding(root, CSSTop, 25);
   HPNodeStyleSetPadding(root, CSSRight, 25);
@@ -542,11 +547,9 @@ TEST(HippyTest, measure_with_flex_shrink) {
   ASSERT_FLOAT_EQ(5, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, measure_no_padding) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetMargin(root, CSSTop, 20);
   HPNodeStyleSetWidth(root, 50);
@@ -580,14 +583,13 @@ TEST(HippyTest, measure_no_padding) {
   ASSERT_FLOAT_EQ(5, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }
 
 #if GTEST_HAS_DEATH_TEST
 TEST(HippyTest, cannot_add_child_to_node_with_measure_func) {
   const HPNodeRef root = HPNodeNew();
   HPNodeSetMeasureFunc(root, _measure);
-//  HPNodeSetMeasureFunc(root, _measure);
+  //  HPNodeSetMeasureFunc(root, _measure);
 
   const HPNodeRef root_child0 = HPNodeNew();
   ASSERT_FALSE(HPNodeInsertChild(root, root_child0, 0));
@@ -608,14 +610,13 @@ TEST(HippyTest, cannot_add_nonnull_measure_func_to_non_leaf_node) {
 TEST(HippyTest, can_nullify_measure_func_on_any_node) {
   const HPNodeRef root = HPNodeNew();
   HPNodeInsertChild(root, HPNodeNew(), 0);
-//  root->setMeasureFunc(nullptr);
+  //  root->setMeasureFunc(nullptr);
   HPNodeSetMeasureFunc(root, nullptr);
   ASSERT_TRUE(root->measure == NULL);
   HPNodeFreeRecursive(root);
 }
 
 TEST(HippyTest, cant_call_negative_measure) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionColumn);
   HPNodeStyleSetWidth(root, 50);
@@ -623,18 +624,16 @@ TEST(HippyTest, cant_call_negative_measure) {
 
   const HPNodeRef root_child0 = HPNodeNew();
   HPNodeSetMeasureFunc(root, _measure_assert_negative);
-//  root_child0->setMeasureFunc(_measure_assert_negative);
+  //  root_child0->setMeasureFunc(_measure_assert_negative);
   HPNodeStyleSetMargin(root_child0, CSSTop, 20);
   HPNodeInsertChild(root, root_child0, 0);
 
   HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED);
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, cant_call_negative_measure_horizontal) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 10);
@@ -642,25 +641,28 @@ TEST(HippyTest, cant_call_negative_measure_horizontal) {
 
   const HPNodeRef root_child0 = HPNodeNew();
   HPNodeSetMeasureFunc(root_child0, _measure_assert_negative);
-//  root_child0->setMeasureFunc(_measure_assert_negative);
+  //  root_child0->setMeasureFunc(_measure_assert_negative);
   HPNodeStyleSetMargin(root_child0, CSSLeft, 20);
   HPNodeInsertChild(root, root_child0, 0);
 
   HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED);
 
   HPNodeFreeRecursive(root);
-
 }
 
-static HPSize _measure_90_10(HPNodeRef node, float width, MeasureMode widthMode,
-                             float height, MeasureMode heightMode,
-                             void * layoutContext) {
-
-  return HPSize { .width = 90, .height = 10, };
+static HPSize _measure_90_10(HPNodeRef node,
+                             float width,
+                             MeasureMode widthMode,
+                             float height,
+                             MeasureMode heightMode,
+                             void* layoutContext) {
+  return HPSize{
+      .width = 90,
+      .height = 10,
+  };
 }
 
 TEST(HippyTest, percent_with_text_node) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignSpaceBetween);
@@ -673,7 +675,7 @@ TEST(HippyTest, percent_with_text_node) {
 
   const HPNodeRef root_child1 = HPNodeNew();
   HPNodeSetMeasureFunc(root_child1, _measure_90_10);
-//  root_child1->setMeasureFunc(_measure_90_10);
+  //  root_child1->setMeasureFunc(_measure_90_10);
   HPNodeStyleSetMaxWidth(root_child1, 50);
   HPNodeStyleSetPadding(root_child1, CSSTop, 40);
   HPNodeInsertChild(root, root_child1, 1);
@@ -696,5 +698,4 @@ TEST(HippyTest, percent_with_text_node) {
   ASSERT_FLOAT_EQ(50, HPNodeLayoutGetHeight(root_child1));
 
   HPNodeFreeRecursive(root);
-
 }

@@ -1,10 +1,23 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #import <QuartzCore/QuartzCore.h>
@@ -66,14 +79,10 @@ typedef NSURL HippyFileURL;
 + (UIKeyboardType)UIKeyboardType:(id)json;
 + (UIKeyboardAppearance)UIKeyboardAppearance:(id)json;
 + (UIReturnKeyType)UIReturnKeyType:(id)json;
-#if !TARGET_OS_TV
 + (UIDataDetectorTypes)UIDataDetectorTypes:(id)json;
-#endif
 
 + (UIViewContentMode)UIViewContentMode:(id)json;
-#if !TARGET_OS_TV
 + (UIBarStyle)UIBarStyle:(id)json;
-#endif
 
 + (CGFloat)CGFloat:(id)json;
 + (CGPoint)CGPoint:(id)json;
@@ -110,7 +119,7 @@ typedef id NSPropertyList;
 
 typedef BOOL css_backface_visibility_t;
 + (css_backface_visibility_t)css_backface_visibility_t:(id)json;
-//hplayout
+// hplayout
 + (OverflowType)OverflowType:(id)json;
 + (FlexDirection)FlexDirection:(id)json;
 + (FlexAlign)FlexAlign:(id)json;
@@ -139,7 +148,6 @@ typedef NSArray HippyFileURLArray __deprecated_msg("Use NSArray<HippyFileURL *>"
 typedef NSArray NSNumberArray __deprecated_msg("Use NSArray<NSNumber *>");
 typedef NSArray UIColorArray __deprecated_msg("Use NSArray<UIColor *>");
 
-
 + (UIImage *)UIImage:(id)json;
 + (CGImageRef)CGImage:(id)json CF_RETURNS_NOT_RETAINED;
 
@@ -162,78 +170,70 @@ HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
  * avoid repeating the same boilerplate for every error message.
  */
 #define HippyLogConvertError(json, typeName) \
-HippyLogError(@"JSON value '%@' of type %@ cannot be converted to %@", \
-json, [json classForCoder], typeName)
+    HippyLogError(@"JSON value '%@' of type %@ cannot be converted to %@", json, [json classForCoder], typeName)
 
 /**
  * This macro is used for creating simple converter functions that just call
  * the specified getter method on the json value.
  */
-#define Hippy_CONVERTER(type, name, getter) \
-Hippy_CUSTOM_CONVERTER(type, name, [json getter])
+#define Hippy_CONVERTER(type, name, getter) Hippy_CUSTOM_CONVERTER(type, name, [json getter])
 
 /**
  * This macro is used for creating converter functions with arbitrary logic.
  */
-#define Hippy_CUSTOM_CONVERTER(type, name, code) \
-+ (type)name:(id)json                          \
-{                                              \
-  if (!HIPPY_DEBUG) {                            \
-    return code;                               \
-  } else {                                     \
-    @try {                                     \
-      return code;                             \
-    }                                          \
-    @catch (__unused NSException *e) {         \
-      HippyLogConvertError(json, @#type);        \
-      json = nil;                              \
-      return code;                             \
-    }                                          \
-  }                                            \
-}
+#define Hippy_CUSTOM_CONVERTER(type, name, code)     \
+    +(type)name : (id)json {                         \
+        if (!HIPPY_DEBUG) {                          \
+            return code;                             \
+        } else {                                     \
+            @try {                                   \
+                return code;                         \
+            } @catch (__unused NSException * e) {    \
+                HippyLogConvertError(json, @ #type); \
+                json = nil;                          \
+                return code;                         \
+            }                                        \
+        }                                            \
+    }
 
 /**
  * This macro is similar to Hippy_CONVERTER, but specifically geared towards
  * numeric types. It will handle string input correctly, and provides more
  * detailed error reporting if an invalid value is passed in.
  */
-#define Hippy_NUMBER_CONVERTER(type, getter) \
-Hippy_CUSTOM_CONVERTER(type, type, [HIPPY_DEBUG ? [self NSNumber:json] : json getter])
+#define Hippy_NUMBER_CONVERTER(type, getter) Hippy_CUSTOM_CONVERTER(type, type, [HIPPY_DEBUG ? [self NSNumber:json] : json getter])
 
 /**
  * This macro is used for creating converters for enum types.
  */
-#define HIPPY_ENUM_CONVERTER(type, values, default, getter) \
-+ (type)type:(id)json                                     \
-{                                                         \
-  static NSDictionary *mapping;                           \
-  static dispatch_once_t onceToken;                       \
-  dispatch_once(&onceToken, ^{                            \
-    mapping = values;                                     \
-  });                                                     \
-  return (type)[HippyConvertEnumValue(#type, mapping, @(default), json) getter]; \
-}
+#define HIPPY_ENUM_CONVERTER(type, values, default, getter)                            \
+    +(type)type : (id)json {                                                           \
+        static NSDictionary *mapping;                                                  \
+        static dispatch_once_t onceToken;                                              \
+        dispatch_once(&onceToken, ^{                                                   \
+            mapping = values;                                                          \
+        });                                                                            \
+        return (type)[HippyConvertEnumValue(#type, mapping, @(default), json) getter]; \
+    }
 
 /**
  * This macro is used for creating converters for enum types for
  * multiple enum values combined with | operator
  */
-#define Hippy_MULTI_ENUM_CONVERTER(type, values, default, getter) \
-+ (type)type:(id)json                                     \
-{                                                         \
-  static NSDictionary *mapping;                           \
-  static dispatch_once_t onceToken;                       \
-  dispatch_once(&onceToken, ^{                            \
-    mapping = values;                                     \
-  });                                                     \
-  return [HippyConvertMultiEnumValue(#type, mapping, @(default), json) getter]; \
-}
+#define Hippy_MULTI_ENUM_CONVERTER(type, values, default, getter)                     \
+    +(type)type : (id)json {                                                          \
+        static NSDictionary *mapping;                                                 \
+        static dispatch_once_t onceToken;                                             \
+        dispatch_once(&onceToken, ^{                                                  \
+            mapping = values;                                                         \
+        });                                                                           \
+        return [HippyConvertMultiEnumValue(#type, mapping, @(default), json) getter]; \
+    }
 
 /**
  * This macro is used for creating converter functions for typed arrays.
  */
-#define Hippy_ARRAY_CONVERTER(type)                      \
-+ (NSArray<type *> *)type##Array:(id)json              \
-{                                                      \
-  return HippyConvertArrayValue(@selector(type:), json); \
-}
+#define Hippy_ARRAY_CONVERTER(type)                            \
+    +(NSArray<type *> *)type##Array : (id)json {               \
+        return HippyConvertArrayValue(@selector(type:), json); \
+    }

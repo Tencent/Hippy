@@ -1,10 +1,23 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #import <UIKit/UIKit.h>
@@ -16,6 +29,8 @@
 #import "HippyInvalidating.h"
 #import "HippyImageViewCustomLoader.h"
 #import "HippyCustomTouchHandlerProtocol.h"
+#import "HippyImageProviderProtocol.h"
+#import "HippyMethodInterceptorProtocol.h"
 
 @class JSValue;
 @class HippyBridge;
@@ -54,7 +69,6 @@ HIPPY_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
  */
 HIPPY_EXTERN NSString *const HippyDidInitializeModuleNotification;
 
-// MttRN: 业务代码已经成功加载的通知
 HIPPY_EXTERN NSString *const HippyBusinessDidLoadNotification;
 
 /**
@@ -65,18 +79,23 @@ HIPPY_EXTERN NSString *const HippyBusinessDidLoadNotification;
  * For this reason, the block should always return new module instances, and
  * module instances should not be shared between bridges.
  */
-typedef NSArray<id<HippyBridgeModule>> *(^HippyBridgeModuleProviderBlock)(void);
+typedef NSArray<id<HippyBridgeModule>> * (^HippyBridgeModuleProviderBlock)(void);
 
 /**
  * This function returns the module name for a given class.
  */
 HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
-
 /**
  * Async batched bridge used to communicate with the JavaScript application.
  */
 @interface HippyBridge : NSObject <HippyInvalidating>
+
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
+                       bundleURL:(NSURL *)bundleURL
+                  moduleProvider:(HippyBridgeModuleProviderBlock)block
+                   launchOptions:(NSDictionary *)launchOptions
+                     executorKey:(NSString *)executorKey;
 /**
  * Creates a new bridge with a custom HippyBridgeDelegate.
  *
@@ -86,22 +105,12 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * pre-initialized module instances if they require additional init parameters
  * or configuration.
  */
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
-                   launchOptions:(NSDictionary *)launchOptions;
+- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate launchOptions:(NSDictionary *)launchOptions;
 
-/**
- * DEPRECATED: Use initWithDelegate:launchOptions: instead
- *
- * The designated initializer. This creates a new bridge on top of the specified
- * executor. The bridge should then be used for all subsequent communication
- * with the JavaScript code running in the executor. Modules will be automatically
- * instantiated using the default contructor, but you can optionally pass in an
- * array of pre-initialized module instances if they require additional init
- * parameters or configuration.
- */
 - (instancetype)initWithBundleURL:(NSURL *)bundleURL
                    moduleProvider:(HippyBridgeModuleProviderBlock)block
-                    launchOptions:(NSDictionary *)launchOptions;
+                    launchOptions:(NSDictionary *)launchOptions
+                      executorKey:(NSString *)executorKey;
 
 /**
  * This method is used to call functions in the JavaScript application context.
@@ -111,6 +120,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args;
 - (void)enqueueJSCall:(NSString *)module method:(NSString *)method args:(NSArray *)args completion:(dispatch_block_t)completion;
 
+/**
+ * set up chrome dev tools connection
+ */
+- (void)setUpDevClientWithName:(NSString *)name;
 /**
  * This method is used to call functions in the JavaScript application context
  * synchronously.  This is intended for use by applications which do their own
@@ -122,10 +135,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  *
  * @experimental
  */
-- (JSValue *)callFunctionOnModule:(NSString *)module
-                           method:(NSString *)method
-                        arguments:(NSArray *)arguments
-                            error:(NSError **)error;
+- (JSValue *)callFunctionOnModule:(NSString *)module method:(NSString *)method arguments:(NSArray *)arguments error:(NSError **)error;
 
 /**
  * Retrieve a bridge module instance by name or class. Note that modules are
@@ -161,6 +171,11 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)whitelistedModulesDidChange;
 
+/** A red box will show when error occurs by default
+ *  only work on HIPPY_DEBUG mode
+ */
+- (void)setRedBoxShowEnabled:(BOOL)enabled;
+
 /**
  * All registered bridge module classes.
  */
@@ -184,9 +199,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, weak, readonly) HippyExtAnimationModule *animationModule;
 
-@property (nonatomic, strong, readonly) id <HippyImageViewCustomLoader> imageLoader;
-@property (nonatomic, strong, readonly) id <HippyCustomTouchHandlerProtocol> customTouchHandler;
-
+@property (nonatomic, strong, readonly) id<HippyImageViewCustomLoader> imageLoader;
+@property (nonatomic, strong, readonly) id<HippyCustomTouchHandlerProtocol> customTouchHandler;
+@property (nonatomic, strong, readonly) NSSet<Class<HippyImageProviderProtocol>> *imageProviders;
+@property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 /**
  * The launch options that were used to initialize the bridge.
  */
@@ -202,7 +218,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
-//判断当前bridge载入JSBundle后是否发生过错误
 @property (nonatomic, readonly, getter=isErrorOccured) BOOL errorOccured;
 
 /**
@@ -224,24 +239,34 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (BOOL)isBatchActive;
 
-// MttRN: 表示这个bridge是否使用了分包加载
 @property (nonatomic, assign) BOOL useCommonBridge;
 
-// MttRN: 表示是否是Debug模式
 @property (nonatomic, assign) BOOL debugMode;
 
-// MttRN: 共享数据通道
+@property (nonatomic, assign) BOOL enableTurbo;
+
 @property (nonatomic, strong) NSMutableDictionary *shareOptions;
 
-// MttRN: bridge业务名, todo:单引擎的时候此值无效，多引擎的时候有效，目前为多引擎；
 @property (nonatomic, strong) NSString *moduleName;
 
-@property (nonatomic, strong) NSString *appVerson;//宿主App的版本号
+@property (nonatomic, strong) NSString *appVerson;  //
+
+@property (nonatomic, assign) HippyInvalidateReason invalidateReason;
 
 /**
  * just for debugger
  */
 - (void)bindKeys;
 
+/**
+ * Get  the turbo module for a given name.
+ */
+- (id)turboModuleWithName:(NSString *)name;
+
+@end
+
+@interface UIView(Bridge)
+
+@property(nonatomic, weak) HippyBridge *bridge;
 
 @end

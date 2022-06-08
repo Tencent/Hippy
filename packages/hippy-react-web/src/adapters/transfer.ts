@@ -1,8 +1,29 @@
-/* eslint-disable no-bitwise */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import normalizeValue from './normalize-value';
+/* eslint-disable no-bitwise */
+// @ts-nocheck
+import normalizeCSSColor from 'normalize-css-color';
 import Animation from '../modules/animation';
 import AnimationSet from '../modules/animation-set';
+import normalizeValue from './normalize-value';
 
 const borderSpecialPropsArray = ['borderTopWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRightWidth'];
 const borderPropsArray = ['borderWidth'];
@@ -12,6 +33,35 @@ function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return Object.prototype.hasOwnProperty.call(obj, name);
 }
 
+const processColor = (color?: HippyTypes.color): string | number | undefined => {
+  if (!color) return color;
+
+  let int32Color: any = normalizeCSSColor(color);
+  if (int32Color === undefined || int32Color === null) {
+    return undefined;
+  }
+
+  int32Color = ((int32Color << 24) | (int32Color >>> 8)) >>> 0;
+
+  return int32Color;
+};
+
+export const normalizeColor = (color?: HippyTypes.color, opacity = 1): void | string => {
+  if (!color) return;
+
+  if (typeof color === 'string') {
+    return color;
+  }
+  const colorInt: any = processColor(color);
+
+  const r = (colorInt >> 16) & 255;
+  const g = (colorInt >> 8) & 255;
+  const b = colorInt & 255;
+  const a = ((colorInt >> 24) & 255) / 255;
+  const alpha = (a * opacity).toFixed(2);
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
 // { scale: 2 } => 'scale(2)'
 // { translateX: 20 } => 'translateX(20px)'
 function mapTransform(transform: any) {
@@ -20,7 +70,7 @@ function mapTransform(transform: any) {
   return `${type}(${value})`;
 }
 
-function resolveTransform(transformArray: any[]) {
+function resolveTransform(transformArray: any[]): any {
   let transform = '';
   if (Array.isArray(transformArray)) {
     if (transformArray.length > 1) {
@@ -57,17 +107,178 @@ function resolveTransform(transformArray: any[]) {
   return transform;
 }
 
-function is8DigitHexColor(color: string) {
-  return color && color.length === 9 && color[0] === '#';
+function isNumeric(num: unknown) {
+  if (typeof num === 'number' && Number.isFinite(num)) {
+    return true;
+  }
+  if (typeof num === 'string') {
+    return !Number.isNaN(Number(num)) && !Number.isNaN(parseFloat(num));
+  }
+  return false;
 }
 
-function transformHexToRgba(color: number) {
-  const red = (color & 0xff000000) >>> 24;
-  const green = (color & 0x00ff0000) >> 16;
-  const blue = (color & 0x0000ff00) >> 8;
-  const alpha = (color & 0x000000ff);
-  return `rbga(${red},${green},${blue},${alpha})`;
+function toPx(num: unknown) {
+  return isNumeric(num) ? `${num}px` : num;
 }
+
+interface WebStyle {
+  [props: string]: any;
+  borderStyle?: HippyTypes.Style;
+  marginHorizontal?: number | string;
+  marginLeft?: number | string;
+  marginRight?: number | string;
+  marginTop?: number | string;
+  marginBottom?: number | string;
+  paddingLeft?: number | string;
+  paddingRight?: number | string;
+  paddingTop?: number | string;
+  paddingBottom?: number | string;
+  marginVertical?: number | string;
+  paddingHorizontal?: number | string;
+  paddingVertical?: number | string;
+  color?: HippyTypes.color;
+  colors?: HippyTypes.colors;
+  borderColor?: HippyTypes.color;
+  borderColors?: HippyTypes.colors;
+  borderTopColor?: HippyTypes.color;
+  borderTopColors?: HippyTypes.colors;
+  borderBottomColor?: HippyTypes.color;
+  borderBottomColors?: HippyTypes.colors;
+  borderLeftColor?: HippyTypes.color;
+  borderLeftColors?: HippyTypes.colors;
+  borderRightColor?: HippyTypes.color;
+  borderRightColors?: HippyTypes.colors;
+  backgroundColor?: HippyTypes.color;
+  backgroundColors?: HippyTypes.colors;
+  backgroundImage?: string;
+  boxShadow?: string;
+  boxShadowRadius?: number | string;
+  boxShadowOffsetX?: number | string;
+  boxShadowOffsetY?: number | string;
+  boxShadowSpread?: number | string;
+  boxShadowColor?: HippyTypes.color;
+  textShadow?: string;
+  textShadowOffset?: { x: number, y: number };
+  textShadowRadius?: number | string;
+  textShadowColor?: HippyTypes.color;
+}
+
+function handleBoxStyle(webStyle: WebStyle) {
+  // handle border
+  borderPropsArray.every((borderProp) => {
+    if (hasOwnProperty(webStyle, borderProp)) {
+      // eslint-disable-next-line no-param-reassign
+      webStyle.borderStyle = 'solid';
+      return false;
+    }
+    return true;
+  });
+
+  // handle marginHorizontal
+  if (hasOwnProperty(webStyle, 'marginHorizontal')) {
+    const val = toPx(webStyle.marginHorizontal);
+    /* eslint-disable no-param-reassign */
+    webStyle.marginLeft = val;
+    webStyle.marginRight = val;
+  }
+
+  // handle marginVertical
+  if (hasOwnProperty(webStyle, 'marginVertical')) {
+    const val = toPx(webStyle.marginVertical);
+    webStyle.marginTop = val;
+    webStyle.marginBottom = val;
+  }
+  // handle paddingHorizontal
+  if (hasOwnProperty(webStyle, 'paddingHorizontal')) {
+    const val = toPx(webStyle.paddingHorizontal);
+    webStyle.paddingLeft = val;
+    webStyle.paddingRight = val;
+  }
+  // handle paddingVertical
+  if (hasOwnProperty(webStyle, 'paddingVertical')) {
+    const val = toPx(webStyle.paddingVertical);
+    webStyle.paddingTop = val;
+    webStyle.paddingBottom = val;
+  }
+}
+
+// handle special color array
+function handleSpecialColor(webStyle: WebStyle) {
+  const colorStyleArr = [
+    ['color', 'colors'],
+    ['borderColor', 'borderColors'],
+    ['borderTopColor', 'borderTopColors'],
+    ['borderBottomColor', 'borderBottomColors'],
+    ['borderLeftColor', 'borderLeftColors'],
+    ['borderRightColor', 'borderRightColors'],
+    ['backgroundColor', 'backgroundColors'],
+  ];
+  colorStyleArr.forEach((colorList) => {
+    const [color, colors] = colorList;
+    if (!webStyle[color] && webStyle[colors] && webStyle[colors].length > 0) {
+      [webStyle[color]] = webStyle[colors];
+    }
+  });
+}
+
+function handleBoxShadow(webStyle: WebStyle) {
+  const {
+    boxShadowOffsetX = 0,
+    boxShadowOffsetY = 0,
+    boxShadowRadius = 0,
+    boxShadowSpread = 0,
+    boxShadowColor,
+  } = webStyle;
+  const offsetX = toPx(boxShadowOffsetX);
+  const offsetY = toPx(boxShadowOffsetY);
+  const radius = toPx(boxShadowRadius);
+  const spread = toPx(boxShadowSpread);
+  if (boxShadowColor && offsetX && offsetY) {
+    webStyle.boxShadow = `${offsetX} ${offsetY} ${radius} ${spread} ${boxShadowColor}`;
+  }
+}
+
+function handleTextShadow(style: WebStyle) {
+  const { textShadowColor, textShadowOffset = { x: 0, y: 0 }, textShadowRadius } = style;
+  const { x, y } = textShadowOffset;
+  const offsetX = toPx(x);
+  const offsetY = toPx(y);
+  const radius = toPx(textShadowRadius);
+  if (x && y) {
+    style.textShadow = `${offsetX} ${offsetY} ${radius} ${textShadowColor}`;
+  }
+}
+
+const handleLinearBackground = (style: WebStyle) => {
+  if (style.backgroundImage) {
+    const { backgroundImage } = style;
+    // remove linear-gradient tail semicolon.
+    if (backgroundImage.startsWith('linear-gradient') && backgroundImage.endsWith(';')) {
+      style.backgroundImage = backgroundImage.substring(0, backgroundImage.length - 1);
+    }
+  }
+};
+
+const handlePropertyColor = (style: WebStyle) => {
+  const colorProps = {
+    backgroundColor: true,
+    color: true,
+    borderColor: true,
+    borderTopColor: true,
+    borderRightColor: true,
+    borderBottomColor: true,
+    borderLeftColor: true,
+    shadowColor: true,
+    textDecorationColor: true,
+    textShadowColor: true,
+  };
+  const propertyList = Object.keys(colorProps);
+  propertyList.forEach((property) => {
+    if (property !== null && style[property]) {
+      style[property] = normalizeColor(style[property]);
+    }
+  });
+};
 
 function hackWebStyle(webStyle_: any) {
   const webStyle = webStyle_;
@@ -82,9 +293,9 @@ function hackWebStyle(webStyle_: any) {
     });
   }
 
-  if (webStyle.lineHeight && webStyle.lineHeight.toString()
-    .indexOf('px') === -1) {
-    webStyle.lineHeight += 'px';
+  // hack lineHeight
+  if (hasOwnProperty(webStyle, 'lineHeight')) {
+    webStyle.lineHeight = toPx(webStyle.lineHeight);
   }
 
   if (!webStyle.position) {
@@ -93,7 +304,7 @@ function hackWebStyle(webStyle_: any) {
 
   webStyle.boxSizing = 'border-box';
 
-  // 处理特殊 border
+  // handle special border
   borderSpecialPropsArray.forEach((borderProp) => {
     if (hasOwnProperty(webStyle, borderProp)) {
       webStyle.borderStyle = null;
@@ -109,115 +320,23 @@ function hackWebStyle(webStyle_: any) {
     }
   });
 
-  // 处理普通border
-  borderPropsArray.every((borderProp) => {
-    if (hasOwnProperty(webStyle, borderProp)) {
-      webStyle.borderStyle = 'solid';
-      return false;
-    }
-    return true;
-  });
-
-  // 处理marginHorizontal
-  if (hasOwnProperty(webStyle, 'marginHorizontal')) {
-    webStyle.marginLeft = `${webStyle.marginHorizontal}px`;
-    webStyle.marginRight = `${webStyle.marginHorizontal}px`;
-  }
-
-  // 处理marginVertical
-  if (hasOwnProperty(webStyle, 'marginVertical')) {
-    webStyle.marginTop = `${webStyle.marginVertical}px`;
-    webStyle.marginBottom = `${webStyle.marginVertical}px`;
-  }
-  // 处理paddingHorizontal
-  if (hasOwnProperty(webStyle, 'paddingHorizontal')) {
-    webStyle.paddingLeft = `${webStyle.paddingHorizontal}px`;
-    webStyle.paddingRight = `${webStyle.paddingHorizontal}px`;
-  }
-  // 处理paddingVertical
-  if (hasOwnProperty(webStyle, 'paddingVertical')) {
-    webStyle.paddingTop = `${webStyle.paddingVertical}px`;
-    webStyle.paddingBottom = `${webStyle.paddingVertical}px`;
-  }
-
+  handleBoxStyle(webStyle);
   if (webStyle.height && webStyle.height === 0.5) {
     webStyle.height = '1px';
   }
-
-  // 处理颜色数组（QQ浏览器专有）
-  // TODO 剥离出来，不写在公用库
-  if (!webStyle.color && webStyle.colors && webStyle.colors.length > 0) {
-    [webStyle.color] = webStyle.colors;
-  }
-
-  if (!webStyle.borderColor && webStyle.borderColors && webStyle.borderColors.length > 0) {
-    [webStyle.borderColor] = webStyle.borderColors;
-  }
-
-  if (!webStyle.borderTopColor && webStyle.borderTopColors && webStyle.borderTopColors.length > 0) {
-    [webStyle.borderTopColor] = webStyle.borderTopColors;
-  }
-
-  if (!webStyle.borderBottomColor && webStyle.borderBottomColors
-    && webStyle.borderBottomColors.length > 0) {
-    [webStyle.borderBottomColor] = webStyle.borderBottomColors;
-  }
-
-  if (!webStyle.borderLeftColor && webStyle.borderLeftColors
-    && webStyle.borderLeftColors.length > 0) {
-    [webStyle.borderLeftColor] = webStyle.borderLeftColors;
-  }
-
-  if (!webStyle.borderRightColor && webStyle.borderRightColors
-    && webStyle.borderRightColors.length > 0) {
-    [webStyle.borderRightColor] = webStyle.borderRightColors;
-  }
-
-  if (!webStyle.backgroundColor && webStyle.backgroundColors
-    && webStyle.backgroundColors.length > 0) {
-    [webStyle.backgroundColor] = webStyle.backgroundColors;
-  }
-
-
-  // 处理八位16进制的颜色值为rgba颜色值
-  if (is8DigitHexColor(webStyle.backgroundColor)) {
-    webStyle.backgroundColor = transformHexToRgba(webStyle.backgroundColor);
-  }
-
-  if (is8DigitHexColor(webStyle.color)) {
-    webStyle.color = transformHexToRgba(webStyle.color);
-  }
-
-  if (is8DigitHexColor(webStyle.borderColor)) {
-    webStyle.borderColor = transformHexToRgba(webStyle.borderColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderTopColor)) {
-    webStyle.borderTopColor = transformHexToRgba(webStyle.borderTopColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderBottomColor)) {
-    webStyle.borderBottomColor = transformHexToRgba(webStyle.borderBottomColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderLeftColor)) {
-    webStyle.borderLeftColor = transformHexToRgba(webStyle.borderLeftColor);
-  }
-
-  if (is8DigitHexColor(webStyle.borderRightColor)) {
-    webStyle.borderRightColor = transformHexToRgba(webStyle.borderRightColor);
-  }
+  handleSpecialColor(webStyle);
+  handlePropertyColor(webStyle);
 
   Object.keys(webStyle)
     .forEach((key) => {
       const value = webStyle[key];
       if (value) {
         if (value instanceof Animation) {
-          // 动画给初始值
+          // start value for animation
           webStyle[key] = value.startValue;
           value.setStyleAttribute(key);
         } else if (value instanceof AnimationSet && value.children && value.children.length > 0) {
-          // 确认AnimationSet是确实有children
+          // ensure animation set children existing
           const firstAnimation = value.children[0];
           webStyle[key] = firstAnimation.startValue;
           value.setStyleAttribute(key);
@@ -225,7 +344,7 @@ function hackWebStyle(webStyle_: any) {
       }
     });
 
-  // 处理transform
+  // handle transform
   if (webStyle.transform) {
     const finalTransformStyleResult = resolveTransform(webStyle.transform);
     if (typeof finalTransformStyleResult !== 'string') {
@@ -243,17 +362,20 @@ function hackWebStyle(webStyle_: any) {
       webStyle.transform = finalTransformStyleResult;
     }
   }
+  // handle shadow
+  handleBoxShadow(webStyle);
+  handleTextShadow(webStyle);
+  handleLinearBackground(webStyle);
 }
 
 function formatWebStyle(style: any) {
-  const webStyle = {};
+  const webStyle: Record<string, any> = {};
 
   if (Array.isArray(style)) {
     style.forEach((itemStyle) => {
       Object.assign(webStyle, itemStyle);
-
-      hackWebStyle(webStyle);
     });
+    hackWebStyle(webStyle);
   } else {
     Object.assign(webStyle, style);
 

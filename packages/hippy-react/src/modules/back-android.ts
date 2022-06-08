@@ -1,9 +1,27 @@
-/* eslint-disable import/no-mutable-exports */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import '@localTypes/global';
-import { HippyEventEmitter } from '../events';
-import { Bridge, Device } from '../native';
+import { HippyEventEmitter } from '../event';
+import { Bridge, Device } from '../global';
 
 const hippyEventEmitter = new HippyEventEmitter();
 const backPressSubscriptions = new Set();
@@ -11,7 +29,7 @@ const backPressSubscriptions = new Set();
 type EventListener = () => void;
 
 interface BackAndroidRevoker {
-  remove(): void;
+  remove: () => void;
 }
 
 /**
@@ -60,7 +78,7 @@ const realBackAndroid = {
 /**
  * Fake BackAndroid for iOS
  */
-let BackAndroid = {
+const fakeBackAndroid = {
   exitApp() {},
   addListener(handler: EventListener): BackAndroidRevoker {
     return {
@@ -71,15 +89,13 @@ let BackAndroid = {
   initEventListener() {},
 };
 
-if (__PLATFORM__) {
-  if (__PLATFORM__ === 'android') {
-    BackAndroid = realBackAndroid;
-    BackAndroid.initEventListener();
+const BackAndroid = (() => {
+  if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
+    realBackAndroid.initEventListener();
+    return realBackAndroid;
   }
-} else if (Device.platform.OS === 'android') {
-  BackAndroid = realBackAndroid;
-  BackAndroid.initEventListener();
-}
+  return fakeBackAndroid;
+})();
 
 export default BackAndroid;
 export {

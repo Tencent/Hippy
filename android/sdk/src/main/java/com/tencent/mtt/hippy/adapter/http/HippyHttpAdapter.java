@@ -15,42 +15,21 @@
  */
 package com.tencent.mtt.hippy.adapter.http;
 
-/**
- * FileName: HippyHttpAdapter
- * Description：
- * History：
- */
-public interface HippyHttpAdapter
-{
+import com.tencent.mtt.hippy.common.HippyArray;
 
-	void sendRequest(HippyHttpRequest request, HttpTaskCallback callback);
+public interface HippyHttpAdapter {
 
-    void destroyIfNeed();
+  void sendRequest(HippyHttpRequest request, HttpTaskCallback callback);
 
-    interface HttpTaskCallback
-	{
+  void destroyIfNeed();
 
-		/**
-		 * Task success notice
-		 *
-		 * @param request
-		 * @param response
-		 *            HttpURLConnection return code：mttResponse.getStatusCode()；
-		 *            read data：MttInputStream inputStream =
-		 *            response.getInputStream()，inputStream do not need
-		 *            to close，framework will close;
-		 *            get header：String header = response.getHeaderField(name);
-		 *            30X get the jump address：response.getLocation();
-		 */
-		public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
+  void handleRequestCookie(String url, HippyArray requestCookies, HippyHttpRequest httpRequest);
 
-		/**
-		 * Task fail notice
-		 *
-		 * @param request
-		 * @param error
-		 */
-		public void onTaskFailed(HippyHttpRequest request, Throwable error);
+  interface HttpTaskCallback {
 
-	}
+    void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
+
+    @SuppressWarnings("unused")
+    void onTaskFailed(HippyHttpRequest request, Throwable error);
+  }
 }

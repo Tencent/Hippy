@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, wrap_child) {
-
   const HPNodeRef root = HPNodeNew();
 
   const HPNodeRef root_child0 = HPNodeNew();
@@ -50,11 +49,9 @@ TEST(HippyTest, wrap_child) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, wrap_grandchild) {
-
   const HPNodeRef root = HPNodeNew();
 
   const HPNodeRef root_child0 = HPNodeNew();
@@ -99,5 +96,4 @@ TEST(HippyTest, wrap_grandchild) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }

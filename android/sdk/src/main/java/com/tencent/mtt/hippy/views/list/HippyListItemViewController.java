@@ -26,23 +26,20 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 
-/**
- * Created by leonardgong on 2017/12/7 0007.
- */
-
+@SuppressWarnings({"deprecation", "unused"})
 @HippyController(name = HippyListItemViewController.CLASS_NAME, isLazyLoad = true)
-public class HippyListItemViewController extends HippyViewController<HippyListItemView>
-{
-	public static final String CLASS_NAME = "ListViewItem";
+public class HippyListItemViewController extends HippyViewController<HippyListItemView> {
 
-	@Override
-	protected View createViewImpl(Context context)
-	{
-		return new HippyListItemView(context);
-	}
+  public static final String CLASS_NAME = "ListViewItem";
 
-	@Override
-	public RenderNode createRenderNode(int id,  HippyMap props, String className, HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
-		return new ListItemRenderNode(id,  props, className, hippyRootView, controllerManager, lazy);
-	}
+  @Override
+  protected View createViewImpl(Context context) {
+    return new HippyListItemView(context);
+  }
+
+  @Override
+  public RenderNode createRenderNode(int id, HippyMap props, String className,
+      HippyRootView hippyRootView, ControllerManager controllerManager, boolean lazy) {
+    return new ListItemRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+  }
 }

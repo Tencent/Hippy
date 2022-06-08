@@ -10,22 +10,14 @@ please run ./android/build_flexbox_so.sh to build libflexbox.so
 it rely on following conditions:
 ### How to compile:
 
-* use bash shell as build platform.
-if at win32 enviroment, you can use [git for windows](https://gitforwindows.org/)
+1.make sure android sdk & ndk installed
 
-* make sure android sdk & ndk installed, It's would be better, if ndk version >= r17b.
-the result so size will be smaller because of this.
+2.install cmake tools for android sdk (you can install it in android studio)
 
-* install cmake tools for android sdk (you can install it in android studio)
+3.modify build_flexbox_so.sh
+  set "**ANDROID_NDK_HOME**, **CMAKE_MAKE_PROGRAM**" variable depend on your installed path
 
-* modify build_flexbox_so.sh
-  set "**ANDROID_SDK_CMAKE_BIN**, **ANDROID_NDK**, **ANDROID_SO_STRIP**" variable depend on  your installed path
-
-* in bash enviroment, run build_flexbox_so.sh 
-  in directory `out/android/`, libflexboxso.sh has symbols
-  libflexbox_strip.so is stripped that can be used for product.
-  
-
+4.in bash enviroment, run build_flexbox_so.sh.
 
 ### How to use:
 java interfaces is at java directory.

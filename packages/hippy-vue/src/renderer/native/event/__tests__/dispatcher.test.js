@@ -1,17 +1,30 @@
-import test from 'ava';
+import test, { before } from 'ava';
+import { registerBuiltinElements } from '../../../../elements';
 import { EventDispatcher } from '../dispatcher';
 import { setApp, getApp } from '../../../../util';
+import { preCacheNode } from '../../../../util/node';
 import ElementNode from '../../../element-node';
 
 let childNode;
 let textareaNode;
+let listview;
+let iframe;
 
-test.before(() => {
+before(() => {
+  registerBuiltinElements();
   const rootNode = new ElementNode('div');
+  preCacheNode(rootNode, rootNode.nodeId);
   childNode = new ElementNode('div');
+  preCacheNode(childNode, childNode.nodeId);
   textareaNode = new ElementNode('textarea');
+  preCacheNode(textareaNode, textareaNode.nodeId);
+  listview = new ElementNode('ul');
+  preCacheNode(listview, listview.nodeId);
+  iframe = new ElementNode('iframe');
+  preCacheNode(iframe, iframe.nodeId);
   rootNode.appendChild(childNode);
   childNode.appendChild(textareaNode);
+  childNode.appendChild(listview);
   textareaNode.addEventListener('test', () => {});
 
   const app = {
@@ -117,7 +130,34 @@ test('receiveUIComponentEvent onSelectionChange test', (t) => {
   t.pass();
 });
 
-test('receiveUIComponentEvent onScroll test', (t) => {
+test('receiveUIComponentEvent onKeyboardWillShow test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    textareaNode.nodeId,
+    'onKeyboardWillShow',
+    {
+      keyboardHeight: 123,
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent onContentSizeChange test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    textareaNode.nodeId,
+    'onContentSizeChange',
+    {
+      contentSize: {
+        width: 1,
+        height: 2,
+      },
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent div.onScroll test', (t) => {
   t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
   EventDispatcher.receiveUIComponentEvent([
     childNode.nodeId,
@@ -127,6 +167,42 @@ test('receiveUIComponentEvent onScroll test', (t) => {
         x: 1,
         y: 2,
       },
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent ul.onScroll test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    listview.nodeId,
+    'onScroll',
+    {
+      contentOffset: {
+        x: 1,
+        y: 2,
+      },
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent onTouch test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    childNode.nodeId,
+    'onTouchDown',
+    {
+      page_x: 1,
+      page_y: 2,
+    },
+  ]);
+  EventDispatcher.receiveUIComponentEvent([
+    childNode.nodeId,
+    'onTouchMove',
+    {
+      page_x: 1,
+      page_y: 2,
     },
   ]);
   t.pass();
@@ -144,6 +220,18 @@ test('receiveUIComponentEvent onLayout test', (t) => {
         width: 100,
         height: 200,
       },
+    },
+  ]);
+  t.pass();
+});
+
+test('receiveUIComponentEvent onLoad test', (t) => {
+  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
+  EventDispatcher.receiveUIComponentEvent([
+    iframe.nodeId,
+    'onLoad',
+    {
+      url: 'http://hippyjs.org',
     },
   ]);
   t.pass();

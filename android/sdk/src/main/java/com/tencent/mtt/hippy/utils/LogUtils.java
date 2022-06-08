@@ -19,115 +19,71 @@ import android.util.Log;
 
 import com.tencent.mtt.hippy.BuildConfig;
 
-/**
- * 1.0 xiandongluo on 2017/11/14
- */
-public class LogUtils
-{
-	private static boolean DEBUG_ENABLE = BuildConfig.DEBUG;
+@SuppressWarnings({"unused"})
+public class LogUtils {
 
-    public static void enableDebugLog(boolean debuggable)
-    {
-        DEBUG_ENABLE = debuggable;
+  private static boolean DEBUG_ENABLE = BuildConfig.DEBUG;
+
+  public static void enableDebugLog(boolean debuggable) {
+    DEBUG_ENABLE = debuggable;
+  }
+
+  public static void d(String tag, String msg) {
+    if (DEBUG_ENABLE) {
+      Log.d(tag, msg);
+    }
+  }
+
+  public static void l(String tag, String msg) {
+    if (!DEBUG_ENABLE) {
+      return;
     }
 
-	public static int d(String tag, String msg)
-	{
-		if (DEBUG_ENABLE)
-		{
-			return Log.d(tag, msg);
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
-    public static int l(String tag, String msg)
-    {
-        if (DEBUG_ENABLE)
-        {
-            int index = 0; // 当前位置
-            int max = 3800;// 需要截取的最大长度,别用4000
-            String sub; // 进行截取操作的string
-            while (index < msg.length())
-            {
-                if (msg.length() < max)
-                { // 如果长度比最大长度小
-                    max = msg.length(); // 最大长度设为length,全部截取完成.
-                    sub = msg.substring(index, max);
-                }
-                else
-                {
-                    sub = msg.substring(index, max);
-                }
-                Log.i(tag, sub);
-                index = max;
-                max += 3800;
-            }
-            return 0;
-        }
-        else
-        {
-            return 0;
-        }
+    int index = 0; // 当前位置
+    int max = 3800;// 需要截取的最大长度,别用4000
+    String sub; // 进行截取操作的string
+    while (index < msg.length()) {
+      if (msg.length() < max) { // 如果长度比最大长度小
+        max = msg.length(); // 最大长度设为length,全部截取完成.
+        sub = msg.substring(index, max);
+      } else {
+        sub = msg.substring(index, max);
+      }
+      Log.i(tag, sub);
+      index = max;
+      max += 3800;
     }
+  }
 
-	public static  int d(String tag,String msg,Throwable throwable)
-    {
-        if (DEBUG_ENABLE)
-        {
-            return Log.d(tag, msg,throwable);
-        }
-        else
-        {
-            return 0;
-        }
+  public static void d(String tag, String msg, Throwable throwable) {
+    if (DEBUG_ENABLE) {
+      Log.d(tag, msg, throwable);
     }
+  }
 
-    public static int w(String tag, String msg)
-    {
-        if (DEBUG_ENABLE)
-        {
-            return Log.w(tag, msg);
-        }
-        else
-        {
-            return 0;
-        }
+  public static void w(String tag, String msg) {
+    if (DEBUG_ENABLE) {
+      Log.w(tag, msg);
     }
+  }
 
-    public static int i(String tag, String msg)
-    {
-        if (DEBUG_ENABLE)
-        {
-            return Log.i(tag, msg);
-        }
-        else
-        {
-            return 0;
-        }
+  public static void i(String tag, String msg) {
+    if (DEBUG_ENABLE) {
+      Log.i(tag, msg);
     }
+  }
 
-    public static int v(String tag, String msg)
-    {
-        if (DEBUG_ENABLE)
-        {
-            return Log.v(tag, msg);
-        }
-        else
-        {
-            return 0;
-        }
+  public static void v(String tag, String msg) {
+    if (DEBUG_ENABLE) {
+      Log.v(tag, msg);
     }
+  }
 
-    public static int e(String tag, String msg)
-    {
-        return Log.e(tag, msg);
-    }
+  public static void e(String tag, String msg) {
+    Log.e(tag, msg);
+  }
 
-    public static int e(String tag, String msg,Throwable e)
-    {
-        return Log.e(tag, msg,e);
-    }
+  public static void e(String tag, String msg, Throwable e) {
+    Log.e(tag, msg, e);
+  }
 }

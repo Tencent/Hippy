@@ -25,287 +25,321 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 
-public class HippyVerticalScrollView extends ScrollView implements HippyViewBase,HippyScrollView
-{
+@SuppressWarnings("deprecation")
+public class HippyVerticalScrollView extends ScrollView implements HippyViewBase, HippyScrollView {
 
-	private NativeGestureDispatcher	mGestureDispatcher;
+  private NativeGestureDispatcher mGestureDispatcher;
 
-	private boolean					mScrollEnabled = true;
+  private boolean mScrollEnabled = true;
 
-	private boolean					mDoneFlinging;
+  private boolean mDoneFlinging;
 
-	private boolean					mDragging;
+  private boolean mDragging;
 
-	private HippyOnScrollHelper		mHippyOnScrollHelper;
+  private final HippyOnScrollHelper mHippyOnScrollHelper;
 
-	private boolean					mScrollEventEnable				= true;
+  private boolean mScrollEventEnable = true;
 
-	private boolean					mScrollBeginDragEventEnable		= false;
+  private boolean mScrollBeginDragEventEnable = false;
 
-	private boolean					mScrollEndDragEventEnable		= false;
+  private boolean mScrollEndDragEventEnable = false;
 
-	private boolean					mMomentumScrollBeginEventEnable	= false;
+  private boolean mMomentumScrollBeginEventEnable = false;
 
-	private boolean					mMomentumScrollEndEventEnable	= false;
+  private boolean mMomentumScrollEndEventEnable = false;
 
-	private boolean					mScrollAnimationEndEventEnable	= false;
+  private boolean mFlingEnabled = true;
 
-	private boolean					mFlingEnabled					= true;
+  private boolean mPagingEnabled = false;
 
-	protected int					mScrollEventThrottle			= 400; // 400ms最多回调一次
-	private long					mLastScrollEventTimeStamp		= -1;
+  protected int mScrollEventThrottle = 10;
+  private long mLastScrollEventTimeStamp = -1;
 
-	public HippyVerticalScrollView(Context context)
-	{
-		super(context);
-		mHippyOnScrollHelper = new HippyOnScrollHelper();
-		setVerticalScrollBarEnabled(false);
-	}
+  protected int mScrollMinOffset = 0;
+  private int startScrollY = 0;
+  private int mLastY = 0;
+  private int initialContentOffset = 0;
+  private boolean hasCompleteFirstBatch = false;
 
-	public void setScrollEnabled(boolean enabled)
-	{
-		this.mScrollEnabled = enabled;
-	}
+  public HippyVerticalScrollView(Context context) {
+    super(context);
+    mHippyOnScrollHelper = new HippyOnScrollHelper();
+    setVerticalScrollBarEnabled(false);
+  }
 
-	@Override
-	public void showScrollIndicator(boolean showScrollIndicator) {
-		this.setVerticalScrollBarEnabled(showScrollIndicator);
-	}
+  public void setScrollEnabled(boolean enabled) {
+    this.mScrollEnabled = enabled;
+  }
 
-	public void setScrollEventThrottle(int scrollEventThrottle)
-	{
-		mScrollEventThrottle = scrollEventThrottle;
-	}
+  @Override
+  public void showScrollIndicator(boolean showScrollIndicator) {
+    this.setVerticalScrollBarEnabled(showScrollIndicator);
+  }
 
-	@Override
-	public void callSmoothScrollTo(final int x, final int y,int duration) {
-		if(duration > 0 )
-		{
-			ValueAnimator realSmoothScrollAnimation =
-					ValueAnimator.ofInt(getScrollY(), y);
-			realSmoothScrollAnimation.setDuration(duration);
-			realSmoothScrollAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener()
-			{
-				@Override
-				public void onAnimationUpdate(ValueAnimator animation)
-				{
-					int scrollTo = (Integer) animation.getAnimatedValue();
-					HippyVerticalScrollView.this.scrollTo(x, scrollTo);
-				}
-			});
-			realSmoothScrollAnimation.start();
-		}
-		else
-		{
-		smoothScrollTo(x,y);
-		}
-	}
+  public void setScrollEventThrottle(int scrollEventThrottle) {
+    mScrollEventThrottle = scrollEventThrottle;
+  }
 
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		setMeasuredDimension(
-				MeasureSpec.getSize(widthMeasureSpec),
-				MeasureSpec.getSize(heightMeasureSpec));
-	}
+  @Override
+  public void callSmoothScrollTo(final int x, final int y, int duration) {
+    if (duration > 0) {
+      ValueAnimator realSmoothScrollAnimation =
+          ValueAnimator.ofInt(getScrollY(), y);
+      realSmoothScrollAnimation.setDuration(duration);
+      realSmoothScrollAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+          int scrollTo = (Integer) animation.getAnimatedValue();
+          HippyVerticalScrollView.this.scrollTo(x, scrollTo);
+        }
+      });
+      realSmoothScrollAnimation.start();
+    } else {
+      smoothScrollTo(x, y);
+    }
+  }
 
-	@Override
-	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		// Call with the present values in order to re-layout if necessary
-		scrollTo(getScrollX(), getScrollY());
-	}
+  @Override
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    setMeasuredDimension(
+        MeasureSpec.getSize(widthMeasureSpec),
+        MeasureSpec.getSize(heightMeasureSpec));
+  }
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event)
-	{
-		int action = event.getAction() & MotionEvent.ACTION_MASK;
-		if(action == MotionEvent.ACTION_DOWN && !mDragging)
-		{
-			mDragging = true;
-			if (mScrollBeginDragEventEnable)
-			{
-				HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
-			}
-			// 当手指触摸listview时，让父控件交出ontouch权限,不能滚动
-			setParentScrollableIfNeed(false);
-		}
-		else if (action == MotionEvent.ACTION_UP && mDragging)
-		{
-			if (mScrollEndDragEventEnable)
-			{
-				HippyScrollViewEventHelper.emitScrollEndDragEvent(this);
-			}
-			// 当手指松开时，让父控件重新获取onTouch权限
-			setParentScrollableIfNeed(true);
-			mDragging = false;
-		}
+  @Override
+  protected void onLayout(boolean changed, int l, int t, int r, int b) {
+    // Call with the present values in order to re-layout if necessary
+    scrollTo(getScrollX(), getScrollY());
+  }
 
-		boolean result = mScrollEnabled ? super.onTouchEvent(event) : false;
-		if (mGestureDispatcher != null)
-		{
-			result |= mGestureDispatcher.handleTouchEvent(event);
-		}
-		return result;
-	}
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+    int action = event.getAction() & MotionEvent.ACTION_MASK;
+    if (action == MotionEvent.ACTION_DOWN && !mDragging) {
+      mDragging = true;
+      if (mScrollBeginDragEventEnable) {
+        HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
+      }
+      // 当手指触摸listview时，让父控件交出ontouch权限,不能滚动
+      setParentScrollableIfNeed(false);
+    } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
+      if (mScrollEndDragEventEnable) {
+        HippyScrollViewEventHelper.emitScrollEndDragEvent(this);
+      }
 
-	@Override
-	public boolean onInterceptTouchEvent(MotionEvent event)
-	{
-		if (!mScrollEnabled)
-		{
-			return false;
-		}
-		if (super.onInterceptTouchEvent(event))
-		{
-			if (mScrollBeginDragEventEnable)
-			{
-				HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
-			}
-			mDragging = true;
-			return true;
-		}
-		return false;
-	}
+      if(mPagingEnabled) {
+        post(new Runnable() {
+               @Override
+               public void run() {
+                 doPageScroll();
+               }
+             }
+        );
+      }
+      // 当手指松开时，让父控件重新获取onTouch权限
+      setParentScrollableIfNeed(true);
+      mDragging = false;
+    }
 
-	// 设置父控件是否可以获取到触摸处理权限
-	private void setParentScrollableIfNeed(boolean flag) {
-		// 若自己能上下滚动
-		if (canScrollVertically(-1) || canScrollVertically(1))
-			getParent().requestDisallowInterceptTouchEvent(!flag);
-	}
+    boolean result = mScrollEnabled && super.onTouchEvent(event);
+    if (mGestureDispatcher != null) {
+      result |= mGestureDispatcher.handleTouchEvent(event);
+    }
+    return result;
+  }
 
-	@Override
-	public NativeGestureDispatcher getGestureDispatcher()
-	{
-		return mGestureDispatcher;
-	}
+  @Override
+  public boolean onInterceptTouchEvent(MotionEvent event) {
+    if (!mScrollEnabled) {
+      return false;
+    }
 
-	@Override
-	public void setGestureDispatcher(NativeGestureDispatcher dispatcher)
-	{
-		mGestureDispatcher = dispatcher;
-	}
+    int action = event.getAction() & MotionEvent.ACTION_MASK;
+    if (action == MotionEvent.ACTION_DOWN) {
+      startScrollY = getScrollY();
+    }
 
-	@Override
-	protected void onScrollChanged(int x, int y, int oldX, int oldY)
-	{
-		super.onScrollChanged(x, y, oldX, oldY);
-		if (mHippyOnScrollHelper.onScrollChanged(x, y))
-		{
-			if (mScrollEventEnable)
-			{
-				long currTime = System.currentTimeMillis();
-				if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle)
-				{
-					return;
-				}
+    if (super.onInterceptTouchEvent(event)) {
+      if (mScrollBeginDragEventEnable) {
+        HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
+      }
+      mDragging = true;
+      return true;
+    }
+    return false;
+  }
 
-				mLastScrollEventTimeStamp = currTime;
-				HippyScrollViewEventHelper.emitScrollEvent(this);
-			}
+  // 设置父控件是否可以获取到触摸处理权限
+  private void setParentScrollableIfNeed(boolean flag) {
+    // 若自己能上下滚动
+    if (canScrollVertically(-1) || canScrollVertically(1)) {
+      getParent().requestDisallowInterceptTouchEvent(!flag);
+    }
+  }
 
-			mDoneFlinging = false;
-		}
+  @Override
+  public NativeGestureDispatcher getGestureDispatcher() {
+    return mGestureDispatcher;
+  }
 
-	}
+  @Override
+  public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
+    mGestureDispatcher = dispatcher;
+  }
 
-	@Override
-	public void fling(int velocityY)
-	{
-		if(!mFlingEnabled)
-		{
-			return;
-		}
+  @Override
+  protected void onScrollChanged(int x, int y, int oldX, int oldY) {
+    super.onScrollChanged(x, y, oldX, oldY);
+    if (mHippyOnScrollHelper.onScrollChanged(x, y)) {
+      if (mScrollEventEnable) {
+        long currTime = System.currentTimeMillis();
+        int offsetY = Math.abs(y - mLastY);
+        if (mScrollMinOffset > 0 && offsetY >= mScrollMinOffset) {
+          mLastY = y;
+          HippyScrollViewEventHelper.emitScrollEvent(this);
+        } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp
+            >= mScrollEventThrottle)) {
+          mLastScrollEventTimeStamp = currTime;
+          HippyScrollViewEventHelper.emitScrollEvent(this);
+        }
+      }
+      mDoneFlinging = false;
+    }
+  }
 
-		super.fling(velocityY);
-		if (mMomentumScrollBeginEventEnable)
-		{
-			HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
-		}
-		Runnable runnable = new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if (mDoneFlinging)
-				{
-					if (mMomentumScrollEndEventEnable)
-					{
-						HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
-					}
-				}
-				else
-				{
-					mDoneFlinging = true;
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-					{
-						postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-					}
-					else
-					{
-						HippyVerticalScrollView.this.getHandler().postDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-					}
-				}
-			}
-		};
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-		{
-			postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-		}
-		else
-		{
-			this.getHandler().postDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-		}
-	}
+  protected void doPageScroll() {
+    if (mMomentumScrollBeginEventEnable) {
+      HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
+    }
 
-	@Override
-	public void computeScroll()
-	{
-		super.computeScroll();
-	}
+    smoothScrollToPage();
 
-	public void setScrollEventEnable(boolean enable)
-	{
-		this.mScrollEventEnable = enable;
-	}
+    Runnable runnable = new Runnable() {
+      @Override
+      public void run() {
+        if (mDoneFlinging) {
+          if (mMomentumScrollEndEventEnable) {
+            HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+          }
+        } else {
+          mDoneFlinging = true;
+          postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+        }
+      }
+    };
 
-	public void setScrollBeginDragEventEnable(boolean enable)
-	{
-		this.mScrollBeginDragEventEnable = enable;
-	}
+    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+  }
 
-	public void setScrollEndDragEventEnable(boolean enable)
-	{
-		this.mScrollEndDragEventEnable = enable;
-	}
+  @Override
+  public void fling(int velocityY) {
+    if (!mFlingEnabled || mPagingEnabled) {
+      return;
+    }
 
-	public void setMomentumScrollBeginEventEnable(boolean enable)
-	{
-		this.mMomentumScrollBeginEventEnable = enable;
-	}
+    super.fling(velocityY);
 
-	public void setMomentumScrollEndEventEnable(boolean enable)
-	{
-		this.mMomentumScrollEndEventEnable = enable;
-	}
+    if (mMomentumScrollBeginEventEnable) {
+      HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
+    }
+    Runnable runnable = new Runnable() {
+      @Override
+      public void run() {
+        if (mDoneFlinging) {
+          if (mMomentumScrollEndEventEnable) {
+            HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
+          }
+        } else {
+          mDoneFlinging = true;
+          postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+        }
+      }
+    };
 
-	public void setScrollAnimationEndEventEnable(boolean enable)
-	{
-		this.mScrollAnimationEndEventEnable = enable;
-	}
+    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+  }
 
-	public void setFlingEnabled(boolean flag)
-	{
-		this.mFlingEnabled = flag;
-	}
+  private void smoothScrollToPage() {
+    int height = getHeight();
+    if (height <= 0) {
+      return;
+    }
+    int maxPage = getChildAt(0).getHeight()/height;
+    int page = startScrollY / height;
+    int offset = getScrollY() - startScrollY;
+    if (offset == 0) {
+      return;
+    }
 
-	@Override
-	public void setContentOffset4Reuse(HippyMap offsetMap) {
-		double offset = offsetMap.getDouble("y");
-		scrollTo(0, (int) PixelUtil.dp2px(offset));
-	}
+    if ((page == maxPage - 1) && offset > 0) {
+      page = page + 1;
+    } else if (Math.abs(offset) > height/5) {
+      page = (offset > 0) ? page + 1 : page - 1;
+    }
 
-	@Override
-	public void setPagingEnabled(boolean pagingEnabled) {
+    if (page < 0) {
+      page = 0;
+    }
 
-	}
+    smoothScrollTo(getScrollX(), page * height);
+  }
+
+  public void setScrollEventEnable(boolean enable) {
+    this.mScrollEventEnable = enable;
+  }
+
+  public void setScrollBeginDragEventEnable(boolean enable) {
+    this.mScrollBeginDragEventEnable = enable;
+  }
+
+  public void setScrollEndDragEventEnable(boolean enable) {
+    this.mScrollEndDragEventEnable = enable;
+  }
+
+  public void setMomentumScrollBeginEventEnable(boolean enable) {
+    this.mMomentumScrollBeginEventEnable = enable;
+  }
+
+  public void setMomentumScrollEndEventEnable(boolean enable) {
+    this.mMomentumScrollEndEventEnable = enable;
+  }
+
+  public void setFlingEnabled(boolean flag) {
+    this.mFlingEnabled = flag;
+  }
+
+  @Override
+  public void setContentOffset4Reuse(HippyMap offsetMap) {
+    double offset = offsetMap.getDouble("y");
+    scrollTo(0, (int) PixelUtil.dp2px(offset));
+  }
+
+  @Override
+  public void setPagingEnabled(boolean pagingEnabled) {
+    mPagingEnabled = pagingEnabled;
+  }
+
+  @Override
+  public void setScrollMinOffset(int scrollMinOffset) {
+    scrollMinOffset = Math.max(5, scrollMinOffset);
+    mScrollMinOffset = (int) PixelUtil.dp2px(scrollMinOffset);
+  }
+
+  @Override
+  public void setInitialContentOffset(int offset) {
+    initialContentOffset = offset;
+  }
+
+  @Override
+  public void scrollToInitContentOffset() {
+    if (hasCompleteFirstBatch) {
+      return;
+    }
+
+    if (initialContentOffset > 0) {
+      scrollTo(0, initialContentOffset);
+    }
+
+    hasCompleteFirstBatch = true;
+  }
 }

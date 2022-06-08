@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef com_tencent_smtt_flexbox_FlexNode_JniUtil
-#define com_tencent_smtt_flexbox_FlexNode_JniUtil
+#pragma once
 
-#include <string.h>
 #include <jni.h>
+#include <string.h>
 
 #define JNI_GENERATOR_EXPORT extern "C" __attribute__((visibility("default")))
 
-#define CHECK_NATIVE_PTR(env, jcaller, native_ptr, method_name, ...) 
+#define CHECK_NATIVE_PTR(env, jcaller, native_ptr, method_name, ...)
 
-//#define FLEX_NODE_LOG_CHECK 0
+// #define FLEX_NODE_LOG_CHECK 0
 #ifdef FLEX_NODE_LOG_CHECK
 #define FLEX_NODE_LOG(...) __android_log_print(ANDROID_LOG_INFO, "flexnode", __VA_ARGS__)
 #else
 #define FLEX_NODE_LOG(...)
-#endif
-
 #endif

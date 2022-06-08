@@ -1,10 +1,23 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #import "HippyBridge.h"
@@ -19,18 +32,15 @@ HIPPY_EXTERN NSArray<Class> *HippyGetModuleClasses(void);
 HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 #endif
 
-@interface HippyBridge ()
+@class HippyOCTurboModule;
 
-// Private designated initializer
-- (instancetype)initWithDelegate:(id<HippyBridgeDelegate>)delegate
-                       bundleURL:(NSURL *)bundleURL
-                  moduleProvider:(HippyBridgeModuleProviderBlock)block
-                   launchOptions:(NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;
+@interface HippyBridge ()
 
 // Used for the profiler flow events between JS and native
 @property (nonatomic, assign) int64_t flowID;
 @property (nonatomic, assign) CFMutableDictionaryRef flowIDMap;
 @property (nonatomic, strong) NSLock *flowIDMapLock;
+@property (nonatomic, copy) NSString *executorKey;
 
 + (instancetype)currentBridge;
 + (void)setCurrentBridge:(HippyBridge *)bridge;
@@ -90,8 +100,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  * Used by HippyModuleData to register the module for frame updates after it is
  * lazily initialized.
  */
-- (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module
-                       withModuleData:(HippyModuleData *)moduleData;
+- (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData;
 
 /**
  * Dispatch work to a module's queue - this is also suports the fake HippyJSThread
@@ -111,13 +120,12 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  */
 - (void)handleBuffer:(NSArray<NSArray *> *)buffer batchEnded:(BOOL)hasEnded;
 - (void)processResponse:(id)json error:(NSError *)error;
-
+- (NSDictionary *)deviceInfo;
+- (NSString *)moduleConfig;
 /**
  * Synchronously call a specific native module's method and return the result
  */
-- (id)callNativeModule:(NSUInteger)moduleID
-                method:(NSUInteger)methodID
-                params:(NSArray *)params;
+- (id)callNativeModule:(NSUInteger)moduleID method:(NSUInteger)methodID params:(NSArray *)params;
 
 /**
  * Exposed for the HippyJSCExecutor for lazily loading native modules
@@ -125,14 +133,14 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 - (NSArray *)configForModuleName:(NSString *)moduleName;
 
 /**
- * Hook exposed for HippyLog to send logs to JavaScript when not running in JSC
- */
-- (void)logMessage:(NSString *)message level:(NSString *)level;
-
-/**
  * Allow super fast, one time, timers to skip the queue and be directly executed
  */
 - (void)_immediatelyCallTimer:(NSNumber *)timer;
+
+/**
+ * Get  the turbo module for a given name.
+ */
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
 
 @end
 
@@ -143,11 +151,10 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 @property (nonatomic, assign, readonly) BOOL moduleSetupComplete;
 
 @property (nonatomic, strong) dispatch_semaphore_t semaphore;
+@property (nonatomic, strong) dispatch_semaphore_t moduleSemaphore;
 
 - (instancetype)initWithParentBridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 - (void)start;
-- (void)enqueueApplicationScript:(NSData *)script
-                             url:(NSURL *)url
-                      onComplete:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)enqueueApplicationScript:(NSData *)script url:(NSURL *)url onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
 @end

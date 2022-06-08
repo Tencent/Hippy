@@ -1,14 +1,58 @@
-/* eslint-disable no-bitwise */
-/* eslint-disable no-cond-assign */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-use-before-define */
-/* eslint-disable no-shadow */
 /* eslint-disable no-param-reassign */
 
 import { camelize } from 'shared/util';
-import { tryConvertNumber } from '@vue/util/index';
+import { tryConvertNumber, warn } from '@vue/util/index';
+import translateColor from './color-parser';
 
 const PROPERTIES_MAP = {
   textDecoration: 'textDecorationLine',
+  boxShadowOffset: 'shadowOffset',
+  boxShadowOffsetX: 'shadowOffsetX',
+  boxShadowOffsetY: 'shadowOffsetY',
+  boxShadowOpacity: 'shadowOpacity',
+  boxShadowRadius: 'shadowRadius',
+  boxShadowSpread: 'shadowSpread',
+  boxShadowColor: 'shadowColor',
+  caretColor: 'caret-color',
+};
+
+// linear-gradient direction description map
+const LINEAR_GRADIENT_DIRECTION_MAP = {
+  totop: '0',
+  totopright: 'totopright',
+  toright: '90',
+  tobottomright: 'tobottomright',
+  tobottom: '180', // default value
+  tobottomleft: 'tobottomleft',
+  toleft: '270',
+  totopleft: 'totopleft',
+};
+
+const DEGREE_UNIT = {
+  TURN: 'turn',
+  RAD: 'rad',
+  DEG: 'deg',
 };
 
 const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
@@ -30,12 +74,13 @@ function addParent(obj, parent) {
   Object.keys(obj).forEach((k) => {
     const value = obj[k];
     if (Array.isArray(value)) {
-      value.forEach((v) => { addParent(v, childParent); });
+      value.forEach((v) => {
+        addParent(v, childParent);
+      });
     } else if (value && typeof value === 'object') {
       addParent(value, childParent);
     }
   });
-
   if (isNode) {
     Object.defineProperty(obj, 'parent', {
       configurable: true,
@@ -44,7 +89,6 @@ function addParent(obj, parent) {
       value: parent || null,
     });
   }
-
   return obj;
 }
 
@@ -58,7 +102,7 @@ function convertPxUnitToPt(value) {
     return value;
   }
   // If value unit is px, change to use pt as 1:1.
-  if (value.indexOf('px') === value.length - 2) {
+  if (value.endsWith('px')) {
     const num = parseFloat(value.slice(0, value.indexOf('px')), 10);
     if (!Number.isNaN(num)) {
       value = num;
@@ -76,14 +120,12 @@ function parseCSS(css, options) {
   /**
    * Positional.
    */
-
   let lineno = 1;
   let column = 1;
 
   /**
    * Update lineno and column based on `str`.
    */
-
   function updatePosition(str) {
     const lines = str.match(/\n/g);
     if (lines) lineno += lines.length;
@@ -94,7 +136,6 @@ function parseCSS(css, options) {
   /**
    * Mark position and patch `node.position`.
    */
-
   function position() {
     const start = { line: lineno, column };
     return (node) => {
@@ -119,9 +160,7 @@ function parseCSS(css, options) {
   /**
    * Error `msg`.
    */
-
   const errorsList = [];
-
   function error(msg) {
     const err = new Error(`${options.source}:${lineno}:${column}: ${msg}`);
     err.reason = msg;
@@ -129,7 +168,6 @@ function parseCSS(css, options) {
     err.line = lineno;
     err.column = column;
     err.source = css;
-
     if (options.silent) {
       errorsList.push(err);
     } else {
@@ -140,7 +178,6 @@ function parseCSS(css, options) {
   /**
    * Parse stylesheet.
    */
-
   function stylesheet() {
     const rulesList = rules();
 
@@ -157,7 +194,6 @@ function parseCSS(css, options) {
   /**
    * Opening brace.
    */
-
   function open() {
     return match(/^{\s*/);
   }
@@ -165,7 +201,6 @@ function parseCSS(css, options) {
   /**
    * Closing brace.
    */
-
   function close() {
     return match(/^}/);
   }
@@ -173,12 +208,12 @@ function parseCSS(css, options) {
   /**
    * Parse ruleset.
    */
-
   function rules() {
     let node;
     const rules = [];
     whitespace();
     comments(rules);
+    // eslint-disable-next-line no-cond-assign
     while (css.length && css.charAt(0) !== '}' && (node = atrule() || rule())) {
       if (node !== false) {
         rules.push(node);
@@ -191,7 +226,6 @@ function parseCSS(css, options) {
   /**
    * Match `re` and return captures.
    */
-
   function match(re) {
     const m = re.exec(css);
     if (!m) {
@@ -206,7 +240,6 @@ function parseCSS(css, options) {
   /**
    * Parse whitespace.
    */
-
   function whitespace() {
     match(/^\s*/);
   }
@@ -214,11 +247,10 @@ function parseCSS(css, options) {
   /**
    * Parse comments;
    */
-
   function comments(rules = []) {
     let c;
     rules = rules || [];
-    while (c = comment()) {
+    while ((c = comment()) !== null) {
       if (c !== false) {
         rules.push(c);
       }
@@ -229,29 +261,24 @@ function parseCSS(css, options) {
   /**
    * Parse comment.
    */
-
   function comment() {
     const pos = position();
     if (css.charAt(0) !== '/' || css.charAt(1) !== '*') {
       return null;
     }
-
     let i = 2;
     while (css.charAt(i) !== '' && (css.charAt(i) !== '*' || css.charAt(i + 1) !== '/')) {
       i += 1;
     }
     i += 2;
-
     if (css.charAt(i - 1) === '') {
       return error('End of comment missing');
     }
-
     const str = css.slice(2, i - 2);
     column += 2;
     updatePosition(str);
     css = css.slice(i);
     column += 2;
-
     return pos({
       type: 'comment',
       comment: str,
@@ -277,28 +304,138 @@ function parseCSS(css, options) {
   }
 
   /**
+   * convert string value to string degree
+   * @param {string} value
+   * @param {string} unit
+   */
+  function convertToDegree(value, unit = DEGREE_UNIT.DEG) {
+    const convertedNumValue = parseFloat(value);
+    let result = value || '';
+    const [, decimals] = value.split('.');
+    if (decimals && decimals.length > 2) {
+      result = convertedNumValue.toFixed(2);
+    }
+    switch (unit) {
+      // turn unit
+      case DEGREE_UNIT.TURN:
+        result = `${(convertedNumValue * 360).toFixed(2)}`;
+        break;
+      // radius unit
+      case DEGREE_UNIT.RAD:
+        result = `${(180 / Math.PI * convertedNumValue).toFixed(2)}`;
+        break;
+      default:
+    }
+    return result;
+  }
+
+  /**
+   * parse gradient angle or direction
+   * @param {string} value
+   */
+  function getLinearGradientAngle(value) {
+    const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
+    const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+    const valueList = reg.exec(processedValue);
+    if (!Array.isArray(valueList)) return;
+    // default direction is to bottom, i.e. 180degree
+    let angle = '180';
+    const [direction, angleValue, angleUnit] = valueList;
+    if (angleValue && angleUnit) { // angle value
+      angle = convertToDegree(angleValue, angleUnit);
+    } else if (direction && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined') { // direction description
+      angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
+    } else {
+      warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
+    }
+    return angle;
+  }
+
+  /**
+   * parse gradient color stop
+   * @param {string} value
+   */
+  function getLinearGradientColorStop(value) {
+    const processedValue = (value || '').replace(/\s+/g, ' ').trim();
+    const [color, percentage] = processedValue.split(/\s+(?![^(]*?\))/);
+    const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
+    if (color && !percentageCheckReg.exec(color) && !percentage) {
+      return {
+        color: translateColor(color),
+      };
+    }
+    if (color && percentageCheckReg.exec(percentage)) {
+      return {
+        // color stop ratio
+        ratio: parseFloat(percentage.split('%')[0]) / 100,
+        color: translateColor(color),
+      };
+    }
+    warn('linear-gradient color stop is invalid');
+  }
+
+  /**
+   * parse backgroundImage
+   * @param {string} property
+   * @param {string|Object|number|boolean} value
+   * @returns {(string|{})[]}
+   */
+  function parseBackgroundImage(property, value) {
+    let processedValue = value;
+    let processedProperty = property;
+    if (value.indexOf('linear-gradient') === 0) {
+      processedProperty = 'linearGradient';
+      const valueString = value.substring(value.indexOf('(') + 1, value.lastIndexOf(')'));
+      const tokens = valueString.split(/,(?![^(]*?\))/);
+      const colorStopList = [];
+      processedValue = {};
+      tokens.forEach((value, index) => {
+        if (index === 0) {
+          // the angle of linear-gradient parameter can be optional
+          const angle = getLinearGradientAngle(value);
+          if (angle) {
+            processedValue.angle = angle;
+          } else {
+            // if angle ignored, default direction is to bottom, i.e. 180degree
+            processedValue.angle = '180';
+            const colorObject = getLinearGradientColorStop(value);
+            if (colorObject) colorStopList.push(colorObject);
+          }
+        } else {
+          const colorObject = getLinearGradientColorStop(value);
+          if (colorObject) colorStopList.push(colorObject);
+        }
+      });
+      processedValue.colorStopList = colorStopList;
+    } else {
+      const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
+      const executed = regexp.exec(value);
+      if (executed && executed.length > 1) {
+        [, processedValue] = executed;
+      }
+    }
+    return [processedProperty, processedValue];
+  }
+
+  /**
    * Parse declaration.
    */
-
   function declaration() {
     const pos = position();
-
     // prop
     let prop = match(/^(\*?[-#/*\\\w]+(\[[0-9a-z_-]+\])?)\s*/);
     if (!prop) {
       return null;
     }
     prop = trim(prop[0]);
-
     // :
     if (!match(/^:\s*/)) {
-      return error("property missing ':'");
+      return error('property missing \':\'');
     }
-
     // val
     const propertyName = prop.replace(commentRegexp, '');
     const camelizedProperty = camelize(propertyName);
-    const property = (() => {
+    let property = (() => {
       const property = PROPERTIES_MAP[camelizedProperty];
       if (property) {
         return property;
@@ -307,14 +444,9 @@ function parseCSS(css, options) {
     })();
     const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*?\)|[^};])+)/);
     let value = val ? trim(val[0]).replace(commentRegexp, '') : '';
-
     switch (property) {
       case 'backgroundImage': {
-        const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
-        const executed = regexp.exec(value);
-        if (executed.length > 1) {
-          [, value] = executed;
-        }
+        [property, value] = parseBackgroundImage(property, value);
         break;
       }
       case 'transform': {
@@ -336,7 +468,7 @@ function parseCSS(css, options) {
             transform[key] = v;
             value.push(transform);
           } else {
-            error("missing '('");
+            error('missing \'(\'');
           }
         });
         break;
@@ -344,11 +476,45 @@ function parseCSS(css, options) {
       case 'fontWeight':
         // Keep string and going on.
         break;
+      case 'textShadowOffset': {
+        const pos = value.split(' ')
+          .filter(v => v)
+          .map(v => convertPxUnitToPt(v));
+        const [width] = pos;
+        let [, height] = pos;
+        if (!height) {
+          height = width;
+        }
+        value = {
+          width,
+          height,
+        };
+        break;
+      }
+      case 'shadowOffset': {
+        const pos = value.split(' ')
+          .filter(v => v)
+          .map(v => convertPxUnitToPt(v));
+        const [x] = pos;
+        let [, y] = pos;
+        if (!y) {
+          y = x;
+        }
+        // FIXME: should not be width and height, should be x and y.
+        value = {
+          x,
+          y,
+        };
+        break;
+      }
+      case 'collapsable':
+        value = Boolean(value);
+        break;
       default: {
         value = tryConvertNumber(value);
         // Convert the px to pt for specific properties
-        const sizeProperties = ['top', 'left', 'right', 'bottom', 'height', 'width', 'size', 'padding', 'margin', 'ratio', 'radius'];
-        if (sizeProperties.findIndex(size => property.toLowerCase().indexOf(size) > -1) > -1) {
+        const sizeProperties = ['top', 'left', 'right', 'bottom', 'height', 'width', 'size', 'padding', 'margin', 'ratio', 'radius', 'offset', 'spread'];
+        if (sizeProperties.find(size => property.toLowerCase().indexOf(size) > -1)) {
           value = convertPxUnitToPt(value);
         }
       }
@@ -359,26 +525,21 @@ function parseCSS(css, options) {
       value,
       property,
     });
-
     // ;
     match(/^[;\s]*/);
-
     return ret;
   }
 
   /**
    * Parse declarations.
    */
-
   function declarations() {
     let decls = [];
-
-    if (!open()) return error("missing '{'");
+    if (!open()) return error('missing \'{\'');
     comments(decls);
-
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       if (decl !== false) {
         if (Array.isArray(decl)) {
           decls = decls.concat(decl);
@@ -388,29 +549,24 @@ function parseCSS(css, options) {
         comments(decls);
       }
     }
-
-    if (!close()) return error("missing '}'");
+    if (!close()) return error('missing \'}\'');
     return decls;
   }
 
   /**
    * Parse keyframe.
    */
-
   function keyframe() {
     let m;
     const vals = [];
     const pos = position();
-
-    while (m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/)) {
+    while ((m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/)) !== null) {
       vals.push(m[1]);
       match(/^,\s*/);
     }
-
     if (!vals.length) {
       return null;
     }
-
     return pos({
       type: 'keyframe',
       values: vals,
@@ -421,34 +577,27 @@ function parseCSS(css, options) {
   /**
    * Parse keyframes.
    */
-
   function atkeyframes() {
     const pos = position();
     let m = match(/^@([-\w]+)?keyframes\s*/);
-
     if (!m) {
       return null;
     }
     const vendor = m[1];
-
     // identifier
     m = match(/^([-\w]+)\s*/);
     if (!m) {
       return error('@keyframes missing name');
     }
     const name = m[1];
-
-    if (!open()) return error("@keyframes missing '{'");
-
+    if (!open()) return error('@keyframes missing \'{\'');
     let frame;
     let frames = comments();
-    while (frame = keyframe()) {
+    while ((frame = keyframe()) !== null) {
       frames.push(frame);
       frames = frames.concat(comments());
     }
-
-    if (!close()) return error("@keyframes missing '}'");
-
+    if (!close()) return error('@keyframes missing \'}\'');
     return pos({
       type: 'keyframes',
       name,
@@ -460,22 +609,16 @@ function parseCSS(css, options) {
   /**
    * Parse supports.
    */
-
   function atsupports() {
     const pos = position();
     const m = match(/^@supports *([^{]+)/);
-
     if (!m) {
       return null;
     }
     const supports = trim(m[1]);
-
-    if (!open()) return error("@supports missing '{'");
-
+    if (!open()) return error('@supports missing \'{\'');
     const style = comments().concat(rules());
-
-    if (!close()) return error("@supports missing '}'");
-
+    if (!close()) return error('@supports missing \'}\'');
     return pos({
       type: 'supports',
       supports,
@@ -486,25 +629,19 @@ function parseCSS(css, options) {
   /**
    * Parse host.
    */
-
   function athost() {
     const pos = position();
     const m = match(/^@host\s*/);
-
     if (!m) {
       return null;
     }
-
     if (!open()) {
-      return error("@host missing '{'");
+      return error('@host missing \'{\'');
     }
-
     const style = comments().concat(rules());
-
     if (!close()) {
-      return error("@host missing '}'");
+      return error('@host missing \'}\'');
     }
-
     return pos({
       type: 'host',
       rules: style,
@@ -514,26 +651,20 @@ function parseCSS(css, options) {
   /**
    * Parse media.
    */
-
   function atmedia() {
     const pos = position();
     const m = match(/^@media *([^{]+)/);
-
     if (!m) {
       return null;
     }
     const media = trim(m[1]);
-
     if (!open()) {
-      return error("@media missing '{'");
+      return error('@media missing \'{\'');
     }
-
     const style = comments().concat(rules());
-
     if (!close()) {
-      return error("@media missing '}'");
+      return error('@media missing \'}\'');
     }
-
     return pos({
       type: 'media',
       media,
@@ -545,7 +676,6 @@ function parseCSS(css, options) {
   /**
    * Parse custom-media.
    */
-
   function atcustommedia() {
     const pos = position();
     const m = match(/^@custom-media\s+(--[^\s]+)\s*([^{;]+);/);
@@ -563,32 +693,26 @@ function parseCSS(css, options) {
   /**
    * Parse paged media.
    */
-
   function atpage() {
     const pos = position();
     const m = match(/^@page */);
     if (!m) {
       return null;
     }
-
     const sel = selector() || [];
-
     if (!open()) {
-      return error("@page missing '{'");
+      return error('@page missing \'{\'');
     }
     let decls = comments();
-
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       decls.push(decl);
       decls = decls.concat(comments());
     }
-
     if (!close()) {
-      return error("@page missing '}'");
+      return error('@page missing \'}\'');
     }
-
     return pos({
       type: 'page',
       selectors: sel,
@@ -599,27 +723,21 @@ function parseCSS(css, options) {
   /**
    * Parse document.
    */
-
   function atdocument() {
     const pos = position();
     const m = match(/^@([-\w]+)?document *([^{]+)/);
     if (!m) {
       return null;
     }
-
     const vendor = trim(m[1]);
     const doc = trim(m[2]);
-
     if (!open()) {
-      return error("@document missing '{'");
+      return error('@document missing \'{\'');
     }
-
     const style = comments().concat(rules());
-
     if (!close()) {
-      return error("@document missing '}'");
+      return error('@document missing \'}\'');
     }
-
     return pos({
       type: 'document',
       document: doc,
@@ -631,30 +749,25 @@ function parseCSS(css, options) {
   /**
    * Parse font-face.
    */
-
   function atfontface() {
     const pos = position();
     const m = match(/^@font-face\s*/);
     if (!m) {
       return null;
     }
-
     if (!open()) {
-      return error("@font-face missing '{'");
+      return error('@font-face missing \'{\'');
     }
     let decls = comments();
-
     // declarations
     let decl;
-    while (decl = declaration()) {
+    while ((decl = declaration()) !== null) {
       decls.push(decl);
       decls = decls.concat(comments());
     }
-
     if (!close()) {
-      return error("@font-face missing '}'");
+      return error('@font-face missing \'}\'');
     }
-
     return pos({
       type: 'font-face',
       declarations: decls,
@@ -664,26 +777,21 @@ function parseCSS(css, options) {
   /**
    * Parse import
    */
-
   const atimport = compileAtRule('import');
 
   /**
    * Parse charset
    */
-
   const atcharset = compileAtRule('charset');
 
   /**
    * Parse namespace
    */
-
   const atnamespace = compileAtRule('namespace');
 
   /**
    * Parse non-block at-rules
    */
-
-
   function compileAtRule(name) {
     const re = new RegExp(`^@${name}\\s*([^;]+);`);
     return () => {
@@ -701,12 +809,10 @@ function parseCSS(css, options) {
   /**
    * Parse at rule.
    */
-
   function atrule() {
     if (css[0] !== '@') {
       return null;
     }
-
     return atkeyframes()
       || atmedia()
       || atcustommedia()
@@ -723,22 +829,21 @@ function parseCSS(css, options) {
   /**
    * Parse rule.
    */
-
   function rule() {
     const pos = position();
     const sel = selector();
-
     if (!sel) return error('selector missing');
     comments();
-
     return pos({
       type: 'rule',
       selectors: sel,
       declarations: declarations(),
     });
   }
-
   return addParent(stylesheet());
 }
 
 export default parseCSS;
+export {
+  PROPERTIES_MAP,
+};

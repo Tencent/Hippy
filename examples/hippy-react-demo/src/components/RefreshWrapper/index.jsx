@@ -5,11 +5,11 @@ import {
   View,
   StyleSheet,
   Text,
-} from 'hippy-react';
-import mockData from './UIStyles/mock';
-import Style1 from './UIStyles/Style1';
-import Style2 from './UIStyles/Style2';
-import Style5 from './UIStyles/Style5';
+} from '@hippy/react';
+import mockData from '../../shared/UIStyles/mock';
+import Style1 from '../../shared/UIStyles/Style1';
+import Style2 from '../../shared/UIStyles/Style2';
+import Style5 from '../../shared/UIStyles/Style5';
 
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 50;
@@ -82,9 +82,7 @@ export default class RefreshWrapperExample extends React.Component {
     }, 1000);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   onClickItem(index) {
-    // eslint-disable-next-line no-console
     console.log(`item: ${index} is clicked..`);
   }
 
@@ -107,7 +105,6 @@ export default class RefreshWrapperExample extends React.Component {
         styleUI = <Text style={styles.loading}>{loadingState}</Text>;
         break;
       default:
-        // pass
     }
     return (
       <View style={styles.container}>
@@ -129,12 +126,10 @@ export default class RefreshWrapperExample extends React.Component {
     return item.style;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getRowKey(index) {
     return `row-${index}`;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getRefresh() {
     return (
       <View style={{ flex: 1, height: 30 }}>
@@ -154,7 +149,7 @@ export default class RefreshWrapperExample extends React.Component {
           return resolve([]);
         }
         return resolve(mockData);
-      }, 1000);
+      }, 600);
     });
   }
 
@@ -163,7 +158,9 @@ export default class RefreshWrapperExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <RefreshWrapper
-        ref={(ref) => { this.refresh = ref; }}
+        ref={(ref) => {
+          this.refresh = ref;
+        }}
         style={{ flex: 1 }}
         onRefresh={this.onRefresh}
         bounceTime={100}

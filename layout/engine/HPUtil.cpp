@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,24 +25,24 @@ void HPLog(LogLevel level, const char *format, ...) {
   int androidLevel = LogLevelDebug;
   switch (level) {
     case LogLevelInfo:
-    androidLevel = ANDROID_LOG_INFO;
-    break;
+      androidLevel = ANDROID_LOG_INFO;
+      break;
     case LogLevelVerbose:
-    androidLevel = ANDROID_LOG_VERBOSE;
+      androidLevel = ANDROID_LOG_VERBOSE;
     case LogLevelDebug:
-    androidLevel = ANDROID_LOG_DEBUG;
-    break;
+      androidLevel = ANDROID_LOG_DEBUG;
+      break;
     case LogLevelWarn:
-    androidLevel = ANDROID_LOG_WARN;
-    break;
+      androidLevel = ANDROID_LOG_WARN;
+      break;
     case LogLevelError:
-    androidLevel = ANDROID_LOG_ERROR;
-    break;
+      androidLevel = ANDROID_LOG_ERROR;
+      break;
     case LogLevelFatal:
-    androidLevel = ANDROID_LOG_FATAL;
-    break;
+      androidLevel = ANDROID_LOG_FATAL;
+      break;
     default:
-    break;
+      break;
   }
   __android_log_vprint(androidLevel, "HippyLayout", format, args);
   va_end(args);
@@ -82,34 +83,35 @@ bool FloatIsEqualInScale(float a, float b, float scale) {
 }
 
 bool HPSizeIsEqual(HPSize a, HPSize b) {
-
   return FloatIsEqual(a.width, b.width) && FloatIsEqual(a.height, b.height);
 }
 
 bool HPSizeIsEqualInScale(HPSize a, HPSize b, float scale) {
-
-  return FloatIsEqualInScale(a.width, b.width, scale)
-      && FloatIsEqualInScale(a.height, b.height, scale);
+  return FloatIsEqualInScale(a.width, b.width, scale) &&
+         FloatIsEqualInScale(a.height, b.height, scale);
 }
 
-float HPRoundValueToPixelGrid(float value, bool forceCeil, bool forceFloor) {
-  float fractial = fmodf(value, 1.0);
+float HPRoundValueToPixelGrid(float value, float scaleFactor, bool forceCeil, bool forceFloor) {
+  float scaleValue = value * scaleFactor;
+  float fractial = fmodf(scaleValue, 1.0);
+  if (fractial < 0) {
+    ++fractial;
+  }
+
   if (FloatIsEqual(fractial, 0)) {
     // First we check if the value is already rounded
-    value = value - fractial;
+    scaleValue = scaleValue - fractial;
   } else if (FloatIsEqual(fractial, 1.0)) {
-    value = value - fractial + 1.0;
+    scaleValue = scaleValue - fractial + 1.0;
   } else if (forceCeil) {
     // Next we check if we need to use forced rounding
-    value = value - fractial + 1.0f;
+    scaleValue = scaleValue - fractial + 1.0f;
   } else if (forceFloor) {
-    value = value - fractial;
+    scaleValue = scaleValue - fractial;
   } else {
     // Finally we just round the value
-    value = roundf(value);
-//	  value = value - fractial +
-//        (fractial > 0.5f || FloatIsEqual(fractial, 0.5f) ? 1.0f : 0.0f);
+    scaleValue = scaleValue - fractial +
+      (fractial > 0.5f || FloatIsEqual(fractial, 0.5f) ? 1.0f : 0.0f);
   }
-  return value;
+  return scaleValue / scaleFactor;
 }
-

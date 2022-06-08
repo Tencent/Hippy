@@ -1,1 +1,1 @@
-require('hippy-react');
+require('@hippy/react');

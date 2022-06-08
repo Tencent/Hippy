@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 global.__PLATFORM__ = null;
 global.__HIPPYNATIVEGLOBAL__ = {};
 global.__GLOBAL__ = {
@@ -5,11 +7,27 @@ global.__GLOBAL__ = {
   jsModuleList: {},
 };
 global.Hippy = {
-  on() {},
+  on() {
+    // do nothing.
+  },
   bridge: {
-    callNative() {},
-    callNativeWithPromise() { return Promise.resolve(); },
-    callNativeWithCallbackId() { return 1; },
+    callNative() {
+      // do nothing.
+    },
+    callNativeWithPromise() {
+      return Promise.resolve();
+    },
+    callNativeWithCallbackId() {
+      return 1;
+    },
+  },
+  turbo: {
+    turboPromise() {
+      // do nothing.
+    },
+    getTurboModule() {
+      // do nothing.
+    },
   },
   device: {
     platform: {
@@ -22,13 +40,25 @@ global.Hippy = {
     },
   },
   document: {
-    createNode() {},
-    updateNode() {},
-    deleteNode() {},
-    startBatch() {},
-    endBatch() {},
+    createNode() {
+      // do nothing.
+    },
+    updateNode() {
+      // do nothing.
+    },
+    deleteNode() {
+      // do nothing.
+    },
+    startBatch() {
+      // do nothing.
+    },
+    endBatch() {
+      // do nothing.
+    },
   },
   register: {
-    regist() {},
+    regist() {
+      // do nothing.
+    },
   },
 };

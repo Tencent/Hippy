@@ -4,7 +4,10 @@ import {
   Text,
   View,
   StyleSheet,
-} from 'hippy-react';
+  Image, Platform,
+} from '@hippy/react';
+
+const imgURL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAtCAMAAABmgJ64AAAAOVBMVEX/Rx8AAAD/QiL/Tif/QyH/RR//QiH/QiP/RCD/QSL/Qxz/QyH/QiL/QiD/QyL/QiL/QiH/QyH/QiLwirLUAAAAEnRSTlMZAF4OTC7DrWzjI4iietrRk0EEv/0YAAAB0UlEQVRYw72Y0Y6sIAxAKwUFlFH7/x97izNXF2lN1pU5D800jD2hJAJCdwYZuAUyVbmToKh903IhQHgErAVH+ccV0KI+G2oBPMxJgPA4WAigAT8F0IRDgNAE3ARyfeMFDGSc3YHVFkTBAHKDAgkEyHjacae/GTjxFqAo8NbakXrL9DRy9B+BCQwRcXR9OBKmEuAmAFFgcy0agBnIc1xZsMPOI5loAoUsQFmQjDEL9YbpaeGYBMGRKKAuqFEFL/JXApCw/zFEZk9qgbLGBx0gXLISxT25IUBREEgh1II1fph/IViGnZnCcDDVAgfgVg6gCy6ZaClySbDQpAl04vCGaB4+xGcFRK8CLvW0IBb5bQGqAlNwU4C6oEIVTLTcmoEr0AWcpKsZ/H0NAtkLQffnFjkOqiC/TTWBL9AFCwXQBHgI7rXImMgjCZwFa50s6DRBXyALmIECuMASiWNPFgRTgSJwM+XW8PDCmbwndzdaNL8FMYXPNjASDVChnIvWlBI/MKadPV952HszbmXtRERhhQ0vGFA52SVSSVt7MjHvxfRK8cdTpqovn02dUcltMrwiKf+wQ1FxXKCk9en6e/eDNnP44h2thQEb35O/etNv/q3iHza+KuhqqhZAAAAAAElFTkSuQmCC';
 
 const styles = StyleSheet.create({
   itemTitle: {
@@ -22,9 +25,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     height: 100,
-    borderBottomWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
+    borderWidth: 1,
     borderRadius: 2,
     borderColor: '#e0e0e0',
     backgroundColor: '#ffffff',
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
   normalText: {
     fontSize: 14,
     lineHeight: 18,
-    fontColor: 'black',
+    color: 'black',
   },
   button: {
     width: 100,
@@ -46,16 +47,28 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: 'center',
   },
+  customFont: {
+    color: '#0052d9',
+    fontSize: 32,
+    fontFamily: 'TTTGB',
+  },
 });
-
+let i = 0;
 export default class TextExpo extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       fontSize: 16,
+      textShadowColor: 'grey',
+      textShadowOffset: {
+        x: 1,
+        y: 1,
+      },
     };
     this.incrementFontSize = this.incrementFontSize.bind(this);
     this.decrementFontSize = this.decrementFontSize.bind(this);
+    // if Android text nested is used，height and lineHeight attributes should be set in Text wrapper
+    this.androidNestedTextWrapperStyle = { height: 100, lineHeight: 100 };
   }
 
   incrementFontSize() {
@@ -79,7 +92,7 @@ export default class TextExpo extends React.Component {
   }
 
   render() {
-    const { fontSize } = this.state;
+    const { fontSize, textShadowColor, textShadowOffset } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text style>{title}</Text>
@@ -87,8 +100,32 @@ export default class TextExpo extends React.Component {
     );
     return (
       <ScrollView style={{ padding: 10 }}>
+        {renderTitle('shadow')}
+        <View style={[styles.itemContent]} onClick={() => {
+          let textShadowColor = 'red';
+          let textShadowOffset = { x: 10, y: 1 };
+          if (i % 2 === 1) {
+            textShadowColor = 'grey';
+            textShadowOffset = { x: 1, y: 1 };
+          }
+          i += 1;
+          this.setState({
+            textShadowColor,
+            textShadowOffset,
+          });
+        }}>
+          <Text style={[styles.normalText,
+            { color: '#242424',
+              textShadowOffset,
+              // support declaring textShadowOffsetX & textShadowOffsetY separately
+              // textShadowOffsetX: 1,
+              // textShadowOffsetY: 1,
+              textShadowRadius: 3,
+              textShadowColor,
+            }]}>Text shadow is grey with radius 3 and offset 1</Text>
+        </View>
         {renderTitle('color')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent]}>
           <Text style={[styles.normalText, { color: '#242424' }]}>Text color is black</Text>
           <Text style={[styles.normalText, { color: 'blue' }]}>Text color is blue</Text>
           <Text style={[styles.normalText, { color: 'rgb(228,61,36)' }]}>This is red</Text>
@@ -123,6 +160,15 @@ export default class TextExpo extends React.Component {
             lines just two lines just two lines just two lines just two lines just two lines
           </Text>
         </View>
+        {renderTitle('textDecoration')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'underline', textDecorationStyle: 'dotted' }]}>
+            underline
+          </Text>
+          <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'line-through', textDecorationColor: 'red' }]}>
+            line-through
+          </Text>
+        </View>
         {renderTitle('Nest Text')}
         <View style={styles.itemContent}>
           <Text numberOfLines={3}>
@@ -130,6 +176,18 @@ export default class TextExpo extends React.Component {
             <Text numberOfLines={3} style={styles.normalText}>
               Hello world, I am a spider man and I have five friends in other universe.
             </Text>
+          </Text>
+        </View>
+        {renderTitle('Custom font')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
+        </View>
+        {renderTitle('Text Nested')}
+        <View style={styles.itemContent}>
+          <Text style={Platform.OS === 'android' ? this.androidNestedTextWrapperStyle : {}}>
+            <Text numberOfLines={1} style={styles.normalText}>后面有张图片</Text>
+            <Image style={{ width: 70, height: 35 }} source={{ uri: imgURL }} />
+            <Text numberOfLines={1} style={styles.customFont}>前面有张图片</Text>
           </Text>
         </View>
       </ScrollView>

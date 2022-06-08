@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, justify_content_row_flex_start) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 102);
@@ -80,11 +79,9 @@ TEST(HippyTest, justify_content_row_flex_start) {
   ASSERT_FLOAT_EQ(102, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_row_flex_end) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignEnd);
@@ -147,11 +144,9 @@ TEST(HippyTest, justify_content_row_flex_end) {
   ASSERT_FLOAT_EQ(102, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_row_center) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
@@ -214,11 +209,9 @@ TEST(HippyTest, justify_content_row_center) {
   ASSERT_FLOAT_EQ(102, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_row_space_between) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignSpaceBetween);
@@ -281,11 +274,9 @@ TEST(HippyTest, justify_content_row_space_between) {
   ASSERT_FLOAT_EQ(102, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_row_space_around) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignSpaceAround);
@@ -348,11 +339,9 @@ TEST(HippyTest, justify_content_row_space_around) {
   ASSERT_FLOAT_EQ(102, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_column_flex_start) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 102);
   HPNodeStyleSetHeight(root, 102);
@@ -413,11 +402,9 @@ TEST(HippyTest, justify_content_column_flex_start) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_column_flex_end) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignEnd);
   HPNodeStyleSetWidth(root, 102);
@@ -479,11 +466,9 @@ TEST(HippyTest, justify_content_column_flex_end) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_column_center) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 102);
@@ -545,11 +530,9 @@ TEST(HippyTest, justify_content_column_center) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_column_space_between) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignSpaceBetween);
   HPNodeStyleSetWidth(root, 102);
@@ -611,11 +594,9 @@ TEST(HippyTest, justify_content_column_space_between) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_column_space_around) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignSpaceAround);
   HPNodeStyleSetWidth(root, 102);
@@ -677,11 +658,9 @@ TEST(HippyTest, justify_content_column_space_around) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_row_min_width_and_margin) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
@@ -717,11 +696,9 @@ TEST(HippyTest, justify_content_row_min_width_and_margin) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_row_max_width_and_margin) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
@@ -758,11 +735,9 @@ TEST(HippyTest, justify_content_row_max_width_and_margin) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_column_min_height_and_margin) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetMargin(root, CSSTop, 100);
@@ -797,11 +772,9 @@ TEST(HippyTest, justify_content_column_min_height_and_margin) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_colunn_max_height_and_margin) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetMargin(root, CSSTop, 100);
@@ -837,11 +810,9 @@ TEST(HippyTest, justify_content_colunn_max_height_and_margin) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_column_space_evenly) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignSpaceEvenly);
   HPNodeStyleSetWidth(root, 102);
@@ -903,11 +874,9 @@ TEST(HippyTest, justify_content_column_space_evenly) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, justify_content_row_space_evenly) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetJustifyContent(root, FlexAlignSpaceEvenly);
@@ -970,5 +939,4 @@ TEST(HippyTest, justify_content_row_space_evenly) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }

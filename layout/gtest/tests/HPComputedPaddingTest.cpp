@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, computed_layout_padding) {
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
-  //TODO:: not support percent. ianwang .2018.01.13
+  // TODO:: not support percent. ianwang .2018.01.13
   HPNodeStyleSetPadding(root, CSSStart, 10);
 
   HPNodeDoLayout(root, 100, 100);

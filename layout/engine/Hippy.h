@@ -1,5 +1,6 @@
-/* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+/* Tencent is pleased to support the open source community by making Hippy
+ * available. Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +19,13 @@
  *  It's open to outside
  */
 
-#ifndef HIPPY_H_
-#define HIPPY_H_
+#pragma once
+
 #include "HPNode.h"
+#include "HPConfig.h"
 
 HPNodeRef HPNodeNew();
+HPNodeRef HPNodeNewWithConfig(HPConfigRef config);
 void HPNodeFree(HPNodeRef node);
 void HPNodeFreeRecursive(HPNodeRef node);
 
@@ -66,16 +69,20 @@ float HPNodeLayoutGetPadding(HPNodeRef node, CSSDirection dir);
 float HPNodeLayoutGetBorder(HPNodeRef node, CSSDirection dir);
 bool HPNodeLayoutGetHadOverflow(HPNodeRef node);
 
+void HPNodeSetConfig(HPNodeRef node, HPConfigRef config);
+void HPConfigFree(HPConfigRef);
+HPConfigRef HPConfigGetDefault();
+
 bool HPNodeInsertChild(HPNodeRef node, HPNodeRef child, uint32_t index);
 bool HPNodeRemoveChild(HPNodeRef node, HPNodeRef child);
 bool HPNodeHasNewLayout(HPNodeRef node);
 void HPNodesetHasNewLayout(HPNodeRef node, bool hasNewLayout);
 void HPNodeMarkDirty(HPNodeRef node);
 bool HPNodeIsDirty(HPNodeRef node);
-void HPNodeDoLayout(HPNodeRef node, float parentWidth, float parentHeight,
+void HPNodeDoLayout(HPNodeRef node,
+                    float parentWidth,
+                    float parentHeight,
                     HPDirection direction = DirectionLTR,
-                    void * layoutContext = nullptr);
+                    void* layoutContext = nullptr);
 void HPNodePrint(HPNodeRef node);
 bool HPNodeReset(HPNodeRef node);
-
-#endif /* HIPPY_H_ */

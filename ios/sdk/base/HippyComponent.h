@@ -1,10 +1,23 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #import <CoreGraphics/CoreGraphics.h>
@@ -16,7 +29,6 @@
  * properties. Unlike JS method callbacks, these can be called multiple times.
  */
 typedef void (^HippyDirectEventBlock)(NSDictionary *body);
-typedef void (^HippyBubblingEventBlock)(NSDictionary *body);
 
 /**
  * Logical node in a tree of application components. Both `ShadowView` and
@@ -30,7 +42,7 @@ typedef void (^HippyBubblingEventBlock)(NSDictionary *body);
 @property (nonatomic, copy) NSString *viewName;
 @property (nonatomic, copy) NSDictionary *props;
 @property (nonatomic, assign) CGRect frame;
-@property (nonatomic, weak) id <HippyComponent> parent;
+@property (nonatomic, weak) id<HippyComponent> parent;
 
 - (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(NSInteger)atIndex;
 - (void)removeHippySubview:(id<HippyComponent>)subview;
@@ -63,9 +75,7 @@ typedef void (^HippyBubblingEventBlock)(NSDictionary *body);
 
 @end
 
-// TODO: this is kinda dumb - let's come up with a
-// better way of identifying root Hippy views please!
-static inline BOOL HippyIsHippyRootView(NSNumber *hippyTag)
-{
+// hippy use multiple of 10 as tag of root view
+static inline BOOL HippyIsHippyRootView(NSNumber *hippyTag) {
     return hippyTag.integerValue % 10 == 0;
 }

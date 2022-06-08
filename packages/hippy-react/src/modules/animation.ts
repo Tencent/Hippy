@@ -1,9 +1,30 @@
-import { HippyEventEmitter, HippyEventRevoker } from '../events';
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { HippyEventEmitter, HippyEventRevoker } from '../event';
 import { Bridge, Device } from '../native';
 import { warn } from '../utils';
 import { repeatCountDict } from '../utils/animation';
+import { colorParse } from '../color';
 
-type AnimationValue = number | { animationId: number};
+type AnimationValue = number | { animationId: number} | string;
 type AnimationCallback = () => void;
 type AnimationDirection = 'left' | 'right' | 'top' | 'bottom' | 'center';
 
@@ -26,7 +47,7 @@ interface AnimationOptions {
   /**
    * Timeline mode of animation
    */
-  mode?: 'timing';  // TODO: fill more options
+  mode?: 'timing'; // TODO: fill more options
 
   /**
    * Delay starting time
@@ -34,8 +55,8 @@ interface AnimationOptions {
   delay?: number;
 
   /**
-   * Value type, leavel it blank in most case, except use rotate related
-   * animation, set it to be 'deg'.
+   * Value type, leave it blank in most case, except use rotate/color related
+   * animation, set it to be 'deg' or 'color'.
    */
   valueType?: 'deg'; // TODO: fill more options
 
@@ -47,10 +68,10 @@ interface AnimationOptions {
   /**
    * Animation interpolation type
    */
-  timingFunction?: 'linear' | 'ease' | 'bezier' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out';
+  timingFunction?: 'linear' | 'ease' | 'bezier' | 'in' | 'ease-in' | 'out' | 'ease-out' | 'inOut' | 'ease-in-out' | (string & {});
 
   /**
-   * Animation repeat times, use 'loop' to be alway repeating.
+   * Animation repeat times, use 'loop' to be always repeating.
    */
   repeatCount?: number;
 
@@ -83,24 +104,37 @@ interface Animation extends AnimationOptions {
 const AnimationEventEmitter = new HippyEventEmitter();
 
 /**
+ * parse value of special value type
+ * @param valueType
+ * @param originalValue
+ */
+function parseValue(valueType: string | undefined, originalValue: number | string) {
+  if (valueType === 'color' && ['number', 'string'].indexOf(typeof originalValue) >= 0) {
+    return colorParse(originalValue);
+  }
+  return originalValue;
+}
+
+
+/**
  * Better performance of Animation solution.
  *
  * It pushes the animation scheme to native at once.
  */
 class Animation implements Animation {
-  constructor(config: AnimationOptions) {
+  public constructor(config: AnimationOptions) {
     let startValue: AnimationValue = 0;
-    if (config.startValue && config.startValue.constructor && config.startValue.constructor.name === 'Animation') {
+    if (config.startValue?.constructor && config.startValue.constructor.name === 'Animation') {
       startValue = { animationId: (config.startValue as Animation).animationId };
     } else {
-      ({ startValue } = config);
+      const { startValue: tempStartValue } = config;
+      startValue = parseValue(config.valueType, tempStartValue as number|string);
     }
-
+    const toValue = parseValue(config.valueType, config.toValue as number|string);
     this.mode = config.mode || 'timing';
-
     this.delay = config.delay || 0;
     this.startValue = startValue || 0;
-    this.toValue = config.toValue || 0;
+    this.toValue = toValue || 0;
     this.valueType = config.valueType || undefined;
     this.duration = config.duration || 0;
     this.direction = config.direction || 'center';
@@ -161,9 +195,7 @@ class Animation implements Animation {
     // Set as iOS default
     let animationEventName = 'onAnimation';
     // If running in Android, change it.
-    if (__PLATFORM__ && __PLATFORM__ === 'android') {
-      animationEventName = 'onHippyAnimation';
-    } else if (Device.platform.OS === 'android') {
+    if (__PLATFORM__ === 'android' || Device.platform.OS === 'android') {
       animationEventName = 'onHippyAnimation';
     }
 
@@ -220,7 +252,7 @@ class Animation implements Animation {
   /**
    * Destroy the animation
    */
-  destroy() {
+  public destroy() {
     this.removeEventListener();
     Bridge.callNative('AnimationModule', 'destroyAnimation', this.animationId);
   }
@@ -228,14 +260,14 @@ class Animation implements Animation {
   /**
    * Pause the running animation
    */
-  pause() {
+  public pause() {
     Bridge.callNative('AnimationModule', 'pauseAnimation', this.animationId);
   }
 
   /**
    * Resume execution of paused animation
    */
-  resume() {
+  public resume() {
     Bridge.callNative('AnimationModule', 'resumeAnimation', this.animationId);
   }
 
@@ -244,7 +276,7 @@ class Animation implements Animation {
    *
    * @param {Object} newConfig - new animation schema
    */
-  updateAnimation(newConfig: AnimationOptions) {
+  public updateAnimation(newConfig: AnimationOptions) {
     if (typeof newConfig !== 'object') {
       throw new TypeError('Invalid arguments');
     }
@@ -253,13 +285,15 @@ class Animation implements Animation {
       throw new TypeError('Update animation mode not supported');
     }
 
-    Object.entries(newConfig).forEach(([prop, value]) => {
+    (Object.keys(newConfig) as (keyof AnimationOptions)[]).forEach((prop) => {
+      const value = newConfig[prop];
       if (prop === 'startValue') {
         let startValue: AnimationValue = 0;
         if (newConfig.startValue instanceof Animation) {
           startValue = { animationId: newConfig.startValue.animationId };
         } else {
-          ({ startValue } = newConfig);
+          const { startValue: tempStartValue } = newConfig;
+          startValue = parseValue(this.valueType, tempStartValue as number|string);
         }
         this.startValue = startValue || 0;
       } else if (prop === 'repeatCount') {
@@ -274,7 +308,7 @@ class Animation implements Animation {
     Bridge.callNative('AnimationModule', 'updateAnimation', this.animationId, Object.assign({
       delay: this.delay,
       startValue: this.startValue,
-      toValue: this.toValue,
+      toValue: parseValue(this.valueType, this.toValue as number|string),
       duration: this.duration,
       direction: this.direction,
       timingFunction: this.timingFunction,
@@ -288,7 +322,7 @@ class Animation implements Animation {
    * Call when animation started.
    * @param {Function} cb - callback when animation started.
    */
-  onAnimationStart(cb: AnimationCallback) {
+  public onAnimationStart(cb: AnimationCallback) {
     this.onAnimationStartCallback = cb;
   }
 
@@ -296,7 +330,7 @@ class Animation implements Animation {
    * Call when animation is ended.
    * @param {Function} cb - callback when animation started.
    */
-  onAnimationEnd(cb: AnimationCallback) {
+  public onAnimationEnd(cb: AnimationCallback) {
     this.onAnimationEndCallback = cb;
   }
 
@@ -304,7 +338,7 @@ class Animation implements Animation {
    * Call when animation is canceled.
    * @param {Function} cb - callback when animation started.
    */
-  onAnimationCancel(cb: AnimationCallback) {
+  public onAnimationCancel(cb: AnimationCallback) {
     this.onAnimationCancelCallback = cb;
   }
 
@@ -312,7 +346,7 @@ class Animation implements Animation {
    * Call when animation is repeated.
    * @param {Function} cb - callback when animation started.
    */
-  onAnimationRepeat(cb: AnimationCallback) {
+  public onAnimationRepeat(cb: AnimationCallback) {
     this.onAnimationRepeatCallback = cb;
   }
 }

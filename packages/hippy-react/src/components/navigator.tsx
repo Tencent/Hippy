@@ -1,8 +1,29 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import React from 'react';
 import BackAndroid from '../modules/back-android';
 import Hippy from '../hippy';
 import { callUIFunction } from '../modules/ui-manager-module';
 import { Device } from '../native';
+import Element from '../dom/element-node';
 
 interface Top {
   data: any;
@@ -21,26 +42,21 @@ interface NavigatorProps {
    * Initial page option, the option object should contains.
    *
    * * {string} routeName - Router name
-   * * {React.Comopnent} component - Initial react component
-   * * {Object} initProps - Initial props for inital react component
+   * * {React.Component} component - Initial react component
+   * * {Object} initProps - Initial props for initial react component
    * * {boolean} animated - Use animation effect to switch to new page
    */
   initialRoute: Route;
 }
 
 class Stack {
-  top: Top | null = null;
-
-  size = 0;
+  public top: Top | null = null;
+  public size = 0;
 
   /**
    * Push into a new page/component.
    *
    * @param {Object} route - New router
-   * @param {string} routeName - Router name
-   * @param {React.Comopnent} component - Initial react component
-   * @param {Object} initProps - Initial props for inital react component
-   * @param {boolean} animated - Use animation effect to switch to new page
    */
   public push(route: Route) {
     (this.top as Top) = {
@@ -79,7 +95,7 @@ class Stack {
   /**
    * Clear history stack
    */
-  clear() {
+  public clear() {
     this.top = null;
     this.size = 0;
   }
@@ -111,7 +127,7 @@ class Stack {
 class Navigator extends React.Component<NavigatorProps, {}> {
   private stack = new Stack();
 
-  private instance:  HTMLDivElement | null = null;
+  private instance: HTMLDivElement | Element | null = null;
 
   private routeList: {
     [key: string]: boolean;
@@ -122,10 +138,10 @@ class Navigator extends React.Component<NavigatorProps, {}> {
   /**
    * @ignore
    */
-  constructor(props: NavigatorProps) {
+  public constructor(props: NavigatorProps) {
     super(props);
     const { initialRoute } = props;
-    if (initialRoute && initialRoute.component) {
+    if (initialRoute?.component) {
       const hippy = new Hippy({
         appName: initialRoute.routeName,
         entryPage: initialRoute.component,
@@ -184,13 +200,9 @@ class Navigator extends React.Component<NavigatorProps, {}> {
    * Push into a new page/component.
    *
    * @param {Object} route - New router
-   * @param {string} routeName - Router name
-   * @param {React.Comopnent} component - Initial react component
-   * @param {Object} initProps - Initial props for inital react component
-   * @param {boolean} animated - Use animation effect to switch to new page
    */
   public push(route: Route) {
-    if (route && route.component) {
+    if (route?.component) {
       if (!this.routeList[route.routeName]) {
         const hippy = new Hippy({
           appName: route.routeName,
@@ -199,14 +211,13 @@ class Navigator extends React.Component<NavigatorProps, {}> {
         hippy.regist();
         this.routeList[route.routeName] = true;
       }
-
-      const newRoute = route;
-      delete newRoute.component;
+      // eslint-disable-next-line no-param-reassign
+      delete route.component;
     }
 
     const routes = [route];
     this.stack.push(route);
-    callUIFunction(this.instance, 'push', routes);
+    callUIFunction(this.instance as Element, 'push', routes);
   }
 
   /**
@@ -216,7 +227,7 @@ class Navigator extends React.Component<NavigatorProps, {}> {
     if (this.stack.size > 1) {
       const options = [option];
       this.stack.pop();
-      callUIFunction(this.instance, 'pop', options);
+      callUIFunction(this.instance as Element, 'pop', options);
     }
   }
 
@@ -241,7 +252,9 @@ class Navigator extends React.Component<NavigatorProps, {}> {
     } = this.props;
     (nativeProps as NavigatorProps).initialRoute = otherInitialRoute;
     return (
-      <div nativeName="Navigator" ref={(ref) => { this.instance = ref; }} {...nativeProps} />
+      <div nativeName="Navigator" ref={(ref) => {
+        this.instance = ref;
+      }} {...nativeProps} />
     );
   }
 }

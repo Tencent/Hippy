@@ -1,7 +1,12 @@
 <template>
   <div>
-    <animation :playing="playing" :actions="loopActions" class="loop-red">
-      <div class="loop-blue">
+    <animation
+      ref="animationLoop"
+      :playing="playing"
+      :actions="loopActions"
+      class="loop-green"
+    >
+      <div class="loop-white">
         <slot />
       </div>
     </animation>
@@ -15,7 +20,7 @@ const horizonAnimation = {
       startValue: 0,
       toValue: 200,
       duration: 2000,
-      repeatCount: -1,
+      repeatCount: -1, // 'loop' string supported above 2.12.2
     },
   },
 };
@@ -24,14 +29,23 @@ const verticalAnimation = {
   transform: {
     translateY: {
       startValue: 0,
-      toValue: 300,
+      toValue: 50,
       duration: 2000,
-      repeatCount: -1,
+      repeatCount: -1, // 'loop' string supported above 2.12.2
     },
   },
 };
 
 export default {
+  props: {
+    playing: Boolean,
+    direction: {
+      validator(value) {
+        return ['horizon', 'vertical'].indexOf(value) > -1;
+      },
+    },
+    onRef: Function,
+  },
   data() {
     let loopActions;
     switch (this.$props.direction) {
@@ -48,14 +62,6 @@ export default {
       loopActions,
     };
   },
-  props: {
-    playing: Boolean,
-    direction: {
-      validator(value) {
-        return ['horizon', 'vertical'].indexOf(value) > -1;
-      },
-    },
-  },
   watch: {
     direction(to) {
       switch (to) {
@@ -69,22 +75,28 @@ export default {
       }
     },
   },
+  mounted() {
+    if (this.$props.onRef) {
+      this.$props.onRef(this.$refs.animationLoop);
+    }
+  },
 };
 </script>
 
-<style scope>
-  .loop-red {
+<style scoped>
+  .loop-green {
+    margin-top: 10px;
     justify-content: center;
     align-items: center;
-    background-color: red;
+    background-color: #40b883;
     width: 200px;
     height: 80px;
   }
 
-  .loop-blue {
+  .loop-white {
     justify-content: center;
     align-items: center;
-    background-color: blue;
+    background-color: white;
     width: 160px;
     height: 50px;
   }

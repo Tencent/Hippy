@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
-//TEST(HippyTest, dont_cache_computed_flex_basis_between_layouts) {
+// TEST(HippyTest, dont_cache_computed_flex_basis_between_layouts) {
 //
 //
 //  const HPNodeRef root = HPNodeNew();

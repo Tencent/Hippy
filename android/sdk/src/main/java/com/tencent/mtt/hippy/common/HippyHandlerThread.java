@@ -19,58 +19,43 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-/**
- * @author: edsheng
- * @date: 2017/11/21 20:56
- * @version: V1.0
- */
+@SuppressWarnings({"unused"})
+public class HippyHandlerThread extends HandlerThread {
 
-public class HippyHandlerThread extends HandlerThread
-{
-	Handler	mHandler;
+  final Handler mHandler;
 
-	public HippyHandlerThread(String name)
-	{
-		super(name);
-		setPriority(Thread.MAX_PRIORITY);
-		start();
-		mHandler = new Handler(getLooper());
-	}
+  public HippyHandlerThread(String name) {
+    super(name);
+    setPriority(Thread.MAX_PRIORITY);
+    start();
+    mHandler = new Handler(getLooper());
+  }
 
-	public boolean isThreadAlive()
-	{
-		return (mHandler != null && getLooper() != null && isAlive());
-	}
+  public boolean isThreadAlive() {
+    return (mHandler != null && getLooper() != null && isAlive());
+  }
 
-	@Override
-	public boolean quit()
-	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2)
-		{
-			return super.quitSafely();
-		}
-		else
-		{
-			mHandler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					HippyHandlerThread.super.quit();
-				}
-			});
-		}
-		return true;
-	}
+  @Override
+  public boolean quit() {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
+      return super.quitSafely();
+    } else {
+      mHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          HippyHandlerThread.super.quit();
+        }
+      });
+    }
+    return true;
+  }
 
-	public Handler getHandler()
-	{
-		return mHandler;
-	}
+  public Handler getHandler() {
+    return mHandler;
+  }
 
-	public void runOnQueue(Runnable runnable)
-	{
-		mHandler.post(runnable);
-	}
+  public void runOnQueue(Runnable runnable) {
+    mHandler.post(runnable);
+  }
 
 }

@@ -1,10 +1,23 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #import <UIKit/UIKit.h>
@@ -53,6 +66,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidRemoveRootViewNotification;
  */
 HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 
+/**
+ * Posted whenever endBatch is called
+ */
+HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
+
 @protocol HippyScrollableProtocol;
 
 /**
@@ -69,6 +87,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
  * Gets the view associated with a hippyTag.
  */
 - (UIView *)viewForHippyTag:(NSNumber *)hippyTag;
+
+/**
+ * Gets the node associated with a hippyTag.
+ */
+- (HippyVirtualNode *)nodeForHippyTag:(NSNumber *)hippyTag;
 
 /**
  * Update the frame of a view. This might be in response to a screen rotation
@@ -108,6 +131,11 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 - (void)rootViewForHippyTag:(NSNumber *)hippyTag withCompletion:(void (^)(UIView *view))completion;
 
 /**
+ * Get root view hippyTag
+ */
+- (NSNumber *)rootHippyTag;
+
+/**
  * The view that is currently first responder, according to the JS context.
  */
 + (UIView *)JSResponder;
@@ -129,13 +157,13 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
  */
 - (void)setNeedsLayout;
 
-
 - (UIView *)createViewFromNode:(HippyVirtualNode *)node;
 - (UIView *)updateNode:(HippyVirtualNode *)oldNode withNode:(HippyVirtualNode *)node;
 
 - (void)removeNativeNode:(HippyVirtualNode *)node;
 - (void)removeNativeNodeView:(UIView *)nodeView;
-- (void) updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
+- (void)updateViewsFromParams:(NSArray<HippyExtAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
+- (void)updateViewWithHippyTag:(NSNumber *)hippyTag props:(NSDictionary *)pros;
 @end
 
 /**
@@ -148,4 +176,3 @@ HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
 @property (nonatomic, readonly) HippyUIManager *uiManager;
 
 @end
-

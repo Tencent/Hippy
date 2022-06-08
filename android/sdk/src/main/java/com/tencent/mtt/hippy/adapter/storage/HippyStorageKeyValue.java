@@ -15,13 +15,9 @@
  */
 package com.tencent.mtt.hippy.adapter.storage;
 
-/**
- * FileName: HippyStorageKeyValue
- * Description：
- * History：
- */
-public class HippyStorageKeyValue
-{
-	public String	key;
-	public String	value;
+@SuppressWarnings({"unused"})
+public class HippyStorageKeyValue {
+
+  public String key;
+  public String value;
 }

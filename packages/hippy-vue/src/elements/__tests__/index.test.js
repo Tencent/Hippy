@@ -1,12 +1,12 @@
-import test from 'ava';
+import test, { before } from 'ava';
 import * as elements from '../index';
 
 const EMPTY_TAG_NAME = 'test';
 
-test.before(() => {
+before(() => {
   elements.registerElement(EMPTY_TAG_NAME, {
     component: {
-      name: 'Test',
+      name: 'TestComp',
     },
   });
 });
@@ -86,14 +86,18 @@ test('registerElement with mustUseProp', (t) => {
       name: 'Test',
     },
     mustUseProp(attr) {
-      if (attr === 'testAttr') {
-        return true;
-      }
-      return false;
+      return attr === 'testAttr';
     },
   });
   const viewMeta = elements.getViewMeta(elementName);
   t.is(viewMeta.component.name, 'Test');
   t.true(viewMeta.mustUseProp('testAttr'));
   t.false(viewMeta.mustUseProp());
+});
+
+test('register element with empty name', (t) => {
+  const err = t.throws(() => {
+    elements.registerElement('');
+  }, Error);
+  t.is(err.message, 'RegisterElement cannot set empty name');
 });

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 static void _dirtied(HPNodeRef node) {
-  int* dirtiedCount = (int*) node->getContext();
+  int* dirtiedCount = (int*)node->getContext();
   (*dirtiedCount)++;
 }
 

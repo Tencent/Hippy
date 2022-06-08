@@ -13,36 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.common.HippyArray;
 
-/**
- * FileName: HippyBridge
- * Description：
- * History：
- * 1.0 xiandongluo on 2017/11/14
- */
-public interface HippyBridge
-{
-	public void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+import java.nio.ByteBuffer;
 
-	public boolean runScriptFromFile(String filePath, String scriptName, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+public interface HippyBridge {
 
-	public boolean runScriptFromAssets(String fileName, AssetManager assetManager, boolean canUseCodeCache, String codeCacheTag, NativeCallback callback);
+    String URI_SCHEME_ASSETS = "asset:";
+    String URI_SCHEME_FILE = "file:";
 
-	public void destroy(NativeCallback callback);
+    void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
-	public void callFunction(String action, String params, NativeCallback callback);
+    void runScript(@NonNull String script);
 
-    public void callFunction(String action, byte[] bytes, int offset, int length, NativeCallback callback);
+    boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+            String codeCacheTag, NativeCallback callback);
 
-	public static interface BridgeCallback
-	{
-		public void callNatives(String moduleName, String moduleFunc, String callId, HippyArray params);
+    void onDestroy();
 
-		public void reportException(String exception, String stackTrace);
-	}
+    void destroy(NativeCallback callback);
+
+    void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
+
+    void callFunction(String action, NativeCallback callback, byte[] buffer);
+
+    void callFunction(String action, NativeCallback callback, byte[] buffer, int offset,
+            int length);
+
+    long getV8RuntimeId();
+
+    interface BridgeCallback {
+
+        void callNatives(String moduleName, String moduleFunc, String callId, Object params);
+
+        void reportException(String message, String stackTrace);
+
+        void reportException(Throwable e);
+    }
 }

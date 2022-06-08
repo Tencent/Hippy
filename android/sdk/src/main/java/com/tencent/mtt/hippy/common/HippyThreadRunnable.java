@@ -15,38 +15,25 @@
  */
 package com.tencent.mtt.hippy.common;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 
-/**
- * FileName: HippyThreadRunnable
- * Description：
- * History：
- */
-public abstract class HippyThreadRunnable<T extends Object> implements Runnable
-{
-	private T	mParam;
+@SuppressWarnings({"TypeParameterExplicitlyExtendsObject", "unused"})
+public abstract class HippyThreadRunnable<T extends Object> implements Runnable {
 
-	public HippyThreadRunnable()
-	{
+  private final T mParam;
 
-	}
+  public HippyThreadRunnable(T param) {
+    mParam = param;
+  }
 
-	public HippyThreadRunnable(T param)
-	{
-		mParam = param;
-	}
+  @Override
+  public void run() {
+    try {
+      run(mParam);
+    } catch (Throwable e) {
+      LogUtils.e("HippyThreadRunnable", "run: ", e);
+    }
+  }
 
-	@Override
-	public void run()
-	{
-		try
-		{
-			run(mParam);
-		}
-		catch (Throwable e)
-		{
-			throw  e;
-		}
-	}
-
-	public abstract void run(T param);
+  public abstract void run(T param);
 }

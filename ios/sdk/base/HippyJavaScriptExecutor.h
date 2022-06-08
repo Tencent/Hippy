@@ -1,10 +1,23 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
+/*!
+ * iOS SDK
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #import <objc/runtime.h>
@@ -13,10 +26,12 @@
 
 #import "HippyBridgeModule.h"
 #import "HippyInvalidating.h"
-#include "engine-impl.h"
+#include <memory>
 
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
+
+class Scope;
 
 /**
  * Abstracts away a JavaScript execution context - we may be running code in a
@@ -24,6 +39,7 @@ typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
  */
 @protocol HippyJavaScriptExecutor <HippyInvalidating, HippyBridgeModule>
 
+- (instancetype)initWithExecurotKey:(NSString *)execurotkey bridge:(HippyBridge *)bridge;
 /**
  * Used to set up the executor after the bridge has been fully initialized.
  * Do any expensive setup in this method instead of `-init`.
@@ -35,14 +51,12 @@ typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
  */
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
+@property (nonatomic, copy) NSString *executorkey;
 /*
  *hippy-core js engine
  */
-@property (nonatomic, assign) std::weak_ptr<Engine> pEngine;
-@property (nonatomic, assign) std::weak_ptr<Environment> pEnv;
-@property (nonatomic, assign) hippy::napi::napi_context napi_ctx;
+@property (atomic, assign) std::shared_ptr<Scope> pScope;
 @property (readonly) JSGlobalContextRef JSGlobalContextRef;
-@property (nonatomic, copy) NSString *businessName;
 /**
  * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback
  * with JSValue, containing the next queue, and JSContext.
@@ -50,34 +64,35 @@ typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete;
 
 /**
+ * called when second bundle load
+ */
+- (void)secondBundleLoadCompleted:(BOOL)success;
+
+/**
+ * called before excute secondary js bundle
+ */
+- (void)updateGlobalObjectBeforeExcuteSecondary;
+
+/**
  * Executes BatchedBridge.callFunctionReturnFlushedQueue with the module name,
  * method name and optional additional arguments on the JS thread and calls the
  * given callback with JSValue, containing the next queue, and JSContext.
  */
-- (void)callFunctionOnModule:(NSString *)module
-                      method:(NSString *)method
-                   arguments:(NSArray *)args
-                    callback:(HippyJavaScriptCallback)onComplete;
+- (void)callFunctionOnModule:(NSString *)module method:(NSString *)method arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete;
 
 /**
  * Executes BatchedBridge.invokeCallbackAndReturnFlushedQueue with the cbID,
  * and optional additional arguments on the JS thread and calls the
  * given callback with JSValue, containing the next queue, and JSContext.
  */
-- (void)invokeCallbackID:(NSNumber *)cbID
-               arguments:(NSArray *)args
-                callback:(HippyJavaScriptCallback)onComplete;
+- (void)invokeCallbackID:(NSNumber *)cbID arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete;
 
 /**
  * Runs an application script, and notifies of the script load being complete via `onComplete`.
  */
-- (void)executeApplicationScript:(NSData *)script
-                       sourceURL:(NSURL *)sourceURL
-                      onComplete:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCompleteBlock)onComplete;
 
-- (void)injectJSONText:(NSString *)script
-   asGlobalObjectNamed:(NSString *)objectName
-              callback:(HippyJavaScriptCompleteBlock)onComplete;
+- (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCompleteBlock)onComplete;
 
 /**
  * Enqueue a block to run in the executors JS thread. Fallback to `dispatch_async`

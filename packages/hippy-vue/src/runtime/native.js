@@ -1,3 +1,24 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import colorParser from '@css-loader/color-parser';
 import { isDef } from 'shared/util';
 import {
   HIPPY_VUE_VERSION,
@@ -5,9 +26,17 @@ import {
   trace,
   isFunction,
 } from '../util';
+import {
+  getCssMap,
+} from '../renderer/native/index';
+
+import BackAndroid from './backAndroid';
+import * as NetInfo from './netInfo';
 
 const {
   on,
+  off,
+  emit,
   bridge: {
     callNative,
     callNativeWithPromise,
@@ -16,6 +45,7 @@ const {
   device: {
     platform: {
       OS: Platform,
+      Localization = {},
     },
     screen: {
       scale: PixelRatio,
@@ -27,6 +57,54 @@ const {
 } = Hippy;
 
 const CACHE = {};
+
+const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
+  const empty = {
+    top: -1,
+    left: -1,
+    bottom: -1,
+    right: -1,
+    width: -1,
+    height: -1,
+  };
+  if (!el.isMounted || !el.nodeId) {
+    return Promise.resolve(empty);
+  }
+  const { nodeId } = el;
+  return new Promise(resolve => callNative.call(this, 'UIManagerModule', method, nodeId, (pos) => {
+    // Android error handler.
+    if (!pos || pos === 'this view is null' || typeof nodeId === 'undefined') {
+      return resolve(empty);
+    }
+    return resolve({
+      top: pos.y,
+      left: pos.x,
+      bottom: pos.y + pos.height,
+      right: pos.x + pos.width,
+      width: pos.width,
+      height: pos.height,
+    });
+  }));
+};
+
+/**
+ * getElemCss
+ * @param {ElementNode} element
+ * @returns {{}}
+ */
+const getElemCss = function getElemCss(element) {
+  const style = Object.create(null);
+  try {
+    getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
+        style[cssStyle.property] = cssStyle.value;
+      });
+    });
+  } catch (err) {
+    console.error('getDomCss Error:', err);
+  }
+  return style;
+};
 
 /**
  * Native communication module
@@ -56,6 +134,8 @@ const Native = {
    * Global device event listener
    */
   on,
+  off,
+  emit,
 
   /**
    * Get the device pixel ratio
@@ -66,6 +146,11 @@ const Native = {
    * Get the running operating system.
    */
   Platform,
+
+  /**
+   * Get the localization of country, language and direction
+   */
+  Localization,
 
   /**
    * Hippy-Vue version
@@ -85,7 +170,7 @@ const Native = {
       if (!url) {
         throw new TypeError('Vue.Native.Cookie.getAll() must have url argument');
       }
-      return callNativeWithPromise('network', 'getCookie', url);
+      return callNativeWithPromise.call(this, 'network', 'getCookie', url);
     },
     /**
      * Set cookie key and value
@@ -108,7 +193,7 @@ const Native = {
           throw new TypeError('Vue.Native.Cookie.getAll() only receive Date type of expires');
         }
       }
-      callNative('network', 'setCookie', url, keyValue, expireStr);
+      callNative.call(this, 'network', 'setCookie', url, keyValue, expireStr);
     },
   },
 
@@ -117,10 +202,10 @@ const Native = {
    */
   Clipboard: {
     getString() {
-      return callNativeWithPromise('ClipboardModule', 'getString');
+      return callNativeWithPromise.call(this, 'ClipboardModule', 'getString');
     },
     setString(content) {
-      callNative('ClipboardModule', 'setString', content);
+      callNative.call(this, 'ClipboardModule', 'setString', content);
     },
   },
 
@@ -132,7 +217,8 @@ const Native = {
       // Assume false in most cases.
       let isIPhoneX = false;
       if (Native.Platform === 'ios') {
-        isIPhoneX = Native.Dimensions.screen.statusBarHeight === 44;
+        // iOS12 - iPhone11: 48 Phone12/12 pro/12 pro max: 47 other: 44
+        isIPhoneX = Native.Dimensions.screen.statusBarHeight !== 20;
       }
       CACHE.isIPhoneX = isIPhoneX;
     }
@@ -289,40 +375,73 @@ const Native = {
    * Measure the component size and position.
    */
   measureInWindow(el) {
-    const empty = {
-      top: -1,
-      left: -1,
-      bottom: -1,
-      right: -1,
-      width: -1,
-      height: -1,
-    };
-    if (!el.isMounted || !el.nodeId) {
-      return empty;
-    }
-    const { nodeId } = el;
-    // FIXME: callNativeWithPromise was broken in iOS, it response
-    // UIManager was called with 3 arguments, but expect 2.
-    // So wrap the function with a Promise.
-    const timeout = new Promise(resolve => setTimeout(() => {
-      resolve(empty);
-    }, 100));
-    const measure = new Promise(resolve => callNative('UIManagerModule', 'measureInWindow', nodeId, (pos) => {
-    // Android error handler.
-      if (!pos || pos === 'this view is null') {
-        return resolve(empty);
-      }
-      return resolve({
-        top: pos.y,
-        left: pos.x,
-        bottom: pos.y + pos.height,
-        right: pos.x + pos.width,
-        width: pos.width,
-        height: pos.height,
-      });
-    }));
-    return Promise.race([timeout, measure]);
+    return measureInWindowByMethod(el, 'measureInWindow');
   },
+
+  /**
+   * Measure the component size and position.
+   */
+  measureInAppWindow(el) {
+    if (Native.Platform === 'android') {
+      return measureInWindowByMethod(el, 'measureInWindow');
+    }
+    return measureInWindowByMethod(el, 'measureInAppWindow');
+  },
+
+  /**
+   * parse the color to int32Color which native can understand.
+   * @param { String | Number } color
+   * @param { {platform: "ios" | "android"} } options
+   * @returns { Number } int32Color
+   */
+  parseColor(color, options = { platform: Native.Platform }) {
+    const cache = CACHE.COLOR_PARSER || (CACHE.COLOR_PARSER = Object.create(null));
+    if (!cache[color]) {
+      // cache the calculation result
+      cache[color] = colorParser(color, options);
+    }
+    return cache[color];
+  },
+
+  /**
+   * Key-Value storage system
+   */
+  AsyncStorage: global.localStorage,
+  /**
+   * Android hardware back button event listener.
+   */
+  BackAndroid,
+  /**
+   * operations for img
+   */
+  ImageLoader: {
+    /**
+     * Get the image size before rendering.
+     *
+     * @param {string} url - Get image url.
+     */
+    getSize(url) {
+      return callNativeWithPromise.call(this, 'ImageLoaderModule', 'getSize', url);
+    },
+
+    /**
+     * Prefetch image, to make rendering in next more faster.
+     *
+     * @param {string} url - Prefetch image url.
+     */
+    prefetch(url) {
+      callNative.call(this, 'ImageLoaderModule', 'prefetch', url);
+    },
+  },
+  /**
+   * Network operations
+   */
+  NetInfo,
+  /**
+   * console log to native
+   */
+  ConsoleModule: global.ConsoleModule || global.console,
+  getElemCss,
 };
 
 // Public export

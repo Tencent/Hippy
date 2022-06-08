@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-underscore-dangle */
+
 Hippy.document = {
   createNode(rootViewId, queue) {
     Hippy.bridge.callNative('UIManagerModule', 'createNode', rootViewId, queue);
@@ -11,11 +14,11 @@ Hippy.document = {
   flushBatch(rootViewId, queue) {
     Hippy.bridge.callNative('UIManagerModule', 'flushBatch', rootViewId, queue);
   },
-  startBatch(renderId) {
-    Hippy.bridge.callNative('UIManagerModule', 'startBatch', (`${renderId}`));
+  startBatch() {
+    Hippy.bridge.callNative('UIManagerModule', 'startBatch');
   },
-  endBatch(renderId) {
-    Hippy.bridge.callNative('UIManagerModule', 'endBatch', (`${renderId}`));
+  endBatch() {
+    Hippy.bridge.callNative('UIManagerModule', 'endBatch');
 
     if (typeof flushQueueImmediate === 'function') {
       flushQueueImmediate();

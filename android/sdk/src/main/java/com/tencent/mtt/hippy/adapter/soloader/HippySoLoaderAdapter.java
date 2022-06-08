@@ -15,12 +15,8 @@
  */
 package com.tencent.mtt.hippy.adapter.soloader;
 
-/**
- * @author: edsheng
- * @date: 2018/6/13 20:55
- * @version: V1.0
- */
+@SuppressWarnings({"unused", "SameReturnValue"})
 public interface HippySoLoaderAdapter {
 
-     String loadSoPath(String soName);
+  String loadSoPath(String soName);
 }

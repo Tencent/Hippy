@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'hippy-react';
-
+import { StyleSheet, Text, View } from '@hippy/react';
 
 const styles = StyleSheet.create({
   pageContainer: {
@@ -21,7 +20,7 @@ const styles = StyleSheet.create({
     lineHeight: 48,
     height: 48,
     fontSize: 16,
-    color: '#f44837',
+    color: 'white',
     alignSelf: 'center',
   },
   shapeBase: {
@@ -47,17 +46,25 @@ const styles = StyleSheet.create({
   },
 });
 
-function generateShapePagerView(shapeStyle) {
-  return title => (
-    <View style={styles.pageContainer}>
-      <View style={[styles.shapeBase, shapeStyle]} />
-      <View style={styles.mainRec}>
-        {title ? <Text style={styles.title}>{title}</Text> : null}
+const VIEW_NAME_MAP = {
+  SquarePagerView: 'SquarePagerView',
+  TrianglePagerView: 'TrianglePagerView',
+  CirclePagerView: 'CirclePagerView',
+};
+
+function generateShapePagerView(shapeStyle, name) {
+  const ShapePagerView = title => (
+      <View style={styles.pageContainer} key={title}>
+        <View style={[styles.shapeBase, shapeStyle]} key={'shape'} />
+        <View style={styles.mainRec} key={'title'}>
+          {title ? <Text style={styles.title}>{title}</Text> : null}
+        </View>
       </View>
-    </View>
   );
+  ShapePagerView.displayName = name;
+  return ShapePagerView;
 }
 
-export const SquarePagerView = generateShapePagerView(styles.square);
-export const TrianglePagerView = generateShapePagerView(styles.triangle);
-export const CirclePagerView = generateShapePagerView(styles.circle);
+export const SquarePagerView = generateShapePagerView(styles.square, VIEW_NAME_MAP.SquarePagerView);
+export const TrianglePagerView = generateShapePagerView(styles.triangle, VIEW_NAME_MAP.TrianglePagerView);
+export const CirclePagerView = generateShapePagerView(styles.circle, VIEW_NAME_MAP.CirclePagerView);

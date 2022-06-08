@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, align_items_stretch) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -38,24 +37,22 @@ TEST(HippyTest, align_items_stretch) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root_child0));
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_items_center) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetWidth(root, 100);
@@ -90,11 +87,9 @@ TEST(HippyTest, align_items_center) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_items_flex_start) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignStart);
   HPNodeStyleSetWidth(root, 100);
@@ -116,24 +111,22 @@ TEST(HippyTest, align_items_flex_start) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetWidth(root_child0));
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(90, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(90, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_items_flex_end) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignEnd);
   HPNodeStyleSetWidth(root, 100);
@@ -155,23 +148,22 @@ TEST(HippyTest, align_items_flex_end) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetWidth(root_child0));
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
-//TODO:: baseline not support ianwang 2018.01.13.
+// TODO:: baseline not support ianwang 2018.01.13.
 /*
 TEST(HippyTest, align_baseline) {
 
@@ -1554,7 +1546,6 @@ TEST(HippyTest, align_baseline_multiline_row_and_column) {
 }*/
 
 TEST(HippyTest, align_items_center_child_with_margin_bigger_than_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
@@ -1588,29 +1579,27 @@ TEST(HippyTest, align_items_center_child_with_margin_bigger_than_parent) {
   ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root_child0_child0));
   ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_items_flex_end_child_with_margin_bigger_than_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
@@ -1644,29 +1633,27 @@ TEST(HippyTest, align_items_flex_end_child_with_margin_bigger_than_parent) {
   ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root_child0_child0));
   ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(10, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_items_center_child_without_margin_bigger_than_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
@@ -1698,29 +1685,27 @@ TEST(HippyTest, align_items_center_child_without_margin_bigger_than_parent) {
   ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0_child0));
   ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_items_flex_end_child_without_margin_bigger_than_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetJustifyContent(root, FlexAlignCenter);
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
@@ -1752,29 +1737,27 @@ TEST(HippyTest, align_items_flex_end_child_without_margin_bigger_than_parent) {
   ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0_child0));
   ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(52, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(-10, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(72, HPNodeLayoutGetHeight(root_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_center_should_size_based_on_content) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetAlignItems(root, FlexAlignCenter);
   HPNodeStyleSetMargin(root, CSSTop, 20);
@@ -1817,34 +1800,32 @@ TEST(HippyTest, align_center_should_size_based_on_content) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0_child0_child0));
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(40, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(40, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_strech_should_size_based_on_parent) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetMargin(root, CSSTop, 20);
   HPNodeStyleSetWidth(root, 100);
@@ -1886,34 +1867,32 @@ TEST(HippyTest, align_strech_should_size_based_on_parent) {
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0_child0_child0));
   ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0));
-//
-//  ASSERT_FLOAT_EQ(80, HPNodeLayoutGetLeft(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(100, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0));
+  //
+  //  ASSERT_FLOAT_EQ(80, HPNodeLayoutGetLeft(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetWidth(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(20, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_flex_start_with_shrinking_children) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 500);
   HPNodeStyleSetHeight(root, 500);
@@ -1953,34 +1932,32 @@ TEST(HippyTest, align_flex_start_with_shrinking_children) {
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0_child0));
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_flex_start_with_stretching_children) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 500);
   HPNodeStyleSetHeight(root, 500);
@@ -2019,34 +1996,32 @@ TEST(HippyTest, align_flex_start_with_stretching_children) {
   ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0_child0_child0));
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, align_flex_start_with_shrinking_children_with_stretch) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 500);
   HPNodeStyleSetHeight(root, 500);
@@ -2086,28 +2061,27 @@ TEST(HippyTest, align_flex_start_with_shrinking_children_with_stretch) {
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0_child0));
   ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
-//  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetHeight(root));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0));
-//
-//  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetLeft(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0));
-//
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0_child0));
-//  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
+  //  HPNodeDoLayout(root, VALUE_UNDEFINED, VALUE_UNDEFINED, DirectionRTL);
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetHeight(root));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0));
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetWidth(root_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0));
+  //
+  //  ASSERT_FLOAT_EQ(500, HPNodeLayoutGetLeft(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0));
+  //
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetLeft(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetTop(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetWidth(root_child0_child0_child0));
+  //  ASSERT_FLOAT_EQ(0, HPNodeLayoutGetHeight(root_child0_child0_child0));
 
   HPNodeFreeRecursive(root);
-
 }

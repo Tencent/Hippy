@@ -1,7 +1,27 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-param-reassign */
-/* eslint-disable no-plusplus */
 
+/* eslint-disable-next-line import/no-extraneous-dependencies */
 import Regexp from 'path-to-regexp';
 import { cleanPath } from './util/path';
 import { assert, warn } from './util/warn';
@@ -21,6 +41,7 @@ function compileRouteRegex(path, pathToRegexpOptions) {
 function normalizePath(path, parent, strict) {
   if (!strict) path = path.replace(/\/$/, '');
   if (path[0] === '/') return path;
+  // eslint-disable-next-line eqeqeq
   if (parent == null) return path;
   return cleanPath(`${parent.path}/${path}`);
 }
@@ -36,6 +57,7 @@ function addRouteRecord(
 ) {
   const { path, name } = route;
   if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line eqeqeq
     assert(path != null, '"path" is required in a route configuration.');
     assert(
       typeof route.component !== 'string',
@@ -66,6 +88,7 @@ function addRouteRecord(
     redirect: route.redirect,
     beforeEnter: route.beforeEnter,
     meta: route.meta || {},
+    // eslint-disable-next-line eqeqeq
     props: route.props == null
       ? {}
       : route.components
@@ -143,20 +166,17 @@ function createRouteMap(routes, oldPathList, oldPathMap, oldNameMap) {
   const pathMap = oldPathMap || Object.create(null);
   // $flow-disable-line
   const nameMap = oldNameMap || Object.create(null);
-
   routes.forEach((route) => {
     addRouteRecord(pathList, pathMap, nameMap, route);
   });
-
   // ensure wildcard routes are always at the end
-  for (let i = 0, l = pathList.length; i < l; i++) {
+  for (let i = 0, l = pathList.length; i < l; i += 1) {
     if (pathList[i] === '*') {
       pathList.push(pathList.splice(i, 1)[0]);
       l -= 1;
       i += 1;
     }
   }
-
   return {
     pathList,
     pathMap,

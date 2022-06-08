@@ -15,15 +15,10 @@
  */
 package com.tencent.mtt.hippy.devsupport;
 
-/**
- * @Description: TODO
- * @author: edsheng
- * @date: 2017/11/14 18:17
- * @version: V1.0
- */
-
+@SuppressWarnings("unused")
 public class DevServerException extends RuntimeException {
-    public DevServerException(String message) {
-        super(message);
-    }
+
+  public DevServerException(String message) {
+    super(message);
+  }
 }

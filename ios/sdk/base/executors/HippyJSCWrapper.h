@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2016-present, Facebook, Inc.
+ * Copyright (c) 2016-present, Tencent, Inc.
  * All rights reserved.
  *
- * This source code is licensed under the BSD-style license found in the
+ * This source code is licensed under the Apache-style license found in the
  * LICENSE file in the root directory of this source tree. An additional grant
  * of patent rights can be found in the PATENTS file in the same directory.
  */
@@ -27,22 +27,22 @@ typedef bool (*JSValueIsNullFuncType)(JSContextRef, JSValueRef);
 typedef JSValueRef (*JSEvaluateScriptFuncType)(JSContextRef, JSStringRef, JSObjectRef, JSStringRef, int, JSValueRef *);
 
 typedef struct HippyJSCWrapper {
-  JSStringCreateWithCFStringFuncType JSStringCreateWithCFString;
-  JSStringCreateWithUTF8CStringFuncType JSStringCreateWithUTF8CString;
-  JSStringReleaseFuncType JSStringRelease;
-  JSGlobalContextSetNameFuncType JSGlobalContextSetName;
-  JSObjectSetPropertyFuncType JSObjectSetProperty;
-  JSContextGetGlobalObjectFuncType JSContextGetGlobalObject;
-  JSObjectGetPropertyFuncType JSObjectGetProperty;
-  JSValueMakeFromJSONStringFuncType JSValueMakeFromJSONString;
-  JSObjectCallAsFunctionFuncType JSObjectCallAsFunction;
-  JSValueMakeNullFuncType JSValueMakeNull;
-  JSValueCreateJSONStringFuncType JSValueCreateJSONString;
-  JSValueIsUndefinedFuncType JSValueIsUndefined;
-  JSValueIsNullFuncType JSValueIsNull;
-  JSEvaluateScriptFuncType JSEvaluateScript;
-  Class JSContext;
-  Class JSValue;
+    JSStringCreateWithCFStringFuncType JSStringCreateWithCFString;
+    JSStringCreateWithUTF8CStringFuncType JSStringCreateWithUTF8CString;
+    JSStringReleaseFuncType JSStringRelease;
+    JSGlobalContextSetNameFuncType JSGlobalContextSetName;
+    JSObjectSetPropertyFuncType JSObjectSetProperty;
+    JSContextGetGlobalObjectFuncType JSContextGetGlobalObject;
+    JSObjectGetPropertyFuncType JSObjectGetProperty;
+    JSValueMakeFromJSONStringFuncType JSValueMakeFromJSONString;
+    JSObjectCallAsFunctionFuncType JSObjectCallAsFunction;
+    JSValueMakeNullFuncType JSValueMakeNull;
+    JSValueCreateJSONStringFuncType JSValueCreateJSONString;
+    JSValueIsUndefinedFuncType JSValueIsUndefined;
+    JSValueIsNullFuncType JSValueIsNull;
+    JSEvaluateScriptFuncType JSEvaluateScript;
+    Class JSContext;
+    Class JSValue;
 } HippyJSCWrapper;
 
 HIPPY_EXTERN HippyJSCWrapper *HippyJSCWrapperCreate(BOOL useCustomJSC);

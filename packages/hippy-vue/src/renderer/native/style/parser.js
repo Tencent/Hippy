@@ -1,7 +1,23 @@
-/* eslint-disable consistent-return */
-/* eslint-disable import/no-mutable-exports */
-/* eslint-disable import/prefer-default-export */
-/* eslint-disable no-else-return */
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-param-reassign */
 
 // Check the Regexp is support sticky flag.
@@ -29,7 +45,6 @@ const REGEXPS = {};
 // Execute the RegExp
 function execRegExp(regexpKey, text, start) {
   let flags = '';
-
   // Check the sticky flag supporting, and cache the RegExp instance.
   if (REGEXP_SUPPORTING_STICKY_FLAG) {
     flags = 'gy';
@@ -167,7 +182,7 @@ function parseCombinator(text, start) {
   };
 }
 
-function parseSelectorWithRegExpGY(text, start) {
+function parseSelector(text, start) {
   let end = start;
   const { result, regexp } = execRegExp('whiteSpaceRegEx', text, start);
   if (result) {
@@ -177,58 +192,26 @@ function parseSelectorWithRegExpGY(text, start) {
   let combinator;
   let expectSimpleSelector = true;
   let pair = [];
-  do {
-    const simpleSelectorSequence = parseSimpleSelectorSequence(text, end);
-    if (!simpleSelectorSequence) {
-      if (expectSimpleSelector) {
-        return null;
-      } else {
-        break;
-      }
-    }
-    ({ end } = simpleSelectorSequence);
-    if (combinator) {
-      pair[1] = combinator.value;
-    }
-    pair = [simpleSelectorSequence.value, undefined];
-    value.push(pair);
-
-    combinator = parseCombinator(text, end);
-    if (combinator) {
-      ({ end } = combinator);
-    }
-    expectSimpleSelector = combinator && combinator.value !== ' ';
-  } while (combinator);
-  return {
-    start,
-    end,
-    value,
-  };
-}
-
-function parseSelectorWithoutRegExpGY(cssText, start) {
-  let end = start;
-  const { result, regexp } = execRegExp('whiteSpaceRegEx', cssText, start);
-  if (result) {
-    end = regexp.lastIndex;
+  let cssText;
+  if (REGEXP_SUPPORTING_STICKY_FLAG) {
+    cssText = [text];
+  } else {
+    cssText = text.split(' ');
   }
-  const value = [];
-  let combinator;
-  let expectSimpleSelector = true;
-  let pair = [];
-  cssText.split(' ').forEach((text) => {
-    if (text === '') {
-      return;
+  cssText.forEach((text) => {
+    if (!REGEXP_SUPPORTING_STICKY_FLAG) {
+      if (text === '') {
+        return;
+      }
+      end = 0;
     }
-    end = 0;
     do {
       const simpleSelectorSequence = parseSimpleSelectorSequence(text, end);
       if (!simpleSelectorSequence) {
         if (expectSimpleSelector) {
           return null;
-        } else {
-          break;
         }
+        break;
       }
       ({ end } = simpleSelectorSequence);
       if (combinator) {
@@ -249,13 +232,6 @@ function parseSelectorWithoutRegExpGY(cssText, start) {
     end,
     value,
   };
-}
-
-let parseSelector;
-if (REGEXP_SUPPORTING_STICKY_FLAG) {
-  parseSelector = parseSelectorWithRegExpGY;
-} else {
-  parseSelector = parseSelectorWithoutRegExpGY;
 }
 
 export default parseSelector;

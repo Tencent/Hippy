@@ -1,8 +1,9 @@
-const path                        = require('path');
-const webpack                     = require('webpack');
-const HtmlWebpackPlugin           = require('html-webpack-plugin');
-const CaseSensitivePathsPlugin    = require('case-sensitive-paths-webpack-plugin');
-const pkg                         = require('../package.json');
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const pkg = require('../package.json');
 
 const platform = 'web';
 
@@ -26,7 +27,7 @@ module.exports = {
       title: pkg.name,
       filename: `${pkg.name}.html`,
       template: path.resolve(__dirname, './template.html'),
-      favouriteIcon: pkg.favicon || 'https://res.imtt.qq.com/hippydoc/img/hippy-logo.ico',
+      favouriteIcon: pkg.favicon || 'https://hippyjs.org/assets/img/hippy-logo.ico',
     }),
     new CaseSensitivePathsPlugin(),
   ],
@@ -38,6 +39,7 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
+              sourceType: 'unambiguous',
               presets: [
                 '@babel/preset-react',
                 [
@@ -51,14 +53,16 @@ module.exports = {
                 ],
               ],
               plugins: [
-                '@babel/plugin-proposal-class-properties',
+                ['@babel/plugin-proposal-class-properties'],
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-transform-runtime', { regenerator: true }],
               ],
             },
           },
         ],
       },
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpe?g|gif)$/i,
         use: [{
           loader: 'file-loader',
           options: {
@@ -76,8 +80,21 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [path.resolve(__dirname, '../node_modules')],
-    alias: {
-      'hippy-react': path.resolve(__dirname, '../../../packages/hippy-react-web'),
-    },
+    alias: (() => {
+      const aliases = {
+        '@hippy/react': '@hippy/react-web',
+      };
+      // If hippy-react-web was built exist then make a alias to @hippy/react
+      // Remove the section if you don't use it
+      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react-web');
+      if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
+        console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
+        aliases['@hippy/react'] = hippyReactPath;
+      } else {
+        console.warn('* Using the @hippy/react defined in package.json');
+      }
+
+      return aliases;
+    })(),
   },
 };

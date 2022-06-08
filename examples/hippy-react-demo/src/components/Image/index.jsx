@@ -4,12 +4,13 @@ import {
   Text,
   Image,
   StyleSheet,
-} from 'hippy-react';
-// Import the image to base64 for defaultSource props.
-/* eslint-disable-next-line import/no-webpack-loader-syntax */
-import defaultSource from '!!url-loader?modules!./defaultSource.jpg';
+} from '@hippy/react';
 
-const imageUrl = 'https://www.intelerad.com/en/wp-content/uploads/sites/2/2016/05/panorama_bg.jpg';
+// Import the image to base64 for defaultSource props.
+import defaultSource from './defaultSource.jpg';
+import HippyLogoImg from './hippyLogoWhite.png';
+
+const imageUrl = 'https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png';
 
 const styles = StyleSheet.create({
   container_style: {
@@ -36,42 +37,68 @@ export default function ImageExpo() {
     <ScrollView style={styles.container_style}>
       <Text style={styles.info_style}>Contain:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'contain' }]}
+        style={[styles.image_style]}
+        resizeMode={Image.resizeMode.cover}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
-        onLoad={(e) => {
-          /* eslint-disable-next-line no-console */
-          console.log('onload e', e);
+        onProgress={(e) => {
+          console.log('onProgress', e);
+        }}
+        onLoadStart={() => {
+          console.log('image onloadStart');
+        }}
+        onLoad={() => {
+          console.log('image onLoad');
+        }}
+        onError={(e) => {
+          console.log('image onError', e);
+        }}
+        onLoadEnd={() => {
+          console.log('image onLoadEnd');
         }}
       />
       <Text style={styles.info_style}>Cover:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'cover' }]}
+        style={[styles.image_style]}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
-        onLoadStart={(e) => {
-          /* eslint-disable-next-line no-console */
-          console.log('onLoadStart e', e);
-        }}
+        resizeMode={Image.resizeMode.cover}
       />
       <Text style={styles.info_style}>Center:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'center' }]}
+        style={[styles.image_style]}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
-        onLoadEnd={(e) => {
-          /* eslint-disable-next-line no-console */
-          console.log('onLoadEnd e', e);
+        resizeMode={Image.resizeMode.center}
+      />
+      <Text style={styles.info_style}>CapInsets:</Text>
+      <Image
+        style={[styles.image_style]}
+        defaultSource={defaultSource}
+        source={{ uri: imageUrl }}
+        capInsets={{
+          top: 50,
+          left: 50,
+          bottom: 50,
+          right: 50,
         }}
+        resizeMode={Image.resizeMode.cover}
+      />
+      <Text style={styles.info_style}>TintColor:</Text>
+      <Image
+        style={[styles.image_style, { tintColor: '#4c9afa99' }]}
+        defaultSource={defaultSource}
+        source={{ uri: HippyLogoImg }}
+        resizeMode={Image.resizeMode.center}
       />
       <Text style={styles.info_style}>Cover GIF:</Text>
       <Image
-        style={[styles.image_style, { resizeMode: 'cover' }]}
+        style={[styles.image_style]}
+        resizeMode={Image.resizeMode.cover}
         defaultSource={defaultSource}
-        source={{ uri: 'http://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif' }}
-        onLoadEnd={(e) => {
-          /* eslint-disable-next-line no-console */
-          console.log('onLoadEnd e', e);
+        source={{ uri: 'https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif' }}
+        onLoadEnd={() => {
+          console.log('gif onLoadEnd');
         }}
       />
     </ScrollView>

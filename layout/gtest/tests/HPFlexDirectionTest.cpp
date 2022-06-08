@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include <gtest.h>
 #include <Hippy.h>
+#include <gtest.h>
 
 TEST(HippyTest, flex_direction_column_no_height) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
 
@@ -78,11 +77,9 @@ TEST(HippyTest, flex_direction_column_no_height) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_direction_row_no_width) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetHeight(root, 100);
@@ -143,11 +140,9 @@ TEST(HippyTest, flex_direction_row_no_width) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_direction_column) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetWidth(root, 100);
   HPNodeStyleSetHeight(root, 100);
@@ -208,11 +203,9 @@ TEST(HippyTest, flex_direction_column) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_direction_row) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRow);
   HPNodeStyleSetWidth(root, 100);
@@ -274,11 +267,9 @@ TEST(HippyTest, flex_direction_row) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_direction_column_reverse) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionColumnReverse);
   HPNodeStyleSetWidth(root, 100);
@@ -340,11 +331,9 @@ TEST(HippyTest, flex_direction_column_reverse) {
   ASSERT_FLOAT_EQ(10, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }
 
 TEST(HippyTest, flex_direction_row_reverse) {
-
   const HPNodeRef root = HPNodeNew();
   HPNodeStyleSetFlexDirection(root, FLexDirectionRowReverse);
   HPNodeStyleSetWidth(root, 100);
@@ -406,5 +395,4 @@ TEST(HippyTest, flex_direction_row_reverse) {
   ASSERT_FLOAT_EQ(100, HPNodeLayoutGetHeight(root_child2));
 
   HPNodeFreeRecursive(root);
-
 }

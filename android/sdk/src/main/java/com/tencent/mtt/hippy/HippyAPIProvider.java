@@ -23,17 +23,13 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
+public interface HippyAPIProvider {
 
-/**
- * FileName: HippyAPIProvider
- * Description：
- * History：
- */
-public interface HippyAPIProvider
-{
-    public Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(HippyEngineContext context);
+  Map<Class<? extends HippyNativeModuleBase>, Provider<? extends HippyNativeModuleBase>> getNativeModules(
+      HippyEngineContext context);
 
-    public List<Class<? extends HippyJavaScriptModule>>  getJavaScriptModules();
+  List<Class<? extends HippyJavaScriptModule>> getJavaScriptModules();
 
-    public List<Class<? extends HippyViewController>> getControllers();
+  List<Class<? extends HippyViewController>> getControllers();
 }
