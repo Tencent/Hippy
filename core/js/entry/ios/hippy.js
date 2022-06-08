@@ -12,7 +12,7 @@ require('../../global/UIManagerModule.js'); // document
 require('../../global/Network.js'); // Headers fetch Response
 require('../../global/Storage.js'); // localStorageAsync
 require('../../global/Event.js'); // dealloc event
-require('../../global/ios/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio
+require('../../global/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio
 require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.cancelVibrate
 require('../../global/ios/global.js'); // __GLOBAL__
 require('../../modules/ios/jsTimersExecution.js'); // ios module for .h build
