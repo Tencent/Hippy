@@ -142,8 +142,13 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
-  std::shared_ptr<NativeRenderManager>
-      render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
+  auto& map = NativeRenderManager::PersistentMap();
+  std::shared_ptr<NativeRenderManager> render_manager = nullptr;
+  bool ret = map.Find(static_cast<int32_t>(j_render_id), render_manager);
+  if (!ret) {
+    TDF_BASE_DLOG(WARNING) << "DoBind render_manager invalid";
+    return;
+  }
 
   float density = render_manager->GetDensity();
   uint32_t root_id = dom_manager->GetRootId();

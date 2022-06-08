@@ -49,41 +49,12 @@ constexpr char kNumberOfLines[] = "numberOfLines";
 namespace hippy {
 inline namespace dom {
 
-static std::unordered_map<int32_t, std::shared_ptr<NativeRenderManager>> hippy_render_manager_map;
-static std::mutex mutex;
 static std::atomic<int32_t> global_hippy_render_manager_key{0};
+tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::presistent_map_;
 
 NativeRenderManager::NativeRenderManager(std::shared_ptr<JavaRef> render_delegate)
     : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<tdf::base::Serializer>()) {
   id_ = global_hippy_render_manager_key.fetch_add(1);
-}
-
-void NativeRenderManager::Insert(const std::shared_ptr<NativeRenderManager>& render_manager) {
-  std::lock_guard<std::mutex> lock(mutex);
-  hippy_render_manager_map[render_manager->id_] = render_manager;
-}
-
-std::shared_ptr<NativeRenderManager> NativeRenderManager::Find(int32_t id) {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = hippy_render_manager_map.find(id);
-  if (it == hippy_render_manager_map.end()) {
-    return nullptr;
-  }
-  return it->second;
-}
-
-bool NativeRenderManager::Erase(int32_t id) {
-  std::lock_guard<std::mutex> lock(mutex);
-  const auto it = hippy_render_manager_map.find(id);
-  if (it == hippy_render_manager_map.end()) {
-    return false;
-  }
-  hippy_render_manager_map.erase(it);
-  return true;
-}
-
-bool NativeRenderManager::Erase(const std::shared_ptr<NativeRenderManager>& render_manager) {
-  return NativeRenderManager::Erase(render_manager->id_);
 }
 
 void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
