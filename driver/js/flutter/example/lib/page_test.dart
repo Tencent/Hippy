@@ -25,21 +25,12 @@ import 'package:flutter/material.dart';
 import 'package:tencent_voltron_render/voltron_render.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
-const bool kUseVoltronVueDemo = false;
 const bool kUseHippyVueDemo = false;
-const bool kIsAndroidPlatform = true;
 
-const String kHippyVueBundleDir = 'hippy-vue-bundle';
-const String kHippyReactBundleDir = 'hippy-react-bundle';
-const String kVoltronVueBundleDir = 'voltron-vue-bundle';
-const String kAndroidDir = 'android';
-const String kIOSDir = 'ios';
-const String kBundleDir = kUseVoltronVueDemo
-    ? kVoltronVueBundleDir
-    : kUseHippyVueDemo
-        ? kHippyVueBundleDir
-        : kHippyReactBundleDir;
-const String kPlatform = kIsAndroidPlatform ? kAndroidDir : kIOSDir;
+const String kHippyVueBundleDir = 'hippy-vue-demo';
+const String kHippyReactBundleDir = 'hippy-react-demo';
+const String kBundleDir = kUseHippyVueDemo ? kHippyVueBundleDir : kHippyReactBundleDir;
+const String kPlatform = 'android'; // ios and android use same bundle
 const String kVendorPath = "jsbundle/$kBundleDir/$kPlatform/vendor.$kPlatform.js";
 const String kIndexPath = "jsbundle/$kBundleDir/$kPlatform/index.$kPlatform.js";
 
