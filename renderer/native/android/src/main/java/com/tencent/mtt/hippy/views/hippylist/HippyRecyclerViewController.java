@@ -274,7 +274,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                 }
             }
             case EXPAND_PULL_HEADER: {
-                getAdapter(view).onHeaderRefreshCompleted();
+                getAdapter(view).enableHeaderRefresh();
                 break;
             }
         }
