@@ -1,10 +1,10 @@
-# 终端事件
+# Native event
 
-有一些事件不是发给单个 UI，而是发给整个业务的，例如屏幕的翻转、网络的变化等等，我们称之它为 `终端事件`。
+Some events are not sent to a single UI, but to the entire business, such as screen flips, network changes, etc., we call it `native events`.
 
-# 事件监听器
+# Event Listener
 
-这里是向前端发送一个名叫 rotate 的事件，里面有个参数是 result，这样就发送到前端去了。
+Here is an event called rotate sent to the front end, and one of its parameters is result, which is sent to the front end like this.
 
 ```jsx
 import { HippyEventEmitter } from '@hippy/react';
@@ -13,19 +13,19 @@ const hippyEventEmitter = new HippyEventEmitter();
 this.call = hippyEventEmitter.addListener('rotate', evt => console.log(evt.result));
 ```
 
-# 事件卸载
+# Event Remove
 
-如果不需要使用的时候记得调用一下移除监听的方法，一般放在组件的卸载生命周期中执行。
+Remember to call the method of removing listeners when you don't need to use them, which are generally executed in the component's unload lifecycle.
 
 ```jsx
 this.call.remove()
 ```
 
-# 实例销毁事件
+# Instance Destruction Event
 
-`最低支持版本 2.3.4`
+`Minimum supported version 2.3.4`
 
-当 hippy js 引擎或者 context 被销毁时会触发该事件，hippy业务可以通过监听 `destroyInstance` 事件做一些离开时的操作，但回调函数不能使用 `async`
+This event will be triggered when the hippy js engine or context is destroyed. The hippy business can`destroyInstance` do some operations when leaving by listening to the event, but the callback function cannot be used`async`.
 
 ```jsx
 Hippy.on('destroyInstance', () => {
@@ -33,17 +33,17 @@ Hippy.on('destroyInstance', () => {
 });
 ```
 
-# 容器大小改变事件
+# Container Size Change Event
 
-`只有 Android 支持`
+`Only Android support`
 
-当容器大小改变时，如屏幕旋转、折叠屏切换等，会触发该事件
+This event is triggered when the container size changes, such as screen rotation, folding screen switching, etc.
 
 ```jsx
 import { HippyEventEmitter } from '@hippy/react';
 const hippyEventEmitter = new HippyEventEmitter();
 hippyEventEmitter.addListener('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
-    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
+    // oldWidth: width before change;oldHeight: height before change;width: width after change; height: height after change
     console.log('size', oldWidth, oldHeight, width, height);
 });
 ```

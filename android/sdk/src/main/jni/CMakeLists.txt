@@ -63,7 +63,7 @@ set(HIPPY_DEPS android log tdf_base)
 # region js_engine
 message("JS_ENGINE:" ${JS_ENGINE})
 if (${JS_ENGINE} STREQUAL "V8")
-  InfaPackage_Add(V8
+  InfraPackage_Add(V8
     REMOTE "third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz"
     LOCAL "${V8_COMPONENT}"
   )
