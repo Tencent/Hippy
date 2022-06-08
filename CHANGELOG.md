@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.11](https://github.com/Tencent/Hippy/compare/2.13.10...2.13.11) (2022-06-08)
+
+
+### Bug Fixes
+
+* **android:** fix occasional crash when jsi convert ([84d982e](https://github.com/Tencent/Hippy/commit/84d982edf10afb6cdd3fbe9211826d7056ee8d7d))
+* **android:** handle ACTION_CANCEL in scroll view onTouchEvent ([cd3b88d](https://github.com/Tencent/Hippy/commit/cd3b88d7de16323c36d932fab7773c28b710d9ad))
+* **core:** add ios dimensions getter & setter and combine logic ([eacce1d](https://github.com/Tencent/Hippy/commit/eacce1d5a66be298a5cf9012852a35d860d34daf))
+* **ios:** adjust text layout ([f38a4fd](https://github.com/Tencent/Hippy/commit/f38a4fd4ec7c7dbc97c461767829dbd932bcaf4a))
+* **ios:** fix crash due to null pointer ([5f9448d](https://github.com/Tencent/Hippy/commit/5f9448d121b89a566bfb7c555d1d318182b952ac))
+
+
+
+
+
 ## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
 
 

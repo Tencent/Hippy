@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.11](https://github.com/Tencent/Hippy/compare/2.13.10...2.13.11) (2022-06-08)
+
+**Note:** Version bump only for package @hippy/vue-router
+
+
+
+
+
 ## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
 
 **Note:** Version bump only for package @hippy/vue-router
