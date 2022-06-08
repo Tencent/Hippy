@@ -44,8 +44,10 @@ import com.tencent.renderer.component.text.VirtualNodeManager;
 
 import com.tencent.renderer.utils.DisplayUtils;
 
+import com.tencent.renderer.utils.EventUtils.EventType;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.List;
 import java.util.Map.Entry;
@@ -272,13 +274,18 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
      * @param nodeId target node id
      * @param eventName target event name
      * @param params event extra params object
+     * @param eventType event type {@link EventType}
      */
     @Override
     public void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
-            @Nullable Object params, boolean useCapture, boolean useBubble) {
-        if (mRenderManager.checkRegisteredEvent(rootId, nodeId, eventName)) {
-            mRenderProvider.dispatchEvent(rootId, nodeId, eventName, params, useCapture, useBubble);
+            @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType) {
+        // Because the native(C++) DOM use lowercase names, convert to lowercase here before call JNI.
+        String lowerCaseEventName = eventName.toLowerCase();
+        if (eventType != EventType.EVENT_TYPE_GESTURE && !mRenderManager.checkRegisteredEvent(rootId,
+                nodeId, lowerCaseEventName)) {
+            return;
         }
+        mRenderProvider.dispatchEvent(rootId, nodeId, lowerCaseEventName, params, useCapture, useBubble);
     }
 
     @Override
@@ -357,7 +364,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             // Props may reset by framework modules, such as js AnimationModule,
             // key={animationId=xxx} => key=value
             onCreateNode(nodeId, className, props);
-            mVirtualNodeManager.createNode(mRootView.getId(), nodeId, nodePid, nodeIndex, className, props);
+            mVirtualNodeManager.createNode(mRootView.getId(), nodeId, nodePid, nodeIndex, className,
+                    props);
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
                 // If the node has a virtual parent, no need to create corresponding render node,
                 // so don't add create task to the ui task queue.
@@ -651,7 +659,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     @Nullable
-    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
+    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
+            @NonNull String className,
             @Nullable Map<String, Object> props) {
         return mRenderManager.createVirtualNode(rootId, id, pid, index, className, props);
     }

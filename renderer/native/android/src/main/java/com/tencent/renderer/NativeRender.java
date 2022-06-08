@@ -30,6 +30,7 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 
 import com.tencent.renderer.component.text.VirtualNode;
 
+import com.tencent.renderer.utils.EventUtils.EventType;
 import java.util.Map;
 
 public interface NativeRender extends RenderExceptionHandler {
@@ -84,7 +85,7 @@ public interface NativeRender extends RenderExceptionHandler {
             boolean systemUiVisibilityChanged);
 
     void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
-            @Nullable Object params, boolean useCapture, boolean useBubble);
+            @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType);
 
     void doPromiseCallBack(int result, long callbackId, String functionName, int nodeId,
             Object params);
