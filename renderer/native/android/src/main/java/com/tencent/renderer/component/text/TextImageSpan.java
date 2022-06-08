@@ -50,6 +50,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.image.ImageDataHolder;
 import com.tencent.renderer.utils.EventUtils;
 
+import com.tencent.renderer.utils.EventUtils.EventType;
 import java.lang.reflect.Field;
 
 public class TextImageSpan extends ImageSpan {
@@ -281,7 +282,8 @@ public class TextImageSpan extends ImageSpan {
             }
             eventName = EVENT_IMAGE_ON_LOAD;
         }
-        mNativeRenderer.dispatchEvent(mRootId, mId, eventName, null, false, false);
+        mNativeRenderer.dispatchEvent(mRootId, mId, eventName, null, false, false,
+                EventType.EVENT_TYPE_COMPONENT);
     }
 
     private void doFetchImage(String url, HippyMap props, ImageLoaderAdapter adapter) {
