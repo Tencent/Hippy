@@ -36,12 +36,11 @@
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "core/base/string_view_utils.h"
-#include "core/core.h"
-#include "dom/dom_manager.h"
-#include "dom/node_props.h"
-#include "dom/animation_manager.h"
 #include "core/runtime/v8/runtime.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
+#include "dom/animation/animation_manager.h"
+#include "dom/dom_manager.h"
+#include "dom/node_props.h"
 #include "dom/deserializer.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_value.h"
@@ -53,8 +52,8 @@
 #include "jni/uri.h"
 #include "jni/jni_utils.h"
 #include "loader/adr_loader.h"
-#include "render/hippy_render_manager.h"
 #include "render/native_render_manager.h"
+#include "render/native_render_jni.h"
 
 namespace hippy::bridge {
 
@@ -125,6 +124,9 @@ using ADRBridge = hippy::ADRBridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
 
+static std::mutex log_mutex;
+static bool is_initialized = false;
+
 enum INIT_CB_STATE {
   DESTROY_ERROR = -2,
   RUN_SCRIPT_ERROR = -1,
@@ -140,8 +142,8 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
-  std::shared_ptr<HippyRenderManager>
-      render_manager = HippyRenderManager::Find(static_cast<int32_t>(j_render_id));
+  std::shared_ptr<NativeRenderManager>
+      render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
 
   float density = render_manager->GetDensity();
   uint32_t root_id = dom_manager->GetRootId();
@@ -163,9 +165,16 @@ void DoBind(JNIEnv* j_env,
 
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
   TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
-  std::shared_ptr<DomManager> dom_manager =
-      std::make_shared<DomManager>(static_cast<uint32_t>(j_root_id));
-  dom_manager->StartTaskRunner();
+  auto dom_manager = std::make_shared<DomManager>(static_cast<uint32_t>(j_root_id));
+  dom_manager->Init();
+  std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
+  dom_manager->PostTask(hippy::Scene({[weak_dom_manager]{
+    auto dom_manager = weak_dom_manager.lock();
+    if (!dom_manager) {
+      return;
+    }
+    dom_manager->GetAnimationManager()->SetDomManager(weak_dom_manager);
+  }}));
   DomManager::Insert(dom_manager);
   return dom_manager->GetId();
 }
@@ -173,13 +182,7 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
 jint CreateAnimationManager(JNIEnv* j_env,
                             __unused jobject j_obj,
                             jint j_dom_id) {
-  TDF_BASE_DCHECK(j_dom_id <= std::numeric_limits<std::int32_t>::max());
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(j_dom_id);
-  std::shared_ptr<AnimationManager> ani_manager =
-      std::make_shared<AnimationManager>(dom_manager);
-  AnimationManager::Insert(ani_manager);
-  dom_manager->AddInterceptor(ani_manager);
-  return ani_manager->GetId();
+  return 0;
 }
 
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
@@ -193,10 +196,6 @@ void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
 void DestroyAnimationManager(JNIEnv* j_env,
                              __unused jobject j_obj,
                              jint j_ani_id) {
-  auto ani_manager = AnimationManager::Find(j_ani_id);
-  if (ani_manager) {
-    AnimationManager::Erase(static_cast<int32_t>(j_ani_id));
-  }
 }
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
@@ -215,18 +214,24 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
     return;
   }
   std::shared_ptr<JavaRef> logger = std::make_shared<JavaRef>(j_env, j_logger);
-  tdf::base::LogMessage::SetDelegate([logger, j_method](
-      const std::ostringstream& stream,
-      tdf::base::LogSeverity severity) {
-    std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
-    JNIEnv* j_env = instance->AttachCurrentThread();
+  {
+    std::lock_guard<std::mutex> lock(log_mutex);
+    if (!is_initialized) {
+      tdf::base::LogMessage::InitializeDelegate([logger, j_method](
+          const std::ostringstream& stream,
+          tdf::base::LogSeverity severity) {
+        std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
+        JNIEnv* j_env = instance->AttachCurrentThread();
 
-    std::string str = stream.str();
-    jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
-    j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
-    JNIEnvironment::ClearJEnvException(j_env);
-    j_env->DeleteLocalRef(j_logger_str);
-  });
+        std::string str = stream.str();
+        jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
+        j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
+        JNIEnvironment::ClearJEnvException(j_env);
+        j_env->DeleteLocalRef(j_logger_str);
+      });
+      is_initialized = true;
+    }
+  }
 }
 
 jboolean RunScriptFromUri(JNIEnv* j_env,
@@ -322,47 +327,6 @@ void UpdateAnimationNode(JNIEnv* j_env,
                          jbyteArray j_params,
                          jint j_offset,
                          jint j_length) {
-  TDF_BASE_LOG(INFO) << "UpdateAnimationNode begin, j_dom_manager_id = "
-                     << static_cast<uint32_t>(j_ani_manager_id)
-                     << ", j_offset = " << static_cast<uint32_t>(j_offset)
-                     << ", j_length = " << static_cast<uint32_t>(j_length);
-  std::shared_ptr<AnimationManager> ani_manager =
-      AnimationManager::Find(static_cast<int32_t>(j_ani_manager_id));
-
-  tdf::base::DomValue params;
-  if (j_params != nullptr && j_length > 0) {
-    jbyte params_buffer[j_length];
-    j_env->GetByteArrayRegion(j_params, j_offset, j_length, params_buffer);
-    tdf::base::Deserializer deserializer(
-        (const uint8_t*)params_buffer,
-        hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
-    deserializer.ReadHeader();
-    deserializer.ReadValue(params);
-  }
-
-  TDF_BASE_DCHECK(params.IsArray());
-  tdf::base::DomValue::DomValueArrayType array = params.ToArrayChecked();
-  std::unordered_map<
-      int32_t,
-      std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>
-      node_style_map;
-  std::vector<std::pair<uint32_t, std::shared_ptr<tdf::base::DomValue>>>
-      ani_data;
-  for (auto & i : array) {
-    TDF_BASE_DCHECK(i.IsObject());
-    tdf::base::DomValue::DomValueObjectType node;
-    if (i.ToObject(node)) {
-      if (node[kAnimationId].IsInt32()) {
-        int32_t animation_id;
-        node[kAnimationId].ToInt32(animation_id);
-        tdf::base::DomValue animation_value = node[kAnimationValue];
-        ani_data.emplace_back(
-            static_cast<uint32_t>(animation_id),
-            std::make_shared<tdf::base::DomValue>(animation_value));
-      }
-    }
-  }
-  ani_manager->OnAnimationUpdate(ani_data);
 }
 
 jlong InitInstance(JNIEnv* j_env,
@@ -479,7 +443,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Init();
   ConvertUtils::Init();
   TurboModuleManager::Init();
-  NativeRenderManager::Init();
+  NativeRenderJni::Init();
 
   return JNI_VERSION_1_4;
 }
@@ -491,7 +455,7 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   JavaTurboModule::Destroy();
   ConvertUtils::Destroy();
   TurboModuleManager::Destroy();
-  NativeRenderManager::Destroy();
+  NativeRenderJni::Destroy();
 
   JNIEnvironment::DestroyInstance();
 }

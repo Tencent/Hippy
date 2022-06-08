@@ -42,7 +42,7 @@ public class RenderRootNode extends RenderNode {
     }
 
     private void handleRootEvent(@NonNull String event, boolean enable) {
-        if (event.equals(ChoreographerUtils.DO_FRAME)) {
+        if (event.equals(ChoreographerUtils.DO_FRAME.toLowerCase())) {
             if (enable) {
                 ChoreographerUtils.registerDoFrameListener(mRendererId, getId());
             } else {

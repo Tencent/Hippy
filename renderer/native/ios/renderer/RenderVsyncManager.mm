@@ -23,6 +23,7 @@
 #import "RenderVsyncManager.h"
 #import "objc/runtime.h"
 #import <QuartzCore/CADisplayLink.h>
+#import <mutex>
 
 @interface CADisplayLink (Vsync)
 
@@ -43,7 +44,7 @@
 }
 
 - (void)applyRefreshRate:(float)rate {
-    NSAssert(1 <= rate && 60 >=rate, @"vsync refresh rate must between 1 and 60");
+    NSAssert(1 <= rate && 120 >=rate, @"vsync refresh rate must between 1 and 60");
     if (@available(iOS 15.0, *)) {
         CAFrameRateRange rateRange = {rate, rate, rate};
         self.preferredFrameRateRange = rateRange;
@@ -60,6 +61,7 @@
 
 @interface RenderVsyncManager () {
     NSMutableDictionary<NSString *, CADisplayLink *> *_observers;
+    std::mutex _mutex;
 }
 
 @end
@@ -95,13 +97,22 @@
         CADisplayLink *vsync = [CADisplayLink displayLinkWithTarget:self selector:@selector(vsyncSignalInvoked:)];
         [vsync applyRefreshRate:rate];
         [vsync addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+        vsync.block = observer;
+        std::lock_guard<std::mutex> lock(_mutex);
         [_observers setObject:vsync forKey:key];
     }
 }
 
 - (void)unregisterVsyncObserverForKey:(NSString *)key {
     if (key) {
-        [_observers removeObjectForKey:key];
+        CADisplayLink *vsync = [_observers objectForKey:key];
+        if (vsync) {
+            {
+                std::lock_guard<std::mutex> lock(_mutex);
+                [_observers removeObjectForKey:key];
+            }
+            [vsync invalidate];
+        }
     }
 }
 

@@ -34,7 +34,7 @@
 #import "dom/dom_manager.h"
 #import "NativeRenderManager.h"
 #import "HippyMethodInterceptorProtocol.h"
-#import "dom/animation_manager.h"
+#import "dom/animation/animation_manager.h"
 
 @class JSValue;
 @class HippyBridge;

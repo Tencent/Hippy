@@ -122,12 +122,7 @@ public:
                       uint32_t cb) override;
     
     void RegisterExtraComponent(NSDictionary<NSString *, Class> *extraComponent);
-    
-    void RegisterVsyncSignal(const std::string &key,
-                             float rate, std::function<void()> vsync_callback) override;
-    
-    void UnregisterVsyncSignal(const std::string &key) override;
-    
+        
     void RegisterRootView(UIView *view);
     
     void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);

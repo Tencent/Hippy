@@ -83,6 +83,7 @@ int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
       }
       if (i == children_.size() - 1) {
         children_.push_back(dom_info->dom_node);
+        break;
       }
     }
   } else {

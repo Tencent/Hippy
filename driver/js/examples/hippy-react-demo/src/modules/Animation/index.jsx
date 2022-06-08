@@ -227,19 +227,25 @@ export default class AnimationExample extends React.Component {
     });
     this.horizonAnimation.onHippyAnimationRepeat(() => {
       /* eslint-disable-next-line no-console */
-      console.log('on animation end!!!');
+      console.log('on animation repeat!!!');
     });
   }
 
   componentWillUnmount() { // 如果动画没有销毁，需要在此处保证销毁动画，以免动画后台运行耗电
-    if (this.scaleAnimationSet) {
-      this.scaleAnimationSet.destroy();
-    }
     if (this.horizonAnimation) {
       this.horizonAnimation.destroy();
     }
     if (this.verticalAnimation) {
       this.verticalAnimation.destroy();
+    }
+    if (this.scaleAnimationSet) {
+      this.scaleAnimationSet.destroy();
+    }
+    if (this.bgColorAnimationSet) {
+      this.bgColorAnimationSet.destroy();
+    }
+    if (this.txtColorAnimationSet) {
+      this.txtColorAnimationSet.destroy();
     }
     if (this.cubicBezierScaleAnimationSet) {
       this.cubicBezierScaleAnimationSet.destroy();

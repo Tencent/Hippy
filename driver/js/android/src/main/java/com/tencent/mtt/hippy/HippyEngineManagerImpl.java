@@ -372,8 +372,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             throw new RuntimeException(
                     "Hippy: loadModule debugMode=true, loadParams.jsAssetsPath and jsFilePath both null!");
         }
-
-        mEngineContext.setComponentName(loadParams.componentName);
+        if (mEngineContext != null) {
+            mEngineContext.setComponentName(loadParams.componentName);
+            mEngineContext.setNativeParams(loadParams.nativeParams);
+        }
         if (loadParams.jsParams == null) {
             loadParams.jsParams = new HippyMap();
         }
@@ -760,6 +762,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             HippyInstanceLifecycleEventListener {
 
         private String componentName;
+        private Map<String, Object> mNativeParams;
         private final HippyModuleManager mModuleManager;
         private final HippyBridgeManager mBridgeManager;
         private final LinkHelper mLinkHelper;
@@ -832,6 +835,16 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public String getComponentName() {
             return componentName;
+        }
+
+        public void setNativeParams(Map<String, Object> nativeParams) {
+            mNativeParams = nativeParams;
+        }
+
+        @Override
+        @Nullable
+        public Map<String, Object> getNativeParams() {
+            return mNativeParams;
         }
 
         @Override
@@ -963,6 +976,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
             if (mEngineLifecycleEventListeners != null) {
                 mEngineLifecycleEventListeners.clear();
+            }
+            if (mNativeParams != null) {
+                mNativeParams.clear();
             }
         }
     }

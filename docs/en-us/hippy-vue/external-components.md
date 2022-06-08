@@ -174,7 +174,7 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | idle                | 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS`    |
 | pulling   | 滑动距离超出 pull-footer 后触发一次，参数 contentOffset      | `Function`   | `Android、iOS`    |
-| refresh   | 滑动超出距离，松手后触发一次          | `Function`   | `Android、iOS`    |
+| released   | 滑动超出距离松手后触发一次          | `Function`   | `Android、iOS`    |
 
 ## 方法
 

@@ -182,8 +182,6 @@ extern NSString *const HippyShadowViewDiffTag;
 
 - (void)amendLayoutBeforeMount;
 
-- (NSDictionary *)diffAnotherShadowView:(HippyShadowView *)shadowView;
-
 /**
  * Return whether or not this node acts as a leaf node in the eyes of CSSLayout. For example
  * HippyShadowText has children which it does not want CSSLayout to lay out so in the eyes of

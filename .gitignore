@@ -42,6 +42,7 @@ driver/js/examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/xcuserdata/*
 driver/js/examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 driver/js/examples/ios-demo/HippyDemo.xcworkspace/*
 driver/js/examples/ios-demo/Pods/*
+driver/js/examples/ios-demo/Podfile.lock
 driver/js/examples/ios-demo/devtools_backend/*
 
 driver/js/packages/hippy-vue-loader/remote-debug-profile/*

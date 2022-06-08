@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.adapter.http;
 
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +37,8 @@ public class HippyHttpRequest {
   private String mMethod = "GET";
   private boolean mInstanceFollowRedirects = false;
   private String mBody;
+  @Nullable
+  private Map<String, Object> mNativeParams;
 
   public HippyHttpRequest() {
     //noinspection unchecked,rawtypes
@@ -47,6 +50,15 @@ public class HippyHttpRequest {
     } else {
       System.err.println("user_agent is null!");
     }
+  }
+
+  @Nullable
+  public Map<String, Object> getNativeParams() {
+    return mNativeParams;
+  }
+
+  public void setNativeParams(@Nullable Map<String, Object> nativeParams) {
+    mNativeParams = nativeParams;
   }
 
   public String getUrl() {

@@ -2,7 +2,7 @@
 /* eslint-disable func-names */
 
 (function (getInternalBinding) {
-  global.Hippy = {};
+  global.Hippy = global.Hippy || {};
 
   const bindingObj = {};
   const internalBinding = function internalBinding(module) {

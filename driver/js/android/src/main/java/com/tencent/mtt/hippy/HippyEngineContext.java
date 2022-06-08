@@ -18,16 +18,21 @@ package com.tencent.mtt.hippy;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.RenderProcessInterceptor;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
+import java.util.Map;
 
 public interface HippyEngineContext {
 
   String getComponentName();
+
+  @Nullable
+  Map<String, Object> getNativeParams();
 
   HippyGlobalConfigs getGlobalConfigs();
 

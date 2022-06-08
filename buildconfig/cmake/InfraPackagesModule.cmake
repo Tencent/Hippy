@@ -22,10 +22,14 @@ cmake_minimum_required(VERSION 3.14)
 
 include(FetchContent)
 
-set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud.com")
-set(DEFAULT_INFA_DOMAIN "hippy")
+if (NOT DEFINED INFA_PACKAGES_URL)
+    set(INFA_PACKAGES_URL "https://hippy-packages-1258344701.cos.accelerate.myqcloud.com")
+endif()
+if (NOT DEFINED DEFAULT_INFA_DOMAIN)
+    set(DEFAULT_INFA_DOMAIN "hippy")
+endif()
 
-macro(InfaPackage_Add packageName)
+macro(InfraPackage_Add packageName)
     string(TOLOWER ${ARGV0} packageNameLower)
     if("${packageNameLower}" STREQUAL "")
         message(FATAL_ERROR "Empty packageName not allowed for InfaPackage_Add()")

@@ -21,26 +21,28 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.common.HippyMap;
-
 import java.util.Map;
 
-@SuppressWarnings({"deprecation", "unused"})
 public class PullFooterRenderNode extends ListItemRenderNode {
 
-  public PullFooterRenderNode(int id, @Nullable Map<String, Object> props, @NonNull String className,
-          @Nullable ViewGroup rootView, @NonNull ControllerManager componentManager,
-          boolean isLazyLoad) {
-    super(id, props, className, rootView, componentManager, isLazyLoad);
-  }
+    public PullFooterRenderNode(int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @Nullable ViewGroup rootView,
+            @NonNull ControllerManager componentManager, boolean isLazyLoad) {
+        super(id, props, className, rootView, componentManager, isLazyLoad);
+    }
 
-  @Override
-  public int getItemViewType() {
-    return this.getClassName().hashCode();
-  }
+    @Override
+    public boolean shouldSticky() {
+        return false;
+    }
 
-  @Override
-  public boolean isPullFooter() {
-    return true;
-  }
+    @Override
+    public int getItemViewType() {
+        return this.getClassName().hashCode();
+    }
+
+    @Override
+    public boolean isPullFooter() {
+        return true;
+    }
 }

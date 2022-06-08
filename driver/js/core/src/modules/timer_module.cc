@@ -63,13 +63,13 @@ void TimerModule::ClearInterval(const napi::CallbackInfo& info) {
   std::shared_ptr<Ctx> context = scope->GetContext();
   TDF_BASE_CHECK(context);
 
-  int32_t argument1 = 0;
-  if (!context->GetValueNumber(info[0], &argument1)) {
+  int32_t argument = 0;
+  if (!context->GetValueNumber(info[0], &argument)) {
     info.GetExceptionValue()->Set(context, "The first argument must be int32.");
     return;
   }
 
-  TaskId task_id = hippy::base::checked_numeric_cast<int32_t, TaskId>(argument1);
+  TaskId task_id = hippy::base::checked_numeric_cast<int32_t, TaskId>(argument);
   Cancel(task_id, scope);
   info.GetReturnValue()->Set(context->CreateNumber(task_id));
 }

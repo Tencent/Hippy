@@ -10,7 +10,7 @@ require('../../global/ConsoleModule.js'); // console
 require('../../global/UIManagerModule.js'); // Hippy.document
 require('../../global/Network.js'); // Headers fetch Response
 require('../../global/Storage.js'); // localStorageAsync
-require('../../global/android/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio
+require('../../global/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio
 require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.cancelVibrate
 require('../../global/android/global.js'); // set __GLOBAL__ object
 require('../../bridge/android/native2js.js');

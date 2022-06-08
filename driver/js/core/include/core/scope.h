@@ -33,6 +33,9 @@
 #include "core/napi/js_native_api.h"
 #include "core/napi/js_native_api_types.h"
 #include "core/task/worker_task_runner.h"
+#include "dom/animation/animation_manager.h"
+#include "dom/animation/cubic_bezier_animation.h"
+#include "dom/animation/animation_set.h"
 #include "dom/dom_manager.h"
 #include "dom/render_manager.h"
 #include "dom/scene_builder.h"
@@ -56,6 +59,7 @@ class ScopeWrapper {
 class Scope {
  public:
   using unicode_string_view = tdf::base::unicode_string_view;
+  using AnimationManager = hippy::dom::AnimationManager;
   using RegisterMap = hippy::base::RegisterMap;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
@@ -67,6 +71,8 @@ class Scope {
   using BindingData = hippy::napi::BindingData;
   using Encoding = hippy::napi::Encoding;
   using EventListenerInfo = hippy::dom::EventListenerInfo;
+  template <typename T>
+  using InstanceDefine = hippy::napi::InstanceDefine<T>;
 
   Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map);
   ~Scope();
@@ -84,8 +90,20 @@ class Scope {
                       const std::shared_ptr<CtxValue>& value);
 
   void SaveFunctionData(std::unique_ptr<FunctionData> data);
-  inline void SaveClassInstance(std::shared_ptr<hippy::napi::InstanceDefine<hippy::SceneBuilder>> instance) {
-    instance_holder_ = instance;
+
+  inline void SaveSceneBuildClassInstance(
+      std::shared_ptr<InstanceDefine<hippy::SceneBuilder>> instance) {
+    scene_build_holder_ = instance;
+  }
+
+  inline void SaveHippyAnimationClassInstance(
+      std::shared_ptr<InstanceDefine<hippy::CubicBezierAnimation>> instance) {
+    animation_holder_ = instance;
+  }
+
+  inline void SaveHippyAnimationSetClassInstance(
+      std::shared_ptr<InstanceDefine<hippy::AnimationSet>> instance) {
+    animation_set_holder_ = instance;
   }
 
   inline void SaveBindingData(std::unique_ptr<BindingData> data) {
@@ -171,7 +189,9 @@ class Scope {
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>
       bind_listener_map_; // bind js function and dom event listener id
   std::vector<std::unique_ptr<FunctionData>> function_data_;
-  std::shared_ptr<hippy::napi::InstanceDefine<hippy::SceneBuilder>> instance_holder_;
+  std::shared_ptr<InstanceDefine<hippy::SceneBuilder>> scene_build_holder_;
+  std::shared_ptr<InstanceDefine<hippy::CubicBezierAnimation>> animation_holder_;
+  std::shared_ptr<InstanceDefine<hippy::AnimationSet>> animation_set_holder_;
   std::unique_ptr<BindingData> binding_data_;
   std::unique_ptr<ScopeWrapper> wrapper_;
   std::shared_ptr<UriLoader> loader_;

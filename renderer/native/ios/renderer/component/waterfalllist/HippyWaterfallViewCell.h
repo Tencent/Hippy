@@ -28,13 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface HippyWaterfallViewCell : UICollectionViewCell
 
 @property (nonatomic, weak) UIView *cellView;
-@property (nonatomic, weak) HippyShadowView *shadowView;
-
-@end
-
-@interface HippyShadowView (WaterfallViewCell)
-
-@property(nonatomic, weak) HippyWaterfallViewCell *cell;
 
 @end
 

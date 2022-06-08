@@ -175,9 +175,6 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
         sendDragEndEvent(oldState, currentState);
         sendFlingEvent(newState);
         sendFlingEndEvent(oldState, currentState);
-        if (newState == SCROLL_STATE_IDLE) {
-            hippyRecyclerView.getAdapter().resetPullHeaderPositionIfNeeded(hippyRecyclerView.getContentOffsetY());
-        }
     }
 
     @Override

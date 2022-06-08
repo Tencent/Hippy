@@ -63,6 +63,15 @@ public class EventUtils {
     // On recycler view first screen ready.
     public static final String EVENT_RECYCLER_LIST_READY = "initialListReady";
 
+    // On pull footer view released.
+    public static final String EVENT_PULL_FOOTER_RELEASED = "footerReleased";
+    // On pull footer view pulling.
+    public static final String EVENT_PULL_FOOTER_PULLING = "footerPulling";
+    // On pull header view pulling.
+    public static final String EVENT_PULL_HEADER_PULLING = "headerPulling";
+    // On pull header view released.
+    public static final String EVENT_PULL_HEADER_RELEASED = "headerReleased";
+
     // On modal view request close.
     public static final String EVENT_MODAL_REQUEST_CLOSE = "requestClose";
     // On modal view show.
@@ -110,6 +119,13 @@ public class EventUtils {
     // On scroll view momentum end.
     public static final String EVENT_SCROLLER_MOMENTUM_END = "momentumScrollEnd";
 
+    public enum EventType {
+        EVENT_TYPE_COMPONENT,
+        EVENT_TYPE_GESTURE,
+        EVENT_TYPE_CUSTOM,
+        EVENT_TYPE_ROOT
+    }
+
     /**
      * Dispatch UI component event, such as onLayout, onScroll, onInitialListReady.
      *
@@ -122,7 +138,7 @@ public class EventUtils {
             @Nullable Object params) {
         // UI component event default disable capture and bubble phase,
         // can not enable both in native and js.
-        send(view, view.getId(), eventName, params, false, false);
+        send(view, view.getId(), eventName, params, false, false, EventType.EVENT_TYPE_COMPONENT);
     }
 
     /**
@@ -138,13 +154,13 @@ public class EventUtils {
             @Nullable Object params) {
         // Gesture event default enable capture and bubble phase, can not disable in native,
         // but can stop propagation in js.
-        send(view, view.getId(), eventName, params, true, true);
+        send(view, view.getId(), eventName, params, true, true, EventType.EVENT_TYPE_GESTURE);
     }
 
     @MainThread
     public static void sendGestureEvent(@NonNull View view, int nodeId, @NonNull String eventName,
             @Nullable Object params) {
-        send(view, nodeId, eventName, params, true, true);
+        send(view, nodeId, eventName, params, true, true, EventType.EVENT_TYPE_GESTURE);
     }
 
     /**
@@ -159,7 +175,8 @@ public class EventUtils {
     @MainThread
     public static void sendCustomEvent(@NonNull View view, @NonNull String eventName,
             @Nullable Object params, boolean useCapture, boolean useBubble) {
-        send(view, view.getId(), eventName, params, useCapture, useBubble);
+        send(view, view.getId(), eventName, params, useCapture, useBubble,
+                EventType.EVENT_TYPE_CUSTOM);
     }
 
     /**
@@ -175,8 +192,8 @@ public class EventUtils {
             @Nullable Object params) {
         NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(rendererId);
         if (nativeRenderer != null) {
-            nativeRenderer.dispatchEvent(rootId, rootId, eventName.toLowerCase(), params,
-                    false, false);
+            nativeRenderer.dispatchEvent(rootId, rootId, eventName, params,
+                    false, false, EventType.EVENT_TYPE_ROOT);
         }
     }
 
@@ -197,21 +214,22 @@ public class EventUtils {
                 return false;
             }
             RenderManager renderManager = nativeRenderer.getRenderManager();
-            return renderManager.checkRegisteredEvent(rootId, view.getId(), eventName.toLowerCase());
+            return renderManager.checkRegisteredEvent(rootId, view.getId(),
+                    eventName.toLowerCase());
         }
         return false;
     }
 
     private static void send(@NonNull View view, int nodeId, @NonNull String eventName,
-            @Nullable Object params, boolean useCapture, boolean useBubble) {
+            @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType) {
         Context context = view.getContext();
         if (context instanceof NativeRenderContext) {
             int instanceId = ((NativeRenderContext) context).getInstanceId();
             int rootId = ((NativeRenderContext) context).getRootId();
             NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
             if (nativeRenderer != null) {
-                nativeRenderer.dispatchEvent(rootId, nodeId, eventName.toLowerCase(), params,
-                        useCapture, useBubble);
+                nativeRenderer.dispatchEvent(rootId, nodeId, eventName, params,
+                        useCapture, useBubble, eventType);
             }
         }
     }

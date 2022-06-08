@@ -74,10 +74,10 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
         View view = contentViewRenderNode.createViewRecursive();
         contentHolder.mContentView = view;
         if (view instanceof HippyPullHeaderView) {
-            ((HippyPullHeaderView) view).setParentView(mParentRecyclerView);
+            ((HippyPullHeaderView) view).setRecyclerView(mParentRecyclerView);
         }
         if (view instanceof HippyPullFooterView) {
-            ((HippyPullFooterView) view).setParentView(mParentRecyclerView);
+            ((HippyPullFooterView) view).setRecyclerView(mParentRecyclerView);
         }
         contentHolder.mBindNode = contentViewRenderNode;
         contentHolder.isCreated = true;

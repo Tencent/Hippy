@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
 import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
@@ -51,9 +52,14 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
     @Override
     public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
             @NonNull String className, @NonNull ViewGroup hippyRootView,
-            @NonNull ControllerManager controllerManager, boolean lazy) {
+            @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
         return new PullFooterRenderNode(id, props, className, hippyRootView, controllerManager,
-                lazy);
+                isLazyLoad);
+    }
+
+    @Override
+    public void onViewDestroy(HippyPullFooterView pullFooterView) {
+        pullFooterView.onDestroy();
     }
 
     @HippyControllerProps(name = "sticky", defaultType = HippyControllerProps.BOOLEAN)
@@ -71,12 +77,14 @@ public class HippyPullFooterViewController extends HippyViewController<HippyPull
     public void dispatchFunction(@NonNull HippyPullFooterView pullFooterView,
             @NonNull String functionName, @NonNull List params) {
         super.dispatchFunction(pullFooterView, functionName, params);
-        View parent = pullFooterView.getParentView();
+        View recyclerView = pullFooterView.getRecyclerView();
         if (COLLAPSE_PULL_FOOTER.equals(functionName)) {
-            if (parent instanceof HippyListView) {
-                ((HippyListView) parent).onFooterRefreshFinish();
-            } else if (parent instanceof IFooterContainer) {
-                ((IFooterContainer) parent).onFooterRefreshFinish();
+            if (recyclerView instanceof HippyRecyclerView) {
+                ((HippyRecyclerView) recyclerView).getAdapter().onFooterRefreshCompleted();
+            } else if (recyclerView instanceof HippyListView) {
+                ((HippyListView) recyclerView).onFooterRefreshFinish();
+            } else if (recyclerView instanceof IFooterContainer) {
+                ((IFooterContainer) recyclerView).onFooterRefreshFinish();
             }
         }
     }
