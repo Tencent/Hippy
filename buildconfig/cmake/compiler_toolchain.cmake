@@ -50,15 +50,25 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
     if (ANDROID_NDK)
         if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
-            set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
-                    -mfloat-abi=softfp)
+            list(APPEND COMPILE_OPTIONS -mfloat-abi=softfp)
+        elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
+            # Before LLVM 14 [1],
+            # Outline atomics will crash on Samsung Exynos 9810 CPU [2]
+            # with big cores are ARMv8.2 and LITTLE are ARMv8.0.
+            # Since LSE is for ARMv8.1 and later, so it should be disabled.
+            #
+            # [1] https://reviews.llvm.org/rGcce4a7258b81159e57a411896011ee2742f17def
+            # [2] https://bugs.chromium.org/p/chromium/issues/detail?id=1272795
+            if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14)
+                list(APPEND COMPILE_OPTIONS -mno-outline-atomics)
+            endif()
         elseif (${ANDROID_ABI} STREQUAL "x86")
-            set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
+            list(APPEND COMPILE_OPTIONS
                     -m32
                     -mssse3
                     -mfpmath=sse)
         elseif (${ANDROID_ABI} STREQUAL "x86_64")
-            set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
+            list(APPEND COMPILE_OPTIONS
                     -m64
                     -mpopcnt
                     -msse4.2)
