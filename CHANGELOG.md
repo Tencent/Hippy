@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.12.7](https://github.com/Tencent/Hippy/compare/2.12.6...2.12.7) (2022-06-08)
+
+
+### Bug Fixes
+
+* **android:** add lower bound checking for `uint32` value ([9ad6b71](https://github.com/Tencent/Hippy/commit/9ad6b717289e6fd2c73715822d9b87b135abdba1))
+* **core:** add ios dimensions getter & setter and combine logic ([8d51aa2](https://github.com/Tencent/Hippy/commit/8d51aa216383c9cb9e54e52b0e89a39689e7f574))
+
+
+
+
+
 ## [2.12.6](https://github.com/Tencent/Hippy/compare/2.12.5...2.12.6) (2022-04-17)
 
 
