@@ -139,10 +139,13 @@ static jclass float_clazz;
 static jclass long_clazz;
 static jclass boolean_clazz;
 static jmethodID integer_constructor;
+static jmethodID int_value;
 static jmethodID double_constructor;
 static jmethodID double_value;
 static jmethodID float_constructor;
+static jmethodID float_value;
 static jmethodID long_constructor;
+static jmethodID long_value;
 static jmethodID boolean_constructor;
 static jmethodID boolean_value;
 
