@@ -11,7 +11,7 @@ require('../../global/UIManagerModule.js'); // Hippy.document
 require('../../global/Network.js'); // Headers fetch Response
 require('../../global/Storage.js'); // localStorageAsync
 require('../../global/Event.js'); // dealloc event
-require('../../global/android/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio
+require('../../global/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio
 require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.cancelVibrate
 require('../../global/android/global.js'); // __GLOBAL__
 require('../../bridge/android/native2js.js');
