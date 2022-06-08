@@ -45,7 +45,6 @@ __GLOBAL__.defineLazyObjectProperty = (object, name, descriptor) => {
     }
     return value;
   };
-
   Object.defineProperty(object, name, {
     get: getValue,
     set: setValue,
@@ -177,13 +176,11 @@ if (typeof nativeModuleProxy !== 'undefined') {
   __GLOBAL__.NativeModules = nativeModuleProxy;
 } else {
   const bridgeConfig = __fbBatchedBridgeConfig;
-
   ((bridgeConfig && bridgeConfig.remoteModuleConfig) || []).forEach((config, moduleID) => {
     const info = __GLOBAL__.genModule(config, moduleID);
     if (!info) {
       return;
     }
-
     if (info.module) {
       __GLOBAL__.NativeModules[info.name] = info.module;
     } else {

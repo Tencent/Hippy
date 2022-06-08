@@ -610,7 +610,17 @@ std::tuple<bool,
   auto obj = j_env->CallObjectMethod(array, hippy_array_get, index);
 
   if (IsNumberObject(signature)) {
-    jdouble d = j_env->CallDoubleMethod(reinterpret_cast<jclass>(obj), double_value);
+    jdouble d = 0;
+    if (kIntegerObject == signature) {
+      d = j_env->CallIntMethod(reinterpret_cast<jclass>(obj), int_value);
+    } else if (kDoubleObject == signature) {
+      d = j_env->CallDoubleMethod(reinterpret_cast<jclass>(obj), double_value);
+    } else if (kFloatObject == signature) {
+      d = j_env->CallFloatMethod(reinterpret_cast<jclass>(obj), float_value);
+    } else if (kLongObject == signature) {
+      d = static_cast<jdouble>(j_env->CallLongMethod(reinterpret_cast<jclass>(obj),
+                                                   long_value));
+    }
     result = ctx->CreateNumber(d);
   } else if (kString == signature) {
     unicode_string_view obj_str_view = JniUtils::ToStrView(j_env, reinterpret_cast<jstring>(obj));
@@ -732,6 +742,7 @@ bool ConvertUtils::Init() {
   jclass integer_clazz_local = env->FindClass("java/lang/Integer");
   integer_clazz = (jclass) env->NewGlobalRef(integer_clazz_local);
   integer_constructor = env->GetMethodID(integer_clazz, "<init>", "(I)V");
+  int_value = env->GetMethodID(integer_clazz, "intValue", "()I");
   env->DeleteLocalRef(integer_clazz_local);
 
   jclass double_clazz_local = env->FindClass("java/lang/Double");
@@ -743,11 +754,13 @@ bool ConvertUtils::Init() {
   jclass float_clazz_local = env->FindClass("java/lang/Float");
   float_clazz = (jclass) env->NewGlobalRef(float_clazz_local);
   float_constructor = env->GetMethodID(float_clazz, "<init>", "(F)V");
+  float_value = env->GetMethodID(float_clazz, "floatValue", "()F");
   env->DeleteLocalRef(float_clazz_local);
 
   jclass long_clazz_local = env->FindClass("java/lang/Long");
   long_clazz = (jclass) env->NewGlobalRef(long_clazz_local);
   long_constructor = env->GetMethodID(long_clazz, "<init>", "(J)V");
+  long_value = env->GetMethodID(long_clazz, "longValue", "()J");
   env->DeleteLocalRef(long_clazz_local);
 
   jclass boolean_clazz_local = env->FindClass("java/lang/Boolean");
@@ -779,10 +792,13 @@ bool ConvertUtils::Destroy() {
   to_hippy_array = nullptr;
 
   integer_constructor = nullptr;
+  int_value = nullptr;
   double_constructor = nullptr;
   double_value = nullptr;
   float_constructor = nullptr;
+  float_value = nullptr;
   long_constructor = nullptr;
+  long_value = nullptr;
   boolean_constructor = nullptr;
   boolean_value = nullptr;
 
