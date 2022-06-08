@@ -1,10 +1,10 @@
-# 从 React Native 迁移
+# Migrating From React Native
 
-Hippy React 基本兼容 React Native 语法，但相对 React Native 提供的组件，Hippy 更加内聚，除了部分组件可能需要通过前端重新实现，主要还有以下三个区别：
+Hippy React is basically compatible with React Native syntax, but Hippy is more cohesive than the components provided by React Native, except that some components may need to be reimplemented through the front end. There are three main differences:
 
-# 触屏 Touchable 系列组件
+# Touch Screen - Touchable Series Components
 
-Hippy 的触屏系列事件可以直接绑定到 View 上，之前 RN 上的 `Touchable` 系列组件其实可以简单迁移过来。以 `TouchableWithoutFeedback` 为例：
+Hippy's touch screen series events can be directly bound to View. The previous `Touchable` series components on RN can actually be easily migrated. Take `TouchableWithoutFeedback` as an example:
 
 ```jsx
 import React from 'react';
@@ -13,7 +13,7 @@ function TouchableWithoutFeedback(props) {
   const child = React.Children.only(props.children);
   const { onClick, onPressIn, onPressOut } = props;
   const { children, ...nativeProps } = child.props;
-  // 透传事件
+  // event transparent transmission
   if (typeof onClick === 'function') {
     nativeProps.onClick = onClick;
   }
@@ -27,14 +27,14 @@ function TouchableWithoutFeedback(props) {
 }
 ```
 
-# 动画系统
+# Animation System
 
-Hippy 的动画机制和 React Native 机制有所不同，React Native 的动画模块其实是由前端通过定时器驱动，存在大量前终端通讯，而 Hippy 通过将动画方案一次性下发给终端实现了更好的动画性能。
+Hippy's animation mechanism is different from React Native. The animation module of React Native is actually driven by the front end through a timer, and there is a lot of communication from the front end to the native, while Hippy has better animation performance by sending the animation scheme to the native at one time.
 
-请参考 [动画方案的最佳实践](hippy-react/animation.md)。
+Please Refer to [best practices for animation schemes](hippy-react/animation.md).
 
-# 手势系统
+# Gesture System
 
-和 React Native 的 PanResponder 不同，Hippy 的手势事件可以应用于任何一个组件上，更加接近浏览器的实现。
+Hippy's gesture events are different from React Native's PanResponder and can be applied to any component, closer to the browser's implementation.
 
-请参考 [手势系统的最佳实践](hippy-react/gesture.md)。
+Please Refer to [best practices for gesture systems](hippy-react/gesture.md).
