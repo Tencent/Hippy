@@ -53,6 +53,8 @@ class BridgeImpl {
 
   static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
 
+  static void LoadInstance(int64_t runtime_id, std::string&& params);
+
  private:
   static bool RunScript(int64_t runtime_id, const char16_t* script, const char16_t* script_name,
                         bool can_use_code_cache, const char16_t* code_cache_dir);
