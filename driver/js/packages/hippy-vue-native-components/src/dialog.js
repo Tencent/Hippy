@@ -25,15 +25,15 @@ const getFirstComponent = (elements) => {
 };
 
 function registerDialog(Vue) {
-  Vue.registerElement('Dialog', {
+  Vue.registerElement('hi-dialog', {
     component: {
       name: 'Modal',
-    },
-    defaultNativeStyle: {
-      position: 'absolute',
+      defaultNativeStyle: {
+        position: 'absolute',
+      },
     },
   });
-  Vue.component('HiDialog', {
+  Vue.component('Dialog', {
     inheritAttrs: false,
     props: {
       collapsable: {
@@ -65,7 +65,7 @@ function registerDialog(Vue) {
       }
       const { collapsable, transparent, immersionStatusBar } = this;
       return h(
-        'HiDialog',
+        'hi-dialog',
         {
           on: { ...this.$listeners },
           attrs: {
