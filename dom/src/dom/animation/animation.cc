@@ -37,9 +37,9 @@ Animation::Animation(int32_t cnt,
       on_end_(on_end),
       on_cancel_(on_cancel),
       on_repeat_(on_repeat),
-      status_(status),
       parent_id_(parent_id),
       children_(children),
+      status_(status),
       animation_manager_(animation_manager) {}
 
 Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double start_value) :

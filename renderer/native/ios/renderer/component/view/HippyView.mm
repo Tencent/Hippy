@@ -605,6 +605,14 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     UIColor *backgroundColor = color?:self.backgroundColor;
     
     CGRect theFrame = self.frame;
+    /**
+     * If view has already applied a 3d transform,
+     * to get its origin frame ,we have to revert 3d transform to its frame
+     */
+    if (!CATransform3DIsIdentity(self.layer.transform)) {
+        CGAffineTransform t = CATransform3DGetAffineTransform(self.layer.transform);
+        theFrame = CGRectApplyAffineTransform(theFrame, CGAffineTransformInvert(t));
+    }
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
     UIImage *image = HippyGetBorderImage(
