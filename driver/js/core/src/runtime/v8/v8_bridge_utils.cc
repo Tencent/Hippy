@@ -470,14 +470,11 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
         action.utf16_value() == u"onWebsocketMsg") {
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
         if (buffer_data_.length() <= 0) {
-            std::u16string str;
             runtime::global_inspector->SendMessageToV8(
-                    unicode_string_view(std::move(str)));
+                    unicode_string_view(u""));
         } else {
-            std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
-                               buffer_data_.length() / sizeof(char16_t));
             runtime::global_inspector->SendMessageToV8(
-                    unicode_string_view(std::move(str)));
+                    StringViewUtils::CovertToUtf16(unicode_string_view(buffer_data_), unicode_string_view::Encoding::Utf8));
         }
 #endif
       cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
