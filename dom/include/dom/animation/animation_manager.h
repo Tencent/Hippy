@@ -103,7 +103,6 @@ class AnimationManager
    */
   std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::string>> node_animation_props_map_;
   uint64_t listener_id_;
-  int32_t id_;
   void ParseAnimation(const std::shared_ptr<DomNode>& node);
   void FetchAnimationsFromObject(const std::string& prop,
                                  std::shared_ptr<DomValue> value,
