@@ -40,6 +40,18 @@ function getNodeId() {
   return currentNodeId;
 }
 
+function findNotToSkipNode(nodes = [], startIndex = 0) {
+  let targetNode = nodes[startIndex];
+  for (let i = startIndex; i < nodes.length; i++) {
+    const node = nodes[i];
+    if (node && node.meta && !node.meta.skipAddToDom) {
+      targetNode = node;
+      break;
+    }
+  }
+  return targetNode;
+}
+
 class ViewNode {
   constructor() {
     // Point to root document element.
@@ -121,6 +133,10 @@ class ViewNode {
       throw new Error('Can\'t insert child, because it already has a different parent.');
     }
     const index = this.childNodes.indexOf(referenceNode);
+    let notToSkipRefNode = referenceNode;
+    if (referenceNode.meta.skipAddToDom) {
+      notToSkipRefNode = findNotToSkipNode(this.childNodes, index);
+    }
     childNode.parentNode = this;
     childNode.nextSibling = referenceNode;
     childNode.prevSibling = this.childNodes[index - 1];
@@ -134,7 +150,7 @@ class ViewNode {
       this,
       childNode,
       index,
-      { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
+      { refId: notToSkipRefNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
     );
   }
 
@@ -153,6 +169,10 @@ class ViewNode {
     }
     const oldIndex = this.childNodes.indexOf(childNode);
     const referenceIndex = this.childNodes.indexOf(referenceNode);
+    let notToSkipRefNode = referenceNode;
+    if (referenceNode.meta.skipAddToDom) {
+      notToSkipRefNode = findNotToSkipNode(this.childNodes, referenceIndex);
+    }
     // return if the moved index is the same as the previous one
     if (referenceIndex === oldIndex) {
       return childNode;
@@ -173,11 +193,6 @@ class ViewNode {
     if (this.childNodes[oldIndex + 1]) {
       this.childNodes[oldIndex + 1].prevSibling = this.childNodes[oldIndex - 1];
     }
-    // this.childNodes.splice(oldIndex, 1);
-    // // remove old child node from native
-    // removeChild(this, childNode, oldIndex);
-    // const newIndex = this.childNodes.indexOf(referenceNode);
-    // this.childNodes.splice(newIndex, 0, childNode);
 
     this.childNodes.splice(oldIndex, 1);
     const newIndex = this.childNodes.indexOf(referenceNode);
@@ -186,7 +201,7 @@ class ViewNode {
       this,
       childNode,
       newIndex,
-      { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
+      { refId: notToSkipRefNode.nodeId, relativeToRef: relativeToRefType.BEFORE },
     );
   }
 
@@ -207,14 +222,12 @@ class ViewNode {
       this.lastChild.nextSibling = childNode;
     }
     const referenceIndex = this.childNodes.length - 1;
-    const referenceNode = this.childNodes[referenceIndex];
     this.childNodes.push(childNode);
     const index = referenceIndex + 1;
     insertChild(
       this,
       childNode,
       index,
-      referenceNode && { refId: referenceNode.nodeId, relativeToRef: relativeToRefType.AFTER },
     );
   }
 
