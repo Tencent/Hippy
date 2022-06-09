@@ -510,7 +510,7 @@ declare namespace HippyTypes {
       sendRenderError: (err: Error) => void;
       startBatch: () => void;
       updateNode: (rootViewId: number, queue: NativeNode[]) => void;
-      callUIFunction: (id: number, name: string, param: any[], cb: () => void) => void
+      callUIFunction: (id: number, name: string, param: any[], cb: (param: any) => void) => void
     };
 
     /**
