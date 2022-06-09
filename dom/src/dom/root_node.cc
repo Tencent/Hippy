@@ -21,8 +21,8 @@ RootNode::RootNode(uint32_t id)
 
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
-  for (const auto& nodeInfo : nodes) {
-    auto node = nodeInfo->dom_node;
+  for (const auto& node_info : nodes) {
+    auto node = node_info->dom_node;
     std::shared_ptr<DomNode> parent_node = GetNode(node->GetPid());
     if (parent_node == nullptr) {
       continue;
@@ -30,7 +30,7 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     nodes_to_create.push_back(node);
     // 解析布局属性
     node->ParseLayoutStyleInfo();
-    parent_node->AddChildByRefInfo(nodeInfo);
+    parent_node->AddChildByRefInfo(node_info);
     auto event = std::make_shared<DomEvent>(kDomCreated, node, nullptr);
     node->HandleEvent(event);
     OnDomNodeCreated(node);
@@ -96,17 +96,17 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
 
 void RootNode::MoveDomNodes(std::vector<std::shared_ptr<DomInfo>> &&nodes) {
     std::vector<std::shared_ptr<DomNode>> nodes_to_move;
-    for (const auto& nodeInfo : nodes) {
-        std::shared_ptr<DomNode> parent_node = GetNode(nodeInfo->dom_node->GetPid());
+    for (const auto& node_info : nodes) {
+        std::shared_ptr<DomNode> parent_node = GetNode(node_info->dom_node->GetPid());
         if (parent_node == nullptr) {
             continue;
         }
-        auto node = parent_node->RemoveChildById(nodeInfo->dom_node->GetId());
+        auto node = parent_node->RemoveChildById(node_info->dom_node->GetId());
         if (node == nullptr) {
             continue;
         }
         nodes_to_move.push_back(node);
-        parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, nodeInfo->ref_info));
+        parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, node_info->ref_info));
     }
     for(const auto& node: nodes_to_move) {
         node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex()});

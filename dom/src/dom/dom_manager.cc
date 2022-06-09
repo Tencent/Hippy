@@ -346,7 +346,8 @@ DomManager::bytes DomManager::GetSnapShot() {
     array.emplace_back(node->Serialize());
   });
   Serializer serializer;
-  serializer.WriteDenseJSArray(array);
+  serializer.WriteHeader();
+  serializer.WriteValue(DomValue(array));
   auto ret = serializer.Release();
   return std::string(reinterpret_cast<const char*>(ret.first), ret.second);
 }
@@ -354,20 +355,21 @@ DomManager::bytes DomManager::GetSnapShot() {
 bool DomManager::SetSnapShot(const DomManager::bytes& buffer, std::shared_ptr<RootNode> root) {
   Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
   DomValue value;
-  auto flag = deserializer.ReadDenseJSArray(value);
+  deserializer.ReadHeader();
+  auto flag = deserializer.ReadValue(value);
   if (!flag || !value.IsArray()) {
     return false;
   }
   DomValueArrayType array;
   value.ToArray(array);
-  std::vector<std::shared_ptr<DomNode>> nodes;
+  std::vector<std::shared_ptr<DomInfo>> nodes;
   for (const auto& node : array) {
     auto dom_node = std::make_shared<DomNode>();
     flag = dom_node->Deserialize(node);
     if (!flag) {
       return false;
     }
-    nodes.push_back(std::move(dom_node));
+    nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr));
   }
 
   std::vector<std::function<void()>> ops = {
