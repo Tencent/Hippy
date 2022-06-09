@@ -17,14 +17,11 @@ package com.tencent.mtt.hippy;
 
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
-import com.tencent.mtt.hippy.modules.RenderProcessInterceptor;
-import com.tencent.mtt.hippy.uimanager.RenderManager;
 import java.util.Map;
 
 public interface HippyEngineContext {
@@ -45,16 +42,6 @@ public interface HippyEngineContext {
   ThreadExecutor getThreadExecutor();
 
   ViewGroup getRootView();
-
-  /**
-   * Add render process interceptor such as AnimationModule.
-   */
-  void addRenderProcessInterceptor(@NonNull RenderProcessInterceptor interceptor);
-
-  /**
-   * Remove render process interceptor from js engine context.
-   */
-  void removeRenderProcessInterceptor(@NonNull RenderProcessInterceptor interceptor);
 
   void updateAnimationNode(byte[] buffer, int offset, int length);
 
