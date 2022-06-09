@@ -551,8 +551,7 @@ bool DomNode::Deserialize(DomValue value) {
   DomValueObjectType dom_node_obj = value.ToObjectChecked();
 
   uint32_t id;
-  auto xxx = dom_node_obj[kNodePropertyId];
-  auto flag = xxx.ToUint32(id);
+  auto flag = dom_node_obj[kNodePropertyId].ToUint32(id);
   if (flag) {
     SetId(static_cast<uint32_t>(id));
   } else {

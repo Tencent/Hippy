@@ -363,14 +363,21 @@ bool DomManager::SetSnapShot(const DomManager::bytes& buffer) {
   DomValueArrayType array;
   value.ToArray(array);
   std::vector<std::shared_ptr<DomInfo>> nodes;
+  std::shared_ptr<RootNode> root;
   for (const auto& node : array) {
     auto dom_node = std::make_shared<DomNode>();
     flag = dom_node->Deserialize(node);
     if (!flag) {
       return false;
     }
-    dom_node->SetDomManager(weak_from_this());
-    nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr));
+    
+    if (dom_node->GetPid() == 0) {
+      root_node_ = std::make_shared<RootNode>(dom_node->GetId());
+      root_node_->SetDomManager(weak_from_this());
+    } else {
+      dom_node->SetDomManager(weak_from_this());
+      nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr));
+    }
   }
 
   std::vector<std::function<void()>> ops = {
