@@ -86,7 +86,7 @@ class VoltronBridgeManager implements Destroyable {
         _coreBundleLoader = coreBundleLoader,
         _groupId = groupId,
         _engineId = id,
-        _isDevModule = true,
+        _isDevModule = isDevModule,
         _thirdPartyAdapter = thirdPartyAdapter,
         _isSingleThread = bridgeType == kBridgeTypeSingleThread {
     sBridgeNum++;

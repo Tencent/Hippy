@@ -272,13 +272,6 @@ void BridgeImpl::BindDomManager(int64_t runtime_id,
   dom_manager->SetDelegateTaskRunner(runtime->GetScope()->GetTaskRunner());
 }
 
-void BridgeImpl::LoadInstance(int64_t runtime_id,
-                              std::string&& params) {
-  V8BridgeUtils::LoadInstance(hippy::base::checked_numeric_cast<int64_t,
-                                                                int32_t>(
-      runtime_id), std::move(params));
-}
-
 std::shared_ptr<Scope> BridgeImpl::GetScope(int64_t runtime_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {

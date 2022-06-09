@@ -53,8 +53,6 @@ class BridgeImpl {
 
   static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
 
-  static void LoadInstance(int64_t runtime_id, std::string&& params);
-
   static std::shared_ptr<Scope> GetScope(int64_t runtime_id);
 
  private:
