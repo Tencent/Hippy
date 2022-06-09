@@ -250,7 +250,6 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shouldRasterizeIOS, BOOL, HippyView) {
 
 HIPPY_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, HippyView) {
     view.layer.transform = json ? [HippyConvert CATransform3D:json] : defaultView.layer.transform;
-    // TODO: Improve this by enabling edge antialiasing only for transforms with rotation or skewing
     view.layer.allowsEdgeAntialiasing = !CATransform3DIsIdentity(view.layer.transform);
 }
 HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView) {
