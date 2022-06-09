@@ -12,7 +12,6 @@
       v-if="dialogIsVisible"
       animationType="slide"
       :transparent="true"
-      class="dialog-demo"
       :supportedOrientations="supportedOrientations"
       @show="onShow"
       @requestClose="onClose"
@@ -151,10 +150,6 @@ export default {
 .dialog-demo-button-2 .button-text {
   line-height: 56px;
   text-align: center;
-}
-
-.dialog-demo {
-  position: absolute;
 }
 
 .dialog-demo-wrapper {
