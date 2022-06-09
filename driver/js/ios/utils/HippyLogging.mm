@@ -44,7 +44,7 @@ static BOOL GetFileNameAndLineNumberFromLogMessage(NSString *message, NSString *
     if (NSNotFound == locationOfRightBracket || locationOfRightBracket <= locationOfLeftBracket) {
         return YES;
     }
-    NSString *number = [message substringWithRange:NSMakeRange(locationOfLeftBracket + 1, locationOfLeftBracket - locationOfColon - 1)];
+    NSString *number = [message substringWithRange:NSMakeRange(locationOfLeftBracket + 1, locationOfRightBracket - locationOfLeftBracket - 1)];
     *lineNumber = [number intValue];
     return YES;
 }
