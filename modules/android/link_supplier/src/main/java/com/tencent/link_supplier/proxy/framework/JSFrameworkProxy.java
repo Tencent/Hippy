@@ -16,19 +16,7 @@
 
 package com.tencent.link_supplier.proxy.framework;
 
-import androidx.annotation.NonNull;
-
-import java.util.Map;
-
 public interface JSFrameworkProxy extends FrameworkProxy {
-
-    void onCreateNode(int nodeId, @NonNull final Map<String, Object> props);
-
-    void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props);
-
-    void onDeleteNode(int nodeId);
-
-    void onEndBatch();
 
     void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
             boolean systemUiVisibilityChanged);

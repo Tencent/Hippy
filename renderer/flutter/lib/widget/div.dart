@@ -309,7 +309,7 @@ class PositionWidget extends FRBaseStatelessWidget {
       top: _viewModel.layoutY ?? 0.0,
       left: _viewModel.layoutX ?? 0.0,
     );
-    if (margin.isNonNegative) {
+    if (!margin.isNonNegative) {
       return BoxWidget(
         _viewModel,
         child: child,

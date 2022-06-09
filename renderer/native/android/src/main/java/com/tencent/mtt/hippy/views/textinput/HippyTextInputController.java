@@ -307,7 +307,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         view.setFilters(newFilters);
     }
 
-    @HippyControllerProps(name = "onSelectionChange", defaultType = "boolean")
+    @HippyControllerProps(name = "selectionchange", defaultType = "boolean")
     public void setOnSelectionChange(HippyTextInput hippyTextInput, boolean change) {
         hippyTextInput.setOnSelectListener(change);
     }
@@ -386,27 +386,27 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         }
     }
 
-    @HippyControllerProps(name = "onChangeText", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "changetext", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnChangeText(HippyTextInput hippyTextInput, boolean change) {
         hippyTextInput.setOnChangeListener(change);
     }
 
-    @HippyControllerProps(name = "onEndEditing", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "endediting", defaultType = HippyControllerProps.BOOLEAN)
     public void setEndEditing(HippyTextInput hippyTextInput, boolean change) {
         hippyTextInput.setOnEndEditingListener(change);
     }
 
-    @HippyControllerProps(name = "onFocus", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "focus", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnFocus(HippyTextInput hippyTextInput, boolean change) {
         hippyTextInput.setBlurOrOnFocus(change);
     }
 
-    @HippyControllerProps(name = "onBlur", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "blur", defaultType = HippyControllerProps.BOOLEAN)
     public void setBlur(HippyTextInput hippyTextInput, boolean change) {
         hippyTextInput.setBlurOrOnFocus(change);
     }
 
-    @HippyControllerProps(name = "onContentSizeChange", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "contentSizeChange", defaultType = HippyControllerProps.BOOLEAN)
     public void setOnContentSizeChange(HippyTextInput hippyTextInput, boolean contentSizeChange) {
         hippyTextInput.setOnContentSizeChange(contentSizeChange);
     }

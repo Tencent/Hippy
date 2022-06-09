@@ -25,6 +25,8 @@ import 'package:flutter/material.dart';
 import 'package:tencent_voltron_render/voltron_render.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
+import 'my_api_provider.dart';
+
 const bool kUseHippyVueDemo = false;
 
 const String kHippyVueBundleDir = 'hippy-vue-demo';
@@ -94,7 +96,9 @@ class _PageTestWidgetState extends State<PageTestWidget> {
     initParams.enableLog = true;
     initParams.coreJSAssetsPath = kVendorPath;
     initParams.codeCacheTag = "common";
-    initParams.providers = [];
+    initParams.providers = [
+      MyAPIProvider(),
+    ];
     initParams.engineMonitor = Monitor();
     _loaderManager = VoltronJSLoaderManager.createLoaderManager(
       initParams,

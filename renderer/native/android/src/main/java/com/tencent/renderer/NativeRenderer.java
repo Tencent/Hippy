@@ -23,7 +23,6 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_Q
 import android.content.Context;
 import android.text.Layout;
 import android.util.DisplayMetrics;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
@@ -47,7 +46,6 @@ import com.tencent.renderer.utils.DisplayUtils;
 import com.tencent.renderer.utils.EventUtils.EventType;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.List;
 import java.util.Map.Entry;
@@ -361,9 +359,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            // Props may reset by framework modules, such as js AnimationModule,
-            // key={animationId=xxx} => key=value
-            onCreateNode(nodeId, className, props);
+            onCreateNode(nodeId, className);
             mVirtualNodeManager.createNode(mRootView.getId(), nodeId, nodePid, nodeIndex, className,
                     props);
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
@@ -410,9 +406,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            // Props may reset by framework modules, such as js AnimationModule,
-            // key={animationId=xxx} => key=value
-            onUpdateNode(nodeId, props);
             mVirtualNodeManager.updateNode(nodeId, props);
             if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
                 // If the node has a virtual parent, no corresponding render node exists,
@@ -445,7 +438,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 mVirtualNodeManager.deleteNode(id);
                 continue;
             }
-            onDeleteNode(id);
             mVirtualNodeManager.deleteNode(id);
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
@@ -654,7 +646,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         };
         addUITask(task);
         executeUITask();
-        onEndBatch();
     }
 
     @Override
@@ -665,8 +656,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         return mRenderManager.createVirtualNode(rootId, id, pid, index, className, props);
     }
 
-    private void onCreateNode(int nodeId, @NonNull String className,
-            @NonNull final Map<String, Object> props) {
+    private void onCreateNode(int nodeId, @NonNull String className) {
         // If this node is a modal type, should update node size with window width and height
         // before layout.
         if (className.equals(HippyModalHostManager.CLASS_NAME)) {
@@ -675,27 +665,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 mRenderProvider
                         .onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels, true);
             }
-        }
-        if (checkJSFrameworkProxy()) {
-            ((JSFrameworkProxy) mFrameworkProxy).onCreateNode(nodeId, props);
-        }
-    }
-
-    private void onUpdateNode(int nodeId, @NonNull final Map<String, Object> props) {
-        if (checkJSFrameworkProxy()) {
-            ((JSFrameworkProxy) mFrameworkProxy).onUpdateNode(nodeId, props);
-        }
-    }
-
-    private void onDeleteNode(int nodeId) {
-        if (checkJSFrameworkProxy()) {
-            ((JSFrameworkProxy) mFrameworkProxy).onDeleteNode(nodeId);
-        }
-    }
-
-    private void onEndBatch() {
-        if (checkJSFrameworkProxy()) {
-            ((JSFrameworkProxy) mFrameworkProxy).onEndBatch();
         }
     }
 

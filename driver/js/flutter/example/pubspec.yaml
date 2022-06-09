@@ -40,12 +40,8 @@ flutter:
   assets:
     - assets/
     - jsbundle/
-    - jsbundle/hippy-vue-demo/ios/
-    - jsbundle/hippy-vue-demo/ios/assets/
     - jsbundle/hippy-vue-demo/android/
     - jsbundle/hippy-vue-demo/android/assets/
-    - jsbundle/hippy-react-demo/ios/
-    - jsbundle/hippy-react-demo/ios/assets/
     - jsbundle/hippy-react-demo/android/
     - jsbundle/hippy-react-demo/android/assets/
 
