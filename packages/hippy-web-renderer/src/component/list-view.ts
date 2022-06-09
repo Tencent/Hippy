@@ -126,7 +126,7 @@ export class ListView extends HippyWebView<HTMLDivElement> {
 
   public set scrollEnabled(value: boolean) {
     this.props[NodeProps.SCROLL_ENABLED] = value;
-    setElementStyle(this.dom!, { overflow: this.scrollEnabled ? 'hidden' : 'scroll' });
+    setElementStyle(this.dom!, { overflow: !this.scrollEnabled ? 'hidden' : 'scroll' });
   }
 
   public get showScrollIndicator() {
