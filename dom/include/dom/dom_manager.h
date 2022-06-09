@@ -88,7 +88,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
 
   bytes GetSnapShot();
-  bool SetSnapShot(const bytes& buffer, std::shared_ptr<RootNode> root);
+  bool SetSnapShot(const bytes& buffer);
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
   static std::shared_ptr<DomManager> Find(int32_t id);
   static bool Erase(int32_t id);

@@ -51,7 +51,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
           const std::shared_ptr<DomManager> &dom_manager);
 
   DomNode(uint32_t id, uint32_t pid);
-  DomNode() = default;
+  DomNode();
   ~DomNode();
 
   // 层级优化后的RenderNode信息

@@ -60,6 +60,8 @@ DomNode::DomNode(uint32_t id, uint32_t pid)
   layout_node_ = hippy::dom::CreateLayoutNode();
 }
 
+DomNode::DomNode(): DomNode(0, 0) {}
+
 DomNode::~DomNode() = default;
 
 int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
@@ -548,8 +550,9 @@ bool DomNode::Deserialize(DomValue value) {
   }
   DomValueObjectType dom_node_obj = value.ToObjectChecked();
 
-  int32_t id;
-  auto flag = dom_node_obj[kNodePropertyId].ToInt32(id);
+  uint32_t id;
+  auto xxx = dom_node_obj[kNodePropertyId];
+  auto flag = xxx.ToUint32(id);
   if (flag) {
     SetId(static_cast<uint32_t>(id));
   } else {
@@ -557,8 +560,8 @@ bool DomNode::Deserialize(DomValue value) {
     return false;
   }
 
-  int32_t pid;
-  flag = dom_node_obj[kNodePropertyPid].ToInt32(pid);
+  uint32_t pid;
+  flag = dom_node_obj[kNodePropertyPid].ToUint32(pid);
   if (flag) {
     SetPid(static_cast<uint32_t>(pid));
   } else {
@@ -591,9 +594,10 @@ bool DomNode::Deserialize(DomValue value) {
   }
 
   DomValueObjectType style;
+  auto yyy = dom_node_obj[kNodePropertyStyle];
   flag = dom_node_obj[kNodePropertyStyle].ToObject(style);
   if (flag) {
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map;
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
     for (const auto& [key, value] : style) {
       (*style_map)[key] = std::make_shared<DomValue>(value);
     }
@@ -606,7 +610,7 @@ bool DomNode::Deserialize(DomValue value) {
   DomValueObjectType ext;
   flag = dom_node_obj[kNodePropertyExt].ToObject(ext);
   if (flag) {
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> ext_map;
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> ext_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
     for (const auto& [key, value] : ext) {
       (*ext_map)[key] = std::make_shared<DomValue>(value);
     }

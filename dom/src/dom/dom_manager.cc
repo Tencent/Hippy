@@ -352,7 +352,7 @@ DomManager::bytes DomManager::GetSnapShot() {
   return std::string(reinterpret_cast<const char*>(ret.first), ret.second);
 }
 
-bool DomManager::SetSnapShot(const DomManager::bytes& buffer, std::shared_ptr<RootNode> root) {
+bool DomManager::SetSnapShot(const DomManager::bytes& buffer) {
   Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
   DomValue value;
   deserializer.ReadHeader();
@@ -369,13 +369,14 @@ bool DomManager::SetSnapShot(const DomManager::bytes& buffer, std::shared_ptr<Ro
     if (!flag) {
       return false;
     }
+    dom_node->SetDomManager(weak_from_this());
     nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr));
   }
 
   std::vector<std::function<void()>> ops = {
-      [WEAK_THIS, nodes{std::move(nodes)}, root{std::move(root)}]() mutable {
+      [WEAK_THIS, nodes{std::move(nodes)}]() mutable {
         DEFINE_AND_CHECK_SELF(DomManager)
-        self->root_node_ = root;
+        // self->root_node_ = root;
         self->root_node_->CreateDomNodes(std::move(nodes));
         self->root_node_->SyncWithRenderManager(self->render_manager_.lock());
       }

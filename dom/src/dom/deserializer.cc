@@ -203,7 +203,7 @@ bool Deserializer::ReadDenseJSArray(DomValue& dom_value) {
 bool Deserializer::ReadJSObject(DomValue& dom_value) {
   bool ret = true;
   uint32_t num_properties;
-  DomValue object;
+  DomValueObjectType object;
   num_properties = ReadObjectProperties(object, SerializationTag::kEndJSObject);
 
   uint32_t expected_num_properties;
@@ -318,7 +318,7 @@ bool Deserializer::ReadObject(DomValue& value) {
   return ret;
 }
 
-uint32_t Deserializer::ReadObjectProperties(DomValue& property, SerializationTag end_tag) {
+uint32_t Deserializer::ReadObjectProperties(DomValueObjectType& property, SerializationTag end_tag) {
   uint32_t num_properties = 0;
   DomValue::DomValueObjectType object;
 
