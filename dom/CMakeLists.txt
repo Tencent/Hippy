@@ -48,7 +48,7 @@ else()
 endif()
 
 # exclude test files
-file(GLOB_RECURSE DOM_UT_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/**_ut.cc)
+file(GLOB_RECURSE DOM_UT_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/**_unittests.cc)
 list(REMOVE_ITEM SRC_FILES ${DOM_UT_FILES})
 message("SRC_FILES:${SRC_FILES}")
 
