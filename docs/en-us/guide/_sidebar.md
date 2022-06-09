@@ -1,0 +1,15 @@
+<!-- docs/_sidebar.md -->
+
+* [Getting Started](guide/integration.md)
+* [Debug](guide/debug.md)
+* [Architecture](structure/introduction.md)
+* [布局与单位](guide/layout.md)
+* [Network request](guide/network-request.md)
+* [Timer](guide/timer.md)
+* [Log](guide/console.md)
+* [Exception capture](guide/exception.md)
+* [Custom font](guide/custom-font.md)
+* [动态加载](guide/dynamic-import.md)
+* [JSI 模式](guide/jsi.md)
+* [技术支持](guide/support.md)
+* [隐私政策](guide/privacy.md)

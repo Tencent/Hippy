@@ -117,6 +117,7 @@ interface ModalProps {
 const styles = StyleSheet.create({
   modal: {
     position: 'absolute',
+    collapsable: false,
   },
   container: {
     position: 'absolute',

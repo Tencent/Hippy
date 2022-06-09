@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-// @ts-nocheck
 import unitlessNumbers from './unitless-numbers';
 
 const units = {

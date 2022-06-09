@@ -173,6 +173,7 @@ bool ADRLoader::LoadByHttp(const unicode_string_view& uri,
     j_env->CallVoidMethod(bridge_->GetObj(),
                           instance->GetMethods().j_fetch_resource_method_id,
                           j_relative_path, id);
+    JNIEnvironment::ClearJEnvException(j_env);
     j_env->DeleteLocalRef(j_relative_path);
     return true;
   }

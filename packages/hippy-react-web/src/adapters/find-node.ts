@@ -14,13 +14,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// @ts-nocheck
 import { findDOMNode } from 'react-dom';
 
-const findNodeHandle = (component: Element) => {
+const findNodeHandle = (component: Element | any) => {
   let node;
-
   try {
+    if (component?.node)  {
+      return component?.node;
+    }
     /* eslint-disable-next-line react/no-find-dom-node */
     node = findDOMNode(component);
   } catch (e) {

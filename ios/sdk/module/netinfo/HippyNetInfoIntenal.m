@@ -82,6 +82,15 @@ static HippyNetInfoIntenal *instance = nil;
 
 @implementation HippyNetInfoIntenal
 
+static NSString *radioAccessNameIn(CTTelephonyNetworkInfo *networkInfo) {
+    if (@available(iOS 13.0, *)) {
+        if (networkInfo.dataServiceIdentifier) {
+            return [networkInfo.serviceCurrentRadioAccessTechnology objectForKey:networkInfo.dataServiceIdentifier];
+        }
+    }
+    return networkInfo.currentRadioAccessTechnology;
+}
+
 static NSString *hippyReachabilityGetCellType(NSString *cellType) {
     if ([cellType isEqualToString:CTRadioAccessTechnologyEdge] ||
         [cellType isEqualToString:CTRadioAccessTechnologyGPRS] ||
@@ -144,7 +153,7 @@ static NSString *currentReachabilityType(SCNetworkReachabilityRef reachabilityRe
 static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
     HippyNetInfoIntenal *netinfo = (__bridge  HippyNetInfoIntenal *)info;
     NSString *networkType = hippyReachabilityTypeFromFlags(flags);
-    NSString *cellType = hippyReachabilityGetCellType(netinfo->_cellNetType.currentRadioAccessTechnology);
+    NSString *cellType = hippyReachabilityGetCellType(radioAccessNameIn(netinfo->_cellNetType));
     HippyNetworkTypeObject *obj = [[HippyNetworkTypeObject alloc] initWithNetworkType:networkType cellType:cellType];
     [netinfo notifyObserversNetworkTypeChanged:obj];
 }
@@ -201,7 +210,7 @@ static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNet
 
 - (HippyNetworkTypeObject *)currentNetworkType {
     NSString *networkType = currentReachabilityType(_reachability);
-    NSString *cellType = hippyReachabilityGetCellType(_cellNetType.currentRadioAccessTechnology);
+    NSString *cellType = hippyReachabilityGetCellType(radioAccessNameIn(_cellNetType));
     HippyNetworkTypeObject *obj = [[HippyNetworkTypeObject alloc] initWithNetworkType:networkType cellType:cellType];
     return obj;
 }

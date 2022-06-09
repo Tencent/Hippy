@@ -27,7 +27,7 @@ Hippy 2.2 版本之前只支持加载单个 js bundle 文件。随着业务越�
 
 ### 使用
 
-在 [webpack 打包脚本](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 中引入插件
+在 [Webpack 打包脚本](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 中引入插件
 
 ```javascript
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
@@ -99,7 +99,7 @@ plugins: [
 
 ```
 
-+ 在业务代码引用分包的入口配置 `magic comment`的 `webpackChunkName`（必须） 和 `customChunkPath`（可选），如果没有配置`customChunkPath`，会默认使用全局 `publicPath`；
++ <span id="remote-bundle">在业务代码引用分包的入口配置</span> `magic comment`的 `webpackChunkName`（必须） 和 `customChunkPath`（可选），如果没有配置`customChunkPath`，会默认使用全局 `publicPath`；
 以 Hippy-Vue 为例：
 
 ```javascript

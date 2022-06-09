@@ -62,9 +62,6 @@
             "reconnect": {
               "$ref": "#/definitions/ClientReconnect"
             },
-            "webSocketTransport": {
-              "$ref": "#/definitions/ClientWebSocketTransport"
-            },
             "webSocketURL": {
               "$ref": "#/definitions/ClientWebSocketURL"
             }

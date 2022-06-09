@@ -245,7 +245,6 @@ test('renderToNative test with children --debug mode', (t) => {
         },
         multiline: true,
         onTyping: true,
-        __bind__onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,
@@ -362,7 +361,6 @@ test('renderToNative test with children --production mode', (t) => {
       props: {
         multiline: true,
         onTyping: true,
-        __bind__onTyping: true,
         keyboardType: 'url',
         numberOfLines: 10,
         underlineColorAndroid: 0,

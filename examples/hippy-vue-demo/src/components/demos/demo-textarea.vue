@@ -31,11 +31,12 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 #demo-textarea {
   display: flex;
   align-items: center;
   flex-direction: column;
+  margin: 7px;
 }
 
 #demo-textarea .textarea {

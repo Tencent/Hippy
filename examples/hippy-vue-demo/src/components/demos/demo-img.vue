@@ -22,10 +22,21 @@
         src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
         class="image center"
       >
-      <label>TintColor(iOS染色暂不支持透明度):</label>
+      <label>CapInsets:</label>
       <img
         :placeholder="defaultImage"
         src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
+        class="image cover"
+        :capInsets="{
+          top: 50,
+          left: 50,
+          bottom: 50,
+          right: 50,
+        }"
+      >
+      <label>TintColor:</label>
+      <img
+        :src="hippyLogoImage"
         class="image center tint-color"
       >
       <label>Gif:</label>
@@ -39,11 +50,13 @@
 </template>
 <script>
 import defaultImage from '../../assets/defaultSource.jpg';
+import hippyLogoImage from '../../assets/hippyLogoWhite.png';
 
 export default {
   data() {
     return {
       defaultImage,
+      hippyLogoImage,
     };
   },
   methods: {
@@ -71,6 +84,7 @@ export default {
 #demo-img {
   overflow-y: scroll;
   flex: 1;
+  margin: 7px;
 }
 
 #demo-img #demo-img-container {
@@ -99,6 +113,6 @@ export default {
 }
 
 #demo-img .tint-color {
-  tint-color: #99999955
+  tint-color: #40b88399
 }
 </style>

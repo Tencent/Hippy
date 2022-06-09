@@ -58,9 +58,10 @@ function commitUpdate(
   workInProgress: any,
 ): void {
   preCacheFiberNode(workInProgress, instance.nodeId);
-  const updatePayloadPropList: string[] = Object.keys(updatePayload);
-  if (updatePayloadPropList.length === 0) return;
-  updatePayloadPropList.forEach(propKey => instance.setAttribute(propKey, updatePayload[propKey]));
+  const updatePayloadList = Object.keys(updatePayload || {});
+  if (updatePayloadList.length === 0) return;
+  const attributeQueue = updatePayloadList.map(propKey => [propKey, updatePayload[propKey]]);
+  instance.setAttributes(attributeQueue);
 }
 
 // this is the hook when commitMutationEffects begin
@@ -79,49 +80,44 @@ function prepareUpdate(
   oldProps: Props,
   newProps: Props,
 ): UpdatePayload {
-  const updatePayload: {
-    [key: string]: any;
-  } = {};
-  let hasFunctionProp = false;
-  Object.keys(newProps).forEach((key: string) => {
+  const updatePayload: { [key: string]: any; } = {};
+  Object.keys(oldProps).forEach((key) => {
+    const oldPropValue = oldProps[key];
+    const newPropValue = newProps[key];
+    if (
+      (oldPropValue !== undefined && oldPropValue !== null)
+      && (newPropValue === undefined || newPropValue === null)
+    ) {
+      // if oldPros existed and newPros removed(undefined/null), indicated this prop deleted.
+      updatePayload[key] = newPropValue;
+    }
+  });
+  Object.keys(newProps).forEach((key) => {
     const oldPropValue = oldProps[key];
     const newPropValue = newProps[key];
     switch (key) {
       case 'children': {
         if (oldPropValue !== newPropValue
-            && (typeof newPropValue === 'number'
-                || typeof newPropValue === 'string'
-            )) {
+          && (typeof newPropValue === 'number'
+            || typeof newPropValue === 'string'
+          )) {
           updatePayload[key] = newPropValue;
         }
         break;
       }
       default: {
-        if (typeof oldPropValue === 'function'
-            && typeof newPropValue === 'function'
-            && !isEqual(oldPropValue, newPropValue)
-        ) {
-          hasFunctionProp = true;
-        } else if (!isEqual(oldPropValue, newPropValue)) {
+        if (
+          (newPropValue !== undefined && newPropValue !== null)
+          && (oldPropValue === undefined || oldPropValue === null)) {
+          // if newProps created
+          updatePayload[key] = newPropValue;
+        } else if (typeof newPropValue !== 'function' && !isEqual(oldPropValue, newPropValue)) {
+          // newProps only updated if not function property
           updatePayload[key] = newPropValue;
         }
       }
     }
   });
-  const isUpdatePayloadEmpty = Object.keys(updatePayload).length === 0;
-  if (isUpdatePayloadEmpty && hasFunctionProp) {
-    /**
-     * if updatePayload only has function property,
-     * return empty object to trigger commitUpdate for updating fiberNode Cache
-     */
-    return {};
-  }
-  if (isUpdatePayloadEmpty) {
-    /**
-     * prepareUpdate returning null would not trigger commitUpdate
-     */
-    return null;
-  }
   return updatePayload;
 }
 

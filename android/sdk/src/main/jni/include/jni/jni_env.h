@@ -48,7 +48,6 @@ class JNIEnvironment {
   inline JNIWrapper GetMethods() { return wrapper_; }
   void init(JavaVM* vm, JNIEnv* env);
   JNIEnv* AttachCurrentThread();
-  void DetachCurrentThread();
 
  private:
   static std::shared_ptr<JNIEnvironment> instance_;

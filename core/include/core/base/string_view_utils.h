@@ -141,10 +141,16 @@ class StringViewUtils {
       unicode_string_view::Encoding src_encoding) {
     switch (src_encoding) {
       case unicode_string_view::Encoding::Latin1: {
-        const auto &str = str_view.latin1_value();
-        auto ptr =
-            reinterpret_cast<const unicode_string_view::char8_t_ *>(str.c_str());
-        return unicode_string_view(ptr, str.length());
+        u8string u8;
+        for (const auto& ch : str_view.latin1_value()){
+          if (static_cast<uint8_t>(ch) < 0x80) {
+            u8 += ch;
+          } else {
+            u8 += (0xc0 | ch >> 6);
+            u8 += (0x80 | (ch & 0x3f));
+          }
+        }
+        return unicode_string_view(std::move(u8));
       }
       case unicode_string_view::Encoding::Utf16: {
         return unicode_string_view(U16ToU8(str_view.utf16_value()));

@@ -154,6 +154,7 @@ export default {
          *  declaration css style supports 'background-image': `url('https://xxxx')` format and remote address only.
          */
         backgroundImage: `${defaultImage}`,
+        backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         justifyContent: 'center',
         alignItems: 'center',

@@ -1,0 +1,28 @@
+name: '[docs] markdown documents format lint'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - '*.md'
+      - 'docs/**/*.md'
+
+jobs:
+  markdownlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: setup-node
+        uses: actions/setup-node@master
+        with:
+          node-version: 14.x
+      - name: Install
+        run: |
+          npm install markdown-it@12.3.2 markdownlint-cli@0.31.1
+      - name: markdownlint
+        run: |
+          npm run markdownlint

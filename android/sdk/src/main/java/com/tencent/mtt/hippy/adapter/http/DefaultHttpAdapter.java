@@ -17,6 +17,7 @@ package com.tencent.mtt.hippy.adapter.http;
 
 import android.text.TextUtils;
 
+import android.webkit.CookieManager;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.modules.nativemodules.network.NetworkModule;
 import java.io.DataOutputStream;
@@ -215,9 +216,12 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
 
   public void handleRequestCookie(String url, HippyArray requestCookies, HippyHttpRequest httpRequest) {
     NetworkModule.saveCookie2Manager(url, requestCookies);
-    String cookie = NetworkModule.getCookieManager().getCookie(url);
-    if (!TextUtils.isEmpty(cookie)) {
-      httpRequest.addHeader(HttpHeader.REQ.COOKIE, cookie);
+    CookieManager cookieManager = NetworkModule.getCookieManager();
+    if (cookieManager != null) {
+      String cookie = cookieManager.getCookie(url);
+      if (!TextUtils.isEmpty(cookie)) {
+        httpRequest.addHeader(HttpHeader.REQ.COOKIE, cookie);
+      }
     }
   }
 }

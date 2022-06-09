@@ -22,14 +22,12 @@ __fbBatchedBridge.invokeCallbackAndReturnFlushedQueue = (cbID, args) => {
 
 __fbBatchedBridge.__invokeCallback = (cbID, args) => {
   const callback = __GLOBAL__._callbacks[cbID];
-  if (!callback) {
-    return;
-  }
+  if (!callback) return;
 
   if (!__GLOBAL__._notDeleteCallbackIds[cbID & ~1]
      && !__GLOBAL__._notDeleteCallbackIds[cbID | 1]) {
-    __GLOBAL__._callbacks[cbID & ~1] = null;
-    __GLOBAL__._callbacks[cbID | 1] = null;
+    delete __GLOBAL__._callbacks[cbID & ~1];
+    delete __GLOBAL__._callbacks[cbID | 1];
   }
 
   if (args && args.length > 1 && (args[0] === null || args[0] === undefined)) {
@@ -71,10 +69,9 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
       }
     } else if (method === 'unmountApplicationComponentAtRootTag') {
       global.Hippy.emit('destroyInstance', args[0]);
-      const renderId = Date.now().toString();
-      Hippy.bridge.callNative('UIManagerModule', 'startBatch', renderId);
+      Hippy.bridge.callNative('UIManagerModule', 'startBatch');
       Hippy.bridge.callNative('UIManagerModule', 'removeRootView', args[0]);
-      Hippy.bridge.callNative('UIManagerModule', 'endBatch', renderId);
+      Hippy.bridge.callNative('UIManagerModule', 'endBatch');
       delete __GLOBAL__.nodeIdCache[args[0]];
       delete __GLOBAL__.nodeTreeCache[args[0]];
       delete __GLOBAL__.nodeParamCache[args[0]];

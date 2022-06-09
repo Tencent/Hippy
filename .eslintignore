@@ -1,4 +1,5 @@
 node_modules*
+docs/
 dist/
 coverage
 // TODO: ts-lint check hippy-vue/types in future

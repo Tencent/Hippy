@@ -35,6 +35,10 @@ NSString *const HippyStorageDirectory = @"HippyAsyncLocalStorage_V1";
 static NSString *const HippyManifestFileName = @"manifest.json";
 static const NSUInteger HippyInlineValueThreshold = 1024;
 
+NSUInteger HPLOCALSTORAGEIOTYPEREAD = 1000;
+
+NSUInteger HPLOCALSTORAGEIOTYPEWRITE = 1001;
+
 #pragma mark - Static helper functions
 
 static NSDictionary *HippyErrorForKey(NSString *key) {
@@ -54,22 +58,6 @@ static void HippyAppendError(NSDictionary *error, NSMutableArray<NSDictionary *>
         }
         [*errors addObject:error];
     }
-}
-
-static NSString *HippyReadFile(NSString *filePath, NSString *key, NSDictionary **errorOut) {
-    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-        NSError *error;
-        NSStringEncoding encoding;
-        NSString *entryString = [NSString stringWithContentsOfFile:filePath usedEncoding:&encoding error:&error];
-        if (error) {
-            *errorOut = HippyMakeError(@"Failed to read storage file.", error, @ { @"key": key });
-        } else if (encoding != NSUTF8StringEncoding) {
-            *errorOut = HippyMakeError(@"Incorrect encoding of storage file: ", @(encoding), @ { @"key": key });
-        } else {
-            return entryString;
-        }
-    }
-    return nil;
 }
 
 // Only merges objects - all other types are just clobbered (including arrays)
@@ -236,7 +224,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
         _manifest = mutableDictionaryForKey(self.bridge.moduleName, &created);
         if (created) {
             NSDictionary *errorOut;
-            NSString *serialized = HippyReadFile([self HippyGetManifestFilePath], nil, &errorOut);
+            NSString *serialized = [self _readFileFromPath:[self HippyGetManifestFilePath] key:nil error:&errorOut];
             NSMutableDictionary *tmpDic = serialized ? HippyJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
             if (error) {
                 HippyLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
@@ -267,7 +255,7 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
         value = [HippyGetCache() objectForKey:key];
         if (!value) {
             NSString *filePath = [self _filePathForKey:key];
-            value = HippyReadFile(filePath, key, errorOut);
+            value = [self _readFileFromPath:filePath key:key error:errorOut];
             if (value) {
                 [HippyGetCache() setObject:value forKey:key cost:value.length];
             } else {
@@ -302,6 +290,12 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
         _manifest[key] = value;
         return nil;
     }
+    NSInteger maxLimit = [self maxWriteDataSize];
+    if ([value length] > maxLimit) {
+        if (![self handleDataSizeExceedForIOType:HPLOCALSTORAGEIOTYPEWRITE moduleName:self.bridge.moduleName key:key dataLength:[value length]]) {
+            return HippyMakeError(@"write data length exceed range", error, @{ @"key": key?:@"nilkey" , @"length": @([value length])});;
+        }
+    }
     [value writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
     [HippyGetCache() setObject:value forKey:key cost:value.length];
     if (error) {
@@ -311,6 +305,34 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
         _manifest[key] = (id)kCFNull;
     }
     return errorOut;
+}
+
+- (NSString *)_readFileFromPath:(NSString *)filePath key:(NSString *)key error:(NSDictionary **)errorOut {
+    BOOL isDirectory = NO;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDirectory] && !isDirectory) {
+        NSDictionary<NSString*, id> *fileAttribute =
+            [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+        NSUInteger fileSize = [fileAttribute[NSFileSize] unsignedIntegerValue];
+        NSUInteger maxReadFileSize = [self maxReadDataSize];
+        if (fileSize > maxReadFileSize) {
+            if (![self handleDataSizeExceedForIOType:HPLOCALSTORAGEIOTYPEREAD moduleName:self.bridge.moduleName
+                                                 key:key dataLength:fileSize]) {
+                *errorOut = HippyMakeError(@"read data length exceed range", nil, @{ @"key": key?:@"nilkey" , @"length": @(fileSize)});;
+                return nil;
+            }
+        }
+        NSError *error;
+        NSStringEncoding encoding;
+        NSString *entryString = [NSString stringWithContentsOfFile:filePath usedEncoding:&encoding error:&error];
+        if (error) {
+            *errorOut = HippyMakeError(@"Failed to read storage file.", error, @ { @"key": key });
+        } else if (encoding != NSUTF8StringEncoding) {
+            *errorOut = HippyMakeError(@"Incorrect encoding of storage file: ", @(encoding), @ { @"key": key });
+        } else {
+            return entryString;
+        }
+    }
+    return nil;
 }
 
 - (NSString *)HippyGetStorageDirectory {
@@ -326,6 +348,19 @@ HIPPY_EXPORT_MODULE(AsyncStorage)
             [[_storageDirectory stringByAppendingPathComponent:HippyStorageDirectory] stringByAppendingPathComponent:[self bridge].moduleName];
     }
     return _storageDirectory;
+}
+
+- (NSUInteger)maxReadDataSize {
+    return NSUIntegerMax;
+}
+
+- (NSUInteger)maxWriteDataSize {
+    return NSUIntegerMax;
+}
+
+- (BOOL)handleDataSizeExceedForIOType:(NSUInteger)IOType moduleName:(NSString *)moduleName
+                                  key:(NSString *)key dataLength:(NSUInteger)length {
+    return YES;
 }
 
 #pragma mark - Exported JS Functions

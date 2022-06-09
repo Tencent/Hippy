@@ -1,0 +1,97 @@
+name: '[hip] archive artifact'
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_type:
+        description: 'Type of source'
+        type: choice
+        options:
+        - Git
+        - URL
+        default: 'Git'
+        required: true
+      source_url:
+        description: 'URL or Git <repository>'
+        type: string
+        required: true
+      git_revision:
+        description: 'Git <tag>|<branch>|<commit>, Git available'
+        type: string
+      hip_domain:
+        description: 'HIP <domain>'
+        type: choice
+        options:
+        - hippy
+        - test
+        default: 'hippy'
+        required: true
+      hip_artifact_path:
+        description: 'HIP artifact <full path>(without domain)'
+        type: string
+        required: true
+
+jobs:
+  archive_artifact:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Git clone
+      if: github.event.inputs.source_type == 'Git'
+      id: git-clone
+      shell: bash
+      run: |
+        name=$(basename ${{ github.event.inputs.hip_artifact_path }})
+        if [[ $name != *.tgz ]]; then
+          echo 'In `Git` source type, <hip_artifact_path> must be end with |.tgz|'
+          exit -1
+        fi
+        git clone ${{ github.event.inputs.source_url }} artifact
+        pushd artifact
+        git checkout ${{ github.event.inputs.git_revision }}
+        echo "::set-output name=git-head::$(git rev-parse HEAD)"
+        rm -rf .git
+        popd
+        tar -zcvf $name -C artifact .
+    - name: URL fetch
+      if: github.event.inputs.source_type == 'URL'
+      shell: bash
+      run: |
+        wget ${{ github.event.inputs.source_url }} -O $(basename ${{ github.event.inputs.hip_artifact_path }})
+    - name: Install Requirement
+      shell: bash
+      run: |
+        pip install -U cos-python-sdk-v5
+    - name: Publish artifact
+      shell: python
+      run: |
+        from qcloud_cos import CosConfig
+        from qcloud_cos import CosS3Client
+        from urllib.parse import urlencode
+        import hashlib
+        import os
+
+        artifact = os.path.basename("${{ github.event.inputs.hip_artifact_path }}")
+
+        metadata = {}
+        metadata["ci-name"] = "Github Action"
+        metadata["ci-id"] = "${{ github.run_id }}"
+        metadata["source-type"] = "${{ github.event.inputs.source_type }}"
+        metadata["source-url"] = "${{ github.event.inputs.source_url }}"
+        metadata["artifact-publisher"] = "${{ github.event.sender.login }}"
+        with open(artifact, "rb") as artifact_file:
+          metadata["artifact-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
+        if "${{ github.event.inputs.source_type }}" == "Git":
+          metadata["git-revision"] = "${{ github.event.inputs.git_revision }}"
+          metadata["git-head"] = "${{ steps.git-clone.outputs.git-head }}"
+
+        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
+        client = CosS3Client(config)
+        response = client.upload_file(
+            Bucket="${{ secrets.COS_BUCKET }}",
+            Key="${{ github.event.inputs.hip_domain }}/${{ github.event.inputs.hip_artifact_path }}",
+            LocalFilePath=artifact,
+            EnableMD5=True,
+            ContentMD5=metadata["artifact-md5"],
+            Metadata={"x-cos-tagging": urlencode(metadata)}
+        )
+        print("ETag: " + response["ETag"])
