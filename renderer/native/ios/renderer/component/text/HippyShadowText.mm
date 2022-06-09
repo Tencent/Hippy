@@ -54,9 +54,8 @@ hippy::LayoutSize textMeasureFunc(
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
         NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
         CGSize size = [layoutManager usedRectForTextContainer:textContainer].size;
-
-        retSize.width = HippyCeilPixelValue(size.width);
-        retSize.height = HippyCeilPixelValue(size.height);
+        retSize.width = ceil(size.width);
+        retSize.height = ceil(size.height);
     }
     return retSize;
 }
