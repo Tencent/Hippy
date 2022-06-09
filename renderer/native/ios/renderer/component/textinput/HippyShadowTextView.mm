@@ -46,8 +46,8 @@ static hippy::LayoutSize x5MeasureFunc(
             strongShadowText.dicAttributes = @ { NSFontAttributeName: strongShadowText.font };
         }
         CGSize computedSize = [text sizeWithAttributes:strongShadowText.dicAttributes];
-        result.width = HippyCeilPixelValue(computedSize.width);
-        result.height = HippyCeilPixelValue(computedSize.height);
+        result.width = ceil(computedSize.width);
+        result.height = ceil(computedSize.height);
     }
     return result;
 }
