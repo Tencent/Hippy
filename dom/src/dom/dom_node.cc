@@ -593,7 +593,6 @@ bool DomNode::Deserialize(DomValue value) {
   }
 
   DomValueObjectType style;
-  auto yyy = dom_node_obj[kNodePropertyStyle];
   flag = dom_node_obj[kNodePropertyStyle].ToObject(style);
   if (flag) {
     std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();

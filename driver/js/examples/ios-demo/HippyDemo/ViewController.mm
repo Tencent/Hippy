@@ -150,7 +150,7 @@ std::string mock;
     view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     
     //2.set root tag for root view. root tag is of the essence
-    int32_t rootTag = 10;
+    int32_t rootTag = 20;
     view.hippyTag = @(rootTag);
     [self.view addSubview:view];
 
