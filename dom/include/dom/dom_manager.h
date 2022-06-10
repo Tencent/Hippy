@@ -44,8 +44,15 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
  public:
   using DomValue = tdf::base::DomValue;
   using TaskRunner = hippy::base::TaskRunner;
+  using bytes = std::string;
 
-  DomManager(uint32_t root_id);
+  struct RootInfo {
+    uint32_t root_id;
+    float width;
+    float height;
+  };
+
+  DomManager();
   ~DomManager() = default;
 
   int32_t GetId() { return id_; }
@@ -59,7 +66,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
     return delegate_task_runner_;
   }
 
-  void Init();
+  void Init(uint32_t root_id);
   void SetRenderManager(std::shared_ptr<RenderManager> render_manager);
   uint32_t GetRootId() const;
   std::shared_ptr<DomNode> GetNode(uint32_t id) const;
@@ -77,13 +84,16 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void CallFunction(uint32_t id, const std::string& name, const DomArgument& param, const CallFunctionCallback& cb);
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
-  void SetRootNode(const std::shared_ptr<RootNode>& root_node);
   void DoLayout();
   void PostTask(const Scene&& scene);
   std::shared_ptr<CommonTask> PostDelayedTask(const Scene&& scene, uint64_t delay);
   void CancelTask(std::shared_ptr<CommonTask> task);
   void StartTaskRunner() { dom_task_runner_->Start(); }
   void TerminateTaskRunner() { dom_task_runner_->Terminate(); }
+  void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
+
+  bytes GetSnapShot();
+  bool SetSnapShot(const bytes& buffer, const RootInfo& root_info);
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
   static std::shared_ptr<DomManager> Find(int32_t id);
   static bool Erase(int32_t id);

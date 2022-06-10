@@ -385,11 +385,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     _nativeSetUpBlock = ^(){
         HippyBridge *strongSelf = weakBridge;
         if (strongSelf) {
-            strongSelf->_domManager = std::make_shared<hippy::DomManager>([tag intValue]);
-            int ids = strongSelf->_domManager->GetRootId();
-            auto rootNode = strongSelf->_domManager->GetNode(ids);
-            rootNode->GetLayoutNode()->SetScaleFactor(scale);
-            strongSelf->_domManager->Init();
+          strongSelf->_domManager = std::make_shared<hippy::DomManager>();
+          strongSelf->_domManager->Init([tag intValue]);
+          int ids = strongSelf->_domManager->GetRootId();
+          auto rootNode = strongSelf->_domManager->GetNode(ids);
+          rootNode->GetLayoutNode()->SetScaleFactor(scale);
             std::weak_ptr<hippy::DomManager> weakDomManager = strongSelf->_domManager;
             std::function<void()> func = [weakDomManager, size](){
                 auto domManager = weakDomManager.lock();
