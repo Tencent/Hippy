@@ -10,7 +10,7 @@ inline namespace animation {
 
 AnimationSet::AnimationSet(std::vector<AnimationSetChild>&& children_set,
                            int32_t cnt) :
-    Animation(cnt), children_set_(std::move(children_set)), start_value_(0),
+    Animation(cnt), children_set_(std::move(children_set)),
     begin_animation_(nullptr), end_animation_(nullptr) {
 }
 
