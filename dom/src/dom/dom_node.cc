@@ -7,6 +7,7 @@
 #include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
+#include "dom/serializer.h"
 
 namespace hippy {
 inline namespace dom {
@@ -18,6 +19,15 @@ constexpr char kLayoutXKey[] = "x";
 constexpr char kLayoutYKey[] = "y";
 constexpr char kLayoutWidthKey[] = "width";
 constexpr char kLayoutHeightKey[] = "height";
+
+constexpr char kNodePropertyId[] = "id";
+constexpr char kNodePropertyPid[] = "pId";
+constexpr char kNodePropertyIndex[] = "index";
+constexpr char kNodePropertyTagName[] = "tagName";
+constexpr char kNodePropertyViewName[] = "name";
+constexpr char kNodePropertyStyle[] = "style";
+constexpr char kNodePropertyExt[] = "ext";
+
 
 using DomValueObjectType = tdf::base::DomValue::DomValueObjectType;
 
@@ -49,6 +59,8 @@ DomNode::DomNode(uint32_t id, uint32_t pid)
       event_listener_map_(nullptr) {
   layout_node_ = hippy::dom::CreateLayoutNode();
 }
+
+DomNode::DomNode(): DomNode(0, 0) {}
 
 DomNode::~DomNode() = default;
 
@@ -495,5 +507,119 @@ bool DomNode::ReplaceStyle(DomValue& style, const std::string& key, const DomVal
 
   return false;
 }
+
+DomValue DomNode::Serialize() const {
+  DomValueObjectType result;
+
+  auto id = DomValue(id_);
+  result[kNodePropertyId] = id;
+
+  auto pid = DomValue(pid_);
+  result[kNodePropertyPid] = pid;
+
+  auto index = DomValue(index_);
+  result[kNodePropertyIndex] = index;
+
+  auto tag_name = DomValue(tag_name_);
+  result[kNodePropertyTagName] = tag_name;
+
+  auto view_name = DomValue(view_name_);
+  result[kNodePropertyViewName] = view_name;
+
+  DomValueObjectType style_map_value;
+  for (const auto& value: *style_map_) {
+    style_map_value[value.first] = *value.second;
+  }
+  auto style_map = DomValue(std::move(style_map_value));
+  result[kNodePropertyStyle] = style_map;
+
+  DomValueObjectType dom_ext_map_value;
+  for (const auto& value: *dom_ext_map_) {
+    dom_ext_map_value[value.first] = *value.second;
+  }
+  auto dom_ext_map = DomValue(std::move(dom_ext_map_value));
+  result[kNodePropertyExt] = dom_ext_map;
+  return DomValue(std::move(result));
+}
+
+bool DomNode::Deserialize(DomValue value) {
+  TDF_BASE_DCHECK(value.IsObject());
+  if (!value.IsObject()) {
+    TDF_BASE_LOG(ERROR) << "Deserialize value is not object";
+    return false;
+  }
+  DomValueObjectType dom_node_obj = value.ToObjectChecked();
+
+  uint32_t id;
+  auto flag = dom_node_obj[kNodePropertyId].ToUint32(id);
+  if (flag) {
+    SetId(static_cast<uint32_t>(id));
+  } else {
+    TDF_BASE_LOG(ERROR) << "Deserialize id error";
+    return false;
+  }
+
+  uint32_t pid;
+  flag = dom_node_obj[kNodePropertyPid].ToUint32(pid);
+  if (flag) {
+    SetPid(static_cast<uint32_t>(pid));
+  } else {
+    TDF_BASE_LOG(ERROR) << "Deserialize pid error";
+    return false;
+  }
+
+  int32_t index;
+  flag = dom_node_obj[kNodePropertyIndex].ToInt32(index);
+  if (flag) {
+    SetIndex(index);
+  } else {
+    TDF_BASE_LOG(ERROR) << "Deserialize index error";
+    return false;
+  }
+
+  std::string tag_name;
+  flag = dom_node_obj[kNodePropertyTagName].ToString(tag_name);
+  if (flag) {
+    SetTagName(tag_name);
+  }
+
+  std::string view_name;
+  flag = dom_node_obj[kNodePropertyViewName].ToString(view_name);
+  if (flag) {
+    SetViewName(view_name);
+  } else {
+    TDF_BASE_LOG(ERROR) << "Deserialize view_name error";
+    return false;
+  }
+
+  DomValueObjectType style;
+  flag = dom_node_obj[kNodePropertyStyle].ToObject(style);
+  if (flag) {
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+    for (const auto& [key, value] : style) {
+      (*style_map)[key] = std::make_shared<DomValue>(value);
+    }
+    SetStyleMap(std::move(style_map));
+  } else {
+    TDF_BASE_LOG(ERROR) << "Deserialize style error";
+    return false;
+  }
+
+  DomValueObjectType ext;
+  flag = dom_node_obj[kNodePropertyExt].ToObject(ext);
+  if (flag) {
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> ext_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+    for (const auto& [key, value] : ext) {
+      (*ext_map)[key] = std::make_shared<DomValue>(value);
+    }
+    SetExtStyleMap(std::move(ext_map));
+  } else {
+    TDF_BASE_LOG(ERROR) << "Deserialize ext error";
+    return false;
+  }
+
+  return true;
+}
+
 }  // namespace dom
 }  // namespace hippy

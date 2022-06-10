@@ -15,6 +15,9 @@
 #include "dom/macro.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
+#include "dom/serializer.h"
+#include "dom/deserializer.h"
+#include "dom/scene_builder.h"
 
 #ifdef HIPPY_TEST
 #define DCHECK_RUN_THREAD() {}
@@ -27,20 +30,24 @@ namespace hippy {
 inline namespace dom {
 
 using DomNode = hippy::DomNode;
+using Serializer = tdf::base::Serializer;
+using Deserializer = tdf::base::Deserializer;
 
 static std::unordered_map<int32_t, std::shared_ptr<DomManager>> dom_manager_map;
 static std::mutex mutex;
 static std::atomic<int32_t> global_dom_manager_key{0};
 
-DomManager::DomManager(uint32_t root_id) {
+using DomValueArrayType = tdf::base::DomValue::DomValueArrayType;
+
+DomManager::DomManager() {
   id_ = global_dom_manager_key.fetch_add(1);
-  root_node_ = std::make_shared<RootNode>(root_id);
   animation_manager_ = std::make_shared<AnimationManager>();
   interceptors_.push_back(animation_manager_);
   dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
 }
 
-void DomManager::Init() {
+void DomManager::Init(uint32_t root_id) {
+  root_node_ = std::make_shared<RootNode>(root_id);
   StartTaskRunner();
 }
 
@@ -178,14 +185,6 @@ void DomManager::SetRootSize(float width, float height) {
   root_node_->SetLayoutSize(width, height);
 }
 
-void DomManager::SetRootNode(const std::shared_ptr<RootNode>& root_node) {
-  DCHECK_RUN_THREAD()
-  if (root_node) {
-    root_node_ = root_node;
-    root_node->SetDomManager(weak_from_this());
-  }
-}
-
 void DomManager::DoLayout() {
   DCHECK_RUN_THREAD()
   auto render_manager = render_manager_.lock();
@@ -309,6 +308,95 @@ void DomManager::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
 
 void DomManager::AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor) {
   interceptors_.push_back(interceptor);
+}
+
+void DomManager::Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse) {
+ if (!root_node_) {
+   return;
+ }
+
+ std::stack<std::shared_ptr<DomNode>> stack;
+ stack.push(root_node_);
+ while(!stack.empty()) {
+   auto top = stack.top();
+   stack.pop();
+   on_traverse(top);
+   auto children = top->GetChildren();
+   if (!children.empty()) {
+     for (auto it = children.rbegin(); it != children.rend(); ++it) {
+       stack.push(*it);
+     }
+   }
+ }
+}
+
+DomManager::bytes DomManager::GetSnapShot() {
+  DomValueArrayType array;
+  Traverse([&array](const std::shared_ptr<DomNode>& node) {
+    array.emplace_back(node->Serialize());
+  });
+  Serializer serializer;
+  serializer.WriteHeader();
+  serializer.WriteValue(DomValue(array));
+  auto ret = serializer.Release();
+  return {reinterpret_cast<const char*>(ret.first), ret.second};
+}
+
+bool DomManager::SetSnapShot(const bytes& buffer, const RootInfo& root_info) {
+  Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
+  DomValue value;
+  deserializer.ReadHeader();
+  auto flag = deserializer.ReadValue(value);
+  if (!flag || !value.IsArray()) {
+    return false;
+  }
+  DomValueArrayType array;
+  value.ToArray(array);
+  if (array.empty()) {
+    return false;
+  }
+  auto weak_dom_manager = weak_from_this();
+  auto root_node = std::make_shared<DomNode>();
+  flag = root_node->Deserialize(array[0]);
+  if (!flag) {
+    return false;
+  }
+  if (root_node->GetPid() != 0) {
+    return false;
+  }
+  auto orig_root_id = root_node->GetId();
+  root_node_ = std::make_shared<RootNode>(root_info.root_id);
+  root_node_->SetDomManager(weak_dom_manager);
+  root_node_->SetLayoutSize(root_info.width, root_info.height);
+  std::vector<std::shared_ptr<DomInfo>> nodes;
+  for (uint32_t i = 1; i < array.size(); ++i) {
+    auto node = array[i];
+    auto dom_node = std::make_shared<DomNode>();
+    flag = dom_node->Deserialize(node);
+    if (!flag) {
+      return false;
+    }
+
+    dom_node->SetDomManager(weak_dom_manager);
+    if (dom_node->GetPid() == orig_root_id) {
+      dom_node->SetPid(root_info.root_id);
+    }
+    nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr));
+  }
+
+  std::vector<std::function<void()>> ops = {
+      [weak_dom_manager, nodes{std::move(nodes)}]() mutable {
+        auto dom_manager = weak_dom_manager.lock();
+        if (!dom_manager) {
+          return;
+        }
+        dom_manager->CreateDomNodes(std::move(nodes));
+        dom_manager->EndBatch();
+      }
+  };
+  PostTask(Scene(std::move(ops)));
+
+  return true;
 }
 
 }  // namespace dom
