@@ -19,9 +19,9 @@
  */
 
 import { Fiber } from '@hippy/react-reconciler';
-import { Bridge, Device, UIManager } from '../global';
+import { Device, UIManager } from '../global';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
-import { isFunction, warn } from '../utils';
+import { isFunction, warn, trace } from '../utils';
 import Element from '../dom/element-node';
 
 const {
@@ -132,7 +132,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
   if (rootViewId === null) {
     return;
   }
-
+  trace('callUIFunction', { nodeId, funcName, paramList });
   UIManager.callUIFunction(nodeId, funcName, paramList, callback);
 }
 
@@ -158,7 +158,8 @@ function measureInWindowByMethod(
       }
       return reject(new Error(`${method} cannot get nodeId`));
     }
-    return Bridge.callNative('UIManagerModule', method, nodeId, (layout: HippyTypes.LayoutEvent | string) => {
+    trace('callUIFunction', { nodeId, funcName: method, paramList: [] });
+    return UIManager.callUIFunction(nodeId, method, [], (layout: HippyTypes.LayoutEvent | string) => {
       if (callback && isFunction(callback)) {
         callback(layout);
       }

@@ -240,27 +240,27 @@ function registerAnimation(Vue) {
       removeAnimationEvent() {
         this.animationIds.forEach((animationId) => {
           const animation = this.animationIdsMap[animationId];
-          if (animation) {
-            Object.keys(this.animationEventMap).forEach((key) => {
-              const eventName = this.animationEventMap[key];
-              eventName && animation.removeEventListener(eventName);
-            });
-          }
+          if (!animation) return;
+          Object.keys(this.animationEventMap).forEach((key) => {
+            if (typeof this.$listeners[key] !== 'function') return;
+            const eventName = this.animationEventMap[key];
+            if (!eventName) return;
+            animation.removeEventListener(eventName);
+          });
         });
       },
       addAnimationEvent() {
         this.animationIds.forEach((animationId) => {
           const animation = this.animationIdsMap[animationId];
-          if (animation) {
-            Object.keys(this.animationEventMap).forEach((key) => {
-              const eventName = this.animationEventMap[key];
-              if (eventName) {
-                animation.addEventListener(eventName, () => {
-                  this.$emit(key);
-                });
-              }
+          if (!animation) return;
+          Object.keys(this.animationEventMap).forEach((key) => {
+            if (typeof this.$listeners[key] !== 'function') return;
+            const eventName = this.animationEventMap[key];
+            if (!eventName) return;
+            animation.addEventListener(eventName, () => {
+              this.$emit(key);
             });
-          }
+          });
         });
       },
       reset() {

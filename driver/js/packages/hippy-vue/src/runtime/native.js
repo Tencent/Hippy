@@ -70,7 +70,8 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
     return Promise.resolve(empty);
   }
   const { nodeId } = el;
-  return new Promise(resolve => callNative.call(this, 'UIManagerModule', method, nodeId, (pos) => {
+  trace('callUIFunction', { nodeId, funcName: method, params: [] });
+  return new Promise(resolve => UIManagerModule.callUIFunction(nodeId, method, [], (pos) => {
     // Android error handler.
     if (!pos || pos === 'this view is null' || typeof nodeId === 'undefined') {
       return resolve(empty);

@@ -50,13 +50,13 @@ CubicBezier CubicBezierAnimation::ParseCubicBezierStr(std::string str) {
 }
 
 double CubicBezierAnimation::CalculateColor(double start_color, double to_color, double scale) {
-  uint32_t start_value = static_cast<uint32_t>(start_color);
+  auto start_value = static_cast<uint32_t>(start_color);
   auto start_red = static_cast<uint8_t>(((start_value >> 24) & 0xff));
   auto start_green = static_cast<uint8_t>(((start_value >> 16) & 0xff));
   auto start_blue = static_cast<uint8_t>(((start_value >> 8) & 0xff));
   auto start_alpha = static_cast<uint8_t>((start_value & 0xff));
 
-  uint32_t to_value = static_cast<uint32_t>(to_color);
+  auto to_value = static_cast<uint32_t>(to_color);
   auto to_red = static_cast<uint8_t>(((to_value >> 24) & 0xff));
   auto to_green = static_cast<uint8_t>(((to_value >> 16) & 0xff));
   auto to_blue = static_cast<uint8_t>(((to_value >> 8) & 0xff));
@@ -66,7 +66,7 @@ double CubicBezierAnimation::CalculateColor(double start_color, double to_color,
   auto green = static_cast<uint8_t>(start_green + (to_green - start_green) * scale);
   auto blue = static_cast<uint8_t>(start_blue + (to_blue - start_blue) * scale);
   auto alpha = static_cast<uint8_t>(start_alpha + (to_alpha - start_alpha) * scale);
-  uint32_t ret = (red << 24) + (green << 16) + (blue << 8) + alpha;
+  auto ret = (static_cast<uint32_t>(red) << 24) + (static_cast<uint32_t>(green) << 16) + (static_cast<uint32_t>(blue) << 8) + alpha;
   return static_cast<double>(ret);
 }
 
