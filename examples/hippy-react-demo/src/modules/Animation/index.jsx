@@ -213,21 +213,21 @@ export default class AnimationExample extends React.Component {
       this.txtColorAnimationSet.setRef(this.textColorRef);
       this.cubicBezierScaleAnimationSet.setRef(this.cubicBezierScaleRef);
     }
-    this.horizonAnimation.onHippyAnimationStart(() => {
+    this.horizonAnimation.onAnimationStart(() => {
       /* eslint-disable-next-line no-console */
       console.log('on animation start!!!');
     });
-    this.horizonAnimation.onHippyAnimationEnd(() => {
+    this.horizonAnimation.onAnimationEnd(() => {
       /* eslint-disable-next-line no-console */
       console.log('on animation end!!!');
     });
-    this.horizonAnimation.onHippyAnimationCancel(() => {
+    this.horizonAnimation.onAnimationCancel(() => {
       /* eslint-disable-next-line no-console */
       console.log('on animation cancel!!!');
     });
-    this.horizonAnimation.onHippyAnimationRepeat(() => {
+    this.horizonAnimation.onAnimationRepeat(() => {
       /* eslint-disable-next-line no-console */
-      console.log('on animation end!!!');
+      console.log('on animation repeat!!!');
     });
   }
 
