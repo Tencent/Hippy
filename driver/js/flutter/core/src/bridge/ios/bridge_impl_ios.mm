@@ -106,6 +106,10 @@ void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
     }
 }
 
+void BridgeImpl::UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback) {
+    CallFunction(runtime_id, u"destroyInstance", "", std::move(callback));
+}
+
 int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platform_runtime,
                                     bool single_thread_mode,
                                     bool bridge_param_json,

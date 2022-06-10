@@ -62,6 +62,8 @@ class BridgeImpl {
 
   static void LoadInstance(int64_t runtime_id, std::string&& params);
 
+  static void UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback);
+
   static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
 };
 

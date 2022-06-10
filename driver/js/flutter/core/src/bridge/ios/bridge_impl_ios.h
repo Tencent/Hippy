@@ -55,6 +55,8 @@ class BridgeImpl {
 
   static void LoadInstance(int64_t runtime_id, std::string&& params);
 
+  static void UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback);
+
  private:
   static bool RunScript(int64_t runtime_id, const char16_t* script, const char16_t* script_name,
                         bool can_use_code_cache, const char16_t* code_cache_dir);

@@ -466,16 +466,12 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
     }
     TDF_BASE_DCHECK(action.encoding() ==
         unicode_string_view::Encoding::Utf16);
-    if (runtime->IsDebug() &&
-        action.utf16_value() == u"onWebsocketMsg") {
+    if (runtime->IsDebug() && action.utf16_value() == u"onWebsocketMsg") {
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-        if (buffer_data_.length() <= 0) {
-            runtime::global_inspector->SendMessageToV8(
-                    unicode_string_view(u""));
-        } else {
-            runtime::global_inspector->SendMessageToV8(
-                    StringViewUtils::CovertToUtf16(unicode_string_view(buffer_data_), unicode_string_view::Encoding::Utf8));
-        }
+      std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
+                         buffer_data_.length() / sizeof(char16_t));
+      runtime::global_inspector->SendMessageToV8(
+          unicode_string_view(std::move(str)));
 #endif
       cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
       return;
@@ -491,27 +487,23 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
           runtime->GetScope()->GetContext())->context_persistent_.Get(isolate);
       hippy::napi::V8TryCatch try_catch(true, context);
       v8::MaybeLocal<v8::Value> ret;
-      if (buffer_data_.length() > 0) {
-          v8::ValueDeserializer deserializer(
-                  isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
-                  buffer_data_.length());
-          TDF_BASE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
-          ret = deserializer.ReadValue(ctx);
-          if (!ret.IsEmpty()) {
-              params = std::make_shared<hippy::napi::V8CtxValue>(
-                      isolate, ret.ToLocalChecked());
-          } else {
-              unicode_string_view msg;
-              if (try_catch.HasCaught()) {
-                  msg = try_catch.GetExceptionMsg();
-              } else {
-                  msg = u"deserializer error";
-              }
-              cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
-              return;
-          }
+      v8::ValueDeserializer deserializer(
+          isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
+          buffer_data_.length());
+      TDF_BASE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
+      ret = deserializer.ReadValue(ctx);
+      if (!ret.IsEmpty()) {
+        params = std::make_shared<hippy::napi::V8CtxValue>(
+            isolate, ret.ToLocalChecked());
       } else {
-          params = context->CreateString("");
+        unicode_string_view msg;
+        if (try_catch.HasCaught()) {
+          msg = try_catch.GetExceptionMsg();
+        } else {
+          msg = u"deserializer error";
+        }
+        cb(CALL_FUNCTION_CB_STATE::DESERIALIZER_FAILED, msg);
+        return;
       }
     } else {
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
@@ -670,6 +662,50 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
       scope->GetContext()->ThrowException("LoadInstance param error");
     }
   };
+  runner->PostTask(task);
+}
+
+void V8BridgeUtils::UnloadInstance(
+    int32_t runtime_id,
+    std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb) {
+  TDF_BASE_DLOG(INFO) << "Destroy instance runtime_id = " << runtime_id;
+  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "Destroy instance failed runtime_id invalid";
+    return;
+  }
+  std::shared_ptr<JavaScriptTaskRunner> runner =
+      runtime->GetEngine()->GetJSRunner();
+  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+  task->callback = [runtime, cb = std::move(cb)] {
+    std::shared_ptr<Scope> scope = runtime->GetScope();
+    if (!scope) {
+      TDF_BASE_DLOG(WARNING) << "Destroy instance invalid";
+      return;
+    }
+    std::shared_ptr<Ctx> context = scope->GetContext();
+    if (!runtime->GetBridgeFunc()) {
+      TDF_BASE_DLOG(INFO) << "init bridge func";
+      unicode_string_view name(kHippyBridgeName);
+      std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
+      bool is_fn = context->IsFunction(fn);
+      TDF_BASE_DLOG(INFO) << "is_fn = " << is_fn;
+
+      if (!is_fn) {
+        cb(CALL_FUNCTION_CB_STATE::NO_METHOD_ERROR, u"hippyBridge not find");
+        return;
+      } else {
+        runtime->SetBridgeFunc(fn);
+      }
+    }
+    std::shared_ptr<CtxValue> action_value = context->CreateString(u"destroyInstance");
+    std::shared_ptr<CtxValue> params = context->CreateNull();
+
+    std::shared_ptr<CtxValue> argv[] = {action_value, params};
+    context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
+    cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
+  };
+
   runner->PostTask(task);
 }
 

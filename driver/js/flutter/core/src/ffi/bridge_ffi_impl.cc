@@ -80,8 +80,11 @@ EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char1
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     bridge_manager->DestroyInstance(engine_id, root_id);
-
-    CallFunctionFFI(engine_id, action, nullptr, 0, callback_id);
+    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
+    if (runtime) {
+      auto runtime_id = runtime->GetRuntimeId();
+      BridgeImpl::UnloadInstance(runtime_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+    }
   }
 }
 
