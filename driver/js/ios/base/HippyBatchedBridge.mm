@@ -38,7 +38,6 @@
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
 #import "HippyI18nUtils.h"
-#import "HippyDevManager.h"
 #import "HippyBundleURLProvider.h"
 #include "core/scope.h"
 #import "HippyTurboModuleManager.h"
@@ -80,7 +79,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
-    HippyDevManager *_devManager;
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
 }
@@ -501,30 +499,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     }
 }
 
-- (void)setUpDevClientWithName:(NSString *)name {
-    if ([self.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
-        if ([self.delegate shouldStartInspector:self.parentBridge]) {
-            HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
-            if ([self.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
-                NSURL *url = [self.delegate inspectorSourceURLForBridge:self.parentBridge];
-                devInfo.scheme = [url scheme];
-                devInfo.ipAddress = [url host];
-                devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
-                devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
-                [devInfo parseWsURLWithURLQuery:[url query]];
-            }
-            else {
-                HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
-                devInfo.scheme = bundleURLProvider.scheme;
-                devInfo.ipAddress = bundleURLProvider.localhostIP;
-                devInfo.port = bundleURLProvider.localhostPort;
-                devInfo.versionId = bundleURLProvider.versionId;
-                devInfo.wsURL = bundleURLProvider.wsURL;
-            }
-        }
-    }
-}
-
 - (std::shared_ptr<hippy::AnimationManager>)animationManager {
     return self.parentBridge.animationManager;
 }
@@ -816,13 +790,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     _valid = NO;
     if ([HippyBridge currentBridge] == self) {
         [HippyBridge setCurrentBridge:nil];
-    }
-    if (_devManager) {
-        HippyDevCloseType closeType = HippyDevCloseTypeClosePage;
-        if (self.invalidateReason == HippyInvalidateReasonReload) {
-            closeType = HippyDevCloseTypeReload;
-        }
-        [_devManager closeWebSocket:closeType];
     }
 
     // Invalidate modules
