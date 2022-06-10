@@ -21,20 +21,36 @@
 #include "module/domain/network_domain.h"
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
+#include "nlohmann/json.hpp"
 
 namespace hippy::devtools {
+constexpr char kResponseBody[] = "body";
+constexpr char kResponseBase64Encoded[] = "base64Encoded";
 
 std::string NetworkDomain::GetDomainName() { return kFrontendKeyDomainNameNetwork; }
 
-void NetworkDomain::RegisterMethods() { REGISTER_DOMAIN(NetworkDomain, GetResponseBody, NetworkResponseBodyRequest) }
+void NetworkDomain::RegisterMethods() {
+  REGISTER_DOMAIN(NetworkDomain, GetResponseBody, NetworkResponseBodyRequest)
+}
+
+void NetworkDomain::OnResponseReceived(const std::string& request_id, std::string&& body_data) {
+  response_map_[request_id] = std::move(body_data);
+}
 
 void NetworkDomain::RegisterCallback() {}
 
 void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
-  auto network_adapter = GetDataProvider()->network_adapter;
-  if (network_adapter) {
-    std::string body = network_adapter->GetResponseBody(request.GetRequestId());
-    ResponseResultToFrontend(request.GetId(), body);
+  BACKEND_LOGD(TDF_BACKEND, "NetworkDomain::GetResponseBody");
+  std::string request_id = request.GetRequestId();
+  auto find_response = response_map_.find(request_id);
+  if (find_response != response_map_.end()) {
+    if (!find_response->second.empty()) {
+      nlohmann::json response_json = nlohmann::json::object();
+      response_json[kResponseBody] = find_response->second;
+      response_json[kResponseBase64Encoded] = false;
+      ResponseResultToFrontend(request.GetId(), response_json.dump());
+      response_map_.erase(find_response);
+    }
   } else {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "not support get network body");
     BACKEND_LOGE(TDF_BACKEND, "NetworkDomain::GetResponseBody not support get network body");

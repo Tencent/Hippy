@@ -39,11 +39,13 @@ class DevtoolsLoadingFinished : public Serializable {
         should_report_corb_blocking_(false) {}
 
   inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
+  explicit DevtoolsLoadingFinished(std::string content) : content_(std::move(content)) {}
 
   inline void SetReportCorbBlocking(bool blocking) { should_report_corb_blocking_ = blocking; }
   std::string Serialize() const override;
 
  private:
+  std::string content_;
   std::string request_id_;
   uint32_t encoded_data_length_;
   uint64_t timestamp_;

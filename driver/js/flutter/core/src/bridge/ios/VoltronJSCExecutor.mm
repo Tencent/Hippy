@@ -58,6 +58,9 @@
 #include "core/scope.h"
 #include "core/task/javascript_task_runner.h"
 #include "core/engine.h"
+#ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
+#endif
 
 NSString *const HippyJSCThreadName = @"com.tencent.Voltron.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"VoltronJavaScriptContextCreatedNotification";
@@ -101,7 +104,11 @@ struct RandomAccessBundleData {
 @synthesize pScope = _pScope;
 @synthesize JSGlobalContextRef = _JSGlobalContextRef;
 
-- (instancetype)initWithExecurotKey:(NSString *)execurotkey globalConfig:(NSString *)globalConfig completion:(VoltronFrameworkInitCallback)completion{
+- (instancetype)initWithExecurotKey:(NSString *)execurotkey
+                       globalConfig:(NSString *)globalConfig
+                              wsURL:(NSString *)wsURL
+                          debugMode:(BOOL)debugMode
+                         completion:(VoltronFrameworkInitCallback)completion{
     if (self = [super init]) {
         _valid = YES;
         // maybe bug in JavaScriptCore：
@@ -115,6 +122,12 @@ struct RandomAccessBundleData {
         const char *pName = [execurotkey UTF8String] ?: "";
         std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
         self.pScope = scope;
+    #if ENABLE_INSPECTOR
+        // create devtools
+        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
+        devtools_data_source->SetRuntimeDebugMode(debugMode);
+        self.pScope->SetDevtoolsDataSource(devtools_data_source);
+    #endif
         VoltronLogInfo(@"[Hippy_OC_Log][Life_Circle],VoltronJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
     }
 
@@ -442,6 +455,10 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     if (!self.isValid) {
         return;
     }
+#ifdef ENABLE_INSPECTOR
+    bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
+    self.pScope->GetDevtoolsDataSource()->Destroy(reload);
+#endif
     VoltronLogInfo(@"[Hippy_OC_Log][Life_Circle],VoltronJSCExecutor invalide %p", self);
     _valid = NO;
     self.pScope->WillExit();

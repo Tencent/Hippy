@@ -32,8 +32,12 @@ typedef void (^VoltronFrameworkInitCallback)(BOOL result);
 class Scope;
 
 @protocol VoltronJavaScriptExecutor <VoltronInvalidating>
-  
-- (instancetype)initWithExecurotKey:(NSString *)execurotkey globalConfig:(NSString *)globalConfig completion:(VoltronFrameworkInitCallback)completion;
+
+- (instancetype)initWithExecurotKey:(NSString *)execurotkey
+                       globalConfig:(NSString *)globalConfig
+                              wsURL:(NSString *)wsURL
+                          debugMode:(BOOL)debugMode
+                         completion:(VoltronFrameworkInitCallback)completion;
 /**
  * Used to set up the executor after the bridge has been fully initialized.
  * Do any expensive setup in this method instead of `-init`.
