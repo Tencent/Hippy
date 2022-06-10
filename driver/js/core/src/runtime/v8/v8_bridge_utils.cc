@@ -486,12 +486,11 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
       v8::Local<v8::Context> ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(
           runtime->GetScope()->GetContext())->context_persistent_.Get(isolate);
       hippy::napi::V8TryCatch try_catch(true, context);
-      v8::MaybeLocal<v8::Value> ret;
       v8::ValueDeserializer deserializer(
           isolate, reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
           buffer_data_.length());
       TDF_BASE_CHECK(deserializer.ReadHeader(ctx).FromMaybe(false));
-      ret = deserializer.ReadValue(ctx);
+      v8::MaybeLocal<v8::Value> ret = deserializer.ReadValue(ctx);
       if (!ret.IsEmpty()) {
         params = std::make_shared<hippy::napi::V8CtxValue>(
             isolate, ret.ToLocalChecked());

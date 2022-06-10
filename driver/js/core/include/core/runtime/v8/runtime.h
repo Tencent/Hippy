@@ -34,7 +34,7 @@
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
-#include "core/runtime/v8/bridge.h"
+
 #include "core/core.h"
 
 class Runtime {

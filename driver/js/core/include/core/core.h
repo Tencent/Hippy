@@ -47,6 +47,7 @@
 #ifdef JS_V8
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/js_native_turbo_v8.h"
+#include "core/runtime/v8/bridge.h"
 #else
 #include "core/napi/jsc/js_native_api_jsc.h"
 #include "core/napi/jsc/js_native_jsc_helper.h"
