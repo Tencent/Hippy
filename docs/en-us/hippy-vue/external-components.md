@@ -2,7 +2,7 @@
 
 # Native Extension Component
 
-Extensions are some convenient components provided by the native, which are provided by [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) in hippy-vue, but they are not available in browsers because there is no `@hippy/vue-web-components` now.
+Extensions are some convenient components provided by the native, which are provided by [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) in hippy-vue.
 
 ---
 
@@ -23,20 +23,90 @@ It should note is that an animation itself is a View, it will drive all the chil
 
 * actions detailed explanation
   
-  Different from React, it combines single animation Animation and animation sequence AnimationSet into one. In fact, the method is very simple. If an object is found, it should be Animation, if an array is found, it should be animation sequence, AnimationSet is used for processing. For specific information of single animation parameter, refer to [Animation module](../hippy-react/modules.md?id=animation) and [Example (https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations). Note: The hippy-vue animation parameters have some [default values](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L5), and only the differences need to be filled in. The loop playback parameter `repeatCount: 'loop'` is supported in `2.12.2` and above, and `repeatCount: -1` is used in lower versions.
+  Different from React, it combines single animation Animation and animation sequence AnimationSet into one, if it is an object, use Animation to process it; if it is an animation sequence array, use AnimationSet to process it. For specific information of single animation parameter, refer to [Animation module](../hippy-react/modules.md?id=animation) and [Example (https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations).
+
+```vue
+<template>
+  <div>
+    <animation
+        ref="animationRef"
+        :actions="actionsConfig"
+        :playing="true"
+        @start="animationStart"
+        @end="animationEnd"
+        @repeat="animationRepeat"
+        @cancel="animationCancel"
+        @actionsDidUpdate="actionsDidUpdate"
+    />
+  </div>
+</template>
+<script>
+export default {
+  data() {
+    return {
+      actionsConfig: {
+        // AnimationSet
+        top: [
+          {
+            startValue: 14,
+            toValue: 8,
+            duration: 125, // Animation duration
+          },
+          {
+            startValue: 8,
+            toValue: 14,
+            duration: 250,
+            timingFunction: 'linear', // Animating interpolator types, optional: linear, ease-in, ease-out, ease-in-out, cubic-Bezier (minimum supported version 2.9.0) 
+            delay: 750, // The time at which the animation delay starts, in milliseconds
+            repeatCount: -1, // The number of repetitions of the animation, 0 for non-repetitions, -1('loop') for repetitions, and if in an array, the number of repetitions of the entire animation array is based on the value of the last animation 
+          },
+        ],
+        transform: {
+          // Single Animation
+          rotate: {
+              startValue: 0,
+              toValue: 90,
+              duration: 250,
+              timingFunction: 'linear',
+              valueType: 'deg',  // The unit type of the start and end values of the animation, which defaults to undefined and can be set to rad, deg, or color
+            },
+        },
+      },
+    };
+  },
+  methods: {
+    animationStart() {
+      console.log('animation-start callback');
+    },
+    animationEnd() {
+      console.log('animation-end callback');
+    },
+    animationRepeat() {
+      console.log('animation-repeat callback');
+    },
+    animationCancel() {
+      console.log('animation-cancel callback');
+    },
+    actionsDidUpdate() {
+      this.animationRef.start();
+    }
+  },
+};
+</script>
+```
 
   For special instructions, a new animation will be automatically created after the actions are replaced, you need to manually start the new animation. There are two methods:
   * Replace the actions => call `this.[animation ref].start()` after a certain time (such as setTimeout) (recommend)
   * `playing = false`=> replace actions => delay after a certain time (such as setTimeout) `playing = true`
   
-  Version 2.6.0 add new `backgroundColor` background color gradient animation support, reference [gradient animation DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
+  Version `2.12.2` and above supports parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
+  
+  Version `2.6.0` add new `backgroundColor` background color gradient animation support, reference [gradient animation DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
   * set `actions` to decorate `backgroundColor`
   * set `valueType` to `color`
   * set `startValue` and `toValue` to [color value](style/color.md)
 
 ## Events
-
-> minimum supported version 2.5.2
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
