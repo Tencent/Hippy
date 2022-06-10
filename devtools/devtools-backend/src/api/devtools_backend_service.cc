@@ -19,7 +19,6 @@
  */
 
 #include "api/devtools_backend_service.h"
-
 #include "api/notification/default/default_network_notification.h"
 #include "api/notification/default/default_runtime_notification.h"
 #include "api/notification/default/default_vm_response_notification.h"
@@ -28,7 +27,6 @@
 #include "tunnel/tunnel_service.h"
 
 namespace hippy::devtools {
-
 DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_config) {
   BACKEND_LOGI(TDF_BACKEND, "DevtoolsBackendService create framework:%d,tunnel:%d", devtools_config.framework,
                devtools_config.tunnel);
@@ -39,7 +37,6 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
   domain_dispatch_->RegisterDefaultDomainListener();
   tunnel_service_ = std::make_shared<TunnelService>(domain_dispatch_, devtools_config);
   tunnel_service_->Connect();
-  notification_center->network_notification = std::make_shared<DefaultNetworkNotification>(tunnel_service_);
   notification_center->runtime_notification = std::make_shared<DefaultRuntimeNotification>(tunnel_service_);
 
   if (devtools_config.framework == Framework::kHippy) {

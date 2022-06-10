@@ -99,13 +99,18 @@ class DevtoolsHttpResponse : public Serializable {
         response_(std::move(response)),
         has_extra_info_(false),
         frame_id_(response.url) {}
+  explicit DevtoolsHttpResponse(std::string content) : content_(std::move(content)) {}
   inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
   inline void SetHasExtraInfo(bool has_extra_info) { has_extra_info_ = has_extra_info; }
   inline void SetResourceType(ResourceType type) { type_ = type; }
   inline void SetFrameId(std::string frame_id) { frame_id_ = frame_id; }
+  inline void SetBodyData(std::string&& body_data) { body_data_ = std::move(body_data); }
+  inline std::string GetBodyData() const { return body_data_; }
   std::string Serialize() const override;
 
  private:
+  std::string body_data_;
+  std::string content_;
   std::string request_id_;
   std::string loader_id_;
   uint64_t timestamp_;

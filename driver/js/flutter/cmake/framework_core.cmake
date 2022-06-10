@@ -46,3 +46,23 @@ set(FRAMEWORK_CORE_DEPS tdf_base tdf_base_common)
 include_directories(${FRAMEWORK_CORE_DIR}/include)
 include_directories(${FRAMEWORK_CORE_DIR}/third_party/base/include)
 
+if (ENABLE_INSPECTOR STREQUAL "true")
+  include("../../../../buildconfig/cmake/InfraPackagesModule.cmake")
+  include("../../../../buildconfig/cmake/compiler_toolchain.cmake")
+  message("framework_core.cmake DEVTOOLS_DIR:" ${DEVTOOLS_DIR})
+  add_definitions("-DENABLE_INSPECTOR")
+  include_directories(${DEVTOOLS_DIR}/include)
+  InfraPackage_Add(json
+          REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
+          LOCAL "third_party/json"
+  )
+  include_directories(${json_SOURCE_DIR}/single_include)
+  set(FRAMEWORK_CORE_SRC_FILES ${FRAMEWORK_CORE_SRC_FILES}
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/devtools_data_source.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/devtools_utils.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/trace_control.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_dom_tree_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_elements_request_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_screen_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_tracing_adapter.cc)
+endif()

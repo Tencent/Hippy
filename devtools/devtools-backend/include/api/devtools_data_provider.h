@@ -25,7 +25,6 @@
 #include "api/adapter/devtools_dom_tree_adapter.h"
 #include "api/adapter/devtools_elements_request_adapter.h"
 #include "api/adapter/devtools_memory_adapter.h"
-#include "api/adapter/devtools_network_adapter.h"
 #include "api/adapter/devtools_performance_adapter.h"
 #include "api/adapter/devtools_render_tree_adapter.h"
 #include "api/adapter/devtools_runtime_adapter.h"
@@ -49,6 +48,5 @@ struct DataProvider {
   std::shared_ptr<RuntimeAdapter> runtime_adapter;
   std::shared_ptr<RenderTreeAdapter> render_tree_adapter;
   std::shared_ptr<CommonProtocolAdapter> common_protocol_adapter;
-  std::shared_ptr<NetworkAdapter> network_adapter;
 };
 }  // namespace hippy::devtools

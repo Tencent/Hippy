@@ -113,9 +113,11 @@ class DevtoolsHttpRequest : public Serializable {
   inline void SetResourceType(ResourceType type) { type_ = type; }
   inline void SetFrameId(std::string frame_id) { frame_id_ = frame_id; }
   inline void SetHasUserGesture(bool has_user_gesture) { has_user_gesture_ = has_user_gesture; }
+  explicit DevtoolsHttpRequest(std::string content) : content_(std::move(content)) {}
   std::string Serialize() const override;
 
  private:
+  std::string content_;
   std::string request_id_;
   Request request_;
   std::string loader_id_;

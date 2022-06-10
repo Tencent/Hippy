@@ -26,7 +26,6 @@
 #include "module/domain/base_domain.h"
 #include "module/model/frame_poll_model.h"
 #include "module/model/screen_shot_model.h"
-#include "module/request/base_request.h"
 #include "module/request/network_response_body_request.h"
 
 namespace hippy::devtools {
@@ -34,16 +33,16 @@ namespace hippy::devtools {
 /**
  * @brief Network domain
  */
-class NetworkDomain : public BaseDomain {
+class NetworkDomain : public BaseDomain, public std::enable_shared_from_this<NetworkDomain> {
  public:
   explicit NetworkDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
   void RegisterCallback() override;
+  void OnResponseReceived(const std::string& request_id, std::string&& body_data);
 
  private:
   void GetResponseBody(const NetworkResponseBodyRequest& request);
-  std::shared_ptr<ScreenShotModel> screen_shot_model_;
+  std::unordered_map<std::string, std::string> response_map_;
 };
-
 }  // namespace hippy::devtools
