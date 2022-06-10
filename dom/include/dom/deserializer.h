@@ -8,6 +8,7 @@ namespace tdf {
 namespace base {
 
 class Deserializer {
+  using DomValueObjectType = DomValue::DomValueObjectType;
  public:
   Deserializer(const std::vector<const uint8_t>& data);
   Deserializer(const uint8_t* data, size_t size);
@@ -64,7 +65,7 @@ class Deserializer {
   template <typename T>
   T ReadZigZag();
 
-  uint32_t ReadObjectProperties(DomValue& value, SerializationTag end_tag);
+  uint32_t ReadObjectProperties(DomValueObjectType& value, SerializationTag end_tag);
 
   uint32_t ReadObjectProperties(SerializationTag end_tag);
 

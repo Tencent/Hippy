@@ -185,10 +185,22 @@ NSNumber *domValueToNumber(const DomValue *const pDomValue) {
 NSDictionary *stylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode) {
     auto &styles = domNode->GetStyleMap();
     auto &extStyles = domNode->GetExtStyle();
-    NSMutableDictionary *allStyles = [NSMutableDictionary dictionaryWithCapacity:styles->size() + extStyles->size()];
-    NSDictionary *dicStyles  = unorderedMapDomValueToDictionary(styles);
-    NSDictionary *dicExtStyles = unorderedMapDomValueToDictionary(extStyles);
-    [allStyles addEntriesFromDictionary:dicStyles];
-    [allStyles addEntriesFromDictionary:dicExtStyles];
+    auto capacity = 0;
+   
+    if (styles) {
+      capacity += styles->size();
+    }
+    if (extStyles) {
+      capacity += extStyles->size();
+    }
+    NSMutableDictionary *allStyles = [NSMutableDictionary dictionaryWithCapacity:capacity];
+    if (styles) {
+      NSDictionary *dicStyles  = unorderedMapDomValueToDictionary(styles);
+      [allStyles addEntriesFromDictionary:dicStyles];
+    }
+    if (extStyles) {
+      NSDictionary *dicExtStyles = unorderedMapDomValueToDictionary(extStyles);
+      [allStyles addEntriesFromDictionary:dicExtStyles];
+    }
     return [allStyles copy];
 }
