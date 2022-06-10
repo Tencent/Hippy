@@ -280,10 +280,12 @@ void BridgeImpl::LoadInstance(int64_t runtime_id,
 
 void BridgeImpl::UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback) {
     V8BridgeUtils::UnloadInstance(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id),
-                                  [callback = std::move(callback)](hippy::runtime::CALL_FUNCTION_CB_STATE state,
-                                             const unicode_string_view &msg) {
+                                  [callback = std::move(callback)](
+                                          hippy::runtime::CALL_FUNCTION_CB_STATE state,
+                                          const unicode_string_view &msg) {
                                       callback(static_cast<int64_t>(state));
                                   });
+}
 
 std::shared_ptr<Scope> BridgeImpl::GetScope(int64_t runtime_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
