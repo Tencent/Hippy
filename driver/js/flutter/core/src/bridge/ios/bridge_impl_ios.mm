@@ -127,7 +127,7 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
     NSString *globalConfig = U16ToNSString(char_globalConfig);
     NSString *wsURL = U16ToNSString(char_ws_url);
     BOOL debugMode = is_dev_module ? YES : NO;
-    [bridge initJSFramework:globalConfig wsURL:testWsURL debugMode:debugMode completion:^(BOOL succ) {
+    [bridge initJSFramework:globalConfig wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
         callback(succ ? 1 : 0);
     }];
 
