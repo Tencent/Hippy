@@ -36,7 +36,7 @@ class BridgeImpl {
   static int64_t InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platform_runtime, bool single_thread_mode,
                               bool bridge_param_json, bool is_dev_module, int64_t group_id,
                               const char16_t* char_globalConfig, size_t initial_heap_size, size_t maximum_heap_size,
-                              std::function<void(int64_t)> callback);
+                              std::function<void(int64_t)> callback, const char16_t* char_data_dir, const char16_t* char_ws_url);
 
   static bool RunScriptFromFile(int64_t runtime_id, const char16_t* file_path, const char16_t* script_nmae,
                                 const char16_t* code_cache_dir, bool can_use_code_cache,
@@ -46,7 +46,7 @@ class BridgeImpl {
                                   const char16_t* code_cache_dir, std::function<void(int64_t)> callback,
                                   const char16_t* asset_content);
 
-  static void Destroy(int64_t runtime_id, std::function<void(int64_t)> callback);
+  static void Destroy(int64_t runtime_id, std::function<void(int64_t)> callback, bool is_reload);
 
   static void CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
                              std::function<void(int64_t)> callback);
@@ -56,6 +56,8 @@ class BridgeImpl {
   static void LoadInstance(int64_t runtime_id, std::string&& params);
 
   static void UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback);
+
+  static std::shared_ptr<Scope> GetScope(int64_t runtime_id);
 
  private:
   static bool RunScript(int64_t runtime_id, const char16_t* script, const char16_t* script_name,

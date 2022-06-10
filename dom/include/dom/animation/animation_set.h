@@ -22,7 +22,6 @@ class AnimationSet : public Animation {
 
  private:
   std::vector<AnimationSetChild> children_set_;
-  double start_value_;
   std::shared_ptr<Animation> begin_animation_;
   std::shared_ptr<Animation> end_animation_;
 };

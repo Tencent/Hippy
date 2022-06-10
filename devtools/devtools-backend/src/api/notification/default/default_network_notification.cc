@@ -26,16 +26,15 @@ constexpr char kDomainNetworkResponseReceived[] = "Network.responseReceived";
 
 namespace hippy::devtools {
 void DefaultNetworkNotification::RequestWillBeSent(std::string request_id, const DevtoolsHttpRequest& request) {
-  tunnel_service_->SendDataToFrontend(
-      InspectEvent(kDomainNetworkRequestWillBeSent, request.Serialize()).ToJsonString());
+  network_domain_->SendEventToFrontend(InspectEvent(kDomainNetworkRequestWillBeSent, request.Serialize()));
 }
 
 void DefaultNetworkNotification::ResponseReceived(std::string request_id, const DevtoolsHttpResponse& response) {
-  tunnel_service_->SendDataToFrontend(
-      InspectEvent(kDomainNetworkResponseReceived, response.Serialize()).ToJsonString());
+  network_domain_->OnResponseReceived(request_id, response.GetBodyData());
+  network_domain_->SendEventToFrontend(InspectEvent(kDomainNetworkResponseReceived, response.Serialize()));
 }
 
 void DefaultNetworkNotification::LoadingFinished(std::string request_id, const DevtoolsLoadingFinished& loading) {
-  tunnel_service_->SendDataToFrontend(InspectEvent(kDomainNetworkLoadingFinished, loading.Serialize()).ToJsonString());
+  network_domain_->SendEventToFrontend((InspectEvent(kDomainNetworkLoadingFinished, loading.Serialize())));
 }
 }  // namespace hippy::devtools

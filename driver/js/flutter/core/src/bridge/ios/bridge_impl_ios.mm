@@ -118,12 +118,16 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
                                     const char16_t *char_globalConfig,
                                     size_t initial_heap_size,
                                     size_t maximum_heap_size,
-                                    std::function<void(int64_t)> callback) {
+                                    std::function<void(int64_t)> callback,
+                                    const char16_t* char_data_dir,
+                                    const char16_t* char_ws_url) {
     VoltronFlutterBridge *bridge = [VoltronFlutterBridge new];
     bridge.platformRuntime = platform_runtime;
     [getKeepContainer() setValue:bridge forKey:Addr2Str(bridge)];
     NSString *globalConfig = U16ToNSString(char_globalConfig);
-    [bridge initJSFramework:globalConfig completion:^(BOOL succ) {
+    NSString *wsURL = U16ToNSString(char_ws_url);
+    BOOL debugMode = is_dev_module ? YES : NO;
+    [bridge initJSFramework:globalConfig wsURL:testWsURL debugMode:debugMode completion:^(BOOL succ) {
         callback(succ ? 1 : 0);
     }];
 
@@ -196,11 +200,18 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id, bool can_use_code_cache
     return true;
 }
 
-void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callback) {
+void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callback, bool is_reload) {
 
     VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
     bridge.platformRuntime->Destroy();
     [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
+#if ENABLE_INSPECTOR
+    // destory devtools
+    auto scope = bridge.jscExecutor.pScope;
+    if (scope) {
+      scope->DestroyDevtools(is_reload);
+    }
+#endif
     callback(1);
 }
 
@@ -232,4 +243,9 @@ void BridgeImpl::BindDomManager(int64_t runtime_id, const std::shared_ptr<DomMan
         scope->SetDomManager(dom_manager);
         dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
     }
+}
+
+std::shared_ptr<Scope> BridgeImpl::GetScope(int64_t runtime_id) {
+  VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+  return bridge.jscExecutor.pScope;
 }

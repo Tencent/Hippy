@@ -19,19 +19,24 @@
 //
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:voltron_renderer/voltron_renderer.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../engine.dart';
 
 class DevSupportManager {
   DevServerInterface? _devImp;
   late bool _supportDev;
+  final String _serverHost = "localhost:38989";
+  late String _debugClientId;
 
-  DevSupportManager(GlobalConfigs configs, bool enableDev, String serverHost,
-      String bundleName) {
+  DevSupportManager(GlobalConfigs? configs, bool enableDev, String? serverHost,
+      String? bundleName) {
     // this._devImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
     _supportDev = enableDev;
+    _debugClientId = generateDebugClientId();
   }
 
   bool supportDev() {
@@ -56,6 +61,22 @@ class DevSupportManager {
 
   void handleException(Error throwable) {
     _devImp?.handleException(throwable);
+  }
+
+  Future<String> getTracingDataDir() async {
+    var dir = await getApplicationSupportDirectory();
+    return dir.path;
+  }
+
+  String getDebugUrl()  {
+    return "ws://$_serverHost/debugger-proxy?role=android_client&clientId=$_debugClientId";
+  }
+
+  // to differ hippy pages in different device and page
+  String generateDebugClientId() {
+    var randomSeq = Random().nextInt(1000).toString();
+    var timeSeq = DateTime.now().millisecondsSinceEpoch.toString();
+    return randomSeq + timeSeq;
   }
 }
 

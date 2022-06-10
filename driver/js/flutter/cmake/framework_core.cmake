@@ -57,12 +57,11 @@ include_directories(${FRAMEWORK_CORE_DIR}/third_party/base/include)
 
 if (ENABLE_INSPECTOR STREQUAL "true")
   include("../../../../buildconfig/cmake/InfraPackagesModule.cmake")
+  include("../../../../buildconfig/cmake/compiler_toolchain.cmake")
   message("framework_core.cmake DEVTOOLS_DIR:" ${DEVTOOLS_DIR})
   add_definitions("-DENABLE_INSPECTOR")
   include_directories(${DEVTOOLS_DIR}/include)
-#  add_subdirectory(${DEVTOOLS_DIR} devtools_backend)
-#  list(APPEND FRAMEWORK_CORE_DEPS devtools_backend)
-  InfaPackage_Add(json
+  InfraPackage_Add(json
           REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
           LOCAL "third_party/json"
   )

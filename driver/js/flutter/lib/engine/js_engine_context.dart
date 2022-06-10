@@ -103,6 +103,7 @@ class EngineContext implements Destroyable {
       bridgeType: bridgeType,
       isDevModule: isDevModule,
     );
+    _devSupportManager = DevSupportManager(_globalConfigs, _isDevMode, null, null);
   }
 
   List<ViewControllerGenerator>? processControllers(List<APIProvider>? packages) {

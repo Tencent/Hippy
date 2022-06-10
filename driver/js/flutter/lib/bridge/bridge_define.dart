@@ -41,7 +41,9 @@ typedef InitJsFrameworkFfiNativeType = Int64 Function(
     Int32 isDevModule,
     Int64 groupId,
     Int32 engineId,
-    Int32 callbackId);
+    Int32 callbackId,
+    Pointer<Utf16> dataDir,
+    Pointer<Utf16> wsUrl);
 typedef InitJsFrameworkFfiDartType = int Function(
     Pointer<Utf16> globalConfig,
     int singleThreadMode,
@@ -49,7 +51,9 @@ typedef InitJsFrameworkFfiDartType = int Function(
     int isDevModule,
     int groupId,
     int engineId,
-    int callbackId);
+    int callbackId,
+    Pointer<Utf16> dataDir,
+    Pointer<Utf16> wsUrl);
 
 typedef CreateInstanceFfiNativeType = Int64 Function(
     Int32 engineId,
@@ -93,6 +97,17 @@ typedef RunScriptFromFileFfiDartType = int Function(
     int canUseCodeCache,
     int callbackId);
 
+enum NetworkEventType {
+  requestWillBeSent,
+  responseReceived,
+  loadingFinished
+}
+
+typedef NotifyNetworkEventFfiNativeType = Void Function(
+    Int32 engineId, Pointer<Utf16> requestId, Int32 eventType, Pointer<Utf16> response, Pointer<Utf16> extra);
+typedef NotifyNetworkEventFfiDartType = void Function(
+    int engineId, Pointer<Utf16> requestId, int eventType, Pointer<Utf16> response, Pointer<Utf16> extra);
+
 typedef RunScriptFromAssetsFfiNativeType = Int32 Function(
     Int32 engineId,
     Pointer<Utf16> assetName,
@@ -131,9 +146,9 @@ typedef CallNativeEventFfiDartType = void Function(int engineId, int rootId,
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
 typedef DestroyFfiNativeType = Void Function(
-    Int32 engineId, Int32 callbackId);
+    Int32 engineId, Int32 callbackId, Int32 isReload);
 typedef DestroyFfiDartType = void Function(
-    int engineId, int callbackId);
+    int engineId, int callbackId, int isReload);
 
 typedef RegisterCallbackFfiNativeType = Int32 Function(
     Int32 type, Pointer<NativeFunction<GlobalCallbackNativeType>> func);
@@ -169,8 +184,6 @@ typedef RegisterDestroyFfiNativeType = Int32 Function(
     Int32 type, Pointer<NativeFunction<DestroyFunctionNativeType>> func);
 typedef RegisterDestroyFfiDartType = int Function(
     int type, Pointer<NativeFunction<DestroyFunctionNativeType>> func);
-
-
 
 enum FuncType {
   callNative,

@@ -22,6 +22,7 @@
 
 #include <memory>
 
+#include "core/base/string_view_utils.h"
 #include "dom/dom_manager.h"
 #include "ffi/bridge_ffi_impl.h"
 #include "ffi/ffi_bridge_runtime.h"
@@ -59,19 +60,24 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
     bridge_manager->InitInstance(engine_id, root_id, render_manager);
     auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
     auto dom_manager = bridge_manager->GetDomManager(root_id);
-    if (runtime && dom_manager) {
-        auto runtime_id = runtime->GetRuntimeId();
-        BridgeImpl::BindDomManager(runtime_id, dom_manager);
-
-        dom_manager->StartTaskRunner();
-        std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
-            dom_manager->SetRootSize((float) width, (float) height);
-        }};
-        dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
-        if (params_length > 0) {
-            std::string param_str(params, static_cast<unsigned int>(params_length));
-            BridgeImpl::LoadInstance(runtime_id, std::move(param_str));
-        }
+    if (runtime && dom_manager) {   
+      auto runtime_id = runtime->GetRuntimeId();
+      BridgeImpl::BindDomManager(runtime_id, dom_manager);
+#if ENABLE_INSPECTOR
+      auto scope = BridgeImpl::GetScope(runtime_id);
+      if (scope) {
+        scope->GetDevtoolsDataSource()->Bind(static_cast<int32_t>(runtime_id), dom_manager->GetId(), 0);
+      }
+#endif
+      dom_manager->StartTaskRunner();
+      std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
+          dom_manager->SetRootSize((float) width, (float) height);
+      }};
+      dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
+      if (params_length > 0) {
+          std::string param_str(params, static_cast<unsigned int>(params_length));
+          BridgeImpl::LoadInstance(runtime_id, std::move(param_str));
+      }
     }
   }
 }
@@ -96,13 +102,14 @@ EXTERN_C void InitBridge() {
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
-                                    int32_t engine_id, int32_t callback_id) {
+                                    int32_t engine_id, int32_t callback_id, const char16_t* char_data_dir,
+                                    const char16_t* char_ws_url) {
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
   BridgeManager::Create(engine_id, ffi_runtime);
 
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
                                          global_config, 0, 0,
-                                         [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+                                         [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, char_data_dir, char_ws_url);
   ffi_runtime->SetRuntimeId(result);
 
   return result;
@@ -164,16 +171,58 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
 
 EXTERN_C const char* GetCrashMessageFFI() { return "lucas_crash_report_test"; }
 
-EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id) {
+EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id, int32_t is_reload) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
     BridgeManager::Destroy(engine_id);
     if (runtime) {
       auto runtime_id = runtime->GetRuntimeId();
-      BridgeImpl::Destroy(runtime_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+      BridgeImpl::Destroy(runtime_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, is_reload);
     }
   }
+}
+
+EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, int32_t event_type, const char16_t* content, const char16_t* extra) {
+  TDF_BASE_DLOG(INFO) << "NotifyNetworkEvent, request_id " << request_id << " event_type:" << std::to_string(event_type);
+#if ENABLE_INSPECTOR
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (!bridge_manager) {
+    return;
+  }
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
+  if (!runtime) {
+    return;
+  }
+  auto scope = BridgeImpl::GetScope(runtime->GetRuntimeId());
+  if (!scope) {
+    return;
+  }
+  // change char16_t* to std::string
+  std::string request_string;
+  if (request_id) {
+    request_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(request_id));
+  }
+  std::string content_string;
+  if (content) {
+    content_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(content));
+  }
+
+  // dispatch network event
+  if (event_type == static_cast<int32_t> (NetworkEventType::kRequestWillBeSent)) {
+    auto notification_center = scope->GetDevtoolsDataSource()->GetNotificationCenter();
+    notification_center->network_notification->RequestWillBeSent(request_string, hippy::devtools::DevtoolsHttpRequest(content_string));
+  } else if (event_type == static_cast<int32_t> (NetworkEventType::kResponseReceived)) {
+    // create response request body
+    hippy::devtools::DevtoolsHttpResponse response = hippy::devtools::DevtoolsHttpResponse(content_string);
+    response.SetBodyData(hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(extra)));
+    auto notification_center = scope->GetDevtoolsDataSource()->GetNotificationCenter();
+    notification_center->network_notification->ResponseReceived(request_string, response);
+  } else if (event_type == static_cast<int32_t> (NetworkEventType::kLoadingFinished)) {
+    auto notification_center = scope->GetDevtoolsDataSource()->GetNotificationCenter();
+    notification_center->network_notification->LoadingFinished(request_string, hippy::devtools::DevtoolsLoadingFinished(content_string));
+  }
+#endif
 }
 
 #ifdef __cplusplus

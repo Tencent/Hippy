@@ -69,45 +69,79 @@
     return nil;
 }
 
+RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        UIView *view = viewRegistry[hippyTag];
+        if (!view) {
+            callback(@{});
+            return;
+        }
+        UIView *rootView = viewRegistry[view.rootTag];
+        if (!rootView) {
+            callback(@{});
+            return;
+        }
+        CGRect windowFrame = [rootView convertRect:view.frame fromView:view.superview];
+        callback(@{@"width":@(CGRectGetWidth(windowFrame)),
+                     @"height": @(CGRectGetHeight(windowFrame)),
+                     @"x":@(windowFrame.origin.x),
+                     @"y":@(windowFrame.origin.y)});
+    }];
+}
+
+RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback) {
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        UIView *view = viewRegistry[hippyTag];
+        if (!view) {
+            callback(@{});
+            return;
+        }
+        CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
+        callback(@{@"width":@(CGRectGetWidth(windowFrame)),
+                     @"height": @(CGRectGetHeight(windowFrame)),
+                     @"x":@(windowFrame.origin.x),
+                     @"y":@(windowFrame.origin.y)});
+    }];
+}
+
 RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
                                       params:(NSDictionary *__nonnull)params
                                     callback:(HippyResponseSenderBlock)callback) {
-  [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    UIView *view = viewRegistry[hippyTag];
-    if (view == nil) {
-      callback(@[]);
-      return;
-    }
-
-    CGFloat viewWidth = view.frame.size.width;
-    CGFloat viewHeight = view.frame.size.height;
-    int maxWidth = [params[@"maxWidth"] intValue];
-    int maxHeight = [params[@"maxHeight"] intValue];
-    CGFloat scale = 1.f;
-    if (viewWidth != 0 && viewHeight != 0 && maxWidth > 0 && maxHeight > 0) {
-      CGFloat scaleX = maxWidth / viewWidth;
-      CGFloat scaleY = maxHeight / viewHeight;
-      scale = MIN(scaleX, scaleY);
-    }
-    UIGraphicsBeginImageContextWithOptions(view.frame.size, YES, scale);
-    [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:YES];
-    UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    if (resultImage) {
-      int quality = [params[@"quality"] intValue];
-      NSData *imageData = UIImageJPEGRepresentation(resultImage, (quality > 0 ? quality : 80) / 100.f);
-      NSString *base64String = [imageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
-      NSDictionary *srceenShotDict = @{
-          @"width": @(int(resultImage.size.width * resultImage.scale)),
-          @"height": @(int(resultImage.size.height * resultImage.scale)),
-          @"screenShot": base64String.length ? base64String : @"",
-          @"screenScale": @(resultImage.scale)
-      };
-      callback(@[srceenShotDict]);
-    } else {
-      callback(@[]);
-    }
-  }];
+    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        UIView *view = viewRegistry[hippyTag];
+        if (view == nil) {
+            callback(@[]);
+            return;
+        }
+        CGFloat viewWidth = view.frame.size.width;
+        CGFloat viewHeight = view.frame.size.height;
+        int maxWidth = [params[@"maxWidth"] intValue];
+        int maxHeight = [params[@"maxHeight"] intValue];
+        CGFloat scale = 1.f;
+        if (viewWidth != 0 && viewHeight != 0 && maxWidth > 0 && maxHeight > 0) {
+            CGFloat scaleX = maxWidth / viewWidth;
+            CGFloat scaleY = maxHeight / viewHeight;
+            scale = MIN(scaleX, scaleY);
+        }
+        UIGraphicsBeginImageContextWithOptions(view.frame.size, YES, scale);
+        [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:YES];
+        UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        if (resultImage) {
+            int quality = [params[@"quality"] intValue];
+            NSData *imageData = UIImageJPEGRepresentation(resultImage, (quality > 0 ? quality : 80) / 100.f);
+            NSString *base64String = [imageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithLineFeed];
+            NSDictionary *srceenShotDict = @{
+                @"width": @(int(resultImage.size.width * resultImage.scale)),
+                @"height": @(int(resultImage.size.height * resultImage.scale)),
+                @"screenShot": base64String.length ? base64String : @"",
+                @"screenScale": @(resultImage.scale)
+            };
+            callback(@[srceenShotDict]);
+        } else {
+            callback(@[]);
+        }
+    }];
 }
 
 #pragma mark - ShadowView properties
@@ -451,25 +485,7 @@ static const char *init_props_identifier = "init_props_identifier";
     if (props == nil) {
         return;
     }
-
     objc_setAssociatedObject(self, init_props_identifier, props, OBJC_ASSOCIATION_RETAIN);
-}
-@end
-
-@implementation UIView(ViewManager)
-
-- (void)setViewManager:(HippyViewManager *)viewManager {
-    NSHashTable<HippyViewManager *> *weakContainer = nil;
-    if (viewManager) {
-        weakContainer = [NSHashTable weakObjectsHashTable];
-        [weakContainer addObject:viewManager];
-    }
-    objc_setAssociatedObject(self, @selector(viewManager), weakContainer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (HippyViewManager *)viewManager {
-    NSHashTable<HippyViewManager *> *weakContainer = objc_getAssociatedObject(self, _cmd);
-    return [weakContainer anyObject];
 }
 
 @end
