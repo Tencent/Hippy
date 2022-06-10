@@ -208,7 +208,7 @@ return value:
 
 ### setString(content)
 
-| Props | Type     | Require | Props meaning |
+| Props | Type     | Require | Description |
 | --------  | -------- | -------- |  -------- |
 | content | string | yes       | Saved contents of the clipboard |
 
@@ -251,7 +251,7 @@ The `set-cookie` Header returned by the fetch service in Hippy will automaticall
 
 ### getAll(url)
 
-| Props | Type     | Require | Props meaning |
+| Props | Type     | Require | Description |
 | --------  | -------- | -------- |  -------- |
 | url | string | yes       | Gets the cookie set under the specified URL |
 
@@ -263,7 +263,7 @@ Return Value:
 
 Attributes:
 
-| Props | Type     | Require | Props meaning |
+| Props | Type     | Require | Description |
 | -------- | -------- | -------- |  -------- |
 | url | string | yes       | Gets the cookie set under the specified URL |
 | keyValue | string | yes       | The full string that needs to be set to the Cookie, for example`name=someone;gender=female` |
