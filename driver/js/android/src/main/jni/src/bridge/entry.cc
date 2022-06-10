@@ -165,8 +165,8 @@ void DoBind(JNIEnv* j_env,
 
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
   TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
-  auto dom_manager = std::make_shared<DomManager>(static_cast<uint32_t>(j_root_id));
-  dom_manager->Init();
+  auto dom_manager = std::make_shared<DomManager>();
+  dom_manager->Init(static_cast<uint32_t>(j_root_id));
   std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
   dom_manager->PostTask(hippy::Scene({[weak_dom_manager]{
     auto dom_manager = weak_dom_manager.lock();

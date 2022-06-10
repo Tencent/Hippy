@@ -66,14 +66,16 @@ void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode
             int32_t tag = node->GetId();
             hippy::LayoutResult layoutResult = node->GetRenderLayoutResult();
             auto extStyle = node->GetExtStyle();
-            auto it = extStyle->find("useAnimation");
-            bool useAnimation = false;
-            if (extStyle->end() != it) {
-                auto dom_value = it->second;
-                useAnimation = dom_value->ToBooleanChecked();
+            if (extStyle) {
+              auto it = extStyle->find("useAnimation");
+              bool useAnimation = false;
+              if (extStyle->end() != it) {
+                  auto dom_value = it->second;
+                  useAnimation = dom_value->ToBooleanChecked();
+              }
+              DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
+              nodes_infos.push_back(nodeUpdateInfo);
             }
-            DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
-            nodes_infos.push_back(nodeUpdateInfo);
         }
         [uiManager_ updateNodesLayout:nodes_infos];
     }
