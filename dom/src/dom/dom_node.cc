@@ -613,7 +613,7 @@ bool DomNode::Deserialize(DomValue value) {
     for (const auto& [key, value] : ext) {
       (*ext_map)[key] = std::make_shared<DomValue>(value);
     }
-    SetStyleMap(std::move(ext_map));
+    SetExtStyleMap(std::move(ext_map));
   } else {
     TDF_BASE_LOG(ERROR) << "Deserialize ext error";
     return false;

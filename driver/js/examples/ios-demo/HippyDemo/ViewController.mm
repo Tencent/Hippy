@@ -161,7 +161,9 @@ std::string mock;
     auto nodesData = mock; // [self mockNodesData];
     
     //5.create dom nodes with datas
-    _domManager->SetSnapShot(mock);
+
+    hippy::DomManager::RootInfo info {(uint32_t)rootTag, (float)view.bounds.size.width, (float)view.bounds.size.height};
+    _domManager->SetSnapShot(mock, info);
 
 
 }
@@ -170,14 +172,16 @@ std::string mock;
     int hippyTag = [[rootView hippyTag] intValue];
     HippyAssert(0 != hippyTag && 0 == hippyTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
     if (rootView && hippyTag) {
-        _domManager = std::make_shared<hippy::DomManager>(hippyTag);
-        _domManager->Init();
+        _domManager = std::make_shared<hippy::DomManager>();
+        _domManager->Init(hippyTag);
+        auto width = CGRectGetWidth(rootView.bounds);
+        auto height = CGRectGetHeight(rootView.bounds);
         std::weak_ptr<hippy::DomManager> weakDomManager = _domManager;
-        std::function<void()> func = [weakDomManager, rootView](){
+        std::function<void()> func = [weakDomManager, rootView, width, height](){
             auto domManager = weakDomManager.lock();
             if (domManager) {
                 domManager->GetAnimationManager()->SetDomManager(weakDomManager);
-                domManager->SetRootSize(CGRectGetWidth(rootView.bounds), CGRectGetHeight(rootView.bounds));
+                domManager->SetRootSize(width, height);
             }
         };
         _domManager->PostTask(hippy::Scene({func}));
