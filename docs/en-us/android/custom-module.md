@@ -1,21 +1,21 @@
-# 自定义终端模块
+# Custom Native Module
 
-很多时候 JS 需要访问对应终端的一些能力模块，比如数据库、下载、网络请求等，这时候就需要使用 Module 来暴露接口给JS使用。Hippy SDK 中默认实现了部分 Module，但这极有可能无法满足你的需求，这就需要你对 Module 进行扩展封装。
+Sometimes JS need to access some capabilities of the corresponding native modules, such as databases, downloads, network requests, etc., it is necessary to use Module to expose the interface to JS. Hippy SDK implemented some default modules, but it is very likely that they can not meet your needs, which requires you to extend the Module package.
 
-# Module扩展
+# Module Extensions
 
-我们将以 TestModule 为例，从头扩展一个 Module，这个 Module 将展示前端如何调用终端能力，并且把结果返回给前端。
+We will use TestModule as an example to extend a Module from scratch, this Module will show how the front-end call native capabilities, and return the results to the front-end.
 
-终端扩展Module包括四步：
+Extending a native module consists of four steps:
 
-1. 创建 HippyNativeModuleBase 的子类。
-2. 添加 HippyNativeModule 注解。
-3. 实现导出给 JS 的方法。
-4. 注册 Module。
+1. Create a subclass of `HippyNativeModuleBase`,
+2. Add `HippyNativeModule` annotation,
+3. Implement the methods exported to JS,
+4. Register Module.
 
-## 创建HippyNativeModuleBase的子类
+## 1. Create a subclass of HippyNativeModuleBase
 
-首先我们需要创建TestModule类，并且继承`HippyNativeModuleBase`。
+First we need to create `TestModule` class and inherit `HippyNativeModuleBase`
 
 ```java
 package com.tencent.mtt.hippy.example.modules;
@@ -33,14 +33,14 @@ public class TestModule extends HippyNativeModuleBase
 }
 ```
 
-## 添加HippyNativeModule注解
+## 2. Add HippyNativeModule annotation
 
-HippyNativeModuleBase 要求增加注解 `@HippyNativeModule` 。
+HippyNativeModuleBase requires the addition of the annotation `@HippyNativeModule`.
 
-HippyNativeModule有两个注解参数：
+HippyNativeModule has two annotation parameters.
 
-- name：能力名称，js调用时需要通过此访问该能力。
-- thread：能力运行的线程。包括 `HippyNativeModule.Thread.DOM`（Dom线程）、`HippyNativeModule.Thread.MAIN`（主线程）、`HippyNativeModule.Thread.BRIDGE`（Bridge线程、默认值）。
+- name: module name, js calls need to access the ability through this.
+- thread: module thread. Including `HippyNativeModule.Thread.DOM` (Dom thread), `HippyNativeModule.Thread.MAIN` (main thread), `HippyNativeModule.Thread.BRIDGE` (Bridge thread, default value).
 
 ``` java
 @HippyNativeModule(name = "TestModule", thread = HippyNativeModule.Thread.BRIDGE)
@@ -50,16 +50,16 @@ public class TestModule extends HippyNativeModuleBase
 }
 ```
 
-## 3. 实现导出给JS的方法
+## 3. Implement the methods exported to JS
 
-导出给 JS 使用的方法，必须使用注解 `@HippyMethod` ，方法必须为 `public` 类型，返回类型必须为 `void`。
+Methods exported to JS must use the annotation `@HippyMethod`, the method must be of type `public`, and the return type must be `void`.
 
-支持的方法参数类型包括：
+Supported method parameter types include"
 
-- Java基本数据类型。
-- HippyArray：类似于ArrayList，线程非安全。
-- HippyMap：类似于HashMap，线程非安全。
-- Promise：回调JS的触发器，通过 `resolve` 方法返回成功信息给JS。通过 `reject` 方法返回失败实现给JS。
+- Java basic data types.
+- HippyArray: similar to ArrayList, not thread-safe.
+- HippyMap: similar to HashMap, not thread-safe.
+- Promise: callback JS trigger, through the `resolve` method to return success information to JS. through the `reject` method to return the failure of the implementation to JS.
 
 ```java
 @HippyMethod(name="log")
@@ -78,12 +78,12 @@ public void helloNative(HippyMap hippyMap)
 @HippyMethod(name = "helloNativeWithPromise")
 public void helloNativeWithPromise(HippyMap hippyMap, Promise promise)
 {
-    // 这里回来的参数可以为java的基础类型，和hippymap与hippyarry, 但是前端调用的时候必须对应上
+    // parameters can be java base type, hippymap and hippyarry, but the front-end call must correspond correctly
     String hello = hippyMap.getString("hello");
     Log.d("TestModule", hello);
     if (true)
     {
-        // TODO 如果模块这里处理成功回调resolve
+        // TODO If the module is processed here, callback resolve
         HippyMap hippyMap1 = new HippyMap();
         hippyMap1.pushInt("code", 1);
         hippyMap1.pushString("result", "hello i am from native");
@@ -91,7 +91,7 @@ public void helloNativeWithPromise(HippyMap hippyMap, Promise promise)
     }
     else
     {
-        // 失败就回调reject
+        // callback rejection on failure
         HippyMap hippyMap1 = new HippyMap();
         hippyMap1.pushInt("code", -1);
         promise.reject(hippyMap1);
@@ -99,9 +99,9 @@ public void helloNativeWithPromise(HippyMap hippyMap, Promise promise)
 }
 ```
 
-## 4. 注册Module
+## 4. Register the Module
 
-然后需要注册这个Module。需要在 `HippyPackage` 的 `getNativeModules` 方法中添加这个 Module，这样它才能在JS中被访问到。
+Then you need to register this Module. you need to add this Module in the `getNativeModules` method of `HippyPackage` so that it can be accessed in JS.
 
 ```java
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -138,13 +138,13 @@ public class ExamplePackages implements HippyPackage
     }
 ```
 
-## 注意事项
+## Caution
 
-扩展Module中不能同步执行耗时操作，这可能卡住整个引擎通信线程。存在耗时场景，请使用异步线程处理。
+Time consuming operations cannot be performed synchronously in the extended module, as it may jam the whole engine communication thread. If there are time-consuming scenarios, please use asynchronous threads to handle them.
 
-## 混淆说明
+## Obfuscation notes
 
-扩展 Module 的类名和扩展方法方法名不能混淆，可以增加混淆例外。
+The class name and extension method name of the extended Module cannot be obfuscated, you can add obfuscation exceptions.
 
 ``` java
 -keep class * extends com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase{ public *;}

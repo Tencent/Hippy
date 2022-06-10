@@ -18,22 +18,29 @@ package com.tencent.mtt.hippy.views.refresh;
 import android.content.Context;
 import android.view.View;
 
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 public class HippyPullHeaderView extends HippyViewGroup {
 
-  private View mParentView;
+    private View mRecyclerView;
 
-  public HippyPullHeaderView(Context context) {
-    super(context);
-  }
+    public HippyPullHeaderView(Context context) {
+        super(context);
+    }
 
-  public void setParentView(View parentView) {
-    mParentView = parentView;
-  }
+    public void setRecyclerView(View recyclerView) {
+        mRecyclerView = recyclerView;
+    }
 
-  public View getParentView() {
-    return mParentView;
-  }
+    public View getRecyclerView() {
+        return mRecyclerView;
+    }
 
+    void onDestroy() {
+        if (mRecyclerView instanceof HippyRecyclerView
+                && ((HippyRecyclerView) mRecyclerView).getAdapter() != null) {
+            ((HippyRecyclerView) mRecyclerView).getAdapter().onHeaderDestroy();
+        }
+    }
 }

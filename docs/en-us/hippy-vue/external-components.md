@@ -176,6 +176,7 @@ Pull-up refresh component, nested in `ul` as last child element
 | pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset     | `Function`   | `Android、iOS`    |
 | refresh   | Called once after the sliding beyond the distance.          | `Function`   | `Android、iOS`    |
 
+
 ## Methods
 
 ### collapsePullFooter
