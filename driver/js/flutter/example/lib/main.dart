@@ -196,7 +196,7 @@ class _VoltronPageState extends State<VoltronPage> {
             'loadEngine',
             'code($statusCode), msg($msg)',
           );
-          if (statusCode == EngineStatus.ok) {
+          if (statusCode == EngineInitStatus.ok) {
             pageStatus = PageStatus.success;
             setState(() {});
           } else {
@@ -223,7 +223,7 @@ class _VoltronPageState extends State<VoltronPage> {
 
       _jsLoader = _loaderManager.createLoader(
         loadParams,
-        moduleListener: (status, msg, viewModel) {
+        moduleListener: (status, msg) {
           LogUtils.i(
             "flutterRender",
             "loadModule status($status), msg ($msg)",

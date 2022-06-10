@@ -71,6 +71,7 @@ class _PageTestWidgetState extends State<PageTestWidget> {
   late VoltronJSLoaderManager _loaderManager;
   late VoltronJSLoader _jsLoader;
   late String _bundle;
+  int _errorCode = -1;
   Offset offsetA = Offset(20, 300);
 
   @override
@@ -107,13 +108,14 @@ class _PageTestWidgetState extends State<PageTestWidget> {
           'loadEngine',
           'code($statusCode), msg($msg)',
         );
-        if (statusCode == EngineStatus.ok) {
+        if (statusCode == EngineInitStatus.ok) {
           setState(() {
             pageStatus = PageStatus.success;
           });
         } else {
           setState(() {
             pageStatus = PageStatus.error;
+            _errorCode = statusCode.value;
           });
         }
       },
@@ -139,7 +141,7 @@ class _PageTestWidgetState extends State<PageTestWidget> {
     }
     _jsLoader = _loaderManager.createLoader(
       loadParams,
-      moduleListener: (status, msg, viewModel) {
+      moduleListener: (status, msg) {
         LogUtils.i(
           "flutterRender",
           "loadModule status($status), msg ($msg)",
@@ -160,7 +162,9 @@ class _PageTestWidgetState extends State<PageTestWidget> {
     Widget child;
     if (pageStatus == PageStatus.success) {
       child = Scaffold(
-        body: VoltronWidget(loader: _jsLoader),
+        body: VoltronWidget(
+          loader: _jsLoader,
+        ),
       );
       if (widget.debugMode) {
         child = Stack(
@@ -170,8 +174,20 @@ class _PageTestWidgetState extends State<PageTestWidget> {
           ],
         );
       }
+    } else if (pageStatus == PageStatus.error) {
+      child = Center(
+        child: Text('init engine error, code: ${_errorCode.toString()}'),
+      );
     } else {
       child = Container();
+    }
+    if (Platform.isAndroid) {
+      child = Padding(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).padding.top,
+        ),
+        child: child,
+      );
     }
     return Material(
       child: child,
