@@ -128,9 +128,3 @@
 @interface HippyViewManager (InitProps)
 @property (nonatomic, strong) NSDictionary *props;
 @end
-
-@interface UIView(ViewManager)
-
-@property(nonatomic, weak)HippyViewManager *viewManager;
-
-@end
