@@ -116,7 +116,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     view.multipleTouchEnabled = YES;
     view.userInteractionEnabled = YES;    // required for touch handling
     view.layer.allowsGroupOpacity = YES;  // required for touch handling
-    view.viewManager = self.manager;
     return view;
 }
 
@@ -129,7 +128,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     view.multipleTouchEnabled = YES;
     view.userInteractionEnabled = YES;    // required for touch handling
     view.layer.allowsGroupOpacity = YES;  // required for touch handling
-    view.viewManager = self.manager;
     return view;
 }
 
