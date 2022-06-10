@@ -97,6 +97,7 @@
  * The type of a block that is capable of sending a response to a bridged
  * operation. Use this for returning callback methods to JS.
  */
+//TODO 剥离这两种block，hippy的归hippy，render的归render
 typedef void (^HippyResponseSenderBlock)(NSArray *response);
 
 typedef void (^RenderUIResponseSenderBlock)(id response);
