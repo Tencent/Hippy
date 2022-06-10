@@ -19,6 +19,7 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:voltron_renderer/util/devtools_util.dart';
 
 import '../voltron_renderer.dart';
 
@@ -438,7 +439,21 @@ abstract class VoltronViewController<T extends RenderViewModel,
   // @param array 函数参数
   // @param promise 回调
   void dispatchFunction(T viewModel, String functionName, VoltronArray array,
-      {Promise? promise}) {}
+      {Promise? promise}) {
+    switch(functionName) {
+      case DevtoolsUtil.kGetScreenShot:
+        DevtoolsUtil.getScreenShot(viewModel, array, promise);
+        break;
+      case DevtoolsUtil.kAddFrameCallback:
+        DevtoolsUtil.addFrameCallback(viewModel, array, promise);
+        break;
+      case DevtoolsUtil.kRemoveFrameCallback:
+        DevtoolsUtil.removeFrameCallback(viewModel, array, promise);
+        break;
+      default:
+        break;
+    }
+  }
 
   void onBatchComplete(R node) {}
 

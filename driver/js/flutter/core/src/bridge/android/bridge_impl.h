@@ -45,7 +45,9 @@ class BridgeImpl {
                               const char16_t *char_globalConfig,
                               size_t initial_heap_size,
                               size_t maximum_heap_size,
-                              const std::function<void(int64_t)> &callback);
+                              const std::function<void(int64_t)> &callback,
+                              const char16_t* char_data_dir,
+                              const char16_t* char_ws_url);
 
   static bool RunScriptFromFile(int64_t runtime_id, const char16_t* script_path_str, const char16_t* script_name_str,
                                 const char16_t* code_cache_dir_str, bool can_use_code_cache,
@@ -55,12 +57,15 @@ class BridgeImpl {
                                   const char16_t* code_cache_dir_str, std::function<void(int64_t)> callback,
                                   const char16_t* asset_content_str);
 
-  static void Destroy(int64_t runtime_id, const std::function<void(int64_t)>& callback);
+  static void Destroy(int64_t runtime_id, const std::function<void(int64_t)>& callback, bool is_reload);
 
   static void CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
                            std::function<void(int64_t)> callback);
 
   static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
+
+  static std::shared_ptr<Scope> GetScope(int64_t runtime_id);
+
 };
 
 #ifdef __cplusplus

@@ -47,7 +47,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     [self initCommonVars];
 }
 
-- (void)initJSFramework:(NSString *)globalConfig completion:(void (^)(BOOL))completion {
+- (void)initJSFramework:(NSString *)globalConfig wsURL:(NSString *)wsURL debugMode:(BOOL)debugMode completion:(void (^)(BOOL))completion {
     if (self.jscExecutor) {
         NSAssert(0, @"initJSFramework has called");
         return;
@@ -73,7 +73,11 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
       }
     };
 
-    self.jscExecutor = [[VoltronJSCExecutor alloc] initWithExecurotKey:@"VoltronExecutor" globalConfig:globalConfig completion:callback];
+    self.jscExecutor = [[VoltronJSCExecutor alloc] initWithExecurotKey:@"VoltronExecutor"
+                                                          globalConfig:globalConfig
+                                                                 wsURL:wsURL
+                                                             debugMode:debugMode
+                                                            completion:callback];
     self.jscExecutor.provider = self;
     [self.jscExecutor setUp];
 }

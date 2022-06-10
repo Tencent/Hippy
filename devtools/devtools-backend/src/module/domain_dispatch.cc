@@ -19,8 +19,8 @@
  */
 
 #include "module/domain_dispatch.h"
-
 #include "api/devtools_backend_service.h"
+#include "api/notification/default/default_network_notification.h"
 #include "devtools_base/domain_propos.h"
 #include "devtools_base/logging.h"
 #include "devtools_base/tdf_string_util.h"
@@ -39,7 +39,6 @@
 #include "tunnel/tunnel_service.h"
 
 namespace hippy::devtools {
-
 constexpr char kDomainDispatchResult[] = "result";
 constexpr char kDomainDispatchError[] = "error";
 constexpr char kDomainClassSuffix[] = "Domain";
@@ -66,6 +65,7 @@ void DomainDispatch::RegisterDefaultDomainListener() {
   RegisterDomainHandler(tdf_runtime_domain);
   RegisterDomainHandler(tdf_common_protocol_domain);
   RegisterDomainHandler(network_domain);
+  data_channel_->GetNotificationCenter()->network_notification = std::make_shared<DefaultNetworkNotification>(network_domain);
 }
 
 void DomainDispatch::RegisterDomainHandler(const std::shared_ptr<BaseDomain>& base_domain) {

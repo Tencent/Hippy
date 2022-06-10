@@ -53,6 +53,9 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   void SetRuntimeDebugMode(bool debug_mode);
   void SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler);
   void SetContextName(const std::string& context_name);
+  inline std::shared_ptr<NotificationCenter> GetNotificationCenter() {
+      return devtools_service_->GetNotificationCenter();
+  }
 #ifdef JS_V8
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);

@@ -23,14 +23,13 @@
 #include <memory>
 #include <string>
 #include "api/notification/devtools_network_notification.h"
-#include "tunnel/tunnel_service.h"
+#include "module/domain/network_domain.h"
 
 namespace hippy::devtools {
 class DefaultNetworkNotification : public NetworkNotification {
  public:
-  explicit DefaultNetworkNotification(std::shared_ptr<TunnelService> tunnel_service)
-      : tunnel_service_(tunnel_service) {}
-
+  explicit DefaultNetworkNotification(std::shared_ptr<NetworkDomain> network_domain)
+      : network_domain_(network_domain) {}
   void RequestWillBeSent(std::string request_id, const DevtoolsHttpRequest& request) override;
 
   void ResponseReceived(std::string request_id, const DevtoolsHttpResponse& response) override;
@@ -38,6 +37,6 @@ class DefaultNetworkNotification : public NetworkNotification {
   void LoadingFinished(std::string request_id, const DevtoolsLoadingFinished& loading) override;
 
  private:
-  std::shared_ptr<TunnelService> tunnel_service_;
+  std::shared_ptr<NetworkDomain> network_domain_;
 };
 }  // namespace hippy::devtools

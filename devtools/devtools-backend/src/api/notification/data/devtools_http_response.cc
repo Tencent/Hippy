@@ -132,6 +132,9 @@ std::string Response::Serialize() const {
 }
 
 std::string DevtoolsHttpResponse::Serialize() const {
+  if (!content_.empty()) {
+    return content_;
+  }
   std::string result = "{\"";
   result += kHttpResponseRequestId;
   result += "\":\"";
