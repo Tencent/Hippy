@@ -96,7 +96,7 @@
     if (observer && key) {
         CADisplayLink *vsync = [CADisplayLink displayLinkWithTarget:self selector:@selector(vsyncSignalInvoked:)];
         [vsync applyRefreshRate:rate];
-        [vsync addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+        [vsync addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
         vsync.block = observer;
         std::lock_guard<std::mutex> lock(_mutex);
         [_observers setObject:vsync forKey:key];
