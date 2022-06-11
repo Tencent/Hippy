@@ -33,7 +33,6 @@
 #import "HippyPerformanceLogger.h"
 #import "HippyUtils.h"
 #import "HippyUIManager.h"
-#import "HippyAnimator.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyBridge+LocalFileSource.h"

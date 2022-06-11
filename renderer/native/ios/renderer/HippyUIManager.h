@@ -34,7 +34,7 @@
 #import "HippyDomNodeUtils.h"
 #import "HippyRenderContext.h"
 
-@class HippyAnimationViewParams, HippyShadowView, HippyAnimator;
+@class HippyAnimationViewParams, HippyShadowView;
 
 /**
  * UIManager queue
@@ -111,14 +111,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 - (void)setNeedsLayout;
 
 /**
- * After core animation did finish, we need to apply view's final status.
- *
- * @param params Animation params
- * @param block Completion block
- */
-- (void)updateViewsFromParams:(NSArray<HippyAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block;
-
-/**
  *  Manually update view props ,then flush block
  *
  *  @param hippyTag hippyTag for view
@@ -179,8 +171,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  *
  * @param layoutInfos Vector for nodes layout infos
  */
-- (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult, bool,
-                           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>>> &)layoutInfos;
+- (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult>> &)layoutInfos;
 
 /**
  * Invoked after batched operations completed
@@ -240,12 +231,5 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
  * clear all memories
  */
 - (void)invalidate;
-
-/**
- * get animator
- *
- * @return animator held by HippyUIManager
- */
-- (HippyAnimator *)animator;
 
 @end

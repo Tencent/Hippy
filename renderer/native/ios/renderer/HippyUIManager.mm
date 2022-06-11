@@ -33,8 +33,6 @@
 #import "HippyView.h"
 #import "HippyViewManager.h"
 #import "UIView+Hippy.h"
-#import "HippyAnimationViewParams.h"
-#import "HippyAnimator.h"
 #import "UIView+Private.h"
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
@@ -158,7 +156,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     std::mutex _shadowQueueLock;
     NSMutableDictionary<NSString *, id> *_viewManagers;
     NSDictionary<NSString *, Class> *_extraComponent;
-    HippyAnimator *_animator;
 }
 
 @end
@@ -275,13 +272,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
         _viewRegistry = [NSMutableDictionary new];
     }
     return [_viewRegistry copy];
-}
-
-- (HippyAnimator *)animator {
-    if (!_animator) {
-        _animator = [[HippyAnimator alloc] initWithRenderContext:self];
-    }
-    return _animator;
 }
 
 - (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)hippyTag {
@@ -483,23 +473,14 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         NSNumber *hippyTag = @(domNode->GetId());
         NSString *viewName = [NSString stringWithUTF8String:domNode->GetViewName().c_str()];
         NSString *tagName = [NSString stringWithUTF8String:domNode->GetTagName().c_str()];
-        NSDictionary *props = stylesFromDomNode(domNode);
+        NSMutableDictionary *props = [stylesFromDomNode(domNode) mutableCopy];
         HippyComponentData *componentData = [self componentDataForViewName:viewName];
         HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
         if (componentData == nil) {
             //HippyLogError(@"No component found for view with name \"%@\"", viewName);
+            return @{};
         }
-        id isAnimated = props[@"useAnimation"];
-        if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
-            HippyAnimator *animationModule = [self animator];
-            props = [animationModule bindAnimaiton:props viewTag: hippyTag rootTag: _rootViewTag]?:props;
-            shadowView.animated = [(NSNumber *)isAnimated boolValue];
-        } else {
-            shadowView.animated = NO;
-        }
-
-        NSMutableDictionary *newProps = [NSMutableDictionary dictionaryWithDictionary: props];
-        [newProps setValue: _rootViewTag forKey: @"rootTag"];
+        [props setValue: _rootViewTag forKey: @"rootTag"];
 
         // Register shadow view
         if (shadowView) {
@@ -507,14 +488,14 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             shadowView.rootTag = _rootViewTag;
             shadowView.viewName = viewName;
             shadowView.tagName = tagName;
-            shadowView.props = newProps;
+            shadowView.props = props;
             shadowView.domManager = _domManager;
             shadowView.nodeLayoutResult = domNode->GetLayoutResult();
             shadowView.frame = CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
-            [componentData setProps:newProps forShadowView:shadowView];
+            [componentData setProps:props forShadowView:shadowView];
             _shadowViewRegistry[hippyTag] = shadowView;
         }
-        return newProps;
+        return props;
     }
     return @{};
 }
@@ -554,16 +535,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     return view;
 }
 
-- (void)updateViewsFromParams:(NSArray<HippyAnimationViewParams *> *)params completion:(HippyViewUpdateCompletedBlock)block {
-    for (HippyAnimationViewParams *param in params) {
-        [self updateView:param.hippyTag viewName:nil props:param.updateParams];
-        if (block) {
-            [[self completeBlocks] addObject:block];
-        }
-    }
-    [self layoutAndMount];
-}
-
 - (void)updateView:(NSNumber *)hippyTag props:(NSDictionary *)pros {
     [self updateView:hippyTag viewName:nil props:pros];
 }
@@ -579,15 +550,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         return;
     }
     HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName ? : viewName];
-    id isAnimated = props[@"useAnimation"];
-    if (isAnimated && [isAnimated isKindOfClass: [NSNumber class]]) {
-        HippyAnimator *animationModule = [self animator];
-        props = [animationModule bindAnimaiton:props viewTag:hippyTag rootTag: shadowView.rootTag]?:props;
-        shadowView.animated = [(NSNumber *)isAnimated boolValue];;
-    } else {
-        shadowView.animated = NO;
-    }
-
     NSDictionary *newProps = props;
     NSDictionary *virtualProps = props;
     if (shadowView) {
@@ -823,33 +785,15 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     NSAssert(NO, @"no implementation for this method");
 }
 
-- (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult, bool,
-                           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>>>> &)layoutInfos {
+- (void)updateNodesLayout:(const std::vector<std::tuple<int32_t, hippy::LayoutResult>> &)layoutInfos {
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     for (auto &layoutInfoTuple : layoutInfos) {
         int32_t tag = std::get<0>(layoutInfoTuple);
         NSNumber *hippyTag = @(tag);
         hippy::LayoutResult layoutResult = std::get<1>(layoutInfoTuple);
-        bool isAnimated = std::get<2>(layoutInfoTuple);
-        auto &props = std::get<3>(layoutInfoTuple);
         CGRect frame = CGRectMakeFromLayoutResult(layoutResult);
         HippyShadowView *shadowView = _shadowViewRegistry[hippyTag];
         if (shadowView) {
-            if (isAnimated) {
-                HippyAnimator *animationModule = [self animator];
-                NSDictionary *styleProps = unorderedMapDomValueToDictionary(props);
-                styleProps = [animationModule bindAnimaiton:styleProps viewTag:hippyTag rootTag:shadowView.rootTag]?:styleProps;
-                shadowView.animated = isAnimated;
-                if ([styleProps objectForKey:@"height"]) {
-                    frame.size.height = [styleProps[@"height"] floatValue];
-                }
-                if ([styleProps objectForKey:@"width"]) {
-                    frame.size.width = [styleProps[@"width"] floatValue];
-                }
-
-            } else {
-                shadowView.animated = NO;
-            }
             shadowView.frame = frame;
             [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *view = viewRegistry[hippyTag];
