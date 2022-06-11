@@ -59,23 +59,14 @@ void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>
 
 void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
     @autoreleasepool {
-        using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult, bool, std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>>;
+        using DomNodeUpdateInfoTuple = std::tuple<int32_t, hippy::LayoutResult>;
         std::vector<DomNodeUpdateInfoTuple> nodes_infos;
         nodes_infos.reserve(nodes.size());
         for (auto node : nodes) {
             int32_t tag = node->GetId();
             hippy::LayoutResult layoutResult = node->GetRenderLayoutResult();
-            auto extStyle = node->GetExtStyle();
-            if (extStyle) {
-              auto it = extStyle->find("useAnimation");
-              bool useAnimation = false;
-              if (extStyle->end() != it) {
-                  auto dom_value = it->second;
-                  useAnimation = dom_value->ToBooleanChecked();
-              }
-              DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult, useAnimation, node->GetStyleMap());
+              DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult);
               nodes_infos.push_back(nodeUpdateInfo);
-            }
         }
         [uiManager_ updateNodesLayout:nodes_infos];
     }
