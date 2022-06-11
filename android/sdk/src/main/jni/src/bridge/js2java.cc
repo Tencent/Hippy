@@ -29,6 +29,7 @@
 #include "bridge/runtime.h"
 #include "bridge/serializer.h"
 #include "jni/jni_env.h"
+#include "jni/jni_utils.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
