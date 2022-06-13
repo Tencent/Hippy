@@ -10,7 +10,6 @@ import Style1 from '../../shared/UIStyles/Style1';
 import Style2 from '../../shared/UIStyles/Style2';
 import Style5 from '../../shared/UIStyles/Style5';
 
-const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 50;
 
 const styles = StyleSheet.create({
@@ -32,15 +31,22 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   pullContainer: {
-    height: 60,
-    backgroundColor: 'green',
-
+    flex: 1,
+    height: 50,
+    backgroundColor: '#4c9afa',
   },
   pullContent: {
-    lineHeight: 60,
+    lineHeight: 50,
     color: 'white',
-    height: 60,
+    height: 50,
     textAlign: 'center',
+  },
+  pullFooter: {
+    height: 40,
+    flex: 1,
+    backgroundColor: '#4c9afa',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
@@ -52,7 +58,7 @@ const styles = StyleSheet.create({
  *
  * 目前主要用于替换掉 RefreshWrapper 实现更好的下拉功能。
  */
-export default class PullHeaderExample extends React.Component {
+export default class PullHeaderFooterExample extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -66,6 +72,7 @@ export default class PullHeaderExample extends React.Component {
     this.getRowType = this.getRowType.bind(this);
     this.getRowKey = this.getRowKey.bind(this);
     this.renderPullHeader = this.renderPullHeader.bind(this);
+    this.renderPullFooter = this.renderPullFooter.bind(this);
     this.onEndReached = this.onEndReached.bind(this);
     this.onHeaderReleased = this.onHeaderReleased.bind(this);
     this.onHeaderPulling = this.onHeaderPulling.bind(this);
@@ -93,19 +100,21 @@ export default class PullHeaderExample extends React.Component {
     }
     this.loadMoreDataFlag = true;
     this.setState({
-      dataSource: dataSource.concat([{ style: STYLE_LOADING }]),
+      loadingState: '加载更多...',
     });
     let newData = [];
     try {
       newData = await this.mockFetchData();
     } catch (err) {}
-    const lastLineItem = dataSource[dataSource.length - 1];
-    if (lastLineItem && lastLineItem.style === STYLE_LOADING) {
-      dataSource.pop();
+    if (newData.length === 0) {
+      this.setState({
+        loadingState: '没有更多数据',
+      });
     }
-    const newDataSource = dataSource.concat(newData);
-    this.loadMoreDataFlag = false;
+    const newDataSource = [...dataSource, ...newData];
     this.setState({ dataSource: newDataSource });
+    this.loadMoreDataFlag = false;
+    this.listView.collapsePullFooter();
   }
 
   /**
@@ -205,7 +214,7 @@ export default class PullHeaderExample extends React.Component {
   }
 
   /**
-   * 渲染 pullHeader 组件，只保留内容即可
+   * 渲染 pullHeader 组件
    */
   renderPullHeader() {
     const { pullingText } = this.state;
@@ -217,12 +226,23 @@ export default class PullHeaderExample extends React.Component {
   }
 
   /**
+   * 渲染 pullFooter 组件
+   */
+  renderPullFooter() {
+    return (<View style={styles.pullFooter} >
+      <Text style={{
+        color: 'white',
+      }}>{this.state.loadingState}</Text>
+    </View>);
+  }
+
+  /**
    * 渲染单个列表行
    *
    * @param {number} index - 行索引号
    */
   renderRow(index) {
-    const { dataSource, loadingState } = this.state;
+    const { dataSource } = this.state;
     let styleUI = null;
     const rowData = dataSource[index];
     const isLastItem = dataSource.length === index + 1;
@@ -235,9 +255,6 @@ export default class PullHeaderExample extends React.Component {
         break;
       case 5:
         styleUI = <Style5 itemBean={rowData.itemBean} onClick={event => this.onClickItem(index, event)} />;
-        break;
-      case STYLE_LOADING:
-        styleUI = <Text style={styles.loading}>{loadingState}</Text>;
         break;
       default:
     }
@@ -272,9 +289,10 @@ export default class PullHeaderExample extends React.Component {
         getRowKey={this.getRowKey}
         renderRow={this.renderRow}
         renderPullHeader={this.renderPullHeader}
-        onEndReached={this.onEndReached}
+        renderPullFooter={this.renderPullFooter}
         onHeaderReleased={this.onHeaderReleased}
         onHeaderPulling={this.onHeaderPulling}
+        onFooterReleased={this.onEndReached}
       />
     );
   }
