@@ -45,15 +45,17 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_value.h"
 #include "jni/exception_handler.h"
-#include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
-#include "jni/turbo_module_manager.h"
 #include "jni/uri.h"
 #include "jni/jni_utils.h"
 #include "loader/adr_loader.h"
+#ifdef ANDROID_NATIVE_RENDER
+#include "jni/java_turbo_module.h"
+#include "jni/turbo_module_manager.h"
 #include "render/native_render_manager.h"
 #include "render/native_render_jni.h"
+#endif
 
 namespace hippy::bridge {
 
@@ -142,6 +144,7 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+#ifdef ANDROID_NATIVE_RENDER
   std::shared_ptr<NativeRenderManager>
       render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
 
@@ -150,13 +153,19 @@ void DoBind(JNIEnv* j_env,
   auto node = dom_manager->GetNode(root_id);
   auto layout_node = node->GetLayoutNode();
   layout_node->SetScaleFactor(density);
+#else
+  std::shared_ptr<RenderManager>
+      render_manager = nullptr;
+#endif
 
   auto scope = runtime->GetScope();
   scope->SetDomManager(dom_manager);
   scope->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);
   dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
+#ifdef ANDROID_NATIVE_RENDER
   render_manager->SetDomManager(dom_manager);
+#endif
 
 #ifdef ENABLE_INSPECTOR
   scope->GetDevtoolsDataSource()->Bind(j_framework_id, j_dom_id, j_render_id);
@@ -440,10 +449,12 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JNIEnvironment::GetInstance()->init(j_vm, j_env);
 
   Uri::Init();
-  JavaTurboModule::Init();
+#ifdef ANDROID_NATIVE_RENDER
   ConvertUtils::Init();
+  JavaTurboModule::Init();
   TurboModuleManager::Init();
   NativeRenderJni::Init();
+#endif
 
   return JNI_VERSION_1_4;
 }
@@ -452,10 +463,12 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   hippy::napi::V8VM::PlatformDestroy();
 
   Uri::Destroy();
-  JavaTurboModule::Destroy();
+#ifdef ANDROID_NATIVE_RENDER
   ConvertUtils::Destroy();
+  JavaTurboModule::Destroy();
   TurboModuleManager::Destroy();
   NativeRenderJni::Destroy();
+#endif
 
   JNIEnvironment::DestroyInstance();
 }
