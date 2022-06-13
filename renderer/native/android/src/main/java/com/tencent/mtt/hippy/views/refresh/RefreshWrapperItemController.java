@@ -31,9 +31,9 @@ public class RefreshWrapperItemController extends HippyViewGroupController {
   }
 
   @Override
-  public void updateLayout(int id, int x, int y, int width, int height,
+  public void updateLayout(int rootId, int id, int x, int y, int width, int height,
       ControllerRegistry componentHolder) {
     y = y - height;
-    super.updateLayout(id, x, y, width, height, componentHolder);
+    super.updateLayout(rootId, id, x, y, width, height, componentHolder);
   }
 }

@@ -163,9 +163,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @MainThread
     @Override
-    public void postInvalidateDelayed(int id, long delayMilliseconds) {
+    public void postInvalidateDelayed(int roodId, int id, long delayMilliseconds) {
         if (UIThreadUtils.isOnUiThread()) {
-            mRenderManager.postInvalidateDelayed(id, delayMilliseconds);
+            mRenderManager.postInvalidateDelayed(roodId, id, delayMilliseconds);
         }
     }
 
@@ -239,7 +239,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     final int width = mRootView.getWidth();
                     final int height = mRootView.getHeight();
                     if (width > 0 && height > 0) {
-                        onSizeChanged(width, height);
+                        onSizeChanged(mRootView.getId(), width, height);
                     }
                 }
             }
@@ -247,13 +247,13 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void onSizeChanged(int w, int h) {
-        mRenderProvider.onSizeChanged(w, h);
+    public void onSizeChanged(int rootId, int w, int h) {
+        mRenderProvider.onSizeChanged(rootId, w, h);
     }
 
     @Override
-    public void onSizeChanged(int nodeId, int width, int height, boolean isSync) {
-        mRenderProvider.onSizeChanged(nodeId, width, height, isSync);
+    public void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync) {
+        mRenderProvider.onSizeChanged(rootId, nodeId, width, height, isSync);
     }
 
     @Override
@@ -279,11 +279,13 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType) {
         // Because the native(C++) DOM use lowercase names, convert to lowercase here before call JNI.
         String lowerCaseEventName = eventName.toLowerCase();
-        if (eventType != EventType.EVENT_TYPE_GESTURE && !mRenderManager.checkRegisteredEvent(rootId,
+        if (eventType != EventType.EVENT_TYPE_GESTURE && !mRenderManager.checkRegisteredEvent(
+                rootId,
                 nodeId, lowerCaseEventName)) {
             return;
         }
-        mRenderProvider.dispatchEvent(rootId, nodeId, lowerCaseEventName, params, useCapture, useBubble);
+        mRenderProvider.dispatchEvent(rootId, nodeId, lowerCaseEventName, params, useCapture,
+                useBubble);
     }
 
     @Override
@@ -330,7 +332,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void createNode(@NonNull List<Object> nodeList) throws NativeRenderException {
+    public void createNode(final int rootId, @NonNull List<Object> nodeList)
+            throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -359,10 +362,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            onCreateNode(nodeId, className);
-            mVirtualNodeManager.createNode(mRootView.getId(), nodeId, nodePid, nodeIndex, className,
-                    props);
-            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+            onCreateNode(rootId, nodeId, className);
+            mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
+            if (mVirtualNodeManager.hasVirtualParent(rootId, nodeId)) {
                 // If the node has a virtual parent, no need to create corresponding render node,
                 // so don't add create task to the ui task queue.
                 continue;
@@ -374,7 +376,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
-                    mRenderManager.createNode(mRootView, id, pid, index, name, props);
+                    mRenderManager.createNode(rootId, id, pid, index, name, props);
                 }
             };
             addUITask(task);
@@ -384,7 +386,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void updateNode(@NonNull List<Object> nodeList) throws NativeRenderException {
+    public void updateNode(final int rootId, @NonNull List<Object> nodeList)
+            throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -406,8 +409,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            mVirtualNodeManager.updateNode(nodeId, props);
-            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+            mVirtualNodeManager.updateNode(rootId, nodeId, props);
+            if (mVirtualNodeManager.hasVirtualParent(rootId, nodeId)) {
                 // If the node has a virtual parent, no corresponding render node exists,
                 // so don't add update task to the ui task queue.
                 continue;
@@ -416,7 +419,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
-                    mRenderManager.updateNode(id, props);
+                    mRenderManager.updateNode(rootId, id, props);
                 }
             };
             addUITask(task);
@@ -425,24 +428,24 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void deleteNode(@NonNull int[] ids) throws NativeRenderException {
-        for (final int id : ids) {
+    public void deleteNode(final int rootId, @NonNull int[] ids) throws NativeRenderException {
+        for (final int nodeId : ids) {
             // The node id should not be negative number.
-            if (id < 0) {
+            if (nodeId < 0) {
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                        TAG + ": deleteNode: invalid negative id=" + id);
+                        TAG + ": deleteNode: invalid negative id=" + nodeId);
             }
-            if (mVirtualNodeManager.hasVirtualParent(id)) {
+            if (mVirtualNodeManager.hasVirtualParent(rootId, nodeId)) {
                 // If the node has a virtual parent, no corresponding render node exists,
                 // just delete the virtual node, not need to add UI delete task.
-                mVirtualNodeManager.deleteNode(id);
+                mVirtualNodeManager.deleteNode(rootId, nodeId);
                 continue;
             }
-            mVirtualNodeManager.deleteNode(id);
+            mVirtualNodeManager.deleteNode(rootId, nodeId);
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
-                    mRenderManager.deleteNode(id);
+                    mRenderManager.deleteNode(rootId, nodeId);
                 }
             };
             addUITask(task);
@@ -451,12 +454,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void moveNode(final int[] ids, final int newPid, final int oldPid)
+    public void moveNode(final int rootId, final int[] ids, final int newPid, final int oldPid)
             throws NativeRenderException {
         UITaskExecutor task = new UITaskExecutor() {
             @Override
             public void exec() {
-                mRenderManager.moveNode(ids, newPid, oldPid);
+                mRenderManager.moveNode(rootId, ids, newPid, oldPid);
             }
         };
         addUITask(task);
@@ -465,7 +468,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void updateLayout(@NonNull List<Object> nodeList) throws NativeRenderException {
+    public void updateLayout(final int rootId, @NonNull List<Object> nodeList) throws NativeRenderException {
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -496,7 +499,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateLayout: invalid negative id=" + nodeId);
             }
-            if (mVirtualNodeManager.hasVirtualParent(nodeId)) {
+            if (mVirtualNodeManager.hasVirtualParent(rootId, nodeId)) {
                 // If the node has a virtual parent, no corresponding render node exists,
                 // so don't add update task to the ui task queue.
                 continue;
@@ -507,14 +510,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final int width = Math.round(layoutWidth);
             final int height = Math.round(layoutHeight);
             final TextRenderSupplier supplier = mVirtualNodeManager
-                    .updateLayout(nodeId, layoutWidth, layoutInfo);
+                    .updateLayout(rootId, nodeId, layoutWidth, layoutInfo);
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
                     if (supplier != null) {
-                        mRenderManager.updateExtra(id, supplier);
+                        mRenderManager.updateExtra(rootId, id, supplier);
                     }
-                    mRenderManager.updateLayout(id, left, top, width, height);
+                    mRenderManager.updateLayout(rootId, id, left, top, width, height);
                 }
             };
             addUITask(task);
@@ -524,7 +527,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void updateEventListener(@NonNull List<Object> eventList)
+    public void updateEventListener(final int rootId, @NonNull List<Object> eventList)
             throws NativeRenderException {
         for (int i = 0; i < eventList.size(); i++) {
             Object element = eventList.get(i);
@@ -546,7 +549,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateEventListener: invalid negative id=" + nodeId);
             }
-            boolean hasUpdate = mVirtualNodeManager.updateEventListener(nodeId, eventProps);
+            boolean hasUpdate = mVirtualNodeManager.updateEventListener(rootId, nodeId, eventProps);
             if (hasUpdate) {
                 // Virtual node gesture event listener add by itself, no need to
                 // update render node.
@@ -557,7 +560,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
-                    mRenderManager.updateEventListener(id, props);
+                    mRenderManager.updateEventListener(rootId, id, props);
                 }
             };
             addUITask(task);
@@ -566,16 +569,16 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void measureInWindow(final int id, long callbackId) {
+    public void measureInWindow(final int rootId, final int nodeId, long callbackId) {
         if (callbackId == 0) {
             return;
         }
-        final UIPromise promise = new UIPromise(callbackId, null, id,
+        final UIPromise promise = new UIPromise(callbackId, null, rootId, nodeId,
                 mRenderProvider.getInstanceId());
         UITaskExecutor task = new UITaskExecutor() {
             @Override
             public void exec() {
-                mRenderManager.measureInWindow(id, promise);
+                mRenderManager.measureInWindow(rootId, nodeId, promise);
             }
         };
         addUITask(task);
@@ -583,10 +586,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public long measure(int id, float width, int widthMode, float height, int heightMode) {
+    public long measure(int rootId, int nodeId, float width, int widthMode, float height,
+            int heightMode) {
         try {
             FlexMeasureMode flexMeasureMode = FlexMeasureMode.fromInt(widthMode);
-            return mVirtualNodeManager.measure(id, width, flexMeasureMode);
+            return mVirtualNodeManager.measure(rootId, nodeId, width, flexMeasureMode);
         } catch (NativeRenderException e) {
             handleRenderException(e);
         }
@@ -594,22 +598,22 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void callUIFunction(final int id, final long callbackId,
+    public void callUIFunction(final int rootId, final int nodeId, final long callbackId,
             @NonNull final String functionName,
             @NonNull final List<Object> params) throws NativeRenderException {
         // The node id should not be negative number.
-        if (id < 0) {
+        if (nodeId < 0) {
             throw new NativeRenderException(INVALID_NODE_DATA_ERR,
-                    TAG + ": callUIFunction: invalid negative id=" + id);
+                    TAG + ": callUIFunction: invalid negative id=" + nodeId);
         }
         // If callbackId equal to 0 mean this call does not need to callback.
         final UIPromise promise =
-                (callbackId == 0) ? null : new UIPromise(callbackId, functionName, id,
+                (callbackId == 0) ? null : new UIPromise(callbackId, functionName, rootId, nodeId,
                         mRenderProvider.getInstanceId());
         UITaskExecutor task = new UITaskExecutor() {
             @Override
             public void exec() {
-                mRenderManager.dispatchUIFunction(id, functionName, params, promise);
+                mRenderManager.dispatchUIFunction(rootId, nodeId, functionName, params, promise);
             }
         };
         addUITask(task);
@@ -618,13 +622,13 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void doPromiseCallBack(int result, long callbackId, @NonNull String functionName,
-            int nodeId, @Nullable Object params) {
-        mRenderProvider.doPromiseCallBack(result, callbackId, functionName, nodeId, params);
+            int rootId, int nodeId, @Nullable Object params) {
+        mRenderProvider.doPromiseCallBack(result, callbackId, functionName, rootId, nodeId, params);
     }
 
     @Override
-    public void endBatch() throws NativeRenderException {
-        Map<Integer, Layout> layoutToUpdate = mVirtualNodeManager.endBatch();
+    public void endBatch(final int rootId) throws NativeRenderException {
+        Map<Integer, Layout> layoutToUpdate = mVirtualNodeManager.endBatch(rootId);
         if (layoutToUpdate != null) {
             for (Entry<Integer, Layout> entry : layoutToUpdate.entrySet()) {
                 final int id = entry.getKey();
@@ -632,7 +636,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 UITaskExecutor task = new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.updateExtra(id, layout);
+                        mRenderManager.updateExtra(rootId, id, layout);
                     }
                 };
                 addUITask(task);
@@ -641,7 +645,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         UITaskExecutor task = new UITaskExecutor() {
             @Override
             public void exec() {
-                mRenderManager.batch();
+                mRenderManager.batch(rootId);
             }
         };
         addUITask(task);
@@ -656,14 +660,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         return mRenderManager.createVirtualNode(rootId, id, pid, index, className, props);
     }
 
-    private void onCreateNode(int nodeId, @NonNull String className) {
+    private void onCreateNode(int rootId, int nodeId, @NonNull String className) {
         // If this node is a modal type, should update node size with window width and height
         // before layout.
         if (className.equals(HippyModalHostManager.CLASS_NAME)) {
             DisplayMetrics metrics = DisplayUtils.getMetrics(false);
             if (metrics != null) {
                 mRenderProvider
-                        .onSizeChanged(nodeId, metrics.widthPixels, metrics.heightPixels, true);
+                        .onSizeChanged(rootId, nodeId, metrics.widthPixels, metrics.heightPixels, true);
             }
         }
     }

@@ -472,7 +472,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       int viewType) {
       NodeHolder contentHolder = new NodeHolder();
       RenderNode contentViewRenderNode = nativeRenderer.getRenderManager()
-        .getRenderNode(getId()).getChildAt(position);
+        .getRenderNode(mParentRecyclerView).getChildAt(position);
       contentViewRenderNode.setLazy(false);
 
       contentHolder.mContentView = contentViewRenderNode.createViewRecursive();
@@ -494,7 +494,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       if (nodeHolder.mBindNode != null) {
         nodeHolder.mBindNode.setLazy(true);
         nativeRenderer.getRenderManager().getControllerManager()
-          .deleteChild(mParentRecyclerView.getId(), nodeHolder.mBindNode.getId());
+          .deleteChild(nodeHolder.mBindNode.getRootId(), mParentRecyclerView.getId(), nodeHolder.mBindNode.getId());
       }
 
       if (nodeHolder.mBindNode instanceof HippyWaterfallItemRenderNode) {
@@ -522,7 +522,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
           contentHolder.mBindNode.setLazy(true);
         }
         try {
-          RenderNode toNode = nativeRenderer.getRenderManager().getRenderNode(getId())
+          RenderNode toNode = nativeRenderer.getRenderManager().getRenderNode(mParentRecyclerView)
             .getChildAt(position);
           toNode.setLazy(false);
           DiffUtils.doDiffAndPatch(nativeRenderer.getRenderManager().getControllerManager(),
@@ -579,11 +579,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     }
 
     RenderNode getRenderNode() {
-      return nativeRenderer.getRenderManager().getRenderNode(getId());
-    }
-
-    View getHippyView(int id) {
-      return nativeRenderer.getRenderManager().getControllerManager().findView(id);
+      return nativeRenderer.getRenderManager().getRenderNode(mParentRecyclerView);
     }
 
     RenderNode getItemNode(int index) {
@@ -594,7 +590,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     public int getItemHeight(int index) {
       int itemHeight = 0;
       RenderNode listNode = nativeRenderer.getRenderManager()
-        .getRenderNode(mParentRecyclerView.getId());
+        .getRenderNode(mParentRecyclerView);
       if (listNode != null && listNode.getChildCount() > index && index >= 0) {
         RenderNode listItemNode = listNode.getChildAt(index);
         if (listItemNode != null) {
@@ -882,7 +878,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
             && holder.mContentHolder instanceof NodeHolder) {
             RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
             RenderNode toNode = nativeRenderer.getRenderManager()
-              .getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
+              .getRenderNode(mParentRecyclerView).getChildAt(position);
             if (holderNode == toNode) {
               recycler.mAttachedScrap.remove(i);
               holder.setScrapContainer(null);
@@ -900,7 +896,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
           .isInvalid() && holder.mContentHolder instanceof NodeHolder) {
           RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
           RenderNode toNode = nativeRenderer.getRenderManager()
-            .getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
+            .getRenderNode(mParentRecyclerView).getChildAt(position);
           if (holderNode == toNode) {
             recycler.mCachedViews.remove(i);
             return holder;
@@ -922,7 +918,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
               && holder.mContentHolder instanceof NodeHolder) {
               RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
               RenderNode toNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId())
+                .getRenderNode(mParentRecyclerView)
                 .getChildAt(position);
               if (holderNode == toNode) {
                 scrapHeap.remove(holder);

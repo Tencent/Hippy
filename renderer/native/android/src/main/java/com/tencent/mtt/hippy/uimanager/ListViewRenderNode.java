@@ -15,34 +15,30 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
-import android.view.ViewGroup;
-
 import androidx.annotation.Nullable;
-
-import com.tencent.mtt.hippy.common.HippyMap;
 
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class ListViewRenderNode extends RenderNode {
 
-  public ListViewRenderNode(int mId, @Nullable Map<String, Object> props, String className,
-          ViewGroup mRootView, ControllerManager componentManager, boolean isLazyLoad) {
-    super(mId, props, className, mRootView, componentManager, isLazyLoad);
-  }
-
-
-  @Override
-  protected void addChildToPendingList(RenderNode renderNode) {
-    //		super.addPendChild(renderNode);
-  }
-
-  @Override
-  public boolean removeChild(RenderNode uiNode) {
-    if (uiNode instanceof ListItemRenderNode) {
-      ListItemRenderNode listItemRenderNode = (ListItemRenderNode) uiNode;
-      listItemRenderNode.setRecycleItemTypeChangeListener(null);
+    public ListViewRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            String className, ControllerManager componentManager, boolean isLazyLoad) {
+        super(rootId, id, props, className, componentManager, isLazyLoad);
     }
-    return super.removeChild(uiNode);
-  }
+
+
+    @Override
+    protected void addChildToPendingList(RenderNode renderNode) {
+        //		super.addPendChild(renderNode);
+    }
+
+    @Override
+    public boolean removeChild(RenderNode uiNode) {
+        if (uiNode instanceof ListItemRenderNode) {
+            ListItemRenderNode listItemRenderNode = (ListItemRenderNode) uiNode;
+            listItemRenderNode.setRecycleItemTypeChangeListener(null);
+        }
+        return super.removeChild(uiNode);
+    }
 }

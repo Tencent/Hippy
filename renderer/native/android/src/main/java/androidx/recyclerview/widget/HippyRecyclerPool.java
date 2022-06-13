@@ -112,7 +112,7 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
         if (scrapHolder.bindNode == null || nativeRender == null) {
             return false;
         }
-        RenderNode nodeForCurrent = nativeRender.getRenderManager().getRenderNode(recyclerView.getId())
+        RenderNode nodeForCurrent = nativeRender.getRenderManager().getRenderNode(recyclerView)
                 .getChildAt(nodePositionHelper.getRenderNodePosition(viewCacheExtension.getCurrentPosition()));
         return scrapHolder.bindNode.equals(nodeForCurrent);
     }

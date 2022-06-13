@@ -115,11 +115,10 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
     }
 
     @Override
-    public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
-            @NonNull String className,
-            @Nullable ViewGroup hippyRootView, @NonNull ControllerManager controllerManager,
-            boolean lazy) {
-        return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager,
+            boolean isLazyLoad) {
+        return new ListViewRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
     }
 
     @HippyControllerProps(name = "rowShouldSticky")

@@ -49,12 +49,12 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "updateRootSize",
-             "(IFF)V",
+             "(IIFF)V",
              UpdateRootSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "updateNodeSize",
-             "(IIFFZ)V",
+             "(IIIFFZ)V",
              UpdateNodeSize)
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
@@ -64,7 +64,7 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "doCallBack",
-             "(IILjava/lang/String;IJ[BII)V",
+             "(IILjava/lang/String;IIJ[BII)V",
              DoCallBack)
 
 void NativeRenderJni::Init() {
@@ -86,7 +86,7 @@ void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_insta
   NativeRenderManager::Erase(static_cast<int32_t>(j_instance_id));
 }
 
-void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
+void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_root_id,
                     jfloat j_width, jfloat j_height) {
   std::shared_ptr<NativeRenderManager> render_manager = NativeRenderManager::Find(
           static_cast<int32_t>(j_instance_id));
@@ -114,7 +114,7 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,
   dom_manager->PostTask(Scene(std::move(ops)));
 }
 
-void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_node_id,
+void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,  jint j_root_id, jint j_node_id,
                     jfloat j_width, jfloat j_height, jboolean j_is_sync) {
   std::shared_ptr<NativeRenderManager> render_manager = NativeRenderManager::Find(
           static_cast<int32_t>(j_instance_id));
@@ -150,7 +150,7 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
-                jint j_instance_id, jint j_result, jstring j_func_name, jint j_node_id,
+                jint j_instance_id, jint j_result, jstring j_func_name, jint j_root_id, jint j_node_id,
                 jlong j_cb_id, jbyteArray j_buffer, jint j_offset, jint j_length) {
   std::shared_ptr<NativeRenderManager> render_manager = NativeRenderManager::Find(
           static_cast<int32_t>(j_instance_id));

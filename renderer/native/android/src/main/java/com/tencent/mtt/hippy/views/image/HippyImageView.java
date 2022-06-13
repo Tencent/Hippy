@@ -172,7 +172,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
             if (param instanceof Map) {
                 if (nativeRenderer != null) {
-                    RenderNode node = nativeRenderer.getRenderManager().getRenderNode(getId());
+                    RenderNode node = nativeRenderer.getRenderManager().getRenderNode(this);
                     if (node != null) {
                         initProps = node.getProps();
                     }

@@ -87,7 +87,7 @@ public class HippyListUtils {
             RenderNode childNode = parentNode.getChildAt(i);
             if (childNode instanceof ListViewRenderNode) {
                 nativeRender.getRenderManager().getControllerManager()
-                        .onBatchComplete(childNode.getClassName(), childNode.getId());
+                        .onBatchComplete(childNode.getRootId(), childNode.getId(), childNode.getClassName());
                 break;
             } else {
                 updateListView(nativeRender, childNode);

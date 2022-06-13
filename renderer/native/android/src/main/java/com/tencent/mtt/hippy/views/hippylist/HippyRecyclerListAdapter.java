@@ -100,7 +100,6 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
                         + ",getNodeCount:" + getRenderNodeCount()
                         + ",notifyCount:" + hippyRecyclerView.renderNodeCount
                         + "curPos:" + positionToCreateHolder
-                        + ",rootView:" + renderNode.hasRootView()
                         + ",parentNode:" + (renderNode.getParent() != null)
                         + ",offset:" + hippyRecyclerView.computeVerticalScrollOffset()
                         + ",range:" + hippyRecyclerView.computeVerticalScrollRange()
@@ -152,7 +151,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         RenderNode parentNode = getParentNode();
         if (parentNode != null) {
             mNativeRenderer.getRenderManager().getControllerManager()
-                    .deleteChild(parentNode.getId(), renderNode.getId());
+                    .deleteChild(renderNode.getRootId(), parentNode.getId(), renderNode.getId());
         }
         renderNode.setRecycleItemTypeChangeListener(null);
     }
@@ -407,11 +406,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     }
 
     protected RenderNode getParentNode() {
-        return mNativeRenderer.getRenderManager().getRenderNode(getHippyListViewId());
-    }
-
-    private int getHippyListViewId() {
-        return ((View) hippyRecyclerView.getParent()).getId();
+        return mNativeRenderer.getRenderManager().getRenderNode((View) hippyRecyclerView.getParent());
     }
 
     @Override

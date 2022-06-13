@@ -435,11 +435,12 @@ public class HippyModalHostView extends HippyViewGroup implements
         @Override
         protected void onSizeChanged(final int w, final int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            if (getChildCount() > 0) {
+            if (getChildCount() > 0 && getContext() instanceof NativeRenderContext) {
                 NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
                 if (nativeRenderer != null) {
-                    final int id = getChildAt(0).getId();
-                    nativeRenderer.onSizeChanged(id, w, h, false);
+                    final int nodeId = getChildAt(0).getId();
+                    final int rootId = ((NativeRenderContext) getContext()).getRootId();
+                    nativeRenderer.onSizeChanged(rootId, nodeId, w, h, false);
                 }
             }
         }

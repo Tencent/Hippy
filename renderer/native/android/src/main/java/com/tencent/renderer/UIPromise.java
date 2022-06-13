@@ -22,15 +22,18 @@ import com.tencent.mtt.hippy.modules.Promise;
 
 public class UIPromise implements Promise {
 
+    private final int mRootId;
     private final int mNodeId;
     private final int mInstanceId;
     private final long mCallbackId;
     @Nullable
     private final String mFunctionName;
 
-    public UIPromise(long callbackId, @Nullable String functionName, int nodeId, int instanceId) {
+    public UIPromise(long callbackId, @Nullable String functionName, int rootId, int nodeId,
+            int instanceId) {
         mCallbackId = callbackId;
         mFunctionName = functionName;
+        mRootId = rootId;
         mNodeId = nodeId;
         mInstanceId = instanceId;
     }
@@ -50,6 +53,7 @@ public class UIPromise implements Promise {
         if (nativeRenderer == null || mNodeId < 0) {
             return;
         }
-        nativeRenderer.doPromiseCallBack(result, mCallbackId, mFunctionName, mNodeId, params);
+        nativeRenderer.doPromiseCallBack(result, mCallbackId, mFunctionName, mRootId, mNodeId,
+                params);
     }
 }

@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import android.content.Context;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.link_supplier.proxy.renderer.Renderer;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRenderException;
 
 import java.util.HashMap;
@@ -34,9 +36,9 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.GET_VIEW_
 public class ControllerRegistry {
 
     @NonNull
-    private final SparseArray<View> mViews = new SparseArray<>();
+    private final Map<Integer, SparseArray<View>> mViews = new HashMap<>();
     @NonNull
-    private final SparseArray<View> mRoots = new SparseArray<>();
+    private final SparseArray<View> mRootViews = new SparseArray<>();
     @NonNull
     private final Map<String, ControllerHolder> mControllers =  new HashMap<>();
     @NonNull
@@ -68,40 +70,64 @@ public class ControllerRegistry {
     }
 
     @Nullable
-    public View getView(int id) {
-        View view = mViews.get(id);
-        if (view == null) {
-            view = mRoots.get(id);
+    public View getView(int rootId, int id) {
+        SparseArray<View> views = mViews.get(rootId);
+        if (views != null) {
+            return views.get(id);
         }
-        return view;
+        return null;
     }
 
     public int getRootViewCount() {
-        return mRoots.size();
+        return mRootViews.size();
     }
 
-    public int getRootIDAt(int index) {
-        return mRoots.keyAt(index);
+    public int getRootIdAt(int index) {
+        return mRootViews.keyAt(index);
     }
 
     public View getRootView(int id) {
-        return mRoots.get(id);
+        return mRootViews.get(id);
     }
 
-    public void addView(View view) {
-        mViews.put(view.getId(), view);
+    public void addView(@NonNull View view) {
+        Context context = view.getContext();
+        if (!(context instanceof NativeRenderContext)) {
+            return;
+        }
+        int rootId = ((NativeRenderContext) context).getRootId();
+        SparseArray<View> views = mViews.get(rootId);
+        if (views == null) {
+            views = new SparseArray<>();
+            views.put(view.getId(), view);
+            mViews.put(rootId, views);
+        } else {
+            views.put(view.getId(), view);
+        }
     }
 
-    public void addRootView(ViewGroup rootView) {
-        mRoots.put(rootView.getId(), rootView);
+    public void removeView(int rootId, int id) {
+        SparseArray<View> views = mViews.get(rootId);
+        if (views != null) {
+            views.remove(id);
+        }
     }
 
-    public void removeView(int id) {
-        mViews.remove(id);
+    public void removeView(@NonNull View view) {
+        Context context = view.getContext();
+        if (!(context instanceof NativeRenderContext)) {
+            return;
+        }
+        int rootId = ((NativeRenderContext) context).getRootId();
+        removeView(rootId, view.getId());
+    }
+
+    public void addRootView(@NonNull ViewGroup rootView) {
+        mRootViews.put(rootView.getId(), rootView);
     }
 
     public void removeRootView(int id) {
-        mRoots.remove(id);
+        mRootViews.remove(id);
     }
 
 }
