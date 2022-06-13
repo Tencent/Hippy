@@ -44,12 +44,11 @@ if ("${JS_ENGINE}" STREQUAL "V8")
       LOCAL ${V8_COMPONENT})
   target_link_libraries(${PROJECT_NAME} PUBLIC v8)
 
-  target_compile_definitions(${PROJECT_NAME} PUBLIC "-DJS_V8")
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_V8")
 
   get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
   if (V8_WITHOUT_INSPECTOR)
-    message(FATAL_ERROR "sssss")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC "-DV8_WITHOUT_INSPECTOR")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC "V8_WITHOUT_INSPECTOR")
   endif ()
 
   get_target_property(V8_AUX_DEPS v8 INTERFACE_V8_AUX_DEPS)
@@ -62,7 +61,7 @@ if ("${JS_ENGINE}" STREQUAL "V8")
     endforeach ()
   endif()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
-  add_definitions("-DJS_JSC")
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSC")
 endif ()
 # endregion
 
@@ -104,6 +103,17 @@ elseif ("${JS_ENGINE}" STREQUAL "JSC")
       src/napi/jsc/js_native_jsc_helper.cc
       src/napi/jsc/js_native_turbo_jsc.cc
       src/napi/jsc/native_source_code_ios.cc)
-endif ()
+endif()
+set(SOURCE_SET_STANDALONE
+    src/modules/console_module.cc
+    src/modules/contextify_module.cc
+    src/modules/timer_module.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+# The linker treats `.a` and `.o` files are different:
+#   * `.o` files from `.a` file only referenced `.o` object files are linked.
+#   * `.o` files in the linker always go inside, referenced or not.
+#
+# The `SOURCE_SET_STANDALONE` including static initializers,
+# so its visibility must be PUBLIC.
+target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
 # endregion

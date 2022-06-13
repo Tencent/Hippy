@@ -75,6 +75,8 @@ if (NOT V8_WITHOUT_INSPECTOR)
       src/inspector/v8_channel_impl.cc
       src/inspector/v8_inspector_client_impl.cc)
 endif ()
+# This is a top-level shared library,
+# so the source code visibility is always PRIVATE.
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion
 
