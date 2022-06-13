@@ -56,13 +56,15 @@ static void registerTDFLogHandler() {
     static std::once_flag flag;
     std::call_once(flag, [](){
         std::function<void (const std::ostringstream &, tdf::base::LogSeverity)> logFunction = [](const std::ostringstream &stream, tdf::base::LogSeverity serverity) {
-            std::string string = stream.str();
-            if (string.length()) {
-                NSString *message = [NSString stringWithUTF8String:string.c_str()];
-                NSString *fileName = nil;
-                int lineNumber = 0;
-                if (getFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
-                    _HippyLogNativeInternal(HippyLogLevelInfo, [fileName UTF8String], lineNumber, @"%@", message);
+            @autoreleasepool {
+                std::string string = stream.str();
+                if (string.length()) {
+                    NSString *message = [NSString stringWithUTF8String:string.c_str()];
+                    NSString *fileName = nil;
+                    int lineNumber = 0;
+                    if (getFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
+                        _HippyLogNativeInternal(HippyLogLevelInfo, [fileName UTF8String], lineNumber, @"%@", message);
+                    }
                 }
             }
         };
