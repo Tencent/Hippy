@@ -28,27 +28,25 @@
       <li
         v-for="(ui, index) in dataSource"
         :key="index"
+        class="item-style"
         :type="'row-' + ui.style"
       >
         <style-one
-          v-if="ui.style == 1"
+          v-if="ui.style === 1"
           :item-bean="ui.itemBean"
         />
         <style-two
-          v-if="ui.style == 2"
+          v-if="ui.style === 2"
           :item-bean="ui.itemBean"
         />
         <style-five
-          v-if="ui.style == 5"
+          v-if="ui.style === 5"
           :item-bean="ui.itemBean"
         />
       </li>
       /**
       * 上拉组件
       *   > 如果不需要显示加载情况，可以直接使用 ul 的 onEndReached 实现一直加载
-      *
-      * 属性：
-      *   sticky: 上拉后保持显示，在执行 collapsePullFooter 后收起
       *
       * 事件：
       *   idle: 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset，滑动距离
@@ -263,4 +261,11 @@ export default {
 #demo-pull-footer .style-two-image {
   height: 140px;
 }
+
+#demo-pull-footer .item-style {
+  background-color: white;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
 </style>
