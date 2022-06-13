@@ -67,8 +67,8 @@ export default [
   },
   {
     path: '/PullHeader',
-    name: 'PullHeader 组件',
-    component: PAGE_LIST.PullHeader,
+    name: 'PullHeader/Footer组件',
+    component: PAGE_LIST.PullHeaderFooter,
     meta: {
       style: 1,
     },
