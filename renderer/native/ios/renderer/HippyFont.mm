@@ -71,9 +71,11 @@ static HippyFontWeight weightOfFont(UIFont *font) {
     NSDictionary *traits = [font.fontDescriptor objectForKey:UIFontDescriptorTraitsAttribute];
     HippyFontWeight weight = [traits[UIFontWeightTrait] doubleValue];
     if (weight == 0.0) {
-        for (NSString *name in nameToWeight) {
-            if ([font.fontName.lowercaseString hasSuffix:name]) {
-                return [nameToWeight[name] doubleValue];
+        @autoreleasepool {
+            for (NSString *name in nameToWeight) {
+                if ([font.fontName.lowercaseString hasSuffix:name]) {
+                    return [nameToWeight[name] doubleValue];
+                }
             }
         }
     }
