@@ -60,7 +60,7 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
     bridge_manager->InitInstance(engine_id, root_id, render_manager);
     auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
     auto dom_manager = bridge_manager->GetDomManager(root_id);
-    if (runtime && dom_manager) {   
+    if (runtime && dom_manager) {
       auto runtime_id = runtime->GetRuntimeId();
       BridgeImpl::BindDomManager(runtime_id, dom_manager);
 #if ENABLE_INSPECTOR
@@ -69,7 +69,6 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
         scope->GetDevtoolsDataSource()->Bind(static_cast<int32_t>(runtime_id), dom_manager->GetId(), 0);
       }
 #endif
-      dom_manager->StartTaskRunner();
       std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
           dom_manager->SetRootSize((float) width, (float) height);
       }};
