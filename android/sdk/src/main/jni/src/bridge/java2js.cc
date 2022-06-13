@@ -26,6 +26,7 @@
 #include "bridge/runtime.h"
 #include "core/core.h"
 #include "jni/jni_register.h"
+#include "jni/jni_utils.h"
 
 namespace hippy {
 namespace bridge {

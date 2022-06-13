@@ -33,14 +33,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   pullContainer: {
-    height: 60,
-    backgroundColor: 'green',
-
+    height: 50,
+    backgroundColor: '#4c9afa',
   },
   pullContent: {
-    lineHeight: 60,
+    lineHeight: 50,
     color: 'white',
-    height: 60,
+    height: 50,
     textAlign: 'center',
   },
   pullFooter: {
@@ -73,17 +72,11 @@ export default class ListExample extends React.Component {
     this.renderPullFooter = this.renderPullFooter.bind(this);
     this.renderBanner = this.renderBanner.bind(this);
     this.getItemStyle = this.getItemStyle.bind(this);
-    // TODO: PullHeader is not supported on Android yet
-    // this.renderPullHeader = this.renderPullHeader.bind(this);
-    // this.onHeaderReleased = this.onHeaderReleased.bind(this);
-    // this.onHeaderPulling = this.onHeaderPulling.bind(this);
   }
 
   async componentDidMount() {
     const dataSource = await this.mockFetchData();
     this.setState({ dataSource });
-    // 结束时需主动调用collapsePullHeader
-    // this.listView.collapsePullHeader();
   }
 
   /**
@@ -114,62 +107,6 @@ export default class ListExample extends React.Component {
     this.setState({ dataSource: newDataSource });
     this.loadMoreDataFlag = false;
   }
-
-  // TODO: PullHeader is not supported on Android yet
-  // 下拉超过内容高度，松手后触发
-  // async onHeaderReleased() {
-  //   if (this.fetchingDataFlag) {
-  //     return;
-  //   }
-  //   this.fetchingDataFlag = true;
-  //   // eslint-disable-next-line no-console
-  //   console.log('onHeaderReleased');
-  //   this.setState({
-  //     pullingText: '刷新数据中，请稍等，2秒后自动收起',
-  //   });
-  //   let dataSource = [];
-  //   try {
-  //     dataSource = await this.mockFetchData();
-  //   } catch (err) {}
-  //   this.fetchingDataFlag = false;
-  //   this.setState({ dataSource }, () => {
-  //     // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致onHeaderReleased事件不能再次触发
-  //     this.listView.collapsePullHeader();
-  //   });
-  // }
-
-  // 渲染 pullHeader 组件，只保留内容即可
-  // renderPullHeader() {
-  //   const { pullingText } = this.state;
-  //   return (
-  //       <View style={styles.pullContainer}>
-  //         <Text style={styles.pullContent}>{ pullingText }</Text>
-  //       </View>
-  //   );
-  // }
-
-  /**
-   * 下拉过程中触发
-   * 事件会通过 contentOffset 参数返回拖拽高度，我们已经知道了内容高度，
-   * 简单对比一下就可以显示不同的状态。
-   * 这里简单处理，其实可以做到更复杂的动态效果。
-   */
-  // onHeaderPulling(evt) {
-  //   if (this.fetchingDataFlag) {
-  //     return;
-  //   }
-  //   // eslint-disable-next-line no-console
-  //   console.log('onHeaderPulling', evt.contentOffset);
-  //   if (evt.contentOffset > styles.pullContent.height) {
-  //     this.setState({
-  //       pullingText: '松手，即可触发刷新',
-  //     });
-  //   } else {
-  //     this.setState({
-  //       pullingText: '继续下拉，触发刷新',
-  //     });
-  //   }
-  // }
 
   renderPullFooter() {
     if (this.state.dataSource.length === 0) return null;
@@ -323,9 +260,6 @@ export default class ListExample extends React.Component {
               contentInset={contentInset}
               getItemStyle={this.getItemStyle}
               containPullFooter={true}
-              // renderPullHeader={this.renderPullHeader}
-              // onHeaderReleased={this.onHeaderReleased}
-              // onHeaderPulling={this.onHeaderPulling}
               renderPullFooter={this.renderPullFooter}
           />
         </RefreshWrapper>

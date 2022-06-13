@@ -25,6 +25,8 @@
 #include <memory>
 #include <tuple>
 
+#include "jni/jni_env.h"
+#include "jni/jni_utils.h"
 #include "jni/java_turbo_module.h"
 
 using namespace hippy::napi;

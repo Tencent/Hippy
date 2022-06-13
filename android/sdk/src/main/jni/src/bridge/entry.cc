@@ -41,6 +41,7 @@
 #include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
+#include "jni/jni_utils.h"
 #include "jni/uri.h"
 #include "loader/adr_loader.h"
 
