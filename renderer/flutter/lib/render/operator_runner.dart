@@ -98,6 +98,8 @@ abstract class RenderOpTask {
 
   RenderManager get renderManager => _renderContext.renderManager;
 
+  VoltronRenderBridgeManager get bridgeManager => _renderContext.bridgeManager;
+
   void _run();
 }
 
@@ -120,6 +122,7 @@ class _AddNodeOpTask extends _NodeOpTask {
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
     var composePropMap = VoltronMap.fromMap(propMap);
     composePropMap.pushAll(VoltronMap.fromMap(styleMap));
+    onCreateNode(_nodeId, className);
     virtualNodeManager.createNode(
       _instanceId,
       _nodeId,
@@ -139,6 +142,16 @@ class _AddNodeOpTask extends _NodeOpTask {
         composePropMap,
       );
     });
+  }
+
+  onCreateNode(int id, String className) {
+    if (className == ModalController.kClassName) {
+      var width = ScreenUtil.getInstance().screenWidth;
+      var height = ScreenUtil.getInstance().screenHeight;
+      if (width > 0 && height > 0) {
+        bridgeManager.updateNodeSize(_instanceId, nodeId: _nodeId, width: width, height: height);
+      }
+    }
   }
 }
 

@@ -182,10 +182,8 @@ class _PageTestWidgetState extends State<PageTestWidget> {
       child = Container();
     }
     if (Platform.isAndroid) {
-      child = Padding(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
-        ),
+      child = SafeArea(
+        bottom: false,
         child: child,
       );
     }
