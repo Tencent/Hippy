@@ -29,66 +29,65 @@ include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 
+# region library
+add_library(${PROJECT_NAME} STATIC)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
+# endregion
+
 # region layout engine
 if (NOT DEFINED LAYOUT_ENGINE)
   set(LAYOUT_ENGINE "Taitank")
-endif()
+endif ()
 
 message("LAYOUT_ENGINE: ${LAYOUT_ENGINE}")
 if ("${LAYOUT_ENGINE}" STREQUAL "Yoga")
   InfraPackage_Add(yoga
-    REMOTE "dom/third_party/yoga/1.19.0/git-repo.tgz"
-    LOCAL "third_party/yoga"
-  )
-  include_directories(${yoga_SOURCE_DIR}/yoga)
-  set(DEPS yogacore)
+      REMOTE "dom/third_party/yoga/1.19.0/git-repo.tgz"
+      LOCAL "third_party/yoga"
+      )
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "USE_YOGA")
+  target_link_libraries(${PROJECT_NAME} PRIVATE yogacore)
 elseif ("${LAYOUT_ENGINE}" STREQUAL "Taitank")
-  add_definitions("-DUSE_TAITANK")
-  get_filename_component(TAITANK_LAYOUT_DIR "${PROJECT_ROOT_DIR}/layout" REALPATH)
-  add_subdirectory(${TAITANK_LAYOUT_DIR} dom/third_party/taitank)
-  include_directories(${TAITANK_LAYOUT_DIR})
-  set(DEPS layout)
-else()
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "USE_TAITANK")
+  add_subdirectory(${PROJECT_ROOT_DIR}/layout ${CMAKE_CURRENT_BINARY_DIR}/taitank)
+  target_link_libraries(${PROJECT_NAME} PRIVATE taitank)
+else ()
   message(FATAL_ERROR "Layout Engine ${LAYOUT_ENGINE} is not supported")
-endif()
+endif ()
 # endregion
 
-# region core
-get_filename_component(CORE_DIR "${PROJECT_ROOT_DIR}/driver/js/core/" REALPATH)
-include_directories(${CORE_DIR}/include)
-include_directories(${CORE_DIR}/third_party/base/include)
+# region core base
+# TODO: will be removed when the base library is complete
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/third_party/base/include)
 # endregion
 
 # region source set
 set(SOURCE_SET
-  src/dom/animation/animation.cc
-  src/dom/animation/animation_manager.cc
-  src/dom/animation/animation_math.cc
-  src/dom/animation/animation_set.cc
-  src/dom/animation/cubic_bezier_animation.cc
-  src/dom/deserializer.cc
-  src/dom/diff_utils.cc
-  src/dom/dom_argument.cc
-  src/dom/dom_event.cc
-  src/dom/dom_listener.cc
-  src/dom/dom_manager.cc
-  src/dom/dom_node.cc
-  src/dom/dom_value.cc
-  src/dom/layer_optimized_render_manager.cc
-  src/dom/layout_node.cc
-  src/dom/root_node.cc
-  src/dom/scene.cc
-  src/dom/scene_builder.cc
-  src/dom/serializer.cc)
+    src/dom/animation/animation.cc
+    src/dom/animation/animation_manager.cc
+    src/dom/animation/animation_math.cc
+    src/dom/animation/animation_set.cc
+    src/dom/animation/cubic_bezier_animation.cc
+    src/dom/deserializer.cc
+    src/dom/diff_utils.cc
+    src/dom/dom_argument.cc
+    src/dom/dom_event.cc
+    src/dom/dom_listener.cc
+    src/dom/dom_manager.cc
+    src/dom/dom_node.cc
+    src/dom/dom_value.cc
+    src/dom/layer_optimized_render_manager.cc
+    src/dom/layout_node.cc
+    src/dom/root_node.cc
+    src/dom/scene.cc
+    src/dom/scene_builder.cc
+    src/dom/serializer.cc)
 if (${LAYOUT_ENGINE} STREQUAL "Yoga")
   list(APPEND SOURCE_SET src/dom/yoga_layout_node.cc)
-elseif(${LAYOUT_ENGINE} STREQUAL "Taitank")
+elseif (${LAYOUT_ENGINE} STREQUAL "Taitank")
   list(APPEND SOURCE_SET src/dom/taitank_layout_node.cc)
-endif()
-message("SOURCE_SET: ${SOURCE_SET}")
+endif ()
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-add_library(${PROJECT_NAME} STATIC ${SOURCE_SET})
-target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-target_link_libraries(${PROJECT_NAME} ${DEPS})

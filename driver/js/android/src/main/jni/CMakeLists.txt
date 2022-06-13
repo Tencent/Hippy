@@ -22,129 +22,58 @@ cmake_minimum_required(VERSION 3.14)
 
 project("hippy")
 
-include("../../../../../../buildconfig/cmake/InfraPackagesModule.cmake")
-include("../../../../../../buildconfig/cmake/compiler_toolchain.cmake")
+get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../../../../../.." REALPATH)
+
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN on)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS off)
 
-if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-endif()
-
-if (${ANDROID_STL} STREQUAL "c++_static")
-  string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++_static.a")
-  string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++abi.a")
-endif()
-
-# region base path
-get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../core" REALPATH)
-get_filename_component(RENDER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../renderer" REALPATH)
-get_filename_component(DOM_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../dom" REALPATH)
-get_filename_component(LAYOUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../layout" REALPATH)
-get_filename_component(DEVTOOLS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../../devtools/devtools-backend" REALPATH)
-# endregion
-
-# region dependencies
-add_subdirectory(${CORE_SRC_DIR}/third_party/base ${CMAKE_CURRENT_BINARY_DIR}/third_party/base)
-add_subdirectory(${DOM_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR}/dom)
-add_subdirectory(${RENDER_DIR}/native/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/native/android/src/main/jni)
-# endregion
-
-# region global definitions
-add_definitions("-DANDROID_NATIVE_RENDER")
-# endregion
-
-# region source
-file(GLOB_RECURSE CORE_SRC ${CORE_SRC_DIR}/src/*.cc)
-file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
-
-message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
-message("CORE_SRC: ${CORE_SRC}")
-message("JNI_SRC: ${JNI_SRC}")
-
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${CORE_SRC_DIR}/include)
-include_directories(${CORE_SRC_DIR}/third_party/base/include)
-include_directories(${DOM_SRC_DIR}/include)
-include_directories(${LAYOUT_DIR})
-include_directories(${RENDER_DIR}/native/android/src/main/jni/include)
-# endregion
-
-set(HIPPY_DEPS android log tdf_base tdf_base_common native_render dom)
-
-message("JS_ENGINE:" ${JS_ENGINE})
-if (${JS_ENGINE} STREQUAL "V8")
-  InfraPackage_Add(V8
-    REMOTE "third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz"
-    LOCAL "${V8_COMPONENT}"
-  )
-  add_definitions("-DJS_V8")
-  if (DEFINED V8_WITHOUT_INSPECTOR)
-    add_definitions("-DV8_WITHOUT_INSPECTOR")
-    file(GLOB_RECURSE INSPECTOR_SRC ${CORE_SRC_DIR}/src/runtime/v8/inspector/*)
-    list(REMOVE_ITEM CORE_SRC ${INSPECTOR_SRC})
-  endif()
-  # region remove jsc code
-  file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
-  message("JSC_SRC: ${JSC_SRC}")
-  list(REMOVE_ITEM CORE_SRC ${JSC_SRC})
-  # endregion
-  # region library
-  if (${V8_LINKING_MODE} STREQUAL "shared")
-    add_library(v8 SHARED IMPORTED)
-    foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
-      add_custom_command(
-              TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-              COMMAND ${CMAKE_COMMAND} -E
-              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
-    endforeach()
-  elseif (${V8_LINKING_MODE} STREQUAL "static")
-    if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-      string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,${V8_LIBRARY_NAME}")
-    endif()
-    add_library(v8 STATIC IMPORTED)
-  else()
-    message(FATAL_ERROR
-            "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
-  endif()
-  set_property(TARGET v8 PROPERTY IMPORTED_LOCATION ${V8_LIBRARY_PATH}/${V8_LIBRARY_NAME})
-  list(APPEND HIPPY_DEPS v8)
-  # endregion
-  foreach(INCLUDE_DIRECTORY ${V8_INCLUDE_DIRECTORIES})
-    include_directories(${INCLUDE_DIRECTORY})
-  endforeach()
-  foreach(DEFINITION ${V8_DEFINITIONS})
-    add_definitions(${DEFINITION})
-  endforeach()
-elseif (${JS_ENGINE} STREQUAL "JSC")
-  add_definitions("-DJS_JSC")
-  # region remove v8 code
-  file(GLOB_RECURSE V8_SRC ${CORE_SRC_DIR}/src/napi/v8/*)
-  message("V8_SRC: ${V8_SRC}")
-  list(REMOVE_ITEM CORE_SRC ${V8_SRC})
-  # endregion
-else()
-  message(FATAL_ERROR "${JS_ENGINE} is not supported")
-endif()
-
-if (ENABLE_INSPECTOR STREQUAL "true")
-  add_definitions("-DENABLE_INSPECTOR")
-  include_directories(${DEVTOOLS_DIR}/include)
-  add_subdirectory(${DEVTOOLS_DIR} ${CMAKE_CURRENT_BINARY_DIR}/devtools/devtools-backend)
-  list(APPEND HIPPY_DEPS devtools_backend)
-else ()
-  file(GLOB_RECURSE DEVTOOLS_BACKEND_SRC ${CORE_SRC_DIR}/src/devtools/*)
-  message("DEVTOOLS_BACKEND_SRC: ${DEVTOOLS_BACKEND_SRC}")
-  list(REMOVE_ITEM CORE_SRC ${DEVTOOLS_BACKEND_SRC})
+# region library
+add_library(${PROJECT_NAME} SHARED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
+if (HIDDEN_LIBRARY_SYMBOL)
+  set_target_properties(${PROJECT_NAME}
+      PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
 endif ()
+if (${ANDROID_STL} STREQUAL "c++_static")
+  target_link_options(${PROJECT_NAME} PRIVATE
+      "-Wl,--exclude-libs,libc++_static.a"
+      "-Wl,--exclude-libs,libc++abi.a")
+endif ()
+# endregion
 
-add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set_target_properties(${CMAKE_PROJECT_NAME}
-          PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
-endif()
-target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
+# region core
+add_subdirectory(${PROJECT_ROOT_DIR}/driver/js/core ${CMAKE_CURRENT_BINARY_DIR}/core)
+target_link_libraries(${PROJECT_NAME} PRIVATE core)
+# endregion
+
+# region source set
+set(SOURCE_SET
+    src/bridge/bridge.cc
+    src/bridge/entry.cc
+    src/bridge/java2js.cc
+    src/bridge/js2java.cc
+    src/bridge/native_source_code_android.cc
+    src/jni/exception_handler.cc
+    src/jni/jni_env.cc
+    src/jni/jni_register.cc
+    src/jni/jni_utils.cc
+    src/jni/scoped_java_ref.cc
+    src/jni/uri.cc
+    src/loader/adr_loader.cc)
+# TODO: modify the conditions, when moving into the framework
+if (TARGET native_renderer)
+  list(APPEND SOURCE_SET
+      src/jni/convert_utils.cc
+      src/jni/turbo_module_manager.cc
+      src/jni/java_turbo_module.cc)
+endif ()
+# This is a top-level shared library,
+# so the source code visibility is always PRIVATE
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+# endregion
