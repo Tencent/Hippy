@@ -20,7 +20,7 @@
 
 #pragma once
 
-#ifdef ENABLE_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "devtools/devtools_data_source.h"
 
 #define DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace_control) \

@@ -21,7 +21,7 @@
 #pragma once
 
 #include <string>
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "v8/libplatform/v8-tracing.h"
 #endif
 
@@ -34,7 +34,7 @@ class TraceControl {
   }
   void StartTracing();
   void StopTracing();
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   void SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control);
 #endif
   std::string GetTracingContent();
@@ -44,7 +44,7 @@ class TraceControl {
   TraceControl() = default;
   TraceControl(const TraceControl &) = delete;
   void operator=(const TraceControl &) = delete;
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   v8::platform::tracing::TracingController *v8_trace_control_ = nullptr;
 #endif
   std::ofstream trace_file_;
